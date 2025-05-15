@@ -1,0 +1,10 @@
+{
+  "name": "@ledgerhq/ledger-button-nextjs-playground-e2e",
+  "version": "0.0.1",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@ledgerhq/ledger-button-nextjs-playground"
+    ]
+  }
+}

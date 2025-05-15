@@ -1,0 +1,47 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/ledger-button-ui"
+    },
+    {
+      "path": "./apps/ledger-button-react-playground-e2e"
+    },
+    {
+      "path": "./apps/ledger-button-react-playground"
+    },
+    {
+      "path": "./packages/ledger-button"
+    },
+    {
+      "path": "./apps/ledger-button-nextjs-playground-e2e"
+    },
+    {
+      "path": "./apps/ledger-button-nextjs-playground"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./packages/ledger-button-dmk"
+    },
+    {
+      "path": "./packages/ledger-button-accounts"
+    },
+    {
+      "path": "./packages/ledger-button-signer"
+    },
+    {
+      "path": "./packages/ledger-button-core"
+    }
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node10",
+      "customConditions": null
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@ledgerhq/ledger-button-react-playground",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@ledgerhq/ledger-button": "workspace:*"
+  }
+}

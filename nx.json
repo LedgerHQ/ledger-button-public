@@ -1,0 +1,364 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/eslint.config.mjs",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s",
+      "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx|mdx)",
+      "!{projectRoot}/.storybook/**/*",
+      "!{projectRoot}/tsconfig.storybook.json"
+    ],
+    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
+  },
+  "nxCloudId": "6825db1db688bd5216442315",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"]
+    }
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        },
+        "build": {
+          "targetName": "build",
+          "configName": "tsconfig.lib.json",
+          "buildDepsName": "build-deps",
+          "watchDepsName": "watch-deps"
+        }
+      }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "devTargetName": "dev",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/react/router-plugin",
+      "options": {
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "startTargetName": "start",
+        "watchDepsTargetName": "watch-deps",
+        "buildDepsTargetName": "build-deps",
+        "typecheckTargetName": "typecheck"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
+    },
+    {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "serveStaticTargetName": "serve-static",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "test"
+      }
+    },
+    {
+      "plugin": "@nx/storybook/plugin",
+      "options": {
+        "serveStorybookTargetName": "storybook",
+        "buildStorybookTargetName": "build-storybook",
+        "testStorybookTargetName": "test-storybook",
+        "staticStorybookTargetName": "static-storybook"
+      }
+    }
+  ],
+  "release": {
+    "version": {
+      "preVersionCommand": "pnpm dlx nx run-many -t build",
+      "conventionalCommits": true
+    },
+    "conventionalCommits": {
+      "types": {
+        "🎨": {
+          "semverBump": "none"
+        },
+        "⚡️": {
+          "semverBump": "patch"
+        },
+        "🔥": {
+          "semverBump": "none"
+        },
+        "🐛": {
+          "semverBump": "patch"
+        },
+        "🚑️": {
+          "semverBump": "patch"
+        },
+        "✨": {
+          "semverBump": "minor"
+        },
+        "📝": {
+          "semverBump": "none"
+        },
+        "🚀": {
+          "semverBump": "none"
+        },
+        "💄": {
+          "semverBump": "patch"
+        },
+        "🎉": {
+          "semverBump": "none"
+        },
+        "✅": {
+          "semverBump": "none"
+        },
+        "🔒️": {
+          "semverBump": "patch"
+        },
+        "🔐": {
+          "semverBump": "none"
+        },
+        "🔖": {
+          "semverBump": "none"
+        },
+        "🚨": {
+          "semverBump": "none"
+        },
+        "🚧": {
+          "semverBump": "none"
+        },
+        "💚": {
+          "semverBump": "none"
+        },
+        "⬇️": {
+          "semverBump": "patch"
+        },
+        "⬆️": {
+          "semverBump": "patch"
+        },
+        "📌": {
+          "semverBump": "patch"
+        },
+        "👷": {
+          "semverBump": "none"
+        },
+        "📈": {
+          "semverBump": "patch"
+        },
+        "♻️": {
+          "semverBump": "none"
+        },
+        "➕": {
+          "semverBump": "patch"
+        },
+        "➖": {
+          "semverBump": "patch"
+        },
+        "🔧": {
+          "semverBump": "patch"
+        },
+        "🔨": {
+          "semverBump": "none"
+        },
+        "🌐": {
+          "semverBump": "patch"
+        },
+        "✏️": {
+          "semverBump": "patch"
+        },
+        "💩": {
+          "semverBump": "none"
+        },
+        "⏪️": {
+          "semverBump": "patch"
+        },
+        "🔀": {
+          "semverBump": "none"
+        },
+        "📦️": {
+          "semverBump": "patch"
+        },
+        "👽️": {
+          "semverBump": "patch"
+        },
+        "🚚": {
+          "semverBump": "none"
+        },
+        "📄": {
+          "semverBump": "none"
+        },
+        "💥": {
+          "semverBump": "major"
+        },
+        "🍱": {
+          "semverBump": "patch"
+        },
+        "♿️": {
+          "semverBump": "patch"
+        },
+        "💡": {
+          "semverBump": "none"
+        },
+        "🍻": {
+          "semverBump": "none"
+        },
+        "💬": {
+          "semverBump": "patch"
+        },
+        "🗃️": {
+          "semverBump": "patch"
+        },
+        "🔊": {
+          "semverBump": "none"
+        },
+        "🔇": {
+          "semverBump": "none"
+        },
+        "👥": {
+          "semverBump": "none"
+        },
+        "🚸": {
+          "semverBump": "patch"
+        },
+        "🏗️": {
+          "semverBump": "none"
+        },
+        "📱": {
+          "semverBump": "patch"
+        },
+        "🤡": {
+          "semverBump": "none"
+        },
+        "🥚": {
+          "semverBump": "patch"
+        },
+        "🙈": {
+          "semverBump": "none"
+        },
+        "📸": {
+          "semverBump": "none"
+        },
+        "⚗️": {
+          "semverBump": "patch"
+        },
+        "🔍️": {
+          "semverBump": "patch"
+        },
+        "🏷️": {
+          "semverBump": "patch"
+        },
+        "🌱": {
+          "semverBump": "none"
+        },
+        "🚩": {
+          "semverBump": "patch"
+        },
+        "🥅": {
+          "semverBump": "patch"
+        },
+        "💫": {
+          "semverBump": "patch"
+        },
+        "🗑️": {
+          "semverBump": "patch"
+        },
+        "🛂": {
+          "semverBump": "patch"
+        },
+        "🩹": {
+          "semverBump": "patch"
+        },
+        "🧐": {
+          "semverBump": "none"
+        },
+        "⚰️": {
+          "semverBump": "none"
+        },
+        "🧪": {
+          "semverBump": "none"
+        },
+        "👔": {
+          "semverBump": "patch"
+        },
+        "🩺": {
+          "semverBump": "none"
+        },
+        "🧱": {
+          "semverBump": "none"
+        },
+        "🧑‍💻": {
+          "semverBump": "none"
+        },
+        "💸": {
+          "semverBump": "none"
+        },
+        "🧵": {
+          "semverBump": "none"
+        },
+        "🦺": {
+          "semverBump": "none"
+        },
+        "✈️": {
+          "semverBump": "none"
+        }
+      }
+    }
+  },
+  "generators": {
+    "@nx/react": {
+      "library": {
+        "style": "css",
+        "linter": "eslint",
+        "unitTestRunner": "vitest"
+      },
+      "application": {
+        "babel": true,
+        "style": "css",
+        "linter": "eslint",
+        "bundler": "vite"
+      },
+      "component": {
+        "style": "css"
+      }
+    },
+    "@nx/next": {
+      "application": {
+        "style": "css",
+        "linter": "eslint"
+      }
+    }
+  }
+}
