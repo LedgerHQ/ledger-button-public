@@ -1,1 +1,1 @@
-export * from "./lib/ledger-button-dmk.js";
+export * from "./api/index.js";

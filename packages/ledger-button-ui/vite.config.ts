@@ -1,14 +1,17 @@
-/// <reference types='vitest' />
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import dts from "vite-plugin-dts";
 import * as path from "path";
+import { defineConfig } from "vite";
+import dts from "vite-plugin-dts";
 
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/packages/ledger-button-ui",
   plugins: [
     react(),
+    dts({
+      entryRoot: "src",
+      tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
+    }),
     dts({
       entryRoot: "src",
       tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
@@ -21,31 +24,31 @@ export default defineConfig(() => ({
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
-    outDir: "./dist",
     emptyOutDir: true,
-    reportCompressedSize: true,
-    commonjsOptions: {
-      transformMixedEsModules: true,
-    },
+    transformMixedEsModules: true,
+    entry: "src/index.ts",
+    name: "@ledgerhq/ledger-button-ui",
+    fileName: "index",
+    formats: ["es" as const],
+    external: ["react", "react-dom", "react/jsx-runtime"],
     lib: {
-      // Could also be a dictionary or array of multiple entry points.
       entry: "src/index.ts",
       name: "@ledgerhq/ledger-button-ui",
       fileName: "index",
-      // Change this to the formats you want to support.
-      // Don't forget to update your package.json as well.
       formats: ["es" as const],
     },
     rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: ["react", "react-dom", "react/jsx-runtime"],
+      external: ["'react'", "'react-dom'", "'react/jsx-runtime'"],
     },
+    outDir: "./dist",
+    reportCompressedSize: true,
+    commonjsOptions: { transformMixedEsModules: true },
   },
   test: {
     watch: false,
     globals: true,
     environment: "jsdom",
-    include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+    include: ["src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     reporters: ["default"],
     coverage: {
       reportsDirectory: "./test-output/vitest/coverage",

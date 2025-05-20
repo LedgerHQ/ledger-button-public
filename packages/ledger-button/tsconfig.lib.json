@@ -49,6 +49,9 @@
   "references": [
     {
       "path": "../ledger-button-ui/tsconfig.lib.json"
+    },
+    {
+      "path": "../ledger-button-core/tsconfig.lib.json"
     }
   ]
 }

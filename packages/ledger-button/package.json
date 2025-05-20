@@ -19,6 +19,7 @@
     "!**/*.tsbuildinfo"
   ],
   "devDependencies": {
+    "@ledgerhq/ledger-button-core": "workspace:*",
     "@ledgerhq/ledger-button-ui": "workspace:*"
   }
 }

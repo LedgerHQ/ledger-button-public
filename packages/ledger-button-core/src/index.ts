@@ -1,1 +1,3 @@
-export * from "./lib/ledger-button-core.js";
+import "reflect-metadata";
+
+export * from "./api/index.js";

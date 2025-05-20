@@ -6,6 +6,9 @@
       "path": "../ledger-button-ui"
     },
     {
+      "path": "../ledger-button-core"
+    },
+    {
       "path": "./tsconfig.lib.json"
     },
     {

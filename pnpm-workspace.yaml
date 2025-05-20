@@ -1,3 +1,6 @@
 packages:
   - "packages/*"
   - "apps/*"
+
+overrides:
+  purify-ts: 2.1.0

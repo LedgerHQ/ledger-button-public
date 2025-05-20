@@ -1,4 +1,5 @@
 import nx from "@nx/eslint-plugin";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default [
   ...nx.configs["flat/base"],
@@ -10,6 +11,7 @@ export default [
       "**/vite.config.*.timestamp*",
       "**/vitest.config.*.timestamp*",
       "**/test-output",
+      "**/out-tsc",
     ],
   },
   {
@@ -41,7 +43,31 @@ export default [
       "**/*.cjs",
       "**/*.mjs",
     ],
+    plugins: {
+      "simple-import-sort": simpleImportSort,
+    },
     // Override or add rules here
-    rules: {},
+    rules: {
+      "simple-import-sort/imports": [
+        "error",
+        {
+          groups: [
+            // Side effect imports.
+            ["^\\u0000"],
+            // Node.js builtins prefixed with `node:`.
+            ["^node:"],
+            // Packages. `react` related packages come first.
+            ["^react", "^@?\\w"],
+            // Internal packages.
+            ["^(@|@api|@internal|@root)(/.*|$)"],
+            // Other relative imports. Put same-folder imports and `.` last.
+            ["^\\./(?=.*/)(?!/?$)", "^\\.(?!/?$)", "^\\./?$"],
+            // Style imports.
+            ["^.+\\.s?css$"],
+          ],
+        },
+      ],
+      "simple-import-sort/exports": "error",
+    },
   },
 ];
