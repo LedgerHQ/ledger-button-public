@@ -1,1 +1,1 @@
-export * from "./lib/ledger-button";
+export * from "./lib/ledger-button.js";

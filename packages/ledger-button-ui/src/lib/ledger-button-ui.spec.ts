@@ -1,26 +1,25 @@
-import { expect } from "vitest";
-
 import "./ledger-button-ui";
 
+import { fixture, html } from "@open-wc/testing";
+import { expect } from "vitest";
+
 describe("LedgerButtonUI", () => {
-  it("should create the component", () => {
-    const element = document.createElement("ledger-button-ui");
+  it("should create the component", async () => {
+    const element = await fixture(html`<ledger-button-ui></ledger-button-ui>`);
     expect(element).toBeTruthy();
   });
 
   it("should render with default label", async () => {
-    const element = document.createElement("ledger-button-ui");
-    document.body.appendChild(element);
-
+    const element = await fixture(html`<ledger-button-ui></ledger-button-ui>`);
     const buttonElement = element.shadowRoot?.querySelector("button");
     expect(buttonElement?.textContent?.trim()).toContain("Connect Ledger");
-
-    document.body.removeChild(element);
   });
 
   it("should accept custom label", async () => {
-    const element = document.createElement("ledger-button-ui");
-    element.setAttribute("label", "Custom Button");
+    const element = await fixture(
+      html`<ledger-button-ui label="Custom Button"></ledger-button-ui>`
+    );
+
     document.body.appendChild(element);
 
     const buttonElement = element.shadowRoot?.querySelector("button");
@@ -30,19 +29,16 @@ describe("LedgerButtonUI", () => {
   });
 
   it("should handle disabled state", async () => {
-    const element = document.createElement("ledger-button-ui");
-    element.setAttribute("disabled", "true");
-    document.body.appendChild(element);
+    const element = await fixture(
+      html`<ledger-button-ui disabled></ledger-button-ui>`
+    );
 
     const buttonElement = element.shadowRoot?.querySelector("button");
     expect(buttonElement?.disabled).toBe(true);
-
-    document.body.removeChild(element);
   });
 
-  it("should dispatch click event when not disabled", async () => {
-    const element = document.createElement("ledger-button-ui");
-    document.body.appendChild(element);
+  it("should dispatch click event when enabled", async () => {
+    const element = await fixture(html`<ledger-button-ui></ledger-button-ui>`);
 
     let eventFired = false;
     element.addEventListener("ledger-button-click", () => {
@@ -53,7 +49,5 @@ describe("LedgerButtonUI", () => {
     buttonElement?.click();
 
     expect(eventFired).toBe(true);
-
-    document.body.removeChild(element);
   });
 });

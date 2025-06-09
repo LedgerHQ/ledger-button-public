@@ -1,0 +1,17 @@
+name: "[CI] Merge Queue"
+
+on:
+  merge_group:
+
+env:
+  FORCE_COLOR: "1"
+
+jobs:
+  checks:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-action-composite
+      - name: Health checks
+        run: |
+          pnpm nx run-many -t lint,typecheck,test --skip-nx-cache --exclude=@ledgerhq/ledger-button-workspace

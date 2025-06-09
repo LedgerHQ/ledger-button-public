@@ -1,14 +1,12 @@
 /// <reference types='vitest' />
-import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: "../../node_modules/.vite/packages/ledger-button",
+  cacheDir: "../../node_modules/.vite/packages/ledger-button-2",
   plugins: [
-    react(),
     dts({
       entryRoot: "src",
       tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
@@ -38,13 +36,13 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ["react", "react-dom", "react/jsx-runtime"],
+      external: [],
     },
   },
   test: {
     watch: false,
     globals: true,
-    environment: "jsdom",
+    environment: "node",
     include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     reporters: ["default"],
     coverage: {
