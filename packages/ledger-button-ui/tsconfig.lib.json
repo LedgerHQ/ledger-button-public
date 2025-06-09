@@ -4,14 +4,14 @@
     "outDir": "dist",
     "types": [
       "node",
-      "@nx/react/typings/cssmodule.d.ts",
-      "@nx/react/typings/image.d.ts",
       "vite/client"
     ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "rootDir": "src",
-    "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo"
   },
   "exclude": [

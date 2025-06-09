@@ -22,9 +22,6 @@
       "path": "./apps/ledger-button-nextjs-playground"
     },
     {
-      "path": "./tsconfig.spec.json"
-    },
-    {
       "path": "./packages/ledger-button-dmk"
     },
     {
@@ -35,6 +32,9 @@
     },
     {
       "path": "./packages/ledger-button-core"
+    },
+    {
+      "path": "./pocs/ledger-button-webcomponent-poc"
     }
   ],
   "ts-node": {
