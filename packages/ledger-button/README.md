@@ -1,7 +1,11 @@
-# @ledgerhq/ledger-button
+# ledger-button-2
 
 This library was generated with [Nx](https://nx.dev).
 
+## Building
+
+Run `nx build ledger-button-2` to build the library.
+
 ## Running unit tests
 
-Run `nx test @ledgerhq/ledger-button` to execute the unit tests via [Vitest](https://vitest.dev/).
+Run `nx test ledger-button-2` to execute the unit tests via [Vitest](https://vitest.dev/).

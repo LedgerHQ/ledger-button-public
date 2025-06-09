@@ -1,7 +1,8 @@
+import "./ledger-button-ui";
+
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 
-import "./ledger-button-ui";
 import type { LedgerButtonUIAttributes } from "./ledger-button-ui";
 
 const meta: Meta<LedgerButtonUIAttributes> = {
@@ -9,10 +10,10 @@ const meta: Meta<LedgerButtonUIAttributes> = {
   tags: ["autodocs"],
   render: (args) =>
     html`<ledger-button-ui
-      .label=${args.label}
-      .disabled=${args.disabled}
-      .variant=${args.variant}
-      .size=${args.size}
+      .label=${args.label || "Connect Ledger"}
+      ?disabled=${args.disabled}
+      .variant=${args.variant || "primary"}
+      .size=${args.size || "medium"}
       @ledger-button-click=${(e: CustomEvent) => {
         console.log("Button clicked:", e.detail);
       }}

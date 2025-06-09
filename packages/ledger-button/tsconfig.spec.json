@@ -9,9 +9,7 @@
       "node",
       "vitest"
     ],
-    "jsx": "react-jsx",
-    "module": "esnext",
-    "moduleResolution": "bundler"
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "vite.config.ts",

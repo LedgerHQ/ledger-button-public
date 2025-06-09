@@ -7,19 +7,7 @@
       "path": "./packages/ledger-button-ui"
     },
     {
-      "path": "./apps/ledger-button-react-playground-e2e"
-    },
-    {
-      "path": "./apps/ledger-button-react-playground"
-    },
-    {
       "path": "./packages/ledger-button"
-    },
-    {
-      "path": "./apps/ledger-button-nextjs-playground-e2e"
-    },
-    {
-      "path": "./apps/ledger-button-nextjs-playground"
     },
     {
       "path": "./packages/ledger-button-dmk"
@@ -32,9 +20,6 @@
     },
     {
       "path": "./packages/ledger-button-core"
-    },
-    {
-      "path": "./pocs/ledger-button-webcomponent-poc"
     }
   ],
   "ts-node": {

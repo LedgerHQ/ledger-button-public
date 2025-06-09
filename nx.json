@@ -24,7 +24,10 @@
       "dependsOn": ["^build"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "options": {
+        "args": ["--pass-with-no-tests"]
+      }
     }
   },
   "plugins": [
