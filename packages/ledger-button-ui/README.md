@@ -1,7 +1,23 @@
-# @ledgerhq/ledger-button-ui
+# Ledger Button UI
 
-This library was generated with [Nx](https://nx.dev).
+Lit.dev web component with Tailwind CSS styling.
 
-## Running unit tests
+## Usage
 
-Run `nx test @ledgerhq/ledger-button-ui` to execute the unit tests via [Vitest](https://vitest.dev/).
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="module" src="./dist/index.js"></script>
+  </head>
+  <body>
+    <ledger-button-ui></ledger-button-ui>
+
+    <script>
+      document.addEventListener("ledger-button-click", (e) => {
+        console.log("Button clicked:", e.detail);
+      });
+    </script>
+  </body>
+</html>
+```

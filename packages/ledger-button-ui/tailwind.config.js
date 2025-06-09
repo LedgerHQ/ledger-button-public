@@ -1,14 +1,18 @@
-const { createGlobPatternsForDependencies } = require("@nx/react/tailwind");
-const { join } = require("path");
+import { join } from "path";
+import { fileURLToPath } from "url";
+
+import { ledgerButtonPreset } from "./src/lib/tailwind-preset.ts";
+
+const __dirname = join(fileURLToPath(import.meta.url), "..");
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
+  presets: [ledgerButtonPreset],
   content: [
     join(
       __dirname,
-      "{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,tsx,html}"
+      "{src,pages,components,app}/**/*!(*.stories|*.spec).{ts,js,html}"
     ),
-    ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
     extend: {},

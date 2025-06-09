@@ -1,5 +1,4 @@
-import react from "@vitejs/plugin-react";
-import * as path from "path";
+import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
@@ -7,42 +6,32 @@ export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/packages/ledger-button-ui",
   plugins: [
-    react(),
     dts({
       entryRoot: "src",
-      tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
-    }),
-    dts({
-      entryRoot: "src",
-      tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
+      tsconfigPath: resolve(__dirname, "tsconfig.lib.json"),
+      insertTypesEntry: true,
     }),
   ],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
-  // Configuration for building your library.
-  // See: https://vitejs.dev/guide/build.html#library-mode
+  css: {
+    postcss: "./postcss.config.js",
+  },
   build: {
-    emptyOutDir: true,
-    transformMixedEsModules: true,
-    entry: "src/index.ts",
-    name: "@ledgerhq/ledger-button-ui",
-    fileName: "index",
-    formats: ["es" as const],
-    external: ["react", "react-dom", "react/jsx-runtime"],
     lib: {
-      entry: "src/index.ts",
-      name: "@ledgerhq/ledger-button-ui",
-      fileName: "index",
+      entry: resolve(__dirname, "src/index.ts"),
+      name: "LedgerButtonUI",
       formats: ["es" as const],
+      fileName: "index",
     },
     rollupOptions: {
-      external: ["'react'", "'react-dom'", "'react/jsx-runtime'"],
+      external: ["lit"],
+      output: {
+        globals: {
+          lit: "lit",
+        },
+      },
     },
     outDir: "./dist",
-    reportCompressedSize: true,
-    commonjsOptions: { transformMixedEsModules: true },
+    emptyOutDir: true,
   },
   test: {
     watch: false,
