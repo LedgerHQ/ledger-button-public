@@ -1,5 +1,10 @@
 name: "Setup Device Management Kit toolchain"
 description: "Composite job to setup the CI tools for the Device Management Kit"
+inputs:
+  playwright:
+    description: "Whether to install playwright"
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -26,3 +31,9 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install
+
+    - name: Setup playwright
+      if: inputs.playwright == 'true'
+      shell: bash
+      run: |
+        pnpm exec playwright install

@@ -50,3 +50,6 @@ jobs:
       - name: Health checks
         run: |
           pnpm nx affected -t lint,typecheck,test --base=develop --skip-nx-cache --exclude=@ledgerhq/ledger-button-workspace
+      - name: Storybook test
+        run: |
+          pnpm storybook:test
