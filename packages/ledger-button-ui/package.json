@@ -14,8 +14,5 @@
       "default": "./dist/index.js"
     }
   },
-
-  "dependencies": {
-    "lit": "^3.1.0"
-  }
+  "dependencies": {}
 }

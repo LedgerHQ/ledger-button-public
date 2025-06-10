@@ -11,7 +11,7 @@ export interface StorageService {
   getPublicKey(): Promise<string>;
   getPrivateKey(): Promise<string>;
 
-  saveJWT(jwt: unknown):void;
+  saveJWT(jwt: unknown): void;
   getJWT(): unknown;
   removeJWT(): void;
 }

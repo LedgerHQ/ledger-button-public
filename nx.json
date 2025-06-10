@@ -367,12 +367,6 @@
         "style": "css",
         "linter": "eslint"
       }
-    },
-    "@nx/web:application": {
-      "style": "css",
-      "linter": "eslint",
-      "unitTestRunner": "vitest",
-      "e2eTestRunner": "none"
     }
   }
 }
