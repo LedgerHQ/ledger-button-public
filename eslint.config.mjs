@@ -12,6 +12,8 @@ export default [
       "**/vitest.config.*.timestamp*",
       "**/test-output",
       "**/out-tsc",
+      "**/storybook-static",
+      "**/coverage",
     ],
   },
   {

@@ -8,6 +8,7 @@ env:
 
 jobs:
   checks:
+    name: "Health checks"
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -15,3 +16,6 @@ jobs:
       - name: Health checks
         run: |
           pnpm nx run-many -t lint,typecheck,test --skip-nx-cache --exclude=@ledgerhq/ledger-button-workspace
+      - name: Storybook test
+        run: |
+          pnpm storybook:test

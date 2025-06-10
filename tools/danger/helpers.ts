@@ -1,11 +1,11 @@
 // NOTE: we cannot import danger from another module,
 // so we need to pass it as argument, only types can be imported
+import { execSync } from "child_process";
 import {
-  type GitHubPRDSL,
   type DangerDSLType,
+  type GitHubPRDSL,
   type MarkdownString,
 } from "danger";
-import { execSync } from "child_process";
 
 type FailFn = (message: MarkdownString, file?: string, line?: number) => void;
 
