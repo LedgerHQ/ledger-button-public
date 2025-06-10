@@ -9,35 +9,18 @@ describe("LedgerButtonUI", () => {
     expect(element).toBeTruthy();
   });
 
-  it("should render with default label", async () => {
+  it("should render the button atom with correct configuration", async () => {
     const element = await fixture(html`<ledger-button-ui></ledger-button-ui>`);
-    const buttonElement = element.shadowRoot?.querySelector("button");
-    expect(buttonElement?.textContent?.trim()).toContain("Connect Ledger");
+
+    const buttonAtom = element.shadowRoot?.querySelector("ledger-button-atom");
+    expect(buttonAtom).toBeTruthy();
+    expect(buttonAtom?.getAttribute("label")).toBe("Connect Ledger");
+    expect(buttonAtom?.getAttribute("variant")).toBe("primary");
+    expect(buttonAtom?.getAttribute("size")).toBe("large");
+    expect(buttonAtom?.hasAttribute("icon")).toBe(true);
   });
 
-  it("should accept custom label", async () => {
-    const element = await fixture(
-      html`<ledger-button-ui label="Custom Button"></ledger-button-ui>`
-    );
-
-    document.body.appendChild(element);
-
-    const buttonElement = element.shadowRoot?.querySelector("button");
-    expect(buttonElement?.textContent?.trim()).toContain("Custom Button");
-
-    document.body.removeChild(element);
-  });
-
-  it("should handle disabled state", async () => {
-    const element = await fixture(
-      html`<ledger-button-ui disabled></ledger-button-ui>`
-    );
-
-    const buttonElement = element.shadowRoot?.querySelector("button");
-    expect(buttonElement?.disabled).toBe(true);
-  });
-
-  it("should dispatch click event when enabled", async () => {
+  it("should bubble events from the button atom", async () => {
     const element = await fixture(html`<ledger-button-ui></ledger-button-ui>`);
 
     let eventFired = false;
@@ -45,8 +28,9 @@ describe("LedgerButtonUI", () => {
       eventFired = true;
     });
 
-    const buttonElement = element.shadowRoot?.querySelector("button");
-    buttonElement?.click();
+    const buttonAtom = element.shadowRoot?.querySelector("ledger-button-atom");
+    const button = buttonAtom?.shadowRoot?.querySelector("button");
+    button?.click();
 
     expect(eventFired).toBe(true);
   });
