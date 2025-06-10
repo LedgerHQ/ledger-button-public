@@ -1,74 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ledger Button UI - Lit.dev Web Component Demo</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background: #f8fafc;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #1f2937;
-            margin-bottom: 8px;
-        }
-        .subtitle {
-            color: #6b7280;
-            margin-bottom: 40px;
-        }
-        .demo-section {
-            margin-bottom: 48px;
-        }
-        .demo-section h2 {
-            color: #374151;
-            margin-bottom: 16px;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 8px;
-        }
-        .button-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .code-block {
-            background: #f3f4f6;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: #374151;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #f8fafc;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+      .subtitle {
+        color: #6b7280;
+        margin-bottom: 40px;
+      }
+      .demo-section {
+        margin-bottom: 48px;
+      }
+      .demo-section h2 {
+        color: #374151;
+        margin-bottom: 16px;
+        border-bottom: 2px solid #e5e7eb;
+        padding-bottom: 8px;
+      }
+      .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .code-block {
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 16px;
+        font-family: "Courier New", monospace;
+        font-size: 14px;
+        margin-bottom: 8px;
+        color: #374151;
+      }
     </style>
     <script type="module" src="./dist/index.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Ledger Button UI</h1>
-        <p class="subtitle">Lit.dev Web Component with Tailwind CSS styling</p>
-        
-        <div class="demo-section">
-            <h2>Basic Usage</h2>
-            <div class="button-container">
-                <ledger-button-ui id="basicButton"></ledger-button-ui>
-            </div>
-            <div class="code-block">
-                &lt;ledger-button-ui&gt;&lt;/ledger-button-ui&gt;
-            </div>
+      <h1>Ledger Button UI</h1>
+      <p class="subtitle">Lit.dev Web Component with Tailwind CSS styling</p>
+
+      <div class="demo-section">
+        <h2>Basic Usage (Molecule)</h2>
+        <div class="button-container">
+          <ledger-button-ui id="basicButton"></ledger-button-ui>
         </div>
-</body>
-</html> 
+        <div class="code-block">
+          &lt;ledger-button-ui&gt;&lt;/ledger-button-ui&gt;
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
