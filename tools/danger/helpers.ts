@@ -58,7 +58,7 @@ const Branch = (danger: DangerDSLType, fail: FailFn, isFork = false) => ({
   fail(currentBranch: string) {
     return isFork
       ? fail(`\
-Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/device-sdk-ts/blob/develop/CONTRIBUTING.md).
+Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong branch name**: \`${currentBranch}\`
 
@@ -72,7 +72,7 @@ Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](htt
 ℹ️ Example: \`feat/my-feature\`\
 `)
       : fail(`\
-Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/device-sdk-ts/blob/develop/CONTRIBUTING.md).
+Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong branch name**: \`${currentBranch}\`
 
@@ -111,7 +111,7 @@ const Commits = (danger: DangerDSLType, fail: FailFn, fork = false) => ({
 
   fail(wrongCommits: string[]) {
     fail(`\
-One or more commit message does not match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/device-sdk-ts/blob/develop/CONTRIBUTING.md).
+One or more commit message does not match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong commit messages**:
 ${wrongCommits.map((commit) => `• \`${commit}\``).join("\n")}
@@ -176,12 +176,12 @@ export const checkCommits = (
 const Title = (_danger: DangerDSLType, fail: FailFn, fork = false) => ({
   regex: fork
     ? /^.+ \(([a-z]+-?){1,}\): [A-Z].*/
-    : /^.+ \(([a-z]+-?){1,}\) \[(([A-Z]+){1,}-[0-9]+|NO-ISSUE|ISSUE-[0-9]+)\]: [A-Z].*/,
+    : /^.+ \(([a-z]+-?){1,}\)(?: \[(([A-Z]+){1,}-[0-9]+|NO-ISSUE|ISSUE-[0-9]+)\])?: [A-Z].*/,
 
   fail(wrongTitle: string) {
     if (fork) {
       fail(`\
-Please fix the PR title to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/device-sdk-ts/blob/develop/CONTRIBUTING.md).
+Please fix the PR title to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong PR title**: \`${wrongTitle}\`
 
@@ -200,7 +200,7 @@ Please fix the PR title to match the convention, see [CONTRIBUTING.md](https://g
 `);
     } else {
       fail(`\
-Please fix the PR title to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/device-sdk-ts/blob/develop/CONTRIBUTING.md).
+Please fix the PR title to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong PR title**: \`${wrongTitle}\`
 

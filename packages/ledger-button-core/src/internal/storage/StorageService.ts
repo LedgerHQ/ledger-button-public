@@ -1,9 +1,9 @@
 export interface StorageService {
-  getItem<T>(key: string): Promise<T | null>;
-  setItem<T>(key: string, value: T): Promise<void>;
-  removeItem(key: string): Promise<void>;
-  has(key: string): Promise<boolean>;
-  resetStorage(): Promise<void>;
+  getLedgerButtonItem<T>(key: string): T | null;
+  setLedgerButtonItem<T>(key: string, value: T): void;
+  removeLedgerButtonItem(key: string): void;
+  hasLedgerButtonItem(key: string): boolean;
+  resetLedgerButtonStorage(): void;
 
   storeKeyPair(keyPair: unknown): Promise<void>;
   getKeyPair(): Promise<unknown>;
