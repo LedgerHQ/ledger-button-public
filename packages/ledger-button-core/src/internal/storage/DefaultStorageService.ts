@@ -1,8 +1,14 @@
+import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageService } from "./StorageService.js";
 
-export default class DefaultStorageService implements StorageService {
+export class DefaultStorageService implements StorageService {
   private jwt: unknown;
 
+  static formatKey(key: string) {
+    return `${STORAGE_KEYS.PREFIX}-${key}`;
+  }
+
+  // IndexDB
   storeKeyPair(keyPair: unknown): Promise<void> {
     throw new Error("Method not implemented.");
   }
@@ -18,6 +24,8 @@ export default class DefaultStorageService implements StorageService {
   getPrivateKey(): Promise<string> {
     throw new Error("Method not implemented.");
   }
+
+  // JWT
   saveJWT(jwt: unknown): Promise<void> {
     throw new Error("Method not implemented.");
   }
@@ -27,19 +35,48 @@ export default class DefaultStorageService implements StorageService {
   removeJWT(): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  setItem<T>(key: string, value: T): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  // LocalStorage
+  setLedgerButtonItem<T>(key: string, value: T) {
+    localStorage.setItem(
+      DefaultStorageService.formatKey(key),
+      JSON.stringify(value)
+    );
   }
-  removeItem(key: string): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  removeLedgerButtonItem(key: string) {
+    const formattedKey = DefaultStorageService.formatKey(key);
+    if (!this.hasLedgerButtonItem(formattedKey)) {
+      // TODO: Add a logger
+      console.warn(`Item with key ${key} not found`);
+      return;
+    }
+
+    localStorage.removeItem(formattedKey);
   }
-  has(key: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+
+  hasLedgerButtonItem(key: string) {
+    const formattedKey = DefaultStorageService.formatKey(key);
+    return localStorage.getItem(formattedKey) !== null;
   }
-  resetStorage(): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  resetLedgerButtonStorage(): void {
+    for (const key in localStorage) {
+      if (key.startsWith(STORAGE_KEYS.PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    }
   }
-  getItem<T>(key: string): Promise<T | null> {
-    throw new Error("Method not implemented.");
+
+  getLedgerButtonItem<T>(key: string): T | null {
+    const formattedKey = DefaultStorageService.formatKey(key);
+    const item = JSON.parse(localStorage.getItem(formattedKey) ?? "null");
+    if (!item) {
+      // TODO: Add a logger
+      console.warn(`Item with key ${key} not found`);
+      return null;
+    }
+
+    return item as T;
   }
 }
