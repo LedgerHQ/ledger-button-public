@@ -37,14 +37,14 @@ describe("DefaultStorageService", () => {
         const spy = vi.spyOn(Storage.prototype, "getItem");
         storageService.setLedgerButtonItem("test", "test");
         const item = storageService.getLedgerButtonItem("test");
-        expect(item).toBe("test");
+        expect(item).toStrictEqual(Maybe.of("test"));
         expect(spy).toHaveBeenCalledWith(`${STORAGE_KEYS.PREFIX}-test`);
       });
 
-      it("should be able to get an item with a null value if the key does not exist", () => {
+      it("should be able to get an item with a Nothing if the key does not exist", () => {
         vi.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
         const item = storageService.getLedgerButtonItem("test");
-        expect(item).toBeNull();
+        expect(item).toStrictEqual(Nothing);
       });
     });
 
@@ -128,11 +128,7 @@ describe("DefaultStorageService", () => {
 
         await storageService.storeKeyPair(keyPair);
         const result = await storageService.getKeyPair();
-        expect(result).toEqual(
-          Maybe.of({
-            keyPair,
-          })
-        );
+        expect(result).toEqual(Maybe.of(keyPair));
       });
     });
 

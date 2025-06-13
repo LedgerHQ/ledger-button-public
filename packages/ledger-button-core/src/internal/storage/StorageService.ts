@@ -7,14 +7,14 @@ export type KeyPair = {
 };
 
 export interface StorageService {
-  getLedgerButtonItem<T>(key: string): T | null;
+  getLedgerButtonItem<T>(key: string): Maybe<T>;
   setLedgerButtonItem<T>(key: string, value: T): void;
-  removeLedgerButtonItem(key: string): void;
+  removeLedgerButtonItem(key: string): boolean;
   hasLedgerButtonItem(key: string): boolean;
   resetLedgerButtonStorage(): void;
 
   storeKeyPair(keyPair: KeyPair): Promise<boolean>;
-  getKeyPair(): Promise<Maybe<{ keyPair: KeyPair }>>;
+  getKeyPair(): Promise<Maybe<KeyPair>>;
   removeKeyPair(): Promise<boolean>;
   getPublicKey(): Promise<Maybe<Uint8Array>>;
   getPrivateKey(): Promise<Maybe<Uint8Array>>;

@@ -12,6 +12,10 @@ export class DefaultStorageService implements StorageService {
   }
 
   initIdb(): Promise<boolean> {
+    if (this.idb.isJust()) {
+      return Promise.resolve(true);
+    }
+
     return new Promise<boolean>((resolve) => {
       const request = indexedDB.open(STORAGE_KEYS.DB_NAME, 3);
       request.onsuccess = (event) => {
@@ -40,20 +44,16 @@ export class DefaultStorageService implements StorageService {
       };
     });
   }
-
   // IndexDB
   async storeKeyPair(keyPair: KeyPair) {
-    if (this.idb.isNothing()) {
-      const success = await this.initIdb();
-      if (!success) {
-        // TODO: Add logging system
-        console.error("Error initializing IDB");
-        return Promise.resolve(false);
-      }
+    const success = await this.initIdb();
+    if (!success) {
+      // TODO: Add logging system
+      console.error("Error initializing IDB");
+      return Promise.resolve(false);
     }
 
     return new Promise<boolean>((resolve) => {
-      const objectStore = { keyPair };
       this.idb
         .map((db) => {
           const transaction = db.transaction(
@@ -61,7 +61,7 @@ export class DefaultStorageService implements StorageService {
             "readwrite"
           );
           const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
-          store.add(objectStore, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
+          store.add(keyPair, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
           resolve(true);
         })
         // TODO: Handle errors through reject ? She we use Maybe/Either here ?
@@ -74,16 +74,12 @@ export class DefaultStorageService implements StorageService {
   }
 
   async getKeyPair() {
-    if (this.idb.isNothing()) {
-      const success = await this.initIdb();
-      if (!success) {
-        // TODO: Add logging system
-        console.error("Error initializing IDB");
-        return Promise.resolve(Nothing);
-      }
+    const success = await this.initIdb();
+    if (!success) {
+      return Promise.resolve(Nothing);
     }
 
-    return new Promise<Maybe<{ keyPair: KeyPair }>>((resolve) => {
+    return new Promise<Maybe<KeyPair>>((resolve) => {
       this.idb
         .map((db) => {
           const transaction = db.transaction(
@@ -113,13 +109,9 @@ export class DefaultStorageService implements StorageService {
   }
 
   async removeKeyPair() {
-    if (this.idb.isNothing()) {
-      const success = await this.initIdb();
-      if (!success) {
-        // TODO: Add logging system
-        console.error("Error initializing IDB");
-        return Promise.resolve(false);
-      }
+    const success = await this.initIdb();
+    if (!success) {
+      return Promise.resolve(false);
     }
 
     return new Promise<boolean>((resolve) => {
@@ -138,39 +130,31 @@ export class DefaultStorageService implements StorageService {
   }
 
   async getPublicKey() {
-    if (this.idb.isNothing()) {
-      const success = await this.initIdb();
-      if (!success) {
-        // TODO: Add logging system
-        console.error("Error initializing IDB");
-        return Promise.resolve(Nothing);
-      }
+    const success = await this.initIdb();
+    if (!success) {
+      return Promise.resolve(Nothing);
     }
 
     return new Promise<Maybe<Uint8Array>>((resolve) => {
       this.getKeyPair().then((result) => {
         if (result.isNothing()) return resolve(Nothing);
 
-        resolve(result.map(({ keyPair }) => keyPair.publicKey));
+        resolve(result.map((keyPair) => keyPair.publicKey));
       });
     });
   }
 
   async getPrivateKey() {
-    if (this.idb.isNothing()) {
-      const success = await this.initIdb();
-      if (!success) {
-        // TODO: Add logging system
-        console.error("Error initializing IDB");
-        return Promise.resolve(Nothing);
-      }
+    const success = await this.initIdb();
+    if (!success) {
+      return Promise.resolve(Nothing);
     }
 
     return new Promise<Maybe<Uint8Array>>((resolve) => {
       this.getKeyPair().then((result) => {
         if (result.isNothing()) return resolve(Nothing);
 
-        resolve(result.map(({ keyPair }) => keyPair.privateKey));
+        resolve(result.map((keyPair) => keyPair.privateKey));
       });
     });
   }
@@ -199,10 +183,11 @@ export class DefaultStorageService implements StorageService {
     if (!this.hasLedgerButtonItem(formattedKey)) {
       // TODO: Add a logger
       console.warn(`Item with key ${key} not found`);
-      return;
+      return false;
     }
 
     localStorage.removeItem(formattedKey);
+    return true;
   }
 
   hasLedgerButtonItem(key: string) {
@@ -219,15 +204,17 @@ export class DefaultStorageService implements StorageService {
     }
   }
 
-  getLedgerButtonItem<T>(key: string): T | null {
+  getLedgerButtonItem<T>(key: string): Maybe<T> {
     const formattedKey = DefaultStorageService.formatKey(key);
-    const item = JSON.parse(localStorage.getItem(formattedKey) ?? "null");
-    if (!item) {
-      // TODO: Add a logger
-      console.warn(`Item with key ${key} not found`);
-      return null;
-    }
-
-    return item as T;
+    const item = localStorage.getItem(formattedKey);
+    return Maybe.fromNullable(item).chain((item) => {
+      try {
+        return Maybe.of(JSON.parse(item) as T);
+      } catch (error) {
+        // TODO: Add logging system
+        console.error("Error parsing item", error);
+        return Nothing;
+      }
+    });
   }
 }
