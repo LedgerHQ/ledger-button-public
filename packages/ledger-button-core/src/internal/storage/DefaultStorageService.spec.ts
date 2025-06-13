@@ -1,15 +1,16 @@
+import "fake-indexeddb/auto";
+
+import { Maybe, Nothing } from "purify-ts";
+
 import { STORAGE_KEYS } from "./model/constant.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
 
 let storageService: DefaultStorageService;
 describe("DefaultStorageService", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     localStorage.clear();
     storageService = new DefaultStorageService();
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
   });
 
   describe("LocalStorage methods", () => {
@@ -64,12 +65,15 @@ describe("DefaultStorageService", () => {
     });
 
     describe("hasLedgerButtonItem", () => {
-      it("should be able to check if an item exists", () => {
-        const spy = vi
-          .spyOn(Storage.prototype, "getItem")
-          .mockReturnValue("test");
-        storageService.hasLedgerButtonItem("test");
-        expect(spy).toHaveBeenCalled();
+      it("should be able to check if an item exists (false)", () => {
+        const res = storageService.hasLedgerButtonItem("test");
+        expect(res).toBe(false);
+      });
+
+      it("should be able to check if an item exists (true)", () => {
+        storageService.setLedgerButtonItem("key", "value");
+        const res = storageService.hasLedgerButtonItem("key");
+        expect(res).toBe(true);
       });
     });
 
@@ -92,6 +96,83 @@ describe("DefaultStorageService", () => {
     it("should be able to format the key", () => {
       const formattedKey = DefaultStorageService.formatKey("test");
       expect(formattedKey).toBe("ledger-button-test");
+    });
+  });
+
+  describe("IndexedDB (KeyPair) methods", () => {
+    describe("initIdb", () => {
+      it("should be able to initialize the IDB", async () => {
+        const result = await storageService.initIdb();
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("storeKeyPair", () => {
+      it("should be able to store a key pair", async () => {
+        const keyPair = {
+          publicKey: new Uint8Array([1, 2, 3]),
+          privateKey: new Uint8Array([4, 5, 6]),
+        };
+
+        const result = await storageService.storeKeyPair(keyPair);
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("getKeyPair", () => {
+      it("should be able to get a key pair", async () => {
+        const keyPair = {
+          publicKey: new Uint8Array([1, 2, 3]),
+          privateKey: new Uint8Array([4, 5, 6]),
+        };
+
+        await storageService.storeKeyPair(keyPair);
+        const result = await storageService.getKeyPair();
+        expect(result).toEqual(
+          Maybe.of({
+            keyPair,
+          })
+        );
+      });
+    });
+
+    describe("getPublicKey", () => {
+      it("should be able to get a public key", async () => {
+        const keyPair = {
+          publicKey: new Uint8Array([1, 2, 3]),
+          privateKey: new Uint8Array([4, 5, 6]),
+        };
+
+        await storageService.storeKeyPair(keyPair);
+        const result = await storageService.getPublicKey();
+        expect(result).toEqual(Maybe.of(keyPair.publicKey));
+      });
+    });
+
+    describe("getPrivateKey", () => {
+      it("should be able to get a private key", async () => {
+        const keyPair = {
+          publicKey: new Uint8Array([1, 2, 3]),
+          privateKey: new Uint8Array([4, 5, 6]),
+        };
+
+        await storageService.storeKeyPair(keyPair);
+        const result = await storageService.getPrivateKey();
+        expect(result).toEqual(Maybe.of(keyPair.privateKey));
+      });
+    });
+
+    describe("removeKeyPair", () => {
+      it("should be able to remove a key pair", async () => {
+        await storageService.storeKeyPair({
+          publicKey: new Uint8Array([1, 2, 3]),
+          privateKey: new Uint8Array([4, 5, 6]),
+        });
+
+        await storageService.removeKeyPair();
+        const result = await storageService.getKeyPair();
+        expect(result).toBe(Nothing);
+      });
     });
   });
 });
