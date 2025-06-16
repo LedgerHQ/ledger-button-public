@@ -19,6 +19,7 @@
     "inversify": "^7.5.1",
     "reflect-metadata": "^0.2.2",
     "@ledgerhq/ledger-button-dmk": "workspace:*",
-    "purify-ts": "2.1.0"
+    "purify-ts": "2.1.0",
+    "jsonwebtoken": "9.0.2"
   }
 }

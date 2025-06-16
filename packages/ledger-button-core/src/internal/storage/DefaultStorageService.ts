@@ -1,16 +1,18 @@
+import { Jwt } from "jsonwebtoken";
 import { Maybe, Nothing } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
 import { KeyPair, StorageService } from "./StorageService.js";
 
 export class DefaultStorageService implements StorageService {
-  private jwt: unknown;
+  private jwt: Maybe<Jwt> = Nothing;
   private idb: Maybe<IDBDatabase> = Nothing;
 
   static formatKey(key: string) {
     return `${STORAGE_KEYS.PREFIX}-${key}`;
   }
 
+  // IndexDB
   initIdb(): Promise<boolean> {
     if (this.idb.isJust()) {
       return Promise.resolve(true);
@@ -44,7 +46,7 @@ export class DefaultStorageService implements StorageService {
       };
     });
   }
-  // IndexDB
+
   async storeKeyPair(keyPair: KeyPair) {
     const success = await this.initIdb();
     if (!success) {
@@ -160,14 +162,20 @@ export class DefaultStorageService implements StorageService {
   }
 
   // JWT
-  saveJWT(jwt: unknown): Promise<void> {
-    throw new Error("Method not implemented.");
+  saveJWT(jwt: Jwt) {
+    this.jwt = Maybe.of(jwt);
   }
+
   getJWT() {
     return this.jwt;
   }
-  removeJWT(): Promise<void> {
-    throw new Error("Method not implemented.");
+
+  removeJWT() {
+    if (this.jwt.isJust()) {
+      this.jwt = Nothing;
+      return true;
+    }
+    return false;
   }
 
   // LocalStorage
