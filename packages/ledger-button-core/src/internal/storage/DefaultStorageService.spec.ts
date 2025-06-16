@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
 
+import { Jwt } from "jsonwebtoken";
 import { Maybe, Nothing } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
@@ -168,6 +169,30 @@ describe("DefaultStorageService", () => {
         await storageService.removeKeyPair();
         const result = await storageService.getKeyPair();
         expect(result).toBe(Nothing);
+      });
+    });
+  });
+
+  describe("JWT methods", () => {
+    let jwt: Jwt;
+
+    beforeEach(() => {
+      jwt = {
+        header: { alg: "HS256" },
+        payload: { sub: "test" },
+        signature: "signature",
+      };
+    });
+
+    describe("saveJWT", () => {
+      it("should be able to save and get a JWT", () => {
+        storageService.saveJWT(jwt);
+        expect(storageService.getJWT()).toEqual(Maybe.of(jwt));
+      });
+      it("should remove a JWT", () => {
+        storageService.saveJWT(jwt);
+        storageService.removeJWT();
+        expect(storageService.getJWT()).toBe(Nothing);
       });
     });
   });

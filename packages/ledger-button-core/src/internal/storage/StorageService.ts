@@ -1,3 +1,5 @@
+// TODO: Type could be temporary until we are done with the LEdger Keyring Protocol trusted app
+import { Jwt } from "jsonwebtoken";
 import { Maybe } from "purify-ts";
 
 // TODO: Temporary type while we work on the trusted-app ledger-keyring-protocol
@@ -19,7 +21,7 @@ export interface StorageService {
   getPublicKey(): Promise<Maybe<Uint8Array>>;
   getPrivateKey(): Promise<Maybe<Uint8Array>>;
 
-  saveJWT(jwt: unknown): void;
-  getJWT(): unknown;
-  removeJWT(): void;
+  saveJWT(jwt: Jwt): void;
+  getJWT(): Maybe<Jwt>;
+  removeJWT(): boolean;
 }
