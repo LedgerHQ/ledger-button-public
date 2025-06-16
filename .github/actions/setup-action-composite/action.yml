@@ -36,4 +36,4 @@ runs:
       if: inputs.playwright == 'true'
       shell: bash
       run: |
-        pnpm exec playwright install
+        pnpm exec playwright install --with-deps chromium
