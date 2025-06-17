@@ -9,10 +9,10 @@ type DmkModuleOptions = Pick<ContainerOptions, "stub">;
 export function dmkModuleFactory({ stub }: DmkModuleOptions) {
   const dmk = LedgerButtonDmkBuilder();
   return new ContainerModule(({ bind, rebindSync }) => {
-    bind(dmkModuleTypes.LedgerButtonDmk).toConstantValue(dmk);
+    bind(dmkModuleTypes.DeviceManagementKit).toConstantValue(dmk);
 
     if (stub) {
-      rebindSync(dmkModuleTypes.LedgerButtonDmk).toConstantValue({
+      rebindSync(dmkModuleTypes.DeviceManagementKit).toConstantValue({
         // TODO: Implement stub
       });
     }

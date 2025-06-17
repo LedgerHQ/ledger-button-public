@@ -1,9 +1,11 @@
+import { injectable } from "inversify";
 import { Jwt } from "jsonwebtoken";
 import { Maybe, Nothing } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
 import { KeyPair, StorageService } from "./StorageService.js";
 
+@injectable()
 export class DefaultStorageService implements StorageService {
   private jwt: Maybe<Jwt> = Nothing;
   private idb: Maybe<IDBDatabase> = Nothing;
@@ -190,7 +192,7 @@ export class DefaultStorageService implements StorageService {
     const formattedKey = DefaultStorageService.formatKey(key);
     if (!this.hasLedgerButtonItem(formattedKey)) {
       // TODO: Add a logger
-      console.warn(`Item with key ${key} not found`);
+      // console.warn(`Item with key ${key} not found`);
       return false;
     }
 
@@ -220,7 +222,7 @@ export class DefaultStorageService implements StorageService {
         return Maybe.of(JSON.parse(item) as T);
       } catch (error) {
         // TODO: Add logging system
-        console.error("Error parsing item", error);
+        // console.error("Error parsing item", error);
         return Nothing;
       }
     });

@@ -1,3 +1,3 @@
 export const dmkModuleTypes = {
-  LedgerButtonDmk: Symbol("LedgerButtonDmk"),
+  DeviceManagementKit: Symbol.for("DeviceManagementKit"),
 };
