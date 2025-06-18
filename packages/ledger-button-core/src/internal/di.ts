@@ -11,13 +11,15 @@ export type ContainerOptions = {
 
 export async function createContainer({
   stub = false,
-  supportedNetworks = [],
+  supportedNetworks: _supportedNetworks = [],
 }: ContainerOptions) {
   const container = new Container();
 
-  await container.load(dmkModuleFactory({ stub }));
-  await container.load(storageModuleFactory({ stub }));
-  await container.load(networkModuleFactory({ stub }));
+  await Promise.all([
+    container.load(dmkModuleFactory({ stub })),
+    container.load(storageModuleFactory({ stub })),
+    container.load(networkModuleFactory({ stub })),
+  ]);
 
   return container;
 }
