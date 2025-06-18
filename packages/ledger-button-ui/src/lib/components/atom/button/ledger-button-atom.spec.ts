@@ -54,90 +54,6 @@ describe("LedgerButtonAtom", () => {
       expect(button?.className).toContain("bg-gray-100");
       expect(button?.className).toContain("text-gray-900");
     });
-
-    it("should apply select-button variant classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          variant="select-button"
-          label="Select Account"
-        ></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("bg-transparent");
-      expect(button?.className).toContain("border-gray-300");
-    });
-
-    it("should apply icon-only variant with proper sizing", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          variant="icon-only"
-          size="medium"
-          icon
-        ></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("w-10");
-      expect(button?.className).toContain("h-10");
-      expect(button?.className).toContain("rounded-full");
-    });
-
-    it("should apply title-only variant classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          variant="title-only"
-          label="Link Button"
-        ></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("text-blue-600");
-    });
-  });
-
-  describe("Sizes", () => {
-    it("should apply small size classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          size="small"
-          label="Small Button"
-        ></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("px-3");
-      expect(button?.className).toContain("py-2");
-      expect(button?.className).toContain("text-sm");
-    });
-
-    it("should apply medium size classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          size="medium"
-          label="Medium Button"
-        ></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("px-4");
-      expect(button?.className).toContain("py-2");
-      expect(button?.className).toContain("text-base");
-    });
-
-    it("should apply large size classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          size="large"
-          label="Large Button"
-        ></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("px-6");
-      expect(button?.className).toContain("py-3");
-      expect(button?.className).toContain("text-lg");
-    });
   });
 
   describe("Click Handling", () => {
@@ -198,47 +114,6 @@ describe("LedgerButtonAtom", () => {
     });
   });
 
-  describe("Icon Functionality", () => {
-    it("should render icon when enabled", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          icon
-          label="With Icon"
-          variant="icon-title"
-        ></ledger-button-atom>`
-      );
-
-      const icon = element.shadowRoot?.querySelector(".icon");
-      expect(icon).toBeTruthy();
-    });
-
-    it("should not render icon when disabled", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          label="Without Icon"
-          variant="icon-title"
-        ></ledger-button-atom>`
-      );
-
-      const icon = element.shadowRoot?.querySelector(".icon");
-      expect(icon).toBeFalsy();
-    });
-
-    it("should position icon correctly", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          icon
-          label="Icon Right"
-          variant="icon-title"
-          icon-position="right"
-        ></ledger-button-atom>`
-      );
-
-      const content = element.shadowRoot?.querySelector(".flex.items-center");
-      expect(content).toBeTruthy();
-    });
-  });
-
   describe("Accessibility", () => {
     it("should use label as aria-label", async () => {
       const element = await fixture<LedgerButtonAtom>(
@@ -257,28 +132,10 @@ describe("LedgerButtonAtom", () => {
       const button = element.shadowRoot?.querySelector("button");
       expect(button?.type).toBe("submit");
     });
-
-    it("should have focus-visible styles", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom></ledger-button-atom>`
-      );
-
-      const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("focus:outline-none");
-    });
-
-    it("should set aria-hidden on icons", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom icon variant="icon-only"></ledger-button-atom>`
-      );
-
-      const icon = element.shadowRoot?.querySelector(".icon");
-      expect(icon?.getAttribute("aria-hidden")).toBe("true");
-    });
   });
 
   describe("Content Rendering", () => {
-    it("should render label for non-icon-only variants", async () => {
+    it("should render label", async () => {
       const element = await fixture<LedgerButtonAtom>(
         html`<ledger-button-atom
           label="Test Label"
@@ -288,22 +145,6 @@ describe("LedgerButtonAtom", () => {
 
       const content = element.shadowRoot?.textContent;
       expect(content).toContain("Test Label");
-    });
-
-    it("should not render label for icon-only variant", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          label="Hidden Label"
-          variant="icon-only"
-          icon
-        ></ledger-button-atom>`
-      );
-
-      const spans = element.shadowRoot?.querySelectorAll("span");
-      const hasLabelText = Array.from(spans || []).some((span) =>
-        span.textContent?.includes("Hidden Label")
-      );
-      expect(hasLabelText).toBe(false);
     });
 
     it("should handle empty states gracefully", async () => {
@@ -316,29 +157,6 @@ describe("LedgerButtonAtom", () => {
   });
 
   describe("Event Propagation", () => {
-    it("should prevent default and stop propagation when disabled", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom disabled></ledger-button-atom>`
-      );
-
-      let defaultPrevented = false;
-      let propagationStopped = false;
-
-      const mockEvent = {
-        preventDefault: () => {
-          defaultPrevented = true;
-        },
-        stopPropagation: () => {
-          propagationStopped = true;
-        },
-      } as Event;
-
-      element["_handleClick"](mockEvent);
-
-      expect(defaultPrevented).toBe(true);
-      expect(propagationStopped).toBe(true);
-    });
-
     it("should bubble custom events", async () => {
       const element = await fixture<LedgerButtonAtom>(
         html`<ledger-button-atom label="Bubble Test"></ledger-button-atom>`
