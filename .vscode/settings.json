@@ -1,6 +1,8 @@
 {
   "nxConsole.generateAiAgentRules": true,
   "tailwindCSS.includeLanguages": {
+    "typescript": "html",
+    "javascript": "html",
     "typescriptreact": "html",
     "javascriptreact": "html"
   },
