@@ -604,6 +604,7 @@ export const ledgerButtonPreset = {
             "--width-288": "288px",
             "--width-320": "320px",
             "--width-384": "384px",
+            "--width-400": "400px",
             "--height-0": "0px",
             "--height-1": "1px",
             "--height-2": "2px",
@@ -637,6 +638,7 @@ export const ledgerButtonPreset = {
             "--height-288": "288px",
             "--height-320": "320px",
             "--height-384": "384px",
+            "--height-448": "448px",
             "--border-radius-none": "0px",
             "--border-radius-xs": "4px",
             "--border-radius-sm": "8px",
@@ -1777,6 +1779,7 @@ export const ledgerButtonPreset = {
             "288": "var(--width-288)",
             "320": "var(--width-320)",
             "384": "var(--width-384)",
+            "400": "var(--width-400)",
           },
           height: {
             "0": "var(--height-0)",
@@ -1812,6 +1815,7 @@ export const ledgerButtonPreset = {
             "288": "var(--height-288)",
             "320": "var(--height-320)",
             "384": "var(--height-384)",
+            "448": "var(--height-448)",
           },
           borderRadius: {
             none: "var(--border-radius-none)",

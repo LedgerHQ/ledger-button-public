@@ -4,13 +4,7 @@ import { classMap } from "lit/directives/class-map.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
-export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "select-button"
-  | "icon-title"
-  | "icon-only"
-  | "title-only";
+export type ButtonVariant = "primary" | "secondary";
 export type ButtonSize = "small" | "medium" | "large";
 export type IconPosition = "left" | "right";
 export interface LedgerButtonAtomAttributes {
@@ -56,73 +50,37 @@ export class LedgerButtonAtom extends LitElement {
       :host([disabled]) {
         pointer-events: none;
       }
-
-      .button {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-        border-radius: 0.5rem;
-        transition: all 0.2s ease-in-out;
-        cursor: pointer;
-        border: none;
-        font-family: inherit;
-        text-decoration: none;
-        white-space: nowrap;
-        user-select: none;
-      }
-
-      .button:focus {
-        outline: none;
-      }
-
-      .button:focus-visible {
-        outline: 2px solid var(--color-light-blue-400);
-        outline-offset: 2px;
-      }
-
-      .button[disabled] {
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-
-      .icon {
-        width: 1.25rem;
-        height: 1.25rem;
-        flex-shrink: 0;
-      }
-
-      .icon-small {
-        width: 1rem;
-        height: 1rem;
-      }
-
-      .icon-large {
-        width: 1.5rem;
-        height: 1.5rem;
-      }
     `,
   ];
 
   private get buttonClasses() {
-    const baseClasses = [
-      "inline-flex",
-      "items-center",
-      "justify-center",
-      "font-medium",
-      "rounded-lg",
-      "transition-all",
-      "duration-200",
-      "focus:outline-none",
-      "focus:ring-2",
-      "focus:ring-offset-2",
-    ];
+    const baseClasses = ["flex", "items-center", "justify-center"];
 
     const sizeClasses: Record<ButtonSize, string[]> = {
-      small: ["px-3", "py-2", "text-sm"],
-      medium: ["px-4", "py-2", "text-base"],
-      large: ["px-6", "py-3", "text-lg"],
+      small: [
+        "w-[104px]",
+        "h-[32px]",
+        "text-[14px]",
+        "p[8px 10px]",
+        "gap-[8px]",
+        "rounded-sm",
+      ],
+      medium: [
+        "w-[152px]",
+        "h-[36px]",
+        "text-[14px]",
+        "p[8px 10px]",
+        "gap-[8px]",
+        "rounded-md",
+      ],
+      large: [
+        "w-[416px]",
+        "h-[88px]",
+        "text-[28px]",
+        "p[12px 16px]",
+        "gap-[12px]",
+        "rounded-lg",
+      ],
     };
 
     const variantClasses: Record<
@@ -130,74 +88,13 @@ export class LedgerButtonAtom extends LitElement {
       { base: string[]; disabled: string[] }
     > = {
       primary: {
-        base: [
-          "bg-black",
-          "text-white",
-          "hover:bg-gray-800",
-          "focus:ring-gray-500",
-        ],
+        base: ["bg-black", "text-white"],
         disabled: ["disabled:bg-gray-300", "disabled:text-gray-500"],
       },
       secondary: {
-        base: [
-          "bg-gray-100",
-          "text-gray-900",
-          "hover:bg-gray-200",
-          "focus:ring-gray-400",
-        ],
+        base: ["bg-gray-100", "text-gray-900"],
         disabled: ["disabled:bg-gray-50", "disabled:text-gray-400"],
       },
-      "select-button": {
-        base: [
-          "bg-transparent",
-          "text-gray-900",
-          "border",
-          "border-gray-300",
-          "hover:bg-gray-50",
-          "focus:ring-gray-400",
-        ],
-        disabled: [
-          "disabled:bg-transparent",
-          "disabled:text-gray-400",
-          "disabled:border-gray-200",
-        ],
-      },
-      "icon-title": {
-        base: [
-          "bg-black",
-          "text-white",
-          "hover:bg-gray-800",
-          "focus:ring-gray-500",
-        ],
-        disabled: ["disabled:bg-gray-300", "disabled:text-gray-500"],
-      },
-      "icon-only": {
-        base: [
-          "bg-transparent",
-          "text-gray-600",
-          "hover:text-gray-900",
-          "hover:bg-gray-100",
-          "focus:ring-gray-400",
-          "rounded-full",
-        ],
-        disabled: ["disabled:text-gray-400"],
-      },
-      "title-only": {
-        base: [
-          "bg-transparent",
-          "text-blue-600",
-          "hover:text-blue-800",
-          "hover:bg-blue-50",
-          "focus:ring-blue-400",
-        ],
-        disabled: ["disabled:text-gray-400"],
-      },
-    };
-
-    const iconOnlySizeClasses: Record<ButtonSize, string[]> = {
-      small: ["w-8", "h-8", "p-1"],
-      medium: ["w-10", "h-10", "p-2"],
-      large: ["w-12", "h-12", "p-2.5"],
     };
 
     const classes = [
@@ -205,7 +102,6 @@ export class LedgerButtonAtom extends LitElement {
       ...sizeClasses[this.size],
       ...variantClasses[this.variant].base,
       ...(this.disabled ? variantClasses[this.variant].disabled : []),
-      ...(this.variant === "icon-only" ? iconOnlySizeClasses[this.size] : []),
       ...(this.disabled ? ["cursor-not-allowed"] : ["cursor-pointer"]),
     ];
 
@@ -213,11 +109,13 @@ export class LedgerButtonAtom extends LitElement {
   }
 
   private get iconClasses() {
-    return {
-      icon: true,
-      "icon-small": this.size === "small",
-      "icon-large": this.size === "large",
+    const sizeClasses = {
+      small: "w-8 h-8",
+      medium: "w-16 h-16",
+      large: "w-32 h-32",
     };
+
+    return sizeClasses[this.size];
   }
 
   // Right now this is only returning the Ledger icon
@@ -228,7 +126,7 @@ export class LedgerButtonAtom extends LitElement {
     }
 
     return html`
-      <div class=${classMap(this.iconClasses)} aria-hidden="true">
+      <div class="${this.iconClasses}" aria-hidden="true">
         <svg
           width="16"
           height="16"
@@ -265,28 +163,6 @@ export class LedgerButtonAtom extends LitElement {
     `;
   }
 
-  private renderContent() {
-    if (this.variant === "icon-only") {
-      return this.renderIcon();
-    }
-
-    if (this.variant === "title-only") {
-      return html`${this.label}`;
-    }
-
-    return html`
-      <div class="flex items-center">
-        ${this.iconPosition === "left" && this.icon
-          ? html`${this.renderIcon()}<span class="ml-2">${this.label}</span>`
-          : ""}
-        ${this.iconPosition === "right" && this.icon
-          ? html`<span class="mr-2">${this.label}</span>${this.renderIcon()}`
-          : ""}
-        ${!this.icon ? html`${this.label}` : ""}
-      </div>
-    `;
-  }
-
   override render() {
     return html`
       <button
@@ -294,14 +170,21 @@ export class LedgerButtonAtom extends LitElement {
         class=${classMap(this.buttonClasses)}
         ?disabled=${this.disabled}
         aria-label="${this.label}"
-        @click=${this._handleClick}
+        @click=${this.handleClick}
       >
-        ${this.renderContent()}
+        ${this.iconPosition === "left" && this.icon
+          ? html`${this.renderIcon()}<span>${this.label}</span>`
+          : ""}
+        ${this.iconPosition === "right" && this.icon
+          ? html`<span class="font-inter">${this.label}</span
+              >${this.renderIcon()}`
+          : ""}
+        ${!this.icon ? html`${this.label}` : ""}
       </button>
     `;
   }
 
-  private _handleClick(event: Event) {
+  private handleClick(event: Event) {
     if (this.disabled) {
       event.preventDefault();
       event.stopPropagation();

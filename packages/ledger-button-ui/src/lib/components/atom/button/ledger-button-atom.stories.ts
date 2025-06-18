@@ -28,14 +28,7 @@ const meta: Meta<LedgerButtonAtomAttributes> = {
     },
     variant: {
       control: "select",
-      options: [
-        "primary",
-        "secondary",
-        "select-button",
-        "icon-title",
-        "icon-only",
-        "title-only",
-      ],
+      options: ["primary", "secondary"],
       description: "The variant of the button",
     },
     size: {
@@ -67,7 +60,17 @@ const meta: Meta<LedgerButtonAtomAttributes> = {
 export default meta;
 type Story = StoryObj<LedgerButtonAtomAttributes>;
 
-export const Primary: Story = {
+export const PrimaryWithIcon: Story = {
+  args: {
+    label: "Connect Ledger",
+    variant: "primary",
+    size: "medium",
+    icon: true,
+    disabled: false,
+  },
+};
+
+export const PrimaryWithNoIcon: Story = {
   args: {
     label: "Connect Ledger",
     variant: "primary",
@@ -80,44 +83,6 @@ export const Secondary: Story = {
   args: {
     label: "Secondary Action",
     variant: "secondary",
-    size: "medium",
-    disabled: false,
-  },
-};
-
-export const SelectButton: Story = {
-  args: {
-    label: "Select Account",
-    variant: "select-button",
-    size: "medium",
-    disabled: false,
-  },
-};
-
-export const IconTitle: Story = {
-  args: {
-    label: "With Icon",
-    variant: "icon-title",
-    size: "medium",
-    icon: true,
-    iconPosition: "left",
-    disabled: false,
-  },
-};
-
-export const IconOnly: Story = {
-  args: {
-    variant: "icon-only",
-    size: "medium",
-    icon: true,
-    disabled: false,
-  },
-};
-
-export const TitleOnly: Story = {
-  args: {
-    label: "Text Link",
-    variant: "title-only",
     size: "medium",
     disabled: false,
   },
@@ -195,29 +160,6 @@ export const LargeButtons: Story = {
   `,
 };
 
-export const IconPositions: Story = {
-  render: () => html`
-    <div
-      style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
-    >
-      <ledger-button-atom
-        label="Left Icon"
-        variant="icon-title"
-        size="medium"
-        icon
-        icon-position="left"
-      ></ledger-button-atom>
-      <ledger-button-atom
-        label="Right Icon"
-        variant="icon-title"
-        size="medium"
-        icon
-        icon-position="right"
-      ></ledger-button-atom>
-    </div>
-  `,
-};
-
 export const DisabledStates: Story = {
   render: () => html`
     <div
@@ -265,27 +207,6 @@ export const AllVariants: Story = {
           <ledger-button-atom
             label="Secondary"
             variant="secondary"
-            size="medium"
-          ></ledger-button-atom>
-          <ledger-button-atom
-            label="Select Button"
-            variant="select-button"
-            size="medium"
-          ></ledger-button-atom>
-          <ledger-button-atom
-            label="Icon + Title"
-            variant="icon-title"
-            size="medium"
-            icon
-          ></ledger-button-atom>
-          <ledger-button-atom
-            variant="icon-only"
-            size="medium"
-            icon
-          ></ledger-button-atom>
-          <ledger-button-atom
-            label="Title Only"
-            variant="title-only"
             size="medium"
           ></ledger-button-atom>
         </div>
