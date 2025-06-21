@@ -26,7 +26,7 @@ const meta: Meta<LedgerModalAtomAttributes> = {
         @ledger-button-click=${(e: Event) => {
           const container = (e.target as HTMLElement).closest("div");
           const modal = container?.querySelector(
-            "ledger-modal-atom"
+            "ledger-modal-atom",
           ) as LedgerModalAtom;
           modal?.openModal();
         }}
@@ -67,13 +67,6 @@ export const Default: Story = {
   },
 };
 
-export const Open: Story = {
-  args: {
-    isOpen: true,
-    title: "Connect a Ledger",
-  },
-};
-
 export const TestModalInteractions: Story = {
   args: {
     isOpen: false,
@@ -94,7 +87,7 @@ export const TestModalInteractions: Story = {
       await waitFor(() => {
         expect(modal.isOpen).toBe(true);
         expect(
-          modal.shadowRoot?.querySelector(".modal-overlay")
+          modal.shadowRoot?.querySelector(".modal-overlay"),
         ).not.toBeNull();
       });
     });
