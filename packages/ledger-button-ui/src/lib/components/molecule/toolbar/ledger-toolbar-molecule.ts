@@ -47,26 +47,21 @@ export class LedgerToolbarMolecule extends LitElement {
   override render() {
     return html`
       <div class="flex items-center justify-between p-16 w-full">
-        <div class="flex items-center gap-12">
-          ${this.showLogo
-            ? html`<div class="w-20 h-20">
-                <ledger-icon-atom
-                  type="ledger"
-                  size="medium"
-                ></ledger-icon-atom>
-              </div>`
-            : ""}
-          ${this.title
-            ? html`<h2 class="text-20 font-inter font-semibold text-white">
-                ${this.title}
-              </h2>`
-            : ""}
-        </div>
+        ${this.showLogo
+          ? html`<div class="w-20 h-20">
+              <ledger-icon-atom type="ledger" size="medium"></ledger-icon-atom>
+            </div>`
+          : ""}
+        ${this.title
+          ? html`<h2 class="text-14 font-inter font-semibold text-white">
+              ${this.title}
+            </h2>`
+          : ""}
         ${this.showClose
           ? html`<div class="w-20 h-20">
               <ledger-icon-atom
                 type="close"
-                size="medium"
+                size="large"
                 @click=${this.handleClose}
                 style="cursor: pointer;"
               ></ledger-icon-atom>
