@@ -24,7 +24,7 @@ const meta: Meta<LedgerLottieAtomAttributes> = {
     animationData: {
       control: "object",
       description:
-        "The Lottie animation JSON data object exported from After Effects or created with Lottie tools",
+        "The Lottie animation JSON data object exported from After Effects (or other Lottie tools)",
       table: {
         type: { summary: "object" },
         defaultValue: { summary: "undefined" },
@@ -95,8 +95,7 @@ export const LoadingSpinner: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          "A continuously looping loading spinner animation. Perfect for indicating loading states in your application.",
+        story: "Continuously looping loading spinner",
       },
     },
   },
@@ -114,8 +113,7 @@ export const Checkmark: Story = {
   parameters: {
     docs: {
       description: {
-        story:
-          "An animated checkmark that plays once. Ideal for success states and confirmation feedback.",
+        story: "Checkmark that plays once",
       },
     },
   },
@@ -198,7 +196,7 @@ export const DifferentSizes: Story = {
     docs: {
       description: {
         story:
-          "Demonstrates the three predefined sizes available: small (32px), medium (64px), and large (128px).",
+          "Predefined sizes available: small (32px), medium (64px), and large (128px).",
       },
     },
   },
@@ -291,7 +289,7 @@ export const TestLottieInteractions: Story = {
     docs: {
       description: {
         story:
-          "Automated test story to verify component functionality and accessibility features.",
+          "Automated test story to verify component functionality and accessibility",
       },
     },
   },
