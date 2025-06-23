@@ -190,25 +190,34 @@ export const TestToolbarInteractions: Story = {
     showLogo: true,
   },
   play: async ({ canvasElement, step }) => {
-    const canvas = shadowWithin(canvasElement);
-
     await step("Verify toolbar renders correctly", async () => {
-      const toolbar = canvas.getByRole("generic");
+      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
 
       expect(toolbar).toBeInTheDocument();
+
+      const container = toolbar?.shadowRoot?.querySelector(
+        ".flex.items-center.justify-between",
+      );
+
+      expect(container).toBeInTheDocument();
     });
 
     await step("Verify title is displayed", async () => {
-      const title = canvas.getByText("Test Toolbar");
+      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const title = toolbar?.shadowRoot?.querySelector("h2");
 
       expect(title).toBeInTheDocument();
-      expect(title.tagName.toLowerCase()).toBe("h2");
+      expect(title?.textContent?.trim()).toBe("Test Toolbar");
+      expect(title?.tagName.toLowerCase()).toBe("h2");
     });
 
     await step("Verify logo is present when showLogo is true", async () => {
-      const logoContainer = canvas.getByRole("img");
+      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const logoIcon = toolbar?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='ledger']",
+      );
 
-      expect(logoContainer).toBeInTheDocument();
+      expect(logoIcon).toBeInTheDocument();
     });
 
     await step("Verify close button functionality", async () => {
@@ -219,15 +228,12 @@ export const TestToolbarInteractions: Story = {
         closeEventFired = true;
       });
 
-      const closeIcons = canvas.getAllByRole("img");
-      const closeIcon = closeIcons.find(
-        (icon) =>
-          icon.getAttribute("type") === "close" ||
-          icon.closest("ledger-icon-atom")?.getAttribute("type") === "close",
+      const closeIcon = toolbar?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='close']",
       );
 
       if (closeIcon) {
-        await userEvent.click(closeIcon);
+        await userEvent.click(closeIcon as HTMLElement);
         await waitFor(() => {
           expect(closeEventFired).toBe(true);
         });
@@ -235,11 +241,21 @@ export const TestToolbarInteractions: Story = {
     });
 
     await step("Verify accessibility attributes", async () => {
-      const title = canvas.getByText("Test Toolbar");
+      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const title = toolbar?.shadowRoot?.querySelector("h2");
       expect(title).toHaveAttribute("class");
+      expect(title?.tagName.toLowerCase()).toBe("h2");
 
-      const logoIcons = canvas.getAllByRole("img");
-      expect(logoIcons.length).toBeGreaterThan(0);
+      const logoIcon = toolbar?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='ledger']",
+      );
+      const closeIcon = toolbar?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='close']",
+      );
+
+      expect(logoIcon).toBeInTheDocument();
+      expect(closeIcon).toBeInTheDocument();
+      expect(closeIcon).toHaveAttribute("style", "cursor: pointer;");
     });
   },
   parameters: {
