@@ -17,11 +17,11 @@ export class LedgerToolbarMolecule extends LitElement {
   @property({ type: String })
   override title = "";
 
-  @property({ type: Boolean, attribute: "show-close" })
-  showClose = true;
+  @property({ type: Boolean, attribute: "show-close", reflect: true })
+  showClose = false;
 
-  @property({ type: Boolean, attribute: "show-logo" })
-  showLogo = true;
+  @property({ type: Boolean, attribute: "show-logo", reflect: true })
+  showLogo = false;
 
   static override styles = [
     unsafeCSS(tailwindStyles),
