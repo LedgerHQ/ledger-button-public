@@ -3,6 +3,7 @@ import "./ledger-lottie-atom";
 import { expect, within } from "@storybook/test";
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
+import { within as shadowWithin } from "shadow-dom-testing-library";
 
 import checkmarkData from "./animations/checkmark.json";
 import loadingSpinnerData from "./animations/loading-spinner.json";
@@ -271,16 +272,16 @@ export const TestLottieInteractions: Story = {
     loop: false,
   },
   play: async ({ canvasElement, step }) => {
-    const canvas = within(canvasElement);
+    const canvas = shadowWithin(canvasElement);
 
     await step("Verify component renders", async () => {
-      const lottieContainer = canvas.getByRole("img");
+      const lottieContainer = canvas.getByShadowRole("img");
       expect(lottieContainer).toBeInTheDocument();
       expect(lottieContainer).toHaveAttribute("aria-label", "Lottie animation");
     });
 
     await step("Check accessibility attributes", async () => {
-      const lottieContainer = canvas.getByRole("img");
+      const lottieContainer = canvas.getByShadowRole("img");
       expect(lottieContainer).toHaveAttribute("role", "img");
       expect(lottieContainer).toHaveAttribute("aria-label", "Lottie animation");
     });
