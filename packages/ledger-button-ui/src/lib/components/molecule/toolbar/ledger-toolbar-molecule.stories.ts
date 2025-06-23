@@ -47,45 +47,6 @@ export const Default: Story = {
   },
 };
 
-export const WithoutLogo: Story = {
-  args: {
-    title: "Settings",
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "Toolbar without the Ledger logo, useful for secondary screens.",
-      },
-    },
-  },
-};
-
-export const MinimalToolbar: Story = {
-  args: {
-    title: "Minimal",
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "Minimal toolbar with only the title text.",
-      },
-    },
-  },
-};
-
-export const LongTitleExample: Story = {
-  args: {
-    title: "This is a very long title that demonstrates text handling",
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "Example with a longer title to test text handling and layout.",
-      },
-    },
-  },
-};
-
 export const AllVariations: Story = {
   render: () => html`
     <div
@@ -99,6 +60,17 @@ export const AllVariations: Story = {
         </h3>
         <ledger-toolbar-molecule
           title="Connect a Ledger"
+        ></ledger-toolbar-molecule>
+      </div>
+
+      <div>
+        <h3
+          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+        >
+          With Long Title
+        </h3>
+        <ledger-toolbar-molecule
+          title="This is a very long title that demonstrates text handling"
         ></ledger-toolbar-molecule>
       </div>
 
