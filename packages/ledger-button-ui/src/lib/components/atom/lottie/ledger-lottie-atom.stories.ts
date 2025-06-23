@@ -1,6 +1,6 @@
 import "./ledger-lottie-atom";
 
-import { expect, within } from "@storybook/test";
+import { expect } from "@storybook/test";
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
