@@ -4,7 +4,6 @@ import { expect, waitFor } from "@storybook/test";
 import { userEvent } from "@storybook/test";
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { within as shadowWithin } from "shadow-dom-testing-library";
 
 import type { LedgerToolbarMoleculeAttributes } from "./ledger-toolbar-molecule";
 
