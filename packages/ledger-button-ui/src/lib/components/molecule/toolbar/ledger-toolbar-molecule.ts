@@ -17,12 +17,6 @@ export class LedgerToolbarMolecule extends LitElement {
   @property({ type: String })
   override title = "";
 
-  @property({ type: Boolean, attribute: "show-close", reflect: true })
-  showClose = false;
-
-  @property({ type: Boolean, attribute: "show-logo", reflect: true })
-  showLogo = false;
-
   static override styles = [
     unsafeCSS(tailwindStyles),
     css`
@@ -47,26 +41,22 @@ export class LedgerToolbarMolecule extends LitElement {
   override render() {
     return html`
       <div class="flex items-center justify-between p-16 w-full">
-        ${this.showLogo
-          ? html`<div class="w-20 h-20">
-              <ledger-icon-atom type="ledger" size="medium"></ledger-icon-atom>
-            </div>`
-          : ""}
+        <div class="w-20 h-20">
+          <ledger-icon-atom type="ledger" size="medium"></ledger-icon-atom>
+        </div>
         ${this.title
           ? html`<h2 class="text-14 font-inter font-semibold text-white">
               ${this.title}
             </h2>`
           : ""}
-        ${this.showClose
-          ? html`<div class="w-20 h-20">
-              <ledger-icon-atom
-                type="close"
-                size="large"
-                @click=${this.handleClose}
-                style="cursor: pointer;"
-              ></ledger-icon-atom>
-            </div>`
-          : ""}
+        <div class="w-20 h-20">
+          <ledger-icon-atom
+            type="close"
+            size="large"
+            @click=${this.handleClose}
+            style="cursor: pointer;"
+          ></ledger-icon-atom>
+        </div>
       </div>
     `;
   }

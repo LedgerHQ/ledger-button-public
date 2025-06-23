@@ -14,8 +14,6 @@ const meta: Meta<LedgerToolbarMoleculeAttributes> = {
     html`<div style="background: black; padding: 20px;">
       <ledger-toolbar-molecule
         .title=${args.title || ""}
-        ?show-close=${args.showClose}
-        ?show-logo=${args.showLogo}
         @toolbar-close=${(e: CustomEvent) => {
           console.log("Toolbar close clicked:", e.detail);
         }}
@@ -30,22 +28,6 @@ const meta: Meta<LedgerToolbarMoleculeAttributes> = {
         defaultValue: { summary: '""' },
       },
     },
-    showClose: {
-      control: "boolean",
-      description: "Whether to show the close button",
-      table: {
-        type: { summary: "boolean" },
-        defaultValue: { summary: "true" },
-      },
-    },
-    showLogo: {
-      control: "boolean",
-      description: "Whether to show the Ledger logo",
-      table: {
-        type: { summary: "boolean" },
-        defaultValue: { summary: "true" },
-      },
-    },
   },
 };
 
@@ -55,8 +37,6 @@ type Story = StoryObj<LedgerToolbarMoleculeAttributes>;
 export const Default: Story = {
   args: {
     title: "Connect a Ledger",
-    showClose: true,
-    showLogo: true,
   },
   parameters: {
     docs: {
@@ -70,8 +50,6 @@ export const Default: Story = {
 export const WithoutLogo: Story = {
   args: {
     title: "Settings",
-    showClose: true,
-    showLogo: false,
   },
   parameters: {
     docs: {
@@ -82,27 +60,9 @@ export const WithoutLogo: Story = {
   },
 };
 
-export const WithoutCloseButton: Story = {
-  args: {
-    title: "Welcome",
-    showClose: false,
-    showLogo: true,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          "Toolbar without close button, useful for non-dismissible contexts.",
-      },
-    },
-  },
-};
-
 export const MinimalToolbar: Story = {
   args: {
     title: "Minimal",
-    showClose: false,
-    showLogo: false,
   },
   parameters: {
     docs: {
@@ -116,8 +76,6 @@ export const MinimalToolbar: Story = {
 export const LongTitleExample: Story = {
   args: {
     title: "This is a very long title that demonstrates text handling",
-    showClose: true,
-    showLogo: true,
   },
   parameters: {
     docs: {
@@ -137,12 +95,10 @@ export const AllVariations: Story = {
         <h3
           style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
         >
-          Complete Toolbar (Default)
+          With Title
         </h3>
         <ledger-toolbar-molecule
           title="Connect a Ledger"
-          show-close
-          show-logo
         ></ledger-toolbar-molecule>
       </div>
 
@@ -150,33 +106,9 @@ export const AllVariations: Story = {
         <h3
           style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
         >
-          Without Logo
+          Without Title
         </h3>
-        <ledger-toolbar-molecule
-          title="Settings"
-          show-close
-        ></ledger-toolbar-molecule>
-      </div>
-
-      <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
-          Without Close Button
-        </h3>
-        <ledger-toolbar-molecule
-          title="Welcome"
-          show-logo
-        ></ledger-toolbar-molecule>
-      </div>
-
-      <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
-          Title Only
-        </h3>
-        <ledger-toolbar-molecule title="Minimal"></ledger-toolbar-molecule>
+        <ledger-toolbar-molecule></ledger-toolbar-molecule>
       </div>
     </div>
   `,
@@ -185,8 +117,6 @@ export const AllVariations: Story = {
 export const TestToolbarInteractions: Story = {
   args: {
     title: "Test Toolbar",
-    showClose: true,
-    showLogo: true,
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify toolbar renders correctly", async () => {
@@ -210,7 +140,7 @@ export const TestToolbarInteractions: Story = {
       expect(title?.tagName.toLowerCase()).toBe("h2");
     });
 
-    await step("Verify logo is present when showLogo is true", async () => {
+    await step("Verify logo is present", async () => {
       const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
       const logoIcon = toolbar?.shadowRoot?.querySelector(
         "ledger-icon-atom[type='ledger']",
