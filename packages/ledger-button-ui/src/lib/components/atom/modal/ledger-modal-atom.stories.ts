@@ -93,8 +93,16 @@ export const TestModalInteractions: Story = {
     });
 
     await step("Close modal using close button", async () => {
-      const closeButton = canvas.getByShadowTestId("close-button");
-      await userEvent.click(closeButton);
+      const toolbar = modal.shadowRoot?.querySelector(
+        "ledger-toolbar-molecule",
+      );
+      const closeIcon = toolbar?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='close']",
+      );
+
+      if (closeIcon) {
+        await userEvent.click(closeIcon as HTMLElement);
+      }
 
       expect(modal.isOpen).toBe(false);
     });
