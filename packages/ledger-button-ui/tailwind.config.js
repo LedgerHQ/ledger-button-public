@@ -18,4 +18,10 @@ export default {
     extend: {},
   },
   plugins: [],
+  corePlugins: {
+    fontSize: false,
+    fontWeight: false,
+    lineHeight: false,
+    letterSpacing: false,
+  },
 };
