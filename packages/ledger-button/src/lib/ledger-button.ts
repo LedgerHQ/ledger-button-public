@@ -1,4 +1,4 @@
-export { ledgerButtonCore } from "@ledgerhq/ledger-button-core";
+export { initLedgerButtonCore } from "@ledgerhq/ledger-button-core";
 export * from "@ledgerhq/ledger-button-ui";
 
 export function ledgerButton(): string {

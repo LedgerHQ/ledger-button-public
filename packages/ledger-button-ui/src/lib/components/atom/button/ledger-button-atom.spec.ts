@@ -38,8 +38,8 @@ describe("LedgerButtonAtom", () => {
       );
 
       const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("bg-black");
-      expect(button?.className).toContain("text-white");
+      expect(button?.className).toContain("bg-interactive");
+      expect(button?.className).toContain("text-on-interactive");
     });
 
     it("should apply secondary variant classes", async () => {
@@ -51,8 +51,8 @@ describe("LedgerButtonAtom", () => {
       );
 
       const button = element.shadowRoot?.querySelector("button");
-      expect(button?.className).toContain("bg-gray-100");
-      expect(button?.className).toContain("text-gray-900");
+      expect(button?.className).toContain("bg-muted");
+      expect(button?.className).toContain("text-base");
     });
   });
 
