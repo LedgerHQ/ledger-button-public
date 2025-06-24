@@ -49,12 +49,11 @@ export class LedgerToolbarMolecule extends LitElement {
               ${this.title}
             </h2>`
           : ""}
-        <div class="w-20 h-20">
+        <div class="w-20 h-20 cursor-pointer">
           <ledger-icon-atom
             type="close"
             size="large"
             @click=${this.handleClose}
-            style="cursor: pointer;"
           ></ledger-icon-atom>
         </div>
       </div>

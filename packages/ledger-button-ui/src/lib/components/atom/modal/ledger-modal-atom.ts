@@ -165,7 +165,7 @@ export class LedgerModalAtom extends LitElement {
             show-logo
             show-close
             @toolbar-close=${this.handleToolbarClose}
-            aria-labelledby=${this.title ? "modal-title" : ""}
+            aria-label=${this.title || ""}
           ></ledger-toolbar-molecule>
           <div id="modal-content" class="p-16 text-white">
             <slot></slot>
