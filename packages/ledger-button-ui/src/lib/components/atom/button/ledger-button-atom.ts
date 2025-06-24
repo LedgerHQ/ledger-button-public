@@ -1,5 +1,6 @@
 import "../icon/ledger-icon-atom";
 
+import { cva } from "class-variance-authority";
 import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -18,6 +19,45 @@ export interface LedgerButtonAtomAttributes {
   iconPosition?: IconPosition;
   type?: "button" | "submit" | "reset";
 }
+
+const buttonVariants = cva(
+  [
+    "flex items-center justify-center gap-8 cursor-pointer body-1-semi-bold rounded-full",
+    "disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled",
+  ],
+
+  {
+    variants: {
+      variant: {
+        accent: [
+          "bg-accent text-on-accent",
+          "hover:bg-accent-hover active:bg-accent-pressed",
+        ],
+        primary: [
+          "bg-interactive text-on-interactive",
+          "hover:bg-interactive-hover active:bg-interactive-pressed",
+        ],
+        secondary: [
+          "bg-muted text-base",
+          "hover:bg-muted-hover active:bg-muted-pressed",
+        ],
+        "secondary-transparent": [
+          "bg-muted-transparent text-base",
+          "hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
+        ],
+      },
+      size: {
+        small: ["py-8 px-16", "body-2-semi-bold"],
+        medium: ["p-16"],
+        large: ["px-32 py-16"],
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "medium",
+    },
+  }
+);
 
 @customElement("ledger-button-atom")
 export class LedgerButtonAtom extends LitElement {
@@ -56,58 +96,9 @@ export class LedgerButtonAtom extends LitElement {
   ];
 
   private get buttonClasses() {
-    const baseClasses = ["flex", "items-center", "justify-center"];
-
-    const sizeClasses: Record<ButtonSize, string[]> = {
-      small: [
-        "w-[104px]",
-        "h-[32px]",
-        "text-[14px]",
-        "p[8px 10px]",
-        "gap-[8px]",
-        "rounded-sm",
-      ],
-      medium: [
-        "w-[152px]",
-        "h-[36px]",
-        "text-[14px]",
-        "p[8px 10px]",
-        "gap-[8px]",
-        "rounded-md",
-      ],
-      large: [
-        "w-[416px]",
-        "h-[88px]",
-        "text-[28px]",
-        "p[12px 16px]",
-        "gap-[12px]",
-        "rounded-lg",
-      ],
+    return {
+      [buttonVariants({ variant: this.variant, size: this.size })]: true,
     };
-
-    const variantClasses: Record<
-      ButtonVariant,
-      { base: string[]; disabled: string[] }
-    > = {
-      primary: {
-        base: ["bg-black", "text-white"],
-        disabled: ["disabled:bg-gray-300", "disabled:text-gray-500"],
-      },
-      secondary: {
-        base: ["bg-gray-100", "text-gray-900"],
-        disabled: ["disabled:bg-gray-50", "disabled:text-gray-400"],
-      },
-    };
-
-    const classes = [
-      ...baseClasses,
-      ...sizeClasses[this.size],
-      ...variantClasses[this.variant].base,
-      ...(this.disabled ? variantClasses[this.variant].disabled : []),
-      ...(this.disabled ? ["cursor-not-allowed"] : ["cursor-pointer"]),
-    ];
-
-    return { button: true, [classes.join(" ")]: true };
   }
 
   private renderIcon() {
@@ -157,7 +148,7 @@ export class LedgerButtonAtom extends LitElement {
           size: this.size,
           label: this.label,
         },
-      }),
+      })
     );
   }
 }
