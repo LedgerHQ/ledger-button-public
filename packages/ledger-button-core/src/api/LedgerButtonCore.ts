@@ -1,3 +1,7 @@
 import { createContainer } from "../internal/di.js";
 
-export const ledgerButtonCore = createContainer({});
+export const initLedgerButtonCore = async () => {
+  const container = await createContainer({});
+
+  return container;
+};
