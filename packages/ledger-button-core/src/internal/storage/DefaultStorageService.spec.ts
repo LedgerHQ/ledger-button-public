@@ -1,9 +1,10 @@
 import "fake-indexeddb/auto";
 
 import { Jwt } from "jsonwebtoken";
-import { Maybe, Nothing } from "purify-ts";
+import { Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
+import { StorageIDBGetError } from "./model/errors.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
 
 let storageService: DefaultStorageService;
@@ -104,7 +105,10 @@ describe("DefaultStorageService", () => {
     describe("initIdb", () => {
       it("should be able to initialize the IDB", async () => {
         const result = await storageService.initIdb();
-        expect(result).toBe(true);
+        expect(result.isRight()).toBe(true);
+        result.map((db) => {
+          expect(db).toBeInstanceOf(IDBDatabase);
+        });
       });
     });
 
@@ -116,7 +120,7 @@ describe("DefaultStorageService", () => {
         };
 
         const result = await storageService.storeKeyPair(keyPair);
-        expect(result).toBe(true);
+        expect(result).toStrictEqual(Right(true));
       });
     });
 
@@ -129,7 +133,7 @@ describe("DefaultStorageService", () => {
 
         await storageService.storeKeyPair(keyPair);
         const result = await storageService.getKeyPair();
-        expect(result).toEqual(Maybe.of(keyPair));
+        expect(result).toStrictEqual(Right(keyPair));
       });
     });
 
@@ -142,7 +146,7 @@ describe("DefaultStorageService", () => {
 
         await storageService.storeKeyPair(keyPair);
         const result = await storageService.getPublicKey();
-        expect(result).toEqual(Maybe.of(keyPair.publicKey));
+        expect(result).toStrictEqual(Right(keyPair.publicKey));
       });
     });
 
@@ -155,7 +159,7 @@ describe("DefaultStorageService", () => {
 
         await storageService.storeKeyPair(keyPair);
         const result = await storageService.getPrivateKey();
-        expect(result).toEqual(Maybe.of(keyPair.privateKey));
+        expect(result).toStrictEqual(Right(keyPair.privateKey));
       });
     });
 
@@ -166,9 +170,13 @@ describe("DefaultStorageService", () => {
           privateKey: new Uint8Array([4, 5, 6]),
         });
 
-        await storageService.removeKeyPair();
-        const result = await storageService.getKeyPair();
-        expect(result).toBe(Nothing);
+        const removed = await storageService.removeKeyPair();
+        expect(removed).toStrictEqual(Right(true));
+        const keyPair = await storageService.getKeyPair();
+        expect(keyPair.isLeft()).toBe(true);
+        keyPair.ifLeft((error) => {
+          expect(error).toBeInstanceOf(StorageIDBGetError);
+        });
       });
     });
   });

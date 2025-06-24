@@ -1,6 +1,8 @@
 // TODO: Type could be temporary until we are done with the LEdger Keyring Protocol trusted app
 import { Jwt } from "jsonwebtoken";
-import { Maybe } from "purify-ts";
+import { Either, Maybe } from "purify-ts";
+
+import { StorageIDBErrors } from "./model/errors.js";
 
 // TODO: Temporary type while we work on the trusted-app ledger-keyring-protocol
 export type KeyPair = {
@@ -15,13 +17,13 @@ export interface StorageService {
   hasLedgerButtonItem(key: string): boolean;
   resetLedgerButtonStorage(): void;
 
-  storeKeyPair(keyPair: KeyPair): Promise<boolean>;
-  getKeyPair(): Promise<Maybe<KeyPair>>;
-  removeKeyPair(): Promise<boolean>;
-  getPublicKey(): Promise<Maybe<Uint8Array>>;
-  getPrivateKey(): Promise<Maybe<Uint8Array>>;
+  storeKeyPair(keyPair: KeyPair): Promise<Either<StorageIDBErrors, boolean>>;
+  getKeyPair(): Promise<Either<StorageIDBErrors, KeyPair>>;
+  removeKeyPair(): Promise<Either<StorageIDBErrors, boolean>>;
+  getPublicKey(): Promise<Either<StorageIDBErrors, Uint8Array>>;
+  getPrivateKey(): Promise<Either<StorageIDBErrors, Uint8Array>>;
 
   saveJWT(jwt: Jwt): void;
   getJWT(): Maybe<Jwt>;
-  removeJWT(): boolean;
+  removeJWT(): void;
 }

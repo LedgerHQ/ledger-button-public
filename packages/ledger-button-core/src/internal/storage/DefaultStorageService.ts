@@ -1,171 +1,188 @@
 import { injectable } from "inversify";
 import { Jwt } from "jsonwebtoken";
-import { Maybe, Nothing } from "purify-ts";
+import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
+import {
+  StorageIDBErrors,
+  StorageIDBGetError,
+  StorageIDBNotInitializedError,
+  StorageIDBOpenError,
+  StorageIDBRemoveError,
+  StorageIDBStoreError,
+} from "./model/errors.js";
 import { KeyPair, StorageService } from "./StorageService.js";
 
 @injectable()
 export class DefaultStorageService implements StorageService {
   private jwt: Maybe<Jwt> = Nothing;
-  private idb: Maybe<IDBDatabase> = Nothing;
+  private initialization: Maybe<Promise<void>> = Nothing;
+  private idb: Either<StorageIDBErrors, IDBDatabase> = Left(
+    new StorageIDBNotInitializedError("IDB not initialized")
+  );
 
   static formatKey(key: string) {
     return `${STORAGE_KEYS.PREFIX}-${key}`;
   }
 
   // IndexDB
-  initIdb(): Promise<boolean> {
-    if (this.idb.isJust()) {
-      return Promise.resolve(true);
+  async initIdb(): Promise<Either<StorageIDBErrors, IDBDatabase>> {
+    if (this.idb.isRight()) {
+      return this.idb;
     }
 
-    return new Promise<boolean>((resolve) => {
-      const request = indexedDB.open(STORAGE_KEYS.DB_NAME, 3);
-      request.onsuccess = (event) => {
-        const idb = (event.target as IDBOpenDBRequest).result;
-        this.idb = Maybe.of(idb);
-        resolve(true);
-        // TODO: Add logging system
-        // console.log("IDB opened", event);
-      };
+    if (this.initialization.isJust()) {
+      await this.initialization.orDefault(Promise.resolve());
+      return this.idb;
+    }
 
-      request.onerror = (event) => {
-        // TODO: Add logging system
-        console.error("Error opening IDB", event);
-        resolve(false);
-      };
+    this.initialization = Just(
+      new Promise((resolve) => {
+        const request = indexedDB.open(STORAGE_KEYS.DB_NAME, 3);
 
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        const store = db.createObjectStore(STORAGE_KEYS.DB_STORE_NAME);
+        request.onsuccess = (event) => {
+          const idb = (event.target as IDBOpenDBRequest).result;
+          resolve(Right(idb));
+        };
 
-        store.createIndex(
-          STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
-          STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
-          { unique: true }
-        );
-      };
-    });
+        request.onerror = (event) => {
+          resolve(
+            Left(new StorageIDBOpenError("Error opening IDB", { event }))
+          );
+        };
+
+        request.onupgradeneeded = (event) => {
+          const db = (event.target as IDBOpenDBRequest).result;
+          const store = db.createObjectStore(STORAGE_KEYS.DB_STORE_NAME);
+
+          store.createIndex(
+            STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
+            STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
+            { unique: true }
+          );
+        };
+      }).then((result) => {
+        if (Either.isEither(result)) {
+          this.idb = result as Either<StorageIDBErrors, IDBDatabase>;
+        }
+        return;
+      })
+    );
+
+    await this.initialization.orDefault(Promise.resolve());
+    return this.idb;
   }
 
   async storeKeyPair(keyPair: KeyPair) {
-    const success = await this.initIdb();
-    if (!success) {
-      // TODO: Add logging system
-      console.error("Error initializing IDB");
-      return Promise.resolve(false);
-    }
+    const init = await this.initIdb();
 
-    return new Promise<boolean>((resolve) => {
-      this.idb
-        .map((db) => {
-          const transaction = db.transaction(
-            STORAGE_KEYS.DB_STORE_NAME,
-            "readwrite"
+    return new Promise<Either<StorageIDBErrors, boolean>>((resolve) => {
+      init.map((db) => {
+        const transaction = db.transaction(
+          STORAGE_KEYS.DB_STORE_NAME,
+          "readwrite"
+        );
+        const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+        const request = store.add(keyPair, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
+
+        request.onsuccess = () => {
+          resolve(Right(true));
+        };
+
+        request.onerror = (event) => {
+          resolve(
+            Left(
+              new StorageIDBStoreError("Error storing key pair", {
+                event,
+                // keyPair,
+              })
+            )
           );
-          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
-          store.add(keyPair, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
-          resolve(true);
-        })
-        // TODO: Handle errors through reject ? She we use Maybe/Either here ?
-        .orDefaultLazy(() => {
-          // TODO: Add logging system
-          console.log("no db");
-          resolve(false);
-        });
+        };
+      });
     });
   }
 
   async getKeyPair() {
-    const success = await this.initIdb();
-    if (!success) {
-      return Promise.resolve(Nothing);
-    }
+    const init = await this.initIdb();
 
-    return new Promise<Maybe<KeyPair>>((resolve) => {
-      this.idb
-        .map((db) => {
-          const transaction = db.transaction(
-            STORAGE_KEYS.DB_STORE_NAME,
-            "readonly"
+    return new Promise<Either<StorageIDBErrors, KeyPair>>((resolve) => {
+      init.map((db) => {
+        const transaction = db.transaction(
+          STORAGE_KEYS.DB_STORE_NAME,
+          "readonly"
+        );
+        const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+        const request = store.get(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
+
+        request.onsuccess = (event) => {
+          const result = (event.target as IDBRequest)?.result;
+          if (!result) {
+            resolve(
+              Left(new StorageIDBGetError("Error getting key pair", { event }))
+            );
+
+            return;
+          }
+
+          resolve(Right(result));
+        };
+
+        request.onerror = (event) => {
+          resolve(
+            Left(
+              new StorageIDBGetError("Error getting key pair", {
+                event,
+              })
+            )
           );
-          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
-          const request = store.get(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
-
-          request.onsuccess = (event) => {
-            const result = (event.target as IDBRequest)?.result;
-            if (!result) {
-              resolve(Nothing);
-            } else {
-              resolve(Maybe.of(result));
-            }
-          };
-
-          request.onerror = (event) => {
-            // TODO: Add logging system
-            console.error("Error getting key pair", event);
-            resolve(Nothing);
-          };
-        })
-        .orDefaultLazy(() => resolve(Nothing));
+        };
+      });
     });
   }
 
   async removeKeyPair() {
-    const success = await this.initIdb();
-    if (!success) {
-      return Promise.resolve(false);
-    }
+    const init = await this.initIdb();
 
-    return new Promise<boolean>((resolve) => {
-      this.idb
-        .map((db) => {
-          const transaction = db.transaction(
-            STORAGE_KEYS.DB_STORE_NAME,
-            "readwrite"
+    return new Promise<Either<StorageIDBErrors, boolean>>((resolve) => {
+      init.map((db) => {
+        const transaction = db.transaction(
+          STORAGE_KEYS.DB_STORE_NAME,
+          "readwrite"
+        );
+        const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+        const request = store.delete(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
+
+        request.onsuccess = () => {
+          resolve(Right(true));
+        };
+
+        request.onerror = (event) => {
+          resolve(
+            Left(
+              new StorageIDBRemoveError("Error removing key pair", { event })
+            )
           );
-          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
-          store.delete(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
-          resolve(true);
-        })
-        .orDefaultLazy(() => resolve(false));
+        };
+      });
     });
   }
 
   async getPublicKey() {
-    const success = await this.initIdb();
-    if (!success) {
-      return Promise.resolve(Nothing);
-    }
-
-    return new Promise<Maybe<Uint8Array>>((resolve) => {
-      this.getKeyPair().then((result) => {
-        if (result.isNothing()) return resolve(Nothing);
-
-        resolve(result.map((keyPair) => keyPair.publicKey));
-      });
-    });
+    return (await this.getKeyPair()).map((kp) => kp.publicKey);
   }
 
   async getPrivateKey() {
-    const success = await this.initIdb();
-    if (!success) {
-      return Promise.resolve(Nothing);
-    }
-
-    return new Promise<Maybe<Uint8Array>>((resolve) => {
-      this.getKeyPair().then((result) => {
-        if (result.isNothing()) return resolve(Nothing);
-
-        resolve(result.map((keyPair) => keyPair.privateKey));
-      });
-    });
+    return (await this.getKeyPair()).map((kp) => kp.privateKey);
   }
 
   // JWT
   saveJWT(jwt: Jwt) {
-    this.jwt = Maybe.of(jwt);
+    // NOTE: Add checks for jwt validity ?
+    if (jwt) {
+      this.jwt = Maybe.of(jwt);
+      return;
+    }
   }
 
   getJWT() {
@@ -175,9 +192,7 @@ export class DefaultStorageService implements StorageService {
   removeJWT() {
     if (this.jwt.isJust()) {
       this.jwt = Nothing;
-      return true;
     }
-    return false;
   }
 
   // LocalStorage
@@ -220,7 +235,7 @@ export class DefaultStorageService implements StorageService {
     return Maybe.fromNullable(item).chain((item) => {
       try {
         return Maybe.of(JSON.parse(item) as T);
-      } catch (error) {
+      } catch (_error) {
         // TODO: Add logging system
         // console.error("Error parsing item", error);
         return Nothing;
