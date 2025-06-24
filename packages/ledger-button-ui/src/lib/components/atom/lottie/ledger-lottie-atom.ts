@@ -1,3 +1,4 @@
+import { cva } from "class-variance-authority";
 import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -16,6 +17,19 @@ export interface LedgerLottieAtomAttributes {
   speed?: number;
   paused?: boolean;
 }
+
+const lottieVariants = cva(["lottie-container", "inline-block", "block"], {
+  variants: {
+    size: {
+      small: ["w-8", "h-8"],
+      medium: ["w-16", "h-16"],
+      large: ["w-32", "h-32"],
+    },
+  },
+  defaultVariants: {
+    size: "medium",
+  },
+});
 
 @customElement("ledger-lottie-atom")
 export class LedgerLottieAtom extends LitElement {
@@ -56,17 +70,9 @@ export class LedgerLottieAtom extends LitElement {
   ];
 
   private get containerClasses() {
-    const baseClasses = ["lottie-container", "inline-block"];
-
-    const sizeClasses: Record<LottieSize, string[]> = {
-      small: ["w-8", "h-8"],
-      medium: ["w-16", "h-16"],
-      large: ["w-32", "h-32"],
+    return {
+      [lottieVariants({ size: this.size })]: true,
     };
-
-    const classes = [...baseClasses, ...sizeClasses[this.size]];
-
-    return { [classes.join(" ")]: true };
   }
 
   override firstUpdated() {
