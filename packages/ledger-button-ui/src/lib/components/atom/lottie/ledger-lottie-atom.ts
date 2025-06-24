@@ -1,3 +1,4 @@
+import { cva } from "class-variance-authority";
 import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -9,7 +10,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 export type LottieSize = "small" | "medium" | "large";
 
 export interface LedgerLottieAtomAttributes {
-  animationData?: object;
+  animationData: object;
   size?: LottieSize;
   autoplay?: boolean;
   loop?: boolean;
@@ -17,10 +18,23 @@ export interface LedgerLottieAtomAttributes {
   paused?: boolean;
 }
 
+const lottieVariants = cva(["lottie-container", "inline-block", "block"], {
+  variants: {
+    size: {
+      small: ["w-8", "h-8"],
+      medium: ["w-16", "h-16"],
+      large: ["w-32", "h-32"],
+    },
+  },
+  defaultVariants: {
+    size: "medium",
+  },
+});
+
 @customElement("ledger-lottie-atom")
 export class LedgerLottieAtom extends LitElement {
   @property({ type: Object, attribute: "animation-data" })
-  animationData?: object;
+  animationData!: object;
 
   @property({ type: String })
   size: LottieSize = "medium";
@@ -56,20 +70,16 @@ export class LedgerLottieAtom extends LitElement {
   ];
 
   private get containerClasses() {
-    const baseClasses = ["lottie-container", "inline-block"];
-
-    const sizeClasses: Record<LottieSize, string[]> = {
-      small: ["w-8", "h-8"],
-      medium: ["w-16", "h-16"],
-      large: ["w-32", "h-32"],
+    return {
+      [lottieVariants({ size: this.size })]: true,
     };
-
-    const classes = [...baseClasses, ...sizeClasses[this.size]];
-
-    return { [classes.join(" ")]: true };
   }
 
   override firstUpdated() {
+    if (!this.animationData) {
+      throw new Error("animationData is required for ledger-lottie-atom");
+    }
+
     this.initializeAnimation();
   }
 
@@ -97,7 +107,7 @@ export class LedgerLottieAtom extends LitElement {
   }
 
   private initializeAnimation() {
-    if (!this.animationData || !this.container) {
+    if (!this.container || !this.animationData) {
       return;
     }
 
