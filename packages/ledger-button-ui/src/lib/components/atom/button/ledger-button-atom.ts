@@ -22,10 +22,9 @@ export interface LedgerButtonAtomAttributes {
 
 const buttonVariants = cva(
   [
-    "flex items-center justify-center gap-8 cursor-pointer body-1-semi-bold rounded-full",
+    "flex cursor-pointer items-center justify-center gap-8 rounded-full body-1-semi-bold",
     "disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled",
   ],
-
   {
     variants: {
       variant: {
@@ -47,7 +46,7 @@ const buttonVariants = cva(
         ],
       },
       size: {
-        small: ["py-8 px-16", "body-2-semi-bold"],
+        small: ["px-16 py-8", "body-2-semi-bold"],
         medium: ["p-16"],
         large: ["px-32 py-16"],
       },
@@ -56,7 +55,7 @@ const buttonVariants = cva(
       variant: "primary",
       size: "medium",
     },
-  }
+  },
 );
 
 @customElement("ledger-button-atom")
@@ -148,7 +147,7 @@ export class LedgerButtonAtom extends LitElement {
           size: this.size,
           label: this.label,
         },
-      })
+      }),
     );
   }
 }
