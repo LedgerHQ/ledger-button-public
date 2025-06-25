@@ -8,7 +8,7 @@ class CustomError extends LedgerButtonError {
 
 describe("LedgerButtonError", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should be able to create a new error", () => {

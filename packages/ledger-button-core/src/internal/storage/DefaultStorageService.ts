@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+import { type Factory, inject, injectable } from "inversify";
 import { Jwt } from "jsonwebtoken";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
@@ -11,15 +11,25 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "./model/errors.js";
+import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
+import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { KeyPair, StorageService } from "./StorageService.js";
 
 @injectable()
 export class DefaultStorageService implements StorageService {
+  private readonly logger: LoggerPublisher;
   private jwt: Maybe<Jwt> = Nothing;
   private initialization: Maybe<Promise<void>> = Nothing;
   private idb: Either<StorageIDBErrors, IDBDatabase> = Left(
     new StorageIDBNotInitializedError("IDB not initialized")
   );
+
+  constructor(
+    @inject(loggerModuleTypes.LoggerPublisher)
+    private readonly loggerFactory: Factory<LoggerPublisher>
+  ) {
+    this.logger = this.loggerFactory("StorageService");
+  }
 
   static formatKey(key: string) {
     return `${STORAGE_KEYS.PREFIX}-${key}`;
@@ -41,11 +51,13 @@ export class DefaultStorageService implements StorageService {
         const request = indexedDB.open(STORAGE_KEYS.DB_NAME, 3);
 
         request.onsuccess = (event) => {
+          this.logger.debug("IDB opened");
           const idb = (event.target as IDBOpenDBRequest).result;
           resolve(Right(idb));
         };
 
         request.onerror = (event) => {
+          this.logger.error("Error opening IDB", { event });
           resolve(
             Left(new StorageIDBOpenError("Error opening IDB", { event }))
           );
@@ -86,10 +98,12 @@ export class DefaultStorageService implements StorageService {
         const request = store.add(keyPair, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
 
         request.onsuccess = () => {
+          this.logger.debug("Key pair stored", { keyPair });
           resolve(Right(true));
         };
 
         request.onerror = (event) => {
+          this.logger.error("Error storing key pair", { event });
           resolve(
             Left(
               new StorageIDBStoreError("Error storing key pair", {
@@ -118,6 +132,7 @@ export class DefaultStorageService implements StorageService {
         request.onsuccess = (event) => {
           const result = (event.target as IDBRequest)?.result;
           if (!result) {
+            this.logger.error("Error getting key pair", { event });
             resolve(
               Left(new StorageIDBGetError("Error getting key pair", { event }))
             );
@@ -125,10 +140,12 @@ export class DefaultStorageService implements StorageService {
             return;
           }
 
+          this.logger.debug("Key pair retrieved", { result });
           resolve(Right(result));
         };
 
         request.onerror = (event) => {
+          this.logger.error("Error getting key pair", { event });
           resolve(
             Left(
               new StorageIDBGetError("Error getting key pair", {
@@ -154,10 +171,12 @@ export class DefaultStorageService implements StorageService {
         const request = store.delete(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
 
         request.onsuccess = () => {
+          this.logger.debug("Key pair removed");
           resolve(Right(true));
         };
 
         request.onerror = (event) => {
+          this.logger.error("Error removing key pair", { event });
           resolve(
             Left(
               new StorageIDBRemoveError("Error removing key pair", { event })
@@ -181,6 +200,7 @@ export class DefaultStorageService implements StorageService {
     // NOTE: Add checks for jwt validity ?
     if (jwt) {
       this.jwt = Maybe.of(jwt);
+      this.logger.debug("JWT saved");
       return;
     }
   }
@@ -206,12 +226,12 @@ export class DefaultStorageService implements StorageService {
   removeLedgerButtonItem(key: string) {
     const formattedKey = DefaultStorageService.formatKey(key);
     if (!this.hasLedgerButtonItem(formattedKey)) {
-      // TODO: Add a logger
-      // console.warn(`Item with key ${key} not found`);
+      this.logger.debug("Item not found", { key });
       return false;
     }
 
     localStorage.removeItem(formattedKey);
+    this.logger.debug("Item removed", { key });
     return true;
   }
 
@@ -235,9 +255,8 @@ export class DefaultStorageService implements StorageService {
     return Maybe.fromNullable(item).chain((item) => {
       try {
         return Maybe.of(JSON.parse(item) as T);
-      } catch (_error) {
-        // TODO: Add logging system
-        // console.error("Error parsing item", error);
+      } catch (error) {
+        this.logger.error("Error parsing item", { error, key });
         return Nothing;
       }
     });

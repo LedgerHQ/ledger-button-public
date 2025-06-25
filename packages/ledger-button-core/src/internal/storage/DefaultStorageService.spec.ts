@@ -5,14 +5,21 @@ import { Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBGetError } from "./model/errors.js";
+import { ConsoleLoggerSubscriber } from "../logger/service/ConsoleLoggerSubscriber.js";
+import { DefaultLoggerPublisher } from "../logger/service/DefaultLoggerPublisher.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
+
+vi.mock("../logger/service/DefaultLoggerPublisher.js");
+vi.mock("../logger/service/ConsoleLoggerSubscriber.js");
 
 let storageService: DefaultStorageService;
 describe("DefaultStorageService", () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
     localStorage.clear();
-    storageService = new DefaultStorageService();
+    storageService = new DefaultStorageService(
+      (tag) => new DefaultLoggerPublisher([new ConsoleLoggerSubscriber()], tag),
+    );
   });
 
   describe("LocalStorage methods", () => {
@@ -22,7 +29,7 @@ describe("DefaultStorageService", () => {
         storageService.setLedgerButtonItem("test", "test");
         expect(spy).toHaveBeenCalledWith(
           `${STORAGE_KEYS.PREFIX}-test`,
-          JSON.stringify("test")
+          JSON.stringify("test"),
         );
       });
 

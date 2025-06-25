@@ -35,9 +35,6 @@
     "**/.hg/**",
     "**/.svn/**"
   ],
-  "cSpell.words": [
-    "tailwindcss"
-  ],
   "editor.formatOnSave": true,
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
