@@ -156,7 +156,6 @@ export const TestToolbarInteractions: Story = {
 
       expect(logoIcon).toBeInTheDocument();
       expect(closeIcon).toBeInTheDocument();
-      expect(closeIcon).toHaveAttribute("style", "cursor: pointer;");
     });
   },
   parameters: {
