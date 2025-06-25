@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import type { AnimationItem } from "lottie-web";
@@ -18,7 +18,7 @@ export interface LedgerLottieAtomAttributes {
   paused?: boolean;
 }
 
-const lottieVariants = cva(["lottie-container", "inline-block", "block"], {
+const lottieVariants = cva(["lottie-container"], {
   variants: {
     size: {
       small: ["w-8", "h-8"],
@@ -56,18 +56,7 @@ export class LedgerLottieAtom extends LitElement {
 
   private animation?: AnimationItem;
 
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: inline-block;
-      }
-
-      .lottie-container {
-        display: block;
-      }
-    `,
-  ];
+  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {
