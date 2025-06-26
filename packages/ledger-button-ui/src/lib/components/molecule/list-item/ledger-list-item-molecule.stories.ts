@@ -87,10 +87,24 @@ const meta: Meta = {
       },
     },
     iconColor: {
-      control: "color",
-      description: "The background color for account avatars",
+      control: { type: "select" },
+      options: [
+        "",
+        "var(--color-crypto-ethereum)",
+        "var(--color-crypto-bitcoin)",
+        "var(--color-crypto-binance)",
+        "var(--color-crypto-polygon)",
+        "var(--color-crypto-cardano)",
+        "var(--color-crypto-sol)",
+        "var(--color-crypto-avax)",
+        "var(--color-crypto-polkadot)",
+        "var(--background-accent)",
+        "var(--background-muted)",
+        "var(--background-interactive)",
+      ],
+      description: "The background color token for account avatars",
       table: {
-        type: { summary: "string" },
+        type: { summary: "CSSBackgroundToken | CSSCryptoToken" },
         defaultValue: { summary: '""' },
       },
     },
@@ -153,7 +167,7 @@ export const AccountEthereum: Story = {
     subtitle: "0xC5...C0D8",
     amount: "3.2343",
     currency: "ETH",
-    iconColor: "#627EEA",
+    iconColor: "var(--color-crypto-ethereum)",
   },
   parameters: {
     docs: {
@@ -171,7 +185,7 @@ export const AccountBSC: Story = {
     subtitle: "0x31...775D",
     amount: "2304.3453",
     currency: "BSC",
-    iconColor: "#F3BA2F",
+    iconColor: "var(--color-crypto-binance)",
   },
   parameters: {
     docs: {
@@ -189,7 +203,7 @@ export const AccountPolygon: Story = {
     subtitle: "0x59...cEC9",
     amount: "5432.3221",
     currency: "POL",
-    iconColor: "#8247E5",
+    iconColor: "var(--color-crypto-polygon)",
   },
   parameters: {
     docs: {
@@ -238,7 +252,7 @@ export const AllVariations: Story = {
             subtitle="0xC5...C0D8"
             amount="3.2343"
             currency="ETH"
-            icon-color="#627EEA"
+            icon-color="var(--color-crypto-ethereum)"
           ></ledger-list-item-molecule>
           <ledger-list-item-molecule
             variant="account"
@@ -246,7 +260,7 @@ export const AllVariations: Story = {
             subtitle="0x31...775D"
             amount="2304.3453"
             currency="BSC"
-            icon-color="#F3BA2F"
+            icon-color="var(--color-crypto-binance)"
           ></ledger-list-item-molecule>
           <ledger-list-item-molecule
             variant="account"
@@ -254,7 +268,7 @@ export const AllVariations: Story = {
             subtitle="0x59...cEC9"
             amount="5432.3221"
             currency="POL"
-            icon-color="#8247E5"
+            icon-color="var(--color-crypto-polygon)"
           ></ledger-list-item-molecule>
         </div>
       </div>
@@ -278,7 +292,7 @@ export const AllVariations: Story = {
             subtitle="0x12...34AB"
             amount="100.0"
             currency="ETH"
-            icon-color="#627EEA"
+            icon-color="var(--color-crypto-ethereum)"
             clickable="false"
           ></ledger-list-item-molecule>
         </div>
@@ -427,7 +441,7 @@ export const TestAccountInteractions: Story = {
     subtitle: "0x12...34AB",
     amount: "123.45",
     currency: "ETH",
-    iconColor: "#627EEA",
+    iconColor: "var(--color-crypto-ethereum)",
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify account item renders correctly", async () => {
@@ -545,7 +559,7 @@ export const TestNonClickable: Story = {
     subtitle: "0x12...34AB",
     amount: "100.0",
     currency: "ETH",
-    iconColor: "#627EEA",
+    iconColor: "var(--color-crypto-ethereum)",
     clickable: false,
   },
   play: async ({ canvasElement, step }) => {

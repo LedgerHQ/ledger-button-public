@@ -7,7 +7,7 @@ import { classMap } from "lit/directives/class-map.js";
 import { when } from "lit/directives/when.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
-import { CSSBackgroundToken } from "../../../../types";
+import type { CSSBackgroundToken, CSSCryptoToken } from "../../../../types";
 
 export type ListItemVariant = "connection" | "account";
 export type ListItemSize = "small" | "medium" | "large";
@@ -20,7 +20,7 @@ export interface LedgerListItemMoleculeAttributes {
   amount?: string;
   currency?: string;
   iconType?: string;
-  iconColor?: CSSBackgroundToken;
+  iconColor?: CSSBackgroundToken | CSSCryptoToken;
   clickable?: boolean;
   disabled?: boolean;
 }
@@ -128,7 +128,7 @@ export class LedgerListItemMolecule extends LitElement {
   iconType = "";
 
   @property({ type: String, attribute: "icon-color" })
-  iconColor = "";
+  iconColor: CSSBackgroundToken | CSSCryptoToken | "" = "";
 
   @property({ type: Boolean })
   clickable = true;
@@ -169,9 +169,9 @@ export class LedgerListItemMolecule extends LitElement {
 
   private getAvatarStyle() {
     if (this.iconColor) {
-      return `background-color: ${this.iconColor};`;
+      return `background: ${this.iconColor};`;
     }
-    return "background-color: #6366f1;"; // Default color
+    return "background: var(--background-accent);"; // Default color
   }
 
   private getAvatarInitials() {
