@@ -13,7 +13,16 @@ const meta: Meta = {
   argTypes: {
     type: {
       control: "select",
-      options: ["ledger", "close", "bluetooth", "usb", "chevron"],
+      options: [
+        "ledger",
+        "close",
+        "bluetooth",
+        "usb",
+        "chevron",
+        "ethereum",
+        "bsc",
+        "polygon",
+      ],
       description: "The type of icon to display",
     },
     size: {
@@ -132,6 +141,69 @@ export const ChevronIconLarge: Story = {
   },
 };
 
+export const EthereumIconSmall: Story = {
+  args: {
+    type: "ethereum",
+    size: "small",
+  },
+};
+
+export const EthereumIconMedium: Story = {
+  args: {
+    type: "ethereum",
+    size: "medium",
+  },
+};
+
+export const EthereumIconLarge: Story = {
+  args: {
+    type: "ethereum",
+    size: "large",
+  },
+};
+
+export const BSCIconSmall: Story = {
+  args: {
+    type: "bsc",
+    size: "small",
+  },
+};
+
+export const BSCIconMedium: Story = {
+  args: {
+    type: "bsc",
+    size: "medium",
+  },
+};
+
+export const BSCIconLarge: Story = {
+  args: {
+    type: "bsc",
+    size: "large",
+  },
+};
+
+export const PolygonIconSmall: Story = {
+  args: {
+    type: "polygon",
+    size: "small",
+  },
+};
+
+export const PolygonIconMedium: Story = {
+  args: {
+    type: "polygon",
+    size: "medium",
+  },
+};
+
+export const PolygonIconLarge: Story = {
+  args: {
+    type: "polygon",
+    size: "large",
+  },
+};
+
 export const AllIcons: Story = {
   render: () => html`
     <div
@@ -156,6 +228,18 @@ export const AllIcons: Story = {
       <div style="text-align: center;">
         <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon-atom type="ethereum" size="medium"></ledger-icon-atom>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Ethereum</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon-atom type="bsc" size="medium"></ledger-icon-atom>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">BSC</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon-atom type="polygon" size="medium"></ledger-icon-atom>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Polygon</p>
       </div>
     </div>
   `,

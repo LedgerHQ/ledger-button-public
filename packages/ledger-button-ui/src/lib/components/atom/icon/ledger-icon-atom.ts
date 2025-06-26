@@ -4,14 +4,25 @@ import { customElement, property } from "lit/decorators.js";
 import tailwindStyles from "../../../../styles.css?inline";
 import {
   BluetoothIcon,
+  BscIcon,
   ChevronIcon,
   CloseIcon,
+  EthereumIcon,
   LedgerIcon,
+  PolygonIcon,
   UsbIcon,
 } from "./index";
 
 export interface LedgerIconAtomAttributes {
-  type: "ledger" | "close" | "bluetooth" | "usb" | "chevron";
+  type:
+    | "ledger"
+    | "close"
+    | "bluetooth"
+    | "usb"
+    | "chevron"
+    | "ethereum"
+    | "bsc"
+    | "polygon";
   size: "small" | "medium" | "large";
 }
 
@@ -51,6 +62,9 @@ export class LedgerIconAtom extends LitElement {
       bluetooth: () => BluetoothIcon,
       usb: () => UsbIcon,
       chevron: () => ChevronIcon,
+      ethereum: () => EthereumIcon,
+      bsc: () => BscIcon,
+      polygon: () => PolygonIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
