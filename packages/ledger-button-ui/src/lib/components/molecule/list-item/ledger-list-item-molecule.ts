@@ -7,6 +7,7 @@ import { classMap } from "lit/directives/class-map.js";
 import { when } from "lit/directives/when.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
+import { CSSBackgroundToken } from "../../../../types";
 
 export type ListItemVariant = "connection" | "account";
 export type ListItemSize = "small" | "medium" | "large";
@@ -19,7 +20,7 @@ export interface LedgerListItemMoleculeAttributes {
   amount?: string;
   currency?: string;
   iconType?: string;
-  iconColor?: string;
+  iconColor?: CSSBackgroundToken;
   clickable?: boolean;
   disabled?: boolean;
 }
