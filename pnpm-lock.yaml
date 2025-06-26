@@ -29,6 +29,9 @@ importers:
       '@angular/platform-browser-dynamic':
         specifier: ^17.0.0
         version: 17.3.12(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/compiler@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10)))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(@angular/platform-browser@17.3.12(@angular/animations@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10)))(@angular/common@17.3.12(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10))(rxjs@7.8.2))(@angular/core@17.3.12(rxjs@7.8.2)(zone.js@0.14.10)))
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
       lottie-web:
         specifier: ^5.12.2
         version: 5.13.0
@@ -311,6 +314,9 @@ importers:
       '@ledgerhq/ledger-button-dmk':
         specifier: workspace:*
         version: link:../ledger-button-dmk
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
       inversify:
         specifier: ^7.5.1
         version: 7.5.1(reflect-metadata@0.2.2)
