@@ -4,9 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../ledger-button-dmk"
-    },
-    {
       "path": "./tsconfig.lib.json"
     },
     {

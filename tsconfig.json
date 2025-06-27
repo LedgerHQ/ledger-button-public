@@ -10,15 +10,6 @@
       "path": "./packages/ledger-button"
     },
     {
-      "path": "./packages/ledger-button-dmk"
-    },
-    {
-      "path": "./packages/ledger-button-accounts"
-    },
-    {
-      "path": "./packages/ledger-button-signer"
-    },
-    {
       "path": "./packages/ledger-button-core"
     },
     {
