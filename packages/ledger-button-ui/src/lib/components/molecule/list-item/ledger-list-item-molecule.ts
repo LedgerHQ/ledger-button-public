@@ -7,71 +7,56 @@ import { classMap } from "lit/directives/class-map.js";
 import { when } from "lit/directives/when.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
-import type { CSSBackgroundToken, CSSCryptoToken } from "../../../../types";
 
 export type ListItemVariant = "connection" | "account";
 export type ListItemSize = "small" | "medium" | "large";
 
 export interface LedgerListItemMoleculeAttributes {
   variant?: ListItemVariant;
-  size?: ListItemSize;
   title?: string;
   subtitle?: string;
   amount?: string;
   currency?: string;
   iconType?: string;
-  iconColor?: CSSBackgroundToken | CSSCryptoToken;
   clickable?: boolean;
   disabled?: boolean;
 }
 
-const listItemVariants = cva(
-  [
-    "w-full flex items-center transition-colors duration-200",
-    "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-  ],
-  {
-    variants: {
-      variant: {
-        connection: [
-          "rounded-12 bg-muted p-16 hover:bg-muted-hover",
-          "cursor-pointer active:bg-muted-pressed",
-        ],
-        account: [
-          "rounded-12 bg-muted p-16 hover:bg-muted-hover",
-          "cursor-pointer active:bg-muted-pressed",
-        ],
-      },
-      size: {
-        small: ["min-h-48"],
-        medium: ["min-h-64"],
-        large: ["min-h-72"],
-      },
-      clickable: {
-        true: ["cursor-pointer"],
-        false: ["cursor-default"],
-      },
-      disabled: {
-        true: ["pointer-events-none cursor-not-allowed opacity-50"],
-        false: [],
-      },
+const listItemVariants = cva(["flex items-center"], {
+  variants: {
+    variant: {
+      connection: [
+        "rounded-12 bg-muted p-16 hover:bg-muted-hover",
+        "cursor-pointer active:bg-muted-pressed",
+      ],
+      account: [
+        "rounded-12 bg-muted p-16 hover:bg-muted-hover",
+        "cursor-pointer active:bg-muted-pressed",
+      ],
     },
-    defaultVariants: {
-      variant: "connection",
-      size: "medium",
-      clickable: true,
-      disabled: false,
+    clickable: {
+      true: ["cursor-pointer"],
+      false: ["cursor-default"],
+    },
+    disabled: {
+      true: ["pointer-events-none cursor-not-allowed opacity-50"],
+      false: [],
     },
   },
-);
+  defaultVariants: {
+    variant: "connection",
+    clickable: true,
+    disabled: false,
+  },
+});
 
 const iconContainerVariants = cva(
   ["flex items-center justify-center rounded-full"],
   {
     variants: {
       variant: {
-        connection: ["h-40 w-40 bg-accent"],
-        account: ["h-40 w-40"],
+        connection: ["h-40 w-256"],
+        account: ["h-64 w-384"],
       },
     },
     defaultVariants: {
@@ -96,11 +81,6 @@ const amountVariants = cva([
 ]);
 
 const chevronVariants = cva(["ml-8 flex-shrink-0 text-muted"]);
-
-const avatarVariants = cva([
-  "flex h-40 w-40 items-center justify-center rounded-full",
-  "flex-shrink-0 text-base body-1-semi-bold",
-]);
 
 const contentVariants = cva(["min-w-0 flex-1"]);
 
@@ -127,28 +107,13 @@ export class LedgerListItemMolecule extends LitElement {
   @property({ type: String, attribute: "icon-type" })
   iconType = "";
 
-  @property({ type: String, attribute: "icon-color" })
-  iconColor: CSSBackgroundToken | CSSCryptoToken | "" = "";
-
   @property({ type: Boolean })
   clickable = true;
 
   @property({ type: Boolean })
   disabled = false;
 
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: block;
-        width: 100%;
-      }
-
-      :host([disabled]) {
-        pointer-events: none;
-      }
-    `,
-  ];
+  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {
@@ -167,24 +132,19 @@ export class LedgerListItemMolecule extends LitElement {
     };
   }
 
-  private getAvatarStyle() {
-    if (this.iconColor) {
-      return `background: ${this.iconColor};`;
+  private getIconType() {
+    if (this.iconType) {
+      return this.iconType;
     }
-    return "background: var(--background-accent);"; // Default color
-  }
 
-  private getAvatarInitials() {
-    if (this.title) {
-      const words = this.title.split(" ");
-      if (words.length >= 2) {
-        return (
-          words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase()
-        );
-      }
-      return this.title.charAt(0).toUpperCase();
-    }
-    return "?";
+    const currencyIconMap: { [key: string]: string } = {
+      ETH: "ethereum",
+      BSC: "bsc",
+      POL: "polygon",
+      MATIC: "polygon",
+    };
+
+    return currencyIconMap[this.currency?.toUpperCase() || ""];
   }
 
   private renderIcon() {
@@ -204,12 +164,11 @@ export class LedgerListItemMolecule extends LitElement {
 
     if (this.variant === "account") {
       return html`
-        <div
-          class=${avatarVariants()}
-          style=${this.getAvatarStyle()}
-          data-testid="account-avatar"
-        >
-          ${this.getAvatarInitials()}
+        <div class="flex-shrink-0" data-testid="account-avatar">
+          <ledger-icon-atom
+            type=${this.getIconType()}
+            size="large"
+          ></ledger-icon-atom>
         </div>
       `;
     }
@@ -257,7 +216,7 @@ export class LedgerListItemMolecule extends LitElement {
     if (this.variant === "connection") {
       return html`
         <div class=${chevronVariants()} data-testid="chevron">
-          <ledger-icon-atom type="chevron" size="small"></ledger-icon-atom>
+          <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
         </div>
       `;
     }

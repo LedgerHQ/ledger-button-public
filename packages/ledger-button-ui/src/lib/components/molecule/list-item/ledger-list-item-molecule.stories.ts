@@ -12,13 +12,11 @@ const meta: Meta = {
     html`<div style="background: #272727; padding: 20px; width: 400px;">
       <ledger-list-item-molecule
         .variant=${args.variant || "connection"}
-        .size=${args.size || "medium"}
         .title=${args.title || ""}
         .subtitle=${args.subtitle || ""}
         .amount=${args.amount || ""}
         .currency=${args.currency || ""}
         .iconType=${args.iconType || ""}
-        .iconColor=${args.iconColor || ""}
         .clickable=${args.clickable ?? true}
         .disabled=${args.disabled ?? false}
         @list-item-click=${(e: CustomEvent) => {
@@ -34,15 +32,6 @@ const meta: Meta = {
       table: {
         type: { summary: "connection | account" },
         defaultValue: { summary: "connection" },
-      },
-    },
-    size: {
-      control: { type: "select" },
-      options: ["small", "medium", "large"],
-      description: "The size of the list item",
-      table: {
-        type: { summary: "small | medium | large" },
-        defaultValue: { summary: "medium" },
       },
     },
     title: {
@@ -79,32 +68,21 @@ const meta: Meta = {
     },
     iconType: {
       control: { type: "select" },
-      options: ["bluetooth", "usb", "ledger", "close", "chevron"],
-      description: "The icon type to display",
-      table: {
-        type: { summary: "string" },
-        defaultValue: { summary: '""' },
-      },
-    },
-    iconColor: {
-      control: { type: "select" },
       options: [
         "",
-        "var(--color-crypto-ethereum)",
-        "var(--color-crypto-bitcoin)",
-        "var(--color-crypto-binance)",
-        "var(--color-crypto-polygon)",
-        "var(--color-crypto-cardano)",
-        "var(--color-crypto-sol)",
-        "var(--color-crypto-avax)",
-        "var(--color-crypto-polkadot)",
-        "var(--background-accent)",
-        "var(--background-muted)",
-        "var(--background-interactive)",
+        "bluetooth",
+        "usb",
+        "ledger",
+        "close",
+        "chevron",
+        "ethereum",
+        "bsc",
+        "polygon",
       ],
-      description: "The background color token for account avatars",
+      description:
+        "The icon type to display. For connection items: bluetooth, usb. For account items: ethereum, bsc, polygon",
       table: {
-        type: { summary: "CSSBackgroundToken | CSSCryptoToken" },
+        type: { summary: "string" },
         defaultValue: { summary: '""' },
       },
     },
@@ -167,7 +145,7 @@ export const AccountEthereum: Story = {
     subtitle: "0xC5...C0D8",
     amount: "3.2343",
     currency: "ETH",
-    iconColor: "var(--color-crypto-ethereum)",
+    iconType: "ethereum",
   },
   parameters: {
     docs: {
@@ -185,7 +163,7 @@ export const AccountBSC: Story = {
     subtitle: "0x31...775D",
     amount: "2304.3453",
     currency: "BSC",
-    iconColor: "var(--color-crypto-binance)",
+    iconType: "bsc",
   },
   parameters: {
     docs: {
@@ -203,7 +181,7 @@ export const AccountPolygon: Story = {
     subtitle: "0x59...cEC9",
     amount: "5432.3221",
     currency: "POL",
-    iconColor: "var(--color-crypto-polygon)",
+    iconType: "polygon",
   },
   parameters: {
     docs: {
@@ -252,7 +230,7 @@ export const AllVariations: Story = {
             subtitle="0xC5...C0D8"
             amount="3.2343"
             currency="ETH"
-            icon-color="var(--color-crypto-ethereum)"
+            icon-type="ethereum"
           ></ledger-list-item-molecule>
           <ledger-list-item-molecule
             variant="account"
@@ -260,7 +238,7 @@ export const AllVariations: Story = {
             subtitle="0x31...775D"
             amount="2304.3453"
             currency="BSC"
-            icon-color="var(--color-crypto-binance)"
+            icon-type="bsc"
           ></ledger-list-item-molecule>
           <ledger-list-item-molecule
             variant="account"
@@ -268,7 +246,7 @@ export const AllVariations: Story = {
             subtitle="0x59...cEC9"
             amount="5432.3221"
             currency="POL"
-            icon-color="var(--color-crypto-polygon)"
+            icon-type="polygon"
           ></ledger-list-item-molecule>
         </div>
       </div>
@@ -292,36 +270,8 @@ export const AllVariations: Story = {
             subtitle="0x12...34AB"
             amount="100.0"
             currency="ETH"
-            icon-color="var(--color-crypto-ethereum)"
+            icon-type="ethereum"
             clickable="false"
-          ></ledger-list-item-molecule>
-        </div>
-      </div>
-
-      <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
-          Sizes
-        </h3>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-list-item-molecule
-            variant="connection"
-            title="Small Connection"
-            icon-type="bluetooth"
-            size="small"
-          ></ledger-list-item-molecule>
-          <ledger-list-item-molecule
-            variant="connection"
-            title="Medium Connection"
-            icon-type="bluetooth"
-            size="medium"
-          ></ledger-list-item-molecule>
-          <ledger-list-item-molecule
-            variant="connection"
-            title="Large Connection"
-            icon-type="bluetooth"
-            size="large"
           ></ledger-list-item-molecule>
         </div>
       </div>
@@ -441,7 +391,7 @@ export const TestAccountInteractions: Story = {
     subtitle: "0x12...34AB",
     amount: "123.45",
     currency: "ETH",
-    iconColor: "var(--color-crypto-ethereum)",
+    iconType: "ethereum",
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify account item renders correctly", async () => {
@@ -484,7 +434,8 @@ export const TestAccountInteractions: Story = {
       );
 
       expect(avatar).toBeInTheDocument();
-      expect(avatar?.textContent?.trim()).toBe("TA"); // First letters of "Test Account"
+      const icon = avatar?.querySelector("ledger-icon-atom[type='ethereum']");
+      expect(icon).toBeInTheDocument();
     });
 
     await step("Verify no chevron for account variant", async () => {
@@ -559,7 +510,7 @@ export const TestNonClickable: Story = {
     subtitle: "0x12...34AB",
     amount: "100.0",
     currency: "ETH",
-    iconColor: "var(--color-crypto-ethereum)",
+    iconType: "ethereum",
     clickable: false,
   },
   play: async ({ canvasElement, step }) => {
