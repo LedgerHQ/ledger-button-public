@@ -1,7 +1,7 @@
 import "../../atom/icon/ledger-icon-atom";
 
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { when } from "lit/directives/when.js";
@@ -26,10 +26,12 @@ const listItemVariants = cva(["flex items-center"], {
   variants: {
     variant: {
       connection: [
+        "h-40 w-384",
         "rounded-12 bg-muted p-16 hover:bg-muted-hover",
         "cursor-pointer active:bg-muted-pressed",
       ],
       account: [
+        "h-64 w-384",
         "rounded-12 bg-muted p-16 hover:bg-muted-hover",
         "cursor-pointer active:bg-muted-pressed",
       ],
@@ -55,8 +57,8 @@ const iconContainerVariants = cva(
   {
     variants: {
       variant: {
-        connection: ["h-40 w-256"],
-        account: ["h-64 w-384"],
+        connection: ["h-32 w-32"],
+        account: ["h-12 w-12"],
       },
     },
     defaultVariants: {
@@ -65,15 +67,41 @@ const iconContainerVariants = cva(
   },
 );
 
-const titleVariants = cva([
-  "text-base body-1-semi-bold",
-  "m-0 overflow-hidden text-ellipsis whitespace-nowrap",
-]);
+const titleVariants = cva(
+  [
+    "text-base body-2-semi-bold",
+    "m-0 overflow-hidden text-ellipsis whitespace-nowrap",
+  ],
+  {
+    variants: {
+      variant: {
+        connection: ["text-center"],
+        account: ["text-left"],
+      },
+    },
+    defaultVariants: {
+      variant: "connection",
+    },
+  },
+);
 
-const subtitleVariants = cva([
-  "text-muted body-2",
-  "m-0 mt-2 overflow-hidden text-ellipsis whitespace-nowrap",
-]);
+const subtitleVariants = cva(
+  [
+    "text-muted body-2",
+    "m-0 mt-2 overflow-hidden text-ellipsis whitespace-nowrap",
+  ],
+  {
+    variants: {
+      variant: {
+        connection: ["text-center"],
+        account: ["text-left"],
+      },
+    },
+    defaultVariants: {
+      variant: "connection",
+    },
+  },
+);
 
 const amountVariants = cva([
   "text-base body-1-semi-bold",
@@ -82,7 +110,7 @@ const amountVariants = cva([
 
 const chevronVariants = cva(["ml-8 flex-shrink-0 text-muted"]);
 
-const contentVariants = cva(["min-w-0 flex-1"]);
+const contentVariants = cva(["m-12 min-w-0 flex-1"]);
 
 @customElement("ledger-list-item-molecule")
 export class LedgerListItemMolecule extends LitElement {
@@ -119,7 +147,6 @@ export class LedgerListItemMolecule extends LitElement {
     return {
       [listItemVariants({
         variant: this.variant,
-        size: this.size,
         clickable: this.clickable,
         disabled: this.disabled,
       })]: true,
@@ -129,6 +156,18 @@ export class LedgerListItemMolecule extends LitElement {
   private get iconContainerClasses() {
     return {
       [iconContainerVariants({ variant: this.variant })]: true,
+    };
+  }
+
+  private get titleClasses() {
+    return {
+      [titleVariants({ variant: this.variant })]: true,
+    };
+  }
+
+  private get subtitleClasses() {
+    return {
+      [subtitleVariants({ variant: this.variant })]: true,
     };
   }
 
@@ -180,7 +219,9 @@ export class LedgerListItemMolecule extends LitElement {
     if (this.variant === "connection") {
       return html`
         <div class=${contentVariants()} data-testid="content">
-          <p class=${titleVariants()} data-testid="title">${this.title}</p>
+          <p class="${classMap(this.titleClasses)}" data-testid="title">
+            ${this.title}
+          </p>
         </div>
       `;
     }
@@ -188,9 +229,14 @@ export class LedgerListItemMolecule extends LitElement {
     if (this.variant === "account") {
       return html`
         <div class=${contentVariants()} data-testid="content">
-          <p class=${titleVariants()} data-testid="title">${this.title}</p>
+          <p class="${classMap(this.titleClasses)}" data-testid="title">
+            ${this.title}
+          </p>
           ${this.subtitle
-            ? html`<p class=${subtitleVariants()} data-testid="subtitle">
+            ? html`<p
+                class="${classMap(this.subtitleClasses)}"
+                data-testid="subtitle"
+              >
                 ${this.subtitle}
               </p>`
             : ""}
