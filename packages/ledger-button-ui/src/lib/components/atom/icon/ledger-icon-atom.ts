@@ -22,7 +22,9 @@ export interface LedgerIconAtomAttributes {
     | "chevron"
     | "ethereum"
     | "bsc"
-    | "polygon";
+    | "polygon"
+    | "check"
+    | "error";
   size: "small" | "medium" | "large";
 }
 
@@ -65,6 +67,8 @@ export class LedgerIconAtom extends LitElement {
       ethereum: () => EthereumIcon,
       bsc: () => BscIcon,
       polygon: () => PolygonIcon,
+      check: () => CheckIcon,
+      error: () => ErrorIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
