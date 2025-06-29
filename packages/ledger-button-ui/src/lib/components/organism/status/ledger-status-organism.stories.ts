@@ -1,14 +1,13 @@
+import "./ledger-status-organism";
+import "../../atom/modal/ledger-modal-atom";
+
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 
-import "./ledger-status-modal-organism";
-
 const meta: Meta = {
-  title: "Organisms/Status Modal",
-  component: "ledger-status-modal-organism",
-  parameters: {
-    layout: "fullscreen",
-  },
+  title: "Component/Organism/Status",
+  component: "ledger-status-organism",
+  tags: ["autodocs"],
   argTypes: {
     type: {
       control: { type: "select" },
@@ -21,7 +20,7 @@ const meta: Meta = {
     },
     title: {
       control: { type: "text" },
-      description: "The main title of the modal",
+      description: "The main title of the status content",
       table: {
         type: { summary: "string" },
         defaultValue: { summary: "" },
@@ -133,18 +132,6 @@ export const MinimalError: Story = {
   },
 };
 
-export const LongContent: Story = {
-  args: {
-    type: "success",
-    title: "Transaction Successfully Completed with Additional Information",
-    description:
-      "Your cryptocurrency transaction has been successfully processed and confirmed on the blockchain network. The funds should appear in your destination wallet within the next few minutes, depending on network congestion and confirmation requirements.",
-    primaryButtonLabel: "View Transaction Details",
-    secondaryButtonLabel: "Return to Dashboard",
-    showSecondaryButton: true,
-  },
-};
-
 export const InteractiveSuccess: Story = {
   args: {
     type: "success",
@@ -173,26 +160,26 @@ export const AllVariants: Story = {
       style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px;"
     >
       <div>
-        <h3 style="color: white; margin-bottom: 10px;">Success Modal</h3>
-        <ledger-status-modal-organism
+        <h3 style="color: white; margin-bottom: 10px;">Success Status</h3>
+        <ledger-status-organism
           type="success"
           title="Success!"
           description="Operation completed successfully"
           primary-button-label="Continue"
           secondary-button-label="Details"
           show-secondary-button
-        ></ledger-status-modal-organism>
+        ></ledger-status-organism>
       </div>
       <div>
-        <h3 style="color: white; margin-bottom: 10px;">Error Modal</h3>
-        <ledger-status-modal-organism
+        <h3 style="color: white; margin-bottom: 10px;">Error Status</h3>
+        <ledger-status-organism
           type="error"
           title="Error occurred"
           description="Something went wrong"
           primary-button-label="Retry"
           secondary-button-label="Cancel"
           show-secondary-button
-        ></ledger-status-modal-organism>
+        ></ledger-status-organism>
       </div>
     </div>
   `,
