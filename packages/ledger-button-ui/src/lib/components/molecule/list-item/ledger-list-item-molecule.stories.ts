@@ -8,22 +8,21 @@ import { html } from "lit";
 const meta: Meta = {
   title: "Component/Molecule/ListItem",
   tags: ["autodocs"],
-  render: (args) =>
-    html`<div style="background: #272727; padding: 20px; width: 400px;">
-      <ledger-list-item-molecule
-        .variant=${args.variant || "connection"}
-        .title=${args.title || ""}
-        .subtitle=${args.subtitle || ""}
-        .amount=${args.amount || ""}
-        .currency=${args.currency || ""}
-        .iconType=${args.iconType || ""}
-        .clickable=${args.clickable ?? true}
-        .disabled=${args.disabled ?? false}
-        @list-item-click=${(e: CustomEvent) => {
-          console.log("List item clicked:", e.detail);
-        }}
-      ></ledger-list-item-molecule>
-    </div>`,
+  render: (args) => html`
+    <ledger-list-item-molecule
+      .variant=${args.variant || "connection"}
+      .title=${args.title || ""}
+      .subtitle=${args.subtitle || ""}
+      .amount=${args.amount || ""}
+      .currency=${args.currency || ""}
+      .iconType=${args.iconType || ""}
+      .clickable=${args.clickable ?? true}
+      .disabled=${args.disabled ?? false}
+      @list-item-click=${(e: CustomEvent) => {
+        console.log("List item clicked:", e.detail);
+      }}
+    ></ledger-list-item-molecule>
+  `,
   argTypes: {
     variant: {
       control: { type: "select" },

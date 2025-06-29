@@ -22,35 +22,30 @@ export interface LedgerListItemMoleculeAttributes {
   disabled?: boolean;
 }
 
-const listItemVariants = cva(["flex items-center"], {
-  variants: {
-    variant: {
-      connection: [
-        "h-40 w-384",
-        "rounded-12 bg-muted p-16 hover:bg-muted-hover",
-        "cursor-pointer active:bg-muted-pressed",
-      ],
-      account: [
-        "h-64 w-384",
-        "rounded-12 bg-muted p-16 hover:bg-muted-hover",
-        "cursor-pointer active:bg-muted-pressed",
-      ],
+const listItemVariants = cva(
+  ["cursor-pointed dark flex items-center", "rounded-md p-12"],
+  {
+    variants: {
+      variant: {
+        connection: ["h-40 w-384", "bg-base-pressed"],
+        account: ["h-64 w-384", "bg-canvas-sheet"],
+      },
+      clickable: {
+        true: ["cursor-pointer"],
+        false: ["cursor-default"],
+      },
+      disabled: {
+        true: ["pointer-events-none cursor-not-allowed opacity-50"],
+        false: [],
+      },
     },
-    clickable: {
-      true: ["cursor-pointer"],
-      false: ["cursor-default"],
-    },
-    disabled: {
-      true: ["pointer-events-none cursor-not-allowed opacity-50"],
-      false: [],
+    defaultVariants: {
+      variant: "connection",
+      clickable: true,
+      disabled: false,
     },
   },
-  defaultVariants: {
-    variant: "connection",
-    clickable: true,
-    disabled: false,
-  },
-});
+);
 
 const iconContainerVariants = cva(
   ["flex items-center justify-center rounded-full"],
