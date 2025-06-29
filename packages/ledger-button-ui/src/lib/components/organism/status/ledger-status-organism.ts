@@ -3,7 +3,7 @@ import "../../atom/icon/ledger-icon-atom";
 import "../../molecule/toolbar/ledger-toolbar-molecule";
 
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
