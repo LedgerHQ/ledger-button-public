@@ -1,5 +1,4 @@
 import "./ledger-status-organism";
-import "../../atom/modal/ledger-modal-atom";
 
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";

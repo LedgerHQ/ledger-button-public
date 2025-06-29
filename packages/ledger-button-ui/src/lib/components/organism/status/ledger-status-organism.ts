@@ -3,7 +3,7 @@ import "../../atom/icon/ledger-icon-atom";
 import "../../molecule/toolbar/ledger-toolbar-molecule";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -20,13 +20,25 @@ export interface LedgerStatusOrganismAttributes {
   showSecondaryButton?: boolean;
 }
 
+const statusVariants = cva(["max-w-sm"], {
+  variants: {
+    type: {
+      success: "",
+      error: "",
+    },
+  },
+  defaultVariants: {
+    type: "success",
+  },
+});
+
 const statusIconVariants = cva(
-  ["mb-24 flex h-64 w-64 items-center justify-center rounded-full"],
+  ["flex h-64 w-64 items-center justify-center rounded-full p-12"],
   {
     variants: {
       type: {
-        success: "bg-green-500/20",
-        error: "bg-red-500/20",
+        success: "bg-success",
+        error: "bg-error",
       },
     },
     defaultVariants: {
@@ -34,18 +46,6 @@ const statusIconVariants = cva(
     },
   },
 );
-
-const iconColorVariants = cva("", {
-  variants: {
-    type: {
-      success: "text-green-500",
-      error: "text-red-500",
-    },
-  },
-  defaultVariants: {
-    type: "success",
-  },
-});
 
 @customElement("ledger-status-organism")
 export class LedgerStatusOrganism extends LitElement {
@@ -69,10 +69,15 @@ export class LedgerStatusOrganism extends LitElement {
 
   static override styles = [unsafeCSS(tailwindStyles)];
 
+  private get containerClasses() {
+    return {
+      [statusVariants({ type: this.type })]: true,
+    };
+  }
+
   private get statusIconClasses() {
     return {
       [statusIconVariants({ type: this.type })]: true,
-      [iconColorVariants({ type: this.type })]: true,
     };
   }
 
@@ -123,7 +128,7 @@ export class LedgerStatusOrganism extends LitElement {
 
   override render() {
     return html`
-      <div class="bg-gray-900 rounded-3xl w-full max-w-sm overflow-auto">
+      <div class=${classMap(this.containerClasses)}>
         <ledger-toolbar-molecule
           @toolbar-close=${this.handleToolbarClose}
         ></ledger-toolbar-molecule>
@@ -138,7 +143,6 @@ export class LedgerStatusOrganism extends LitElement {
               <ledger-icon-atom
                 type=${this.iconType}
                 size="large"
-                class="text-inherit"
               ></ledger-icon-atom>
             </div>
           </div>
@@ -147,7 +151,7 @@ export class LedgerStatusOrganism extends LitElement {
             ? html`
                 <h2
                   id="status-title"
-                  class="text-xl font-semibold mb-2 font-inter text-white"
+                  class="heading-4-semi-bold mb-8 mt-24 text-white"
                 >
                   ${this.title}
                 </h2>
@@ -155,16 +159,13 @@ export class LedgerStatusOrganism extends LitElement {
             : ""}
           ${this.description
             ? html`
-                <p
-                  id="status-description"
-                  class="text-sm text-gray-400 mb-8 font-inter"
-                >
+                <p id="status-description" class="text-muted body-2">
                   ${this.description}
                 </p>
               `
             : ""}
 
-          <div class="space-y-3">
+          <div class="space-y-3 mt-32">
             ${this.showSecondaryButton
               ? html`
                   <ledger-button-atom
