@@ -23,12 +23,12 @@ export interface LedgerListItemMoleculeAttributes {
 }
 
 const listItemVariants = cva(
-  ["cursor-pointed dark flex items-center", "rounded-md p-12"],
+  ["cursor-pointed dark flex items-center", "rounded-md"],
   {
     variants: {
       variant: {
-        connection: ["h-40 w-384", "bg-base-pressed"],
-        account: ["h-64 w-384", "bg-canvas-sheet"],
+        connection: ["h-56 w-384", "bg-base-pressed p-16"],
+        account: ["h-64 w-384", "bg-canvas-sheet p-12"],
       },
       clickable: {
         true: ["cursor-pointer"],
@@ -64,14 +64,14 @@ const iconContainerVariants = cva(
 
 const titleVariants = cva(
   [
-    "text-base body-2-semi-bold",
+    "text-left text-base",
     "m-0 overflow-hidden text-ellipsis whitespace-nowrap",
   ],
   {
     variants: {
       variant: {
-        connection: ["text-center"],
-        account: ["text-left"],
+        connection: ["body-1"],
+        account: ["body-1-semi-bold"],
       },
     },
     defaultVariants: {
@@ -102,8 +102,6 @@ const amountVariants = cva([
   "text-base body-1-semi-bold",
   "m-0 flex-shrink-0 text-right",
 ]);
-
-const chevronVariants = cva(["ml-8 flex-shrink-0 text-muted"]);
 
 const contentVariants = cva(["m-12 min-w-0 flex-1"]);
 
@@ -256,7 +254,7 @@ export class LedgerListItemMolecule extends LitElement {
   private renderChevron() {
     if (this.variant === "connection") {
       return html`
-        <div class=${chevronVariants()} data-testid="chevron">
+        <div data-testid="chevron">
           <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
         </div>
       `;

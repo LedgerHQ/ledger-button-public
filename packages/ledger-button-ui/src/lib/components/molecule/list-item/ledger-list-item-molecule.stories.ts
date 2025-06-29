@@ -193,12 +193,10 @@ export const AccountPolygon: Story = {
 
 export const AllVariations: Story = {
   render: () => html`
-    <div
-      style="background: #272727; padding: 20px; display: flex; flex-direction: column; gap: 12px; width: 400px;"
-    >
+    <div>
       <div>
         <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600; margin-top: 0;"
+          style="margin-bottom: 8px; font-size: 14px; font-weight: 600; margin-top: 0;"
         >
           Connection Items
         </h3>
@@ -217,9 +215,7 @@ export const AllVariations: Story = {
       </div>
 
       <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
+        <h3 style="margin-bottom: 8px; font-size: 14px; font-weight: 600;">
           Account Items
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -251,9 +247,7 @@ export const AllVariations: Story = {
       </div>
 
       <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
+        <h3 style="margin-bottom: 8px; font-size: 14px; font-weight: 600;">
           States
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
