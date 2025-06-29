@@ -5,8 +5,10 @@ import tailwindStyles from "../../../../styles.css?inline";
 import {
   BluetoothIcon,
   BscIcon,
+  CheckIcon,
   ChevronIcon,
   CloseIcon,
+  ErrorIcon,
   EthereumIcon,
   LedgerIcon,
   PolygonIcon,
