@@ -307,13 +307,17 @@ importers:
         specifier: workspace:*
         version: link:../ledger-button-ui
 
-  packages/ledger-button-accounts: {}
-
   packages/ledger-button-core:
     dependencies:
-      '@ledgerhq/ledger-button-dmk':
-        specifier: workspace:*
-        version: link:../ledger-button-dmk
+      '@ledgerhq/device-management-kit':
+        specifier: ^0.7.0
+        version: 0.7.0(rxjs@7.8.2)
+      '@ledgerhq/device-transport-kit-web-ble':
+        specifier: ^1.1.0
+        version: 1.1.0(@ledgerhq/device-management-kit@0.7.0(rxjs@7.8.2))(rxjs@7.8.2)
+      '@ledgerhq/device-transport-kit-web-hid':
+        specifier: ^1.1.0
+        version: 1.1.0(@ledgerhq/device-management-kit@0.7.0(rxjs@7.8.2))(rxjs@7.8.2)
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -329,23 +333,6 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
-
-  packages/ledger-button-dmk:
-    dependencies:
-      '@ledgerhq/device-management-kit':
-        specifier: ^0.7.0
-        version: 0.7.0(rxjs@7.8.2)
-      '@ledgerhq/device-transport-kit-web-ble':
-        specifier: ^1.1.0
-        version: 1.1.0(@ledgerhq/device-management-kit@0.7.0(rxjs@7.8.2))(rxjs@7.8.2)
-      '@ledgerhq/device-transport-kit-web-hid':
-        specifier: ^1.1.0
-        version: 1.1.0(@ledgerhq/device-management-kit@0.7.0(rxjs@7.8.2))(rxjs@7.8.2)
-      rxjs:
-        specifier: ^7.8.2
-        version: 7.8.2
-
-  packages/ledger-button-signer: {}
 
   packages/ledger-button-ui: {}
 

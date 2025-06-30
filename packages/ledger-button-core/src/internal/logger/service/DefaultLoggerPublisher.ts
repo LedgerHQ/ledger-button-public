@@ -10,7 +10,7 @@ export class DefaultLoggerPublisher implements LoggerPublisher {
   constructor(
     @multiInject(loggerModuleTypes.LoggerSubscriber)
     readonly subscribers: LoggerSubscriber[],
-    private readonly tag: string
+    private readonly tag: string,
   ) {}
 
   private _log(level: number, message: string, data?: LogMessageData): void {

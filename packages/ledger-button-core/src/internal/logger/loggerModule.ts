@@ -5,7 +5,7 @@ import { ConsoleLoggerSubscriber } from "./service/ConsoleLoggerSubscriber.js";
 import { DefaultLoggerPublisher } from "./service/DefaultLoggerPublisher.js";
 import { LoggerPublisher } from "./service/LoggerPublisher.js";
 import { LoggerSubscriber } from "./service/LoggerSubscriber.js";
-import { ContainerOptions } from "../di.js";
+import { ContainerOptions } from "../diTypes.js";
 import { loggerModuleTypes } from "./loggerModuleTypes.js";
 
 type LoggerModuleOptions = Pick<ContainerOptions, "stub" | "loggerLevel">;
@@ -14,9 +14,9 @@ export function loggerModuleFactory({
   stub,
   loggerLevel,
 }: LoggerModuleOptions) {
-  return new ContainerModule(({ bind, rebindSync }) => {
+  return new ContainerModule(({ bind }) => {
     bind<Factory<LoggerSubscriber>>(
-      loggerModuleTypes.LoggerSubscriber
+      loggerModuleTypes.LoggerSubscriber,
     ).toFactory((_context) => {
       return (level: LogLevel) => {
         return new ConsoleLoggerSubscriber(level);
@@ -28,24 +28,23 @@ export function loggerModuleFactory({
       (context) => {
         return (tag: string) => {
           const subscribersFactory = context.getAll<Factory<LoggerSubscriber>>(
-            loggerModuleTypes.LoggerSubscriber
+            loggerModuleTypes.LoggerSubscriber,
           );
           const subscribers = subscribersFactory.map((factory) =>
-            factory(loggerLevel)
+            factory(loggerLevel),
           );
           return new DefaultLoggerPublisher(subscribers, tag);
         };
-      }
+      },
     );
 
     if (stub) {
-      rebindSync(loggerModuleTypes.LoggerPublisher).toConstantValue({
-        // TODO: Implement stub
-      });
-
-      rebindSync(loggerModuleTypes.LoggerSubscriber).toConstantValue({
-        // TODO: Implement stub
-      });
+      // rebindSync(loggerModuleTypes.LoggerPublisher).toConstantValue({
+      //   // TODO: Implement stub
+      // });
+      // rebindSync(loggerModuleTypes.LoggerSubscriber).toConstantValue({
+      //   // TODO: Implement stub
+      // });
     }
   });
 }
