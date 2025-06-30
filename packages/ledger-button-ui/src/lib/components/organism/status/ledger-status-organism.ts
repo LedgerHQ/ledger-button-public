@@ -64,9 +64,6 @@ export class LedgerStatusOrganism extends LitElement {
   @property({ type: String, attribute: "secondary-button-label" })
   secondaryButtonLabel = "Secondary action";
 
-  @property({ type: Boolean, attribute: "show-secondary-button" })
-  showSecondaryButton = false;
-
   static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
@@ -166,7 +163,7 @@ export class LedgerStatusOrganism extends LitElement {
             : ""}
 
           <div class="space-y-3 mt-32">
-            ${this.showSecondaryButton
+            ${this.secondaryButtonLabel
               ? html`
                   <ledger-button-atom
                     label=${this.secondaryButtonLabel}

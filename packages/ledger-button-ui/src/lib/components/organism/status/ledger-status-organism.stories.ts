@@ -49,14 +49,6 @@ const meta: Meta = {
         defaultValue: { summary: "Secondary action" },
       },
     },
-    showSecondaryButton: {
-      control: { type: "boolean" },
-      description: "Whether to show the secondary action button",
-      table: {
-        type: { summary: "boolean" },
-        defaultValue: { summary: "false" },
-      },
-    },
   },
   args: {
     type: "success",
@@ -64,7 +56,6 @@ const meta: Meta = {
     description: "You will receive the funds soon.",
     primaryButtonLabel: "Close",
     secondaryButtonLabel: "View transaction",
-    showSecondaryButton: true,
   },
 };
 
@@ -78,7 +69,6 @@ export const Success: Story = {
     description: "You will receive the funds soon.",
     primaryButtonLabel: "Close",
     secondaryButtonLabel: "View transaction",
-    showSecondaryButton: true,
   },
 };
 
@@ -89,7 +79,6 @@ export const Error: Story = {
     description: "Error description",
     primaryButtonLabel: "Main action",
     secondaryButtonLabel: "Secondary action",
-    showSecondaryButton: true,
   },
 };
 
@@ -99,7 +88,6 @@ export const SuccessWithoutSecondaryButton: Story = {
     title: "Operation completed",
     description: "Your request has been processed successfully.",
     primaryButtonLabel: "Close",
-    showSecondaryButton: false,
   },
 };
 
@@ -109,7 +97,6 @@ export const ErrorWithoutSecondaryButton: Story = {
     title: "Connection failed",
     description: "Please check your internet connection and try again.",
     primaryButtonLabel: "Retry",
-    showSecondaryButton: false,
   },
 };
 
@@ -118,7 +105,6 @@ export const MinimalSuccess: Story = {
     type: "success",
     title: "Success",
     primaryButtonLabel: "OK",
-    showSecondaryButton: false,
   },
 };
 
@@ -127,7 +113,6 @@ export const MinimalError: Story = {
     type: "error",
     title: "Error",
     primaryButtonLabel: "OK",
-    showSecondaryButton: false,
   },
 };
 
@@ -138,7 +123,6 @@ export const InteractiveSuccess: Story = {
     description: "You will receive the funds soon.",
     primaryButtonLabel: "Close",
     secondaryButtonLabel: "View transaction",
-    showSecondaryButton: true,
   },
 };
 
@@ -149,7 +133,6 @@ export const InteractiveError: Story = {
     description: "There was an error processing your transaction.",
     primaryButtonLabel: "Try again",
     secondaryButtonLabel: "Cancel",
-    showSecondaryButton: true,
   },
 };
 
