@@ -1,16 +1,12 @@
-import { type DeviceSessionId } from "@ledgerhq/device-management-kit";
 import { type Factory, inject, injectable } from "inversify";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import {
-  ConnectionType,
-  DeviceManagementKitService,
-} from "../service/DeviceManagementKitService.js";
+import { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
 @injectable()
-export class ConnectDevice {
+export class DisconnectDevice {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -18,11 +14,11 @@ export class ConnectDevice {
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
-    this.logger = loggerFactory("[ConnectDevice UseCase]");
+    this.logger = loggerFactory("[DisconnectDevice UseCase]");
   }
 
-  async execute({ type }: { type: ConnectionType }): Promise<DeviceSessionId> {
-    this.logger.info("Connecting to device", { type });
-    return this.deviceManagementKitService.connectToDevice({ type });
+  async execute(): Promise<void> {
+    this.logger.info("Disconnecting from device");
+    return this.deviceManagementKitService.disconnectFromDevice();
   }
 }
