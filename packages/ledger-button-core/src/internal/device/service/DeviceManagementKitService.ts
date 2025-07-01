@@ -20,6 +20,8 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
 
+export type ConnectionType = "hid" | "ble";
+
 @injectable()
 export class DeviceManagementKitService {
   private readonly logger: LoggerPublisher;
@@ -34,7 +36,7 @@ export class DeviceManagementKitService {
     @inject(deviceModuleTypes.DmkConfig)
     args: DeviceModuleOptions,
   ) {
-    this.logger = loggerFactory("DeviceManagementKitService");
+    this.logger = loggerFactory("[DeviceManagementKit Service]");
     const builder = new DeviceManagementKitBuilder();
 
     builder
@@ -54,7 +56,7 @@ export class DeviceManagementKitService {
     return this._currentSessionId;
   }
 
-  async connectToDevice({ type }: { type: "hid" | "ble" }) {
+  async connectToDevice({ type }: { type: ConnectionType }) {
     const identifier = type === "hid" ? this.hidIdentifier : this.bleIdentifier;
     this.logger.debug(`Connecting to device`, { identifier });
 
@@ -92,8 +94,11 @@ export class DeviceManagementKitService {
     if (!this._currentSessionId) {
       return;
     }
+
     try {
-      await this.dmk.disconnect({ sessionId: this._currentSessionId });
+      await this.dmk.disconnect({
+        sessionId: this._currentSessionId,
+      });
       this._currentSessionId = undefined;
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });

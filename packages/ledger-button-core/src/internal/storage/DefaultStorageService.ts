@@ -21,14 +21,14 @@ export class DefaultStorageService implements StorageService {
   private jwt: Maybe<Jwt> = Nothing;
   private initialization: Maybe<Promise<void>> = Nothing;
   private idb: Either<StorageIDBErrors, IDBDatabase> = Left(
-    new StorageIDBNotInitializedError("IDB not initialized")
+    new StorageIDBNotInitializedError("IDB not initialized"),
   );
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
-    private readonly loggerFactory: Factory<LoggerPublisher>
+    private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("StorageService");
+    this.logger = this.loggerFactory("[Storage Service]");
   }
 
   static formatKey(key: string) {
@@ -59,7 +59,7 @@ export class DefaultStorageService implements StorageService {
         request.onerror = (event) => {
           this.logger.error("Error opening IDB", { event });
           resolve(
-            Left(new StorageIDBOpenError("Error opening IDB", { event }))
+            Left(new StorageIDBOpenError("Error opening IDB", { event })),
           );
         };
 
@@ -70,7 +70,7 @@ export class DefaultStorageService implements StorageService {
           store.createIndex(
             STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
             STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
-            { unique: true }
+            { unique: true },
           );
         };
       }).then((result) => {
@@ -78,7 +78,7 @@ export class DefaultStorageService implements StorageService {
           this.idb = result as Either<StorageIDBErrors, IDBDatabase>;
         }
         return;
-      })
+      }),
     );
 
     await this.initialization.orDefault(Promise.resolve());
@@ -92,7 +92,7 @@ export class DefaultStorageService implements StorageService {
       init.map((db) => {
         const transaction = db.transaction(
           STORAGE_KEYS.DB_STORE_NAME,
-          "readwrite"
+          "readwrite",
         );
         const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
         const request = store.add(keyPair, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
@@ -109,8 +109,8 @@ export class DefaultStorageService implements StorageService {
               new StorageIDBStoreError("Error storing key pair", {
                 event,
                 // keyPair,
-              })
-            )
+              }),
+            ),
           );
         };
       });
@@ -124,7 +124,7 @@ export class DefaultStorageService implements StorageService {
       init.map((db) => {
         const transaction = db.transaction(
           STORAGE_KEYS.DB_STORE_NAME,
-          "readonly"
+          "readonly",
         );
         const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
         const request = store.get(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
@@ -134,7 +134,7 @@ export class DefaultStorageService implements StorageService {
           if (!result) {
             this.logger.error("Error getting key pair", { event });
             resolve(
-              Left(new StorageIDBGetError("Error getting key pair", { event }))
+              Left(new StorageIDBGetError("Error getting key pair", { event })),
             );
 
             return;
@@ -150,8 +150,8 @@ export class DefaultStorageService implements StorageService {
             Left(
               new StorageIDBGetError("Error getting key pair", {
                 event,
-              })
-            )
+              }),
+            ),
           );
         };
       });
@@ -165,7 +165,7 @@ export class DefaultStorageService implements StorageService {
       init.map((db) => {
         const transaction = db.transaction(
           STORAGE_KEYS.DB_STORE_NAME,
-          "readwrite"
+          "readwrite",
         );
         const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
         const request = store.delete(STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
@@ -179,8 +179,8 @@ export class DefaultStorageService implements StorageService {
           this.logger.error("Error removing key pair", { event });
           resolve(
             Left(
-              new StorageIDBRemoveError("Error removing key pair", { event })
-            )
+              new StorageIDBRemoveError("Error removing key pair", { event }),
+            ),
           );
         };
       });
@@ -219,7 +219,7 @@ export class DefaultStorageService implements StorageService {
   setLedgerButtonItem<T>(key: string, value: T) {
     localStorage.setItem(
       DefaultStorageService.formatKey(key),
-      JSON.stringify(value)
+      JSON.stringify(value),
     );
   }
 
