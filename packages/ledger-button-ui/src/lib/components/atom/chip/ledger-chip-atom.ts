@@ -7,11 +7,8 @@ import { classMap } from "lit/directives/class-map.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
-export type ChipVariant = "default" | "selected";
-
 export interface LedgerChipAtomAttributes {
   label?: string;
-  variant?: ChipVariant;
   disabled?: boolean;
   icon?: "device";
 }
@@ -19,53 +16,35 @@ export interface LedgerChipAtomAttributes {
 const chipContainerVariants = cva(
   [
     "flex cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
-    "transition-all duration-200 ease-in-out",
-    "min-w-fit whitespace-nowrap",
+    "bg-interactive-pressed",
     "disabled:cursor-not-allowed disabled:opacity-50",
-    "hover:bg-opacity-80 active:bg-opacity-90",
   ],
   {
     variants: {
-      variant: {
-        default: [
-          "bg-grey-800 text-grey-050",
-          "hover:bg-grey-700 active:bg-grey-900",
-        ],
-        selected: [
-          "bg-grey-700 text-grey-050",
-          "hover:bg-grey-600 active:bg-grey-800",
-        ],
-      },
       disabled: {
         true: "pointer-events-none",
         false: "",
       },
     },
     defaultVariants: {
-      variant: "default",
       disabled: false,
     },
   },
 );
 
-const chipLabelVariants = cva([
-  "flex-1 overflow-hidden text-ellipsis whitespace-nowrap",
+const chipLabelVariants = cva(["text-on-interactive body-2"]);
+
+const chipIconContainerVariants = cva([
+  "flex h-24 w-24 items-center justify-center rounded-full p-12",
+  "bg-muted-strong-pressed",
 ]);
 
-const chipIconVariants = cva(["flex-shrink-0"]);
-
-const chipChevronVariants = cva([
-  "flex-shrink-0 rotate-90 transition-transform duration-200 ease-in-out",
-  "[&_svg_path]:stroke-current",
-]);
+const chipChevronVariants = cva(["rotate-90"]);
 
 @customElement("ledger-chip-atom")
 export class LedgerChipAtom extends LitElement {
   @property({ type: String })
   label = "";
-
-  @property({ type: String })
-  variant: ChipVariant = "default";
 
   @property({ type: Boolean })
   disabled = false;
@@ -75,14 +54,9 @@ export class LedgerChipAtom extends LitElement {
 
   static override styles = [unsafeCSS(tailwindStyles)];
 
-  private get hostClasses() {
-    return "inline-block";
-  }
-
   private get chipContainerClasses() {
     return {
       [chipContainerVariants({
-        variant: this.variant,
         disabled: this.disabled,
       })]: true,
     };
@@ -94,9 +68,9 @@ export class LedgerChipAtom extends LitElement {
     };
   }
 
-  private get chipIconClasses() {
+  private get chipIconContainerClasses() {
     return {
-      [chipIconVariants()]: true,
+      [chipIconContainerVariants()]: true,
     };
   }
 
@@ -108,11 +82,9 @@ export class LedgerChipAtom extends LitElement {
 
   private renderIcon() {
     return html`
-      <ledger-icon-atom
-        type=${this.icon}
-        size="medium"
-        class=${classMap(this.chipIconClasses)}
-      ></ledger-icon-atom>
+      <div class=${classMap(this.chipIconContainerClasses)}>
+        <ledger-icon-atom type=${this.icon} size="medium"></ledger-icon-atom>
+      </div>
     `;
   }
 
@@ -126,21 +98,18 @@ export class LedgerChipAtom extends LitElement {
 
   override render() {
     return html`
-      <div class=${this.hostClasses}>
-        <div
-          class=${classMap(this.chipContainerClasses)}
-          role="button"
-          tabindex=${this.disabled ? -1 : 0}
-          aria-label="${this.label}"
-          aria-disabled=${this.disabled}
-          @click=${this.handleClick}
-          @keydown=${this.handleKeydown}
-        >
-          ${this.renderIcon()}
-          <span class=${classMap(this.chipLabelClasses)}>${this.label}</span>
-          ${this.renderChevron()}
-        </div>
-      </div>
+      <button
+        class=${classMap(this.chipContainerClasses)}
+        tabindex=${this.disabled ? -1 : 0}
+        aria-label="${this.label}"
+        aria-disabled=${this.disabled}
+        @click=${this.handleClick}
+        @keydown=${this.handleKeydown}
+      >
+        ${this.renderIcon()}
+        <span class=${classMap(this.chipLabelClasses)}>${this.label}</span>
+        ${this.renderChevron()}
+      </button>
     `;
   }
 
@@ -148,6 +117,7 @@ export class LedgerChipAtom extends LitElement {
     if (this.disabled) {
       event.preventDefault();
       event.stopPropagation();
+
       return;
     }
 
@@ -157,7 +127,6 @@ export class LedgerChipAtom extends LitElement {
         composed: true,
         detail: {
           timestamp: Date.now(),
-          variant: this.variant,
           label: this.label,
           icon: this.icon,
         },
