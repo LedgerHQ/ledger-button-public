@@ -79,7 +79,8 @@ export const InteractiveExample: Story = {
         ></ledger-chip-atom>
         <p style="font-size: 12px; color: #6B7280;">
           Click the chip above to see it cycle through different device names.
-          In a real implementation, this would open a device selection modal.
+          In a real implementation, this would open a device selection list in
+          the modal.
         </p>
       </div>
     `;
@@ -96,9 +97,7 @@ export const TestChipInteractions: Story = {
 
       expect(chip).toBeInTheDocument();
 
-      const chipContainer = chip?.shadowRoot?.querySelector(
-        "div > div[role='button']",
-      );
+      const chipContainer = chip?.shadowRoot?.querySelector("button");
 
       expect(chipContainer).toBeInTheDocument();
     });
@@ -132,9 +131,7 @@ export const TestChipInteractions: Story = {
         clickEventFired = true;
       });
 
-      const chipContainer = chip?.shadowRoot?.querySelector(
-        "div > div[role='button']",
-      );
+      const chipContainer = chip?.shadowRoot?.querySelector("button");
 
       if (chipContainer) {
         await userEvent.click(chipContainer as HTMLElement);
@@ -146,10 +143,7 @@ export const TestChipInteractions: Story = {
 
     await step("Verify accessibility attributes", async () => {
       const chip = canvasElement.querySelector("ledger-chip-atom");
-      const chipContainer = chip?.shadowRoot?.querySelector(
-        "div > div[role='button']",
-      );
-      expect(chipContainer).toHaveAttribute("role", "button");
+      const chipContainer = chip?.shadowRoot?.querySelector("button");
       expect(chipContainer).toHaveAttribute("aria-label", "Test Chip");
 
       const iconElement = chip?.shadowRoot?.querySelector(
