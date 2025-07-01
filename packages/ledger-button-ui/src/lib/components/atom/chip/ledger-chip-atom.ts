@@ -9,28 +9,13 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 export interface LedgerChipAtomAttributes {
   label?: string;
-  disabled?: boolean;
   icon?: "device";
 }
 
-const chipContainerVariants = cva(
-  [
-    "flex cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
-    "bg-interactive-pressed",
-    "disabled:cursor-not-allowed disabled:opacity-50",
-  ],
-  {
-    variants: {
-      disabled: {
-        true: "pointer-events-none",
-        false: "",
-      },
-    },
-    defaultVariants: {
-      disabled: false,
-    },
-  },
-);
+const chipContainerVariants = cva([
+  "flex h-40 cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
+  "bg-interactive-pressed",
+]);
 
 const chipLabelVariants = cva(["text-on-interactive body-2"]);
 
@@ -46,9 +31,6 @@ export class LedgerChipAtom extends LitElement {
   @property({ type: String })
   label = "";
 
-  @property({ type: Boolean })
-  disabled = false;
-
   @property({ type: String })
   icon = "device";
 
@@ -56,9 +38,7 @@ export class LedgerChipAtom extends LitElement {
 
   private get chipContainerClasses() {
     return {
-      [chipContainerVariants({
-        disabled: this.disabled,
-      })]: true,
+      [chipContainerVariants()]: true,
     };
   }
 
@@ -100,9 +80,7 @@ export class LedgerChipAtom extends LitElement {
     return html`
       <button
         class=${classMap(this.chipContainerClasses)}
-        tabindex=${this.disabled ? -1 : 0}
         aria-label="${this.label}"
-        aria-disabled=${this.disabled}
         @click=${this.handleClick}
         @keydown=${this.handleKeydown}
       >
@@ -113,14 +91,7 @@ export class LedgerChipAtom extends LitElement {
     `;
   }
 
-  private handleClick(event: Event) {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      return;
-    }
-
+  private handleClick() {
     this.dispatchEvent(
       new CustomEvent("ledger-chip-click", {
         bubbles: true,
@@ -135,13 +106,9 @@ export class LedgerChipAtom extends LitElement {
   }
 
   private handleKeydown(event: KeyboardEvent) {
-    if (this.disabled) {
-      return;
-    }
-
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      this.handleClick(event);
+      this.handleClick();
     }
   }
 }

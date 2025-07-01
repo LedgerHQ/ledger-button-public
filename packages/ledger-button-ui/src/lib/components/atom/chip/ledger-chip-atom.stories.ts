@@ -12,9 +12,7 @@ const meta: Meta = {
   render: (args) =>
     html`<ledger-chip-atom
       .label=${args.label || ""}
-      .variant=${args.variant || "default"}
       .icon=${args.icon || "device"}
-      ?disabled=${args.disabled}
       @ledger-chip-click=${(e: CustomEvent) => {
         console.log("Chip clicked:", e.detail);
       }}
@@ -23,15 +21,6 @@ const meta: Meta = {
     label: {
       control: "text",
       description: "The text displayed on the chip",
-    },
-    variant: {
-      control: "select",
-      options: ["default", "selected"],
-      description: "The variant of the chip",
-    },
-    disabled: {
-      control: "boolean",
-      description: "Whether the chip is disabled",
     },
     icon: {
       control: "select",
@@ -47,16 +36,12 @@ type Story = StoryObj;
 export const Default: Story = {
   args: {
     label: "GM's Flex",
-    variant: "default",
-    disabled: false,
   },
 };
 
 export const Selected: Story = {
   args: {
     label: "GM's Flex",
-    variant: "selected",
-    disabled: false,
   },
 };
 
@@ -90,7 +75,6 @@ export const InteractiveExample: Story = {
         </h3>
         <ledger-chip-atom
           label=${selectedDevice}
-          variant="selected"
           @ledger-chip-click=${handleChipClick}
         ></ledger-chip-atom>
         <p style="font-size: 12px; color: #6B7280;">
