@@ -7,6 +7,8 @@ export const EthereumIcon = html`
     viewBox="0 0 32 33"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    focusable="false"
   >
     <rect y="0.5" width="32" height="32" rx="16" fill="#454A75" />
     <rect

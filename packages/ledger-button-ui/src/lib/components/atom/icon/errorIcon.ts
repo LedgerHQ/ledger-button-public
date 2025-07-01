@@ -7,6 +7,8 @@ export const ErrorIcon = html`
     viewBox="0 0 42 42"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    focusable="false"
   >
     <g filter="url(#filter0_d_695_5)">
       <path

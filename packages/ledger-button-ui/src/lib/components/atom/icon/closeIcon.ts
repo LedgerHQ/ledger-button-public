@@ -1,7 +1,13 @@
 import { html } from "lit";
 
 export const CloseIcon = html`
-  <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    aria-hidden="true"
+    focusable="false"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <path
       d="M1.33301 1.33325L10.6663 10.6666L1.33301 1.33325Z"
       fill="#949494"
