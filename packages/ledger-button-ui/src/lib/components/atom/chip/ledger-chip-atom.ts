@@ -7,15 +7,13 @@ import { classMap } from "lit/directives/class-map.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
-export type ChipSize = "small" | "medium" | "large";
 export type ChipVariant = "default" | "selected";
 
 export interface LedgerChipAtomAttributes {
   label?: string;
-  size?: ChipSize;
   variant?: ChipVariant;
   disabled?: boolean;
-  icon?: string;
+  icon?: "device";
 }
 
 const chipVariants = cva(
@@ -37,15 +35,9 @@ const chipVariants = cva(
           "hover:bg-grey-600 active:bg-grey-800",
         ],
       },
-      size: {
-        small: ["py-6 px-12", "text-12 font-medium"],
-        medium: ["px-16 py-8", "text-14 font-medium"],
-        large: ["px-20 py-10", "text-16 font-medium"],
-      },
     },
     defaultVariants: {
       variant: "default",
-      size: "medium",
     },
   },
 );
@@ -56,16 +48,13 @@ export class LedgerChipAtom extends LitElement {
   label = "";
 
   @property({ type: String })
-  size: ChipSize = "medium";
-
-  @property({ type: String })
   variant: ChipVariant = "default";
 
   @property({ type: Boolean })
   disabled = false;
 
   @property({ type: String })
-  icon = "ledger";
+  icon = "device";
 
   static override styles = [
     unsafeCSS(tailwindStyles),
@@ -108,25 +97,16 @@ export class LedgerChipAtom extends LitElement {
 
   private get chipClasses() {
     return {
-      [chipVariants({ variant: this.variant, size: this.size })]: true,
+      [chipVariants({ variant: this.variant })]: true,
       "chip-container": true,
     };
-  }
-
-  private get iconSize() {
-    const sizeMap = {
-      small: "small" as const,
-      medium: "small" as const,
-      large: "medium" as const,
-    };
-    return sizeMap[this.size];
   }
 
   private renderIcon() {
     return html`
       <ledger-icon-atom
         type=${this.icon}
-        size=${this.iconSize}
+        size="medium"
         class="chip-icon"
       ></ledger-icon-atom>
     `;
@@ -135,7 +115,7 @@ export class LedgerChipAtom extends LitElement {
   private renderChevron() {
     return html`
       <div class="chip-chevron">
-        <ledger-icon-atom type="chevron" size="small"></ledger-icon-atom>
+        <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
       </div>
     `;
   }
@@ -172,7 +152,6 @@ export class LedgerChipAtom extends LitElement {
         detail: {
           timestamp: Date.now(),
           variant: this.variant,
-          size: this.size,
           label: this.label,
           icon: this.icon,
         },
