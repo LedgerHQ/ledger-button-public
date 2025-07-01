@@ -1,7 +1,7 @@
 import "../icon/ledger-icon-atom";
 
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -16,10 +16,11 @@ export interface LedgerChipAtomAttributes {
   icon?: "device";
 }
 
-const chipVariants = cva(
+const chipContainerVariants = cva(
   [
-    "flex cursor-pointer items-center justify-center gap-8 rounded-full",
+    "flex cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
     "transition-all duration-200 ease-in-out",
+    "min-w-fit whitespace-nowrap",
     "disabled:cursor-not-allowed disabled:opacity-50",
     "hover:bg-opacity-80 active:bg-opacity-90",
   ],
@@ -35,12 +36,28 @@ const chipVariants = cva(
           "hover:bg-grey-600 active:bg-grey-800",
         ],
       },
+      disabled: {
+        true: "pointer-events-none",
+        false: "",
+      },
     },
     defaultVariants: {
       variant: "default",
+      disabled: false,
     },
   },
 );
+
+const chipLabelVariants = cva([
+  "flex-1 overflow-hidden text-ellipsis whitespace-nowrap",
+]);
+
+const chipIconVariants = cva(["flex-shrink-0"]);
+
+const chipChevronVariants = cva([
+  "flex-shrink-0 rotate-90 transition-transform duration-200 ease-in-out",
+  "[&_svg_path]:stroke-current",
+]);
 
 @customElement("ledger-chip-atom")
 export class LedgerChipAtom extends LitElement {
@@ -56,49 +73,36 @@ export class LedgerChipAtom extends LitElement {
   @property({ type: String })
   icon = "device";
 
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: inline-block;
-      }
+  static override styles = [unsafeCSS(tailwindStyles)];
 
-      :host([disabled]) {
-        pointer-events: none;
-      }
+  private get hostClasses() {
+    return "inline-block";
+  }
 
-      .chip-container {
-        min-width: fit-content;
-        white-space: nowrap;
-      }
-
-      .chip-icon {
-        flex-shrink: 0;
-      }
-
-      .chip-label {
-        flex: 1;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
-      }
-
-      .chip-chevron {
-        flex-shrink: 0;
-        transform: rotate(90deg);
-        transition: transform 0.2s ease-in-out;
-      }
-
-      .chip-chevron svg path {
-        stroke: currentColor;
-      }
-    `,
-  ];
-
-  private get chipClasses() {
+  private get chipContainerClasses() {
     return {
-      [chipVariants({ variant: this.variant })]: true,
-      "chip-container": true,
+      [chipContainerVariants({
+        variant: this.variant,
+        disabled: this.disabled,
+      })]: true,
+    };
+  }
+
+  private get chipLabelClasses() {
+    return {
+      [chipLabelVariants()]: true,
+    };
+  }
+
+  private get chipIconClasses() {
+    return {
+      [chipIconVariants()]: true,
+    };
+  }
+
+  private get chipChevronClasses() {
+    return {
+      [chipChevronVariants()]: true,
     };
   }
 
@@ -107,14 +111,14 @@ export class LedgerChipAtom extends LitElement {
       <ledger-icon-atom
         type=${this.icon}
         size="medium"
-        class="chip-icon"
+        class=${classMap(this.chipIconClasses)}
       ></ledger-icon-atom>
     `;
   }
 
   private renderChevron() {
     return html`
-      <div class="chip-chevron">
+      <div class=${classMap(this.chipChevronClasses)}>
         <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
       </div>
     `;
@@ -122,18 +126,20 @@ export class LedgerChipAtom extends LitElement {
 
   override render() {
     return html`
-      <div
-        class=${classMap(this.chipClasses)}
-        role="button"
-        tabindex=${this.disabled ? -1 : 0}
-        aria-label="${this.label}"
-        aria-disabled=${this.disabled}
-        @click=${this.handleClick}
-        @keydown=${this.handleKeydown}
-      >
-        ${this.renderIcon()}
-        <span class="chip-label">${this.label}</span>
-        ${this.renderChevron()}
+      <div class=${this.hostClasses}>
+        <div
+          class=${classMap(this.chipContainerClasses)}
+          role="button"
+          tabindex=${this.disabled ? -1 : 0}
+          aria-label="${this.label}"
+          aria-disabled=${this.disabled}
+          @click=${this.handleClick}
+          @keydown=${this.handleKeydown}
+        >
+          ${this.renderIcon()}
+          <span class=${classMap(this.chipLabelClasses)}>${this.label}</span>
+          ${this.renderChevron()}
+        </div>
       </div>
     `;
   }

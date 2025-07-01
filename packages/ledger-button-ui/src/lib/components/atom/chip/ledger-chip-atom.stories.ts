@@ -112,14 +112,16 @@ export const TestChipInteractions: Story = {
 
       expect(chip).toBeInTheDocument();
 
-      const chipContainer = chip?.shadowRoot?.querySelector(".chip-container");
+      const chipContainer = chip?.shadowRoot?.querySelector(
+        "div > div[role='button']",
+      );
 
       expect(chipContainer).toBeInTheDocument();
     });
 
     await step("Verify label is displayed", async () => {
       const chip = canvasElement.querySelector("ledger-chip-atom");
-      const label = chip?.shadowRoot?.querySelector(".chip-label");
+      const label = chip?.shadowRoot?.querySelector("span");
 
       expect(label).toBeInTheDocument();
       expect(label?.textContent?.trim()).toBe("Test Chip");
@@ -128,7 +130,7 @@ export const TestChipInteractions: Story = {
     await step("Verify icon and chevron are present", async () => {
       const chip = canvasElement.querySelector("ledger-chip-atom");
       const iconElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='ledger']",
+        "ledger-icon-atom[type='device']",
       );
       const chevronElement = chip?.shadowRoot?.querySelector(
         "ledger-icon-atom[type='chevron']",
@@ -146,7 +148,9 @@ export const TestChipInteractions: Story = {
         clickEventFired = true;
       });
 
-      const chipContainer = chip?.shadowRoot?.querySelector(".chip-container");
+      const chipContainer = chip?.shadowRoot?.querySelector(
+        "div > div[role='button']",
+      );
 
       if (chipContainer) {
         await userEvent.click(chipContainer as HTMLElement);
@@ -158,12 +162,14 @@ export const TestChipInteractions: Story = {
 
     await step("Verify accessibility attributes", async () => {
       const chip = canvasElement.querySelector("ledger-chip-atom");
-      const chipContainer = chip?.shadowRoot?.querySelector(".chip-container");
+      const chipContainer = chip?.shadowRoot?.querySelector(
+        "div > div[role='button']",
+      );
       expect(chipContainer).toHaveAttribute("role", "button");
       expect(chipContainer).toHaveAttribute("aria-label", "Test Chip");
 
       const iconElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='ledger']",
+        "ledger-icon-atom[type='device']",
       );
       const chevronElement = chip?.shadowRoot?.querySelector(
         "ledger-icon-atom[type='chevron']",
