@@ -1,6 +1,8 @@
 import "./ledger-chip-atom";
 import "../icon/ledger-icon-atom";
 
+import { expect, waitFor } from "@storybook/test";
+import { userEvent } from "@storybook/test";
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 
@@ -372,6 +374,87 @@ export const ToolbarIntegrationExample: Story = {
       </p>
     </div>
   `,
+};
+
+export const TestChipInteractions: Story = {
+  args: {
+    label: "Test Chip",
+  },
+  play: async ({ canvasElement, step }) => {
+    await step("Verify chip renders correctly", async () => {
+      const chip = canvasElement.querySelector("ledger-chip-atom");
+
+      expect(chip).toBeInTheDocument();
+
+      const chipContainer = chip?.shadowRoot?.querySelector(".chip-container");
+
+      expect(chipContainer).toBeInTheDocument();
+    });
+
+    await step("Verify label is displayed", async () => {
+      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const label = chip?.shadowRoot?.querySelector(".chip-label");
+
+      expect(label).toBeInTheDocument();
+      expect(label?.textContent?.trim()).toBe("Test Chip");
+    });
+
+    await step("Verify icon and chevron are present", async () => {
+      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const iconElement = chip?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='ledger']",
+      );
+      const chevronElement = chip?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='chevron']",
+      );
+
+      expect(iconElement).toBeInTheDocument();
+      expect(chevronElement).toBeInTheDocument();
+    });
+
+    await step("Verify click functionality", async () => {
+      const chip = canvasElement.querySelector("ledger-chip-atom");
+      let clickEventFired = false;
+
+      chip?.addEventListener("ledger-chip-click", () => {
+        clickEventFired = true;
+      });
+
+      const chipContainer = chip?.shadowRoot?.querySelector(".chip-container");
+
+      if (chipContainer) {
+        await userEvent.click(chipContainer as HTMLElement);
+        await waitFor(() => {
+          expect(clickEventFired).toBe(true);
+        });
+      }
+    });
+
+    await step("Verify accessibility attributes", async () => {
+      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const chipContainer = chip?.shadowRoot?.querySelector(".chip-container");
+      expect(chipContainer).toHaveAttribute("role", "button");
+      expect(chipContainer).toHaveAttribute("aria-label", "Test Chip");
+
+      const iconElement = chip?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='ledger']",
+      );
+      const chevronElement = chip?.shadowRoot?.querySelector(
+        "ledger-icon-atom[type='chevron']",
+      );
+
+      expect(iconElement).toBeInTheDocument();
+      expect(chevronElement).toBeInTheDocument();
+    });
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Automated test story to verify chip functionality and interactions.",
+      },
+    },
+  },
 };
 
 export const CompleteUsageExample: Story = {
