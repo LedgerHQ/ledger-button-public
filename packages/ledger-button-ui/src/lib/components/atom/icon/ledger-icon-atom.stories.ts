@@ -22,6 +22,9 @@ const meta: Meta = {
         "ethereum",
         "bsc",
         "polygon",
+        "check",
+        "error",
+        "device",
       ],
       description: "The type of icon to display",
     },
@@ -204,6 +207,69 @@ export const PolygonIconLarge: Story = {
   },
 };
 
+export const CheckIconSmall: Story = {
+  args: {
+    type: "check",
+    size: "small",
+  },
+};
+
+export const CheckIconMedium: Story = {
+  args: {
+    type: "check",
+    size: "medium",
+  },
+};
+
+export const CheckIconLarge: Story = {
+  args: {
+    type: "check",
+    size: "large",
+  },
+};
+
+export const ErrorIconSmall: Story = {
+  args: {
+    type: "error",
+    size: "small",
+  },
+};
+
+export const ErrorIconMedium: Story = {
+  args: {
+    type: "error",
+    size: "medium",
+  },
+};
+
+export const ErrorIconLarge: Story = {
+  args: {
+    type: "error",
+    size: "large",
+  },
+};
+
+export const DeviceIconSmall: Story = {
+  args: {
+    type: "device",
+    size: "small",
+  },
+};
+
+export const DeviceIconMedium: Story = {
+  args: {
+    type: "device",
+    size: "medium",
+  },
+};
+
+export const DeviceIconLarge: Story = {
+  args: {
+    type: "device",
+    size: "large",
+  },
+};
+
 export const AllIcons: Story = {
   render: () => html`
     <div
@@ -240,6 +306,18 @@ export const AllIcons: Story = {
       <div style="text-align: center;">
         <ledger-icon-atom type="polygon" size="medium"></ledger-icon-atom>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Polygon</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon-atom type="check" size="medium"></ledger-icon-atom>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Check</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon-atom type="error" size="medium"></ledger-icon-atom>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Error</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon-atom type="device" size="medium"></ledger-icon-atom>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Device</p>
       </div>
     </div>
   `,
