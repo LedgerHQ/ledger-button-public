@@ -7,13 +7,12 @@
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "types": ["node", "vite/client"]
   },
   "include": ["src/**/*.ts"],
   "references": [
-    {
-      "path": "../ledger-button-ui/tsconfig.lib.json"
-    },
     {
       "path": "../ledger-button-core/tsconfig.lib.json"
     }
@@ -30,6 +29,8 @@
     "src/**/*.test.js",
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
-    "src/**/*.spec.jsx"
+    "src/**/*.spec.jsx",
+    "**/*.stories.ts",
+    "**/*.stories.js"
   ]
 }

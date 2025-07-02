@@ -4,9 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../ledger-button-ui"
-    },
-    {
       "path": "../ledger-button-core"
     },
     {
@@ -14,6 +11,9 @@
     },
     {
       "path": "./tsconfig.spec.json"
+    },
+    {
+      "path": "./tsconfig.storybook.json"
     }
   ]
 }
