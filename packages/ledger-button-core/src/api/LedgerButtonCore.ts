@@ -1,5 +1,7 @@
 import { Container } from "inversify";
 
+import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
+import { AccountService } from "../internal/account/service/AccountService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
@@ -38,5 +40,12 @@ export class LedgerButtonCore {
     return this.container
       ?.get<SwitchDevice>(deviceModuleTypes.SwitchDeviceUseCase)
       .execute({ type });
+  }
+
+  async fetchAccounts() {
+    await this.init();
+    return this.container
+      ?.get<AccountService>(accountModuleTypes.AccountService)
+      .fetchAccounts();
   }
 }
