@@ -5,3 +5,5 @@ export class DeviceConnectionError extends LedgerButtonError {
     super(message, "DeviceConnectionError", context);
   }
 }
+
+export type DeviceServiceError = DeviceConnectionError;

@@ -1,5 +1,6 @@
 import { Container } from "inversify";
 
+import { accountModuleFactory } from "./account/accountModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { LOG_LEVELS } from "./logger/model/constant.js";
@@ -15,12 +16,13 @@ export async function createContainer({
 }: ContainerOptions) {
   const container = new Container();
 
-  await Promise.all([
-    container.load(deviceModuleFactory({ stub, dmkConfig })),
-    container.load(storageModuleFactory({ stub })),
-    container.load(networkModuleFactory({ stub })),
-    container.load(loggerModuleFactory({ stub, loggerLevel })),
-  ]);
+  await container.load(
+    loggerModuleFactory({ stub, loggerLevel }),
+    accountModuleFactory({ stub }),
+    deviceModuleFactory({ stub, dmkConfig }),
+    storageModuleFactory({ stub }),
+    networkModuleFactory({ stub }),
+  );
 
   return container;
 }

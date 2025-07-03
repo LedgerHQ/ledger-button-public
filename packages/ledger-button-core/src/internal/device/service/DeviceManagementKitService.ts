@@ -19,6 +19,7 @@ import { type DeviceModuleOptions } from "../../diTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import { DeviceConnectionError } from "../model/errors.js";
 
 export type ConnectionType = "hid" | "ble";
 
@@ -75,7 +76,11 @@ export class DeviceManagementKitService {
             })
             .catch((error) => {
               this.logger.error(`Failed to connect to device`, { error });
-              reject(error);
+              reject(
+                new DeviceConnectionError(`Failed to connect to device`, {
+                  error,
+                }),
+              );
             })
             .finally(async () => {
               await dmk.stopDiscovering();
@@ -84,7 +89,9 @@ export class DeviceManagementKitService {
         error: async (error) => {
           this.logger.error(`Failed to start discovery`, { error });
           await dmk.stopDiscovering();
-          reject(error);
+          reject(
+            new DeviceConnectionError(`Failed to start discovery`, { error }),
+          );
         },
       });
     });
@@ -102,7 +109,9 @@ export class DeviceManagementKitService {
       this._currentSessionId = undefined;
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });
-      throw error;
+      throw new DeviceConnectionError(`Failed to disconnect from device`, {
+        error,
+      });
     }
   }
 }
