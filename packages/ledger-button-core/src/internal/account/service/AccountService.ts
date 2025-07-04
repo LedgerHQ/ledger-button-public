@@ -5,12 +5,15 @@ import { AccountServiceError } from "../model/error.js";
 // NOTE: Temporary type, will be replaced with a more robust one
 export type Account = {
   id: string;
-  name: string;
-  address: string;
-  balance?: string;
-  derivationPath: string;
+  currencyId: string;
+  freshAddress: string;
+  seedIdentifier: string;
+  derivationMode: string;
+  index: number;
 };
 
+export type FetchAccountsResponse = (Account & { name: string })[];
+
 export interface AccountService {
-  fetchAccounts(): Promise<Either<AccountServiceError, Account[]>>;
+  fetchAccounts(): Promise<Either<AccountServiceError, FetchAccountsResponse>>;
 }
