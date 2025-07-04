@@ -1,7 +1,13 @@
 import { html } from "lit";
 
 export const LedgerIcon = html`
-  <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    focusable="false"
+  >
     <g clip-path="url(#clip0_149_5244)">
       <g clip-path="url(#clip1_149_5244)">
         <path

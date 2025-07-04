@@ -8,6 +8,7 @@ import {
   CheckIcon,
   ChevronIcon,
   CloseIcon,
+  DeviceIcon,
   ErrorIcon,
   EthereumIcon,
   LedgerIcon,
@@ -26,7 +27,8 @@ export interface LedgerIconAtomAttributes {
     | "bsc"
     | "polygon"
     | "check"
-    | "error";
+    | "error"
+    | "device";
   size: "small" | "medium" | "large";
 }
 
@@ -71,6 +73,7 @@ export class LedgerIconAtom extends LitElement {
       polygon: () => PolygonIcon,
       check: () => CheckIcon,
       error: () => ErrorIcon,
+      device: () => DeviceIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
