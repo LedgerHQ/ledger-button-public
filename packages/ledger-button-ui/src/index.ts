@@ -3,6 +3,7 @@ export * from "./lib/components/atom/chip/ledger-chip-atom";
 export * from "./lib/components/atom/icon/ledger-icon-atom";
 export * from "./lib/components/atom/lottie/ledger-lottie-atom";
 export * from "./lib/components/atom/modal/ledger-modal-atom";
+export * from "./lib/components/molecule/info-state/ledger-info-state";
 export * from "./lib/components/molecule/list-item/ledger-list-item-molecule";
 export * from "./lib/components/molecule/toolbar/ledger-toolbar-molecule";
 export * from "./lib/components/organism/status/ledger-status-organism";
