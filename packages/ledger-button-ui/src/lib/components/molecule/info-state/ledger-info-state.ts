@@ -46,7 +46,7 @@ export interface LedgerInfoStateMoleculeAttributes {
   subtitle?: string;
 }
 
-@customElement("ledger-info-state-molecule")
+@customElement("ledger-info-state")
 export class LedgerInfoStateMolecule extends LitElement {
   @property({ type: String })
   device: DeviceType = "flex";
@@ -103,7 +103,7 @@ export class LedgerInfoStateMolecule extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-info-state-molecule": LedgerInfoStateMolecule;
+    "ledger-info-state": LedgerInfoStateMolecule;
   }
 }
 

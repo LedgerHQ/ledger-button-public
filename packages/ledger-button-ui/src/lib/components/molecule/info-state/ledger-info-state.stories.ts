@@ -9,11 +9,11 @@ const meta: Meta = {
   title: "Component/Molecule/InfoState",
   tags: ["autodocs"],
   render: (args) => html`
-    <ledger-info-state-molecule
+    <ledger-info-state
       .device=${args.device || "flex"}
       .title=${args.title || ""}
       .subtitle=${args.subtitle || ""}
-    ></ledger-info-state-molecule>
+    ></ledger-info-state>
   `,
   argTypes: {
     device: {
@@ -134,11 +134,11 @@ export const AllDevices: Story = {
           Ledger Flex
         </h3>
         <div style="background: #1a1a1a; border-radius: 12px; padding: 16px;">
-          <ledger-info-state-molecule
+          <ledger-info-state
             device="flex"
             title="Continue on your Ledger Flex"
             subtitle="Follow instructions appearing on your Ledger's Trusted Display"
-          ></ledger-info-state-molecule>
+          ></ledger-info-state>
         </div>
       </div>
 
@@ -149,11 +149,11 @@ export const AllDevices: Story = {
           Ledger Nano X
         </h3>
         <div style="background: #1a1a1a; border-radius: 12px; padding: 16px;">
-          <ledger-info-state-molecule
+          <ledger-info-state
             device="nanox"
             title="Continue on your Ledger Nano X"
             subtitle="Follow instructions appearing on your Ledger's Trusted Display"
-          ></ledger-info-state-molecule>
+          ></ledger-info-state>
         </div>
       </div>
 
@@ -164,11 +164,11 @@ export const AllDevices: Story = {
           Ledger Stax
         </h3>
         <div style="background: #1a1a1a; border-radius: 12px; padding: 16px;">
-          <ledger-info-state-molecule
+          <ledger-info-state
             device="stax"
             title="Continue on your Ledger Stax"
             subtitle="Follow instructions appearing on your Ledger's Trusted Display"
-          ></ledger-info-state-molecule>
+          ></ledger-info-state>
         </div>
       </div>
     </div>
@@ -190,16 +190,12 @@ export const TestFlexRendering: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify InfoState component renders correctly", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       expect(infoState).toBeInTheDocument();
     });
 
     await step("Verify device icon is present", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const deviceIcon = infoState?.shadowRoot?.querySelector(
         "[data-testid='device-icon']",
       );
@@ -210,9 +206,7 @@ export const TestFlexRendering: Story = {
     });
 
     await step("Verify title is displayed", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const title = infoState?.shadowRoot?.querySelector(
         "[data-testid='title']",
       );
@@ -222,9 +216,7 @@ export const TestFlexRendering: Story = {
     });
 
     await step("Verify subtitle is displayed", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const subtitle = infoState?.shadowRoot?.querySelector(
         "[data-testid='subtitle']",
       );
@@ -236,9 +228,7 @@ export const TestFlexRendering: Story = {
     });
 
     await step("Verify device-specific styling", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const svg = infoState?.shadowRoot?.querySelector("svg");
 
       expect(svg).toBeInTheDocument();
@@ -263,16 +253,12 @@ export const TestNanoXRendering: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify device type is correctly set", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       expect(infoState?.device).toBe("nanox");
     });
 
     await step("Verify title content", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const title = infoState?.shadowRoot?.querySelector(
         "[data-testid='title']",
       );
@@ -297,16 +283,12 @@ export const TestStaxRendering: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify device type is correctly set", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       expect(infoState?.device).toBe("stax");
     });
 
     await step("Verify title content", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const title = infoState?.shadowRoot?.querySelector(
         "[data-testid='title']",
       );
@@ -330,9 +312,7 @@ export const TestWithoutSubtitle: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify title is present", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const title = infoState?.shadowRoot?.querySelector(
         "[data-testid='title']",
       );
@@ -342,9 +322,7 @@ export const TestWithoutSubtitle: Story = {
     });
 
     await step("Verify subtitle is not present", async () => {
-      const infoState = canvasElement.querySelector(
-        "ledger-info-state-molecule",
-      );
+      const infoState = canvasElement.querySelector("ledger-info-state");
       const subtitle = infoState?.shadowRoot?.querySelector(
         "[data-testid='subtitle']",
       );
@@ -364,11 +342,11 @@ export const TestWithoutSubtitle: Story = {
 export const InModalIntegration: Story = {
   render: () => html`
     <ledger-modal-atom title="Ledger Connect" is-open="true">
-      <ledger-info-state-molecule
+      <ledger-info-state
         device="flex"
         title="Continue on your Ledger Flex"
         subtitle="Follow instructions appearing on your Ledger's Trusted Display"
-      ></ledger-info-state-molecule>
+      ></ledger-info-state>
     </ledger-modal-atom>
   `,
   play: async ({ canvasElement, step }) => {
@@ -380,13 +358,13 @@ export const InModalIntegration: Story = {
 
     await step("Verify InfoState is rendered inside modal", async () => {
       const modal = canvasElement.querySelector("ledger-modal-atom");
-      const infoState = modal?.querySelector("ledger-info-state-molecule");
+      const infoState = modal?.querySelector("ledger-info-state");
       expect(infoState).toBeInTheDocument();
     });
 
     await step("Verify InfoState content", async () => {
       const modal = canvasElement.querySelector("ledger-modal-atom");
-      const infoState = modal?.querySelector("ledger-info-state-molecule");
+      const infoState = modal?.querySelector("ledger-info-state");
 
       expect(infoState?.device).toBe("flex");
       expect(infoState?.title).toBe("Continue on your Ledger Flex");
