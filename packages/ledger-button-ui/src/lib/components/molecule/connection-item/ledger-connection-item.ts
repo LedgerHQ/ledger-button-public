@@ -1,9 +1,10 @@
 import "../../atom/icon/ledger-icon";
-import { classMap } from "lit/directives/class-map.js";
-import { cva } from "class-variance-authority";
 
+import { cva } from "class-variance-authority";
 import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
+
 import tailwindStyles from "../../../../styles.css?inline";
 
 const connectionItemVariants = cva(
@@ -37,7 +38,7 @@ export interface LedgerConnectionItemMoleculeAttributes {
   disabled?: boolean;
 }
 
-@customElement("ledger-connection-item-molecule")
+@customElement("ledger-connection-item")
 export class LedgerConnectionItemMolecule extends LitElement {
   @property({ type: String })
   override title = "";
@@ -131,7 +132,7 @@ export class LedgerConnectionItemMolecule extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-connection-item-molecule": LedgerConnectionItemMolecule;
+    "ledger-connection-item": LedgerConnectionItemMolecule;
   }
 }
 

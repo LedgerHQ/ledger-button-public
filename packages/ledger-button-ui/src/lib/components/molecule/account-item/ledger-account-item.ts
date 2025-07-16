@@ -1,9 +1,9 @@
 import "../../atom/icon/ledger-icon";
-import { classMap } from "lit/directives/class-map.js";
-import { cva } from "class-variance-authority";
 
+import { cva } from "class-variance-authority";
 import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
@@ -20,7 +20,7 @@ export interface LedgerAccountItemMoleculeAttributes {
   linkLabel: string;
 }
 
-@customElement("ledger-account-item-molecule")
+@customElement("ledger-account-item")
 export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: String })
   override title = "";
@@ -84,7 +84,10 @@ export class LedgerAccountItemMolecule extends LitElement {
           <span class="whitespace-nowrap text-muted body-3">
             ${this.formatAddress(this.address)}
           </span>
-          <ledger-icon type=${this.token || "ethereum"} size="medium"></ledger-icon>
+          <ledger-icon
+            type=${this.token || "ethereum"}
+            size="medium"
+          ></ledger-icon>
         </div>
       </div>
     `;
@@ -132,7 +135,7 @@ export class LedgerAccountItemMolecule extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-account-item-molecule": LedgerAccountItemMolecule;
+    "ledger-account-item": LedgerAccountItemMolecule;
   }
 }
 

@@ -1,15 +1,15 @@
-import "./ledger-account-item-molecule";
+import "./ledger-account-item";
 
-import { expect, waitFor, userEvent } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 const meta: Meta = {
   title: "Component/Molecule/ListItems/Account",
   tags: ["autodocs"],
   render: (args) => html`
     <div class="min-w-352">
-      <ledger-account-item-molecule
+      <ledger-account-item
         .title=${args.title}
         .address=${args.address}
         .token=${args.token}
@@ -18,7 +18,7 @@ const meta: Meta = {
         @account-item-click=${(e: CustomEvent) => {
           console.log("Account item clicked:", e.detail);
         }}
-      ></ledger-account-item-molecule>
+      ></ledger-account-item>
     </div>
   `,
   argTypes: {
@@ -174,34 +174,34 @@ export const AllVariations: Story = {
           Account Types
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-account-item-molecule
+          <ledger-account-item
             title="My Ethereum Account"
             address="0x1234567890abcdef1234567890abcdef12345678"
             token="ETH"
             value="2.5432"
             link-label="Show tokens"
-          ></ledger-account-item-molecule>
-          <ledger-account-item-molecule
+          ></ledger-account-item>
+          <ledger-account-item
             title="Bitcoin Wallet"
             address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
             token="BTC"
             value="0.12345"
             link-label="Show tokens"
-          ></ledger-account-item-molecule>
-          <ledger-account-item-molecule
+          ></ledger-account-item>
+          <ledger-account-item
             title="Polygon Account"
             address="0xabcdef1234567890abcdef1234567890abcdef12"
             token="MATIC"
             value="156.789"
             link-label="Show tokens"
-          ></ledger-account-item-molecule>
-          <ledger-account-item-molecule
+          ></ledger-account-item>
+          <ledger-account-item
             title="Simple Account"
             address="0x1111222233334444555566667777888899990000"
             token="ETH"
             value="0.001"
             link-label=""
-          ></ledger-account-item-molecule>
+          ></ledger-account-item>
         </div>
       </div>
     </div>
@@ -227,7 +227,7 @@ export const TestInteractions: Story = {
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {
       const accountItem = canvasElement.querySelector(
-        "ledger-account-item-molecule",
+        "ledger-account-item",
       );
       expect(accountItem).toBeInTheDocument();
 
@@ -237,7 +237,7 @@ export const TestInteractions: Story = {
 
     await step("Verify account information is displayed", async () => {
       const accountItem = canvasElement.querySelector(
-        "ledger-account-item-molecule",
+        "ledger-account-item",
       );
       const button = accountItem?.shadowRoot?.querySelector("button");
 
@@ -248,7 +248,7 @@ export const TestInteractions: Story = {
 
     await step("Verify click functionality", async () => {
       const accountItem = canvasElement.querySelector(
-        "ledger-account-item-molecule",
+        "ledger-account-item",
       );
       let clickEventFired = false;
 
@@ -275,7 +275,7 @@ export const TestInteractions: Story = {
 
     await step("Verify keyboard navigation", async () => {
       const accountItem = canvasElement.querySelector(
-        "ledger-account-item-molecule",
+        "ledger-account-item",
       );
       let keyboardEventFired = false;
 

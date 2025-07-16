@@ -1,15 +1,15 @@
-import "./ledger-connection-item-molecule";
+import "./ledger-connection-item";
 
-import { expect, waitFor, userEvent } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 const meta: Meta = {
   title: "Component/Molecule/ListItems/Connection",
   tags: ["autodocs"],
   render: (args) => html`
     <div class="min-w-352">
-      <ledger-connection-item-molecule
+      <ledger-connection-item
         .title=${args.title || ""}
         .connectionType=${args.connectionType || ""}
         .clickable=${args.clickable ?? true}
@@ -17,7 +17,7 @@ const meta: Meta = {
         @connection-item-click=${(e: CustomEvent) => {
           console.log("Connection item clicked:", e.detail);
         }}
-      ></ledger-connection-item-molecule>
+      ></ledger-connection-item>
     </div>
   `,
   argTypes: {
@@ -125,20 +125,20 @@ export const AllVariations: Story = {
           Basic Items
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-connection-item-molecule
+          <ledger-connection-item
             title="Bluetooth Connection"
             connection-type="bluetooth"
-          ></ledger-connection-item-molecule>
-          <ledger-connection-item-molecule
+          ></ledger-connection-item>
+          <ledger-connection-item
             title="USB Connection"
             connection-type="usb"
-          ></ledger-connection-item-molecule>
-          <ledger-connection-item-molecule
+          ></ledger-connection-item>
+          <ledger-connection-item
             title="Only Title"
-          ></ledger-connection-item-molecule>
-          <ledger-connection-item-molecule
+          ></ledger-connection-item>
+          <ledger-connection-item
             connection-type="bluetooth"
-          ></ledger-connection-item-molecule>
+          ></ledger-connection-item>
         </div>
       </div>
       <div>
@@ -146,16 +146,16 @@ export const AllVariations: Story = {
           States
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-connection-item-molecule
+          <ledger-connection-item
             title="Disabled Item"
             connection-type="bluetooth"
             disabled
-          ></ledger-connection-item-molecule>
-          <ledger-connection-item-molecule
+          ></ledger-connection-item>
+          <ledger-connection-item
             title="Non-clickable Item"
             connection-type="usb"
             .clickable=${false}
-          ></ledger-connection-item-molecule>
+          ></ledger-connection-item>
         </div>
       </div>
     </div>
@@ -178,7 +178,7 @@ export const TestInteractions: Story = {
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       expect(connectionItem).toBeInTheDocument();
 
@@ -188,7 +188,7 @@ export const TestInteractions: Story = {
 
     await step("Verify title is displayed", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       const button = connectionItem?.shadowRoot?.querySelector("button");
       const span = button?.querySelector("span");
@@ -199,7 +199,7 @@ export const TestInteractions: Story = {
 
     await step("Verify icon is present", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       const button = connectionItem?.shadowRoot?.querySelector("button");
       const icon = button?.querySelector("ledger-icon[type='bluetooth']");
@@ -209,7 +209,7 @@ export const TestInteractions: Story = {
 
     await step("Verify chevron is present", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       const button = connectionItem?.shadowRoot?.querySelector("button");
       const chevron = button?.querySelector("ledger-icon[type='chevron']");
@@ -219,7 +219,7 @@ export const TestInteractions: Story = {
 
     await step("Verify click functionality", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       let clickEventFired = false;
 
@@ -241,7 +241,7 @@ export const TestInteractions: Story = {
 
     await step("Verify keyboard navigation", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       let keyboardEventFired = false;
 
@@ -277,7 +277,7 @@ export const TestDisabledState: Story = {
   play: async ({ canvasElement, step }) => {
     await step("Verify disabled styling", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       const button = connectionItem?.shadowRoot?.querySelector("button");
 
@@ -287,7 +287,7 @@ export const TestDisabledState: Story = {
 
     await step("Verify no click events when disabled", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       let clickEventFired = false;
 
@@ -321,7 +321,7 @@ export const TestNonClickable: Story = {
   play: async ({ canvasElement, step }) => {
     await step("Verify button still renders", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       const button = connectionItem?.shadowRoot?.querySelector("button");
 
@@ -330,7 +330,7 @@ export const TestNonClickable: Story = {
 
     await step("Verify no click events when not clickable", async () => {
       const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item-molecule",
+        "ledger-connection-item",
       );
       let clickEventFired = false;
 
