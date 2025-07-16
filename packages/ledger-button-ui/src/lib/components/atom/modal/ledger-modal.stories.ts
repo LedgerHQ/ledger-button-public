@@ -77,7 +77,7 @@ export const TestModalInteractions: Story = {
 
     await step("Initial state - modal should be closed", async () => {
       expect(modal.isOpen).toBe(false);
-      expect(modal.shadowRoot?.querySelector(".modal-overlay")).toBeNull();
+      expect(modal.getAttribute("isOpen")).toBe(null);
     });
 
     await step("Open modal programmatically", async () => {

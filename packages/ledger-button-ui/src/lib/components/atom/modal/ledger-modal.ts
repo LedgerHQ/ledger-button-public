@@ -84,7 +84,7 @@ export class LedgerModal extends LitElement {
     this.cleanupEventListeners();
   }
 
-  override updated(changedProperties: Map) {
+  override updated(changedProperties: Map<PropertyKey, unknown>) {
     super.updated(changedProperties);
 
     if (changedProperties.has("isOpen")) {
