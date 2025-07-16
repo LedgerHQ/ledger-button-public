@@ -2,6 +2,7 @@ import "../../molecule/toolbar/ledger-toolbar";
 
 import { css, html, LitElement, PropertyValues, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { animate, AnimationSequence } from "motion";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
@@ -18,7 +19,7 @@ type CustomEventData = {
 
 @customElement("ledger-modal")
 export class LedgerModal extends LitElement {
-  @property({ type: Boolean, attribute: "is-open", reflect: true })
+  @property({ type: Boolean, reflect: true })
   isOpen = false;
 
   @property({ type: Boolean, attribute: false })
@@ -29,6 +30,9 @@ export class LedgerModal extends LitElement {
 
   @query(".modal-overlay")
   private overlayElement!: HTMLElement;
+
+  // @query("#modal-content")
+  // private modalContentElement!: HTMLDivElement;
 
   @query("ledger-toolbar")
   private toolbarElement!: HTMLElement;
@@ -48,9 +52,11 @@ export class LedgerModal extends LitElement {
         left: 0;
         z-index: 1000;
       }
+
       :host([isOpen]) {
         display: flex;
       }
+
       .modal-overlay {
         display: flex;
         align-items: center;
@@ -129,7 +135,7 @@ export class LedgerModal extends LitElement {
   }
 
   private handleKeydown = (event: KeyboardEvent) => {
-    if (!this.isOpen) {
+    if (!this.isOpen || this.isClosing) {
       return;
     }
 
@@ -145,29 +151,22 @@ export class LedgerModal extends LitElement {
     this.previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    dispatchEvent(
-      new CustomEvent("model-opened", {
-        bubbles: true,
-        composed: true,
-        detail: {
-          timestamp: Date.now(),
-          isOpen: this.isOpen,
-        },
-      }),
-    );
+    animate(this.overlayElement, { opacity: 1 }, { duration: 0.2 });
   }
 
   private handleClose() {
-    dispatchEvent(
-      new CustomEvent("model-closed", {
-        bubbles: true,
-        composed: true,
-        detail: {
-          timestamp: Date.now(),
-          isOpen: this.isOpen,
-        },
-      }),
-    );
+    const sequence: AnimationSequence = [];
+    sequence.push([this.overlayElement, { opacity: 0 }]);
+
+    animate(sequence, {
+      // @ts-expect-error - some weird type error here, this works fine
+      duration: 0.1,
+      onComplete: () => {
+        document.body.style.overflow = this.previousBodyOverflow;
+        this.isOpen = false;
+        this.isClosing = false;
+      },
+    });
   }
 
   private focusFirstElement() {
@@ -199,7 +198,7 @@ export class LedgerModal extends LitElement {
   }
 
   public closeModal() {
-    this.isOpen = false;
+    this.isClosing = true;
   }
 
   override render() {
@@ -217,13 +216,15 @@ export class LedgerModal extends LitElement {
           class="w-screen h-448 fixed inset-0 z-10 flex w-384 flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
-          <ledger-toolbar
-            .title=${this.title}
-            show-logo
-            show-close
-            @toolbar-close=${this.handleToolbarClose}
-            aria-label=${this.title || ""}
-          ></ledger-toolbar>
+          <slot name="toolbar">
+            <ledger-toolbar
+              .title=${this.title}
+              show-logo
+              show-close
+              @toolbar-close=${this.handleToolbarClose}
+              aria-label=${this.title || ""}
+            ></ledger-toolbar>
+          </slot>
           <div id="modal-content" class="p-16 text-white">
             <slot></slot>
           </div>
