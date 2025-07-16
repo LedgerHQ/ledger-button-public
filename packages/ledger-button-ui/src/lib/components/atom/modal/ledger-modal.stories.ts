@@ -77,7 +77,7 @@ export const TestModalInteractions: Story = {
 
     await step("Initial state - modal should be closed", async () => {
       expect(modal.isOpen).toBe(false);
-      expect(modal.getAttribute("isOpen")).toBe(null);
+      expect(modal.hasAttribute("is-open")).toBe(false);
     });
 
     await step("Open modal programmatically", async () => {
