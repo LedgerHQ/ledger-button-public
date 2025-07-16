@@ -1,9 +1,8 @@
 import "./ledger-toolbar-molecule";
 
-import { expect, waitFor } from "@storybook/test";
-import { userEvent } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 import type { LedgerToolbarMoleculeAttributes } from "./ledger-toolbar-molecule";
 

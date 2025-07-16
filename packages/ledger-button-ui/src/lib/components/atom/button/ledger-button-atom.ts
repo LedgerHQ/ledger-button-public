@@ -105,7 +105,7 @@ export class LedgerButtonAtom extends LitElement {
       return "";
     }
 
-    return html` <ledger-icon-atom type="ledger" size=${this.size} /> `;
+    return html`<ledger-icon-atom type="ledger" size=${this.size} />`;
   }
 
   override render() {

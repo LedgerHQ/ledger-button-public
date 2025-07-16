@@ -1,6 +1,6 @@
 import "./ledger-button-atom";
 
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
 import type { LedgerButtonAtomAttributes } from "./ledger-button-atom";
@@ -104,7 +104,7 @@ export const SmallButtons: Story = {
         size="small"
       ></ledger-button-atom>
       <ledger-button-atom
-        variant="icon-only"
+        variant="primary"
         size="small"
         icon
       ></ledger-button-atom>
@@ -128,7 +128,7 @@ export const MediumButtons: Story = {
         size="medium"
       ></ledger-button-atom>
       <ledger-button-atom
-        variant="icon-only"
+        variant="primary"
         size="medium"
         icon
       ></ledger-button-atom>
@@ -152,7 +152,7 @@ export const LargeButtons: Story = {
         size="large"
       ></ledger-button-atom>
       <ledger-button-atom
-        variant="icon-only"
+        variant="primary"
         size="large"
         icon
       ></ledger-button-atom>
@@ -178,7 +178,7 @@ export const DisabledStates: Story = {
         ?disabled=${true}
       ></ledger-button-atom>
       <ledger-button-atom
-        variant="icon-only"
+        variant="primary"
         size="medium"
         icon
         ?disabled=${true}

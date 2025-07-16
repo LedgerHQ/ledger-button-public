@@ -1,9 +1,9 @@
 import "./ledger-info-state";
 import "../../atom/modal/ledger-modal-atom";
 
-import { expect } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect } from "storybook/test";
 
 const meta: Meta = {
   title: "Component/Molecule/InfoState",
@@ -341,7 +341,7 @@ export const TestWithoutSubtitle: Story = {
 
 export const InModalIntegration: Story = {
   render: () => html`
-    <ledger-modal-atom title="Ledger Connect" is-open="true">
+    <ledger-modal-atom title="Ledger Connect" .isOpen=${true}>
       <ledger-info-state
         device="flex"
         title="Continue on your Ledger Flex"

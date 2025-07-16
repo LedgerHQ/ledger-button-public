@@ -1,9 +1,8 @@
 import "./ledger-list-item-molecule";
 
-import { expect, waitFor } from "@storybook/test";
-import { userEvent } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 const meta: Meta = {
   title: "Component/Molecule/ListItem",
@@ -264,7 +263,7 @@ export const AllVariations: Story = {
             amount="100.0"
             currency="ETH"
             icon-type="ethereum"
-            clickable="false"
+            .clickable=${false}
           ></ledger-list-item-molecule>
         </div>
       </div>

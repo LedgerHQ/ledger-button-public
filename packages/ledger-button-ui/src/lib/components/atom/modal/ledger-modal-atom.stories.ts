@@ -1,11 +1,10 @@
 import "./ledger-modal-atom";
 import "../button/ledger-button-atom";
 
-import { expect, waitFor } from "@storybook/test";
-import { userEvent } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 import type {
   LedgerModalAtom,
@@ -33,7 +32,7 @@ const meta: Meta<LedgerModalAtomAttributes> = {
       ></ledger-button-atom>
       <ledger-modal-atom
         data-testid="modal"
-        .isOpen=${args.isOpen}
+        .isOpen=${!!args.isOpen}
         .title=${args.title}
         @modal-opened=${(e: CustomEvent) => {
           console.log("Modal opened:", e.detail);

@@ -1,9 +1,9 @@
 import "./ledger-lottie-atom";
 
-import { expect } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
+import { expect } from "storybook/test";
 
 import checkmarkData from "./animations/checkmark.json";
 import loadingSpinnerData from "./animations/loading-spinner.json";
