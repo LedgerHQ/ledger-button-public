@@ -1,6 +1,6 @@
 import "../../molecule/toolbar/ledger-toolbar";
 
-import { css, html, LitElement, PropertyValues, unsafeCSS } from "lit";
+import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { animate } from "motion";
 
@@ -66,10 +66,6 @@ export class LedgerModal extends LitElement {
       }
     `,
   ];
-
-  override firstUpdated(changedProperties: PropertyValues) {
-    super.firstUpdated(changedProperties);
-  }
 
   override connectedCallback() {
     super.connectedCallback();
