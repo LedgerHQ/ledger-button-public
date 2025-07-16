@@ -155,11 +155,12 @@ export class LedgerModal extends LitElement {
         duration: 0.1,
         onComplete: () => {
           document.body.style.overflow = this.previousBodyOverflow;
-          this.isOpen = false;
-          this.isClosing = false;
         },
       },
     );
+
+    this.isOpen = false;
+    this.isClosing = false;
   }
 
   private focusFirstElement() {

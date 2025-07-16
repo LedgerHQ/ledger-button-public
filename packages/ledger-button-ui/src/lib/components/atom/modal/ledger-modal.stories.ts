@@ -101,7 +101,9 @@ export const TestModalInteractions: Story = {
         await userEvent.click(closeIcon as HTMLElement);
       }
 
-      expect(modal.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(modal.isOpen).toBe(false);
+      });
     });
 
     await step("Close modal using Escape key", async () => {
@@ -109,7 +111,9 @@ export const TestModalInteractions: Story = {
       expect(modal.isOpen).toBe(true);
       await userEvent.keyboard("{Escape}");
 
-      expect(modal.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(modal.isOpen).toBe(false);
+      });
     });
 
     await step("Open modal and test overlay click", async () => {
@@ -121,7 +125,9 @@ export const TestModalInteractions: Story = {
         const overlay = canvas.getByShadowTestId("modal-overlay");
         await userEvent.click(overlay);
 
-        expect(modal.isOpen).toBe(false);
+        await waitFor(() => {
+          expect(modal.isOpen).toBe(false);
+        });
       });
     });
   },
