@@ -2,7 +2,7 @@ import "../../molecule/toolbar/ledger-toolbar";
 
 import { css, html, LitElement, PropertyValues, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
-import { animate, AnimationSequence } from "motion";
+import { animate } from "motion";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
@@ -30,9 +30,6 @@ export class LedgerModal extends LitElement {
 
   @query(".modal-overlay")
   private overlayElement!: HTMLElement;
-
-  // @query("#modal-content")
-  // private modalContentElement!: HTMLDivElement;
 
   @query("ledger-toolbar")
   private toolbarElement!: HTMLElement;
@@ -155,18 +152,18 @@ export class LedgerModal extends LitElement {
   }
 
   private handleClose() {
-    const sequence: AnimationSequence = [];
-    sequence.push([this.overlayElement, { opacity: 0 }]);
-
-    animate(sequence, {
-      // @ts-expect-error - some weird type error here, this works fine
-      duration: 0.1,
-      onComplete: () => {
-        document.body.style.overflow = this.previousBodyOverflow;
-        this.isOpen = false;
-        this.isClosing = false;
+    animate(
+      this.overlayElement,
+      { opacity: 0 },
+      {
+        duration: 0.1,
+        onComplete: () => {
+          document.body.style.overflow = this.previousBodyOverflow;
+          this.isOpen = false;
+          this.isClosing = false;
+        },
       },
-    });
+    );
   }
 
   private focusFirstElement() {
@@ -208,7 +205,7 @@ export class LedgerModal extends LitElement {
         @click=${this.handleOverlayClick}
         role="dialog"
         aria-modal="true"
-        aria-labelledby=${this.title ? "modal-title" : ""}
+        ?aria-labelledby=${this.title ? "modal-title" : null}
         aria-describedby="modal-content"
         data-testid="modal-overlay"
       >
