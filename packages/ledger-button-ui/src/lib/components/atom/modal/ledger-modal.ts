@@ -77,7 +77,7 @@ export class LedgerModal extends LitElement {
     this.cleanupEventListeners();
   }
 
-  override updated(changedProperties: Map<PropertyKey, unknown>) {
+  override updated(changedProperties: Map) {
     super.updated(changedProperties);
 
     if (changedProperties.has("isOpen")) {
@@ -182,7 +182,6 @@ export class LedgerModal extends LitElement {
   };
 
   private handleToolbarClose = () => {
-    document.body.style.overflow = this.previousBodyOverflow;
     this.closeModal();
   };
 
@@ -206,7 +205,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-overlay"
       >
         <div
-          class="w-screen h-448 fixed inset-0 z-10 flex w-384 flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
+          class="h-448 fixed inset-0 z-10 flex w-384 flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
