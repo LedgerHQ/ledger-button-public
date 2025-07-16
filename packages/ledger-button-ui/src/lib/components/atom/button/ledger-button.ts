@@ -1,4 +1,4 @@
-import "../icon/ledger-icon-atom";
+import "../icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
 import { css, html, LitElement, unsafeCSS } from "lit";
@@ -10,7 +10,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 export type ButtonVariant = "primary" | "secondary";
 export type ButtonSize = "small" | "medium" | "large";
 export type IconPosition = "left" | "right";
-export interface LedgerButtonAtomAttributes {
+export interface LedgerButtonAttributes {
   label?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
@@ -58,8 +58,8 @@ const buttonVariants = cva(
   },
 );
 
-@customElement("ledger-button-atom")
-export class LedgerButtonAtom extends LitElement {
+@customElement("ledger-button")
+export class LedgerButton extends LitElement {
   @property({ type: String })
   label = "";
 
@@ -105,7 +105,7 @@ export class LedgerButtonAtom extends LitElement {
       return "";
     }
 
-    return html` <ledger-icon-atom type="ledger" size=${this.size} /> `;
+    return html`<ledger-icon type="ledger" size=${this.size} />`;
   }
 
   override render() {
@@ -154,8 +154,8 @@ export class LedgerButtonAtom extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-button-atom": LedgerButtonAtom;
+    "ledger-button": LedgerButton;
   }
 }
 
-export default LedgerButtonAtom;
+export default LedgerButton;

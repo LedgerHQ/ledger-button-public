@@ -1,15 +1,14 @@
-import "./ledger-list-item-molecule";
+import "./ledger-list-item";
 
-import { expect, waitFor } from "@storybook/test";
-import { userEvent } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect, userEvent, waitFor } from "storybook/test";
 
 const meta: Meta = {
   title: "Component/Molecule/ListItem",
   tags: ["autodocs"],
   render: (args) => html`
-    <ledger-list-item-molecule
+    <ledger-list-item
       .variant=${args.variant || "connection"}
       .title=${args.title || ""}
       .subtitle=${args.subtitle || ""}
@@ -21,7 +20,7 @@ const meta: Meta = {
       @list-item-click=${(e: CustomEvent) => {
         console.log("List item clicked:", e.detail);
       }}
-    ></ledger-list-item-molecule>
+    ></ledger-list-item>
   `,
   argTypes: {
     variant: {
@@ -201,16 +200,16 @@ export const AllVariations: Story = {
           Connection Items
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-list-item-molecule
+          <ledger-list-item
             variant="connection"
             title="Connect with Bluetooth"
             icon-type="bluetooth"
-          ></ledger-list-item-molecule>
-          <ledger-list-item-molecule
+          ></ledger-list-item>
+          <ledger-list-item
             variant="connection"
             title="Connect with USB"
             icon-type="usb"
-          ></ledger-list-item-molecule>
+          ></ledger-list-item>
         </div>
       </div>
 
@@ -219,30 +218,30 @@ export const AllVariations: Story = {
           Account Items
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-list-item-molecule
+          <ledger-list-item
             variant="account"
             title="john.eth"
             subtitle="0xC5...C0D8"
             amount="3.2343"
             currency="ETH"
             icon-type="ethereum"
-          ></ledger-list-item-molecule>
-          <ledger-list-item-molecule
+          ></ledger-list-item>
+          <ledger-list-item
             variant="account"
             title="BSC 1"
             subtitle="0x31...775D"
             amount="2304.3453"
             currency="BSC"
             icon-type="bsc"
-          ></ledger-list-item-molecule>
-          <ledger-list-item-molecule
+          ></ledger-list-item>
+          <ledger-list-item
             variant="account"
             title="Polygon 1"
             subtitle="0x59...cEC9"
             amount="5432.3221"
             currency="POL"
             icon-type="polygon"
-          ></ledger-list-item-molecule>
+          ></ledger-list-item>
         </div>
       </div>
 
@@ -251,21 +250,21 @@ export const AllVariations: Story = {
           States
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
-          <ledger-list-item-molecule
+          <ledger-list-item
             variant="connection"
             title="Disabled Connection"
             icon-type="bluetooth"
             disabled
-          ></ledger-list-item-molecule>
-          <ledger-list-item-molecule
+          ></ledger-list-item>
+          <ledger-list-item
             variant="account"
             title="Non-clickable Account"
             subtitle="0x12...34AB"
             amount="100.0"
             currency="ETH"
             icon-type="ethereum"
-            clickable="false"
-          ></ledger-list-item-molecule>
+            .clickable=${false}
+          ></ledger-list-item>
         </div>
       </div>
     </div>
@@ -287,7 +286,7 @@ export const TestConnectionInteractions: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify connection item renders correctly", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       expect(listItem).toBeInTheDocument();
 
       const container = listItem?.shadowRoot?.querySelector("button");
@@ -295,7 +294,7 @@ export const TestConnectionInteractions: Story = {
     });
 
     await step("Verify title is displayed", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const title = listItem?.shadowRoot?.querySelector(
         "[data-testid='title']",
       );
@@ -305,12 +304,12 @@ export const TestConnectionInteractions: Story = {
     });
 
     await step("Verify icon is present", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const iconContainer = listItem?.shadowRoot?.querySelector(
         "[data-testid='connection-icon']",
       );
       const icon = iconContainer?.querySelector(
-        "ledger-icon-atom[type='bluetooth']",
+        "ledger-icon[type='bluetooth']",
       );
 
       expect(iconContainer).toBeInTheDocument();
@@ -318,12 +317,12 @@ export const TestConnectionInteractions: Story = {
     });
 
     await step("Verify chevron is present", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const chevronContainer = listItem?.shadowRoot?.querySelector(
         "[data-testid='chevron']",
       );
       const chevron = chevronContainer?.querySelector(
-        "ledger-icon-atom[type='chevron']",
+        "ledger-icon[type='chevron']",
       );
 
       expect(chevronContainer).toBeInTheDocument();
@@ -331,7 +330,7 @@ export const TestConnectionInteractions: Story = {
     });
 
     await step("Verify click functionality", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       let clickEventFired = false;
 
       listItem?.addEventListener("list-item-click", (e: Event) => {
@@ -351,7 +350,7 @@ export const TestConnectionInteractions: Story = {
     });
 
     await step("Verify keyboard navigation", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       let keyboardEventFired = false;
 
       listItem?.addEventListener("list-item-click", () => {
@@ -388,7 +387,7 @@ export const TestAccountInteractions: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify account item renders correctly", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       expect(listItem).toBeInTheDocument();
 
       const container = listItem?.shadowRoot?.querySelector("button");
@@ -396,7 +395,7 @@ export const TestAccountInteractions: Story = {
     });
 
     await step("Verify title and subtitle are displayed", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const title = listItem?.shadowRoot?.querySelector(
         "[data-testid='title']",
       );
@@ -411,7 +410,7 @@ export const TestAccountInteractions: Story = {
     });
 
     await step("Verify amount is displayed", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const amount = listItem?.shadowRoot?.querySelector(
         "[data-testid='amount']",
       );
@@ -421,18 +420,18 @@ export const TestAccountInteractions: Story = {
     });
 
     await step("Verify avatar is present", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const avatar = listItem?.shadowRoot?.querySelector(
         "[data-testid='account-avatar']",
       );
 
       expect(avatar).toBeInTheDocument();
-      const icon = avatar?.querySelector("ledger-icon-atom[type='ethereum']");
+      const icon = avatar?.querySelector("ledger-icon[type='ethereum']");
       expect(icon).toBeInTheDocument();
     });
 
     await step("Verify no chevron for account variant", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const chevronContainer = listItem?.shadowRoot?.querySelector(
         "[data-testid='chevron']",
       );
@@ -441,7 +440,7 @@ export const TestAccountInteractions: Story = {
     });
 
     await step("Verify click functionality", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       let clickEventFired = false;
 
       listItem?.addEventListener("list-item-click", (e: Event) => {
@@ -480,7 +479,7 @@ export const TestDisabledState: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify disabled styling", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const button = listItem?.shadowRoot?.querySelector("button");
 
       expect(button).toBeInTheDocument();
@@ -508,7 +507,7 @@ export const TestNonClickable: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify non-clickable item renders as div", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       const container = listItem?.shadowRoot?.querySelector("div");
       const button = listItem?.shadowRoot?.querySelector("button");
 
@@ -517,7 +516,7 @@ export const TestNonClickable: Story = {
     });
 
     await step("Verify no click events on non-clickable item", async () => {
-      const listItem = canvasElement.querySelector("ledger-list-item-molecule");
+      const listItem = canvasElement.querySelector("ledger-list-item");
       let clickEventFired = false;
 
       listItem?.addEventListener("list-item-click", () => {

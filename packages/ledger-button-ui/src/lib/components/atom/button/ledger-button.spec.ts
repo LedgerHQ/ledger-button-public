@@ -1,14 +1,14 @@
-import "./ledger-button-atom";
+import "./ledger-button";
 
 import { fixture, html } from "@open-wc/testing";
 import { expect } from "vitest";
 
-import { LedgerButtonAtom } from "./ledger-button-atom";
+import { LedgerButton } from "./ledger-button";
 
 describe("LedgerButtonAtom", () => {
   it("should render with default props", async () => {
-    const element = await fixture<LedgerButtonAtom>(
-      html`<ledger-button-atom></ledger-button-atom>`
+    const element = await fixture<LedgerButton>(
+      html`<ledger-button></ledger-button>`,
     );
 
     expect(element).toBeTruthy();
@@ -21,8 +21,8 @@ describe("LedgerButtonAtom", () => {
   });
 
   it("should render button element", async () => {
-    const element = await fixture<LedgerButtonAtom>(
-      html`<ledger-button-atom></ledger-button-atom>`
+    const element = await fixture<LedgerButton>(
+      html`<ledger-button></ledger-button>`,
     );
     const button = element.shadowRoot?.querySelector("button");
     expect(button).toBeTruthy();
@@ -30,11 +30,11 @@ describe("LedgerButtonAtom", () => {
 
   describe("Variants", () => {
     it("should apply primary variant classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button
           variant="primary"
           label="Primary Button"
-        ></ledger-button-atom>`
+        ></ledger-button>`,
       );
 
       const button = element.shadowRoot?.querySelector("button");
@@ -43,11 +43,11 @@ describe("LedgerButtonAtom", () => {
     });
 
     it("should apply secondary variant classes", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button
           variant="secondary"
           label="Secondary Button"
-        ></ledger-button-atom>`
+        ></ledger-button>`,
       );
 
       const button = element.shadowRoot?.querySelector("button");
@@ -58,11 +58,11 @@ describe("LedgerButtonAtom", () => {
 
   describe("Click Handling", () => {
     it("should emit custom event on click", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button
           label="Click Test"
           variant="primary"
-        ></ledger-button-atom>`
+        ></ledger-button>`,
       );
 
       let eventDetail: any = null;
@@ -71,7 +71,7 @@ describe("LedgerButtonAtom", () => {
       });
 
       const button = element.shadowRoot?.querySelector(
-        "button"
+        "button",
       ) as HTMLButtonElement;
       button.click();
 
@@ -82,11 +82,8 @@ describe("LedgerButtonAtom", () => {
     });
 
     it("should not emit event when disabled", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
-          disabled
-          label="Disabled Button"
-        ></ledger-button-atom>`
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button disabled label="Disabled Button"></ledger-button>`,
       );
 
       let eventEmitted = false;
@@ -95,7 +92,7 @@ describe("LedgerButtonAtom", () => {
       });
 
       const button = element.shadowRoot?.querySelector(
-        "button"
+        "button",
       ) as HTMLButtonElement;
       button.click();
 
@@ -105,8 +102,8 @@ describe("LedgerButtonAtom", () => {
 
   describe("Disabled State", () => {
     it("should set disabled attribute on button", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom disabled></ledger-button-atom>`
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button disabled></ledger-button>`,
       );
 
       const button = element.shadowRoot?.querySelector("button");
@@ -116,8 +113,8 @@ describe("LedgerButtonAtom", () => {
 
   describe("Accessibility", () => {
     it("should use label as aria-label", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom label="Test Button"></ledger-button-atom>`
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button label="Test Button"></ledger-button>`,
       );
 
       const button = element.shadowRoot?.querySelector("button");
@@ -125,8 +122,8 @@ describe("LedgerButtonAtom", () => {
     });
 
     it("should set appropriate type attribute", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom type="submit"></ledger-button-atom>`
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button type="submit"></ledger-button>`,
       );
 
       const button = element.shadowRoot?.querySelector("button");
@@ -136,11 +133,11 @@ describe("LedgerButtonAtom", () => {
 
   describe("Content Rendering", () => {
     it("should render label", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button
           label="Test Label"
           variant="primary"
-        ></ledger-button-atom>`
+        ></ledger-button>`,
       );
 
       const content = element.shadowRoot?.textContent;
@@ -148,8 +145,8 @@ describe("LedgerButtonAtom", () => {
     });
 
     it("should handle empty states gracefully", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom></ledger-button-atom>`
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button></ledger-button>`,
       );
 
       expect(element.shadowRoot?.querySelector("button")).toBeTruthy();
@@ -158,8 +155,8 @@ describe("LedgerButtonAtom", () => {
 
   describe("Event Propagation", () => {
     it("should bubble custom events", async () => {
-      const element = await fixture<LedgerButtonAtom>(
-        html`<ledger-button-atom label="Bubble Test"></ledger-button-atom>`
+      const element = await fixture<LedgerButton>(
+        html`<ledger-button label="Bubble Test"></ledger-button>`,
       );
 
       let bubbledEvent: Event | null = null;
@@ -171,7 +168,7 @@ describe("LedgerButtonAtom", () => {
       document.addEventListener("ledger-button-click", eventHandler);
 
       const button = element.shadowRoot?.querySelector(
-        "button"
+        "button",
       ) as HTMLButtonElement;
       button.click();
 

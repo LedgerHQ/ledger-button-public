@@ -1,9 +1,9 @@
 import "./ledger-info-state";
-import "../../atom/modal/ledger-modal-atom";
+import "../../atom/modal/ledger-modal";
 
-import { expect } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { expect } from "storybook/test";
 
 const meta: Meta = {
   title: "Component/Molecule/InfoState",
@@ -341,29 +341,29 @@ export const TestWithoutSubtitle: Story = {
 
 export const InModalIntegration: Story = {
   render: () => html`
-    <ledger-modal-atom title="Ledger Connect" is-open="true">
+    <ledger-modal title="Ledger Connect" .isOpen=${true}>
       <ledger-info-state
         device="flex"
         title="Continue on your Ledger Flex"
         subtitle="Follow instructions appearing on your Ledger's Trusted Display"
       ></ledger-info-state>
-    </ledger-modal-atom>
+    </ledger-modal>
   `,
   play: async ({ canvasElement, step }) => {
     await step("Verify modal is open", async () => {
-      const modal = canvasElement.querySelector("ledger-modal-atom");
+      const modal = canvasElement.querySelector("ledger-modal");
       expect(modal).toBeInTheDocument();
       expect(modal?.isOpen).toBe(true);
     });
 
     await step("Verify InfoState is rendered inside modal", async () => {
-      const modal = canvasElement.querySelector("ledger-modal-atom");
+      const modal = canvasElement.querySelector("ledger-modal");
       const infoState = modal?.querySelector("ledger-info-state");
       expect(infoState).toBeInTheDocument();
     });
 
     await step("Verify InfoState content", async () => {
-      const modal = canvasElement.querySelector("ledger-modal-atom");
+      const modal = canvasElement.querySelector("ledger-modal");
       const infoState = modal?.querySelector("ledger-info-state");
 
       expect(infoState?.device).toBe("flex");

@@ -1,4 +1,4 @@
-import "../../atom/icon/ledger-icon-atom";
+import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement, nothing, unsafeCSS } from "lit";
@@ -40,14 +40,14 @@ const deviceIconVariants = cva("mb-32", {
   },
 });
 
-export interface LedgerInfoStateMoleculeAttributes {
+export interface LedgerInfoStateAttributes {
   device: DeviceType;
   title: string;
   subtitle?: string;
 }
 
 @customElement("ledger-info-state")
-export class LedgerInfoStateMolecule extends LitElement {
+export class LedgerInfoState extends LitElement {
   @property({ type: String })
   device: DeviceType = "flex";
 
@@ -103,8 +103,8 @@ export class LedgerInfoStateMolecule extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-info-state": LedgerInfoStateMolecule;
+    "ledger-info-state": LedgerInfoState;
   }
 }
 
-export default LedgerInfoStateMolecule;
+export default LedgerInfoState;

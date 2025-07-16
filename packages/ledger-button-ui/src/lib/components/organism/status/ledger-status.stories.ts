@@ -1,11 +1,11 @@
-import "./ledger-status-organism";
+import "./ledger-status";
 
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
 const meta: Meta = {
   title: "Component/Organism/Status",
-  component: "ledger-status-organism",
+  component: "ledger-status",
   tags: ["autodocs"],
   argTypes: {
     type: {
@@ -143,25 +143,25 @@ export const AllVariants: Story = {
     >
       <div>
         <h3 style="color: white; margin-bottom: 10px;">Success Status</h3>
-        <ledger-status-organism
+        <ledger-status
           type="success"
           title="Success!"
           description="Operation completed successfully"
           primary-button-label="Continue"
           secondary-button-label="Details"
           show-secondary-button
-        ></ledger-status-organism>
+        ></ledger-status>
       </div>
       <div>
         <h3 style="color: white; margin-bottom: 10px;">Error Status</h3>
-        <ledger-status-organism
+        <ledger-status
           type="error"
           title="Error occurred"
           description="Something went wrong"
           primary-button-label="Retry"
           secondary-button-label="Cancel"
           show-secondary-button
-        ></ledger-status-organism>
+        ></ledger-status>
       </div>
     </div>
   `,

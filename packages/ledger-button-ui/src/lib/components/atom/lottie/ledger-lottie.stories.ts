@@ -1,26 +1,26 @@
-import "./ledger-lottie-atom";
+import "./ledger-lottie";
 
-import { expect } from "@storybook/test";
-import type { Meta, StoryObj } from "@storybook/web-components";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
+import { expect } from "storybook/test";
 
 import checkmarkData from "./animations/checkmark.json";
 import loadingSpinnerData from "./animations/loading-spinner.json";
-import type { LedgerLottieAtomAttributes } from "./ledger-lottie-atom";
+import type { LedgerLottieAttributes } from "./ledger-lottie";
 
-const meta: Meta<LedgerLottieAtomAttributes> = {
+const meta: Meta<LedgerLottieAttributes> = {
   title: "Component/Atom/Lottie",
   tags: ["autodocs"],
   render: (args) =>
-    html`<ledger-lottie-atom
+    html`<ledger-lottie
       .animationData=${args.animationData}
       .size=${args.size || "medium"}
       ?autoplay=${args.autoplay}
       ?loop=${args.loop}
       ?paused=${args.paused}
       .speed=${args.speed || 1}
-    ></ledger-lottie-atom>`,
+    ></ledger-lottie>`,
   argTypes: {
     animationData: {
       control: "object",
@@ -82,7 +82,7 @@ const meta: Meta<LedgerLottieAtomAttributes> = {
 };
 
 export default meta;
-type Story = StoryObj<LedgerLottieAtomAttributes>;
+type Story = StoryObj<LedgerLottieAttributes>;
 
 export const LoadingSpinner: Story = {
   args: {
@@ -162,34 +162,34 @@ export const DifferentSizes: Story = {
         <h4 style="margin-bottom: 8px; font-size: 14px; color: #374151;">
           Small (32px)
         </h4>
-        <ledger-lottie-atom
+        <ledger-lottie
           .animationData=${loadingSpinnerData}
           size="small"
           autoplay
           loop
-        ></ledger-lottie-atom>
+        ></ledger-lottie>
       </div>
       <div style="text-align: center;">
         <h4 style="margin-bottom: 8px; font-size: 14px; color: #374151;">
           Medium (64px)
         </h4>
-        <ledger-lottie-atom
+        <ledger-lottie
           .animationData=${loadingSpinnerData}
           size="medium"
           autoplay
           loop
-        ></ledger-lottie-atom>
+        ></ledger-lottie>
       </div>
       <div style="text-align: center;">
         <h4 style="margin-bottom: 8px; font-size: 14px; color: #374151;">
           Large (128px)
         </h4>
-        <ledger-lottie-atom
+        <ledger-lottie
           .animationData=${loadingSpinnerData}
           size="large"
           autoplay
           loop
-        ></ledger-lottie-atom>
+        ></ledger-lottie>
       </div>
     </div>
   `,
@@ -213,12 +213,12 @@ export const AnimationStates: Story = {
           Playing and Looping
         </h3>
         <div style="display: flex; gap: 16px; align-items: center;">
-          <ledger-lottie-atom
+          <ledger-lottie
             .animationData=${loadingSpinnerData}
             size="medium"
             autoplay
             loop
-          ></ledger-lottie-atom>
+          ></ledger-lottie>
           <span style="font-size: 12px; color: #6b7280;"
             >Loading spinner (looping)</span
           >
@@ -232,12 +232,12 @@ export const AnimationStates: Story = {
           Playing Once
         </h3>
         <div style="display: flex; gap: 16px; align-items: center;">
-          <ledger-lottie-atom
+          <ledger-lottie
             .animationData=${checkmarkData}
             size="medium"
             autoplay
             ?loop=${false}
-          ></ledger-lottie-atom>
+          ></ledger-lottie>
           <span style="font-size: 12px; color: #6b7280;"
             >Checkmark (plays once)</span
           >
@@ -251,12 +251,12 @@ export const AnimationStates: Story = {
           Paused
         </h3>
         <div style="display: flex; gap: 16px; align-items: center;">
-          <ledger-lottie-atom
+          <ledger-lottie
             .animationData=${loadingSpinnerData}
             size="medium"
             ?autoplay=${false}
             paused
-          ></ledger-lottie-atom>
+          ></ledger-lottie>
           <span style="font-size: 12px; color: #6b7280;">Paused animation</span>
         </div>
       </div>

@@ -12,7 +12,7 @@ describe("LedgerButtonUI", () => {
   it("should render the button atom with correct configuration", async () => {
     const element = await fixture(html`<ledger-button-ui></ledger-button-ui>`);
 
-    const buttonAtom = element.shadowRoot?.querySelector("ledger-button-atom");
+    const buttonAtom = element.shadowRoot?.querySelector("ledger-button");
     expect(buttonAtom).toBeTruthy();
     expect(buttonAtom?.getAttribute("label")).toBe("Connect Ledger");
     expect(buttonAtom?.getAttribute("variant")).toBe("primary");
@@ -28,7 +28,7 @@ describe("LedgerButtonUI", () => {
       eventFired = true;
     });
 
-    const buttonAtom = element.shadowRoot?.querySelector("ledger-button-atom");
+    const buttonAtom = element.shadowRoot?.querySelector("ledger-button");
     const button = buttonAtom?.shadowRoot?.querySelector("button");
     button?.click();
 

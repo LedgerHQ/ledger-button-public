@@ -9,7 +9,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 export type LottieSize = "small" | "medium" | "large";
 
-export interface LedgerLottieAtomAttributes {
+export interface LedgerLottieAttributes {
   animationData: object;
   size?: LottieSize;
   autoplay?: boolean;
@@ -31,8 +31,8 @@ const lottieVariants = cva(["lottie-container"], {
   },
 });
 
-@customElement("ledger-lottie-atom")
-export class LedgerLottieAtom extends LitElement {
+@customElement("ledger-lottie")
+export class LedgerLottie extends LitElement {
   @property({ type: Object, attribute: "animation-data" })
   animationData!: object;
 
@@ -66,7 +66,7 @@ export class LedgerLottieAtom extends LitElement {
 
   override firstUpdated() {
     if (!this.animationData) {
-      throw new Error("animationData is required for ledger-lottie-atom");
+      throw new Error("animationData is required for ledger-lottie");
     }
 
     this.initializeAnimation();
@@ -213,8 +213,8 @@ export class LedgerLottieAtom extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-lottie-atom": LedgerLottieAtom;
+    "ledger-lottie": LedgerLottie;
   }
 }
 
-export default LedgerLottieAtom;
+export default LedgerLottie;

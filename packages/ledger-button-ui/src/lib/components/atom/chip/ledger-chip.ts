@@ -1,4 +1,4 @@
-import "../icon/ledger-icon-atom";
+import "../icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement, unsafeCSS } from "lit";
@@ -7,7 +7,7 @@ import { classMap } from "lit/directives/class-map.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
-export interface LedgerChipAtomAttributes {
+export interface LedgerChipAttributes {
   label?: string;
   icon?: "device";
 }
@@ -26,8 +26,8 @@ const chipIconContainerVariants = cva([
 
 const chipChevronVariants = cva(["rotate-90"]);
 
-@customElement("ledger-chip-atom")
-export class LedgerChipAtom extends LitElement {
+@customElement("ledger-chip")
+export class LedgerChip extends LitElement {
   @property({ type: String })
   label = "";
 
@@ -63,7 +63,7 @@ export class LedgerChipAtom extends LitElement {
   private renderIcon() {
     return html`
       <div class=${classMap(this.chipIconContainerClasses)}>
-        <ledger-icon-atom type=${this.icon} size="medium"></ledger-icon-atom>
+        <ledger-icon type=${this.icon} size="medium"></ledger-icon>
       </div>
     `;
   }
@@ -71,7 +71,7 @@ export class LedgerChipAtom extends LitElement {
   private renderChevron() {
     return html`
       <div class=${classMap(this.chipChevronClasses)}>
-        <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
+        <ledger-icon type="chevron" size="medium"></ledger-icon>
       </div>
     `;
   }
@@ -115,8 +115,8 @@ export class LedgerChipAtom extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-chip-atom": LedgerChipAtom;
+    "ledger-chip": LedgerChip;
   }
 }
 
-export default LedgerChipAtom;
+export default LedgerChip;

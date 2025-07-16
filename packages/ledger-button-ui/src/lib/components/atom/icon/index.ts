@@ -6,6 +6,6 @@ export { default as CloseIcon } from "./closeIcon";
 export { default as DeviceIcon } from "./deviceIcon";
 export { default as ErrorIcon } from "./errorIcon";
 export { default as EthereumIcon } from "./ethereumIcon";
-export { default as LedgerIcon } from "./ledgerIcon";
+export { default as LedgerLogoIcon } from "./ledgerLogoIcon";
 export { default as PolygonIcon } from "./polygonIcon";
 export { default as UsbIcon } from "./usbIcon";
