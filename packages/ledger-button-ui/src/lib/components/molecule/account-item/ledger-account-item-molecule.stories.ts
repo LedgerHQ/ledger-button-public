@@ -1,0 +1,303 @@
+import "./ledger-account-item-molecule";
+
+import { expect, waitFor, userEvent } from "storybook/test";
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
+import { html } from "lit";
+
+const meta: Meta = {
+  title: "Component/Molecule/ListItems/Account",
+  tags: ["autodocs"],
+  render: (args) => html`
+    <div class="min-w-352">
+      <ledger-account-item-molecule
+        .title=${args.title}
+        .address=${args.address}
+        .token=${args.token}
+        .value=${args.value}
+        .linkLabel=${args.linkLabel}
+        @account-item-click=${(e: CustomEvent) => {
+          console.log("Account item clicked:", e.detail);
+        }}
+      ></ledger-account-item-molecule>
+    </div>
+  `,
+  argTypes: {
+    title: {
+      control: "text",
+      description: "The account title or name.",
+      table: {
+        type: { summary: "string" },
+        category: "Required",
+      },
+    },
+    address: {
+      control: "text",
+      description: "The wallet address",
+      table: {
+        type: { summary: "string" },
+        category: "Required",
+      },
+    },
+    token: {
+      control: "text",
+      description: "The token symbol",
+      table: {
+        type: { summary: "string" },
+        category: "Required",
+      },
+    },
+    value: {
+      control: "number",
+      description: "The account balance value",
+      table: {
+        type: { summary: "number" },
+        category: "Required",
+      },
+    },
+    linkLabel: {
+      control: "text",
+      description: "Additional link label text",
+      table: {
+        type: { summary: "string" },
+        category: "Required",
+      },
+    },
+  },
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234...5678",
+    token: "ETH",
+    value: 2.5432,
+    linkLabel: "Show tokens",
+  },
+};
+
+export default meta;
+type Story = StoryObj;
+
+export const EthereumAccount: Story = {
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    token: "ETH",
+    value: 2.5432,
+    linkLabel: "Show tokens",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item displaying an Ethereum account with balance and link.",
+      },
+    },
+  },
+};
+
+export const BitcoinAccount: Story = {
+  args: {
+    title: "Bitcoin Wallet",
+    address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    token: "BTC",
+    value: 0.12345,
+    linkLabel: "Show tokens",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item displaying a Bitcoin account with balance and link.",
+      },
+    },
+  },
+};
+
+export const PolygonAccount: Story = {
+  args: {
+    title: "Polygon Account",
+    address: "0xabcdef1234567890abcdef1234567890abcdef12",
+    token: "MATIC",
+    value: 156.789,
+    linkLabel: "Show tokens",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "Account item displaying a Polygon account with MATIC balance.",
+      },
+    },
+  },
+};
+
+export const HighValueAccount: Story = {
+  args: {
+    title: "Main Trading Account",
+    address: "0x9876543210fedcba9876543210fedcba98765432",
+    token: "ETH",
+    value: 1234.5678,
+    linkLabel: "Show tokens",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item with a high value balance demonstrating number formatting.",
+      },
+    },
+  },
+};
+
+export const NoLinkLabel: Story = {
+  args: {
+    title: "Simple Account",
+    address: "0x1111222233334444555566667777888899990000",
+    token: "ETH",
+    value: 0.001,
+    linkLabel: "",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item without a link label, showing minimal information.",
+      },
+    },
+  },
+};
+
+export const AllVariations: Story = {
+  render: () => html`
+    <div>
+      <div>
+        <h3
+          style="margin-bottom: 8px; font-size: 14px; font-weight: 600; margin-top: 0;"
+        >
+          Account Types
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <ledger-account-item-molecule
+            title="My Ethereum Account"
+            address="0x1234567890abcdef1234567890abcdef12345678"
+            token="ETH"
+            value="2.5432"
+            link-label="Show tokens"
+          ></ledger-account-item-molecule>
+          <ledger-account-item-molecule
+            title="Bitcoin Wallet"
+            address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
+            token="BTC"
+            value="0.12345"
+            link-label="Show tokens"
+          ></ledger-account-item-molecule>
+          <ledger-account-item-molecule
+            title="Polygon Account"
+            address="0xabcdef1234567890abcdef1234567890abcdef12"
+            token="MATIC"
+            value="156.789"
+            link-label="Show tokens"
+          ></ledger-account-item-molecule>
+          <ledger-account-item-molecule
+            title="Simple Account"
+            address="0x1111222233334444555566667777888899990000"
+            token="ETH"
+            value="0.001"
+            link-label=""
+          ></ledger-account-item-molecule>
+        </div>
+      </div>
+    </div>
+  `,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Overview of account item variations showing different account types.",
+      },
+    },
+  },
+};
+
+export const TestInteractions: Story = {
+  args: {
+    title: "Test Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    token: "ETH",
+    value: 1.234,
+    linkLabel: "Show tokens",
+  },
+  play: async ({ canvasElement, step }) => {
+    await step("Verify component renders correctly", async () => {
+      const accountItem = canvasElement.querySelector(
+        "ledger-account-item-molecule",
+      );
+      expect(accountItem).toBeInTheDocument();
+
+      const button = accountItem?.shadowRoot?.querySelector("button");
+      expect(button).toBeInTheDocument();
+    });
+
+    await step("Verify account information is displayed", async () => {
+      const accountItem = canvasElement.querySelector(
+        "ledger-account-item-molecule",
+      );
+      const button = accountItem?.shadowRoot?.querySelector("button");
+
+      const titleElement = button?.querySelector("span");
+      expect(titleElement).toBeInTheDocument();
+      expect(titleElement?.textContent?.trim()).toBe("Test Account");
+    });
+
+    await step("Verify click functionality", async () => {
+      const accountItem = canvasElement.querySelector(
+        "ledger-account-item-molecule",
+      );
+      let clickEventFired = false;
+
+      accountItem?.addEventListener("account-item-click", (e: Event) => {
+        const customEvent = e as CustomEvent;
+        clickEventFired = true;
+        expect(customEvent.detail.title).toBe("Test Account");
+        expect(customEvent.detail.address).toBe(
+          "0x1234567890abcdef1234567890abcdef12345678",
+        );
+        expect(customEvent.detail.token).toBe("ETH");
+        expect(customEvent.detail.value).toBe(1.234);
+        expect(customEvent.detail.linkLabel).toBe("Show tokens");
+      });
+
+      const button = accountItem?.shadowRoot?.querySelector("button");
+      if (button) {
+        await userEvent.click(button);
+        await waitFor(() => {
+          expect(clickEventFired).toBe(true);
+        });
+      }
+    });
+
+    await step("Verify keyboard navigation", async () => {
+      const accountItem = canvasElement.querySelector(
+        "ledger-account-item-molecule",
+      );
+      let keyboardEventFired = false;
+
+      accountItem?.addEventListener("account-item-click", () => {
+        keyboardEventFired = true;
+      });
+
+      const button = accountItem?.shadowRoot?.querySelector("button");
+      if (button) {
+        button.focus();
+        await userEvent.keyboard("{Enter}");
+        await waitFor(() => {
+          expect(keyboardEventFired).toBe(true);
+        });
+      }
+    });
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "Automated test story to verify account item functionality.",
+      },
+    },
+  },
+};
