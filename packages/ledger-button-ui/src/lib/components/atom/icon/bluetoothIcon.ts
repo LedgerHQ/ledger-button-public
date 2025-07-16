@@ -7,6 +7,8 @@ export default html`
     height="24"
     viewBox="0 0 24 24"
     fill="#0082FC"
+    aria-hidden="true"
+    focusable="false"
   >
     <rect width="24" height="24" rx="12" fill="white" />
     <path

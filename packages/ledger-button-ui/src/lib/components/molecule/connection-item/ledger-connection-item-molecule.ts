@@ -8,7 +8,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 const connectionItemVariants = cva(
   [
-    "dark flex cursor-pointer items-center justify-between rounded-md",
+    "dark flex items-center justify-between rounded-md",
     "min-w-full",
     "bg-muted p-12 hover:bg-muted-hover",
   ],

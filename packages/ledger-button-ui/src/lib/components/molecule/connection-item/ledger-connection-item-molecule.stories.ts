@@ -23,7 +23,7 @@ const meta: Meta = {
   argTypes: {
     title: {
       control: "text",
-      description: "The main title text",
+      description: "The main title text ",
       table: {
         type: { summary: "string" },
         defaultValue: { summary: '""' },

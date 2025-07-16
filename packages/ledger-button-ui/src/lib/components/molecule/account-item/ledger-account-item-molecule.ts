@@ -84,7 +84,7 @@ export class LedgerAccountItemMolecule extends LitElement {
           <span class="whitespace-nowrap text-muted body-3">
             ${this.formatAddress(this.address)}
           </span>
-          <ledger-icon type="ethereum" size="medium"></ledger-icon>
+          <ledger-icon type=${this.token || "ethereum"} size="medium"></ledger-icon>
         </div>
       </div>
     `;
