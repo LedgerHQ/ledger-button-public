@@ -1,5 +1,5 @@
-import "./ledger-chip-atom";
-import "../icon/ledger-icon-atom";
+import "./ledger-chip";
+import "../icon/ledger-icon";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
@@ -9,13 +9,13 @@ const meta: Meta = {
   title: "Component/Atom/Chip",
   tags: ["autodocs"],
   render: (args) =>
-    html`<ledger-chip-atom
+    html`<ledger-chip
       .label=${args.label || ""}
       .icon=${args.icon || "device"}
       @ledger-chip-click=${(e: CustomEvent) => {
         console.log("Chip clicked:", e.detail);
       }}
-    ></ledger-chip-atom>`,
+    ></ledger-chip>`,
   argTypes: {
     label: {
       control: "text",
@@ -72,10 +72,10 @@ export const InteractiveExample: Story = {
         >
           Interactive Chip (Click to cycle through devices)
         </h3>
-        <ledger-chip-atom
+        <ledger-chip
           label=${selectedDevice}
           @ledger-chip-click=${handleChipClick}
-        ></ledger-chip-atom>
+        ></ledger-chip>
         <p style="font-size: 12px; color: #6B7280;">
           Click the chip above to see it cycle through different device names.
           In a real implementation, this would open a device selection list in
@@ -92,7 +92,7 @@ export const TestChipInteractions: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify chip renders correctly", async () => {
-      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const chip = canvasElement.querySelector("ledger-chip");
 
       expect(chip).toBeInTheDocument();
 
@@ -102,7 +102,7 @@ export const TestChipInteractions: Story = {
     });
 
     await step("Verify label is displayed", async () => {
-      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const chip = canvasElement.querySelector("ledger-chip");
       const label = chip?.shadowRoot?.querySelector("span");
 
       expect(label).toBeInTheDocument();
@@ -110,12 +110,12 @@ export const TestChipInteractions: Story = {
     });
 
     await step("Verify icon and chevron are present", async () => {
-      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const chip = canvasElement.querySelector("ledger-chip");
       const iconElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='device']",
+        "ledger-icon[type='device']",
       );
       const chevronElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='chevron']",
+        "ledger-icon[type='chevron']",
       );
 
       expect(iconElement).toBeInTheDocument();
@@ -123,7 +123,7 @@ export const TestChipInteractions: Story = {
     });
 
     await step("Verify click functionality", async () => {
-      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const chip = canvasElement.querySelector("ledger-chip");
       let clickEventFired = false;
 
       chip?.addEventListener("ledger-chip-click", () => {
@@ -141,15 +141,15 @@ export const TestChipInteractions: Story = {
     });
 
     await step("Verify accessibility attributes", async () => {
-      const chip = canvasElement.querySelector("ledger-chip-atom");
+      const chip = canvasElement.querySelector("ledger-chip");
       const chipContainer = chip?.shadowRoot?.querySelector("button");
       expect(chipContainer).toHaveAttribute("aria-label", "Test Chip");
 
       const iconElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='device']",
+        "ledger-icon[type='device']",
       );
       const chevronElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='chevron']",
+        "ledger-icon[type='chevron']",
       );
 
       expect(iconElement).toBeInTheDocument();

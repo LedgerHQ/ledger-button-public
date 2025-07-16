@@ -1,4 +1,4 @@
-import "../../atom/icon/ledger-icon-atom";
+import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement, unsafeCSS } from "lit";
@@ -11,7 +11,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 export type ListItemVariant = "connection" | "account";
 export type ListItemSize = "small" | "medium" | "large";
 
-export interface LedgerListItemMoleculeAttributes {
+export interface LedgerListItemAttributes {
   variant?: ListItemVariant;
   title?: string;
   subtitle?: string;
@@ -105,8 +105,8 @@ const amountVariants = cva([
 
 const contentVariants = cva(["m-12 min-w-0 flex-1"]);
 
-@customElement("ledger-list-item-molecule")
-export class LedgerListItemMolecule extends LitElement {
+@customElement("ledger-list-item")
+export class LedgerListItem extends LitElement {
   @property({ type: String })
   variant: ListItemVariant = "connection";
 
@@ -186,10 +186,7 @@ export class LedgerListItemMolecule extends LitElement {
           class="${classMap(this.iconContainerClasses)} flex-shrink-0"
           data-testid="connection-icon"
         >
-          <ledger-icon-atom
-            type=${this.iconType}
-            size="medium"
-          ></ledger-icon-atom>
+          <ledger-icon type=${this.iconType} size="medium"></ledger-icon>
         </div>
       `;
     }
@@ -197,10 +194,7 @@ export class LedgerListItemMolecule extends LitElement {
     if (this.variant === "account") {
       return html`
         <div class="flex-shrink-0" data-testid="account-avatar">
-          <ledger-icon-atom
-            type=${this.getIconType()}
-            size="large"
-          ></ledger-icon-atom>
+          <ledger-icon type=${this.getIconType()} size="large"></ledger-icon>
         </div>
       `;
     }
@@ -255,7 +249,7 @@ export class LedgerListItemMolecule extends LitElement {
     if (this.variant === "connection") {
       return html`
         <div data-testid="chevron">
-          <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
+          <ledger-icon type="chevron" size="medium"></ledger-icon>
         </div>
       `;
     }
@@ -328,8 +322,8 @@ export class LedgerListItemMolecule extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-list-item-molecule": LedgerListItemMolecule;
+    "ledger-list-item": LedgerListItem;
   }
 }
 
-export default LedgerListItemMolecule;
+export default LedgerListItem;

@@ -1,6 +1,6 @@
 import { html } from "lit";
 
-export const LedgerIcon = html`
+export const LedgerLogoIcon = html`
   <svg
     viewBox="0 0 16 16"
     fill="none"
@@ -35,4 +35,4 @@ export const LedgerIcon = html`
   </svg>
 `;
 
-export default LedgerIcon;
+export default LedgerLogoIcon;

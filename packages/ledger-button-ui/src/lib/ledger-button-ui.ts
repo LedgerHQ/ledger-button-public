@@ -1,4 +1,4 @@
-import "./components/atom/button/ledger-button-atom";
+import "./components/atom/button/ledger-button";
 
 import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -18,12 +18,12 @@ export class LedgerButtonUI extends LitElement {
 
   override render() {
     return html`
-      <ledger-button-atom
+      <ledger-button
         label="Connect Ledger"
         variant="primary"
         size="large"
         icon
-      ></ledger-button-atom>
+      ></ledger-button>
     `;
   }
 }

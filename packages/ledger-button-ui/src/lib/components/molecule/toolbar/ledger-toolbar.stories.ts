@@ -1,22 +1,22 @@
-import "./ledger-toolbar-molecule";
+import "./ledger-toolbar";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
 
-import type { LedgerToolbarMoleculeAttributes } from "./ledger-toolbar-molecule";
+import type { LedgerToolbarAttributes } from "./ledger-toolbar";
 
-const meta: Meta<LedgerToolbarMoleculeAttributes> = {
+const meta: Meta<LedgerToolbarAttributes> = {
   title: "Component/Molecule/Toolbar",
   tags: ["autodocs"],
   render: (args) =>
     html`<div style="background: black; padding: 20px;">
-      <ledger-toolbar-molecule
+      <ledger-toolbar
         .title=${args.title || ""}
         @toolbar-close=${(e: CustomEvent) => {
           console.log("Toolbar close clicked:", e.detail);
         }}
-      ></ledger-toolbar-molecule>
+      ></ledger-toolbar>
     </div>`,
   argTypes: {
     title: {
@@ -31,7 +31,7 @@ const meta: Meta<LedgerToolbarMoleculeAttributes> = {
 };
 
 export default meta;
-type Story = StoryObj<LedgerToolbarMoleculeAttributes>;
+type Story = StoryObj<LedgerToolbarAttributes>;
 
 export const Default: Story = {
   args: {
@@ -57,9 +57,7 @@ export const AllVariations: Story = {
         >
           With Title
         </h3>
-        <ledger-toolbar-molecule
-          title="Connect a Ledger"
-        ></ledger-toolbar-molecule>
+        <ledger-toolbar title="Connect a Ledger"></ledger-toolbar>
       </div>
 
       <div>
@@ -68,9 +66,9 @@ export const AllVariations: Story = {
         >
           With Long Title
         </h3>
-        <ledger-toolbar-molecule
+        <ledger-toolbar
           title="This is a very long title that demonstrates text handling"
-        ></ledger-toolbar-molecule>
+        ></ledger-toolbar>
       </div>
 
       <div>
@@ -79,7 +77,7 @@ export const AllVariations: Story = {
         >
           Without Title
         </h3>
-        <ledger-toolbar-molecule></ledger-toolbar-molecule>
+        <ledger-toolbar></ledger-toolbar>
       </div>
     </div>
   `,
@@ -91,7 +89,7 @@ export const TestToolbarInteractions: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify toolbar renders correctly", async () => {
-      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const toolbar = canvasElement.querySelector("ledger-toolbar");
 
       expect(toolbar).toBeInTheDocument();
 
@@ -103,7 +101,7 @@ export const TestToolbarInteractions: Story = {
     });
 
     await step("Verify title is displayed", async () => {
-      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const toolbar = canvasElement.querySelector("ledger-toolbar");
       const title = toolbar?.shadowRoot?.querySelector("h2");
 
       expect(title).toBeInTheDocument();
@@ -112,16 +110,16 @@ export const TestToolbarInteractions: Story = {
     });
 
     await step("Verify logo is present", async () => {
-      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const toolbar = canvasElement.querySelector("ledger-toolbar");
       const logoIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='ledger']",
+        "ledger-icon[type='ledger']",
       );
 
       expect(logoIcon).toBeInTheDocument();
     });
 
     await step("Verify close button functionality", async () => {
-      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const toolbar = canvasElement.querySelector("ledger-toolbar");
       let closeEventFired = false;
 
       toolbar?.addEventListener("toolbar-close", () => {
@@ -129,7 +127,7 @@ export const TestToolbarInteractions: Story = {
       });
 
       const closeIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='close']",
+        "ledger-icon[type='close']",
       );
 
       if (closeIcon) {
@@ -141,16 +139,16 @@ export const TestToolbarInteractions: Story = {
     });
 
     await step("Verify accessibility attributes", async () => {
-      const toolbar = canvasElement.querySelector("ledger-toolbar-molecule");
+      const toolbar = canvasElement.querySelector("ledger-toolbar");
       const title = toolbar?.shadowRoot?.querySelector("h2");
       expect(title).toHaveAttribute("class");
       expect(title?.tagName.toLowerCase()).toBe("h2");
 
       const logoIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='ledger']",
+        "ledger-icon[type='ledger']",
       );
       const closeIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='close']",
+        "ledger-icon[type='close']",
       );
 
       expect(logoIcon).toBeInTheDocument();

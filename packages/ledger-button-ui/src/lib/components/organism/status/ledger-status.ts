@@ -1,6 +1,6 @@
-import "../../atom/button/ledger-button-atom";
-import "../../atom/icon/ledger-icon-atom";
-import "../../molecule/toolbar/ledger-toolbar-molecule";
+import "../../atom/button/ledger-button";
+import "../../atom/icon/ledger-icon";
+import "../../molecule/toolbar/ledger-toolbar";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement, unsafeCSS } from "lit";
@@ -11,7 +11,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 export type StatusType = "success" | "error";
 
-export interface LedgerStatusOrganismAttributes {
+export interface LedgerStatusAttributes {
   type?: StatusType;
   title?: string;
   description?: string;
@@ -47,8 +47,8 @@ const statusIconVariants = cva(
   },
 );
 
-@customElement("ledger-status-organism")
-export class LedgerStatusOrganism extends LitElement {
+@customElement("ledger-status")
+export class LedgerStatus extends LitElement {
   @property({ type: String })
   type: StatusType = "success";
 
@@ -126,9 +126,9 @@ export class LedgerStatusOrganism extends LitElement {
   override render() {
     return html`
       <div class=${classMap(this.containerClasses)}>
-        <ledger-toolbar-molecule
+        <ledger-toolbar
           @toolbar-close=${this.handleToolbarClose}
-        ></ledger-toolbar-molecule>
+        ></ledger-toolbar>
 
         <div class="px-6 pb-6 text-center">
           <div class="mb-8 flex justify-center">
@@ -137,10 +137,7 @@ export class LedgerStatusOrganism extends LitElement {
               role="img"
               aria-label="${this.type === "success" ? "Success" : "Error"}"
             >
-              <ledger-icon-atom
-                type=${this.iconType}
-                size="large"
-              ></ledger-icon-atom>
+              <ledger-icon type=${this.iconType} size="large"></ledger-icon>
             </div>
           </div>
 
@@ -165,23 +162,23 @@ export class LedgerStatusOrganism extends LitElement {
           <div class="space-y-3 mt-32">
             ${this.secondaryButtonLabel
               ? html`
-                  <ledger-button-atom
+                  <ledger-button
                     label=${this.secondaryButtonLabel}
                     variant="secondary"
                     size="large"
                     class="w-full"
                     @ledger-button-click=${this.handleSecondaryAction}
-                  ></ledger-button-atom>
+                  ></ledger-button>
                 `
               : ""}
 
-            <ledger-button-atom
+            <ledger-button
               label=${this.primaryButtonLabel}
               variant="primary"
               size="large"
               class="w-full"
               @ledger-button-click=${this.handlePrimaryAction}
-            ></ledger-button-atom>
+            ></ledger-button>
           </div>
         </div>
       </div>
@@ -191,8 +188,8 @@ export class LedgerStatusOrganism extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-status-organism": LedgerStatusOrganism;
+    "ledger-status": LedgerStatus;
   }
 }
 
-export default LedgerStatusOrganism;
+export default LedgerStatus;

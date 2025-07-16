@@ -1,15 +1,15 @@
-import "./ledger-button-atom";
+import "./ledger-button";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
-import type { LedgerButtonAtomAttributes } from "./ledger-button-atom";
+import type { LedgerButtonAttributes } from "./ledger-button";
 
-const meta: Meta<LedgerButtonAtomAttributes> = {
+const meta: Meta<LedgerButtonAttributes> = {
   title: "Component/Atom/Button",
   tags: ["autodocs"],
   render: (args) =>
-    html`<ledger-button-atom
+    html`<ledger-button
       .label=${args.label || ""}
       .variant=${args.variant || "primary"}
       .size=${args.size || "medium"}
@@ -20,7 +20,7 @@ const meta: Meta<LedgerButtonAtomAttributes> = {
       @ledger-button-click=${(e: CustomEvent) => {
         console.log("Button clicked:", e.detail);
       }}
-    ></ledger-button-atom>`,
+    ></ledger-button>`,
   argTypes: {
     label: {
       control: "text",
@@ -58,7 +58,7 @@ const meta: Meta<LedgerButtonAtomAttributes> = {
 };
 
 export default meta;
-type Story = StoryObj<LedgerButtonAtomAttributes>;
+type Story = StoryObj<LedgerButtonAttributes>;
 
 export const PrimaryWithIcon: Story = {
   args: {
@@ -93,21 +93,17 @@ export const SmallButtons: Story = {
     <div
       style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
     >
-      <ledger-button-atom
+      <ledger-button
         label="Small Primary"
         variant="primary"
         size="small"
-      ></ledger-button-atom>
-      <ledger-button-atom
+      ></ledger-button>
+      <ledger-button
         label="Small Secondary"
         variant="secondary"
         size="small"
-      ></ledger-button-atom>
-      <ledger-button-atom
-        variant="primary"
-        size="small"
-        icon
-      ></ledger-button-atom>
+      ></ledger-button>
+      <ledger-button variant="primary" size="small" icon></ledger-button>
     </div>
   `,
 };
@@ -117,21 +113,17 @@ export const MediumButtons: Story = {
     <div
       style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
     >
-      <ledger-button-atom
+      <ledger-button
         label="Medium Primary"
         variant="primary"
         size="medium"
-      ></ledger-button-atom>
-      <ledger-button-atom
+      ></ledger-button>
+      <ledger-button
         label="Medium Secondary"
         variant="secondary"
         size="medium"
-      ></ledger-button-atom>
-      <ledger-button-atom
-        variant="primary"
-        size="medium"
-        icon
-      ></ledger-button-atom>
+      ></ledger-button>
+      <ledger-button variant="primary" size="medium" icon></ledger-button>
     </div>
   `,
 };
@@ -141,21 +133,17 @@ export const LargeButtons: Story = {
     <div
       style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
     >
-      <ledger-button-atom
+      <ledger-button
         label="Large Primary"
         variant="primary"
         size="large"
-      ></ledger-button-atom>
-      <ledger-button-atom
+      ></ledger-button>
+      <ledger-button
         label="Large Secondary"
         variant="secondary"
         size="large"
-      ></ledger-button-atom>
-      <ledger-button-atom
-        variant="primary"
-        size="large"
-        icon
-      ></ledger-button-atom>
+      ></ledger-button>
+      <ledger-button variant="primary" size="large" icon></ledger-button>
     </div>
   `,
 };
@@ -165,24 +153,24 @@ export const DisabledStates: Story = {
     <div
       style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
     >
-      <ledger-button-atom
+      <ledger-button
         label="Disabled Primary"
         variant="primary"
         size="medium"
         ?disabled=${true}
-      ></ledger-button-atom>
-      <ledger-button-atom
+      ></ledger-button>
+      <ledger-button
         label="Disabled Secondary"
         variant="secondary"
         size="medium"
         ?disabled=${true}
-      ></ledger-button-atom>
-      <ledger-button-atom
+      ></ledger-button>
+      <ledger-button
         variant="primary"
         size="medium"
         icon
         ?disabled=${true}
-      ></ledger-button-atom>
+      ></ledger-button>
     </div>
   `,
 };
@@ -199,16 +187,16 @@ export const AllVariants: Story = {
         <div
           style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
         >
-          <ledger-button-atom
+          <ledger-button
             label="Primary"
             variant="primary"
             size="medium"
-          ></ledger-button-atom>
-          <ledger-button-atom
+          ></ledger-button>
+          <ledger-button
             label="Secondary"
             variant="secondary"
             size="medium"
-          ></ledger-button-atom>
+          ></ledger-button>
         </div>
       </div>
 
@@ -221,21 +209,21 @@ export const AllVariants: Story = {
         <div
           style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
         >
-          <ledger-button-atom
+          <ledger-button
             label="Small"
             variant="primary"
             size="small"
-          ></ledger-button-atom>
-          <ledger-button-atom
+          ></ledger-button>
+          <ledger-button
             label="Medium"
             variant="primary"
             size="medium"
-          ></ledger-button-atom>
-          <ledger-button-atom
+          ></ledger-button>
+          <ledger-button
             label="Large"
             variant="primary"
             size="large"
-          ></ledger-button-atom>
+          ></ledger-button>
         </div>
       </div>
 
@@ -248,17 +236,17 @@ export const AllVariants: Story = {
         <div
           style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;"
         >
-          <ledger-button-atom
+          <ledger-button
             label="Normal"
             variant="primary"
             size="medium"
-          ></ledger-button-atom>
-          <ledger-button-atom
+          ></ledger-button>
+          <ledger-button
             label="Disabled"
             variant="primary"
             size="medium"
             ?disabled=${true}
-          ></ledger-button-atom>
+          ></ledger-button>
         </div>
       </div>
     </div>

@@ -11,12 +11,12 @@ import {
   DeviceIcon,
   ErrorIcon,
   EthereumIcon,
-  LedgerIcon,
+  LedgerLogoIcon,
   PolygonIcon,
   UsbIcon,
 } from "./index";
 
-export interface LedgerIconAtomAttributes {
+export interface LedgerIconAttributes {
   type:
     | "ledger"
     | "close"
@@ -32,8 +32,8 @@ export interface LedgerIconAtomAttributes {
   size: "small" | "medium" | "large";
 }
 
-@customElement("ledger-icon-atom")
-export class LedgerIconAtom extends LitElement {
+@customElement("ledger-icon")
+export class LedgerIcon extends LitElement {
   @property({ type: String })
   type = "ledger";
 
@@ -63,7 +63,7 @@ export class LedgerIconAtom extends LitElement {
 
   override render() {
     const iconMapper = {
-      ledger: () => LedgerIcon,
+      ledger: () => LedgerLogoIcon,
       close: () => CloseIcon,
       bluetooth: () => BluetoothIcon,
       usb: () => UsbIcon,
@@ -86,8 +86,8 @@ export class LedgerIconAtom extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-icon-atom": LedgerIconAtom;
+    "ledger-icon": LedgerIcon;
   }
 }
 
-export default LedgerIconAtom;
+export default LedgerIcon;

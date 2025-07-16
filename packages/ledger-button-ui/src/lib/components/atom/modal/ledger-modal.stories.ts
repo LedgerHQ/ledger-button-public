@@ -1,22 +1,19 @@
-import "./ledger-modal-atom";
-import "../button/ledger-button-atom";
+import "./ledger-modal";
+import "../button/ledger-button";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
 import { expect, userEvent, waitFor } from "storybook/test";
 
-import type {
-  LedgerModalAtom,
-  LedgerModalAtomAttributes,
-} from "./ledger-modal-atom";
+import type { LedgerModal, LedgerModalAttributes } from "./ledger-modal";
 
-const meta: Meta<LedgerModalAtomAttributes> = {
+const meta: Meta<LedgerModalAttributes> = {
   title: "Component/Atom/Modal",
   tags: ["autodocs"],
   render: (args) =>
     html`<div>
-      <ledger-button-atom
+      <ledger-button
         id="trigger-button"
         label="Connect Ledger"
         variant="primary"
@@ -24,13 +21,11 @@ const meta: Meta<LedgerModalAtomAttributes> = {
         icon
         @ledger-button-click=${(e: Event) => {
           const container = (e.target as HTMLElement).closest("div");
-          const modal = container?.querySelector(
-            "ledger-modal-atom",
-          ) as LedgerModalAtom;
+          const modal = container?.querySelector("ledger-modal") as LedgerModal;
           modal?.openModal();
         }}
-      ></ledger-button-atom>
-      <ledger-modal-atom
+      ></ledger-button>
+      <ledger-modal
         data-testid="modal"
         .isOpen=${!!args.isOpen}
         .title=${args.title}
@@ -42,7 +37,7 @@ const meta: Meta<LedgerModalAtomAttributes> = {
         }}
       >
         <p>This is the modal content. You can add any content here.</p>
-      </ledger-modal-atom>
+      </ledger-modal>
     </div>`,
   argTypes: {
     isOpen: {
@@ -57,7 +52,7 @@ const meta: Meta<LedgerModalAtomAttributes> = {
 };
 
 export default meta;
-type Story = StoryObj<LedgerModalAtomAttributes>;
+type Story = StoryObj<LedgerModalAttributes>;
 
 export const Default: Story = {
   args: {
@@ -73,7 +68,7 @@ export const TestModalInteractions: Story = {
   },
   play: async ({ canvasElement, step }) => {
     const canvas = shadowWithin(canvasElement);
-    const modal = canvas.getByTestId<LedgerModalAtom>("modal");
+    const modal = canvas.getByTestId<LedgerModal>("modal");
 
     await step("Initial state - modal should be closed", async () => {
       expect(modal.isOpen).toBe(false);
@@ -92,11 +87,9 @@ export const TestModalInteractions: Story = {
     });
 
     await step("Close modal using close button", async () => {
-      const toolbar = modal.shadowRoot?.querySelector(
-        "ledger-toolbar-molecule",
-      );
+      const toolbar = modal.shadowRoot?.querySelector("ledger-toolbar");
       const closeIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon-atom[type='close']",
+        "ledger-icon[type='close']",
       );
 
       if (closeIcon) {

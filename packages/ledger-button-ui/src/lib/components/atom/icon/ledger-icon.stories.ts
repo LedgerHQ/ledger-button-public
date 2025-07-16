@@ -1,4 +1,4 @@
-import "./ledger-icon-atom";
+import "./ledger-icon";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
@@ -8,7 +8,7 @@ const meta: Meta = {
   tags: ["autodocs"],
   render: (args) =>
     html`<div>
-      <ledger-icon-atom .type=${args.type} .size=${args.size} />
+      <ledger-icon .type=${args.type} .size=${args.size}></ledger-icon>
     </div>`,
   argTypes: {
     type: {
@@ -276,47 +276,47 @@ export const AllIcons: Story = {
       style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;"
     >
       <div style="text-align: center;">
-        <ledger-icon-atom type="ledger" size="medium"></ledger-icon-atom>
+        <ledger-icon type="ledger" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Ledger</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="close" size="medium"></ledger-icon-atom>
+        <ledger-icon type="close" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Close</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="bluetooth" size="medium"></ledger-icon-atom>
+        <ledger-icon type="bluetooth" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Bluetooth</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="usb" size="medium"></ledger-icon-atom>
+        <ledger-icon type="usb" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">USB</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="chevron" size="medium"></ledger-icon-atom>
+        <ledger-icon type="chevron" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="ethereum" size="medium"></ledger-icon-atom>
+        <ledger-icon type="ethereum" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Ethereum</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="bsc" size="medium"></ledger-icon-atom>
+        <ledger-icon type="bsc" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">BSC</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="polygon" size="medium"></ledger-icon-atom>
+        <ledger-icon type="polygon" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Polygon</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="check" size="medium"></ledger-icon-atom>
+        <ledger-icon type="check" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Check</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="error" size="medium"></ledger-icon-atom>
+        <ledger-icon type="error" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Error</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon-atom type="device" size="medium"></ledger-icon-atom>
+        <ledger-icon type="device" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Device</p>
       </div>
     </div>

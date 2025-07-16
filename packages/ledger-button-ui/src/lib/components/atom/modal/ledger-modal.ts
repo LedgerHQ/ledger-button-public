@@ -1,19 +1,19 @@
-import "../../molecule/toolbar/ledger-toolbar-molecule";
+import "../../molecule/toolbar/ledger-toolbar";
 
 import { html, LitElement, unsafeCSS } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
 import tailwindStyles from "../../../../styles.css?inline";
 
-export interface LedgerModalAtomAttributes {
+export interface LedgerModalAttributes {
   title: string;
   isOpen?: boolean;
   closeOnOverlayClick?: boolean;
   closeOnEscape?: boolean;
 }
 
-@customElement("ledger-modal-atom")
-export class LedgerModalAtom extends LitElement {
+@customElement("ledger-modal")
+export class LedgerModal extends LitElement {
   @property({ type: Boolean, attribute: "is-open", reflect: true })
   isOpen = false;
 
@@ -23,7 +23,7 @@ export class LedgerModalAtom extends LitElement {
   @query(".modal-overlay")
   private overlayElement!: HTMLElement;
 
-  @query("ledger-toolbar-molecule")
+  @query("ledger-toolbar")
   private toolbarElement!: HTMLElement;
 
   private focusableElements: HTMLElement[] = [];
@@ -153,20 +153,20 @@ export class LedgerModalAtom extends LitElement {
         data-testid="modal-overlay"
       >
         <div
-          class="fixed inset-0 bg-background-canvas-overlay"
+          class="bg-background-canvas-overlay fixed inset-0"
           aria-hidden="true"
         ></div>
         <div
-          class="fixed inset-0 z-10 w-screen overflow-y-auto bg-black w-400 h-448 flex flex-col rounded-xl"
+          class="w-screen w-400 h-448 fixed inset-0 z-10 flex flex-col overflow-y-auto rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
-          <ledger-toolbar-molecule
+          <ledger-toolbar
             .title=${this.title}
             show-logo
             show-close
             @toolbar-close=${this.handleToolbarClose}
             aria-label=${this.title || ""}
-          ></ledger-toolbar-molecule>
+          ></ledger-toolbar>
           <div id="modal-content" class="p-16 text-white">
             <slot></slot>
           </div>
@@ -178,8 +178,8 @@ export class LedgerModalAtom extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-modal-atom": LedgerModalAtom;
+    "ledger-modal": LedgerModal;
   }
 }
 
-export default LedgerModalAtom;
+export default LedgerModal;
