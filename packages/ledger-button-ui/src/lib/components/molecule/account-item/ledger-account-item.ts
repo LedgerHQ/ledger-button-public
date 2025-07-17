@@ -1,3 +1,4 @@
+import "../../atom/crypto-icon/ledger-crypto-icon";
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
@@ -15,7 +16,8 @@ const accountItemVariants = cva([
 export interface LedgerAccountItemMoleculeAttributes {
   title: string;
   address: string;
-  token: string;
+  ticker: string;
+  ledgerId: string;
   value: number;
   linkLabel: string;
 }
@@ -29,7 +31,10 @@ export class LedgerAccountItemMolecule extends LitElement {
   address = "";
 
   @property({ type: String })
-  token = "";
+  ticker = "";
+
+  @property({ type: String, attribute: "ledger-id" })
+  ledgerId = "";
 
   @property({ type: Number })
   value = 0;
@@ -53,7 +58,8 @@ export class LedgerAccountItemMolecule extends LitElement {
         detail: {
           title: this.title,
           address: this.address,
-          token: this.token,
+          ticker: this.ticker,
+          ledgerId: this.ledgerId,
           value: this.value,
           linkLabel: this.linkLabel,
           timestamp: Date.now(),
@@ -80,11 +86,15 @@ export class LedgerAccountItemMolecule extends LitElement {
     return html`
       <div class="flex flex-col gap-4 text-left">
         <span class="text-base body-2-semi-bold">${this.title}</span>
-        <div class="flex items-center gap-8">
+        <div class="flex items-center gap-4">
           <span class="whitespace-nowrap text-muted body-3">
             ${this.formatAddress(this.address)}
           </span>
-          <ledger-icon type="ethereum" size="medium"></ledger-icon>
+          <ledger-crypto-icon
+            ledger-id=${this.ledgerId}
+            variant="square"
+            size="small"
+          ></ledger-crypto-icon>
         </div>
       </div>
     `;
@@ -94,7 +104,7 @@ export class LedgerAccountItemMolecule extends LitElement {
     return html`
       <div class="flex items-center justify-center">
         <span class="text-base body-2-semi-bold"
-          >${this.value} ${this.token}</span
+          >${this.value} ${this.ticker}</span
         >
       </div>
     `;

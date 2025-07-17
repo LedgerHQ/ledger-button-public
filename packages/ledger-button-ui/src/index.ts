@@ -1,5 +1,6 @@
 export * from "./lib/components/atom/button/ledger-button";
 export * from "./lib/components/atom/chip/ledger-chip";
+export * from "./lib/components/atom/crypto-icon/ledger-crypto-icon";
 export * from "./lib/components/atom/icon/ledger-icon";
 export * from "./lib/components/atom/lottie/ledger-lottie";
 export * from "./lib/components/atom/modal/ledger-modal";
