@@ -1,14 +1,15 @@
 import "./ledger-modal";
 import "../button/ledger-button";
+import "../../molecule/info-state/ledger-info-state";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
 import { expect, userEvent, waitFor } from "storybook/test";
 
-import type { LedgerModal, LedgerModalAttributes } from "./ledger-modal";
+import type { LedgerModal } from "./ledger-modal";
 
-const meta: Meta<LedgerModalAttributes> = {
+const meta: Meta = {
   title: "Component/Atom/Modal",
   tags: ["autodocs"],
   render: (args) =>
@@ -36,7 +37,11 @@ const meta: Meta<LedgerModalAttributes> = {
           console.log("Modal closed:", e.detail);
         }}
       >
-        <p>This is the modal content. You can add any content here.</p>
+        <ledger-info-state
+          device="flex"
+          title="Continue on your Ledger Flex"
+          subtitle="Follow instructions appearing on your Ledger's Trusted Display"
+        ></ledger-info-state>
       </ledger-modal>
     </div>`,
   argTypes: {
@@ -52,7 +57,7 @@ const meta: Meta<LedgerModalAttributes> = {
 };
 
 export default meta;
-type Story = StoryObj<LedgerModalAttributes>;
+type Story = StoryObj;
 
 export const Default: Story = {
   args: {
@@ -72,7 +77,7 @@ export const TestModalInteractions: Story = {
 
     await step("Initial state - modal should be closed", async () => {
       expect(modal.isOpen).toBe(false);
-      expect(modal.shadowRoot?.querySelector(".modal-overlay")).toBeNull();
+      expect(modal.hasAttribute("is-open")).toBe(false);
     });
 
     await step("Open modal programmatically", async () => {
@@ -96,7 +101,9 @@ export const TestModalInteractions: Story = {
         await userEvent.click(closeIcon as HTMLElement);
       }
 
-      expect(modal.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(modal.isOpen).toBe(false);
+      });
     });
 
     await step("Close modal using Escape key", async () => {
@@ -104,7 +111,9 @@ export const TestModalInteractions: Story = {
       expect(modal.isOpen).toBe(true);
       await userEvent.keyboard("{Escape}");
 
-      expect(modal.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(modal.isOpen).toBe(false);
+      });
     });
 
     await step("Open modal and test overlay click", async () => {
@@ -116,7 +125,9 @@ export const TestModalInteractions: Story = {
         const overlay = canvas.getByShadowTestId("modal-overlay");
         await userEvent.click(overlay);
 
-        expect(modal.isOpen).toBe(false);
+        await waitFor(() => {
+          expect(modal.isOpen).toBe(false);
+        });
       });
     });
   },

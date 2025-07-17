@@ -648,9 +648,9 @@ export const ledgerButtonPreset = {
             "--font-family-font": "Inter",
             "--border-width-1": "1px",
             "--border-width-2": "2px",
-            "--font-weight-bold": "bold",
-            "--font-weight-semi-bold": "semi-bold",
-            "--font-weight-medium": "medium",
+            "--font-weight-bold": "700",
+            "--font-weight-semi-bold": "600",
+            "--font-weight-medium": "500",
             "--font-size-10": "10px",
             "--font-size-12": "12px",
             "--font-size-14": "14px",
@@ -2146,7 +2146,8 @@ export const ledgerButtonPreset = {
             "crypto-ethereum": "var(--color-crypto-ethereum)",
             "crypto-ethereum-0": "var(--color-crypto-ethereum-0)",
             "crypto-ethereum-classic": "var(--color-crypto-ethereum-classic)",
-            "crypto-ethereum-classic-0": "var(--color-crypto-ethereum-classic-0)",
+            "crypto-ethereum-classic-0":
+              "var(--color-crypto-ethereum-classic-0)",
             "crypto-flr": "var(--color-crypto-flr)",
             "crypto-flr-0": "var(--color-crypto-flr-0)",
             "crypto-ftm": "var(--color-crypto-ftm)",
@@ -2307,7 +2308,8 @@ export const ledgerButtonPreset = {
             "crypto-ethereum": "var(--color-crypto-ethereum)",
             "crypto-ethereum-0": "var(--color-crypto-ethereum-0)",
             "crypto-ethereum-classic": "var(--color-crypto-ethereum-classic)",
-            "crypto-ethereum-classic-0": "var(--color-crypto-ethereum-classic-0)",
+            "crypto-ethereum-classic-0":
+              "var(--color-crypto-ethereum-classic-0)",
             "crypto-flr": "var(--color-crypto-flr)",
             "crypto-flr-0": "var(--color-crypto-flr-0)",
             "crypto-ftm": "var(--color-crypto-ftm)",
@@ -2476,7 +2478,7 @@ export const ledgerButtonPreset = {
             "112": "var(--font-line-height-112)",
           },
         },
-      }
+      },
     ),
     plugin(function ({ addUtilities }) {
       addUtilities({
