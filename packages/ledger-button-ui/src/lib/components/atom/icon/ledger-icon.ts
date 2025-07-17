@@ -53,8 +53,8 @@ export class LedgerIcon extends LitElement {
 
   private get iconClasses(): string {
     const sizeClasses: { [key: string]: string } = {
-      small: "w-8 h-8",
-      medium: "w-16 h-16",
+      small: "w-16 h-16",
+      medium: "w-24 h-24",
       large: "w-32 h-32",
     };
 
