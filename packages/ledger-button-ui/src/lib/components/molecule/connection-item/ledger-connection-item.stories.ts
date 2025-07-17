@@ -133,9 +133,7 @@ export const AllVariations: Story = {
             title="USB Connection"
             connection-type="usb"
           ></ledger-connection-item>
-          <ledger-connection-item
-            title="Only Title"
-          ></ledger-connection-item>
+          <ledger-connection-item title="Only Title"></ledger-connection-item>
           <ledger-connection-item
             connection-type="bluetooth"
           ></ledger-connection-item>
@@ -297,7 +295,9 @@ export const TestDisabledState: Story = {
 
       const button = connectionItem?.shadowRoot?.querySelector("button");
       if (button) {
-        await userEvent.click(button);
+        // For disabled elements, simulate the click directly instead of using userEvent
+        // since disabled elements with pointer-events: none can't be clicked through userEvent
+        button.click();
         await new Promise((resolve) => setTimeout(resolve, 100));
         expect(clickEventFired).toBe(false);
       }
@@ -340,7 +340,9 @@ export const TestNonClickable: Story = {
 
       const button = connectionItem?.shadowRoot?.querySelector("button");
       if (button) {
-        await userEvent.click(button);
+        // For non-clickable elements, simulate the click directly instead of using userEvent
+        // to test that the component logic prevents the event, not just CSS pointer-events
+        button.click();
         await new Promise((resolve) => setTimeout(resolve, 100));
         expect(clickEventFired).toBe(false);
       }
