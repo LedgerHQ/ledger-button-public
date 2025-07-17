@@ -23,6 +23,8 @@ export class ConnectDevice {
 
   async execute({ type }: { type: ConnectionType }): Promise<DeviceSessionId> {
     this.logger.info("Connecting to device", { type });
-    return this.deviceManagementKitService.connectToDevice({ type });
+    return this.deviceManagementKitService.connectToDevice({
+      type,
+    });
   }
 }

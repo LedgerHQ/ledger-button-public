@@ -5,13 +5,11 @@ import { customElement, property } from "lit/decorators.js";
 
 export const coreContext = createContext<LedgerButtonCore>(Symbol.for("core"));
 
-const buttonCore = new LedgerButtonCore({});
-
 @customElement("core-provider")
 export class CoreProvider extends LitElement {
   @provide({ context: coreContext })
   @property({ attribute: false })
-  public core: LedgerButtonCore = buttonCore;
+  public core: LedgerButtonCore = new LedgerButtonCore({ stub: true });
 
   override render() {
     return html`<slot></slot>`;

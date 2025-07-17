@@ -6,7 +6,7 @@ import type { StorybookConfig } from "@storybook/web-components-vite";
 const require = createRequire(import.meta.url);
 
 const config: StorybookConfig = {
-  stories: ["../src/lib/**/*.@(mdx|stories.@(js|jsx|ts|tsx))"],
+  stories: ["../src/**/*.@(mdx|stories.@(js|jsx|ts|tsx))"],
   addons: [
     getAbsolutePath("@storybook/addon-coverage"),
     getAbsolutePath("@storybook/addon-docs"),

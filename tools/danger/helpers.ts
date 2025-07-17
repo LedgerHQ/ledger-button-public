@@ -42,9 +42,9 @@ const Branch = (danger: DangerDSLType, fail: FailFn, isFork = false) => ({
     ? new RegExp(`^(${BRANCH_PREFIX.join("|")})/.+`, "i")
     : new RegExp(
         `^(release|chore/backmerge(-.+){0,}|(${BRANCH_PREFIX.join(
-          "|"
+          "|",
         )})/(([a-z]{1,})-[0-9]+|no-issue|issue-[0-9]+)-.+)`,
-        "i"
+        "i",
       ),
 
   getBranch: () => {
@@ -93,7 +93,7 @@ Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](htt
 export const checkBranches = (
   danger: DangerDSLType,
   fail: FailFn,
-  fork = false
+  fork = false,
 ) => {
   const config = Branch(danger, fail, fork);
   const currentBranch = config.getBranch();
@@ -145,7 +145,7 @@ Special case for commit messages coming from a pull request merge:
 
     const currentBranch = Branch(danger, fail, fork).getBranch();
     return execSync(
-      `git log origin/develop..${currentBranch} --pretty=format:%s`
+      `git log origin/develop..${currentBranch} --pretty=format:%s`,
     )
       .toString()
       .split("\n");
@@ -155,14 +155,14 @@ Special case for commit messages coming from a pull request merge:
 export const checkCommits = (
   danger: DangerDSLType,
   fail: FailFn,
-  fork = false
+  fork = false,
 ) => {
   const config = Commits(danger, fail, fork);
   const branchCommits = config.getCommits();
   console.log("Branch commits:", branchCommits);
 
   const wrongCommits = branchCommits.filter(
-    (commit) => !config.regex.test(commit)
+    (commit) => !config.regex.test(commit),
   );
 
   if (wrongCommits.length > 0) {
@@ -224,7 +224,7 @@ Please fix the PR title to match the convention, see [CONTRIBUTING.md](https://g
 export const checkTitle = (
   danger: DangerDSLType,
   fail: FailFn,
-  fork = false
+  fork = false,
 ) => {
   const config = Title(danger, fail, fork);
   if (!config.regex.test(danger.github.pr.title)) {
