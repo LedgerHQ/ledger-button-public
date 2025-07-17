@@ -9,7 +9,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 const accountItemVariants = cva([
   "flex min-w-full cursor-pointer justify-between p-12",
-  "bg-muted transition duration-300 ease-in-out hover:bg-muted-hover",
+  "bg-muted transition duration-150 ease-in-out hover:bg-muted-hover",
 ]);
 
 export interface LedgerAccountItemMoleculeAttributes {
@@ -116,12 +116,16 @@ export class LedgerAccountItemMolecule extends LitElement {
         ${this.linkLabel
           ? html`
               <button
-                class="flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
+                class="group flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
               >
                 <span class="text-base body-3-semi-bold"
                   >${this.linkLabel}</span
                 >
-                <ledger-icon type="chevron" size="small"></ledger-icon>
+                <div
+                  class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
+                >
+                  <ledger-icon type="chevron" size="small"></ledger-icon>
+                </div>
               </button>
             `
           : ""}

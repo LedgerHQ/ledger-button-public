@@ -9,9 +9,9 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 const connectionItemVariants = cva(
   [
-    "dark flex items-center justify-between rounded-md",
+    "group dark flex items-center justify-between rounded-md",
     "min-w-full",
-    "bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover",
+    "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
   ],
   {
     variants: {
@@ -99,7 +99,13 @@ export class LedgerConnectionItemMolecule extends LitElement {
   }
 
   private renderChevron() {
-    return html` <ledger-icon type="chevron" size="small"></ledger-icon> `;
+    return html`
+      <div
+        class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
+      >
+        <ledger-icon type="chevron" size="small"></ledger-icon>
+      </div>
+    `;
   }
 
   private renderTitle() {
