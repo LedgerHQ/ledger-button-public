@@ -9,7 +9,7 @@ import tailwindStyles from "../../../../styles.css?inline";
 
 const accountItemVariants = cva([
   "flex min-w-full cursor-pointer justify-between p-12",
-  "bg-muted hover:bg-muted-hover",
+  "bg-muted transition duration-300 ease-in-out hover:bg-muted-hover",
 ]);
 
 export interface LedgerAccountItemMoleculeAttributes {
@@ -116,7 +116,7 @@ export class LedgerAccountItemMolecule extends LitElement {
         ${this.linkLabel
           ? html`
               <button
-                class="flex items-center justify-between border-t-1 border-muted-subtle bg-muted px-12 py-8 hover:bg-muted-hover"
+                class="flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
               >
                 <span class="text-base body-3-semi-bold"
                   >${this.linkLabel}</span
