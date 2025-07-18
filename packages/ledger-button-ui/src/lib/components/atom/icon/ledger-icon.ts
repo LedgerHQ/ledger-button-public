@@ -4,15 +4,12 @@ import { customElement, property } from "lit/decorators.js";
 import tailwindStyles from "../../../../styles.css?inline";
 import {
   BluetoothIcon,
-  BscIcon,
   CheckIcon,
   ChevronIcon,
   CloseIcon,
   DeviceIcon,
   ErrorIcon,
-  EthereumIcon,
   LedgerLogoIcon,
-  PolygonIcon,
   UsbIcon,
 } from "./index";
 
@@ -23,9 +20,6 @@ export interface LedgerIconAttributes {
     | "bluetooth"
     | "usb"
     | "chevron"
-    | "ethereum"
-    | "bsc"
-    | "polygon"
     | "check"
     | "error"
     | "device";
@@ -68,9 +62,6 @@ export class LedgerIcon extends LitElement {
       bluetooth: () => BluetoothIcon,
       usb: () => UsbIcon,
       chevron: () => ChevronIcon,
-      ethereum: () => EthereumIcon,
-      bsc: () => BscIcon,
-      polygon: () => PolygonIcon,
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,

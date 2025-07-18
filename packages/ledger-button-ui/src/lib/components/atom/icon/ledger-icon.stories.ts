@@ -296,18 +296,6 @@ export const AllIcons: Story = {
         <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="ethereum" size="medium"></ledger-icon>
-        <p style="margin: 8px 0 0 0; font-size: 12px;">Ethereum</p>
-      </div>
-      <div style="text-align: center;">
-        <ledger-icon type="bsc" size="medium"></ledger-icon>
-        <p style="margin: 8px 0 0 0; font-size: 12px;">BSC</p>
-      </div>
-      <div style="text-align: center;">
-        <ledger-icon type="polygon" size="medium"></ledger-icon>
-        <p style="margin: 8px 0 0 0; font-size: 12px;">Polygon</p>
-      </div>
-      <div style="text-align: center;">
         <ledger-icon type="check" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Check</p>
       </div>

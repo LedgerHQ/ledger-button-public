@@ -12,7 +12,8 @@ const meta: Meta = {
       <ledger-account-item
         .title=${args.title}
         .address=${args.address}
-        .token=${args.token}
+        .ticker=${args.ticker}
+        .ledgerId=${args.ledgerId}
         .value=${args.value}
         .linkLabel=${args.linkLabel}
         @account-item-click=${(e: CustomEvent) => {
@@ -38,9 +39,17 @@ const meta: Meta = {
         category: "Required",
       },
     },
-    token: {
+    ticker: {
       control: "text",
-      description: "The token symbol",
+      description: "The token ticker symbol",
+      table: {
+        type: { summary: "string" },
+        category: "Required",
+      },
+    },
+    ledgerId: {
+      control: "text",
+      description: "The Ledger ID for the cryptocurrency icon",
       table: {
         type: { summary: "string" },
         category: "Required",
@@ -66,7 +75,8 @@ const meta: Meta = {
   args: {
     title: "My Ethereum Account",
     address: "0x1234...5678",
-    token: "ETH",
+    ticker: "ETH",
+    ledgerId: "ethereum",
     value: 2.5432,
     linkLabel: "Show tokens",
   },
@@ -79,7 +89,8 @@ export const EthereumAccount: Story = {
   args: {
     title: "My Ethereum Account",
     address: "0x1234567890abcdef1234567890abcdef12345678",
-    token: "ETH",
+    ticker: "ETH",
+    ledgerId: "ethereum",
     value: 2.5432,
     linkLabel: "Show tokens",
   },
@@ -97,7 +108,8 @@ export const BitcoinAccount: Story = {
   args: {
     title: "Bitcoin Wallet",
     address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-    token: "BTC",
+    ticker: "BTC",
+    ledgerId: "bitcoin",
     value: 0.12345,
     linkLabel: "Show tokens",
   },
@@ -115,7 +127,8 @@ export const PolygonAccount: Story = {
   args: {
     title: "Polygon Account",
     address: "0xabcdef1234567890abcdef1234567890abcdef12",
-    token: "MATIC",
+    ticker: "MATIC",
+    ledgerId: "polygon",
     value: 156.789,
     linkLabel: "Show tokens",
   },
@@ -132,7 +145,8 @@ export const HighValueAccount: Story = {
   args: {
     title: "Main Trading Account",
     address: "0x9876543210fedcba9876543210fedcba98765432",
-    token: "ETH",
+    ticker: "ETH",
+    ledgerId: "ethereum",
     value: 1234.5678,
     linkLabel: "Show tokens",
   },
@@ -150,7 +164,8 @@ export const NoLinkLabel: Story = {
   args: {
     title: "Simple Account",
     address: "0x1111222233334444555566667777888899990000",
-    token: "ETH",
+    ticker: "ETH",
+    ledgerId: "ethereum",
     value: 0.001,
     linkLabel: "",
   },
@@ -159,6 +174,25 @@ export const NoLinkLabel: Story = {
       description: {
         story:
           "Account item without a link label, showing minimal information.",
+      },
+    },
+  },
+};
+
+export const AlgorandTokenAccount: Story = {
+  args: {
+    title: "Algorand Token Account",
+    address: "ALGORAND1234567890ABCDEF1234567890ABCDEF123456",
+    ticker: "USDC",
+    ledgerId: "algorand/asa/312769",
+    value: 150.25,
+    linkLabel: "View on explorer",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item showing a complex ledgerId format for Algorand ASA tokens.",
       },
     },
   },
@@ -177,28 +211,32 @@ export const AllVariations: Story = {
           <ledger-account-item
             title="My Ethereum Account"
             address="0x1234567890abcdef1234567890abcdef12345678"
-            token="ETH"
+            ticker="ETH"
+            ledger-id="ethereum"
             value="2.5432"
             link-label="Show tokens"
           ></ledger-account-item>
           <ledger-account-item
             title="Bitcoin Wallet"
             address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
-            token="BTC"
+            ticker="BTC"
+            ledger-id="bitcoin"
             value="0.12345"
             link-label="Show tokens"
           ></ledger-account-item>
           <ledger-account-item
             title="Polygon Account"
             address="0xabcdef1234567890abcdef1234567890abcdef12"
-            token="MATIC"
+            ticker="MATIC"
+            ledger-id="polygon"
             value="156.789"
             link-label="Show tokens"
           ></ledger-account-item>
           <ledger-account-item
             title="Simple Account"
             address="0x1111222233334444555566667777888899990000"
-            token="ETH"
+            ticker="ETH"
+            ledger-id="ethereum"
             value="0.001"
             link-label=""
           ></ledger-account-item>
@@ -220,15 +258,14 @@ export const TestInteractions: Story = {
   args: {
     title: "Test Account",
     address: "0x1234567890abcdef1234567890abcdef12345678",
-    token: "ETH",
+    ticker: "ETH",
+    ledgerId: "ethereum",
     value: 1.234,
     linkLabel: "Show tokens",
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {
-      const accountItem = canvasElement.querySelector(
-        "ledger-account-item",
-      );
+      const accountItem = canvasElement.querySelector("ledger-account-item");
       expect(accountItem).toBeInTheDocument();
 
       const button = accountItem?.shadowRoot?.querySelector("button");
@@ -236,9 +273,7 @@ export const TestInteractions: Story = {
     });
 
     await step("Verify account information is displayed", async () => {
-      const accountItem = canvasElement.querySelector(
-        "ledger-account-item",
-      );
+      const accountItem = canvasElement.querySelector("ledger-account-item");
       const button = accountItem?.shadowRoot?.querySelector("button");
 
       const titleElement = button?.querySelector("span");
@@ -247,9 +282,7 @@ export const TestInteractions: Story = {
     });
 
     await step("Verify click functionality", async () => {
-      const accountItem = canvasElement.querySelector(
-        "ledger-account-item",
-      );
+      const accountItem = canvasElement.querySelector("ledger-account-item");
       let clickEventFired = false;
 
       accountItem?.addEventListener("account-item-click", (e: Event) => {
@@ -259,7 +292,8 @@ export const TestInteractions: Story = {
         expect(customEvent.detail.address).toBe(
           "0x1234567890abcdef1234567890abcdef12345678",
         );
-        expect(customEvent.detail.token).toBe("ETH");
+        expect(customEvent.detail.ticker).toBe("ETH");
+        expect(customEvent.detail.ledgerId).toBe("ethereum");
         expect(customEvent.detail.value).toBe(1.234);
         expect(customEvent.detail.linkLabel).toBe("Show tokens");
       });
@@ -274,9 +308,7 @@ export const TestInteractions: Story = {
     });
 
     await step("Verify keyboard navigation", async () => {
-      const accountItem = canvasElement.querySelector(
-        "ledger-account-item",
-      );
+      const accountItem = canvasElement.querySelector("ledger-account-item");
       let keyboardEventFired = false;
 
       accountItem?.addEventListener("account-item-click", () => {
