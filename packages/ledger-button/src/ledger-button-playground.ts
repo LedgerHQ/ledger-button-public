@@ -1,5 +1,6 @@
 import "@ledgerhq/ledger-button-ui";
 import "./context/core-context.js";
+import "./context/language-context.js";
 import "./shared/root-modal-component.js";
 
 import { html, LitElement } from "lit";
@@ -58,15 +59,19 @@ export class LedgerButtonPlayground extends LitElement {
   }
 
   override render() {
-    return html`<core-provider>
-      <ledger-button
-        label="Connect Device"
-        variant="primary"
-        size="large"
-        icon
-        @ledger-button-click=${this.openModal}
-      ></ledger-button>
-      <root-modal-component id="navigation"> </root-modal-component>
-    </core-provider>`;
+    return html`
+      <core-provider>
+        <language-provider>
+          <ledger-button
+            label="Connect Device"
+            variant="primary"
+            size="large"
+            icon
+            @ledger-button-click=${this.openModal}
+          ></ledger-button>
+          <root-modal-component id="navigation"> </root-modal-component>
+        </language-provider>
+      </core-provider>
+    `;
   }
 }

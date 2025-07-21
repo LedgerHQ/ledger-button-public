@@ -1,0 +1,38 @@
+{
+  "common": {
+    "button": {
+      "connect": "Connect a Ledger",
+      "connectUSB": "Connect with USB",
+      "connectBluetooth": "Connect with Bluetooth"
+    },
+    "device": {
+      "model": {
+        "nanos": "Nano S",
+        "nanosp": "Nano SP",
+        "nanox": "Nano X",
+        "stax": "Stax",
+        "flex": "Flex"
+      },
+      "deviceActions": {
+        "continueOnLedger": {
+          "title": "Continue on your",
+          "description": "Follow the instructions displayed on your Secure Touchscreen."
+        }
+      }
+    }
+  },
+  "onboarding": {
+    "selectDevice": {
+      "title": "Connect a Ledger"
+    },
+    "followInstructions": {
+      "title": ""
+    },
+    "retrievingAccounts": {
+      "title": "Retrieving accounts"
+    },
+    "selectAccount": {
+      "title": "Choose an account"
+    }
+  }
+}

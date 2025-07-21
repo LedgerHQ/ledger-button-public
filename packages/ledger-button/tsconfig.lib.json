@@ -5,13 +5,14 @@
     "rootDir": "src",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "resolveJsonModule": true,
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "types": ["node", "vite/client"]
   },
-  "include": ["src/**/*.ts", "src/tailwind-preset.ts"],
+  "include": ["src/**/*.ts", "src/tailwind-preset.ts", "src/i18n/**/*.json"],
   "references": [
     {
       "path": "../ledger-button-ui/tsconfig.lib.json"
@@ -34,6 +35,6 @@
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
     "**/*.stories.ts",
-    "**/*.stories.js"
+    "**/*.stories.js",
   ]
 }
