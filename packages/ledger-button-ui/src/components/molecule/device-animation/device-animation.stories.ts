@@ -7,7 +7,7 @@ import type { LedgerDeviceAnimation } from "./device-animation";
 
 const meta: Meta<LedgerDeviceAnimation> = {
   title: "Molecule/DeviceAnimation",
-  component: "ledger-device-animaton",
+  component: "ledger-device-animation",
   argTypes: {
     modelId: {
       control: { type: "select" },
@@ -42,12 +42,12 @@ type Story = StoryObj<LedgerDeviceAnimation>;
 
 export const Default: Story = {
   render: (args) => html`
-    <ledger-device-animaton
+    <ledger-device-animation
       .modelId=${args.modelId}
       .animation=${args.animation}
       .autoplay=${args.autoplay}
       .loop=${args.loop}
-    ></ledger-device-animaton>
+    ></ledger-device-animation>
   `,
 };
 
@@ -62,12 +62,12 @@ export const AllDeviceAnimations: Story = {
             <div style="margin-bottom: 0.5rem; font-weight: bold;">
               ${modelId}
             </div>
-            <ledger-device-animaton
+            <ledger-device-animation
               .modelId=${modelId}
               .animation=${args.animation}
               .autoplay=${args.autoplay}
               .loop=${args.loop}
-            ></ledger-device-animaton>
+            ></ledger-device-animation>
           </div>
         `,
       )}

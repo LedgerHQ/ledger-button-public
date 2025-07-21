@@ -76,7 +76,7 @@ export const animationDataMap: Record<
   },
 };
 
-@customElement("ledger-device-animaton")
+@customElement("ledger-device-animation")
 export class LedgerDeviceAnimation extends LitElement {
   @property({ type: String })
   modelId: DeviceModelId = "stax";

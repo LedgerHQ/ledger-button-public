@@ -34,8 +34,8 @@ export class FollowInstructionsController implements ReactiveController {
     this.host.requestUpdate();
 
     // TODO: PLUG LKRP
-    setTimeout(() => {
-      this.navigation.navigateTo(destinations.fetchAccounts);
-    }, 3000);
+    // setTimeout(() => {
+    //   this.navigation.navigateTo(destinations.fetchAccounts);
+    // }, 3000);
   }
 }

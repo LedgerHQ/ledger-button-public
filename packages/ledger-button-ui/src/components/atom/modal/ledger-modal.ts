@@ -205,7 +205,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-overlay"
       >
         <div
-          class="h-448 fixed inset-0 z-10 flex w-384 flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
+          class="min-h-448 fixed inset-0 z-10 flex w-384 flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black pb-24"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
