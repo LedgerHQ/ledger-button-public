@@ -1,1 +1,1 @@
-export * from "./ledger-button.js";
+export * from "./ledger-button-playground.js";

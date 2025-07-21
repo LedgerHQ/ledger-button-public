@@ -1,14 +1,15 @@
 import { danger, fail, message } from "danger";
+import { exit } from "process";
+
 import {
   checkBranches,
   checkCommits,
+  checkIfBot,
   // checkChangesets,
   checkTitle,
   getAuthor,
-  checkIfBot,
   isFork,
 } from "./helpers";
-import { exit } from "process";
 
 const author = getAuthor(danger);
 console.log("PR Actor:", author);

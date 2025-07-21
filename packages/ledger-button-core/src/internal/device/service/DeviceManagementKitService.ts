@@ -2,7 +2,7 @@ import {
   ConsoleLogger,
   DeviceManagementKit,
   DeviceManagementKitBuilder,
-  DeviceSessionId,
+  DiscoveredDevice,
   TransportIdentifier,
 } from "@ledgerhq/device-management-kit";
 import {
@@ -14,14 +14,16 @@ import {
   webHidTransportFactory,
 } from "@ledgerhq/device-transport-kit-web-hid";
 import { type Factory, inject, injectable } from "inversify";
+import { firstValueFrom } from "rxjs";
 
 import { type DeviceModuleOptions } from "../../diTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import { Device, mapConnectedDeviceToDevice } from "../model/Device.js";
 import { DeviceConnectionError } from "../model/errors.js";
 
-export type ConnectionType = "hid" | "ble";
+export type ConnectionType = "bluetooth" | "usb" | "";
 
 @injectable()
 export class DeviceManagementKitService {
@@ -30,6 +32,7 @@ export class DeviceManagementKitService {
   public hidIdentifier: TransportIdentifier = webHidIdentifier;
   public bleIdentifier: TransportIdentifier = webBleIdentifier;
   private _currentSessionId?: string;
+  private _connectedDevice?: Device;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -57,44 +60,39 @@ export class DeviceManagementKitService {
     return this._currentSessionId;
   }
 
+  get connectedDevice() {
+    return this._connectedDevice;
+  }
+
   async connectToDevice({ type }: { type: ConnectionType }) {
-    const identifier = type === "hid" ? this.hidIdentifier : this.bleIdentifier;
+    const identifier = type === "usb" ? this.hidIdentifier : this.bleIdentifier;
     this.logger.debug(`Connecting to device`, { identifier });
 
     const dmk = this.dmk;
-    return new Promise<DeviceSessionId>((resolve, reject) => {
-      this.logger.debug(`Starting discovery`, { identifier });
-      dmk.startDiscovering({ transport: identifier }).subscribe({
-        next: (device) => {
-          this.logger.debug(`Found device`, { device });
-          dmk
-            .connect({ device })
-            .then((sessionId) => {
-              this.logger.debug(`Connected to device`, { sessionId });
-              this._currentSessionId = sessionId;
-              resolve(sessionId);
-            })
-            .catch((error) => {
-              this.logger.error(`Failed to connect to device`, { error });
-              reject(
-                new DeviceConnectionError(`Failed to connect to device`, {
-                  error,
-                }),
-              );
-            })
-            .finally(async () => {
-              await dmk.stopDiscovering();
-            });
-        },
-        error: async (error) => {
-          this.logger.error(`Failed to start discovery`, { error });
-          await dmk.stopDiscovering();
-          reject(
-            new DeviceConnectionError(`Failed to start discovery`, { error }),
-          );
-        },
+    let device: DiscoveredDevice;
+    try {
+      device = await firstValueFrom(
+        dmk.startDiscovering({ transport: identifier }),
+      );
+      await dmk.stopDiscovering();
+    } catch (error) {
+      this.logger.error(`Failed to start discovery`, { error });
+      throw new DeviceConnectionError(`Failed to start discovery`, { error });
+    }
+
+    try {
+      const sessionId = await dmk.connect({ device });
+      this._currentSessionId = sessionId;
+      this._connectedDevice = mapConnectedDeviceToDevice(
+        await dmk.getConnectedDevice({ sessionId }),
+      );
+      return sessionId;
+    } catch (error) {
+      this.logger.error(`Failed to connect to device`, { error });
+      throw new DeviceConnectionError(`Failed to connect to device`, {
+        error,
       });
-    });
+    }
   }
 
   async disconnectFromDevice() {

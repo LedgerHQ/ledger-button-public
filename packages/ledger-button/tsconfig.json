@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../ledger-button-ui"
+    },
+    {
       "path": "../ledger-button-core"
     },
     {

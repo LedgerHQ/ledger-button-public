@@ -11,8 +11,11 @@
     "useDefineForClassFields": false,
     "types": ["node", "vite/client"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/tailwind-preset.ts"],
   "references": [
+    {
+      "path": "../ledger-button-ui/tsconfig.lib.json"
+    },
     {
       "path": "../ledger-button-core/tsconfig.lib.json"
     }

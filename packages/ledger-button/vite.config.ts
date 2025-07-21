@@ -12,6 +12,9 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
     }),
   ],
+  css: {
+    postcss: "./postcss.config.js",
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

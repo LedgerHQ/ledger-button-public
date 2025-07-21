@@ -1,4 +1,5 @@
-import { danger, message, fail } from "danger";
+import { danger, fail, message } from "danger";
+
 import { checkBranches, checkCommits, getAuthor } from "./helpers";
 
 const author = getAuthor(danger);

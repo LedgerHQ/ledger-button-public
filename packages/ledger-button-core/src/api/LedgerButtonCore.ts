@@ -1,9 +1,12 @@
 import { Container } from "inversify";
+import { FetchAccounts } from "src/internal/account/use-case/FetchAccounts.js";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { AccountService } from "../internal/account/service/AccountService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
-import { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
+import {
+  ConnectionType,
+  DeviceManagementKitService,
+} from "../internal/device/service/DeviceManagementKitService.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
@@ -13,7 +16,9 @@ import { ContainerOptions } from "../internal/diTypes.js";
 export class LedgerButtonCore {
   private container: Container | null = null;
 
-  constructor(private readonly opts: ContainerOptions) {}
+  constructor(private readonly opts: ContainerOptions) {
+    this.init();
+  }
 
   private async init() {
     if (!this.container) {
@@ -45,7 +50,14 @@ export class LedgerButtonCore {
   async fetchAccounts() {
     await this.init();
     return this.container
-      ?.get<AccountService>(accountModuleTypes.AccountService)
-      .fetchAccounts();
+      ?.get<FetchAccounts>(accountModuleTypes.FetchAccountsUseCase)
+      .execute();
+  }
+
+  async getConnectedDevice() {
+    await this.init();
+    return this.container?.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    ).connectedDevice;
   }
 }

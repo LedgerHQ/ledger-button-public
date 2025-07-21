@@ -4,7 +4,7 @@ import { Either, Right } from "purify-ts";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { AccountServiceError } from "../model/error.js";
-import { AccountService, FetchAccountsResponse } from "./AccountService.js";
+import { Account, AccountService } from "./AccountService.js";
 
 @injectable()
 export class StubDefaultAccountService implements AccountService {
@@ -17,9 +17,7 @@ export class StubDefaultAccountService implements AccountService {
     this.logger = this.loggerFactory("[Account Service]");
   }
 
-  async fetchAccounts(): Promise<
-    Either<AccountServiceError, FetchAccountsResponse>
-  > {
+  async fetchAccounts(): Promise<Either<AccountServiceError, Account[]>> {
     this.logger.debug("Fetching accounts");
 
     // NOTE: Data returned by Ledger Sync: Cloud Sync API
@@ -42,7 +40,7 @@ export class StubDefaultAccountService implements AccountService {
     //   },
     // };
 
-    const accounts: FetchAccountsResponse = [
+    const accounts = [
       {
         id: "js:2:ethereum:0xCb8Ac86ff74f6733C212E14e83461AC2b0cAD3d0:",
         name: "LBD 1",
