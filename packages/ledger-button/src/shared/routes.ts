@@ -2,6 +2,7 @@ import "../domain/onboarding/select-device/select-device.js";
 import "../domain/onboarding/follow-instructions/follow-instructions.js";
 import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
 import "../domain/onboarding/select-account/select-account.js";
+import "../domain/onboarding/sign-transaction/sign-transaction.js";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
@@ -149,6 +150,16 @@ export const destinations = {
     canGoBack: false,
     toolbar: {
       title: "Select Device",
+      showClose: true,
+      showLogo: true,
+    },
+  },
+  signTransaction: {
+    name: "sign-transaction",
+    component: "sign-transaction-screen",
+    canGoBack: true,
+    toolbar: {
+      title: "Sign Transaction",
       showClose: true,
       showLogo: true,
     },

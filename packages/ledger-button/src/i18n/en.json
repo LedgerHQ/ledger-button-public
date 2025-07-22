@@ -3,7 +3,9 @@
     "button": {
       "connect": "Connect a Ledger",
       "connectUSB": "Connect with USB",
-      "connectBluetooth": "Connect with Bluetooth"
+      "connectBluetooth": "Connect with Bluetooth",
+      "close": "Close",
+      "tryAgain": "Try Again"
     },
     "ad": {
       "buyALedger": "Buy a Ledger"
@@ -36,6 +38,21 @@
     },
     "selectAccount": {
       "title": "Choose an account"
+    },
+    "signTransaction": {
+      "continueOnDevice": {
+        "title": "Continue on your",
+        "description": "Follow the instructions displayed on your Secure Touchscreen."
+      },
+      "success": {
+        "title": "Transaction signed",
+        "description": "You will receive the funds soon.",
+        "viewTransaction": "View transaction details"
+      },
+      "error": {
+        "title": "Transaction failed",
+        "description": "There was an error signing your transaction. Please try again."
+      }
     }
   }
 }
