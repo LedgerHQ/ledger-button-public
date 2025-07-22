@@ -20,8 +20,8 @@ const cryptoIconVariants = cva(
     variants: {
       size: {
         small: ["h-20 w-20"],
-        medium: ["h-24 w-24"],
-        large: ["h-32 w-32"],
+        medium: ["h-32 w-32"],
+        large: ["h-48 w-48"],
       },
       variant: {
         rounded: ["rounded-full"],

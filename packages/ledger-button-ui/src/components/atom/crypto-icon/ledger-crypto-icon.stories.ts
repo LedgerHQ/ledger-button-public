@@ -199,7 +199,7 @@ export const AllSizes: Story = {
     docs: {
       description: {
         story:
-          "All available sizes for crypto icons: small (80px), medium (96px), large (128px).",
+          "All available sizes for crypto icons: small (20px), medium (32px), large (48px).",
       },
     },
   },
