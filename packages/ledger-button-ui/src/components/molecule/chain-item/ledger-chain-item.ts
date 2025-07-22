@@ -31,7 +31,7 @@ export interface LedgerChainItemAttributes {
   subtitle: string;
   ticker: string;
   value: string;
-  isButton: boolean;
+  isClickable: boolean;
   type: ChainItemType;
 }
 
@@ -52,8 +52,8 @@ export class LedgerChainItem extends LitElement {
   @property({ type: String })
   value = "";
 
-  @property({ type: Boolean, attribute: "is-button" })
-  isButton = false;
+  @property({ type: Boolean, attribute: "isClickable" })
+  isClickable = false;
 
   @property({ type: String })
   type: ChainItemType = "token";
@@ -63,12 +63,12 @@ export class LedgerChainItem extends LitElement {
   private get containerClasses() {
     return {
       [chainItemVariants()]: true,
-      [clickableVariants({ clickable: this.isButton })]: true,
+      [clickableVariants({ clickable: this.isClickable })]: true,
     };
   }
 
   private handleItemClick() {
-    if (!this.isButton) return;
+    if (!this.isClickable) return;
 
     this.dispatchEvent(
       new CustomEvent("chain-item-click", {
@@ -88,7 +88,7 @@ export class LedgerChainItem extends LitElement {
   }
 
   private handleItemKeyDown(event: KeyboardEvent) {
-    if (!this.isButton) return;
+    if (!this.isClickable) return;
 
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -133,7 +133,7 @@ export class LedgerChainItem extends LitElement {
   override render() {
     return html`
       <div class="dark flex min-w-full flex-col overflow-hidden rounded-md">
-        ${this.isButton
+        ${this.isClickable
           ? html`
               <button
                 class=${classMap(this.containerClasses)}

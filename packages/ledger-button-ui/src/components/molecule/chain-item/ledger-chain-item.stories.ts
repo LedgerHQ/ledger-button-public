@@ -15,7 +15,7 @@ const meta: Meta = {
         .subtitle=${args.subtitle}
         .ticker=${args.ticker}
         .value=${args.value}
-        .isButton=${args.isButton}
+        .isClickable=${args.isClickable}
         .type=${args.type}
         @chain-item-click=${(e: CustomEvent) => {
           console.log("Chain item clicked:", e.detail);
@@ -64,9 +64,9 @@ const meta: Meta = {
         category: "Required",
       },
     },
-    isButton: {
+    isClickable: {
       control: "boolean",
-      description: "Whether the item renders as a button or div",
+      description: "Whether the item is clickable and renders as a button",
       table: {
         type: { summary: "boolean" },
         category: "Optional",
@@ -88,7 +88,7 @@ const meta: Meta = {
     subtitle: "ETH",
     ticker: "ETH",
     value: "2.5432",
-    isButton: true,
+    isClickable: true,
     type: "token",
   },
 };
@@ -103,7 +103,7 @@ export const EthereumToken: Story = {
     subtitle: "ETH",
     ticker: "ETH",
     value: "2.5432",
-    isButton: true,
+    isClickable: true,
     type: "token",
   },
   parameters: {
@@ -123,7 +123,7 @@ export const BitcoinToken: Story = {
     subtitle: "BTC",
     ticker: "BTC",
     value: "0.12345",
-    isButton: true,
+    isClickable: true,
     type: "token",
   },
   parameters: {
@@ -143,7 +143,7 @@ export const PolygonNetwork: Story = {
     subtitle: "MATIC",
     ticker: "MATIC",
     value: "156.789",
-    isButton: true,
+    isClickable: true,
     type: "network",
   },
   parameters: {
@@ -163,7 +163,7 @@ export const ArbitrumNetwork: Story = {
     subtitle: "ARB",
     ticker: "ARB",
     value: "45.67",
-    isButton: true,
+    isClickable: true,
     type: "network",
   },
   parameters: {
@@ -175,21 +175,21 @@ export const ArbitrumNetwork: Story = {
   },
 };
 
-export const NonInteractiveToken: Story = {
+export const NonClickableToken: Story = {
   args: {
     ledgerId: "cardano",
     title: "Cardano",
     subtitle: "ADA",
     ticker: "ADA",
     value: "1,234.56",
-    isButton: false,
+    isClickable: false,
     type: "token",
   },
   parameters: {
     docs: {
       description: {
         story:
-          "Non-interactive chain item that renders as a div with no hover effects or interaction.",
+          "Non-clickable chain item that renders as a div with no hover effects or interaction.",
       },
     },
   },
@@ -202,7 +202,7 @@ export const HighValueToken: Story = {
     subtitle: "SOL",
     ticker: "SOL",
     value: "10,234.5678",
-    isButton: true,
+    isClickable: true,
     type: "token",
   },
   parameters: {
@@ -297,7 +297,7 @@ export const AllVariations: Story = {
     docs: {
       description: {
         story:
-          "Overview of chain item variations showing different types, states, and configurations. Button items render as buttons, non-button items render as divs.",
+          "Overview of chain item variations showing different types, states, and configurations. Clickable items render as buttons, non-clickable items render as divs.",
       },
     },
   },
@@ -384,7 +384,7 @@ export const TestButtonRendering: Story = {
   args: {
     ledgerId: "ethereum",
     title: "Ethereum",
-    isButton: true,
+    isClickable: true,
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
@@ -446,7 +446,7 @@ export const TestEventFiring: Story = {
     subtitle: "ETH",
     ticker: "ETH",
     value: "2.5432",
-    isButton: true,
+    isClickable: true,
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
