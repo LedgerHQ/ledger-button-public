@@ -13,4 +13,4 @@ export * from "./components/molecule/info-state/ledger-info-state";
 export * from "./components/molecule/toolbar/ledger-toolbar";
 export * from "./components/organism/status/ledger-status";
 export * from "./ledger-button-ui";
-export * from "./styles.css";
+export * from "./tailwind-element";

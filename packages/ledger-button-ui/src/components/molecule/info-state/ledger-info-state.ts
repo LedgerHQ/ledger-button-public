@@ -1,10 +1,10 @@
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, nothing, unsafeCSS } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 import FlexDeviceIcon from "./flex-device-icon";
 import NanoxDeviceIcon from "./nanox-device-icon";
 import StaxDeviceIcon from "./stax-device-icon";
@@ -12,7 +12,7 @@ import StaxDeviceIcon from "./stax-device-icon";
 export type DeviceType = "flex" | "nanox" | "stax";
 
 const infoStateVariants = cva(
-  "flex flex-col items-center justify-center text-center text-white",
+  "flex flex-col items-center justify-center text-center text-base",
   {
     variants: {
       device: {
@@ -47,6 +47,7 @@ export interface LedgerInfoStateAttributes {
 }
 
 @customElement("ledger-info-state")
+@tailwindElement()
 export class LedgerInfoState extends LitElement {
   @property({ type: String })
   device: DeviceType = "flex";
@@ -56,8 +57,6 @@ export class LedgerInfoState extends LitElement {
 
   @property({ type: String })
   subtitle = "";
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private renderDeviceIcon() {
     const deviceMapper = {
@@ -80,7 +79,7 @@ export class LedgerInfoState extends LitElement {
         </div>
 
         <h2
-          class="font-semibold leading-tight mb-16 font-inter text-white heading-4"
+          class="font-semibold leading-tight mb-16 font-inter text-base heading-4"
           data-testid="title"
         >
           ${this.title}
@@ -89,7 +88,7 @@ export class LedgerInfoState extends LitElement {
         ${this.subtitle
           ? html`
               <p
-                class="font-normal leading-relaxed max-w-300 font-inter text-white opacity-60 body-1"
+                class="font-normal leading-relaxed max-w-300 font-inter text-base opacity-60 body-1"
                 data-testid="subtitle"
               >
                 ${this.subtitle}

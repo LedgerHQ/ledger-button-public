@@ -1,8 +1,8 @@
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 import cryptoIconMap from "./map.json";
 
 export type CryptoIconSize = "small" | "medium" | "large";
@@ -55,6 +55,7 @@ const cryptoIconVariants = cva(
 const CRYPTO_ICONS_BASE_URL = "https://crypto-icons.ledger.com/";
 
 @customElement("ledger-crypto-icon")
+@tailwindElement()
 export class LedgerCryptoIcon extends LitElement {
   @property({ type: String, attribute: "ledger-id" })
   ledgerId = "";
@@ -64,8 +65,6 @@ export class LedgerCryptoIcon extends LitElement {
 
   @property({ type: String })
   variant: CryptoIconVariant = "rounded";
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get iconClasses() {
     return cryptoIconVariants({ size: this.size, variant: this.variant });

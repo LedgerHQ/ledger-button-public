@@ -59,7 +59,6 @@ export class LedgerButtonApp extends LitElement {
   // }
 
   openModal() {
-    console.log("openModal");
     this.navigation.openModal();
   }
 

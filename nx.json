@@ -28,6 +28,9 @@
         "args": ["--pass-with-no-tests"]
       }
     },
+    "build-storybook": {
+      "dependsOn": ["^build"]
+    },
     "test-storybook": {
       "options": {
         "args": ["--url http://localhost:4200"]

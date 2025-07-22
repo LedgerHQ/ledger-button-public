@@ -1,11 +1,11 @@
 import "../icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 export interface LedgerChipAttributes {
   label?: string;
@@ -27,14 +27,13 @@ const chipIconContainerVariants = cva([
 const chipChevronVariants = cva(["rotate-90"]);
 
 @customElement("ledger-chip")
+@tailwindElement()
 export class LedgerChip extends LitElement {
   @property({ type: String })
   label = "";
 
   @property({ type: String })
   icon = "device";
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get chipContainerClasses() {
     return {

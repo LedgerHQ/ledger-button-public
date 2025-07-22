@@ -1,11 +1,11 @@
 import "../../atom/button/ledger-button.js";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 const connectionItemVariants = cva(
   [
@@ -32,9 +32,8 @@ const connectionItemVariants = cva(
 );
 
 @customElement("ledger-ad-item")
+@tailwindElement()
 export class LedgerAdItem extends LitElement {
-  static override styles = [unsafeCSS(tailwindStyles)];
-
   @property({ type: String })
   override title = "";
 
@@ -52,6 +51,7 @@ export class LedgerAdItem extends LitElement {
       })]: true,
     };
   }
+
   private handleClick() {
     if (this.disabled || !this.clickable) return;
 

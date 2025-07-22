@@ -2,11 +2,11 @@ import "../../atom/crypto-icon/ledger-crypto-icon";
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 const accountItemVariants = cva([
   "flex min-w-full cursor-pointer justify-between p-12",
@@ -23,6 +23,7 @@ export interface LedgerAccountItemMoleculeAttributes {
 }
 
 @customElement("ledger-account-item")
+@tailwindElement()
 export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: String })
   override title = "";
@@ -41,8 +42,6 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   @property({ type: String, attribute: "link-label" })
   linkLabel = "";
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {

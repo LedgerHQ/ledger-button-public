@@ -18,7 +18,8 @@ import { default as PairedSuccessStaxDark } from "./stax/03_STAX_DARK_PAIRED_SUC
 import { default as ContinueOnLedgerStaxDark } from "./stax/04_STAX_DARK_CONTINUE_ON_LEDGER.json";
 import { default as SignTransactionStaxDark } from "./stax/05_STAX_DARK_SIGN_TRANSACTION.json";
 import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
-import { default as loadingSpinner } from "../../atom/lottie/animations/loading-spinner.json";
+import { tailwindElement } from "../../../tailwind-element";
+import { default as loadingSpinner } from "../../atom/lottie/animations/loading-spinner.js";
 
 type AnimationKey =
   | "pin"
@@ -77,6 +78,7 @@ export const animationDataMap: Record<
 };
 
 @customElement("ledger-device-animation")
+@tailwindElement()
 export class LedgerDeviceAnimation extends LitElement {
   @property({ type: String })
   modelId: DeviceModelId = "stax";
@@ -94,22 +96,28 @@ export class LedgerDeviceAnimation extends LitElement {
     const animationData = animationDataMap[this.modelId][this.animation];
 
     if (!animationData) {
-      return html`<ledger-lottie
-        .animationData=${loadingSpinner}
-        .autoplay=${this.autoplay}
-        .loop=${this.loop}
-        size="full"
-      ></ledger-lottie>`;
+      return html`
+        <div class="h-full flex items-center justify-center">
+          <ledger-lottie
+            animationName="loadingSpinner"
+            .autoplay=${this.autoplay}
+            .loop=${this.loop}
+            size="full"
+          ></ledger-lottie>
+        </div>
+      `;
     }
 
     return html`
-      <ledger-lottie
-        .animationData=${animationData}
-        .autoplay=${this.autoplay}
-        .loop=${this.loop}
-        size="full"
-      >
-      </ledger-lottie>
+      <div class="h-full flex items-center justify-center">
+        <ledger-lottie
+          .animationData=${animationData}
+          .autoplay=${this.autoplay}
+          .loop=${this.loop}
+          size="full"
+        >
+        </ledger-lottie>
+      </div>
     `;
   }
 }

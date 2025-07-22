@@ -1,11 +1,11 @@
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 const connectionItemVariants = cva(
   [
@@ -39,6 +39,7 @@ export interface LedgerConnectionItemAttributes {
 }
 
 @customElement("ledger-connection-item")
+@tailwindElement()
 export class LedgerConnectionItem extends LitElement {
   @property({ type: String })
   override title = "";
@@ -51,8 +52,6 @@ export class LedgerConnectionItem extends LitElement {
 
   @property({ type: Boolean })
   disabled = false;
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {

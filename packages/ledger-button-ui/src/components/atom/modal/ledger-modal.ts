@@ -1,10 +1,10 @@
 import "../../molecule/toolbar/ledger-toolbar";
 
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { animate } from "motion";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 export interface LedgerModalAttributes {
   title: string;
@@ -17,7 +17,35 @@ type CustomEventData = {
   timestamp: number;
 };
 
+const styles = css`
+  :host {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  :host([isOpen]) {
+    display: flex;
+  }
+
+  .modal-overlay {
+    width: 100%;
+    opacity: 0;
+  }
+
+  .modal-container {
+    width: min(calc(100% - 32px), 400px);
+    height: auto;
+    max-height: min(calc(100vh - 64px), 550px);
+  }
+`;
+
 @customElement("ledger-modal")
+@tailwindElement(styles)
 export class LedgerModal extends LitElement {
   @property({ type: Boolean, reflect: true })
   isOpen = false;
@@ -36,36 +64,6 @@ export class LedgerModal extends LitElement {
 
   private focusableElements: HTMLElement[] = [];
   private previousBodyOverflow = "";
-
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: none;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1000;
-      }
-
-      :host([isOpen]) {
-        display: flex;
-      }
-
-      .modal-overlay {
-        width: 100%;
-        opacity: 0;
-      }
-
-      .modal-container {
-        width: min(calc(100% - 32px), 400px);
-        height: auto;
-        max-height: min(calc(100vh - 64px), 550px);
-      }
-    `,
-  ];
 
   override connectedCallback() {
     super.connectedCallback();
@@ -217,7 +215,7 @@ export class LedgerModal extends LitElement {
               aria-label=${this.title || ""}
             ></ledger-toolbar>
           </slot>
-          <div id="modal-content" class="p-24 pt-0 text-white">
+          <div id="modal-content" class="p-24 pt-0 text-base">
             <slot></slot>
           </div>
         </div>

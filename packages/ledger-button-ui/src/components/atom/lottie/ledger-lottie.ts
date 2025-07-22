@@ -1,20 +1,28 @@
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import type { AnimationItem } from "lottie-web";
 import lottie from "lottie-web";
 
-import tailwindStyles from "../../../styles.css?inline";
+import backgroundFlare from "./animations/background-flare.js";
+import checkmark from "./animations/checkmark.js";
+import loadingSpinner from "./animations/loading-spinner.js";
+import { tailwindElement } from "../../../tailwind-element";
 
 export type LottieSize = "small" | "medium" | "large" | "full";
 
-export { default as backgroundFlare } from "./animations/background-flare.json";
-export { default as checkmarkData } from "./animations/checkmark.json";
-export { default as loadingSpinnerData } from "./animations/loading-spinner.json";
+const LOTTIE_ANIMATIONS = {
+  backgroundFlare,
+  checkmark,
+  loadingSpinner,
+} as const;
+
+export type LottieAnimation = keyof typeof LOTTIE_ANIMATIONS;
 
 export interface LedgerLottieAttributes {
-  animationData: object;
+  animationData?: object;
+  animationName: LottieAnimation;
   size?: LottieSize;
   autoplay?: boolean;
   loop?: boolean;
@@ -37,9 +45,13 @@ const lottieVariants = cva(["lottie-container"], {
 });
 
 @customElement("ledger-lottie")
+@tailwindElement()
 export class LedgerLottie extends LitElement {
-  @property({ type: Object, attribute: "animation-data" })
-  animationData!: object;
+  @property({ type: String })
+  animationName?: LottieAnimation;
+
+  @property({ type: Object })
+  animationData?: object;
 
   @property({ type: String })
   size: LottieSize = "medium";
@@ -61,8 +73,6 @@ export class LedgerLottie extends LitElement {
 
   private animation?: AnimationItem;
 
-  static override styles = [unsafeCSS(tailwindStyles)];
-
   private get containerClasses() {
     return {
       [lottieVariants({ size: this.size })]: true,
@@ -70,15 +80,19 @@ export class LedgerLottie extends LitElement {
   }
 
   override firstUpdated() {
-    if (!this.animationData) {
-      throw new Error("animationData is required for ledger-lottie");
+    if (!this.animationName && !this.animationData) {
+      throw new Error(
+        "animationName or animationData is required for ledger-lottie",
+      );
     }
-
-    this.initializeAnimation();
   }
 
   override updated(changedProperties: Map<string, unknown>) {
     if (changedProperties.has("animationData")) {
+      this.initializeAnimation();
+    }
+
+    if (changedProperties.has("animationName")) {
       this.initializeAnimation();
     }
 
@@ -101,20 +115,24 @@ export class LedgerLottie extends LitElement {
   }
 
   private initializeAnimation() {
-    if (!this.container || !this.animationData) {
+    if (!this.container || (!this.animationName && !this.animationData)) {
       return;
     }
 
     this.destroyAnimation();
 
-    console.log(this.animationData);
+    const data = this.animationName
+      ? LOTTIE_ANIMATIONS[this.animationName]
+      : this.animationData;
+
+    console.log("initializeAnimation", data);
 
     this.animation = lottie.loadAnimation({
       container: this.container,
       renderer: "svg",
       loop: this.loop,
       autoplay: this.autoplay && !this.paused,
-      animationData: this.animationData,
+      animationData: data,
     });
 
     this.animation.setSpeed(this.speed);

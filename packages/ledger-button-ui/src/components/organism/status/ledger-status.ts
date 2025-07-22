@@ -3,11 +3,11 @@ import "../../atom/icon/ledger-icon";
 import "../../molecule/toolbar/ledger-toolbar";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 export type StatusType = "success" | "error";
 
@@ -48,6 +48,7 @@ const statusIconVariants = cva(
 );
 
 @customElement("ledger-status")
+@tailwindElement()
 export class LedgerStatus extends LitElement {
   @property({ type: String })
   type: StatusType = "success";
@@ -63,8 +64,6 @@ export class LedgerStatus extends LitElement {
 
   @property({ type: String, attribute: "secondary-button-label" })
   secondaryButtonLabel = "Secondary action";
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {
@@ -145,7 +144,7 @@ export class LedgerStatus extends LitElement {
             ? html`
                 <h2
                   id="status-title"
-                  class="heading-4-semi-bold mb-8 mt-24 text-white"
+                  class="heading-4-semi-bold mb-8 mt-24 text-base"
                 >
                   ${this.title}
                 </h2>

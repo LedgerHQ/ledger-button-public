@@ -1,5 +1,6 @@
+import "@ledgerhq/ledger-button-ui";
+
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { backgroundFlare } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -32,7 +33,7 @@ export class RetrievingAccountsScreen extends LitElement {
     return html`
       <div class="min-h-96">
         <ledger-lottie
-          .animationData=${backgroundFlare}
+          animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}
         ></ledger-lottie>

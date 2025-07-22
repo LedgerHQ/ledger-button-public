@@ -7,7 +7,6 @@ import { html } from "lit";
 
 const meta: Meta = {
   title: "Screens/Onboarding/SelectDeviceScreen",
-  tags: ["autodocs"],
   render: () => html`
     <core-provider>
       <language-provider>

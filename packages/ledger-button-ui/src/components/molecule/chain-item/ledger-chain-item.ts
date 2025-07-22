@@ -1,11 +1,11 @@
 import "../../atom/crypto-icon/ledger-crypto-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 const chainItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
@@ -36,6 +36,7 @@ export interface LedgerChainItemAttributes {
 }
 
 @customElement("ledger-chain-item")
+@tailwindElement()
 export class LedgerChainItem extends LitElement {
   @property({ type: String, attribute: "ledger-id" })
   ledgerId = "";
@@ -57,8 +58,6 @@ export class LedgerChainItem extends LitElement {
 
   @property({ type: String })
   type: ChainItemType = "token";
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {
