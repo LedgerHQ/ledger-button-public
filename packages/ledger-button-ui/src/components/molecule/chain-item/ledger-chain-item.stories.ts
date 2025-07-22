@@ -231,7 +231,7 @@ export const AllVariations: Story = {
             subtitle="ETH"
             ticker="ETH"
             value="2.5432"
-            is-button="true"
+            is-clickable="true"
             type="token"
           ></ledger-chain-item>
           <ledger-chain-item
@@ -240,7 +240,7 @@ export const AllVariations: Story = {
             subtitle="BTC"
             ticker="BTC"
             value="0.12345"
-            is-button="true"
+            is-clickable="true"
             type="token"
           ></ledger-chain-item>
           <ledger-chain-item
@@ -249,7 +249,7 @@ export const AllVariations: Story = {
             subtitle="ADA"
             ticker="ADA"
             value="1,234.56"
-            is-button="false"
+            is-clickable="false"
             type="token"
           ></ledger-chain-item>
         </div>
@@ -268,7 +268,7 @@ export const AllVariations: Story = {
             subtitle="MATIC"
             ticker="MATIC"
             value="156.789"
-            is-button="true"
+            is-clickable="true"
             type="network"
           ></ledger-chain-item>
           <ledger-chain-item
@@ -277,7 +277,7 @@ export const AllVariations: Story = {
             subtitle="ARB"
             ticker="ARB"
             value="45.67"
-            is-button="true"
+            is-clickable="true"
             type="network"
           ></ledger-chain-item>
           <ledger-chain-item
@@ -286,7 +286,7 @@ export const AllVariations: Story = {
             subtitle="OP"
             ticker="OP"
             value="12.34"
-            is-button="false"
+            is-clickable="false"
             type="network"
           ></ledger-chain-item>
         </div>
@@ -309,7 +309,7 @@ export const TestComponentRenders: Story = {
     title: "Ethereum",
     ticker: "ETH",
     value: "2.5432",
-    isButton: false,
+    isClickable: false,
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
@@ -332,7 +332,7 @@ export const TestIconVariants: Story = {
   args: {
     ledgerId: "ethereum",
     title: "Ethereum",
-    isButton: false,
+    isClickable: false,
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
@@ -358,7 +358,7 @@ export const TestNetworkIconVariant: Story = {
   args: {
     ledgerId: "polygon",
     title: "Polygon",
-    isButton: false,
+    isClickable: false,
     type: "network",
   },
   play: async ({ canvasElement, step }) => {
@@ -380,7 +380,7 @@ export const TestNetworkIconVariant: Story = {
   },
 };
 
-export const TestButtonRendering: Story = {
+export const TestClickableRendering: Story = {
   args: {
     ledgerId: "ethereum",
     title: "Ethereum",
@@ -388,36 +388,39 @@ export const TestButtonRendering: Story = {
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
-    await step("Verify renders as button when isButton is true", async () => {
-      const chainItem = canvasElement.querySelector("ledger-chain-item");
-      const button = chainItem?.shadowRoot?.querySelector("button");
-      const div = chainItem?.shadowRoot?.querySelector(
-        ".dark > div.flex.min-w-full",
-      );
+    await step(
+      "Verify renders as button when isClickable is true",
+      async () => {
+        const chainItem = canvasElement.querySelector("ledger-chain-item");
+        const button = chainItem?.shadowRoot?.querySelector("button");
+        const div = chainItem?.shadowRoot?.querySelector(
+          ".dark > div.flex.min-w-full",
+        );
 
-      expect(button).toBeInTheDocument();
-      expect(div).not.toBeInTheDocument();
-    });
+        expect(button).toBeInTheDocument();
+        expect(div).not.toBeInTheDocument();
+      },
+    );
   },
   parameters: {
     docs: {
       description: {
         story:
-          "Test to verify component renders as button when isButton is true.",
+          "Test to verify component renders as button when isClickable is true.",
       },
     },
   },
 };
 
-export const TestDivRendering: Story = {
+export const TestNonClickableRendering: Story = {
   args: {
     ledgerId: "ethereum",
     title: "Ethereum",
-    isButton: false,
+    isClickable: false,
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
-    await step("Verify renders as div when isButton is false", async () => {
+    await step("Verify renders as div when isClickable is false", async () => {
       const chainItem = canvasElement.querySelector("ledger-chain-item");
       const button = chainItem?.shadowRoot?.querySelector("button");
       const div = chainItem?.shadowRoot?.querySelector(
@@ -433,7 +436,7 @@ export const TestDivRendering: Story = {
     docs: {
       description: {
         story:
-          "Test to verify component renders as div when isButton is false.",
+          "Test to verify component renders as div when isClickable is false.",
       },
     },
   },
@@ -487,15 +490,15 @@ export const TestEventFiring: Story = {
   },
 };
 
-export const TestNoEventWhenNotButton: Story = {
+export const TestNoEventWhenNotClickable: Story = {
   args: {
     ledgerId: "ethereum",
     title: "Ethereum",
-    isButton: false,
+    isClickable: false,
     type: "token",
   },
   play: async ({ canvasElement, step }) => {
-    await step("Verify no event fires when isButton is false", async () => {
+    await step("Verify no event fires when isClickable is false", async () => {
       const chainItem = canvasElement.querySelector("ledger-chain-item");
       let eventFired = false;
 
@@ -516,7 +519,7 @@ export const TestNoEventWhenNotButton: Story = {
   parameters: {
     docs: {
       description: {
-        story: "Test to verify no event fires when component is not a button.",
+        story: "Test to verify no event fires when component is not clickable.",
       },
     },
   },
