@@ -4,6 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 import tailwindStyles from "../../../styles.css?inline";
 import {
   BluetoothIcon,
+  CartIcon,
   CheckIcon,
   ChevronIcon,
   CloseIcon,
@@ -22,7 +23,8 @@ export interface LedgerIconAttributes {
     | "chevron"
     | "check"
     | "error"
-    | "device";
+    | "device"
+    | "cart";
   size: "small" | "medium" | "large";
 }
 
@@ -65,11 +67,16 @@ export class LedgerIcon extends LitElement {
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
+      cart: () => CartIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
 
-    return html`<div aria-hidden="true" role="img" class="${this.iconClasses}">
+    return html`<div
+      aria-hidden="true"
+      role="img"
+      class="${this.iconClasses} flex items-center justify-center"
+    >
       ${renderIcon()}
     </div> `;
   }

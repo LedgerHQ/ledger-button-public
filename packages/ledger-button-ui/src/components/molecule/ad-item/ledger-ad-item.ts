@@ -1,4 +1,4 @@
-import "../../atom/icon/ledger-icon";
+import "../../atom/button/ledger-button.js";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement, unsafeCSS } from "lit";
@@ -31,28 +31,18 @@ const connectionItemVariants = cva(
   },
 );
 
-export interface LedgerConnectionItemAttributes {
-  title?: string;
-  connectionType?: "bluetooth" | "usb";
-  clickable?: boolean;
-  disabled?: boolean;
-}
+@customElement("ledger-ad-item")
+export class LedgerAdItem extends LitElement {
+  static override styles = [unsafeCSS(tailwindStyles)];
 
-@customElement("ledger-connection-item")
-export class LedgerConnectionItem extends LitElement {
   @property({ type: String })
   override title = "";
-
-  @property({ type: String, attribute: "connection-type" })
-  connectionType: "bluetooth" | "usb" | "" = "";
 
   @property({ type: Boolean })
   clickable = true;
 
   @property({ type: Boolean })
   disabled = false;
-
-  static override styles = [unsafeCSS(tailwindStyles)];
 
   private get containerClasses() {
     return {
@@ -66,12 +56,11 @@ export class LedgerConnectionItem extends LitElement {
     if (this.disabled || !this.clickable) return;
 
     this.dispatchEvent(
-      new CustomEvent("connection-item-click", {
+      new CustomEvent("ad-item-click", {
         bubbles: true,
         composed: true,
         detail: {
           title: this.title,
-          connectionType: this.connectionType,
           timestamp: Date.now(),
         },
       }),
@@ -85,17 +74,6 @@ export class LedgerConnectionItem extends LitElement {
       event.preventDefault();
       this.handleClick();
     }
-  }
-
-  private renderIcon() {
-    if (this.connectionType) {
-      return html`
-        <div class="rounded-full bg-muted-transparent p-8 drop-shadow-md">
-          <ledger-icon type=${this.connectionType} size="medium"></ledger-icon>
-        </div>
-      `;
-    }
-    return "";
   }
 
   private renderChevron() {
@@ -128,18 +106,13 @@ export class LedgerConnectionItem extends LitElement {
         aria-label=${this.title || ""}
       >
         <div class="flex items-center gap-12">
-          ${this.renderIcon()} ${this.renderTitle()}
+          <div class="rounded-full bg-muted-transparent p-8 drop-shadow-md">
+            <ledger-icon type="cart" size="small"></ledger-icon>
+          </div>
+          ${this.renderTitle()}
         </div>
         ${this.renderChevron()}
       </button>
     `;
   }
 }
-
-declare global {
-  interface HTMLElementTagNameMap {
-    "ledger-connection-item": LedgerConnectionItem;
-  }
-}
-
-export default LedgerConnectionItem;

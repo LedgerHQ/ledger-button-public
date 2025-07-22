@@ -14,9 +14,6 @@ export class RootModalComponent extends LitElement {
   @property({ attribute: false })
   public coreContext!: LedgerButtonCore;
 
-  @property({ type: Boolean, reflect: true })
-  isOpen = false;
-
   @query("#ledger-modal")
   private ledgerModal!: LedgerModal;
 
@@ -37,12 +34,11 @@ export class RootModalComponent extends LitElement {
   }
 
   openModal() {
-    this.isOpen = true;
-    // this.rootModalController.openModal();
+    this.rootModalController.openModal();
   }
 
   private modalClosedListener() {
-    this.isOpen = false;
+    this.rootModalController.closeModal();
   }
 
   private handleToolbarClose() {
@@ -52,8 +48,6 @@ export class RootModalComponent extends LitElement {
 
   renderScreen() {
     const currentScreen = this.rootModalController.currentScreen;
-
-    console.log("currentScreen", currentScreen?.component);
 
     const tag = unsafeStatic(currentScreen?.component ?? "ledger-button-404");
 
@@ -65,21 +59,28 @@ export class RootModalComponent extends LitElement {
   }
 
   override render() {
-    return html`<ledger-modal id="ledger-modal" .isOpen=${this.isOpen}>
-      <div slot="toolbar">
-        <ledger-toolbar
-          .title=${this.rootModalController.currentScreen?.toolbar.title ?? ""}
-          .showClose=${this.rootModalController.currentScreen?.toolbar
-            .showClose}
-          .showLogo=${this.rootModalController.currentScreen?.toolbar.showLogo}
-          @toolbar-close=${this.handleToolbarClose}
-          aria-label=${this.rootModalController.currentScreen?.toolbar.title ??
-          ""}
-        >
-          <ledger-icon name="arrow-left"></ledger-icon>
-        </ledger-toolbar>
-      </div>
-      ${this.renderScreen()}
-    </ledger-modal>`;
+    return html`
+      <ledger-modal
+        id="ledger-modal"
+        .isOpen=${this.rootModalController.isModalOpen}
+      >
+        <div slot="toolbar">
+          <ledger-toolbar
+            .title=${this.rootModalController.currentScreen?.toolbar.title ??
+            ""}
+            .showClose=${this.rootModalController.currentScreen?.toolbar
+              .showClose}
+            .showLogo=${this.rootModalController.currentScreen?.toolbar
+              .showLogo}
+            @toolbar-close=${this.handleToolbarClose}
+            aria-label=${this.rootModalController.currentScreen?.toolbar
+              .title ?? ""}
+          >
+            <ledger-icon name="arrow-left"></ledger-icon>
+          </ledger-toolbar>
+        </div>
+        ${this.renderScreen()}
+      </ledger-modal>
+    `;
   }
 }

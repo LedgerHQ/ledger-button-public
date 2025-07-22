@@ -5,6 +5,9 @@
       "connectUSB": "Connect with USB",
       "connectBluetooth": "Connect with Bluetooth"
     },
+    "ad": {
+      "buyALedger": "Buy a Ledger"
+    },
     "device": {
       "model": {
         "nanos": "Nano S",

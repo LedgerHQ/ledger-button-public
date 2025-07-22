@@ -4,12 +4,12 @@ import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
 const meta: Meta = {
-  title: "Components/LedgerButtonPlayground",
+  title: "Demo/LedgerButtonPlayground",
   tags: ["autodocs"],
-  render: () => html`<ledger-button-playground></ledger-button-playground>`,
+  render: () => html` <ledger-button-playground></ledger-button-playground> `,
 };
 
 export default meta;
 type Story = StoryObj;
 
-export const Default: Story = {};
+export const Onboarding: Story = {};

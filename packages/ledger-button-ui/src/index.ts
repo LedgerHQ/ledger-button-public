@@ -5,6 +5,7 @@ export * from "./components/atom/icon/ledger-icon";
 export * from "./components/atom/lottie/ledger-lottie";
 export * from "./components/atom/modal/ledger-modal";
 export * from "./components/molecule/account-item/ledger-account-item";
+export * from "./components/molecule/ad-item/ledger-ad-item";
 export * from "./components/molecule/chain-item/ledger-chain-item";
 export * from "./components/molecule/connection-item/ledger-connection-item";
 export * from "./components/molecule/device-animation/device-animation";

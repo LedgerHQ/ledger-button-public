@@ -11,6 +11,7 @@ export class RootModalController implements ReactiveController {
 
   selectedAccount: unknown /* | null */;
   deviceSessionId: string | null = null;
+  isModalOpen = false;
 
   constructor(host: ReactiveControllerHost, core: LedgerButtonCore) {
     this.host = host;
@@ -38,11 +39,21 @@ export class RootModalController implements ReactiveController {
   }
 
   async openModal() {
-    const accounts = await this.core.fetchAccounts();
-    if (accounts?.length === 0) {
-      this.navigation.navigateTo(destinations.onboarding);
-    } else {
-      this.navigation.navigateTo(destinations.home);
+    if (!this.currentScreen) {
+      await this.computeInitialState();
     }
+    this.isModalOpen = true;
+    // const accounts = await this.core.fetchAccounts();
+    // if (accounts?.length === 0) {
+    //   this.navigation.navigateTo(destinations.onboarding);
+    // } else {
+    //   this.navigation.navigateTo(destinations.home);
+    // }
+    this.host.requestUpdate();
+  }
+
+  async closeModal() {
+    this.isModalOpen = false;
+    this.host.requestUpdate();
   }
 }

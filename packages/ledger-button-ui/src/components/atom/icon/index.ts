@@ -1,4 +1,5 @@
 export { default as BluetoothIcon } from "./bluetoothIcon";
+export { default as CartIcon } from "./cartIcon";
 export { default as CheckIcon } from "./checkIcon";
 export { default as ChevronIcon } from "./chevronIcon";
 export { default as CloseIcon } from "./closeIcon";

@@ -6,7 +6,7 @@ import { html } from "lit";
 import type { LedgerDeviceAnimation } from "./device-animation";
 
 const meta: Meta<LedgerDeviceAnimation> = {
-  title: "Molecule/DeviceAnimation",
+  title: "Component/Molecule/DeviceAnimation",
   component: "ledger-device-animation",
   argTypes: {
     modelId: {

@@ -2,13 +2,17 @@ import "@ledgerhq/ledger-button-ui";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
-import { css, html, LitElement } from "lit";
+import { css, html, LitElement, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { coreContext } from "../../../context/core-context.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import tailwindStyles from "../../../styles.css?inline";
 import { SelectDeviceController } from "./select-device-controller.js";
-
 @customElement("select-device-screen")
 export class SelectDeviceScreen extends LitElement {
   @property({ type: Object })
@@ -18,9 +22,15 @@ export class SelectDeviceScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: LedgerButtonCore;
 
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languageContext!: LanguageContext;
+
   controller!: SelectDeviceController;
 
   static override styles = css`
+    ${unsafeCSS(tailwindStyles)}
+
     :host {
       animation: intro 250ms ease-in-out;
       transform-origin: left bottom;
@@ -57,16 +67,19 @@ export class SelectDeviceScreen extends LitElement {
   }
 
   override render() {
+    const lang = this.languageContext.currentTranslation;
+
     return html`
-      <div>
+      <div class="flex flex-col gap-12">
         <ledger-connection-item
-          title="Bluetooth"
+          title=${lang.common.button.connectBluetooth}
           connection-type="bluetooth"
         ></ledger-connection-item>
         <ledger-connection-item
-          title="USB"
+          title=${lang.common.button.connectUSB}
           connection-type="usb"
         ></ledger-connection-item>
+        <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
       </div>
     `;
   }
