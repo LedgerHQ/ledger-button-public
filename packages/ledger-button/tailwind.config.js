@@ -6,6 +6,7 @@ import { ledgerButtonPreset } from "./src/tailwind-preset";
 export default {
   presets: [ledgerButtonPreset],
   content: [
+    join(__dirname, "./src/**/*!(*.stories|*.spec).{ts,js,html}"),
     join(
       __dirname,
       "../ledger-button-ui/src/**/*!(*.stories|*.spec).{ts,js,html}",
@@ -13,5 +14,12 @@ export default {
   ],
   theme: {
     extend: {},
+  },
+  plugins: [],
+  corePlugins: {
+    fontSize: false,
+    fontWeight: false,
+    lineHeight: false,
+    letterSpacing: false,
   },
 };

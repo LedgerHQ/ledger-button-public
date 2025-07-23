@@ -38,7 +38,9 @@ export class LedgerToolbar extends LitElement {
 
   override render() {
     return html`
-      <div class="w-full flex items-center justify-between p-16">
+      <div
+        class="w-full flex min-w-full items-center justify-between px-24 py-16"
+      >
         <div class="flex h-20 w-20 items-center justify-center">
           <ledger-icon type="ledger" size="small"></ledger-icon>
         </div>

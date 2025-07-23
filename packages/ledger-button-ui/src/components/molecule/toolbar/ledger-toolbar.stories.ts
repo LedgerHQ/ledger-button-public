@@ -10,7 +10,7 @@ const meta: Meta<LedgerToolbarAttributes> = {
   title: "Component/Molecule/Toolbar",
   tags: ["autodocs"],
   render: (args) =>
-    html`<div style="background: black; padding: 20px;">
+    html`<div style="background: black;">
       <ledger-toolbar
         .title=${args.title || ""}
         @toolbar-close=${(e: CustomEvent) => {
