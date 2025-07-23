@@ -69,7 +69,7 @@ export class SelectDeviceScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="flex flex-col gap-12">
+      <div class="flex flex-col">
         <div class="flex flex-col gap-12 p-24 pt-0">
           <ledger-connection-item
             title=${lang.common.button.connectBluetooth}
