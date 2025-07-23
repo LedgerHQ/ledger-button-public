@@ -1,6 +1,9 @@
 import "@ledgerhq/ledger-button-ui";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  LedgerButtonCore,
+  TransactionData,
+} from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -62,12 +65,25 @@ export class SignTransactionScreen extends LitElement {
   @property({ type: String })
   transactionId = "";
 
+  @property({ type: Object })
+  transactionData?: TransactionData;
+
   controller!: SignTransactionController;
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new SignTransactionController(this, this.navigation);
-    this.controller.startSigning();
+    this.controller = new SignTransactionController(
+      this,
+      this.coreContext,
+      this.navigation,
+    );
+
+    if (!this.transactionData) {
+      this.state = "error";
+      this.requestUpdate();
+      return;
+    }
+    this.controller.startSigning(this.transactionData);
   }
 
   private renderSigningState() {
@@ -219,7 +235,12 @@ export class SignTransactionScreen extends LitElement {
 
   private handleRetry() {
     this.state = "signing";
-    this.controller.startSigning();
+    if (!this.transactionData) {
+      this.state = "error";
+      this.requestUpdate();
+      return;
+    }
+    this.controller.startSigning(this.transactionData);
   }
 
   override render() {

@@ -3,6 +3,7 @@ import { ContainerModule } from "inversify";
 import { DeviceManagementKitService } from "./service/DeviceManagementKitService.js";
 import { ConnectDevice } from "./use-case/ConnectDevice.js";
 import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
+import { SignTransaction } from "./use-case/SignTransaction.js";
 import { SwitchDevice } from "./use-case/SwitchDevice.js";
 import { ContainerOptions } from "../diTypes.js";
 import { deviceModuleTypes } from "./deviceModuleTypes.js";
@@ -20,6 +21,7 @@ export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
     bind(deviceModuleTypes.ConnectDeviceUseCase).to(ConnectDevice);
     bind(deviceModuleTypes.DisconnectDeviceUseCase).to(DisconnectDevice);
     bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDevice);
+    bind(deviceModuleTypes.SignTransactionUseCase).to(SignTransaction);
 
     if (stub) {
       // rebindSync(deviceModuleTypes.DeviceManagementKit).toConstantValue({

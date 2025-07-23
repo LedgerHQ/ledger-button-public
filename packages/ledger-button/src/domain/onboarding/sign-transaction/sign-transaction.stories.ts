@@ -15,6 +15,7 @@ const meta: Meta = {
             .state=${args.state}
             .deviceModel=${args.deviceModel}
             .transactionId=${args.transactionId}
+            .transactionData=${args.transactionData}
           ></sign-transaction-screen>
         </div>
       </language-provider>
@@ -32,6 +33,9 @@ const meta: Meta = {
     transactionId: {
       control: { type: "text" },
     },
+    transactionData: {
+      control: { type: "object" },
+    },
   },
 };
 
@@ -43,6 +47,14 @@ export const Signing: Story = {
     state: "signing",
     deviceModel: "stax",
     transactionId: "",
+    transactionData: {
+      to: "0x742d35Cc6634C0532925a3b8D35d423B2e5AC4A8",
+      value: "1000000000000000000",
+      chainId: 1, // Ethereum
+      gasLimit: "21000",
+      gasPrice: "20000000000",
+      nonce: 0,
+    },
   },
 };
 
@@ -51,6 +63,14 @@ export const SigningNanoX: Story = {
     state: "signing",
     deviceModel: "nanox",
     transactionId: "",
+    transactionData: {
+      to: "0x742d35Cc6634C0532925a3b8D35d423B2e5AC4A8",
+      value: "500000000000000000",
+      chainId: 1, // Ethereum
+      gasLimit: "21000",
+      gasPrice: "15000000000",
+      nonce: 1,
+    },
   },
 };
 
@@ -59,6 +79,14 @@ export const SigningFlex: Story = {
     state: "signing",
     deviceModel: "flex",
     transactionId: "",
+    transactionData: {
+      to: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", // vitalik.eth
+      value: "250000000000000000",
+      chainId: 1, // Ethereum
+      gasLimit: "21000",
+      gasPrice: "25000000000",
+      nonce: 2,
+    },
   },
 };
 
@@ -67,6 +95,14 @@ export const Success: Story = {
     state: "success",
     deviceModel: "stax",
     transactionId: "0x1234567890abcdef1234567890abcdef12345678",
+    transactionData: {
+      to: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", // vitalik.eth
+      value: "1000000000000000000",
+      chainId: 1, // Ethereum mainnet
+      gasLimit: "21000",
+      gasPrice: "20000000000",
+      nonce: 0,
+    },
   },
 };
 
@@ -75,5 +111,63 @@ export const Error: Story = {
     state: "error",
     deviceModel: "stax",
     transactionId: "",
+    transactionData: {
+      to: "0x742d35Cc6634C0532925a3b8D35d423B2e5AC4A8",
+      value: "1000000000000000000",
+      chainId: 1, // Ethereum
+      gasLimit: "21000",
+      gasPrice: "20000000000",
+      nonce: 0,
+    },
+  },
+};
+
+export const ERC20Transfer: Story = {
+  args: {
+    state: "signing",
+    deviceModel: "stax",
+    transactionId: "",
+    transactionData: {
+      to: "0xA0b86a33E6815E2D5e7B4a00ad4Bd5085E0A4D9e", // ERC20 contract
+      value: "0",
+      chainId: 1, // Ethereum
+      gasLimit: "65000",
+      gasPrice: "30000000000",
+      nonce: 3,
+      data: "0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b8d35d423b2e5ac4a8000000000000000000000000000000000000000000000000000000174876e800", // transfer(address,uint256)
+    },
+  },
+};
+
+export const ContractInteraction: Story = {
+  args: {
+    state: "signing",
+    deviceModel: "flex",
+    transactionId: "",
+    transactionData: {
+      to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI contract
+      value: "0",
+      chainId: 1, // Ethereum
+      gasLimit: "100000",
+      gasPrice: "40000000000",
+      nonce: 4,
+      data: "0x095ea7b3000000000000000000000000e592427a0aece92de3edee1f18e0157c05861564ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", // approve(address,uint256)
+    },
+  },
+};
+
+export const PolygonTransaction: Story = {
+  args: {
+    state: "signing",
+    deviceModel: "nanox",
+    transactionId: "",
+    transactionData: {
+      to: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", // DAI on Polygon
+      value: "0",
+      chainId: 137, // Polygon
+      gasLimit: "50000",
+      gasPrice: "30000000000",
+      nonce: 5,
+    },
   },
 };

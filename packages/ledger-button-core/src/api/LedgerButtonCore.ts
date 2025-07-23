@@ -9,6 +9,10 @@ import {
 } from "../internal/device/service/DeviceManagementKitService.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
+import {
+  SignTransaction,
+  TransactionData,
+} from "../internal/device/use-case/SignTransaction.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
@@ -59,5 +63,12 @@ export class LedgerButtonCore {
     return this.container?.get<DeviceManagementKitService>(
       deviceModuleTypes.DeviceManagementKitService,
     ).connectedDevice;
+  }
+
+  async signTransaction(transactionData: TransactionData) {
+    await this.init();
+    return this.container
+      ?.get<SignTransaction>(deviceModuleTypes.SignTransactionUseCase)
+      .execute(transactionData);
   }
 }

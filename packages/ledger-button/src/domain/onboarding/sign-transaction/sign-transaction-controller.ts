@@ -1,3 +1,7 @@
+import {
+  LedgerButtonCore,
+  TransactionData,
+} from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
@@ -8,6 +12,7 @@ export class SignTransactionController implements ReactiveController {
 
   constructor(
     host: ReactiveControllerHost,
+    private readonly core: LedgerButtonCore,
     private readonly navigation: Navigation,
   ) {
     this.host = host;
@@ -18,17 +23,15 @@ export class SignTransactionController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  async startSigning() {
+  async startSigning(transactionData: TransactionData) {
     try {
-      // TODO: Replace with core signing
-      await this.simulateSigningProcess();
+      const result = await this.core.signTransaction(transactionData);
 
-      (this.host as any).state = "success";
-      (this.host as any).transactionId = this.generateTransactionId();
+      this.host.state = "success";
+      this.host.transactionId = result.hash;
       this.host.requestUpdate();
     } catch (error) {
-      console.error("Failed to sign transaction", error);
-      (this.host as any).state = "error";
+      this.host.state = "error";
       this.host.requestUpdate();
     }
   }
@@ -39,17 +42,5 @@ export class SignTransactionController implements ReactiveController {
 
   close() {
     this.navigation.navigateTo(destinations.home);
-  }
-
-  private async simulateSigningProcess() {
-    // Similate time
-    return new Promise((resolve) => {
-      setTimeout(resolve, 3000);
-    });
-  }
-
-  private generateTransactionId(): string {
-    // Mock id
-    return `0x${Math.random().toString(16).substring(2, 66)}`;
   }
 }
