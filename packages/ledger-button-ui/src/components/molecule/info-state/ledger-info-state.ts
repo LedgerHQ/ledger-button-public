@@ -9,7 +9,7 @@ import FlexDeviceIcon from "./flex-device-icon";
 import NanoxDeviceIcon from "./nanox-device-icon";
 import StaxDeviceIcon from "./stax-device-icon";
 
-export type DeviceType = "flex" | "nanox" | "stax";
+export type DeviceType = "nanox" | "stax" | "flex";
 
 const infoStateVariants = cva(
   "flex flex-col items-center justify-center text-center text-base",
@@ -78,12 +78,12 @@ export class LedgerInfoState extends LitElement {
           ${this.renderDeviceIcon()}
         </div>
 
-        <h2
+        <h4
           class="font-semibold leading-tight mb-16 font-inter text-base heading-4"
           data-testid="title"
         >
           ${this.title}
-        </h2>
+        </h4>
 
         ${this.subtitle
           ? html`

@@ -1,6 +1,7 @@
 import "@ledgerhq/ledger-button-ui";
 import "./shared/root-modal-component.js";
 
+import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -9,6 +10,7 @@ import { langContext, LanguageContext } from "./context/language-context.js";
 import { RootModalComponent } from "./shared/root-modal-component.js";
 
 @customElement("ledger-button-app")
+@tailwindElement()
 export class LedgerButtonApp extends LitElement {
   @query("#navigation")
   navigation!: RootModalComponent;
@@ -66,14 +68,16 @@ export class LedgerButtonApp extends LitElement {
     const translation = this.languages.currentTranslation;
 
     return html`
-      <ledger-button
-        label=${translation.common.button.connect}
-        variant="primary"
-        size="large"
-        icon
-        @ledger-button-click=${this.openModal}
-      ></ledger-button>
-      <root-modal-component id="navigation"></root-modal-component>
+      <div class="dark">
+        <ledger-button
+          label=${translation.common.button.connect}
+          variant="secondary"
+          size="large"
+          icon
+          @ledger-button-click=${this.openModal}
+        ></ledger-button>
+        <root-modal-component id="navigation"></root-modal-component>
+      </div>
     `;
   }
 }

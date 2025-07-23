@@ -12,38 +12,37 @@ import type { LedgerModal } from "./ledger-modal";
 const meta: Meta = {
   title: "Component/Atom/Modal",
   tags: ["autodocs"],
-  render: (args) =>
-    html`<div>
-      <ledger-button
-        id="trigger-button"
-        label="Connect Ledger"
-        variant="primary"
-        size="medium"
-        icon
-        @ledger-button-click=${(e: Event) => {
-          const container = (e.target as HTMLElement).closest("div");
-          const modal = container?.querySelector("ledger-modal") as LedgerModal;
-          modal?.openModal();
-        }}
-      ></ledger-button>
-      <ledger-modal
-        data-testid="modal"
-        .isOpen=${!!args.isOpen}
-        .title=${args.title}
-        @modal-opened=${(e: CustomEvent) => {
-          console.log("Modal opened:", e.detail);
-        }}
-        @modal-closed=${(e: CustomEvent) => {
-          console.log("Modal closed:", e.detail);
-        }}
-      >
-        <ledger-info-state
-          device="flex"
-          title="Continue on your Ledger Flex"
-          subtitle="Follow instructions appearing on your Ledger's Trusted Display"
-        ></ledger-info-state>
-      </ledger-modal>
-    </div>`,
+  render: (args) => html`
+    <ledger-button
+      id="trigger-button"
+      label="Connect Ledger"
+      variant="secondary"
+      size="medium"
+      icon
+      @ledger-button-click=${(e: Event) => {
+        const container = (e.target as HTMLElement).closest("div");
+        const modal = container?.querySelector("ledger-modal") as LedgerModal;
+        modal?.openModal();
+      }}
+    ></ledger-button>
+    <ledger-modal
+      data-testid="modal"
+      .isOpen=${!!args.isOpen}
+      .title=${args.title}
+      @modal-opened=${(e: CustomEvent) => {
+        console.log("Modal opened:", e.detail);
+      }}
+      @modal-closed=${(e: CustomEvent) => {
+        console.log("Modal closed:", e.detail);
+      }}
+    >
+      <ledger-info-state
+        device="flex"
+        title="Continue on your Ledger Flex"
+        subtitle="Follow instructions appearing on your Ledger's Trusted Display"
+      ></ledger-info-state>
+    </ledger-modal>
+  `,
   argTypes: {
     isOpen: {
       control: "boolean",
