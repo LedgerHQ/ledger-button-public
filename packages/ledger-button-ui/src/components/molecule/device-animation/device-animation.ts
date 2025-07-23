@@ -19,7 +19,6 @@ import { default as ContinueOnLedgerStaxDark } from "./stax/04_STAX_DARK_CONTINU
 import { default as SignTransactionStaxDark } from "./stax/05_STAX_DARK_SIGN_TRANSACTION.json";
 import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
 import { tailwindElement } from "../../../tailwind-element";
-import { default as loadingSpinner } from "../../atom/lottie/animations/loading-spinner.js";
 
 type AnimationKey =
   | "pin"

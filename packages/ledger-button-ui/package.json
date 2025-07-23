@@ -7,10 +7,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
-    "./styles.css": {
-      "development": "./src/styles.css",
-      "default": "./dist/styles.css"
-    },
+    "./styles.css": "./src/styles.css",
     ".": {
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",

@@ -1,9 +1,11 @@
+import "./styles.css";
 export * from "./components/atom/button/ledger-button";
 export * from "./components/atom/chip/ledger-chip";
 export * from "./components/atom/crypto-icon/ledger-crypto-icon";
 export * from "./components/atom/icon/ledger-icon";
 export * from "./components/atom/lottie/ledger-lottie";
 export * from "./components/atom/modal/ledger-modal";
+export * from "./components/atom/modal/ledger-modal-story-wrapper";
 export * from "./components/molecule/account-item/ledger-account-item";
 export * from "./components/molecule/ad-item/ledger-ad-item";
 export * from "./components/molecule/chain-item/ledger-chain-item";

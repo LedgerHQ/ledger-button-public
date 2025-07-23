@@ -70,7 +70,7 @@ export class SelectDeviceScreen extends LitElement {
 
     return html`
       <div class="flex flex-col gap-12">
-        <div class="flex flex-col gap-12">
+        <div class="flex flex-col gap-12 p-24 pt-0">
           <ledger-connection-item
             title=${lang.common.button.connectBluetooth}
             connection-type="bluetooth"
@@ -80,7 +80,9 @@ export class SelectDeviceScreen extends LitElement {
             connection-type="usb"
           ></ledger-connection-item>
         </div>
-        <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
+        <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
+          <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
+        </div>
       </div>
     `;
   }
