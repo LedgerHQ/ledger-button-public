@@ -1,5 +1,7 @@
 import type { Preview } from "@storybook/web-components";
 
+import "@ledgerhq/ledger-button-ui/styles.css";
+
 const preview: Preview = {
   parameters: {
     tags: ["autodocs"],

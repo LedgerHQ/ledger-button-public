@@ -1,9 +1,10 @@
-import { html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 import {
   BluetoothIcon,
+  CartIcon,
   CheckIcon,
   ChevronIcon,
   CloseIcon,
@@ -22,28 +23,27 @@ export interface LedgerIconAttributes {
     | "chevron"
     | "check"
     | "error"
-    | "device";
+    | "device"
+    | "cart";
   size: "small" | "medium" | "large";
 }
 
+const styles = css`
+  svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+`;
+
 @customElement("ledger-icon")
+@tailwindElement(styles)
 export class LedgerIcon extends LitElement {
   @property({ type: String })
   type = "ledger";
 
   @property({ type: String })
   size = "medium";
-
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    unsafeCSS(`
-      svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-    `),
-  ];
 
   private get iconClasses(): string {
     const sizeClasses: { [key: string]: string } = {
@@ -65,11 +65,16 @@ export class LedgerIcon extends LitElement {
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
+      cart: () => CartIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
 
-    return html`<div aria-hidden="true" role="img" class="${this.iconClasses}">
+    return html`<div
+      aria-hidden="true"
+      role="img"
+      class="${this.iconClasses} flex items-center justify-center"
+    >
       ${renderIcon()}
     </div> `;
   }

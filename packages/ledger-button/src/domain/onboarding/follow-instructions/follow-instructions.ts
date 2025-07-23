@@ -1,5 +1,6 @@
+import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import {
@@ -11,10 +12,34 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import tailwindStyles from "../../../styles.css?inline";
 import { FollowInstructionsController } from "./follow-instructions-controller.js";
 
+const styles = css`
+  .container {
+    display: flex;
+    min-height: 200px;
+    padding: 0px 0px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    gap: var(--spacing-24);
+  }
+
+  .text-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-8);
+    align-self: stretch;
+  }
+
+  .device-animation {
+    width: 200px;
+  }
+`;
 @customElement("follow-instructions-screen")
+@tailwindElement(styles)
 export class FollowInstructionsScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
@@ -28,34 +53,6 @@ export class FollowInstructionsScreen extends LitElement {
   public languages!: LanguageContext;
 
   controller!: FollowInstructionsController;
-
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      .container {
-        display: flex;
-        min-height: 200px;
-        padding: 0px 0px;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        align-self: stretch;
-        gap: var(--spacing-24);
-      }
-
-      .text-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: var(--spacing-8);
-        align-self: stretch;
-      }
-
-      .device-animation {
-        width: 200px;
-      }
-    `,
-  ];
 
   override connectedCallback() {
     super.connectedCallback();

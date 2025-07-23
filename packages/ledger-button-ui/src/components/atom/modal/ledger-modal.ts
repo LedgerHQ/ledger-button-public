@@ -1,10 +1,10 @@
 import "../../molecule/toolbar/ledger-toolbar";
 
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { animate } from "motion";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 export interface LedgerModalAttributes {
   title: string;
@@ -17,7 +17,35 @@ type CustomEventData = {
   timestamp: number;
 };
 
+const styles = css`
+  :host {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+
+  :host([isOpen]) {
+    display: flex;
+  }
+
+  .modal-overlay {
+    width: 100%;
+    opacity: 0;
+  }
+
+  .modal-container {
+    width: min(calc(100% - 32px), 400px);
+    height: auto;
+    max-height: min(calc(100vh - 64px), 550px);
+  }
+`;
+
 @customElement("ledger-modal")
+@tailwindElement(styles)
 export class LedgerModal extends LitElement {
   @property({ type: Boolean, reflect: true })
   isOpen = false;
@@ -36,36 +64,6 @@ export class LedgerModal extends LitElement {
 
   private focusableElements: HTMLElement[] = [];
   private previousBodyOverflow = "";
-
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: none;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1000;
-      }
-
-      :host([isOpen]) {
-        display: flex;
-      }
-
-      .modal-overlay {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        position: relative;
-        z-index: 1;
-        opacity: 0;
-      }
-    `,
-  ];
 
   override connectedCallback() {
     super.connectedCallback();
@@ -196,7 +194,7 @@ export class LedgerModal extends LitElement {
   override render() {
     return html`
       <div
-        class="modal-overlay w-screen h-screen relative z-10 justify-center bg-canvas-overlay"
+        class="modal-overlay z-1 relative flex min-h-screen content-center items-center justify-center bg-canvas-overlay"
         @click=${this.handleOverlayClick}
         role="dialog"
         aria-modal="true"
@@ -205,7 +203,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-overlay"
       >
         <div
-          class="min-h-448 fixed inset-0 z-10 flex w-384 flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black pb-24"
+          class="modal-container fixed inset-0 z-10 flex flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
@@ -217,7 +215,7 @@ export class LedgerModal extends LitElement {
               aria-label=${this.title || ""}
             ></ledger-toolbar>
           </slot>
-          <div id="modal-content" class="p-16 text-white">
+          <div id="modal-content" class="text-base">
             <slot></slot>
           </div>
         </div>

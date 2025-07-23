@@ -1,15 +1,16 @@
 import "../icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import tailwindStyles from "../../../styles.css?inline";
+import { tailwindElement } from "../../../tailwind-element";
 
 export type ButtonVariant = "primary" | "secondary";
 export type ButtonSize = "small" | "medium" | "large";
 export type IconPosition = "left" | "right";
+
 export interface LedgerButtonAttributes {
   label?: string;
   variant?: ButtonVariant;
@@ -58,7 +59,18 @@ const buttonVariants = cva(
   },
 );
 
+const styles = css`
+  :host {
+    display: inline-block;
+  }
+
+  :host([disabled]) {
+    pointer-events: none;
+  }
+`;
+
 @customElement("ledger-button")
+@tailwindElement(styles)
 export class LedgerButton extends LitElement {
   @property({ type: String })
   label = "";
@@ -80,19 +92,6 @@ export class LedgerButton extends LitElement {
 
   @property({ type: String })
   type: "button" | "submit" | "reset" = "button";
-
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: inline-block;
-      }
-
-      :host([disabled]) {
-        pointer-events: none;
-      }
-    `,
-  ];
 
   private get buttonClasses() {
     return {
@@ -118,13 +117,12 @@ export class LedgerButton extends LitElement {
         @click=${this.handleClick}
       >
         ${this.iconPosition === "left" && this.icon
-          ? html`${this.renderIcon()}<span>${this.label}</span>`
+          ? html`${this.renderIcon()}<span class="body-2">${this.label}</span>`
           : ""}
         ${this.iconPosition === "right" && this.icon
-          ? html`<span class="font-inter">${this.label}</span
-              >${this.renderIcon()}`
+          ? html`<span class="body-2">${this.label}</span>${this.renderIcon()}`
           : ""}
-        ${!this.icon ? html`${this.label}` : ""}
+        ${!this.icon ? html`<span class="body-2">${this.label}</span>` : ""}
       </button>
     `;
   }

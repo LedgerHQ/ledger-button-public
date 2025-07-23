@@ -1,21 +1,18 @@
 import "./components/atom/button/ledger-button";
 
-import { css, html, LitElement, unsafeCSS } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import tailwindStyles from "./styles.css?inline";
+import { tailwindElement } from "./tailwind-element";
 
+const styles = css`
+  :host {
+    display: inline-block;
+  }
+`;
 @customElement("ledger-button-ui")
+@tailwindElement(styles)
 export class LedgerButtonUI extends LitElement {
-  static override styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: inline-block;
-      }
-    `,
-  ];
-
   override render() {
     return html`
       <ledger-button

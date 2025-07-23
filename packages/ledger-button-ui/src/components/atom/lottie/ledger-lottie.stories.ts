@@ -5,8 +5,6 @@ import { html } from "lit";
 import { within as shadowWithin } from "shadow-dom-testing-library";
 import { expect } from "storybook/test";
 
-import checkmarkData from "./animations/checkmark.json";
-import loadingSpinnerData from "./animations/loading-spinner.json";
 import type { LedgerLottieAttributes } from "./ledger-lottie";
 
 const meta: Meta<LedgerLottieAttributes> = {
@@ -14,8 +12,8 @@ const meta: Meta<LedgerLottieAttributes> = {
   tags: ["autodocs"],
   render: (args) =>
     html`<ledger-lottie
-      .animationData=${args.animationData}
-      .size=${args.size || "medium"}
+      animationName=${args.animationName}
+      .size=${args.size || "large"}
       ?autoplay=${args.autoplay}
       ?loop=${args.loop}
       ?paused=${args.paused}
@@ -24,8 +22,16 @@ const meta: Meta<LedgerLottieAttributes> = {
   argTypes: {
     animationData: {
       control: "object",
-      description:
-        "The Lottie animation JSON data object exported from After Effects (or other Lottie tools)",
+      description: "The Lottie animation data",
+      table: {
+        type: { summary: "object" },
+        defaultValue: { summary: "undefined" },
+      },
+    },
+    animationName: {
+      control: "select",
+      options: ["loadingSpinner", "checkmark", "backgroundFlare"],
+      description: "The Lottie animation name",
       table: {
         type: { summary: "object" },
         defaultValue: { summary: "undefined" },
@@ -33,9 +39,9 @@ const meta: Meta<LedgerLottieAttributes> = {
     },
     size: {
       control: "select",
-      options: ["small", "medium", "large"],
+      options: ["small", "medium", "large", "full"],
       description:
-        "Predefined size: small (32px), medium (64px), large (128px)",
+        "Predefined size: small (32px), medium (64px), large (128px), full (100%)",
       table: {
         type: { summary: "string" },
         defaultValue: { summary: "medium" },
@@ -86,7 +92,7 @@ type Story = StoryObj<LedgerLottieAttributes>;
 
 export const LoadingSpinner: Story = {
   args: {
-    animationData: loadingSpinnerData,
+    animationName: "loadingSpinner",
     size: "medium",
     autoplay: true,
     loop: true,
@@ -104,7 +110,7 @@ export const LoadingSpinner: Story = {
 
 export const Checkmark: Story = {
   args: {
-    animationData: checkmarkData,
+    animationName: "checkmark",
     size: "medium",
     autoplay: true,
     loop: false,
@@ -120,9 +126,39 @@ export const Checkmark: Story = {
   },
 };
 
+export const BackgroundFlare: Story = {
+  args: {
+    animationName: "backgroundFlare",
+    size: "full",
+    autoplay: true,
+    loop: true,
+    paused: false,
+    speed: 1,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "Background flare animation",
+      },
+    },
+  },
+  render: (args) => html`
+    <div style="max-width: 400px;">
+      <ledger-lottie
+        animationName=${args.animationName}
+        .size=${args.size || "large"}
+        ?autoplay=${args.autoplay}
+        ?loop=${args.loop}
+        ?paused=${args.paused}
+        .speed=${args.speed || 1}
+      ></ledger-lottie>
+    </div>
+  `,
+};
+
 export const PausedAnimation: Story = {
   args: {
-    animationData: loadingSpinnerData,
+    animationName: "loadingSpinner",
     size: "medium",
     autoplay: false,
     loop: true,
@@ -133,8 +169,8 @@ export const PausedAnimation: Story = {
 
 export const SlowAnimation: Story = {
   args: {
-    animationData: checkmarkData,
-    size: "medium",
+    animationName: "checkmark",
+    size: "large",
     autoplay: true,
     loop: true,
     paused: false,
@@ -144,8 +180,8 @@ export const SlowAnimation: Story = {
 
 export const FastAnimation: Story = {
   args: {
-    animationData: loadingSpinnerData,
-    size: "medium",
+    animationName: "loadingSpinner",
+    size: "large",
     autoplay: true,
     loop: true,
     paused: false,
@@ -163,7 +199,7 @@ export const DifferentSizes: Story = {
           Small (32px)
         </h4>
         <ledger-lottie
-          .animationData=${loadingSpinnerData}
+          animationName="loadingSpinner"
           size="small"
           autoplay
           loop
@@ -174,7 +210,7 @@ export const DifferentSizes: Story = {
           Medium (64px)
         </h4>
         <ledger-lottie
-          .animationData=${loadingSpinnerData}
+          animationName="loadingSpinner"
           size="medium"
           autoplay
           loop
@@ -185,7 +221,7 @@ export const DifferentSizes: Story = {
           Large (128px)
         </h4>
         <ledger-lottie
-          .animationData=${loadingSpinnerData}
+          animationName="loadingSpinner"
           size="large"
           autoplay
           loop
@@ -214,7 +250,7 @@ export const AnimationStates: Story = {
         </h3>
         <div style="display: flex; gap: 16px; align-items: center;">
           <ledger-lottie
-            .animationData=${loadingSpinnerData}
+            animationName="loadingSpinner"
             size="medium"
             autoplay
             loop
@@ -233,7 +269,7 @@ export const AnimationStates: Story = {
         </h3>
         <div style="display: flex; gap: 16px; align-items: center;">
           <ledger-lottie
-            .animationData=${checkmarkData}
+            animationName="checkmark"
             size="medium"
             autoplay
             ?loop=${false}
@@ -252,7 +288,7 @@ export const AnimationStates: Story = {
         </h3>
         <div style="display: flex; gap: 16px; align-items: center;">
           <ledger-lottie
-            .animationData=${loadingSpinnerData}
+            animationName="loadingSpinner"
             size="medium"
             ?autoplay=${false}
             paused
@@ -266,8 +302,8 @@ export const AnimationStates: Story = {
 
 export const TestLottieInteractions: Story = {
   args: {
-    animationData: checkmarkData,
-    size: "medium",
+    animationName: "checkmark",
+    size: "large",
     autoplay: true,
     loop: false,
   },
