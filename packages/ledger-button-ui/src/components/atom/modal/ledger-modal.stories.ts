@@ -93,7 +93,7 @@ export const TestModalInteractions: Story = {
     await step("Close modal using close button", async () => {
       const toolbar = modal.shadowRoot?.querySelector("ledger-toolbar");
       const closeIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon[type='close']",
+        "ledger-button[iconType='close']",
       );
 
       if (closeIcon) {

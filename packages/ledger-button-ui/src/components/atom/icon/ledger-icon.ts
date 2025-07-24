@@ -25,7 +25,7 @@ export interface LedgerIconAttributes {
     | "error"
     | "device"
     | "cart";
-  size: "small" | "medium" | "large";
+  size: "small" | "medium" | "large" | "icon";
 }
 
 const styles = css`
@@ -40,7 +40,7 @@ const styles = css`
 @tailwindElement(styles)
 export class LedgerIcon extends LitElement {
   @property({ type: String })
-  type = "ledger";
+  type: LedgerIconAttributes["type"] = "ledger";
 
   @property({ type: String })
   size = "medium";

@@ -1,14 +1,15 @@
 import "../icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { css, html, LitElement } from "lit";
+import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element";
+import { LedgerIconAttributes } from "../icon/ledger-icon";
 
-export type ButtonVariant = "primary" | "secondary";
-export type ButtonSize = "small" | "medium" | "large";
+export type ButtonVariant = "primary" | "secondary" | "accent" | "noBackground";
+export type ButtonSize = "small" | "medium" | "large" | "xs";
 export type IconPosition = "left" | "right";
 
 export interface LedgerButtonAttributes {
@@ -45,8 +46,13 @@ const buttonVariants = cva(
           "bg-muted-transparent text-base",
           "hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
         ],
+        noBackground: [
+          "bg-base-transparent text-base",
+          "hover:bg-base-transparent-hover active:bg-base-transparent-pressed",
+        ],
       },
       size: {
+        xs: ["p-8"],
         small: ["px-16 py-8", "body-2-semi-bold"],
         medium: ["p-16"],
         large: ["px-32 py-16"],
@@ -87,6 +93,9 @@ export class LedgerButton extends LitElement {
   @property({ type: Boolean })
   icon = false;
 
+  @property({ type: String })
+  iconType?: LedgerIconAttributes["type"];
+
   @property({ type: String, attribute: "icon-position" })
   iconPosition: IconPosition = "left";
 
@@ -101,10 +110,27 @@ export class LedgerButton extends LitElement {
 
   private renderIcon() {
     if (!this.icon) {
-      return "";
+      return nothing;
     }
 
-    return html`<ledger-icon type="ledger" size=${this.size} />`;
+    const size = this.size === "xs" ? "small" : this.size;
+
+    return html`
+      <ledger-icon
+        .type=${this.iconType ?? "ledger"}
+        size=${size}
+        class="text-base"
+      >
+      </ledger-icon>
+    `;
+  }
+
+  private renderLabel() {
+    if (this.label === "") {
+      return nothing;
+    }
+
+    return html`<span class="body-2">${this.label}</span>`;
   }
 
   override render() {
@@ -117,12 +143,12 @@ export class LedgerButton extends LitElement {
         @click=${this.handleClick}
       >
         ${this.iconPosition === "left" && this.icon
-          ? html`${this.renderIcon()}<span class="body-2">${this.label}</span>`
+          ? html`${this.renderIcon()}${this.renderLabel()}`
           : ""}
         ${this.iconPosition === "right" && this.icon
-          ? html`<span class="body-2">${this.label}</span>${this.renderIcon()}`
+          ? html`${this.renderLabel()}${this.renderIcon()}`
           : ""}
-        ${!this.icon ? html`<span class="body-2">${this.label}</span>` : ""}
+        ${!this.icon ? this.renderLabel() : nothing}
       </button>
     `;
   }

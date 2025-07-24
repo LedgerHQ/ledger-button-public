@@ -3,7 +3,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import { type DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
 @injectable()
 export class DisconnectDevice {

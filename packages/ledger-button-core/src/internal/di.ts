@@ -10,6 +10,7 @@ import { ContainerOptions } from "./diTypes.js";
 
 export async function createContainer({
   stub = false,
+  stubDevice = false,
   supportedNetworks: _supportedNetworks = [],
   loggerLevel = LOG_LEVELS.info,
   dmkConfig,
@@ -19,7 +20,7 @@ export async function createContainer({
   await container.load(
     loggerModuleFactory({ stub, loggerLevel }),
     accountModuleFactory({ stub }),
-    deviceModuleFactory({ stub, dmkConfig }),
+    deviceModuleFactory({ stub: stubDevice, dmkConfig }),
     storageModuleFactory({ stub }),
     networkModuleFactory({ stub }),
   );

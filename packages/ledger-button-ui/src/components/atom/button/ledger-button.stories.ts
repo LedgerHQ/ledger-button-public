@@ -29,12 +29,12 @@ const meta: Meta<LedgerButtonAttributes> = {
     },
     variant: {
       control: "select",
-      options: ["primary", "secondary"],
+      options: ["primary", "secondary", "accent", "tertiary"],
       description: "The variant of the button",
     },
     size: {
       control: "select",
-      options: ["small", "medium", "large"],
+      options: ["small", "medium", "large", "icon"],
       description: "The size of the button",
     },
     disabled: {

@@ -2,7 +2,7 @@ import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
-import { destinations } from "../../../shared/routes.js";
+import { Destinations } from "../../../shared/routes.js";
 
 export class RetrievingAccountsController implements ReactiveController {
   host: ReactiveControllerHost;
@@ -11,6 +11,7 @@ export class RetrievingAccountsController implements ReactiveController {
     host: ReactiveControllerHost,
     private readonly core: LedgerButtonCore,
     private readonly navigation: Navigation,
+    private readonly destinations: Destinations,
   ) {
     this.host = host;
     this.host.addController(this);
@@ -25,7 +26,7 @@ export class RetrievingAccountsController implements ReactiveController {
     this.host.requestUpdate();
 
     setTimeout(() => {
-      this.navigation.navigateTo(destinations.selectAccount);
+      this.navigation.navigateTo(this.destinations.selectAccount);
     }, 3000);
   }
 }

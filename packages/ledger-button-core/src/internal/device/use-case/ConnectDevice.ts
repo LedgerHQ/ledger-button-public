@@ -6,7 +6,7 @@ import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
 import {
   ConnectionType,
-  DeviceManagementKitService,
+  type DeviceManagementKitService,
 } from "../service/DeviceManagementKitService.js";
 
 @injectable()

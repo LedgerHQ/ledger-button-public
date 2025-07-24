@@ -4,11 +4,13 @@ import { customElement } from "lit/decorators.js";
 
 import en from "../i18n/en.json" with { type: "json" };
 
-const languages = {
+export const languages = {
   en,
 } as const;
 
 export type Languages = typeof languages;
+export type LangKey = keyof Languages;
+export type Translation = Languages[keyof Languages];
 
 export class LanguageContext {
   private _currentLanguage: keyof Languages = "en";
@@ -19,11 +21,11 @@ export class LanguageContext {
     this._currentLanguage = lang;
   }
 
-  get currentLanguage() {
+  get currentLanguage(): LangKey {
     return this._currentLanguage;
   }
 
-  get currentTranslation() {
+  get currentTranslation(): Translation {
     return this._languages[this._currentLanguage];
   }
 }
