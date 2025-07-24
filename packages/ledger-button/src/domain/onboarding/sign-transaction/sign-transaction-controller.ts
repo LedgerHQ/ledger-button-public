@@ -5,7 +5,7 @@ import {
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
-import { destinations } from "../../../shared/routes.js";
+import { Destinations } from "../../../shared/routes.js";
 
 export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
@@ -14,6 +14,7 @@ export class SignTransactionController implements ReactiveController {
     host: ReactiveControllerHost,
     private readonly core: LedgerButtonCore,
     private readonly navigation: Navigation,
+    private readonly destinations: Destinations,
   ) {
     this.host = host;
     this.host.addController(this);
@@ -41,6 +42,6 @@ export class SignTransactionController implements ReactiveController {
   }
 
   close() {
-    this.navigation.navigateTo(destinations.home);
+    this.navigation.navigateTo(this.destinations.home);
   }
 }

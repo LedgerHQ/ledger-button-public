@@ -15,6 +15,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { Destinations } from "../../../shared/routes.js";
 import { SignTransactionController } from "./sign-transaction-controller.js";
 
 export type SignTransactionState = "signing" | "success" | "error";
@@ -48,6 +49,9 @@ export class SignTransactionScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
+  @property({ type: Object })
+  destinations!: Destinations;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: LedgerButtonCore;
@@ -76,6 +80,7 @@ export class SignTransactionScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
     );
 
     if (!this.transactionData) {
@@ -91,9 +96,9 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="min-h-400 flex flex-col items-center justify-center text-center"
+        class="flex min-h-400 flex-col items-center justify-center text-center"
       >
-        <div class="w-full max-w-300 h-240 mb-32">
+        <div class="max-w-300 h-240 mb-32 w-full">
           <ledger-device-animation
             .modelId=${this.deviceModel}
             animation="signTransaction"
@@ -122,7 +127,7 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="min-h-400 flex flex-col items-center justify-center text-center"
+        class="flex min-h-400 flex-col items-center justify-center text-center"
       >
         <div class="mb-32 flex items-center justify-center">
           <div
@@ -150,7 +155,7 @@ export class SignTransactionScreen extends LitElement {
           "You will receive the funds soon."}
         </p>
 
-        <div class="w-full max-w-280 flex flex-col gap-16">
+        <div class="max-w-280 flex w-full flex-col gap-16">
           <ledger-button
             label=${(lang as any).signTransaction?.success?.viewTransaction ||
             "View transaction details"}
@@ -177,7 +182,7 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="min-h-400 flex flex-col items-center justify-center text-center"
+        class="flex min-h-400 flex-col items-center justify-center text-center"
       >
         <div class="mb-32 flex items-center justify-center">
           <div
@@ -204,7 +209,7 @@ export class SignTransactionScreen extends LitElement {
           "There was an error signing your transaction. Please try again."}
         </p>
 
-        <div class="w-full max-w-280 flex flex-col gap-16">
+        <div class="max-w-280 flex w-full flex-col gap-16">
           <ledger-button
             label=${(lang.common.button as any).tryAgain || "Try Again"}
             variant="primary"
