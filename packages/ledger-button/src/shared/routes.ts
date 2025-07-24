@@ -1,5 +1,5 @@
 import "../domain/onboarding/select-device/select-device.js";
-import "../domain/onboarding/follow-instructions/follow-instructions.js";
+import "../domain/onboarding/ledger-sync/ledger-sync.js";
 import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
 import "../domain/onboarding/select-account/select-account.js";
 
@@ -9,6 +9,7 @@ import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { coreContext } from "../context/core-context.js";
+import { Translation } from "../context/language-context.js";
 
 @customElement("lb-connect-device")
 export class LBConnectDevice extends LitElement {
@@ -99,68 +100,73 @@ export class LedgerButton404 extends LitElement {
   }
 }
 
-export type Destination = (typeof destinations)[keyof typeof destinations];
+export type Destinations = ReturnType<typeof makeDestinations>;
+export type Destination = Destinations[keyof Destinations];
 
 // MOVE DESTINATIONS TO NAVIGATION
-export const destinations = {
-  home: {
-    name: "home",
-    component: "lb-home",
-    canGoBack: false,
-    toolbar: {
-      title: "Home",
-      showClose: true,
-      showLogo: true,
+export const makeDestinations = (translation: Translation) => {
+  const destinations = {
+    home: {
+      name: "home",
+      component: "lb-home",
+      canGoBack: false,
+      toolbar: {
+        title: "Home",
+        showClose: true,
+        showLogo: true,
+      },
     },
-  },
-  followInstructions: {
-    name: "follow-instructions",
-    component: "follow-instructions-screen",
-    canGoBack: true,
-    toolbar: {
-      title: "Follow Instructions",
-      showClose: true,
-      showLogo: true,
+    ledgerSync: {
+      name: "ledger-sync",
+      component: "ledger-sync-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.onboarding.ledgerSync.title,
+        showClose: true,
+        showLogo: true,
+      },
     },
-  },
-  fetchAccounts: {
-    name: "retrieving-accounts",
-    component: "retrieving-accounts-screen",
-    canGoBack: false,
-    toolbar: {
-      title: "Retrieving Accounts",
-      showClose: false,
-      showLogo: true,
+    fetchAccounts: {
+      name: "retrieving-accounts",
+      component: "retrieving-accounts-screen",
+      canGoBack: false,
+      toolbar: {
+        title: "Retrieving Accounts",
+        showClose: false,
+        showLogo: true,
+      },
     },
-  },
-  selectAccount: {
-    name: "select-account",
-    component: "select-account-screen",
-    canGoBack: false,
-    toolbar: {
-      title: "Select Account",
-      showClose: true,
-      showLogo: true,
+    selectAccount: {
+      name: "select-account",
+      component: "select-account-screen",
+      canGoBack: false,
+      toolbar: {
+        title: "Select Account",
+        showClose: true,
+        showLogo: true,
+      },
     },
-  },
-  onboarding: {
-    name: "onboarding",
-    component: "select-device-screen",
-    canGoBack: false,
-    toolbar: {
-      title: "Select Device",
-      showClose: true,
-      showLogo: true,
+    onboarding: {
+      name: "onboarding",
+      component: "select-device-screen",
+      canGoBack: false,
+      toolbar: {
+        title: translation.onboarding.selectDevice.title,
+        showClose: true,
+        showLogo: true,
+      },
     },
-  },
-  notFound: {
-    name: "not-found",
-    component: "ledger-button-404",
-    canGoBack: false,
-    toolbar: {
-      title: "404",
-      showClose: true,
-      showLogo: true,
+    notFound: {
+      name: "not-found",
+      component: "ledger-button-404",
+      canGoBack: false,
+      toolbar: {
+        title: "404",
+        showClose: true,
+        showLogo: true,
+      },
     },
-  },
-} as const;
+  } as const;
+
+  return destinations;
+};

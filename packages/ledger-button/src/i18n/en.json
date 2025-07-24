@@ -28,7 +28,7 @@
     "selectDevice": {
       "title": "Connect a Ledger"
     },
-    "followInstructions": {
+    "ledgerSync": {
       "title": ""
     },
     "retrievingAccounts": {

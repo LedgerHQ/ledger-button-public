@@ -127,7 +127,7 @@ export const TestToolbarInteractions: Story = {
       });
 
       const closeIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon[type='close']",
+        "ledger-button[iconType='close']",
       );
 
       if (closeIcon) {
@@ -147,9 +147,7 @@ export const TestToolbarInteractions: Story = {
       const logoIcon = toolbar?.shadowRoot?.querySelector(
         "ledger-icon[type='ledger']",
       );
-      const closeIcon = toolbar?.shadowRoot?.querySelector(
-        "ledger-icon[type='close']",
-      );
+      const closeIcon = toolbar?.shadowRoot?.querySelector("ledger-button");
 
       expect(logoIcon).toBeInTheDocument();
       expect(closeIcon).toBeInTheDocument();

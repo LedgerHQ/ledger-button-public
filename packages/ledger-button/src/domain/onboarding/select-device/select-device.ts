@@ -12,6 +12,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { Destinations } from "../../../shared/routes.js";
 import { SelectDeviceController } from "./select-device-controller.js";
 
 const styles = css`
@@ -42,6 +43,9 @@ export class SelectDeviceScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
+  @property({ type: Object })
+  destinations!: Destinations;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: LedgerButtonCore;
@@ -58,6 +62,7 @@ export class SelectDeviceScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
     );
     // @ts-expect-error - addEventListner is not typed
     this.addEventListener("connection-item-click", (e) => {

@@ -39,20 +39,25 @@ export class LedgerToolbar extends LitElement {
   override render() {
     return html`
       <div
-        class="w-full flex min-w-full items-center justify-between px-24 py-16"
+        class="flex w-full min-w-full items-center justify-between px-24 py-16"
       >
-        <div class="flex h-20 w-20 items-center justify-center">
-          <ledger-icon type="ledger" size="small"></ledger-icon>
+        <div class="flex h-32 w-32 items-center justify-center">
+          <slot name="left-icon">
+            <ledger-icon type="ledger" size="medium"></ledger-icon>
+          </slot>
         </div>
         ${this.title
           ? html`<h2 class="text-base body-2">${this.title}</h2>`
           : ""}
-        <div class="flex h-20 w-20 cursor-pointer items-center justify-center">
-          <ledger-icon
-            type="close"
-            size="small"
+        <div class="flex h-32 w-32 cursor-pointer items-center justify-center">
+          <ledger-button
+            .icon=${true}
+            variant="noBackground"
+            iconType="close"
+            size="xs"
             @click=${this.handleClose}
-          ></ledger-icon>
+          >
+          </ledger-button>
         </div>
       </div>
     `;
