@@ -145,11 +145,13 @@ export const ContractInteraction: Story = {
     deviceModel: "flex",
     transactionId: "",
     transactionData: {
-      to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI contract
+      to: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI token contract
       value: "0",
-      chainId: 1, // Ethereum
+      chainId: 1, // Ethereum mainnet
       gasLimit: "100000",
-      gasPrice: "40000000000",
+      maxFeePerGas: "40000000000", // 40 gwei
+      maxPriorityFeePerGas: "3000000000", // 3 gwei
+      type: "eip1559", // EIP-1559 transaction
       nonce: 4,
       data: "0x095ea7b3000000000000000000000000e592427a0aece92de3edee1f18e0157c05861564ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", // approve(address,uint256)
     },
@@ -168,6 +170,42 @@ export const PolygonTransaction: Story = {
       gasLimit: "50000",
       gasPrice: "30000000000",
       nonce: 5,
+    },
+  },
+};
+
+export const LegacyTransaction: Story = {
+  args: {
+    state: "signing",
+    deviceModel: "stax",
+    transactionId: "",
+    transactionData: {
+      to: "0x742d35Cc6634C0532925a3b8D35d423B2e5AC4A8",
+      value: "1000000000000000000", // 1 ETH in wei
+      chainId: 1, // Ethereum mainnet
+      gasLimit: "21000",
+      maxFeePerGas: "30000000000", // 30 gwei - EIP-1559
+      maxPriorityFeePerGas: "2000000000", // 2 gwei tip
+      type: "eip1559",
+      nonce: 0,
+    },
+  },
+};
+
+export const HighPriorityTransaction: Story = {
+  args: {
+    state: "signing",
+    deviceModel: "flex",
+    transactionId: "",
+    transactionData: {
+      to: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045", // vitalik.eth
+      value: "500000000000000000", // 0.5 ETH in wei
+      chainId: 1, // Ethereum mainnet
+      gasLimit: "21000",
+      maxFeePerGas: "100000000000", // 100 gwei - high priority
+      maxPriorityFeePerGas: "10000000000", // 10 gwei - high tip
+      type: "eip1559", // EIP-1559 transaction
+      nonce: 7,
     },
   },
 };

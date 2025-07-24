@@ -1,5 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 import { OpenAppCommand } from "@ledgerhq/device-management-kit";
+import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
+import { lastValueFrom } from "rxjs";
+import {
+  serializeTransaction,
+  type TransactionSerializable,
+  keccak256,
+} from "viem";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -13,12 +20,19 @@ export interface TransactionData {
   chainId: number;
   gasLimit?: string;
   gasPrice?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
   nonce?: number;
+  type?: number | "legacy" | "eip2930" | "eip1559";
 }
 
 export interface SignedTransaction {
   hash: string;
-  signature: string;
+  signature: {
+    v: number;
+    r: string;
+    s: string;
+  };
   rawTransaction: string;
 }
 
@@ -55,35 +69,115 @@ export class SignTransaction {
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
-      const appName = "Ethereum";
-      const derivationPathMapper = {
-        Ethereum: "44'/60'/0'/0/0",
-      };
-      const derivationPath = derivationPathMapper[appName];
+      const derivationPath = "44'/60'/0'/0/0"; // Ethereum derivation path
 
-      const openAppCommand = new OpenAppCommand({ appName });
+      this.logger.info("Opening Ethereum app on device");
+
+      const openAppCommand = new OpenAppCommand({ appName: "Ethereum" });
       const openAppResult = await dmk.sendCommand({
         sessionId,
         command: openAppCommand,
       });
 
-      const transactionToSign = {
-        nonce: transactionData.nonce,
-        gasPrice: transactionData.gasPrice,
-        gasLimit: transactionData.gasLimit,
-        to: transactionData.to,
-        value: transactionData.value,
-        data: transactionData.data,
+      this.logger.debug("Open app command executed", { openAppResult });
+
+      const ethSigner = new SignerEthBuilder({
+        dmk,
+        sessionId,
+      }).build();
+
+      const viemTransaction: TransactionSerializable = {
+        to: transactionData.to as `0x${string}`,
+        value: BigInt(transactionData.value),
+        data: (transactionData.data || "0x") as `0x${string}`,
+        nonce: transactionData.nonce || 0,
         chainId: transactionData.chainId,
+        type: (transactionData.type as any) || "eip1559",
       };
 
-      // TODO: Implement transactin signing
+      if (
+        transactionData.type === 2 ||
+        transactionData.type === "eip1559" ||
+        (!transactionData.type &&
+          (transactionData.maxFeePerGas ||
+            transactionData.maxPriorityFeePerGas))
+      ) {
+        // EIP-1559 transaction
+        Object.assign(viemTransaction, {
+          maxFeePerGas: BigInt(transactionData.maxFeePerGas || "30000000000"), // 30 gwei
+          maxPriorityFeePerGas: BigInt(
+            transactionData.maxPriorityFeePerGas || "2000000000",
+          ), // 2 gwei
+          gas: BigInt(transactionData.gasLimit || "21000"),
+        });
+      } else {
+        // Legacy transaction
+        Object.assign(viemTransaction, {
+          gasPrice: BigInt(transactionData.gasPrice || "20000000000"), // 20 gwei
+          gas: BigInt(transactionData.gasLimit || "21000"),
+          type: "legacy" as const,
+        });
+      }
 
-      return {
-        hash: "",
-        signature: "",
-        rawTransaction: "",
-      };
+      this.logger.info("Starting transaction signing with device", {
+        transactionData,
+        derivationPath,
+        viemTransaction: {
+          to: viemTransaction.to,
+          value: viemTransaction.value?.toString(),
+          chainId: viemTransaction.chainId,
+          type: viemTransaction.type,
+        },
+      });
+
+      const serializedTransaction = serializeTransaction(viemTransaction);
+      const transactionBytes = new Uint8Array(
+        serializedTransaction
+          .slice(2)
+          .match(/.{2}/g)
+          ?.map((byte) => parseInt(byte, 16)) || [],
+      );
+
+      const { observable } = ethSigner.signTransaction(
+        derivationPath,
+        transactionBytes,
+      );
+
+      const result = await lastValueFrom(observable);
+
+      this.logger.info("Transaction signing completed", { result });
+
+      if (result.status === "completed" && result.output) {
+        const signedViemTransaction: TransactionSerializable = {
+          ...viemTransaction,
+          v: BigInt(result.output.v || 28),
+          r: (result.output.r || "0x" + "0".repeat(64)) as `0x${string}`,
+          s: (result.output.s || "0x" + "0".repeat(64)) as `0x${string}`,
+        };
+
+        const rawTransaction = serializeTransaction(signedViemTransaction);
+
+        const transactionHash = keccak256(rawTransaction);
+
+        const signedTransaction: SignedTransaction = {
+          hash: transactionHash,
+          signature: {
+            v: result.output.v || 28,
+            r: result.output.r || "0x" + "0".repeat(64),
+            s: result.output.s || "0x" + "0".repeat(64),
+          },
+          rawTransaction,
+        };
+
+        this.logger.debug("Successfully signed transaction", {
+          signedTransaction,
+          viemHash: transactionHash,
+          rawTx: rawTransaction,
+        });
+        return signedTransaction;
+      } else {
+        throw new Error(`Transaction signing failed: ${result.status}`);
+      }
     } catch (error) {
       this.logger.error("Failed to sign transaction", { error });
 
