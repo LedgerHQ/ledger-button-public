@@ -1,6 +1,6 @@
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
-import { css, html, LitElement } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import {
@@ -12,37 +12,17 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import { FollowInstructionsController } from "./follow-instructions-controller.js";
+import { Destinations } from "../../../shared/routes.js";
+import { LedgerSyncController } from "./ledger-sync-controller.js";
 
-const styles = css`
-  .container {
-    display: flex;
-    min-height: 200px;
-    padding: 0px 0px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    align-self: stretch;
-    gap: var(--spacing-24);
-  }
-
-  .text-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-8);
-    align-self: stretch;
-  }
-
-  .device-animation {
-    width: 200px;
-  }
-`;
-@customElement("follow-instructions-screen")
-@tailwindElement(styles)
-export class FollowInstructionsScreen extends LitElement {
+@customElement("ledger-sync-screen")
+@tailwindElement()
+export class LedgerSyncScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
+
+  @property({ type: Object })
+  destinations!: Destinations;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -52,14 +32,15 @@ export class FollowInstructionsScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  controller!: FollowInstructionsController;
+  controller!: LedgerSyncController;
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new FollowInstructionsController(
+    this.controller = new LedgerSyncController(
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
     );
   }
 
@@ -72,14 +53,16 @@ export class FollowInstructionsScreen extends LitElement {
     const lang = this.languages.currentTranslation;
 
     return html`
-      <div class="container gap-24">
-        <div class="device-animation">
+      <div
+        class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
+      >
+        <div class="w-208">
           <ledger-device-animation
             modelId=${device.modelId}
             animation="continueOnLedger"
           ></ledger-device-animation>
         </div>
-        <div class="text-container">
+        <div class="flex flex-col items-center gap-8 self-stretch">
           <p class="text-center body-1">
             ${lang.common.device.deviceActions.continueOnLedger.title}
             ${lang.common.device.model[device.modelId]}

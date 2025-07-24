@@ -1,23 +1,29 @@
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { Translation } from "../context/language-context.js";
 import { Navigation } from "./navigation.js";
-import { destinations } from "./routes.js";
+import { Destinations, makeDestinations } from "./routes.js";
 
 export class RootModalController implements ReactiveController {
   host: ReactiveControllerHost;
   core: LedgerButtonCore;
   navigation: Navigation;
-
   selectedAccount: unknown /* | null */;
   deviceSessionId: string | null = null;
   isModalOpen = false;
+  destinations: Destinations;
 
-  constructor(host: ReactiveControllerHost, core: LedgerButtonCore) {
+  constructor(
+    host: ReactiveControllerHost,
+    core: LedgerButtonCore,
+    translation: Translation,
+  ) {
     this.host = host;
     this.host.addController(this);
     this.core = core;
     this.navigation = new Navigation(host);
+    this.destinations = makeDestinations(translation);
   }
 
   hostConnected() {
@@ -29,7 +35,7 @@ export class RootModalController implements ReactiveController {
   }
 
   async computeInitialState() {
-    this.navigation.navigateTo(destinations.onboarding);
+    this.navigation.navigateTo(this.destinations.onboarding);
     // const accounts = await this.core.fetchAccounts();
     // if (accounts?.length === 0) {
     //   this.navigation.navigateTo(destinations.onboarding);

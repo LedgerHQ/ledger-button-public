@@ -111,7 +111,7 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   override render() {
     return html`
-      <div class="dark flex min-w-full flex-col overflow-hidden rounded-md">
+      <div class="flex min-w-full flex-col overflow-hidden rounded-md">
         <button
           class=${classMap(this.containerClasses)}
           @click=${this.handleAccountClick}

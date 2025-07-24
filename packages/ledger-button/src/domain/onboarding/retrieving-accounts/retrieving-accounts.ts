@@ -7,12 +7,16 @@ import { customElement, property } from "lit/decorators.js";
 
 import { coreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { Destinations } from "../../../shared/routes.js";
 import { RetrievingAccountsController } from "./retrieving-accounts-controller.js";
 
 @customElement("retrieving-accounts-screen")
 export class RetrievingAccountsScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
+
+  @property({ type: Object })
+  destinations!: Destinations;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -26,6 +30,7 @@ export class RetrievingAccountsScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
     );
   }
 

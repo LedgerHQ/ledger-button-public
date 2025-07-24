@@ -12,6 +12,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { Destinations } from "../../../shared/routes.js";
 import { SelectDeviceController } from "./select-device-controller.js";
 
 const styles = css`
@@ -42,6 +43,9 @@ export class SelectDeviceScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
+  @property({ type: Object })
+  destinations!: Destinations;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: LedgerButtonCore;
@@ -58,6 +62,7 @@ export class SelectDeviceScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
     );
     // @ts-expect-error - addEventListner is not typed
     this.addEventListener("connection-item-click", (e) => {
@@ -69,16 +74,20 @@ export class SelectDeviceScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="flex flex-col gap-12">
-        <ledger-connection-item
-          title=${lang.common.button.connectBluetooth}
-          connection-type="bluetooth"
-        ></ledger-connection-item>
-        <ledger-connection-item
-          title=${lang.common.button.connectUSB}
-          connection-type="usb"
-        ></ledger-connection-item>
-        <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
+      <div class="flex flex-col">
+        <div class="flex flex-col gap-12 p-24 pt-0">
+          <ledger-connection-item
+            title=${lang.common.button.connectBluetooth}
+            connection-type="bluetooth"
+          ></ledger-connection-item>
+          <ledger-connection-item
+            title=${lang.common.button.connectUSB}
+            connection-type="usb"
+          ></ledger-connection-item>
+        </div>
+        <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
+          <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
+        </div>
       </div>
     `;
   }

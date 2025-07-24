@@ -125,8 +125,6 @@ export class LedgerLottie extends LitElement {
       ? LOTTIE_ANIMATIONS[this.animationName]
       : this.animationData;
 
-    console.log("initializeAnimation", data);
-
     this.animation = lottie.loadAnimation({
       container: this.container,
       renderer: "svg",

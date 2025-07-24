@@ -8,7 +8,13 @@ const __dirname = join(fileURLToPath(import.meta.url), "..");
 /** @type {import('tailwindcss').Config} */
 export default {
   presets: [ledgerButtonPreset],
-  content: [join(__dirname, "src/**/*!(*.stories|*.spec).{ts,js,html}")],
+  content: [
+    join(__dirname, "src/**/*!(*.stories|*.spec).{ts,js,html}"),
+    join(
+      __dirname,
+      "../ledger-button/src/**/*!(*.stories|*.spec).{ts,js,html}",
+    ),
+  ],
   theme: {
     extend: {},
   },

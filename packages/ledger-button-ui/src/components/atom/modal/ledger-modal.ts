@@ -215,7 +215,7 @@ export class LedgerModal extends LitElement {
               aria-label=${this.title || ""}
             ></ledger-toolbar>
           </slot>
-          <div id="modal-content" class="p-24 pt-0 text-base">
+          <div id="modal-content" class="text-base">
             <slot></slot>
           </div>
         </div>

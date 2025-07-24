@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import plugin from "tailwindcss/plugin";
+import plugin from "tailwindcss/plugin.js";
 
 /**
  * Based on Ledger Live design tokens

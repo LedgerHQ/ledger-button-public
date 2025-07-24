@@ -9,7 +9,7 @@ import { tailwindElement } from "../../../tailwind-element.js";
 
 const connectionItemVariants = cva(
   [
-    "group dark flex items-center justify-between rounded-md",
+    "group flex items-center justify-between rounded-md",
     "min-w-full",
     "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
   ],

@@ -19,9 +19,8 @@ import { default as ContinueOnLedgerStaxDark } from "./stax/04_STAX_DARK_CONTINU
 import { default as SignTransactionStaxDark } from "./stax/05_STAX_DARK_SIGN_TRANSACTION.json";
 import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
 import { tailwindElement } from "../../../tailwind-element";
-import { default as loadingSpinner } from "../../atom/lottie/animations/loading-spinner.js";
 
-type AnimationKey =
+export type AnimationKey =
   | "pin"
   | "pairing"
   | "pairingSuccess"
@@ -97,7 +96,7 @@ export class LedgerDeviceAnimation extends LitElement {
 
     if (!animationData) {
       return html`
-        <div class="h-full flex items-center justify-center">
+        <div class="flex h-full items-center justify-center">
           <ledger-lottie
             animationName="loadingSpinner"
             .autoplay=${this.autoplay}
@@ -109,7 +108,7 @@ export class LedgerDeviceAnimation extends LitElement {
     }
 
     return html`
-      <div class="h-full flex items-center justify-center">
+      <div class="flex h-full items-center justify-center">
         <ledger-lottie
           .animationData=${animationData}
           .autoplay=${this.autoplay}

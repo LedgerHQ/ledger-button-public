@@ -131,7 +131,7 @@ export class LedgerChainItem extends LitElement {
 
   override render() {
     return html`
-      <div class="dark flex min-w-full flex-col overflow-hidden rounded-md">
+      <div class="flex min-w-full flex-col overflow-hidden rounded-md">
         ${this.isClickable
           ? html`
               <button

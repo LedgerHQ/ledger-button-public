@@ -8,8 +8,8 @@ import type { LedgerButtonAttributes } from "./ledger-button";
 const meta: Meta<LedgerButtonAttributes> = {
   title: "Component/Atom/Button",
   tags: ["autodocs"],
-  render: (args) =>
-    html`<ledger-button
+  render: (args) => html`
+    <ledger-button
       .label=${args.label || ""}
       .variant=${args.variant || "primary"}
       .size=${args.size || "medium"}
@@ -20,7 +20,8 @@ const meta: Meta<LedgerButtonAttributes> = {
       @ledger-button-click=${(e: CustomEvent) => {
         console.log("Button clicked:", e.detail);
       }}
-    ></ledger-button>`,
+    ></ledger-button>
+  `,
   argTypes: {
     label: {
       control: "text",
@@ -28,12 +29,12 @@ const meta: Meta<LedgerButtonAttributes> = {
     },
     variant: {
       control: "select",
-      options: ["primary", "secondary"],
+      options: ["primary", "secondary", "accent", "tertiary"],
       description: "The variant of the button",
     },
     size: {
       control: "select",
-      options: ["small", "medium", "large"],
+      options: ["small", "medium", "large", "icon"],
       description: "The size of the button",
     },
     disabled: {
@@ -80,6 +81,16 @@ export const PrimaryWithNoIcon: Story = {
 };
 
 export const Secondary: Story = {
+  args: {
+    label: "Secondary Action",
+    variant: "secondary",
+    size: "medium",
+    icon: true,
+    disabled: false,
+  },
+};
+
+export const SecondaryWithNoIcon: Story = {
   args: {
     label: "Secondary Action",
     variant: "secondary",
