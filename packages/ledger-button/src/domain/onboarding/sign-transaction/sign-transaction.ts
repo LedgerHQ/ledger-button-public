@@ -64,7 +64,7 @@ export class SignTransactionScreen extends LitElement {
   state: SignTransactionState = "signing";
 
   @property({ type: String })
-  deviceModel = "stax";
+  deviceModel = "flex";
 
   @property({ type: String })
   transactionId = "";
