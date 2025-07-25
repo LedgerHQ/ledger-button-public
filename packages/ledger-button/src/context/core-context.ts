@@ -1,4 +1,7 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  LedgerButtonCore,
+  TransactionData,
+} from "@ledgerhq/ledger-button-core";
 import { createContext, provide } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -15,6 +18,9 @@ export class CoreProvider extends LitElement {
   @property({ type: Boolean, attribute: "stub-device" })
   stubDevice = false;
 
+  @property({ type: Object })
+  transactionData?: TransactionData;
+
   @provide({ context: coreContext })
   @property({ attribute: false })
   public core!: CoreContext;
@@ -26,6 +32,10 @@ export class CoreProvider extends LitElement {
       stub: this.stub,
       stubDevice: this.stubDevice,
     });
+
+    if (this.transactionData) {
+      (this.core as any)._pendingTransactionData = this.transactionData;
+    }
   }
 
   override render() {

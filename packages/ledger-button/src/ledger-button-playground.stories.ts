@@ -19,7 +19,8 @@ const meta: Meta = {
     },
     transactionData: {
       control: { type: "object" },
-      description: "Transaction data for sign transaction demo",
+      description:
+        "Transaction data for sign transaction demo (shows full flow with device selection)",
     },
   },
 };

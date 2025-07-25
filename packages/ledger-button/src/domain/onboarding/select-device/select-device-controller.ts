@@ -1,4 +1,7 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  LedgerButtonCore,
+  TransactionData,
+} from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
@@ -28,7 +31,15 @@ export class SelectDeviceController implements ReactiveController {
   }) {
     try {
       await this.core.connectToDevice(detail.connectionType);
-      this.navigation.navigateTo(this.destinations.ledgerSync);
+
+      const pendingTransactionData = (this.core as any)
+        ._pendingTransactionData as TransactionData | undefined;
+
+      if (pendingTransactionData) {
+        this.navigation.navigateTo(this.destinations.signTransaction);
+      } else {
+        this.navigation.navigateTo(this.destinations.ledgerSync);
+      }
     } catch (error) {
       console.error("Failed to connect to device", error);
       // this.navigation.navigateTo(destinations.onboarding);

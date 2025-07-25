@@ -83,12 +83,17 @@ export class SignTransactionScreen extends LitElement {
       this.destinations,
     );
 
-    if (!this.transactionData) {
+    const transactionData =
+      this.transactionData || (this.coreContext as any)._pendingTransactionData;
+
+    if (!transactionData) {
       this.state = "error";
       this.requestUpdate();
       return;
     }
-    this.controller.startSigning(this.transactionData);
+
+    this.transactionData = transactionData;
+    this.controller.startSigning(transactionData);
   }
 
   private renderSigningState() {

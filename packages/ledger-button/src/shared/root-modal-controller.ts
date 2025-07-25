@@ -1,4 +1,7 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  LedgerButtonCore,
+  TransactionData,
+} from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Translation } from "../context/language-context.js";
@@ -13,6 +16,7 @@ export class RootModalController implements ReactiveController {
   deviceSessionId: string | null = null;
   isModalOpen = false;
   destinations: Destinations;
+  pendingTransactionData?: TransactionData;
 
   constructor(
     host: ReactiveControllerHost,
@@ -24,6 +28,7 @@ export class RootModalController implements ReactiveController {
     this.core = core;
     this.navigation = new Navigation(host);
     this.destinations = makeDestinations(translation);
+    this.pendingTransactionData = (core as any)._pendingTransactionData;
   }
 
   hostConnected() {
@@ -42,6 +47,12 @@ export class RootModalController implements ReactiveController {
     // } else {
     //   this.navigation.navigateTo(destinations.home);
     // }
+  }
+
+  checkForPendingTransaction() {
+    if (this.pendingTransactionData) {
+      this.navigation.navigateTo(this.destinations.signTransaction);
+    }
   }
 
   async openModal() {
