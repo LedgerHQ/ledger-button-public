@@ -1,4 +1,5 @@
 import "@ledgerhq/ledger-button-ui";
+import "../ledger-sync/ledger-sync";
 
 import {
   LedgerButtonCore,
@@ -100,30 +101,10 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div
-        class="flex min-h-0 flex-1 flex-col items-center justify-center p-16 text-center"
-      >
-        <div class="max-w-280 h-200 mb-24 w-full flex-shrink-0">
-          <ledger-device-animation
-            .modelId=${this.deviceModel}
-            animation="signTransaction"
-            .autoplay=${true}
-            .loop=${true}
-          ></ledger-device-animation>
-        </div>
-
-        <h2 class="text-xl font-semibold mb-12 text-white">
-          ${(lang as any).signTransaction?.continueOnDevice?.title ||
-          "Continue on your"}
-          ${(lang.common.device.model as any)[this.deviceModel] ||
-          this.deviceModel}
-        </h2>
-
-        <p class="max-w-280 text-sm text-white/60">
-          ${(lang as any).signTransaction?.continueOnDevice?.description ||
-          "Follow the instructions displayed on your Secure Touchscreen."}
-        </p>
-      </div>
+      <ledger-sync-screen
+        .navigation=${this.navigation}
+        .destinations=${this.destinations}
+      ></ledger-sync-screen>
     `;
   }
 
