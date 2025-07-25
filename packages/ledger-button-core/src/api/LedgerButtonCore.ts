@@ -1,7 +1,7 @@
 import { Container } from "inversify";
-import { FetchAccounts } from "src/internal/account/use-case/FetchAccounts.js";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
+import { AccountService } from "../internal/account/service/AccountService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   ConnectionType,
@@ -50,8 +50,15 @@ export class LedgerButtonCore {
   async fetchAccounts() {
     await this.init();
     return this.container
-      ?.get<FetchAccounts>(accountModuleTypes.FetchAccountsUseCase)
-      .execute();
+      ?.get<AccountService>(accountModuleTypes.AccountService)
+      .fetchAccounts();
+  }
+
+  async getAccounts() {
+    await this.init();
+    return this.container
+      ?.get<AccountService>(accountModuleTypes.AccountService)
+      .getAccounts();
   }
 
   async getConnectedDevice() {
