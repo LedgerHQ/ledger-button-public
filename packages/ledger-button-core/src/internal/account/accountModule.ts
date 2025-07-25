@@ -1,8 +1,8 @@
 import { ContainerModule } from "inversify";
 
+import { DefaultRemoteAccountDataSource } from "./datasource/DefaultRemoteAccountDataSource.js";
+import { StubRemoteAccountDataSource } from "./datasource/StubRemoteAccountDataSource.js";
 import { DefaultAccountService } from "./service/DefaultAccountService.js";
-import { StubDefaultAccountService } from "./service/StubDefaultAccountService.js";
-import { FetchAccounts } from "./use-case/FetchAccounts.js";
 import { ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
 
@@ -10,12 +10,16 @@ type AccountModuleOptions = Pick<ContainerOptions, "stub">;
 
 export function accountModuleFactory({ stub }: AccountModuleOptions) {
   return new ContainerModule(({ bind, rebind }) => {
-    bind(accountModuleTypes.AccountService).to(DefaultAccountService);
-    bind(accountModuleTypes.FetchAccountsUseCase).to(FetchAccounts);
+    bind(accountModuleTypes.AccountService)
+      .to(DefaultAccountService)
+      .inSingletonScope();
+    bind(accountModuleTypes.RemoteAccountDataSource).to(
+      DefaultRemoteAccountDataSource,
+    );
 
     if (stub) {
-      rebind(accountModuleTypes.AccountService).then((bind) =>
-        bind.to(StubDefaultAccountService),
+      rebind(accountModuleTypes.RemoteAccountDataSource).then((bind) =>
+        bind.to(StubRemoteAccountDataSource),
       );
     }
   });

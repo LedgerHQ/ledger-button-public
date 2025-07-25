@@ -35,8 +35,8 @@ export class LedgerSyncController implements ReactiveController {
     this.host.requestUpdate();
 
     // TODO: PLUG LKRP
-    // setTimeout(() => {
-    //   this.navigation.navigateTo(destinations.fetchAccounts);
-    // }, 3000);
+    setTimeout(() => {
+      this.navigation.navigateTo(this.destinations.fetchAccounts);
+    }, 3000);
   }
 }
