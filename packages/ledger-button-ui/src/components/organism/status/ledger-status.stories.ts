@@ -149,7 +149,6 @@ export const AllVariants: Story = {
           description="Operation completed successfully"
           primary-button-label="Continue"
           secondary-button-label="Details"
-          show-secondary-button
         ></ledger-status>
       </div>
       <div>
@@ -160,7 +159,6 @@ export const AllVariants: Story = {
           description="Something went wrong"
           primary-button-label="Retry"
           secondary-button-label="Cancel"
-          show-secondary-button
         ></ledger-status>
       </div>
     </div>

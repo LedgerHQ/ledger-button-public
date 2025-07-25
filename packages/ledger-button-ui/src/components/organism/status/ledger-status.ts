@@ -1,6 +1,5 @@
 import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
-import "../../molecule/toolbar/ledger-toolbar";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
@@ -81,19 +80,6 @@ export class LedgerStatus extends LitElement {
     return this.type === "success" ? "check" : "error";
   }
 
-  private handleToolbarClose() {
-    this.dispatchEvent(
-      new CustomEvent("status-close", {
-        bubbles: true,
-        composed: true,
-        detail: {
-          timestamp: Date.now(),
-          action: "toolbar-close",
-        },
-      }),
-    );
-  }
-
   private handlePrimaryAction() {
     this.dispatchEvent(
       new CustomEvent("status-action", {
@@ -125,10 +111,6 @@ export class LedgerStatus extends LitElement {
   override render() {
     return html`
       <div class=${classMap(this.containerClasses)}>
-        <ledger-toolbar
-          @toolbar-close=${this.handleToolbarClose}
-        ></ledger-toolbar>
-
         <div class="px-6 pb-6 text-center">
           <div class="mb-8 flex justify-center">
             <div
