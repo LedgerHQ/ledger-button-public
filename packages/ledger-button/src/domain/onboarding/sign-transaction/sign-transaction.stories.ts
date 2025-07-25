@@ -10,13 +10,18 @@ const meta: Meta = {
   render: (args) => html`
     <core-provider>
       <language-provider>
-        <div class="rounded-xl bg-black p-16" style="width: 400px">
-          <sign-transaction-screen
-            .state=${args.state}
-            .deviceModel=${args.deviceModel}
-            .transactionId=${args.transactionId}
-            .transactionData=${args.transactionData}
-          ></sign-transaction-screen>
+        <div
+          class="flex flex-col rounded-xl bg-black"
+          style="width: 400px; min-height: 400px; max-height: calc(100vh - 64px);"
+        >
+          <div class="flex-1 overflow-y-auto">
+            <sign-transaction-screen
+              .state=${args.state}
+              .deviceModel=${args.deviceModel}
+              .transactionId=${args.transactionId}
+              .transactionData=${args.transactionData}
+            ></sign-transaction-screen>
+          </div>
         </div>
       </language-provider>
     </core-provider>

@@ -101,9 +101,9 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="flex min-h-400 flex-col items-center justify-center p-24 text-center"
+        class="flex min-h-0 flex-1 flex-col items-center justify-center p-16 text-center"
       >
-        <div class="max-w-300 h-240 mb-32 w-full">
+        <div class="max-w-280 h-200 mb-24 w-full flex-shrink-0">
           <ledger-device-animation
             .modelId=${this.deviceModel}
             animation="signTransaction"
@@ -112,7 +112,7 @@ export class SignTransactionScreen extends LitElement {
           ></ledger-device-animation>
         </div>
 
-        <h2 class="text-xl font-semibold mb-16 text-white">
+        <h2 class="text-xl font-semibold mb-12 text-white">
           ${(lang as any).signTransaction?.continueOnDevice?.title ||
           "Continue on your"}
           ${(lang.common.device.model as any)[this.deviceModel] ||
@@ -131,7 +131,7 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="flex min-h-400 items-center justify-center p-24">
+      <div class="flex min-h-0 flex-1 items-center justify-center p-16">
         <ledger-status
           type="success"
           title=${(lang as any).signTransaction?.success?.title ||
@@ -151,7 +151,7 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="flex min-h-400 items-center justify-center p-24">
+      <div class="flex min-h-0 flex-1 items-center justify-center p-16">
         <ledger-status
           type="error"
           title=${(lang as any).signTransaction?.error?.title ||

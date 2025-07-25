@@ -40,7 +40,8 @@ const styles = css`
   .modal-container {
     width: min(calc(100% - 32px), 400px);
     height: auto;
-    max-height: min(calc(100vh - 64px), 550px);
+    max-height: calc(100vh - 64px);
+    min-height: 400px;
   }
 `;
 
@@ -75,7 +76,7 @@ export class LedgerModal extends LitElement {
     this.cleanupEventListeners();
   }
 
-  override updated(changedProperties: Map<string, unknown>) {
+  override updated(changedProperties: Map) {
     super.updated(changedProperties);
 
     if (changedProperties.has("isOpen")) {
@@ -203,7 +204,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-overlay"
       >
         <div
-          class="modal-container fixed inset-0 z-10 flex flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
+          class="modal-container fixed inset-0 z-10 flex flex-col self-center justify-self-center overflow-hidden rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
@@ -215,7 +216,7 @@ export class LedgerModal extends LitElement {
               aria-label=${this.title || ""}
             ></ledger-toolbar>
           </slot>
-          <div id="modal-content" class="text-base">
+          <div id="modal-content" class="flex-1 overflow-y-auto text-base">
             <slot></slot>
           </div>
         </div>
