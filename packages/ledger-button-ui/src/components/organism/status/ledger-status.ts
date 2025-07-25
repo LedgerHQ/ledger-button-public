@@ -140,24 +140,24 @@ export class LedgerStatus extends LitElement {
               `
             : ""}
 
-          <div class="space-y-3 mt-32">
+          <div class="gap-3 mt-32 flex flex-col">
             ${this.secondaryButtonLabel
               ? html`
-                  <ledger-button
-                    label=${this.secondaryButtonLabel}
-                    variant="secondary"
-                    size="large"
-                    class="w-full"
-                    @ledger-button-click=${this.handleSecondaryAction}
-                  ></ledger-button>
+                  <div class="mb-16">
+                    <ledger-button
+                      label=${this.secondaryButtonLabel}
+                      variant="secondary"
+                      size="full"
+                      @ledger-button-click=${this.handleSecondaryAction}
+                    ></ledger-button>
+                  </div>
                 `
               : ""}
 
             <ledger-button
               label=${this.primaryButtonLabel}
               variant="primary"
-              size="large"
-              class="w-full"
+              size="full"
               @ledger-button-click=${this.handlePrimaryAction}
             ></ledger-button>
           </div>

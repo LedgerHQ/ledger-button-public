@@ -98,8 +98,6 @@ export class SignTransactionScreen extends LitElement {
   }
 
   private renderSigningState() {
-    const lang = this.languageContext.currentTranslation;
-
     return html`
       <ledger-sync-screen
         .navigation=${this.navigation}

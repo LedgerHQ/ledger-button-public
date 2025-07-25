@@ -56,6 +56,7 @@ const buttonVariants = cva(
         small: ["px-16 py-8", "body-2-semi-bold"],
         medium: ["p-16"],
         large: ["px-32 py-16"],
+        full: ["w-full", "h-56"],
       },
     },
     defaultVariants: {
@@ -67,7 +68,7 @@ const buttonVariants = cva(
 
 const styles = css`
   :host {
-    display: inline-block;
+    display: block;
   }
 
   :host([disabled]) {
