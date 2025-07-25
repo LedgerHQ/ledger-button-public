@@ -12,6 +12,7 @@ import { Account, AccountService, CloudSyncData } from "./AccountService.js";
 export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
+  selectedAccount: Account | null = null;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -20,6 +21,19 @@ export class DefaultAccountService implements AccountService {
     private readonly remoteAccountDataSource: RemoteAccountDataSource,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
+  }
+
+  selectAccount(address: string): void {
+    const found = this.accounts.find(
+      (account) => account.freshAddress === address,
+    );
+    if (found) {
+      this.selectedAccount = found;
+    }
+  }
+
+  getSelectedAccount(): Account | null {
+    return this.selectedAccount;
   }
 
   private setAccounts(accounts: Either<AccountServiceError, Account[]>) {

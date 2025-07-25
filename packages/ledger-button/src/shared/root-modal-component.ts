@@ -22,6 +22,9 @@ export class RootModalComponent extends LitElement {
   @query("#ledger-modal")
   private ledgerModal!: LedgerModal;
 
+  @property({ type: Object })
+  public setLabel!: (label?: string) => void;
+
   rootModalController!: RootModalController;
 
   override connectedCallback() {
@@ -46,8 +49,17 @@ export class RootModalComponent extends LitElement {
     this.rootModalController.openModal();
   }
 
-  private modalClosedListener() {
+  closeModal() {
     this.rootModalController.closeModal();
+  }
+
+  selectAccount(address: string) {
+    this.rootModalController.selectAccount(address);
+    this.closeModal();
+  }
+
+  getSelectedAccount() {
+    return this.rootModalController.selectedAccount;
   }
 
   private handleToolbarClose() {
@@ -61,7 +73,14 @@ export class RootModalComponent extends LitElement {
     const tag = unsafeStatic(currentScreen?.component ?? "ledger-button-404");
 
     if (currentScreen) {
-      return staticHtml`<${tag} .destinations=${this.rootModalController.destinations} .navigation=${this.rootModalController.navigation}></${tag}>`;
+      return staticHtml`
+        <${tag}
+          .destinations=${this.rootModalController.destinations}
+          .navigation=${this.rootModalController.navigation}
+          .closeModal=${this.closeModal}
+          .setLabel=${this.setLabel}
+        ></${tag}>
+      `;
     }
 
     return html`<ledger-button-404 id="not-found"></ledger-button-404>`;
@@ -91,5 +110,11 @@ export class RootModalComponent extends LitElement {
         ${this.renderScreen()}
       </ledger-modal>
     `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "root-modal-component": RootModalComponent;
   }
 }

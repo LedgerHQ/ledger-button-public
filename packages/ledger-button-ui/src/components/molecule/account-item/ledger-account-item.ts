@@ -74,6 +74,24 @@ export class LedgerAccountItemMolecule extends LitElement {
     }
   }
 
+  private handleLinkClick() {
+    this.dispatchEvent(
+      new CustomEvent("account-item-show-tokens-click", {
+        bubbles: true,
+        composed: true,
+        detail: {
+          title: this.title,
+          address: this.address,
+          ticker: this.ticker,
+          ledgerId: this.ledgerId,
+          value: this.value,
+          linkLabel: this.linkLabel,
+          timestamp: Date.now(),
+        },
+      }),
+    );
+  }
+
   private formatAddress(address: string): string {
     if (!address || address.length <= 8) {
       return address;
@@ -126,12 +144,13 @@ export class LedgerAccountItemMolecule extends LitElement {
           ? html`
               <button
                 class="group flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
+                @click=${this.handleLinkClick}
               >
-                <span class="text-base body-3-semi-bold"
-                  >${this.linkLabel}</span
-                >
+                <div class="flex h-20 items-center text-base body-3-semi-bold">
+                  ${this.linkLabel}
+                </div>
                 <div
-                  class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
+                  class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
                 >
                   <ledger-icon type="chevron" size="small"></ledger-icon>
                 </div>

@@ -70,3 +70,9 @@ export class RetrievingAccountsScreen extends LitElement {
     `;
   }
 }
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "retrieving-accounts-screen": RetrievingAccountsScreen;
+  }
+}

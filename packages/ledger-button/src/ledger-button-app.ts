@@ -8,16 +8,27 @@ import { customElement, property, query } from "lit/decorators.js";
 
 import { langContext, LanguageContext } from "./context/language-context.js";
 import { RootModalComponent } from "./shared/root-modal-component.js";
+import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
 
 @customElement("ledger-button-app")
 @tailwindElement()
 export class LedgerButtonApp extends LitElement {
   @query("#navigation")
-  navigation!: RootModalComponent;
+  root!: RootModalComponent;
 
   @consume({ context: langContext })
   @property({ attribute: false })
   public languages!: LanguageContext;
+
+  controller!: LedgerButtonAppController;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    this.controller = new LedgerButtonAppController(
+      this,
+      this.languages.currentTranslation,
+    );
+  }
 
   // renderRoute() {
   //   const route = routes.find(
@@ -61,22 +72,23 @@ export class LedgerButtonApp extends LitElement {
   // }
 
   openModal() {
-    this.navigation.openModal();
+    this.root.openModal();
   }
 
   override render() {
-    const translation = this.languages.currentTranslation;
-
     return html`
       <div class="dark">
         <ledger-button
-          label=${translation.common.button.connect}
+          label=${this.controller.label}
           variant="secondary"
           size="large"
           icon
           @ledger-button-click=${this.openModal}
         ></ledger-button>
-        <root-modal-component id="navigation"></root-modal-component>
+        <root-modal-component
+          id="navigation"
+          .setLabel=${this.controller.setLabel}
+        ></root-modal-component>
       </div>
     `;
   }

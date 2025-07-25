@@ -35,7 +35,8 @@
       "title": "Retrieving accounts"
     },
     "selectAccount": {
-      "title": "Choose an account"
+      "title": "Choose an account",
+      "showTokens": "Show tokens"
     }
   }
 }

@@ -9,8 +9,6 @@ export class RootModalController implements ReactiveController {
   host: ReactiveControllerHost;
   core: LedgerButtonCore;
   navigation: Navigation;
-  selectedAccount: unknown /* | null */;
-  deviceSessionId: string | null = null;
   isModalOpen = false;
   destinations: Destinations;
 
@@ -60,6 +58,16 @@ export class RootModalController implements ReactiveController {
 
   async closeModal() {
     this.isModalOpen = false;
+    this.navigation.resetNavigation();
     this.host.requestUpdate();
+  }
+
+  selectAccount(address: string) {
+    this.core.selectAccount(address);
+    this.host.requestUpdate();
+  }
+
+  get selectedAccount() {
+    return this.core.getSelectedAccount();
   }
 }
