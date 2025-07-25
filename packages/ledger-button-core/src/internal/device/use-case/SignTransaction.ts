@@ -91,6 +91,16 @@ export class SignTransaction {
       const result = await lastValueFrom(observable);
 
       this.logger.info("Transaction signing completed", { result });
+
+      return {
+        hash: keccak256(tx),
+        signature: {
+          v: result.v,
+          r: result.r,
+          s: result.s,
+        },
+        rawTransaction: result.rawTransaction || "",
+      };
     } catch (error) {
       this.logger.error("Failed to sign transaction", { error });
 
