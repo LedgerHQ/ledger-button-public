@@ -132,7 +132,7 @@ export const makeDestinations = (translation: Translation) => {
       component: "retrieving-accounts-screen",
       canGoBack: false,
       toolbar: {
-        title: "Retrieving Accounts",
+        title: translation.onboarding.retrievingAccounts.title,
         showClose: false,
         showLogo: true,
       },
@@ -142,7 +142,7 @@ export const makeDestinations = (translation: Translation) => {
       component: "select-account-screen",
       canGoBack: false,
       toolbar: {
-        title: "Select Account",
+        title: translation.onboarding.selectAccount.title,
         showClose: true,
         showLogo: true,
       },

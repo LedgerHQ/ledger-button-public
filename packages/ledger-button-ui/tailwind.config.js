@@ -1,7 +1,8 @@
 import { join } from "path";
 import { fileURLToPath } from "url";
 
-import { ledgerButtonPreset } from "./src/tailwind-preset.ts";
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { ledgerButtonPreset } from "../../tailwind-workspace-preset.js";
 
 const __dirname = join(fileURLToPath(import.meta.url), "..");
 

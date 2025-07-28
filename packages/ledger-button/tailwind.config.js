@@ -1,6 +1,7 @@
 import { join } from "path";
 
-import { ledgerButtonPreset } from "./src/tailwind-preset";
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { ledgerButtonPreset } from "../../tailwind-workspace-preset.js";
 
 /** @type {import('tailwindcss').Config} */
 export default {

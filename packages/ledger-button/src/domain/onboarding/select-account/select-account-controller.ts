@@ -24,7 +24,8 @@ export class SelectAccountController implements ReactiveController {
   async getAccounts() {
     // TODO: For linter purpose only, remove this when done
     console.log(this.navigation);
-    const accounts = await this.core.fetchAccounts();
+
+    const accounts = await this.core.getAccounts();
     this.accounts = accounts ?? [];
     this.host.requestUpdate();
   }

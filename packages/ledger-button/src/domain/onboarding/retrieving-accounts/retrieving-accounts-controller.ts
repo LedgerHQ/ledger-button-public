@@ -23,9 +23,15 @@ export class RetrievingAccountsController implements ReactiveController {
 
   async fetchAccounts() {
     await this.core.fetchAccounts();
+    const accounts = await this.core.getAccounts();
     this.host.requestUpdate();
 
     setTimeout(() => {
+      if (!accounts || accounts.length === 0) {
+        this.navigation.navigateTo(this.destinations.onboarding);
+        return;
+      }
+
       this.navigation.navigateTo(this.destinations.selectAccount);
     }, 3000);
   }
