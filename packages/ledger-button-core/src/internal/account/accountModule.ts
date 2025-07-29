@@ -9,7 +9,7 @@ import { accountModuleTypes } from "./accountModuleTypes.js";
 type AccountModuleOptions = Pick<ContainerOptions, "stub">;
 
 export function accountModuleFactory({ stub }: AccountModuleOptions) {
-  return new ContainerModule(({ bind, rebind }) => {
+  return new ContainerModule(({ bind, rebindSync }) => {
     bind(accountModuleTypes.AccountService)
       .to(DefaultAccountService)
       .inSingletonScope();
@@ -18,8 +18,8 @@ export function accountModuleFactory({ stub }: AccountModuleOptions) {
     );
 
     if (stub) {
-      rebind(accountModuleTypes.RemoteAccountDataSource).then((bind) =>
-        bind.to(StubRemoteAccountDataSource),
+      rebindSync(accountModuleTypes.RemoteAccountDataSource).to(
+        StubRemoteAccountDataSource,
       );
     }
   });

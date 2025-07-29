@@ -5,7 +5,7 @@ import { html } from "lit";
 
 const meta: Meta = {
   title: "Demo/LedgerButtonPlayground",
-  render: () => html` <ledger-button-playground></ledger-button-playground> `,
+  render: () => html`<ledger-button-playground></ledger-button-playground>`,
 };
 
 export default meta;

@@ -25,8 +25,6 @@ export class LedgerModalStoryWrapper extends LitElement {
         <slot name="toolbar">
           <ledger-toolbar
             title=${this.title}
-            .showLogo=${this.showLogo}
-            .showClose=${this.showClose}
             aria-label=${this.title}
           ></ledger-toolbar>
         </slot>

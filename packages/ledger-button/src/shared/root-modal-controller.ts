@@ -9,8 +9,6 @@ export class RootModalController implements ReactiveController {
   host: ReactiveControllerHost;
   core: LedgerButtonCore;
   navigation: Navigation;
-  selectedAccount: unknown /* | null */;
-  deviceSessionId: string | null = null;
   isModalOpen = false;
   destinations: Destinations;
 
@@ -36,6 +34,7 @@ export class RootModalController implements ReactiveController {
 
   async computeInitialState() {
     this.navigation.navigateTo(this.destinations.onboarding);
+    this.host.requestUpdate();
     // const accounts = await this.core.fetchAccounts();
     // if (accounts?.length === 0) {
     //   this.navigation.navigateTo(destinations.onboarding);
@@ -44,11 +43,12 @@ export class RootModalController implements ReactiveController {
     // }
   }
 
-  async openModal() {
+  async handleModalOpen() {
     if (!this.currentScreen) {
       await this.computeInitialState();
     }
-    this.isModalOpen = true;
+
+    // this.isModalOpen = true;
     // const accounts = await this.core.fetchAccounts();
     // if (accounts?.length === 0) {
     //   this.navigation.navigateTo(destinations.onboarding);
@@ -58,8 +58,17 @@ export class RootModalController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  async closeModal() {
-    this.isModalOpen = false;
+  async handleModalClose() {
+    this.navigation.resetNavigation();
     this.host.requestUpdate();
+  }
+
+  selectAccount(address: string) {
+    this.core.selectAccount(address);
+    this.host.requestUpdate();
+  }
+
+  get selectedAccount() {
+    return this.core.getSelectedAccount();
   }
 }

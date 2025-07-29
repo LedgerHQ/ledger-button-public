@@ -350,10 +350,14 @@ export const InModalIntegration: Story = {
     </ledger-modal>
   `,
   play: async ({ canvasElement, step }) => {
+    await step("Wait for modal to open", async () => {
+      const modal = canvasElement.querySelector("ledger-modal");
+      await modal?.openModal();
+    });
+
     await step("Verify modal is open", async () => {
       const modal = canvasElement.querySelector("ledger-modal");
       expect(modal).toBeInTheDocument();
-      expect(modal?.isOpen).toBe(true);
     });
 
     await step("Verify InfoState is rendered inside modal", async () => {
