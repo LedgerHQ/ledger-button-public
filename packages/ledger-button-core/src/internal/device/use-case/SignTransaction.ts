@@ -17,11 +17,6 @@ export interface SignTransactionParams {
 
 export interface SignedTransaction {
   hash: string;
-  signature: {
-    v: number;
-    r: string;
-    s: string;
-  };
   rawTransaction: string;
 }
 
@@ -75,12 +70,7 @@ export class SignTransaction {
 
       return {
         hash: keccak256(tx),
-        signature: {
-          v: result?.output.v,
-          r: result?.output.r,
-          s: result?.output.s,
-        },
-        rawTransaction: rawTx,
+        rawTransaction,
       };
     } catch (error) {
       this.logger.error("Failed to sign transaction", { error });

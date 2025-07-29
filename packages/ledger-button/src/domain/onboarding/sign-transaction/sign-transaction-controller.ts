@@ -7,11 +7,16 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 
+interface SignTransactionHost extends ReactiveControllerHost {
+  state: string;
+  transactionId: string;
+}
+
 export class SignTransactionController implements ReactiveController {
-  host: ReactiveControllerHost;
+  host: SignTransactionHost;
 
   constructor(
-    host: ReactiveControllerHost,
+    host: SignTransactionHost,
     private readonly core: LedgerButtonCore,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,

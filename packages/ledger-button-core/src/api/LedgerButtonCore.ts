@@ -12,7 +12,7 @@ import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.j
 import {
   SignTransaction,
   SignTransactionParams,
-} from "../internal/device/use-case/SignTransactionOld.js";
+} from "../internal/device/use-case/SignTransaction.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";

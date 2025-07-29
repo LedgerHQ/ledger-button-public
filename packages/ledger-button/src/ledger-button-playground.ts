@@ -14,7 +14,7 @@ export class LedgerButtonPlayground extends LitElement {
   demoMode: "onboarding" | "signTransaction" = "onboarding";
 
   @property({ type: Object })
-  transactionData?: TransactionData;
+  transactionParams?: SignTransactionParams;
 
   private renderOnboardingDemo() {
     return html`
@@ -28,7 +28,7 @@ export class LedgerButtonPlayground extends LitElement {
 
   private renderSignTransactionDemo() {
     return html`
-      <core-provider .transactionData=${this.transactionData}>
+      <core-provider .transactionParams=${this.transactionParams}>
         <language-provider>
           <ledger-button-app></ledger-button-app>
         </language-provider>
