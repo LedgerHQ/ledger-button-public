@@ -1,6 +1,6 @@
 import {
   LedgerButtonCore,
-  TransactionData,
+  SignTransactionParams,
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
@@ -32,10 +32,10 @@ export class SelectDeviceController implements ReactiveController {
     try {
       await this.core.connectToDevice(detail.connectionType);
 
-      const pendingTransactionData = (this.core as any)
-        ._pendingTransactionData as TransactionData | undefined;
+      const pendingTransactionParams = (this.core as any)
+        ._pendingTransactionParams as SignTransactionParams | undefined;
 
-      if (pendingTransactionData) {
+      if (pendingTransactionParams) {
         this.navigation.navigateTo(this.destinations.signTransaction);
       } else {
         this.navigation.navigateTo(this.destinations.ledgerSync);

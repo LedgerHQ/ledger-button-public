@@ -1,6 +1,6 @@
 import {
   LedgerButtonCore,
-  TransactionData,
+  SignTransactionParams,
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
@@ -24,9 +24,9 @@ export class SignTransactionController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  async startSigning(transactionData: TransactionData) {
+  async startSigning(transactionParams: SignTransactionParams) {
     try {
-      const result = await this.core.signTransaction(transactionData);
+      const result = await this.core.signTransaction(transactionParams);
 
       this.host.state = "success";
       this.host.transactionId = result.hash;

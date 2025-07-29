@@ -4,7 +4,7 @@ import "./context/language-context.js";
 import "./ledger-button-app.js";
 import "./domain/onboarding/sign-transaction/sign-transaction.js";
 
-import { TransactionData } from "@ledgerhq/ledger-button-core";
+import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 

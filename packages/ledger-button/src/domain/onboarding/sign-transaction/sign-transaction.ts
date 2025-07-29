@@ -3,7 +3,7 @@ import "../ledger-sync/ledger-sync";
 
 import {
   LedgerButtonCore,
-  TransactionData,
+  SignTransactionParams,
 } from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
@@ -71,7 +71,7 @@ export class SignTransactionScreen extends LitElement {
   transactionId = "";
 
   @property({ type: Object })
-  transactionData?: TransactionData;
+  transactionParams?: SignTransactionParams;
 
   controller!: SignTransactionController;
 
@@ -84,17 +84,18 @@ export class SignTransactionScreen extends LitElement {
       this.destinations,
     );
 
-    const transactionData =
-      this.transactionData || (this.coreContext as any)._pendingTransactionData;
+    const transactionParams =
+      this.transactionParams ||
+      (this.coreContext as any)._pendingTransactionParams;
 
-    if (!transactionData) {
+    if (!transactionParams) {
       this.state = "error";
       this.requestUpdate();
       return;
     }
 
-    this.transactionData = transactionData;
-    this.controller.startSigning(transactionData);
+    this.transactionParams = transactionParams;
+    this.controller.startSigning(transactionParams);
   }
 
   private renderSigningState() {
@@ -174,12 +175,12 @@ export class SignTransactionScreen extends LitElement {
 
   private handleRetry() {
     this.state = "signing";
-    if (!this.transactionData) {
+    if (!this.transactionParams) {
       this.state = "error";
       this.requestUpdate();
       return;
     }
-    this.controller.startSigning(this.transactionData);
+    this.controller.startSigning(this.transactionParams);
   }
 
   override render() {

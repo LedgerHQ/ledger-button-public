@@ -1,6 +1,6 @@
 import {
   LedgerButtonCore,
-  TransactionData,
+  SignTransactionParams,
 } from "@ledgerhq/ledger-button-core";
 import { createContext, provide } from "@lit/context";
 import { html, LitElement } from "lit";
@@ -19,7 +19,7 @@ export class CoreProvider extends LitElement {
   stubDevice = false;
 
   @property({ type: Object })
-  transactionData?: TransactionData;
+  transactionParams?: SignTransactionParams;
 
   @provide({ context: coreContext })
   @property({ attribute: false })
@@ -33,8 +33,8 @@ export class CoreProvider extends LitElement {
       stubDevice: this.stubDevice,
     });
 
-    if (this.transactionData) {
-      (this.core as any)._pendingTransactionData = this.transactionData;
+    if (this.transactionParams) {
+      (this.core as any)._pendingTransactionParams = this.transactionParams;
     }
   }
 
