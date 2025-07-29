@@ -9,7 +9,7 @@ import { Destinations } from "../../../shared/routes.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
   state: string;
-  transactionId: string;
+  transactionId?: string;
 }
 
 export class SignTransactionController implements ReactiveController {
@@ -34,9 +34,9 @@ export class SignTransactionController implements ReactiveController {
       const result = await this.core.signTransaction(transactionParams);
 
       this.host.state = "success";
-      this.host.transactionId = result.hash;
+      this.host.transactionId = result?.hash;
       this.host.requestUpdate();
-    } catch (error) {
+    } catch {
       this.host.state = "error";
       this.host.requestUpdate();
     }
