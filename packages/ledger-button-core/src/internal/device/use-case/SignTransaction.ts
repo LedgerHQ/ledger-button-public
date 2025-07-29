@@ -4,7 +4,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
-import { originToken, defaultDerivationPath } from "../../config/config.js";
+import { defaultDerivationPath,originToken } from "../../config/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
