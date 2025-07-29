@@ -1,10 +1,14 @@
 import "@ledgerhq/ledger-button-ui";
 
 import { Account, LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
+import {
+  AccountItemClickEventDetail,
+  tailwindElement,
+} from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 
 import { coreContext } from "../../../context/core-context.js";
 import {
@@ -31,9 +35,6 @@ export class SelectAccountScreen extends LitElement {
   @property({ type: Boolean })
   shouldRefreshAccounts = false;
 
-  @property({ type: Object })
-  public setLabel!: (label?: string) => void;
-
   controller!: SelectAccountController;
 
   override connectedCallback() {
@@ -44,49 +45,20 @@ export class SelectAccountScreen extends LitElement {
       this.navigation,
       this.shouldRefreshAccounts,
     );
-    this.setupEventListeners();
   }
 
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeEventListeners();
-  }
-
-  private setupEventListeners() {
-    // @ts-expect-error - Why you no type
-    this.addEventListener("account-item-click", this.handleAccountItemClick);
-    // @ts-expect-error - Why you no type
-    this.addEventListener(
-      "account-item-show-tokens-click",
-      this.handleAccountItemShowTokensClick,
-    );
-  }
-
-  private removeEventListeners() {
-    // @ts-expect-error - Why you no type
-    this.removeEventListener("account-item-click", this.handleAccountItemClick);
-    // @ts-expect-error - Why you no type
-    this.removeEventListener(
-      "account-item-show-tokens-click",
-      this.handleAccountItemShowTokensClick,
-    );
-  }
-
-  private handleAccountItemClick = (
-    event: CustomEvent<{
-      title: string;
-      address: string;
-      ticker: string;
-      ledgerId: string;
-      value: string;
-      linkLabel: string;
-      timestamp: number;
-    }>,
-  ) => {
-    console.log("account-item-click", event.detail);
+  private handleAccountItemClick(
+    event: CustomEvent<AccountItemClickEventDetail>,
+  ) {
     this.controller.selectAccount(event.detail.address);
-    this.setLabel(event.detail.title);
-  };
+    this.dispatchEvent(
+      new CustomEvent<AccountItemClickEventDetail>("account-selected", {
+        bubbles: true,
+        composed: true,
+        detail: event.detail,
+      }),
+    );
+  }
 
   private handleAccountItemShowTokensClick = (event: CustomEvent<Account>) => {
     console.log("account-item-show-tokens-click", event);
@@ -115,6 +87,8 @@ export class SelectAccountScreen extends LitElement {
         .linkLabel=${translations.onboarding.selectAccount.showTokens}
         .ledgerId=${account.currencyId}
         .ticker=${this.getTicker(account.currencyId)}
+        @account-item-click=${this.handleAccountItemClick}
+        @account-item-show-tokens-click=${this.handleAccountItemShowTokensClick}
       ></ledger-account-item>
     `;
   };
@@ -122,7 +96,11 @@ export class SelectAccountScreen extends LitElement {
   override render() {
     return html`
       <div class="flex flex-col gap-12 px-24 pb-24">
-        ${this.controller.accounts.map(this.renderAccountItem)}
+        ${repeat(
+          this.controller.accounts,
+          (account) => account.freshAddress,
+          this.renderAccountItem,
+        )}
       </div>
     `;
   }
@@ -131,5 +109,9 @@ export class SelectAccountScreen extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "select-account-screen": SelectAccountScreen;
+  }
+
+  interface HTMLElementEventMap {
+    "account-selected": CustomEvent<AccountItemClickEventDetail>;
   }
 }

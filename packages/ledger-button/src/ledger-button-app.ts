@@ -1,7 +1,10 @@
 import "@ledgerhq/ledger-button-ui";
 import "./shared/root-modal-component.js";
 
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
+import {
+  type AccountItemClickEventDetail,
+  tailwindElement,
+} from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -28,6 +31,12 @@ export class LedgerButtonApp extends LitElement {
       this,
       this.languages.currentTranslation,
     );
+
+    this.addEventListener("account-selected", this.handleAccountSelected);
+  }
+
+  private handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
+    this.controller.setLabel(e.detail.title);
   }
 
   // renderRoute() {
@@ -85,10 +94,7 @@ export class LedgerButtonApp extends LitElement {
           icon
           @ledger-button-click=${this.openModal}
         ></ledger-button>
-        <root-modal-component
-          id="navigation"
-          .setLabel=${this.controller.setLabel}
-        ></root-modal-component>
+        <root-modal-component id="navigation"></root-modal-component>
       </div>
     `;
   }

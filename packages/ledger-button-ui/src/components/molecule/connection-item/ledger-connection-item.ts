@@ -31,6 +31,12 @@ const connectionItemVariants = cva(
   },
 );
 
+export type ConnectionItemClickEventDetail = {
+  title: string;
+  connectionType: "bluetooth" | "usb" | "";
+  timestamp: number;
+};
+
 export interface LedgerConnectionItemAttributes {
   title?: string;
   connectionType?: "bluetooth" | "usb";
@@ -65,7 +71,7 @@ export class LedgerConnectionItem extends LitElement {
     if (this.disabled || !this.clickable) return;
 
     this.dispatchEvent(
-      new CustomEvent("connection-item-click", {
+      new CustomEvent<ConnectionItemClickEventDetail>("connection-item-click", {
         bubbles: true,
         composed: true,
         detail: {
@@ -100,7 +106,7 @@ export class LedgerConnectionItem extends LitElement {
   private renderChevron() {
     return html`
       <div
-        class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
+        class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
       >
         <ledger-icon type="chevron" size="small"></ledger-icon>
       </div>

@@ -2,8 +2,8 @@
   "common": {
     "button": {
       "connect": "Connect a Ledger",
-      "connectUSB": "Connect with USB",
-      "connectBluetooth": "Connect with Bluetooth"
+      "usb": "Connect with USB",
+      "bluetooth": "Connect with Bluetooth"
     },
     "ad": {
       "buyALedger": "Buy a Ledger"

@@ -8,8 +8,6 @@ import { tailwindElement } from "../../../tailwind-element";
 
 export interface LedgerToolbarAttributes {
   title?: string;
-  showClose?: boolean;
-  showLogo?: boolean;
 }
 
 const styles = css`
@@ -26,12 +24,9 @@ export class LedgerToolbar extends LitElement {
 
   private handleClose = () => {
     this.dispatchEvent(
-      new CustomEvent("toolbar-close", {
+      new CustomEvent("ledger-toolbar-close", {
         bubbles: true,
         composed: true,
-        detail: {
-          timestamp: Date.now(),
-        },
       }),
     );
   };

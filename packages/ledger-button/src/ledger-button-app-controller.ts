@@ -19,9 +19,8 @@ export class LedgerButtonAppController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  setLabel = (label?: string) => {
-    console.log("setLabel", label);
+  setLabel(label?: string) {
     this.label = label ?? this.translation.common.button.connect;
     this.host.requestUpdate();
-  };
+  }
 }

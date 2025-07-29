@@ -21,11 +21,20 @@ export class SelectDeviceController implements ReactiveController {
     this.host.requestUpdate();
   }
 
+  async clickAdItem() {
+    console.log("clickAdItem");
+  }
+
   async connectToDevice(detail: {
     title: string;
-    connectionType: "bluetooth" | "usb";
+    connectionType: "bluetooth" | "usb" | "";
     timestamp: number;
   }) {
+    if (detail.connectionType === "") {
+      console.log("No connection type selected");
+      return;
+    }
+
     try {
       await this.core.connectToDevice(detail.connectionType);
       this.navigation.navigateTo(this.destinations.ledgerSync);

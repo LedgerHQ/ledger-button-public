@@ -22,9 +22,6 @@ export class RootModalComponent extends LitElement {
   @query("#ledger-modal")
   private ledgerModal!: LedgerModal;
 
-  @property({ type: Object })
-  public setLabel!: (label?: string) => void;
-
   rootModalController!: RootModalController;
 
   override connectedCallback() {
@@ -35,22 +32,22 @@ export class RootModalComponent extends LitElement {
       this.languageContext.currentTranslation,
     );
     this.rootModalController.computeInitialState();
-    // @ts-expect-error - not sure why addEventListener is not typed
-    this.addEventListener("modal-closed", this.modalClosedListener);
   }
 
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    // @ts-expect-error - not sure why removeEventListener is not typed
-    this.removeEventListener("modal-closed", this.modalClosedListener);
+  public openModal() {
+    this.ledgerModal.openModal();
   }
 
-  openModal() {
-    this.rootModalController.openModal();
+  public closeModal() {
+    this.ledgerModal.closeModal();
   }
 
-  closeModal() {
-    this.rootModalController.closeModal();
+  private handleModalOpen() {
+    this.rootModalController.handleModalOpen();
+  }
+
+  private handleModalClose() {
+    this.rootModalController.handleModalClose();
   }
 
   selectAccount(address: string) {
@@ -60,11 +57,6 @@ export class RootModalComponent extends LitElement {
 
   getSelectedAccount() {
     return this.rootModalController.selectedAccount;
-  }
-
-  private handleToolbarClose() {
-    this.ledgerModal.handleToolbarClose();
-    this.rootModalController.navigation.resetNavigation();
   }
 
   renderScreen() {
@@ -77,8 +69,6 @@ export class RootModalComponent extends LitElement {
         <${tag}
           .destinations=${this.rootModalController.destinations}
           .navigation=${this.rootModalController.navigation}
-          .closeModal=${this.closeModal}
-          .setLabel=${this.setLabel}
         ></${tag}>
       `;
     }
@@ -90,7 +80,8 @@ export class RootModalComponent extends LitElement {
     return html`
       <ledger-modal
         id="ledger-modal"
-        .isOpen=${this.rootModalController.isModalOpen}
+        @modal-opened=${this.handleModalOpen}
+        @modal-closed=${this.handleModalClose}
       >
         <div slot="toolbar">
           <ledger-toolbar
@@ -100,9 +91,9 @@ export class RootModalComponent extends LitElement {
               .showClose}
             .showLogo=${this.rootModalController.currentScreen?.toolbar
               .showLogo}
-            @toolbar-close=${this.handleToolbarClose}
             aria-label=${this.rootModalController.currentScreen?.toolbar
               .title ?? ""}
+            @ledger-toolbar-close=${this.closeModal}
           >
             <ledger-icon name="arrow-left"></ledger-icon>
           </ledger-toolbar>

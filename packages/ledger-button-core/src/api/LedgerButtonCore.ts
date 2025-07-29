@@ -17,13 +17,7 @@ export class LedgerButtonCore {
   private container!: Container;
 
   constructor(private readonly opts: ContainerOptions) {
-    this.init();
-  }
-
-  private async init() {
-    if (!this.container) {
-      this.container = createContainer(this.opts);
-    }
+    this.container = createContainer(this.opts);
   }
 
   async connectToDevice(type: ConnectionType) {

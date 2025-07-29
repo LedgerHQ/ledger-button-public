@@ -15,6 +15,8 @@ export class SelectAccountController implements ReactiveController {
     host: ReactiveControllerHost,
     private readonly core: LedgerButtonCore,
     private readonly navigation: Navigation,
+    // NOTE: Used for testing purposes only
+    // we should not fetch the accounts again on this screen
     private shouldRefreshAccounts = false,
   ) {
     this.host = host;
@@ -33,15 +35,15 @@ export class SelectAccountController implements ReactiveController {
   }
 
   async getAccounts() {
-    // TODO: For linter purpose only, remove this when done
-
     const accounts = await this.core.getAccounts();
     this.accounts = accounts ?? [];
     this.host.requestUpdate();
   }
 
   selectAccount(address: string) {
-    (this.navigation.host as RootModalComponent).selectAccount(address);
-    this.host.requestUpdate();
+    if (this.navigation.host instanceof RootModalComponent) {
+      this.navigation.host.selectAccount(address);
+      this.host.requestUpdate();
+    }
   }
 }

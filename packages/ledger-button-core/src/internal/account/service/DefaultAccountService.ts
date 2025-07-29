@@ -27,6 +27,7 @@ export class DefaultAccountService implements AccountService {
     const found = this.accounts.find(
       (account) => account.freshAddress === address,
     );
+
     if (found) {
       this.selectedAccount = found;
     }
@@ -37,10 +38,15 @@ export class DefaultAccountService implements AccountService {
   }
 
   private setAccounts(accounts: Either<AccountServiceError, Account[]>) {
-    if (accounts.isRight()) {
-      this.accounts = accounts.extract();
-      this.logger.debug("saving accounts", { accounts: this.accounts });
-    }
+    accounts
+      .ifRight((accounts) => {
+        this.accounts = accounts;
+        this.logger.debug("saving accounts", { accounts: this.accounts });
+      })
+      .ifLeft((error) => {
+        this.logger.error("error saving accounts", { error });
+        this.accounts = [];
+      });
   }
 
   async fetchAccounts(): Promise<Either<AccountServiceError, Account[]>> {
