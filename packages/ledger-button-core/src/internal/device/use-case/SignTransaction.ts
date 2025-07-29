@@ -26,14 +26,14 @@ export class SignTransaction {
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
-    loggerFactory: Factory,
+    loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
     this.logger = loggerFactory("[SignTransaction]");
   }
 
-  async execute(params: SignTransactionParams): Promise {
+  async execute(params: SignTransactionParams): Promise<SignedTransaction> {
     this.logger.info("Starting transaction signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
