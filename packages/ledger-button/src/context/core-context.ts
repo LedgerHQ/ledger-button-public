@@ -1,7 +1,4 @@
-import {
-  LedgerButtonCore,
-  SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
+import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { createContext, provide } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";

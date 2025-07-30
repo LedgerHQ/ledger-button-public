@@ -1,3 +1,4 @@
+import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
@@ -25,7 +26,7 @@ export class LedgerSyncScreen extends LitElement {
   destinations!: Destinations;
 
   @property({ type: Object })
-  pendingTransactionParams!: PendingTransactionParams;
+  pendingTransactionParams!: SignTransactionParams;
 
   @consume({ context: coreContext })
   @property({ attribute: false })

@@ -20,11 +20,6 @@ export interface SignedTransaction {
   rawTransaction: string;
 }
 
-enum SignTransactionStatus {
-  COMPLETED = "completed",
-  ERROR = "error",
-}
-
 @injectable()
 export class SignTransaction {
   private readonly logger: LoggerPublisher;
@@ -71,7 +66,7 @@ export class SignTransaction {
       const { observable } = ethSigner.signTransaction(derivationPath, tx);
       const result = await lastValueFrom(observable);
 
-      if (result.status === SignTransactionStatus.ERROR) {
+      if (result.status === "error") {
         throw Error("Transaction signing failed");
       }
 
