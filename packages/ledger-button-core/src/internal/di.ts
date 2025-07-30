@@ -8,7 +8,7 @@ import { networkModuleFactory } from "./network/networkModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
-export async function createContainer({
+export function createContainer({
   stub = false,
   stubDevice = false,
   supportedNetworks: _supportedNetworks = [],
@@ -17,7 +17,7 @@ export async function createContainer({
 }: ContainerOptions) {
   const container = new Container();
 
-  await container.load(
+  container.loadSync(
     loggerModuleFactory({ stub, loggerLevel }),
     accountModuleFactory({ stub }),
     deviceModuleFactory({ stub: stubDevice, dmkConfig }),

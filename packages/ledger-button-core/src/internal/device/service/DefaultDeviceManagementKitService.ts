@@ -84,7 +84,12 @@ export class DefaultDeviceManagementKitService
     }
 
     try {
-      const sessionId = await dmk.connect({ device });
+      const sessionId = await dmk.connect({
+        device,
+        sessionRefresherOptions: {
+          isRefresherDisabled: true,
+        },
+      });
       this._currentSessionId = sessionId;
       this._connectedDevice = mapConnectedDeviceToDevice(
         await dmk.getConnectedDevice({ sessionId }),

@@ -25,4 +25,6 @@ export interface AccountService {
     cloudSyncData: CloudSyncData,
   ): Either<AccountServiceError, Account[]>;
   getAccounts(): Account[];
+  selectAccount(address: string): void;
+  getSelectedAccount(): Account | null;
 }

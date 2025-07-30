@@ -18,56 +18,44 @@ import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
 
 export class LedgerButtonCore {
-  private container: Container | null = null;
+  private container!: Container;
 
   constructor(private readonly opts: ContainerOptions) {
-    this.init();
-  }
-
-  private async init() {
-    if (!this.container) {
-      this.container = await createContainer(this.opts);
-    }
+    this.container = createContainer(this.opts);
   }
 
   async connectToDevice(type: ConnectionType) {
-    await this.init();
     return this.container
-      ?.get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
+      .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
       .execute({ type });
   }
 
   async disconnectFromDevice() {
-    await this.init();
     return this.container
-      ?.get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+      .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();
   }
 
   async switchDevice(type: ConnectionType) {
-    await this.init();
     return this.container
-      ?.get<SwitchDevice>(deviceModuleTypes.SwitchDeviceUseCase)
+      .get<SwitchDevice>(deviceModuleTypes.SwitchDeviceUseCase)
       .execute({ type });
   }
 
   async fetchAccounts() {
-    await this.init();
     return this.container
-      ?.get<AccountService>(accountModuleTypes.AccountService)
+      .get<AccountService>(accountModuleTypes.AccountService)
       .fetchAccounts();
   }
 
-  async getAccounts() {
-    await this.init();
+  getAccounts() {
     return this.container
-      ?.get<AccountService>(accountModuleTypes.AccountService)
+      .get<AccountService>(accountModuleTypes.AccountService)
       .getAccounts();
   }
 
-  async getConnectedDevice() {
-    await this.init();
-    return this.container?.get<DeviceManagementKitService>(
+  getConnectedDevice() {
+    return this.container.get<DeviceManagementKitService>(
       deviceModuleTypes.DeviceManagementKitService,
     ).connectedDevice;
   }
@@ -77,5 +65,17 @@ export class LedgerButtonCore {
     return this.container
       ?.get<SignTransaction>(deviceModuleTypes.SignTransactionUseCase)
       .execute(params);
+  }
+
+  selectAccount(address: string) {
+    return this.container
+      .get<AccountService>(accountModuleTypes.AccountService)
+      .selectAccount(address);
+  }
+
+  getSelectedAccount() {
+    return this.container
+      .get<AccountService>(accountModuleTypes.AccountService)
+      .getSelectedAccount();
   }
 }

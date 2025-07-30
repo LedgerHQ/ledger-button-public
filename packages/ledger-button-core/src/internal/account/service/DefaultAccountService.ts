@@ -12,6 +12,7 @@ import { Account, AccountService, CloudSyncData } from "./AccountService.js";
 export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
+  selectedAccount: Account | null = null;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -22,11 +23,30 @@ export class DefaultAccountService implements AccountService {
     this.logger = this.loggerFactory("[Account Service]");
   }
 
-  private setAccounts(accounts: Either<AccountServiceError, Account[]>) {
-    if (accounts.isRight()) {
-      this.accounts = accounts.extract();
-      this.logger.debug("saving accounts", { accounts: this.accounts });
+  selectAccount(address: string): void {
+    const found = this.accounts.find(
+      (account) => account.freshAddress === address,
+    );
+
+    if (found) {
+      this.selectedAccount = found;
     }
+  }
+
+  getSelectedAccount(): Account | null {
+    return this.selectedAccount;
+  }
+
+  private setAccounts(accounts: Either<AccountServiceError, Account[]>) {
+    accounts
+      .ifRight((accounts) => {
+        this.accounts = accounts;
+        this.logger.debug("saving accounts", { accounts: this.accounts });
+      })
+      .ifLeft((error) => {
+        this.logger.error("error saving accounts", { error });
+        this.accounts = [];
+      });
   }
 
   async fetchAccounts(): Promise<Either<AccountServiceError, Account[]>> {

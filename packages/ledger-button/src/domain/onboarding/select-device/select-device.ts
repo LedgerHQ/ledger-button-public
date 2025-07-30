@@ -1,10 +1,14 @@
 import "@ledgerhq/ledger-button-ui";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
+import {
+  ConnectionItemClickEventDetail,
+  tailwindElement,
+} from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 
 import { coreContext } from "../../../context/core-context.js";
 import {
@@ -64,10 +68,6 @@ export class SelectDeviceScreen extends LitElement {
       this.navigation,
       this.destinations,
     );
-    // @ts-expect-error - addEventListner is not typed
-    this.addEventListener("connection-item-click", (e) => {
-      this.controller.connectToDevice(e.detail);
-    });
   }
 
   override render() {
@@ -76,17 +76,25 @@ export class SelectDeviceScreen extends LitElement {
     return html`
       <div class="flex flex-col">
         <div class="flex flex-col gap-12 p-24 pt-0">
-          <ledger-connection-item
-            title=${lang.common.button.connectBluetooth}
-            connection-type="bluetooth"
-          ></ledger-connection-item>
-          <ledger-connection-item
-            title=${lang.common.button.connectUSB}
-            connection-type="usb"
-          ></ledger-connection-item>
+          ${repeat(["bluetooth", "usb"] as const, (el) => {
+            return html`
+              <ledger-connection-item
+                title=${lang.common.button[el]}
+                connection-type=${el}
+                @connection-item-click=${(
+                  e: CustomEvent<ConnectionItemClickEventDetail>,
+                ) => {
+                  this.controller.connectToDevice(e.detail);
+                }}
+              ></ledger-connection-item>
+            `;
+          })}
         </div>
         <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
-          <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
+          <ledger-ad-item
+            title=${lang.common.ad.buyALedger}
+            @ad-item-click=${this.controller.clickAdItem}
+          ></ledger-ad-item>
         </div>
       </div>
     `;

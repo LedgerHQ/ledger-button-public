@@ -75,3 +75,9 @@ export class LedgerSyncScreen extends LitElement {
     `;
   }
 }
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "ledger-sync-screen": LedgerSyncScreen;
+  }
+}

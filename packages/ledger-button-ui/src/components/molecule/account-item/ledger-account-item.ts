@@ -13,6 +13,16 @@ const accountItemVariants = cva([
   "bg-muted transition duration-150 ease-in-out hover:bg-muted-hover",
 ]);
 
+export type AccountItemClickEventDetail = {
+  title: string;
+  address: string;
+  ticker: string;
+  ledgerId: string;
+  value: number;
+  linkLabel: string;
+  timestamp: number;
+};
+
 export interface LedgerAccountItemMoleculeAttributes {
   title: string;
   address: string;
@@ -51,7 +61,7 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   private handleAccountClick() {
     this.dispatchEvent(
-      new CustomEvent("account-item-click", {
+      new CustomEvent<AccountItemClickEventDetail>("account-item-click", {
         bubbles: true,
         composed: true,
         detail: {
@@ -72,6 +82,24 @@ export class LedgerAccountItemMolecule extends LitElement {
       event.preventDefault();
       this.handleAccountClick();
     }
+  }
+
+  private handleShowTokens() {
+    this.dispatchEvent(
+      new CustomEvent("account-item-show-tokens-click", {
+        bubbles: true,
+        composed: true,
+        detail: {
+          title: this.title,
+          address: this.address,
+          ticker: this.ticker,
+          ledgerId: this.ledgerId,
+          value: this.value,
+          linkLabel: this.linkLabel,
+          timestamp: Date.now(),
+        },
+      }),
+    );
   }
 
   private formatAddress(address: string): string {
@@ -126,12 +154,13 @@ export class LedgerAccountItemMolecule extends LitElement {
           ? html`
               <button
                 class="group flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
+                @click=${this.handleShowTokens}
               >
-                <span class="text-base body-3-semi-bold"
-                  >${this.linkLabel}</span
-                >
+                <div class="flex h-20 items-center text-base body-3-semi-bold">
+                  ${this.linkLabel}
+                </div>
                 <div
-                  class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
+                  class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
                 >
                   <ledger-icon type="chevron" size="small"></ledger-icon>
                 </div>
@@ -146,6 +175,11 @@ export class LedgerAccountItemMolecule extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "ledger-account-item": LedgerAccountItemMolecule;
+  }
+
+  interface HTMLElementEventMap {
+    "account-item-click": CustomEvent<AccountItemClickEventDetail>;
+    "account-item-show-tokens-click": CustomEvent<AccountItemClickEventDetail>;
   }
 }
 

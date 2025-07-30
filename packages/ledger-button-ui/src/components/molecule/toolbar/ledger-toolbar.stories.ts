@@ -122,7 +122,7 @@ export const TestToolbarInteractions: Story = {
       const toolbar = canvasElement.querySelector("ledger-toolbar");
       let closeEventFired = false;
 
-      toolbar?.addEventListener("toolbar-close", () => {
+      toolbar?.addEventListener("ledger-toolbar-close", () => {
         closeEventFired = true;
       });
 
