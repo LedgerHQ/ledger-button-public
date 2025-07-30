@@ -61,7 +61,6 @@ export class LedgerButtonCore {
   }
 
   async signTransaction(params: SignTransactionParams) {
-    await this.init();
     return this.container
       ?.get<SignTransaction>(deviceModuleTypes.SignTransactionUseCase)
       .execute(params);
