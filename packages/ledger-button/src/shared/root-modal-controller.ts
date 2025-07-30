@@ -42,7 +42,7 @@ export class RootModalController implements ReactiveController {
     this.host.requestUpdate();
 
     // TODO: Remove this once we have a proper way to handle pending transactions
-    this.checkForPendingTransaction();
+    this.forceDemoPendingTransaction();
 
     // const accounts = await this.core.fetchAccounts();
     // if (accounts?.length === 0) {
@@ -52,7 +52,7 @@ export class RootModalController implements ReactiveController {
     // }
   }
 
-  checkForPendingTransaction() {
+  forceDemoPendingTransaction() {
     const selectedAccount = this.core.getSelectedAccount();
 
     if (selectedAccount) {
