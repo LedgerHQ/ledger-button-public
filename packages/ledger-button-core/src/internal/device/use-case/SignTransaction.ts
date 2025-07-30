@@ -4,7 +4,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
-import { defaultDerivationPath,originToken } from "../../config/config.js";
+import { defaultDerivationPath, originToken } from "../../config/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
@@ -18,6 +18,11 @@ export interface SignTransactionParams {
 export interface SignedTransaction {
   hash: string;
   rawTransaction: string;
+}
+
+enum SignTransactionStatus {
+  COMPLETED = "completed",
+  ERROR = "error",
 }
 
 @injectable()
@@ -65,6 +70,10 @@ export class SignTransaction {
 
       const { observable } = ethSigner.signTransaction(derivationPath, tx);
       const result = await lastValueFrom(observable);
+
+      if (result.status === SignTransactionStatus.ERROR) {
+        throw Error("Transaction signing failed");
+      }
 
       this.logger.info("Transaction signing completed", { result });
 
