@@ -1,7 +1,4 @@
-import {
-  LedgerButtonCore,
-  SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
+import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
@@ -41,8 +38,7 @@ export class SelectDeviceController implements ReactiveController {
     try {
       await this.core.connectToDevice(detail.connectionType);
 
-      const pendingTransactionParams = (this.core as any)
-        ._pendingTransactionParams as SignTransactionParams | undefined;
+      const pendingTransactionParams = this.core.getPendingTransactionParams();
 
       if (pendingTransactionParams) {
         this.navigation.navigateTo(this.destinations.signTransaction);

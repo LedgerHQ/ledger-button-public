@@ -34,7 +34,7 @@ export class CoreProvider extends LitElement {
     });
 
     if (this.transactionParams) {
-      (this.core as any)._pendingTransactionParams = this.transactionParams;
+      this.core.setPendingTransactionParams(this.transactionParams);
     }
   }
 

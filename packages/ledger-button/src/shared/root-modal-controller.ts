@@ -26,7 +26,7 @@ export class RootModalController implements ReactiveController {
     this.core = core;
     this.navigation = new Navigation(host);
     this.destinations = makeDestinations(translation);
-    this.pendingTransactionParams = (core as any)._pendingTransactionParams;
+    this.pendingTransactionParams = core.getPendingTransactionParams();
   }
 
   hostConnected() {

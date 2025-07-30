@@ -85,8 +85,7 @@ export class SignTransactionScreen extends LitElement {
     );
 
     const transactionParams =
-      this.transactionParams ||
-      (this.coreContext as any)._pendingTransactionParams;
+      this.transactionParams || this.coreContext.getPendingTransactionParams();
 
     if (!transactionParams) {
       this.state = "error";
@@ -114,12 +113,11 @@ export class SignTransactionScreen extends LitElement {
       <div class="flex min-h-0 flex-1 items-center justify-center p-16">
         <ledger-status
           type="success"
-          title=${(lang as any).signTransaction?.success?.title ||
-          "Transaction signed"}
-          description=${(lang as any).signTransaction?.success?.description ||
+          title=${lang.signTransaction?.success?.title || "Transaction signed"}
+          description=${lang.signTransaction?.success?.description ||
           "You will receive the funds soon."}
-          primary-button-label=${(lang.common.button as any).close || "Close"}
-          secondary-button-label=${(lang as any).signTransaction?.success
+          primary-button-label=${lang.common.button.close || "Close"}
+          secondary-button-label=${lang.signTransaction?.success
             ?.viewTransaction || "View transaction details"}
           @status-action=${this.handleStatusAction}
         ></ledger-status>
@@ -134,13 +132,11 @@ export class SignTransactionScreen extends LitElement {
       <div class="flex min-h-0 flex-1 items-center justify-center p-16">
         <ledger-status
           type="error"
-          title=${(lang as any).signTransaction?.error?.title ||
-          "Transaction failed"}
-          description=${(lang as any).signTransaction?.error?.description ||
+          title=${lang.signTransaction?.error?.title || "Transaction failed"}
+          description=${lang.signTransaction?.error?.description ||
           "There was an error signing your transaction. Please try again."}
-          primary-button-label=${(lang.common.button as any).tryAgain ||
-          "Try Again"}
-          secondary-button-label=${(lang.common.button as any).close || "Close"}
+          primary-button-label=${lang.common.button.tryAgain || "Try Again"}
+          secondary-button-label=${lang.common.button.close || "Close"}
           @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>

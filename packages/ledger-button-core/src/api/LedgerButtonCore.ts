@@ -19,6 +19,7 @@ import { ContainerOptions } from "../internal/diTypes.js";
 
 export class LedgerButtonCore {
   private container!: Container;
+  private _pendingTransactionParams?: SignTransactionParams;
 
   constructor(private readonly opts: ContainerOptions) {
     this.container = createContainer(this.opts);
@@ -76,5 +77,13 @@ export class LedgerButtonCore {
     return this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .getSelectedAccount();
+  }
+
+  setPendingTransactionParams(params: SignTransactionParams | undefined) {
+    this._pendingTransactionParams = params;
+  }
+
+  getPendingTransactionParams(): SignTransactionParams | undefined {
+    return this._pendingTransactionParams;
   }
 }
