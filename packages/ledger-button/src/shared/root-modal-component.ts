@@ -87,10 +87,6 @@ export class RootModalComponent extends LitElement {
           <ledger-toolbar
             .title=${this.rootModalController.currentScreen?.toolbar.title ??
             ""}
-            .showClose=${this.rootModalController.currentScreen?.toolbar
-              .showClose}
-            .showLogo=${this.rootModalController.currentScreen?.toolbar
-              .showLogo}
             aria-label=${this.rootModalController.currentScreen?.toolbar
               .title ?? ""}
             @ledger-toolbar-close=${this.closeModal}

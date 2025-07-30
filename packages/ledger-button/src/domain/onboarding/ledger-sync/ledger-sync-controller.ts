@@ -40,6 +40,8 @@ export class LedgerSyncController implements ReactiveController {
     this.host.requestUpdate();
 
     if (this.pendingTransactionParams) {
+      this.navigation.navigateTo(this.destinations.signTransaction);
+      this.host.requestUpdate();
       return;
     }
 

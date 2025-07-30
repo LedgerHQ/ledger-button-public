@@ -16,9 +16,9 @@ const infoStateVariants = cva(
   {
     variants: {
       device: {
-        flex: "p-24",
-        nanox: "p-20",
-        stax: "p-28",
+        flex: "p-24 pt-0",
+        nanox: "p-20 pt-0",
+        stax: "p-28 pt-0",
       },
     },
     defaultVariants: {
@@ -27,7 +27,7 @@ const infoStateVariants = cva(
   },
 );
 
-const deviceIconVariants = cva("mb-32", {
+const deviceIconVariants = cva("", {
   variants: {
     device: {
       flex: "",
@@ -71,30 +71,33 @@ export class LedgerInfoState extends LitElement {
   override render() {
     return html`
       <div class="${infoStateVariants({ device: this.device })}">
-        <div
-          class="${deviceIconVariants({ device: this.device })}"
-          data-testid="device-icon"
-        >
-          ${this.renderDeviceIcon()}
+        <div class="flex flex-col items-center justify-center gap-32">
+          <div
+            class="${deviceIconVariants({ device: this.device })}"
+            data-testid="device-icon"
+          >
+            ${this.renderDeviceIcon()}
+          </div>
+          <div class="flex flex-col items-center justify-center gap-16">
+            <h4
+              class="font-semibold leading-tight font-inter text-base heading-4"
+              data-testid="title"
+            >
+              ${this.title}
+            </h4>
+
+            ${this.subtitle
+              ? html`
+                  <p
+                    class="font-normal leading-relaxed max-w-300 font-inter text-base opacity-60 body-1"
+                    data-testid="subtitle"
+                  >
+                    ${this.subtitle}
+                  </p>
+                `
+              : nothing}
+          </div>
         </div>
-
-        <h4
-          class="font-semibold leading-tight mb-16 font-inter text-base heading-4"
-          data-testid="title"
-        >
-          ${this.title}
-        </h4>
-
-        ${this.subtitle
-          ? html`
-              <p
-                class="font-normal leading-relaxed max-w-300 font-inter text-base opacity-60 body-1"
-                data-testid="subtitle"
-              >
-                ${this.subtitle}
-              </p>
-            `
-          : nothing}
       </div>
     `;
   }

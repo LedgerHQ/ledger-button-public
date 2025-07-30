@@ -26,7 +26,7 @@ export class LedgerSyncScreen extends LitElement {
   destinations!: Destinations;
 
   @property({ type: Object })
-  pendingTransactionParams!: SignTransactionParams;
+  pendingTransactionParams?: SignTransactionParams;
 
   @consume({ context: coreContext })
   @property({ attribute: false })

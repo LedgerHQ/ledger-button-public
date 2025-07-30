@@ -4,8 +4,9 @@ import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig(() => ({
+  assetsInclude: ["**/*.png", "**/*.svg", "**/*.jpg", "**/*.jpeg", "**/*.gif"],
   root: __dirname,
-  cacheDir: "../../node_modules/.vite/packages/ledger-button-2",
+  cacheDir: "../../node_modules/.vite/packages/ledger-button",
   plugins: [
     dts({
       entryRoot: "src",

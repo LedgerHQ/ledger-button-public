@@ -46,6 +46,7 @@ export class LedgerToolbar extends LitElement {
           : ""}
         <div class="flex h-32 w-32 cursor-pointer items-center justify-center">
           <ledger-button
+            data-testid="close-button"
             .icon=${true}
             variant="noBackground"
             iconType="close"

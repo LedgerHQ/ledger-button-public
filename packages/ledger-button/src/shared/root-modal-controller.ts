@@ -38,11 +38,8 @@ export class RootModalController implements ReactiveController {
   }
 
   async computeInitialState() {
-    this.navigation.navigateTo(this.destinations.onboarding);
+    const accounts = await this.core.getAccounts();
     this.host.requestUpdate();
-
-    // TODO: Remove this once we have a proper way to handle pending transactions
-    this.forceDemoPendingTransaction();
 
     // const accounts = await this.core.fetchAccounts();
     // if (accounts?.length === 0) {
@@ -50,6 +47,12 @@ export class RootModalController implements ReactiveController {
     // } else {
     //   this.navigation.navigateTo(destinations.home);
     // }
+    if (accounts?.length === 0) {
+      this.navigation.navigateTo(this.destinations.onboarding);
+    } else {
+      // TODO: Remove this once we have a proper way to handle pending transactions
+      this.forceDemoPendingTransaction();
+    }
   }
 
   forceDemoPendingTransaction() {
@@ -68,15 +71,10 @@ export class RootModalController implements ReactiveController {
   async handleModalOpen() {
     if (!this.currentScreen) {
       await this.computeInitialState();
+      return;
     }
 
-    // this.isModalOpen = true;
-    // const accounts = await this.core.fetchAccounts();
-    // if (accounts?.length === 0) {
-    //   this.navigation.navigateTo(destinations.onboarding);
-    // } else {
-    //   this.navigation.navigateTo(destinations.home);
-    // }
+    this.navigation.navigateTo(this.currentScreen);
     this.host.requestUpdate();
   }
 

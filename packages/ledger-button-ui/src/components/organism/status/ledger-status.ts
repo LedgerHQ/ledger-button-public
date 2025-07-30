@@ -111,46 +111,43 @@ export class LedgerStatus extends LitElement {
   override render() {
     return html`
       <div class=${classMap(this.containerClasses)}>
-        <div class="px-6 pb-6 text-center">
-          <div class="mb-8 flex justify-center">
-            <div
-              class=${classMap(this.statusIconClasses)}
-              role="img"
-              aria-label="${this.type === "success" ? "Success" : "Error"}"
-            >
-              <ledger-icon type=${this.iconType} size="large"></ledger-icon>
+        <div class="flex flex-col items-center gap-32">
+          <div class="flex flex-col items-center gap-24">
+            <div class="flex justify-center">
+              <div
+                class=${classMap(this.statusIconClasses)}
+                role="img"
+                aria-label="${this.type === "success" ? "Success" : "Error"}"
+              >
+                <ledger-icon type=${this.iconType} size="large"></ledger-icon>
+              </div>
+            </div>
+            <div class="flex flex-col items-center gap-8 text-center">
+              ${this.title
+                ? html`
+                    <h2 id="status-title" class="heading-4-semi-bold text-base">
+                      ${this.title}
+                    </h2>
+                  `
+                : ""}
+              ${this.description
+                ? html`
+                    <p id="status-description" class="text-muted body-2">
+                      ${this.description}
+                    </p>
+                  `
+                : ""}
             </div>
           </div>
-
-          ${this.title
-            ? html`
-                <h2
-                  id="status-title"
-                  class="heading-4-semi-bold mb-8 mt-24 text-base"
-                >
-                  ${this.title}
-                </h2>
-              `
-            : ""}
-          ${this.description
-            ? html`
-                <p id="status-description" class="text-muted body-2">
-                  ${this.description}
-                </p>
-              `
-            : ""}
-
-          <div class="gap-3 mt-32 flex flex-col">
+          <div class="flex flex-col gap-16 self-stretch">
             ${this.secondaryButtonLabel
               ? html`
-                  <div class="mb-16">
-                    <ledger-button
-                      label=${this.secondaryButtonLabel}
-                      variant="secondary"
-                      size="full"
-                      @ledger-button-click=${this.handleSecondaryAction}
-                    ></ledger-button>
-                  </div>
+                  <ledger-button
+                    label=${this.secondaryButtonLabel}
+                    variant="secondary"
+                    size="full"
+                    @ledger-button-click=${this.handleSecondaryAction}
+                  ></ledger-button>
                 `
               : ""}
 

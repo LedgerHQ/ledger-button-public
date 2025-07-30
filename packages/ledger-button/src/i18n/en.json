@@ -10,6 +10,8 @@
     "ad": {
       "buyALedger": "Buy a Ledger"
     },
+    "learnMore": "Learn more",
+    "turnOnLedgerSync": "Turn on Ledger Sync",
     "device": {
       "model": {
         "nanos": "Nano S",
@@ -39,6 +41,11 @@
     "selectAccount": {
       "title": "Choose an account",
       "showTokens": "Show tokens"
+    },
+    "turnOnSync": {
+      "title": "",
+      "subtitle": "Turn on Ledger Sync to continue",
+      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
     }
   },
   "signTransaction": {
