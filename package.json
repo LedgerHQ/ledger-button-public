@@ -117,9 +117,6 @@
     "tslib": "^2.3.0",
     "zone.js": "~0.14.0"
   },
-  "resolutions": {
-    "stylus": "0.64.0"
-  },
   "nx": {
     "includedScripts": [],
     "targets": {
