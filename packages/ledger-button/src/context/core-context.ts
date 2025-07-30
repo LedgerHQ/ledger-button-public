@@ -18,9 +18,6 @@ export class CoreProvider extends LitElement {
   @property({ type: Boolean, attribute: "stub-device" })
   stubDevice = false;
 
-  @property({ type: Object })
-  transactionParams?: SignTransactionParams;
-
   @provide({ context: coreContext })
   @property({ attribute: false })
   public core!: CoreContext;
@@ -32,10 +29,6 @@ export class CoreProvider extends LitElement {
       stub: this.stub,
       stubDevice: this.stubDevice,
     });
-
-    if (this.transactionParams) {
-      this.core.setPendingTransactionParams(this.transactionParams);
-    }
   }
 
   override render() {

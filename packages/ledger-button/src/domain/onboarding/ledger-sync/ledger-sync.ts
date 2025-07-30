@@ -24,6 +24,9 @@ export class LedgerSyncScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
+  @property({ type: Object })
+  pendingTransactionParams!: PendingTransactionParams;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: CoreContext;
@@ -41,6 +44,7 @@ export class LedgerSyncScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
+      this.pendingTransactionParams,
     );
   }
 

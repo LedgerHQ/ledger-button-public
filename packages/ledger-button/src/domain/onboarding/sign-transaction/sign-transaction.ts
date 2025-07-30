@@ -102,6 +102,7 @@ export class SignTransactionScreen extends LitElement {
       <ledger-sync-screen
         .navigation=${this.navigation}
         .destinations=${this.destinations}
+        .pendingTransactionParams=${this.transactionParams}
       ></ledger-sync-screen>
     `;
   }

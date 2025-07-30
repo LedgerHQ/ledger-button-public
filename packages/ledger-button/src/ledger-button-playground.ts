@@ -4,7 +4,6 @@ import "./context/language-context.js";
 import "./ledger-button-app.js";
 import "./domain/onboarding/sign-transaction/sign-transaction.js";
 
-import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -13,10 +12,7 @@ export class LedgerButtonPlayground extends LitElement {
   @property({ type: String })
   demoMode: "onboarding" | "signTransaction" = "onboarding";
 
-  @property({ type: Object })
-  transactionParams?: SignTransactionParams;
-
-  private renderOnboardingDemo() {
+  override render() {
     return html`
       <core-provider>
         <language-provider>
@@ -24,25 +20,5 @@ export class LedgerButtonPlayground extends LitElement {
         </language-provider>
       </core-provider>
     `;
-  }
-
-  private renderSignTransactionDemo() {
-    return html`
-      <core-provider .transactionParams=${this.transactionParams}>
-        <language-provider>
-          <ledger-button-app></ledger-button-app>
-        </language-provider>
-      </core-provider>
-    `;
-  }
-
-  override render() {
-    switch (this.demoMode) {
-      case "signTransaction":
-        return this.renderSignTransactionDemo();
-      case "onboarding":
-      default:
-        return this.renderOnboardingDemo();
-    }
   }
 }
