@@ -1,4 +1,8 @@
-import { Device, LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  Device,
+  LedgerButtonCore,
+  SignTransactionParams,
+} from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
@@ -13,6 +17,7 @@ export class LedgerSyncController implements ReactiveController {
     private readonly core: LedgerButtonCore,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
+    private readonly pendingTransactionParams?: SignTransactionParams,
   ) {
     this.host = host;
     this.host.addController(this);
@@ -33,6 +38,10 @@ export class LedgerSyncController implements ReactiveController {
 
     this.device = device;
     this.host.requestUpdate();
+
+    if (this.pendingTransactionParams) {
+      return;
+    }
 
     // TODO: PLUG LKRP
     setTimeout(() => {

@@ -9,12 +9,17 @@ import {
 } from "../internal/device/service/DeviceManagementKitService.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
+import {
+  SignTransaction,
+  SignTransactionParams,
+} from "../internal/device/use-case/SignTransaction.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
 
 export class LedgerButtonCore {
   private container!: Container;
+  private _pendingTransactionParams?: SignTransactionParams;
 
   constructor(private readonly opts: ContainerOptions) {
     this.container = createContainer(this.opts);
@@ -56,6 +61,12 @@ export class LedgerButtonCore {
     ).connectedDevice;
   }
 
+  async signTransaction(params: SignTransactionParams) {
+    return this.container
+      ?.get<SignTransaction>(deviceModuleTypes.SignTransactionUseCase)
+      .execute(params);
+  }
+
   selectAccount(address: string) {
     return this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -66,5 +77,13 @@ export class LedgerButtonCore {
     return this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .getSelectedAccount();
+  }
+
+  setPendingTransactionParams(params: SignTransactionParams | undefined) {
+    this._pendingTransactionParams = params;
+  }
+
+  getPendingTransactionParams(): SignTransactionParams | undefined {
+    return this._pendingTransactionParams;
   }
 }

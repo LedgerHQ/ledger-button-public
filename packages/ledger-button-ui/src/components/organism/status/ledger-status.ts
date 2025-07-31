@@ -1,6 +1,5 @@
 import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
-import "../../molecule/toolbar/ledger-toolbar";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
@@ -81,19 +80,6 @@ export class LedgerStatus extends LitElement {
     return this.type === "success" ? "check" : "error";
   }
 
-  private handleToolbarClose() {
-    this.dispatchEvent(
-      new CustomEvent("status-close", {
-        bubbles: true,
-        composed: true,
-        detail: {
-          timestamp: Date.now(),
-          action: "toolbar-close",
-        },
-      }),
-    );
-  }
-
   private handlePrimaryAction() {
     this.dispatchEvent(
       new CustomEvent("status-action", {
@@ -125,10 +111,6 @@ export class LedgerStatus extends LitElement {
   override render() {
     return html`
       <div class=${classMap(this.containerClasses)}>
-        <ledger-toolbar
-          @toolbar-close=${this.handleToolbarClose}
-        ></ledger-toolbar>
-
         <div class="px-6 pb-6 text-center">
           <div class="mb-8 flex justify-center">
             <div
@@ -158,24 +140,24 @@ export class LedgerStatus extends LitElement {
               `
             : ""}
 
-          <div class="space-y-3 mt-32">
+          <div class="gap-3 mt-32 flex flex-col">
             ${this.secondaryButtonLabel
               ? html`
-                  <ledger-button
-                    label=${this.secondaryButtonLabel}
-                    variant="secondary"
-                    size="large"
-                    class="w-full"
-                    @ledger-button-click=${this.handleSecondaryAction}
-                  ></ledger-button>
+                  <div class="mb-16">
+                    <ledger-button
+                      label=${this.secondaryButtonLabel}
+                      variant="secondary"
+                      size="full"
+                      @ledger-button-click=${this.handleSecondaryAction}
+                    ></ledger-button>
+                  </div>
                 `
               : ""}
 
             <ledger-button
               label=${this.primaryButtonLabel}
               variant="primary"
-              size="large"
-              class="w-full"
+              size="full"
               @ledger-button-click=${this.handlePrimaryAction}
             ></ledger-button>
           </div>

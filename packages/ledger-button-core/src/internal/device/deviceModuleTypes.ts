@@ -4,4 +4,5 @@ export const deviceModuleTypes = {
   ConnectDeviceUseCase: Symbol.for("ConnectDeviceUseCase"),
   DisconnectDeviceUseCase: Symbol.for("DisconnectDeviceUseCase"),
   SwitchDeviceUseCase: Symbol.for("SwitchDeviceUseCase"),
+  SignTransactionUseCase: Symbol.for("SignTransactionUseCase"),
 };

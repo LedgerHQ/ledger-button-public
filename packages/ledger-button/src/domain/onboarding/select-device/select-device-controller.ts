@@ -37,7 +37,14 @@ export class SelectDeviceController implements ReactiveController {
 
     try {
       await this.core.connectToDevice(detail.connectionType);
-      this.navigation.navigateTo(this.destinations.ledgerSync);
+
+      const pendingTransactionParams = this.core.getPendingTransactionParams();
+
+      if (pendingTransactionParams) {
+        this.navigation.navigateTo(this.destinations.signTransaction);
+      } else {
+        this.navigation.navigateTo(this.destinations.ledgerSync);
+      }
     } catch (error) {
       console.error("Failed to connect to device", error);
       // this.navigation.navigateTo(destinations.onboarding);
