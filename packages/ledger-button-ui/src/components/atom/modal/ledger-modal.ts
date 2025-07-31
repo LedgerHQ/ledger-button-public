@@ -153,7 +153,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-backdrop"
       >
         <div
-          class="modal-container fixed inset-0 z-10 flex flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
+          class="modal-container fixed inset-0 z-10 flex flex-col self-center justify-self-center rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
@@ -164,7 +164,7 @@ export class LedgerModal extends LitElement {
               @ledger-toolbar-close=${this.closeModal}
             ></ledger-toolbar>
           </slot>
-          <div id="modal-content" class="text-base">
+          <div id="modal-content" class="overflow-y-auto text-base">
             <slot>hello</slot>
           </div>
         </div>

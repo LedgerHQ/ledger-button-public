@@ -9,7 +9,7 @@ import { tailwindElement } from "../../../tailwind-element";
 import { LedgerIconAttributes } from "../icon/ledger-icon";
 
 export type ButtonVariant = "primary" | "secondary" | "accent" | "noBackground";
-export type ButtonSize = "small" | "medium" | "large" | "xs";
+export type ButtonSize = "small" | "medium" | "large" | "xs" | "full";
 export type IconPosition = "left" | "right";
 
 export interface LedgerButtonAttributes {

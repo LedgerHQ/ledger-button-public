@@ -12,7 +12,11 @@
     "useDefineForClassFields": false,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
   },
-  "include": ["src/**/*.ts", "src/tailwind-preset.ts", "src/i18n/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/tailwind-preset.ts",
+    "src/i18n/**/*.json"
+  ],
   "references": [
     {
       "path": "../ledger-button-ui/tsconfig.lib.json"

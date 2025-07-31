@@ -1,28 +1,24 @@
 import "./sign-transaction";
 import "../../../context/core-context.js";
 import "../../../context/language-context.js";
+import "@ledgerhq/ledger-button-ui";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
 const meta: Meta = {
-  title: "Screens/Onboarding/SignTransactionScreen",
+  title: "Screens/SignTransaction/SignTransactionScreen",
   render: (args) => html`
     <core-provider>
       <language-provider>
-        <div
-          class="flex flex-col rounded-xl bg-black"
-          style="width: 400px; min-height: 400px; max-height: calc(100vh - 64px);"
-        >
-          <div class="flex-1 overflow-y-auto">
-            <sign-transaction-screen
-              .state=${args.state}
-              .deviceModel=${args.deviceModel}
-              .transactionId=${args.transactionId}
-              .transactionParams=${args.transactionParams}
-            ></sign-transaction-screen>
-          </div>
-        </div>
+        <ledger-modal-story-wrapper>
+          <sign-transaction-screen
+            .state=${args.state}
+            .deviceModel=${args.deviceModel}
+            .transactionId=${args.transactionId}
+            .transactionParams=${args.transactionParams}
+          ></sign-transaction-screen>
+        </ledger-modal-story-wrapper>
       </language-provider>
     </core-provider>
   `,
@@ -30,10 +26,6 @@ const meta: Meta = {
     state: {
       control: { type: "select" },
       options: ["signing", "success", "error"],
-    },
-    deviceModel: {
-      control: { type: "select" },
-      options: ["stax", "flex", "nanox", "nanos", "nanosp"],
     },
     transactionId: {
       control: { type: "text" },

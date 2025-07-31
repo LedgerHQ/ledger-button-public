@@ -65,9 +65,6 @@ export class SignTransactionScreen extends LitElement {
   state: SignTransactionState = "signing";
 
   @property({ type: String })
-  deviceModel = "flex";
-
-  @property({ type: String })
   transactionId = "";
 
   @property({ type: Object })
@@ -111,7 +108,9 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="flex min-h-0 flex-1 items-center justify-center p-16">
+      <div
+        class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
+      >
         <ledger-status
           type="success"
           title=${lang.signTransaction?.success?.title || "Transaction signed"}
@@ -130,7 +129,9 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="flex min-h-0 flex-1 items-center justify-center p-16">
+      <div
+        class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
+      >
         <ledger-status
           type="error"
           title=${lang.signTransaction?.error?.title || "Transaction failed"}

@@ -113,8 +113,6 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "Home",
-        showClose: true,
-        showLogo: true,
       },
     },
     ledgerSync: {
@@ -123,8 +121,14 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.onboarding.ledgerSync.title,
-        showClose: true,
-        showLogo: true,
+      },
+    },
+    turnOnSync: {
+      name: "turn-on-sync",
+      component: "turn-on-sync-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.onboarding.turnOnSync.title,
       },
     },
     fetchAccounts: {
@@ -143,8 +147,6 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectAccount.title,
-        showClose: true,
-        showLogo: true,
       },
     },
     onboarding: {
@@ -153,8 +155,6 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectDevice.title,
-        showClose: true,
-        showLogo: true,
       },
     },
     signTransaction: {
@@ -162,9 +162,7 @@ export const makeDestinations = (translation: Translation) => {
       component: "sign-transaction-screen",
       canGoBack: true,
       toolbar: {
-        title: "Sign Transaction",
-        showClose: true,
-        showLogo: true,
+        title: "",
       },
     },
     notFound: {
@@ -173,8 +171,6 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "404",
-        showClose: true,
-        showLogo: true,
       },
     },
   } as const;
