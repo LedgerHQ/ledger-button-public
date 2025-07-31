@@ -10,13 +10,13 @@ import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
+} from "../../context/language-context.js";
+import { Navigation } from "../../shared/navigation.js";
+import { Destinations } from "../../shared/routes.js";
 import { SignTransactionController } from "./sign-transaction-controller.js";
 
 export type SignTransactionState = "signing" | "success" | "error";

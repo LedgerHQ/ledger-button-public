@@ -2,6 +2,7 @@ import "./styles.css";
 export * from "./components/atom/button/ledger-button.js";
 export * from "./components/atom/chip/ledger-chip.js";
 export * from "./components/atom/crypto-icon/ledger-crypto-icon.js";
+export * from "./components/atom/icon/device-icon/device-icon.js";
 export * from "./components/atom/icon/ledger-icon.js";
 export * from "./components/atom/lottie/ledger-lottie.js";
 export * from "./components/atom/modal/ledger-modal.js";

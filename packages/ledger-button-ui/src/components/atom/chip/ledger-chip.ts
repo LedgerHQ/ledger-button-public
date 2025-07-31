@@ -1,4 +1,5 @@
 import "../icon/ledger-icon";
+import "../icon/device-icon/device-icon.js";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
@@ -6,6 +7,7 @@ import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element";
+import { DeviceModelId } from "../icon/device-icon/device-icon.js";
 
 export interface LedgerChipAttributes {
   label?: string;
@@ -19,11 +21,6 @@ const chipContainerVariants = cva([
 
 const chipLabelVariants = cva(["text-on-interactive body-2"]);
 
-const chipIconContainerVariants = cva([
-  "flex h-24 w-24 items-center justify-center rounded-full p-12",
-  "bg-muted-strong-pressed",
-]);
-
 const chipChevronVariants = cva(["rotate-90"]);
 
 @customElement("ledger-chip")
@@ -33,7 +30,7 @@ export class LedgerChip extends LitElement {
   label = "";
 
   @property({ type: String })
-  icon = "device";
+  deviceModelId: DeviceModelId = "flex";
 
   private get chipContainerClasses() {
     return {
@@ -47,12 +44,6 @@ export class LedgerChip extends LitElement {
     };
   }
 
-  private get chipIconContainerClasses() {
-    return {
-      [chipIconContainerVariants()]: true,
-    };
-  }
-
   private get chipChevronClasses() {
     return {
       [chipChevronVariants()]: true,
@@ -60,11 +51,7 @@ export class LedgerChip extends LitElement {
   }
 
   private renderIcon() {
-    return html`
-      <div class=${classMap(this.chipIconContainerClasses)}>
-        <ledger-icon type=${this.icon} size="medium"></ledger-icon>
-      </div>
-    `;
+    return html` <device-icon .modelId=${this.deviceModelId}></device-icon> `;
   }
 
   private renderChevron() {
@@ -98,7 +85,7 @@ export class LedgerChip extends LitElement {
         detail: {
           timestamp: Date.now(),
           label: this.label,
-          icon: this.icon,
+          deviceModelId: this.deviceModelId,
         },
       }),
     );
@@ -115,6 +102,14 @@ export class LedgerChip extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "ledger-chip": LedgerChip;
+  }
+
+  interface CustomEventMap {
+    "ledger-chip-click": CustomEvent<{
+      timestamp: number;
+      label: string;
+      deviceModelId: DeviceModelId;
+    }>;
   }
 }
 

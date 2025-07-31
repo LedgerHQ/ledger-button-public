@@ -2,7 +2,7 @@ import "../domain/onboarding/select-device/select-device.js";
 import "../domain/onboarding/ledger-sync/ledger-sync.js";
 import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
 import "../domain/onboarding/select-account/select-account.js";
-import "../domain/onboarding/sign-transaction/sign-transaction.js";
+import "../domain/sign-transaction/sign-transaction.js";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
@@ -113,6 +113,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "Home",
+        showCloseButton: true,
       },
     },
     ledgerSync: {
@@ -121,6 +122,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.onboarding.ledgerSync.title,
+        showCloseButton: false,
       },
     },
     turnOnSync: {
@@ -129,6 +131,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.onboarding.turnOnSync.title,
+        showCloseButton: true,
       },
     },
     fetchAccounts: {
@@ -137,8 +140,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.retrievingAccounts.title,
-        showClose: false,
-        showLogo: true,
+        showCloseButton: false,
       },
     },
     selectAccount: {
@@ -147,6 +149,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectAccount.title,
+        showCloseButton: true,
       },
     },
     onboarding: {
@@ -155,6 +158,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectDevice.title,
+        showCloseButton: true,
       },
     },
     signTransaction: {
@@ -163,6 +167,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: "",
+        showCloseButton: false,
       },
     },
     notFound: {
@@ -171,6 +176,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "404",
+        showCloseButton: true,
       },
     },
   } as const;

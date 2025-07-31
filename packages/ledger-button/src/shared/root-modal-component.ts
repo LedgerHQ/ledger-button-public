@@ -3,6 +3,7 @@ import { LedgerModal } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
 import { coreContext } from "../context/core-context.js";
@@ -85,13 +86,16 @@ export class RootModalComponent extends LitElement {
       >
         <div slot="toolbar">
           <ledger-toolbar
-            .title=${this.rootModalController.currentScreen?.toolbar.title ??
-            ""}
-            aria-label=${this.rootModalController.currentScreen?.toolbar
-              .title ?? ""}
+            title=${ifDefined(
+              this.rootModalController.currentScreen?.toolbar.title,
+            )}
+            aria-label=${ifDefined(
+              this.rootModalController.currentScreen?.toolbar.title,
+            )}
+            .showCloseButton=${this.rootModalController.currentScreen?.toolbar
+              .showCloseButton}
             @ledger-toolbar-close=${this.closeModal}
           >
-            <ledger-icon name="arrow-left"></ledger-icon>
           </ledger-toolbar>
         </div>
         ${this.renderScreen()}

@@ -4,8 +4,8 @@ import {
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
+import { Navigation } from "../../shared/navigation.js";
+import { Destinations } from "../../shared/routes.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
   state: string;
