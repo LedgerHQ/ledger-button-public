@@ -6,7 +6,8 @@ import {
   BluetoothIcon,
   CartIcon,
   CheckIcon,
-  ChevronIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
   CloseIcon,
   DeviceIcon,
   ErrorIcon,
@@ -20,7 +21,8 @@ export interface LedgerIconAttributes {
     | "close"
     | "bluetooth"
     | "usb"
-    | "chevron"
+    | "chevronRight"
+    | "chevronDown"
     | "check"
     | "error"
     | "device"
@@ -61,7 +63,8 @@ export class LedgerIcon extends LitElement {
       close: () => CloseIcon,
       bluetooth: () => BluetoothIcon,
       usb: () => UsbIcon,
-      chevron: () => ChevronIcon,
+      chevronRight: () => ChevronRightIcon,
+      chevronDown: () => ChevronDownIcon,
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,

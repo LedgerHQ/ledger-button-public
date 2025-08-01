@@ -1,12 +1,11 @@
 import "@ledgerhq/ledger-button-ui";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 import { RetrievingAccountsController } from "./retrieving-accounts-controller.js";
@@ -42,7 +41,7 @@ export class RetrievingAccountsScreen extends LitElement {
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   controller!: RetrievingAccountsController;
 

@@ -1,9 +1,7 @@
-import {
-  LedgerButtonCore,
-  SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
+import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 
@@ -17,7 +15,7 @@ export class SignTransactionController implements ReactiveController {
 
   constructor(
     host: SignTransactionHost,
-    private readonly core: LedgerButtonCore,
+    private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
   ) {

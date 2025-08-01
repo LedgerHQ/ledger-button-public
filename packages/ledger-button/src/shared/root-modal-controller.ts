@@ -1,29 +1,23 @@
-import {
-  LedgerButtonCore,
-  SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
+import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { CoreContext } from "../context/core-context.js";
 import { Translation } from "../context/language-context.js";
 import { Navigation } from "./navigation.js";
 import { Destinations, makeDestinations } from "./routes.js";
 
 export class RootModalController implements ReactiveController {
-  host: ReactiveControllerHost;
-  core: LedgerButtonCore;
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
   pendingTransactionParams?: SignTransactionParams;
 
   constructor(
-    host: ReactiveControllerHost,
-    core: LedgerButtonCore,
+    private readonly host: ReactiveControllerHost,
+    private readonly core: CoreContext,
     translation: Translation,
   ) {
-    this.host = host;
     this.host.addController(this);
-    this.core = core;
     this.navigation = new Navigation(host);
     this.destinations = makeDestinations(translation);
     this.pendingTransactionParams = core.getPendingTransactionParams();
@@ -41,18 +35,21 @@ export class RootModalController implements ReactiveController {
     const accounts = await this.core.getAccounts();
     this.host.requestUpdate();
 
-    // const accounts = await this.core.fetchAccounts();
-    // if (accounts?.length === 0) {
-    //   this.navigation.navigateTo(destinations.onboarding);
-    // } else {
-    //   this.navigation.navigateTo(destinations.home);
-    // }
     if (accounts?.length === 0) {
       this.navigation.navigateTo(this.destinations.onboarding);
-    } else {
-      // TODO: Remove this once we have a proper way to handle pending transactions
-      this.forceDemoPendingTransaction();
+      this.host.requestUpdate();
+      return;
     }
+
+    const selectedAccount = this.core.getSelectedAccount();
+    if (selectedAccount) {
+      this.navigation.navigateTo(this.destinations.home);
+      this.host.requestUpdate();
+      return;
+    }
+
+    // TODO: Remove this once we have a proper way to handle pending transactions
+    this.forceDemoPendingTransaction();
   }
 
   forceDemoPendingTransaction() {

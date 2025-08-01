@@ -147,7 +147,7 @@ export const TestChipInteractions: Story = {
       const iconElement = chip?.shadowRoot?.querySelector("device-icon");
       console.log(iconElement);
       const chevronElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon[type='chevron']",
+        "ledger-icon[type='chevronRight']",
       );
 
       expect(iconElement).toBeInTheDocument();
@@ -179,7 +179,7 @@ export const TestChipInteractions: Story = {
 
       const iconElement = chip?.shadowRoot?.querySelector("device-icon");
       const chevronElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon[type='chevron']",
+        "ledger-icon[type='chevronRight']",
       );
 
       expect(iconElement).toBeInTheDocument();

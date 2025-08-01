@@ -1,25 +1,24 @@
 import "../../../shared/root-modal-component.js";
 
-import { Account, LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import { Account } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootModalComponent } from "../../../shared/root-modal-component.js";
 // import { destinations } from "../../../shared/routes.js";
 
 export class SelectAccountController implements ReactiveController {
-  host: ReactiveControllerHost;
   accounts: Account[] = [];
 
   constructor(
-    host: ReactiveControllerHost,
-    private readonly core: LedgerButtonCore,
+    private readonly host: ReactiveControllerHost,
+    private readonly core: CoreContext,
     private readonly navigation: Navigation,
     // NOTE: Used for testing purposes only
     // we should not fetch the accounts again on this screen
     private shouldRefreshAccounts = false,
   ) {
-    this.host = host;
     this.host.addController(this);
   }
 

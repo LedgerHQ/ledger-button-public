@@ -1,16 +1,13 @@
 import "@ledgerhq/ledger-button-ui";
 import "../ledger-sync/ledger-sync";
 
-import {
-  LedgerButtonCore,
-  SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
+import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { coreContext } from "../../context/core-context.js";
+import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
@@ -55,7 +52,7 @@ export class SignTransactionScreen extends LitElement {
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   @consume({ context: langContext })
   @property({ attribute: false })

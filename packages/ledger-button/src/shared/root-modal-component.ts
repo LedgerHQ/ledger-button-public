@@ -1,4 +1,3 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { LedgerModal } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
@@ -6,15 +5,14 @@ import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import { coreContext } from "../context/core-context.js";
+import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { RootModalController } from "./root-modal-controller.js";
 
 @customElement("root-modal-component")
 export class RootModalComponent extends LitElement {
   @consume({ context: coreContext })
-  @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   @consume({ context: langContext })
   @property({ attribute: false })
@@ -78,6 +76,11 @@ export class RootModalComponent extends LitElement {
   }
 
   override render() {
+    const connectedDevice = this.coreContext.getConnectedDevice();
+    const title = connectedDevice
+      ? connectedDevice.name
+      : this.rootModalController.currentScreen?.toolbar.title;
+
     return html`
       <ledger-modal
         id="ledger-modal"
@@ -86,14 +89,11 @@ export class RootModalComponent extends LitElement {
       >
         <div slot="toolbar">
           <ledger-toolbar
-            title=${ifDefined(
-              this.rootModalController.currentScreen?.toolbar.title,
-            )}
-            aria-label=${ifDefined(
-              this.rootModalController.currentScreen?.toolbar.title,
-            )}
+            title=${ifDefined(title)}
+            aria-label=${ifDefined(title)}
             .showCloseButton=${this.rootModalController.currentScreen?.toolbar
               .showCloseButton}
+            deviceModelId=${ifDefined(connectedDevice?.modelId)}
             @ledger-toolbar-close=${this.closeModal}
           >
           </ledger-toolbar>
