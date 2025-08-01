@@ -1,4 +1,5 @@
 import "./styles.css";
+export * from "./components/atom/balance/ledger-balance.js";
 export * from "./components/atom/button/ledger-button.js";
 export * from "./components/atom/chip/ledger-chip.js";
 export * from "./components/atom/crypto-icon/ledger-crypto-icon.js";

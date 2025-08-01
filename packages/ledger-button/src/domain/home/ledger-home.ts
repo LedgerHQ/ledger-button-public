@@ -79,19 +79,7 @@ export class LedgerHomeScreen extends LitElement {
       return;
     }
 
-    return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
-        <ledger-account-item
-          title=${account.name}
-          address=${account.freshAddress}
-          ledgerId=${account.currencyId}
-          ticker=${this.getTicker(account.currencyId)}
-          @account-item-click=${this.handleAccountItemClick}
-          @account-item-show-tokens-click=${this
-            .handleAccountItemShowTokensClick}
-        ></ledger-account-item>
-      </div>
-    `;
+    return html` <div class="flex flex-col gap-12 p-24 pt-0"></div> `;
   }
 }
 
