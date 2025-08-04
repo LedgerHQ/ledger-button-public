@@ -16,10 +16,10 @@ export interface LedgerChipAttributes {
 
 const chipContainerVariants = cva([
   "flex h-40 max-w-208 cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
-  "bg-interactive-pressed",
+  "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
 ]);
 
-const chipLabelVariants = cva(["text-ellipsis text-on-interactive body-2"]);
+const chipLabelVariants = cva(["text-ellipsis text-base body-2"]);
 
 const chipChevronVariants = cva(["rotate-90"]);
 

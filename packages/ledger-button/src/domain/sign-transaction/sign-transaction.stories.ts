@@ -1,6 +1,6 @@
 import "./sign-transaction";
-import "../../../context/core-context.js";
-import "../../../context/language-context.js";
+import "../../context/core-context.js";
+import "../../context/language-context.js";
 import "@ledgerhq/ledger-button-ui";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";

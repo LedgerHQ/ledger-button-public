@@ -1,6 +1,6 @@
 import "@ledgerhq/ledger-button-ui";
 
-import { Account } from "@ledgerhq/ledger-button-core";
+// import { Account } from "@ledgerhq/ledger-button-core";
 import {
   AccountItemClickEventDetail,
   tailwindElement,
@@ -69,8 +69,9 @@ export class LedgerHomeScreen extends LitElement {
     console.log("account-item-click", event);
   };
 
-  private handleAccountItemShowTokensClick = (event: CustomEvent<Account>) => {
-    console.log("account-item-show-tokens-click", event);
+  private handleDisconnectClick = async (e: Event) => {
+    console.log("disconnect-click", e);
+    // await this.controller.handleDisconnectClick();
   };
 
   override render() {
@@ -79,7 +80,41 @@ export class LedgerHomeScreen extends LitElement {
       return;
     }
 
-    return html` <div class="flex flex-col gap-12 p-24 pt-0"></div> `;
+    const lang = this.languages.currentTranslation;
+
+    // TODO: Fetch account balance
+    const balance = 1234.56;
+
+    return html`
+      <div class="flex flex-col items-stretch gap-24 p-24 pt-0">
+        <div class="flex flex-col gap-32 rounded-md bg-muted p-16">
+          <div class="flex flex-row items-center justify-between">
+            <ledger-account-switch
+              .account=${account}
+              @account-switch=${this.handleAccountItemClick}
+            ></ledger-account-switch>
+            <ledger-crypto-icon
+              .ledgerId=${account.currencyId}
+              size="small"
+              variant="square"
+            ></ledger-crypto-icon>
+          </div>
+          <div class="flex flex-row items-center justify-between">
+            <ledger-balance
+              label=${lang.home.balance}
+              .balance=${balance}
+              .ticker=${this.getTicker(account.currencyId)}
+            ></ledger-balance>
+          </div>
+        </div>
+        <ledger-button
+          variant="secondary"
+          size="full"
+          label=${lang.common.button.disconnect}
+          @click=${this.handleDisconnectClick}
+        ></ledger-button>
+      </div>
+    `;
   }
 }
 

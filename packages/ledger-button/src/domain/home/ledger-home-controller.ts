@@ -19,6 +19,12 @@ export class LedgerHomeController implements ReactiveController {
     return this.core.getSelectedAccount();
   }
 
+  async handleDisconnectClick() {
+    await this.core.disconnectFromDevice();
+    this.navigation.navigateTo(this.destinations.onboarding);
+    this.host.requestUpdate();
+  }
+
   hostConnected() {
     if (this.demoMode) {
       this.core.fetchAccounts().then(() => {

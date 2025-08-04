@@ -1,4 +1,4 @@
-import "./styles.css";
+import "./styles.css?inline";
 export * from "./components/atom/balance/ledger-balance.js";
 export * from "./components/atom/button/ledger-button.js";
 export * from "./components/atom/chip/ledger-chip.js";
@@ -9,6 +9,7 @@ export * from "./components/atom/lottie/ledger-lottie.js";
 export * from "./components/atom/modal/ledger-modal.js";
 export * from "./components/atom/modal/ledger-modal-story-wrapper.js";
 export * from "./components/molecule/account-item/ledger-account-item.js";
+export * from "./components/molecule/account-switch/ledger-account-switch.js";
 export * from "./components/molecule/ad-item/ledger-ad-item.js";
 export * from "./components/molecule/chain-item/ledger-chain-item.js";
 export * from "./components/molecule/connection-item/ledger-connection-item.js";

@@ -12,7 +12,7 @@ export type DeviceModelId = "stax" | "flex" | "nanos" | "nanosp" | "nanox";
 
 const iconContainerVariants = cva([
   "flex h-24 w-24 items-center justify-center rounded-full",
-  "bg-muted-strong-pressed",
+  "bg-muted-transparent",
 ]);
 
 @customElement("device-icon")

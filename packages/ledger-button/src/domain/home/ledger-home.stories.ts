@@ -24,12 +24,19 @@ export const Default: Story = {};
 
 export const InContext: Story = {
   render: () => html`
-    <core-provider .stub=${true} .stubDevice=${true}>
-      <language-provider>
-        <ledger-modal-story-wrapper title="Home">
-          <ledger-home-screen .demoMode=${true}></ledger-home-screen>
-        </ledger-modal-story-wrapper>
-      </language-provider>
-    </core-provider>
+    <div class="dark">
+      <core-provider .stub=${true} .stubDevice=${true}>
+        <language-provider>
+          <ledger-modal-story-wrapper title="Home">
+            <ledger-toolbar
+              slot="toolbar"
+              title="Val's Stax"
+              deviceModelId="stax"
+            ></ledger-toolbar>
+            <ledger-home-screen .demoMode=${true}></ledger-home-screen>
+          </ledger-modal-story-wrapper>
+        </language-provider>
+      </core-provider>
+    </div>
   `,
 };

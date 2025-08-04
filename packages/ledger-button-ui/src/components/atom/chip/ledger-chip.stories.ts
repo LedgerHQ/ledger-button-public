@@ -10,14 +10,17 @@ import LedgerChip from "./ledger-chip";
 const meta: Meta = {
   title: "Component/Atom/Chip",
   tags: ["autodocs"],
-  render: (args) =>
-    html`<ledger-chip
-      .label=${args.label || ""}
-      .deviceModelId=${args.deviceModelId || "flex"}
-      @ledger-chip-click=${(e: CustomEvent) => {
-        console.log("Chip clicked:", e.detail);
-      }}
-    ></ledger-chip>`,
+  render: (args) => html`
+    <div class="flex flex-col bg-black p-24">
+      <ledger-chip
+        .label=${args.label || ""}
+        .deviceModelId=${args.deviceModelId || "flex"}
+        @ledger-chip-click=${(e: CustomEvent) => {
+          console.log("Chip clicked:", e.detail);
+        }}
+      ></ledger-chip>
+    </div>
+  `,
   argTypes: {
     label: {
       control: "text",

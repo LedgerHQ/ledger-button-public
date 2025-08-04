@@ -22,7 +22,8 @@ export class StubRemoteAccountDataSource implements RemoteAccountDataSource {
           },
         ],
         accountNames: {
-          "js:2:ethereum:0xCb8Ac86ff74f6733C212E14e83461AC2b0cAD3d0:": "LBD 1",
+          "js:2:ethereum:0xCb8Ac86ff74f6733C212E14e83461AC2b0cAD3d0:":
+            "ETH Account",
         },
       }),
     );

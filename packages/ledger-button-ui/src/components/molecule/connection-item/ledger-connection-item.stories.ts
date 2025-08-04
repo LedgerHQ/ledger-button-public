@@ -210,7 +210,7 @@ export const TestInteractions: Story = {
         "ledger-connection-item",
       );
       const button = connectionItem?.shadowRoot?.querySelector("button");
-      const chevron = button?.querySelector("ledger-icon[type='chevron']");
+      const chevron = button?.querySelector("ledger-icon[type='chevronRight']");
 
       expect(chevron).toBeInTheDocument();
     });

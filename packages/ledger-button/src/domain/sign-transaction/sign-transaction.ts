@@ -1,5 +1,5 @@
 import "@ledgerhq/ledger-button-ui";
-import "../ledger-sync/ledger-sync";
+import "../onboarding/ledger-sync/ledger-sync";
 
 import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
