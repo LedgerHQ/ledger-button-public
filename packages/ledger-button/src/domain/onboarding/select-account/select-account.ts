@@ -1,6 +1,6 @@
 import "@ledgerhq/ledger-button-ui";
 
-import { Account, LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import { Account } from "@ledgerhq/ledger-button-core";
 import {
   AccountItemClickEventDetail,
   tailwindElement,
@@ -10,7 +10,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
@@ -26,12 +26,13 @@ export class SelectAccountScreen extends LitElement {
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   @consume({ context: langContext })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  // NOTE: Demo purpose only
   @property({ type: Boolean })
   shouldRefreshAccounts = false;
 
@@ -95,7 +96,7 @@ export class SelectAccountScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="flex flex-col gap-12 px-24 pb-24">
+      <div class="flex flex-col gap-12 p-24 pt-0">
         ${repeat(
           this.controller.accounts,
           (account) => account.freshAddress,

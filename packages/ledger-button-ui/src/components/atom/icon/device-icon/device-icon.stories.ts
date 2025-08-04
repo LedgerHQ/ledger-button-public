@@ -1,0 +1,82 @@
+import "./device-icon";
+
+import type { Meta, StoryObj } from "@storybook/web-components-vite";
+import { html } from "lit";
+
+const meta: Meta = {
+  title: "Component/Atom/Icon/DeviceIcons",
+  tags: ["autodocs"],
+  render: (args) =>
+    html`<div>
+      <device-icons .modelId=${args.modelId}></device-icons>
+    </div>`,
+  argTypes: {
+    modelId: {
+      control: "select",
+      options: ["stax", "flex", "nanos", "nanosp", "nanox"],
+      description: "The device model ID to display the corresponding icon",
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj;
+
+export const Stax: Story = {
+  args: {
+    modelId: "stax",
+  },
+};
+
+export const Flex: Story = {
+  args: {
+    modelId: "flex",
+  },
+};
+
+export const NanoS: Story = {
+  args: {
+    modelId: "nanos",
+  },
+};
+
+export const NanoSPlus: Story = {
+  args: {
+    modelId: "nanosp",
+  },
+};
+
+export const NanoX: Story = {
+  args: {
+    modelId: "nanox",
+  },
+};
+
+export const AllDevices: Story = {
+  render: () => html`
+    <div
+      style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;"
+    >
+      <div style="text-align: center;">
+        <device-icon modelId="stax"></device-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Stax</p>
+      </div>
+      <div style="text-align: center;">
+        <device-icon modelId="flex"></device-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Flex</p>
+      </div>
+      <div style="text-align: center;">
+        <device-icon modelId="nanos"></device-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Nano S</p>
+      </div>
+      <div style="text-align: center;">
+        <device-icon modelId="nanosp"></device-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Nano S Plus</p>
+      </div>
+      <div style="text-align: center;">
+        <device-icon modelId="nanox"></device-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Nano X</p>
+      </div>
+    </div>
+  `,
+};

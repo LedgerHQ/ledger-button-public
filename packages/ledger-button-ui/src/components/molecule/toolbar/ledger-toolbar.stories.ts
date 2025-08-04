@@ -27,6 +27,15 @@ const meta: Meta<LedgerToolbarAttributes> = {
         defaultValue: { summary: '""' },
       },
     },
+    deviceModelId: {
+      control: "select",
+      description: "The device model ID to display the corresponding icon",
+      options: ["flex", "stax", "nanos", "nanosp", "nanox"],
+      table: {
+        type: { summary: "string" },
+        defaultValue: { summary: "" },
+      },
+    },
   },
 };
 
@@ -47,40 +56,114 @@ export const Default: Story = {
 };
 
 export const AllVariations: Story = {
-  render: () => html`
-    <div
-      style="background: black; padding: 20px; display: flex; flex-direction: column; gap: 16px;"
-    >
-      <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
-          With Title
-        </h3>
-        <ledger-toolbar title="Connect a Ledger"></ledger-toolbar>
-      </div>
+  render: () => {
+    const handleToolbarChipClick = (e: CustomEvent) => {
+      window.alert(`Chip clicked: ${JSON.stringify(e.detail)}`);
+    };
 
-      <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
-          With Long Title
-        </h3>
-        <ledger-toolbar
-          title="This is a very long title that demonstrates text handling"
-        ></ledger-toolbar>
-      </div>
+    return html`
+      <div
+        style="background: black; padding: 20px; display: flex; flex-direction: column; gap: 16px;"
+      >
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Title and no close button
+          </h3>
+          <ledger-toolbar
+            title="Connect a Ledger"
+            .showCloseButton=${false}
+          ></ledger-toolbar>
+        </div>
 
-      <div>
-        <h3
-          style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
-        >
-          Without Title
-        </h3>
-        <ledger-toolbar></ledger-toolbar>
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Long Title
+          </h3>
+          <ledger-toolbar
+            title="This is a very long title that demonstrates text handling"
+          ></ledger-toolbar>
+        </div>
+
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            Without Title
+          </h3>
+          <ledger-toolbar></ledger-toolbar>
+        </div>
+
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Device Model ID = Flex
+          </h3>
+          <ledger-toolbar
+            title="GM's Flex"
+            deviceModelId="flex"
+            @ledger-toolbar-chip-click=${handleToolbarChipClick}
+          ></ledger-toolbar>
+        </div>
+
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Device Model ID = Stax
+          </h3>
+          <ledger-toolbar
+            title="GM's Stax"
+            deviceModelId="stax"
+            @ledger-toolbar-chip-click=${handleToolbarChipClick}
+          ></ledger-toolbar>
+        </div>
+
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Device Model ID = Nano S
+          </h3>
+          <ledger-toolbar
+            title="GM's Nano S"
+            deviceModelId="nanos"
+            @ledger-toolbar-chip-click=${handleToolbarChipClick}
+          ></ledger-toolbar>
+        </div>
+
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Device Model ID = Nano SP
+          </h3>
+          <ledger-toolbar
+            title="GM's Nano SP"
+            deviceModelId="nanosp"
+            @ledger-toolbar-chip-click=${handleToolbarChipClick}
+          ></ledger-toolbar>
+        </div>
+
+        <div>
+          <h3
+            style="color: white; margin-bottom: 8px; font-size: 14px; font-weight: 600;"
+          >
+            With Device Model ID = Nano X
+          </h3>
+          <ledger-toolbar
+            title="GM's Nano X"
+            deviceModelId="nanox"
+            @ledger-toolbar-chip-click=${handleToolbarChipClick}
+          ></ledger-toolbar>
+        </div>
       </div>
-    </div>
-  `,
+    `;
+  },
 };
 
 export const TestToolbarInteractions: Story = {

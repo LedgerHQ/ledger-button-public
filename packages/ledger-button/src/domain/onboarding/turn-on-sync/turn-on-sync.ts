@@ -1,11 +1,10 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
@@ -26,7 +25,7 @@ export class TurnOnSyncScreen extends LitElement {
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   @consume({ context: langContext })
   @property({ attribute: false })

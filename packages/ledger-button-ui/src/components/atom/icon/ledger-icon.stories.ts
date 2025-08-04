@@ -18,7 +18,8 @@ const meta: Meta = {
         "close",
         "bluetooth",
         "usb",
-        "chevron",
+        "chevronRight",
+        "chevronDown",
         "ethereum",
         "bsc",
         "polygon",
@@ -123,23 +124,44 @@ export const UsbIconLarge: Story = {
   },
 };
 
-export const ChevronIconSmall: Story = {
+export const ChevronRightIconSmall: Story = {
   args: {
-    type: "chevron",
+    type: "chevronRight",
     size: "small",
   },
 };
 
-export const ChevronIconMedium: Story = {
+export const ChevronRightIconMedium: Story = {
   args: {
-    type: "chevron",
+    type: "chevronRight",
     size: "medium",
   },
 };
 
-export const ChevronIconLarge: Story = {
+export const ChevronRightIconLarge: Story = {
   args: {
-    type: "chevron",
+    type: "chevronRight",
+    size: "large",
+  },
+};
+
+export const ChevronDownIconSmall: Story = {
+  args: {
+    type: "chevronDown",
+    size: "small",
+  },
+};
+
+export const ChevronDownIconMedium: Story = {
+  args: {
+    type: "chevronDown",
+    size: "medium",
+  },
+};
+
+export const ChevronDownIconLarge: Story = {
+  args: {
+    type: "chevronDown",
     size: "large",
   },
 };
@@ -292,8 +314,8 @@ export const AllIcons: Story = {
         <p style="margin: 8px 0 0 0; font-size: 12px;">USB</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="chevron" size="medium"></ledger-icon>
-        <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron</p>
+        <ledger-icon type="chevronRight" size="medium"></ledger-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron Right</p>
       </div>
       <div style="text-align: center;">
         <ledger-icon type="check" size="medium"></ledger-icon>

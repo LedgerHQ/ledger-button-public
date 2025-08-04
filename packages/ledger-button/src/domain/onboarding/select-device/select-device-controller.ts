@@ -1,19 +1,16 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 
 export class SelectDeviceController implements ReactiveController {
-  host: ReactiveControllerHost;
-
   constructor(
-    host: ReactiveControllerHost,
-    private readonly core: LedgerButtonCore,
+    private readonly host: ReactiveControllerHost,
+    private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
   ) {
-    this.host = host;
     this.host.addController(this);
   }
 

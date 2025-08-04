@@ -5,26 +5,31 @@ import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
 
+import LedgerChip from "./ledger-chip";
+
 const meta: Meta = {
   title: "Component/Atom/Chip",
   tags: ["autodocs"],
-  render: (args) =>
-    html`<ledger-chip
-      .label=${args.label || ""}
-      .icon=${args.icon || "device"}
-      @ledger-chip-click=${(e: CustomEvent) => {
-        console.log("Chip clicked:", e.detail);
-      }}
-    ></ledger-chip>`,
+  render: (args) => html`
+    <div class="flex flex-col bg-black p-24">
+      <ledger-chip
+        .label=${args.label || ""}
+        .deviceModelId=${args.deviceModelId || "flex"}
+        @ledger-chip-click=${(e: CustomEvent) => {
+          console.log("Chip clicked:", e.detail);
+        }}
+      ></ledger-chip>
+    </div>
+  `,
   argTypes: {
     label: {
       control: "text",
       description: "The text displayed on the chip",
     },
-    icon: {
+    deviceModelId: {
       control: "select",
-      options: ["device"],
-      description: "The icon to display on the left side of the chip",
+      options: ["stax", "flex", "nanos", "nanosp", "nanox"],
+      description: "The device model ID to display the corresponding icon",
     },
   },
 };
@@ -32,15 +37,38 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-export const Default: Story = {
+export const ChipWithFlex: Story = {
   args: {
     label: "GM's Flex",
+    deviceModelId: "flex",
   },
 };
 
-export const Selected: Story = {
+export const ChipWithStax: Story = {
   args: {
-    label: "GM's Flex",
+    label: "GM's Stax",
+    deviceModelId: "stax",
+  },
+};
+
+export const ChipWithNanoS: Story = {
+  args: {
+    label: "GM's Nano S",
+    deviceModelId: "nanos",
+  },
+};
+
+export const ChipWithNanoX: Story = {
+  args: {
+    label: "GM's Nano X",
+    deviceModelId: "nanox",
+  },
+};
+
+export const ChipWithNanoSP: Story = {
+  args: {
+    label: "GM's Nano SP",
+    deviceModelId: "nanosp",
   },
 };
 
@@ -51,6 +79,8 @@ export const InteractiveExample: Story = {
       "GM's Flex",
       "John's Nano S",
       "Sarah's Nano X",
+      "GM's Nano SP",
+      "GM's Stax",
       "Dev Device",
     ];
 
@@ -59,8 +89,13 @@ export const InteractiveExample: Story = {
       const nextIndex = (currentIndex + 1) % devices.length;
       selectedDevice = devices[nextIndex];
 
-      const chipElement = e.target as any;
+      const chipElement = e.target as LedgerChip;
       chipElement.label = selectedDevice;
+      chipElement.deviceModelId = selectedDevice.includes("Nano")
+        ? "nanos"
+        : selectedDevice.includes("Stax")
+          ? "stax"
+          : "flex";
 
       console.log("Device changed to:", selectedDevice);
     };
@@ -111,11 +146,11 @@ export const TestChipInteractions: Story = {
 
     await step("Verify icon and chevron are present", async () => {
       const chip = canvasElement.querySelector("ledger-chip");
-      const iconElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon[type='device']",
-      );
+
+      const iconElement = chip?.shadowRoot?.querySelector("device-icon");
+      console.log(iconElement);
       const chevronElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon[type='chevron']",
+        "ledger-icon[type='chevronRight']",
       );
 
       expect(iconElement).toBeInTheDocument();
@@ -145,11 +180,9 @@ export const TestChipInteractions: Story = {
       const chipContainer = chip?.shadowRoot?.querySelector("button");
       expect(chipContainer).toHaveAttribute("aria-label", "Test Chip");
 
-      const iconElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon[type='device']",
-      );
+      const iconElement = chip?.shadowRoot?.querySelector("device-icon");
       const chevronElement = chip?.shadowRoot?.querySelector(
-        "ledger-icon[type='chevron']",
+        "ledger-icon[type='chevronRight']",
       );
 
       expect(iconElement).toBeInTheDocument();

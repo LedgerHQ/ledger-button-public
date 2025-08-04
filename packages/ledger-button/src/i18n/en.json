@@ -5,7 +5,8 @@
       "usb": "Connect with USB",
       "bluetooth": "Connect with Bluetooth",
       "close": "Close",
-      "tryAgain": "Try Again"
+      "tryAgain": "Try Again",
+      "disconnect": "Disconnect"
     },
     "ad": {
       "buyALedger": "Buy a Ledger"
@@ -27,6 +28,9 @@
         }
       }
     }
+  },
+  "home": {
+    "balance": "Balance"
   },
   "onboarding": {
     "selectDevice": {

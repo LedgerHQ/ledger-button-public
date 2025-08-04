@@ -1,6 +1,5 @@
 import "@ledgerhq/ledger-button-ui";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import {
   ConnectionItemClickEventDetail,
   tailwindElement,
@@ -10,7 +9,7 @@ import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
@@ -52,7 +51,7 @@ export class SelectDeviceScreen extends LitElement {
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   @consume({ context: langContext })
   @property({ attribute: false })

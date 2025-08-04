@@ -162,7 +162,7 @@ export class LedgerAccountItemMolecule extends LitElement {
                 <div
                   class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
                 >
-                  <ledger-icon type="chevron" size="small"></ledger-icon>
+                  <ledger-icon type="chevronRight" size="small"></ledger-icon>
                 </div>
               </button>
             `

@@ -1,4 +1,5 @@
 import "../icon/ledger-icon";
+import "../icon/device-icon/device-icon.js";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
@@ -6,6 +7,7 @@ import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element";
+import { DeviceModelId } from "../icon/device-icon/device-icon.js";
 
 export interface LedgerChipAttributes {
   label?: string;
@@ -13,16 +15,11 @@ export interface LedgerChipAttributes {
 }
 
 const chipContainerVariants = cva([
-  "flex h-40 cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
-  "bg-interactive-pressed",
+  "flex h-40 max-w-208 cursor-pointer items-center justify-center gap-8 rounded-full px-16 py-8",
+  "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
 ]);
 
-const chipLabelVariants = cva(["text-on-interactive body-2"]);
-
-const chipIconContainerVariants = cva([
-  "flex h-24 w-24 items-center justify-center rounded-full p-12",
-  "bg-muted-strong-pressed",
-]);
+const chipLabelVariants = cva(["text-ellipsis text-base body-2"]);
 
 const chipChevronVariants = cva(["rotate-90"]);
 
@@ -33,7 +30,7 @@ export class LedgerChip extends LitElement {
   label = "";
 
   @property({ type: String })
-  icon = "device";
+  deviceModelId: DeviceModelId = "flex";
 
   private get chipContainerClasses() {
     return {
@@ -47,12 +44,6 @@ export class LedgerChip extends LitElement {
     };
   }
 
-  private get chipIconContainerClasses() {
-    return {
-      [chipIconContainerVariants()]: true,
-    };
-  }
-
   private get chipChevronClasses() {
     return {
       [chipChevronVariants()]: true,
@@ -60,17 +51,13 @@ export class LedgerChip extends LitElement {
   }
 
   private renderIcon() {
-    return html`
-      <div class=${classMap(this.chipIconContainerClasses)}>
-        <ledger-icon type=${this.icon} size="medium"></ledger-icon>
-      </div>
-    `;
+    return html` <device-icon .modelId=${this.deviceModelId}></device-icon> `;
   }
 
   private renderChevron() {
     return html`
       <div class=${classMap(this.chipChevronClasses)}>
-        <ledger-icon type="chevron" size="medium"></ledger-icon>
+        <ledger-icon type="chevronRight" size="medium"></ledger-icon>
       </div>
     `;
   }
@@ -98,7 +85,7 @@ export class LedgerChip extends LitElement {
         detail: {
           timestamp: Date.now(),
           label: this.label,
-          icon: this.icon,
+          deviceModelId: this.deviceModelId,
         },
       }),
     );
@@ -115,6 +102,14 @@ export class LedgerChip extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "ledger-chip": LedgerChip;
+  }
+
+  interface CustomEventMap {
+    "ledger-chip-click": CustomEvent<{
+      timestamp: number;
+      label: string;
+      deviceModelId: DeviceModelId;
+    }>;
   }
 }
 
