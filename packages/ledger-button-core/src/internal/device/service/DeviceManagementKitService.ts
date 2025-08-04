@@ -1,4 +1,7 @@
-import { DeviceManagementKit } from "@ledgerhq/device-management-kit";
+import {
+  DeviceManagementKit,
+  type DiscoveredDevice,
+} from "@ledgerhq/device-management-kit";
 
 import { Device } from "../model/Device.js";
 
@@ -11,4 +14,5 @@ export interface DeviceManagementKitService {
 
   connectToDevice: ({ type }: { type: ConnectionType }) => Promise<string>;
   disconnectFromDevice: () => Promise<void>;
+  listAvailableDevices: () => Promise<DiscoveredDevice[]>;
 }

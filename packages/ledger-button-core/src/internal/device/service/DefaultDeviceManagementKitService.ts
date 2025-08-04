@@ -103,6 +103,41 @@ export class DefaultDeviceManagementKitService
     }
   }
 
+  async listAvailableDevices() {
+    let counter = 0;
+    return new Promise<DiscoveredDevice[]>((resolve, reject) => {
+      const subscription = this.dmk.listenToAvailableDevices({}).subscribe({
+        next: (discoveredDevices) => {
+          counter++;
+
+          if (discoveredDevices.length) {
+            this.logger.debug(`Known devices`, { discoveredDevices });
+            resolve(discoveredDevices);
+            if (subscription) {
+              subscription.unsubscribe();
+            }
+            return;
+          }
+
+          if (counter > 5 && !discoveredDevices.length) {
+            resolve([]);
+            if (subscription) {
+              subscription.unsubscribe();
+            }
+            return;
+          }
+        },
+        error: (error) => {
+          this.logger.error(`Failed to list known devices`, { error });
+          reject(error);
+          if (subscription) {
+            subscription.unsubscribe();
+          }
+        },
+      });
+    });
+  }
+
   async disconnectFromDevice() {
     if (!this._currentSessionId) {
       return;
