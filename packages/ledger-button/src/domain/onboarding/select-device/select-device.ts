@@ -15,7 +15,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
+import { Destination, Destinations } from "../../../shared/routes.js";
 import { SelectDeviceController } from "./select-device-controller.js";
 
 const styles = css`
@@ -49,6 +49,9 @@ export class SelectDeviceScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
+  @property({ type: Object })
+  navigateTo!: (destination: Destination) => Promise<void>;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: CoreContext;
@@ -69,6 +72,16 @@ export class SelectDeviceScreen extends LitElement {
     );
   }
 
+  handleConnectionItemClick = (
+    e: CustomEvent<ConnectionItemClickEventDetail>,
+  ) => {
+    this.controller.connectToDevice(e.detail);
+  };
+
+  handleAdItemClick = () => {
+    this.controller.clickAdItem();
+  };
+
   override render() {
     const lang = this.languageContext.currentTranslation;
 
@@ -80,11 +93,7 @@ export class SelectDeviceScreen extends LitElement {
               <ledger-connection-item
                 title=${lang.common.button[el]}
                 connection-type=${el}
-                @connection-item-click=${(
-                  e: CustomEvent<ConnectionItemClickEventDetail>,
-                ) => {
-                  this.controller.connectToDevice(e.detail);
-                }}
+                @connection-item-click=${this.handleConnectionItemClick}
               ></ledger-connection-item>
             `;
           })}
@@ -92,7 +101,7 @@ export class SelectDeviceScreen extends LitElement {
         <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
           <ledger-ad-item
             title=${lang.common.ad.buyALedger}
-            @ad-item-click=${this.controller.clickAdItem}
+            @ad-item-click=${this.handleAdItemClick}
           ></ledger-ad-item>
         </div>
       </div>

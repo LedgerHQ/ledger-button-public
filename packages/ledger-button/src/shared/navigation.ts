@@ -8,7 +8,10 @@ export class Navigation implements ReactiveController {
   history: Destination[] = [];
   currentScreen: Destination | null = null;
 
-  constructor(host: ReactiveControllerHost) {
+  constructor(
+    host: ReactiveControllerHost,
+    private readonly modalContent: HTMLElement,
+  ) {
     this.host = host;
     this.host.addController(this);
   }
@@ -24,6 +27,22 @@ export class Navigation implements ReactiveController {
   }
 
   navigateTo(destination: Destination) {
+    if (destination.name === this.currentScreen?.name) {
+      return;
+    }
+
+    if (this.modalContent && this.currentScreen) {
+      this.modalContent.classList.add("remove");
+      setTimeout(() => {
+        this.modalContent.classList.remove("remove");
+        this.history.push(destination);
+        this.currentScreen = destination;
+        this.host.requestUpdate();
+        // NOTE: The 250ms delay here is to allow for animation to complete
+        // Could be a CONSTANT if required
+      }, 250);
+      return;
+    }
     this.history.push(destination);
     this.currentScreen = destination;
     this.host.requestUpdate();

@@ -66,12 +66,23 @@ export class LedgerHomeScreen extends LitElement {
   private handleAccountItemClick = (
     event: CustomEvent<AccountItemClickEventDetail>,
   ) => {
-    console.log("account-item-click", event);
+    this.dispatchEvent(
+      new CustomEvent("ledger-account-switch", {
+        bubbles: true,
+        composed: true,
+        detail: event.detail,
+      }),
+    );
   };
 
-  private handleDisconnectClick = async (e: Event) => {
-    console.log("disconnect-click", e);
-    // await this.controller.handleDisconnectClick();
+  private handleDisconnectClick = async () => {
+    this.dispatchEvent(
+      new CustomEvent("ledger-button-disconnect", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+    await this.controller.handleDisconnectClick();
   };
 
   override render() {
@@ -121,5 +132,10 @@ export class LedgerHomeScreen extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "ledger-home-screen": LedgerHomeScreen;
+  }
+
+  interface CustomEventMap {
+    "ledger-button-disconnect": CustomEvent<void>;
+    "ledger-account-switch": CustomEvent<AccountItemClickEventDetail>;
   }
 }

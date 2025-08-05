@@ -26,8 +26,6 @@ const styles = css`
 
   .modal-backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
@@ -114,7 +112,7 @@ export class LedgerModal extends LitElement {
         this.backdropElement,
         { opacity: 0 },
         {
-          duration: 0.1,
+          duration: 0.2,
           onComplete: () => {
             document.body.style.overflow = this.previousBodyOverflow;
             this.backdropElement.style.display = "none";
@@ -146,7 +144,7 @@ export class LedgerModal extends LitElement {
   override render() {
     return html`
       <div
-        class="modal-backdrop z-1 relative flex min-h-screen content-center items-center justify-center bg-canvas-overlay"
+        class="modal-backdrop z-1 fixed left-0 top-0 flex h-full min-h-screen w-full content-center items-center justify-center bg-canvas-overlay"
         role="dialog"
         aria-modal="true"
         aria-describedby="modal-content"
