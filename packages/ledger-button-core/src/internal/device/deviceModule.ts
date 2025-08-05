@@ -4,6 +4,7 @@ import { DefaultDeviceManagementKitService } from "./service/DefaultDeviceManage
 import { StubDeviceManagementKitService } from "./service/StubDeviceManagementKitService.js";
 import { ConnectDevice } from "./use-case/ConnectDevice.js";
 import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
+import { ListAvailableDevices } from "./use-case/ListAvailableDevices.js";
 import { SignTransaction } from "./use-case/SignTransaction.js";
 import { SwitchDevice } from "./use-case/SwitchDevice.js";
 import { ContainerOptions } from "../diTypes.js";
@@ -23,6 +24,9 @@ export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
     bind(deviceModuleTypes.DisconnectDeviceUseCase).to(DisconnectDevice);
     bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDevice);
     bind(deviceModuleTypes.SignTransactionUseCase).to(SignTransaction);
+    bind(deviceModuleTypes.ListAvailableDevicesUseCase).to(
+      ListAvailableDevices,
+    );
 
     if (stub) {
       rebindSync(deviceModuleTypes.DeviceManagementKitService).to(
