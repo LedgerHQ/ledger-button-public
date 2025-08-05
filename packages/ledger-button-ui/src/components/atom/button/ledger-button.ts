@@ -181,6 +181,15 @@ declare global {
   interface HTMLElementTagNameMap {
     "ledger-button": LedgerButton;
   }
+
+  interface CustomEventMap {
+    "ledger-button-click": CustomEvent<{
+      timestamp: number;
+      variant: ButtonVariant;
+      size: ButtonSize;
+      label: string;
+    }>;
+  }
 }
 
 export default LedgerButton;

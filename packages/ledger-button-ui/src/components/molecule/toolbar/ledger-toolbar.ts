@@ -2,10 +2,8 @@ import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
 import "../../atom/chip/ledger-chip";
 
-import { cva } from "class-variance-authority";
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element";
 import { DeviceModelId } from "../../atom/icon/device-icon/device-icon";
@@ -14,18 +12,6 @@ export interface LedgerToolbarAttributes {
   title?: string;
   deviceModelId?: DeviceModelId;
 }
-
-const closeButtonWrapperStyle = cva(
-  "flex h-32 w-32 items-center justify-center",
-  {
-    variants: {
-      showCloseButton: {
-        true: "cursor-pointer",
-        false: "",
-      },
-    },
-  },
-);
 
 const styles = css`
   :host {
@@ -44,13 +30,6 @@ export class LedgerToolbar extends LitElement {
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;
-
-  private get closeButtonWrapperClasses() {
-    return {
-      [closeButtonWrapperStyle({ showCloseButton: this.showCloseButton })]:
-        true,
-    };
-  }
 
   private handleClose = () => {
     this.dispatchEvent(
@@ -95,7 +74,7 @@ export class LedgerToolbar extends LitElement {
             ? html`<h2 class="text-base body-2">${this.title}</h2>`
             : nothing}
 
-        <div class=${classMap(this.closeButtonWrapperClasses)}>
+        <div class="flex h-32 w-32 items-center justify-center">
           ${this.showCloseButton
             ? html`
                 <ledger-button
@@ -121,6 +100,8 @@ declare global {
   }
 
   interface CustomEventMap {
+    "ledger-toolbar-close": CustomEvent<void>;
+
     "ledger-toolbar-chip-click": CustomEvent<{
       timestamp: number;
       label: string;

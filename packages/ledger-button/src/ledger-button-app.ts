@@ -33,10 +33,38 @@ export class LedgerButtonApp extends LitElement {
     );
 
     this.addEventListener("account-selected", this.handleAccountSelected);
+    this.addEventListener(
+      "ledger-button-disconnect",
+      this.handleLedgerButtonDisconnect,
+    );
+    this.addEventListener("ledger-account-switch", this.handleAccountSwitch);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener("account-selected", this.handleAccountSelected);
+    this.removeEventListener(
+      "ledger-button-disconnect",
+      this.handleLedgerButtonDisconnect,
+    );
+    this.removeEventListener("ledger-account-switch", this.handleAccountSwitch);
   }
 
   private handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
     this.controller.setLabel(e.detail.title);
+  }
+
+  private handleLedgerButtonDisconnect() {
+    this.controller.setLabel(
+      this.languages.currentTranslation.common.button.connect,
+    );
+    this.root.closeModal();
+  }
+
+  private handleAccountSwitch() {
+    this.root.rootModalController.navigation.navigateTo(
+      this.root.rootModalController.destinations.fetchAccounts,
+    );
   }
 
   // renderRoute() {

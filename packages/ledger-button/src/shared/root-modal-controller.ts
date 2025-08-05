@@ -16,15 +16,18 @@ export class RootModalController implements ReactiveController {
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
     translation: Translation,
+    private readonly modalContent: HTMLElement,
   ) {
     this.host.addController(this);
-    this.navigation = new Navigation(host);
+    this.navigation = new Navigation(host, this.modalContent);
     this.destinations = makeDestinations(translation);
     this.pendingTransactionParams = core.getPendingTransactionParams();
   }
 
   hostConnected() {
-    this.host.requestUpdate();
+    this.computeInitialState().finally(() => {
+      this.host.requestUpdate();
+    });
   }
 
   get currentScreen() {
@@ -77,6 +80,11 @@ export class RootModalController implements ReactiveController {
 
   async handleModalClose() {
     this.navigation.resetNavigation();
+  }
+
+  async handleChipClick() {
+    // TODO: replace with select device screen
+    this.navigation.navigateTo(this.destinations.onboarding);
     this.host.requestUpdate();
   }
 

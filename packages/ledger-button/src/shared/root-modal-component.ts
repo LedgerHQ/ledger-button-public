@@ -21,6 +21,9 @@ export class RootModalComponent extends LitElement {
   @query("#ledger-modal")
   private ledgerModal!: LedgerModal;
 
+  @query("#modal-content")
+  private modalContent!: HTMLElement;
+
   rootModalController!: RootModalController;
 
   override connectedCallback() {
@@ -29,8 +32,8 @@ export class RootModalComponent extends LitElement {
       this,
       this.coreContext,
       this.languageContext.currentTranslation,
+      this.modalContent,
     );
-    this.rootModalController.computeInitialState();
   }
 
   public openModal() {
@@ -46,7 +49,15 @@ export class RootModalComponent extends LitElement {
   }
 
   private handleModalClose() {
-    this.rootModalController.handleModalClose();
+    setTimeout(() => {
+      this.rootModalController.handleModalClose();
+      // NOTE: The 250ms delay here is to allow for animation to complete
+      // Could be a CONSTANT if required
+    }, 250);
+  }
+
+  private handleChipClick(_e: CustomEvent) {
+    this.rootModalController.handleChipClick();
   }
 
   selectAccount(address: string) {
@@ -77,9 +88,15 @@ export class RootModalComponent extends LitElement {
 
   override render() {
     const connectedDevice = this.coreContext.getConnectedDevice();
-    const title = connectedDevice
-      ? connectedDevice.name
-      : this.rootModalController.currentScreen?.toolbar.title;
+    const title =
+      connectedDevice && this.rootModalController.currentScreen?.name === "home"
+        ? connectedDevice.name
+        : this.rootModalController.currentScreen?.toolbar.title;
+
+    const deviceModelId =
+      connectedDevice && this.rootModalController.currentScreen?.name === "home"
+        ? connectedDevice.modelId
+        : undefined;
 
     return html`
       <ledger-modal
@@ -93,12 +110,13 @@ export class RootModalComponent extends LitElement {
             aria-label=${ifDefined(title)}
             .showCloseButton=${this.rootModalController.currentScreen?.toolbar
               .showCloseButton}
-            deviceModelId=${ifDefined(connectedDevice?.modelId)}
+            deviceModelId=${ifDefined(deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
+            @ledger-toolbar-chip-click=${this.handleChipClick}
           >
           </ledger-toolbar>
         </div>
-        ${this.renderScreen()}
+        <div id="modal-content">${this.renderScreen()}</div>
       </ledger-modal>
     `;
   }
