@@ -2,6 +2,7 @@ import { Container } from "inversify";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { AccountService } from "../internal/account/service/AccountService.js";
+import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   ConnectionType,
@@ -76,8 +77,8 @@ export class LedgerButtonCore {
   // Account methods
   async fetchAccounts() {
     return this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .fetchAccounts();
+      .get<FetchAccounts>(accountModuleTypes.FetchAccountsUseCase)
+      .execute();
   }
 
   getAccounts() {
