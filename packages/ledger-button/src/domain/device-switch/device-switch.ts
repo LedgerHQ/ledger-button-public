@@ -48,7 +48,7 @@ export class DeviceSwitchScreen extends LitElement {
   destinations!: Destinations;
 
   @property({ type: Object })
-  navigateTo!: (destination: Destination) => Promise;
+  navigateTo!: (destination: Destination) => Promise<void>;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
