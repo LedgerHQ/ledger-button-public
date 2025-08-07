@@ -6,3 +6,7 @@ export type {
 } from "../internal/device/use-case/SignTransaction.js";
 export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
+export type {
+  DeviceModelId,
+  DiscoveredDevice,
+} from "@ledgerhq/device-management-kit";

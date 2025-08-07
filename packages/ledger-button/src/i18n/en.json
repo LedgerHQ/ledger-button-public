@@ -32,6 +32,17 @@
   "home": {
     "balance": "Balance"
   },
+  "deviceSwitch": {
+    "title": "Your Ledgers",
+    "noDevices": "No previously connected devices found",
+    "connectAnother": "Or connect another Ledger",
+    "connectBluetooth": "Connect a Bluetooth",
+    "connectUsb": "Connect with USB",
+    "status": {
+      "connected": "Connected",
+      "available": "Available"
+    }
+  },
   "onboarding": {
     "selectDevice": {
       "title": "Connect a Ledger"

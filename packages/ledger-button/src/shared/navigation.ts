@@ -7,6 +7,7 @@ export class Navigation implements ReactiveController {
 
   history: Destination[] = [];
   currentScreen: Destination | null = null;
+  private navigationTimeoutId: number | null = null;
 
   constructor(
     host: ReactiveControllerHost,
@@ -23,6 +24,7 @@ export class Navigation implements ReactiveController {
   }
 
   hostDisconnected() {
+    this.clearNavigationTimeout();
     this.resetNavigation();
   }
 
@@ -33,11 +35,13 @@ export class Navigation implements ReactiveController {
 
     if (this.modalContent && this.currentScreen) {
       this.modalContent.classList.add("remove");
-      setTimeout(() => {
+      this.clearNavigationTimeout();
+      this.navigationTimeoutId = window.setTimeout(() => {
         this.modalContent.classList.remove("remove");
         this.history.push(destination);
         this.currentScreen = destination;
         this.host.requestUpdate();
+        this.navigationTimeoutId = null;
         // NOTE: The 250ms delay here is to allow for animation to complete
         // Could be a CONSTANT if required
       }, 250);
@@ -57,9 +61,17 @@ export class Navigation implements ReactiveController {
   }
 
   resetNavigation() {
+    this.clearNavigationTimeout();
     this.history = [];
     this.currentScreen = null;
     this.host.requestUpdate();
+  }
+
+  private clearNavigationTimeout() {
+    if (this.navigationTimeoutId !== null) {
+      window.clearTimeout(this.navigationTimeoutId);
+      this.navigationTimeoutId = null;
+    }
   }
 
   canGoBack(destination?: Destination) {

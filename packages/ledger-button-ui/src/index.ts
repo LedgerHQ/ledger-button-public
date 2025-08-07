@@ -14,6 +14,7 @@ export * from "./components/molecule/ad-item/ledger-ad-item.js";
 export * from "./components/molecule/chain-item/ledger-chain-item.js";
 export * from "./components/molecule/connection-item/ledger-connection-item.js";
 export * from "./components/molecule/device-animation/device-animation.js";
+export * from "./components/molecule/device-item/ledger-device-item.js";
 export * from "./components/molecule/info-state/ledger-info-state.js";
 export * from "./components/molecule/toolbar/ledger-toolbar.js";
 export * from "./components/organism/status/ledger-status.js";
