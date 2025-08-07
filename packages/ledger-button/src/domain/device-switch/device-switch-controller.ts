@@ -1,0 +1,111 @@
+import type {
+  DeviceModelId,
+  DiscoveredDevice,
+} from "@ledgerhq/ledger-button-core";
+import type { DeviceModelId as UIDeviceModelId } from "@ledgerhq/ledger-button-ui";
+import { LitElement } from "lit";
+
+import type { CoreContext } from "../../context/core-context.js";
+import type { Navigation } from "../../shared/navigation.js";
+import type { Destinations } from "../../shared/routes.js";
+
+export class DeviceSwitchController {
+  private devices: DiscoveredDevice[] = [];
+
+  constructor(
+    private readonly host: LitElement,
+    private readonly coreContext: CoreContext,
+    private readonly navigation: Navigation,
+    private readonly destinations: Destinations,
+  ) {}
+
+  async hostConnected() {
+    await this.loadAvailableDevices();
+  }
+
+  async loadAvailableDevices() {
+    try {
+      this.devices = await this.coreContext.listAvailableDevices();
+
+      this.host.requestUpdate();
+    } catch {
+      this.devices = [];
+      this.host.requestUpdate();
+    }
+  }
+
+  getDevices(): DiscoveredDevice[] {
+    return this.devices;
+  }
+
+  async connectToDevice(detail: {
+    title: string;
+    connectionType: "bluetooth" | "usb" | "";
+    timestamp: number;
+  }) {
+    const connectionType = detail.connectionType;
+    if (!connectionType) {
+      return;
+    }
+
+    // Navigate to connection status screen to show device animation
+    this.navigation.navigateTo(this.destinations.deviceConnectionStatus);
+
+    try {
+      await this.coreContext.connectToDevice(connectionType);
+
+      const pendingTransactionParams =
+        this.coreContext.getPendingTransactionParams();
+
+      if (pendingTransactionParams) {
+        this.navigation.navigateTo(this.destinations.signTransaction);
+      } else {
+        this.navigation.navigateTo(this.destinations.ledgerSync);
+      }
+    } catch {
+      this.navigation.navigateTo(this.destinations.onboarding);
+    }
+  }
+
+  async addNewDevice() {
+    this.navigation.navigateTo(this.destinations.onboarding);
+  }
+
+  getConnectionTypeFromTransport(transport: string): "bluetooth" | "usb" | "" {
+    const transportLower = transport.toLowerCase();
+
+    if (
+      transportLower.includes("ble") ||
+      transportLower.includes("bluetooth")
+    ) {
+      return "bluetooth";
+    }
+    if (transportLower.includes("usb") || transportLower.includes("hid")) {
+      return "usb";
+    }
+    return "";
+  }
+
+  mapDeviceModelId(deviceModelId?: DeviceModelId): UIDeviceModelId {
+    if (!deviceModelId) {
+      return "flex";
+    }
+
+    const modelStr = deviceModelId.toString();
+    const transformedModel = modelStr.toLowerCase().replace(/_/g, "");
+
+    const validModels: UIDeviceModelId[] = [
+      "stax",
+      "flex",
+      "nanox",
+      "nanos",
+      "nanosp",
+    ];
+
+    if (validModels.includes(transformedModel as UIDeviceModelId)) {
+      return transformedModel as UIDeviceModelId;
+    }
+
+    return "flex";
+  }
+}

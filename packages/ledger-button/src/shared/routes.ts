@@ -4,6 +4,8 @@ import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
 import "../domain/onboarding/select-account/select-account.js";
 import "../domain/sign-transaction/sign-transaction.js";
 import "../domain/home/ledger-home.js";
+import "../domain/device-switch/device-switch.js";
+import "../domain/device-connection-status/device-connection-status.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -57,6 +59,24 @@ export const makeDestinations = (translation: Translation) => {
       name: "home",
       component: "ledger-home-screen",
       canGoBack: false,
+      toolbar: {
+        title: "",
+        showCloseButton: true,
+      },
+    },
+    deviceSwitch: {
+      name: "device-switch",
+      component: "device-switch-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.deviceSwitch.title,
+        showCloseButton: true,
+      },
+    },
+    deviceConnectionStatus: {
+      name: "device-connection-status",
+      component: "device-connection-status-screen",
+      canGoBack: true,
       toolbar: {
         title: "",
         showCloseButton: true,

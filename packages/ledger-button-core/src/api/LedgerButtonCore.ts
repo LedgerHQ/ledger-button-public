@@ -9,6 +9,7 @@ import {
 } from "../internal/device/service/DeviceManagementKitService.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
+import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
 import {
   SignTransaction,
   SignTransactionParams,
@@ -64,6 +65,12 @@ export class LedgerButtonCore {
     return this.container.get<DeviceManagementKitService>(
       deviceModuleTypes.DeviceManagementKitService,
     ).connectedDevice;
+  }
+
+  async listAvailableDevices() {
+    return this.container
+      .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
+      .execute();
   }
 
   // Account methods

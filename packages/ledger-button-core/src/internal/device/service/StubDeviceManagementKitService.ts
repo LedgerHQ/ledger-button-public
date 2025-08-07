@@ -13,20 +13,37 @@ export class StubDeviceManagementKitService
 {
   dmk: DeviceManagementKit = {} as DeviceManagementKit;
   sessionId: string | undefined = "session-id-123";
-  connectedDevice: Device | undefined;
+  connectedDevice: Device | undefined = {
+    name: "GM's Flex",
+    modelId: "flex",
+    sessionId: "session-id-123",
+    type: "bluetooth" as any,
+  };
+
   connectToDevice = () => Promise.resolve("session-id-123");
   disconnectFromDevice = () => Promise.resolve();
+
   listAvailableDevices = () =>
     Promise.resolve([
       {
-        id: "123",
-        name: "Yolo Flex",
+        id: "device-1",
+        name: "GM's Flex",
         deviceModel: {
-          id: "flex-123",
+          id: "flex-001",
           model: DeviceModelId.FLEX,
-          name: "Yolo Flex",
+          name: "GM's Flex",
         },
         transport: "BLE",
+      },
+      {
+        id: "device-2",
+        name: "GM's Stax",
+        deviceModel: {
+          id: "stax-001",
+          model: DeviceModelId.STAX,
+          name: "GM's Stax",
+        },
+        transport: "USB",
       },
     ]);
 }
