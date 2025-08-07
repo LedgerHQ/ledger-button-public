@@ -108,7 +108,7 @@ export class DeviceSwitchScreen extends LitElement {
       return html`
         <div class="flex flex-col items-center gap-16 p-24 text-center">
           <div class="text-muted body-2">
-            No previously connected devices found
+            ${this.languageContext.currentTranslation.deviceSwitch.noDevices}
           </div>
         </div>
       `;
