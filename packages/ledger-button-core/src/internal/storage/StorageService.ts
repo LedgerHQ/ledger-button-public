@@ -1,29 +1,21 @@
 // TODO: Type could be temporary until we are done with the LEdger Keyring Protocol trusted app
-import { Jwt } from "jsonwebtoken";
+import { Keypair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
 
-// TODO: Temporary type while we work on the trusted-app ledger-keyring-protocol
-export type KeyPair = {
-  publicKey: Uint8Array;
-  privateKey: Uint8Array;
-};
-
 export interface StorageService {
-  getLedgerButtonItem<T>(key: string): Maybe<T>;
-  setLedgerButtonItem<T>(key: string, value: T): void;
-  removeLedgerButtonItem(key: string): boolean;
-  hasLedgerButtonItem(key: string): boolean;
-  resetLedgerButtonStorage(): void;
+  getItem<T>(key: string): Maybe<T>;
+  saveItem<T>(key: string, value: T): void;
+  removeItem(key: string): boolean;
+  hasItem(key: string): boolean;
+  resetStorage(): void;
 
-  storeKeyPair(keyPair: KeyPair): Promise<Either<StorageIDBErrors, boolean>>;
-  getKeyPair(): Promise<Either<StorageIDBErrors, KeyPair>>;
+  storeKeyPair(keyPair: Keypair): Promise<Either<StorageIDBErrors, boolean>>;
+  getKeyPair(): Promise<Either<StorageIDBErrors, Keypair>>;
   removeKeyPair(): Promise<Either<StorageIDBErrors, boolean>>;
-  getPublicKey(): Promise<Either<StorageIDBErrors, Uint8Array>>;
-  getPrivateKey(): Promise<Either<StorageIDBErrors, Uint8Array>>;
 
-  saveJWT(jwt: Jwt): void;
-  getJWT(): Maybe<Jwt>;
-  removeJWT(): void;
+  saveTrustChainId(trustChainId: string): void;
+  getTrustChainId(): Maybe<string>;
+  removeTrustChainId(): void;
 }

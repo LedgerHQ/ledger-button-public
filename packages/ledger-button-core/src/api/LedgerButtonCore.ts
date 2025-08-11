@@ -3,7 +3,6 @@ import { Observable } from "rxjs";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
-import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
@@ -14,17 +13,24 @@ import {
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import { type SignRawTransactionParams } from "../internal/device/use-case/SignRawTransaction.js";
+import { SignRawTransactionParams } from "../internal/device/use-case/SignRawTransaction.js";
 import { type SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
 import { type SignTypedDataParams } from "../internal/device/use-case/SignTypedData.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
+import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
+import {
+  type AuthenticateResponse,
+  LedgerSyncService,
+} from "../internal/ledgersync/service/LedgerSyncService.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
 import { TransactionResult } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
+import { FetchAccountsUseCase } from "../internal/usecases/fetchAccountsUseCase.js";
+import { usecasesModuleTypes } from "../internal/usecases/usecasesModuleTypes.js";
 import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
@@ -70,22 +76,10 @@ export class LedgerButtonCore {
       .execute({ type });
   }
 
-  getConnectedDevice() {
-    return this.container.get<DeviceManagementKitService>(
-      deviceModuleTypes.DeviceManagementKitService,
-    ).connectedDevice;
-  }
-
-  async listAvailableDevices() {
-    return this.container
-      .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
-      .execute();
-  }
-
   // Account methods
   async fetchAccounts() {
     return this.container
-      .get<FetchAccounts>(accountModuleTypes.FetchAccountsUseCase)
+      .get<FetchAccountsUseCase>(usecasesModuleTypes.FetchAccountsUseCase)
       .execute();
   }
 
@@ -105,6 +99,19 @@ export class LedgerButtonCore {
     return this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .getSelectedAccount();
+  }
+
+  // Device methods
+  getConnectedDevice() {
+    return this.container.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    ).connectedDevice;
+  }
+
+  async listAvailableDevices() {
+    return this.container
+      .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
+      .execute();
   }
 
   // Transaction methods
@@ -143,5 +150,11 @@ export class LedgerButtonCore {
     return this.container.get<BackendService>(
       backendModuleTypes.BackendService,
     );
+  }
+
+  connectToLedgerSync(): Observable<AuthenticateResponse> {
+    return this.container
+      .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
+      .authenticate();
   }
 }

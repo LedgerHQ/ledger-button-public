@@ -20,10 +20,7 @@ export type Account = CloudSyncAccount & {
   name: string;
 };
 export interface AccountService {
-  fetchAccounts(): Promise<Either<AccountServiceError, Account[]>>;
-  mapCloudSyncDataToAccounts(
-    cloudSyncData: CloudSyncData,
-  ): Either<AccountServiceError, Account[]>;
+  setAccountsFromCloudSyncData(accounts: CloudSyncData): void;
   getAccounts(): Account[];
   selectAccount(address: string): void;
   getSelectedAccount(): Account | null;

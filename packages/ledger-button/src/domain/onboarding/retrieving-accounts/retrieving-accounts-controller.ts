@@ -19,17 +19,18 @@ export class RetrievingAccountsController implements ReactiveController {
   }
 
   async fetchAccounts() {
-    await this.core.fetchAccounts();
-    const accounts = await this.core.getAccounts();
+    const accounts = await this.core.fetchAccounts();
     this.host.requestUpdate();
+    console.info("fetchAccounts", accounts);
+    if (!accounts || accounts.length === 0) {
+      this.navigation.navigateTo(this.destinations.turnOnSync);
+      return;
+    }
 
+    this.navigation.navigateTo(this.destinations.selectAccount);
+    /*
     setTimeout(() => {
-      if (!accounts || accounts.length === 0) {
-        this.navigation.navigateTo(this.destinations.onboarding);
-        return;
-      }
-
-      this.navigation.navigateTo(this.destinations.selectAccount);
-    }, 3000);
+    }, 5000);
+    */
   }
 }

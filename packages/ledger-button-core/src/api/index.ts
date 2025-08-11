@@ -26,6 +26,7 @@ export type {
 export * from "../internal/web3-provider/model/EIPTypes.js";
 export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
+export * from "./model/index.js";
 export type {
   DeviceModelId,
   DiscoveredDevice,

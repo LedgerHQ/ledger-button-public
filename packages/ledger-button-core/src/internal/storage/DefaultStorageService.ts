@@ -1,5 +1,8 @@
+import {
+  Keypair,
+  KeypairFromBytes,
+} from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { type Factory, inject, injectable } from "inversify";
-import { Jwt } from "jsonwebtoken";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
@@ -13,12 +16,11 @@ import {
 } from "./model/errors.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { KeyPair, StorageService } from "./StorageService.js";
+import { type StorageService } from "./StorageService.js";
 
 @injectable()
 export class DefaultStorageService implements StorageService {
   private readonly logger: LoggerPublisher;
-  private jwt: Maybe<Jwt> = Nothing;
   private initialization: Maybe<Promise<void>> = Nothing;
   private idb: Either<StorageIDBErrors, IDBDatabase> = Left(
     new StorageIDBNotInitializedError("IDB not initialized"),
@@ -28,7 +30,7 @@ export class DefaultStorageService implements StorageService {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Storage Service]");
+    this.logger = this.loggerFactory("[Storage Service] Created");
   }
 
   static formatKey(key: string) {
@@ -85,7 +87,8 @@ export class DefaultStorageService implements StorageService {
     return this.idb;
   }
 
-  async storeKeyPair(keyPair: KeyPair) {
+  // IndexedDB (KeyPair)
+  async storeKeyPair(keyPair: Keypair) {
     const init = await this.initIdb();
 
     return new Promise<Either<StorageIDBErrors, boolean>>((resolve) => {
@@ -120,7 +123,7 @@ export class DefaultStorageService implements StorageService {
   async getKeyPair() {
     const init = await this.initIdb();
 
-    return new Promise<Either<StorageIDBErrors, KeyPair>>((resolve) => {
+    return new Promise<Either<StorageIDBErrors, Keypair>>((resolve) => {
       init.map((db) => {
         const transaction = db.transaction(
           STORAGE_KEYS.DB_STORE_NAME,
@@ -131,6 +134,7 @@ export class DefaultStorageService implements StorageService {
 
         request.onsuccess = (event) => {
           const result = (event.target as IDBRequest)?.result;
+
           if (!result) {
             this.logger.error("Error getting key pair", { event });
             resolve(
@@ -140,8 +144,12 @@ export class DefaultStorageService implements StorageService {
             return;
           }
 
-          this.logger.debug("Key pair retrieved", { result });
-          resolve(Right(result));
+          const keypair = new KeypairFromBytes(result.privateKey);
+          this.logger.info("Key pair retrieved from indexDB", {
+            keypair: keypair.pubKeyToHex(),
+          });
+
+          resolve(Right(keypair));
         };
 
         request.onerror = (event) => {
@@ -187,45 +195,29 @@ export class DefaultStorageService implements StorageService {
     });
   }
 
-  async getPublicKey() {
-    return (await this.getKeyPair()).map((kp) => kp.publicKey);
+  // Trust Chain ID
+  saveTrustChainId(_trustChainId: string): void {
+    this.saveItem(STORAGE_KEYS.TRUST_CHAIN_ID, _trustChainId);
+  }
+  getTrustChainId(): Maybe<string> {
+    return this.getItem(STORAGE_KEYS.TRUST_CHAIN_ID);
+  }
+  removeTrustChainId(): void {
+    this.removeItem(STORAGE_KEYS.TRUST_CHAIN_ID);
   }
 
-  async getPrivateKey() {
-    return (await this.getKeyPair()).map((kp) => kp.privateKey);
-  }
-
-  // JWT
-  saveJWT(jwt: Jwt) {
-    // NOTE: Add checks for jwt validity ?
-    if (jwt) {
-      this.jwt = Maybe.of(jwt);
-      this.logger.debug("JWT saved");
-      return;
-    }
-  }
-
-  getJWT() {
-    return this.jwt;
-  }
-
-  removeJWT() {
-    if (this.jwt.isJust()) {
-      this.jwt = Nothing;
-    }
-  }
-
+  /***  Local Storage Primitives ***/
   // LocalStorage
-  setLedgerButtonItem<T>(key: string, value: T) {
+  saveItem<T>(key: string, value: T) {
     localStorage.setItem(
       DefaultStorageService.formatKey(key),
       JSON.stringify(value),
     );
   }
 
-  removeLedgerButtonItem(key: string) {
+  removeItem(key: string) {
     const formattedKey = DefaultStorageService.formatKey(key);
-    if (!this.hasLedgerButtonItem(formattedKey)) {
+    if (!this.hasItem(formattedKey)) {
       this.logger.debug("Item not found", { key });
       return false;
     }
@@ -235,13 +227,13 @@ export class DefaultStorageService implements StorageService {
     return true;
   }
 
-  hasLedgerButtonItem(key: string) {
+  hasItem(key: string) {
     const formattedKey = DefaultStorageService.formatKey(key);
     const item = localStorage.getItem(formattedKey);
     return item !== null;
   }
 
-  resetLedgerButtonStorage() {
+  resetStorage() {
     for (const key in localStorage) {
       if (key.startsWith(STORAGE_KEYS.PREFIX)) {
         localStorage.removeItem(key);
@@ -249,7 +241,7 @@ export class DefaultStorageService implements StorageService {
     }
   }
 
-  getLedgerButtonItem<T>(key: string): Maybe<T> {
+  getItem<T>(key: string): Maybe<T> {
     const formattedKey = DefaultStorageService.formatKey(key);
     const item = localStorage.getItem(formattedKey);
     return Maybe.fromNullable(item).chain((item) => {

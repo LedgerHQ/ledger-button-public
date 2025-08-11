@@ -23,6 +23,11 @@ export class DefaultAccountService implements AccountService {
     this.logger = this.loggerFactory("[Account Service]");
   }
 
+  setAccountsFromCloudSyncData(cloudsyncData: CloudSyncData): void {
+    const mappedAccounts = this.mapCloudSyncDataToAccounts(cloudsyncData);
+    this.setAccounts(mappedAccounts);
+  }
+
   selectAccount(address: string): void {
     const found = this.accounts.find(
       (account) => account.freshAddress === address,
@@ -37,6 +42,10 @@ export class DefaultAccountService implements AccountService {
     return this.selectedAccount;
   }
 
+  getAccounts(): Account[] {
+    return this.accounts;
+  }
+
   private setAccounts(accounts: Either<AccountServiceError, Account[]>) {
     accounts
       .ifRight((accounts) => {
@@ -49,23 +58,7 @@ export class DefaultAccountService implements AccountService {
       });
   }
 
-  async fetchAccounts(): Promise<Either<AccountServiceError, Account[]>> {
-    this.logger.debug("fetching accounts");
-    const cloudSyncData = await this.remoteAccountDataSource.fetchAccounts();
-    this.logger.debug("fetched cloud sync data", { cloudSyncData });
-    const accounts = cloudSyncData.chain(this.mapCloudSyncDataToAccounts);
-    this.logger.debug("mapped cloud sync data to accounts", { accounts });
-
-    this.setAccounts(accounts);
-
-    return accounts;
-  }
-
-  getAccounts(): Account[] {
-    return this.accounts;
-  }
-
-  mapCloudSyncDataToAccounts(
+  private mapCloudSyncDataToAccounts(
     cloudSyncData: CloudSyncData,
   ): Either<AccountServiceError, Account[]> {
     const { accounts, accountNames } = cloudSyncData;

@@ -25,9 +25,6 @@ export class LedgerSyncScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
-  @property({ type: Object })
-  pendingTransactionParams?: SignTransactionParams;
-
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: CoreContext;
@@ -45,12 +42,11 @@ export class LedgerSyncScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
-      this.pendingTransactionParams,
     );
   }
 
   override render() {
-    const { device } = this.controller;
+    const { device, animation } = this.controller;
     if (!device) {
       return;
     }
@@ -64,7 +60,7 @@ export class LedgerSyncScreen extends LitElement {
         <div class="w-208">
           <ledger-device-animation
             modelId=${device.modelId}
-            animation="continueOnLedger"
+            animation=${animation}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">

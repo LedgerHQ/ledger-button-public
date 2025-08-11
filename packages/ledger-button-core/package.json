@@ -21,10 +21,11 @@
     "dist"
   ],
   "dependencies": {
-    "@ledgerhq/device-management-kit": "^0.7.0",
-    "@ledgerhq/device-signer-kit-ethereum": "^1.3.3",
-    "@ledgerhq/device-transport-kit-web-ble": "^1.1.0",
-    "@ledgerhq/device-transport-kit-web-hid": "^1.1.0",
+    "@ledgerhq/device-management-kit": "0.0.0-ledger-button-20250808091712",
+    "@ledgerhq/device-signer-kit-ethereum": "0.0.0-ledger-button-20250808091712",
+    "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "0.0.0-ledger-button-20250808091712",
+    "@ledgerhq/device-transport-kit-web-ble": "0.0.0-ledger-button-20250808091712",
+    "@ledgerhq/device-transport-kit-web-hid": "0.0.0-ledger-button-20250808091712",
     "chalk": "^5.4.1",
     "ethers": "^6.15.0",
     "inversify": "^7.5.1",
@@ -32,6 +33,8 @@
     "purify-ts": "2.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "~7.8.0",
-    "viem": "^2.21.0"
+    "viem": "^2.21.0",
+    "pako": "^2.0.4",
+    "rxjs": "~7.8.0"
   }
 }
