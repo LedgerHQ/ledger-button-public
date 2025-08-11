@@ -53,15 +53,19 @@ export class SelectAccountScreen extends LitElement {
   ) {
     this.controller.selectAccount(event.detail.address);
     this.dispatchEvent(
-      new CustomEvent<AccountItemClickEventDetail>("account-selected", {
-        bubbles: true,
-        composed: true,
-        detail: event.detail,
-      }),
+      new CustomEvent<AccountItemClickEventDetail>(
+        "ledger-internal-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: event.detail,
+        },
+      ),
     );
   }
 
   private handleAccountItemShowTokensClick = (event: CustomEvent<Account>) => {
+    // TODO: Should we display the tokens ?
     console.log("account-item-show-tokens-click", event);
   };
 
@@ -112,7 +116,7 @@ declare global {
     "select-account-screen": SelectAccountScreen;
   }
 
-  interface HTMLElementEventMap {
-    "account-selected": CustomEvent<AccountItemClickEventDetail>;
+  interface WindowEventMap {
+    "ledger-internal-account-selected": CustomEvent<AccountItemClickEventDetail>;
   }
 }

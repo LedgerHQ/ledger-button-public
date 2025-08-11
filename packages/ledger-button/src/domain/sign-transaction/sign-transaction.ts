@@ -2,7 +2,7 @@ import "@ledgerhq/ledger-button-ui";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
+import { StatusType, tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -142,7 +142,13 @@ export class SignTransactionScreen extends LitElement {
     `;
   }
 
-  private handleStatusAction(event: CustomEvent) {
+  private handleStatusAction(
+    event: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
     const { action, type } = event.detail;
 
     if (type === "success") {

@@ -76,7 +76,7 @@ declare global {
     "ledger-account-switch": LedgerAccountSwitch;
   }
 
-  interface CustomEventMap {
+  interface WindowEventMap {
     "account-switch": CustomEvent<{
       account: LedgerAccountSwitch["account"];
     }>;

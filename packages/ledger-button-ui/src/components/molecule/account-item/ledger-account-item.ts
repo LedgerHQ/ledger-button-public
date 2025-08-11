@@ -177,7 +177,7 @@ declare global {
     "ledger-account-item": LedgerAccountItemMolecule;
   }
 
-  interface HTMLElementEventMap {
+  interface WindowEventMap {
     "account-item-click": CustomEvent<AccountItemClickEventDetail>;
     "account-item-show-tokens-click": CustomEvent<AccountItemClickEventDetail>;
   }

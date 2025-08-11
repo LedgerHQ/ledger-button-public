@@ -176,7 +176,7 @@ declare global {
     "ledger-modal": LedgerModal;
   }
 
-  interface HTMLElementEventMap {
+  interface WindowEventMap {
     "modal-opened": CustomEvent<void>;
     "modal-closed": CustomEvent<void>;
   }

@@ -1,6 +1,9 @@
 import "@ledgerhq/ledger-button-ui";
 
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
+import {
+  DeviceItemClickEventDetail,
+  tailwindElement,
+} from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -79,7 +82,7 @@ export class DeviceSwitchScreen extends LitElement {
     });
   }
 
-  handleDeviceItemClick = (e: CustomEvent) => {
+  handleDeviceItemClick = (e: CustomEvent<DeviceItemClickEventDetail>) => {
     this.controller.connectToDevice({
       title: e.detail.title,
       connectionType: e.detail.connectionType,

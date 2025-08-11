@@ -99,7 +99,7 @@ declare global {
     "ledger-toolbar": LedgerToolbar;
   }
 
-  interface CustomEventMap {
+  interface WindowEventMap {
     "ledger-toolbar-close": CustomEvent<void>;
 
     "ledger-toolbar-chip-click": CustomEvent<{

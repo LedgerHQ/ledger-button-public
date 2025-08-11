@@ -9,11 +9,14 @@ export const coreContext = createContext<CoreContext>(Symbol.for("core"));
 
 @customElement("core-provider")
 export class CoreProvider extends LitElement {
-  @property({ type: Boolean, attribute: "stub" })
+  @property({ type: Boolean })
   stub = true;
 
   @property({ type: Boolean, attribute: "stub-device" })
   stubDevice = false;
+
+  @property({ type: Object })
+  coreClass?: LedgerButtonCore;
 
   @provide({ context: coreContext })
   @property({ attribute: false })
@@ -22,10 +25,12 @@ export class CoreProvider extends LitElement {
   override connectedCallback() {
     super.connectedCallback();
 
-    this.core = new LedgerButtonCore({
-      stub: this.stub,
-      stubDevice: this.stubDevice,
-    });
+    this.core =
+      this.coreClass ??
+      new LedgerButtonCore({
+        stub: this.stub,
+        stubDevice: this.stubDevice,
+      });
   }
 
   override render() {

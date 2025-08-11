@@ -168,6 +168,14 @@ declare global {
   interface HTMLElementTagNameMap {
     "ledger-status": LedgerStatus;
   }
+
+  interface WindowEventMap {
+    "ledger-status-action": CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>;
+  }
 }
 
 export default LedgerStatus;
