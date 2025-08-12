@@ -3,17 +3,17 @@ import "./context/core-context.js";
 import "./context/language-context.js";
 import "./ledger-button-app.js";
 
+import {
+  EIP1193Provider,
+  EIP6963AnnounceProviderEvent,
+  EIP6963RequestProviderEvent,
+} from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
 // import { CoreProvider } from "./context/core-context.js";
-import {
-  EIP6963AnnounceProviderEvent,
-  EIP6963RequestProviderEvent,
-  LedgerEIP1193Provider,
-} from "./web3-provider/LedgerEIP1193Provider.js";
 // import { LedgerButtonApp } from "./ledger-button-app.js";
-import { initialize } from "./index.js";
+import { initializeLedgerProvider } from "./index.js";
 
 @customElement("ledger-button-playground")
 export class LedgerButtonPlayground extends LitElement {
@@ -24,7 +24,7 @@ export class LedgerButtonPlayground extends LitElement {
   private app!: HTMLDivElement;
 
   @property({ attribute: false })
-  private web3Provider?: LedgerEIP1193Provider;
+  private web3Provider?: EIP1193Provider;
 
   selectedAccount?: string;
 
@@ -61,9 +61,10 @@ export class LedgerButtonPlayground extends LitElement {
   }
 
   createApp() {
-    initialize({
+    initializeLedgerProvider({
       stub: true,
       stubDevice: false,
+      stubWeb3Provider: true,
       target: this.app,
     });
   }

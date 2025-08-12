@@ -7,23 +7,34 @@ import { v4 as uuidv4 } from "uuid";
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
-// NOTE: First draft only, args to be improved, name as well
-// Probably needs improvement, but it could be the entry point of the library
-export function initialize({
+let core: LedgerButtonCore | null = null;
+
+export function initializeLedgerProvider({
   stub = false,
+  stubWeb3Provider = false,
   stubDevice = false,
   target = document.body,
+  dAppIndentifier = "",
+  apiKey = "",
 }: {
   stub?: boolean;
   stubDevice?: boolean;
+  stubWeb3Provider?: boolean;
   target?: HTMLElement;
+  dAppIndentifier?: string;
+  apiKey?: string;
 }): () => void {
+  console.info({ apiKey, dAppIndentifier });
+
   // NOTE: `core` should be the same instance as the one injected in the lit app
   // so we either need to instanciate it here and give it to the lit app or retrieve it from it
-  const core = new LedgerButtonCore({
-    stub,
-    stubDevice,
-  });
+  if (!core) {
+    core = new LedgerButtonCore({
+      stub,
+      stubDevice,
+      stubWeb3Provider,
+    });
+  }
 
   const info = {
     id: uuidv4(),
@@ -41,7 +52,7 @@ export function initialize({
     document.body.appendChild(app);
   }
 
-  const provider = new LedgerEIP1193Provider(/*core, */ app);
+  const provider = new LedgerEIP1193Provider(core, app);
 
   const announceProviderListener = () => {
     window.dispatchEvent(

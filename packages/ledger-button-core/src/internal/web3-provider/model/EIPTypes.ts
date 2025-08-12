@@ -1,0 +1,144 @@
+export type RpcMethods =
+  | "eth_accounts"
+  | "eth_requestAccounts"
+  | "personal_sign"
+  | "eth_sendRawTransaction"
+  | "eth_sendTransaction"
+  | "eth_signTransaction"
+  | "eth_signTypedData";
+
+export type JSONRPCRequest = {
+  readonly jsonrpc: string;
+  readonly id: number;
+  readonly method: RpcMethods;
+  readonly params: readonly unknown[] | object;
+};
+
+export type JSONRPCResponse = {
+  readonly jsonrpc: string;
+  readonly id: number;
+  readonly result?: unknown;
+  readonly error?: {
+    readonly code: number;
+    readonly message: string;
+  };
+};
+
+export type RequestArguments = Pick<JSONRPCRequest, "method" | "params">;
+
+export interface ProviderRpcError extends Error {
+  code: number;
+  data?: unknown;
+}
+
+// Error codes as defined in EIP-1193
+export const CommonEIP1193ErrorCode = {
+  UserRejectedRequest: 4001,
+  Unauthorized: 4100,
+  UnsupportedMethod: 4200,
+  Disconnected: 4900,
+  ChainDisconnected: 4901,
+  // Additional common error codes (JSON-RPC 2.0)
+  ParseError: -32700,
+  InvalidRequest: -32600,
+  MethodNotFound: -32601,
+  InvalidParams: -32602,
+  InternalError: -32603,
+} as const;
+
+export interface ProviderMessage {
+  readonly type: string;
+  readonly data: unknown;
+}
+
+export interface ProviderConnectInfo {
+  readonly chainId: string;
+}
+
+export interface EIP6963ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns: string;
+}
+
+export interface EIP1193Provider {
+  request(args: RequestArguments): Promise<unknown>;
+  on(eventName: string, listener: (...args: unknown[]) => void): void;
+  removeListener(
+    eventName: string,
+    listener: (...args: unknown[]) => void,
+  ): void;
+  isConnected(): boolean;
+}
+
+export interface EIP6963ProviderDetail {
+  info: EIP6963ProviderInfo;
+  provider: EIP1193Provider;
+}
+
+export interface EIP6963AnnounceProviderEvent extends CustomEvent {
+  type: "eip6963:announceProvider";
+  detail: EIP6963ProviderDetail;
+}
+
+export interface EIP6963RequestProviderEvent extends Event {
+  type: "eip6963:requestProvider";
+}
+
+// Standard Ethereum RPC method interfaces
+export interface EthRequestAccountsResult {
+  accounts: string[];
+}
+
+export interface EthSendTransactionParams {
+  from: string;
+  to?: string;
+  gas?: string;
+  gasPrice?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  value?: string;
+  data?: string;
+  nonce?: string;
+  type?: string;
+  chainId?: string;
+}
+
+export type EthSignTransactionParams = EthSendTransactionParams;
+
+export interface PersonalSignParams {
+  message: string;
+  address: string;
+}
+
+export interface EthSignTypedDataParams {
+  address: string;
+  typedData: {
+    types: Record<string, Array<{ name: string; type: string }>>;
+    primaryType: string;
+    domain: Record<string, unknown>;
+    message: Record<string, unknown>;
+  };
+}
+
+// Provider events
+export type ProviderEvent =
+  | "connect"
+  | "disconnect"
+  | "chainChanged"
+  | "accountsChanged"
+  | "message";
+
+// Chain information
+export interface ChainInfo {
+  chainId: string;
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls?: string[];
+}

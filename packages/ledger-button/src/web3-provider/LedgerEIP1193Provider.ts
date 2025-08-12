@@ -12,133 +12,29 @@
 
 import "../ledger-button-app.js";
 
-// import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";`
+import {
+  type ChainInfo,
+  type EIP1193Provider,
+  type EIP6963AnnounceProviderEvent,
+  type EIP6963RequestProviderEvent,
+  type ProviderConnectInfo,
+  type ProviderEvent,
+  type ProviderMessage,
+  type ProviderRpcError,
+  type RequestArguments,
+} from "@ledgerhq/ledger-button-core";
+import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+
 import { LedgerButtonApp } from "../ledger-button-app.js";
 
-export type RpcMethods =
-  | "eth_accounts"
-  | "eth_requestAccounts"
-  | "personal_sign"
-  | "eth_sendRawTransaction"
-  | "eth_sendTransaction"
-  | "eth_signTransaction"
-  | "eth_signTypedData";
-
-export interface RequestArguments {
-  readonly method: RpcMethods;
-  readonly params?: readonly unknown[] | object;
-}
-
-export interface ProviderRpcError extends Error {
-  code: number;
-  data?: unknown;
-}
-
-// Error codes as defined in EIP-1193
-export const CommonEIP1193ErrorCode = {
-  UserRejectedRequest: 4001,
-  Unauthorized: 4100,
-  UnsupportedMethod: 4200,
-  Disconnected: 4900,
-  ChainDisconnected: 4901,
-  // Additional common error codes (JSON-RPC 2.0)
-  ParseError: -32700,
-  InvalidRequest: -32600,
-  MethodNotFound: -32601,
-  InvalidParams: -32602,
-  InternalError: -32603,
-} as const;
-
-export interface ProviderMessage {
-  readonly type: string;
-  readonly data: unknown;
-}
-
-export interface ProviderConnectInfo {
-  readonly chainId: string;
-}
-
-export interface EIP6963ProviderInfo {
-  uuid: string;
-  name: string;
-  icon: string;
-  rdns: string;
-}
-
-export interface EIP6963ProviderDetail {
-  info: EIP6963ProviderInfo;
-  provider: LedgerEIP1193Provider;
-}
-
-export interface EIP6963AnnounceProviderEvent extends CustomEvent {
-  type: "eip6963:announceProvider";
-  detail: EIP6963ProviderDetail;
-}
-
-export interface EIP6963RequestProviderEvent extends Event {
-  type: "eip6963:requestProvider";
-}
-
-// Standard Ethereum RPC method interfaces
-export interface EthRequestAccountsResult {
-  accounts: string[];
-}
-
-export interface EthSendTransactionParams {
-  from: string;
-  to?: string;
-  gas?: string;
-  gasPrice?: string;
-  maxFeePerGas?: string;
-  maxPriorityFeePerGas?: string;
-  value?: string;
-  data?: string;
-  nonce?: string;
-  type?: string;
-  chainId?: string;
-}
-
-export type EthSignTransactionParams = EthSendTransactionParams;
-
-export interface PersonalSignParams {
-  message: string;
-  address: string;
-}
-
-export interface EthSignTypedDataParams {
-  address: string;
-  typedData: {
-    types: Record<string, Array<{ name: string; type: string }>>;
-    primaryType: string;
-    domain: Record<string, unknown>;
-    message: Record<string, unknown>;
-  };
-}
-
-// Provider events
-export type ProviderEvent =
-  | "connect"
-  | "disconnect"
-  | "chainChanged"
-  | "accountsChanged"
-  | "message";
-
-// Chain information
-export interface ChainInfo {
-  chainId: string;
-  chainName: string;
-  nativeCurrency: {
-    name: string;
-    symbol: string;
-    decimals: number;
-  };
-  rpcUrls: string[];
-  blockExplorerUrls?: string[];
-}
-
-export class LedgerEIP1193Provider extends EventTarget {
+export class LedgerEIP1193Provider
+  extends EventTarget
+  implements EIP1193Provider
+{
   private _isConnected = false;
   private _supportedChains: Map<string, ChainInfo> = new Map();
+
+  private _id = 0;
 
   // NOTE: Tracking listeners by function reference
   // This is a workaround to wrap the event listener in the `on` method
@@ -149,7 +45,7 @@ export class LedgerEIP1193Provider extends EventTarget {
   > = new Map();
 
   constructor(
-    // private readonly core: LedgerButtonCore,
+    private readonly core: LedgerButtonCore,
     private readonly app: LedgerButtonApp,
   ) {
     super();
@@ -184,40 +80,36 @@ export class LedgerEIP1193Provider extends EventTarget {
   handlers = {
     eth_accounts: (_: unknown) => this.handleRequestAccounts(),
     eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
-    eth_sendTransaction: () => {
-      return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    },
-    eth_sendRawTransaction: () => {
-      return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    },
-    eth_signTransaction: () => {
-      return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    },
-    personal_sign: () => {
-      return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    },
-    eth_signTypedData: () => {
-      return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    },
-  };
+    // NOTE: DEFERRED TO CORE
+    // eth_sendTransaction: () => {
+    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
+    // },
+    // eth_sendRawTransaction: () => {
+    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
+    // },
+    // eth_signTransaction: () => {
+    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
+    // },
+    // personal_sign: () => {
+    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
+    // },
+    // eth_signTypedData: () => {
+    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
+    // },
+  } as const;
 
   // Public API
-  public request({
-    method,
-    params,
-  }: RequestArguments): ReturnType<
-    (typeof this.handlers)[keyof typeof this.handlers]
-  > {
-    const handler = this.handlers[method];
-
-    if (!handler) {
-      throw this.createError(
-        CommonEIP1193ErrorCode.UnsupportedMethod,
-        `Method ${method} not supported`,
-      );
+  public request({ method, params }: RequestArguments) {
+    if (method in this.handlers) {
+      return this.handlers[method as keyof typeof this.handlers](params);
     }
 
-    return handler(params);
+    return this.core.jsonRpcRequest({
+      jsonrpc: "2.0",
+      id: this._id++,
+      method,
+      params,
+    });
   }
 
   public on(
