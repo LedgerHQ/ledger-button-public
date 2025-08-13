@@ -6,7 +6,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../tailwind-element";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 const accountItemVariants = cva([
   "flex min-w-full cursor-pointer justify-between p-12",

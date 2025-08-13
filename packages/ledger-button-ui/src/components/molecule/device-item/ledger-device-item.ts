@@ -6,8 +6,8 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../tailwind-element";
-import { DeviceModelId } from "../../atom/icon/device-icon/device-icon";
+import { tailwindElement } from "../../../tailwind-element.js";
+import { DeviceModelId } from "../../atom/icon/device-icon/device-icon.js";
 
 const deviceItemVariants = cva(
   [

@@ -1,7 +1,7 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 @customElement("ledger-modal-story-wrapper")
 @tailwindElement()

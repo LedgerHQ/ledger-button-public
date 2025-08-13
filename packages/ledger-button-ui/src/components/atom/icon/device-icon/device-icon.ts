@@ -3,7 +3,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../../tailwind-element";
+import { tailwindElement } from "../../../../tailwind-element.js";
 import flex from "./flex";
 import nano from "./nano";
 import stax from "./stax";

@@ -2,7 +2,7 @@ import { css, html, LitElement } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { animate } from "motion";
 
-import { tailwindElement } from "../../../tailwind-element";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 const styles = css`
   /* :host {

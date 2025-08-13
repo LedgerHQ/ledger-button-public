@@ -8,7 +8,7 @@
   "private": true,
   "exports": {
     "./package.json": "./package.json",
-    "./styles.css": "./src/styles.css",
+    "./styles.css": "./dist/styles.css",
     ".": {
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",

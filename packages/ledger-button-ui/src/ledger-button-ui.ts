@@ -3,7 +3,7 @@ import "./components/atom/button/ledger-button";
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import { tailwindElement } from "./tailwind-element";
+import { tailwindElement } from "./tailwind-element.js";
 
 const styles = css`
   :host {

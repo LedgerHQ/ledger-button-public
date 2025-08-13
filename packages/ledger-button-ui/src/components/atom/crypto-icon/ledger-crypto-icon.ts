@@ -2,7 +2,7 @@ import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element";
+import { tailwindElement } from "../../../tailwind-element.js";
 import cryptoIconMap from "./map.json";
 
 export type CryptoIconSize = "small" | "medium" | "large";
@@ -89,7 +89,7 @@ export class LedgerCryptoIcon extends LitElement {
     return html`
       <div class="${this.iconClasses}">
         <img
-          class="h-full w-full block object-cover"
+          class="block h-full w-full object-cover"
           src=${iconUrl}
           alt=${this.ledgerId || "Crypto icon"}
         />

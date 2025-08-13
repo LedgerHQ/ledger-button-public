@@ -18,7 +18,7 @@ import { default as PairedSuccessStaxDark } from "./stax/03_STAX_DARK_PAIRED_SUC
 import { default as ContinueOnLedgerStaxDark } from "./stax/04_STAX_DARK_CONTINUE_ON_LEDGER.json";
 import { default as SignTransactionStaxDark } from "./stax/05_STAX_DARK_SIGN_TRANSACTION.json";
 import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
-import { tailwindElement } from "../../../tailwind-element";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 export type AnimationKey =
   | "pin"

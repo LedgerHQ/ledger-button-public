@@ -1,9 +1,6 @@
 import "@ledgerhq/ledger-button-ui";
 
-import {
-  AccountItemClickEventDetail,
-  tailwindElement,
-} from "@ledgerhq/ledger-button-ui";
+import { AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -15,6 +12,7 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
+import { tailwindElement } from "../../tailwind-element.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
 @customElement("ledger-home-screen")

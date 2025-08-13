@@ -5,16 +5,14 @@ import "./context/core-context.js";
 import "./shared/routes.js";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import {
-  type AccountItemClickEventDetail,
-  tailwindElement,
-} from "@ledgerhq/ledger-button-ui";
+import { type AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
+import { tailwindElement } from "./tailwind-element.js";
 
 @customElement("ledger-button-app")
 @tailwindElement()

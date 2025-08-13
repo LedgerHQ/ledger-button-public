@@ -36,7 +36,7 @@
     "src/**/*.spec.jsx",
     "eslint.config.js",
     "eslint.config.cjs",
-    "eslint.config.mjs"
+    "eslint.config.mjs",
   ],
   "include": [
     "src/**/*.js",

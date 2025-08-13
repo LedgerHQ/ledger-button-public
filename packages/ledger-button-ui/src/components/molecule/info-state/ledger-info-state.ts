@@ -4,10 +4,10 @@ import { cva } from "class-variance-authority";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element";
-import FlexDeviceIcon from "./flex-device-icon";
-import NanoxDeviceIcon from "./nanox-device-icon";
-import StaxDeviceIcon from "./stax-device-icon";
+import { tailwindElement } from "../../../tailwind-element.js";
+import FlexDeviceIcon from "./flex-device-icon.js";
+import NanoxDeviceIcon from "./nanox-device-icon.js";
+import StaxDeviceIcon from "./stax-device-icon.js";
 
 export type DeviceType = "nanox" | "stax" | "flex";
 

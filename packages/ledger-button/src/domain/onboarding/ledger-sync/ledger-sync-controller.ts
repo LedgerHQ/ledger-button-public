@@ -1,9 +1,12 @@
-import { Device, SignTransactionParams } from "@ledgerhq/ledger-button-core";
-import { ReactiveController, ReactiveControllerHost } from "lit";
+import {
+  type Device,
+  type SignTransactionParams,
+} from "@ledgerhq/ledger-button-core";
+import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
-import { CoreContext } from "../../../context/core-context.js";
+import { type CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
+import { type Destinations } from "../../../shared/routes.js";
 
 export class LedgerSyncController implements ReactiveController {
   device?: Device;

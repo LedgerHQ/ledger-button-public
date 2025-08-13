@@ -12,7 +12,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "files": [
     "dist",
@@ -24,6 +25,8 @@
     "@lit/context": "1.1.6",
     "lit": "3.3.1",
     "rxjs": "~7.8.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "@storybook/web-components-vite": "9.0.17",
+    "@storybook/web-components": "^9.0.17"
   }
 }

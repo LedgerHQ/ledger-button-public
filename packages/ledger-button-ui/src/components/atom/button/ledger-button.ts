@@ -5,8 +5,8 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../tailwind-element";
-import { LedgerIconAttributes } from "../icon/ledger-icon";
+import { tailwindElement } from "../../../tailwind-element.js";
+import { LedgerIconAttributes } from "../icon/ledger-icon.js";
 
 export type ButtonVariant = "primary" | "secondary" | "accent" | "noBackground";
 export type ButtonSize = "small" | "medium" | "large" | "xs" | "full";

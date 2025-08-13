@@ -10,6 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
+    "types": ["node", "vite/client"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
   },
   "include": [

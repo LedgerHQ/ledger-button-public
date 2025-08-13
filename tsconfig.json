@@ -17,6 +17,9 @@
     },
     {
       "path": "./pocs/ledger-button-webcomponent-poc/examples/react"
+    },
+    {
+      "path": "./apps/test-dapp"
     }
   ],
   "ts-node": {

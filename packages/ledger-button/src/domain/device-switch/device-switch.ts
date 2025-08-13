@@ -1,13 +1,9 @@
 import "@ledgerhq/ledger-button-ui";
 
-import {
-  DeviceItemClickEventDetail,
-  tailwindElement,
-} from "@ledgerhq/ledger-button-ui";
+import { DeviceItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { repeat } from "lit/directives/repeat.js";
 
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
@@ -16,6 +12,7 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destination, Destinations } from "../../shared/routes.js";
+import { tailwindElement } from "../../tailwind-element.js";
 import { DeviceSwitchController } from "./device-switch-controller.js";
 
 const styles = css`
@@ -119,36 +116,33 @@ export class DeviceSwitchScreen extends LitElement {
 
     return html`
       <div class="flex flex-col gap-12 p-24 pt-0">
-        ${repeat(
-          devices,
-          (device) => device.id,
-          (device) => {
-            const connectionType =
-              this.controller.getConnectionTypeFromTransport(device.transport);
-            const connectedDevice = this.coreContext.getConnectedDevice();
-            const isConnected =
-              connectedDevice && connectedDevice.name === device.name;
-            const status = isConnected ? "connected" : "available";
-            const deviceModelId = this.controller.mapDeviceModelId(
-              device.deviceModel?.model,
-            );
+        ${devices.map((device) => {
+          const connectionType = this.controller.getConnectionTypeFromTransport(
+            device.transport,
+          );
+          const connectedDevice = this.coreContext.getConnectedDevice();
+          const isConnected =
+            connectedDevice && connectedDevice.name === device.name;
+          const status = isConnected ? "connected" : "available";
+          const deviceModelId = this.controller.mapDeviceModelId(
+            device.deviceModel?.model,
+          );
 
-            const lang = this.languageContext.currentTranslation;
+          const lang = this.languageContext.currentTranslation;
 
-            return html`
-              <ledger-device-item
-                device-id=${device.id}
-                title=${device.name}
-                connection-type=${connectionType}
-                device-model-id=${deviceModelId}
-                status=${status}
-                connected-text=${lang.deviceSwitch.status.connected}
-                available-text=${lang.deviceSwitch.status.available}
-                @device-item-click=${this.handleDeviceItemClick}
-              ></ledger-device-item>
-            `;
-          },
-        )}
+          return html`
+            <ledger-device-item
+              device-id=${device.id}
+              title=${device.name}
+              connection-type=${connectionType}
+              device-model-id=${deviceModelId}
+              status=${status}
+              connected-text=${lang.deviceSwitch.status.connected}
+              available-text=${lang.deviceSwitch.status.available}
+              @device-item-click=${this.handleDeviceItemClick}
+            ></ledger-device-item>
+          `;
+        })}
       </div>
     `;
   }

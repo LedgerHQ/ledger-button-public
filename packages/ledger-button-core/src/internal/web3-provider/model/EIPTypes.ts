@@ -64,11 +64,8 @@ export interface EIP6963ProviderInfo {
 
 export interface EIP1193Provider {
   request(args: RequestArguments): Promise<unknown>;
-  on(eventName: string, listener: (...args: unknown[]) => void): void;
-  removeListener(
-    eventName: string,
-    listener: (...args: unknown[]) => void,
-  ): void;
+  on(eventName: string, listener: (...args: any[]) => void): void;
+  removeListener(eventName: string, listener: (...args: any[]) => void): void;
   isConnected(): boolean;
 }
 

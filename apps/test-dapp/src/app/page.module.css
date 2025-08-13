@@ -1,0 +1,10 @@
+.page {
+  padding: 24px;
+}
+
+.page button {
+  padding: 12px 24px;
+  background-color: #000;
+  color: #fff;
+  border-radius: 8px;
+}

@@ -8,7 +8,7 @@ import lottie from "lottie-web";
 import backgroundFlare from "./animations/background-flare.js";
 import checkmark from "./animations/checkmark.js";
 import loadingSpinner from "./animations/loading-spinner.js";
-import { tailwindElement } from "../../../tailwind-element";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 export type LottieSize = "small" | "medium" | "large" | "full";
 

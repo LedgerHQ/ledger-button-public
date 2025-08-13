@@ -5,9 +5,9 @@ import {
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { CoreContext } from "../../context/core-context.js";
+import { type CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
+import { type Destinations } from "../../shared/routes.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
   state: string;

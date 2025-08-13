@@ -1,14 +1,10 @@
 import "@ledgerhq/ledger-button-ui";
 
 import { Account } from "@ledgerhq/ledger-button-core";
-import {
-  AccountItemClickEventDetail,
-  tailwindElement,
-} from "@ledgerhq/ledger-button-ui";
+import { AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { repeat } from "lit/directives/repeat.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
@@ -16,6 +12,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import { SelectAccountController } from "./select-account-controller.js";
 
 @customElement("select-account-screen")
@@ -101,11 +98,7 @@ export class SelectAccountScreen extends LitElement {
   override render() {
     return html`
       <div class="flex flex-col gap-12 p-24 pt-0">
-        ${repeat(
-          this.controller.accounts,
-          (account) => account.freshAddress,
-          this.renderAccountItem,
-        )}
+        ${this.controller.accounts.map(this.renderAccountItem)}
       </div>
     `;
   }

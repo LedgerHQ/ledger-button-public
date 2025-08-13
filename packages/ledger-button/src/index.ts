@@ -7,6 +7,10 @@ import { v4 as uuidv4 } from "uuid";
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
+import "@ledgerhq/ledger-button-ui/styles.css";
+
+export type { EIP1193Provider } from "@ledgerhq/ledger-button-core";
+
 let core: LedgerButtonCore | null = null;
 
 export function initializeLedgerProvider({

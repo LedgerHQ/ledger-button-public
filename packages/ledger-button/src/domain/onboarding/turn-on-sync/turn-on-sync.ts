@@ -1,4 +1,3 @@
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -11,6 +10,7 @@ import {
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import banner from "./banner.png";
 import { TurnOnSyncController } from "./turn-on-sync-controller.js";
 

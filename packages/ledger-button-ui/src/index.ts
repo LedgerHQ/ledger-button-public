@@ -1,4 +1,3 @@
-import "./styles.css?inline";
 export * from "./components/atom/balance/ledger-balance.js";
 export * from "./components/atom/button/ledger-button.js";
 export * from "./components/atom/chip/ledger-chip.js";
