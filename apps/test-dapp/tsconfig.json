@@ -23,17 +23,21 @@
       }
     ],
     "paths": {
-      "@/*": [
+      "ledger-button": [
+        "../../packages/ledger-button/dist/index.js"
+      ],
+      /* "@/*": [
         "./src/*"
-      ]
+      ] */
     },
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../../",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
     "../../apps/test-dapp/.next/types/**/*.ts",
     "../../dist/apps/test-dapp/.next/types/**/*.ts",
+    "../../packages/ledger-button/dist/index.js",
     "next-env.d.ts",
     "src/**/*.js",
     "src/**/*.jsx",
@@ -43,7 +47,6 @@
   ],
   "exclude": [
     "out-tsc",
-    "dist",
     "node_modules",
     "jest.config.ts",
     "src/**/*.spec.ts",

@@ -1,20 +1,68 @@
 //@ts-check
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+const path = require("path");
 const { composePlugins, withNx } = require("@nx/next");
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
  **/
 const nextConfig = {
-  // Use this to set Nx-specific options
-  // See: https://nx.dev/recipes/next/next-config-setup
-  nx: {},
+  nx: {
+    // Ensure Nx doesn't override our optimization settings
+    svgr: false,
+  },
+  // Disable code minimization and compression
+  optimization: {
+    compress: false,
+    minimize: false,
+    swcMinify: false,
+  },
+  // Ensure webpack doesn't minimize or compress
+  webpack: (config, { dev, isServer }) => {
+    // Disable minimization regardless of environment
+    config.optimization.minimize = false;
+
+    if (config.optimization.minimizer) {
+      config.optimization.minimizer = [];
+    }
+
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "ledger-button": path.resolve(
+        __dirname,
+        "../../packages/ledger-button/dist",
+      ),
+      "ledger-button-ui": path.resolve(
+        __dirname,
+        "../../packages/ledger-button-ui/dist",
+      ),
+      "ledger-button-core": path.resolve(
+        __dirname,
+        "../../packages/ledger-button-core/dist",
+      ),
+    };
+
+    return config;
+  },
 };
 
-const plugins = [
-  // Add more Next.js plugins to this list if needed.
-  withNx,
-];
+// Define custom plugin to ensure optimization settings aren't overridden
+const withNoMinimize = (nextConfig) => {
+  return {
+    ...nextConfig,
+    webpack: (config, options) => {
+      // Call the user's webpack function if it exists
+      const userWebpack = nextConfig.webpack;
+      const resultConfig = userWebpack ? userWebpack(config, options) : config;
+
+      // Ensure minimization is disabled
+      resultConfig.optimization.minimize = false;
+      resultConfig.optimization.minimizer = [];
+
+      return resultConfig;
+    },
+  };
+};
+
+const plugins = [withNoMinimize, withNx];
 
 module.exports = composePlugins(...plugins)(nextConfig);

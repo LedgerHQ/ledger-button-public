@@ -1,21 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  type EIP1193Provider,
-  initializeLedgerProvider,
-} from "@ledgerhq/ledger-button";
+import { useCallback, useEffect, useState } from "react";
 
 import styles from "./page.module.css";
 
-export default function Index() {
-  const [provider, setProvider] = useState<EIP1193Provider | null>(null);
+// Create a wrapper for the ledger-button module that handles SSR
+let LedgerButtonModule: typeof import("ledger-button") | null = null;
 
-  const handleAnnounceProvider = (
-    e: CustomEvent<{ provider: EIP1193Provider }>,
-  ) => {
-    setProvider(e.detail.provider);
+export default function Index() {
+  // Define proper types for the provider
+  type Provider = {
+    request: (args: { method: string; params: unknown[] }) => Promise<unknown>;
+    on: (event: string, handler: (data: any) => void) => void;
+    removeListener: (event: string, handler: (data: any) => void) => void;
   };
+
+  const [provider, setProvider] = useState<Provider | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load the ledger-button module on the client side
+  useEffect(() => {
+    // Only import in browser environment
+    if (typeof window !== "undefined") {
+      import("ledger-button").then((module) => {
+        LedgerButtonModule = module;
+        setIsLoaded(true);
+      });
+    }
+  }, []);
+
+  const handleAnnounceProvider = useCallback(
+    (e: CustomEvent<{ provider: Provider }>) => {
+      setProvider(e.detail.provider);
+    },
+    [],
+  );
 
   const requestAccounts = async () => {
     if (!provider) return;
@@ -26,33 +45,43 @@ export default function Index() {
   };
 
   useEffect(() => {
+    if (!isLoaded || !LedgerButtonModule) return;
+
+    const { initializeLedgerProvider } = LedgerButtonModule;
+
     const cleanup = initializeLedgerProvider({
       stub: true,
       stubDevice: false,
       stubWeb3Provider: true,
     });
 
-    window.addEventListener("eip6963:announceProvider", handleAnnounceProvider);
-
+    window.addEventListener(
+      "eip6963:announceProvider",
+      handleAnnounceProvider as EventListener,
+    );
     window.dispatchEvent(new Event("eip6963:requestProvider"));
 
     return () => {
       cleanup();
       window.removeEventListener(
         "eip6963:announceProvider",
-        handleAnnounceProvider,
+        handleAnnounceProvider as EventListener,
       );
     };
-  }, []);
+  }, [isLoaded, handleAnnounceProvider]);
 
   useEffect(() => {
-    const handleAccountsChanged = (accounts: string[]) => {
+    if (!provider) return;
+
+    // Type assertion for the specific event handler
+    const handleAccountsChanged = ((accounts: string[]) => {
       console.log("accountsChanged", accounts);
-    };
-    provider?.on("accountsChanged", handleAccountsChanged);
+    }) as (data: any) => void;
+
+    provider.on("accountsChanged", handleAccountsChanged);
 
     return () => {
-      provider?.removeListener("accountsChanged", handleAccountsChanged);
+      provider.removeListener("accountsChanged", handleAccountsChanged);
     };
   }, [provider]);
 
