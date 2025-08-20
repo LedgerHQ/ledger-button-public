@@ -1,6 +1,7 @@
 import {
-  SignTransactionParams,
-  TransactionResult,
+  type SignedTransaction,
+  type SignTransactionParams,
+  type TransactionResult,
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
@@ -17,6 +18,7 @@ interface SignTransactionHost extends ReactiveControllerHost {
 export class SignTransactionController implements ReactiveController {
   host: SignTransactionHost;
   private transactionSubscription?: Subscription;
+  result?: SignedTransaction;
 
   constructor(
     host: SignTransactionHost,
@@ -53,6 +55,7 @@ export class SignTransactionController implements ReactiveController {
               if (result.data) {
                 this.host.state = "success";
                 this.host.transactionId = result.data.hash;
+                this.result = result.data;
               }
               break;
             case "error":

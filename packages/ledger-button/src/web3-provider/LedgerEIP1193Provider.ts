@@ -14,6 +14,7 @@ import "../ledger-button-app.js";
 
 import {
   type ChainInfo,
+  CommonEIP1193ErrorCode,
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
@@ -22,6 +23,7 @@ import {
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
+  SignedTransaction,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -33,6 +35,7 @@ export class LedgerEIP1193Provider
 {
   private _isConnected = false;
   private _supportedChains: Map<string, ChainInfo> = new Map();
+  private _selectedAccount: string | null = null;
 
   private _id = 0;
 
@@ -50,6 +53,10 @@ export class LedgerEIP1193Provider
   ) {
     super();
     this.initializeSupportedChains();
+
+    window.addEventListener("ledger-provider-disconnect", () => {
+      this.disconnect();
+    });
   }
 
   // Handlers for the different RPC methods
@@ -61,14 +68,41 @@ export class LedgerEIP1193Provider
         "ledger-provider-account-selected",
         (e) => {
           this.dispatchEvent(
-            new CustomEvent<{ accounts: string[] }>("accountsChanged", {
+            new CustomEvent<string[]>("accountsChanged", {
               bubbles: true,
               composed: true,
-              detail: { accounts: e.detail.accounts },
+              detail: [e.detail.accounts[0]],
             }),
           );
+          resolve([e.detail.accounts[0]]);
+          // TODO: replace with real connection logic
+          this._selectedAccount = e.detail.accounts[0];
+          this._isConnected = true;
+        },
+        {
+          once: true,
+        },
+      );
+    });
+  }
 
-          resolve(e.detail.accounts);
+  private handleSignTransaction(params: object): Promise<SignedTransaction> {
+    return new Promise((resolve, reject) => {
+      if (!this._selectedAccount) {
+        return reject(
+          this.createError(
+            CommonEIP1193ErrorCode.Unauthorized,
+            "No account selected",
+          ),
+        );
+      }
+
+      this.app.navigationIntent("signTransaction", params);
+
+      window.addEventListener(
+        "ledger-provider-sign-transaction",
+        (e) => {
+          resolve(e?.detail);
         },
         {
           once: true,
@@ -87,9 +121,7 @@ export class LedgerEIP1193Provider
     // eth_sendRawTransaction: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
-    // eth_signTransaction: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
+    eth_signTransaction: (params: object) => this.handleSignTransaction(params),
     // personal_sign: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
@@ -119,7 +151,7 @@ export class LedgerEIP1193Provider
     this._listeners.set(listener, (e) => {
       // NOTE: we should not handle non-custom events here
       if (e instanceof CustomEvent) {
-        listener(...e.detail);
+        listener(e.detail);
       }
     });
 
@@ -209,7 +241,7 @@ declare global {
     connect: CustomEvent<ProviderConnectInfo>;
     disconnect: CustomEvent<ProviderRpcError>;
     chainChanged: CustomEvent<ProviderConnectInfo>;
-    accountsChanged: CustomEvent<{ accounts: string[] }>;
+    accountsChanged: CustomEvent<string[]>;
     message: CustomEvent<ProviderMessage>;
     "eip6963:announceProvider": EIP6963AnnounceProviderEvent;
     "eip6963:requestProvider": EIP6963RequestProviderEvent;

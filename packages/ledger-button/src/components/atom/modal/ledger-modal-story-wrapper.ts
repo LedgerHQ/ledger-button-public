@@ -23,7 +23,7 @@ export class LedgerModalStoryWrapper extends LitElement {
         style="width: min(calc(100% - 32px), 400px); max-height: 550px"
       >
         <slot name="toolbar">
-          <!-- TODO: Default test toolbar -->
+          <!-- Default test toolbar -->
           <ledger-toolbar
             title=${this.title}
             aria-label=${this.title}

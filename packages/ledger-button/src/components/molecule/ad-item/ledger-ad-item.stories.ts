@@ -7,7 +7,7 @@ import { expect } from "storybook/test";
 const meta: Meta = {
   title: "Component/Molecule/ListItems/AdItem",
   tags: ["autodocs"],
-  render: (args) => html`
+  render: () => html`
     <div class="min-w-352">
       <ledger-ad-item title="Ledger Ad Item"></ledger-ad-item>
     </div>

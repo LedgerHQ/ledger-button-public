@@ -1,4 +1,4 @@
-import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
+import type { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";

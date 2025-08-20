@@ -56,8 +56,8 @@ export class RootNavigationComponent extends LitElement {
     return this.rootNavigationController.selectedAccount;
   }
 
-  public navigationIntent(intent: Destination["name"]) {
-    this.rootNavigationController.navigationIntent(intent);
+  public navigationIntent(intent: Destination["name"], params?: unknown) {
+    this.rootNavigationController.navigationIntent(intent, params);
     this.openModal();
   }
 
@@ -88,6 +88,7 @@ export class RootNavigationComponent extends LitElement {
         <${tag}
           .destinations=${this.rootNavigationController.destinations}
           .navigation=${this.rootNavigationController.navigation}
+          .params=${this.rootNavigationController.params}
         ></${tag}>
       `;
     }

@@ -12,13 +12,17 @@ import {
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import { SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
+import { type SignRawTransactionParams } from "../internal/device/use-case/SignRawTransaction.js";
+import { type SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { StorageService } from "../internal/storage/StorageService.js";
-import * as TransactionService from "../internal/transaction/service/TransactionService.js";
+import {
+  TransactionResult,
+  type TransactionService,
+} from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
@@ -26,7 +30,7 @@ import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderM
 
 export class LedgerButtonCore {
   private container!: Container;
-  private _pendingTransactionParams?: SignTransactionParams;
+  private _pendingTransactionParams?: SignRawTransactionParams;
 
   constructor(private readonly opts: ContainerOptions) {
     this.container = createContainer(this.opts);
@@ -103,24 +107,32 @@ export class LedgerButtonCore {
   }
 
   // Transaction methods
-  signTransaction(params: SignTransactionParams): Observable<TransactionService.TransactionResult> {
+  signRawTransaction(
+    params: SignRawTransactionParams,
+  ): Observable<TransactionResult> {
     return this.container
-      .get<TransactionService.TransactionService>(
-        transactionModuleTypes.TransactionService,
-      )
+      ?.get<TransactionService>(transactionModuleTypes.TransactionService)
       .signTransaction(params);
   }
 
-  setPendingTransactionParams(params: SignTransactionParams | undefined) {
+  signTransaction(
+    params: SignTransactionParams,
+  ): Observable<TransactionResult> {
+    return this.container
+      .get<TransactionService>(transactionModuleTypes.TransactionService)
+      .signTransaction(params);
+  }
+
+  setPendingTransactionParams(params: SignRawTransactionParams | undefined) {
     this._pendingTransactionParams = params;
   }
 
-  getPendingTransactionParams(): SignTransactionParams | undefined {
+  getPendingTransactionParams(): SignRawTransactionParams | undefined {
     return this._pendingTransactionParams;
   }
 
-  getTransactionService(): TransactionService.TransactionService {
-    return this.container.get<TransactionService.TransactionService>(
+  getTransactionService(): TransactionService {
+    return this.container.get<TransactionService>(
       transactionModuleTypes.TransactionService,
     );
   }

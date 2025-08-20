@@ -1,115 +1,227 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Field,
+  Textarea,
+} from "@headlessui/react";
+import { LedgerEIP1193Provider } from "@ledgerhq/ledger-button";
+import { ethers } from "ethers";
+
+import { useProviders } from "../hooks/useProviders";
 
 import styles from "./page.module.css";
 
-// Create a wrapper for the ledger-button module that handles SSR
-let LedgerButtonModule: typeof import("ledger-button") | null = null;
-
 export default function Index() {
-  // Define proper types for the provider
-  type Provider = {
-    request: (args: { method: string; params: unknown[] }) => Promise<unknown>;
-    on: (event: string, handler: (data: any) => void) => void;
-    removeListener: (event: string, handler: (data: any) => void) => void;
-  };
+  const { providers, selectedProvider, setSelectedProvider } = useProviders();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenTransaction, setIsOpenTransaction] = useState(false);
+  const [account, setAccount] = useState<string | null>(null);
+  const [balance, setBalance] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const txRef = useRef<HTMLTextAreaElement>(null);
 
-  const [provider, setProvider] = useState<Provider | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Load the ledger-button module on the client side
-  useEffect(() => {
-    // Only import in browser environment
-    if (typeof window !== "undefined") {
-      import("ledger-button").then((module) => {
-        LedgerButtonModule = module;
-        setIsLoaded(true);
-      });
-    }
+  const dispatchRequestProvider = useCallback(() => {
+    if (typeof window === "undefined") return;
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    setIsOpen(true);
   }, []);
 
-  const handleAnnounceProvider = useCallback(
-    (e: CustomEvent<{ provider: Provider }>) => {
-      setProvider(e.detail.provider);
-    },
-    [],
-  );
-
-  const requestAccounts = async () => {
-    if (!provider) return;
-    await provider.request({
-      method: "eth_requestAccounts",
-      params: [],
-    });
-  };
-
   useEffect(() => {
-    if (!isLoaded || !LedgerButtonModule) return;
-
-    const { initializeLedgerProvider } = LedgerButtonModule;
-
-    const cleanup = initializeLedgerProvider({
-      stub: true,
-      stubDevice: false,
-      stubWeb3Provider: true,
-    });
-
-    window.addEventListener(
-      "eip6963:announceProvider",
-      handleAnnounceProvider as EventListener,
-    );
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
-
-    return () => {
-      cleanup();
-      window.removeEventListener(
-        "eip6963:announceProvider",
-        handleAnnounceProvider as EventListener,
-      );
-    };
-  }, [isLoaded, handleAnnounceProvider]);
-
-  useEffect(() => {
-    if (!provider) return;
+    if (!selectedProvider) return;
 
     // Type assertion for the specific event handler
-    const handleAccountsChanged = ((accounts: string[]) => {
-      console.log("accountsChanged", accounts);
-    }) as (data: any) => void;
+    const handleAccountsChanged = (accounts: string[]) => {
+      setIsOpen(false);
+      setAccount(accounts[0]);
+    };
 
-    provider.on("accountsChanged", handleAccountsChanged);
+    selectedProvider.provider.on("accountsChanged", handleAccountsChanged);
 
     return () => {
-      provider.removeListener("accountsChanged", handleAccountsChanged);
+      selectedProvider.provider.removeListener(
+        "accountsChanged",
+        handleAccountsChanged,
+      );
     };
-  }, [provider]);
+  }, [selectedProvider]);
+
+  useEffect(() => {
+    if (selectedProvider) {
+      setIsOpen(false);
+    }
+  }, [selectedProvider]);
+
+  const handleRequestAccounts = useCallback(async () => {
+    if (!selectedProvider) return;
+
+    setError(null);
+
+    try {
+      const accounts = (await selectedProvider?.provider.request({
+        method: "eth_requestAccounts",
+        params: [],
+      })) as string[];
+      if (accounts[0] !== account) {
+        setAccount(accounts[0]);
+      }
+    } catch (error) {
+      console.error(error);
+      setError((error as Error)?.message ?? "Unknown error");
+    }
+  }, [selectedProvider, account]);
+
+  const handleGetBalance = useCallback(async () => {
+    if (!selectedProvider) return;
+
+    setError(null);
+
+    try {
+      const balance = (await selectedProvider.provider.request({
+        method: "eth_getBalance",
+        params: [],
+      })) as { result?: string; error?: { code: number; message: string } };
+
+      console.log(balance);
+      setBalance(balance.result ?? "");
+      if (balance.error) {
+        setError(balance.error.message);
+      }
+    } catch (error) {
+      setError(error as string);
+      console.error(error);
+    }
+  }, [selectedProvider]);
+
+  const startSignTransaction = useCallback(() => {
+    setIsOpenTransaction(true);
+  }, []);
+
+  const handleSignTransaction = useCallback(async () => {
+    if (!selectedProvider || !txRef.current?.value) return;
+    setIsOpenTransaction(false);
+    setError(null);
+
+    const transx = ethers.Transaction.from(txRef.current.value);
+
+    try {
+      const transaction = (await selectedProvider.provider.request({
+        method: "eth_signTransaction",
+        params: [transx],
+      })) as string;
+      console.log(transaction);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [selectedProvider]);
+
+  const handleDisconnect = useCallback(async () => {
+    if (!selectedProvider) return;
+
+    if (selectedProvider.provider instanceof LedgerEIP1193Provider) {
+      selectedProvider.provider.disconnect();
+    }
+
+    setSelectedProvider(null);
+    setAccount(null);
+    setBalance("");
+    setError(null);
+    setIsOpenTransaction(false);
+    setIsOpen(false);
+  }, [selectedProvider, setSelectedProvider]);
 
   return (
     <div className={styles.page}>
       <div className="wrapper">
-        <div className="container">
-          <div id="actions">
-            <button onClick={requestAccounts}>Connect to Ledger</button>
+        {account && (
+          <div className={styles.account}>
+            <p>Account: {account}</p>
           </div>
+        )}
 
-          <p id="love">
-            Carefully crafted with
-            <svg
-              fill="currentColor"
-              stroke="none"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
+        <div className={styles.metadata}>
+          {selectedProvider && (
+            <img
+              src={selectedProvider.info.icon}
+              alt={selectedProvider.info.name}
+            />
+          )}
+          <p>
+            {selectedProvider?.provider.isConnected()
+              ? "Connected"
+              : "Not Connected"}
           </p>
+          <button onClick={dispatchRequestProvider}>List Providers</button>
+          {selectedProvider && (
+            <>
+              <button onClick={handleRequestAccounts}>Request Accounts</button>
+              <button onClick={handleDisconnect}>Disconnect</button>
+            </>
+          )}
         </div>
+
+        {account && (
+          <div className={styles.metadata}>
+            <span>BALANCE: {balance}</span>
+            <button onClick={handleGetBalance}>Get Balance</button>
+            <button onClick={startSignTransaction}>Sign Transaction</button>
+          </div>
+        )}
+
+        {error && <div className={styles.error}>{error}</div>}
+
+        <Dialog
+          open={isOpen}
+          as="div"
+          className={styles.dialog}
+          onClose={() => setIsOpen(false)}
+        >
+          <div className={styles.dialogWrapper}>
+            <div className={styles.dialogContent}>
+              <DialogPanel transition className={styles.dialogPanel}>
+                <DialogTitle as="h3" className={styles.dialogTitle}>
+                  Available Providers
+                </DialogTitle>
+                <div className={styles.providers}>
+                  {providers.map((data) => (
+                    <div
+                      className={styles.provider}
+                      key={data.info.uuid}
+                      onClick={() => setSelectedProvider(data)}
+                    >
+                      <p>{data.info.name}</p>
+                      <img src={data.info.icon} alt={data.info.name} />
+                    </div>
+                  ))}
+                </div>
+              </DialogPanel>
+            </div>
+          </div>
+        </Dialog>
+
+        <Dialog
+          open={isOpenTransaction}
+          as="div"
+          className={styles.dialog}
+          onClose={() => setIsOpenTransaction(false)}
+        >
+          <div className={styles.dialogWrapper}>
+            <div className={styles.dialogContent}>
+              <DialogPanel transition className={styles.dialogPanel}>
+                <DialogTitle as="h3" className={styles.dialogTitle}>
+                  Raw TX
+                </DialogTitle>
+                <Field>
+                  <Textarea ref={txRef} className={styles.textarea} rows={3} />
+                </Field>
+                <button onClick={handleSignTransaction}>Sign</button>
+              </DialogPanel>
+            </div>
+          </div>
+        </Dialog>
       </div>
     </div>
   );

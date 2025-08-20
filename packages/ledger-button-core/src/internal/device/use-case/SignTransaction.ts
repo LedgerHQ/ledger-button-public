@@ -1,23 +1,16 @@
-import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
-import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
+import { ethers } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
-import { lastValueFrom } from "rxjs";
-import { keccak256 } from "viem";
 
-import { defaultDerivationPath, originToken } from "../../config/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import {
+  type SignedTransaction,
+  SignRawTransaction,
+} from "./SignRawTransaction.js";
 
 export interface SignTransactionParams {
-  rawTransaction: string;
-  derivationPath?: string;
-}
-
-export interface SignedTransaction {
-  hash: string;
-  rawTransaction: string;
+  transaction: object;
 }
 
 @injectable()
@@ -27,58 +20,25 @@ export class SignTransaction {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
-    @inject(deviceModuleTypes.DeviceManagementKitService)
-    private readonly deviceManagementKitService: DeviceManagementKitService,
+    @inject(deviceModuleTypes.SignRawTransactionUseCase)
+    private readonly signRawTransaction: SignRawTransaction,
   ) {
-    this.logger = loggerFactory("[SignTransaction]");
+    this.logger = loggerFactory("[SignRawTransaction]");
   }
 
   async execute(params: SignTransactionParams): Promise<SignedTransaction> {
     this.logger.info("Starting transaction signing", { params });
 
-    const sessionId = this.deviceManagementKitService.sessionId;
-    if (!sessionId) {
-      this.logger.error("No device connected");
-      throw new Error("No device connected. Please connect a device first.");
-    }
-
-    const device = this.deviceManagementKitService.connectedDevice;
-    if (!device) {
-      this.logger.error("No connected device found");
-      throw new Error("No connected device found");
-    }
-
-    const { rawTransaction, derivationPath = defaultDerivationPath } = params;
+    const { transaction } = params;
 
     try {
-      const dmk = this.deviceManagementKitService.dmk;
-      const ethSigner = new SignerEthBuilder({
-        dmk,
-        originToken,
-        sessionId,
-      }).build();
-
-      const tx = hexaStringToBuffer(rawTransaction);
-      if (!tx) {
-        throw Error("Invalid raw transaction format");
-      }
-
-      const { observable } = ethSigner.signTransaction(derivationPath, tx);
-      const result = await lastValueFrom(observable);
-
-      if (result.status === "error") {
-        throw Error("Transaction signing failed");
-      }
-
-      this.logger.info("Transaction signing completed", { result });
-
-      return {
-        hash: keccak256(tx),
-        rawTransaction,
-      };
+      const tx = ethers.Transaction.from(transaction).unsignedSerialized;
+      return this.signRawTransaction.execute({
+        rawTransaction: tx,
+      });
     } catch (error) {
-      this.logger.error("Failed to sign transaction", { error });
-      throw new Error(`Transaction signing failed: ${error}`);
+      this.logger.error("Failed to parse transaction", { error });
+      throw new Error("Failed to parse transaction");
     }
   }
 }

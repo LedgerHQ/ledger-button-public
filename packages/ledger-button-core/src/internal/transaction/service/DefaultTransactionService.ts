@@ -1,12 +1,16 @@
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, from, Observable, Subject } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
+import { SignRawTransactionParams } from "src/api/index.js";
 
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
-import {
+import type {
   SignedTransaction,
+  SignRawTransaction,
+} from "../../device/use-case/SignRawTransaction.js";
+import {
   SignTransaction,
-  SignTransactionParams,
+  type SignTransactionParams,
 } from "../../device/use-case/SignTransaction.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -22,25 +26,34 @@ export class DefaultTransactionService implements TransactionService {
     TransactionStatus.IDLE,
   );
   private _result = new Subject<TransactionResult>();
-  private _pendingParams?: SignTransactionParams;
+  private _pendingParams?: SignTransactionParams | SignRawTransactionParams;
   private readonly logger: LoggerPublisher;
 
   constructor(
     @inject(deviceModuleTypes.SignTransactionUseCase)
     private readonly signTransactionUseCase: SignTransaction,
+    @inject(deviceModuleTypes.SignRawTransactionUseCase)
+    private readonly signRawTransactionUseCase: SignRawTransaction,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
     this.logger = loggerFactory("[DefaultTransactionService]");
   }
 
-  signTransaction(params: SignTransactionParams): Observable<TransactionResult> {
+  signTransaction(
+    params: SignTransactionParams | SignRawTransactionParams,
+  ): Observable<TransactionResult> {
     this._pendingParams = params;
     this._updateStatus(TransactionStatus.SIGNING);
 
     this.logger.info("Signing transaction", { params });
 
-    from(this.signTransactionUseCase.execute(params))
+    const useCase =
+      "transaction" in params
+        ? this.signTransactionUseCase.execute(params)
+        : this.signRawTransactionUseCase.execute(params);
+
+    from(useCase)
       .pipe(
         tap((result) => {
           this.logger.info("Transaction signed successfully", { result });
@@ -63,11 +76,16 @@ export class DefaultTransactionService implements TransactionService {
     return this._result.asObservable();
   }
 
-  getPendingTransaction(): SignTransactionParams | undefined {
+  getPendingTransaction():
+    | SignTransactionParams
+    | SignRawTransactionParams
+    | undefined {
     return this._pendingParams;
   }
 
-  setPendingTransaction(params: SignTransactionParams | undefined): void {
+  setPendingTransaction(
+    params: SignTransactionParams | SignRawTransactionParams | undefined,
+  ): void {
     this._pendingParams = params;
   }
 

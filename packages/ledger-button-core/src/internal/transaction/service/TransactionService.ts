@@ -1,9 +1,10 @@
 import { Observable } from "rxjs";
 
-import {
+import type {
   SignedTransaction,
-  SignTransactionParams,
-} from "../../device/use-case/SignTransaction.js";
+  SignRawTransactionParams,
+} from "../../device/use-case/SignRawTransaction.js";
+import type { SignTransactionParams } from "../../device/use-case/SignTransaction.js";
 
 export enum TransactionStatus {
   IDLE = "idle",
@@ -20,11 +21,18 @@ export interface TransactionResult {
 }
 
 export interface TransactionService {
-  signTransaction(params: SignTransactionParams): Observable<TransactionResult>;
+  signTransaction(
+    params: SignTransactionParams | SignRawTransactionParams,
+  ): Observable<TransactionResult>;
 
-  getPendingTransaction(): SignTransactionParams | undefined;
+  getPendingTransaction():
+    | SignTransactionParams
+    | SignRawTransactionParams
+    | undefined;
 
-  setPendingTransaction(params: SignTransactionParams | undefined): void;
+  setPendingTransaction(
+    params: SignTransactionParams | SignRawTransactionParams | undefined,
+  ): void;
 
   reset(): void;
 }

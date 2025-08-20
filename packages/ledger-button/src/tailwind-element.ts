@@ -6,7 +6,6 @@ type Constructor = new (...args: any[]) => LitElement;
 
 export function tailwindElement(styles?: CSSResult) {
   return function <T extends Constructor>(constructor: T): T {
-    console.log(unsafeCSS(tailwindStyles));
     return class extends constructor {
       static styles = [unsafeCSS(tailwindStyles), unsafeCSS(styles)];
     };

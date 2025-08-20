@@ -5,7 +5,8 @@ export type RpcMethods =
   | "eth_sendRawTransaction"
   | "eth_sendTransaction"
   | "eth_signTransaction"
-  | "eth_signTypedData";
+  | "eth_signTypedData"
+  | string;
 
 export type JSONRPCRequest = {
   readonly jsonrpc: string;

@@ -1,7 +1,10 @@
 import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
-import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
+import {
+  SignedTransaction,
+  SignTransactionParams,
+} from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -68,6 +71,9 @@ export class SignTransactionScreen extends LitElement {
   @property({ type: Object })
   transactionParams?: SignTransactionParams;
 
+  @property({ type: Object })
+  params?: unknown;
+
   controller!: SignTransactionController;
 
   override connectedCallback() {
@@ -80,7 +86,9 @@ export class SignTransactionScreen extends LitElement {
     );
 
     const transactionParams =
-      this.transactionParams || this.coreContext.getPendingTransactionParams();
+      (this.params as SignTransactionParams) ??
+      this.transactionParams ??
+      this.coreContext.getPendingTransactionParams();
 
     if (!transactionParams) {
       this.state = "error";
@@ -97,13 +105,22 @@ export class SignTransactionScreen extends LitElement {
       <ledger-sync-screen
         .navigation=${this.navigation}
         .destinations=${this.destinations}
-        .pendingTransactionParams=${this.transactionParams}
+        .pendingTransactionParams=${(this.params as SignTransactionParams) ??
+        this.transactionParams}
       ></ledger-sync-screen>
     `;
   }
 
   private renderSuccessState() {
     const lang = this.languageContext.currentTranslation;
+
+    window.dispatchEvent(
+      new CustomEvent<SignedTransaction>("ledger-internal-sign-transaction", {
+        bubbles: true,
+        composed: true,
+        detail: this.controller.result,
+      }),
+    );
 
     return html`
       <div
@@ -196,5 +213,15 @@ export class SignTransactionScreen extends LitElement {
       default:
         return this.renderSigningState();
     }
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "sign-transaction-screen": SignTransactionScreen;
+  }
+
+  interface WindowEventMap {
+    "ledger-internal-sign-transaction": CustomEvent<SignedTransaction>;
   }
 }

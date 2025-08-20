@@ -1,5 +1,4 @@
 //@ts-check
-const path = require("path");
 const { composePlugins, withNx } = require("@nx/next");
 
 /**
@@ -24,22 +23,6 @@ const nextConfig = {
     if (config.optimization.minimizer) {
       config.optimization.minimizer = [];
     }
-
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      "ledger-button": path.resolve(
-        __dirname,
-        "../../packages/ledger-button/dist",
-      ),
-      "ledger-button-ui": path.resolve(
-        __dirname,
-        "../../packages/ledger-button-ui/dist",
-      ),
-      "ledger-button-core": path.resolve(
-        __dirname,
-        "../../packages/ledger-button-core/dist",
-      ),
-    };
 
     return config;
   },

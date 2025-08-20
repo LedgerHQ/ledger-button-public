@@ -23,6 +23,9 @@ body {
   font-family: inherit;
   line-height: inherit;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 h1,
 h2,
@@ -94,16 +97,7 @@ pre {
 .wrapper {
   width: 100%;
 }
-.container {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 768px;
-  padding-bottom: 3rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  color: rgba(55, 65, 81, 1);
-  width: 100%;
-}
+
 #welcome {
   margin-top: 2.5rem;
 }
@@ -477,7 +471,6 @@ summary svg {
   color: rgba(107, 114, 128, 1);
   font-size: 0.875rem;
   line-height: 1.25rem;
-  margin-top: 3.5rem;
   opacity: 0.6;
   text-align: center;
 }
@@ -499,3 +492,43 @@ summary svg {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+}
+
+.toolbar {
+  display: flex;
+  align-self: stretch;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #000;
+  color: #fff;
+}
+
+.footer {
+  padding: 12px 24px;
+  position: relative;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  flex: 1;
+  align-self: stretch;
+  display: flex;
+  justify-content: center;
+}
+
