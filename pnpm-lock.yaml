@@ -315,9 +315,6 @@ importers:
       '@ledgerhq/ledger-button-core':
         specifier: workspace:*
         version: link:../ledger-button-core
-      '@ledgerhq/ledger-button-ui':
-        specifier: workspace:*
-        version: link:../ledger-button-ui
       '@lit/context':
         specifier: 1.1.6
         version: 1.1.6
@@ -372,8 +369,6 @@ importers:
       viem:
         specifier: ^2.21.0
         version: 2.33.0(typescript@5.8.3)
-
-  packages/ledger-button-ui: {}
 
   pocs/ledger-button-webcomponent-poc: {}
 

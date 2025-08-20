@@ -1,12 +1,12 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
-import { StatusType } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { type StatusType } from "../../components/organism/status/ledger-status.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,

@@ -1,7 +1,7 @@
 import "./device-switch";
 import "../../context/core-context.js";
 import "../../context/language-context.js";
-import "@ledgerhq/ledger-button-ui";
+import "../../components/index.js";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";

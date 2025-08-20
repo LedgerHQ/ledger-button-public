@@ -1,4 +1,4 @@
-import "@ledgerhq/ledger-button-ui";
+import "./components/index.js";
 import "./ledger-button-app.js";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
@@ -6,8 +6,6 @@ import { v4 as uuidv4 } from "uuid";
 
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
-
-import "@ledgerhq/ledger-button-ui/styles.css";
 
 export type { EIP1193Provider } from "@ledgerhq/ledger-button-core";
 

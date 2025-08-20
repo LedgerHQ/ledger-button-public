@@ -1,10 +1,10 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../components/index.js";
 
-import { DeviceItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
+import type { DeviceItemClickEventDetail } from "../../components/molecule/device-item/ledger-device-item.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,

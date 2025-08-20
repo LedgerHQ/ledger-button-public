@@ -1,5 +1,6 @@
-import { AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { ReactiveController, ReactiveControllerHost } from "lit";
+
+import type { AccountItemClickEventDetail } from "./components/molecule/account-item/ledger-account-item.js";
 
 export class LedgerButtonAppController implements ReactiveController {
   host: ReactiveControllerHost;

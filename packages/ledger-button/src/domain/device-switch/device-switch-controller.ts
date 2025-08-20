@@ -2,9 +2,9 @@ import type {
   DeviceModelId,
   DiscoveredDevice,
 } from "@ledgerhq/ledger-button-core";
-import type { DeviceModelId as UIDeviceModelId } from "@ledgerhq/ledger-button-ui";
 import { LitElement } from "lit";
 
+import type { DeviceModelId as UIDeviceModelId } from "../../components/atom/icon/device-icon/device-icon.js";
 import type { CoreContext } from "../../context/core-context.js";
 import type { Navigation } from "../../shared/navigation.js";
 import type { Destinations } from "../../shared/routes.js";

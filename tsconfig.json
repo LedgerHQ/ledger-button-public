@@ -4,9 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/ledger-button-ui"
-    },
-    {
       "path": "./packages/ledger-button"
     },
     {

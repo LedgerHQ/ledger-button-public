@@ -1,4 +1,4 @@
-import "@ledgerhq/ledger-button-ui";
+import "./components/index.js";
 import "./context/core-context.js";
 import "./context/language-context.js";
 import "./ledger-button-app.js";

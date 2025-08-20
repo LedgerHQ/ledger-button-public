@@ -1,4 +1,4 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../../components/index.js";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";

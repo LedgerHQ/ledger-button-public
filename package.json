@@ -13,9 +13,8 @@
     "button-core": "pnpm --filter @ledgerhq/ledger-button-core",
     "button-dmk": "pnpm --filter @ledgerhq/ledger-button-dmk",
     "button-signer": "pnpm --filter @ledgerhq/ledger-button-signer",
-    "button-ui": "pnpm --filter @ledgerhq/ledger-button-ui",
     "pocs-webcomponent": "pnpm --filter @ledgerhq/ledger-button-webcomponent-poc",
-    "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm button-ui exec nx build-storybook --quiet && pnpm button-ui exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm button-ui exec nx test-storybook\""
+    "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm button exec nx build-storybook --quiet && pnpm button exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm button exec nx test-storybook\""
   },
   "private": true,
   "devDependencies": {

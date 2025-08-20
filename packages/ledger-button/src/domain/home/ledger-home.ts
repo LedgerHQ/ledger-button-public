@@ -1,10 +1,10 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../components/index.js";
 
-import { AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,

@@ -1,14 +1,14 @@
-import "@ledgerhq/ledger-button-ui";
+import "./components/index.js";
 import "./shared/root-navigation.js";
 import "./context/language-context.js";
 import "./context/core-context.js";
 import "./shared/routes.js";
 
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { type AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
+import type { AccountItemClickEventDetail } from "./components/molecule/account-item/ledger-account-item.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
@@ -62,6 +62,10 @@ export class LedgerButtonApp extends LitElement {
   }
 
   private handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
+    if (!this._accounts) {
+      this._accounts = [];
+    }
+
     const found = this._accounts.find((a) => a === e.detail.address);
     if (!found) {
       this._accounts.pop();
