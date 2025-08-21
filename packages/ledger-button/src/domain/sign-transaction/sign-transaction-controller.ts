@@ -42,7 +42,7 @@ export class SignTransactionController implements ReactiveController {
     }
 
     this.transactionSubscription = this.core
-      .signTransactionObservable(transactionParams)
+      .signTransaction(transactionParams)
       .subscribe({
         next: (result: TransactionResult) => {
           switch (result.status) {

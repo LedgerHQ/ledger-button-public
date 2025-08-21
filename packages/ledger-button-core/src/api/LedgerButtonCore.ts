@@ -12,10 +12,7 @@ import {
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import {
-  SignTransaction,
-  SignTransactionParams,
-} from "../internal/device/use-case/SignTransaction.js";
+import { SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
@@ -106,10 +103,12 @@ export class LedgerButtonCore {
   }
 
   // Transaction methods
-  async signTransaction(params: SignTransactionParams) {
+  signTransaction(params: SignTransactionParams): Observable<TransactionService.TransactionResult> {
     return this.container
-      ?.get<SignTransaction>(deviceModuleTypes.SignTransactionUseCase)
-      .execute(params);
+      .get<TransactionService.TransactionService>(
+        transactionModuleTypes.TransactionService,
+      )
+      .signTransaction(params);
   }
 
   setPendingTransactionParams(params: SignTransactionParams | undefined) {
@@ -118,14 +117,6 @@ export class LedgerButtonCore {
 
   getPendingTransactionParams(): SignTransactionParams | undefined {
     return this._pendingTransactionParams;
-  }
-
-  signTransactionObservable(params: SignTransactionParams): Observable {
-    return this.container
-      .get<TransactionService.TransactionService>(
-        transactionModuleTypes.TransactionService,
-      )
-      .signTransaction(params);
   }
 
   getTransactionService(): TransactionService.TransactionService {
