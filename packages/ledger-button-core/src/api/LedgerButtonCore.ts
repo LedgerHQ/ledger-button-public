@@ -120,7 +120,7 @@ export class LedgerButtonCore {
     return this._pendingTransactionParams;
   }
 
-  signTransactionObservable(params: SignTransactionParams): Observable<TransactionService.TransactionResult> {
+  signTransactionObservable(params: SignTransactionParams): Observable {
     return this.container
       .get<TransactionService.TransactionService>(
         transactionModuleTypes.TransactionService,
@@ -132,6 +132,8 @@ export class LedgerButtonCore {
     return this.container.get<TransactionService.TransactionService>(
       transactionModuleTypes.TransactionService,
     );
+  }
+
   async jsonRpcRequest(args: JSONRPCRequest) {
     return this.container
       .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
