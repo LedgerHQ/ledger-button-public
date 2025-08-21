@@ -4,9 +4,9 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { CoreContext } from "../context/core-context.js";
 import { Translation } from "../context/language-context.js";
 import { Navigation } from "./navigation.js";
-import { Destinations, makeDestinations } from "./routes.js";
+import { Destination, Destinations, makeDestinations } from "./routes.js";
 
-export class RootModalController implements ReactiveController {
+export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
@@ -25,9 +25,7 @@ export class RootModalController implements ReactiveController {
   }
 
   hostConnected() {
-    this.computeInitialState().finally(() => {
-      this.host.requestUpdate();
-    });
+    this.computeInitialState();
   }
 
   get currentScreen() {
@@ -36,18 +34,15 @@ export class RootModalController implements ReactiveController {
 
   async computeInitialState() {
     const accounts = await this.core.getAccounts();
-    this.host.requestUpdate();
 
     if (accounts?.length === 0) {
       this.navigation.navigateTo(this.destinations.onboarding);
-      this.host.requestUpdate();
       return;
     }
 
     const selectedAccount = this.core.getSelectedAccount();
     if (selectedAccount) {
       this.navigation.navigateTo(this.destinations.home);
-      this.host.requestUpdate();
       return;
     }
 
@@ -68,6 +63,92 @@ export class RootModalController implements ReactiveController {
     }
   }
 
+  // NOTE: First Draft of navigationIntent
+  // Could be moved to a separate file/controller (maybe navigation ?)
+  navigationIntent(route: Destination["name"]) {
+    switch (route) {
+      case "selectAccount": {
+        if (this.core.getAccounts().length === 0) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.home);
+        break;
+      }
+
+      case "home": {
+        if (!this.core.getSelectedAccount()) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.home);
+        break;
+      }
+
+      case "turnOnSync":
+        this.navigation.navigateTo(this.destinations.turnOnSync);
+        break;
+
+      case "signTransaction": {
+        if (!this.core.getSelectedAccount()) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.signTransaction);
+        break;
+      }
+
+      case "deviceSwitch": {
+        if (!this.core.getConnectedDevice()) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.deviceSwitch);
+        break;
+      }
+      case "fetchAccounts": {
+        if (!this.core.getConnectedDevice()) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.fetchAccounts);
+        break;
+      }
+      case "deviceConnectionStatus": {
+        if (!this.core.getConnectedDevice()) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.deviceConnectionStatus);
+        break;
+      }
+      case "ledgerSync": {
+        if (!this.core.getConnectedDevice()) {
+          this.navigation.navigateTo(this.destinations.onboarding);
+          break;
+        }
+
+        this.navigation.navigateTo(this.destinations.ledgerSync);
+        break;
+      }
+
+      case "onboarding":
+        this.navigation.navigateTo(this.destinations.onboarding);
+        break;
+
+      case "notFound":
+      default:
+        this.navigation.navigateTo(this.destinations.notFound);
+        break;
+    }
+  }
+
   async handleModalOpen() {
     if (!this.currentScreen) {
       await this.computeInitialState();
@@ -75,7 +156,6 @@ export class RootModalController implements ReactiveController {
     }
 
     this.navigation.navigateTo(this.currentScreen);
-    this.host.requestUpdate();
   }
 
   async handleModalClose() {
@@ -83,9 +163,7 @@ export class RootModalController implements ReactiveController {
   }
 
   async handleChipClick() {
-    // TODO: replace with select device screen
-    this.navigation.navigateTo(this.destinations.onboarding);
-    this.host.requestUpdate();
+    this.navigation.navigateTo(this.destinations.deviceSwitch);
   }
 
   selectAccount(address: string) {

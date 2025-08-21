@@ -182,7 +182,7 @@ declare global {
     "ledger-button": LedgerButton;
   }
 
-  interface CustomEventMap {
+  interface WindowEventMap {
     "ledger-button-click": CustomEvent<{
       timestamp: number;
       variant: ButtonVariant;

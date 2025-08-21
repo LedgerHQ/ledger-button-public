@@ -2,6 +2,8 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Destination } from "./routes.js";
 
+export const ANIMATION_DELAY = 250;
+
 export class Navigation implements ReactiveController {
   host: ReactiveControllerHost;
 
@@ -44,9 +46,10 @@ export class Navigation implements ReactiveController {
         this.navigationTimeoutId = null;
         // NOTE: The 250ms delay here is to allow for animation to complete
         // Could be a CONSTANT if required
-      }, 250);
+      }, ANIMATION_DELAY);
       return;
     }
+
     this.history.push(destination);
     this.currentScreen = destination;
     this.host.requestUpdate();
@@ -76,7 +79,7 @@ export class Navigation implements ReactiveController {
 
   canGoBack(destination?: Destination) {
     return (
-      (destination?.canGoBack ?? true) &&
+      (destination?.canGoBack ?? false) &&
       this.history.length > 1 &&
       this.currentScreen !== null
     );

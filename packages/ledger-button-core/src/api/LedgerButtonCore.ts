@@ -2,6 +2,7 @@ import { Container } from "inversify";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { AccountService } from "../internal/account/service/AccountService.js";
+import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   ConnectionType,
@@ -19,6 +20,9 @@ import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { StorageService } from "../internal/storage/StorageService.js";
+import { JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
+import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
+import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
 export class LedgerButtonCore {
   private container!: Container;
@@ -76,8 +80,8 @@ export class LedgerButtonCore {
   // Account methods
   async fetchAccounts() {
     return this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .fetchAccounts();
+      .get<FetchAccounts>(accountModuleTypes.FetchAccountsUseCase)
+      .execute();
   }
 
   getAccounts() {
@@ -111,5 +115,11 @@ export class LedgerButtonCore {
 
   getPendingTransactionParams(): SignTransactionParams | undefined {
     return this._pendingTransactionParams;
+  }
+
+  async jsonRpcRequest(args: JSONRPCRequest) {
+    return this.container
+      .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
+      .execute(args);
   }
 }

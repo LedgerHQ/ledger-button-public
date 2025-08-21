@@ -7,10 +7,12 @@ import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
-import { RootModalController } from "./root-modal-controller.js";
+import { ANIMATION_DELAY } from "./navigation.js";
+import { RootNavigationController } from "./root-navigation-controller.js";
+import { Destination } from "./routes.js";
 
-@customElement("root-modal-component")
-export class RootModalComponent extends LitElement {
+@customElement("root-navigation-component")
+export class RootNavigationComponent extends LitElement {
   @consume({ context: coreContext })
   public coreContext!: CoreContext;
 
@@ -24,11 +26,11 @@ export class RootModalComponent extends LitElement {
   @query("#modal-content")
   private modalContent!: HTMLElement;
 
-  rootModalController!: RootModalController;
+  rootNavigationController!: RootNavigationController;
 
   override connectedCallback() {
     super.connectedCallback();
-    this.rootModalController = new RootModalController(
+    this.rootNavigationController = new RootNavigationController(
       this,
       this.coreContext,
       this.languageContext.currentTranslation,
@@ -36,6 +38,7 @@ export class RootModalComponent extends LitElement {
     );
   }
 
+  // PUBLIC METHODS
   public openModal() {
     this.ledgerModal.openModal();
   }
@@ -44,41 +47,47 @@ export class RootModalComponent extends LitElement {
     this.ledgerModal.closeModal();
   }
 
+  public selectAccount(address: string) {
+    this.rootNavigationController.selectAccount(address);
+    this.closeModal();
+  }
+
+  public getSelectedAccount() {
+    return this.rootNavigationController.selectedAccount;
+  }
+
+  public navigationIntent(intent: Destination["name"]) {
+    this.rootNavigationController.navigationIntent(intent);
+    this.openModal();
+  }
+
+  // PRIVATE METHODS
   private handleModalOpen() {
-    this.rootModalController.handleModalOpen();
+    this.rootNavigationController.handleModalOpen();
   }
 
   private handleModalClose() {
     setTimeout(() => {
-      this.rootModalController.handleModalClose();
+      this.rootNavigationController.handleModalClose();
       // NOTE: The 250ms delay here is to allow for animation to complete
       // Could be a CONSTANT if required
-    }, 250);
+    }, ANIMATION_DELAY);
   }
 
   private handleChipClick(_e: CustomEvent) {
-    this.rootModalController.handleChipClick();
+    this.rootNavigationController.handleChipClick();
   }
 
-  selectAccount(address: string) {
-    this.rootModalController.selectAccount(address);
-    this.closeModal();
-  }
-
-  getSelectedAccount() {
-    return this.rootModalController.selectedAccount;
-  }
-
-  renderScreen() {
-    const currentScreen = this.rootModalController.currentScreen;
+  private renderScreen() {
+    const currentScreen = this.rootNavigationController.currentScreen;
 
     const tag = unsafeStatic(currentScreen?.component ?? "ledger-button-404");
 
     if (currentScreen) {
       return staticHtml`
         <${tag}
-          .destinations=${this.rootModalController.destinations}
-          .navigation=${this.rootModalController.navigation}
+          .destinations=${this.rootNavigationController.destinations}
+          .navigation=${this.rootNavigationController.navigation}
         ></${tag}>
       `;
     }
@@ -89,12 +98,14 @@ export class RootModalComponent extends LitElement {
   override render() {
     const connectedDevice = this.coreContext.getConnectedDevice();
     const title =
-      connectedDevice && this.rootModalController.currentScreen?.name === "home"
+      connectedDevice &&
+      this.rootNavigationController.currentScreen?.name === "home"
         ? connectedDevice.name
-        : this.rootModalController.currentScreen?.toolbar.title;
+        : this.rootNavigationController.currentScreen?.toolbar.title;
 
     const deviceModelId =
-      connectedDevice && this.rootModalController.currentScreen?.name === "home"
+      connectedDevice &&
+      this.rootNavigationController.currentScreen?.name === "home"
         ? connectedDevice.modelId
         : undefined;
 
@@ -108,8 +119,8 @@ export class RootModalComponent extends LitElement {
           <ledger-toolbar
             title=${ifDefined(title)}
             aria-label=${ifDefined(title)}
-            .showCloseButton=${this.rootModalController.currentScreen?.toolbar
-              .showCloseButton}
+            .showCloseButton=${this.rootNavigationController.currentScreen
+              ?.toolbar.showCloseButton}
             deviceModelId=${ifDefined(deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-chip-click=${this.handleChipClick}
@@ -124,6 +135,6 @@ export class RootModalComponent extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "root-modal-component": RootModalComponent;
+    "root-navigation-component": RootNavigationComponent;
   }
 }

@@ -1,112 +1,100 @@
 import "@ledgerhq/ledger-button-ui";
-import "./shared/root-modal-component.js";
+import "./shared/root-navigation.js";
+import "./context/language-context.js";
+import "./context/core-context.js";
+import "./shared/routes.js";
 
+import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import {
   type AccountItemClickEventDetail,
   tailwindElement,
 } from "@ledgerhq/ledger-button-ui";
-import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-import { langContext, LanguageContext } from "./context/language-context.js";
-import { RootModalComponent } from "./shared/root-modal-component.js";
+import { RootNavigationComponent } from "./shared/root-navigation.js";
+import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
 
 @customElement("ledger-button-app")
 @tailwindElement()
 export class LedgerButtonApp extends LitElement {
   @query("#navigation")
-  root!: RootModalComponent;
+  root!: RootNavigationComponent;
 
-  @consume({ context: langContext })
-  @property({ attribute: false })
-  public languages!: LanguageContext;
+  @property({ type: Object })
+  core?: LedgerButtonCore;
 
   controller!: LedgerButtonAppController;
 
+  private _accounts: string[] = [];
+
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new LedgerButtonAppController(
-      this,
-      this.languages.currentTranslation,
-    );
+    this.controller = new LedgerButtonAppController(this);
 
-    this.addEventListener("account-selected", this.handleAccountSelected);
-    this.addEventListener(
-      "ledger-button-disconnect",
+    window.addEventListener(
+      "ledger-internal-account-selected",
+      this.handleAccountSelected,
+    );
+    window.addEventListener(
+      "ledger-internal-button-disconnect",
       this.handleLedgerButtonDisconnect,
     );
-    this.addEventListener("ledger-account-switch", this.handleAccountSwitch);
+    window.addEventListener(
+      "ledger-internal-account-switch",
+      this.handleAccountSwitch,
+    );
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener("account-selected", this.handleAccountSelected);
-    this.removeEventListener(
-      "ledger-button-disconnect",
+    window.removeEventListener(
+      "ledger-internal-account-selected",
+      this.handleAccountSelected,
+    );
+    window.removeEventListener(
+      "ledger-internal-button-disconnect",
       this.handleLedgerButtonDisconnect,
     );
-    this.removeEventListener("ledger-account-switch", this.handleAccountSwitch);
+    window.removeEventListener(
+      "ledger-internal-account-switch",
+      this.handleAccountSwitch,
+    );
   }
 
   private handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
-    this.controller.setLabel(e.detail.title);
+    const found = this._accounts.find((a) => a === e.detail.address);
+    if (!found) {
+      this._accounts.pop();
+      this._accounts.push(e.detail.address);
+    }
+
+    window.dispatchEvent(
+      new CustomEvent<{ accounts: string[] }>(
+        "ledger-provider-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: { accounts: this._accounts },
+        },
+      ),
+    );
   }
 
   private handleLedgerButtonDisconnect() {
-    this.controller.setLabel(
-      this.languages.currentTranslation.common.button.connect,
-    );
     this.root.closeModal();
   }
 
   private handleAccountSwitch() {
-    this.root.rootModalController.navigation.navigateTo(
-      this.root.rootModalController.destinations.fetchAccounts,
+    this.root.rootNavigationController.navigation.navigateTo(
+      this.root.rootNavigationController.destinations.fetchAccounts,
     );
   }
 
-  // renderRoute() {
-  //   const route = routes.find(
-  //     (r) => r.name === this.navigatorController.currentRoute,
-  //   );
-
-  //   if (route) {
-  //     return html`${route.component}`;
-  //   }
-
-  //   return html`<ledger-button-404 id="not-found"></ledger-button-404>`;
-  // }
-
-  // renderBackButton() {
-  //   const currentRoute = routes.find(
-  //     (r) => r.name === this.navigatorController.currentRoute,
-  //   );
-
-  //   return this.navigatorController.canGoBack(currentRoute)
-  //     ? html`<button @click=${() => this.navigatorController.navigateBack()}>
-  //         Back
-  //       </button>`
-  //     : null;
-  // }
-
-  // navigateTo(route: string) {
-  //   if (route === this.navigatorController.currentRoute) {
-  //     return;
-  //   }
-
-  //   const currentRoute = this.navigatorController.currentRoute;
-  //   // @ts-expect-error - shadowRoot is not typed
-  //   const routeElement = this.shadowRoot?.querySelector(`#${currentRoute}`);
-  //   if (routeElement) {
-  //     routeElement.classList.add("remove");
-  //   }
-
-  //   setTimeout(() => {
-  //     this.navigatorController.navigateTo(route);
-  //   }, 250);
-  // }
+  public navigationIntent(intent: Destination["name"]) {
+    this.root.navigationIntent(intent);
+  }
 
   openModal() {
     this.root.openModal();
@@ -115,15 +103,22 @@ export class LedgerButtonApp extends LitElement {
   override render() {
     return html`
       <div class="dark">
-        <ledger-button
-          label=${this.controller.label}
-          variant="secondary"
-          size="large"
-          icon
-          @ledger-button-click=${this.openModal}
-        ></ledger-button>
-        <root-modal-component id="navigation"></root-modal-component>
+        <core-provider .coreClass=${this.core}>
+          <language-provider>
+            <root-navigation-component
+              id="navigation"
+            ></root-navigation-component>
+          </language-provider>
+        </core-provider>
       </div>
     `;
+  }
+}
+
+// NOTE: Declare here all the custom events so that LedgerEIP1193Provider can have type safey
+// Make sure to prefix with "ledger-provider-" (or something else, to be discussed)
+declare global {
+  interface WindowEventMap {
+    "ledger-provider-account-selected": CustomEvent<{ accounts: string[] }>;
   }
 }

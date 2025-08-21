@@ -65,7 +65,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     deviceSwitch: {
-      name: "device-switch",
+      name: "deviceSwitch",
       component: "device-switch-screen",
       canGoBack: true,
       toolbar: {
@@ -74,7 +74,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     deviceConnectionStatus: {
-      name: "device-connection-status",
+      name: "deviceConnectionStatus",
       component: "device-connection-status-screen",
       canGoBack: true,
       toolbar: {
@@ -83,7 +83,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     ledgerSync: {
-      name: "ledger-sync",
+      name: "ledgerSync",
       component: "ledger-sync-screen",
       canGoBack: true,
       toolbar: {
@@ -92,7 +92,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     turnOnSync: {
-      name: "turn-on-sync",
+      name: "turnOnSync",
       component: "turn-on-sync-screen",
       canGoBack: true,
       toolbar: {
@@ -101,7 +101,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     fetchAccounts: {
-      name: "retrieving-accounts",
+      name: "fetchAccounts",
       component: "retrieving-accounts-screen",
       canGoBack: false,
       toolbar: {
@@ -110,7 +110,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     selectAccount: {
-      name: "select-account",
+      name: "selectAccount",
       component: "select-account-screen",
       canGoBack: false,
       toolbar: {
@@ -128,7 +128,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     signTransaction: {
-      name: "sign-transaction",
+      name: "signTransaction",
       component: "sign-transaction-screen",
       canGoBack: true,
       toolbar: {
@@ -137,7 +137,7 @@ export const makeDestinations = (translation: Translation) => {
       },
     },
     notFound: {
-      name: "not-found",
+      name: "notFound",
       component: "ledger-button-404",
       canGoBack: false,
       toolbar: {
