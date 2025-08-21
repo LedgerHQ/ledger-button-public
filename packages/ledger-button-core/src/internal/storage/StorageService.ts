@@ -1,5 +1,5 @@
 // TODO: Type could be temporary until we are done with the LEdger Keyring Protocol trusted app
-import { Keypair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
+import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
@@ -11,8 +11,8 @@ export interface StorageService {
   hasItem(key: string): boolean;
   resetStorage(): void;
 
-  storeKeyPair(keyPair: Keypair): Promise<Either<StorageIDBErrors, boolean>>;
-  getKeyPair(): Promise<Either<StorageIDBErrors, Keypair>>;
+  storeKeyPair(keyPair: KeyPair): Promise<Either<StorageIDBErrors, boolean>>;
+  getKeyPair(): Promise<Either<StorageIDBErrors, KeyPair>>;
   removeKeyPair(): Promise<Either<StorageIDBErrors, boolean>>;
 
   saveTrustChainId(trustChainId: string): void;

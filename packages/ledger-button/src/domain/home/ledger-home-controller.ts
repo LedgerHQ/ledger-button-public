@@ -21,7 +21,7 @@ export class LedgerHomeController implements ReactiveController {
 
   async handleDisconnectClick() {
     await this.core.disconnect();
-    this.navigation.navigateTo(this.destinations.onboarding);
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 
   hostConnected() {

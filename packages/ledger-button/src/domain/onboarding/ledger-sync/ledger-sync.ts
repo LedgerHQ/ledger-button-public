@@ -1,4 +1,3 @@
-import type { SignTransactionParams } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -46,11 +45,7 @@ export class LedgerSyncScreen extends LitElement {
   }
 
   override render() {
-    const { device, animation } = this.controller;
-    if (!device) {
-      return;
-    }
-
+    const { animation } = this.controller;
     const lang = this.languages.currentTranslation;
 
     return html`
@@ -59,14 +54,14 @@ export class LedgerSyncScreen extends LitElement {
       >
         <div class="w-208">
           <ledger-device-animation
-            modelId=${device.modelId}
+            modelId="flex"
             animation=${animation}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
           <p class="text-center body-1">
             ${lang.common.device.deviceActions.continueOnLedger.title}
-            ${lang.common.device.model[device.modelId]}
+            ${lang.common.device.model["flex"]}
           </p>
           <p class="text-center text-muted body-2">
             ${lang.common.device.deviceActions.continueOnLedger.description}

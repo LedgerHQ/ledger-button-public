@@ -6,6 +6,8 @@ import "../domain/sign-transaction/sign-transaction.js";
 import "../domain/home/ledger-home.js";
 import "../domain/device-switch/device-switch.js";
 import "../domain/device-connection-status/device-connection-status.js";
+import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
+import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -80,6 +82,14 @@ export const makeDestinations = (translation: Translation) => {
       toolbar: {
         title: "",
         showCloseButton: true,
+      },
+    },
+    onboardingFlow: {
+      name: "onboarding-flow",
+      component: "onboarding-flow",
+      canGoBack: false,
+      toolbar: {
+        title: translation.onboarding.selectDevice.title,
       },
     },
     ledgerSync: {

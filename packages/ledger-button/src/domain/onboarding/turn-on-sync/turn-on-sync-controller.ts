@@ -1,4 +1,3 @@
-import { Device } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
@@ -6,7 +5,6 @@ import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
 export class TurnOnSyncController implements ReactiveController {
   host: ReactiveControllerHost;
-  device?: Device;
 
   constructor(
     host: ReactiveControllerHost,

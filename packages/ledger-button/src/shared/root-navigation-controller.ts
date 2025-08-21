@@ -37,8 +37,11 @@ export class RootNavigationController implements ReactiveController {
     const accounts = await this.core.getAccounts();
 
     if (accounts?.length === 0) {
-      this.navigation.navigateTo(this.destinations.onboarding);
+      this.navigation.navigateTo(this.destinations.onboardingFlow);
       return;
+    } else {
+      // TODO: Remove this once we have a proper way to handle pending transactions
+      this.forceDemoPendingTransaction();
     }
 
     const selectedAccount = this.core.getSelectedAccount();
@@ -70,17 +73,17 @@ export class RootNavigationController implements ReactiveController {
     switch (route) {
       case "selectAccount": {
         if (this.core.getAccounts().length === 0) {
-          this.navigation.navigateTo(this.destinations.onboarding);
           break;
         }
 
-        this.navigation.navigateTo(this.destinations.home);
+        this.navigation.navigateTo(this.destinations.onboardingFlow);
+        // this.navigation.navigateTo(this.destinations.home);
         break;
       }
 
       case "home": {
         if (!this.core.getSelectedAccount()) {
-          this.navigation.navigateTo(this.destinations.onboarding);
+          this.navigation.navigateTo(this.destinations.onboardingFlow);
           break;
         }
 
@@ -94,7 +97,7 @@ export class RootNavigationController implements ReactiveController {
 
       case "signTransaction": {
         if (!this.core.getSelectedAccount()) {
-          this.navigation.navigateTo(this.destinations.onboarding);
+          this.navigation.navigateTo(this.destinations.onboardingFlow);
           break;
         }
 
@@ -104,7 +107,7 @@ export class RootNavigationController implements ReactiveController {
 
       case "deviceSwitch": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboarding);
+          this.navigation.navigateTo(this.destinations.onboardingFlow);
           break;
         }
 
@@ -113,7 +116,7 @@ export class RootNavigationController implements ReactiveController {
       }
       case "fetchAccounts": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboarding);
+          this.navigation.navigateTo(this.destinations.onboardingFlow);
           break;
         }
 
@@ -122,7 +125,7 @@ export class RootNavigationController implements ReactiveController {
       }
       case "deviceConnectionStatus": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboarding);
+          this.navigation.navigateTo(this.destinations.onboardingFlow);
           break;
         }
 
@@ -131,7 +134,7 @@ export class RootNavigationController implements ReactiveController {
       }
       case "ledgerSync": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboarding);
+          this.navigation.navigateTo(this.destinations.onboardingFlow);
           break;
         }
 
@@ -140,7 +143,7 @@ export class RootNavigationController implements ReactiveController {
       }
 
       case "onboarding":
-        this.navigation.navigateTo(this.destinations.onboarding);
+        this.navigation.navigateTo(this.destinations.onboardingFlow);
         break;
 
       case "notFound":

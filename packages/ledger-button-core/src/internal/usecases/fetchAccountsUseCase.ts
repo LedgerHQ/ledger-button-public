@@ -34,7 +34,7 @@ export class FetchAccountsUseCase {
 
   async execute(): Promise<Account[]> {
     if (!this.ledgerSyncService.authContext) {
-      throw new Error("No auth context available"); //TODO create Specific error
+      throw new Error("No auth context available"); //TODO create Specific error o be handled by Button Screen Controller
     }
 
     //Re-fetch a new JWT not using device but using the keypair (need for getting the right JWT)
@@ -44,7 +44,7 @@ export class FetchAccountsUseCase {
       this.ledgerSyncService.authContext,
     );
     const payload = base64ToArrayBuffer(cloudSyncData.payload);
-    const accountsData = this.ledgerSyncService.decrypt(payload);
+    const accountsData = await this.ledgerSyncService.decrypt(payload);
     const accounts: CloudSyncData = JSON.parse(bytesToString(accountsData));
     this.logger.info("Accounts fetched from cloud sync", accounts);
 

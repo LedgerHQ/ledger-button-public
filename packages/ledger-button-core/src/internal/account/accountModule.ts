@@ -3,7 +3,6 @@ import { ContainerModule } from "inversify";
 import { DefaultRemoteAccountDataSource } from "./datasource/DefaultRemoteAccountDataSource.js";
 import { StubRemoteAccountDataSource } from "./datasource/StubRemoteAccountDataSource.js";
 import { DefaultAccountService } from "./service/DefaultAccountService.js";
-import { FetchAccounts } from "./use-case/FetchAccounts.js";
 import { ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
 
@@ -18,7 +17,7 @@ export function accountModuleFactory({ stub }: AccountModuleOptions) {
       DefaultRemoteAccountDataSource,
     );
 
-    bind(accountModuleTypes.FetchAccountsUseCase).to(FetchAccounts);
+    //bind(accountModuleTypes.FetchAccountsUseCase).to(FetchAccounts);
 
     if (stub) {
       rebindSync(accountModuleTypes.RemoteAccountDataSource).to(

@@ -8,6 +8,7 @@ import {
   ConnectionType,
   type DeviceManagementKitService,
 } from "../service/DeviceManagementKitService.js";
+import { Device } from "../model/Device.js";
 
 @injectable()
 export class ConnectDevice {
@@ -21,7 +22,7 @@ export class ConnectDevice {
     this.logger = loggerFactory("[ConnectDevice UseCase]");
   }
 
-  async execute({ type }: { type: ConnectionType }): Promise<DeviceSessionId> {
+  async execute({ type }: { type: ConnectionType }): Promise<Device> {
     this.logger.info("Connecting to device", { type });
     return this.deviceManagementKitService.connectToDevice({
       type,

@@ -25,6 +25,9 @@ export class DefaultAccountService implements AccountService {
 
   setAccountsFromCloudSyncData(cloudsyncData: CloudSyncData): void {
     const mappedAccounts = this.mapCloudSyncDataToAccounts(cloudsyncData);
+
+    // TODO filter accounts in function of the dApp supported currencies config
+
     this.setAccounts(mappedAccounts);
   }
 
@@ -35,6 +38,8 @@ export class DefaultAccountService implements AccountService {
 
     if (found) {
       this.selectedAccount = found;
+      this.logger.info("Account selected", { account: found });
+      //TODO persist the selected account in the storage
     }
   }
 

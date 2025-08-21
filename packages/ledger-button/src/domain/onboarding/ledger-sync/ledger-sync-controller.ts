@@ -1,20 +1,13 @@
 import {
-  type Device,
-  type SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
-import {
-  type AuthContext,
   AuthenticateResponse,
   Device,
-  LedgerButtonCore,
   LedgerSyncAuthenticationError,
   type UserInteractionNeeded,
 } from "@ledgerhq/ledger-button-core";
-import { AnimationKey } from "@ledgerhq/ledger-button-ui";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
-import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
+import { AnimationKey } from "../../../components/molecule/device-animation/device-animation.js";
 import { type CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { type Destinations } from "../../../shared/routes.js";
@@ -38,14 +31,6 @@ export class LedgerSyncController implements ReactiveController {
   }
 
   async getConnectedDevice() {
-    const device = await this.core.getConnectedDevice();
-
-    if (!device) {
-      this.navigation.navigateTo(this.destinations.onboarding);
-      return;
-    }
-
-    this.device = device;
     this.host.requestUpdate();
     this.triggerLedgerSync();
   }
@@ -61,18 +46,18 @@ export class LedgerSyncController implements ReactiveController {
         console.info("Ledger sync response", { value });
         switch (true) {
           case isAuthContext(value):
-            this.navigation.navigateTo(this.destinations.fetchAccounts);
             this.host.requestUpdate();
             break;
           case isUserInteractionNeeded(value):
             console.log(`user interaction needed of type ${value.type}`);
-            this.animation = "continueOnLedger";
-            this.host.requestUpdate();
             //TODO: Handle user interaction needed
+            this.animation =
+              value.type === "unlock-device" ? "pin" : "continueOnLedger";
+            this.host.requestUpdate();
             break;
           case value instanceof LedgerSyncAuthenticationError:
+            console.log("Ledger sync authentication error", value);
             this.navigation.navigateTo(this.destinations.turnOnSync);
-            this.host.requestUpdate();
             break;
         }
       });

@@ -1,14 +1,14 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either } from "purify-ts";
 
-import { AuthContext } from "../../api/model/AuthContext.js";
+import { CloudSyncService } from "./service/CloudSyncService.js";
+import { InternalAuthContext } from "../ledgersync/model/InternalAuthContext.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { networkModuleTypes } from "../network/networkModuleTypes.js";
 import { type NetworkService } from "../network/NetworkService.js";
 import { storageModuleTypes } from "../storage/storageModuleTypes.js";
 import { type StorageService } from "../storage/StorageService.js";
-import { CloudSyncService } from "./service/CloudSyncService.js";
 
 //Move to model file
 export type CloudSyncData = {
@@ -41,7 +41,7 @@ export class DefaultCloudSyncService implements CloudSyncService {
   }
 
   async fetchEncryptedAccounts(
-    authContext: AuthContext,
+    authContext: InternalAuthContext,
   ): Promise<CloudSyncData> {
     // TODO: Get version from storage
     const params = new URLSearchParams({

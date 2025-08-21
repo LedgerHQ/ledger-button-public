@@ -1,6 +1,11 @@
 import { Container } from "inversify";
-import { Observable } from "rxjs";
+import { BehaviorSubject, Observable, skip, tap } from "rxjs";
 
+import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
+import {
+  AuthContext,
+  LedgerSyncAuthenticateResponse,
+} from "./model/LedgerSyncAuthenticateResponse.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
@@ -39,15 +44,42 @@ export class LedgerButtonCore {
   private container!: Container;
   private _pendingTransactionParams?: SignRawTransactionParams;
 
+  private _currentContext: BehaviorSubject<ButtonCoreContext> =
+    new BehaviorSubject<ButtonCoreContext>({
+      connectedDevice: undefined,
+      selectedAccount: undefined,
+      trustChainId: undefined,
+      applicationPath: undefined,
+    });
+
   constructor(private readonly opts: ContainerOptions) {
     this.container = createContainer(this.opts);
+    this.initializeContext();
+  }
+
+  private async initializeContext() {
+    const selectedAccount = this.getSelectedAccount() ?? undefined;
+    const trustChainId = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getTrustChainId()
+      .extract();
+
+    console.log("trustChainId in context", trustChainId);
+
+    this._currentContext.next({
+      connectedDevice: undefined,
+      selectedAccount: selectedAccount,
+      trustChainId: trustChainId,
+      applicationPath: undefined,
+    });
   }
 
   async disconnect() {
     this.disconnectFromDevice();
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
-      .resetLedgerButtonStorage();
+      .resetStorage();
+
     try {
       await this.container.unbindAll();
     } catch (error) {
@@ -59,15 +91,33 @@ export class LedgerButtonCore {
 
   // Device methods
   async connectToDevice(type: ConnectionType) {
-    return this.container
+    const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
       .execute({ type });
+
+    this._currentContext.next({
+      connectedDevice: device,
+      selectedAccount: this._currentContext.value.selectedAccount,
+      trustChainId: this._currentContext.value.trustChainId,
+      applicationPath: this._currentContext.value.applicationPath,
+    });
+
+    return device;
   }
 
   async disconnectFromDevice() {
-    return this.container
+    const result = this.container
       .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();
+
+    this._currentContext.next({
+      connectedDevice: undefined,
+      selectedAccount: undefined,
+      trustChainId: this._currentContext.value.trustChainId,
+      applicationPath: this._currentContext.value.applicationPath,
+    });
+
+    return result;
   }
 
   async switchDevice(type: ConnectionType) {
@@ -90,9 +140,20 @@ export class LedgerButtonCore {
   }
 
   selectAccount(address: string) {
-    return this.container
+    const res = this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .selectAccount(address);
+
+    const selectedAccount = this.getSelectedAccount() ?? undefined;
+
+    this._currentContext.next({
+      connectedDevice: this._currentContext.value.connectedDevice,
+      selectedAccount: selectedAccount,
+      trustChainId: this._currentContext.value.trustChainId,
+      applicationPath: this._currentContext.value.applicationPath,
+    });
+
+    return res;
   }
 
   getSelectedAccount() {
@@ -152,9 +213,26 @@ export class LedgerButtonCore {
     );
   }
 
-  connectToLedgerSync(): Observable<AuthenticateResponse> {
-    return this.container
+  connectToLedgerSync(): Observable<LedgerSyncAuthenticateResponse> {
+    const res = this.container
       .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
       .authenticate();
+
+    return res.pipe(
+      tap((res: LedgerSyncAuthenticateResponse) => {
+        if ((<AuthContext>res).trustChainId !== undefined) {
+          this._currentContext.next({
+            connectedDevice: this._currentContext.value.connectedDevice,
+            selectedAccount: this._currentContext.value.selectedAccount,
+            trustChainId: (<AuthContext>res).trustChainId,
+            applicationPath: (<AuthContext>res).applicationPath,
+          });
+        }
+      }),
+    );
+  }
+
+  observeContext(): Observable<ButtonCoreContext> {
+    return this._currentContext.asObservable();
   }
 }

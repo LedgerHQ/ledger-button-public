@@ -1,6 +1,7 @@
 import {
-  Keypair,
-  KeypairFromBytes,
+  Curve,
+  KeyPair,
+  NobleCryptoService,
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
@@ -17,6 +18,7 @@ import {
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type StorageService } from "./StorageService.js";
+import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
 
 @injectable()
 export class DefaultStorageService implements StorageService {
@@ -88,7 +90,7 @@ export class DefaultStorageService implements StorageService {
   }
 
   // IndexedDB (KeyPair)
-  async storeKeyPair(keyPair: Keypair) {
+  async storeKeyPair(keyPair: KeyPair) {
     const init = await this.initIdb();
 
     return new Promise<Either<StorageIDBErrors, boolean>>((resolve) => {
@@ -98,7 +100,10 @@ export class DefaultStorageService implements StorageService {
           "readwrite",
         );
         const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
-        const request = store.add(keyPair, STORAGE_KEYS.DB_STORE_KEYPAIR_KEY);
+        const request = store.add(
+          keyPair.id,
+          STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
+        );
 
         request.onsuccess = () => {
           this.logger.debug("Key pair stored", { keyPair });
@@ -123,7 +128,7 @@ export class DefaultStorageService implements StorageService {
   async getKeyPair() {
     const init = await this.initIdb();
 
-    return new Promise<Either<StorageIDBErrors, Keypair>>((resolve) => {
+    return new Promise<Either<StorageIDBErrors, KeyPair>>((resolve) => {
       init.map((db) => {
         const transaction = db.transaction(
           STORAGE_KEYS.DB_STORE_NAME,
@@ -144,9 +149,18 @@ export class DefaultStorageService implements StorageService {
             return;
           }
 
-          const keypair = new KeypairFromBytes(result.privateKey);
+          const privateKey = hexaStringToBuffer(result);
+          if (!privateKey) {
+            this.logger.error("Error getting key pair", { event });
+            resolve(
+              Left(new StorageIDBGetError("Error getting key pair", { event })),
+            );
+            return;
+          }
+          const cryptoService = new NobleCryptoService();
+          const keypair = cryptoService.importKeyPair(privateKey, Curve.K256);
           this.logger.info("Key pair retrieved from indexDB", {
-            keypair: keypair.pubKeyToHex(),
+            keypair: keypair.getPublicKeyToHex(),
           });
 
           resolve(Right(keypair));

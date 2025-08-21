@@ -1,10 +1,7 @@
 import {
-  bufferToHexaString,
-  hexaStringToBuffer,
-} from "@ledgerhq/device-management-kit";
-import {
-  Keypair,
-  KeypairFromBytes,
+  Curve,
+  KeyPair,
+  NobleCryptoService,
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Factory, inject, injectable } from "inversify";
 
@@ -22,27 +19,19 @@ export class GenerateKeypairUseCase {
     this.logger = loggerFactory("GenerateKeypairUseCase");
   }
 
-  execute(): Keypair {
+  async execute(): Promise<KeyPair> {
     this.logger.info("Generating new keypair...");
-    //TODO: Remove this and generate keypair
-    const keypair = hexaStringToBuffer(
-      "0x4b6e1260242431b90e37c806384b67dafba634d426aa15f99662f60320109462",
-    );
+    const cryptoService = new NobleCryptoService();
+    const keypair: KeyPair = await cryptoService.createKeyPair(Curve.K256);
 
     if (!keypair) {
       throw new Error("Invalid keypair");
     }
 
-    this.logger.info("Keypair private key", {
-      keypair: bufferToHexaString(keypair),
+    this.logger.info("Keypair public key", {
+      keypair: keypair.getPublicKeyToHex(),
     });
 
-    const newKeypair = new KeypairFromBytes(keypair);
-
-    this.logger.info("New keypair", {
-      keypaiPub: newKeypair.pubKeyToHex(),
-    });
-
-    return newKeypair;
+    return keypair;
   }
 }

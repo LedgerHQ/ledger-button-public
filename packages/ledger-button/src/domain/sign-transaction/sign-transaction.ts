@@ -102,13 +102,29 @@ export class SignTransactionScreen extends LitElement {
   }
 
   private renderSigningState() {
+    const lang = this.languageContext.currentTranslation;
+    const animation = "signTransaction";
+
     return html`
-      <ledger-sync-screen
-        .navigation=${this.navigation}
-        .destinations=${this.destinations}
-        .pendingTransactionParams=${(this.params as SignTransactionParams) ??
-        this.transactionParams}
-      ></ledger-sync-screen>
+      <div
+        class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
+      >
+        <div class="w-208">
+          <ledger-device-animation
+            modelId="flex"
+            animation=${animation}
+          ></ledger-device-animation>
+        </div>
+        <div class="flex flex-col items-center gap-8 self-stretch">
+          <p class="text-center body-1">
+            ${lang.common.device.deviceActions.continueOnLedger.title}
+            ${lang.common.device.model["flex"]}
+          </p>
+          <p class="text-center text-muted body-2">
+            ${lang.common.device.deviceActions.continueOnLedger.description}
+          </p>
+        </div>
+      </div>
     `;
   }
 
