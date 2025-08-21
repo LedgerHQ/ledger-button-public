@@ -7,6 +7,7 @@ export type DeviceModuleOptions = Partial<DmkConfig>;
 export type ContainerOptions = {
   stub?: boolean;
   stubDevice?: boolean;
+  stubWeb3Provider?: boolean;
   supportedNetworks?: string[];
   loggerLevel?: LogLevel;
   dmkConfig?: DeviceModuleOptions;

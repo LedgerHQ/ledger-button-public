@@ -104,7 +104,7 @@ declare global {
     "ledger-chip": LedgerChip;
   }
 
-  interface CustomEventMap {
+  interface WindowEventMap {
     "ledger-chip-click": CustomEvent<{
       timestamp: number;
       label: string;

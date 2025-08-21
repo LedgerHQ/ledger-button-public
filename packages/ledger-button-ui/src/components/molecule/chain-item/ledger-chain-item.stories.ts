@@ -468,13 +468,13 @@ export const TestEventFiring: Story = {
         await userEvent.click(button);
 
         expect(eventDetail).toBeTruthy();
-        expect(eventDetail.ledgerId).toBe("ethereum");
-        expect(eventDetail.title).toBe("Ethereum");
-        expect(eventDetail.subtitle).toBe("ETH");
-        expect(eventDetail.ticker).toBe("ETH");
-        expect(eventDetail.value).toBe("2.5432");
-        expect(eventDetail.type).toBe("token");
-        expect(typeof eventDetail.timestamp).toBe("number");
+        expect((eventDetail as any).ledgerId).toBe("ethereum");
+        expect((eventDetail as any).title).toBe("Ethereum");
+        expect((eventDetail as any).subtitle).toBe("ETH");
+        expect((eventDetail as any).ticker).toBe("ETH");
+        expect((eventDetail as any).value).toBe("2.5432");
+        expect((eventDetail as any).type).toBe("token");
+        expect(typeof (eventDetail as any).timestamp).toBe("number");
       },
     );
   },

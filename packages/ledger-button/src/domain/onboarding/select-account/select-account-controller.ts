@@ -1,11 +1,11 @@
-import "../../../shared/root-modal-component.js";
+import "../../../shared/root-navigation.js";
 
 import { Account } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import { RootModalComponent } from "../../../shared/root-modal-component.js";
+import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 // import { destinations } from "../../../shared/routes.js";
 
 export class SelectAccountController implements ReactiveController {
@@ -40,7 +40,7 @@ export class SelectAccountController implements ReactiveController {
   }
 
   selectAccount(address: string) {
-    if (this.navigation.host instanceof RootModalComponent) {
+    if (this.navigation.host instanceof RootNavigationComponent) {
       this.navigation.host.selectAccount(address);
       this.host.requestUpdate();
     }

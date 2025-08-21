@@ -5,7 +5,7 @@ import { headers } from "./model/constant.js";
 import { merge } from "./utils/merge.js";
 import { NetworkService } from "./NetworkService.js";
 
-type NetworkServiceOpts = Omit<RequestInit, "method">;
+export type NetworkServiceOpts = Omit<RequestInit, "method">;
 
 @injectable()
 export class DefaultNetworkService
@@ -13,7 +13,7 @@ export class DefaultNetworkService
 {
   async get<T>(
     url: string,
-    options?: NetworkServiceOpts
+    options?: NetworkServiceOpts,
   ): Promise<Either<Error, T>> {
     const defaultOpts = {
       headers,
@@ -30,7 +30,7 @@ export class DefaultNetworkService
   async post<T>(
     url: string,
     body: unknown,
-    options?: NetworkServiceOpts
+    options?: NetworkServiceOpts,
   ): Promise<Either<Error, T>> {
     const defaultOpts = {
       headers,
@@ -48,7 +48,7 @@ export class DefaultNetworkService
   async put<T>(
     url: string,
     body: unknown,
-    options?: NetworkServiceOpts
+    options?: NetworkServiceOpts,
   ): Promise<Either<Error, T>> {
     const defaultOpts = {
       headers,
@@ -66,7 +66,7 @@ export class DefaultNetworkService
   async patch<T>(
     url: string,
     body: unknown,
-    options?: NetworkServiceOpts
+    options?: NetworkServiceOpts,
   ): Promise<Either<Error, T>> {
     const defaultOpts = {
       headers,
@@ -83,7 +83,7 @@ export class DefaultNetworkService
 
   async delete<T>(
     url: string,
-    options?: NetworkServiceOpts
+    options?: NetworkServiceOpts,
   ): Promise<Either<Error, T>> {
     const defaultOpts = {
       headers,

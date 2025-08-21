@@ -1,26 +1,28 @@
+import { AccountItemClickEventDetail } from "@ledgerhq/ledger-button-ui";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-
-import { Translation } from "./context/language-context.js";
 
 export class LedgerButtonAppController implements ReactiveController {
   host: ReactiveControllerHost;
-  label: string;
 
-  constructor(
-    host: ReactiveControllerHost,
-    private readonly translation: Translation,
-  ) {
+  constructor(host: ReactiveControllerHost) {
     this.host = host;
     this.host.addController(this);
-    this.label = this.translation.common.button.connect;
   }
 
   hostConnected() {
     this.host.requestUpdate();
   }
 
-  setLabel(label?: string) {
-    this.label = label ?? this.translation.common.button.connect;
-    this.host.requestUpdate();
+  handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
+    window.dispatchEvent(
+      new CustomEvent<{ accounts: string[] }>(
+        "ledger-provider-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: { accounts: [e.detail.address] },
+        },
+      ),
+    );
   }
 }

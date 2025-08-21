@@ -1,6 +1,5 @@
 import "@ledgerhq/ledger-button-ui";
 
-// import { Account } from "@ledgerhq/ledger-button-core";
 import {
   AccountItemClickEventDetail,
   tailwindElement,
@@ -67,7 +66,7 @@ export class LedgerHomeScreen extends LitElement {
     event: CustomEvent<AccountItemClickEventDetail>,
   ) => {
     this.dispatchEvent(
-      new CustomEvent("ledger-account-switch", {
+      new CustomEvent("ledger-internal-account-switch", {
         bubbles: true,
         composed: true,
         detail: event.detail,
@@ -77,7 +76,7 @@ export class LedgerHomeScreen extends LitElement {
 
   private handleDisconnectClick = async () => {
     this.dispatchEvent(
-      new CustomEvent("ledger-button-disconnect", {
+      new CustomEvent("ledger-internal-button-disconnect", {
         bubbles: true,
         composed: true,
       }),
@@ -134,8 +133,8 @@ declare global {
     "ledger-home-screen": LedgerHomeScreen;
   }
 
-  interface CustomEventMap {
-    "ledger-button-disconnect": CustomEvent<void>;
-    "ledger-account-switch": CustomEvent<AccountItemClickEventDetail>;
+  interface WindowEventMap {
+    "ledger-internal-button-disconnect": CustomEvent<void>;
+    "ledger-internal-account-switch": CustomEvent<AccountItemClickEventDetail>;
   }
 }

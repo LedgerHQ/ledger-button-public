@@ -27,7 +27,6 @@ export class LedgerSyncController implements ReactiveController {
 
     if (!device) {
       this.navigation.navigateTo(this.destinations.onboarding);
-      this.host.requestUpdate();
       return;
     }
 
@@ -36,7 +35,6 @@ export class LedgerSyncController implements ReactiveController {
 
     if (this.pendingTransactionParams) {
       this.navigation.navigateTo(this.destinations.signTransaction);
-      this.host.requestUpdate();
       return;
     }
 

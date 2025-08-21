@@ -39,12 +39,13 @@ export class SelectDeviceController implements ReactiveController {
 
       if (pendingTransactionParams) {
         this.navigation.navigateTo(this.destinations.signTransaction);
-      } else {
-        this.navigation.navigateTo(this.destinations.ledgerSync);
+        return;
       }
+
+      this.navigation.navigateTo(this.destinations.ledgerSync);
+      return;
     } catch (error) {
       console.error("Failed to connect to device", error);
-      // this.navigation.navigateTo(destinations.onboarding);
     }
   }
 }
