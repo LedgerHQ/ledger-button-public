@@ -7,6 +7,7 @@ import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "./use-case/ListAvailableDevices.js";
 import { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import { SignTransaction } from "./use-case/SignTransaction.js";
+import { SignTypedData } from "./use-case/SignTypedData.js";
 import { SwitchDevice } from "./use-case/SwitchDevice.js";
 import { ContainerOptions } from "../diTypes.js";
 import { deviceModuleTypes } from "./deviceModuleTypes.js";
@@ -26,6 +27,7 @@ export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
     bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDevice);
     bind(deviceModuleTypes.SignRawTransactionUseCase).to(SignRawTransaction);
     bind(deviceModuleTypes.SignTransactionUseCase).to(SignTransaction);
+    bind(deviceModuleTypes.SignTypedDataUseCase).to(SignTypedData);
     bind(deviceModuleTypes.ListAvailableDevicesUseCase).to(
       ListAvailableDevices,
     );

@@ -23,7 +23,8 @@ import {
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
-  SignedTransaction,
+  type Signature,
+  type SignedTransaction,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -43,7 +44,7 @@ export class LedgerEIP1193Provider
   // This is a workaround to wrap the event listener in the `on` method
   // so we can remove it later
   private _listeners: Map<
-    (...args: unknown[]) => void,
+    (args: any) => void,
     (e: CustomEvent | Event) => void
   > = new Map();
 
@@ -67,6 +68,7 @@ export class LedgerEIP1193Provider
       window.addEventListener(
         "ledger-provider-account-selected",
         (e) => {
+          // EIP-1193 accountsChanged event
           this.dispatchEvent(
             new CustomEvent<string[]>("accountsChanged", {
               bubbles: true,
@@ -74,10 +76,10 @@ export class LedgerEIP1193Provider
               detail: [e.detail.accounts[0]],
             }),
           );
-          resolve([e.detail.accounts[0]]);
           // TODO: replace with real connection logic
           this._selectedAccount = e.detail.accounts[0];
           this._isConnected = true;
+          resolve([e.detail.accounts[0]]);
         },
         {
           once: true,
@@ -111,6 +113,31 @@ export class LedgerEIP1193Provider
     });
   }
 
+  private handleSignTypedData(params: object): Promise<Signature> {
+    return new Promise((resolve, reject) => {
+      if (!this._selectedAccount) {
+        return reject(
+          this.createError(
+            CommonEIP1193ErrorCode.Unauthorized,
+            "No account selected",
+          ),
+        );
+      }
+
+      this.app.navigationIntent("signTransaction", params);
+
+      window.addEventListener(
+        "ledger-provider-sign-typed-data",
+        (e) => {
+          resolve(e?.detail);
+        },
+        {
+          once: true,
+        },
+      );
+    });
+  }
+
   handlers = {
     eth_accounts: (_: unknown) => this.handleRequestAccounts(),
     eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
@@ -125,9 +152,7 @@ export class LedgerEIP1193Provider
     // personal_sign: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
-    // eth_signTypedData: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
+    eth_signTypedData: (params: object) => this.handleSignTypedData(params),
   } as const;
 
   // Public API
@@ -144,9 +169,9 @@ export class LedgerEIP1193Provider
     });
   }
 
-  public on(
-    eventName: ProviderEvent,
-    listener: (...args: unknown[]) => void,
+  public on<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
   ): this {
     this._listeners.set(listener, (e) => {
       // NOTE: we should not handle non-custom events here
@@ -162,9 +187,9 @@ export class LedgerEIP1193Provider
     return this;
   }
 
-  public removeListener(
-    eventName: ProviderEvent,
-    listener: (...args: unknown[]) => void,
+  public removeListener<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
   ): this {
     const fn = this._listeners.get(listener);
     if (!fn) return this;

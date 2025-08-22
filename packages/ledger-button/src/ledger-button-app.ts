@@ -6,6 +6,7 @@ import "./shared/routes.js";
 
 import {
   LedgerButtonCore,
+  Signature,
   SignedTransaction,
 } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
@@ -50,6 +51,11 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-sign-transaction",
       this.handleSignTransaction,
     );
+
+    window.addEventListener(
+      "ledger-internal-sign-typed-data",
+      this.handleSignTypedData,
+    );
   }
 
   override disconnectedCallback() {
@@ -69,6 +75,10 @@ export class LedgerButtonApp extends LitElement {
     window.removeEventListener(
       "ledger-internal-sign-transaction",
       this.handleSignTransaction,
+    );
+    window.removeEventListener(
+      "ledger-internal-sign-typed-data",
+      this.handleSignTypedData,
     );
   }
 
@@ -121,6 +131,16 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
+  private handleSignTypedData = (e: CustomEvent<Signature>) => {
+    window.dispatchEvent(
+      new CustomEvent<Signature>("ledger-provider-sign-typed-data", {
+        bubbles: true,
+        composed: true,
+        detail: e.detail,
+      }),
+    );
+  };
+
   public navigationIntent(intent: Destination["name"], params?: unknown) {
     this.root.navigationIntent(intent, params);
   }
@@ -160,6 +180,7 @@ declare global {
   interface WindowEventMap {
     "ledger-provider-account-selected": CustomEvent<{ accounts: string[] }>;
     "ledger-provider-sign-transaction": CustomEvent<SignedTransaction>;
+    "ledger-provider-sign-typed-data": CustomEvent<Signature>;
     "ledger-provider-disconnect": CustomEvent;
   }
 }

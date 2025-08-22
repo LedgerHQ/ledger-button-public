@@ -1,3 +1,5 @@
+export type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
+
 export type RpcMethods =
   | "eth_accounts"
   | "eth_requestAccounts"
@@ -65,8 +67,14 @@ export interface EIP6963ProviderInfo {
 
 export interface EIP1193Provider {
   request(args: RequestArguments): Promise<unknown>;
-  on(eventName: string, listener: (...args: any[]) => void): void;
-  removeListener(eventName: string, listener: (...args: any[]) => void): void;
+  on<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
+  ): void;
+  removeListener<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
+  ): void;
   isConnected(): boolean;
 }
 
@@ -121,12 +129,13 @@ export interface EthSignTypedDataParams {
 }
 
 // Provider events
-export type ProviderEvent =
-  | "connect"
-  | "disconnect"
-  | "chainChanged"
-  | "accountsChanged"
-  | "message";
+export type ProviderEvent = {
+  connect: ProviderConnectInfo;
+  disconnect: ProviderRpcError;
+  chainChanged: ProviderConnectInfo["chainId"];
+  accountsChanged: string[];
+  message: ProviderMessage;
+};
 
 // Chain information
 export interface ChainInfo {

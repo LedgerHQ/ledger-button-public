@@ -8,12 +8,15 @@ import {
   Field,
   Textarea,
 } from "@headlessui/react";
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-button";
 import { ethers } from "ethers";
 
 import { useProviders } from "../hooks/useProviders";
 
 import styles from "./page.module.css";
+
+let Provider:
+  | typeof import("@ledgerhq/ledger-button").LedgerEIP1193Provider
+  | null = null;
 
 export default function Index() {
   const { providers, selectedProvider, setSelectedProvider } = useProviders();
@@ -26,6 +29,11 @@ export default function Index() {
 
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
+
+    import("@ledgerhq/ledger-button").then((module) => {
+      Provider = module.LedgerEIP1193Provider;
+    });
+
     window.dispatchEvent(new Event("eip6963:requestProvider"));
     setIsOpen(true);
   }, []);
@@ -121,7 +129,7 @@ export default function Index() {
   const handleDisconnect = useCallback(async () => {
     if (!selectedProvider) return;
 
-    if (selectedProvider.provider instanceof LedgerEIP1193Provider) {
+    if (Provider && selectedProvider.provider instanceof Provider) {
       selectedProvider.provider.disconnect();
     }
 

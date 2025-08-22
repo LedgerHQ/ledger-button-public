@@ -1,17 +1,22 @@
+import type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, from, Observable, Subject } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
-import { SignRawTransactionParams } from "src/api/index.js";
 
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import type {
   SignedTransaction,
   SignRawTransaction,
 } from "../../device/use-case/SignRawTransaction.js";
+import { SignRawTransactionParams } from "../../device/use-case/SignRawTransaction.js";
 import {
   SignTransaction,
   type SignTransactionParams,
 } from "../../device/use-case/SignTransaction.js";
+import {
+  SignTypedData,
+  type SignTypedDataParams,
+} from "../../device/use-case/SignTypedData.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import {
@@ -26,7 +31,10 @@ export class DefaultTransactionService implements TransactionService {
     TransactionStatus.IDLE,
   );
   private _result = new Subject<TransactionResult>();
-  private _pendingParams?: SignTransactionParams | SignRawTransactionParams;
+  private _pendingParams?:
+    | SignTransactionParams
+    | SignRawTransactionParams
+    | SignTypedDataParams;
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -34,14 +42,19 @@ export class DefaultTransactionService implements TransactionService {
     private readonly signTransactionUseCase: SignTransaction,
     @inject(deviceModuleTypes.SignRawTransactionUseCase)
     private readonly signRawTransactionUseCase: SignRawTransaction,
+    @inject(deviceModuleTypes.SignTypedDataUseCase)
+    private readonly signTypedDataUseCase: SignTypedData,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
     this.logger = loggerFactory("[DefaultTransactionService]");
   }
 
-  signTransaction(
-    params: SignTransactionParams | SignRawTransactionParams,
+  sign(
+    params:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedDataParams,
   ): Observable<TransactionResult> {
     this._pendingParams = params;
     this._updateStatus(TransactionStatus.SIGNING);
@@ -51,7 +64,9 @@ export class DefaultTransactionService implements TransactionService {
     const useCase =
       "transaction" in params
         ? this.signTransactionUseCase.execute(params)
-        : this.signRawTransactionUseCase.execute(params);
+        : "typedData" in params
+          ? this.signTypedDataUseCase.execute(params)
+          : this.signRawTransactionUseCase.execute(params);
 
     from(useCase)
       .pipe(
@@ -63,7 +78,7 @@ export class DefaultTransactionService implements TransactionService {
         }),
       )
       .subscribe({
-        next: (data: SignedTransaction) => {
+        next: (data) => {
           this._pendingParams = undefined;
           this._updateStatus(TransactionStatus.SIGNED, data);
         },
@@ -79,12 +94,17 @@ export class DefaultTransactionService implements TransactionService {
   getPendingTransaction():
     | SignTransactionParams
     | SignRawTransactionParams
+    | SignTypedDataParams
     | undefined {
     return this._pendingParams;
   }
 
   setPendingTransaction(
-    params: SignTransactionParams | SignRawTransactionParams | undefined,
+    params:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedDataParams
+      | undefined,
   ): void {
     this._pendingParams = params;
   }
@@ -96,7 +116,7 @@ export class DefaultTransactionService implements TransactionService {
 
   private _updateStatus(
     status: TransactionStatus,
-    data?: SignedTransaction,
+    data?: SignedTransaction | Signature,
     error?: Error,
   ): void {
     this._status.next(status);
