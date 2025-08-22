@@ -66,8 +66,8 @@ describe("LedgerButtonAtom", () => {
       );
 
       let eventDetail: any = null;
-      element.addEventListener("ledger-button-click", (e: any) => {
-        eventDetail = e.detail;
+      element.addEventListener("ledger-button-click", (e: Event) => {
+        eventDetail = (e as CustomEvent).detail;
       });
 
       const button = element.shadowRoot?.querySelector(
@@ -76,9 +76,9 @@ describe("LedgerButtonAtom", () => {
       button.click();
 
       expect(eventDetail).toBeTruthy();
-      expect(eventDetail.variant).toBe("primary");
-      expect(eventDetail.label).toBe("Click Test");
-      expect(typeof eventDetail.timestamp).toBe("number");
+      expect((eventDetail as any).variant).toBe("primary");
+      expect((eventDetail as any).label).toBe("Click Test");
+      expect(typeof (eventDetail as any).timestamp).toBe("number");
     });
 
     it("should not emit event when disabled", async () => {

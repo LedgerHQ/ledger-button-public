@@ -1,4 +1,5 @@
 import { Container } from "inversify";
+import { Observable } from "rxjs";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { AccountService } from "../internal/account/service/AccountService.js";
@@ -11,15 +12,14 @@ import {
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import {
-  SignTransaction,
-  SignTransactionParams,
-} from "../internal/device/use-case/SignTransaction.js";
+import { SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { ContainerOptions } from "../internal/diTypes.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { StorageService } from "../internal/storage/StorageService.js";
+import * as TransactionService from "../internal/transaction/service/TransactionService.js";
+import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
@@ -103,10 +103,12 @@ export class LedgerButtonCore {
   }
 
   // Transaction methods
-  async signTransaction(params: SignTransactionParams) {
+  signTransaction(params: SignTransactionParams): Observable<TransactionService.TransactionResult> {
     return this.container
-      ?.get<SignTransaction>(deviceModuleTypes.SignTransactionUseCase)
-      .execute(params);
+      .get<TransactionService.TransactionService>(
+        transactionModuleTypes.TransactionService,
+      )
+      .signTransaction(params);
   }
 
   setPendingTransactionParams(params: SignTransactionParams | undefined) {
@@ -115,6 +117,12 @@ export class LedgerButtonCore {
 
   getPendingTransactionParams(): SignTransactionParams | undefined {
     return this._pendingTransactionParams;
+  }
+
+  getTransactionService(): TransactionService.TransactionService {
+    return this.container.get<TransactionService.TransactionService>(
+      transactionModuleTypes.TransactionService,
+    );
   }
 
   async jsonRpcRequest(args: JSONRPCRequest) {

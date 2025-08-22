@@ -1,5 +1,9 @@
-import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
+import {
+  SignTransactionParams,
+  TransactionResult,
+} from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
+import { Subscription } from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
@@ -12,6 +16,7 @@ interface SignTransactionHost extends ReactiveControllerHost {
 
 export class SignTransactionController implements ReactiveController {
   host: SignTransactionHost;
+  private transactionSubscription?: Subscription;
 
   constructor(
     host: SignTransactionHost,
@@ -27,17 +32,40 @@ export class SignTransactionController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  async startSigning(transactionParams: SignTransactionParams) {
-    try {
-      const result = await this.core.signTransaction(transactionParams);
+  hostDisconnected() {
+    this.transactionSubscription?.unsubscribe();
+  }
 
-      this.host.state = "success";
-      this.host.transactionId = result?.hash;
-      this.host.requestUpdate();
-    } catch {
-      this.host.state = "error";
-      this.host.requestUpdate();
+  startSigning(transactionParams: SignTransactionParams) {
+    if (this.transactionSubscription) {
+      this.transactionSubscription.unsubscribe();
     }
+
+    this.transactionSubscription = this.core
+      .signTransaction(transactionParams)
+      .subscribe({
+        next: (result: TransactionResult) => {
+          switch (result.status) {
+            case "signing":
+              this.host.state = "signing";
+              break;
+            case "signed":
+              if (result.data) {
+                this.host.state = "success";
+                this.host.transactionId = result.data.hash;
+              }
+              break;
+            case "error":
+              this.host.state = "error";
+              break;
+          }
+          this.host.requestUpdate();
+        },
+        error: () => {
+          this.host.state = "error";
+          this.host.requestUpdate();
+        },
+      });
   }
 
   viewTransactionDetails(transactionId: string) {
