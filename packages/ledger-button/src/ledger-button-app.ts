@@ -1,20 +1,22 @@
-import "@ledgerhq/ledger-button-ui";
+import "./components/index.js";
 import "./shared/root-navigation.js";
 import "./context/language-context.js";
 import "./context/core-context.js";
 import "./shared/routes.js";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import {
-  type AccountItemClickEventDetail,
-  tailwindElement,
-} from "@ledgerhq/ledger-button-ui";
+  LedgerButtonCore,
+  Signature,
+  SignedTransaction,
+} from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
+import type { AccountItemClickEventDetail } from "./components/molecule/account-item/ledger-account-item.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
+import { tailwindElement } from "./tailwind-element.js";
 
 @customElement("ledger-button-app")
 @tailwindElement()
@@ -45,6 +47,15 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-account-switch",
       this.handleAccountSwitch,
     );
+    window.addEventListener(
+      "ledger-internal-sign-transaction",
+      this.handleSignTransaction,
+    );
+
+    window.addEventListener(
+      "ledger-internal-sign-typed-data",
+      this.handleSignTypedData,
+    );
   }
 
   override disconnectedCallback() {
@@ -61,10 +72,27 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-account-switch",
       this.handleAccountSwitch,
     );
+    window.removeEventListener(
+      "ledger-internal-sign-transaction",
+      this.handleSignTransaction,
+    );
+    window.removeEventListener(
+      "ledger-internal-sign-typed-data",
+      this.handleSignTypedData,
+    );
   }
 
-  private handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
+  // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
+  // when passed to window.addEventListener
+  private handleAccountSelected = (
+    e: CustomEvent<AccountItemClickEventDetail>,
+  ) => {
+    if (!this._accounts) {
+      this._accounts = [];
+    }
+
     const found = this._accounts.find((a) => a === e.detail.address);
+
     if (!found) {
       this._accounts.pop();
       this._accounts.push(e.detail.address);
@@ -80,20 +108,51 @@ export class LedgerButtonApp extends LitElement {
         },
       ),
     );
-  }
+  };
 
-  private handleLedgerButtonDisconnect() {
+  private handleSignTransaction = (e: CustomEvent<SignedTransaction>) => {
+    console.log("handleSignTransaction", e);
+    window.dispatchEvent(
+      new CustomEvent<SignedTransaction>("ledger-provider-sign-transaction", {
+        bubbles: true,
+        composed: true,
+        detail: e.detail,
+      }),
+    );
+  };
+
+  private handleLedgerButtonDisconnect = () => {
     this.root.closeModal();
-  }
+  };
 
-  private handleAccountSwitch() {
+  private handleAccountSwitch = () => {
     this.root.rootNavigationController.navigation.navigateTo(
       this.root.rootNavigationController.destinations.fetchAccounts,
     );
+  };
+
+  private handleSignTypedData = (e: CustomEvent<Signature>) => {
+    window.dispatchEvent(
+      new CustomEvent<Signature>("ledger-provider-sign-typed-data", {
+        bubbles: true,
+        composed: true,
+        detail: e.detail,
+      }),
+    );
+  };
+
+  public navigationIntent(intent: Destination["name"], params?: unknown) {
+    this.root.navigationIntent(intent, params);
   }
 
-  public navigationIntent(intent: Destination["name"]) {
-    this.root.navigationIntent(intent);
+  public disconnect() {
+    this.core?.disconnect();
+    this.dispatchEvent(
+      new CustomEvent("ledger-provider-disconnect", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   openModal() {
@@ -120,5 +179,8 @@ export class LedgerButtonApp extends LitElement {
 declare global {
   interface WindowEventMap {
     "ledger-provider-account-selected": CustomEvent<{ accounts: string[] }>;
+    "ledger-provider-sign-transaction": CustomEvent<SignedTransaction>;
+    "ledger-provider-sign-typed-data": CustomEvent<Signature>;
+    "ledger-provider-disconnect": CustomEvent;
   }
 }

@@ -1,6 +1,5 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../../components/index.js";
 
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -8,6 +7,7 @@ import { customElement, property } from "lit/decorators.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import { RetrievingAccountsController } from "./retrieving-accounts-controller.js";
 
 const styles = css`

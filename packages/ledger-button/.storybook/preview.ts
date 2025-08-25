@@ -1,6 +1,6 @@
 import type { Preview } from "@storybook/web-components";
 
-import "@ledgerhq/ledger-button-ui/styles.css";
+import "../src/styles.css";
 
 const preview: Preview = {
   parameters: {

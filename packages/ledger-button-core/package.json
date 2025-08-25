@@ -21,11 +21,12 @@
     "@ledgerhq/device-transport-kit-web-ble": "^1.1.0",
     "@ledgerhq/device-transport-kit-web-hid": "^1.1.0",
     "chalk": "^5.4.1",
-    "viem": "^2.21.0",
+    "ethers": "^6.15.0",
     "inversify": "^7.5.1",
     "jsonwebtoken": "9.0.2",
     "purify-ts": "2.1.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "~7.8.0"
+    "rxjs": "~7.8.0",
+    "viem": "^2.21.0"
   }
 }

@@ -1,3 +1,5 @@
+export type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
+
 export type RpcMethods =
   | "eth_accounts"
   | "eth_requestAccounts"
@@ -5,7 +7,8 @@ export type RpcMethods =
   | "eth_sendRawTransaction"
   | "eth_sendTransaction"
   | "eth_signTransaction"
-  | "eth_signTypedData";
+  | "eth_signTypedData"
+  | string;
 
 export type JSONRPCRequest = {
   readonly jsonrpc: string;
@@ -64,10 +67,13 @@ export interface EIP6963ProviderInfo {
 
 export interface EIP1193Provider {
   request(args: RequestArguments): Promise<unknown>;
-  on(eventName: string, listener: (...args: unknown[]) => void): void;
-  removeListener(
-    eventName: string,
-    listener: (...args: unknown[]) => void,
+  on<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
+  ): void;
+  removeListener<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
   ): void;
   isConnected(): boolean;
 }
@@ -123,12 +129,13 @@ export interface EthSignTypedDataParams {
 }
 
 // Provider events
-export type ProviderEvent =
-  | "connect"
-  | "disconnect"
-  | "chainChanged"
-  | "accountsChanged"
-  | "message";
+export type ProviderEvent = {
+  connect: ProviderConnectInfo;
+  disconnect: ProviderRpcError;
+  chainChanged: ProviderConnectInfo["chainId"];
+  accountsChanged: string[];
+  message: ProviderMessage;
+};
 
 // Chain information
 export interface ChainInfo {

@@ -1,14 +1,10 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../../components/index.js";
 
-import {
-  ConnectionItemClickEventDetail,
-  tailwindElement,
-} from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { repeat } from "lit/directives/repeat.js";
 
+import type { ConnectionItemClickEventDetail } from "../../../components/molecule/connection-item/ledger-connection-item.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
@@ -16,6 +12,7 @@ import {
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destination, Destinations } from "../../../shared/routes.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import { SelectDeviceController } from "./select-device-controller.js";
 
 const styles = css`
@@ -88,7 +85,7 @@ export class SelectDeviceScreen extends LitElement {
     return html`
       <div class="flex flex-col">
         <div class="flex flex-col gap-12 p-24 pt-0">
-          ${repeat(["bluetooth", "usb"] as const, (el) => {
+          ${(["bluetooth", "usb"] as const).map((el) => {
             return html`
               <ledger-connection-item
                 title=${lang.common.button[el]}

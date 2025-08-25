@@ -1,10 +1,10 @@
-import { LedgerModal } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
+import { LedgerModal } from "../components/atom/modal/ledger-modal.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { ANIMATION_DELAY } from "./navigation.js";
@@ -56,8 +56,8 @@ export class RootNavigationComponent extends LitElement {
     return this.rootNavigationController.selectedAccount;
   }
 
-  public navigationIntent(intent: Destination["name"]) {
-    this.rootNavigationController.navigationIntent(intent);
+  public navigationIntent(intent: Destination["name"], params?: unknown) {
+    this.rootNavigationController.navigationIntent(intent, params);
     this.openModal();
   }
 
@@ -88,6 +88,7 @@ export class RootNavigationComponent extends LitElement {
         <${tag}
           .destinations=${this.rootNavigationController.destinations}
           .navigation=${this.rootNavigationController.navigation}
+          .params=${this.rootNavigationController.params}
         ></${tag}>
       `;
     }

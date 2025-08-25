@@ -1,9 +1,12 @@
+import type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
 import { Observable } from "rxjs";
 
-import {
+import type {
   SignedTransaction,
-  SignTransactionParams,
-} from "../../device/use-case/SignTransaction.js";
+  SignRawTransactionParams,
+} from "../../device/use-case/SignRawTransaction.js";
+import type { SignTransactionParams } from "../../device/use-case/SignTransaction.js";
+import type { SignTypedDataParams } from "../../device/use-case/SignTypedData.js";
 
 export enum TransactionStatus {
   IDLE = "idle",
@@ -15,16 +18,31 @@ export enum TransactionStatus {
 
 export interface TransactionResult {
   status: TransactionStatus;
-  data?: SignedTransaction;
+  data?: SignedTransaction | Signature;
   error?: Error;
 }
 
 export interface TransactionService {
-  signTransaction(params: SignTransactionParams): Observable<TransactionResult>;
+  sign(
+    params:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedDataParams,
+  ): Observable<TransactionResult>;
 
-  getPendingTransaction(): SignTransactionParams | undefined;
+  getPendingTransaction():
+    | SignTransactionParams
+    | SignRawTransactionParams
+    | SignTypedDataParams
+    | undefined;
 
-  setPendingTransaction(params: SignTransactionParams | undefined): void;
+  setPendingTransaction(
+    params:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedDataParams
+      | undefined,
+  ): void;
 
   reset(): void;
 }

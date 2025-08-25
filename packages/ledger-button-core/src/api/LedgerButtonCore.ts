@@ -2,31 +2,36 @@ import { Container } from "inversify";
 import { Observable } from "rxjs";
 
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { AccountService } from "../internal/account/service/AccountService.js";
+import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
-  ConnectionType,
-  DeviceManagementKitService,
+  type ConnectionType,
+  type DeviceManagementKitService,
 } from "../internal/device/service/DeviceManagementKitService.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import { SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
+import { type SignRawTransactionParams } from "../internal/device/use-case/SignRawTransaction.js";
+import { type SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
+import { type SignTypedDataParams } from "../internal/device/use-case/SignTypedData.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
-import { ContainerOptions } from "../internal/diTypes.js";
+import { type ContainerOptions } from "../internal/diTypes.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
-import { StorageService } from "../internal/storage/StorageService.js";
-import * as TransactionService from "../internal/transaction/service/TransactionService.js";
+import { type StorageService } from "../internal/storage/StorageService.js";
+import {
+  type TransactionResult,
+  type TransactionService,
+} from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
-import { JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
+import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
 export class LedgerButtonCore {
   private container!: Container;
-  private _pendingTransactionParams?: SignTransactionParams;
+  private _pendingTransactionParams?: SignRawTransactionParams;
 
   constructor(private readonly opts: ContainerOptions) {
     this.container = createContainer(this.opts);
@@ -103,24 +108,27 @@ export class LedgerButtonCore {
   }
 
   // Transaction methods
-  signTransaction(params: SignTransactionParams): Observable<TransactionService.TransactionResult> {
+  sign(
+    params:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedDataParams,
+  ): Observable<TransactionResult> {
     return this.container
-      .get<TransactionService.TransactionService>(
-        transactionModuleTypes.TransactionService,
-      )
-      .signTransaction(params);
+      ?.get<TransactionService>(transactionModuleTypes.TransactionService)
+      .sign(params);
   }
 
-  setPendingTransactionParams(params: SignTransactionParams | undefined) {
+  setPendingTransactionParams(params: SignRawTransactionParams | undefined) {
     this._pendingTransactionParams = params;
   }
 
-  getPendingTransactionParams(): SignTransactionParams | undefined {
+  getPendingTransactionParams(): SignRawTransactionParams | undefined {
     return this._pendingTransactionParams;
   }
 
-  getTransactionService(): TransactionService.TransactionService {
-    return this.container.get<TransactionService.TransactionService>(
+  getTransactionService(): TransactionService {
+    return this.container.get<TransactionService>(
       transactionModuleTypes.TransactionService,
     );
   }

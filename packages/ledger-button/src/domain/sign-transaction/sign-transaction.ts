@@ -1,12 +1,16 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
-import { SignTransactionParams } from "@ledgerhq/ledger-button-core";
-import { StatusType, tailwindElement } from "@ledgerhq/ledger-button-ui";
+import {
+  type Signature,
+  type SignedTransaction,
+  type SignTransactionParams,
+} from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { type StatusType } from "../../components/organism/status/ledger-status.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -14,6 +18,7 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
+import { tailwindElement } from "../../tailwind-element.js";
 import { SignTransactionController } from "./sign-transaction-controller.js";
 
 export type SignTransactionState = "signing" | "success" | "error";
@@ -67,6 +72,9 @@ export class SignTransactionScreen extends LitElement {
   @property({ type: Object })
   transactionParams?: SignTransactionParams;
 
+  @property({ type: Object })
+  params?: unknown;
+
   controller!: SignTransactionController;
 
   override connectedCallback() {
@@ -79,7 +87,9 @@ export class SignTransactionScreen extends LitElement {
     );
 
     const transactionParams =
-      this.transactionParams || this.coreContext.getPendingTransactionParams();
+      (this.params as SignTransactionParams) ??
+      this.transactionParams ??
+      this.coreContext.getPendingTransactionParams();
 
     if (!transactionParams) {
       this.state = "error";
@@ -96,13 +106,37 @@ export class SignTransactionScreen extends LitElement {
       <ledger-sync-screen
         .navigation=${this.navigation}
         .destinations=${this.destinations}
-        .pendingTransactionParams=${this.transactionParams}
+        .pendingTransactionParams=${(this.params as SignTransactionParams) ??
+        this.transactionParams}
       ></ledger-sync-screen>
     `;
   }
 
   private renderSuccessState() {
     const lang = this.languageContext.currentTranslation;
+
+    if (this.controller.result) {
+      if ("hash" in this.controller.result) {
+        window.dispatchEvent(
+          new CustomEvent<SignedTransaction>(
+            "ledger-internal-sign-transaction",
+            {
+              bubbles: true,
+              composed: true,
+              detail: this.controller.result,
+            },
+          ),
+        );
+      } else {
+        window.dispatchEvent(
+          new CustomEvent<Signature>("ledger-internal-sign-typed-data", {
+            bubbles: true,
+            composed: true,
+            detail: this.controller.result,
+          }),
+        );
+      }
+    }
 
     return html`
       <div
@@ -195,5 +229,16 @@ export class SignTransactionScreen extends LitElement {
       default:
         return this.renderSigningState();
     }
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "sign-transaction-screen": SignTransactionScreen;
+  }
+
+  interface WindowEventMap {
+    "ledger-internal-sign-transaction": CustomEvent<SignedTransaction>;
+    "ledger-internal-sign-typed-data": CustomEvent<Signature>;
   }
 }

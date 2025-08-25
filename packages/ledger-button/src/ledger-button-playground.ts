@@ -1,4 +1,4 @@
-import "@ledgerhq/ledger-button-ui";
+import "./components/index.js";
 import "./context/core-context.js";
 import "./context/language-context.js";
 import "./ledger-button-app.js";
@@ -11,8 +11,6 @@ import {
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-// import { CoreProvider } from "./context/core-context.js";
-// import { LedgerButtonApp } from "./ledger-button-app.js";
 import { initializeLedgerProvider } from "./index.js";
 
 @customElement("ledger-button-playground")

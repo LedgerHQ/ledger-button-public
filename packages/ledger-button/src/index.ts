@@ -1,11 +1,22 @@
-import "@ledgerhq/ledger-button-ui";
+import "./components/index.js";
 import "./ledger-button-app.js";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  type EIP6963ProviderInfo,
+  LedgerButtonCore,
+} from "@ledgerhq/ledger-button-core";
 import { v4 as uuidv4 } from "uuid";
 
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
+
+export type {
+  EIP1193Provider,
+  EIP6963ProviderDetail,
+  EIP6963ProviderInfo,
+} from "@ledgerhq/ledger-button-core";
+
+export { LedgerEIP1193Provider };
 
 let core: LedgerButtonCore | null = null;
 
@@ -36,11 +47,11 @@ export function initializeLedgerProvider({
     });
   }
 
-  const info = {
-    id: uuidv4(),
+  const info: EIP6963ProviderInfo = {
+    uuid: uuidv4(),
     name: "Ledger Button",
     icon: "https://ledger.com/favicon.ico",
-    rnds: "com.ledger.button",
+    rdns: "com.ledger.button",
   };
 
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
