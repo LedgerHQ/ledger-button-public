@@ -71,17 +71,23 @@ export class SignRawTransaction {
         throw Error("No account selected");
       }
 
-      const derivationPath = account.derivationMode;
+      const derivationPath = "44'/60'/0'/0/0"; //account.derivationMode;
 
       const { observable } = ethSigner.signTransaction(derivationPath, tx);
       const result = await lastValueFrom(observable);
 
       if (result.status === "error") {
+        console.log("Error signing transaction", result.error);
         throw Error("Transaction signing failed");
       }
 
-      this.logger.info("Transaction signing completed", { result });
+      if (result.status === "completed") {
+        this.logger.info("Transaction signing completed", {
+          result: result.output,
+        });
+      }
 
+      //TODO generate signed raw transaction using output
       return {
         hash: keccak256(tx),
         rawTransaction,
