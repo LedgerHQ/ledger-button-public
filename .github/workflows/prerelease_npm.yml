@@ -1,0 +1,28 @@
+name: "[Release] Prerelease to npm"
+
+on:
+  push:
+    tags:
+      - "**/v*.*.*-**"
+      - "!**/v*.*.*"
+
+env:
+  FORCE_COLOR: "1"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write # needed for provenance data generation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-action-composite
+      - name: build ledger-button
+        run: pnpm nx build ledger-button
+      - name: release to npm
+        run: pnpm release --preid pre
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
