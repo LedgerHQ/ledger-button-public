@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Right } from "purify-ts";
 
+import { DappConfig, dappConfig } from "../../config/dappConfig.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -13,6 +14,7 @@ export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
   selectedAccount: Account | null = null;
+  supportedBlockchains: Map<string, DappConfig["supportedBlockchains"][number]>;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -21,12 +23,13 @@ export class DefaultAccountService implements AccountService {
     private readonly storageService: StorageService,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
+    this.supportedBlockchains = new Map(
+      dappConfig.supportedBlockchains.map((c) => [c.currency_id, c]), // TODO: get the config from injected LedgerButtonBackendService
+    );
   }
 
   setAccountsFromCloudSyncData(cloudsyncData: CloudSyncData): void {
     const mappedAccounts = this.mapCloudSyncDataToAccounts(cloudsyncData);
-
-    // TODO filter accounts in function of the dApp supported currencies config
 
     this.setAccounts(mappedAccounts);
   }
@@ -70,10 +73,12 @@ export class DefaultAccountService implements AccountService {
   ): Either<AccountServiceError, Account[]> {
     const { accounts, accountNames } = cloudSyncData;
     return Right(
-      accounts.map((account) => ({
-        ...account,
-        name: accountNames[account.id],
-      })),
+      accounts.flatMap((account) => {
+        const blockchain = this.supportedBlockchains.get(account.currencyId);
+        const ticker = blockchain?.currency_ticker;
+        const name = accountNames[account.id] ?? account.id;
+        return ticker ? { ...account, name, ticker } : [];
+      }),
     );
   }
 }
