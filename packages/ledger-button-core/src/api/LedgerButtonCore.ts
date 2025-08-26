@@ -4,6 +4,8 @@ import { Observable } from "rxjs";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
+import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
+import { type BackendService } from "../internal/backend/service/BackendService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -137,5 +139,11 @@ export class LedgerButtonCore {
     return this.container
       .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
+  }
+
+  getBackendService(): BackendService {
+    return this.container.get<BackendService>(
+      backendModuleTypes.BackendService,
+    );
   }
 }
