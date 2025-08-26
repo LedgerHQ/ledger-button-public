@@ -47,15 +47,4 @@ export type ConfigResponse = {
   appDependencies: AppDependency[];
 };
 
-export type BackendErrorResponse = {
-  error: string;
-  code: number;
-};
-
-export type BackendHeaders = {
-  "Content-Type"?: string;
-  "X-Ledger-client-origin": string;
-  "X-Ledger-domain": string;
-};
-
 export type BackendServiceError = Error;

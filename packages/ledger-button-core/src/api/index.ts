@@ -1,9 +1,7 @@
 export * from "../internal/account/service/AccountService.js";
-export type { BackendService } from "../internal/backend/service/BackendService.js";
+export type { BackendService } from "../internal/backend/BackendService.js";
 export type {
   AppDependency,
-  BackendErrorResponse,
-  BackendHeaders,
   BackendServiceError,
   Blockchain,
   BroadcastRequest,
@@ -12,7 +10,7 @@ export type {
   ConfigResponse,
   RpcRequest,
   SupportedBlockchain,
-} from "../internal/backend/model/types.js";
+} from "../internal/backend/types.js";
 export type { Device } from "../internal/device/model/Device.js";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
 export type {

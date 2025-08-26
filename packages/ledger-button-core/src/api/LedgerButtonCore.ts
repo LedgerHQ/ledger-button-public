@@ -5,7 +5,7 @@ import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
-import { type BackendService } from "../internal/backend/service/BackendService.js";
+import { type BackendService } from "../internal/backend/BackendService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -115,7 +115,7 @@ export class LedgerButtonCore {
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedDataParams,
-  ): Observable<TransactionResult> {
+  ): Observable {
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)
       .sign(params);

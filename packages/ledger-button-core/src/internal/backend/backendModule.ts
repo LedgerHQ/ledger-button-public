@@ -1,10 +1,11 @@
 import { ContainerModule } from "inversify";
 
 import { backendModuleTypes } from "./backendModuleTypes.js";
-import { DefaultBackendService } from "./service/DefaultBackendService.js";
-import { StubBackendService } from "./service/StubBackendService.js";
+import { DefaultBackendService } from "./DefaultBackendService.js";
 
-type BackendModuleOptions = Pick;
+type BackendModuleOptions = {
+  stub?: boolean;
+};
 
 export function backendModuleFactory({ stub }: BackendModuleOptions) {
   return new ContainerModule(({ bind, rebind }) => {
