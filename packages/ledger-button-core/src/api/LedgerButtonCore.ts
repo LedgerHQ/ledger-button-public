@@ -22,10 +22,8 @@ import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
-import {
-  type TransactionResult,
-  type TransactionService,
-} from "../internal/transaction/service/TransactionService.js";
+import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
+import { TransactionResult } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
@@ -115,7 +113,7 @@ export class LedgerButtonCore {
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedDataParams,
-  ): Observable {
+  ): Observable<TransactionResult> {
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)
       .sign(params);

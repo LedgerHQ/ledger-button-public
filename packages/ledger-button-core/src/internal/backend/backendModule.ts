@@ -8,11 +8,11 @@ type BackendModuleOptions = {
 };
 
 export function backendModuleFactory({ stub }: BackendModuleOptions) {
-  return new ContainerModule(({ bind, rebind }) => {
+  return new ContainerModule(({ bind }) => {
     bind(backendModuleTypes.BackendService).to(DefaultBackendService);
 
     if (stub) {
-      rebind(backendModuleTypes.BackendService).to(StubBackendService);
+      // TODO: Implement stub
     }
   });
 }
