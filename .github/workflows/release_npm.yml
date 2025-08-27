@@ -14,6 +14,7 @@ env:
 jobs:
   build-and-publish:
     runs-on: ubuntu-22.04
+    environment: Production
     permissions:
       contents: read
       id-token: write # needed for provenance data generation

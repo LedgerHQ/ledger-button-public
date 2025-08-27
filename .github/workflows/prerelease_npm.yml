@@ -5,6 +5,15 @@ on:
     tags:
       - "**/v*.*.*-**"
       - "!**/v*.*.*"
+  workflow_dispatch:
+    inputs:
+      preid:
+        description: "Prerelease tag"
+        required: true
+        default: "pre"
+      ref:
+        description: "Git ref to release from"
+        required: true
 
 env:
   FORCE_COLOR: "1"
@@ -17,11 +26,13 @@ jobs:
       id-token: write # needed for provenance data generation
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
       - uses: ./.github/actions/setup-action-composite
       - name: build ledger-button
         run: pnpm nx build ledger-button
       - name: release to npm
-        run: pnpm release --preid pre
+        run: pnpm release --preid ${{ inputs.preid || 'pre' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
