@@ -121,9 +121,21 @@
     }
   ],
   "release": {
+    "releaseTagPatternStrictPreid": true,
+    "releaseTagPattern": "{projectName}/v{version}",
+    "projectsRelationship": "independent",
+    "projects": ["packages/ledger-button"],
     "version": {
-      "preVersionCommand": "pnpm dlx nx run-many -t build",
-      "conventionalCommits": true
+      "git": {
+        "commit": true,
+        "commitMessage": "🔖 ({projectName}): New version {version}"
+      },
+      "preVersionCommand": "pnpm dlx nx build ledger-button",
+      "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk"
+    },
+    "changelog": {
+      "projectChangelogs": true
     },
     "conventionalCommits": {
       "types": {
