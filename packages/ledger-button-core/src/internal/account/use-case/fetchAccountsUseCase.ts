@@ -49,7 +49,7 @@ export class FetchAccountsUseCase {
     const accounts: CloudSyncData = JSON.parse(bytesToString(accountsData));
     this.logger.info("Accounts fetched from cloud sync", accounts);
 
-    this.accountService.setAccountsFromCloudSyncData(accounts);
+    await this.accountService.setAccountsFromCloudSyncData(accounts);
     return this.accountService.getAccounts();
   }
 }

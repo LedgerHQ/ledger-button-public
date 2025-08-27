@@ -6,4 +6,4 @@ export class FetchAccountsError extends LedgerButtonError {
   }
 }
 
-export type AccountServiceError = FetchAccountsError;
+export type AccountServiceError = FetchAccountsError | Error;

@@ -1,17 +1,6 @@
-export interface DappConfig {
-  supportedBlockchains: SupportedBlockchain[];
-  referralUrl: string;
-  domainUrl: string;
-  appDependencies: [
-    {
-      blockchain: string;
-      appName: string;
-      dependencies: string[];
-    },
-  ];
-}
+import { DAppConfig } from "./types.js";
 
-export const dappConfig: DappConfig = {
+export const stubDAppConfig: DAppConfig = {
   supportedBlockchains: [
     {
       id: "1",
@@ -35,11 +24,4 @@ export const dappConfig: DappConfig = {
       dependencies: ["1Inch", "Ethereum"],
     },
   ],
-};
-
-type SupportedBlockchain = {
-  id: string;
-  currency_id: string;
-  currency_name: string;
-  currency_ticker: string;
 };

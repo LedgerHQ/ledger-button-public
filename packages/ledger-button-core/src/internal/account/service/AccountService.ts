@@ -17,7 +17,7 @@ export type Account = CloudSyncAccount & {
   ticker: string;
 };
 export interface AccountService {
-  setAccountsFromCloudSyncData(accounts: CloudSyncData): void;
+  setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];
   selectAccount(address: string): void;
   getSelectedAccount(): Account | null;

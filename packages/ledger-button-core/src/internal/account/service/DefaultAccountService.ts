@@ -1,7 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
-import { Either, Right } from "purify-ts";
+import { Either, EitherAsync } from "purify-ts";
 
-import { DappConfig, dappConfig } from "../../config/dappConfig.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/DAppConfigService.js";
+import { DAppConfig } from "../../dAppConfig/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -14,22 +16,31 @@ export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
   selectedAccount: Account | null = null;
-  supportedBlockchains: Map<string, DappConfig["supportedBlockchains"][number]>;
+  supportedBlockchains: EitherAsync<
+    Error,
+    Map<string, DAppConfig["supportedBlockchains"][number]>
+  >;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
+    @inject(dAppConfigModuleTypes.DAppConfigService)
+    dAppConfigService: DAppConfigService,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
-    this.supportedBlockchains = new Map(
-      dappConfig.supportedBlockchains.map((c) => [c.currency_id, c]), // TODO: get the config from injected LedgerButtonBackendService
-    );
+    this.supportedBlockchains = dAppConfigService
+      .get("supportedBlockchains")
+      .map(
+        (chains) => new Map(chains.map((chain) => [chain.currency_id, chain])),
+      );
   }
 
-  setAccountsFromCloudSyncData(cloudsyncData: CloudSyncData): void {
-    const mappedAccounts = this.mapCloudSyncDataToAccounts(cloudsyncData);
+  async setAccountsFromCloudSyncData(
+    cloudsyncData: CloudSyncData,
+  ): Promise<void> {
+    const mappedAccounts = await this.mapCloudSyncDataToAccounts(cloudsyncData);
 
     this.setAccounts(mappedAccounts);
   }
@@ -70,11 +81,11 @@ export class DefaultAccountService implements AccountService {
 
   private mapCloudSyncDataToAccounts(
     cloudSyncData: CloudSyncData,
-  ): Either<AccountServiceError, Account[]> {
+  ): EitherAsync<AccountServiceError, Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    return Right(
+    return this.supportedBlockchains.map((supportedBlockchains) =>
       accounts.flatMap((account) => {
-        const blockchain = this.supportedBlockchains.get(account.currencyId);
+        const blockchain = supportedBlockchains.get(account.currencyId);
         const ticker = blockchain?.currency_ticker;
         const name = accountNames[account.id] ?? account.id;
         return ticker ? { ...account, name, ticker } : [];
