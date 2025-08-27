@@ -1,18 +1,13 @@
+import type { JSONRPCRequest } from "../web3-provider/model/EIPTypes.js";
+
 export type Blockchain = {
   name: string;
   chain_id: string;
 };
 
-export type RpcRequest = {
-  method: string;
-  params: unknown[];
-  id: number;
-  jsonrpc: string;
-};
-
 export type BroadcastRequest = {
   blockchain: Blockchain;
-  rpc: RpcRequest;
+  rpc: JSONRPCRequest;
 };
 
 export type BroadcastResponse = {

@@ -8,7 +8,7 @@ export type {
   BroadcastResponse,
   ConfigRequest,
   ConfigResponse,
-  RpcRequest,
+  JSONRPCRequest,
   SupportedBlockchain,
 } from "../internal/backend/types.js";
 export type { Device } from "../internal/device/model/Device.js";

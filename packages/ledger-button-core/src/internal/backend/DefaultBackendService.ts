@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { Either, Left } from "purify-ts";
+import { Either } from "purify-ts";
 
 import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../network/networkModuleTypes.js";
@@ -18,14 +18,14 @@ const BACKEND_BASE_URL = "https://ledgerb.aws.stg.ldg-tech.com";
 export class DefaultBackendService implements BackendService {
   constructor(
     @inject(networkModuleTypes.NetworkService)
-    private readonly networkService: NetworkService,
+    private readonly networkService: NetworkService<NetworkServiceOpts>,
   ) {}
 
   async broadcast(
     request: BroadcastRequest,
     clientOrigin = "ledger-button",
     domain = "ledger-button-domain",
-  ): Promise {
+  ): Promise<Either<Error, BroadcastResponse>> {
     const url = `${BACKEND_BASE_URL}/broadcast`;
 
     const headers = {
@@ -38,31 +38,21 @@ export class DefaultBackendService implements BackendService {
       headers,
     };
 
-    try {
-      const result = await this.networkService.post<BroadcastResponse>(
-        url,
-        JSON.stringify(request),
-        options,
-      );
+    const result = await this.networkService.post<BroadcastResponse>(
+      url,
+      JSON.stringify(request),
+      options,
+    );
 
-      return result.mapLeft(
-        (error: Error) => new Error(`Broadcast failed: ${error.message}`),
-      );
-    } catch (error) {
-      return Left(
-        new Error(
-          `Broadcast request failed: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        ),
-      );
-    }
+    return result.mapLeft(
+      (error: Error) => new Error(`Broadcast failed: ${error.message}`),
+    );
   }
 
   async getConfig(
     request: ConfigRequest,
     domain = "ledger-button-domain",
-  ): Promise {
+  ): Promise<Either<Error, ConfigResponse>> {
     const url = `${BACKEND_BASE_URL}/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
@@ -75,23 +65,10 @@ export class DefaultBackendService implements BackendService {
       headers,
     };
 
-    try {
-      const result = await this.networkService.get<ConfigResponse>(
-        url,
-        options,
-      );
+    const result = await this.networkService.get<ConfigResponse>(url, options);
 
-      return result.mapLeft(
-        (error: Error) => new Error(`Get config failed: ${error.message}`),
-      );
-    } catch (error) {
-      return Left(
-        new Error(
-          `Get config request failed: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        ),
-      );
-    }
+    return result.mapLeft(
+      (error: Error) => new Error(`Get config failed: ${error.message}`),
+    );
   }
 }
