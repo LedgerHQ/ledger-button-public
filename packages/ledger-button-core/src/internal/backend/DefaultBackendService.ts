@@ -18,20 +18,20 @@ const BACKEND_BASE_URL = "https://ledgerb.aws.stg.ldg-tech.com";
 export class DefaultBackendService implements BackendService {
   constructor(
     @inject(networkModuleTypes.NetworkService)
-    private readonly networkService: NetworkService<NetworkServiceOpts>,
+    private readonly networkService: NetworkService,
   ) {}
 
   async broadcast(
     request: BroadcastRequest,
     clientOrigin = "ledger-button",
     domain = "ledger-button-domain",
-  ): Promise<Either<Error, BroadcastResponse>> {
+  ): Promise {
     const url = `${BACKEND_BASE_URL}/broadcast`;
 
     const headers = {
       "Content-Type": "application/json",
       "X-Ledger-client-origin": clientOrigin,
-      "X-Ledger-domain": domain,
+      "X-Ledger-Domain": domain,
     };
 
     const options: NetworkServiceOpts = {
@@ -62,7 +62,7 @@ export class DefaultBackendService implements BackendService {
   async getConfig(
     request: ConfigRequest,
     domain = "ledger-button-domain",
-  ): Promise<Either<Error, ConfigResponse>> {
+  ): Promise {
     const url = `${BACKEND_BASE_URL}/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
