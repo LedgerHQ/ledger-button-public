@@ -1,5 +1,5 @@
 import { Container } from "inversify";
-import { BehaviorSubject, Observable, skip, tap } from "rxjs";
+import { BehaviorSubject, Observable, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import {
@@ -25,10 +25,7 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
-import {
-  type AuthenticateResponse,
-  LedgerSyncService,
-} from "../internal/ledgersync/service/LedgerSyncService.js";
+import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
@@ -42,7 +39,9 @@ import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderM
 
 export class LedgerButtonCore {
   private container!: Container;
-  private _pendingTransactionParams?: SignRawTransactionParams;
+  private _pendingTransactionParams?:
+    | SignRawTransactionParams
+    | SignTransactionParams;
 
   private _currentContext: BehaviorSubject<ButtonCoreContext> =
     new BehaviorSubject<ButtonCoreContext>({
@@ -58,14 +57,22 @@ export class LedgerButtonCore {
   }
 
   private async initializeContext() {
-    const selectedAccount = this.getSelectedAccount() ?? undefined;
+    // Restore selected account from storage
+    const selectedAccount = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getSelectedAccount()
+      .extract();
+
+    // Restore trust chain id from storage
     const trustChainId = this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .getTrustChainId()
       .extract();
 
     console.log("trustChainId in context", trustChainId);
+    console.log("selectedAccount in context", selectedAccount);
 
+    // Restore context
     this._currentContext.next({
       connectedDevice: undefined,
       selectedAccount: selectedAccount,
@@ -75,10 +82,18 @@ export class LedgerButtonCore {
   }
 
   async disconnect() {
+    console.log("[Ledger Button Core] Disconnect()");
     this.disconnectFromDevice();
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
+
+    this._currentContext.next({
+      connectedDevice: undefined,
+      selectedAccount: undefined,
+      trustChainId: undefined,
+      applicationPath: undefined,
+    });
 
     try {
       await this.container.unbindAll();
@@ -140,26 +155,35 @@ export class LedgerButtonCore {
   }
 
   selectAccount(address: string) {
-    const res = this.container
+    console.log("[Ledger Button Core] Select account", address);
+
+    this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .selectAccount(address);
 
-    const selectedAccount = this.getSelectedAccount() ?? undefined;
+    const selectedAccount = this.container
+      .get<AccountService>(accountModuleTypes.AccountService)
+      .getSelectedAccount();
+
+    if (selectedAccount) {
+      this.container
+        .get<StorageService>(storageModuleTypes.StorageService)
+        .saveSelectedAccount(selectedAccount);
+    }
 
     this._currentContext.next({
       connectedDevice: this._currentContext.value.connectedDevice,
-      selectedAccount: selectedAccount,
+      selectedAccount: selectedAccount ?? undefined,
       trustChainId: this._currentContext.value.trustChainId,
       applicationPath: this._currentContext.value.applicationPath,
     });
-
-    return res;
   }
 
   getSelectedAccount() {
     return this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .getSelectedAccount();
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getSelectedAccount()
+      .extract();
   }
 
   // Device methods
@@ -187,7 +211,9 @@ export class LedgerButtonCore {
       .sign(params);
   }
 
-  setPendingTransactionParams(params: SignRawTransactionParams | undefined) {
+  setPendingTransactionParams(
+    params: SignRawTransactionParams | SignTransactionParams | undefined,
+  ) {
     this._pendingTransactionParams = params;
   }
 

@@ -1,7 +1,3 @@
-import { Either } from "purify-ts";
-
-import { AccountServiceError } from "../model/error.js";
-
 export type CloudSyncAccount = {
   id: string;
   currencyId: string;

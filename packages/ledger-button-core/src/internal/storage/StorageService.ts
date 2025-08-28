@@ -1,6 +1,7 @@
 // TODO: Type could be temporary until we are done with the LEdger Keyring Protocol trusted app
 import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Either, Maybe } from "purify-ts";
+import { Account } from "src/api/index.js";
 
 import { StorageIDBErrors } from "./model/errors.js";
 
@@ -18,4 +19,8 @@ export interface StorageService {
   saveTrustChainId(trustChainId: string): void;
   getTrustChainId(): Maybe<string>;
   removeTrustChainId(): void;
+
+  saveSelectedAccount(selectedAccount: Account | undefined): unknown;
+  getSelectedAccount(): Maybe<Account>;
+  removeSelectedAccount(): void;
 }

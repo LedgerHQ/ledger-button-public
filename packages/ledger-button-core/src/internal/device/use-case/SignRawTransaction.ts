@@ -1,14 +1,23 @@
-import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
+import {
+  hexaStringToBuffer,
+  OpenAppWithDependenciesDAInput,
+  OpenAppWithDependenciesDeviceAction,
+} from "@ledgerhq/device-management-kit";
 import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
 import { accountModuleTypes } from "../../account/accountModuleTypes.js";
-import type { AccountService } from "../../account/service/AccountService.js";
+import type {
+  Account,
+  AccountService,
+} from "../../account/service/AccountService.js";
 import { originToken } from "../../config/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import type { StorageService } from "../../storage/StorageService.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
@@ -30,8 +39,8 @@ export class SignRawTransaction {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(accountModuleTypes.AccountService)
-    private readonly accountService: AccountService,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -51,6 +60,7 @@ export class SignRawTransaction {
       throw new Error("No connected device found");
     }
 
+    console.log("params", params);
     const { rawTransaction } = params;
 
     try {
@@ -66,14 +76,40 @@ export class SignRawTransaction {
         throw Error("Invalid raw transaction format");
       }
 
-      const account = this.accountService.getSelectedAccount();
+      const account: Account | undefined = this.storageService
+        .getSelectedAccount()
+        ?.extract();
       if (!account) {
         throw Error("No account selected");
       }
 
-      const derivationPath = "44'/60'/0'/0/0"; //account.derivationMode;
+      const derivationPath = "44'/60'/0'/0/0"; //TODO use account.derivationMode when we will not use mocked account in LKRP
 
-      const { observable } = ethSigner.signTransaction(derivationPath, tx);
+      //TODO use config for launching and installing the app
+      const openResult = await lastValueFrom(
+        dmk.executeDeviceAction({
+          sessionId: sessionId,
+          deviceAction: new OpenAppWithDependenciesDeviceAction({
+            input: {
+              application: {
+                name: "Ethereum",
+              },
+              dependencies: [],
+              requireLatestFirmware: false,
+            },
+            inspect: false,
+          }),
+        }).observable,
+      );
+
+      if (openResult.status === "error") {
+        console.log("Error opening app", openResult.error);
+        throw Error("Failed to open app");
+      }
+
+      const { observable } = ethSigner.signTransaction(derivationPath, tx, {
+        skipOpenApp: true,
+      });
       const result = await lastValueFrom(observable);
 
       if (result.status === "error") {

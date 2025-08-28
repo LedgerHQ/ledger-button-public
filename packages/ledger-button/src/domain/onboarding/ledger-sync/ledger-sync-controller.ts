@@ -1,6 +1,7 @@
 import {
-  AuthenticateResponse,
+  type AuthContext,
   Device,
+  type LedgerSyncAuthenticateResponse,
   LedgerSyncAuthenticationError,
   type UserInteractionNeeded,
 } from "@ledgerhq/ledger-button-core";
@@ -42,7 +43,7 @@ export class LedgerSyncController implements ReactiveController {
 
     this.ledgerSyncSubscription = this.core
       .connectToLedgerSync()
-      .subscribe((value: AuthenticateResponse) => {
+      .subscribe((value: LedgerSyncAuthenticateResponse) => {
         console.info("Ledger sync response", { value });
         switch (true) {
           case isAuthContext(value):
@@ -64,7 +65,9 @@ export class LedgerSyncController implements ReactiveController {
   }
 }
 
-function isAuthContext(value: AuthenticateResponse): value is AuthContext {
+function isAuthContext(
+  value: LedgerSyncAuthenticateResponse,
+): value is AuthContext {
   return (
     (<AuthContext>value).trustChainId !== undefined &&
     (<AuthContext>value).applicationPath !== undefined
@@ -72,7 +75,7 @@ function isAuthContext(value: AuthenticateResponse): value is AuthContext {
 }
 
 function isUserInteractionNeeded(
-  value: AuthenticateResponse,
+  value: LedgerSyncAuthenticateResponse,
 ): value is UserInteractionNeeded {
   return (<UserInteractionNeeded>value).type !== undefined;
 }

@@ -130,6 +130,7 @@ export default function Index() {
     if (!selectedProvider) return;
 
     if (Provider && selectedProvider.provider instanceof Provider) {
+      console.log("disconnecting from eip1193 provider");
       selectedProvider.provider.disconnect();
     }
 

@@ -49,15 +49,13 @@ export class SelectAccountScreen extends LitElement {
     event: CustomEvent<AccountItemClickEventDetail>,
   ) {
     this.controller.selectAccount(event.detail.address);
+    const selectedAccount = this.coreContext.getSelectedAccount();
     this.dispatchEvent(
-      new CustomEvent<AccountItemClickEventDetail>(
-        "ledger-internal-account-selected",
-        {
-          bubbles: true,
-          composed: true,
-          detail: event.detail,
-        },
-      ),
+      new CustomEvent<Account>("ledger-internal-account-selected", {
+        bubbles: true,
+        composed: true,
+        detail: selectedAccount,
+      }),
     );
   }
 
@@ -110,6 +108,6 @@ declare global {
   }
 
   interface WindowEventMap {
-    "ledger-internal-account-selected": CustomEvent<AccountItemClickEventDetail>;
+    "ledger-internal-account-selected": CustomEvent<Account>;
   }
 }

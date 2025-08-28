@@ -63,12 +63,12 @@ export class DeviceSwitchController {
         this.navigation.navigateTo(this.destinations.ledgerSync);
       }
     } catch {
-      this.navigation.navigateTo(this.destinations.onboarding);
+      this.navigation.navigateTo(this.destinations.onboardingFlow);
     }
   }
 
   async addNewDevice() {
-    this.navigation.navigateTo(this.destinations.onboarding);
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 
   getConnectionTypeFromTransport(transport: string): "bluetooth" | "usb" | "" {

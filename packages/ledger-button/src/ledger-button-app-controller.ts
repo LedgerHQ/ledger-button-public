@@ -1,17 +1,21 @@
+import { Account, LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import type { AccountItemClickEventDetail } from "./components/molecule/account-item/ledger-account-item.js";
 
 export class LedgerButtonAppController implements ReactiveController {
   host: ReactiveControllerHost;
+  readonly core: LedgerButtonCore;
 
-  constructor(host: ReactiveControllerHost) {
+  constructor(host: ReactiveControllerHost, core: LedgerButtonCore) {
     this.host = host;
+    this.core = core;
     this.host.addController(this);
   }
 
   hostConnected() {
     this.host.requestUpdate();
+    this.setupSelectedAccount();
   }
 
   handleAccountSelected(e: CustomEvent<AccountItemClickEventDetail>) {
@@ -25,5 +29,21 @@ export class LedgerButtonAppController implements ReactiveController {
         },
       ),
     );
+  }
+
+  setupSelectedAccount() {
+    const selectedAccount = this.core.getSelectedAccount();
+    if (selectedAccount !== null && selectedAccount !== undefined) {
+      window.dispatchEvent(
+        new CustomEvent<{ account: Account }>(
+          "ledger-provider-account-selected",
+          {
+            bubbles: true,
+            composed: true,
+            detail: { account: selectedAccount },
+          },
+        ),
+      );
+    }
   }
 }

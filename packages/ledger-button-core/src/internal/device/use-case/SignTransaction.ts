@@ -26,10 +26,10 @@ export class SignTransaction {
     this.logger = loggerFactory("[SignTransaction]");
   }
 
-  async execute(params: object[]): Promise<SignedTransaction> {
+  async execute(params: SignTransactionParams): Promise<SignedTransaction> {
     this.logger.info("Starting transaction signing", { params });
 
-    const transaction = params[0];
+    const transaction = params.transaction;
     console.log("transaction", transaction);
     try {
       const etherTx = ethers.Transaction.from(transaction);

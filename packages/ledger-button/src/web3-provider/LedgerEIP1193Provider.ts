@@ -63,32 +63,52 @@ export class LedgerEIP1193Provider
   // Handlers for the different RPC methods
   private handleRequestAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
-      this.app.navigationIntent("selectAccount");
+      const selectedAccount = this.core.getSelectedAccount();
 
       window.addEventListener(
         "ledger-provider-account-selected",
         (e) => {
           // EIP-1193 accountsChanged event
+          console.log("EVENT: ledger-provider-account-selected", e.detail);
+
+          this._isConnected = true;
+          this._selectedAccount = e.detail.account.freshAddress;
+
           this.dispatchEvent(
             new CustomEvent<string[]>("accountsChanged", {
               bubbles: true,
               composed: true,
-              detail: [e.detail.accounts[0]],
+              detail: [e.detail.account.freshAddress],
             }),
           );
           // TODO: replace with real connection logic
-          this._selectedAccount = e.detail.accounts[0];
+          this._selectedAccount = e.detail.account.freshAddress;
           this._isConnected = true;
-          resolve([e.detail.accounts[0]]);
+          resolve([e.detail.account.freshAddress]);
         },
         {
           once: true,
         },
       );
+
+      if (selectedAccount) {
+        console.log(
+          "[Ledger Button] Account selected => ",
+          selectedAccount.freshAddress,
+        );
+        this._selectedAccount = selectedAccount.freshAddress;
+        this._isConnected = true;
+        return resolve([selectedAccount.freshAddress]);
+      } else {
+        console.log(
+          "[Ledger Button] No account selected => send SelectAccount intent",
+        );
+        this.app.navigationIntent("selectAccount");
+      }
     });
   }
 
-  private handleSignTransaction(params: object): Promise<SignedTransaction> {
+  private handleSignTransaction(params: unknown[]): Promise<SignedTransaction> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -99,7 +119,7 @@ export class LedgerEIP1193Provider
         );
       }
 
-      this.app.navigationIntent("signTransaction", params);
+      this.app.navigationIntent("signTransaction", { transaction: params[0] });
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
@@ -225,8 +245,10 @@ export class LedgerEIP1193Provider
     data?: unknown,
   ): Promise<void> {
     // TODO: Logic to disconnect from the chain
+    console.log("[Ledger Button] Disconnecting with eip1193 provider call");
     if (this._isConnected) {
       this._isConnected = false;
+      this.core.disconnect();
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
           bubbles: true,
@@ -249,6 +271,7 @@ export class LedgerEIP1193Provider
     return error;
   }
 
+  //TODO check if still needed
   private initializeSupportedChains(): void {
     // NOTE: Initialize with common Ethereum chains (infos to be verified!)
     this._supportedChains.set("0x1", {

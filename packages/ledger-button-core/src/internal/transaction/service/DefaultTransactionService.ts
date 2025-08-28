@@ -59,7 +59,7 @@ export class DefaultTransactionService implements TransactionService {
     this._pendingParams = params;
     this._updateStatus(TransactionStatus.SIGNING);
 
-    this.logger.info("Signing transaction", { params });
+    this.logger.info("Signing transaction", JSON.stringify(params));
 
     const useCase =
       "transaction" in params

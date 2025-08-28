@@ -8,6 +8,7 @@ import "../domain/device-switch/device-switch.js";
 import "../domain/device-connection-status/device-connection-status.js";
 import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
 import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
+import "../domain/signing-flow/signing-flow.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -140,6 +141,15 @@ export const makeDestinations = (translation: Translation) => {
     signTransaction: {
       name: "signTransaction",
       component: "sign-transaction-screen",
+      canGoBack: true,
+      toolbar: {
+        title: "",
+        showCloseButton: false,
+      },
+    },
+    signingFlow: {
+      name: "signingFlow",
+      component: "signing-flow",
       canGoBack: true,
       toolbar: {
         title: "",

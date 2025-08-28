@@ -5,6 +5,7 @@ import "./context/core-context.js";
 import "./shared/routes.js";
 
 import {
+  Account,
   LedgerButtonCore,
   Signature,
   SignedTransaction,
@@ -12,7 +13,6 @@ import {
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-import type { AccountItemClickEventDetail } from "./components/molecule/account-item/ledger-account-item.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
@@ -25,15 +25,13 @@ export class LedgerButtonApp extends LitElement {
   root!: RootNavigationComponent;
 
   @property({ type: Object })
-  core?: LedgerButtonCore;
+  core!: LedgerButtonCore;
 
   controller!: LedgerButtonAppController;
 
-  private _accounts: string[] = [];
-
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new LedgerButtonAppController(this);
+    this.controller = new LedgerButtonAppController(this, this.core);
 
     window.addEventListener(
       "ledger-internal-account-selected",
@@ -84,27 +82,16 @@ export class LedgerButtonApp extends LitElement {
 
   // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
   // when passed to window.addEventListener
-  private handleAccountSelected = (
-    e: CustomEvent<AccountItemClickEventDetail>,
-  ) => {
-    if (!this._accounts) {
-      this._accounts = [];
-    }
-
-    const found = this._accounts.find((a) => a === e.detail.address);
-
-    if (!found) {
-      this._accounts.pop();
-      this._accounts.push(e.detail.address);
-    }
+  private handleAccountSelected = (e: CustomEvent<Account>) => {
+    console.log("handleAccountSelected", e.detail);
 
     window.dispatchEvent(
-      new CustomEvent<{ accounts: string[] }>(
+      new CustomEvent<{ account: Account }>(
         "ledger-provider-account-selected",
         {
           bubbles: true,
           composed: true,
-          detail: { accounts: this._accounts },
+          detail: { account: e.detail },
         },
       ),
     );
@@ -178,7 +165,7 @@ export class LedgerButtonApp extends LitElement {
 // Make sure to prefix with "ledger-provider-" (or something else, to be discussed)
 declare global {
   interface WindowEventMap {
-    "ledger-provider-account-selected": CustomEvent<{ accounts: string[] }>;
+    "ledger-provider-account-selected": CustomEvent<{ account: Account }>;
     "ledger-provider-sign-transaction": CustomEvent<SignedTransaction>;
     "ledger-provider-sign-typed-data": CustomEvent<Signature>;
     "ledger-provider-disconnect": CustomEvent;

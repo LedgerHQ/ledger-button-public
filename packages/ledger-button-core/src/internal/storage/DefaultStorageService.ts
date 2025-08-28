@@ -1,3 +1,4 @@
+import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
 import {
   Curve,
   KeyPair,
@@ -15,10 +16,10 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "./model/errors.js";
+import { Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type StorageService } from "./StorageService.js";
-import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
 
 @injectable()
 export class DefaultStorageService implements StorageService {
@@ -116,7 +117,7 @@ export class DefaultStorageService implements StorageService {
             Left(
               new StorageIDBStoreError("Error storing key pair", {
                 event,
-                // keyPair,
+                keyPair: keyPair.getPublicKeyToHex(),
               }),
             ),
           );
@@ -220,6 +221,17 @@ export class DefaultStorageService implements StorageService {
     this.removeItem(STORAGE_KEYS.TRUST_CHAIN_ID);
   }
 
+  // Selected Account
+  saveSelectedAccount(selectedAccount: Account | undefined): void {
+    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNT, selectedAccount);
+  }
+  getSelectedAccount(): Maybe<Account> {
+    return this.getItem(STORAGE_KEYS.SELECTED_ACCOUNT);
+  }
+  removeSelectedAccount(): void {
+    this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNT);
+  }
+
   /***  Local Storage Primitives ***/
   // LocalStorage
   saveItem<T>(key: string, value: T) {
@@ -248,11 +260,13 @@ export class DefaultStorageService implements StorageService {
   }
 
   resetStorage() {
-    for (const key in localStorage) {
+    Object.keys(localStorage).forEach((key) => {
+      this.logger.debug("Item", { key });
       if (key.startsWith(STORAGE_KEYS.PREFIX)) {
         localStorage.removeItem(key);
+        this.logger.debug("Item removed", { key });
       }
-    }
+    });
   }
 
   getItem<T>(key: string): Maybe<T> {
