@@ -300,9 +300,6 @@ importers:
       '@headlessui/react':
         specifier: ^2.2.7
         version: 2.2.7(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@ledgerhq/ledger-button':
-        specifier: workspace:*
-        version: link:../../packages/ledger-button
       ethers:
         specifier: ^6.15.0
         version: 6.15.0
@@ -315,6 +312,10 @@ importers:
       react-dom:
         specifier: 19.0.0
         version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@ledgerhq/ledger-button':
+        specifier: workspace:*
+        version: link:../../packages/ledger-button
 
   packages/ledger-button:
     dependencies:

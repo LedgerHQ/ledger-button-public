@@ -3,7 +3,7 @@ name: "[Release] Prerelease to npm"
 on:
   push:
     tags:
-      - "**/v*.*.*-**"
+      - "**/v*.*.*-pre.*"
       - "!**/v*.*.*"
   workflow_dispatch:
     inputs:
@@ -29,11 +29,20 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
       - uses: ./.github/actions/setup-action-composite
-      - name: build ledger-button
-        run: pnpm nx build ledger-button
+        with:
+          playwright: false
+
+      - name: create .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=${NPM_TOKEN}
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPMJS_TOKEN }}
+
       - name: release to npm
-        run: pnpm release --preid ${{ inputs.preid || 'pre' }}
+        run: pnpm release --preid ${{ inputs.preid || 'pre' }} --tag ${{ inputs.preid || 'pre' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          # NPM_CONFIG_PROVENANCE: true
 

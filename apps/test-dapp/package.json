@@ -4,11 +4,13 @@
   "private": true,
   "dependencies": {
     "@headlessui/react": "^2.2.7",
-    "@ledgerhq/ledger-button": "workspace:*",
     "ethers": "^6.15.0",
     "next": "~15.2.4",
     "react": "19.0.0",
     "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@ledgerhq/ledger-button": "workspace:*"
   },
   "nx": {
     "implicitDependencies": [
