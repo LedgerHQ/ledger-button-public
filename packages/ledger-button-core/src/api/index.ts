@@ -1,4 +1,15 @@
 export * from "../internal/account/service/AccountService.js";
+export type { BackendService } from "../internal/backend/BackendService.js";
+export type {
+  AppDependency,
+  BackendServiceError,
+  Blockchain,
+  BroadcastRequest,
+  BroadcastResponse,
+  ConfigRequest,
+  ConfigResponse,
+  SupportedBlockchain,
+} from "../internal/backend/types.js";
 export type { Device } from "../internal/device/model/Device.js";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
 export type {

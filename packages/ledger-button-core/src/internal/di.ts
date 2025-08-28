@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 
 import { accountModuleFactory } from "./account/accountModule.js";
+import { backendModuleFactory } from "./backend/backendModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { LOG_LEVELS } from "./logger/model/constant.js";
@@ -23,6 +24,7 @@ export function createContainer({
   container.loadSync(
     loggerModuleFactory({ stub, loggerLevel }),
     accountModuleFactory({ stub }),
+    backendModuleFactory({ stub }),
     deviceModuleFactory({ stub: stubDevice, dmkConfig }),
     storageModuleFactory({ stub }),
     networkModuleFactory({ stub }),

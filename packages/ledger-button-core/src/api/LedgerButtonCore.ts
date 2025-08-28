@@ -4,6 +4,8 @@ import { Observable } from "rxjs";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
+import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
+import { type BackendService } from "../internal/backend/BackendService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -20,10 +22,8 @@ import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
-import {
-  type TransactionResult,
-  type TransactionService,
-} from "../internal/transaction/service/TransactionService.js";
+import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
+import { TransactionResult } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
@@ -137,5 +137,11 @@ export class LedgerButtonCore {
     return this.container
       .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
+  }
+
+  getBackendService(): BackendService {
+    return this.container.get<BackendService>(
+      backendModuleTypes.BackendService,
+    );
   }
 }
