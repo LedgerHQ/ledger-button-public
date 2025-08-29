@@ -1,6 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
-import { Account } from "src/api/index.js";
 import { bytesToString } from "viem";
 
 import { accountModuleTypes } from "../account/accountModuleTypes.js";
@@ -8,6 +7,7 @@ import type {
   AccountService,
   CloudSyncData,
 } from "../account/service/AccountService.js";
+import { Account } from "../account/service/AccountService.js";
 import { cloudSyncModuleTypes } from "../cloudsync/cloudSyncModuleTypes.js";
 import type { CloudSyncService } from "../cloudsync/service/CloudSyncService.js";
 import { ledgerSyncModuleTypes } from "../ledgersync/ledgerSyncModuleTypes.js";

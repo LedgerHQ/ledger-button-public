@@ -1,9 +1,9 @@
 // TODO: Type could be temporary until we are done with the LEdger Keyring Protocol trusted app
 import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Either, Maybe } from "purify-ts";
-import { Account } from "src/api/index.js";
 
 import { StorageIDBErrors } from "./model/errors.js";
+import { Account } from "../account/service/AccountService.js";
 
 export interface StorageService {
   getItem<T>(key: string): Maybe<T>;
