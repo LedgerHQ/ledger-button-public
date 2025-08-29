@@ -39,9 +39,8 @@ export class OnboardingFlowController implements ReactiveController {
         if (context.trustChainId && context.applicationPath) {
           this.state = "retrieving-accounts";
         } else if (
-          (context.trustChainId !== undefined &&
-            context.applicationPath === undefined) ||
-          context.connectedDevice !== undefined
+          (context.trustChainId && !context.applicationPath) ||
+          context.connectedDevice
         ) {
           this.state = "ledger-sync";
         } else {

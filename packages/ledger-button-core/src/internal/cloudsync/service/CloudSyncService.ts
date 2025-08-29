@@ -1,6 +1,8 @@
-import { AuthContext } from "../../../api/model/AuthContext.js";
-import { CloudSyncData } from "../DefaultCloudSyncService.js";
+import { InternalAuthContext } from "../../../internal/ledgersync/model/InternalAuthContext.js";
+import { CloudSyncData } from "../model/cloudSyncTypes.js";
 
 export interface CloudSyncService {
-  fetchEncryptedAccounts(authContext: AuthContext): Promise<CloudSyncData>;
+  fetchEncryptedAccounts(
+    authContext: InternalAuthContext,
+  ): Promise<CloudSyncData>;
 }

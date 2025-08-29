@@ -52,8 +52,16 @@ export class LedgerButton404 extends LitElement {
   }
 }
 
-export type Destinations = ReturnType<typeof makeDestinations>;
-export type Destination = Destinations[keyof Destinations];
+export type Destinations = Record<string, Destination>;
+export type Destination = {
+  name: string;
+  component: string;
+  canGoBack: boolean;
+  toolbar: {
+    title: string;
+    showCloseButton: boolean;
+  };
+};
 
 // MOVE DESTINATIONS TO NAVIGATION
 export const makeDestinations = (translation: Translation) => {
@@ -91,6 +99,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectDevice.title,
+        showCloseButton: false,
       },
     },
     ledgerSync: {

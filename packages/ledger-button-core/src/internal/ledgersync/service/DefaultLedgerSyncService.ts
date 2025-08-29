@@ -19,9 +19,12 @@ import pako from "pako";
 import { Either } from "purify-ts/Either";
 import { from, map, Observable, switchMap } from "rxjs";
 
-import { AuthenticateResponse, StorageIDBErrors } from "../../../api/index.js";
-import { type AuthContext } from "../../../api/model/AuthContext.js";
+import { StorageIDBErrors } from "../../../api/index.js";
 import { LedgerSyncAuthenticationError } from "../../../api/model/error/LedgerSyncAuthenticationErrors.js";
+import {
+  type AuthContext,
+  type LedgerSyncAuthenticateResponse,
+} from "../../../api/model/LedgerSyncAuthenticateResponse.js";
 import { type UserInteractionNeeded } from "../../../api/model/UserInteractionNeeded.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
 import { GenerateKeypairUseCase } from "../../cryptographic/usecases/GenerateKeypairUseCase.js";
@@ -69,30 +72,35 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     return this._authContext;
   }
 
-  authenticate(): Observable<AuthenticateResponse> {
+  authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
     return from(this.storageService.getKeyPair()).pipe(
-      switchMap(async (keypairResult: Either<StorageIDBErrors, KeyPair>) => {
-        if (keypairResult.isLeft()) {
-          const keypair = await this.generateKeypairUseCase.execute();
-          this.logger.info("New keypair created", {
-            keypair: keypair.getPublicKeyToHex(),
-          });
-          this.storageService.storeKeyPair(keypair);
+      switchMap(
+        async (
+          keypairResult: Either<StorageIDBErrors, KeyPair>,
+        ): Promise<KeyPair> => {
+          if (keypairResult.isRight()) {
+            const keypair = keypairResult.extract();
+            this.logger.info("Keypair retrieved from storage", {
+              keypair: keypair.getPublicKeyToHex(),
+            });
+            return keypair;
+          } else {
+            const keypair = await this.generateKeypairUseCase.execute();
+            this.logger.info("New keypair created", {
+              keypair: keypair.getPublicKeyToHex(),
+            });
+            this.storageService.storeKeyPair(keypair);
 
-          return keypair;
-        } else if (keypairResult.isRight()) {
-          const keypair = keypairResult.extract();
-          this.logger.info("Keypair retrieved from storage", {
-            keypair: keypair.getPublicKeyToHex(),
-          });
-          return keypair;
-        }
-      }),
+            return keypair;
+          }
+        },
+      ),
       switchMap((keypair: KeyPair | undefined) => {
         this.keypair = keypair;
         this.trustChainId = this.storageService.getTrustChainId().extract();
+
         this.logger.info(`Trustchain ID : ${this.trustChainId}`);
         this.logger.info(
           "Start DeviceAction for authenticate with ledger sync",
@@ -114,7 +122,6 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           } as AuthenticateUsecaseInput).observable;
         } else {
           this.logger.info("Try to authenticate with keypair");
-
           return this.lkrpAppKit.authenticate({
             keypair: keypair,
             clientName: "LedgerButton::app.1inch.io", //TODO use config for generating the client app name
@@ -157,7 +164,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
       AuthenticateDAError,
       AuthenticateDAIntermediateValue
     >,
-  ): AuthenticateResponse {
+  ): LedgerSyncAuthenticateResponse {
     switch (state.status) {
       case DeviceActionStatus.Completed: {
         const newAuthContext = {

@@ -6,28 +6,25 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import { type NetworkService } from "../../network/NetworkService.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import { type StorageService } from "../../storage/StorageService.js";
 import { CloudSyncData } from "../model/cloudSyncTypes.js";
 import { CloudSyncService } from "./CloudSyncService.js";
 
 const CLOUD_SYNC_BASE_URL_STG =
   "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+/* TODO use LedgerButton config for it 
 const CLOUD_SYNC_BASE_URL_PROD =
   "https://cloud-sync-backend.api.aws.prod.ldg-tech.com";
-
+*/
 @injectable()
 export class DefaultCloudSyncService implements CloudSyncService {
-  private readonly logger: any;
+  private readonly logger: LoggerPublisher;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<RequestInit>,
-    @inject(storageModuleTypes.StorageService)
-    private readonly storageService: StorageService,
   ) {
     this.logger = loggerFactory("[Cloud Sync Service]");
   }
@@ -35,7 +32,7 @@ export class DefaultCloudSyncService implements CloudSyncService {
   async fetchEncryptedAccounts(
     authContext: InternalAuthContext,
   ): Promise<CloudSyncData> {
-    // TODO: Get version from storage
+    // TODO: Handle version ?
     const params = new URLSearchParams({
       path: authContext.applicationPath,
       id: authContext.trustChainId,

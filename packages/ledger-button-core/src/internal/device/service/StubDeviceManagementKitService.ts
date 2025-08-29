@@ -20,7 +20,7 @@ export class StubDeviceManagementKitService
     type: "bluetooth" as any,
   };
 
-  connectToDevice = () => Promise.resolve("session-id-123");
+  connectToDevice = () => Promise.resolve(this.connectedDevice as Device);
   disconnectFromDevice = () => Promise.resolve();
 
   listAvailableDevices = () =>

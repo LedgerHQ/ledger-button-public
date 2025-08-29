@@ -3,8 +3,6 @@ import { Either, Right } from "purify-ts";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
-import { type RemoteAccountDataSource } from "../datasource/RemoteAccountDataSource.js";
 import { AccountServiceError } from "../model/error.js";
 import { Account, AccountService, CloudSyncData } from "./AccountService.js";
 
@@ -17,8 +15,6 @@ export class DefaultAccountService implements AccountService {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
-    @inject(accountModuleTypes.RemoteAccountDataSource)
-    private readonly remoteAccountDataSource: RemoteAccountDataSource,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
   }

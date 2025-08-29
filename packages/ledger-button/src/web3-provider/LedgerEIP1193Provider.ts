@@ -168,17 +168,20 @@ export class LedgerEIP1193Provider
     // eth_sendRawTransaction: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
-    eth_signTransaction: (params: object) => this.handleSignTransaction(params),
+    eth_signTransaction: (params: unknown[]) =>
+      this.handleSignTransaction(params),
     // personal_sign: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
-    eth_signTypedData: (params: object) => this.handleSignTypedData(params),
+    eth_signTypedData: (params: unknown[]) => this.handleSignTypedData(params),
   } as const;
 
   // Public API
   public request({ method, params }: RequestArguments) {
     if (method in this.handlers) {
-      return this.handlers[method as keyof typeof this.handlers](params);
+      return this.handlers[method as keyof typeof this.handlers](
+        params as unknown[],
+      );
     }
 
     return this.core.jsonRpcRequest({

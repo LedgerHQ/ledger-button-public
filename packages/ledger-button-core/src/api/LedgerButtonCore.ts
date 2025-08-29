@@ -217,7 +217,10 @@ export class LedgerButtonCore {
     this._pendingTransactionParams = params;
   }
 
-  getPendingTransactionParams(): SignRawTransactionParams | undefined {
+  getPendingTransactionParams():
+    | SignRawTransactionParams
+    | SignTransactionParams
+    | undefined {
     return this._pendingTransactionParams;
   }
 

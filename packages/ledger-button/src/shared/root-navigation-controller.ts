@@ -13,7 +13,7 @@ export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
-  pendingTransactionParams?: SignRawTransactionParams;
+  pendingTransactionParams?: SignRawTransactionParams | SignTransactionParams;
   params?: unknown;
 
   constructor(
