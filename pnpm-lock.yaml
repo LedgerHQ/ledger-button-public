@@ -363,17 +363,17 @@ importers:
   packages/ledger-button-core:
     dependencies:
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-ledger-button-20250821163751
-        version: 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
+        specifier: 0.0.0-web-ble-29-08---20250829104351
+        version: 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
       '@ledgerhq/device-signer-kit-ethereum':
-        specifier: 0.0.0-ledger-button-20250821163751
-        version: 0.0.0-ledger-button-20250821163751(@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))
+        specifier: 0.0.0-web-ble-29-08---20250829104351
+        version: 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))
       '@ledgerhq/device-transport-kit-web-ble':
-        specifier: 0.0.0-ledger-button-20250821163751
-        version: 0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 0.0.0-web-ble-29-08---20250829104351
+        version: 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)
       '@ledgerhq/device-transport-kit-web-hid':
-        specifier: 0.0.0-ledger-button-20250821163751
-        version: 0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 0.0.0-web-ble-29-08---20250829104351
+        version: 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)
       '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol':
         specifier: 0.0.0-ledger-button-20250821163751
         version: 0.0.0-ledger-button-20250821163751
@@ -2002,22 +2002,27 @@ packages:
     peerDependencies:
       rxjs: 7.8.2
 
-  '@ledgerhq/device-signer-kit-ethereum@0.0.0-ledger-button-20250821163751':
-    resolution: {integrity: sha512-XsHAbiwg1udla1cAo6w+MEj7PJ8ufikU4w9cDZsuD3U6L1szvEydjvfIdplCNvgyEQRVgU3bJh9PT7sCaT32SA==}
+  '@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351':
+    resolution: {integrity: sha512-nHseB/z3qF54Jr6PntvBv1Y5X+eGY4uksb6s5yXvqmf32x1ICJnl6NUki3RY+Wz0szuIcxRRrBD9AZtWu62/EQ==}
     peerDependencies:
-      '@ledgerhq/context-module': 0.0.0-ledger-button-20250821163751
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751
-
-  '@ledgerhq/device-transport-kit-web-ble@0.0.0-ledger-button-20250821163751':
-    resolution: {integrity: sha512-fclLIf+4MJmkPXcqiK5NqVOw8gD9GXbsuitAFr8EGMe/uMYwYRy4KN4dzLxYOKZ66wyRWLkqQXtbzjrUOoaY5A==}
-    peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751
       rxjs: 7.8.2
 
-  '@ledgerhq/device-transport-kit-web-hid@0.0.0-ledger-button-20250821163751':
-    resolution: {integrity: sha512-vrxSaPv/Uy3UWs/2wdUs54zaTcgLUVVVBrIMig2AyQJQbcxLoSLpRXp5tHPGokuuzgwqOG+dalh9uAvclA9Qfg==}
+  '@ledgerhq/device-signer-kit-ethereum@0.0.0-web-ble-29-08---20250829104351':
+    resolution: {integrity: sha512-JGXbKTA632J6e3YQU2j6lfg6JsJGqwbujSoNfo/pm6V4rhDrbg7Kvm8g/hKmueLigsc/OkpBQFUStz5pHrRqJw==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751
+      '@ledgerhq/context-module': 0.0.0-web-ble-29-08---20250829104351
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
+
+  '@ledgerhq/device-transport-kit-web-ble@0.0.0-web-ble-29-08---20250829104351':
+    resolution: {integrity: sha512-vkDHDsEhrQTMFSNArUkre0hZ4h5l6T0JdkBkqU7pJKrcKSp+H2C203UvcmYonx0dtDMEI5p8nHiWqTKqvnNLAA==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
+      rxjs: 7.8.2
+
+  '@ledgerhq/device-transport-kit-web-hid@0.0.0-web-ble-29-08---20250829104351':
+    resolution: {integrity: sha512-1uZva8cVyPIUPoa7M/wFmggGXWo65uwPpYFq2PVbseTB130ipFTU2mbSuPa8N0ZwrB7jsLhqUA513/HQ8XSEqw==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
       rxjs: 7.8.2
 
   '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.0.0-ledger-button-20250821163751':
@@ -2027,6 +2032,11 @@ packages:
     resolution: {integrity: sha512-+9Q5ifvyfVrGeDiLORBn5BRsIo80CML77TmBsNvahM/KSNW2ZljVat/9w7yY93ce1BWTG9ho9sRCuWagFICMiQ==}
     peerDependencies:
       '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751
+
+  '@ledgerhq/signer-utils@0.0.0-web-ble-29-08---20250829104351':
+    resolution: {integrity: sha512-Wq3QXxFfiUWOLQRAiBrX8xqPsiIC/3yfHnzoZIKlZ+8CkZXbSgE2CHzwVPGDU8S6Vbphcv4Hbecoq12Uf/16aA==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
@@ -12538,9 +12548,9 @@ snapshots:
       '@jsonjoy.com/codegen': 1.0.0(tslib@2.8.1)
       tslib: 2.8.1
 
-  '@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))':
+  '@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
       axios: 1.8.2
       crypto-js: 4.2.0
       ethers: 6.14.1
@@ -12571,11 +12581,30 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@ledgerhq/device-signer-kit-ethereum@0.0.0-ledger-button-20250821163751(@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))':
+  '@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)':
     dependencies:
-      '@ledgerhq/context-module': 0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
-      '@ledgerhq/signer-utils': 0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))
+      '@sentry/minimal': 6.19.7
+      axios: 1.8.2
+      inversify: 7.5.1(reflect-metadata@0.2.2)
+      isomorphic-ws: 5.0.0(ws@8.18.3)
+      purify-ts: 2.1.0
+      reflect-metadata: 0.2.2
+      rxjs: 7.8.2
+      semver: 7.7.0
+      url: 0.11.4
+      uuid: 11.0.3
+      ws: 8.18.3
+      xstate: 5.19.2
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
+
+  '@ledgerhq/device-signer-kit-ethereum@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))':
+    dependencies:
+      '@ledgerhq/context-module': 0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
+      '@ledgerhq/signer-utils': 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))
       ethers: 6.14.1
       inversify: 7.5.1(reflect-metadata@0.2.2)
       purify-ts: 2.1.0
@@ -12586,17 +12615,17 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-transport-kit-web-ble@0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@ledgerhq/device-transport-kit-web-ble@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.2
       uuid: 11.0.3
 
-  '@ledgerhq/device-transport-kit-web-hid@0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@ledgerhq/device-transport-kit-web-hid@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.2
@@ -12622,6 +12651,10 @@ snapshots:
   '@ledgerhq/signer-utils@0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))':
     dependencies:
       '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
+
+  '@ledgerhq/signer-utils@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))':
+    dependencies:
+      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
