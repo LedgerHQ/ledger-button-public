@@ -1,4 +1,4 @@
-import "./onboarding-flow";
+import "./signing-flow";
 import "../../../context/core-context.js";
 import "../../../context/language-context.js";
 

@@ -27,7 +27,7 @@ const CLOUD_SYNC_BASE_URL_PROD =
 
 @injectable()
 export class DefaultCloudSyncService implements CloudSyncService {
-  private readonly logger: any;
+  private readonly logger: LoggerPublisher;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)

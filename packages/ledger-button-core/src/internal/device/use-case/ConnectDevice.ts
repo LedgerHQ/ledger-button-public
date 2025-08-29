@@ -1,14 +1,13 @@
-import { type DeviceSessionId } from "@ledgerhq/device-management-kit";
 import { type Factory, inject, injectable } from "inversify";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import { Device } from "../model/Device.js";
 import {
   ConnectionType,
   type DeviceManagementKitService,
 } from "../service/DeviceManagementKitService.js";
-import { Device } from "../model/Device.js";
 
 @injectable()
 export class ConnectDevice {

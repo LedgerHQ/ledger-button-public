@@ -1,6 +1,5 @@
 import {
   hexaStringToBuffer,
-  OpenAppWithDependenciesDAInput,
   OpenAppWithDependenciesDeviceAction,
 } from "@ledgerhq/device-management-kit";
 import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
@@ -8,11 +7,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
-import { accountModuleTypes } from "../../account/accountModuleTypes.js";
-import type {
-  Account,
-  AccountService,
-} from "../../account/service/AccountService.js";
+import type { Account } from "../../account/service/AccountService.js";
 import { originToken } from "../../config/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -123,7 +118,7 @@ export class SignRawTransaction {
         });
       }
 
-      //TODO generate signed raw transaction using output
+      //TODO generate signed raw transaction using output for signing raw tx
       return {
         hash: keccak256(tx),
         rawTransaction,
