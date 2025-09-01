@@ -155,7 +155,7 @@ describe("DefaultStorageService", () => {
     });
   });
 
-  describe.only("Selected Account methods", () => {
+  describe("Selected Account methods", () => {
     describe("saveSelectedAccount", () => {
       it("should be able to save and get a selected account", () => {
         const mockAccount = { id: "test-account", name: "Test Account" } as any;
