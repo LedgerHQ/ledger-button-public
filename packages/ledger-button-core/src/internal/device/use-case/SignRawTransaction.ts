@@ -14,6 +14,12 @@ import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import {
+  AccountNotSelectedError,
+  DeviceConnectionError,
+  FailToOpenAppError,
+  SignTransactionError,
+} from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
 export interface SignRawTransactionParams {
@@ -44,18 +50,23 @@ export class SignRawTransaction {
     this.logger.info("Starting transaction signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
+
     if (!sessionId) {
       this.logger.error("No device connected");
-      throw new Error("No device connected. Please connect a device first.");
+      throw new DeviceConnectionError(
+        "No device connected. Please connect a device first.",
+        { type: "not-connected" },
+      );
     }
 
     const device = this.deviceManagementKitService.connectedDevice;
     if (!device) {
       this.logger.error("No connected device found");
-      throw new Error("No connected device found");
+      throw new DeviceConnectionError("No connected device found", {
+        type: "not-connected",
+      });
     }
 
-    console.log("params", params);
     const { rawTransaction } = params;
 
     try {
@@ -73,12 +84,13 @@ export class SignRawTransaction {
 
       const account: Account | undefined = this.storageService
         .getSelectedAccount()
-        ?.extract();
+        .extract();
+
       if (!account) {
-        throw Error("No account selected");
+        throw new AccountNotSelectedError("No account selected");
       }
 
-      const derivationPath = "44'/60'/0'/0/0"; //TODO use account.derivationMode when we will not use mocked account in LKRP
+      const derivationPath = account.derivationMode ?? "44'/60'/0'/0/0";
 
       //TODO use config for launching and installing the app
       const openResult = await lastValueFrom(
@@ -98,8 +110,10 @@ export class SignRawTransaction {
       );
 
       if (openResult.status === "error") {
-        console.log("Error opening app", openResult.error);
-        throw Error("Failed to open app");
+        this.logger.error("Error opening app", { error: openResult.error });
+        throw new FailToOpenAppError("Failed to open app", {
+          error: openResult.error,
+        });
       }
 
       const { observable } = ethSigner.signTransaction(derivationPath, tx, {
@@ -108,12 +122,14 @@ export class SignRawTransaction {
       const result = await lastValueFrom(observable);
 
       if (result.status === "error") {
-        console.log("Error signing transaction", result.error);
-        throw Error("Transaction signing failed");
+        this.logger.error("Error signing transaction", { error: result.error });
+        throw new SignTransactionError("Transaction signing failed", {
+          error: result.error,
+        });
       }
 
       if (result.status === "completed") {
-        this.logger.info("Transaction signing completed", {
+        this.logger.debug("Transaction signing completed", {
           result: result.output,
         });
       }
@@ -125,7 +141,7 @@ export class SignRawTransaction {
       };
     } catch (error) {
       this.logger.error("Failed to sign transaction", { error });
-      throw new Error(`Transaction signing failed: ${error}`);
+      throw new SignTransactionError(`Transaction signing failed: ${error}`);
     }
   }
 }

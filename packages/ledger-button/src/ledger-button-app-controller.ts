@@ -33,17 +33,17 @@ export class LedgerButtonAppController implements ReactiveController {
 
   setupSelectedAccount() {
     const selectedAccount = this.core.getSelectedAccount();
-    if (selectedAccount !== null && selectedAccount !== undefined) {
-      window.dispatchEvent(
-        new CustomEvent<{ account: Account }>(
-          "ledger-provider-account-selected",
-          {
-            bubbles: true,
-            composed: true,
-            detail: { account: selectedAccount },
-          },
-        ),
-      );
-    }
+    if (!selectedAccount) return;
+
+    window.dispatchEvent(
+      new CustomEvent<{ account: Account }>(
+        "ledger-provider-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: { account: selectedAccount },
+        },
+      ),
+    );
   }
 }

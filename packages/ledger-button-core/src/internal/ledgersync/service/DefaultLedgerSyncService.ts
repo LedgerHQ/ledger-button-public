@@ -20,7 +20,7 @@ import { Either } from "purify-ts/Either";
 import { from, map, Observable, switchMap } from "rxjs";
 
 import { StorageIDBErrors } from "../../../api/index.js";
-import { LedgerSyncAuthenticationError } from "../../../api/model/error/LedgerSyncAuthenticationErrors.js";
+import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
 import {
   type AuthContext,
   type LedgerSyncAuthenticateResponse,
@@ -34,6 +34,7 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
+import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
 import { InternalAuthContext } from "../model/InternalAuthContext.js";
 import { LedgerSyncService } from "./LedgerSyncService.js";
 
@@ -58,7 +59,6 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly generateKeypairUseCase: GenerateKeypairUseCase,
   ) {
     this.logger = this.loggerFactory("[Ledger Sync Service]");
-    this.logger.info("Ledger Sync Service created");
 
     const dmk: DeviceManagementKit = this.deviceManagementKitService.dmk;
     this.lkrpAppKit = new LedgerKeyringProtocolBuilder({
@@ -80,21 +80,22 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
         async (
           keypairResult: Either<StorageIDBErrors, KeyPair>,
         ): Promise<KeyPair> => {
-          if (keypairResult.isRight()) {
-            const keypair = keypairResult.extract();
-            this.logger.info("Keypair retrieved from storage", {
-              keypair: keypair.getPublicKeyToHex(),
-            });
-            return keypair;
-          } else {
-            const keypair = await this.generateKeypairUseCase.execute();
-            this.logger.info("New keypair created", {
-              keypair: keypair.getPublicKeyToHex(),
-            });
-            this.storageService.storeKeyPair(keypair);
-
-            return keypair;
-          }
+          return keypairResult.caseOf({
+            Left: async () => {
+              const keypair = await this.generateKeypairUseCase.execute();
+              this.logger.info("New keypair created", {
+                keypair: keypair.getPublicKeyToHex(),
+              });
+              this.storageService.storeKeyPair(keypair);
+              return keypair;
+            },
+            Right: async (keypair) => {
+              this.logger.info("Keypair retrieved from storage", {
+                keypair: keypair.getPublicKeyToHex(),
+              });
+              return keypair;
+            },
+          });
         },
       ),
       switchMap((keypair: KeyPair | undefined) => {
@@ -147,7 +148,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
 
   async decrypt(encryptedData: Uint8Array): Promise<Uint8Array> {
     if (!this.authContext?.encryptionKey) {
-      throw new Error("No encryption key");
+      throw new LedgerSyncAuthContextMissingError("No encryption key");
     }
 
     const compressedClearData = await this.lkrpAppKit.decryptData(

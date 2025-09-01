@@ -46,10 +46,10 @@ export class LedgerSyncController implements ReactiveController {
       .subscribe((value: LedgerSyncAuthenticateResponse) => {
         console.info("Ledger sync response", { value });
         switch (true) {
-          case isAuthContext(value):
+          case this.isAuthContext(value):
             this.host.requestUpdate();
             break;
-          case isUserInteractionNeeded(value):
+          case this.isUserInteractionNeeded(value):
             console.log(`user interaction needed of type ${value.type}`);
             //TODO: Handle user interaction needed
             this.animation =
@@ -63,19 +63,19 @@ export class LedgerSyncController implements ReactiveController {
         }
       });
   }
-}
 
-function isAuthContext(
-  value: LedgerSyncAuthenticateResponse,
-): value is AuthContext {
-  return (
-    (<AuthContext>value).trustChainId !== undefined &&
-    (<AuthContext>value).applicationPath !== undefined
-  );
-}
+  private isUserInteractionNeeded(
+    value: LedgerSyncAuthenticateResponse,
+  ): value is UserInteractionNeeded {
+    return (<UserInteractionNeeded>value).type !== undefined;
+  }
 
-function isUserInteractionNeeded(
-  value: LedgerSyncAuthenticateResponse,
-): value is UserInteractionNeeded {
-  return (<UserInteractionNeeded>value).type !== undefined;
+  private isAuthContext(
+    value: LedgerSyncAuthenticateResponse,
+  ): value is AuthContext {
+    return (
+      (<AuthContext>value).trustChainId !== undefined &&
+      (<AuthContext>value).applicationPath !== undefined
+    );
+  }
 }

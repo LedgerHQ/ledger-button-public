@@ -33,7 +33,7 @@ export class DefaultStorageService implements StorageService {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Storage Service] Created");
+    this.logger = this.loggerFactory("[Storage Service]");
   }
 
   static formatKey(key: string) {

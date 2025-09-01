@@ -2,18 +2,19 @@ import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 import { bytesToString } from "viem";
 
-import { accountModuleTypes } from "../account/accountModuleTypes.js";
+import { cloudSyncModuleTypes } from "../../cloudsync/cloudSyncModuleTypes.js";
+import type { CloudSyncService } from "../../cloudsync/service/CloudSyncService.js";
+import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js";
+import { LedgerSyncAuthContextMissingError } from "../../ledgersync/model/errors.js";
+import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
+import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { accountModuleTypes } from "../accountModuleTypes.js";
 import type {
   AccountService,
   CloudSyncData,
-} from "../account/service/AccountService.js";
-import { Account } from "../account/service/AccountService.js";
-import { cloudSyncModuleTypes } from "../cloudsync/cloudSyncModuleTypes.js";
-import type { CloudSyncService } from "../cloudsync/service/CloudSyncService.js";
-import { ledgerSyncModuleTypes } from "../ledgersync/ledgerSyncModuleTypes.js";
-import type { LedgerSyncService } from "../ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
+} from "../service/AccountService.js";
+import { Account } from "../service/AccountService.js";
 
 @injectable()
 export class FetchAccountsUseCase {
@@ -34,7 +35,7 @@ export class FetchAccountsUseCase {
 
   async execute(): Promise<Account[]> {
     if (!this.ledgerSyncService.authContext) {
-      throw new Error("No auth context available"); //TODO create Specific error o be handled by Button Screen Controller
+      throw new LedgerSyncAuthContextMissingError("No auth context available");
     }
 
     //Re-fetch a new JWT not using device but using the keypair (need for getting the right JWT)

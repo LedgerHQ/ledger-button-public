@@ -1,4 +1,4 @@
-import { LedgerSyncAuthenticationError } from "./error/LedgerSyncAuthenticationErrors.js";
+import { LedgerSyncAuthenticationError } from "./errors.js";
 import { UserInteractionNeeded } from "./UserInteractionNeeded.js";
 
 export type LedgerSyncAuthenticateResponse =
