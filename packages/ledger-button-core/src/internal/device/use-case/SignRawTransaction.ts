@@ -8,7 +8,8 @@ import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
 import type { Account } from "../../account/service/AccountService.js";
-import { originToken } from "../../config/config.js";
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -42,6 +43,8 @@ export class SignRawTransaction {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -73,7 +76,7 @@ export class SignRawTransaction {
       const dmk = this.deviceManagementKitService.dmk;
       const ethSigner = new SignerEthBuilder({
         dmk,
-        originToken,
+        originToken: this.config.originToken,
         sessionId,
       }).build();
 

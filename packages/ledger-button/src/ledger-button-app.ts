@@ -83,8 +83,6 @@ export class LedgerButtonApp extends LitElement {
   // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
   // when passed to window.addEventListener
   private handleAccountSelected = (e: CustomEvent<Account>) => {
-    console.log("handleAccountSelected", e.detail);
-
     window.dispatchEvent(
       new CustomEvent<{ account: Account }>(
         "ledger-provider-account-selected",
@@ -98,7 +96,6 @@ export class LedgerButtonApp extends LitElement {
   };
 
   private handleSignTransaction = (e: CustomEvent<SignedTransaction>) => {
-    console.log("handleSignTransaction", e);
     window.dispatchEvent(
       new CustomEvent<SignedTransaction>("ledger-provider-sign-transaction", {
         bubbles: true,

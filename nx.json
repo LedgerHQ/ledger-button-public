@@ -130,7 +130,8 @@
         "commit": true,
         "commitMessage": "🔖 (version): New versions"
       },
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk"
     },
     "changelog": {
       "projectChangelogs": true

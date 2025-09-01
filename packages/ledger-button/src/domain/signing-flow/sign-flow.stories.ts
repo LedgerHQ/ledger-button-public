@@ -1,12 +1,12 @@
 import "./signing-flow";
-import "../../../context/core-context.js";
-import "../../../context/language-context.js";
+import "../../context/core-context.js";
+import "../../context/language-context.js";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
 const meta: Meta = {
-  title: "Flow/Onboarding",
+  title: "Flow/Signing",
   render: () => html`
     <core-provider>
       <language-provider>

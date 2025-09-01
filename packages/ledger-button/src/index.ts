@@ -4,6 +4,7 @@ import "./ledger-button-app.js";
 import {
   type EIP6963ProviderInfo,
   LedgerButtonCore,
+  type LedgerButtonCoreOptions,
 } from "@ledgerhq/ledger-button-core";
 import { v4 as uuidv4 } from "uuid";
 
@@ -20,31 +21,36 @@ export { LedgerEIP1193Provider };
 
 let core: LedgerButtonCore | null = null;
 
-export function initializeLedgerProvider({
-  stub = false,
-  stubWeb3Provider = false,
-  stubDevice = false,
-  target = document.body,
-  dAppIndentifier = "",
-  apiKey = "",
-}: {
-  stub?: boolean;
-  stubDevice?: boolean;
-  stubWeb3Provider?: boolean;
+export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
-  dAppIndentifier?: string;
-  apiKey?: string;
-}): () => void {
-  console.info({ apiKey, dAppIndentifier });
+};
+
+export function initializeLedgerProvider({
+  stub = {
+    base: false,
+    account: false,
+    device: false,
+    web3Provider: false,
+  },
+  target = document.body,
+  dAppIdentifier = "",
+  apiKey = "",
+  loggerLevel = "info",
+  dmkConfig = undefined,
+  supportedNetworks = [],
+}: InitializeLedgerProviderOptions): () => void {
+  console.info({ apiKey, dAppIdentifier });
 
   // NOTE: `core` should be the same instance as the one injected in the lit app
   // so we either need to instanciate it here and give it to the lit app or retrieve it from it
-  //TODO pass dAppIndentifier and apiKey to the core
   if (!core) {
     core = new LedgerButtonCore({
       stub,
-      stubDevice,
-      stubWeb3Provider,
+      dAppIdentifier,
+      apiKey,
+      loggerLevel,
+      dmkConfig,
+      supportedNetworks,
     });
   }
 

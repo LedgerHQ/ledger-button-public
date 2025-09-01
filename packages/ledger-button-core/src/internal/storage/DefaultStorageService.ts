@@ -243,7 +243,7 @@ export class DefaultStorageService implements StorageService {
 
   removeItem(key: string) {
     const formattedKey = DefaultStorageService.formatKey(key);
-    if (!this.hasItem(formattedKey)) {
+    if (!this.hasItem(key)) {
       this.logger.debug("Item not found", { key });
       return false;
     }

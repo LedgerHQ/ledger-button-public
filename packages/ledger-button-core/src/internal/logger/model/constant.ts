@@ -6,4 +6,5 @@ export const LOG_LEVELS = {
   debug: 4,
 } as const;
 
+export type LogLevelKey = keyof typeof LOG_LEVELS;
 export type LogLevel = (typeof LOG_LEVELS)[keyof typeof LOG_LEVELS];

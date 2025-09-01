@@ -1,5 +1,6 @@
 import { Container, Factory } from "inversify";
 import { BehaviorSubject, Observable, tap } from "rxjs";
+import { LOG_LEVELS } from "src/internal/logger/model/constant.js";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import {
@@ -11,6 +12,8 @@ import { type AccountService } from "../internal/account/service/AccountService.
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
+import { configModuleTypes } from "../internal/config/configModuleTypes.js";
+import { Config } from "../internal/config/model/config.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -38,6 +41,7 @@ import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
+export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
   private container!: Container;
   private _pendingTransactionParams?:
@@ -53,7 +57,7 @@ export class LedgerButtonCore {
       applicationPath: undefined,
     });
 
-  constructor(private readonly opts: ContainerOptions) {
+  constructor(private readonly opts: LedgerButtonCoreOptions) {
     this.container = createContainer(this.opts);
     const loggerFactory = this.container.get<Factory<LoggerPublisher>>(
       loggerModuleTypes.LoggerPublisher,
@@ -283,5 +287,14 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._currentContext.asObservable();
+  }
+
+  // Config methods
+  getConfig(): Config {
+    return this.container.get<Config>(configModuleTypes.Config);
+  }
+
+  setLogLevel(logLevel: keyof typeof LOG_LEVELS) {
+    this.container.get<Config>(configModuleTypes.Config).setLogLevel(logLevel);
   }
 }

@@ -1,10 +1,11 @@
 import { ContainerModule } from "inversify";
 
 import { DefaultLedgerSyncService } from "./service/DefaultLedgerSyncService.js";
-import { ContainerOptions } from "../diTypes.js";
 import { ledgerSyncModuleTypes } from "./ledgerSyncModuleTypes.js";
 
-type LedgerSyncModuleOptions = Pick<ContainerOptions, "stub">;
+type LedgerSyncModuleOptions = {
+  stub?: boolean;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function ledgerSyncModuleFactory({ stub }: LedgerSyncModuleOptions) {

@@ -1,16 +1,20 @@
 import chalk from "chalk";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
 import { LOG_LEVELS, type LogLevel } from "../model/constant.js";
 import { LogData } from "./LoggerPublisher.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";
 
 @injectable()
 export class ConsoleLoggerSubscriber implements LoggerSubscriber {
-  constructor(private readonly maxLevel: LogLevel = LOG_LEVELS.info) {}
+  constructor(
+    @inject(configModuleTypes.Config) private readonly config: Config,
+  ) {}
 
   private canLog(level: number): boolean {
-    return level <= this.maxLevel;
+    return level <= this.config.logLevel;
   }
 
   private formatMessage(level: LogLevel, message: string): string {
