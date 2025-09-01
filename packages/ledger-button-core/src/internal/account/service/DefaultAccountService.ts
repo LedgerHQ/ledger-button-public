@@ -3,7 +3,7 @@ import { Either, EitherAsync } from "purify-ts";
 
 import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/DAppConfigService.js";
-import { DAppConfig } from "../../dAppConfig/types.js";
+import { DAppConfig, DAppConfigError } from "../../dAppConfig/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -17,7 +17,7 @@ export class DefaultAccountService implements AccountService {
   accounts: Account[] = [];
   selectedAccount: Account | null = null;
   supportedBlockchains: EitherAsync<
-    Error,
+    DAppConfigError,
     Map<string, DAppConfig["supportedBlockchains"][number]>
   >;
 

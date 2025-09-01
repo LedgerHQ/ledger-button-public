@@ -1,19 +1,4 @@
-export interface DAppConfig {
-  supportedBlockchains: SupportedBlockchain[];
-  referralUrl: string;
-  domainUrl: string;
-  appDependencies: AppDependency[];
-}
+import { ConfigResponse, ConfigResponseError } from "../backend/types.js";
 
-type SupportedBlockchain = {
-  id: string;
-  currency_id: string;
-  currency_name: string;
-  currency_ticker: string;
-};
-
-type AppDependency = {
-  blockchain: string;
-  appName: string;
-  dependencies: string[];
-};
+export type DAppConfig = ConfigResponse;
+export type DAppConfigError = ConfigResponseError;

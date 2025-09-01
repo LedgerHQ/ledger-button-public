@@ -1,10 +1,11 @@
 import { inject, injectable } from "inversify";
-import { Either } from "purify-ts";
+import { Either, Left, Right } from "purify-ts";
 
 import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../network/networkModuleTypes.js";
 import type { NetworkService } from "../network/NetworkService.js";
 import type { BackendService } from "./BackendService.js";
+import { ConfigResponseSchema } from "./schemas.js";
 import type {
   BroadcastRequest,
   BroadcastResponse,
@@ -49,10 +50,7 @@ export class DefaultBackendService implements BackendService {
     );
   }
 
-  async getConfig(
-    request: ConfigRequest,
-    domain = "ledger-button-domain",
-  ): Promise<Either<Error, ConfigResponse>> {
+  async getConfig(request: ConfigRequest, domain = "ledger-button-domain") {
     const url = `${BACKEND_BASE_URL}/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
@@ -67,8 +65,13 @@ export class DefaultBackendService implements BackendService {
 
     const result = await this.networkService.get<ConfigResponse>(url, options);
 
-    return result.mapLeft(
-      (error: Error) => new Error(`Get config failed: ${error.message}`),
-    );
+    return result
+      .mapLeft(
+        (error: Error) => new Error(`Get config failed: ${error.message}`),
+      )
+      .map((res: unknown) => ConfigResponseSchema.safeParse(res))
+      .chain((parsed) =>
+        parsed.success ? Right(parsed.data) : Left(parsed.error),
+      );
   }
 }

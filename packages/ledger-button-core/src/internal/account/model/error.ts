@@ -1,4 +1,5 @@
 import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { DAppConfigError } from "../../dAppConfig/types.js";
 
 export class FetchAccountsError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
@@ -6,4 +7,4 @@ export class FetchAccountsError extends LedgerButtonError {
   }
 }
 
-export type AccountServiceError = FetchAccountsError | Error;
+export type AccountServiceError = FetchAccountsError | DAppConfigError;
