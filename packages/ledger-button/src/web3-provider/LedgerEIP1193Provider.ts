@@ -60,6 +60,48 @@ export class LedgerEIP1193Provider
     });
   }
 
+  private handleAccounts(): Promise<string[]> {
+    return new Promise((resolve) => {
+      if (
+        this._selectedAccount &&
+        this.core.getSelectedAccount()?.freshAddress === this._selectedAccount
+      ) {
+        this.dispatchEvent(
+          new CustomEvent<string[]>("accountsChanged", {
+            bubbles: true,
+            composed: true,
+            detail: [this._selectedAccount],
+          }),
+        );
+        return resolve([this._selectedAccount]);
+      }
+
+      const selectedAccount = this.core.getSelectedAccount();
+      if (selectedAccount) {
+        this._selectedAccount = selectedAccount.freshAddress;
+        this._isConnected = true;
+        this.dispatchEvent(
+          new CustomEvent<string[]>("accountsChanged", {
+            bubbles: true,
+            composed: true,
+            detail: [selectedAccount.freshAddress],
+          }),
+        );
+        return resolve([selectedAccount.freshAddress]);
+      }
+
+      this.dispatchEvent(
+        new CustomEvent<string[]>("accountsChanged", {
+          bubbles: true,
+          composed: true,
+          detail: [],
+        }),
+      );
+
+      return resolve([]);
+    });
+  }
+
   // Handlers for the different RPC methods
   private handleRequestAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
@@ -92,17 +134,17 @@ export class LedgerEIP1193Provider
       );
 
       if (selectedAccount) {
-        console.log(
-          "[Ledger Button] Account selected => ",
-          selectedAccount.freshAddress,
-        );
         this._selectedAccount = selectedAccount.freshAddress;
         this._isConnected = true;
+        this.dispatchEvent(
+          new CustomEvent<string[]>("accountsChanged", {
+            bubbles: true,
+            composed: true,
+            detail: [selectedAccount.freshAddress],
+          }),
+        );
         return resolve([selectedAccount.freshAddress]);
       } else {
-        console.log(
-          "[Ledger Button] No account selected => send SelectAccount intent",
-        );
         this.app.navigationIntent("selectAccount");
       }
     });
@@ -159,7 +201,7 @@ export class LedgerEIP1193Provider
   }
 
   handlers = {
-    eth_accounts: (_: unknown) => this.handleRequestAccounts(),
+    eth_accounts: (_: unknown) => this.handleAccounts(),
     eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
     // NOTE: DEFERRED TO CORE
     // eth_sendTransaction: () => {
@@ -248,7 +290,6 @@ export class LedgerEIP1193Provider
     data?: unknown,
   ): Promise<void> {
     // TODO: Logic to disconnect from the chain
-    console.log("[Ledger Button] Disconnecting with eip1193 provider call");
     if (this._isConnected) {
       this._isConnected = false;
       this.core.disconnect();
