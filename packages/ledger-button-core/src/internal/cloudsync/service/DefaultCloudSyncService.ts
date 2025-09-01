@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either } from "purify-ts";
 
+import { Config } from "../../config/model/config.js";
 import { InternalAuthContext } from "../../ledgersync/model/InternalAuthContext.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -9,13 +10,6 @@ import { type NetworkService } from "../../network/NetworkService.js";
 import { CloudSyncData } from "../model/cloudSyncTypes.js";
 import { CloudSyncService } from "./CloudSyncService.js";
 
-const CLOUD_SYNC_BASE_URL_STG =
-  "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
-
-/* TODO use LedgerButton config for it 
-const CLOUD_SYNC_BASE_URL_PROD =
-  "https://cloud-sync-backend.api.aws.prod.ldg-tech.com";
-*/
 @injectable()
 export class DefaultCloudSyncService implements CloudSyncService {
   private readonly logger: LoggerPublisher;
@@ -25,6 +19,8 @@ export class DefaultCloudSyncService implements CloudSyncService {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<RequestInit>,
+    @inject(Config)
+    private readonly config: Config,
   ) {
     this.logger = loggerFactory("[Cloud Sync Service]");
   }
@@ -41,7 +37,7 @@ export class DefaultCloudSyncService implements CloudSyncService {
 
     const response: Either<Error, CloudSyncData> =
       await this.networkService.get<CloudSyncData>(
-        `${CLOUD_SYNC_BASE_URL_STG}/atomic/v1/live?${params.toString()}`,
+        `${this.config.lkrp.cloudSyncUrl}/atomic/v1/live?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${authContext.jwt.access_token}`,

@@ -7,12 +7,15 @@ import { configModuleTypes } from "./configModuleTypes.js";
 type ConfigModuleOptions = Pick<
   ContainerOptions,
   "loggerLevel" | "apiKey" | "dAppIdentifier"
->;
+> & {
+  environment?: "staging" | "production";
+};
 
 export function configModuleFactory({
   loggerLevel,
   apiKey,
   dAppIdentifier,
+  environment = "staging",
 }: ConfigModuleOptions) {
   return new ContainerModule(({ bind }) => {
     bind<Config>(configModuleTypes.Config).toResolvedValue(() => {
@@ -20,6 +23,7 @@ export function configModuleFactory({
         logLevel: loggerLevel,
         originToken: apiKey,
         dAppIdentifier: dAppIdentifier,
+        environment,
       });
     });
   });

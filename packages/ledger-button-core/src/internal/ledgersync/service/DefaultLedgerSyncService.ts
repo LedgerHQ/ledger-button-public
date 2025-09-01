@@ -26,6 +26,8 @@ import {
   type LedgerSyncAuthenticateResponse,
 } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
 import { type UserInteractionNeeded } from "../../../api/model/UserInteractionNeeded.js";
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
 import { GenerateKeypairUseCase } from "../../cryptographic/usecases/GenerateKeypairUseCase.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
@@ -57,6 +59,8 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly storageService: StorageService,
     @inject(cryptographicModuleTypes.GenerateKeypairUseCase)
     private readonly generateKeypairUseCase: GenerateKeypairUseCase,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
   ) {
     this.logger = this.loggerFactory("[Ledger Sync Service]");
 
@@ -64,7 +68,10 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     this.lkrpAppKit = new LedgerKeyringProtocolBuilder({
       dmk: dmk,
       applicationId: LEDGER_SYNC_APPLICATION_ID,
-      env: LKRPEnv.STAGING,
+      env:
+        this.config.environment === "production"
+          ? LKRPEnv.PROD
+          : LKRPEnv.STAGING,
     }).build();
   }
 
@@ -116,7 +123,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
 
           return this.lkrpAppKit.authenticate({
             keypair: keypair,
-            clientName: "LedgerButton::app.1inch.io", //TODO use config for generating the client app name
+            clientName: this.getClientName(),
             permissions: Permissions.OWNER,
             trustchainId: undefined,
             sessionId: this.deviceManagementKitService.sessionId,
@@ -125,7 +132,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           this.logger.info("Try to authenticate with keypair");
           return this.lkrpAppKit.authenticate({
             keypair: keypair,
-            clientName: "LedgerButton::app.1inch.io", //TODO use config for generating the client app name
+            clientName: this.getClientName(),
             permissions: Permissions.OWNER,
             trustchainId: this.trustChainId,
             sessionId: undefined,
@@ -157,6 +164,10 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     );
 
     return pako.inflate(compressedClearData);
+  }
+
+  private getClientName(): string {
+    return `LedgerButton::${this.config.dAppIdentifier}`;
   }
 
   private mapAuthenticateResponse(
