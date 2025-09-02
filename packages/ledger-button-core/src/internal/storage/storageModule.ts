@@ -1,10 +1,11 @@
 import { ContainerModule } from "inversify";
 
-import { ContainerOptions } from "../diTypes.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
 import { storageModuleTypes } from "./storageModuleTypes.js";
 
-type StorageModuleOptions = Pick<ContainerOptions, "stub">;
+type StorageModuleOptions = {
+  stub?: boolean;
+};
 
 export function storageModuleFactory({ stub }: StorageModuleOptions) {
   return new ContainerModule(({ bind }) => {

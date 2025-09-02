@@ -12,7 +12,7 @@ export interface DeviceManagementKitService {
   sessionId: string | undefined;
   connectedDevice: Device | undefined;
 
-  connectToDevice: ({ type }: { type: ConnectionType }) => Promise<string>;
+  connectToDevice: ({ type }: { type: ConnectionType }) => Promise<Device>;
   disconnectFromDevice: () => Promise<void>;
   listAvailableDevices: () => Promise<DiscoveredDevice[]>;
 }

@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { MockInstance } from "vitest";
 
+import { Config } from "../../config/model/config.js";
 import { LOG_LEVELS } from "../model/constant.js";
 import { ConsoleLoggerSubscriber } from "./ConsoleLoggerSubscriber.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";
@@ -12,6 +13,7 @@ let warnSpy: MockInstance;
 let errorSpy: MockInstance;
 let groupSpy: MockInstance;
 let groupEndSpy: MockInstance;
+let config: Config;
 
 describe("ConsoleLoggerSubscriber", () => {
   beforeAll(() => {
@@ -63,7 +65,8 @@ describe("ConsoleLoggerSubscriber", () => {
   describe("log", () => {
     describe("when the level is debug", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.debug);
+        config = new Config({ logLevel: "debug" });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -148,7 +151,8 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when the level is info", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.info);
+        config = new Config({ logLevel: "info" });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -210,7 +214,8 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is warn", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.warn);
+        config = new Config({ logLevel: "warn" });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -275,7 +280,8 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is error", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.error);
+        config = new Config({ logLevel: "error" });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -340,7 +346,8 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is fatal", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.fatal);
+        config = new Config({ logLevel: "fatal" });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {

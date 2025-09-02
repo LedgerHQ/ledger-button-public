@@ -48,6 +48,6 @@ export class DeviceConnectionStatusController {
   }
 
   private handleConnectionTimeout() {
-    this.navigation.navigateTo(this.destinations.onboarding);
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 }

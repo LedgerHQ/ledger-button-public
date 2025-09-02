@@ -17,10 +17,10 @@
     "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm button exec nx build-storybook --quiet && pnpm button exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm button exec nx test-storybook\"",
     "prerelease": "pnpm nx run-many -t build --projects=ledger-button,ledger-button-core",
     "release": "pnpm nx release publish",
-    "version:minor": "pnpm nx release version minor",
-    "version:major": "pnpm nx release version major",
-    "version:patch": "pnpm nx release version patch",
-    "version:prerelease": "pnpm nx release version prerelease --preid pre --git-tag"
+    "version:minor": "pnpm nx release version minor --git-tag",
+    "version:major": "pnpm nx release version major --git-tag",
+    "version:patch": "pnpm nx release version patch --git-tag",
+    "version:prerelease": "pnpm nx release version prerelease --preid pre"
   },
   "private": true,
   "devDependencies": {

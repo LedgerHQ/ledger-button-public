@@ -60,35 +60,97 @@ export class LedgerEIP1193Provider
     });
   }
 
+  private handleAccounts(): Promise<string[]> {
+    return new Promise((resolve) => {
+      if (
+        this._selectedAccount &&
+        this.core.getSelectedAccount()?.freshAddress === this._selectedAccount
+      ) {
+        this.dispatchEvent(
+          new CustomEvent<string[]>("accountsChanged", {
+            bubbles: true,
+            composed: true,
+            detail: [this._selectedAccount],
+          }),
+        );
+        return resolve([this._selectedAccount]);
+      }
+
+      const selectedAccount = this.core.getSelectedAccount();
+      if (selectedAccount) {
+        this._selectedAccount = selectedAccount.freshAddress;
+        this._isConnected = true;
+        this.dispatchEvent(
+          new CustomEvent<string[]>("accountsChanged", {
+            bubbles: true,
+            composed: true,
+            detail: [selectedAccount.freshAddress],
+          }),
+        );
+        return resolve([selectedAccount.freshAddress]);
+      }
+
+      this.dispatchEvent(
+        new CustomEvent<string[]>("accountsChanged", {
+          bubbles: true,
+          composed: true,
+          detail: [],
+        }),
+      );
+
+      return resolve([]);
+    });
+  }
+
   // Handlers for the different RPC methods
   private handleRequestAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
-      this.app.navigationIntent("selectAccount");
+      const selectedAccount = this.core.getSelectedAccount();
 
       window.addEventListener(
         "ledger-provider-account-selected",
         (e) => {
           // EIP-1193 accountsChanged event
+          console.log("EVENT: ledger-provider-account-selected", e.detail);
+
+          this._isConnected = true;
+          this._selectedAccount = e.detail.account.freshAddress;
+
           this.dispatchEvent(
             new CustomEvent<string[]>("accountsChanged", {
               bubbles: true,
               composed: true,
-              detail: [e.detail.accounts[0]],
+              detail: [e.detail.account.freshAddress],
             }),
           );
           // TODO: replace with real connection logic
-          this._selectedAccount = e.detail.accounts[0];
+          this._selectedAccount = e.detail.account.freshAddress;
           this._isConnected = true;
-          resolve([e.detail.accounts[0]]);
+          resolve([e.detail.account.freshAddress]);
         },
         {
           once: true,
         },
       );
+
+      if (selectedAccount) {
+        this._selectedAccount = selectedAccount.freshAddress;
+        this._isConnected = true;
+        this.dispatchEvent(
+          new CustomEvent<string[]>("accountsChanged", {
+            bubbles: true,
+            composed: true,
+            detail: [selectedAccount.freshAddress],
+          }),
+        );
+        return resolve([selectedAccount.freshAddress]);
+      } else {
+        this.app.navigationIntent("selectAccount");
+      }
     });
   }
 
-  private handleSignTransaction(params: object): Promise<SignedTransaction> {
+  private handleSignTransaction(params: unknown[]): Promise<SignedTransaction> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -99,7 +161,7 @@ export class LedgerEIP1193Provider
         );
       }
 
-      this.app.navigationIntent("signTransaction", params);
+      this.app.navigationIntent("signTransaction", { transaction: params[0] });
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
@@ -139,7 +201,7 @@ export class LedgerEIP1193Provider
   }
 
   handlers = {
-    eth_accounts: (_: unknown) => this.handleRequestAccounts(),
+    eth_accounts: (_: unknown) => this.handleAccounts(),
     eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
     // NOTE: DEFERRED TO CORE
     // eth_sendTransaction: () => {
@@ -148,17 +210,20 @@ export class LedgerEIP1193Provider
     // eth_sendRawTransaction: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
-    eth_signTransaction: (params: object) => this.handleSignTransaction(params),
+    eth_signTransaction: (params: unknown[]) =>
+      this.handleSignTransaction(params),
     // personal_sign: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
-    eth_signTypedData: (params: object) => this.handleSignTypedData(params),
+    eth_signTypedData: (params: unknown[]) => this.handleSignTypedData(params),
   } as const;
 
   // Public API
   public request({ method, params }: RequestArguments) {
     if (method in this.handlers) {
-      return this.handlers[method as keyof typeof this.handlers](params);
+      return this.handlers[method as keyof typeof this.handlers](
+        params as unknown[],
+      );
     }
 
     return this.core.jsonRpcRequest({
@@ -227,6 +292,7 @@ export class LedgerEIP1193Provider
     // TODO: Logic to disconnect from the chain
     if (this._isConnected) {
       this._isConnected = false;
+      this.core.disconnect();
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
           bubbles: true,
@@ -249,6 +315,7 @@ export class LedgerEIP1193Provider
     return error;
   }
 
+  //TODO check if still needed
   private initializeSupportedChains(): void {
     // NOTE: Initialize with common Ethereum chains (infos to be verified!)
     this._supportedChains.set("0x1", {

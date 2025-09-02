@@ -1,9 +1,9 @@
-import { type DeviceSessionId } from "@ledgerhq/device-management-kit";
 import { type Factory, inject, injectable } from "inversify";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import { Device } from "../model/Device.js";
 import {
   ConnectionType,
   type DeviceManagementKitService,
@@ -21,7 +21,7 @@ export class ConnectDevice {
     this.logger = loggerFactory("[ConnectDevice UseCase]");
   }
 
-  async execute({ type }: { type: ConnectionType }): Promise<DeviceSessionId> {
+  async execute({ type }: { type: ConnectionType }): Promise<Device> {
     this.logger.info("Connecting to device", { type });
     return this.deviceManagementKitService.connectToDevice({
       type,

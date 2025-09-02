@@ -61,12 +61,7 @@ export class SelectDeviceScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new SelectDeviceController(
-      this,
-      this.coreContext,
-      this.navigation,
-      this.destinations,
-    );
+    this.controller = new SelectDeviceController(this, this.coreContext);
   }
 
   handleConnectionItemClick = (

@@ -4,6 +4,7 @@ import "./ledger-button-app.js";
 import {
   type EIP6963ProviderInfo,
   LedgerButtonCore,
+  type LedgerButtonCoreOptions,
 } from "@ledgerhq/ledger-button-core";
 import { v4 as uuidv4 } from "uuid";
 
@@ -20,37 +21,43 @@ export { LedgerEIP1193Provider };
 
 let core: LedgerButtonCore | null = null;
 
-export function initializeLedgerProvider({
-  stub = false,
-  stubWeb3Provider = false,
-  stubDevice = false,
-  target = document.body,
-  dAppIndentifier = "",
-  apiKey = "",
-}: {
-  stub?: boolean;
-  stubDevice?: boolean;
-  stubWeb3Provider?: boolean;
+export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
-  dAppIndentifier?: string;
-  apiKey?: string;
-}): () => void {
-  console.info({ apiKey, dAppIndentifier });
+};
+
+export function initializeLedgerProvider({
+  stub = {
+    base: false,
+    account: false,
+    device: false,
+    web3Provider: false,
+  },
+  target = document.body,
+  dAppIdentifier = "",
+  apiKey = "",
+  loggerLevel = "info",
+  dmkConfig = undefined,
+  supportedNetworks = [],
+}: InitializeLedgerProviderOptions): () => void {
+  console.info({ apiKey, dAppIdentifier });
 
   // NOTE: `core` should be the same instance as the one injected in the lit app
   // so we either need to instanciate it here and give it to the lit app or retrieve it from it
   if (!core) {
     core = new LedgerButtonCore({
       stub,
-      stubDevice,
-      stubWeb3Provider,
+      dAppIdentifier,
+      apiKey,
+      loggerLevel,
+      dmkConfig,
+      supportedNetworks,
     });
   }
 
   const info: EIP6963ProviderInfo = {
     uuid: uuidv4(),
     name: "Ledger Button",
-    icon: "https://ledger.com/favicon.ico",
+    icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAMAAABOo35HAAABCFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzxr8JAAAAWHRSTlMA3//Ho7LaF/A7Xt7x7OaesRPgpsyd6OfqUJG5EO1JR0RRS6/KPEIl9bi/q7Xdzxo+QDRgyQd0BOPhPzhkXQ0Y7wHBoJkMp5MWBWLbCRWfuwZc3BShCkycOhLLgAAAAwZJREFUeNrt2FdOGwEYhdHfkwSSmJbeEzrpld57tSkG4/3vJA9GyA6KbEUzA4TzLeFI9+WGJEmSJEmSJEnKqGdPi4XcKvY8fxEptbPZ/bCQX8Xuvogk53YjpUqrSb49zh/rKFLq8CDJt1uwYMGCBQsWLFiwYMGCBSulFmC133yk1MT45WO9evmkll29vXORUlOT+7UMW9+qtMZ65w89a7811ltK9UptYJ1iqlc9gQULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggUL1jXAGsRUr7rWGmsAU72NzaS54YiZ6b3KeXuFnv7ItrHRkXsNzf7ciatZaWu50lDHm6GIcvm4se3DyLZa193Gur5+i6vZyuJSI8yDzteRe4+S5r4sWfxfu50019HJBBYsWLBgwWICCxYsWLBgMYEFCxYsWLCYwIIFCxYsWExgwYIFCxYsJrBgwYIFCxYTWLBgwYIFiwksWLBgwYLFBBYsWLBgwWICCxYsWLBgMYEFCxYsWLCYwIIFCxYsWExgwYIFCxYsJrBgwYIFCxYTWLBgwYIFiwksWJeNVWbSPlaVSdtY7z9/uvMP9X34OHsTsNJqF1b73YcFCxYsWLBgwYIFCxasq9SjJK1+Re6Vy8eNbR9GttW67qZT11Fk2sriUiPMg87XETPTe5Xz9go9/ZFtY6Mj99Lo+49yZFppa7nSUMeboYjkjwZcbvU2NpPmhi9iDWKqV11Lmrt1EesUU73qCSxYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsGDBggULFixYsK4B1ltM9Ur7rbHeYTqrDaxXL5/Usqu3dy5Sampyv5Zh61uVFlg5NB8pNTGeZNzlYy1ESh0e/P9YR7BgwYIFCxYsWLBgwYIF68Zj7UZKlVaTfHsc8expsZBbxZ7nLyKldja7Hxbyq9jd5w+VJEmSJEmSJCmbfgMTmK0SFovSGAAAAABJRU5ErkJggg==",
     rdns: "com.ledger.button",
   };
 

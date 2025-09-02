@@ -12,7 +12,9 @@ import { SwitchDevice } from "./use-case/SwitchDevice.js";
 import { ContainerOptions } from "../diTypes.js";
 import { deviceModuleTypes } from "./deviceModuleTypes.js";
 
-type DeviceModuleOptions = Pick<ContainerOptions, "stub" | "dmkConfig">;
+type DeviceModuleOptions = Pick<ContainerOptions, "dmkConfig"> & {
+  stub?: boolean;
+};
 
 export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
   return new ContainerModule(({ bind, rebindSync }) => {

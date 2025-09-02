@@ -1,6 +1,6 @@
 {
   "name": "@ledgerhq/ledger-button-core",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.3",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -21,17 +21,21 @@
     "dist"
   ],
   "dependencies": {
-    "@ledgerhq/device-management-kit": "^0.7.0",
-    "@ledgerhq/device-signer-kit-ethereum": "^1.3.3",
-    "@ledgerhq/device-transport-kit-web-ble": "^1.1.0",
-    "@ledgerhq/device-transport-kit-web-hid": "^1.1.0",
-    "chalk": "^5.4.1",
+    "@ledgerhq/device-management-kit": "0.0.0-web-ble-29-08---20250829104351",
+    "@ledgerhq/device-signer-kit-ethereum": "0.0.0-web-ble-29-08---20250829104351",
+    "@ledgerhq/device-transport-kit-web-ble": "0.0.0-web-ble-29-08---20250829104351",
+    "@ledgerhq/device-transport-kit-web-hid": "0.0.0-web-ble-29-08---20250829104351",
+    "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "0.0.0-ledger-button-20250821163751",
     "ethers": "^6.15.0",
     "inversify": "^7.5.1",
-    "jsonwebtoken": "9.0.2",
+    "pako": "^2.0.4",
     "purify-ts": "2.1.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "~7.8.0",
-    "viem": "^2.21.0"
+    "rxjs": "7.8.2",
+    "viem": "^2.21.0",
+    "chalk": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/pako": "^2.0.4"
   }
 }

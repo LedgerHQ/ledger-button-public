@@ -6,6 +6,9 @@ import "../domain/sign-transaction/sign-transaction.js";
 import "../domain/home/ledger-home.js";
 import "../domain/device-switch/device-switch.js";
 import "../domain/device-connection-status/device-connection-status.js";
+import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
+import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
+import "../domain/signing-flow/signing-flow.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -49,8 +52,16 @@ export class LedgerButton404 extends LitElement {
   }
 }
 
-export type Destinations = ReturnType<typeof makeDestinations>;
-export type Destination = Destinations[keyof Destinations];
+export type Destinations = Record<string, Destination>;
+export type Destination = {
+  name: string;
+  component: string;
+  canGoBack: boolean;
+  toolbar: {
+    title: string;
+    showCloseButton: boolean;
+  };
+};
 
 // MOVE DESTINATIONS TO NAVIGATION
 export const makeDestinations = (translation: Translation) => {
@@ -80,6 +91,15 @@ export const makeDestinations = (translation: Translation) => {
       toolbar: {
         title: "",
         showCloseButton: true,
+      },
+    },
+    onboardingFlow: {
+      name: "onboarding-flow",
+      component: "onboarding-flow",
+      canGoBack: false,
+      toolbar: {
+        title: translation.onboarding.selectDevice.title,
+        showCloseButton: false,
       },
     },
     ledgerSync: {
@@ -130,6 +150,15 @@ export const makeDestinations = (translation: Translation) => {
     signTransaction: {
       name: "signTransaction",
       component: "sign-transaction-screen",
+      canGoBack: true,
+      toolbar: {
+        title: "",
+        showCloseButton: false,
+      },
+    },
+    signingFlow: {
+      name: "signingFlow",
+      component: "signing-flow",
       canGoBack: true,
       toolbar: {
         title: "",
