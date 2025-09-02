@@ -23,12 +23,6 @@ interface JsonRpcResponse<T = unknown> {
   };
 }
 
-interface TokenInfo {
-  symbol: string;
-  name: string;
-  decimals: number;
-}
-
 @injectable()
 export class DefaultEvmDataSource implements EvmDataSource {
   private requestId = 1;
@@ -86,7 +80,7 @@ export class DefaultEvmDataSource implements EvmDataSource {
         );
       }
 
-      return Right(jsonResponse.result);
+      return Right(jsonResponse.result as T);
     } catch (error) {
       return Left(
         AlpacaServiceError.networkError(
