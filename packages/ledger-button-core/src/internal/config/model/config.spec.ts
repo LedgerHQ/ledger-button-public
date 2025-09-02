@@ -6,7 +6,7 @@ describe("Config", () => {
       const config = new Config({});
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prod.ldg-tech.com",
+        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
       );
     });
 
@@ -22,7 +22,7 @@ describe("Config", () => {
       const config = new Config({ environment: "production" });
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prod.ldg-tech.com",
+        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
       );
     });
 
@@ -35,7 +35,7 @@ describe("Config", () => {
       config.setEnvironment("production");
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prod.ldg-tech.com",
+        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
       );
     });
 
