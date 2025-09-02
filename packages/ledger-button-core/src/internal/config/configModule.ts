@@ -6,16 +6,14 @@ import { configModuleTypes } from "./configModuleTypes.js";
 
 type ConfigModuleOptions = Pick<
   ContainerOptions,
-  "loggerLevel" | "apiKey" | "dAppIdentifier"
-> & {
-  environment?: "staging" | "production";
-};
+  "loggerLevel" | "apiKey" | "dAppIdentifier" | "environment"
+>;
 
 export function configModuleFactory({
   loggerLevel,
   apiKey,
   dAppIdentifier,
-  environment = "staging",
+  environment,
 }: ConfigModuleOptions) {
   return new ContainerModule(({ bind }) => {
     bind<Config>(configModuleTypes.Config).toResolvedValue(() => {

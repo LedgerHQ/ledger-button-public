@@ -28,11 +28,12 @@ export function createContainer({
   dmkConfig,
   apiKey,
   dAppIdentifier,
+  environment = "production",
 }: ContainerOptions) {
   const container = new Container();
 
   container.loadSync(
-    configModuleFactory({ loggerLevel, apiKey, dAppIdentifier }),
+    configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
     loggerModuleFactory({ stub: stub.base }),
     accountModuleFactory({ stub: stub.account }),
     backendModuleFactory({ stub: stub.base }),
