@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 
 import { accountModuleFactory } from "./account/accountModule.js";
+import { alpacaModuleFactory } from "./alpaca/alpacaModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
@@ -24,6 +25,7 @@ export function createContainer({
   container.loadSync(
     loggerModuleFactory({ stub, loggerLevel }),
     accountModuleFactory({ stub }),
+    alpacaModuleFactory({ stub }),
     backendModuleFactory({ stub }),
     deviceModuleFactory({ stub: stubDevice, dmkConfig }),
     storageModuleFactory({ stub }),

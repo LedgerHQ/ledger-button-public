@@ -1,4 +1,12 @@
 export * from "../internal/account/service/AccountService.js";
+export { AlpacaServiceError } from "../internal/alpaca/model/error.js";
+export type {
+  AlpacaBalanceRequest,
+  AlpacaBalanceResponse,
+  EvmChainConfig,
+  NativeBalance,
+  TokenBalance,
+} from "../internal/alpaca/model/types.js";
 export type { BackendService } from "../internal/backend/BackendService.js";
 export type {
   AppDependency,

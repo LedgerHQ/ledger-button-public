@@ -4,6 +4,9 @@ import { Observable } from "rxjs";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccounts } from "../internal/account/use-case/FetchAccounts.js";
+import { alpacaModuleTypes } from "../internal/alpaca/alpacaModuleTypes.js";
+import { type AlpacaBalanceRequest } from "../internal/alpaca/model/types.js";
+import { type AlpacaService } from "../internal/alpaca/service/AlpacaService.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
@@ -143,5 +146,12 @@ export class LedgerButtonCore {
     return this.container.get<BackendService>(
       backendModuleTypes.BackendService,
     );
+  }
+
+  // Coin methods
+  async getBalance(request: AlpacaBalanceRequest) {
+    return this.container
+      .get<AlpacaService>(alpacaModuleTypes.AlpacaService)
+      .getBalance(request);
   }
 }
