@@ -6,6 +6,7 @@ export type DeviceModuleOptions = Partial<DmkConfig>;
 
 export type ContainerOptions = {
   stub: Partial<{
+    alpaca: boolean;
     base: boolean;
     account: boolean;
     device: boolean;
