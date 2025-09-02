@@ -1,7 +1,3 @@
-import { Either } from "purify-ts";
-
-import { AccountServiceError } from "../model/error.js";
-
 export type CloudSyncAccount = {
   id: string;
   currencyId: string;
@@ -20,10 +16,7 @@ export type Account = CloudSyncAccount & {
   name: string;
 };
 export interface AccountService {
-  fetchAccounts(): Promise<Either<AccountServiceError, Account[]>>;
-  mapCloudSyncDataToAccounts(
-    cloudSyncData: CloudSyncData,
-  ): Either<AccountServiceError, Account[]>;
+  setAccountsFromCloudSyncData(accounts: CloudSyncData): void;
   getAccounts(): Account[];
   selectAccount(address: string): void;
   getSelectedAccount(): Account | null;

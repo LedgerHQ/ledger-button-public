@@ -38,9 +38,12 @@ export const useProviders = () => {
     const { initializeLedgerProvider } = LedgerButtonModule;
 
     const cleanup = initializeLedgerProvider({
-      stub: true,
-      stubDevice: false,
-      stubWeb3Provider: true,
+      dAppIdentifier: "test-dapp",
+      stub: {
+        base: true,
+        device: false,
+        web3Provider: true,
+      },
     });
 
     window.addEventListener(

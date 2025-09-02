@@ -1,10 +1,11 @@
 import { ContainerModule } from "inversify";
 
-import { ContainerOptions } from "../diTypes.js";
 import { DefaultNetworkService } from "./DefaultNetworkService.js";
 import { networkModuleTypes } from "./networkModuleTypes.js";
 
-type NetworkModuleOptions = Pick<ContainerOptions, "stub">;
+type NetworkModuleOptions = {
+  stub?: boolean;
+};
 
 export function networkModuleFactory({ stub }: NetworkModuleOptions) {
   return new ContainerModule(({ bind }) => {

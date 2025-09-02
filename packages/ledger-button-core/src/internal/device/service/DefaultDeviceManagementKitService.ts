@@ -94,7 +94,7 @@ export class DefaultDeviceManagementKitService
       this._connectedDevice = mapConnectedDeviceToDevice(
         await dmk.getConnectedDevice({ sessionId }),
       );
-      return sessionId;
+      return this._connectedDevice;
     } catch (error) {
       this.logger.error(`Failed to connect to device`, { error });
       throw new DeviceConnectionError(`Failed to connect to device`, {

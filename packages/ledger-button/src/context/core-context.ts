@@ -9,12 +9,6 @@ export const coreContext = createContext<CoreContext>(Symbol.for("core"));
 
 @customElement("core-provider")
 export class CoreProvider extends LitElement {
-  @property({ type: Boolean })
-  stub = true;
-
-  @property({ type: Boolean, attribute: "stub-device" })
-  stubDevice = false;
-
   @property({ type: Object })
   coreClass?: LedgerButtonCore;
 
@@ -28,8 +22,11 @@ export class CoreProvider extends LitElement {
     this.core =
       this.coreClass ??
       new LedgerButtonCore({
-        stub: this.stub,
-        stubDevice: this.stubDevice,
+        stub: {
+          base: true,
+          device: false,
+          web3Provider: true,
+        },
       });
   }
 

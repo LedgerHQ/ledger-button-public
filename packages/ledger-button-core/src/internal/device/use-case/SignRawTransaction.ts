@@ -1,15 +1,26 @@
-import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
+import {
+  hexaStringToBuffer,
+  OpenAppWithDependenciesDeviceAction,
+} from "@ledgerhq/device-management-kit";
 import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
-import { accountModuleTypes } from "../../account/accountModuleTypes.js";
-import type { AccountService } from "../../account/service/AccountService.js";
-import { originToken } from "../../config/config.js";
+import type { Account } from "../../account/service/AccountService.js";
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import type { StorageService } from "../../storage/StorageService.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import {
+  AccountNotSelectedError,
+  DeviceConnectionError,
+  FailToOpenAppError,
+  SignTransactionError,
+} from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
 export interface SignRawTransactionParams {
@@ -30,8 +41,10 @@ export class SignRawTransaction {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(accountModuleTypes.AccountService)
-    private readonly accountService: AccountService,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -40,15 +53,21 @@ export class SignRawTransaction {
     this.logger.info("Starting transaction signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
+
     if (!sessionId) {
       this.logger.error("No device connected");
-      throw new Error("No device connected. Please connect a device first.");
+      throw new DeviceConnectionError(
+        "No device connected. Please connect a device first.",
+        { type: "not-connected" },
+      );
     }
 
     const device = this.deviceManagementKitService.connectedDevice;
     if (!device) {
       this.logger.error("No connected device found");
-      throw new Error("No connected device found");
+      throw new DeviceConnectionError("No connected device found", {
+        type: "not-connected",
+      });
     }
 
     const { rawTransaction } = params;
@@ -57,7 +76,7 @@ export class SignRawTransaction {
       const dmk = this.deviceManagementKitService.dmk;
       const ethSigner = new SignerEthBuilder({
         dmk,
-        originToken,
+        originToken: this.config.originToken,
         sessionId,
       }).build();
 
@@ -66,29 +85,66 @@ export class SignRawTransaction {
         throw Error("Invalid raw transaction format");
       }
 
-      const account = this.accountService.getSelectedAccount();
+      const account: Account | undefined = this.storageService
+        .getSelectedAccount()
+        .extract();
+
       if (!account) {
-        throw Error("No account selected");
+        throw new AccountNotSelectedError("No account selected");
       }
 
-      const derivationPath = account.derivationMode;
+      const derivationPath = account.derivationMode ?? "44'/60'/0'/0/0";
 
-      const { observable } = ethSigner.signTransaction(derivationPath, tx);
+      //TODO use config for launching and installing the app
+      const openResult = await lastValueFrom(
+        dmk.executeDeviceAction({
+          sessionId: sessionId,
+          deviceAction: new OpenAppWithDependenciesDeviceAction({
+            input: {
+              application: {
+                name: "Ethereum",
+              },
+              dependencies: [],
+              requireLatestFirmware: false,
+            },
+            inspect: false,
+          }),
+        }).observable,
+      );
+
+      if (openResult.status === "error") {
+        this.logger.error("Error opening app", { error: openResult.error });
+        throw new FailToOpenAppError("Failed to open app", {
+          error: openResult.error,
+        });
+      }
+
+      const { observable } = ethSigner.signTransaction(derivationPath, tx, {
+        skipOpenApp: true,
+      });
       const result = await lastValueFrom(observable);
 
       if (result.status === "error") {
-        throw Error("Transaction signing failed");
+        this.logger.error("Error signing transaction", { error: result.error });
+        throw new SignTransactionError("Transaction signing failed", {
+          error: result.error,
+        });
       }
 
-      this.logger.info("Transaction signing completed", { result });
+      if (result.status === "completed") {
+        this.logger.debug("Transaction signing completed", {
+          result: result.output,
+        });
+      }
 
+      //TODO generate signed raw transaction using output for signing raw tx
       return {
         hash: keccak256(tx),
         rawTransaction,
       };
     } catch (error) {
       this.logger.error("Failed to sign transaction", { error });
-      throw new Error(`Transaction signing failed: ${error}`);
+      throw new SignTransactionError(`Transaction signing failed: ${error}`);
     }
   }
 }

@@ -8,7 +8,8 @@ import { lastValueFrom } from "rxjs";
 
 import { accountModuleTypes } from "../../account/accountModuleTypes.js";
 import type { AccountService } from "../../account/service/AccountService.js";
-import { originToken } from "../../config/config.js";
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
@@ -29,6 +30,8 @@ export class SignTypedData {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(accountModuleTypes.AccountService)
     private readonly accountService: AccountService,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
   ) {
     this.logger = loggerFactory("[SignTypedData]");
   }
@@ -55,7 +58,7 @@ export class SignTypedData {
       const dmk = this.deviceManagementKitService.dmk;
       const ethSigner = new SignerEthBuilder({
         dmk,
-        originToken,
+        originToken: this.config.originToken,
         sessionId,
       }).build();
 

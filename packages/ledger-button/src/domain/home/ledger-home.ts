@@ -85,7 +85,7 @@ export class LedgerHomeScreen extends LitElement {
   override render() {
     const account = this.controller.getSelectedAccount();
     if (!account) {
-      return;
+      return html`<div>No account selected</div>`;
     }
 
     const lang = this.languages.currentTranslation;

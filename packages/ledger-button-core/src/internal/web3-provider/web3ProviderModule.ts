@@ -3,10 +3,11 @@ import { ContainerModule } from "inversify";
 import { LedgerRemoteDatasource } from "./datasource/LedgerRemoteDatasource.js";
 import { StubLedgerRemoteDatasource } from "./datasource/StubLedgerRemoteDatasource.js";
 import { JSONRPCCallUseCase } from "./use-case/JSONRPCRequest.js";
-import { ContainerOptions } from "../diTypes.js";
 import { web3ProviderModuleTypes } from "./web3ProviderModuleTypes.js";
 
-type Web3ProviderModuleOptions = Pick<ContainerOptions, "stub">;
+type Web3ProviderModuleOptions = {
+  stub?: boolean;
+};
 
 export function web3ProviderModuleFactory({ stub }: Web3ProviderModuleOptions) {
   return new ContainerModule(({ bind, rebindSync }) => {

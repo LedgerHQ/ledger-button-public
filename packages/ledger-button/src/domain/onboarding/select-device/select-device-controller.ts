@@ -1,15 +1,11 @@
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { type Destinations } from "../../../shared/routes.js";
 
 export class SelectDeviceController implements ReactiveController {
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
-    private readonly navigation: Navigation,
-    private readonly destinations: Destinations,
   ) {
     this.host.addController(this);
   }
@@ -34,9 +30,8 @@ export class SelectDeviceController implements ReactiveController {
 
     try {
       await this.core.connectToDevice(detail.connectionType);
-
+      /*
       const pendingTransactionParams = this.core.getPendingTransactionParams();
-
       if (pendingTransactionParams) {
         this.navigation.navigateTo(this.destinations.signTransaction);
         return;
@@ -44,6 +39,10 @@ export class SelectDeviceController implements ReactiveController {
 
       this.navigation.navigateTo(this.destinations.ledgerSync);
       return;
+      } else {
+        this.navigation.navigateTo(this.destinations.onboardingFlow);
+      }
+      */
     } catch (error) {
       console.error("Failed to connect to device", error);
     }

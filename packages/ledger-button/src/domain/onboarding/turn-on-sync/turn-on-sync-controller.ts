@@ -1,4 +1,3 @@
-import { Device } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
@@ -6,7 +5,6 @@ import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
 export class TurnOnSyncController implements ReactiveController {
   host: ReactiveControllerHost;
-  device?: Device;
 
   constructor(
     host: ReactiveControllerHost,
@@ -21,17 +19,20 @@ export class TurnOnSyncController implements ReactiveController {
   }
 
   handleTurnOnSync() {
-    // TODO: Redirect to website ? Ledger Live ?
-    console.log("turn on sync");
+    window.open("ledgerlive://ledgersync");
     if (this.navigation.host instanceof RootNavigationComponent) {
       this.navigation.host.closeModal();
     }
   }
 
   handleLearnMore() {
-    // TODO: Open the learn more page
-    // window.open("https://www.ledger.com/ledger-sync", "_blank");
-    console.log("learn more");
+    window
+      .open(
+        "https://support.ledger.com/article/How-to-synchronize-your-Ledger-Live-accounts-with-Ledger-Sync",
+        "_blank",
+      )
+      ?.focus();
+
     if (this.navigation.host instanceof RootNavigationComponent) {
       this.navigation.host.closeModal();
     }

@@ -121,7 +121,7 @@ export class RootNavigationComponent extends LitElement {
             title=${ifDefined(title)}
             aria-label=${ifDefined(title)}
             .showCloseButton=${this.rootNavigationController.currentScreen
-              ?.toolbar.showCloseButton}
+              ?.toolbar.showCloseButton ?? true}
             deviceModelId=${ifDefined(deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-chip-click=${this.handleChipClick}
