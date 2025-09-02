@@ -3,6 +3,8 @@ import { Either, Right } from "purify-ts";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import { type StorageService } from "../../storage/StorageService.js";
 import { AccountServiceError } from "../model/error.js";
 import { Account, AccountService, CloudSyncData } from "./AccountService.js";
 
@@ -15,6 +17,8 @@ export class DefaultAccountService implements AccountService {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
   }
@@ -34,8 +38,10 @@ export class DefaultAccountService implements AccountService {
 
     if (found) {
       this.selectedAccount = found;
-      this.logger.info("Account selected", { account: found });
-      //TODO persist the selected account in the storage
+      this.logger.info("Account selected, saving to storage", {
+        account: found,
+      });
+      this.storageService.saveSelectedAccount(found);
     }
   }
 

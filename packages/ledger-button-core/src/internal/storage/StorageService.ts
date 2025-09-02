@@ -18,6 +18,7 @@ export interface StorageService {
 
   saveTrustChainId(trustChainId: string): void;
   getTrustChainId(): Maybe<string>;
+  isTrustChainValid(): boolean;
   removeTrustChainId(): void;
 
   saveSelectedAccount(selectedAccount: Account | undefined): unknown;
