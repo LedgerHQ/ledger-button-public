@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either } from "purify-ts";
 
+import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { InternalAuthContext } from "../../ledgersync/model/InternalAuthContext.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -19,7 +20,7 @@ export class DefaultCloudSyncService implements CloudSyncService {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<RequestInit>,
-    @inject(Config)
+    @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
     this.logger = loggerFactory("[Cloud Sync Service]");
