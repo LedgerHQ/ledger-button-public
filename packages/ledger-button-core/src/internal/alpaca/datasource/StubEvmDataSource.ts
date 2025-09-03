@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { AlpacaServiceError } from "../model/error.js";
+import { type AlpacaServiceError,AlpacaServiceErrors } from "../model/error.js";
 import { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
 import { EvmDataSource } from "./EvmDataSource.js";
 
@@ -101,7 +101,7 @@ export class StubEvmDataSource implements EvmDataSource {
 
     if (!token) {
       return Left(
-        AlpacaServiceError.tokenFetchError(
+        AlpacaServiceErrors.tokenFetchError(
           address,
           chainConfig.name,
           new Error("Token not found in stub data"),

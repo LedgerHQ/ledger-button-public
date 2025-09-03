@@ -1,5 +1,15 @@
 export * from "../internal/account/service/AccountService.js";
-export { AlpacaServiceError } from "../internal/alpaca/model/error.js";
+export type { AlpacaServiceError } from "../internal/alpaca/model/error.js";
+export {
+  AlpacaApiError,
+  AlpacaBalanceFetchError,
+  AlpacaInvalidAddressError,
+  AlpacaNetworkError,
+  AlpacaServiceErrors,
+  AlpacaTokenFetchError,
+  AlpacaUnknownError,
+  AlpacaUnsupportedChainError,
+} from "../internal/alpaca/model/error.js";
 export type {
   AlpacaBalanceRequest,
   AlpacaBalanceResponse,

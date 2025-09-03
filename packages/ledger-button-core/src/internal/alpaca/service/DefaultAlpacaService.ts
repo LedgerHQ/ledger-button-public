@@ -5,7 +5,7 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { alpacaModuleTypes } from "../alpacaModuleTypes.js";
 import { type EvmDataSource } from "../datasource/EvmDataSource.js";
-import { AlpacaServiceError } from "../model/error.js";
+import { type AlpacaServiceError,AlpacaServiceErrors } from "../model/error.js";
 import {
   AlpacaBalanceRequest,
   AlpacaBalanceResponse,
@@ -37,13 +37,13 @@ export class DefaultAlpacaService implements AlpacaService {
     });
 
     if (!this.isValidAddress(request.address)) {
-      const error = AlpacaServiceError.invalidAddress(request.address);
+      const error = AlpacaServiceErrors.invalidAddress(request.address);
       this.logger.error("Invalid address format", { error });
       return Left(error);
     }
 
     if (!this.isSupportedChain(request.currencyId)) {
-      const error = AlpacaServiceError.unsupportedChain(request.currencyId);
+      const error = AlpacaServiceErrors.unsupportedChain(request.currencyId);
       this.logger.error("Unsupported chain", { error });
       return Left(error);
     }
@@ -57,7 +57,7 @@ export class DefaultAlpacaService implements AlpacaService {
       ]);
 
       if (nativeBalanceResult.isLeft()) {
-        const error = AlpacaServiceError.balanceFetchError(
+        const error = AlpacaServiceErrors.balanceFetchError(
           request.address,
           request.currencyId,
           nativeBalanceResult.extract(),
@@ -108,7 +108,7 @@ export class DefaultAlpacaService implements AlpacaService {
 
       return Right(response);
     } catch (error) {
-      const serviceError = AlpacaServiceError.unknownError(
+      const serviceError = AlpacaServiceErrors.unknownError(
         `Unexpected error while fetching balance for ${request.address} on ${request.currencyId}`,
         error,
       );

@@ -4,7 +4,7 @@ import { Either, Left, Right } from "purify-ts";
 import type { NetworkServiceOpts } from "../../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../network/NetworkService.js";
-import { AlpacaServiceError } from "../model/error.js";
+import { type AlpacaServiceError,AlpacaServiceErrors } from "../model/error.js";
 import type { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
 import type { EvmDataSource } from "./EvmDataSource.js";
 
@@ -65,14 +65,14 @@ export class DefaultEvmDataSource implements EvmDataSource {
     );
 
     return result.mapLeft((error) =>
-      AlpacaServiceError.networkError(
+      AlpacaServiceErrors.networkError(
         `Network request failed: ${error.message}`,
         error,
       ),
     ).chain((jsonResponse) => {
       if (jsonResponse.error) {
         return Left(
-          AlpacaServiceError.apiError(
+          AlpacaServiceErrors.apiError(
             `RPC Error: ${jsonResponse.error.message}`,
             jsonResponse.error,
           ),
@@ -81,7 +81,7 @@ export class DefaultEvmDataSource implements EvmDataSource {
 
       if (jsonResponse.result === undefined) {
         return Left(
-          AlpacaServiceError.apiError("RPC response missing result field"),
+          AlpacaServiceErrors.apiError("RPC response missing result field"),
         );
       }
 

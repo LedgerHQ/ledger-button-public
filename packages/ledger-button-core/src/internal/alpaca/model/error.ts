@@ -1,76 +1,107 @@
-export class AlpacaServiceError extends Error {
-  constructor(
-    public readonly code:
-      | "NETWORK_ERROR"
-      | "INVALID_ADDRESS"
-      | "UNSUPPORTED_CHAIN"
-      | "API_ERROR"
-      | "BALANCE_FETCH_ERROR"
-      | "TOKEN_FETCH_ERROR"
-      | "UNKNOWN_ERROR",
-    message: string,
-    public readonly originalError?: unknown,
-  ) {
-    super(message);
-    this.name = "AlpacaServiceError";
-  }
+import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
 
-  static networkError(
-    message: string,
-    originalError?: unknown,
-  ): AlpacaServiceError {
-    return new AlpacaServiceError("NETWORK_ERROR", message, originalError);
-  }
-
-  static invalidAddress(address: string): AlpacaServiceError {
-    return new AlpacaServiceError(
-      "INVALID_ADDRESS",
-      `Invalid address format: ${address}`,
-    );
-  }
-
-  static unsupportedChain(currencyId: string): AlpacaServiceError {
-    return new AlpacaServiceError(
-      "UNSUPPORTED_CHAIN",
-      `Unsupported chain: ${currencyId}`,
-    );
-  }
-
-  static apiError(
-    message: string,
-    originalError?: unknown,
-  ): AlpacaServiceError {
-    return new AlpacaServiceError("API_ERROR", message, originalError);
-  }
-
-  static balanceFetchError(
-    address: string,
-    currencyId: string,
-    originalError?: unknown,
-  ): AlpacaServiceError {
-    return new AlpacaServiceError(
-      "BALANCE_FETCH_ERROR",
-      `Failed to fetch balance for address ${address} on ${currencyId}`,
-      originalError,
-    );
-  }
-
-  static tokenFetchError(
-    address: string,
-    currencyId: string,
-    originalError?: unknown,
-  ): AlpacaServiceError {
-    return new AlpacaServiceError(
-      "TOKEN_FETCH_ERROR",
-      `Failed to fetch token balances for address ${address} on ${currencyId}`,
-      originalError,
-    );
-  }
-
-  static unknownError(
-    message: string,
-    originalError?: unknown,
-  ): AlpacaServiceError {
-    return new AlpacaServiceError("UNKNOWN_ERROR", message, originalError);
+export class AlpacaNetworkError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "AlpacaNetworkError", context);
   }
 }
+
+export class AlpacaInvalidAddressError extends LedgerButtonError {
+  constructor(address: string, context?: Record<string, unknown>) {
+    super(
+      `Invalid address format: ${address}`,
+      "AlpacaInvalidAddressError",
+      { address, ...context }
+    );
+  }
+}
+
+export class AlpacaUnsupportedChainError extends LedgerButtonError {
+  constructor(currencyId: string, context?: Record<string, unknown>) {
+    super(
+      `Unsupported chain: ${currencyId}`,
+      "AlpacaUnsupportedChainError",
+      { currencyId, ...context }
+    );
+  }
+}
+
+export class AlpacaApiError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "AlpacaApiError", context);
+  }
+}
+
+export class AlpacaBalanceFetchError extends LedgerButtonError {
+  constructor(
+    address: string,
+    currencyId: string,
+    context?: Record<string, unknown>
+  ) {
+    super(
+      `Failed to fetch balance for address ${address} on ${currencyId}`,
+      "AlpacaBalanceFetchError",
+      { address, currencyId, ...context }
+    );
+  }
+}
+
+export class AlpacaTokenFetchError extends LedgerButtonError {
+  constructor(
+    address: string,
+    currencyId: string,
+    context?: Record<string, unknown>
+  ) {
+    super(
+      `Failed to fetch token balances for address ${address} on ${currencyId}`,
+      "AlpacaTokenFetchError",
+      { address, currencyId, ...context }
+    );
+  }
+}
+
+export class AlpacaUnknownError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "AlpacaUnknownError", context);
+  }
+}
+
+export type AlpacaServiceError =
+  | AlpacaNetworkError
+  | AlpacaInvalidAddressError
+  | AlpacaUnsupportedChainError
+  | AlpacaApiError
+  | AlpacaBalanceFetchError
+  | AlpacaTokenFetchError
+  | AlpacaUnknownError;
+
+export const AlpacaServiceErrors = {
+  networkError: (message: string, originalError?: unknown): AlpacaNetworkError =>
+    new AlpacaNetworkError(message, { originalError }),
+
+  invalidAddress: (address: string): AlpacaInvalidAddressError =>
+    new AlpacaInvalidAddressError(address),
+
+  unsupportedChain: (currencyId: string): AlpacaUnsupportedChainError =>
+    new AlpacaUnsupportedChainError(currencyId),
+
+  apiError: (message: string, originalError?: unknown): AlpacaApiError =>
+    new AlpacaApiError(message, { originalError }),
+
+  balanceFetchError: (
+    address: string,
+    currencyId: string,
+    originalError?: unknown
+  ): AlpacaBalanceFetchError =>
+    new AlpacaBalanceFetchError(address, currencyId, { originalError }),
+
+  tokenFetchError: (
+    address: string,
+    currencyId: string,
+    originalError?: unknown
+  ): AlpacaTokenFetchError =>
+    new AlpacaTokenFetchError(address, currencyId, { originalError }),
+
+  unknownError: (message: string, originalError?: unknown): AlpacaUnknownError =>
+    new AlpacaUnknownError(message, { originalError }),
+};
