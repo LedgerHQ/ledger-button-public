@@ -1,9 +1,12 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import type { NetworkServiceOpts } from "../../network/DefaultNetworkService.js";
+import { networkModuleTypes } from "../../network/networkModuleTypes.js";
+import type { NetworkService } from "../../network/NetworkService.js";
 import { AlpacaServiceError } from "../model/error.js";
-import { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
-import { EvmDataSource } from "./EvmDataSource.js";
+import type { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
+import type { EvmDataSource } from "./EvmDataSource.js";
 
 interface JsonRpcRequest {
   jsonrpc: string;
@@ -27,6 +30,11 @@ interface JsonRpcResponse<T = unknown> {
 export class DefaultEvmDataSource implements EvmDataSource {
   private requestId = 1;
 
+  constructor(
+    @inject(networkModuleTypes.NetworkService)
+    private readonly networkService: NetworkService<NetworkServiceOpts>,
+  ) {}
+
   private createJsonRpcRequest(
     method: string,
     params: unknown[],
@@ -44,27 +52,24 @@ export class DefaultEvmDataSource implements EvmDataSource {
     method: string,
     params: unknown[],
   ): Promise<Either<AlpacaServiceError, T>> {
-    try {
-      const request = this.createJsonRpcRequest(method, params);
+    const request = this.createJsonRpcRequest(method, params);
 
-      const response = await fetch(chainConfig.rpcUrl, {
-        method: "POST",
+    const result = await this.networkService.post<JsonRpcResponse<T>>(
+      chainConfig.rpcUrl,
+      JSON.stringify(request),
+      {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request),
-      });
+      },
+    );
 
-      if (!response.ok) {
-        return Left(
-          AlpacaServiceError.networkError(
-            `HTTP ${response.status}: ${response.statusText}`,
-          ),
-        );
-      }
-
-      const jsonResponse: JsonRpcResponse = await response.json();
-
+    return result.mapLeft((error) =>
+      AlpacaServiceError.networkError(
+        `Network request failed: ${error.message}`,
+        error,
+      ),
+    ).chain((jsonResponse) => {
       if (jsonResponse.error) {
         return Left(
           AlpacaServiceError.apiError(
@@ -74,23 +79,14 @@ export class DefaultEvmDataSource implements EvmDataSource {
         );
       }
 
-      if (!jsonResponse.result) {
+      if (jsonResponse.result === undefined) {
         return Left(
           AlpacaServiceError.apiError("RPC response missing result field"),
         );
       }
 
-      return Right(jsonResponse.result as T);
-    } catch (error) {
-      return Left(
-        AlpacaServiceError.networkError(
-          `Failed to make RPC call: ${
-            error instanceof Error ? error.message : "Unknown error"
-          }`,
-          error,
-        ),
-      );
-    }
+      return Right(jsonResponse.result);
+    });
   }
 
   async getNativeBalance(
@@ -130,27 +126,16 @@ export class DefaultEvmDataSource implements EvmDataSource {
     address: string,
     chainConfig: EvmChainConfig,
   ): Promise<Either<AlpacaServiceError, boolean>> {
-    try {
-      const nonceResult = await this.makeRpcCall<string>(
-        chainConfig,
-        "eth_getTransactionCount",
-        [address, "latest"],
-      );
+    const nonceResult = await this.makeRpcCall<string>(
+      chainConfig,
+      "eth_getTransactionCount",
+      [address, "latest"],
+    );
 
-      return nonceResult.map((hexNonce) => {
-        const nonce = parseInt(hexNonce, 16);
-        return nonce > 0;
-      });
-    } catch (error) {
-      return Left(
-        AlpacaServiceError.networkError(
-          `Failed to check transaction history: ${
-            error instanceof Error ? error.message : "Unknown error"
-          }`,
-          error,
-        ),
-      );
-    }
+    return nonceResult.map((hexNonce) => {
+      const nonce = parseInt(hexNonce, 16);
+      return nonce > 0;
+    });
   }
 
   private formatBalance(balance: bigint, decimals: number): string {
