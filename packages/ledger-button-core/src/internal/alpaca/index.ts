@@ -3,7 +3,7 @@ export { alpacaModuleTypes } from "./alpacaModuleTypes.js";
 export { DefaultEvmDataSource } from "./datasource/DefaultEvmDataSource.js";
 export type { EvmDataSource } from "./datasource/EvmDataSource.js";
 export { StubEvmDataSource } from "./datasource/StubEvmDataSource.js";
-export { AlpacaServiceError } from "./model/error.js";
+export type { AlpacaServiceError } from "./model/error.js";
 export type {
   AlpacaBalanceRequest,
   AlpacaBalanceResponse,
