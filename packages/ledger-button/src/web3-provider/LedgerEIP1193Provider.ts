@@ -37,6 +37,7 @@ export class LedgerEIP1193Provider
   private _isConnected = false;
   private _supportedChains: Map<string, ChainInfo> = new Map();
   private _selectedAccount: string | null = null;
+  private _selectedChainId = "0x01";
 
   private _id = 0;
 
@@ -125,6 +126,8 @@ export class LedgerEIP1193Provider
           );
           // TODO: replace with real connection logic
           this._selectedAccount = e.detail.account.freshAddress;
+          // TODO: create mapping between chainId and account.currencyId
+          this._selectedChainId = "0x01"; // TODO: fetch the chain id from ?
           this._isConnected = true;
           resolve([e.detail.account.freshAddress]);
         },
@@ -208,12 +211,12 @@ export class LedgerEIP1193Provider
           bubbles: true,
           composed: true,
           detail: {
-            chainId: "0x1",
+            chainId: this._selectedChainId,
           },
         }),
       );
 
-      resolve("0x1");
+      resolve(this._selectedChainId);
     });
   }
 
@@ -336,7 +339,7 @@ export class LedgerEIP1193Provider
     return error;
   }
 
-  //TODO check if still needed
+  //TODO: check if still needed
   private initializeSupportedChains(): void {
     // NOTE: Initialize with common Ethereum chains (infos to be verified!)
     this._supportedChains.set("0x1", {

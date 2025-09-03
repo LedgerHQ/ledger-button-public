@@ -42,6 +42,8 @@ export class DefaultAccountService implements AccountService {
   ): Promise<void> {
     const mappedAccounts = await this.mapCloudSyncDataToAccounts(cloudsyncData);
 
+    console.log("mappedAccounts", mappedAccounts);
+
     this.setAccounts(mappedAccounts);
   }
 
