@@ -122,23 +122,8 @@ export class DefaultEvmDataSource implements EvmDataSource {
     address: string,
     chainConfig: EvmChainConfig,
   ): Promise<Either<AlpacaServiceError, TokenBalance[]>> {
-    try {
-      const hasHistory = await this.hasTransactionHistory(address, chainConfig);
-
-      if (hasHistory.isLeft()) {
-        return Left(hasHistory.extract());
-      }
-
-      if (!hasHistory.extract()) {
-        return Right([]);
-      }
-
-      return Right([]);
-    } catch (error) {
-      return Left(
-        AlpacaServiceError.tokenFetchError(address, chainConfig.name, error),
-      );
-    }
+    return (await this.hasTransactionHistory(address, chainConfig))
+      .map(_hasHistory => []);
   }
 
   async hasTransactionHistory(
