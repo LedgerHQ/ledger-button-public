@@ -200,9 +200,27 @@ export class LedgerEIP1193Provider
     });
   }
 
+  // TODO: Implement this
+  handleChainId(): Promise<string> {
+    return new Promise((resolve) => {
+      this.dispatchEvent(
+        new CustomEvent("chainChanged", {
+          bubbles: true,
+          composed: true,
+          detail: {
+            chainId: "0x1",
+          },
+        }),
+      );
+
+      resolve("0x1");
+    });
+  }
+
   handlers = {
     eth_accounts: (_: unknown) => this.handleAccounts(),
     eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
+    eth_chainId: (_: unknown) => this.handleChainId(),
     // NOTE: DEFERRED TO CORE
     // eth_sendTransaction: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
@@ -228,6 +246,7 @@ export class LedgerEIP1193Provider
       );
     }
 
+    console.log("request JSONRPC", method, params);
     return this.core.jsonRpcRequest({
       jsonrpc: "2.0",
       id: this._id++,
