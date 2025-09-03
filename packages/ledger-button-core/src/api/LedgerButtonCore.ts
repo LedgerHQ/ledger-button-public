@@ -42,7 +42,7 @@ import { TransactionResult } from "../internal/transaction/service/TransactionSe
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
-import * as web3ProviderModuleTypes from "../internal/web3-provider/web3ProviderModuleTypes.js";
+import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
@@ -257,7 +257,7 @@ export class LedgerButtonCore {
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container
-      .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.web3ProviderModuleTypes.JSONRPCCallUseCase)
+      .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
   }
 
