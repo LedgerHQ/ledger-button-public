@@ -5,6 +5,7 @@ import type {
   BroadcastResponse,
   ConfigRequest,
   ConfigResponse,
+  ConfigResponseError,
 } from "./types.js";
 
 export interface BackendService {
@@ -17,5 +18,5 @@ export interface BackendService {
   getConfig(
     request: ConfigRequest,
     domain?: string,
-  ): Promise<Either<Error, ConfigResponse>>;
+  ): Promise<Either<ConfigResponseError, ConfigResponse>>;
 }

@@ -16,6 +16,8 @@ import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../internal/dAppConfig/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -84,18 +86,27 @@ export class LedgerButtonCore {
       .getTrustChainId()
       .extract();
 
+    const isTrustChainValid = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .isTrustChainValid();
+
+    if (trustChainId && !isTrustChainValid) {
+      this._logger.debug("Logging out, trust chain is expired");
+      await this.disconnect();
+    }
+
     // Restore context
     this._currentContext.next({
       connectedDevice: undefined,
-      selectedAccount: selectedAccount,
-      trustChainId: trustChainId,
+      selectedAccount: isTrustChainValid ? selectedAccount : undefined,
+      trustChainId: isTrustChainValid ? trustChainId : undefined,
       applicationPath: undefined,
     });
   }
 
   async disconnect() {
     this._logger.debug("Disconnecting from device");
-    this.disconnectFromDevice();
+    await this.disconnectFromDevice();
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
@@ -112,6 +123,7 @@ export class LedgerButtonCore {
     } catch (error) {
       this._logger.error("Error unbinding container", { error });
     } finally {
+      this._logger.debug("Recreating container");
       this.container = createContainer(this.opts);
     }
   }
@@ -149,6 +161,13 @@ export class LedgerButtonCore {
     return result;
   }
 
+  async getReferralUrl() {
+    return this.container
+      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .get("referralUrl")
+      .then((res) => res.unsafeCoerce());
+  }
+
   async switchDevice(type: ConnectionType) {
     this._logger.debug("Switching device", { type });
     return this.container
@@ -180,13 +199,6 @@ export class LedgerButtonCore {
     const selectedAccount = this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .getSelectedAccount();
-
-    if (selectedAccount) {
-      this._logger.debug("Saving selected account", { selectedAccount });
-      this.container
-        .get<StorageService>(storageModuleTypes.StorageService)
-        .saveSelectedAccount(selectedAccount);
-    }
 
     this._currentContext.next({
       connectedDevice: this._currentContext.value.connectedDevice,

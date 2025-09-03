@@ -15,7 +15,12 @@ export class SelectDeviceController implements ReactiveController {
   }
 
   async clickAdItem() {
-    console.log("clickAdItem");
+    await this.core
+      .getReferralUrl()
+      .then((url) => window.open(url, "_blank"))
+      .catch((error) =>
+        console.error("Failed to get a valid referral url", error),
+      );
   }
 
   async connectToDevice(detail: {

@@ -31,6 +31,7 @@ export function initializeLedgerProvider({
     account: false,
     device: false,
     web3Provider: false,
+    dAppConfig: false,
   },
   target = document.body,
   dAppIdentifier = "",

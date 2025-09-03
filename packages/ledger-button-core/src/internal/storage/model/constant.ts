@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
   DB_STORE_KEYPAIR_KEY: "keyPair",
   SELECTED_ACCOUNT: "selectedAccount",
   TRUST_CHAIN_ID: "trustChainId",
+  TRUST_CHAIN_VALIDITY: "trustChainValidity",
 };
