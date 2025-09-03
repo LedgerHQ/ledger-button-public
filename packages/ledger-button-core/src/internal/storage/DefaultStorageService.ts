@@ -213,12 +213,28 @@ export class DefaultStorageService implements StorageService {
   // Trust Chain ID
   saveTrustChainId(_trustChainId: string): void {
     this.saveItem(STORAGE_KEYS.TRUST_CHAIN_ID, _trustChainId);
+    this.saveItem(STORAGE_KEYS.TRUST_CHAIN_VALIDITY, new Date().getTime());
   }
+
   getTrustChainId(): Maybe<string> {
     return this.getItem(STORAGE_KEYS.TRUST_CHAIN_ID);
   }
+
   removeTrustChainId(): void {
     this.removeItem(STORAGE_KEYS.TRUST_CHAIN_ID);
+    this.removeItem(STORAGE_KEYS.TRUST_CHAIN_VALIDITY);
+  }
+
+  isTrustChainValid(): boolean {
+    return this.getItem<number>(STORAGE_KEYS.TRUST_CHAIN_VALIDITY)
+      .map((value) => {
+        const ms30days = 30 * 24 * 60 * 60 * 1000;
+        const storedDate = new Date(value);
+        const validity = new Date(storedDate.getTime() + ms30days);
+        const now = new Date();
+        return validity > now;
+      })
+      .orDefault(false);
   }
 
   // Selected Account
