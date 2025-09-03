@@ -90,7 +90,16 @@ export class DefaultAccountService implements AccountService {
         const blockchain = supportedBlockchains.get(account.currencyId);
         const ticker = blockchain?.currency_ticker;
         const name = accountNames[account.id] ?? account.id;
-        return ticker ? { ...account, name, ticker } : [];
+        return ticker
+          ? {
+              ...account,
+              name,
+              ticker,
+              derivationMode: account.derivationMode
+                ? account.derivationMode
+                : "44'/60'/0'/0/0",
+            }
+          : [];
       }),
     );
   }
