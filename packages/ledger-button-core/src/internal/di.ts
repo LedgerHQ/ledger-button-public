@@ -5,6 +5,7 @@ import { backendModuleFactory } from "./backend/backendModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
+import { dAppConfigModuleFactory } from "./dAppConfig/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
@@ -20,6 +21,7 @@ export function createContainer({
     account: false,
     device: false,
     web3Provider: false,
+    dAppConfig: false,
   },
   supportedNetworks: _supportedNetworks = [],
   loggerLevel = "info",
@@ -34,6 +36,7 @@ export function createContainer({
     loggerModuleFactory({ stub: stub.base }),
     accountModuleFactory({ stub: stub.account }),
     backendModuleFactory({ stub: stub.base }),
+    dAppConfigModuleFactory({ stub: stub.dAppConfig }),
     deviceModuleFactory({ stub: stub.device, dmkConfig }),
     storageModuleFactory({ stub: stub.base }),
     networkModuleFactory({ stub: stub.base }),

@@ -13,6 +13,8 @@ import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../internal/dAppConfig/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -154,6 +156,13 @@ export class LedgerButtonCore {
     });
 
     return result;
+  }
+
+  async getReferralUrl() {
+    return this.container
+      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .get("referralUrl")
+      .then((res) => res.unsafeCoerce());
   }
 
   async switchDevice(type: ConnectionType) {

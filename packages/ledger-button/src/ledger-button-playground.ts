@@ -60,10 +60,12 @@ export class LedgerButtonPlayground extends LitElement {
 
   createApp() {
     initializeLedgerProvider({
+      dAppIdentifier: "ledger-button-playground",
       stub: {
         base: true,
         device: false,
         web3Provider: true,
+        dAppConfig: false,
       },
       target: this.app,
     });

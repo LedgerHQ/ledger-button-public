@@ -1,4 +1,7 @@
+import { infer as ZodInfer, ZodError } from "zod";
+
 import type { JSONRPCRequest } from "../web3-provider/model/EIPTypes.js";
+import { ConfigResponseSchema } from "./schemas.js";
 
 export type Blockchain = {
   name: string;
@@ -24,22 +27,8 @@ export type ConfigRequest = {
   dAppIdentifier: string;
 };
 
-export type SupportedBlockchain = {
-  blockchain: string;
-  chain_ids: string[];
-};
-
-export type AppDependency = {
-  blockchain: string;
-  appName: string;
-  dependencies: string[];
-};
-
-export type ConfigResponse = {
-  supportedBlockchains: SupportedBlockchain[];
-  referralUrl: string;
-  domainUrl: string;
-  appDependencies: AppDependency[];
-};
+export type ConfigResponse = ZodInfer<typeof ConfigResponseSchema>;
 
 export type BackendServiceError = Error;
+
+export type ConfigResponseError = Error | ZodError;

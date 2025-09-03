@@ -43,6 +43,7 @@ export const useProviders = () => {
         base: true,
         device: false,
         web3Provider: true,
+        dAppConfig: true, // NOTE: stub the config until the backend is ready
       },
     });
 

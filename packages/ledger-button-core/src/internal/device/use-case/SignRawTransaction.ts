@@ -4,12 +4,16 @@ import {
 } from "@ledgerhq/device-management-kit";
 import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
+import { EitherAsync, Left, Right } from "purify-ts";
 import { lastValueFrom } from "rxjs";
 import { keccak256 } from "viem";
 
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/DAppConfigService.js";
+import { DAppConfig, DAppConfigError } from "../../dAppConfig/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -35,6 +39,10 @@ export interface SignedTransaction {
 @injectable()
 export class SignRawTransaction {
   private readonly logger: LoggerPublisher;
+  private readonly appDependencies: EitherAsync<
+    DAppConfigError,
+    DAppConfig["appDependencies"]
+  >;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -45,8 +53,11 @@ export class SignRawTransaction {
     private readonly storageService: StorageService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
+    @inject(dAppConfigModuleTypes.DAppConfigService)
+    dappConfigService: DAppConfigService,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
+    this.appDependencies = dappConfigService.get("appDependencies");
   }
 
   async execute(params: SignRawTransactionParams): Promise<SignedTransaction> {
@@ -95,18 +106,26 @@ export class SignRawTransaction {
 
       const derivationPath = account.derivationMode ?? "44'/60'/0'/0/0";
 
-      //TODO use config for launching and installing the app
+      const openAppConfig = await this.appDependencies
+        .map((deps) => deps.find((dep) => dep.appName === "Ethereum"))
+        .map((dep) =>
+          dep
+            ? Right(dep)
+            : Left(new Error("Ethereum app dependencies not found")),
+        )
+        .chain(EitherAsync.liftEither)
+        .map(({ appName, dependencies }) => ({
+          application: { name: appName },
+          dependencies: dependencies.map((name) => ({ name })),
+          requireLatestFirmware: false,
+        }))
+        .run();
+
       const openResult = await lastValueFrom(
         dmk.executeDeviceAction({
           sessionId: sessionId,
           deviceAction: new OpenAppWithDependenciesDeviceAction({
-            input: {
-              application: {
-                name: "Ethereum",
-              },
-              dependencies: [],
-              requireLatestFirmware: false,
-            },
+            input: openAppConfig.unsafeCoerce(),
             inspect: false,
           }),
         }).observable,

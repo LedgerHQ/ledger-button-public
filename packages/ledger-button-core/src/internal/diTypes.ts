@@ -10,6 +10,7 @@ export type ContainerOptions = {
     account: boolean;
     device: boolean;
     web3Provider: boolean;
+    dAppConfig: boolean;
   }>;
   supportedNetworks?: string[];
   loggerLevel?: LogLevelKey;
