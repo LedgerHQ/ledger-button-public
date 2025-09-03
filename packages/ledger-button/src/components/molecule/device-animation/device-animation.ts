@@ -2,31 +2,25 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { default as PinFlexDark } from "./flex/01_EUROPA_DARK_PIN.json";
-import { default as PairingFlexDark } from "./flex/02_EUROPA_DARK_PAIRING.json";
-import { default as PairedSuccessFlexDark } from "./flex/03_EUROPA_DARK_PAIRED_SUCCESS.json";
+// import { default as PairingFlexDark } from "./flex/02_EUROPA_DARK_PAIRING.json";
+// import { default as PairedSuccessFlexDark } from "./flex/03_EUROPA_DARK_PAIRED_SUCCESS.json";
 import { default as ContinueOnLedgerFlexDark } from "./flex/04_EUROPA_DARK_CONTINUE_ON_LEDGER.json";
 import { default as SignTransactionFlexDark } from "./flex/05_EUROPA_DARK_SIGN_TRANSACTION.json";
-import { default as FrontViewFlexDark } from "./flex/06_STAX_DARK_FRONT_VIEW.json";
+// import { default as FrontViewFlexDark } from "./flex/06_STAX_DARK_FRONT_VIEW.json";
 import { default as PinNanoSDark } from "./nanosp/01_NANO_S_DARK_PIN.json";
 import { default as ContinueOnLedgerNanoSDark } from "./nanosp/02_NANO_S_DARK_CONTINUE_ON_YOUR_LEDGER.json";
 import { default as PinNanoXDark } from "./nanox/01_NANO_X_DARK_PIN.json";
-import { default as PairingNanoXDark } from "./nanox/02_NANO_X_DARK_PAIRING.json";
+// import { default as PairingNanoXDark } from "./nanox/02_NANO_X_DARK_PAIRING.json";
 import { default as ContinueOnLedgerNanoXDark } from "./nanox/03_NANO_X_DARK_CONTINUE_ON_YOUR_LEDGER.json";
 import { default as PinStaxDark } from "./stax/01_STAX_DARK_PIN.json";
-import { default as PairingStaxDark } from "./stax/02_STAX_DARK_PAIRING.json";
-import { default as PairedSuccessStaxDark } from "./stax/03_STAX_DARK_PAIRED_SUCCESS.json";
+// import { default as PairingStaxDark } from "./stax/02_STAX_DARK_PAIRING.json";
+// import { default as PairedSuccessStaxDark } from "./stax/03_STAX_DARK_PAIRED_SUCCESS.json";
 import { default as ContinueOnLedgerStaxDark } from "./stax/04_STAX_DARK_CONTINUE_ON_LEDGER.json";
 import { default as SignTransactionStaxDark } from "./stax/05_STAX_DARK_SIGN_TRANSACTION.json";
-import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
+// import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
 import { tailwindElement } from "../../../tailwind-element.js";
 
-export type AnimationKey =
-  | "pin"
-  | "pairing"
-  | "pairingSuccess"
-  | "frontView"
-  | "continueOnLedger"
-  | "signTransaction";
+export type AnimationKey = "pin" | "continueOnLedger" | "signTransaction";
 
 type DeviceModelId = "nanos" | "nanosp" | "nanox" | "stax" | "flex";
 
@@ -36,41 +30,26 @@ export const animationDataMap: Record<
 > = {
   stax: {
     pin: PinStaxDark,
-    pairing: PairingStaxDark,
-    pairingSuccess: PairedSuccessStaxDark,
-    frontView: FrontViewStaxDark,
     continueOnLedger: ContinueOnLedgerStaxDark,
     signTransaction: SignTransactionStaxDark,
   },
   flex: {
     pin: PinFlexDark,
-    pairing: PairingFlexDark,
-    pairingSuccess: PairedSuccessFlexDark,
-    frontView: FrontViewFlexDark,
     continueOnLedger: ContinueOnLedgerFlexDark,
     signTransaction: SignTransactionFlexDark,
   },
   nanox: {
     pin: PinNanoXDark,
-    pairing: PairingNanoXDark,
-    pairingSuccess: null,
-    frontView: null,
     continueOnLedger: ContinueOnLedgerNanoXDark,
     signTransaction: ContinueOnLedgerNanoXDark,
   },
   nanos: {
     pin: PinNanoSDark,
-    pairing: null,
-    pairingSuccess: null,
-    frontView: null,
     continueOnLedger: ContinueOnLedgerNanoSDark,
     signTransaction: ContinueOnLedgerNanoSDark,
   },
   nanosp: {
     pin: PinNanoSDark,
-    pairing: null,
-    pairingSuccess: null,
-    frontView: null,
     continueOnLedger: ContinueOnLedgerNanoSDark,
     signTransaction: ContinueOnLedgerNanoSDark,
   },
