@@ -4,27 +4,10 @@ import { Either, Left, Right } from "purify-ts";
 import type { NetworkServiceOpts } from "../../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../network/NetworkService.js";
+import type { JSONRPCRequest, JSONRPCResponse } from "../../web3-provider/model/EIPTypes.js";
 import { type AlpacaServiceError,AlpacaServiceErrors } from "../model/error.js";
 import type { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
 import type { EvmDataSource } from "./EvmDataSource.js";
-
-interface JsonRpcRequest {
-  jsonrpc: string;
-  method: string;
-  params: unknown[];
-  id: number;
-}
-
-interface JsonRpcResponse<T = unknown> {
-  jsonrpc: string;
-  id: number;
-  result?: T;
-  error?: {
-    code: number;
-    message: string;
-    data?: unknown;
-  };
-}
 
 @injectable()
 export class DefaultEvmDataSource implements EvmDataSource {
@@ -38,7 +21,7 @@ export class DefaultEvmDataSource implements EvmDataSource {
   private createJsonRpcRequest(
     method: string,
     params: unknown[],
-  ): JsonRpcRequest {
+  ): JSONRPCRequest {
     return {
       jsonrpc: "2.0",
       method,
@@ -54,7 +37,7 @@ export class DefaultEvmDataSource implements EvmDataSource {
   ): Promise<Either<AlpacaServiceError, T>> {
     const request = this.createJsonRpcRequest(method, params);
 
-    const result = await this.networkService.post<JsonRpcResponse<T>>(
+    const result = await this.networkService.post<JSONRPCResponse>(
       chainConfig.rpcUrl,
       JSON.stringify(request),
       {
@@ -85,7 +68,7 @@ export class DefaultEvmDataSource implements EvmDataSource {
         );
       }
 
-      return Right(jsonResponse.result);
+      return Right(jsonResponse.result as T);
     });
   }
 
