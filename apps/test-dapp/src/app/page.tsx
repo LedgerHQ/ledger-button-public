@@ -21,11 +21,14 @@ let Provider:
 export default function Index() {
   const { providers, selectedProvider, setSelectedProvider } = useProviders();
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenTransaction, setIsOpenTransaction] = useState(false);
+  const [modalType, setModalType] = useState<
+    "accounts" | "sign" | "send" | null
+  >(null);
   const [account, setAccount] = useState<string | null>(null);
   const [balance, setBalance] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const txRef = useRef<HTMLTextAreaElement>(null);
+  const sendTxRef = useRef<HTMLTextAreaElement>(null);
 
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -35,6 +38,7 @@ export default function Index() {
     });
 
     window.dispatchEvent(new Event("eip6963:requestProvider"));
+    setModalType("accounts");
     setIsOpen(true);
   }, []);
 
@@ -105,12 +109,18 @@ export default function Index() {
   }, [selectedProvider]);
 
   const startSignTransaction = useCallback(() => {
-    setIsOpenTransaction(true);
+    setModalType("sign");
+    setIsOpen(true);
+  }, []);
+
+  const startSendTransaction = useCallback(() => {
+    setModalType("send");
+    setIsOpen(true);
   }, []);
 
   const handleSignTransaction = useCallback(async () => {
     if (!selectedProvider || !txRef.current?.value) return;
-    setIsOpenTransaction(false);
+    setIsOpen(false);
     setError(null);
 
     const transx = ethers.Transaction.from(txRef.current.value);
@@ -118,6 +128,28 @@ export default function Index() {
     try {
       const transaction = (await selectedProvider.provider.request({
         method: "eth_signTransaction",
+        params: [transx],
+      })) as string;
+      console.log(transaction);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [selectedProvider]);
+
+  const handleSendTransaction = useCallback(async () => {
+    if (!selectedProvider || !sendTxRef.current?.value) return;
+    setIsOpen(false);
+    setError(null);
+
+    if (!sendTxRef.current?.value) return;
+    try {
+      const tx = JSON.parse(sendTxRef?.current?.value);
+      console.log(tx);
+      tx.from = undefined;
+      const transx = ethers.Transaction.from(tx);
+
+      const transaction = (await selectedProvider.provider.request({
+        method: "eth_sendTransaction",
         params: [transx],
       })) as string;
       console.log(transaction);
@@ -138,7 +170,7 @@ export default function Index() {
     setAccount(null);
     setBalance("");
     setError(null);
-    setIsOpenTransaction(false);
+    setModalType(null);
     setIsOpen(false);
   }, [selectedProvider, setSelectedProvider]);
 
@@ -177,13 +209,14 @@ export default function Index() {
             <span>BALANCE: {balance}</span>
             <button onClick={handleGetBalance}>Get Balance</button>
             <button onClick={startSignTransaction}>Sign Transaction</button>
+            <button onClick={startSendTransaction}>Send Transaction</button>
           </div>
         )}
 
         {error && <div className={styles.error}>{error}</div>}
 
         <Dialog
-          open={isOpen}
+          open={isOpen && modalType === "accounts"}
           as="div"
           className={styles.dialog}
           onClose={() => setIsOpen(false)}
@@ -212,10 +245,10 @@ export default function Index() {
         </Dialog>
 
         <Dialog
-          open={isOpenTransaction}
+          open={isOpen && modalType === "sign"}
           as="div"
           className={styles.dialog}
-          onClose={() => setIsOpenTransaction(false)}
+          onClose={() => setIsOpen(false)}
         >
           <div className={styles.dialogWrapper}>
             <div className={styles.dialogContent}>
@@ -231,7 +264,41 @@ export default function Index() {
             </div>
           </div>
         </Dialog>
+
+        <Dialog
+          open={isOpen && modalType === "send"}
+          as="div"
+          className={styles.dialog}
+          onClose={() => setIsOpen(false)}
+        >
+          <div className={styles.dialogWrapper}>
+            <div className={styles.dialogContent}>
+              <DialogPanel transition className={styles.dialogPanel}>
+                <DialogTitle as="h3" className={styles.dialogTitle}>
+                  JSON TX
+                </DialogTitle>
+                <Field>
+                  <Textarea
+                    ref={sendTxRef}
+                    className={styles.textarea}
+                    rows={3}
+                  />
+                </Field>
+                <button onClick={handleSendTransaction}>
+                  Send Transaction
+                </button>
+              </DialogPanel>
+            </div>
+          </div>
+        </Dialog>
       </div>
     </div>
   );
 }
+
+const tx = {
+  data: "0xd0e30db0",
+  from: "0xCb8Ac86ff74f6733C212E14e83461AC2b0cAD3d0",
+  to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  value: "0x1ff973cafa8000",
+};

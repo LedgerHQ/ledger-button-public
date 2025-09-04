@@ -35,7 +35,7 @@ export function initializeLedgerProvider({
   },
   target = document.body,
   dAppIdentifier = "",
-  apiKey = "",
+  apiKey = undefined,
   loggerLevel = "info",
   dmkConfig = undefined,
   supportedNetworks = [],

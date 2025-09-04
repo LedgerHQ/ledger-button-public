@@ -231,6 +231,8 @@ export class LedgerEIP1193Provider
     // eth_sendRawTransaction: () => {
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
+    eth_sendTransaction: (params: unknown[]) =>
+      this.handleSignTransaction(params),
     eth_signTransaction: (params: unknown[]) =>
       this.handleSignTransaction(params),
     // personal_sign: () => {

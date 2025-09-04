@@ -52,9 +52,10 @@ export class DefaultTransactionService implements TransactionService {
 
   sign(
     params:
-      | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams,
+      | SignTypedDataParams
+      // TODO: Maybe rename this one to SendTransactionParams
+      | SignTransactionParams,
   ): Observable<TransactionResult> {
     this._pendingParams = params;
     this._updateStatus(TransactionStatus.SIGNING);

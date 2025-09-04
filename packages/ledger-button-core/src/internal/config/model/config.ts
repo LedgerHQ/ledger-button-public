@@ -15,9 +15,9 @@ export type LKRPConfig = {
 // TODO: Remove optional and default values
 // Also remove ethereum key when ready
 export type ConfigArgs = {
-  originToken?: string;
+  originToken: string;
   logLevel?: LogLevelKey;
-  dAppIdentifier?: string;
+  dAppIdentifier: string;
   environment?: Environment;
 };
 
@@ -30,8 +30,8 @@ export class Config {
   lkrp: LKRPConfig;
 
   constructor({
-    originToken = "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
-    dAppIdentifier = "",
+    originToken,
+    dAppIdentifier,
     logLevel = "info",
     environment = "production",
   }: ConfigArgs) {
