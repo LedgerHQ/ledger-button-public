@@ -46,7 +46,7 @@ export class Config {
 
   private getCloudSyncUrl(environment: Environment): string {
     return environment === "production"
-      ? "https://cloud-sync-backend.api.aws.prod.ldg-tech.com"
+      ? "https://cloud-sync-backend.api.aws.prd.ldg-tech.com"
       : "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
   }
 

@@ -24,7 +24,15 @@
       "deviceActions": {
         "continueOnLedger": {
           "title": "Continue on your",
-          "description": "Follow the instructions displayed on your Secure Touchscreen."
+          "description": "Follow the instructions displayed on your Ledger device."
+        },
+        "pin": {
+          "title": "Enter your PIN",
+          "description": "Enter your PIN to unlock your Ledger device."
+        },
+        "signTransaction": {
+          "title": "Sign transaction",
+          "description": "Follow the instructions displayed on your Ledger device."
         }
       }
     }

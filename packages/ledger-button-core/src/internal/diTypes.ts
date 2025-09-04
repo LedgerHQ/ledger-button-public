@@ -18,4 +18,5 @@ export type ContainerOptions = {
   // TODO: Remove optional and default values
   apiKey?: string;
   dAppIdentifier?: string;
+  environment?: "staging" | "production";
 };
