@@ -46,37 +46,40 @@ export class SignTransactionController implements ReactiveController {
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedDataParams,
+    broadcast: boolean,
   ) {
     if (this.transactionSubscription) {
       this.transactionSubscription.unsubscribe();
     }
 
-    this.transactionSubscription = this.core.sign(transactionParams).subscribe({
-      next: (result: TransactionResult) => {
-        switch (result.status) {
-          case "signing":
-            this.host.state = "signing";
-            break;
-          case "signed":
-            if (result.data) {
-              this.host.state = "success";
-              if ("hash" in result.data) {
-                this.host.transactionId = result.data.hash;
+    this.transactionSubscription = this.core
+      .sign(transactionParams, broadcast)
+      .subscribe({
+        next: (result: TransactionResult) => {
+          switch (result.status) {
+            case "signing":
+              this.host.state = "signing";
+              break;
+            case "signed":
+              if (result.data) {
+                this.host.state = "success";
+                if ("hash" in result.data) {
+                  this.host.transactionId = result.data.hash;
+                }
+                this.result = result.data;
               }
-              this.result = result.data;
-            }
-            break;
-          case "error":
-            this.host.state = "error";
-            break;
-        }
-        this.host.requestUpdate();
-      },
-      error: () => {
-        this.host.state = "error";
-        this.host.requestUpdate();
-      },
-    });
+              break;
+            case "error":
+              this.host.state = "error";
+              break;
+          }
+          this.host.requestUpdate();
+        },
+        error: () => {
+          this.host.state = "error";
+          this.host.requestUpdate();
+        },
+      });
   }
 
   viewTransactionDetails(transactionId: string) {

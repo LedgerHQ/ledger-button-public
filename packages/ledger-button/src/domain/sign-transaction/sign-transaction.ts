@@ -46,6 +46,10 @@ const styles = css`
   }
 `;
 
+type Params = SignTransactionParams & {
+  broadcast: boolean;
+};
+
 @customElement("sign-transaction-screen")
 @tailwindElement(styles)
 export class SignTransactionScreen extends LitElement {
@@ -75,6 +79,9 @@ export class SignTransactionScreen extends LitElement {
   @property({ type: Object })
   params?: unknown;
 
+  @property({ type: Boolean, attribute: false })
+  broadcast = false;
+
   controller!: SignTransactionController;
 
   override connectedCallback() {
@@ -86,8 +93,12 @@ export class SignTransactionScreen extends LitElement {
       this.destinations,
     );
 
+    if (this.isParams(this.params)) {
+      this.broadcast = this.params.broadcast;
+    }
+
     const transactionParams =
-      (this.params as SignTransactionParams) ??
+      (this.params as Params) ??
       this.transactionParams ??
       this.coreContext.getPendingTransactionParams();
 
@@ -99,7 +110,16 @@ export class SignTransactionScreen extends LitElement {
     }
 
     this.transactionParams = transactionParams;
-    this.controller.startSigning(transactionParams);
+    this.controller.startSigning(transactionParams, this.broadcast);
+  }
+
+  private isParams(params: unknown): params is Params {
+    return (
+      typeof params === "object" &&
+      params !== null &&
+      "transaction" in params &&
+      "broadcast" in params
+    );
   }
 
   private renderSigningState() {
@@ -232,7 +252,7 @@ export class SignTransactionScreen extends LitElement {
       this.requestUpdate();
       return;
     }
-    this.controller.startSigning(this.transactionParams);
+    this.controller.startSigning(this.transactionParams, this.broadcast);
   }
 
   override render() {

@@ -295,10 +295,3 @@ export default function Index() {
     </div>
   );
 }
-
-const tx = {
-  data: "0xd0e30db0",
-  from: "0xCb8Ac86ff74f6733C212E14e83461AC2b0cAD3d0",
-  to: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-  value: "0x1ff973cafa8000",
-};

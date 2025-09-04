@@ -153,7 +153,10 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleSignTransaction(params: unknown[]): Promise<SignedTransaction> {
+  private handleSignTransaction(
+    params: unknown[],
+    broadcast = false,
+  ): Promise<SignedTransaction> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -164,7 +167,10 @@ export class LedgerEIP1193Provider
         );
       }
 
-      this.app.navigationIntent("signTransaction", { transaction: params[0] });
+      this.app.navigationIntent("signTransaction", {
+        transaction: params[0],
+        broadcast,
+      });
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
@@ -232,7 +238,7 @@ export class LedgerEIP1193Provider
     //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
     // },
     eth_sendTransaction: (params: unknown[]) =>
-      this.handleSignTransaction(params),
+      this.handleSignTransaction(params, true),
     eth_signTransaction: (params: unknown[]) =>
       this.handleSignTransaction(params),
     // personal_sign: () => {

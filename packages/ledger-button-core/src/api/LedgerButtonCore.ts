@@ -237,11 +237,12 @@ export class LedgerButtonCore {
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedDataParams,
+    broadcast: boolean,
   ): Observable<TransactionResult> {
     this._logger.debug("Signing transaction", { params });
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)
-      .sign(params);
+      .sign(params, broadcast);
   }
 
   setPendingTransactionParams(
@@ -315,8 +316,7 @@ export class LedgerButtonCore {
     return this.container
       .get<AlpacaService>(alpacaModuleTypes.AlpacaService)
       .getBalance(request);
-   }
-
+  }
 
   // Config methods
   getConfig(): Config {

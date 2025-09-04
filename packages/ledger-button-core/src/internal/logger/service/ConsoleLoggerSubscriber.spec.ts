@@ -65,7 +65,11 @@ describe("ConsoleLoggerSubscriber", () => {
   describe("log", () => {
     describe("when the level is debug", () => {
       beforeEach(() => {
-        config = new Config({ logLevel: "debug" });
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "debug",
+        });
         ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
@@ -151,7 +155,11 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when the level is info", () => {
       beforeEach(() => {
-        config = new Config({ logLevel: "info" });
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "info",
+        });
         ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
@@ -214,7 +222,11 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is warn", () => {
       beforeEach(() => {
-        config = new Config({ logLevel: "warn" });
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "warn",
+        });
         ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
@@ -280,7 +292,11 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is error", () => {
       beforeEach(() => {
-        config = new Config({ logLevel: "error" });
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "error",
+        });
         ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
@@ -346,7 +362,11 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is fatal", () => {
       beforeEach(() => {
-        config = new Config({ logLevel: "fatal" });
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "fatal",
+        });
         ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 

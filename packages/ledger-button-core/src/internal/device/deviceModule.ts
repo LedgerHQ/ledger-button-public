@@ -5,6 +5,7 @@ import { StubDeviceManagementKitService } from "./service/StubDeviceManagementKi
 import { ConnectDevice } from "./use-case/ConnectDevice.js";
 import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "./use-case/ListAvailableDevices.js";
+import { SendTransaction } from "./use-case/SendTransaction.js";
 import { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import { SignTransaction } from "./use-case/SignTransaction.js";
 import { SignTypedData } from "./use-case/SignTypedData.js";
@@ -29,6 +30,7 @@ export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
     bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDevice);
     bind(deviceModuleTypes.SignRawTransactionUseCase).to(SignRawTransaction);
     bind(deviceModuleTypes.SignTransactionUseCase).to(SignTransaction);
+    bind(deviceModuleTypes.SendTransactionUseCase).to(SendTransaction);
     bind(deviceModuleTypes.SignTypedDataUseCase).to(SignTypedData);
     bind(deviceModuleTypes.ListAvailableDevicesUseCase).to(
       ListAvailableDevices,

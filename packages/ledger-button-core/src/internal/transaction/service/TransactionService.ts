@@ -28,6 +28,7 @@ export interface TransactionService {
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedDataParams,
+    broadcast: boolean,
   ): Observable<TransactionResult>;
 
   getPendingTransaction():
