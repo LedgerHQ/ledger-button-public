@@ -30,6 +30,7 @@ export function createContainer({
   dmkConfig,
   apiKey,
   dAppIdentifier,
+  environment = "production",
 }: ContainerOptions) {
   const container = new Container();
 

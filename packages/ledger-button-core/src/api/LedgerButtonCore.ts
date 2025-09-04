@@ -288,16 +288,22 @@ export class LedgerButtonCore {
 
     return res.pipe(
       tap((res: LedgerSyncAuthenticateResponse) => {
-        if ((<AuthContext>res).trustChainId !== undefined) {
-          this._currentContext.next({
-            connectedDevice: this._currentContext.value.connectedDevice,
-            selectedAccount: this._currentContext.value.selectedAccount,
-            trustChainId: (<AuthContext>res).trustChainId,
-            applicationPath: (<AuthContext>res).applicationPath,
-          });
-        }
+        if (!this.isAuthContext(res)) return;
+
+        this._currentContext.next({
+          connectedDevice: this._currentContext.value.connectedDevice,
+          selectedAccount: this._currentContext.value.selectedAccount,
+          trustChainId: res.trustChainId,
+          applicationPath: res.applicationPath,
+        });
       }),
     );
+  }
+
+  private isAuthContext(
+    res: LedgerSyncAuthenticateResponse,
+  ): res is AuthContext {
+    return "trustChainId" in res && "applicationPath" in res;
   }
 
   observeContext(): Observable<ButtonCoreContext> {

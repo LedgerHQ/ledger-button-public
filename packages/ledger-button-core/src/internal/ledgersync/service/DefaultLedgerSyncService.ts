@@ -25,7 +25,10 @@ import {
   type AuthContext,
   type LedgerSyncAuthenticateResponse,
 } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
-import { type UserInteractionNeeded } from "../../../api/model/UserInteractionNeeded.js";
+import {
+  type UserInteractionNeeded,
+  UserInteractionNeededResponse,
+} from "../../../api/model/UserInteractionNeeded.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
@@ -195,17 +198,20 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
         return {
           trustChainId: newAuthContext.trustChainId,
           applicationPath: newAuthContext.applicationPath,
-        } as AuthContext;
+        } satisfies AuthContext;
       }
+
       case DeviceActionStatus.Error:
         this.logger.error(`Error: ${JSON.stringify(state.error)}`);
         return new LedgerSyncAuthenticationError("An unknown error occurred"); //TODO map errors
       //TODO Handle error when members has been removed from the trustchain => Remove the trustchainId from the storage and retry the authentication
+
       case DeviceActionStatus.Pending:
         return {
-          requiredUserInteraction:
-            state.intermediateValue?.requiredUserInteraction,
-        } as unknown as UserInteractionNeeded;
+          requiredUserInteraction: state.intermediateValue
+            ?.requiredUserInteraction as UserInteractionNeeded,
+        } satisfies UserInteractionNeededResponse;
+
       default:
         return new LedgerSyncAuthenticationError("Unknown error");
     }

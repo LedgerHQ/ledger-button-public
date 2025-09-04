@@ -3,7 +3,7 @@ import {
   Device,
   type LedgerSyncAuthenticateResponse,
   LedgerSyncAuthenticationError,
-  type UserInteractionNeeded,
+  type UserInteractionNeededResponse,
 } from "@ledgerhq/ledger-button-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
@@ -41,19 +41,23 @@ export class LedgerSyncController implements ReactiveController {
       return;
     }
 
-    this.ledgerSyncSubscription = this.core
-      .connectToLedgerSync()
-      .subscribe((value: LedgerSyncAuthenticateResponse) => {
+    this.ledgerSyncSubscription = this.core.connectToLedgerSync().subscribe({
+      next: (value: LedgerSyncAuthenticateResponse) => {
         console.info("Ledger sync response", { value });
         switch (true) {
           case this.isAuthContext(value):
+            console.log("Auth context", value);
             this.host.requestUpdate();
             break;
-          case this.isUserInteractionNeeded(value):
-            console.log(`user interaction needed of type ${value.type}`);
+          case this.isUserInteractionNeededResponse(value):
+            console.log(
+              `user interaction needed of type ${value.requiredUserInteraction}`,
+            );
             //TODO: Handle user interaction needed
             this.animation =
-              value.type === "unlock-device" ? "pin" : "continueOnLedger";
+              value.requiredUserInteraction === "unlock-device"
+                ? "pin"
+                : "continueOnLedger";
             this.host.requestUpdate();
             break;
           case value instanceof LedgerSyncAuthenticationError:
@@ -61,21 +65,25 @@ export class LedgerSyncController implements ReactiveController {
             this.navigation.navigateTo(this.destinations.turnOnSync);
             break;
         }
-      });
+      },
+      error: (error) => {
+        console.error("Error in ledger sync", error);
+      },
+      complete: () => {
+        console.log("Ledger sync completed");
+      },
+    });
   }
 
-  private isUserInteractionNeeded(
+  private isUserInteractionNeededResponse(
     value: LedgerSyncAuthenticateResponse,
-  ): value is UserInteractionNeeded {
-    return (<UserInteractionNeeded>value).type !== undefined;
+  ): value is UserInteractionNeededResponse {
+    return "requiredUserInteraction" in value;
   }
 
   private isAuthContext(
     value: LedgerSyncAuthenticateResponse,
   ): value is AuthContext {
-    return (
-      (<AuthContext>value).trustChainId !== undefined &&
-      (<AuthContext>value).applicationPath !== undefined
-    );
+    return "trustChainId" in value && "applicationPath" in value;
   }
 }
