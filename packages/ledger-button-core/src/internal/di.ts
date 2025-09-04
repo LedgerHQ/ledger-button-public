@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 
 import { accountModuleFactory } from "./account/accountModule.js";
+import { alpacaModuleFactory } from "./alpaca/alpacaModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
@@ -21,6 +22,7 @@ export function createContainer({
     account: false,
     device: false,
     web3Provider: false,
+    alpaca: false,
     dAppConfig: false,
   },
   supportedNetworks: _supportedNetworks = [],
@@ -34,6 +36,7 @@ export function createContainer({
 
   container.loadSync(
     configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
+    alpacaModuleFactory({ stub: stub.alpaca }),
     loggerModuleFactory({ stub: stub.base }),
     accountModuleFactory({ stub: stub.account }),
     backendModuleFactory({ stub: stub.base }),
