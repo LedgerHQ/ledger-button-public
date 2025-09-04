@@ -24,11 +24,14 @@ export default function Index() {
   const [modalType, setModalType] = useState<
     "accounts" | "sign" | "send" | null
   >(null);
+  const [_, setIsOpenTransaction] = useState(false);
+  const [isOpenRawTransaction, setIsOpenRawTransaction] = useState(false);
   const [account, setAccount] = useState<string | null>(null);
   const [balance, setBalance] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const txRef = useRef<HTMLTextAreaElement>(null);
   const sendTxRef = useRef<HTMLTextAreaElement>(null);
+  const rawTxRef = useRef<HTMLTextAreaElement>(null);
 
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -117,18 +120,25 @@ export default function Index() {
     setModalType("send");
     setIsOpen(true);
   }, []);
+  const startSignRawTransaction = useCallback(() => {
+    setIsOpenRawTransaction(true);
+  }, []);
 
   const handleSignTransaction = useCallback(async () => {
     if (!selectedProvider || !txRef.current?.value) return;
     setIsOpen(false);
     setError(null);
 
-    const transx = ethers.Transaction.from(txRef.current.value);
+    //Sanitize the transaction from Rabby
+    const tx = JSON.parse(txRef.current.value);
+    /* delete tx["from"];
+    tx["gasLimit"] = tx["gas"];
+    delete tx["gas"];*/
 
     try {
       const transaction = (await selectedProvider.provider.request({
         method: "eth_signTransaction",
-        params: [transx],
+        params: [tx],
       })) as string;
       console.log(transaction);
     } catch (error) {
@@ -174,6 +184,24 @@ export default function Index() {
     setIsOpen(false);
   }, [selectedProvider, setSelectedProvider]);
 
+  const handleSignRawTransaction = useCallback(async () => {
+    if (!selectedProvider || !txRef.current?.value) return;
+    setIsOpenTransaction(false);
+    setError(null);
+
+    const transx = ethers.Transaction.from(txRef.current.value);
+
+    try {
+      const transaction = (await selectedProvider.provider.request({
+        method: "eth_signRawTransaction",
+        params: [transx],
+      })) as string;
+      console.log(transaction);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [selectedProvider]);
+
   return (
     <div className={styles.page}>
       <div className="wrapper">
@@ -210,6 +238,9 @@ export default function Index() {
             <button onClick={handleGetBalance}>Get Balance</button>
             <button onClick={startSignTransaction}>Sign Transaction</button>
             <button onClick={startSendTransaction}>Send Transaction</button>
+            <button onClick={startSignRawTransaction}>
+              Sign Raw Transaction
+            </button>
           </div>
         )}
 
@@ -254,12 +285,37 @@ export default function Index() {
             <div className={styles.dialogContent}>
               <DialogPanel transition className={styles.dialogPanel}>
                 <DialogTitle as="h3" className={styles.dialogTitle}>
-                  Raw TX
+                  Sign Transaction
                 </DialogTitle>
                 <Field>
                   <Textarea ref={txRef} className={styles.textarea} rows={3} />
                 </Field>
-                <button onClick={handleSignTransaction}>Sign</button>
+                <button onClick={handleSignTransaction}>Sign TX</button>
+              </DialogPanel>
+            </div>
+          </div>
+        </Dialog>
+
+        <Dialog
+          open={isOpenRawTransaction}
+          as="div"
+          className={styles.dialog}
+          onClose={() => setIsOpenRawTransaction(false)}
+        >
+          <div className={styles.dialogWrapper}>
+            <div className={styles.dialogContent}>
+              <DialogPanel transition className={styles.dialogPanel}>
+                <DialogTitle as="h3" className={styles.dialogTitle}>
+                  Raw TX
+                </DialogTitle>
+                <Field>
+                  <Textarea
+                    ref={rawTxRef}
+                    className={styles.textarea}
+                    rows={3}
+                  />
+                </Field>
+                <button onClick={handleSignRawTransaction}>Sign Raw TX</button>
               </DialogPanel>
             </div>
           </div>

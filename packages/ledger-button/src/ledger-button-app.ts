@@ -49,7 +49,10 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-sign-transaction",
       this.handleSignTransaction,
     );
-
+    window.addEventListener(
+      "ledger-internal-send-transaction",
+      this.handleSendTransaction,
+    );
     window.addEventListener(
       "ledger-internal-sign-typed-data",
       this.handleSignTypedData,
@@ -75,6 +78,10 @@ export class LedgerButtonApp extends LitElement {
       this.handleSignTransaction,
     );
     window.removeEventListener(
+      "ledger-internal-send-transaction",
+      this.handleSendTransaction,
+    );
+    window.removeEventListener(
       "ledger-internal-sign-typed-data",
       this.handleSignTypedData,
     );
@@ -98,6 +105,16 @@ export class LedgerButtonApp extends LitElement {
   private handleSignTransaction = (e: CustomEvent<SignedTransaction>) => {
     window.dispatchEvent(
       new CustomEvent<SignedTransaction>("ledger-provider-sign-transaction", {
+        bubbles: true,
+        composed: true,
+        detail: e.detail,
+      }),
+    );
+  };
+
+  private handleSendTransaction = (e: CustomEvent<SignedTransaction>) => {
+    window.dispatchEvent(
+      new CustomEvent<SignedTransaction>("ledger-provider-send-transaction", {
         bubbles: true,
         composed: true,
         detail: e.detail,
@@ -164,6 +181,7 @@ declare global {
   interface WindowEventMap {
     "ledger-provider-account-selected": CustomEvent<{ account: Account }>;
     "ledger-provider-sign-transaction": CustomEvent<SignedTransaction>;
+    "ledger-provider-send-transaction": CustomEvent<SignedTransaction>;
     "ledger-provider-sign-typed-data": CustomEvent<Signature>;
     "ledger-provider-disconnect": CustomEvent;
   }

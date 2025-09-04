@@ -1,12 +1,22 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import type {
+  JSONRPCRequest,
+  JSONRPCResponse,
+} from "../../../api/model/eip/EIPTypes.js";
 import type { NetworkServiceOpts } from "../../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../network/NetworkService.js";
-import type { JSONRPCRequest, JSONRPCResponse } from "../../web3-provider/model/EIPTypes.js";
-import { type AlpacaServiceError,AlpacaServiceErrors } from "../model/error.js";
-import type { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
+import {
+  type AlpacaServiceError,
+  AlpacaServiceErrors,
+} from "../model/error.js";
+import type {
+  EvmChainConfig,
+  NativeBalance,
+  TokenBalance,
+} from "../model/types.js";
 import type { EvmDataSource } from "./EvmDataSource.js";
 
 @injectable()
@@ -47,29 +57,31 @@ export class DefaultEvmDataSource implements EvmDataSource {
       },
     );
 
-    return result.mapLeft((error) =>
-      AlpacaServiceErrors.networkError(
-        `Network request failed: ${error.message}`,
-        error,
-      ),
-    ).chain((jsonResponse) => {
-      if (jsonResponse.error) {
-        return Left(
-          AlpacaServiceErrors.apiError(
-            `RPC Error: ${jsonResponse.error.message}`,
-            jsonResponse.error,
-          ),
-        );
-      }
+    return result
+      .mapLeft((error) =>
+        AlpacaServiceErrors.networkError(
+          `Network request failed: ${error.message}`,
+          error,
+        ),
+      )
+      .chain((jsonResponse) => {
+        if (jsonResponse.error) {
+          return Left(
+            AlpacaServiceErrors.apiError(
+              `RPC Error: ${jsonResponse.error.message}`,
+              jsonResponse.error,
+            ),
+          );
+        }
 
-      if (jsonResponse.result === undefined) {
-        return Left(
-          AlpacaServiceErrors.apiError("RPC response missing result field"),
-        );
-      }
+        if (jsonResponse.result === undefined) {
+          return Left(
+            AlpacaServiceErrors.apiError("RPC response missing result field"),
+          );
+        }
 
-      return Right(jsonResponse.result as T);
-    });
+        return Right(jsonResponse.result as T);
+      });
   }
 
   async getNativeBalance(
@@ -101,8 +113,9 @@ export class DefaultEvmDataSource implements EvmDataSource {
     address: string,
     chainConfig: EvmChainConfig,
   ): Promise<Either<AlpacaServiceError, TokenBalance[]>> {
-    return (await this.hasTransactionHistory(address, chainConfig))
-      .map(_hasHistory => []);
+    return (await this.hasTransactionHistory(address, chainConfig)).map(
+      (_hasHistory) => [],
+    );
   }
 
   async hasTransactionHistory(

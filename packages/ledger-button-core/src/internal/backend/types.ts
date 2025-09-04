@@ -1,11 +1,11 @@
 import { infer as ZodInfer, ZodError } from "zod";
 
-import type { JSONRPCRequest } from "../web3-provider/model/EIPTypes.js";
+import type { JSONRPCRequest } from "../../api/model/eip/EIPTypes.js";
 import { ConfigResponseSchema } from "./schemas.js";
 
 export type Blockchain = {
   name: string;
-  chain_id: string;
+  chainId: string;
 };
 
 export type BroadcastRequest = {

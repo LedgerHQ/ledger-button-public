@@ -1,4 +1,4 @@
-import { DAppConfig } from "./types.js";
+import { DAppConfig } from "../dAppConfigTypes.js";
 
 export const stubDAppConfig: DAppConfig = {
   // Based on 1inch supported networks: https://help.1inch.io/en/articles/5528619-how-to-use-different-networks-on-1inch
@@ -13,7 +13,7 @@ export const stubDAppConfig: DAppConfig = {
       id: "2",
       currency_id: "arbitrum",
       currency_name: "Arbitrum",
-      currency_ticker: "ETH",
+      currency_ticker: "ARB",
     },
     {
       id: "3",
@@ -25,7 +25,7 @@ export const stubDAppConfig: DAppConfig = {
       id: "4",
       currency_id: "base",
       currency_name: "Base",
-      currency_ticker: "ETH",
+      currency_ticker: "BASE",
     },
     {
       id: "5",
@@ -37,31 +37,31 @@ export const stubDAppConfig: DAppConfig = {
       id: "6",
       currency_id: "linea",
       currency_name: "Linea",
-      currency_ticker: "ETH",
+      currency_ticker: "LINEA",
     },
     {
       id: "7",
       currency_id: "optimism",
       currency_name: "Optimism",
-      currency_ticker: "ETH",
+      currency_ticker: "OP",
     },
     {
       id: "8",
       currency_id: "polygon",
       currency_name: "Polygon",
-      currency_ticker: "POL",
+      currency_ticker: "MATIC",
     },
     {
       id: "9",
       currency_id: "sonic",
       currency_name: "Sonic",
-      currency_ticker: "S",
+      currency_ticker: "SONIC",
     },
     {
       id: "10",
       currency_id: "zksync",
       currency_name: "ZKsync",
-      currency_ticker: "ETH",
+      currency_ticker: "ZK",
     },
     {
       id: "11",
@@ -75,8 +75,8 @@ export const stubDAppConfig: DAppConfig = {
   appDependencies: [
     {
       blockchain: "ethereum",
-      appName: "1Inch",
-      dependencies: ["1Inch", "Ethereum"],
+      appName: "Ethereum",
+      dependencies: ["1inch", "Ethereum"],
     },
   ],
 };

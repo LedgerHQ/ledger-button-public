@@ -275,6 +275,7 @@ declare global {
   }
 
   interface WindowEventMap {
+    "ledger-internal-send-transaction": CustomEvent<SignedTransaction>;
     "ledger-internal-sign-transaction": CustomEvent<SignedTransaction>;
     "ledger-internal-sign-typed-data": CustomEvent<Signature>;
   }

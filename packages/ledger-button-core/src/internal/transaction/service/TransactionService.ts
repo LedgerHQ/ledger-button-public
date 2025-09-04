@@ -1,13 +1,15 @@
-import type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
 import { Observable } from "rxjs";
 
-import type {
+import {
   SignedTransaction,
+  SignedTransactionResult,
   SignRawTransactionParams,
-} from "../../device/use-case/SignRawTransaction.js";
-import type { SignTransactionParams } from "../../device/use-case/SignTransaction.js";
-import type { SignTypedDataParams } from "../../device/use-case/SignTypedData.js";
+  SignTransactionParams,
+  SignTypedMessageParams,
+} from "../../../api/index.js";
+import { Signature } from "../../../api/model/eip/EIPTypes.js";
 
+//TODO see to align with types defined in SignRawTransaction.ts
 export enum TransactionStatus {
   IDLE = "idle",
   SIGNING = "signing",
@@ -27,21 +29,21 @@ export interface TransactionService {
     params:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams,
+      | SignTypedMessageParams,
     broadcast: boolean,
-  ): Observable<TransactionResult>;
+  ): Observable<SignedTransactionResult>;
 
   getPendingTransaction():
     | SignTransactionParams
     | SignRawTransactionParams
-    | SignTypedDataParams
+    | SignTypedMessageParams
     | undefined;
 
   setPendingTransaction(
     params:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams
+      | SignTypedMessageParams
       | undefined,
   ): void;
 

@@ -87,6 +87,7 @@ export class SelectAccountScreen extends LitElement {
         .linkLabel=${translations.onboarding.selectAccount.showTokens}
         .ledgerId=${account.currencyId}
         .ticker=${this.getTicker(account.currencyId)}
+        .balance=${account.balance ?? "0"}
         @account-item-click=${this.handleAccountItemClick}
         @account-item-show-tokens-click=${this.handleAccountItemShowTokensClick}
       ></ledger-account-item>

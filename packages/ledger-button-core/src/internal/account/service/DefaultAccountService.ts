@@ -1,14 +1,14 @@
+import { ethers } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
-import { Either, EitherAsync } from "purify-ts";
 
-import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/DAppConfigService.js";
-import { DAppConfig, DAppConfigError } from "../../dAppConfig/types.js";
+import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
+import type { BackendService } from "../../backend/BackendService.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
-import { AccountServiceError } from "../model/error.js";
 import { Account, AccountService, CloudSyncData } from "./AccountService.js";
 
 @injectable()
@@ -16,10 +16,6 @@ export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
   selectedAccount: Account | null = null;
-  supportedBlockchains: EitherAsync<
-    DAppConfigError,
-    Map<string, DAppConfig["supportedBlockchains"][number]>
-  >;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -27,14 +23,11 @@ export class DefaultAccountService implements AccountService {
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
     @inject(dAppConfigModuleTypes.DAppConfigService)
-    dAppConfigService: DAppConfigService,
+    private readonly dAppConfigService: DAppConfigService,
+    @inject(backendModuleTypes.BackendService)
+    private readonly backendService: BackendService,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
-    this.supportedBlockchains = dAppConfigService
-      .get("supportedBlockchains")
-      .map(
-        (chains) => new Map(chains.map((chain) => [chain.currency_id, chain])),
-      );
   }
 
   async setAccountsFromCloudSyncData(
@@ -42,9 +35,11 @@ export class DefaultAccountService implements AccountService {
   ): Promise<void> {
     const mappedAccounts = await this.mapCloudSyncDataToAccounts(cloudsyncData);
 
-    console.log("mappedAccounts", mappedAccounts);
+    const accountsWithBalance =
+      await this.getAccountsWithBalance(mappedAccounts);
+    console.log("Accounts with balance", accountsWithBalance);
 
-    this.setAccounts(mappedAccounts);
+    this.setAccounts(accountsWithBalance);
   }
 
   selectAccount(address: string): void {
@@ -69,38 +64,69 @@ export class DefaultAccountService implements AccountService {
     return this.accounts;
   }
 
-  private setAccounts(accounts: Either<AccountServiceError, Account[]>) {
-    accounts
-      .ifRight((accounts) => {
-        this.accounts = accounts;
-        this.logger.debug("saving accounts", { accounts: this.accounts });
-      })
-      .ifLeft((error) => {
-        this.logger.error("error saving accounts", { error });
-        this.accounts = [];
-      });
+  private setAccounts(accounts: Account[]) {
+    this.accounts = accounts;
+    this.logger.debug("saving accounts", { accounts: this.accounts });
   }
 
-  private mapCloudSyncDataToAccounts(
+  private async mapCloudSyncDataToAccounts(
     cloudSyncData: CloudSyncData,
-  ): EitherAsync<AccountServiceError, Account[]> {
+  ): Promise<Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    return this.supportedBlockchains.map((supportedBlockchains) =>
-      accounts.flatMap((account) => {
-        const blockchain = supportedBlockchains.get(account.currencyId);
+    const supportedBlockchains = (await this.dAppConfigService.getDAppConfig())
+      .supportedBlockchains;
+
+    return accounts
+      .map((account) => {
+        const blockchain = supportedBlockchains.find(
+          (blockchain) => blockchain.currency_id === account.currencyId,
+        );
         const ticker = blockchain?.currency_ticker;
         const name = accountNames[account.id] ?? account.id;
+
         return ticker
-          ? {
+          ? ({
               ...account,
               name,
               ticker,
               derivationMode: account.derivationMode
                 ? account.derivationMode
                 : "44'/60'/0'/0/0",
-            }
-          : [];
+              balance: undefined,
+            } as Account)
+          : undefined;
+      })
+      .filter((account) => account !== undefined);
+  }
+
+  private async getAccountsWithBalance(
+    accounts: Account[],
+  ): Promise<Account[]> {
+    const accountsWithBalance = await Promise.all(
+      accounts.map(async (account) => {
+        //TMP use alpaca service to get balance when ready
+        const balanceResult = await this.backendService.broadcast({
+          blockchain: { name: "ethereum", chainId: "1" },
+          rpc: {
+            method: "eth_getBalance",
+            params: [account.freshAddress, "latest"],
+            id: 1,
+            jsonrpc: "2.0",
+          },
+        });
+
+        let balance = "0.0000";
+        if (balanceResult.isRight()) {
+          //Result is  hex value in WEI
+          const balanceHex = balanceResult.extract().result as string;
+          balance = ethers.formatEther(balanceHex);
+          balance =
+            balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4); //Only keep 4 decimals
+        }
+
+        return { ...account, balance };
       }),
     );
+    return accountsWithBalance;
   }
 }

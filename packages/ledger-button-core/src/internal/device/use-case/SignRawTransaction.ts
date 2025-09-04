@@ -1,19 +1,38 @@
 import {
+  DeviceActionStatus,
   hexaStringToBuffer,
+  OpenAppWithDependenciesDAInput,
+  OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
+  UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
-import { SignerEthBuilder } from "@ledgerhq/device-signer-kit-ethereum";
+import {
+  SignerEthBuilder,
+  SignTransactionDAState,
+} from "@ledgerhq/device-signer-kit-ethereum";
+import { Signature } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
-import { EitherAsync, Left, Right } from "purify-ts";
-import { lastValueFrom } from "rxjs";
-import { keccak256 } from "viem";
+import {
+  BehaviorSubject,
+  filter,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 
+import { SignedTransaction } from "../../../api/model/signing/SignedTransaction.js";
+import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
+import { SignedTransactionResult } from "../../../api/model/signing/SignTransactionResult.js";
+import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
-import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/DAppConfigService.js";
-import { DAppConfig, DAppConfigError } from "../../dAppConfig/types.js";
+import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -22,27 +41,17 @@ import { deviceModuleTypes } from "../deviceModuleTypes.js";
 import {
   AccountNotSelectedError,
   DeviceConnectionError,
-  FailToOpenAppError,
   SignTransactionError,
 } from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
-
-export interface SignRawTransactionParams {
-  rawTransaction: string;
-}
-
-export interface SignedTransaction {
-  hash: string;
-  rawTransaction: string;
-}
+import {
+  BroadcastTransaction,
+  BroadcastTransactionParams,
+} from "./BroadcastTransaction.js";
 
 @injectable()
 export class SignRawTransaction {
   private readonly logger: LoggerPublisher;
-  private readonly appDependencies: EitherAsync<
-    DAppConfigError,
-    DAppConfig["appDependencies"]
-  >;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -54,13 +63,16 @@ export class SignRawTransaction {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
     @inject(dAppConfigModuleTypes.DAppConfigService)
-    dappConfigService: DAppConfigService,
+    private readonly dappConfigService: DAppConfigService,
+    @inject(deviceModuleTypes.BroadcastTransactionUseCase)
+    private readonly broadcastTransactionUseCase: BroadcastTransaction,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
-    this.appDependencies = dappConfigService.get("appDependencies");
   }
 
-  async execute(params: SignRawTransactionParams): Promise<SignedTransaction> {
+  execute(
+    params: SignRawTransactionParams,
+  ): Observable<SignedTransactionResult> {
     this.logger.info("Starting transaction signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
@@ -81,7 +93,11 @@ export class SignRawTransaction {
       });
     }
 
-    const { rawTransaction } = params;
+    const { rawTransaction, broadcast } = params;
+    const resultObservable = new BehaviorSubject<SignedTransactionResult>({
+      status: "debugging",
+      message: "Initializing transaction signing",
+    });
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
@@ -96,74 +112,242 @@ export class SignRawTransaction {
         throw Error("Invalid raw transaction format");
       }
 
-      const account: Account | undefined = this.storageService
+      const selectedAccount: Account | undefined = this.storageService
         .getSelectedAccount()
         .extract();
 
-      if (!account) {
+      if (!selectedAccount) {
         throw new AccountNotSelectedError("No account selected");
       }
 
-      const derivationPath = account.derivationMode ?? "44'/60'/0'/0/0";
+      //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
+      const initObservable: Observable<OpenAppWithDependenciesDeviceAction> =
+        from(this.createOpenAppConfig()).pipe(
+          map(
+            (openAppConfig) =>
+              new OpenAppWithDependenciesDeviceAction({
+                input: openAppConfig,
+                inspect: false,
+              }),
+          ),
+        );
 
-      const openAppConfig = await this.appDependencies
-        .map((deps) => deps.find((dep) => dep.appName === "Ethereum"))
-        .map((dep) =>
-          dep
-            ? Right(dep)
-            : Left(new Error("Ethereum app dependencies not found")),
-        )
-        .chain(EitherAsync.liftEither)
-        .map(({ appName, dependencies }) => ({
-          application: { name: appName },
-          dependencies: dependencies.map((name) => ({ name })),
-          requireLatestFirmware: false,
-        }))
-        .run();
+      const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
+      console.log("Derivation path", { derivationPath });
 
-      const openResult = await lastValueFrom(
-        dmk.executeDeviceAction({
-          sessionId: sessionId,
-          deviceAction: new OpenAppWithDependenciesDeviceAction({
-            input: openAppConfig.unsafeCoerce(),
-            inspect: false,
+      initObservable
+        .pipe(
+          switchMap(
+            (openAppDeviceAction: OpenAppWithDependenciesDeviceAction) => {
+              const openObservable = dmk.executeDeviceAction({
+                sessionId: sessionId,
+                deviceAction: openAppDeviceAction,
+              }).observable;
+              return openObservable;
+            },
+          ),
+          filter(
+            (result: OpenAppWithDependenciesDAState) =>
+              result.status !== DeviceActionStatus.Pending ||
+              result.intermediateValue?.requiredUserInteraction !==
+                UserInteractionRequired.None,
+          ),
+          tap((result: OpenAppWithDependenciesDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, rawTransaction),
+            );
           }),
-        }).observable,
-      );
+          filter((result: OpenAppWithDependenciesDAState) => {
+            return (
+              result.status === DeviceActionStatus.Error ||
+              result.status === DeviceActionStatus.Completed
+            );
+          }),
+          switchMap((result: OpenAppWithDependenciesDAState) => {
+            resultObservable.next({
+              status: "debugging",
+              message: "Starting Sign Transaction DA",
+            });
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
 
-      if (openResult.status === "error") {
-        this.logger.error("Error opening app", { error: openResult.error });
-        throw new FailToOpenAppError("Failed to open app", {
-          error: openResult.error,
+            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
+
+            const { observable: signObservable } = ethSigner.signTransaction(
+              derivationPath,
+              tx,
+              {
+                skipOpenApp: true,
+              },
+            );
+
+            return signObservable;
+          }),
+          filter(
+            (result: SignTransactionDAState) =>
+              result.status !== DeviceActionStatus.Pending ||
+              result.intermediateValue?.requiredUserInteraction !==
+                UserInteractionRequired.None,
+          ),
+          filter((result: SignTransactionDAState) => {
+            return (
+              result.status === DeviceActionStatus.Error ||
+              result.status === DeviceActionStatus.Completed
+            );
+          }),
+          tap((result: SignTransactionDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, rawTransaction),
+            );
+          }),
+          switchMap(async (result: SignTransactionDAState) => {
+            if (broadcast && result.status === DeviceActionStatus.Completed) {
+              const broadcastParams: BroadcastTransactionParams = {
+                signature: result.output as Signature,
+                rawTransaction,
+                currencyId: selectedAccount.currencyId,
+              };
+              return await this.broadcastTransactionUseCase.execute(
+                broadcastParams,
+              );
+            } else {
+              return result;
+            }
+          }),
+        )
+        .subscribe({
+          next: (result: SignTransactionDAState | SignedTransaction) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, rawTransaction),
+            );
+          },
+          error: (error: Error) => {
+            console.error("Failed to sign transaction in SignRawTransaction", {
+              error,
+            });
+            resultObservable.next({ status: "error", error: error });
+          },
         });
-      }
 
-      const { observable } = ethSigner.signTransaction(derivationPath, tx, {
-        skipOpenApp: true,
-      });
-      const result = await lastValueFrom(observable);
-
-      if (result.status === "error") {
-        this.logger.error("Error signing transaction", { error: result.error });
-        throw new SignTransactionError("Transaction signing failed", {
-          error: result.error,
-        });
-      }
-
-      if (result.status === "completed") {
-        this.logger.debug("Transaction signing completed", {
-          result: result.output,
-        });
-      }
-
-      //TODO generate signed raw transaction using output for signing raw tx
-      return {
-        hash: keccak256(tx),
-        rawTransaction,
-      };
+      return resultObservable.asObservable();
     } catch (error) {
+      console.error("Failed to sign transaction in SignRawTransaction", {
+        error,
+      });
       this.logger.error("Failed to sign transaction", { error });
-      throw new SignTransactionError(`Transaction signing failed: ${error}`);
+      return of({
+        status: "error",
+        error: new SignTransactionError(`Transaction signing failed: ${error}`),
+      });
+    }
+  }
+
+  async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {
+    const dAppConfig: DAppConfig = await this.dappConfigService.getDAppConfig();
+
+    const ethereumAppDependencies = dAppConfig.appDependencies.find(
+      (dep) => dep.blockchain === "ethereum",
+    );
+    if (!ethereumAppDependencies) {
+      throw new Error("Ethereum Blockchain dependencies not found");
+    }
+
+    return {
+      application: { name: ethereumAppDependencies.appName },
+      dependencies: ethereumAppDependencies.dependencies.map((dep) => ({
+        name: dep,
+      })),
+      requireLatestFirmware: false, //TODO add this to the dApp config
+    };
+  }
+
+  private getTransactionResultForEvent(
+    result:
+      | OpenAppWithDependenciesDAState
+      | SignTransactionDAState
+      | SignedTransaction,
+    rawTx: string,
+  ): SignedTransactionResult {
+    if ("hash" in result) {
+      return {
+        status: "success",
+        data: result,
+      } as SignedTransactionResult;
+    }
+    switch (result.status) {
+      case DeviceActionStatus.Pending:
+        switch (result.intermediateValue?.requiredUserInteraction) {
+          case "unlock-device":
+            return {
+              status: "user-interaction-needed",
+              interaction: "unlock-device",
+            } as SignedTransactionResult;
+          case "allow-secure-connection":
+            return {
+              status: "user-interaction-needed",
+              interaction: "allow-secure-connection",
+            } as SignedTransactionResult;
+          case "confirm-open-app":
+            return {
+              status: "user-interaction-needed",
+              interaction: "confirm-open-app",
+            } as SignedTransactionResult;
+          case "sign-transaction":
+            return {
+              status: "user-interaction-needed",
+              interaction: "sign-transaction",
+            } as SignedTransactionResult;
+          case "allow-list-apps":
+            return {
+              status: "user-interaction-needed",
+              interaction: "allow-list-apps",
+            } as SignedTransactionResult;
+          case "web3-checks-opt-in":
+            return {
+              status: "user-interaction-needed",
+              interaction: "web3-checks-opt-in",
+            } as SignedTransactionResult;
+          default:
+            return {
+              status: "debugging",
+              message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
+            } as SignedTransactionResult;
+        }
+      case DeviceActionStatus.Completed:
+        console.log("Transaction signing completed", { result });
+        if (!("deviceMetadata" in result.output)) {
+          const signedTransaction = createSignedTransaction(rawTx, {
+            r: result.output.r,
+            s: result.output.s,
+            v: result.output.v,
+          } as Signature);
+          return {
+            status: "success",
+            data: signedTransaction,
+          } as SignedTransactionResult;
+        } else {
+          console.debug("Open app completed", { result });
+          return {
+            status: "debugging",
+            message: `App Opened`,
+          } as SignedTransactionResult;
+        }
+      case DeviceActionStatus.Error:
+        console.error("Error signing transaction in SignRawTransaction", {
+          error: result.error.toString(),
+        });
+        return {
+          status: "error",
+          error: new SignTransactionError(
+            result.error.toString() ?? "Unknown error",
+          ),
+        };
+      default:
+        return {
+          status: "debugging",
+          message: `DA status: ${result.status} - ${JSON.stringify(result)}`,
+        } as SignedTransactionResult;
     }
   }
 }

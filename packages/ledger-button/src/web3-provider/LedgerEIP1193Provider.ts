@@ -241,9 +241,15 @@ export class LedgerEIP1193Provider
       this.handleSignTransaction(params, true),
     eth_signTransaction: (params: unknown[]) =>
       this.handleSignTransaction(params),
-    // personal_sign: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
+    eth_signRawTransaction: (params: unknown[]) =>
+      this.handleSignTransaction(params),
+    eth_sign: (params: unknown[]) => {
+      //this.handleSignTransaction(params), //TODO this.handleSignPersonalMessage
+      console.log("eth_sign not implemented", params);
+      return Promise.reject(new Error("eth_signMessage not implemented"));
+    },
+    eth_sendRawTransaction: (params: unknown[]) =>
+      this.handleSignTransaction(params, true),
     eth_signTypedData: (params: unknown[]) => this.handleSignTypedData(params),
     eth_signTypedData_v4: (params: unknown[]) =>
       this.handleSignTypedData(params),
