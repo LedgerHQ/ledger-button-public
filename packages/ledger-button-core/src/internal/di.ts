@@ -35,7 +35,7 @@ export function createContainer({
   const container = new Container();
 
   container.loadSync(
-    configModuleFactory({ loggerLevel, apiKey, dAppIdentifier }),
+    configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
     alpacaModuleFactory({ stub: stub.alpaca }),
     loggerModuleFactory({ stub: stub.base }),
     accountModuleFactory({ stub: stub.account }),
