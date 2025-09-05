@@ -5,14 +5,15 @@ export type Transaction = {
   data: string;
   from: string;
   gas: string;
-  gasPrice: string | undefined;
-  maxFeePerGas: string | undefined;
-  maxPriorityFeePerGas: string | undefined;
   to: string;
   value: string;
-  nonce: string | undefined;
+  gasPrice?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+  nonce?: string;
 };
 
 export interface SignTransactionParams {
   transaction: Transaction;
+  broadcast: boolean;
 }

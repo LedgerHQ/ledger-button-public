@@ -1,5 +1,5 @@
 export interface SignedTransaction {
-  hash: string | undefined;
+  hash?: string;
   rawTransaction: Uint8Array<ArrayBufferLike>;
   signedRawTransaction: string;
 }
