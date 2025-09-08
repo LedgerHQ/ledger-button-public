@@ -1,7 +1,11 @@
 import { Signature } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
-import { SignedTransaction } from "../../../api/model/signing/SignedTransaction.js";
+import {
+  BroadcastedTransactionResult,
+  SignedResults,
+  SignedTransactionResult,
+} from "../../../api/model/signing/SignedTransaction.js";
 import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
@@ -27,9 +31,7 @@ export class BroadcastTransaction {
     this.logger = loggerFactory("[SendTransaction]");
   }
 
-  async execute(
-    params: BroadcastTransactionParams,
-  ): Promise<SignedTransaction> {
+  async execute(params: BroadcastTransactionParams): Promise<SignedResults> {
     this.logger.debug("Transaction to be signed with signature", { params });
 
     const signedTransaction = createSignedTransaction(
@@ -59,7 +61,7 @@ export class BroadcastTransaction {
   }
 
   private craftRequestFromSignedTransaction(
-    signedTransaction: SignedTransaction,
+    signedTransaction: SignedTransactionResult | BroadcastedTransactionResult,
     currencyId: string,
   ) {
     //TODO Get chainId from currencyId

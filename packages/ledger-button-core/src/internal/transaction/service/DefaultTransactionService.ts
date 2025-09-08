@@ -2,9 +2,18 @@ import { inject, injectable } from "inversify";
 import { Observable } from "rxjs";
 
 import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import { type SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import {
+  isSignRawTransactionParams,
+  type SignRawTransactionParams,
+} from "../../../api/model/signing/SignRawTransactionParams.js";
+import {
+  isSignTransactionParams,
+  type SignTransactionParams,
+} from "../../../api/model/signing/SignTransactionParams.js";
+import {
+  isSignTypedMessageParams,
+  type SignTypedMessageParams,
+} from "../../../api/model/signing/SignTypedMessageParams.js";
 import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { SignTransaction } from "../../device/use-case/SignTransaction.js";
@@ -44,13 +53,22 @@ export class DefaultTransactionService implements TransactionService {
     this._pendingParams = params;
 
     this.logger.debug("Signing flow started", { params, broadcast });
+    console.log("Signing flow started", { params, broadcast });
 
-    const useCase =
-      "transaction" in params
-        ? this.signTransactionUseCase.execute(params)
-        : "typedData" in params
-          ? this.signTypedDataUseCase.execute(params)
-          : this.signRawTransactionUseCase.execute(params);
+    let useCase: Observable<SignFlowStatus>;
+
+    switch (true) {
+      case isSignTransactionParams(params):
+        useCase = this.signTransactionUseCase.execute(params);
+        break;
+      case isSignTypedMessageParams(params):
+        useCase = this.signTypedDataUseCase.execute(params);
+        break;
+      case isSignRawTransactionParams(params):
+      default:
+        useCase = this.signRawTransactionUseCase.execute(params);
+        break;
+    }
 
     return useCase;
   }

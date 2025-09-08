@@ -1,24 +1,53 @@
 import {
+  DeviceActionStatus,
+  OpenAppWithDependenciesDAInput,
   type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
+  UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
 import {
   SignerEthBuilder,
   type SignTypedDataDAState,
+  TypedData,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
-import { concat, map, Observable, of } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  from,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import {
+  isSignedTypedDataResult,
+  type SignedTypedDataResult,
+} from "../../../api/model/signing/SignedTransaction.js";
+import type {
+  SignFlowStatus,
+  SignType,
+} from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { accountModuleTypes } from "../../account/accountModuleTypes.js";
-import type { AccountService } from "../../account/service/AccountService.js";
+import { getHexaStringFromSignature } from "../../../internal/transaction/utils/TransactionHelper.js";
+import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
+import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import type { StorageService } from "../../storage/StorageService.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { SignTransactionError } from "../model/errors.js";
+import {
+  AccountNotSelectedError,
+  DeviceConnectionError,
+  SignTransactionError,
+} from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
 @injectable()
@@ -30,8 +59,10 @@ export class SignTypedData {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(accountModuleTypes.AccountService)
-    private readonly accountService: AccountService,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
+    @inject(dAppConfigModuleTypes.DAppConfigService)
+    private readonly dappConfigService: DAppConfigService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
@@ -39,21 +70,34 @@ export class SignTypedData {
   }
 
   execute(params: SignTypedMessageParams): Observable<SignFlowStatus> {
-    this.logger.info("Starting typed data signing", { params });
+    this.logger.info("Starting transaction signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
+
     if (!sessionId) {
       this.logger.error("No device connected");
-      throw new Error("No device connected. Please connect a device first.");
+      throw new DeviceConnectionError(
+        "No device connected. Please connect a device first.",
+        { type: "not-connected" },
+      );
     }
 
     const device = this.deviceManagementKitService.connectedDevice;
     if (!device) {
       this.logger.error("No connected device found");
-      throw new Error("No connected device found");
+      throw new DeviceConnectionError("No connected device found", {
+        type: "not-connected",
+      });
     }
 
-    const { typedData } = params;
+    const [address, typedData] = params;
+    const signType = "typed-message";
+
+    const resultObservable = new BehaviorSubject<SignFlowStatus>({
+      signType,
+      status: "debugging",
+      message: "Initializing transaction signing",
+    });
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
@@ -63,57 +107,247 @@ export class SignTypedData {
         sessionId,
       }).build();
 
-      const account = this.accountService.getSelectedAccount();
-      if (!account) {
-        throw Error("No account selected");
+      const selectedAccount: Account | undefined = this.storageService
+        .getSelectedAccount()
+        .extract();
+
+      if (!selectedAccount) {
+        throw new AccountNotSelectedError("No account selected");
       }
 
-      const openObservable: Observable<OpenAppWithDependenciesDAState> =
-        dmk.executeDeviceAction({
-          sessionId: sessionId,
-          deviceAction: new OpenAppWithDependenciesDeviceAction({
-            input: {
-              application: {
-                name: "Ethereum",
-              },
-              dependencies: [],
-              requireLatestFirmware: false,
+      //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
+      const initObservable: Observable<OpenAppWithDependenciesDeviceAction> =
+        from(this.createOpenAppConfig()).pipe(
+          map(
+            (openAppConfig) =>
+              new OpenAppWithDependenciesDeviceAction({
+                input: openAppConfig,
+                inspect: false,
+              }),
+          ),
+        );
+
+      const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
+      console.log("Derivation path", { derivationPath });
+
+      initObservable
+        .pipe(
+          switchMap(
+            (openAppDeviceAction: OpenAppWithDependenciesDeviceAction) => {
+              const openObservable = dmk.executeDeviceAction({
+                sessionId: sessionId,
+                deviceAction: openAppDeviceAction,
+              }).observable;
+              return openObservable;
             },
-            inspect: false,
+          ),
+          filter(
+            (result: OpenAppWithDependenciesDAState) =>
+              result.status !== DeviceActionStatus.Pending ||
+              result.intermediateValue?.requiredUserInteraction !==
+                UserInteractionRequired.None,
+          ),
+          tap((result: OpenAppWithDependenciesDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, typedData, signType),
+            );
           }),
-        }).observable;
+          filter((result: OpenAppWithDependenciesDAState) => {
+            return (
+              result.status === DeviceActionStatus.Error ||
+              result.status === DeviceActionStatus.Completed
+            );
+          }),
+          switchMap((result: OpenAppWithDependenciesDAState) => {
+            resultObservable.next({
+              signType,
+              status: "debugging",
+              message: "Starting Sign Typed Data DA",
+            });
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
 
-      //TODO check account with derivation path and throw error if not matching
-      const derivationPath = account.derivationMode;
+            console.log("Signing typed data", {
+              address,
+              typedData,
+              derivationPath,
+              equals: address === derivationPath,
+            });
 
-      const { observable: signObservable } = ethSigner.signTypedData(
-        derivationPath,
-        typedData,
-      );
+            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
+            const { observable: signObservable } = ethSigner.signTypedData(
+              derivationPath,
+              typedData,
+              {
+                skipOpenApp: true,
+              },
+            );
 
-      return concat(openObservable, signObservable).pipe(
-        map((result: OpenAppWithDependenciesDAState | SignTypedDataDAState) => {
-          //TODO handle mapping
-          return {
-            signType: "typed-message",
-            status: "debugging",
-            message: `DA status: ${result.status} - ${JSON.stringify(result)}`,
-          };
-        }),
-      );
-      /*
-      if (result.status === "error" || result.status !== "completed") {
-        throw Error("Typed data signing failed");
-      }
+            return signObservable;
+          }),
+          filter(
+            (result: SignTypedDataDAState) =>
+              result.status !== DeviceActionStatus.Pending ||
+              result.intermediateValue?.requiredUserInteraction !==
+                UserInteractionRequired.None,
+          ),
+          filter((result: SignTypedDataDAState) => {
+            return (
+              result.status === DeviceActionStatus.Error ||
+              result.status === DeviceActionStatus.Completed
+            );
+          }),
+          tap((result: SignTypedDataDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, typedData, signType),
+            );
+          }),
+        )
+        .subscribe({
+          next: (result) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, typedData, signType),
+            );
+          },
+          error: (error: Error) => {
+            console.error("Failed to sign typed data in SignTypedData", {
+              error,
+            });
+            resultObservable.next({ signType, status: "error", error: error });
+          },
+        });
 
-      return result.output;*/
+      return resultObservable.asObservable();
     } catch (error) {
+      console.error("Failed to sign typed data in SignTypedData", {
+        error,
+      });
       this.logger.error("Failed to sign typed data", { error });
       return of({
-        signType: "typed-message",
+        signType,
         status: "error",
-        error: new SignTransactionError(`Typed data signing failed: ${error}`),
+        error: new SignTransactionError(`Typed date signing failed: ${error}`),
       });
+    }
+  }
+
+  async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {
+    const dAppConfig: DAppConfig = await this.dappConfigService.getDAppConfig();
+
+    const ethereumAppDependencies = dAppConfig.appDependencies.find(
+      (dep) => dep.blockchain === "ethereum",
+    );
+    if (!ethereumAppDependencies) {
+      throw new Error("Ethereum Blockchain dependencies not found");
+    }
+
+    return {
+      application: { name: ethereumAppDependencies.appName },
+      dependencies: ethereumAppDependencies.dependencies.map((dep) => ({
+        name: dep,
+      })),
+      requireLatestFirmware: false, //TODO add this to the dApp config
+    };
+  }
+
+  private getTransactionResultForEvent(
+    result:
+      | OpenAppWithDependenciesDAState
+      | SignTypedDataDAState
+      | SignedTypedDataResult,
+    _typedData: TypedData,
+    signType: SignType,
+  ): SignFlowStatus {
+    if (isSignedTypedDataResult(result)) {
+      return {
+        signType,
+        status: "success",
+        data: result,
+      };
+    }
+
+    switch (result.status) {
+      case DeviceActionStatus.Pending:
+        switch (result.intermediateValue?.requiredUserInteraction) {
+          case "unlock-device":
+            return {
+              signType,
+              status: "user-interaction-needed",
+              interaction: "unlock-device",
+            };
+          case "allow-secure-connection":
+            return {
+              signType,
+              status: "user-interaction-needed",
+              interaction: "allow-secure-connection",
+            };
+          case "confirm-open-app":
+            return {
+              signType,
+              status: "user-interaction-needed",
+              interaction: "confirm-open-app",
+            };
+          case "sign-typed-data":
+            return {
+              signType,
+              status: "user-interaction-needed",
+              interaction: "sign-transaction",
+            };
+          case "allow-list-apps":
+            return {
+              signType,
+              status: "user-interaction-needed",
+              interaction: "allow-list-apps",
+            };
+          case "web3-checks-opt-in":
+            return {
+              signType,
+              status: "user-interaction-needed",
+              interaction: "web3-checks-opt-in",
+            };
+          default:
+            return {
+              signType,
+              status: "debugging",
+              message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
+            };
+        }
+      case DeviceActionStatus.Completed:
+        console.log("Typed data signing completed", { result });
+        if (!("deviceMetadata" in result.output)) {
+          return {
+            signType,
+            status: "success",
+            data: {
+              signature: getHexaStringFromSignature(result.output),
+            },
+          };
+        } else {
+          console.debug("Open app completed", { result });
+          return {
+            signType,
+            status: "debugging",
+            message: `App Opened`,
+          };
+        }
+      case DeviceActionStatus.Error:
+        console.error("Error signing transaction in SignRawTransaction", {
+          error: result.error.toString(),
+        });
+        return {
+          signType,
+          status: "error",
+          error: new SignTransactionError(
+            result.error.toString() ?? "Unknown error",
+          ),
+        };
+      default:
+        return {
+          signType,
+          status: "debugging",
+          message: `DA status: ${result.status} - ${JSON.stringify(result)}`,
+        };
     }
   }
 }

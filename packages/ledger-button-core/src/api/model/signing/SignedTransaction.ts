@@ -1,6 +1,7 @@
-export type SignedTransaction =
+export type SignedResults =
   | BroadcastedTransactionResult
-  | SignedTransactionResult;
+  | SignedTransactionResult
+  | SignedTypedDataResult;
 
 export interface BroadcastedTransactionResult {
   hash: string;
@@ -13,17 +14,37 @@ export interface SignedTransactionResult {
   signedRawTransaction: string;
 }
 
-export function isSignedAndSentTransactionResult(
-  signedTransaction: SignedTransaction,
-): signedTransaction is BroadcastedTransactionResult {
-  return "hash" in signedTransaction;
+export interface SignedTypedDataResult {
+  signature: string;
 }
 
-export function isTransactionResult(
-  signedTransaction: any,
+export function isSignedTransactionResult(
+  signedTransaction: unknown,
 ): signedTransaction is SignedTransactionResult {
   return (
+    !!signedTransaction &&
+    typeof signedTransaction === "object" &&
     "rawTransaction" in signedTransaction &&
     "signedRawTransaction" in signedTransaction
+  );
+}
+
+export function isBroadcastedTransactionResult(
+  signedTransaction: unknown,
+): signedTransaction is BroadcastedTransactionResult {
+  return (
+    !!signedTransaction &&
+    typeof signedTransaction === "object" &&
+    "hash" in signedTransaction
+  );
+}
+
+export function isSignedTypedDataResult(
+  signedTransaction: unknown,
+): signedTransaction is SignedTypedDataResult {
+  return (
+    !!signedTransaction &&
+    typeof signedTransaction === "object" &&
+    "signature" in signedTransaction
   );
 }

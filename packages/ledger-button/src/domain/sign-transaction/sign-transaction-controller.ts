@@ -1,6 +1,6 @@
 import {
   type Signature,
-  type SignedTransaction,
+  type SignedResults,
   SignFlowStatus,
   type SignRawTransactionParams,
   type SignTransactionParams,
@@ -22,7 +22,7 @@ interface SignTransactionHost extends ReactiveControllerHost {
 export class SignTransactionController implements ReactiveController {
   host: SignTransactionHost;
   private transactionSubscription?: Subscription;
-  result?: SignedTransaction | Signature;
+  result?: SignedResults | Signature;
 
   constructor(
     host: SignTransactionHost,

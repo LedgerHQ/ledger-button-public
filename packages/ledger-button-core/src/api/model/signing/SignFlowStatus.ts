@@ -1,4 +1,4 @@
-import { SignedTransaction } from "./SignedTransaction.js";
+import { SignedResults } from "./SignedTransaction.js";
 
 export type SignType = "transaction" | "typed-message" | "personal-sign";
 
@@ -17,7 +17,7 @@ export type SignFlowStatus =
   | {
       signType: SignType;
       status: "success";
-      data: SignedTransaction;
+      data: SignedResults;
     }
   | {
       signType: SignType;

@@ -22,16 +22,20 @@ export default function Index() {
   const { providers, selectedProvider, setSelectedProvider } = useProviders();
   const [isOpen, setIsOpen] = useState(false);
   const [modalType, setModalType] = useState<
-    "accounts" | "sign" | "send" | null
+    | "accounts"
+    | "sign-tx"
+    | "send-tx"
+    | "sign-raw-tx"
+    | "sign-typed-data"
+    | null
   >(null);
-  const [_, setIsOpenTransaction] = useState(false);
-  const [isOpenRawTransaction, setIsOpenRawTransaction] = useState(false);
   const [account, setAccount] = useState<string | null>(null);
   const [balance, setBalance] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const txRef = useRef<HTMLTextAreaElement>(null);
   const sendTxRef = useRef<HTMLTextAreaElement>(null);
   const rawTxRef = useRef<HTMLTextAreaElement>(null);
+  const typedDataRef = useRef<HTMLTextAreaElement>(null);
 
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -112,16 +116,23 @@ export default function Index() {
   }, [selectedProvider]);
 
   const startSignTransaction = useCallback(() => {
-    setModalType("sign");
+    setModalType("sign-tx");
     setIsOpen(true);
   }, []);
 
   const startSendTransaction = useCallback(() => {
-    setModalType("send");
+    setModalType("send-tx");
     setIsOpen(true);
   }, []);
+
+  const startSignTypedData = useCallback(() => {
+    setModalType("sign-typed-data");
+    setIsOpen(true);
+  }, []);
+
   const startSignRawTransaction = useCallback(() => {
-    setIsOpenRawTransaction(true);
+    setModalType("sign-raw-tx");
+    setIsOpen(true);
   }, []);
 
   const handleSignTransaction = useCallback(async () => {
@@ -154,7 +165,6 @@ export default function Index() {
     if (!sendTxRef.current?.value) return;
     try {
       const tx = JSON.parse(sendTxRef?.current?.value);
-      console.log(tx);
       tx.from = undefined;
       const transx = ethers.Transaction.from(tx);
 
@@ -167,6 +177,24 @@ export default function Index() {
       console.error(error);
     }
   }, [selectedProvider]);
+
+  const handleSignTypedData = useCallback(async () => {
+    if (!selectedProvider || !typedDataRef.current?.value) return;
+    setIsOpen(false);
+    setError(null);
+
+    if (!typedDataRef.current?.value) return;
+    try {
+      const typedData = JSON.parse(typedDataRef.current.value);
+      const result = await selectedProvider.provider.request({
+        method: "eth_signTypedData_v4",
+        params: [account, typedData],
+      });
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [selectedProvider, account]);
 
   const handleDisconnect = useCallback(async () => {
     if (!selectedProvider) return;
@@ -186,7 +214,7 @@ export default function Index() {
 
   const handleSignRawTransaction = useCallback(async () => {
     if (!selectedProvider || !txRef.current?.value) return;
-    setIsOpenTransaction(false);
+    setIsOpen(false);
     setError(null);
 
     const transx = ethers.Transaction.from(txRef.current.value);
@@ -241,109 +269,112 @@ export default function Index() {
             <button onClick={startSignRawTransaction}>
               Sign Raw Transaction
             </button>
+            <button onClick={startSignTypedData}>Sign Typed Data</button>
           </div>
         )}
 
         {error && <div className={styles.error}>{error}</div>}
 
         <Dialog
-          open={isOpen && modalType === "accounts"}
+          open={isOpen}
           as="div"
           className={styles.dialog}
           onClose={() => setIsOpen(false)}
         >
           <div className={styles.dialogWrapper}>
             <div className={styles.dialogContent}>
-              <DialogPanel transition className={styles.dialogPanel}>
-                <DialogTitle as="h3" className={styles.dialogTitle}>
-                  Available Providers
-                </DialogTitle>
-                <div className={styles.providers}>
-                  {providers.map((data) => (
-                    <div
-                      className={styles.provider}
-                      key={data.info.uuid}
-                      onClick={() => setSelectedProvider(data)}
-                    >
-                      <p>{data.info.name}</p>
-                      <img src={data.info.icon} alt={data.info.name} />
-                    </div>
-                  ))}
-                </div>
-              </DialogPanel>
-            </div>
-          </div>
-        </Dialog>
+              {/* ACCOUNTS */}
+              {modalType === "accounts" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    Available Providers
+                  </DialogTitle>
+                  <div className={styles.providers}>
+                    {providers.map((data) => (
+                      <div
+                        className={styles.provider}
+                        key={data.info.uuid}
+                        onClick={() => setSelectedProvider(data)}
+                      >
+                        <p>{data.info.name}</p>
+                        <img src={data.info.icon} alt={data.info.name} />
+                      </div>
+                    ))}
+                  </div>
+                </DialogPanel>
+              )}
 
-        <Dialog
-          open={isOpen && modalType === "sign"}
-          as="div"
-          className={styles.dialog}
-          onClose={() => setIsOpen(false)}
-        >
-          <div className={styles.dialogWrapper}>
-            <div className={styles.dialogContent}>
-              <DialogPanel transition className={styles.dialogPanel}>
-                <DialogTitle as="h3" className={styles.dialogTitle}>
-                  Sign Transaction
-                </DialogTitle>
-                <Field>
-                  <Textarea ref={txRef} className={styles.textarea} rows={3} />
-                </Field>
-                <button onClick={handleSignTransaction}>Sign TX</button>
-              </DialogPanel>
-            </div>
-          </div>
-        </Dialog>
+              {/* SIGN TX */}
+              {modalType === "sign-tx" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    Sign Transaction
+                  </DialogTitle>
+                  <Field>
+                    <Textarea
+                      ref={txRef}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </Field>
+                  <button onClick={handleSignTransaction}>Sign TX</button>
+                </DialogPanel>
+              )}
 
-        <Dialog
-          open={isOpenRawTransaction}
-          as="div"
-          className={styles.dialog}
-          onClose={() => setIsOpenRawTransaction(false)}
-        >
-          <div className={styles.dialogWrapper}>
-            <div className={styles.dialogContent}>
-              <DialogPanel transition className={styles.dialogPanel}>
-                <DialogTitle as="h3" className={styles.dialogTitle}>
-                  Raw TX
-                </DialogTitle>
-                <Field>
-                  <Textarea
-                    ref={rawTxRef}
-                    className={styles.textarea}
-                    rows={3}
-                  />
-                </Field>
-                <button onClick={handleSignRawTransaction}>Sign Raw TX</button>
-              </DialogPanel>
-            </div>
-          </div>
-        </Dialog>
+              {/* SEND TX */}
+              {modalType === "send-tx" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    JSON TX
+                  </DialogTitle>
+                  <Field>
+                    <Textarea
+                      ref={sendTxRef}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </Field>
+                  <button onClick={handleSendTransaction}>
+                    Send Transaction
+                  </button>
+                </DialogPanel>
+              )}
 
-        <Dialog
-          open={isOpen && modalType === "send"}
-          as="div"
-          className={styles.dialog}
-          onClose={() => setIsOpen(false)}
-        >
-          <div className={styles.dialogWrapper}>
-            <div className={styles.dialogContent}>
-              <DialogPanel transition className={styles.dialogPanel}>
-                <DialogTitle as="h3" className={styles.dialogTitle}>
-                  JSON TX
-                </DialogTitle>
-                <Field>
-                  <Textarea
-                    ref={sendTxRef}
-                    className={styles.textarea}
-                    rows={3}
-                  />
-                </Field>
-                <button onClick={handleSendTransaction}>
-                  Send Transaction
-                </button>
-              </DialogPanel>
+              {/* SIGN RAW TX */}
+              {modalType === "sign-raw-tx" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    Raw TX
+                  </DialogTitle>
+                  <Field>
+                    <Textarea
+                      ref={rawTxRef}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </Field>
+                  <button onClick={handleSignRawTransaction}>
+                    Sign Raw TX
+                  </button>
+                </DialogPanel>
+              )}
+
+              {/* SIGN TYPED DATA */}
+              {modalType === "sign-typed-data" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    Typed Data (JSON)
+                  </DialogTitle>
+                  <Field>
+                    <Textarea
+                      ref={typedDataRef}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </Field>
+                  <button onClick={handleSignTypedData}>Sign Typed Data</button>
+                </DialogPanel>
+              )}
             </div>
           </div>
         </Dialog>

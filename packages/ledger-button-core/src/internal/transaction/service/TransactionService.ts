@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 
 import {
-  SignedTransaction,
+  SignedResults,
   SignFlowStatus,
   SignRawTransactionParams,
   SignTransactionParams,
@@ -20,7 +20,7 @@ export enum TransactionStatus {
 
 export interface TransactionResult {
   status: TransactionStatus;
-  data?: SignedTransaction | Signature;
+  data?: SignedResults | Signature;
   error?: Error;
 }
 

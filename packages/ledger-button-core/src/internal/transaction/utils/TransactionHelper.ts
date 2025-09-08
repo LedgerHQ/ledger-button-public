@@ -1,12 +1,16 @@
+import { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
 import { ethers, Signature, TransactionLike } from "ethers";
 
-import { Transaction } from "../../../api/index.js";
-import { SignedTransaction } from "../../../api/model/signing/SignedTransaction.js";
+import type {
+  BroadcastedTransactionResult,
+  SignedTransactionResult,
+} from "../../../api/model/signing/SignedTransaction.js";
+import type { Transaction } from "../../../api/model/signing/SignTransactionParams.js";
 
 export function createSignedTransaction(
   rawTransaction: string,
   signature: Signature,
-): SignedTransaction {
+): SignedTransactionResult | BroadcastedTransactionResult {
   //Generate Signed transaction
   const signedTx = ethers.Transaction.from(rawTransaction);
   signedTx.signature = signature;
@@ -31,10 +35,16 @@ export function getRawTransactionFromEipTransaction(transaction: Transaction) {
     maxFeePerGas: transaction["maxFeePerGas"],
     maxPriorityFeePerGas: transaction["maxPriorityFeePerGas"],
     gasPrice: transaction["gasPrice"],
-    nonce: transaction["nonce"] ? parseInt(transaction["nonce"]) : undefined,
+    nonce: transaction["nonce"]
+      ? parseInt(transaction["nonce"], 10)
+      : undefined,
   };
 
   const etherTx = ethers.Transaction.from(sanitizedTransaction);
   const tx = etherTx.unsignedSerialized;
   return tx;
+}
+
+export function getHexaStringFromSignature(signature: DeviceSignature) {
+  return ethers.Signature.from(signature).serialized;
 }

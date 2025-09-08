@@ -17,3 +17,11 @@ export interface SignTransactionParams {
   transaction: Transaction;
   broadcast: boolean;
 }
+
+export function isSignTransactionParams(
+  params: unknown,
+): params is SignTransactionParams {
+  return (
+    typeof params === "object" && params !== null && "transaction" in params
+  );
+}

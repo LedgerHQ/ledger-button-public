@@ -13,6 +13,7 @@
 import "../ledger-button-app.js";
 
 import {
+  BroadcastedTransactionResult,
   type ChainInfo,
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
@@ -23,8 +24,7 @@ import {
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
-  type Signature,
-  type SignedTransaction,
+  SignedTransactionResult,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -124,7 +124,6 @@ export class LedgerEIP1193Provider
               detail: [e.detail.account.freshAddress],
             }),
           );
-          // TODO: replace with real connection logic
           this._selectedAccount = e.detail.account.freshAddress;
           // TODO: create mapping between chainId and account.currencyId
           this._selectedChainId = "0x01"; // TODO: fetch the chain id from ?
@@ -156,7 +155,7 @@ export class LedgerEIP1193Provider
   private handleSignTransaction(
     params: unknown[],
     broadcast = false,
-  ): Promise<SignedTransaction> {
+  ): Promise<SignedTransactionResult | BroadcastedTransactionResult> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -175,6 +174,8 @@ export class LedgerEIP1193Provider
       window.addEventListener(
         "ledger-provider-sign-transaction",
         (e) => {
+          // TODO: The resolved value here should match the docs, right now we return a full object (also not sure about the typed of rawTransaction)
+          // { hash: string, rawTransaction: string |Uint8Array<ArrayBufferLike>, signedRawTransaction: string }
           resolve(e?.detail);
         },
         {
@@ -184,7 +185,7 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleSignTypedData(params: object): Promise<Signature> {
+  private handleSignTypedData(params: object): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -195,12 +196,14 @@ export class LedgerEIP1193Provider
         );
       }
 
+      console.log("handleSignTypedData", params);
+
       this.app.navigationIntent("signTransaction", params);
 
       window.addEventListener(
         "ledger-provider-sign-typed-data",
         (e) => {
-          resolve(e?.detail);
+          resolve(e.detail.signature);
         },
         {
           once: true,
@@ -209,7 +212,6 @@ export class LedgerEIP1193Provider
     });
   }
 
-  // TODO: Implement this
   handleChainId(): Promise<string> {
     return new Promise((resolve) => {
       this.dispatchEvent(
@@ -230,13 +232,6 @@ export class LedgerEIP1193Provider
     eth_accounts: (_: unknown) => this.handleAccounts(),
     eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
     eth_chainId: (_: unknown) => this.handleChainId(),
-    // NOTE: DEFERRED TO CORE
-    // eth_sendTransaction: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
-    // eth_sendRawTransaction: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
     eth_sendTransaction: (params: unknown[]) =>
       this.handleSignTransaction(params, true),
     eth_signTransaction: (params: unknown[]) =>
@@ -263,7 +258,6 @@ export class LedgerEIP1193Provider
       );
     }
 
-    console.log("request JSONRPC", method, params);
     return this.core.jsonRpcRequest({
       jsonrpc: "2.0",
       id: this._id++,

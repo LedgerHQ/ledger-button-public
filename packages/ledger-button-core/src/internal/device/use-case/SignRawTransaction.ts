@@ -24,9 +24,9 @@ import {
 } from "rxjs";
 
 import {
-  isTransactionResult,
-  SignedTransaction,
-  SignedTransactionResult,
+  isSignedTransactionResult,
+  isSignedTypedDataResult,
+  SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
 import {
   SignFlowStatus,
@@ -162,7 +162,11 @@ export class SignRawTransaction {
           ),
           tap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, rawTransaction),
+              this.getTransactionResultForEvent(
+                result,
+                rawTransaction,
+                signType,
+              ),
             );
           }),
           filter((result: OpenAppWithDependenciesDAState) => {
@@ -207,7 +211,11 @@ export class SignRawTransaction {
           }),
           tap((result: SignTransactionDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, rawTransaction),
+              this.getTransactionResultForEvent(
+                result,
+                rawTransaction,
+                signType,
+              ),
             );
           }),
           switchMap(async (result: SignTransactionDAState) => {
@@ -226,9 +234,13 @@ export class SignRawTransaction {
           }),
         )
         .subscribe({
-          next: (result: SignTransactionDAState | SignedTransactionResult) => {
+          next: (result) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, rawTransaction),
+              this.getTransactionResultForEvent(
+                result,
+                rawTransaction,
+                signType,
+              ),
             );
           },
           error: (error: Error) => {
@@ -276,11 +288,11 @@ export class SignRawTransaction {
     result:
       | OpenAppWithDependenciesDAState
       | SignTransactionDAState
-      | SignedTransaction,
+      | SignedResults,
     rawTx: string,
-    signType: SignType = "transaction",
+    signType: SignType,
   ): SignFlowStatus {
-    if (isTransactionResult(result)) {
+    if (isSignedTransactionResult(result) || isSignedTypedDataResult(result)) {
       return {
         signType,
         status: "success",

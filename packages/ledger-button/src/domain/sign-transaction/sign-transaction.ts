@@ -2,8 +2,8 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
-  isTransactionResult,
-  type SignedTransaction,
+  isSignedTransactionResult,
+  type SignedResults,
   type SignTransactionParams,
 } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
@@ -153,28 +153,22 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     if (this.controller.result) {
-      if (isTransactionResult(this.controller.result)) {
+      if (isSignedTransactionResult(this.controller.result)) {
         window.dispatchEvent(
-          new CustomEvent<SignedTransaction>(
-            "ledger-internal-sign-transaction",
-            {
-              bubbles: true,
-              composed: true,
-              detail: this.controller.result,
-            },
-          ),
+          new CustomEvent<SignedResults>("ledger-internal-sign-transaction", {
+            bubbles: true,
+            composed: true,
+            detail: this.controller.result,
+          }),
         );
       } else {
         window.dispatchEvent(
-          new CustomEvent<SignedTransaction>(
-            "ledger-internal-sign-typed-data",
-            {
-              bubbles: true,
-              composed: true,
-              // TODO: Update when SignedTypedMessage is implemented
-              detail: this.controller.result as unknown as SignedTransaction,
-            },
-          ),
+          new CustomEvent<SignedResults>("ledger-internal-sign-typed-data", {
+            bubbles: true,
+            composed: true,
+            // TODO: Update when SignedTypedMessage is implemented
+            detail: this.controller.result as unknown as SignedResults,
+          }),
         );
       }
     }
@@ -279,8 +273,8 @@ declare global {
   }
 
   interface WindowEventMap {
-    "ledger-internal-send-transaction": CustomEvent<SignedTransaction>;
-    "ledger-internal-sign-transaction": CustomEvent<SignedTransaction>;
-    "ledger-internal-sign-typed-data": CustomEvent<SignedTransaction>;
+    "ledger-internal-send-transaction": CustomEvent<SignedResults>;
+    "ledger-internal-sign-transaction": CustomEvent<SignedResults>;
+    "ledger-internal-sign-typed-data": CustomEvent<SignedResults>;
   }
 }
