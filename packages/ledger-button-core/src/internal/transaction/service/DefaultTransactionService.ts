@@ -1,32 +1,20 @@
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 
-import {
-  Signature,
-  SignedTransaction,
-  SignTypedMessageParams,
-} from "../../../api/model/index.js";
+import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import { type SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import { SignedTransactionResult } from "../../../api/model/signing/SignTransactionResult.js";
+import { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { SignTransaction } from "../../device/use-case/SignTransaction.js";
 import { SignTypedData } from "../../device/use-case/SignTypedData.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import {
-  TransactionResult,
-  TransactionService,
-  TransactionStatus,
-} from "./TransactionService.js";
+import { TransactionService } from "./TransactionService.js";
 
 @injectable()
 export class DefaultTransactionService implements TransactionService {
-  private _status = new BehaviorSubject<TransactionStatus>(
-    TransactionStatus.IDLE,
-  );
-  private _result = new Subject<TransactionResult>();
   private _pendingParams?:
     | SignTransactionParams
     | SignRawTransactionParams
@@ -54,9 +42,8 @@ export class DefaultTransactionService implements TransactionService {
       | SignTypedMessageParams
       | SignTransactionParams,
     broadcast: boolean,
-  ): Observable<SignedTransactionResult> {
+  ): Observable<SignFlowStatus> {
     this._pendingParams = params;
-    this._updateStatus(TransactionStatus.SIGNING);
 
     this.logger.debug("Signing flow started", { params, broadcast });
 
@@ -67,22 +54,6 @@ export class DefaultTransactionService implements TransactionService {
           ? this.signTypedDataUseCase.execute(params)
           : this.signRawTransactionUseCase.execute(params);
 
-    /*  if (broadcast) {
-      const broadcastObservable = from(
-        this.broadcastTransactionUseCase.execute(res),
-      ).pipe(
-        map((transactionHash: TransactionHash) => {
-          return {
-            status: "success",
-            data: {
-              hash: transactionHash,
-            },
-          };
-        }),
-      );
-      return concat(useCase, broadcastObservable);
-    } else {
-      }*/
     return useCase;
   }
 
@@ -95,26 +66,15 @@ export class DefaultTransactionService implements TransactionService {
   }
 
   setPendingTransaction(
-    params:
+    params?:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedMessageParams
-      | undefined,
+      | SignTypedMessageParams,
   ): void {
     this._pendingParams = params;
   }
 
   reset(): void {
     this._pendingParams = undefined;
-    this._updateStatus(TransactionStatus.IDLE);
-  }
-
-  private _updateStatus(
-    status: TransactionStatus,
-    data?: SignedTransaction | Signature,
-    error?: Error,
-  ): void {
-    this._status.next(status);
-    this._result.next({ status, data, error });
   }
 }

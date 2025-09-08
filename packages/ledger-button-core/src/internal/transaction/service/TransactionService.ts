@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 
 import {
   SignedTransaction,
-  SignedTransactionResult,
+  SignFlowStatus,
   SignRawTransactionParams,
   SignTransactionParams,
   SignTypedMessageParams,
@@ -31,7 +31,7 @@ export interface TransactionService {
       | SignRawTransactionParams
       | SignTypedMessageParams,
     broadcast: boolean,
-  ): Observable<SignedTransactionResult>;
+  ): Observable<SignFlowStatus>;
 
   getPendingTransaction():
     | SignTransactionParams

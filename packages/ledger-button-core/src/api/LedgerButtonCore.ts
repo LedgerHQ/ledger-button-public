@@ -7,9 +7,9 @@ import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
+import { SignFlowStatus } from "./model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "./model/signing/SignRawTransactionParams.js";
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
-import { SignedTransactionResult } from "./model/signing/SignTransactionResult.js";
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
@@ -245,7 +245,7 @@ export class LedgerButtonCore {
       | SignRawTransactionParams
       | SignTypedMessageParams,
     broadcast: boolean,
-  ): Observable<SignedTransactionResult> {
+  ): Observable<SignFlowStatus> {
     this._logger.debug("Signing transaction", { params });
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)

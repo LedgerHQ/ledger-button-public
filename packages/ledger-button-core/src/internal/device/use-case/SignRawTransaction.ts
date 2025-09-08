@@ -23,9 +23,16 @@ import {
   tap,
 } from "rxjs";
 
-import { SignedTransaction } from "../../../api/model/signing/SignedTransaction.js";
+import {
+  isTransactionResult,
+  SignedTransaction,
+  SignedTransactionResult,
+} from "../../../api/model/signing/SignedTransaction.js";
+import {
+  SignFlowStatus,
+  SignType,
+} from "../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { SignedTransactionResult } from "../../../api/model/signing/SignTransactionResult.js";
 import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
@@ -70,9 +77,7 @@ export class SignRawTransaction {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
 
-  execute(
-    params: SignRawTransactionParams,
-  ): Observable<SignedTransactionResult> {
+  execute(params: SignRawTransactionParams): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
@@ -94,7 +99,10 @@ export class SignRawTransaction {
     }
 
     const { rawTransaction, broadcast } = params;
-    const resultObservable = new BehaviorSubject<SignedTransactionResult>({
+    const signType = "transaction";
+
+    const resultObservable = new BehaviorSubject<SignFlowStatus>({
+      signType,
       status: "debugging",
       message: "Initializing transaction signing",
     });
@@ -165,6 +173,7 @@ export class SignRawTransaction {
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next({
+              signType,
               status: "debugging",
               message: "Starting Sign Transaction DA",
             });
@@ -217,7 +226,7 @@ export class SignRawTransaction {
           }),
         )
         .subscribe({
-          next: (result: SignTransactionDAState | SignedTransaction) => {
+          next: (result: SignTransactionDAState | SignedTransactionResult) => {
             resultObservable.next(
               this.getTransactionResultForEvent(result, rawTransaction),
             );
@@ -226,7 +235,7 @@ export class SignRawTransaction {
             console.error("Failed to sign transaction in SignRawTransaction", {
               error,
             });
-            resultObservable.next({ status: "error", error: error });
+            resultObservable.next({ signType, status: "error", error: error });
           },
         });
 
@@ -237,6 +246,7 @@ export class SignRawTransaction {
       });
       this.logger.error("Failed to sign transaction", { error });
       return of({
+        signType,
         status: "error",
         error: new SignTransactionError(`Transaction signing failed: ${error}`),
       });
@@ -268,51 +278,61 @@ export class SignRawTransaction {
       | SignTransactionDAState
       | SignedTransaction,
     rawTx: string,
-  ): SignedTransactionResult {
-    if ("hash" in result) {
+    signType: SignType = "transaction",
+  ): SignFlowStatus {
+    if (isTransactionResult(result)) {
       return {
+        signType,
         status: "success",
         data: result,
-      } as SignedTransactionResult;
+      };
     }
+
     switch (result.status) {
       case DeviceActionStatus.Pending:
         switch (result.intermediateValue?.requiredUserInteraction) {
           case "unlock-device":
             return {
+              signType,
               status: "user-interaction-needed",
               interaction: "unlock-device",
-            } as SignedTransactionResult;
+            };
           case "allow-secure-connection":
             return {
+              signType,
               status: "user-interaction-needed",
               interaction: "allow-secure-connection",
-            } as SignedTransactionResult;
+            };
           case "confirm-open-app":
             return {
+              signType,
               status: "user-interaction-needed",
               interaction: "confirm-open-app",
-            } as SignedTransactionResult;
+            };
           case "sign-transaction":
             return {
+              signType,
               status: "user-interaction-needed",
               interaction: "sign-transaction",
-            } as SignedTransactionResult;
+            };
           case "allow-list-apps":
             return {
+              signType,
               status: "user-interaction-needed",
               interaction: "allow-list-apps",
-            } as SignedTransactionResult;
+            };
           case "web3-checks-opt-in":
             return {
+              signType,
               status: "user-interaction-needed",
               interaction: "web3-checks-opt-in",
-            } as SignedTransactionResult;
+            };
           default:
             return {
+              signType,
               status: "debugging",
               message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
-            } as SignedTransactionResult;
+            };
         }
       case DeviceActionStatus.Completed:
         console.log("Transaction signing completed", { result });
@@ -323,21 +343,24 @@ export class SignRawTransaction {
             v: result.output.v,
           } as Signature);
           return {
+            signType,
             status: "success",
             data: signedTransaction,
-          } as SignedTransactionResult;
+          };
         } else {
           console.debug("Open app completed", { result });
           return {
+            signType,
             status: "debugging",
             message: `App Opened`,
-          } as SignedTransactionResult;
+          };
         }
       case DeviceActionStatus.Error:
         console.error("Error signing transaction in SignRawTransaction", {
           error: result.error.toString(),
         });
         return {
+          signType,
           status: "error",
           error: new SignTransactionError(
             result.error.toString() ?? "Unknown error",
@@ -345,9 +368,10 @@ export class SignRawTransaction {
         };
       default:
         return {
+          signType,
           status: "debugging",
           message: `DA status: ${result.status} - ${JSON.stringify(result)}`,
-        } as SignedTransactionResult;
+        };
     }
   }
 }

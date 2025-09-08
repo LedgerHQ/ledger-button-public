@@ -1,22 +1,22 @@
 import {
-  OpenAppWithDependenciesDAState,
+  type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
 } from "@ledgerhq/device-management-kit";
 import {
   SignerEthBuilder,
-  SignTypedDataDAState,
+  type SignTypedDataDAState,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { concat, map, Observable, of } from "rxjs";
 
-import { SignedTransactionResult } from "../../../api/model/signing/SignTransactionResult.js";
-import { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { accountModuleTypes } from "../../account/accountModuleTypes.js";
 import type { AccountService } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
 import { SignTransactionError } from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
@@ -38,7 +38,7 @@ export class SignTypedData {
     this.logger = loggerFactory("[SignTypedData]");
   }
 
-  execute(params: SignTypedMessageParams): Observable<SignedTransactionResult> {
+  execute(params: SignTypedMessageParams): Observable<SignFlowStatus> {
     this.logger.info("Starting typed data signing", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
@@ -95,9 +95,10 @@ export class SignTypedData {
         map((result: OpenAppWithDependenciesDAState | SignTypedDataDAState) => {
           //TODO handle mapping
           return {
+            signType: "typed-message",
             status: "debugging",
             message: `DA status: ${result.status} - ${JSON.stringify(result)}`,
-          } as SignedTransactionResult;
+          };
         }),
       );
       /*
@@ -109,6 +110,7 @@ export class SignTypedData {
     } catch (error) {
       this.logger.error("Failed to sign typed data", { error });
       return of({
+        signType: "typed-message",
         status: "error",
         error: new SignTransactionError(`Typed data signing failed: ${error}`),
       });

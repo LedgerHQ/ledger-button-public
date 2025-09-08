@@ -1,8 +1,8 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Observable, of } from "rxjs";
 
+import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import { SignedTransactionResult } from "../../../api/model/signing/SignTransactionResult.js";
 import { getRawTransactionFromEipTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -22,7 +22,7 @@ export class SignTransaction {
     this.logger = loggerFactory("[SignTransaction]");
   }
 
-  execute(params: SignTransactionParams): Observable<SignedTransactionResult> {
+  execute(params: SignTransactionParams): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
 
     const transaction = params.transaction;
@@ -36,6 +36,7 @@ export class SignTransaction {
     } catch (error) {
       this.logger.error("Failed to parse transaction", { error });
       return of({
+        signType: "transaction",
         status: "error",
         error: new SignTransactionError("Failed to parse transaction", {
           error,

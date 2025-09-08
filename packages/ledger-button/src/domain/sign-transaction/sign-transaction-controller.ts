@@ -1,7 +1,7 @@
 import {
   type Signature,
   type SignedTransaction,
-  SignedTransactionResult,
+  SignFlowStatus,
   type SignRawTransactionParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
@@ -56,7 +56,7 @@ export class SignTransactionController implements ReactiveController {
     this.transactionSubscription = this.core
       .sign(transactionParams, broadcast)
       .subscribe({
-        next: (result: SignedTransactionResult) => {
+        next: (result: SignFlowStatus) => {
           console.log("Signed transaction result", result);
           switch (result.status) {
             case "success":
