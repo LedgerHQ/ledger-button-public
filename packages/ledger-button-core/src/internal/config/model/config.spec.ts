@@ -3,7 +3,10 @@ import { Config } from "./config.js";
 describe("Config", () => {
   describe("environment and ledger keyring protocol configuration", () => {
     it("should default to production environment", () => {
-      const config = new Config({});
+      const config = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+      });
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
         "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
@@ -11,7 +14,11 @@ describe("Config", () => {
     });
 
     it("should set staging environment correctly", () => {
-      const config = new Config({ environment: "staging" });
+      const config = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+        environment: "staging",
+      });
       expect(config.environment).toBe("staging");
       expect(config.lkrp.cloudSyncUrl).toBe(
         "https://cloud-sync-backend.api.aws.stg.ldg-tech.com",
@@ -19,7 +26,11 @@ describe("Config", () => {
     });
 
     it("should set production environment correctly", () => {
-      const config = new Config({ environment: "production" });
+      const config = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+        environment: "production",
+      });
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
         "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
@@ -27,7 +38,11 @@ describe("Config", () => {
     });
 
     it("should allow changing environment after construction", () => {
-      const config = new Config({ environment: "staging" });
+      const config = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+        environment: "staging",
+      });
       expect(config.lkrp.cloudSyncUrl).toBe(
         "https://cloud-sync-backend.api.aws.stg.ldg-tech.com",
       );
@@ -41,9 +56,10 @@ describe("Config", () => {
 
     it("should maintain other configuration when changing environment", () => {
       const config = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
         environment: "staging",
         logLevel: "debug",
-        dAppIdentifier: "test-app",
       });
 
       config.setEnvironment("production");

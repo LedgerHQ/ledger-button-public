@@ -24,7 +24,11 @@ describe("DefaultStorageService", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorage.clear();
-    config = new Config({ logLevel: "info" });
+    config = new Config({
+      originToken: "test-token",
+      dAppIdentifier: "test-app",
+      logLevel: "info",
+    });
     storageService = new DefaultStorageService(
       (tag) =>
         new DefaultLoggerPublisher([new ConsoleLoggerSubscriber(config)], tag),

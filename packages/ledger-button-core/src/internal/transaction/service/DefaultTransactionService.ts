@@ -4,6 +4,7 @@ import { BehaviorSubject, from, Observable, Subject } from "rxjs";
 import { finalize, tap } from "rxjs/operators";
 
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
+import { SendTransaction } from "../../device/use-case/SendTransaction.js";
 import type {
   SignedTransaction,
   SignRawTransaction,
@@ -44,6 +45,8 @@ export class DefaultTransactionService implements TransactionService {
     private readonly signRawTransactionUseCase: SignRawTransaction,
     @inject(deviceModuleTypes.SignTypedDataUseCase)
     private readonly signTypedDataUseCase: SignTypedData,
+    @inject(deviceModuleTypes.SendTransactionUseCase)
+    private readonly sendTransactionUseCase: SendTransaction,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
@@ -52,16 +55,19 @@ export class DefaultTransactionService implements TransactionService {
 
   sign(
     params:
-      | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams,
+      | SignTypedDataParams
+      | SignTransactionParams,
+    broadcast: boolean,
   ): Observable<TransactionResult> {
     this._pendingParams = params;
     this._updateStatus(TransactionStatus.SIGNING);
 
     const useCase =
       "transaction" in params
-        ? this.signTransactionUseCase.execute(params)
+        ? broadcast
+          ? this.sendTransactionUseCase.execute(params)
+          : this.signTransactionUseCase.execute(params)
         : "typedData" in params
           ? this.signTypedDataUseCase.execute(params)
           : this.signRawTransactionUseCase.execute(params);
