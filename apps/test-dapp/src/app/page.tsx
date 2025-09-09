@@ -27,6 +27,7 @@ export default function Index() {
     | "send-tx"
     | "sign-raw-tx"
     | "sign-typed-data"
+    | "sign-personal-message"
     | null
   >(null);
   const [account, setAccount] = useState<string | null>(null);
@@ -36,6 +37,7 @@ export default function Index() {
   const sendTxRef = useRef<HTMLTextAreaElement>(null);
   const rawTxRef = useRef<HTMLTextAreaElement>(null);
   const typedDataRef = useRef<HTMLTextAreaElement>(null);
+  const personalMessageRef = useRef<HTMLTextAreaElement>(null);
 
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -135,6 +137,11 @@ export default function Index() {
     setIsOpen(true);
   }, []);
 
+  const startSignPersonalMessage = useCallback(() => {
+    setModalType("sign-personal-message");
+    setIsOpen(true);
+  }, []);
+
   const handleSignTransaction = useCallback(async () => {
     if (!selectedProvider || !txRef.current?.value) return;
     setIsOpen(false);
@@ -189,6 +196,23 @@ export default function Index() {
       const result = await selectedProvider.provider.request({
         method: "eth_signTypedData_v4",
         params: [account, typedData],
+      });
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [selectedProvider, account]);
+
+  const handleSignPersonalMessage = useCallback(async () => {
+    if (!selectedProvider || !personalMessageRef.current?.value) return;
+    setIsOpen(false);
+    setError(null);
+
+    if (!personalMessageRef.current?.value) return;
+    try {
+      const result = await selectedProvider.provider.request({
+        method: "eth_sign",
+        params: [account, personalMessageRef.current.value],
       });
       console.log(result);
     } catch (error) {
@@ -270,6 +294,9 @@ export default function Index() {
               Sign Raw Transaction
             </button>
             <button onClick={startSignTypedData}>Sign Typed Data</button>
+            <button onClick={startSignPersonalMessage}>
+              Sign Personal Message
+            </button>
           </div>
         )}
 
@@ -373,6 +400,25 @@ export default function Index() {
                     />
                   </Field>
                   <button onClick={handleSignTypedData}>Sign Typed Data</button>
+                </DialogPanel>
+              )}
+
+              {/* SIGN PERSONAL MESSAGE */}
+              {modalType === "sign-personal-message" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    Personal Message
+                  </DialogTitle>
+                  <Field>
+                    <Textarea
+                      ref={personalMessageRef}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </Field>
+                  <button onClick={handleSignPersonalMessage}>
+                    Sign Personal Message
+                  </button>
                 </DialogPanel>
               )}
             </div>

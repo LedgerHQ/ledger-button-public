@@ -3,6 +3,10 @@ import { Observable } from "rxjs";
 
 import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import {
+  isSignPersonalMessageParams,
+  SignPersonalMessageParams,
+} from "../../../api/model/signing/SignPersonalMessageParams.js";
+import {
   isSignRawTransactionParams,
   type SignRawTransactionParams,
 } from "../../../api/model/signing/SignRawTransactionParams.js";
@@ -14,6 +18,7 @@ import {
   isSignTypedMessageParams,
   type SignTypedMessageParams,
 } from "../../../api/model/signing/SignTypedMessageParams.js";
+import { SignPersonalMessage } from "../../../internal/device/use-case/SignPersonalMessage.js";
 import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { SignTransaction } from "../../device/use-case/SignTransaction.js";
@@ -27,7 +32,8 @@ export class DefaultTransactionService implements TransactionService {
   private _pendingParams?:
     | SignTransactionParams
     | SignRawTransactionParams
-    | SignTypedMessageParams;
+    | SignTypedMessageParams
+    | SignPersonalMessageParams;
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -37,6 +43,8 @@ export class DefaultTransactionService implements TransactionService {
     private readonly signRawTransactionUseCase: SignRawTransaction,
     @inject(deviceModuleTypes.SignTypedDataUseCase)
     private readonly signTypedDataUseCase: SignTypedData,
+    @inject(deviceModuleTypes.SignPersonalMessageUseCase)
+    private readonly signPersonalMessageUseCase: SignPersonalMessage,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
@@ -47,7 +55,8 @@ export class DefaultTransactionService implements TransactionService {
     params:
       | SignRawTransactionParams
       | SignTypedMessageParams
-      | SignTransactionParams,
+      | SignTransactionParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
   ): Observable<SignFlowStatus> {
     this._pendingParams = params;
@@ -64,6 +73,9 @@ export class DefaultTransactionService implements TransactionService {
       case isSignTypedMessageParams(params):
         useCase = this.signTypedDataUseCase.execute(params);
         break;
+      case isSignPersonalMessageParams(params):
+        useCase = this.signPersonalMessageUseCase.execute(params);
+        break;
       case isSignRawTransactionParams(params):
       default:
         useCase = this.signRawTransactionUseCase.execute(params);
@@ -77,6 +89,7 @@ export class DefaultTransactionService implements TransactionService {
     | SignTransactionParams
     | SignRawTransactionParams
     | SignTypedMessageParams
+    | SignPersonalMessageParams
     | undefined {
     return this._pendingParams;
   }
@@ -85,7 +98,8 @@ export class DefaultTransactionService implements TransactionService {
     params?:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedMessageParams,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
   ): void {
     this._pendingParams = params;
   }

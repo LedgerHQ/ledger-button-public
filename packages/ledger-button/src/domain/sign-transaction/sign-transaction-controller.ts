@@ -2,6 +2,7 @@ import {
   type Signature,
   type SignedResults,
   SignFlowStatus,
+  type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
@@ -46,7 +47,8 @@ export class SignTransactionController implements ReactiveController {
     transactionParams:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedMessageParams,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
   ) {
     if (this.transactionSubscription) {
@@ -88,6 +90,7 @@ export class SignTransactionController implements ReactiveController {
         },
       });
   }
+
   //TODO do not display this button for EIP712 messages
   viewTransactionDetails(transactionId: string) {
     window.open(`https://etherscan.io/tx/${transactionId}`);

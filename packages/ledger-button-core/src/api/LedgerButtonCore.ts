@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
+import { SignPersonalMessageParams } from "./model/index.js";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
@@ -243,7 +244,8 @@ export class LedgerButtonCore {
     params:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedMessageParams,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
   ): Observable<SignFlowStatus> {
     this._logger.debug("Signing transaction", { params });

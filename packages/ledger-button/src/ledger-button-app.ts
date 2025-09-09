@@ -8,12 +8,12 @@ import {
   Account,
   BroadcastedTransactionResult,
   isBroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-  isSignedTypedDataResult,
   LedgerButtonCore,
+  SignedPersonalMessageOrTypedDataResult,
   SignedResults,
   SignedTransactionResult,
-  SignedTypedDataResult,
 } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -59,8 +59,8 @@ export class LedgerButtonApp extends LitElement {
       this.handleSendTransaction,
     );
     window.addEventListener(
-      "ledger-internal-sign-typed-data",
-      this.handleSignTypedData,
+      "ledger-internal-sign-message",
+      this.handleSignMessage,
     );
   }
 
@@ -87,8 +87,8 @@ export class LedgerButtonApp extends LitElement {
       this.handleSendTransaction,
     );
     window.removeEventListener(
-      "ledger-internal-sign-typed-data",
-      this.handleSignTypedData,
+      "ledger-internal-sign-message",
+      this.handleSignMessage,
     );
   }
 
@@ -147,11 +147,11 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
-  private handleSignTypedData = (e: CustomEvent<SignedResults>) => {
-    if (isSignedTypedDataResult(e.detail)) {
+  private handleSignMessage = (e: CustomEvent<SignedResults>) => {
+    if (isSignedMessageOrTypedDataResult(e.detail)) {
       window.dispatchEvent(
-        new CustomEvent<SignedTypedDataResult>(
-          "ledger-provider-sign-typed-data",
+        new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
+          "ledger-provider-sign-message",
           {
             bubbles: true,
             composed: true,
@@ -203,7 +203,7 @@ declare global {
     "ledger-provider-sign-transaction": CustomEvent<
       SignedTransactionResult | BroadcastedTransactionResult
     >;
-    "ledger-provider-sign-typed-data": CustomEvent<SignedTypedDataResult>;
+    "ledger-provider-sign-message": CustomEvent<SignedPersonalMessageOrTypedDataResult>;
     "ledger-provider-disconnect": CustomEvent;
   }
 }

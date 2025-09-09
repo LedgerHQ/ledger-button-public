@@ -2,9 +2,13 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
+  isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
   type SignedResults,
+  SignPersonalMessageParams,
+  SignRawTransactionParams,
   type SignTransactionParams,
+  SignTypedMessageParams,
 } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -74,7 +78,11 @@ export class SignTransactionScreen extends LitElement {
   transactionId = "";
 
   @property({ type: Object })
-  transactionParams?: SignTransactionParams;
+  transactionParams?:
+    | SignTransactionParams
+    | SignPersonalMessageParams
+    | SignRawTransactionParams
+    | SignTypedMessageParams;
 
   @property({ type: Object })
   params?: unknown;
@@ -161,13 +169,12 @@ export class SignTransactionScreen extends LitElement {
             detail: this.controller.result,
           }),
         );
-      } else {
+      } else if (isSignedMessageOrTypedDataResult(this.controller.result)) {
         window.dispatchEvent(
-          new CustomEvent<SignedResults>("ledger-internal-sign-typed-data", {
+          new CustomEvent<string>("ledger-internal-sign-message", {
             bubbles: true,
             composed: true,
-            // TODO: Update when SignedTypedMessage is implemented
-            detail: this.controller.result as unknown as SignedResults,
+            detail: this.controller.result.signature,
           }),
         );
       }
@@ -275,6 +282,6 @@ declare global {
   interface WindowEventMap {
     "ledger-internal-send-transaction": CustomEvent<SignedResults>;
     "ledger-internal-sign-transaction": CustomEvent<SignedResults>;
-    "ledger-internal-sign-typed-data": CustomEvent<SignedResults>;
+    "ledger-internal-sign-message": CustomEvent<SignedResults>;
   }
 }

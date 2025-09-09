@@ -201,7 +201,34 @@ export class LedgerEIP1193Provider
       this.app.navigationIntent("signTransaction", params);
 
       window.addEventListener(
-        "ledger-provider-sign-typed-data",
+        "ledger-provider-sign-message",
+        (e) => {
+          resolve(e.detail.signature);
+        },
+        {
+          once: true,
+        },
+      );
+    });
+  }
+
+  private handleSignPersonalMessage(params: object): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this._selectedAccount) {
+        return reject(
+          this.createError(
+            CommonEIP1193ErrorCode.Unauthorized,
+            "No account selected",
+          ),
+        );
+      }
+
+      console.log("handleSignPersonalMessage", params);
+
+      this.app.navigationIntent("signTransaction", params);
+
+      window.addEventListener(
+        "ledger-provider-sign-message",
         (e) => {
           resolve(e.detail.signature);
         },
@@ -238,11 +265,7 @@ export class LedgerEIP1193Provider
       this.handleSignTransaction(params),
     eth_signRawTransaction: (params: unknown[]) =>
       this.handleSignTransaction(params),
-    eth_sign: (params: unknown[]) => {
-      //this.handleSignTransaction(params), //TODO this.handleSignPersonalMessage
-      console.log("eth_sign not implemented", params);
-      return Promise.reject(new Error("eth_signMessage not implemented"));
-    },
+    eth_sign: (params: unknown[]) => this.handleSignPersonalMessage(params),
     eth_sendRawTransaction: (params: unknown[]) =>
       this.handleSignTransaction(params, true),
     eth_signTypedData: (params: unknown[]) => this.handleSignTypedData(params),

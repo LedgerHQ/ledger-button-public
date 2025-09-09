@@ -7,6 +7,7 @@ export const deviceModuleTypes = {
   SignRawTransactionUseCase: Symbol.for("SignRawTransactionUseCase"),
   SignTransactionUseCase: Symbol.for("SignTransactionUseCase"),
   SignTypedDataUseCase: Symbol.for("SignTypedDataUseCase"),
+  SignPersonalMessageUseCase: Symbol.for("SignPersonalMessageUseCase"),
   BroadcastTransactionUseCase: Symbol.for("BroadcastTransactionUseCase"),
   ListAvailableDevicesUseCase: Symbol.for("ListAvailableDevicesUseCase"),
 };

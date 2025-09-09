@@ -1,7 +1,7 @@
 export type SignedResults =
   | BroadcastedTransactionResult
   | SignedTransactionResult
-  | SignedTypedDataResult;
+  | SignedPersonalMessageOrTypedDataResult;
 
 export interface BroadcastedTransactionResult {
   hash: string;
@@ -14,7 +14,7 @@ export interface SignedTransactionResult {
   signedRawTransaction: string;
 }
 
-export interface SignedTypedDataResult {
+export interface SignedPersonalMessageOrTypedDataResult {
   signature: string;
 }
 
@@ -39,9 +39,9 @@ export function isBroadcastedTransactionResult(
   );
 }
 
-export function isSignedTypedDataResult(
+export function isSignedMessageOrTypedDataResult(
   signedTransaction: unknown,
-): signedTransaction is SignedTypedDataResult {
+): signedTransaction is SignedPersonalMessageOrTypedDataResult {
   return (
     !!signedTransaction &&
     typeof signedTransaction === "object" &&

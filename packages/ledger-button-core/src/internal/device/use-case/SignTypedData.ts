@@ -8,7 +8,6 @@ import {
 import {
   SignerEthBuilder,
   type SignTypedDataDAState,
-  TypedData,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import {
@@ -23,8 +22,8 @@ import {
 } from "rxjs";
 
 import {
-  isSignedTypedDataResult,
-  type SignedTypedDataResult,
+  isSignedMessageOrTypedDataResult,
+  type SignedPersonalMessageOrTypedDataResult,
 } from "../../../api/model/signing/SignedTransaction.js";
 import type {
   SignFlowStatus,
@@ -149,7 +148,7 @@ export class SignTypedData {
           ),
           tap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, typedData, signType),
+              this.getTransactionResultForEvent(result, signType),
             );
           }),
           filter((result: OpenAppWithDependenciesDAState) => {
@@ -200,14 +199,14 @@ export class SignTypedData {
           }),
           tap((result: SignTypedDataDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, typedData, signType),
+              this.getTransactionResultForEvent(result, signType),
             );
           }),
         )
         .subscribe({
           next: (result) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, typedData, signType),
+              this.getTransactionResultForEvent(result, signType),
             );
           },
           error: (error: Error) => {
@@ -255,11 +254,10 @@ export class SignTypedData {
     result:
       | OpenAppWithDependenciesDAState
       | SignTypedDataDAState
-      | SignedTypedDataResult,
-    _typedData: TypedData,
+      | SignedPersonalMessageOrTypedDataResult,
     signType: SignType,
   ): SignFlowStatus {
-    if (isSignedTypedDataResult(result)) {
+    if (isSignedMessageOrTypedDataResult(result)) {
       return {
         signType,
         status: "success",

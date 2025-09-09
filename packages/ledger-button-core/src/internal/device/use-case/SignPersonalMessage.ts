@@ -1,16 +1,17 @@
 import {
+  DeviceActionState,
   DeviceActionStatus,
-  hexaStringToBuffer,
   OpenAppWithDependenciesDAInput,
-  OpenAppWithDependenciesDAState,
+  type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
 import {
   SignerEthBuilder,
-  SignTransactionDAState,
+  type SignPersonalMessageDAError,
+  type SignPersonalMessageDAIntermediateValue,
+  type SignPersonalMessageDAOutput,
 } from "@ledgerhq/device-signer-kit-ethereum";
-import { Signature } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 import {
   BehaviorSubject,
@@ -25,23 +26,22 @@ import {
 
 import {
   isSignedMessageOrTypedDataResult,
-  isSignedTransactionResult,
-  type SignedResults,
+  type SignedPersonalMessageOrTypedDataResult,
 } from "../../../api/model/signing/SignedTransaction.js";
-import {
+import type {
   SignFlowStatus,
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
-import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
+import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
+import { getHexaStringFromSignature } from "../../../internal/transaction/utils/TransactionHelper.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import type { DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
@@ -51,13 +51,16 @@ import {
   SignTransactionError,
 } from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
-import {
-  BroadcastTransaction,
-  BroadcastTransactionParams,
-} from "./BroadcastTransaction.js";
+
+// TODO: Remove this once the type is exported from the package
+type SignPersonalMessageDAState = DeviceActionState<
+  SignPersonalMessageDAOutput,
+  SignPersonalMessageDAError,
+  SignPersonalMessageDAIntermediateValue
+>;
 
 @injectable()
-export class SignRawTransaction {
+export class SignPersonalMessage {
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -67,18 +70,16 @@ export class SignRawTransaction {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
     @inject(dAppConfigModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
-    @inject(deviceModuleTypes.BroadcastTransactionUseCase)
-    private readonly broadcastTransactionUseCase: BroadcastTransaction,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[SignRawTransaction]");
+    this.logger = loggerFactory("[SignTypedData]");
   }
 
-  execute(params: SignRawTransactionParams): Observable<SignFlowStatus> {
-    this.logger.info("Starting transaction signing", { params });
+  execute(params: SignPersonalMessageParams): Observable<SignFlowStatus> {
+    this.logger.info("Starting signing message", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
 
@@ -98,13 +99,13 @@ export class SignRawTransaction {
       });
     }
 
-    const { rawTransaction, broadcast } = params;
-    const signType = "transaction";
+    const [address, message] = params;
+    const signType: SignType = "personal-sign";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
       signType,
       status: "debugging",
-      message: "Initializing transaction signing",
+      message: "Initializing personal message signing",
     });
 
     try {
@@ -114,11 +115,6 @@ export class SignRawTransaction {
         originToken: this.config.originToken,
         sessionId,
       }).build();
-
-      const tx = hexaStringToBuffer(rawTransaction);
-      if (!tx) {
-        throw Error("Invalid raw transaction format");
-      }
 
       const selectedAccount: Account | undefined = this.storageService
         .getSelectedAccount()
@@ -162,11 +158,7 @@ export class SignRawTransaction {
           ),
           tap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
+              this.getTransactionResultForEvent(result, message, signType),
             );
           }),
           filter((result: OpenAppWithDependenciesDAState) => {
@@ -179,17 +171,23 @@ export class SignRawTransaction {
             resultObservable.next({
               signType,
               status: "debugging",
-              message: "Starting Sign Transaction DA",
+              message: "Starting Sign Personal Message DA",
             });
             if (result.status === DeviceActionStatus.Error) {
               throw new Error("Open app with dependencies failed");
             }
 
-            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
-
-            const { observable: signObservable } = ethSigner.signTransaction(
+            console.log("Signing typed data", {
+              address,
+              message,
               derivationPath,
-              tx,
+              equals: address === derivationPath,
+            });
+
+            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
+            const { observable: signObservable } = ethSigner.signMessage(
+              derivationPath,
+              message,
               {
                 skipOpenApp: true,
               },
@@ -198,53 +196,31 @@ export class SignRawTransaction {
             return signObservable;
           }),
           filter(
-            (result: SignTransactionDAState) =>
+            (result: SignPersonalMessageDAState) =>
               result.status !== DeviceActionStatus.Pending ||
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
-          filter((result: SignTransactionDAState) => {
+          filter((result: SignPersonalMessageDAState) => {
             return (
               result.status === DeviceActionStatus.Error ||
               result.status === DeviceActionStatus.Completed
             );
           }),
-          tap((result: SignTransactionDAState) => {
+          tap((result: SignPersonalMessageDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
+              this.getTransactionResultForEvent(result, message, signType),
             );
-          }),
-          switchMap(async (result: SignTransactionDAState) => {
-            if (broadcast && result.status === DeviceActionStatus.Completed) {
-              const broadcastParams: BroadcastTransactionParams = {
-                signature: result.output as Signature,
-                rawTransaction,
-                currencyId: selectedAccount.currencyId,
-              };
-              return await this.broadcastTransactionUseCase.execute(
-                broadcastParams,
-              );
-            } else {
-              return result;
-            }
           }),
         )
         .subscribe({
           next: (result) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
+              this.getTransactionResultForEvent(result, message, signType),
             );
           },
           error: (error: Error) => {
-            console.error("Failed to sign transaction in SignRawTransaction", {
+            console.error("Failed to sign typed data in SignTypedData", {
               error,
             });
             resultObservable.next({ signType, status: "error", error: error });
@@ -253,14 +229,14 @@ export class SignRawTransaction {
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign transaction in SignRawTransaction", {
+      console.error("Failed to sign typed data in SignTypedData", {
         error,
       });
-      this.logger.error("Failed to sign transaction", { error });
+      this.logger.error("Failed to sign typed data", { error });
       return of({
         signType,
         status: "error",
-        error: new SignTransactionError(`Transaction signing failed: ${error}`),
+        error: new SignTransactionError(`Typed date signing failed: ${error}`),
       });
     }
   }
@@ -287,15 +263,12 @@ export class SignRawTransaction {
   private getTransactionResultForEvent(
     result:
       | OpenAppWithDependenciesDAState
-      | SignTransactionDAState
-      | SignedResults,
-    rawTx: string,
+      | SignPersonalMessageDAState
+      | SignedPersonalMessageOrTypedDataResult,
+    _message: string | Uint8Array,
     signType: SignType,
   ): SignFlowStatus {
-    if (
-      isSignedTransactionResult(result) ||
-      isSignedMessageOrTypedDataResult(result)
-    ) {
+    if (isSignedMessageOrTypedDataResult(result)) {
       return {
         signType,
         status: "success",
@@ -324,7 +297,7 @@ export class SignRawTransaction {
               status: "user-interaction-needed",
               interaction: "confirm-open-app",
             };
-          case "sign-transaction":
+          case "sign-personal-message":
             return {
               signType,
               status: "user-interaction-needed",
@@ -336,12 +309,6 @@ export class SignRawTransaction {
               status: "user-interaction-needed",
               interaction: "allow-list-apps",
             };
-          case "web3-checks-opt-in":
-            return {
-              signType,
-              status: "user-interaction-needed",
-              interaction: "web3-checks-opt-in",
-            };
           default:
             return {
               signType,
@@ -350,17 +317,18 @@ export class SignRawTransaction {
             };
         }
       case DeviceActionStatus.Completed:
-        console.log("Transaction signing completed", { result });
         if (!("deviceMetadata" in result.output)) {
-          const signedTransaction = createSignedTransaction(rawTx, {
-            r: result.output.r,
-            s: result.output.s,
-            v: result.output.v,
-          } as Signature);
+          const signature = getHexaStringFromSignature(result.output);
+          console.log("Personal message signing completed", {
+            result,
+            signature,
+          });
           return {
             signType,
             status: "success",
-            data: signedTransaction,
+            data: {
+              signature,
+            },
           };
         } else {
           console.debug("Open app completed", { result });
@@ -371,7 +339,7 @@ export class SignRawTransaction {
           };
         }
       case DeviceActionStatus.Error:
-        console.error("Error signing transaction in SignRawTransaction", {
+        console.error("Error signing personal message in SignPersonalMessage", {
           error: result.error.toString(),
         });
         return {

@@ -8,6 +8,7 @@ import {
   SignTypedMessageParams,
 } from "../../../api/index.js";
 import { Signature } from "../../../api/model/eip/EIPTypes.js";
+import { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
 
 //TODO see to align with types defined in SignRawTransaction.ts
 export enum TransactionStatus {
@@ -29,7 +30,8 @@ export interface TransactionService {
     params:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedMessageParams,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
   ): Observable<SignFlowStatus>;
 
@@ -37,6 +39,7 @@ export interface TransactionService {
     | SignTransactionParams
     | SignRawTransactionParams
     | SignTypedMessageParams
+    | SignPersonalMessageParams
     | undefined;
 
   setPendingTransaction(
@@ -44,6 +47,7 @@ export interface TransactionService {
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedMessageParams
+      | SignPersonalMessageParams
       | undefined,
   ): void;
 

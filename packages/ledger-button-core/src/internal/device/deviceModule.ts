@@ -6,6 +6,7 @@ import { BroadcastTransaction } from "./use-case/BroadcastTransaction.js";
 import { ConnectDevice } from "./use-case/ConnectDevice.js";
 import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "./use-case/ListAvailableDevices.js";
+import { SignPersonalMessage } from "./use-case/SignPersonalMessage.js";
 import { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import { SignTransaction } from "./use-case/SignTransaction.js";
 import { SignTypedData } from "./use-case/SignTypedData.js";
@@ -34,6 +35,7 @@ export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
       BroadcastTransaction,
     );
     bind(deviceModuleTypes.SignTypedDataUseCase).to(SignTypedData);
+    bind(deviceModuleTypes.SignPersonalMessageUseCase).to(SignPersonalMessage);
     bind(deviceModuleTypes.ListAvailableDevicesUseCase).to(
       ListAvailableDevices,
     );
