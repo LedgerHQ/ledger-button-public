@@ -31,8 +31,6 @@ export class DefaultTransactionService implements TransactionService {
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
-    /*    @inject(deviceModuleTypes.BroadcastTransactionUseCase)
-    private readonly broadcastTransactionUseCase: BroadcastTransaction,*/
     this.logger = loggerFactory("[DefaultTransactionService]");
   }
 
