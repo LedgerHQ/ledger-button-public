@@ -149,6 +149,7 @@ export const HighValueAccount: Story = {
     ledgerId: "ethereum",
     balance: "1234.5678",
     linkLabel: "Show tokens",
+    hasTokens: true,
   },
   parameters: {
     docs: {
@@ -168,6 +169,7 @@ export const NoLinkLabel: Story = {
     ledgerId: "ethereum",
     balance: "0.001",
     linkLabel: "",
+    hasTokens: false,
   },
   parameters: {
     docs: {
@@ -187,6 +189,7 @@ export const AlgorandTokenAccount: Story = {
     ledgerId: "algorand/asa/312769",
     balance: "150.25",
     linkLabel: "View on explorer",
+    hasTokens: true,
   },
   parameters: {
     docs: {
@@ -262,6 +265,7 @@ export const TestInteractions: Story = {
     ledgerId: "ethereum",
     balance: "1.234",
     linkLabel: "Show tokens",
+    hasTokens: true,
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {

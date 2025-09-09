@@ -53,6 +53,9 @@ export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: String, attribute: "link-label" })
   linkLabel = "";
 
+  @property({ type: Boolean })
+  hasTokens = false;
+
   private get containerClasses() {
     return {
       [accountItemVariants()]: true,
@@ -150,7 +153,7 @@ export class LedgerAccountItemMolecule extends LitElement {
         >
           ${this.renderAccountInfo()} ${this.renderValueInfo()}
         </button>
-        ${this.linkLabel
+        ${this.linkLabel && this.hasTokens
           ? html`
               <button
                 class="group flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"

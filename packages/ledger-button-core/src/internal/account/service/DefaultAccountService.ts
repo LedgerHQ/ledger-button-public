@@ -95,6 +95,7 @@ export class DefaultAccountService implements AccountService {
                 ? account.derivationMode
                 : "44'/60'/0'/0/0",
               balance: undefined,
+              tokens: [],
             } as Account)
           : undefined;
       })
