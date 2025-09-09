@@ -109,7 +109,7 @@ export class DefaultAccountService implements AccountService {
       accounts.map(async (account) => {
         //TMP use alpaca service to get balance when ready
         const balanceResult = await this.backendService.broadcast({
-          blockchain: { name: "ethereum", chainId: "1" },
+          blockchain: { name: "ethereum", chainId: account.chainId },
           rpc: {
             method: "eth_getBalance",
             params: [account.freshAddress, "latest"],

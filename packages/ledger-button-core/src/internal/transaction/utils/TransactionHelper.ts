@@ -36,7 +36,7 @@ export function getRawTransactionFromEipTransaction(transaction: Transaction) {
     maxPriorityFeePerGas: transaction["maxPriorityFeePerGas"],
     gasPrice: transaction["gasPrice"],
     nonce: transaction["nonce"]
-      ? parseInt(transaction["nonce"], 10)
+      ? parseInt(transaction["nonce"], 16)
       : undefined,
   };
 

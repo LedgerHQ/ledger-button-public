@@ -147,12 +147,8 @@ export default function Index() {
     setIsOpen(false);
     setError(null);
 
-    //Sanitize the transaction from Rabby
     const tx = JSON.parse(txRef.current.value);
-    /* delete tx["from"];
-    tx["gasLimit"] = tx["gas"];
-    delete tx["gas"];*/
-
+    console.log("JSON RPC eth_signTransaction TX ", tx);
     try {
       const transaction = (await selectedProvider.provider.request({
         method: "eth_signTransaction",
@@ -171,9 +167,8 @@ export default function Index() {
 
     if (!sendTxRef.current?.value) return;
     try {
-      const tx = JSON.parse(sendTxRef?.current?.value);
-      tx.from = undefined;
-      const transx = ethers.Transaction.from(tx);
+      const transx = JSON.parse(sendTxRef?.current?.value);
+      console.log("JSON RPC eth_sendTransaction TX ", transx);
 
       const transaction = (await selectedProvider.provider.request({
         method: "eth_sendTransaction",
@@ -237,12 +232,14 @@ export default function Index() {
   }, [selectedProvider, setSelectedProvider]);
 
   const handleSignRawTransaction = useCallback(async () => {
-    if (!selectedProvider || !txRef.current?.value) return;
+    if (!selectedProvider || !rawTxRef.current?.value) return;
     setIsOpen(false);
     setError(null);
-
-    const transx = ethers.Transaction.from(txRef.current.value);
-
+    console.log("JSON RPC eth_signRawTransaction TX ", rawTxRef.current.value);
+    const transx = ethers.Transaction.from(rawTxRef.current.value);
+    console.log("JSON RPC eth_signRawTransaction Ethers Transaction", {
+      transx,
+    });
     try {
       const transaction = (await selectedProvider.provider.request({
         method: "eth_signRawTransaction",
