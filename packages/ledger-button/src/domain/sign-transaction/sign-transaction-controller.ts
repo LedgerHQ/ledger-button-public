@@ -100,6 +100,9 @@ export class SignTransactionController implements ReactiveController {
   }
 
   close() {
-    this.navigation.navigateTo(this.destinations.home);
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.closeModal();
+      this.host.requestUpdate();
+    }
   }
 }

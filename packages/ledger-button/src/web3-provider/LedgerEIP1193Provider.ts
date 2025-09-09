@@ -196,8 +196,6 @@ export class LedgerEIP1193Provider
         );
       }
 
-      console.log("handleSignTypedData", params);
-
       this.app.navigationIntent("signTransaction", params);
 
       window.addEventListener(
@@ -222,8 +220,6 @@ export class LedgerEIP1193Provider
           ),
         );
       }
-
-      console.log("handleSignPersonalMessage", params);
 
       this.app.navigationIntent("signTransaction", params);
 

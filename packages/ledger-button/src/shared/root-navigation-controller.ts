@@ -53,9 +53,6 @@ export class RootNavigationController implements ReactiveController {
   navigationIntent(route: Destination["name"], params: unknown) {
     this.params = params ?? undefined;
 
-    console.log("navigationIntent", route);
-    console.log("params", params);
-
     switch (route) {
       case "selectAccount": {
         if (this.core.getSelectedAccount()) {
