@@ -13,7 +13,6 @@ import { Subscription } from "rxjs";
 import { type CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { RootNavigationComponent } from "../../shared/root-navigation.js";
-import { type Destinations } from "../../shared/routes.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
   state: string;
@@ -29,7 +28,6 @@ export class SignTransactionController implements ReactiveController {
     host: SignTransactionHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
-    private readonly destinations: Destinations,
   ) {
     this.host = host;
     this.host.addController(this);

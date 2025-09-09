@@ -98,7 +98,6 @@ export class SignTransactionScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
-      this.destinations,
     );
 
     if (this.isParams(this.params)) {
@@ -132,7 +131,10 @@ export class SignTransactionScreen extends LitElement {
 
   private renderSigningState() {
     const lang = this.languageContext.currentTranslation;
+    const deviceModel = this.coreContext.getConnectedDevice()?.modelId;
     const animation = "signTransaction";
+
+    if (!deviceModel) return;
 
     return html`
       <div
@@ -140,14 +142,14 @@ export class SignTransactionScreen extends LitElement {
       >
         <div class="w-208">
           <ledger-device-animation
-            modelId="flex"
+            modelId=${deviceModel}
             animation=${animation}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
           <p class="text-center body-1">
             ${lang.common.device.deviceActions.continueOnLedger.title}
-            ${lang.common.device.model["flex"]}
+            ${lang.common.device.model[deviceModel]}
           </p>
           <p class="text-center text-muted body-2">
             ${lang.common.device.deviceActions.continueOnLedger.description}
@@ -190,8 +192,10 @@ export class SignTransactionScreen extends LitElement {
           description=${lang.signTransaction?.success?.description ||
           "You will receive the funds soon."}
           primary-button-label=${lang.common.button.close || "Close"}
-          secondary-button-label=${lang.signTransaction?.success
-            ?.viewTransaction || "View transaction details"}
+          secondary-button-label=${this.broadcast
+            ? lang.signTransaction?.success?.viewTransaction ||
+              "View transaction details"
+            : ""}
           @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>
