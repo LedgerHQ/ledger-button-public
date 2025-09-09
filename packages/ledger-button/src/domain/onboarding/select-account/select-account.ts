@@ -64,18 +64,6 @@ export class SelectAccountScreen extends LitElement {
     console.log("account-item-show-tokens-click", event);
   };
 
-  // TODO: Replace this monstrosity with a proper mapping
-  private getTicker(currencyId: string) {
-    switch (currencyId) {
-      case "ethereum":
-        return "ETH";
-      case "bitcoin":
-        return "BTC";
-      default:
-        return "";
-    }
-  }
-
   renderAccountItem = (account: Account) => {
     const translations = this.languages.currentTranslation;
 
@@ -86,7 +74,7 @@ export class SelectAccountScreen extends LitElement {
         .address=${account.freshAddress}
         .linkLabel=${translations.onboarding.selectAccount.showTokens}
         .ledgerId=${account.currencyId}
-        .ticker=${this.getTicker(account.currencyId)}
+        .ticker=${account.ticker}
         .balance=${account.balance ?? "0"}
         .hasTokens=${account.tokens.length > 0}
         @account-item-click=${this.handleAccountItemClick}

@@ -3,6 +3,7 @@ import { type Factory, inject, injectable } from "inversify";
 
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -81,11 +82,18 @@ export class DefaultAccountService implements AccountService {
         const blockchain = supportedBlockchains.find(
           (blockchain) => blockchain.currency_id === account.currencyId,
         );
-        const ticker = blockchain?.currency_ticker;
+
         const name =
           accountNames[account.id] ??
           `${blockchain?.currency_name} Account ${account.index}`;
 
+        const ticker = blockchain?.currency_ticker;
+        console.log(
+          "ticker for blockchain",
+          blockchain,
+          account.currencyId,
+          ticker,
+        );
         return ticker
           ? ({
               ...account,
@@ -106,10 +114,11 @@ export class DefaultAccountService implements AccountService {
     accounts: Account[],
   ): Promise<Account[]> {
     const accountsWithBalance = await Promise.all(
-      accounts.map(async (account) => {
+      accounts.map(async (account: Account) => {
         //TMP use alpaca service to get balance when ready
+        const chainId = getChainIdFromCurrencyId(account.currencyId);
         const balanceResult = await this.backendService.broadcast({
-          blockchain: { name: "ethereum", chainId: account.chainId },
+          blockchain: { name: "ethereum", chainId: chainId },
           rpc: {
             method: "eth_getBalance",
             params: [account.freshAddress, "latest"],
@@ -130,6 +139,9 @@ export class DefaultAccountService implements AccountService {
         return { ...account, balance };
       }),
     );
+
+    console.log("accountsWithBalance", accountsWithBalance);
+
     return accountsWithBalance;
   }
 }
