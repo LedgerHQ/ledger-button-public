@@ -269,6 +269,12 @@ export class LedgerEIP1193Provider
 
   // Public API
   public request({ method, params }: RequestArguments) {
+    console.log(
+      "[Ledger Provider] EIP1193 Provider request called",
+      method,
+      params,
+    );
+
     if (method in this.handlers) {
       return this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
