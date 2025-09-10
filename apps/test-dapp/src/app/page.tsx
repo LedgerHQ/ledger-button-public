@@ -31,7 +31,7 @@ export default function Index() {
     | null
   >(null);
   const [account, setAccount] = useState<string | null>(null);
-  const [balance, setBalance] = useState<string>("");
+  // const [balance, setBalance] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const txRef = useRef<HTMLTextAreaElement>(null);
   const sendTxRef = useRef<HTMLTextAreaElement>(null);
@@ -95,27 +95,27 @@ export default function Index() {
     }
   }, [selectedProvider, account]);
 
-  const handleGetBalance = useCallback(async () => {
-    if (!selectedProvider) return;
+  // const handleGetBalance = useCallback(async () => {
+  //   if (!selectedProvider) return;
 
-    setError(null);
+  //   setError(null);
 
-    try {
-      const balance = (await selectedProvider.provider.request({
-        method: "eth_getBalance",
-        params: [],
-      })) as { result?: string; error?: { code: number; message: string } };
+  //   try {
+  //     const balance = (await selectedProvider.provider.request({
+  //       method: "eth_getBalance",
+  //       params: [],
+  //     })) as { result?: string; error?: { code: number; message: string } };
 
-      console.log(balance);
-      setBalance(balance.result ?? "");
-      if (balance.error) {
-        setError(balance.error.message);
-      }
-    } catch (error) {
-      setError(error as string);
-      console.error(error);
-    }
-  }, [selectedProvider]);
+  //     console.log(balance);
+  //     setBalance(balance.result ?? "");
+  //     if (balance.error) {
+  //       setError(balance.error.message);
+  //     }
+  //   } catch (error) {
+  //     setError(error as string);
+  //     console.error(error);
+  //   }
+  // }, [selectedProvider]);
 
   const startSignTransaction = useCallback(() => {
     setModalType("sign-tx");
@@ -225,7 +225,7 @@ export default function Index() {
 
     setSelectedProvider(null);
     setAccount(null);
-    setBalance("");
+    // setBalance("");
     setError(null);
     setModalType(null);
     setIsOpen(false);
@@ -283,13 +283,12 @@ export default function Index() {
 
         {account && (
           <div className={styles.metadata}>
-            <span>BALANCE: {balance}</span>
-            <button onClick={handleGetBalance}>Get Balance</button>
+            {/* <button onClick={handleGetBalance}>Get Balance</button> */}
             <button onClick={startSignTransaction}>Sign Transaction</button>
-            <button onClick={startSendTransaction}>Send Transaction</button>
             <button onClick={startSignRawTransaction}>
               Sign Raw Transaction
             </button>
+            <button onClick={startSendTransaction}>Send Transaction</button>
             <button onClick={startSignTypedData}>Sign Typed Data</button>
             <button onClick={startSignPersonalMessage}>
               Sign Personal Message
