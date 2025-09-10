@@ -61,23 +61,25 @@ export class DefaultTransactionService implements TransactionService {
   ): Observable<SignFlowStatus> {
     this._pendingParams = params;
 
-    this.logger.debug("Signing flow started", { params, broadcast });
-    console.log("Signing flow started", { params, broadcast });
+    this.logger.debug("[Sign] Signing intent received", { params, broadcast });
 
     let useCase: Observable<SignFlowStatus>;
-
     switch (true) {
       case isSignTransactionParams(params):
+        this.logger.debug("[Sign] Signing transaction");
         useCase = this.signTransactionUseCase.execute(params);
         break;
       case isSignTypedMessageParams(params):
+        this.logger.debug("[Sign] Signing typed data");
         useCase = this.signTypedDataUseCase.execute(params);
         break;
       case isSignPersonalMessageParams(params):
+        this.logger.debug("[Sign] Signing personal message");
         useCase = this.signPersonalMessageUseCase.execute(params);
         break;
       case isSignRawTransactionParams(params):
       default:
+        this.logger.debug("[Sign] Signing raw transaction");
         useCase = this.signRawTransactionUseCase.execute(params);
         break;
     }

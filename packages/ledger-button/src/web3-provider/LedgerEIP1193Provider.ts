@@ -60,7 +60,7 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleAccounts(): Promise<string[]> {
+  private async handleAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
       if (
         this._selectedAccount &&
@@ -103,7 +103,7 @@ export class LedgerEIP1193Provider
   }
 
   // Handlers for the different RPC methods
-  private handleRequestAccounts(): Promise<string[]> {
+  private async handleRequestAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
       const selectedAccount = this.core.getSelectedAccount();
 
@@ -148,7 +148,7 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleSignTransaction(
+  private async handleSignTransaction(
     params: unknown[],
     broadcast = false,
   ): Promise<string> {
@@ -183,7 +183,7 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleSignTypedData(params: object): Promise<string> {
+  private async handleSignTypedData(params: object): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -194,8 +194,6 @@ export class LedgerEIP1193Provider
         );
       }
 
-      this.app.navigationIntent("signTransaction", params);
-
       window.addEventListener(
         "ledger-provider-sign-message",
         (e) => {
@@ -205,10 +203,12 @@ export class LedgerEIP1193Provider
           once: true,
         },
       );
+
+      this.app.navigationIntent("signTransaction", params);
     });
   }
 
-  private handleSignPersonalMessage(params: object): Promise<string> {
+  private async handleSignPersonalMessage(params: object): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -250,25 +250,27 @@ export class LedgerEIP1193Provider
   }
 
   handlers = {
-    eth_accounts: (_: unknown) => this.handleAccounts(),
-    eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
-    eth_chainId: (_: unknown) => this.handleChainId(),
-    eth_sendTransaction: (params: unknown[]) =>
+    eth_accounts: async (_: unknown) => this.handleAccounts(),
+    eth_requestAccounts: async (_: unknown) => this.handleRequestAccounts(),
+    eth_chainId: async (_: unknown) => this.handleChainId(),
+    eth_sendTransaction: async (params: unknown[]) =>
       this.handleSignTransaction(params, true),
-    eth_signTransaction: (params: unknown[]) =>
+    eth_signTransaction: async (params: unknown[]) =>
       this.handleSignTransaction(params),
-    eth_signRawTransaction: (params: unknown[]) =>
+    eth_signRawTransaction: async (params: unknown[]) =>
       this.handleSignTransaction(params),
-    eth_sign: (params: unknown[]) => this.handleSignPersonalMessage(params),
-    eth_sendRawTransaction: (params: unknown[]) =>
+    eth_sign: async (params: unknown[]) =>
+      this.handleSignPersonalMessage(params),
+    eth_sendRawTransaction: async (params: unknown[]) =>
       this.handleSignTransaction(params, true),
-    eth_signTypedData: (params: unknown[]) => this.handleSignTypedData(params),
-    eth_signTypedData_v4: (params: unknown[]) =>
+    eth_signTypedData: async (params: unknown[]) =>
+      this.handleSignTypedData(params),
+    eth_signTypedData_v4: async (params: unknown[]) =>
       this.handleSignTypedData(params),
   } as const;
 
   // Public API
-  public request({ method, params }: RequestArguments) {
+  public async request({ method, params }: RequestArguments) {
     console.log(
       "[Ledger Provider] EIP1193 Provider request called",
       method,
@@ -276,17 +278,29 @@ export class LedgerEIP1193Provider
     );
 
     if (method in this.handlers) {
-      return this.handlers[method as keyof typeof this.handlers](
+      const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
       );
+      console.log(
+        "[Ledger Provider] EIP1193 Provider request response (handlers)",
+        res,
+      );
+      return res;
     }
 
-    return this.core.jsonRpcRequest({
+    const res = await this.core.jsonRpcRequest({
       jsonrpc: "2.0",
       id: this._id++,
       method,
       params,
     });
+
+    console.log(
+      "[Ledger Provider] EIP1193 Provider request response (backend)",
+      res,
+    );
+
+    return res;
   }
 
   public on<TEvent extends keyof ProviderEvent>(

@@ -2,9 +2,12 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
+  BroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
+  SignedPersonalMessageOrTypedDataResult,
   type SignedResults,
+  SignedTransactionResult,
   SignPersonalMessageParams,
   SignRawTransactionParams,
   type SignTransactionParams,
@@ -165,7 +168,9 @@ export class SignTransactionScreen extends LitElement {
     if (this.controller.result) {
       if (isSignedTransactionResult(this.controller.result)) {
         window.dispatchEvent(
-          new CustomEvent<SignedResults>("ledger-internal-sign-transaction", {
+          new CustomEvent<
+            SignedTransactionResult | BroadcastedTransactionResult
+          >("ledger-internal-sign-transaction", {
             bubbles: true,
             composed: true,
             detail: this.controller.result,
@@ -173,11 +178,14 @@ export class SignTransactionScreen extends LitElement {
         );
       } else if (isSignedMessageOrTypedDataResult(this.controller.result)) {
         window.dispatchEvent(
-          new CustomEvent<string>("ledger-internal-sign-message", {
-            bubbles: true,
-            composed: true,
-            detail: this.controller.result.signature,
-          }),
+          new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
+            "ledger-internal-sign-message",
+            {
+              bubbles: true,
+              composed: true,
+              detail: this.controller.result,
+            },
+          ),
         );
       }
     }

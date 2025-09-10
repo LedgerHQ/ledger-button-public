@@ -31,13 +31,13 @@ export default function Index() {
     | null
   >(null);
   const [account, setAccount] = useState<string | null>(null);
-  // const [balance, setBalance] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const txRef = useRef<HTMLTextAreaElement>(null);
   const sendTxRef = useRef<HTMLTextAreaElement>(null);
   const rawTxRef = useRef<HTMLTextAreaElement>(null);
   const typedDataRef = useRef<HTMLTextAreaElement>(null);
   const personalMessageRef = useRef<HTMLTextAreaElement>(null);
+  const [result, setResult] = useState<string | null>(null);
 
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -95,73 +95,69 @@ export default function Index() {
     }
   }, [selectedProvider, account]);
 
-  // const handleGetBalance = useCallback(async () => {
-  //   if (!selectedProvider) return;
-
-  //   setError(null);
-
-  //   try {
-  //     const balance = (await selectedProvider.provider.request({
-  //       method: "eth_getBalance",
-  //       params: [],
-  //     })) as { result?: string; error?: { code: number; message: string } };
-
-  //     console.log(balance);
-  //     setBalance(balance.result ?? "");
-  //     if (balance.error) {
-  //       setError(balance.error.message);
-  //     }
-  //   } catch (error) {
-  //     setError(error as string);
-  //     console.error(error);
-  //   }
-  // }, [selectedProvider]);
-
   const startSignTransaction = useCallback(() => {
+    setResult(null);
+    setError(null);
     setModalType("sign-tx");
     setIsOpen(true);
   }, []);
 
   const startSendTransaction = useCallback(() => {
+    setResult(null);
+    setError(null);
     setModalType("send-tx");
     setIsOpen(true);
   }, []);
 
   const startSignTypedData = useCallback(() => {
+    setResult(null);
+    setError(null);
     setModalType("sign-typed-data");
     setIsOpen(true);
   }, []);
 
   const startSignRawTransaction = useCallback(() => {
+    setResult(null);
+    setError(null);
     setModalType("sign-raw-tx");
     setIsOpen(true);
   }, []);
 
   const startSignPersonalMessage = useCallback(() => {
+    setResult(null);
+    setError(null);
     setModalType("sign-personal-message");
     setIsOpen(true);
   }, []);
 
   const handleSignTransaction = useCallback(async () => {
     if (!selectedProvider || !txRef.current?.value) return;
+    setResult(null);
     setIsOpen(false);
     setError(null);
 
     const tx = JSON.parse(txRef.current.value);
     console.log("JSON RPC eth_signTransaction TX ", tx);
     try {
-      const transaction = (await selectedProvider.provider.request({
+      const result = (await selectedProvider.provider.request({
         method: "eth_signTransaction",
         params: [tx],
       })) as string;
-      console.log(transaction);
+      setResult(result);
+      console.log({ result });
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(error as string);
+      }
     }
   }, [selectedProvider]);
 
   const handleSendTransaction = useCallback(async () => {
     if (!selectedProvider || !sendTxRef.current?.value) return;
+    setResult(null);
     setIsOpen(false);
     setError(null);
 
@@ -170,49 +166,76 @@ export default function Index() {
       const transx = JSON.parse(sendTxRef?.current?.value);
       console.log("JSON RPC eth_sendTransaction TX ", transx);
 
-      const transaction = (await selectedProvider.provider.request({
+      const result = (await selectedProvider.provider.request({
         method: "eth_sendTransaction",
         params: [transx],
       })) as string;
-      console.log(transaction);
+      setResult(result);
+      console.log({ result });
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(error as string);
+      }
     }
   }, [selectedProvider]);
 
   const handleSignTypedData = useCallback(async () => {
     if (!selectedProvider || !typedDataRef.current?.value) return;
+    setResult(null);
     setIsOpen(false);
     setError(null);
 
     if (!typedDataRef.current?.value) return;
     try {
       const typedData = JSON.parse(typedDataRef.current.value);
-      const result = await selectedProvider.provider.request({
+      const result = (await selectedProvider.provider.request({
         method: "eth_signTypedData_v4",
         params: [account, typedData],
-      });
-      console.log(result);
+      })) as string;
+      console.log({ result });
+      setResult(result);
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(error as string);
+      }
     }
   }, [selectedProvider, account]);
 
   const handleSignPersonalMessage = useCallback(async () => {
+    console.log("handleSignPersonalMessage eth_sign");
     if (!selectedProvider || !personalMessageRef.current?.value) return;
+    setResult(null);
     setIsOpen(false);
     setError(null);
 
     if (!personalMessageRef.current?.value) return;
+
     try {
-      const result = await selectedProvider.provider.request({
+      console.log(
+        "handleSignPersonalMessage trying to use request({ method: 'eth_sign' })",
+      );
+      const result = (await selectedProvider.provider.request({
         method: "eth_sign",
         params: [account, personalMessageRef.current.value],
-      });
-      console.log(result);
+      })) as string;
+      console.log("handleSignPersonalMessage result", { result });
+      setResult(result);
     } catch (error) {
+      console.log("handleSignPersonalMessage error", error);
       console.error(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(error as string);
+      }
     }
+    console.log("handleSignPersonalMessage end");
   }, [selectedProvider, account]);
 
   const handleDisconnect = useCallback(async () => {
@@ -225,7 +248,7 @@ export default function Index() {
 
     setSelectedProvider(null);
     setAccount(null);
-    // setBalance("");
+    setResult(null);
     setError(null);
     setModalType(null);
     setIsOpen(false);
@@ -233,6 +256,7 @@ export default function Index() {
 
   const handleSignRawTransaction = useCallback(async () => {
     if (!selectedProvider || !rawTxRef.current?.value) return;
+    setResult(null);
     setIsOpen(false);
     setError(null);
     console.log("JSON RPC eth_signRawTransaction TX ", rawTxRef.current.value);
@@ -241,13 +265,19 @@ export default function Index() {
       transx,
     });
     try {
-      const transaction = (await selectedProvider.provider.request({
+      const result = (await selectedProvider.provider.request({
         method: "eth_signRawTransaction",
         params: [transx],
       })) as string;
-      console.log(transaction);
+      console.log({ transaction: result });
+      setResult(result);
     } catch (error) {
       console.error(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(error as string);
+      }
     }
   }, [selectedProvider]);
 
@@ -296,7 +326,12 @@ export default function Index() {
           </div>
         )}
 
-        {error && <div className={styles.error}>{error}</div>}
+        {(error || result) && (
+          <div className={styles.metadata}>
+            {result && <div className={styles.result}>{result}</div>}
+            {error && <div className={styles.error}>{error}</div>}
+          </div>
+        )}
 
         <Dialog
           open={isOpen}

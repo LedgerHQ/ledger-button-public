@@ -330,7 +330,7 @@ export class SignTypedData {
           };
         }
       case DeviceActionStatus.Error:
-        console.error("Error signing transaction in SignRawTransaction", {
+        console.error("Error signing typed data in SignTypedData", {
           error: result.error.toString(),
         });
         return {

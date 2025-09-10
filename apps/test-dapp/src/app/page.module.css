@@ -122,6 +122,11 @@
   max-width: 24px;
 }
 
+.metadata .result,
+.metadata .error {
+  word-break: break-all;
+}
+
 .error {
   color: red;
   padding: 12px;

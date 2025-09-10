@@ -75,7 +75,7 @@ export class SignPersonalMessage {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[SignTypedData]");
+    this.logger = loggerFactory("[SignPersonalMessage]");
   }
 
   execute(params: SignPersonalMessageParams): Observable<SignFlowStatus> {
@@ -177,7 +177,7 @@ export class SignPersonalMessage {
               throw new Error("Open app with dependencies failed");
             }
 
-            console.log("Signing typed data", {
+            console.log("Signing personal message", {
               address,
               message,
               derivationPath,
@@ -220,23 +220,28 @@ export class SignPersonalMessage {
             );
           },
           error: (error: Error) => {
-            console.error("Failed to sign typed data in SignTypedData", {
-              error,
-            });
+            console.error(
+              "Failed to sign personal message in SignPersonalMessage",
+              {
+                error,
+              },
+            );
             resultObservable.next({ signType, status: "error", error: error });
           },
         });
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign typed data in SignTypedData", {
+      console.error("Failed to sign personal message in SignPersonalMessage", {
         error,
       });
-      this.logger.error("Failed to sign typed data", { error });
+      this.logger.error("Failed to sign personal message", { error });
       return of({
         signType,
         status: "error",
-        error: new SignTransactionError(`Typed date signing failed: ${error}`),
+        error: new SignTransactionError(
+          `Personal message signing failed: ${error}`,
+        ),
       });
     }
   }
