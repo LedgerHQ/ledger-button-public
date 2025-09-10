@@ -3,10 +3,10 @@
 export type Transaction = {
   chainId: number;
   data: string;
-  from: string;
-  gas: string;
   to: string;
   value: string;
+  from?: string;
+  gas?: string;
   gasPrice?: string;
   maxFeePerGas?: string;
   maxPriorityFeePerGas?: string;

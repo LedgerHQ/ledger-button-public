@@ -36,7 +36,7 @@ export class LedgerEIP1193Provider
   private _isConnected = false;
   private _supportedChains: Map<string, ChainInfo> = new Map();
   private _selectedAccount: string | null = null;
-  private _selectedChainId = "0x01";
+  private _selectedChainId = 1;
 
   private _id = 0;
 
@@ -134,7 +134,7 @@ export class LedgerEIP1193Provider
             );
             this._selectedAccount = e.detail.account.freshAddress;
             // TODO: create mapping between chainId and account.currencyId
-            this._selectedChainId = "0x01"; // TODO: fetch the chain id from ?
+            this._selectedChainId = 1; // TODO: fetch the chain id from ?
             this._isConnected = true;
             resolve([e.detail.account.freshAddress]);
           },
@@ -162,8 +162,13 @@ export class LedgerEIP1193Provider
         );
       }
 
+      //Sanitize transaction for EIP-1193
+      const transaction = params[0] as Record<string, unknown>;
+      transaction["chainId"] = this._selectedChainId;
+      console.log("[Ledger Provider] Transaction", transaction);
+
       this.app.navigationIntent("signTransaction", {
-        transaction: params[0],
+        transaction: transaction,
         broadcast,
       });
 
@@ -240,12 +245,13 @@ export class LedgerEIP1193Provider
           bubbles: true,
           composed: true,
           detail: {
-            chainId: this._selectedChainId,
+            chainId: this._selectedChainId.toString(16),
           },
         }),
       );
 
-      resolve(this._selectedChainId);
+      //Chain ID must be in hex format => https://ethereum.org/developers/docs/apis/json-rpc/#eth_chainId
+      resolve(this._selectedChainId.toString(16));
     });
   }
 
