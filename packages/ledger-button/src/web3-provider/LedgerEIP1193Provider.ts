@@ -13,18 +13,17 @@
 import "../ledger-button-app.js";
 
 import {
-  BroadcastedTransactionResult,
   type ChainInfo,
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
+  isBroadcastedTransactionResult,
   type ProviderConnectInfo,
   type ProviderEvent,
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
-  SignedTransactionResult,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -108,33 +107,6 @@ export class LedgerEIP1193Provider
     return new Promise((resolve) => {
       const selectedAccount = this.core.getSelectedAccount();
 
-      window.addEventListener(
-        "ledger-provider-account-selected",
-        (e) => {
-          // EIP-1193 accountsChanged event
-          console.log("EVENT: ledger-provider-account-selected", e.detail);
-
-          this._isConnected = true;
-          this._selectedAccount = e.detail.account.freshAddress;
-
-          this.dispatchEvent(
-            new CustomEvent<string[]>("accountsChanged", {
-              bubbles: true,
-              composed: true,
-              detail: [e.detail.account.freshAddress],
-            }),
-          );
-          this._selectedAccount = e.detail.account.freshAddress;
-          // TODO: create mapping between chainId and account.currencyId
-          this._selectedChainId = "0x01"; // TODO: fetch the chain id from ?
-          this._isConnected = true;
-          resolve([e.detail.account.freshAddress]);
-        },
-        {
-          once: true,
-        },
-      );
-
       if (selectedAccount) {
         this._selectedAccount = selectedAccount.freshAddress;
         this._isConnected = true;
@@ -147,6 +119,30 @@ export class LedgerEIP1193Provider
         );
         return resolve([selectedAccount.freshAddress]);
       } else {
+        window.addEventListener(
+          "ledger-provider-account-selected",
+          (e) => {
+            this._isConnected = true;
+            this._selectedAccount = e.detail.account.freshAddress;
+
+            this.dispatchEvent(
+              new CustomEvent<string[]>("accountsChanged", {
+                bubbles: true,
+                composed: true,
+                detail: [e.detail.account.freshAddress],
+              }),
+            );
+            this._selectedAccount = e.detail.account.freshAddress;
+            // TODO: create mapping between chainId and account.currencyId
+            this._selectedChainId = "0x01"; // TODO: fetch the chain id from ?
+            this._isConnected = true;
+            resolve([e.detail.account.freshAddress]);
+          },
+          {
+            once: true,
+          },
+        );
+
         this.app.navigationIntent("selectAccount");
       }
     });
@@ -155,7 +151,7 @@ export class LedgerEIP1193Provider
   private handleSignTransaction(
     params: unknown[],
     broadcast = false,
-  ): Promise<SignedTransactionResult | BroadcastedTransactionResult> {
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -174,9 +170,11 @@ export class LedgerEIP1193Provider
       window.addEventListener(
         "ledger-provider-sign-transaction",
         (e) => {
-          // TODO: The resolved value here should match the docs, right now we return a full object (also not sure about the typed of rawTransaction)
-          // { hash: string, rawTransaction: string |Uint8Array<ArrayBufferLike>, signedRawTransaction: string }
-          resolve(e?.detail);
+          if (isBroadcastedTransactionResult(e.detail)) {
+            resolve(e.detail.hash);
+          } else {
+            resolve(e.detail.signedRawTransaction);
+          }
         },
         {
           once: true,
