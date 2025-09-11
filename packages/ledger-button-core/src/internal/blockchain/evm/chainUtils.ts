@@ -11,7 +11,7 @@ const MAPPING_TABLE: Record<string, string> = {
   linea: "59144",
   optimism: "10",
   polygon: "137",
-  sonic: "36",
+  sonic: "146",
   zksync: "324",
   gnosis: "100",
 };
