@@ -10,7 +10,7 @@ import type {
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;
-  let mockNetworkService: jest.Mocked<NetworkService<any>>;
+  let mockNetworkService: NetworkService<{ headers?: Record<string, string> }>;
 
   beforeEach(() => {
     mockNetworkService = {
@@ -19,7 +19,7 @@ describe("DefaultBackendService", () => {
       put: vi.fn(),
       patch: vi.fn(),
       delete: vi.fn(),
-    } as any;
+    };
 
     backendService = new DefaultBackendService(mockNetworkService);
     vi.clearAllMocks();
