@@ -10,7 +10,13 @@ import type {
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;
-  let mockNetworkService: NetworkService<{ headers?: Record<string, string> }>;
+  let mockNetworkService: {
+    get: ReturnType<typeof vi.fn>;
+    post: ReturnType<typeof vi.fn>;
+    put: ReturnType<typeof vi.fn>;
+    patch: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     mockNetworkService = {
@@ -21,7 +27,9 @@ describe("DefaultBackendService", () => {
       delete: vi.fn(),
     };
 
-    backendService = new DefaultBackendService(mockNetworkService);
+    backendService = new DefaultBackendService(
+      mockNetworkService as NetworkService<{ headers?: Record<string, string> }>
+    );
     vi.clearAllMocks();
   });
 
