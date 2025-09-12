@@ -57,7 +57,7 @@ export class RetrievingAccountsScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="min-h-full">
+      <div class="min-h-full overflow-hidden">
         <ledger-lottie
           class="animation"
           animationName="backgroundFlare"

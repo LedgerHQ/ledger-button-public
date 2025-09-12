@@ -30,7 +30,7 @@ export interface LedgerLottieAttributes {
   paused?: boolean;
 }
 
-const lottieVariants = cva(["lottie-container"], {
+const lottieVariants = cva(["lottie-container", "overflow-hidden"], {
   variants: {
     size: {
       small: ["w-8", "h-8"],
