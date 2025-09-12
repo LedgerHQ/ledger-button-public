@@ -6,7 +6,7 @@ import { backendModuleFactory } from "./backend/backendModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
-import { dAppConfigModuleFactory } from "./dAppConfig/dAppConfigModule.js";
+import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";

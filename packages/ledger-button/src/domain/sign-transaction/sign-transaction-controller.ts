@@ -1,17 +1,18 @@
 import {
   type Signature,
-  type SignedTransaction,
+  type SignedResults,
+  SignFlowStatus,
+  type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignTransactionParams,
-  type SignTypedDataParams,
-  type TransactionResult,
+  type SignTypedMessageParams,
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
 import { type CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
-import { type Destinations } from "../../shared/routes.js";
+import { RootNavigationComponent } from "../../shared/root-navigation.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
   state: string;
@@ -21,13 +22,12 @@ interface SignTransactionHost extends ReactiveControllerHost {
 export class SignTransactionController implements ReactiveController {
   host: SignTransactionHost;
   private transactionSubscription?: Subscription;
-  result?: SignedTransaction | Signature;
+  result?: SignedResults | Signature;
 
   constructor(
     host: SignTransactionHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
-    private readonly destinations: Destinations,
   ) {
     this.host = host;
     this.host.addController(this);
@@ -45,7 +45,8 @@ export class SignTransactionController implements ReactiveController {
     transactionParams:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
   ) {
     if (this.transactionSubscription) {
@@ -55,12 +56,10 @@ export class SignTransactionController implements ReactiveController {
     this.transactionSubscription = this.core
       .sign(transactionParams, broadcast)
       .subscribe({
-        next: (result: TransactionResult) => {
+        next: (result: SignFlowStatus) => {
+          console.log("Signed transaction result", result);
           switch (result.status) {
-            case "signing":
-              this.host.state = "signing";
-              break;
-            case "signed":
+            case "success":
               if (result.data) {
                 this.host.state = "success";
                 if ("hash" in result.data) {
@@ -68,25 +67,40 @@ export class SignTransactionController implements ReactiveController {
                 }
                 this.result = result.data;
               }
+              this.result = result.data;
+              break;
+            case "user-interaction-needed":
+              //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
+              //Interactions: unlock-device, allow-secure-connection, confirm-open-app, sign-transaction, allow-list-apps, web3-checks-opt-in
+              this.host.state = result.interaction;
               break;
             case "error":
+              console.log("Error signing transaction", result.error);
               this.host.state = "error";
               break;
           }
           this.host.requestUpdate();
         },
-        error: () => {
+        error: (error: Error) => {
+          console.log("Error signing transaction", error);
           this.host.state = "error";
           this.host.requestUpdate();
         },
       });
   }
 
+  //TODO do not display this button for EIP712 messages
   viewTransactionDetails(transactionId: string) {
-    console.log("Viewing transaction details for:", transactionId);
+    window.open(`https://etherscan.io/tx/${transactionId}`);
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.closeModal();
+    }
   }
 
   close() {
-    this.navigation.navigateTo(this.destinations.home);
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.closeModal();
+      this.host.requestUpdate();
+    }
   }
 }

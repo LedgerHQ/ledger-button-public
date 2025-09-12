@@ -1,11 +1,9 @@
 import { ContainerModule } from "inversify";
-import { EitherAsync, Right } from "purify-ts";
 
+import { DAppConfigService } from "../service/DAppConfigService.js";
+import { DefaultDAppConfigService } from "../service/DefaultDAppConfigService.js";
+import { stubDAppConfig } from "../service/StubDAppConfig.js";
 import { dAppConfigModuleTypes } from "./dAppConfigModuleTypes.js";
-import { DAppConfigService } from "./DAppConfigService.js";
-import { DefaultDAppConfigService } from "./DefaultDAppConfigService.js";
-import { stubDAppConfig } from "./StubDAppConfig.js";
-import { DAppConfig } from "./types.js";
 
 type DAppConfigModuleOptions = {
   stub?: boolean;
@@ -21,8 +19,9 @@ export function dAppConfigModuleFactory({ stub }: DAppConfigModuleOptions) {
       rebindSync<DAppConfigService>(
         dAppConfigModuleTypes.DAppConfigService,
       ).toConstantValue({
-        get: <K extends keyof DAppConfig>(key: K) =>
-          EitherAsync.liftEither(Right(stubDAppConfig[key])),
+        getDAppConfig() {
+          return Promise.resolve(stubDAppConfig);
+        },
       });
     }
   });

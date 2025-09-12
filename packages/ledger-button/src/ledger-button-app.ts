@@ -6,9 +6,14 @@ import "./shared/routes.js";
 
 import {
   Account,
+  BroadcastedTransactionResult,
+  isBroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
+  isSignedTransactionResult,
   LedgerButtonCore,
-  Signature,
-  SignedTransaction,
+  SignedPersonalMessageOrTypedDataResult,
+  SignedResults,
+  SignedTransactionResult,
 } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -49,10 +54,13 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-sign-transaction",
       this.handleSignTransaction,
     );
-
     window.addEventListener(
-      "ledger-internal-sign-typed-data",
-      this.handleSignTypedData,
+      "ledger-internal-send-transaction",
+      this.handleSendTransaction,
+    );
+    window.addEventListener(
+      "ledger-internal-sign-message",
+      this.handleSignMessage,
     );
   }
 
@@ -75,8 +83,12 @@ export class LedgerButtonApp extends LitElement {
       this.handleSignTransaction,
     );
     window.removeEventListener(
-      "ledger-internal-sign-typed-data",
-      this.handleSignTypedData,
+      "ledger-internal-send-transaction",
+      this.handleSendTransaction,
+    );
+    window.removeEventListener(
+      "ledger-internal-sign-message",
+      this.handleSignMessage,
     );
   }
 
@@ -95,14 +107,34 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
-  private handleSignTransaction = (e: CustomEvent<SignedTransaction>) => {
-    window.dispatchEvent(
-      new CustomEvent<SignedTransaction>("ledger-provider-sign-transaction", {
-        bubbles: true,
-        composed: true,
-        detail: e.detail,
-      }),
-    );
+  private handleSignTransaction = (e: CustomEvent<SignedResults>) => {
+    if (isSignedTransactionResult(e.detail)) {
+      window.dispatchEvent(
+        new CustomEvent<SignedTransactionResult>(
+          "ledger-provider-sign-transaction",
+          {
+            bubbles: true,
+            composed: true,
+            detail: e.detail,
+          },
+        ),
+      );
+    }
+  };
+
+  private handleSendTransaction = (e: CustomEvent<SignedResults>) => {
+    if (isBroadcastedTransactionResult(e.detail)) {
+      window.dispatchEvent(
+        new CustomEvent<BroadcastedTransactionResult>(
+          "ledger-provider-sign-transaction",
+          {
+            bubbles: true,
+            composed: true,
+            detail: e.detail,
+          },
+        ),
+      );
+    }
   };
 
   private handleLedgerButtonDisconnect = () => {
@@ -115,14 +147,19 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
-  private handleSignTypedData = (e: CustomEvent<Signature>) => {
-    window.dispatchEvent(
-      new CustomEvent<Signature>("ledger-provider-sign-typed-data", {
-        bubbles: true,
-        composed: true,
-        detail: e.detail,
-      }),
-    );
+  private handleSignMessage = (e: CustomEvent<SignedResults>) => {
+    if (isSignedMessageOrTypedDataResult(e.detail)) {
+      window.dispatchEvent(
+        new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
+          "ledger-provider-sign-message",
+          {
+            bubbles: true,
+            composed: true,
+            detail: e.detail,
+          },
+        ),
+      );
+    }
   };
 
   public navigationIntent(intent: Destination["name"], params?: unknown) {
@@ -163,8 +200,10 @@ export class LedgerButtonApp extends LitElement {
 declare global {
   interface WindowEventMap {
     "ledger-provider-account-selected": CustomEvent<{ account: Account }>;
-    "ledger-provider-sign-transaction": CustomEvent<SignedTransaction>;
-    "ledger-provider-sign-typed-data": CustomEvent<Signature>;
+    "ledger-provider-sign-transaction": CustomEvent<
+      SignedTransactionResult | BroadcastedTransactionResult
+    >;
+    "ledger-provider-sign-message": CustomEvent<SignedPersonalMessageOrTypedDataResult>;
     "ledger-provider-disconnect": CustomEvent;
   }
 }

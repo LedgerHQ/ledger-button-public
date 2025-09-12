@@ -1,6 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
-import { bytesToString } from "viem";
 
 import { cloudSyncModuleTypes } from "../../cloudsync/cloudSyncModuleTypes.js";
 import type { CloudSyncService } from "../../cloudsync/service/CloudSyncService.js";
@@ -38,7 +37,7 @@ export class FetchAccountsUseCase {
       throw new LedgerSyncAuthContextMissingError("No auth context available");
     }
 
-    //Re-fetch a new JWT not using device but using the keypair (need for getting the right JWT)
+    //Re-fetch a new JWT not using device but using the keypair (need for getting the right JWT for cloud sync)
     await lastValueFrom(this.ledgerSyncService.authenticate());
 
     const cloudSyncData = await this.cloudSyncService.fetchEncryptedAccounts(
@@ -46,7 +45,9 @@ export class FetchAccountsUseCase {
     );
     const payload = base64ToArrayBuffer(cloudSyncData.payload);
     const accountsData = await this.ledgerSyncService.decrypt(payload);
-    const accounts: CloudSyncData = JSON.parse(bytesToString(accountsData));
+    const accounts: CloudSyncData = JSON.parse(
+      new TextDecoder().decode(accountsData),
+    );
     this.logger.info("Accounts fetched from cloud sync", accounts);
 
     await this.accountService.setAccountsFromCloudSyncData(accounts);

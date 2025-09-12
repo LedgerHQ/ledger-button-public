@@ -14,7 +14,7 @@ const meta: Meta = {
         .address=${args.address}
         .ticker=${args.ticker}
         .ledgerId=${args.ledgerId}
-        .value=${args.value}
+        .balance=${args.balance}
         .linkLabel=${args.linkLabel}
         @account-item-click=${(e: CustomEvent) => {
           console.log("Account item clicked:", e.detail);
@@ -56,10 +56,10 @@ const meta: Meta = {
       },
     },
     value: {
-      control: "number",
-      description: "The account balance value",
+      control: "text",
+      description: "The account formatted balance",
       table: {
-        type: { summary: "number" },
+        type: { summary: "string" },
         category: "Required",
       },
     },
@@ -77,7 +77,7 @@ const meta: Meta = {
     address: "0x1234...5678",
     ticker: "ETH",
     ledgerId: "ethereum",
-    value: 2.5432,
+    balance: "2.5432",
     linkLabel: "Show tokens",
   },
 };
@@ -91,7 +91,7 @@ export const EthereumAccount: Story = {
     address: "0x1234567890abcdef1234567890abcdef12345678",
     ticker: "ETH",
     ledgerId: "ethereum",
-    value: 2.5432,
+    balance: "2.5432",
     linkLabel: "Show tokens",
   },
   parameters: {
@@ -110,7 +110,7 @@ export const BitcoinAccount: Story = {
     address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
     ticker: "BTC",
     ledgerId: "bitcoin",
-    value: 0.12345,
+    balance: "0.12345",
     linkLabel: "Show tokens",
   },
   parameters: {
@@ -129,7 +129,7 @@ export const PolygonAccount: Story = {
     address: "0xabcdef1234567890abcdef1234567890abcdef12",
     ticker: "MATIC",
     ledgerId: "polygon",
-    value: 156.789,
+    balance: "156.789",
     linkLabel: "Show tokens",
   },
   parameters: {
@@ -147,8 +147,9 @@ export const HighValueAccount: Story = {
     address: "0x9876543210fedcba9876543210fedcba98765432",
     ticker: "ETH",
     ledgerId: "ethereum",
-    value: 1234.5678,
+    balance: "1234.5678",
     linkLabel: "Show tokens",
+    hasTokens: true,
   },
   parameters: {
     docs: {
@@ -166,8 +167,9 @@ export const NoLinkLabel: Story = {
     address: "0x1111222233334444555566667777888899990000",
     ticker: "ETH",
     ledgerId: "ethereum",
-    value: 0.001,
+    balance: "0.001",
     linkLabel: "",
+    hasTokens: false,
   },
   parameters: {
     docs: {
@@ -185,8 +187,9 @@ export const AlgorandTokenAccount: Story = {
     address: "ALGORAND1234567890ABCDEF1234567890ABCDEF123456",
     ticker: "USDC",
     ledgerId: "algorand/asa/312769",
-    value: 150.25,
+    balance: "150.25",
     linkLabel: "View on explorer",
+    hasTokens: true,
   },
   parameters: {
     docs: {
@@ -213,7 +216,7 @@ export const AllVariations: Story = {
             address="0x1234567890abcdef1234567890abcdef12345678"
             ticker="ETH"
             ledger-id="ethereum"
-            value="2.5432"
+            balance="2.5432"
             link-label="Show tokens"
           ></ledger-account-item>
           <ledger-account-item
@@ -221,7 +224,7 @@ export const AllVariations: Story = {
             address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
             ticker="BTC"
             ledger-id="bitcoin"
-            value="0.12345"
+            balance="0.12345"
             link-label="Show tokens"
           ></ledger-account-item>
           <ledger-account-item
@@ -229,7 +232,7 @@ export const AllVariations: Story = {
             address="0xabcdef1234567890abcdef1234567890abcdef12"
             ticker="MATIC"
             ledger-id="polygon"
-            value="156.789"
+            balance="156.789"
             link-label="Show tokens"
           ></ledger-account-item>
           <ledger-account-item
@@ -237,7 +240,7 @@ export const AllVariations: Story = {
             address="0x1111222233334444555566667777888899990000"
             ticker="ETH"
             ledger-id="ethereum"
-            value="0.001"
+            balance="0.001"
             link-label=""
           ></ledger-account-item>
         </div>
@@ -260,8 +263,9 @@ export const TestInteractions: Story = {
     address: "0x1234567890abcdef1234567890abcdef12345678",
     ticker: "ETH",
     ledgerId: "ethereum",
-    value: 1.234,
+    balance: "1.234",
     linkLabel: "Show tokens",
+    hasTokens: true,
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {
@@ -294,7 +298,7 @@ export const TestInteractions: Story = {
         );
         expect(customEvent.detail.ticker).toBe("ETH");
         expect(customEvent.detail.ledgerId).toBe("ethereum");
-        expect(customEvent.detail.value).toBe(1.234);
+        expect(customEvent.detail.balance).toBe("1.234");
         expect(customEvent.detail.linkLabel).toBe("Show tokens");
       });
 

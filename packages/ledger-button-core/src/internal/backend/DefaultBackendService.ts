@@ -1,6 +1,8 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import { configModuleTypes } from "../config/configModuleTypes.js";
+import { Config } from "../config/model/config.js";
 import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../network/networkModuleTypes.js";
 import type { NetworkService } from "../network/NetworkService.js";
@@ -20,18 +22,19 @@ export class DefaultBackendService implements BackendService {
   constructor(
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<NetworkServiceOpts>,
+    @inject(configModuleTypes.Config)
+    private readonly config: Config,
   ) {}
 
   async broadcast(
     request: BroadcastRequest,
-    clientOrigin = "ledger-button",
     domain = "ledger-button-domain",
   ): Promise<Either<Error, BroadcastResponse>> {
     const url = `${BACKEND_BASE_URL}/broadcast`;
 
     const headers = {
       "Content-Type": "application/json",
-      "X-Ledger-client-origin": clientOrigin,
+      "X-Ledger-client-origin": this.config.originToken,
       "X-Ledger-Domain": domain,
     };
 
@@ -50,13 +53,14 @@ export class DefaultBackendService implements BackendService {
     );
   }
 
-  async getConfig(request: ConfigRequest, domain = "ledger-button-domain") {
+  async getConfig(request: ConfigRequest) {
     const url = `${BACKEND_BASE_URL}/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
 
     const headers = {
-      "X-Ledger-Domain": domain,
+      "X-Ledger-Domain": this.config.dAppIdentifier, //TODO verify if this is correct
+      "X-Ledger-client-origin": this.config.originToken,
     };
 
     const options: NetworkServiceOpts = {

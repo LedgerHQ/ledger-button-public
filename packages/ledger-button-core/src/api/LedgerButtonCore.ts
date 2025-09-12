@@ -2,10 +2,16 @@ import { Container, Factory } from "inversify";
 import { BehaviorSubject, Observable, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
+import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
+import { SignPersonalMessageParams } from "./model/index.js";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
+import { SignFlowStatus } from "./model/signing/SignFlowStatus.js";
+import { SignRawTransactionParams } from "./model/signing/SignRawTransactionParams.js";
+import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
+import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
@@ -16,8 +22,8 @@ import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
-import { dAppConfigModuleTypes } from "../internal/dAppConfig/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../internal/dAppConfig/DAppConfigService.js";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
+import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -26,9 +32,6 @@ import {
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import { SignRawTransactionParams } from "../internal/device/use-case/SignRawTransaction.js";
-import { type SignTransactionParams } from "../internal/device/use-case/SignTransaction.js";
-import { type SignTypedDataParams } from "../internal/device/use-case/SignTypedData.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
@@ -40,9 +43,7 @@ import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
-import { TransactionResult } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
-import { type JSONRPCRequest } from "../internal/web3-provider/model/EIPTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
@@ -73,6 +74,13 @@ export class LedgerButtonCore {
 
   private async initializeContext() {
     this._logger.debug("Initializing context");
+
+    //Fetch dApp config that will be used later for fetching supported blockchains/referral url/etc.
+    await this.container
+      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .getDAppConfig();
+
+    //TODO throw error if dApp config is not found ?
 
     // Restore selected account from storage
     const selectedAccount = this.container
@@ -164,8 +172,8 @@ export class LedgerButtonCore {
   async getReferralUrl() {
     return this.container
       .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
-      .get("referralUrl")
-      .then((res) => res.unsafeCoerce());
+      .getDAppConfig()
+      .then((res) => res.referralUrl);
   }
 
   async switchDevice(type: ConnectionType) {
@@ -236,9 +244,10 @@ export class LedgerButtonCore {
     params:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
-  ): Observable<TransactionResult> {
+  ): Observable<SignFlowStatus> {
     this._logger.debug("Signing transaction", { params });
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)

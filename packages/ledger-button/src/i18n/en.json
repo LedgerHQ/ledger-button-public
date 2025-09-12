@@ -74,7 +74,7 @@
   "signTransaction": {
     "success": {
       "title": "Transaction signed",
-      "description": "You will receive the funds soon.",
+      "description": "You transaction will be processed soon.",
       "viewTransaction": "View transaction details"
     },
     "error": {
