@@ -1,4 +1,5 @@
-import { SignedResults } from "./SignedTransaction.js";
+import type { UserInteractionNeeded } from "../UserInteractionNeeded.js";
+import type { SignedResults } from "./SignedTransaction.js";
 
 export type SignType = "transaction" | "typed-message" | "personal-sign";
 
@@ -6,13 +7,7 @@ export type SignFlowStatus =
   | {
       signType: SignType;
       status: "user-interaction-needed";
-      interaction:
-        | "unlock-device"
-        | "allow-secure-connection"
-        | "confirm-open-app"
-        | "sign-transaction"
-        | "allow-list-apps"
-        | "web3-checks-opt-in";
+      interaction: UserInteractionNeeded;
     }
   | {
       signType: SignType;

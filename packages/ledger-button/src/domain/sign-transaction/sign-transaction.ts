@@ -29,8 +29,6 @@ import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { SignTransactionController } from "./sign-transaction-controller.js";
 
-export type SignTransactionState = "signing" | "success" | "error";
-
 const styles = css`
   :host {
     animation: intro 250ms ease-in-out;
@@ -76,9 +74,6 @@ export class SignTransactionScreen extends LitElement {
   public languageContext!: LanguageContext;
 
   @property({ type: String })
-  state: SignTransactionState = "signing";
-
-  @property({ type: String })
   transactionId = "";
 
   @property({ type: Object })
@@ -115,7 +110,7 @@ export class SignTransactionScreen extends LitElement {
 
     if (!transactionParams) {
       console.log("No transaction params");
-      this.state = "error";
+      this.controller.state.screen = "error";
       this.requestUpdate();
       return;
     }
@@ -136,7 +131,7 @@ export class SignTransactionScreen extends LitElement {
   private renderSigningState() {
     const lang = this.languageContext.currentTranslation;
     const deviceModel = this.coreContext.getConnectedDevice()?.modelId;
-    const animation = "signTransaction";
+    const deviceAnimation = this.controller.state.deviceAnimation;
 
     if (!deviceModel) return;
 
@@ -147,7 +142,7 @@ export class SignTransactionScreen extends LitElement {
         <div class="w-208">
           <ledger-device-animation
             modelId=${deviceModel}
-            animation=${animation}
+            animation=${deviceAnimation}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
@@ -266,9 +261,9 @@ export class SignTransactionScreen extends LitElement {
   }
 
   private handleRetry() {
-    this.state = "signing";
+    this.controller.state.screen = "signing";
     if (!this.transactionParams) {
-      this.state = "error";
+      this.controller.state.screen = "error";
       this.requestUpdate();
       return;
     }
@@ -276,7 +271,7 @@ export class SignTransactionScreen extends LitElement {
   }
 
   override render() {
-    switch (this.state) {
+    switch (this.controller.state.screen) {
       case "signing":
         return this.renderSigningState();
       case "success":
