@@ -2,17 +2,16 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
-  BroadcastedTransactionResult,
+  type BroadcastedTransactionResult,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-  SignedPersonalMessageOrTypedDataResult,
-  type SignedResults,
-  SignedTransactionResult,
-  SignPersonalMessageParams,
-  SignRawTransactionParams,
+  type SignedPersonalMessageOrTypedDataResult,
+  type SignedTransactionResult,
+  type SignPersonalMessageParams,
+  type SignRawTransactionParams,
   type SignTransactionParams,
-  SignTypedMessageParams,
+  type SignTypedMessageParams,
 } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -290,8 +289,9 @@ declare global {
   }
 
   interface WindowEventMap {
-    "ledger-internal-send-transaction": CustomEvent<SignedResults>;
-    "ledger-internal-sign-transaction": CustomEvent<SignedResults>;
-    "ledger-internal-sign-message": CustomEvent<SignedResults>;
+    "ledger-internal-sign-transaction": CustomEvent<
+      SignedTransactionResult | BroadcastedTransactionResult
+    >;
+    "ledger-internal-sign-message": CustomEvent<SignedPersonalMessageOrTypedDataResult>;
   }
 }

@@ -1,5 +1,4 @@
 import {
-  type Signature,
   type SignedResults,
   SignFlowStatus,
   type SignPersonalMessageParams,
@@ -25,7 +24,7 @@ export type SignTransactionState = "signing" | "success" | "error";
 export class SignTransactionController implements ReactiveController {
   host: SignTransactionHost;
   private transactionSubscription?: Subscription;
-  result?: SignedResults | Signature;
+  result?: SignedResults;
 
   state: { screen: SignTransactionState; deviceAnimation: AnimationKey } = {
     screen: "signing",

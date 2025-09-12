@@ -55,10 +55,6 @@ export class LedgerButtonApp extends LitElement {
       this.handleSignTransaction,
     );
     window.addEventListener(
-      "ledger-internal-send-transaction",
-      this.handleSendTransaction,
-    );
-    window.addEventListener(
       "ledger-internal-sign-message",
       this.handleSignMessage,
     );
@@ -82,10 +78,7 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-sign-transaction",
       this.handleSignTransaction,
     );
-    window.removeEventListener(
-      "ledger-internal-send-transaction",
-      this.handleSendTransaction,
-    );
+
     window.removeEventListener(
       "ledger-internal-sign-message",
       this.handleSignMessage,
@@ -108,9 +101,9 @@ export class LedgerButtonApp extends LitElement {
   };
 
   private handleSignTransaction = (e: CustomEvent<SignedResults>) => {
-    if (isSignedTransactionResult(e.detail)) {
+    if (isBroadcastedTransactionResult(e.detail)) {
       window.dispatchEvent(
-        new CustomEvent<SignedTransactionResult>(
+        new CustomEvent<BroadcastedTransactionResult>(
           "ledger-provider-sign-transaction",
           {
             bubbles: true,
@@ -119,13 +112,9 @@ export class LedgerButtonApp extends LitElement {
           },
         ),
       );
-    }
-  };
-
-  private handleSendTransaction = (e: CustomEvent<SignedResults>) => {
-    if (isBroadcastedTransactionResult(e.detail)) {
+    } else if (isSignedTransactionResult(e.detail)) {
       window.dispatchEvent(
-        new CustomEvent<BroadcastedTransactionResult>(
+        new CustomEvent<SignedTransactionResult>(
           "ledger-provider-sign-transaction",
           {
             bubbles: true,

@@ -13,7 +13,7 @@
 import "../ledger-button-app.js";
 
 import {
-  type ChainInfo,
+  // type ChainInfo,
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
@@ -34,7 +34,7 @@ export class LedgerEIP1193Provider
   implements EIP1193Provider
 {
   private _isConnected = false;
-  private _supportedChains: Map<string, ChainInfo> = new Map();
+  // private _supportedChains: Map<string, ChainInfo> = new Map();
   private _selectedAccount: string | null = null;
   private _selectedChainId = 1;
 
@@ -53,7 +53,6 @@ export class LedgerEIP1193Provider
     private readonly app: LedgerButtonApp,
   ) {
     super();
-    this.initializeSupportedChains();
 
     window.addEventListener("ledger-provider-disconnect", () => {
       this.disconnect();
@@ -165,12 +164,6 @@ export class LedgerEIP1193Provider
       //Sanitize transaction for EIP-1193
       const transaction = params[0] as Record<string, unknown>;
       transaction["chainId"] = this._selectedChainId;
-      console.log("[Ledger Provider] Transaction", transaction);
-
-      this.app.navigationIntent("signTransaction", {
-        transaction: transaction,
-        broadcast,
-      });
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
@@ -185,6 +178,11 @@ export class LedgerEIP1193Provider
           once: true,
         },
       );
+
+      this.app.navigationIntent("signTransaction", {
+        transaction: transaction,
+        broadcast,
+      });
     });
   }
 
@@ -391,16 +389,16 @@ export class LedgerEIP1193Provider
   }
 
   //TODO: check if still needed
-  private initializeSupportedChains(): void {
-    // NOTE: Initialize with common Ethereum chains (infos to be verified!)
-    this._supportedChains.set("0x1", {
-      chainId: "0x1",
-      chainName: "Ethereum Mainnet",
-      nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-      rpcUrls: ["https://ethereum.publicnode.com"],
-      blockExplorerUrls: ["https://etherscan.io"],
-    });
-  }
+  // private initializeSupportedChains(): void {
+  //   // NOTE: Initialize with common Ethereum chains (infos to be verified!)
+  //   this._supportedChains.set("0x1", {
+  //     chainId: "0x1",
+  //     chainName: "Ethereum Mainnet",
+  //     nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  //     rpcUrls: ["https://ethereum.publicnode.com"],
+  //     blockExplorerUrls: ["https://etherscan.io"],
+  //   });
+  // }
 }
 
 declare global {
