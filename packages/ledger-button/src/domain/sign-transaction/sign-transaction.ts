@@ -3,6 +3,7 @@ import "../onboarding/ledger-sync/ledger-sync";
 
 import {
   BroadcastedTransactionResult,
+  isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
   SignedPersonalMessageOrTypedDataResult,
@@ -200,7 +201,9 @@ export class SignTransactionScreen extends LitElement {
           description=${lang.signTransaction?.success?.description ||
           "You will receive the funds soon."}
           primary-button-label=${lang.common.button.close || "Close"}
-          secondary-button-label=${this.broadcast
+          secondary-button-label=${isBroadcastedTransactionResult(
+            this.controller.result,
+          )
             ? lang.signTransaction?.success?.viewTransaction ||
               "View transaction details"
             : ""}
