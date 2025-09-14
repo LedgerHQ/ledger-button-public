@@ -23,7 +23,7 @@ export class AccountTokensScreen extends LitElement {
   accountAddress?: string;
 
   private get account(): Account | null {
-    const targetAddress = this.accountAddress || (window as any)._tempAccountAddress;
+    const targetAddress = this.accountAddress || this.coreContext.getPendingAccountAddress();
     if (!targetAddress) {
       const accounts = this.coreContext.getAccounts();
       return accounts.length > 0 ? accounts[0] : null;
@@ -35,10 +35,10 @@ export class AccountTokensScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    // Clear the temporary address after component connects
-    if ((window as any)._tempAccountAddress) {
-      this.accountAddress = (window as any)._tempAccountAddress;
-      delete (window as any)._tempAccountAddress;
+    const pendingAddress = this.coreContext.getPendingAccountAddress();
+    if (pendingAddress) {
+      this.accountAddress = pendingAddress;
+      this.coreContext.clearPendingAccountAddress();
     }
   }
 
@@ -73,7 +73,7 @@ export class AccountTokensScreen extends LitElement {
 
   private renderConnectButton() {
     const translations = this.languages.currentTranslation;
-    
+
     return html`
       <div class="fixed bottom-24 left-24 right-24">
         <ledger-button
@@ -124,7 +124,7 @@ export class AccountTokensScreen extends LitElement {
             </div>
           </div>
         </div>
-        
+
         <div class="flex-1 overflow-y-auto p-24 pb-96">
           <div class="flex flex-col gap-12">
             ${this.account.tokens.length > 0

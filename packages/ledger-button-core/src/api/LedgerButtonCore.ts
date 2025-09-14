@@ -56,6 +56,7 @@ export class LedgerButtonCore {
   private _pendingTransactionParams?:
     | SignRawTransactionParams
     | SignTransactionParams;
+  private _pendingAccountAddress?: string;
   private readonly _logger: LoggerPublisher;
 
   private _currentContext: BehaviorSubject<ButtonCoreContext> =
@@ -316,6 +317,22 @@ export class LedgerButtonCore {
     | undefined {
     this._logger.debug("Getting pending transaction params");
     return this._pendingTransactionParams;
+  }
+
+  setPendingAccountAddress(address: string | undefined) {
+    this._logger.debug("Setting pending account address", { address });
+    this._pendingAccountAddress = address;
+  }
+
+  getPendingAccountAddress(): string | undefined {
+    this._logger.debug("Getting pending account address");
+
+    return this._pendingAccountAddress;
+  }
+
+  clearPendingAccountAddress() {
+    this._logger.debug("Clearing pending account address");
+    this._pendingAccountAddress = undefined;
   }
 
   getTransactionService(): TransactionService {

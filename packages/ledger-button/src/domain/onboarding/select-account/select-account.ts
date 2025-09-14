@@ -63,11 +63,10 @@ export class SelectAccountScreen extends LitElement {
     const account = this.coreContext.getAccounts().find(
       acc => acc.freshAddress === event.detail.address
     );
-    
+
     if (account) {
-      // Store the account address temporarily for the tokens screen
-      (window as any)._tempAccountAddress = account.freshAddress;
-      
+      this.coreContext.setPendingAccountAddress(account.freshAddress);
+
       this.navigation.navigateTo({
         name: "accountTokens",
         component: "account-tokens-screen",
