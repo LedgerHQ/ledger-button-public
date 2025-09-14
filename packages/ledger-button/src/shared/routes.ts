@@ -9,6 +9,7 @@ import "../domain/device-connection-status/device-connection-status.js";
 import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
 import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
 import "../domain/signing-flow/signing-flow.js";
+import "../domain/account-tokens/account-tokens.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -163,6 +164,15 @@ export const makeDestinations = (translation: Translation) => {
       toolbar: {
         title: "",
         showCloseButton: false,
+      },
+    },
+    accountTokens: {
+      name: "accountTokens",
+      component: "account-tokens-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.accountTokens?.title || "Account Tokens",
+        showCloseButton: true,
       },
     },
     notFound: {

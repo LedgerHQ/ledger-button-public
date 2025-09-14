@@ -59,9 +59,25 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  private handleAccountItemShowTokensClick = (event: CustomEvent<Account>) => {
-    // TODO: Should we display the tokens ?
-    console.log("account-item-show-tokens-click", event);
+  private handleAccountItemShowTokensClick = (event: CustomEvent<AccountItemClickEventDetail>) => {
+    const account = this.coreContext.getAccounts().find(
+      acc => acc.freshAddress === event.detail.address
+    );
+    
+    if (account) {
+      // Store the account address temporarily for the tokens screen
+      (window as any)._tempAccountAddress = account.freshAddress;
+      
+      this.navigation.navigateTo({
+        name: "accountTokens",
+        component: "account-tokens-screen",
+        canGoBack: true,
+        toolbar: {
+          title: `${account.name}`,
+          showCloseButton: true,
+        },
+      });
+    }
   };
 
   renderAccountItem = (account: Account) => {
