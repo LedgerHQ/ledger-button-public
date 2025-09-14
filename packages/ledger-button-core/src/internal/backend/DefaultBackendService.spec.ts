@@ -17,6 +17,10 @@ describe("DefaultBackendService", () => {
     patch: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
   };
+  let mockConfig: {
+    originToken: string;
+    dAppIdentifier: string;
+  };
 
   beforeEach(() => {
     mockNetworkService = {
@@ -27,8 +31,14 @@ describe("DefaultBackendService", () => {
       delete: vi.fn(),
     };
 
+    mockConfig = {
+      originToken: "test-origin-token",
+      dAppIdentifier: "test-dapp-identifier",
+    };
+
     backendService = new DefaultBackendService(
-      mockNetworkService as NetworkService<{ headers?: Record<string, string> }>
+      mockNetworkService as NetworkService<{ headers?: Record<string, string> }>,
+      mockConfig as any
     );
     vi.clearAllMocks();
   });
@@ -180,7 +190,7 @@ describe("DefaultBackendService", () => {
     const mockBroadcastRequest: BroadcastRequest = {
       blockchain: {
         name: "ethereum",
-        chain_id: "1",
+        chainId: "1",
       },
       rpc: {
         method: "eth_sendTransaction",
@@ -201,8 +211,7 @@ describe("DefaultBackendService", () => {
 
       await backendService.broadcast(
         mockBroadcastRequest,
-        "test-origin",
-        "test-domain",
+        "test-domain"
       );
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
@@ -211,7 +220,7 @@ describe("DefaultBackendService", () => {
         {
           headers: {
             "Content-Type": "application/json",
-            "X-Ledger-client-origin": "test-origin",
+            "X-Ledger-client-origin": "test-origin-token",
             "X-Ledger-Domain": "test-domain",
           },
         },
@@ -231,15 +240,15 @@ describe("DefaultBackendService", () => {
       mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
 
       await backendService.getConfig(
-        { dAppIdentifier: "test-dapp" },
-        "test-domain",
+        { dAppIdentifier: "test-dapp" }
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
         "https://ledgerb.aws.stg.ldg-tech.com/config?dAppIdentifier=test-dapp",
         {
           headers: {
-            "X-Ledger-Domain": "test-domain",
+            "X-Ledger-Domain": "test-dapp-identifier",
+            "X-Ledger-client-origin": "test-origin-token",
           },
         },
       );
