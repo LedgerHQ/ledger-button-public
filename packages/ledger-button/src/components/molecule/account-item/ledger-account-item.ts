@@ -18,7 +18,7 @@ export type AccountItemClickEventDetail = {
   address: string;
   ticker: string;
   ledgerId: string;
-  value: number;
+  balance: string;
   linkLabel: string;
   timestamp: number;
 };
@@ -28,7 +28,7 @@ export interface LedgerAccountItemMoleculeAttributes {
   address: string;
   ticker: string;
   ledgerId: string;
-  value: number;
+  balance: string;
   linkLabel: string;
 }
 
@@ -47,11 +47,14 @@ export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: String, attribute: "ledger-id" })
   ledgerId = "";
 
-  @property({ type: Number })
-  value = 0;
+  @property({ type: String })
+  balance = "0.00";
 
   @property({ type: String, attribute: "link-label" })
   linkLabel = "";
+
+  @property({ type: Boolean })
+  hasTokens = false;
 
   private get containerClasses() {
     return {
@@ -69,7 +72,7 @@ export class LedgerAccountItemMolecule extends LitElement {
           address: this.address,
           ticker: this.ticker,
           ledgerId: this.ledgerId,
-          value: this.value,
+          balance: this.balance,
           linkLabel: this.linkLabel,
           timestamp: Date.now(),
         },
@@ -94,7 +97,7 @@ export class LedgerAccountItemMolecule extends LitElement {
           address: this.address,
           ticker: this.ticker,
           ledgerId: this.ledgerId,
-          value: this.value,
+          balance: this.balance,
           linkLabel: this.linkLabel,
           timestamp: Date.now(),
         },
@@ -131,7 +134,7 @@ export class LedgerAccountItemMolecule extends LitElement {
     return html`
       <div class="flex items-center justify-center">
         <span class="text-base body-2-semi-bold"
-          >${this.value} ${this.ticker}</span
+          >${this.balance} ${this.ticker}</span
         >
       </div>
     `;
@@ -150,7 +153,7 @@ export class LedgerAccountItemMolecule extends LitElement {
         >
           ${this.renderAccountInfo()} ${this.renderValueInfo()}
         </button>
-        ${this.linkLabel
+        ${this.linkLabel && this.hasTokens
           ? html`
               <button
                 class="group flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"

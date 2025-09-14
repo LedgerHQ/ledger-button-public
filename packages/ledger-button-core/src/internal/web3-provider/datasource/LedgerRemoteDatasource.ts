@@ -1,10 +1,13 @@
 import { inject, injectable } from "inversify";
 import { Either, Left } from "purify-ts";
 
+import {
+  JSONRPCRequest,
+  JSONRPCResponse,
+} from "../../../api/model/eip/EIPTypes.js";
 import { type NetworkServiceOpts } from "../../network/DefaultNetworkService.js";
 import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import { type NetworkService } from "../../network/NetworkService.js";
-import { JSONRPCRequest, JSONRPCResponse } from "../model/EIPTypes.js";
 
 @injectable()
 export class LedgerRemoteDatasource {

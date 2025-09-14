@@ -1,4 +1,4 @@
-import { DAppConfig } from "./types.js";
+import { DAppConfig } from "../dAppConfigTypes.js";
 
 export const stubDAppConfig: DAppConfig = {
   // Based on 1inch supported networks: https://help.1inch.io/en/articles/5528619-how-to-use-different-networks-on-1inch
@@ -10,61 +10,61 @@ export const stubDAppConfig: DAppConfig = {
       currency_ticker: "ETH",
     },
     {
-      id: "2",
+      id: "42161",
       currency_id: "arbitrum",
       currency_name: "Arbitrum",
-      currency_ticker: "ETH",
+      currency_ticker: "ARB",
     },
     {
-      id: "3",
+      id: "43114",
       currency_id: "avalanche_c_chain",
       currency_name: "Avalanche C-Chain",
       currency_ticker: "AVAX",
     },
     {
-      id: "4",
+      id: "8453",
       currency_id: "base",
       currency_name: "Base",
-      currency_ticker: "ETH",
+      currency_ticker: "BASE",
     },
     {
-      id: "5",
+      id: "56",
       currency_id: "bsc",
       currency_name: "Binance Smart Chain",
       currency_ticker: "BNB",
     },
     {
-      id: "6",
+      id: "59144",
       currency_id: "linea",
       currency_name: "Linea",
-      currency_ticker: "ETH",
-    },
-    {
-      id: "7",
-      currency_id: "optimism",
-      currency_name: "Optimism",
-      currency_ticker: "ETH",
-    },
-    {
-      id: "8",
-      currency_id: "polygon",
-      currency_name: "Polygon",
-      currency_ticker: "POL",
-    },
-    {
-      id: "9",
-      currency_id: "sonic",
-      currency_name: "Sonic",
-      currency_ticker: "S",
+      currency_ticker: "LINEA",
     },
     {
       id: "10",
-      currency_id: "zksync",
-      currency_name: "ZKsync",
-      currency_ticker: "ETH",
+      currency_id: "optimism",
+      currency_name: "Optimism",
+      currency_ticker: "OP",
     },
     {
-      id: "11",
+      id: "137",
+      currency_id: "polygon",
+      currency_name: "Polygon",
+      currency_ticker: "MATIC",
+    },
+    {
+      id: "146",
+      currency_id: "sonic",
+      currency_name: "Sonic",
+      currency_ticker: "SONIC",
+    },
+    {
+      id: "324",
+      currency_id: "zksync",
+      currency_name: "ZKsync",
+      currency_ticker: "ZK",
+    },
+    {
+      id: "100",
       currency_id: "ethereum/erc20/gnosis", // NOTE: this is just a reminder, tokens won't show on Ledger Sync
       currency_name: "Gnosis",
       currency_ticker: "GNO",
@@ -75,8 +75,8 @@ export const stubDAppConfig: DAppConfig = {
   appDependencies: [
     {
       blockchain: "ethereum",
-      appName: "1Inch",
-      dependencies: ["1Inch", "Ethereum"],
+      appName: "1inch",
+      dependencies: ["1inch", "Ethereum"],
     },
   ],
 };

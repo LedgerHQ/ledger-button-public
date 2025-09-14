@@ -3,6 +3,7 @@ import {
   DeviceManagementKit,
   DeviceManagementKitBuilder,
   DiscoveredDevice,
+  LogLevel,
   TransportIdentifier,
 } from "@ledgerhq/device-management-kit";
 import {
@@ -48,7 +49,7 @@ export class DefaultDeviceManagementKitService
 
     builder
       .addConfig(args)
-      .addLogger(new ConsoleLogger())
+      .addLogger(new ConsoleLogger(LogLevel.Debug))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
 
@@ -86,9 +87,6 @@ export class DefaultDeviceManagementKitService
     try {
       const sessionId = await dmk.connect({
         device,
-        // sessionRefresherOptions: {
-        //   isRefresherDisabled: false,
-        // },
       });
       this._currentSessionId = sessionId;
       this._connectedDevice = mapConnectedDeviceToDevice(

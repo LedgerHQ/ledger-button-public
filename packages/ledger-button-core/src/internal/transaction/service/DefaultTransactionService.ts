@@ -1,41 +1,39 @@
-import type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, from, Observable, Subject } from "rxjs";
-import { finalize, tap } from "rxjs/operators";
+import { Observable } from "rxjs";
 
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
-import { SendTransaction } from "../../device/use-case/SendTransaction.js";
-import type {
-  SignedTransaction,
-  SignRawTransaction,
-} from "../../device/use-case/SignRawTransaction.js";
-import { SignRawTransactionParams } from "../../device/use-case/SignRawTransaction.js";
+import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import {
-  SignTransaction,
+  isSignPersonalMessageParams,
+  SignPersonalMessageParams,
+} from "../../../api/model/signing/SignPersonalMessageParams.js";
+import {
+  isSignRawTransactionParams,
+  type SignRawTransactionParams,
+} from "../../../api/model/signing/SignRawTransactionParams.js";
+import {
+  isSignTransactionParams,
   type SignTransactionParams,
-} from "../../device/use-case/SignTransaction.js";
+} from "../../../api/model/signing/SignTransactionParams.js";
 import {
-  SignTypedData,
-  type SignTypedDataParams,
-} from "../../device/use-case/SignTypedData.js";
+  isSignTypedMessageParams,
+  type SignTypedMessageParams,
+} from "../../../api/model/signing/SignTypedMessageParams.js";
+import { SignPersonalMessage } from "../../../internal/device/use-case/SignPersonalMessage.js";
+import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
+import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
+import { SignTransaction } from "../../device/use-case/SignTransaction.js";
+import { SignTypedData } from "../../device/use-case/SignTypedData.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import {
-  TransactionResult,
-  TransactionService,
-  TransactionStatus,
-} from "./TransactionService.js";
+import { TransactionService } from "./TransactionService.js";
 
 @injectable()
 export class DefaultTransactionService implements TransactionService {
-  private _status = new BehaviorSubject<TransactionStatus>(
-    TransactionStatus.IDLE,
-  );
-  private _result = new Subject<TransactionResult>();
   private _pendingParams?:
     | SignTransactionParams
     | SignRawTransactionParams
-    | SignTypedDataParams;
+    | SignTypedMessageParams
+    | SignPersonalMessageParams;
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -45,8 +43,8 @@ export class DefaultTransactionService implements TransactionService {
     private readonly signRawTransactionUseCase: SignRawTransaction,
     @inject(deviceModuleTypes.SignTypedDataUseCase)
     private readonly signTypedDataUseCase: SignTypedData,
-    @inject(deviceModuleTypes.SendTransactionUseCase)
-    private readonly sendTransactionUseCase: SendTransaction,
+    @inject(deviceModuleTypes.SignPersonalMessageUseCase)
+    private readonly signPersonalMessageUseCase: SignPersonalMessage,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
@@ -56,74 +54,59 @@ export class DefaultTransactionService implements TransactionService {
   sign(
     params:
       | SignRawTransactionParams
-      | SignTypedDataParams
-      | SignTransactionParams,
+      | SignTypedMessageParams
+      | SignTransactionParams
+      | SignPersonalMessageParams,
     broadcast: boolean,
-  ): Observable<TransactionResult> {
+  ): Observable<SignFlowStatus> {
     this._pendingParams = params;
-    this._updateStatus(TransactionStatus.SIGNING);
 
-    const useCase =
-      "transaction" in params
-        ? broadcast
-          ? this.sendTransactionUseCase.execute(params)
-          : this.signTransactionUseCase.execute(params)
-        : "typedData" in params
-          ? this.signTypedDataUseCase.execute(params)
-          : this.signRawTransactionUseCase.execute(params);
+    this.logger.debug("[Sign] Signing intent received", { params, broadcast });
 
-    from(useCase)
-      .pipe(
-        tap((result) => {
-          this.logger.info("Transaction signed successfully", { result });
-        }),
-        finalize(() => {
-          this.logger.info("Transaction signing finalized");
-        }),
-      )
-      .subscribe({
-        next: (data) => {
-          this._pendingParams = undefined;
-          this._updateStatus(TransactionStatus.SIGNED, data);
-        },
-        error: (error: Error) => {
-          this.logger.error("Transaction signing failed", { error });
-          this._updateStatus(TransactionStatus.ERROR, undefined, error);
-        },
-      });
+    let useCase: Observable<SignFlowStatus>;
+    switch (true) {
+      case isSignTransactionParams(params):
+        this.logger.debug("[Sign] Signing transaction");
+        useCase = this.signTransactionUseCase.execute(params);
+        break;
+      case isSignTypedMessageParams(params):
+        this.logger.debug("[Sign] Signing typed data");
+        useCase = this.signTypedDataUseCase.execute(params);
+        break;
+      case isSignPersonalMessageParams(params):
+        this.logger.debug("[Sign] Signing personal message");
+        useCase = this.signPersonalMessageUseCase.execute(params);
+        break;
+      case isSignRawTransactionParams(params):
+      default:
+        this.logger.debug("[Sign] Signing raw transaction");
+        useCase = this.signRawTransactionUseCase.execute(params);
+        break;
+    }
 
-    return this._result.asObservable();
+    return useCase;
   }
 
   getPendingTransaction():
     | SignTransactionParams
     | SignRawTransactionParams
-    | SignTypedDataParams
+    | SignTypedMessageParams
+    | SignPersonalMessageParams
     | undefined {
     return this._pendingParams;
   }
 
   setPendingTransaction(
-    params:
+    params?:
       | SignTransactionParams
       | SignRawTransactionParams
-      | SignTypedDataParams
-      | undefined,
+      | SignTypedMessageParams
+      | SignPersonalMessageParams,
   ): void {
     this._pendingParams = params;
   }
 
   reset(): void {
     this._pendingParams = undefined;
-    this._updateStatus(TransactionStatus.IDLE);
-  }
-
-  private _updateStatus(
-    status: TransactionStatus,
-    data?: SignedTransaction | Signature,
-    error?: Error,
-  ): void {
-    this._status.next(status);
-    this._result.next({ status, data, error });
   }
 }

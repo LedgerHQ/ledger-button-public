@@ -12,10 +12,21 @@ export type CloudSyncData = {
   accountNames: Record<string, string>;
 };
 
+//TODO Move account and token to API models
 export type Account = CloudSyncAccount & {
   name: string;
   ticker: string;
+  balance: string | undefined;
+  tokens: Token[];
 };
+
+export type Token = {
+  address: string;
+  symbol: string;
+  name: string;
+  balance: string;
+};
+
 export interface AccountService {
   setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];

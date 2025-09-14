@@ -1,9 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import {
+  JSONRPCRequest,
+  JSONRPCResponse,
+} from "../../../api/model/eip/EIPTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { LedgerRemoteDatasource } from "../datasource/LedgerRemoteDatasource.js";
-import { JSONRPCRequest, JSONRPCResponse } from "../model/EIPTypes.js";
 import { web3ProviderModuleTypes } from "../web3ProviderModuleTypes.js";
 
 @injectable()

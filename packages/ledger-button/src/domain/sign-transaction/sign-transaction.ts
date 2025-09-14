@@ -2,9 +2,16 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
-  type Signature,
-  type SignedTransaction,
+  BroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
+  isSignedTransactionResult,
+  SignedPersonalMessageOrTypedDataResult,
+  type SignedResults,
+  SignedTransactionResult,
+  SignPersonalMessageParams,
+  SignRawTransactionParams,
   type SignTransactionParams,
+  SignTypedMessageParams,
 } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -74,7 +81,11 @@ export class SignTransactionScreen extends LitElement {
   transactionId = "";
 
   @property({ type: Object })
-  transactionParams?: SignTransactionParams;
+  transactionParams?:
+    | SignTransactionParams
+    | SignPersonalMessageParams
+    | SignRawTransactionParams
+    | SignTypedMessageParams;
 
   @property({ type: Object })
   params?: unknown;
@@ -90,7 +101,6 @@ export class SignTransactionScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
-      this.destinations,
     );
 
     if (this.isParams(this.params)) {
@@ -124,7 +134,10 @@ export class SignTransactionScreen extends LitElement {
 
   private renderSigningState() {
     const lang = this.languageContext.currentTranslation;
+    const deviceModel = this.coreContext.getConnectedDevice()?.modelId;
     const animation = "signTransaction";
+
+    if (!deviceModel) return;
 
     return html`
       <div
@@ -132,14 +145,14 @@ export class SignTransactionScreen extends LitElement {
       >
         <div class="w-208">
           <ledger-device-animation
-            modelId="flex"
+            modelId=${deviceModel}
             animation=${animation}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
           <p class="text-center body-1">
             ${lang.common.device.deviceActions.continueOnLedger.title}
-            ${lang.common.device.model["flex"]}
+            ${lang.common.device.model[deviceModel]}
           </p>
           <p class="text-center text-muted body-2">
             ${lang.common.device.deviceActions.continueOnLedger.description}
@@ -153,24 +166,26 @@ export class SignTransactionScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     if (this.controller.result) {
-      if ("hash" in this.controller.result) {
+      if (isSignedTransactionResult(this.controller.result)) {
         window.dispatchEvent(
-          new CustomEvent<SignedTransaction>(
-            "ledger-internal-sign-transaction",
+          new CustomEvent<
+            SignedTransactionResult | BroadcastedTransactionResult
+          >("ledger-internal-sign-transaction", {
+            bubbles: true,
+            composed: true,
+            detail: this.controller.result,
+          }),
+        );
+      } else if (isSignedMessageOrTypedDataResult(this.controller.result)) {
+        window.dispatchEvent(
+          new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
+            "ledger-internal-sign-message",
             {
               bubbles: true,
               composed: true,
               detail: this.controller.result,
             },
           ),
-        );
-      } else {
-        window.dispatchEvent(
-          new CustomEvent<Signature>("ledger-internal-sign-typed-data", {
-            bubbles: true,
-            composed: true,
-            detail: this.controller.result,
-          }),
         );
       }
     }
@@ -185,8 +200,10 @@ export class SignTransactionScreen extends LitElement {
           description=${lang.signTransaction?.success?.description ||
           "You will receive the funds soon."}
           primary-button-label=${lang.common.button.close || "Close"}
-          secondary-button-label=${lang.signTransaction?.success
-            ?.viewTransaction || "View transaction details"}
+          secondary-button-label=${this.broadcast
+            ? lang.signTransaction?.success?.viewTransaction ||
+              "View transaction details"
+            : ""}
           @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>
@@ -275,7 +292,8 @@ declare global {
   }
 
   interface WindowEventMap {
-    "ledger-internal-sign-transaction": CustomEvent<SignedTransaction>;
-    "ledger-internal-sign-typed-data": CustomEvent<Signature>;
+    "ledger-internal-send-transaction": CustomEvent<SignedResults>;
+    "ledger-internal-sign-transaction": CustomEvent<SignedResults>;
+    "ledger-internal-sign-message": CustomEvent<SignedResults>;
   }
 }

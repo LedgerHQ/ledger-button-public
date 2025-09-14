@@ -1,7 +1,10 @@
 import { injectable } from "inversify";
 import { Right } from "purify-ts";
 
-import { CommonEIP1193ErrorCode, JSONRPCRequest } from "../model/EIPTypes.js";
+import {
+  CommonEIP1193ErrorCode,
+  JSONRPCRequest,
+} from "../../../api/model/eip/EIPTypes.js";
 import { LedgerRemoteDatasource } from "./LedgerRemoteDatasource.js";
 
 @injectable()

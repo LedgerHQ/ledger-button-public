@@ -362,21 +362,24 @@ importers:
 
   packages/ledger-button-core:
     dependencies:
+      '@ledgerhq/context-module':
+        specifier: 1.7.0
+        version: 1.7.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))
       '@ledgerhq/device-management-kit':
-        specifier: 0.0.0-web-ble-29-08---20250829104351
-        version: 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
+        specifier: 0.9.0
+        version: 0.9.0(rxjs@7.8.2)
       '@ledgerhq/device-signer-kit-ethereum':
-        specifier: 0.0.0-web-ble-29-08---20250829104351
-        version: 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))
+        specifier: 1.7.0
+        version: 1.7.0(@ledgerhq/context-module@1.7.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))
       '@ledgerhq/device-transport-kit-web-ble':
-        specifier: 0.0.0-web-ble-29-08---20250829104351
-        version: 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 1.2.0
+        version: 1.2.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))(rxjs@7.8.2)
       '@ledgerhq/device-transport-kit-web-hid':
-        specifier: 0.0.0-web-ble-29-08---20250829104351
-        version: 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 1.2.0
+        version: 1.2.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))(rxjs@7.8.2)
       '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol':
-        specifier: 0.0.0-ledger-button-20250821163751
-        version: 0.0.0-ledger-button-20250821163751
+        specifier: 0.2.0
+        version: 0.2.0
       chalk:
         specifier: ^5.4.1
         version: 5.5.0
@@ -398,9 +401,6 @@ importers:
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
-      viem:
-        specifier: ^2.21.0
-        version: 2.33.3(typescript@5.8.3)(zod@4.1.5)
       zod:
         specifier: ^4.1.5
         version: 4.1.5
@@ -428,9 +428,6 @@ packages:
 
   '@adraffy/ens-normalize@1.10.1':
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
-
-  '@adraffy/ens-normalize@1.11.0':
-    resolution: {integrity: sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -1995,51 +1992,41 @@ packages:
     peerDependencies:
       tslib: '2'
 
-  '@ledgerhq/context-module@0.0.0-ledger-button-20250821135213':
-    resolution: {integrity: sha512-1Lh1Pbj7t6CJn42pBAWltI9qdKvdwD1LimYrng3ebzEIvDXZUwAZiUMtHwrbjW3xjv6ESY2De1gPbqcv8jfSHA==}
+  '@ledgerhq/context-module@1.7.0':
+    resolution: {integrity: sha512-dXODmbGhXsLvyDUlIerAX7hchrs5Kp14itl3SfSNeeDTyEh+iH7lQeigeeVi8ciCmUUn1QQ40yuJqJpX6bFd8g==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821135213
+      '@ledgerhq/device-management-kit': 0.9.0
 
-  '@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751':
-    resolution: {integrity: sha512-0RwODAUw8aa1hplYh908Q5bVpw3OAzVdO7JRsCAfnx4OupAHvv3bay7YLiWpg5tY0vEKBoDLyR2tSweOvyNk3w==}
-    peerDependencies:
-      rxjs: 7.8.2
-
-  '@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351':
-    resolution: {integrity: sha512-nHseB/z3qF54Jr6PntvBv1Y5X+eGY4uksb6s5yXvqmf32x1ICJnl6NUki3RY+Wz0szuIcxRRrBD9AZtWu62/EQ==}
+  '@ledgerhq/device-management-kit@0.9.0':
+    resolution: {integrity: sha512-zWcQ0TOerZU4tvBdHd7RWpmYB+nVN3aTZ/hHz5IVnESEmQa2m4YsmOb2vm55k3tvyc5yRW/sOqX83Bnr+y+G+w==}
     peerDependencies:
       rxjs: 7.8.2
 
-  '@ledgerhq/device-signer-kit-ethereum@0.0.0-web-ble-29-08---20250829104351':
-    resolution: {integrity: sha512-JGXbKTA632J6e3YQU2j6lfg6JsJGqwbujSoNfo/pm6V4rhDrbg7Kvm8g/hKmueLigsc/OkpBQFUStz5pHrRqJw==}
+  '@ledgerhq/device-signer-kit-ethereum@1.7.0':
+    resolution: {integrity: sha512-6d6LHd3IbAC99ijSJJfsVFOEw+P68RxkMC5FLJMKsFGHgGGUj5cMNmSIGqNjlLXBiHGDmOlOLFQKKFnS0MLDMQ==}
     peerDependencies:
-      '@ledgerhq/context-module': 0.0.0-web-ble-29-08---20250829104351
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
+      '@ledgerhq/context-module': 1.7.0
+      '@ledgerhq/device-management-kit': 0.9.0
 
-  '@ledgerhq/device-transport-kit-web-ble@0.0.0-web-ble-29-08---20250829104351':
-    resolution: {integrity: sha512-vkDHDsEhrQTMFSNArUkre0hZ4h5l6T0JdkBkqU7pJKrcKSp+H2C203UvcmYonx0dtDMEI5p8nHiWqTKqvnNLAA==}
+  '@ledgerhq/device-transport-kit-web-ble@1.2.0':
+    resolution: {integrity: sha512-tZfMK/xuxQB606sshDjg+b7QVI4GzTqP3yKk/w5SF+mb9ED8jq9nhRohJNJa34NiRQVauGoJsqO9mk5rZ2K/WQ==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
+      '@ledgerhq/device-management-kit': 0.9.0
       rxjs: 7.8.2
 
-  '@ledgerhq/device-transport-kit-web-hid@0.0.0-web-ble-29-08---20250829104351':
-    resolution: {integrity: sha512-1uZva8cVyPIUPoa7M/wFmggGXWo65uwPpYFq2PVbseTB130ipFTU2mbSuPa8N0ZwrB7jsLhqUA513/HQ8XSEqw==}
+  '@ledgerhq/device-transport-kit-web-hid@1.2.0':
+    resolution: {integrity: sha512-51kLHqrn1dP+0ZQLRyUBHIPSBNvx74hiIAMHrBkiCAedpmND/W522nslpX42bVf3tU3+I0Y51qn3WFvd8ZtIow==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
-      rxjs: 7.8.2
+      '@ledgerhq/device-management-kit': 0.8.0
+      rxjs: ^7.8.2
 
-  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.0.0-ledger-button-20250821163751':
-    resolution: {integrity: sha512-jW16I+dI6bE1JzzlSp87Ye7cW/qs1Nzr9Xx/8L27hTIecvp9MoYNxfkbXWvqEHenYtClTuuDq9UIPN26+VEU0Q==}
+  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.2.0':
+    resolution: {integrity: sha512-SgmC92m0hkI8p6tQ8wfGi8U12kiq80GaECXMTPJhWWOWbQXJTZM3Hb0qr6B/2oRvkTASLilQoG2SVSe1EM4zmg==}
 
-  '@ledgerhq/signer-utils@0.0.0-ledger-button-20250821163751':
-    resolution: {integrity: sha512-+9Q5ifvyfVrGeDiLORBn5BRsIo80CML77TmBsNvahM/KSNW2ZljVat/9w7yY93ce1BWTG9ho9sRCuWagFICMiQ==}
+  '@ledgerhq/signer-utils@1.1.0':
+    resolution: {integrity: sha512-zp8kyNF0sNMUG2VkgOL7rDu8W6U1P8yvTA3wIDjjlqoIOPanvodfezeub69fOuHJ2QG/JmnS8YZCGIoSWpQYkA==}
     peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751
-
-  '@ledgerhq/signer-utils@0.0.0-web-ble-29-08---20250829104351':
-    resolution: {integrity: sha512-Wq3QXxFfiUWOLQRAiBrX8xqPsiIC/3yfHnzoZIKlZ+8CkZXbSgE2CHzwVPGDU8S6Vbphcv4Hbecoq12Uf/16aA==}
-    peerDependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351
+      '@ledgerhq/device-management-kit': 0.9.0
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
@@ -2426,10 +2413,6 @@ packages:
 
   '@noble/curves@1.2.0':
     resolution: {integrity: sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==}
-
-  '@noble/curves@1.9.2':
-    resolution: {integrity: sha512-HxngEd2XUcg9xi20JkwlLCtYwfoFw4JGkuZpT+WlsPD4gB/cxkvTD8fSsoAnphGZhFdZYKeQIPCuFlWPm1uE0g==}
-    engines: {node: ^14.21.3 || >=16}
 
   '@noble/curves@1.9.7':
     resolution: {integrity: sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==}
@@ -3013,15 +2996,6 @@ packages:
 
   '@rushstack/ts-command-line@5.0.2':
     resolution: {integrity: sha512-+AkJDbu1GFMPIU8Sb7TLVXDv/Q7Mkvx+wAjEl8XiXVVq+p1FmWW6M3LYpJMmoHNckSofeMecgWg5lfMwNAAsEQ==}
-
-  '@scure/base@1.2.6':
-    resolution: {integrity: sha512-g/nm5FgUa//MCj1gV09zTJTaM6KBAHqLN907YVQqf7zC49+DcO4B1so4ZX07Ef10Twr6nuqYEH9GEggFXA4Fmg==}
-
-  '@scure/bip32@1.7.0':
-    resolution: {integrity: sha512-E4FFX/N3f4B80AKWp5dP6ow+flD1LQZo/w8UnLGYZO674jS6YnYeepycOOksv+vLPSpgN35wgKgy+ybfTb2SMw==}
-
-  '@scure/bip39@1.6.0':
-    resolution: {integrity: sha512-+lF0BbLiJNwVlev4eKelw1WWLaiKXw7sSl8T6FvBlWkdX+94aGJ4o8XjUdlyhTCjd8c+B3KT3JfS8P0bLRNU6A==}
 
   '@sentry/hub@6.19.7':
     resolution: {integrity: sha512-y3OtbYFAqKHCWezF0EGGr5lcyI2KbaXW2Ik7Xp8Mu9TxbSTuwTe4rTntwg8ngPjUQU3SUHzgjqVB8qjiGqFXCA==}
@@ -4082,17 +4056,6 @@ packages:
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
     deprecated: Use your platform's native atob() and btoa() methods instead
-
-  abitype@1.0.8:
-    resolution: {integrity: sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-      zod: ^3 >=3.22.0
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-      zod:
-        optional: true
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -5814,9 +5777,6 @@ packages:
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
-  eventemitter3@5.0.1:
-    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
-
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -6888,11 +6848,6 @@ packages:
 
   isomorphic-ws@5.0.0:
     resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
-    peerDependencies:
-      ws: '*'
-
-  isows@1.0.7:
-    resolution: {integrity: sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==}
     peerDependencies:
       ws: '*'
 
@@ -8118,14 +8073,6 @@ packages:
     resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
     engines: {node: '>= 0.4'}
 
-  ox@0.8.6:
-    resolution: {integrity: sha512-eiKcgiVVEGDtEpEdFi1EGoVVI48j6icXHce9nFwCNM7CKG3uoCXKdr4TPhS00Iy1TR2aWSF1ltPD0x/YgqIL9w==}
-    peerDependencies:
-      typescript: '>=5.4.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   p-cancelable@3.0.0:
     resolution: {integrity: sha512-mlVgR3PGuzlo0MmTdk4cXqXWlwQDLnONTAg6sm62XkMJEiRxN3GL3SffkYvqwonbkJBcrI7Uvv5Zh9yjvn2iUw==}
     engines: {node: '>=12.20'}
@@ -9302,11 +9249,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  semver@7.7.0:
-    resolution: {integrity: sha512-DrfFnPzblFmNrIZzg5RzHegbiRWg7KMR7btwi2yjHwx06zsUbO5g613sVwEV7FTwmzJu+Io0lJe2GJ3LxqpvBQ==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   semver@7.7.2:
     resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
     engines: {node: '>=10'}
@@ -10270,14 +10212,6 @@ packages:
     resolution: {integrity: sha512-ZZKSmDAEFOijERBLkmYfJ+vmk3w+7hOLYDNkRCuRuMJGEmqYNCNLyBBFwWKVMhfwaEF3WOd0Zlw86U/WC/+nYw==}
     engines: {'0': node >=0.6.0}
 
-  viem@2.33.3:
-    resolution: {integrity: sha512-aWDr6i6r3OfNCs0h9IieHFhn7xQJJ8YsuA49+9T5JRyGGAkWhLgcbLq2YMecgwM7HdUZpx1vPugZjsShqNi7Gw==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   vite-node@3.2.4:
     resolution: {integrity: sha512-EbKSKh+bh1E1IFxeO0pg1n4dvoOTt0UDiXMd/qn++r98+jPO1xtJilvXldeuQ8giIB5IkpjCgMleHMNEsGH6pg==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -10622,18 +10556,6 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.18.2:
-    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
     engines: {node: '>=10.0.0'}
@@ -10747,8 +10669,6 @@ snapshots:
   '@adobe/css-tools@4.4.3': {}
 
   '@adraffy/ens-normalize@1.10.1': {}
-
-  '@adraffy/ens-normalize@1.11.0': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -12554,9 +12474,9 @@ snapshots:
       '@jsonjoy.com/codegen': 1.0.0(tslib@2.8.1)
       tslib: 2.8.1
 
-  '@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))':
+  '@ledgerhq/context-module@1.7.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.9.0(rxjs@7.8.2)
       axios: 1.8.2
       crypto-js: 4.2.0
       ethers: 6.14.1
@@ -12568,7 +12488,7 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2)':
+  '@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2)':
     dependencies:
       '@sentry/minimal': 6.19.7
       axios: 1.8.2
@@ -12577,7 +12497,7 @@ snapshots:
       purify-ts: 2.1.0
       reflect-metadata: 0.2.2
       rxjs: 7.8.2
-      semver: 7.7.0
+      semver: 7.7.2
       url: 0.11.4
       uuid: 11.0.3
       ws: 8.18.3
@@ -12587,60 +12507,41 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)':
+  '@ledgerhq/device-signer-kit-ethereum@1.7.0(@ledgerhq/context-module@1.7.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))':
     dependencies:
-      '@sentry/minimal': 6.19.7
-      axios: 1.8.2
-      inversify: 7.5.1(reflect-metadata@0.2.2)
-      isomorphic-ws: 5.0.0(ws@8.18.3)
-      purify-ts: 2.1.0
-      reflect-metadata: 0.2.2
-      rxjs: 7.8.2
-      semver: 7.7.0
-      url: 0.11.4
-      uuid: 11.0.3
-      ws: 8.18.3
-      xstate: 5.19.2
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - utf-8-validate
-
-  '@ledgerhq/device-signer-kit-ethereum@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/context-module@0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)))(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))':
-    dependencies:
-      '@ledgerhq/context-module': 0.0.0-ledger-button-20250821135213(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
-      '@ledgerhq/signer-utils': 0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))
+      '@ledgerhq/context-module': 1.7.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))
+      '@ledgerhq/device-management-kit': 0.9.0(rxjs@7.8.2)
+      '@ledgerhq/signer-utils': 1.1.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))
       ethers: 6.14.1
       inversify: 7.5.1(reflect-metadata@0.2.2)
       purify-ts: 2.1.0
       reflect-metadata: 0.2.2
-      semver: 7.7.0
+      semver: 7.7.2
       xstate: 5.19.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-transport-kit-web-ble@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@ledgerhq/device-transport-kit-web-ble@1.2.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.9.0(rxjs@7.8.2)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.2
       uuid: 11.0.3
 
-  '@ledgerhq/device-transport-kit-web-hid@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@ledgerhq/device-transport-kit-web-hid@1.2.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.9.0(rxjs@7.8.2)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.2
       uuid: 11.0.3
 
-  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.0.0-ledger-button-20250821163751':
+  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.2.0':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
-      '@ledgerhq/signer-utils': 0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))
+      '@ledgerhq/device-management-kit': 0.9.0(rxjs@7.8.2)
+      '@ledgerhq/signer-utils': 1.1.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
@@ -12654,13 +12555,9 @@ snapshots:
       - debug
       - utf-8-validate
 
-  '@ledgerhq/signer-utils@0.0.0-ledger-button-20250821163751(@ledgerhq/device-management-kit@0.0.0-ledger-button-20250821163751(rxjs@7.8.2))':
+  '@ledgerhq/signer-utils@1.1.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))':
     dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-ledger-button-20250821163751(rxjs@7.8.2)
-
-  '@ledgerhq/signer-utils@0.0.0-web-ble-29-08---20250829104351(@ledgerhq/device-management-kit@0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2))':
-    dependencies:
-      '@ledgerhq/device-management-kit': 0.0.0-web-ble-29-08---20250829104351(rxjs@7.8.2)
+      '@ledgerhq/device-management-kit': 0.9.0(rxjs@7.8.2)
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
@@ -13187,10 +13084,6 @@ snapshots:
   '@noble/curves@1.2.0':
     dependencies:
       '@noble/hashes': 1.3.2
-
-  '@noble/curves@1.9.2':
-    dependencies:
-      '@noble/hashes': 1.8.0
 
   '@noble/curves@1.9.7':
     dependencies:
@@ -14080,19 +13973,6 @@ snapshots:
       string-argv: 0.3.2
     transitivePeerDependencies:
       - '@types/node'
-
-  '@scure/base@1.2.6': {}
-
-  '@scure/bip32@1.7.0':
-    dependencies:
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-      '@scure/base': 1.2.6
-
-  '@scure/bip39@1.6.0':
-    dependencies:
-      '@noble/hashes': 1.8.0
-      '@scure/base': 1.2.6
 
   '@sentry/hub@6.19.7':
     dependencies:
@@ -15508,11 +15388,6 @@ snapshots:
 
   abab@2.0.6:
     optional: true
-
-  abitype@1.0.8(typescript@5.8.3)(zod@4.1.5):
-    optionalDependencies:
-      typescript: 5.8.3
-      zod: 4.1.5
 
   abort-controller@3.0.0:
     dependencies:
@@ -17535,8 +17410,6 @@ snapshots:
 
   eventemitter3@4.0.7: {}
 
-  eventemitter3@5.0.1: {}
-
   events@3.3.0: {}
 
   execa@5.1.1:
@@ -18716,10 +18589,6 @@ snapshots:
   isomorphic-ws@5.0.0(ws@8.18.3):
     dependencies:
       ws: 8.18.3
-
-  isows@1.0.7(ws@8.18.2):
-    dependencies:
-      ws: 8.18.2
 
   isstream@0.1.2: {}
 
@@ -20489,21 +20358,6 @@ snapshots:
       object-keys: 1.1.1
       safe-push-apply: 1.0.0
 
-  ox@0.8.6(typescript@5.8.3)(zod@4.1.5):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.7
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.0.8(typescript@5.8.3)(zod@4.1.5)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.8.3
-    transitivePeerDependencies:
-      - zod
-
   p-cancelable@3.0.0: {}
 
   p-event@4.2.0:
@@ -21603,8 +21457,6 @@ snapshots:
       lru-cache: 6.0.0
 
   semver@7.6.3: {}
-
-  semver@7.7.0: {}
 
   semver@7.7.2: {}
 
@@ -22775,23 +22627,6 @@ snapshots:
       core-util-is: 1.0.2
       extsprintf: 1.3.0
 
-  viem@2.33.3(typescript@5.8.3)(zod@4.1.5):
-    dependencies:
-      '@noble/curves': 1.9.2
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.0.8(typescript@5.8.3)(zod@4.1.5)
-      isows: 1.0.7(ws@8.18.2)
-      ox: 0.8.6(typescript@5.8.3)(zod@4.1.5)
-      ws: 8.18.2
-    optionalDependencies:
-      typescript: 5.8.3
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
   vite-node@3.2.4(@types/node@20.19.9)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1):
     dependencies:
       cac: 6.7.14
@@ -23244,8 +23079,6 @@ snapshots:
   ws@8.17.1: {}
 
   ws@8.18.0: {}
-
-  ws@8.18.2: {}
 
   ws@8.18.3: {}
 

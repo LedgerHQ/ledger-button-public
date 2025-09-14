@@ -18,13 +18,12 @@ import {
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
+  isBroadcastedTransactionResult,
   type ProviderConnectInfo,
   type ProviderEvent,
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
-  type Signature,
-  type SignedTransaction,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -37,7 +36,7 @@ export class LedgerEIP1193Provider
   private _isConnected = false;
   private _supportedChains: Map<string, ChainInfo> = new Map();
   private _selectedAccount: string | null = null;
-  private _selectedChainId = "0x01";
+  private _selectedChainId = 1;
 
   private _id = 0;
 
@@ -61,7 +60,7 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleAccounts(): Promise<string[]> {
+  private async handleAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
       if (
         this._selectedAccount &&
@@ -104,37 +103,9 @@ export class LedgerEIP1193Provider
   }
 
   // Handlers for the different RPC methods
-  private handleRequestAccounts(): Promise<string[]> {
+  private async handleRequestAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
       const selectedAccount = this.core.getSelectedAccount();
-
-      window.addEventListener(
-        "ledger-provider-account-selected",
-        (e) => {
-          // EIP-1193 accountsChanged event
-          console.log("EVENT: ledger-provider-account-selected", e.detail);
-
-          this._isConnected = true;
-          this._selectedAccount = e.detail.account.freshAddress;
-
-          this.dispatchEvent(
-            new CustomEvent<string[]>("accountsChanged", {
-              bubbles: true,
-              composed: true,
-              detail: [e.detail.account.freshAddress],
-            }),
-          );
-          // TODO: replace with real connection logic
-          this._selectedAccount = e.detail.account.freshAddress;
-          // TODO: create mapping between chainId and account.currencyId
-          this._selectedChainId = "0x01"; // TODO: fetch the chain id from ?
-          this._isConnected = true;
-          resolve([e.detail.account.freshAddress]);
-        },
-        {
-          once: true,
-        },
-      );
 
       if (selectedAccount) {
         this._selectedAccount = selectedAccount.freshAddress;
@@ -148,15 +119,39 @@ export class LedgerEIP1193Provider
         );
         return resolve([selectedAccount.freshAddress]);
       } else {
+        window.addEventListener(
+          "ledger-provider-account-selected",
+          (e) => {
+            this._isConnected = true;
+            this._selectedAccount = e.detail.account.freshAddress;
+
+            this.dispatchEvent(
+              new CustomEvent<string[]>("accountsChanged", {
+                bubbles: true,
+                composed: true,
+                detail: [e.detail.account.freshAddress],
+              }),
+            );
+            this._selectedAccount = e.detail.account.freshAddress;
+            // TODO: create mapping between chainId and account.currencyId
+            this._selectedChainId = 1; // TODO: fetch the chain id from ?
+            this._isConnected = true;
+            resolve([e.detail.account.freshAddress]);
+          },
+          {
+            once: true,
+          },
+        );
+
         this.app.navigationIntent("selectAccount");
       }
     });
   }
 
-  private handleSignTransaction(
+  private async handleSignTransaction(
     params: unknown[],
     broadcast = false,
-  ): Promise<SignedTransaction> {
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -167,15 +162,24 @@ export class LedgerEIP1193Provider
         );
       }
 
+      //Sanitize transaction for EIP-1193
+      const transaction = params[0] as Record<string, unknown>;
+      transaction["chainId"] = this._selectedChainId;
+      console.log("[Ledger Provider] Transaction", transaction);
+
       this.app.navigationIntent("signTransaction", {
-        transaction: params[0],
+        transaction: transaction,
         broadcast,
       });
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
         (e) => {
-          resolve(e?.detail);
+          if (isBroadcastedTransactionResult(e.detail)) {
+            resolve(e.detail.hash);
+          } else {
+            resolve(e.detail.signedRawTransaction);
+          }
         },
         {
           once: true,
@@ -184,7 +188,32 @@ export class LedgerEIP1193Provider
     });
   }
 
-  private handleSignTypedData(params: object): Promise<Signature> {
+  private async handleSignTypedData(params: object): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this._selectedAccount) {
+        return reject(
+          this.createError(
+            CommonEIP1193ErrorCode.Unauthorized,
+            "No account selected",
+          ),
+        );
+      }
+
+      window.addEventListener(
+        "ledger-provider-sign-message",
+        (e) => {
+          resolve(e.detail.signature);
+        },
+        {
+          once: true,
+        },
+      );
+
+      this.app.navigationIntent("signTransaction", params);
+    });
+  }
+
+  private async handleSignPersonalMessage(params: object): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -198,9 +227,9 @@ export class LedgerEIP1193Provider
       this.app.navigationIntent("signTransaction", params);
 
       window.addEventListener(
-        "ledger-provider-sign-typed-data",
+        "ledger-provider-sign-message",
         (e) => {
-          resolve(e?.detail);
+          resolve(e.detail.signature);
         },
         {
           once: true,
@@ -209,7 +238,6 @@ export class LedgerEIP1193Provider
     });
   }
 
-  // TODO: Implement this
   handleChainId(): Promise<string> {
     return new Promise((resolve) => {
       this.dispatchEvent(
@@ -217,53 +245,68 @@ export class LedgerEIP1193Provider
           bubbles: true,
           composed: true,
           detail: {
-            chainId: this._selectedChainId,
+            chainId: this._selectedChainId.toString(16),
           },
         }),
       );
 
-      resolve(this._selectedChainId);
+      //Chain ID must be in hex format => https://ethereum.org/developers/docs/apis/json-rpc/#eth_chainId
+      resolve(this._selectedChainId.toString(16));
     });
   }
 
   handlers = {
-    eth_accounts: (_: unknown) => this.handleAccounts(),
-    eth_requestAccounts: (_: unknown) => this.handleRequestAccounts(),
-    eth_chainId: (_: unknown) => this.handleChainId(),
-    // NOTE: DEFERRED TO CORE
-    // eth_sendTransaction: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
-    // eth_sendRawTransaction: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
-    eth_sendTransaction: (params: unknown[]) =>
+    eth_accounts: async (_: unknown) => this.handleAccounts(),
+    eth_requestAccounts: async (_: unknown) => this.handleRequestAccounts(),
+    eth_chainId: async (_: unknown) => this.handleChainId(),
+    eth_sendTransaction: async (params: unknown[]) =>
       this.handleSignTransaction(params, true),
-    eth_signTransaction: (params: unknown[]) =>
+    eth_signTransaction: async (params: unknown[]) =>
       this.handleSignTransaction(params),
-    // personal_sign: () => {
-    //   return Promise.reject(new Error("eth_sendTransaction not implemented"));
-    // },
-    eth_signTypedData: (params: unknown[]) => this.handleSignTypedData(params),
-    eth_signTypedData_v4: (params: unknown[]) =>
+    eth_signRawTransaction: async (params: unknown[]) =>
+      this.handleSignTransaction(params),
+    eth_sign: async (params: unknown[]) =>
+      this.handleSignPersonalMessage(params),
+    eth_sendRawTransaction: async (params: unknown[]) =>
+      this.handleSignTransaction(params, true),
+    eth_signTypedData: async (params: unknown[]) =>
+      this.handleSignTypedData(params),
+    eth_signTypedData_v4: async (params: unknown[]) =>
       this.handleSignTypedData(params),
   } as const;
 
   // Public API
-  public request({ method, params }: RequestArguments) {
+  public async request({ method, params }: RequestArguments) {
+    console.log(
+      "[Ledger Provider] EIP1193 Provider request called",
+      method,
+      params,
+    );
+
     if (method in this.handlers) {
-      return this.handlers[method as keyof typeof this.handlers](
+      const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
       );
+      console.log(
+        "[Ledger Provider] EIP1193 Provider request response (handlers)",
+        res,
+      );
+      return res;
     }
 
-    console.log("request JSONRPC", method, params);
-    return this.core.jsonRpcRequest({
+    const res = await this.core.jsonRpcRequest({
       jsonrpc: "2.0",
       id: this._id++,
       method,
       params,
     });
+
+    console.log(
+      "[Ledger Provider] EIP1193 Provider request response (backend)",
+      res,
+    );
+
+    return res;
   }
 
   public on<TEvent extends keyof ProviderEvent>(

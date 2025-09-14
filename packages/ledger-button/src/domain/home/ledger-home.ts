@@ -48,18 +48,6 @@ export class LedgerHomeScreen extends LitElement {
     );
   }
 
-  // TODO: Replace this monstrosity with a proper mapping
-  private getTicker(currencyId: string) {
-    switch (currencyId) {
-      case "ethereum":
-        return "ETH";
-      case "bitcoin":
-        return "BTC";
-      default:
-        return "";
-    }
-  }
-
   private handleAccountItemClick = (
     event: CustomEvent<AccountItemClickEventDetail>,
   ) => {
@@ -111,7 +99,7 @@ export class LedgerHomeScreen extends LitElement {
             <ledger-balance
               label=${lang.home.balance}
               .balance=${balance}
-              .ticker=${this.getTicker(account.currencyId)}
+              .ticker=${account.ticker}
             ></ledger-balance>
           </div>
         </div>
