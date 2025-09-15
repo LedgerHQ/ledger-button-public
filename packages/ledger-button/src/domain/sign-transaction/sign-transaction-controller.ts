@@ -1,28 +1,35 @@
 import {
-  type Signature,
   type SignedResults,
   SignFlowStatus,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
+  type UserInteractionNeeded,
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
+import { AnimationKey } from "../../components/index.js";
 import { type CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { RootNavigationComponent } from "../../shared/root-navigation.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
-  state: string;
   transactionId?: string;
 }
+
+export type SignTransactionState = "signing" | "success" | "error";
 
 export class SignTransactionController implements ReactiveController {
   host: SignTransactionHost;
   private transactionSubscription?: Subscription;
-  result?: SignedResults | Signature;
+  result?: SignedResults;
+
+  state: { screen: SignTransactionState; deviceAnimation: AnimationKey } = {
+    screen: "signing",
+    deviceAnimation: "signTransaction",
+  };
 
   constructor(
     host: SignTransactionHost,
@@ -39,6 +46,23 @@ export class SignTransactionController implements ReactiveController {
 
   hostDisconnected() {
     this.transactionSubscription?.unsubscribe();
+  }
+
+  private mapUserInteractionToDeviceAnimation(
+    interaction: UserInteractionNeeded,
+  ): AnimationKey {
+    switch (interaction) {
+      case "unlock-device":
+        return "pin";
+      case "allow-secure-connection":
+      case "confirm-open-app":
+      case "sign-transaction":
+      case "allow-list-apps":
+      case "web3-checks-opt-in":
+        return "continueOnLedger";
+      default:
+        return "signTransaction";
+    }
   }
 
   startSigning(
@@ -61,7 +85,7 @@ export class SignTransactionController implements ReactiveController {
           switch (result.status) {
             case "success":
               if (result.data) {
-                this.host.state = "success";
+                this.state.screen = "success";
                 if ("hash" in result.data) {
                   this.host.transactionId = result.data.hash;
                 }
@@ -72,18 +96,20 @@ export class SignTransactionController implements ReactiveController {
             case "user-interaction-needed":
               //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
               //Interactions: unlock-device, allow-secure-connection, confirm-open-app, sign-transaction, allow-list-apps, web3-checks-opt-in
-              this.host.state = result.interaction;
+              this.state.screen = "signing";
+              this.state.deviceAnimation =
+                this.mapUserInteractionToDeviceAnimation(result.interaction);
               break;
             case "error":
               console.log("Error signing transaction", result.error);
-              this.host.state = "error";
+              this.state.screen = "error";
               break;
           }
           this.host.requestUpdate();
         },
         error: (error: Error) => {
           console.log("Error signing transaction", error);
-          this.host.state = "error";
+          this.state.screen = "error";
           this.host.requestUpdate();
         },
       });

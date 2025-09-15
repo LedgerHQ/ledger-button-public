@@ -1,6 +1,6 @@
 import {
   type AuthContext,
-  Device,
+  type Device,
   type LedgerSyncAuthenticateResponse,
   LedgerSyncAuthenticationError,
   type UserInteractionNeededResponse,

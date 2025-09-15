@@ -25,8 +25,8 @@ import {
   type AuthContext,
   type LedgerSyncAuthenticateResponse,
 } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
-import {
-  type UserInteractionNeeded,
+import type {
+  UserInteractionNeeded,
   UserInteractionNeededResponse,
 } from "../../../api/model/UserInteractionNeeded.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
@@ -36,7 +36,7 @@ import { GenerateKeypairUseCase } from "../../cryptographic/usecases/GenerateKey
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { LedgerSyncAuthContextMissingError } from "../model/errors.js";

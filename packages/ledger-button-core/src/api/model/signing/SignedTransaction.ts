@@ -2,6 +2,8 @@ export type SignedResults =
   | BroadcastedTransactionResult
   | SignedTransactionResult
   | SignedPersonalMessageOrTypedDataResult;
+// TODO: Handle error return type
+// (should be resolved in LedgerButtonCore and rejeced in the provider)
 
 export interface BroadcastedTransactionResult {
   hash: string;

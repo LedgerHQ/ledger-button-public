@@ -40,8 +40,6 @@ export function initializeLedgerProvider({
   dmkConfig = undefined,
   supportedNetworks = [],
 }: InitializeLedgerProviderOptions): () => void {
-  console.info({ apiKey, dAppIdentifier });
-
   // NOTE: `core` should be the same instance as the one injected in the lit app
   // so we either need to instanciate it here and give it to the lit app or retrieve it from it
   if (!core) {
@@ -53,6 +51,16 @@ export function initializeLedgerProvider({
       dmkConfig,
       supportedNetworks,
     });
+  }
+
+  const isSupported = core.isSupported();
+
+  if (!isSupported) {
+    // NOTE: If the environment is not supported, we don't need to do anything
+    // and we can just return a noop function
+    return () => {
+      // noop
+    };
   }
 
   const info: EIP6963ProviderInfo = {

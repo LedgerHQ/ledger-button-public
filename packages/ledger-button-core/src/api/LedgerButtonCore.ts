@@ -335,4 +335,12 @@ export class LedgerButtonCore {
   setLogLevel(logLevel: keyof typeof LOG_LEVELS) {
     this.container.get<Config>(configModuleTypes.Config).setLogLevel(logLevel);
   }
+
+  isSupported() {
+    return this.container
+      .get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      )
+      .dmk.isEnvironmentSupported();
+  }
 }

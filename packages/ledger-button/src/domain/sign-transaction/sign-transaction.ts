@@ -2,16 +2,16 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
-  BroadcastedTransactionResult,
+  type BroadcastedTransactionResult,
+  isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-  SignedPersonalMessageOrTypedDataResult,
-  type SignedResults,
-  SignedTransactionResult,
-  SignPersonalMessageParams,
-  SignRawTransactionParams,
+  type SignedPersonalMessageOrTypedDataResult,
+  type SignedTransactionResult,
+  type SignPersonalMessageParams,
+  type SignRawTransactionParams,
   type SignTransactionParams,
-  SignTypedMessageParams,
+  type SignTypedMessageParams,
 } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -27,8 +27,6 @@ import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { SignTransactionController } from "./sign-transaction-controller.js";
-
-export type SignTransactionState = "signing" | "success" | "error";
 
 const styles = css`
   :host {
@@ -75,9 +73,6 @@ export class SignTransactionScreen extends LitElement {
   public languageContext!: LanguageContext;
 
   @property({ type: String })
-  state: SignTransactionState = "signing";
-
-  @property({ type: String })
   transactionId = "";
 
   @property({ type: Object })
@@ -114,7 +109,7 @@ export class SignTransactionScreen extends LitElement {
 
     if (!transactionParams) {
       console.log("No transaction params");
-      this.state = "error";
+      this.controller.state.screen = "error";
       this.requestUpdate();
       return;
     }
@@ -135,7 +130,7 @@ export class SignTransactionScreen extends LitElement {
   private renderSigningState() {
     const lang = this.languageContext.currentTranslation;
     const deviceModel = this.coreContext.getConnectedDevice()?.modelId;
-    const animation = "signTransaction";
+    const deviceAnimation = this.controller.state.deviceAnimation;
 
     if (!deviceModel) return;
 
@@ -146,7 +141,7 @@ export class SignTransactionScreen extends LitElement {
         <div class="w-208">
           <ledger-device-animation
             modelId=${deviceModel}
-            animation=${animation}
+            animation=${deviceAnimation}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
@@ -200,7 +195,9 @@ export class SignTransactionScreen extends LitElement {
           description=${lang.signTransaction?.success?.description ||
           "You will receive the funds soon."}
           primary-button-label=${lang.common.button.close || "Close"}
-          secondary-button-label=${this.broadcast
+          secondary-button-label=${isBroadcastedTransactionResult(
+            this.controller.result,
+          )
             ? lang.signTransaction?.success?.viewTransaction ||
               "View transaction details"
             : ""}
@@ -263,9 +260,9 @@ export class SignTransactionScreen extends LitElement {
   }
 
   private handleRetry() {
-    this.state = "signing";
+    this.controller.state.screen = "signing";
     if (!this.transactionParams) {
-      this.state = "error";
+      this.controller.state.screen = "error";
       this.requestUpdate();
       return;
     }
@@ -273,7 +270,7 @@ export class SignTransactionScreen extends LitElement {
   }
 
   override render() {
-    switch (this.state) {
+    switch (this.controller.state.screen) {
       case "signing":
         return this.renderSigningState();
       case "success":
@@ -292,8 +289,9 @@ declare global {
   }
 
   interface WindowEventMap {
-    "ledger-internal-send-transaction": CustomEvent<SignedResults>;
-    "ledger-internal-sign-transaction": CustomEvent<SignedResults>;
-    "ledger-internal-sign-message": CustomEvent<SignedResults>;
+    "ledger-internal-sign-transaction": CustomEvent<
+      SignedTransactionResult | BroadcastedTransactionResult
+    >;
+    "ledger-internal-sign-message": CustomEvent<SignedPersonalMessageOrTypedDataResult>;
   }
 }
