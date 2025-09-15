@@ -17,38 +17,39 @@ import { web3ProviderModuleFactory } from "./web3-provider/web3ProviderModule.js
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({
-  stub = {
-    base: false,
-    account: false,
-    device: false,
-    web3Provider: false,
-    alpaca: false,
-    dAppConfig: false,
-  },
-  supportedNetworks: _supportedNetworks = [],
   loggerLevel = "info",
   dmkConfig,
   apiKey,
   dAppIdentifier,
   environment = "production",
+  devConfig = {
+    stub: {
+      base: false,
+      account: false,
+      device: false,
+      web3Provider: false,
+      alpaca: false,
+      dAppConfig: false,
+    },
+  },
 }: ContainerOptions) {
   const container = new Container();
 
   container.loadSync(
     configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
-    alpacaModuleFactory({ stub: stub.alpaca }),
-    loggerModuleFactory({ stub: stub.base }),
-    accountModuleFactory({ stub: stub.account }),
-    backendModuleFactory({ stub: stub.base }),
-    dAppConfigModuleFactory({ stub: stub.dAppConfig }),
-    deviceModuleFactory({ stub: stub.device, dmkConfig }),
-    storageModuleFactory({ stub: stub.base }),
-    networkModuleFactory({ stub: stub.base }),
-    transactionModuleFactory({ stub: stub.base }),
-    web3ProviderModuleFactory({ stub: stub.web3Provider }),
-    ledgerSyncModuleFactory({ stub: stub.base }),
-    cryptographicModuleFactory({ stub: stub.base }),
-    cloudSyncModuleFactory({ stub: stub.base }),
+    alpacaModuleFactory({ stub: devConfig.stub.alpaca }),
+    loggerModuleFactory({ stub: devConfig.stub.base }),
+    accountModuleFactory({ stub: devConfig.stub.account }),
+    backendModuleFactory({ stub: devConfig.stub.base }),
+    dAppConfigModuleFactory({ stub: devConfig.stub.dAppConfig }),
+    deviceModuleFactory({ stub: devConfig.stub.device, dmkConfig }),
+    storageModuleFactory({ stub: devConfig.stub.base }),
+    networkModuleFactory({ stub: devConfig.stub.base }),
+    transactionModuleFactory({ stub: devConfig.stub.base }),
+    web3ProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
+    ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
+    cryptographicModuleFactory({ stub: devConfig.stub.base }),
+    cloudSyncModuleFactory({ stub: devConfig.stub.base }),
   );
 
   return container;
