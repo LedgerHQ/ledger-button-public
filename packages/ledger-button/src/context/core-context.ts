@@ -22,10 +22,12 @@ export class CoreProvider extends LitElement {
     this.core =
       this.coreClass ??
       new LedgerButtonCore({
-        stub: {
-          base: true,
-          device: false,
-          web3Provider: true,
+        devConfig: {
+          stub: {
+            base: true,
+            device: false,
+            web3Provider: true,
+          },
         },
       });
   }

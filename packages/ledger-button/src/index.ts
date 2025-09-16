@@ -26,30 +26,30 @@ export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
 };
 
 export function initializeLedgerProvider({
-  stub = {
-    base: false,
-    account: false,
-    device: false,
-    web3Provider: false,
-    dAppConfig: false,
-  },
-  target = document.body,
-  dAppIdentifier,
   apiKey,
-  loggerLevel = "info",
+  dAppIdentifier,
   dmkConfig = undefined,
-  supportedNetworks = [],
+  target = document.body,
+  loggerLevel = "info",
+  devConfig = {
+    stub: {
+      base: false,
+      account: false,
+      device: false,
+      web3Provider: false,
+      dAppConfig: false,
+    },
+  },
 }: InitializeLedgerProviderOptions): () => void {
   // NOTE: `core` should be the same instance as the one injected in the lit app
   // so we either need to instanciate it here and give it to the lit app or retrieve it from it
   if (!core) {
     core = new LedgerButtonCore({
-      stub,
-      dAppIdentifier,
       apiKey,
-      loggerLevel,
+      dAppIdentifier,
       dmkConfig,
-      supportedNetworks,
+      loggerLevel,
+      devConfig,
     });
   }
 

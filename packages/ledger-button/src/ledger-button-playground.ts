@@ -61,11 +61,15 @@ export class LedgerButtonPlayground extends LitElement {
   createApp() {
     initializeLedgerProvider({
       dAppIdentifier: "ledger-button-playground",
-      stub: {
-        base: true,
-        device: false,
-        web3Provider: true,
-        dAppConfig: false,
+      apiKey:
+        "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
+      devConfig: {
+        stub: {
+          base: true,
+          device: false,
+          web3Provider: true,
+          dAppConfig: false,
+        },
       },
       target: this.app,
     });

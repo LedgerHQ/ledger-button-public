@@ -5,19 +5,19 @@ import { LogLevelKey } from "./logger/model/constant.js";
 export type DeviceModuleOptions = Partial<DmkConfig>;
 
 export type ContainerOptions = {
-  stub: Partial<{
-    alpaca: boolean;
-    base: boolean;
-    account: boolean;
-    device: boolean;
-    web3Provider: boolean;
-    dAppConfig: boolean;
-  }>;
-  supportedNetworks?: string[];
-  loggerLevel?: LogLevelKey;
-  dmkConfig?: DeviceModuleOptions;
-  // TODO: Remove optional and default values
   apiKey?: string;
   dAppIdentifier?: string;
+  dmkConfig?: DeviceModuleOptions;
+  loggerLevel?: LogLevelKey;
   environment?: "staging" | "production";
+  devConfig: {
+    stub: Partial<{
+      alpaca: boolean;
+      base: boolean;
+      account: boolean;
+      device: boolean;
+      web3Provider: boolean;
+      dAppConfig: boolean;
+    }>;
+  };
 };
