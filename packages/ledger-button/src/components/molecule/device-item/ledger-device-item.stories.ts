@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
 const meta: Meta = {
-  title: "Molecule/DeviceItem",
+  title: "Component/Molecule/DeviceItem",
   component: "ledger-device-item",
   parameters: {
     layout: "centered",

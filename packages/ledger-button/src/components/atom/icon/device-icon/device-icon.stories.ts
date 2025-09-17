@@ -8,7 +8,7 @@ const meta: Meta = {
   tags: ["autodocs"],
   render: (args) =>
     html`<div>
-      <device-icons .modelId=${args.modelId}></device-icons>
+      <device-icon .modelId=${args.modelId}></device-icon>
     </div>`,
   argTypes: {
     modelId: {

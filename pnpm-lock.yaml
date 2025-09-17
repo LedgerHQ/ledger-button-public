@@ -319,6 +319,9 @@ importers:
 
   packages/ledger-button:
     dependencies:
+      '@ledgerhq/ldls-design-core':
+        specifier: ^0.0.15
+        version: 0.0.15
       '@ledgerhq/ledger-button-core':
         specifier: workspace:*
         version: link:../ledger-button-core
@@ -2022,6 +2025,9 @@ packages:
 
   '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.2.0':
     resolution: {integrity: sha512-SgmC92m0hkI8p6tQ8wfGi8U12kiq80GaECXMTPJhWWOWbQXJTZM3Hb0qr6B/2oRvkTASLilQoG2SVSe1EM4zmg==}
+
+  '@ledgerhq/ldls-design-core@0.0.15':
+    resolution: {integrity: sha512-Vu0qvvlaAwdjgR//S/COwSp9aUpBxE2BfAdq2ZPsFGvOus+EiVBl/B0T8T2/5e6MB+RNA4gJOOqyjpZZhAXMAg==}
 
   '@ledgerhq/signer-utils@1.1.0':
     resolution: {integrity: sha512-zp8kyNF0sNMUG2VkgOL7rDu8W6U1P8yvTA3wIDjjlqoIOPanvodfezeub69fOuHJ2QG/JmnS8YZCGIoSWpQYkA==}
@@ -12554,6 +12560,10 @@ snapshots:
       - bufferutil
       - debug
       - utf-8-validate
+
+  '@ledgerhq/ldls-design-core@0.0.15':
+    dependencies:
+      tslib: 2.8.1
 
   '@ledgerhq/signer-utils@1.1.0(@ledgerhq/device-management-kit@0.9.0(rxjs@7.8.2))':
     dependencies:
