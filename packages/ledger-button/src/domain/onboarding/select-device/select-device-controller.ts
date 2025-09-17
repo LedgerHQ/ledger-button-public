@@ -33,6 +33,55 @@ export class SelectDeviceController implements ReactiveController {
       );
   }
 
+  mapErrors(error: unknown) {
+    const lang = this.lang.currentTranslation;
+
+    switch (true) {
+      case error instanceof DeviceNotSupportedError: {
+        const deviceName = error.context?.modelId
+          ? lang.common.device.model[error.context.modelId]
+          : lang.common.device.model.nanoS;
+
+        const title = lang.error.device.DeviceNotSupported.title.replace(
+          "{device}",
+          deviceName,
+        );
+        const description =
+          lang.error.device.DeviceNotSupported.description.replace(
+            "{device}",
+            deviceName,
+          );
+
+        this.errorData = {
+          title,
+          message: description,
+          cta1: {
+            label: lang.error.device.DeviceNotSupported.cta1,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
+            },
+          },
+          cta2: {
+            label: lang.error.device.DeviceNotSupported.cta2,
+            action: () => {
+              window.open(
+                "https://shop.ledger.com/pages/ledger-nano-s-upgrade-program?utm_source=support",
+                "_blank",
+              );
+            },
+          },
+        };
+        break;
+      }
+      default:
+        // TODO: handle other errors
+        break;
+    }
+
+    this.host.requestUpdate();
+  }
+
   async connectToDevice(detail: {
     title: string;
     connectionType: "bluetooth" | "usb" | "";
@@ -48,50 +97,7 @@ export class SelectDeviceController implements ReactiveController {
     } catch (error) {
       console.error("Failed to connect to device", error);
 
-      if (error instanceof DeviceNotSupportedError) {
-        const deviceName = error.context?.modelId
-          ? this.lang.currentTranslation.common.device.model[
-              error.context.modelId
-            ]
-          : this.lang.currentTranslation.common.device.model.nanoS;
-
-        const title =
-          this.lang.currentTranslation.error.device.DeviceNotSupported.title.replace(
-            "{device}",
-            deviceName,
-          );
-        const description =
-          this.lang.currentTranslation.error.device.DeviceNotSupported.description.replace(
-            "{device}",
-            deviceName,
-          );
-
-        this.errorData = {
-          title,
-          message: description,
-          cta1: {
-            label:
-              this.lang.currentTranslation.error.device.DeviceNotSupported.cta1,
-            action: () => {
-              this.errorData = undefined;
-              this.host.requestUpdate();
-            },
-          },
-          cta2: {
-            label:
-              this.lang.currentTranslation.error.device.DeviceNotSupported.cta2,
-            action: () => {
-              window.open(
-                "https://shop.ledger.com/pages/ledger-nano-s-upgrade-program?utm_source=support",
-                "_blank",
-              );
-            },
-          },
-        };
-
-        this.host.requestUpdate();
-        return;
-      }
+      this.mapErrors(error);
     }
   }
 }
