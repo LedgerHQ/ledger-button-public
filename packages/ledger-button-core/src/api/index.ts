@@ -31,7 +31,7 @@ export type { ConnectionType } from "../internal/device/service/DeviceManagement
 export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
 export * from "./model/index.js";
-export type {
+export {
   DeviceModelId,
-  DiscoveredDevice,
+  type DiscoveredDevice,
 } from "@ledgerhq/device-management-kit";

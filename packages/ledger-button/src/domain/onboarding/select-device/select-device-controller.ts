@@ -1,11 +1,21 @@
+import { DeviceNotSupportedError } from "@ledgerhq/ledger-button-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
+import { type LanguageContext } from "../../../context/language-context.js";
 
 export class SelectDeviceController implements ReactiveController {
+  errorData?: {
+    message: string;
+    title: string;
+    cta1?: { label: string; action: () => void };
+    cta2?: { label: string; action: () => void };
+  } = undefined;
+
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
+    private readonly lang: LanguageContext,
   ) {
     this.host.addController(this);
   }
@@ -35,21 +45,53 @@ export class SelectDeviceController implements ReactiveController {
 
     try {
       await this.core.connectToDevice(detail.connectionType);
-      /*
-      const pendingTransactionParams = this.core.getPendingTransactionParams();
-      if (pendingTransactionParams) {
-        this.navigation.navigateTo(this.destinations.signTransaction);
-        return;
-      }
-
-      this.navigation.navigateTo(this.destinations.ledgerSync);
-      return;
-      } else {
-        this.navigation.navigateTo(this.destinations.onboardingFlow);
-      }
-      */
     } catch (error) {
       console.error("Failed to connect to device", error);
+
+      if (error instanceof DeviceNotSupportedError) {
+        const deviceName = error.context?.modelId
+          ? this.lang.currentTranslation.common.device.model[
+              error.context.modelId
+            ]
+          : this.lang.currentTranslation.common.device.model.nanoS;
+
+        const title =
+          this.lang.currentTranslation.error.device.DeviceNotSupported.title.replace(
+            "{device}",
+            deviceName,
+          );
+        const description =
+          this.lang.currentTranslation.error.device.DeviceNotSupported.description.replace(
+            "{device}",
+            deviceName,
+          );
+
+        this.errorData = {
+          title,
+          message: description,
+          cta1: {
+            label:
+              this.lang.currentTranslation.error.device.DeviceNotSupported.cta1,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
+            },
+          },
+          cta2: {
+            label:
+              this.lang.currentTranslation.error.device.DeviceNotSupported.cta2,
+            action: () => {
+              window.open(
+                "https://shop.ledger.com/pages/ledger-nano-s-upgrade-program?utm_source=support",
+                "_blank",
+              );
+            },
+          },
+        };
+
+        this.host.requestUpdate();
+        return;
+      }
     }
   }
 }

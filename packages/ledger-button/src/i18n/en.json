@@ -15,11 +15,12 @@
     "turnOnLedgerSync": "Turn on Ledger Sync",
     "device": {
       "model": {
-        "nanos": "Nano S",
-        "nanosp": "Nano SP",
-        "nanox": "Nano X",
-        "stax": "Stax",
-        "flex": "Flex"
+        "nanoS": "Ledger Nano S",
+        "nanoSP": "Ledger Nano SP",
+        "nanoX": "Ledger Nano X",
+        "stax": "Ledger Stax",
+        "flex": "Ledger Flex",
+        "apexp": "Ledger Apex"
       },
       "deviceActions": {
         "continueOnLedger": {
@@ -80,6 +81,16 @@
     "error": {
       "title": "Transaction failed",
       "description": "There was an error signing your transaction. Please try again."
+    }
+  },
+  "error": {
+    "device": {
+      "DeviceNotSupported": {
+        "title": "{device} isn't supported",
+        "description": "The {device} isn't supported for the Ledger Direct connectivity on this Dapp",
+        "cta1": "Connect another Ledger device",
+        "cta2": "Upgrade to a new Ledger Device with 20% off"
+      }
     }
   }
 }

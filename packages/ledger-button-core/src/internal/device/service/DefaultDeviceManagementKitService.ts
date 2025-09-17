@@ -21,7 +21,7 @@ import { type DeviceModuleOptions } from "../../diTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { Device, mapConnectedDeviceToDevice } from "../model/Device.js";
+import { Device } from "../model/Device.js";
 import { DeviceConnectionError } from "../model/errors.js";
 import { DeviceManagementKitService } from "./DeviceManagementKitService.js";
 
@@ -89,7 +89,7 @@ export class DefaultDeviceManagementKitService
         device,
       });
       this._currentSessionId = sessionId;
-      this._connectedDevice = mapConnectedDeviceToDevice(
+      this._connectedDevice = new Device(
         await dmk.getConnectedDevice({ sessionId }),
       );
       return this._connectedDevice;

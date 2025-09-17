@@ -4,6 +4,7 @@ import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { type StatusType } from "../../../components/index.js";
 import type { ConnectionItemClickEventDetail } from "../../../components/molecule/connection-item/ledger-connection-item.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
@@ -61,7 +62,11 @@ export class SelectDeviceScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new SelectDeviceController(this, this.coreContext);
+    this.controller = new SelectDeviceController(
+      this,
+      this.coreContext,
+      this.languageContext,
+    );
   }
 
   handleConnectionItemClick = (
@@ -74,29 +79,67 @@ export class SelectDeviceScreen extends LitElement {
     this.controller.clickAdItem();
   };
 
-  override render() {
-    const lang = this.languageContext.currentTranslation;
+  handleStatusAction = (
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) => {
+    if (e.detail.action === "primary") {
+      this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      this.controller.errorData?.cta2?.action();
+    }
+  };
 
+  renderScreen() {
+    const lang = this.languageContext.currentTranslation;
     return html`
-      <div class="flex flex-col">
-        <div class="flex flex-col gap-12 p-24 pt-0">
-          ${(["bluetooth", "usb"] as const).map((el) => {
-            return html`
-              <ledger-connection-item
-                title=${lang.common.button[el]}
-                connection-type=${el}
-                @connection-item-click=${this.handleConnectionItemClick}
-              ></ledger-connection-item>
-            `;
-          })}
-        </div>
-        <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
-          <ledger-ad-item
-            title=${lang.common.ad.buyALedger}
-            @ad-item-click=${this.handleAdItemClick}
-          ></ledger-ad-item>
-        </div>
+      <div class="flex flex-col gap-12 p-24 pt-0">
+        ${(["bluetooth", "usb"] as const).map((el) => {
+          return html`
+            <ledger-connection-item
+              title=${lang.common.button[el]}
+              connection-type=${el}
+              @connection-item-click=${this.handleConnectionItemClick}
+            ></ledger-connection-item>
+          `;
+        })}
+      </div>
+      <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
+        <ledger-ad-item
+          title=${lang.common.ad.buyALedger}
+          @ad-item-click=${this.handleAdItemClick}
+        ></ledger-ad-item>
       </div>
     `;
+  }
+
+  renderErrorScreen() {
+    if (!this.controller.errorData) {
+      return html``;
+    }
+
+    return html`
+      <div class="flex flex-col gap-12 p-24 pt-0">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData?.title}
+          description=${this.controller.errorData?.message}
+          primary-button-label=${this.controller.errorData?.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData?.cta2?.label ?? ""}
+          @status-action=${this.handleStatusAction}
+        ></ledger-status>
+      </div>
+    `;
+  }
+
+  override render() {
+    return html` <div class="flex flex-col">
+      ${this.controller.errorData
+        ? this.renderErrorScreen()
+        : this.renderScreen()}
+    </div>`;
   }
 }

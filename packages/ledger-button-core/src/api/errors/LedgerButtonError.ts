@@ -2,9 +2,11 @@
  * Base error class for all Ledger Button Core errors.
  * Provides error name, context, timestamp, and serialization support.
  */
-export class LedgerButtonError extends Error {
+export class LedgerButtonError<
+  T extends Record<string, unknown> = Record<string, unknown>,
+> extends Error {
   /** Optional context or metadata for debugging */
-  public readonly context?: Record<string, unknown>;
+  public readonly context?: T;
   /** Timestamp when the error was created */
   public readonly timestamp: Date;
 
@@ -13,11 +15,7 @@ export class LedgerButtonError extends Error {
    * @param name Error name/type (default: 'LedgerButtonError')
    * @param context Optional additional context or metadata
    */
-  constructor(
-    message: string,
-    name = "LedgerButtonError",
-    context?: Record<string, unknown>
-  ) {
+  constructor(message: string, name = "LedgerButtonError", context?: T) {
     super(message);
     this.name = name;
     this.context = context;

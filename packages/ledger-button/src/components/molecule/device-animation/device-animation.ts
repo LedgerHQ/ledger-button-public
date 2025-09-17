@@ -1,3 +1,4 @@
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -28,8 +29,6 @@ export type AnimationKey =
   | "continueOnLedger"
   | "signTransaction";
 
-type DeviceModelId = "nanos" | "nanosp" | "nanox" | "stax" | "flex";
-
 export const animationDataMap: Record<
   DeviceModelId,
   Record<AnimationKey, object | null>
@@ -50,7 +49,7 @@ export const animationDataMap: Record<
     continueOnLedger: ContinueOnLedgerFlexDark,
     signTransaction: SignTransactionFlexDark,
   },
-  nanox: {
+  nanoX: {
     pin: PinNanoXDark,
     pairing: PairingNanoXDark,
     pairingSuccess: null,
@@ -58,7 +57,7 @@ export const animationDataMap: Record<
     continueOnLedger: ContinueOnLedgerNanoXDark,
     signTransaction: ContinueOnLedgerNanoXDark,
   },
-  nanos: {
+  nanoS: {
     pin: PinNanoSDark,
     pairing: null,
     pairingSuccess: null,
@@ -66,13 +65,22 @@ export const animationDataMap: Record<
     continueOnLedger: ContinueOnLedgerNanoSDark,
     signTransaction: ContinueOnLedgerNanoSDark,
   },
-  nanosp: {
+  nanoSP: {
     pin: PinNanoSDark,
     pairing: null,
     pairingSuccess: null,
     frontView: null,
     continueOnLedger: ContinueOnLedgerNanoSDark,
     signTransaction: ContinueOnLedgerNanoSDark,
+  },
+  // TODO: ¯\_(ツ)_/¯
+  apexp: {
+    pin: PinFlexDark,
+    pairing: PairingFlexDark,
+    pairingSuccess: PairedSuccessFlexDark,
+    frontView: FrontViewFlexDark,
+    continueOnLedger: ContinueOnLedgerFlexDark,
+    signTransaction: SignTransactionFlexDark,
   },
 };
 
@@ -80,7 +88,7 @@ export const animationDataMap: Record<
 @tailwindElement()
 export class LedgerDeviceAnimation extends LitElement {
   @property({ type: String })
-  modelId: DeviceModelId = "stax";
+  modelId: DeviceModelId = DeviceModelId.STAX;
 
   @property({ type: String })
   animation: AnimationKey = "pin";

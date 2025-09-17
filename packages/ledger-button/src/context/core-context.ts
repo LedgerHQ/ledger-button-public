@@ -25,7 +25,7 @@ export class CoreProvider extends LitElement {
         devConfig: {
           stub: {
             base: true,
-            device: false,
+            device: true,
             web3Provider: true,
           },
         },

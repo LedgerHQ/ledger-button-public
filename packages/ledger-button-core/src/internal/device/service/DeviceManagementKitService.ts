@@ -9,8 +9,8 @@ export type ConnectionType = "bluetooth" | "usb" | "";
 
 export interface DeviceManagementKitService {
   dmk: DeviceManagementKit;
-  sessionId: string | undefined;
-  connectedDevice: Device | undefined;
+  sessionId?: string;
+  connectedDevice?: Device;
 
   connectToDevice: ({ type }: { type: ConnectionType }) => Promise<Device>;
   disconnectFromDevice: () => Promise<void>;
