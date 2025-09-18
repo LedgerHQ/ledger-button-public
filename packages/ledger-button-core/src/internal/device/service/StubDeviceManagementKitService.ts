@@ -13,12 +13,13 @@ export class StubDeviceManagementKitService
 {
   dmk: DeviceManagementKit = {} as DeviceManagementKit;
   sessionId: string | undefined = "session-id-123";
-  connectedDevice: Device | undefined = {
+  connectedDevice: Device | undefined = new Device({
     name: "GM's Flex",
-    modelId: "flex",
+    modelId: DeviceModelId.FLEX,
     sessionId: "session-id-123",
     type: "bluetooth" as any,
-  };
+    id: "device-1",
+  });
 
   connectToDevice = () => Promise.resolve(this.connectedDevice as Device);
   disconnectFromDevice = () => Promise.resolve();

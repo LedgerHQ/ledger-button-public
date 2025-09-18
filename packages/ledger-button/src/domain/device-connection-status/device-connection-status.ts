@@ -58,11 +58,7 @@ export class DeviceConnectionStatusScreen extends LitElement {
   public languageContext!: LanguageContext;
 
   private get deviceInfo() {
-    const connectedDevice = this.coreContext.getConnectedDevice();
-    return {
-      name: connectedDevice?.name || "",
-      modelId: connectedDevice?.modelId || "stax",
-    };
+    return this.coreContext.getConnectedDevice();
   }
 
   controller!: DeviceConnectionStatusController;
@@ -79,19 +75,19 @@ export class DeviceConnectionStatusScreen extends LitElement {
 
   override render() {
     const lang = this.languageContext.currentTranslation;
-    const device = this.deviceInfo;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const device = this.deviceInfo!;
     const deviceDisplayName =
-      device.name || lang.common.device.model[device.modelId];
+      device.name ||
+      lang.common.device.model[
+        device.modelId as keyof typeof lang.common.device.model
+      ];
 
     return html`
       <div class="flex h-full flex-col">
         <div class="flex flex-1 items-center justify-center">
           <ledger-info-state
-            device=${device.modelId.includes("nano")
-              ? "nanox"
-              : device.modelId === "stax"
-                ? "stax"
-                : "flex"}
+            device=${device?.iconType}
             title="${lang.common.device.deviceActions.continueOnLedger
               .title} ${deviceDisplayName}"
             subtitle=${lang.common.device.deviceActions.continueOnLedger

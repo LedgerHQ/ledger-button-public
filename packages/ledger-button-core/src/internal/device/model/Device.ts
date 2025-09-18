@@ -3,28 +3,36 @@ import {
   DeviceModelId,
 } from "@ledgerhq/device-management-kit";
 
-export type Device = Pick<ConnectedDevice, "name" | "sessionId" | "type"> & {
-  modelId: "nanos" | "nanosp" | "nanox" | "stax" | "flex";
-};
+export class Device {
+  constructor(private readonly _connectedDevice: ConnectedDevice) {}
 
-export function mapConnectedDeviceToDevice(device: ConnectedDevice): Device {
-  const modelId =
-    device.modelId === DeviceModelId.STAX
-      ? "stax"
-      : device.modelId === DeviceModelId.FLEX
-        ? "flex"
-        : device.modelId === DeviceModelId.NANO_X
-          ? "nanox"
-          : device.modelId === DeviceModelId.NANO_S
-            ? "nanos"
-            : device.modelId === DeviceModelId.NANO_SP
-              ? "nanosp"
-              : "stax";
+  get name() {
+    return this._connectedDevice.name;
+  }
 
-  return {
-    name: device.name,
-    modelId,
-    sessionId: device.sessionId,
-    type: device.type,
-  };
+  get modelId() {
+    return this._connectedDevice.modelId;
+  }
+
+  get sessionId() {
+    return this._connectedDevice.sessionId;
+  }
+
+  get type() {
+    return this._connectedDevice.type;
+  }
+
+  get iconType() {
+    switch (this.modelId) {
+      case DeviceModelId.NANO_X:
+      case DeviceModelId.NANO_S:
+      case DeviceModelId.NANO_SP:
+        return "nanox";
+      case DeviceModelId.STAX:
+        return "stax";
+      case DeviceModelId.FLEX:
+      case DeviceModelId.APEX:
+        return "flex";
+    }
+  }
 }

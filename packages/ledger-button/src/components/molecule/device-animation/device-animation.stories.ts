@@ -1,5 +1,6 @@
 import "./device-animation";
 
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
@@ -28,7 +29,7 @@ const meta: Meta<LedgerDeviceAnimation> = {
     loop: { control: "boolean" },
   },
   args: {
-    modelId: "stax",
+    modelId: DeviceModelId.STAX,
     animation: "continueOnLedger",
     autoplay: true,
     loop: true,
@@ -67,7 +68,7 @@ export const AllNanoSAndSPAnimations: Story = {
               ${animation}
             </div>
             <ledger-device-animation
-              .modelId=${"nanos"}
+              .modelId=${DeviceModelId.NANO_S}
               .animation=${animation as AnimationKey}
               .autoplay=${args.autoplay}
               .loop=${args.loop}
@@ -96,7 +97,7 @@ export const AllNanoXAnimations: Story = {
                 ${animation}
               </div>
               <ledger-device-animation
-                .modelId=${"nanox"}
+                .modelId=${DeviceModelId.NANO_X}
                 .animation=${animation as AnimationKey}
                 .autoplay=${args.autoplay}
                 .loop=${args.loop}
@@ -132,7 +133,7 @@ export const AllStaxAnimations: Story = {
               ${animation}
             </div>
             <ledger-device-animation
-              .modelId=${"stax"}
+              .modelId=${DeviceModelId.STAX}
               .animation=${animation as AnimationKey}
               .autoplay=${args.autoplay}
               .loop=${args.loop}
@@ -167,7 +168,7 @@ export const AllFlexAnimations: Story = {
               ${animation}
             </div>
             <ledger-device-animation
-              .modelId=${"flex"}
+              .modelId=${DeviceModelId.FLEX}
               .animation=${animation as AnimationKey}
               .autoplay=${args.autoplay}
               .loop=${args.loop}
@@ -182,7 +183,15 @@ export const AllFlexAnimations: Story = {
 export const AllDeviceAnimations: Story = {
   render: (args) => html`
     <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
-      ${(["nanos", "nanosp", "nanox", "stax", "flex"] as const).map(
+      ${(
+        [
+          DeviceModelId.NANO_S,
+          DeviceModelId.NANO_SP,
+          DeviceModelId.NANO_X,
+          DeviceModelId.STAX,
+          DeviceModelId.FLEX,
+        ] as const
+      ).map(
         (modelId) => html`
           <div
             style="flex: 0 0 220px; display: flex; flex-direction: column; align-items: center;"
