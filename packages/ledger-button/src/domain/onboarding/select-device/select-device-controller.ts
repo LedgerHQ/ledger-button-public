@@ -1,4 +1,4 @@
-import { DeviceNotSupportedError } from "@ledgerhq/ledger-button-core";
+import { DeviceDisconnectedError, DeviceNotSupportedError } from "@ledgerhq/ledger-button-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
@@ -69,6 +69,33 @@ export class SelectDeviceController implements ReactiveController {
                 "https://shop.ledger.com/pages/ledger-nano-s-upgrade-program?utm_source=support",
                 "_blank",
               );
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceDisconnectedError: {
+        const deviceName = error.context?.deviceModel
+          ? lang.common.device.model[error.context.deviceModel as keyof typeof lang.common.device.model]
+          : "Device";
+
+        const connectionType = error.context?.connectionType;
+        const descriptionMapper = {
+          usb: () => lang.error.connection.DeviceDisconnected.descriptionUsb.replace("{device}", deviceName),
+          bluetooth: () => lang.error.connection.DeviceDisconnected.descriptionBluetooth.replace("{device}", deviceName),
+          generic: () => lang.error.connection.DeviceDisconnected.descriptionGeneric.replace("{device}", deviceName),
+        };
+
+        const description = descriptionMapper[connectionType || "generic"]();
+
+        this.errorData = {
+          title: lang.error.connection.DeviceDisconnected.title,
+          message: description,
+          cta1: {
+            label: lang.error.connection.DeviceDisconnected.cta1,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
             },
           },
         };
