@@ -1,11 +1,14 @@
 import { ethers } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
-import { alpacaModuleTypes } from "../../alpaca/alpacaModuleTypes.js";
-import { type AlpacaBalanceResponse, type TokenBalance } from "../../alpaca/model/types.js";
-import { type AlpacaService } from "../../alpaca/service/AlpacaService.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import {
+  type AccountBalance,
+  type TokenBalance,
+} from "../../balance/model/types.js";
+import { type BalanceService } from "../../balance/service/BalanceService.js";
 import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
@@ -13,7 +16,12 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
-import { Account, AccountService, CloudSyncData, Token } from "./AccountService.js";
+import {
+  type Account,
+  type AccountService,
+  type CloudSyncData,
+  type Token,
+} from "./AccountService.js";
 
 @injectable()
 export class DefaultAccountService implements AccountService {
@@ -30,8 +38,8 @@ export class DefaultAccountService implements AccountService {
     private readonly dAppConfigService: DAppConfigService,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
-    @inject(alpacaModuleTypes.AlpacaService)
-    private readonly alpacaService: AlpacaService,
+    @inject(balanceModuleTypes.BalanceService)
+    private readonly balanceService: BalanceService,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
   }
@@ -93,12 +101,6 @@ export class DefaultAccountService implements AccountService {
           `${blockchain?.currency_name} Account ${account.index}`;
 
         const ticker = blockchain?.currency_ticker;
-        console.log(
-          "ticker for blockchain",
-          blockchain,
-          account.currencyId,
-          ticker,
-        );
         return ticker
           ? ({
               ...account,
@@ -125,50 +127,62 @@ export class DefaultAccountService implements AccountService {
           currencyId: account.currencyId,
         });
 
-        const alpacaResult = await this.alpacaService.getBalance({
-          address: account.freshAddress,
-          currencyId: account.currencyId,
-        });
+        const balanceResult =
+          await this.balanceService.getBalanceForAccount(account);
 
-        if (alpacaResult.isLeft()) {
-          this.logger.warn("Failed to fetch balance from Alpaca service, falling back to backend", {
-            error: alpacaResult.extract(),
-            address: account.freshAddress,
-          });
+        let balance = "0.0000";
+        let tokens: Token[] = [];
 
-          // Fallback to the original backend method
-          const chainId = getChainIdFromCurrencyId(account.currencyId);
-          const balanceResult = await this.backendService.broadcast({
-            blockchain: { name: "ethereum", chainId: chainId },
-            rpc: {
-              method: "eth_getBalance",
-              params: [account.freshAddress, "latest"],
-              id: 1,
-              jsonrpc: "2.0",
-            },
-          });
+        if (balanceResult.isRight()) {
+          const balanceData = balanceResult.extract() as AccountBalance;
+          balance = ethers.formatEther(balanceData.nativeBalance.balance);
+          balance =
+            balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4);
 
-          let balance = "0.0000";
-          if (balanceResult.isRight()) {
-            const balanceHex = balanceResult.extract().result as string;
-            balance = ethers.formatEther(balanceHex);
-            balance =
-              balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4);
+          tokens = balanceData.tokenBalances.map(
+            (tokenBalance: TokenBalance) => ({
+              ticker: tokenBalance.ticker,
+              name: tokenBalance.name,
+              balance: tokenBalance.balanceFormatted,
+            }),
+          );
+        } else {
+          //RPC fallback if balance service fails
+          if (balanceResult.isLeft()) {
+            const balanceError = balanceResult.extract();
+            this.logger.warn(
+              "Failed to fetch balance from balance service (Alpaca), falling back to backend and getting balance from RPC node",
+              {
+                error: balanceError,
+                address: account.freshAddress,
+              },
+            );
+
+            // Fallback to the original backend method
+            const chainId = getChainIdFromCurrencyId(account.currencyId);
+            const balanceRpcResult = await this.backendService.broadcast({
+              blockchain: { name: "ethereum", chainId: chainId },
+              rpc: {
+                method: "eth_getBalance",
+                params: [account.freshAddress, "latest"],
+                id: 1,
+                jsonrpc: "2.0",
+              },
+            });
+
+            if (
+              balanceRpcResult.isRight() &&
+              balanceRpcResult.extract().result !== undefined // RPC do not return error but undefined
+            ) {
+              const balanceHex = balanceRpcResult.extract().result as string;
+              balance = ethers.formatEther(balanceHex);
+              balance =
+                balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4);
+            }
+
+            return { ...account, balance, tokens: [] };
           }
-
-          return { ...account, balance, tokens: [] };
         }
-
-        const alpacaData = alpacaResult.extract() as AlpacaBalanceResponse;
-
-        const tokens: Token[] = alpacaData.tokenBalances.map((tokenBalance: TokenBalance) => ({
-          address: tokenBalance.contractAddress,
-          symbol: tokenBalance.symbol,
-          name: tokenBalance.name,
-          balance: tokenBalance.balanceFormatted,
-        }));
-
-        const balance = alpacaData.nativeBalance.balanceFormatted;
 
         this.logger.debug("Successfully fetched balance and tokens", {
           address: account.freshAddress,
@@ -182,7 +196,10 @@ export class DefaultAccountService implements AccountService {
 
     this.logger.debug("All accounts with balance and tokens", {
       accountCount: accountsWithBalanceAndTokens.length,
-      totalTokensAcrossAccounts: accountsWithBalanceAndTokens.reduce((sum, acc) => sum + acc.tokens.length, 0)
+      totalTokensAcrossAccounts: accountsWithBalanceAndTokens.reduce(
+        (sum, acc) => sum + acc.tokens.length,
+        0,
+      ),
     });
 
     return accountsWithBalanceAndTokens;

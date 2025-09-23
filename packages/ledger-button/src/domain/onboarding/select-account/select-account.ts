@@ -59,10 +59,12 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  private handleAccountItemShowTokensClick = (event: CustomEvent<AccountItemClickEventDetail>) => {
-    const account = this.coreContext.getAccounts().find(
-      acc => acc.freshAddress === event.detail.address
-    );
+  private handleAccountItemShowTokensClick = (
+    event: CustomEvent<AccountItemClickEventDetail>,
+  ) => {
+    const account = this.coreContext
+      .getAccounts()
+      .find((acc) => acc.freshAddress === event.detail.address);
 
     if (account) {
       this.coreContext.setPendingAccountAddress(account.freshAddress);

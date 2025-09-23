@@ -59,7 +59,7 @@ export class RetrievingAccountsScreen extends LitElement {
     return html`
       <div class="min-h-full overflow-hidden">
         <ledger-lottie
-          class="animation"
+          class="animation overflow-hidden"
           animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}

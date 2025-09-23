@@ -12,7 +12,7 @@ export type ContainerOptions = {
   environment?: "staging" | "production";
   devConfig: {
     stub: Partial<{
-      alpaca: boolean;
+      balance: boolean;
       base: boolean;
       account: boolean;
       device: boolean;

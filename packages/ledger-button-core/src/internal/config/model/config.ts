@@ -44,6 +44,7 @@ export class Config {
     };
   }
 
+  //TODO remove environment params as it's already set in the constructor and use this.environment.
   private getCloudSyncUrl(environment: Environment): string {
     return environment === "production"
       ? "https://cloud-sync-backend.api.aws.prd.ldg-tech.com"
@@ -52,6 +53,18 @@ export class Config {
 
   setLogLevel(logLevel: LogLevelKey) {
     this.logLevel = LOG_LEVELS[logLevel];
+  }
+
+  getAlpacaUrl(environment: Environment): string {
+    return environment === "production"
+      ? "https://alpaca.api.aws.prd.ldg-tech.com"
+      : "https://alpaca.api.aws.stg.ldg-tech.com";
+  }
+
+  getCalUrl(environment: Environment): string {
+    return environment === "production"
+      ? "https://crypto-assets-service.api.ledger.com"
+      : "https://crypto-assets-service.api.ledger-test.com";
   }
 
   setEnvironment(environment: Environment) {

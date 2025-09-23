@@ -17,6 +17,7 @@ import type {
   EventResponse,
 } from "./types.js";
 
+//TODO change to config.getBackendUrl(config.environment)
 const BACKEND_BASE_URL = "https://ledgerb.aws.stg.ldg-tech.com";
 
 @injectable()

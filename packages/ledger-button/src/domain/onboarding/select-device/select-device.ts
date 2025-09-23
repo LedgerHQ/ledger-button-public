@@ -107,7 +107,7 @@ export class SelectDeviceScreen extends LitElement {
           `;
         })}
       </div>
-      <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
+      <div class="border-t-1 flex flex-col gap-12 border-muted-subtle p-24">
         <ledger-ad-item
           title=${lang.common.ad.buyALedger}
           @ad-item-click=${this.handleAdItemClick}

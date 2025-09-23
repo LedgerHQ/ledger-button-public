@@ -1,12 +1,6 @@
-import { injectable } from "inversify";
-import { Either, Left, Right } from "purify-ts";
-
-import { type AlpacaServiceError,AlpacaServiceErrors } from "../model/error.js";
-import { EvmChainConfig, NativeBalance, TokenBalance } from "../model/types.js";
-import { EvmDataSource } from "./EvmDataSource.js";
-
+/*
 @injectable()
-export class StubEvmDataSource implements EvmDataSource {
+export class StubAlpacaDataSource implements AlpacaDataSource {
   private readonly stubNativeBalances: Record<string, string> = {
     "0x1234567890123456789012345678901234567890": "1000000000000000000",
     "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd": "2500000000000000000",
@@ -165,3 +159,4 @@ export class StubEvmDataSource implements EvmDataSource {
     });
   }
 }
+*/

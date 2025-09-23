@@ -15,9 +15,6 @@ import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.j
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import { type Account, type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import { alpacaModuleTypes } from "../internal/alpaca/alpacaModuleTypes.js";
-import { type AlpacaBalanceRequest } from "../internal/alpaca/model/types.js";
-import { type AlpacaService } from "../internal/alpaca/service/AlpacaService.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
@@ -422,13 +419,6 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._currentContext.asObservable();
-  }
-
-  // Coin methods
-  async getBalance(request: AlpacaBalanceRequest) {
-    return this.container
-      .get<AlpacaService>(alpacaModuleTypes.AlpacaService)
-      .getBalance(request);
   }
 
   // Config methods

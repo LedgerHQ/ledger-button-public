@@ -11,6 +11,7 @@ const meta: Meta = {
     <div class="min-w-352">
       <ledger-connection-item
         .title=${args.title || ""}
+        .hint=${args.hint || ""}
         .connectionType=${args.connectionType || ""}
         .clickable=${args.clickable ?? true}
         .disabled=${args.disabled ?? false}
@@ -24,6 +25,14 @@ const meta: Meta = {
     title: {
       control: "text",
       description: "The main title text ",
+      table: {
+        type: { summary: "string" },
+        defaultValue: { summary: '""' },
+      },
+    },
+    hint: {
+      control: "text",
+      description: "The hint text",
       table: {
         type: { summary: "string" },
         defaultValue: { summary: '""' },
@@ -64,6 +73,7 @@ type Story = StoryObj;
 export const Bluetooth: Story = {
   args: {
     title: "Bluetooth Connection",
+    hint: "Switch On Device and unlock for connecting with Bluetooth",
     connectionType: "bluetooth",
   },
   parameters: {
@@ -78,6 +88,7 @@ export const Bluetooth: Story = {
 export const USB: Story = {
   args: {
     title: "USB Connection",
+    hint: "Plug in device and unlock for connecting with USB",
     connectionType: "usb",
   },
   parameters: {

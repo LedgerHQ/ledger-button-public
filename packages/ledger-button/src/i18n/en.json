@@ -5,6 +5,8 @@
       "connect": "Connect a Ledger",
       "usb": "Connect with USB",
       "bluetooth": "Connect with Bluetooth",
+      "usb_hint": "Plug in and unlock your device",
+      "bluetooth_hint": "Power on and unlock your device",
       "close": "Close",
       "tryAgain": "Try Again",
       "disconnect": "Disconnect"

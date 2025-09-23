@@ -1,8 +1,8 @@
 export function getChainIdFromCurrencyId(currencyId: string) {
-  return MAPPING_TABLE[currencyId] ?? "1";
+  return EVM_MAPPING_TABLE[currencyId] ?? "1";
 }
 
-const MAPPING_TABLE: Record<string, string> = {
+export const EVM_MAPPING_TABLE: Record<string, string> = {
   ethereum: "1",
   arbitrum: "42161",
   avalanche: "43114",
