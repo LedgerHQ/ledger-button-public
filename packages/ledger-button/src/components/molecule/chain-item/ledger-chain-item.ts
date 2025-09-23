@@ -104,6 +104,8 @@ export class LedgerChainItem extends LitElement {
           ledger-id=${this.ledgerId}
           variant=${iconVariant}
           size="large"
+          ticker=${this.ticker}
+          alt=${this.title.substring(0, 1)}
         ></ledger-crypto-icon>
         <div class="flex flex-col gap-4 text-left">
           ${this.title
