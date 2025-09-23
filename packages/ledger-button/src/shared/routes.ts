@@ -106,7 +106,7 @@ export const makeDestinations = (translation: Translation) => {
     ledgerSync: {
       name: "ledgerSync",
       component: "ledger-sync-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: translation.onboarding.ledgerSync.title,
         showCloseButton: false,
@@ -115,7 +115,7 @@ export const makeDestinations = (translation: Translation) => {
     turnOnSync: {
       name: "turnOnSync",
       component: "turn-on-sync-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: translation.onboarding.turnOnSync.title,
         showCloseButton: true,

@@ -3,6 +3,7 @@ import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 import {
+  BackIcon,
   BluetoothIcon,
   CartIcon,
   CheckIcon,
@@ -18,6 +19,7 @@ import {
 export interface LedgerIconAttributes {
   type:
     | "ledger"
+    | "back"
     | "close"
     | "bluetooth"
     | "usb"
@@ -60,6 +62,7 @@ export class LedgerIcon extends LitElement {
   override render() {
     const iconMapper = {
       ledger: () => LedgerLogoIcon,
+      back: () => BackIcon,
       close: () => CloseIcon,
       bluetooth: () => BluetoothIcon,
       usb: () => UsbIcon,

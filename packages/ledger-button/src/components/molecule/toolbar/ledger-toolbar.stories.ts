@@ -13,6 +13,7 @@ const meta: Meta<LedgerToolbarAttributes> = {
     html`<div style="background: black;">
       <ledger-toolbar
         .title=${args.title || ""}
+        .canGoBack=${args.canGoBack || false}
         @toolbar-close=${(e: CustomEvent) => {
           console.log("Toolbar close clicked:", e.detail);
         }}
@@ -36,6 +37,14 @@ const meta: Meta<LedgerToolbarAttributes> = {
         defaultValue: { summary: "" },
       },
     },
+    canGoBack: {
+      control: "boolean",
+      description: "Whether can go back to previous screen",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
+    },
   },
 };
 
@@ -45,6 +54,7 @@ type Story = StoryObj<LedgerToolbarAttributes>;
 export const Default: Story = {
   args: {
     title: "Connect a Ledger",
+    canGoBack: true,
   },
   parameters: {
     docs: {

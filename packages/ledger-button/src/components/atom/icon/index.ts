@@ -1,3 +1,4 @@
+export { default as BackIcon } from "./backIcon";
 export { default as BluetoothIcon } from "./bluetoothIcon";
 export { default as CartIcon } from "./cartIcon";
 export { default as CheckIcon } from "./checkIcon";

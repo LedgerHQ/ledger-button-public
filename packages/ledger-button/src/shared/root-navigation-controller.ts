@@ -159,6 +159,10 @@ export class RootNavigationController implements ReactiveController {
     this.host.requestUpdate();
   }
 
+  navigateBack() {
+    this.navigation.navigateBack();
+  }
+
   get selectedAccount() {
     return this.core.getSelectedAccount();
   }

@@ -15,14 +15,12 @@ const meta: Meta = {
       control: "select",
       options: [
         "ledger",
+        "back",
         "close",
         "bluetooth",
         "usb",
         "chevronRight",
         "chevronDown",
-        "ethereum",
-        "bsc",
-        "polygon",
         "check",
         "error",
         "device",
@@ -166,66 +164,17 @@ export const ChevronDownIconLarge: Story = {
   },
 };
 
-export const EthereumIconSmall: Story = {
+export const BackIconSmall: Story = {
   args: {
-    type: "ethereum",
+    type: "back",
     size: "small",
   },
 };
 
-export const EthereumIconMedium: Story = {
+export const BackIconMedium: Story = {
   args: {
-    type: "ethereum",
+    type: "back",
     size: "medium",
-  },
-};
-
-export const EthereumIconLarge: Story = {
-  args: {
-    type: "ethereum",
-    size: "large",
-  },
-};
-
-export const BSCIconSmall: Story = {
-  args: {
-    type: "bsc",
-    size: "small",
-  },
-};
-
-export const BSCIconMedium: Story = {
-  args: {
-    type: "bsc",
-    size: "medium",
-  },
-};
-
-export const BSCIconLarge: Story = {
-  args: {
-    type: "bsc",
-    size: "large",
-  },
-};
-
-export const PolygonIconSmall: Story = {
-  args: {
-    type: "polygon",
-    size: "small",
-  },
-};
-
-export const PolygonIconMedium: Story = {
-  args: {
-    type: "polygon",
-    size: "medium",
-  },
-};
-
-export const PolygonIconLarge: Story = {
-  args: {
-    type: "polygon",
-    size: "large",
   },
 };
 
@@ -312,6 +261,10 @@ export const AllIcons: Story = {
       <div style="text-align: center;">
         <ledger-icon type="usb" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">USB</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon type="back" size="medium"></ledger-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Back</p>
       </div>
       <div style="text-align: center;">
         <ledger-icon type="chevronRight" size="medium"></ledger-icon>

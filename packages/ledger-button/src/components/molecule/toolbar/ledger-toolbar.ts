@@ -11,6 +11,7 @@ import { DeviceModelId } from "../../atom/icon/device-icon/device-icon.js";
 export interface LedgerToolbarAttributes {
   title?: string;
   deviceModelId?: DeviceModelId;
+  canGoBack?: boolean;
 }
 
 const styles = css`
@@ -27,6 +28,9 @@ export class LedgerToolbar extends LitElement {
 
   @property({ type: Boolean })
   showCloseButton? = true;
+
+  @property({ type: Boolean })
+  canGoBack = false;
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;
@@ -50,14 +54,38 @@ export class LedgerToolbar extends LitElement {
     );
   };
 
+  private handleGoBackClick = (e: CustomEvent) => {
+    this.dispatchEvent(
+      new CustomEvent("ledger-toolbar-go-back-click", {
+        bubbles: true,
+        composed: true,
+        detail: e.detail,
+      }),
+    );
+  };
+
   override render() {
+    console.log("canGoBack in toolbar", this.canGoBack);
+
     return html`
       <div
         class="flex w-full min-w-full items-center justify-between px-24 py-16"
       >
         <div class="flex h-32 w-32 items-center justify-center">
           <slot name="left-icon">
-            <ledger-icon type="ledger" size="medium"></ledger-icon>
+            ${this.canGoBack
+              ? html`
+                  <ledger-button
+                    data-testid="close-button"
+                    .icon=${true}
+                    variant="noBackground"
+                    iconType="back"
+                    size="xs"
+                    @click=${this.handleGoBackClick}
+                  >
+                  </ledger-button>
+                `
+              : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
           </slot>
         </div>
         ${this.deviceModelId
@@ -107,6 +135,8 @@ declare global {
       label: string;
       deviceModelId: DeviceModelId;
     }>;
+
+    "ledger-toolbar-go-back-click": CustomEvent<void>;
   }
 }
 
