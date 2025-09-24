@@ -57,12 +57,16 @@ describe("DefaultBackendService", () => {
     };
 
     const mockSuccessResponse: EventResponse = {
-      success: true,
+      EventResponseSuccess: {
+        success: true,
+      },
     };
 
     const mockErrorResponse: EventResponse = {
-      error: "Validation failed",
-      code: 400,
+      time: null,
+      message: "Invalid value for: body (Missing required field at 'data.source_token')",
+      status: 400,
+      type: "BAD_REQUEST",
     };
 
     it("should send event request with correct headers and URL", async () => {

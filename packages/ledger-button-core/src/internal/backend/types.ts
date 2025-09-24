@@ -148,11 +148,17 @@ export type EventRequest = {
   data: EventData;
 };
 
-export type EventResponse = {
-  success: boolean;
-} | {
-  error: string;
-  code: number;
+export type EventResponseSuccess = {
+  EventResponseSuccess: {
+    success: true;
+  };
 };
 
-export type EventResponseError = Error;
+export type EventResponseError = {
+  time: null;
+  message: string;
+  status: number;
+  type: string;
+};
+
+export type EventResponse = EventResponseSuccess | EventResponseError;
