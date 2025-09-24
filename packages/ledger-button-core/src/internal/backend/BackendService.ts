@@ -7,8 +7,7 @@ import type {
   ConfigResponse,
   ConfigResponseError,
   EventRequest,
-  EventResponseError,
-  EventResponseSuccess,
+  EventResponse,
 } from "./types.js";
 
 export interface BackendService {
@@ -26,5 +25,5 @@ export interface BackendService {
   event(
     request: EventRequest,
     domain?: string,
-  ): Promise<Either<EventResponseError, EventResponseSuccess>>;
+  ): Promise<Either<Error, EventResponse>>;
 }
