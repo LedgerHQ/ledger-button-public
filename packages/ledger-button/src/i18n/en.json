@@ -99,6 +99,15 @@
         "cta1": "Close this tab",
         "cta2": "What is Ledger Sync?"
       }
+    },
+    "connection": {
+      "DeviceDisconnected": {
+        "title": "Ledger Device disconnected",
+        "descriptionUsb": "The connection to your Ledger {device} has been lost. Plug your Device and unlock it.",
+        "descriptionBluetooth": "The connection to your Ledger {device} has been lost. Unlock it and make sure it is nearby.",
+        "descriptionGeneric": "The connection to your Ledger {device} has been lost. If you are using USB, plug your Device and unlock it. If you are using Bluetooth, unlock it and make sure it is nearby.",
+        "cta1": "Reconnect my Device"
+      }
     }
   }
 }
