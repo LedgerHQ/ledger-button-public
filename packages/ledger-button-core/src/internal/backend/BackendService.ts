@@ -8,7 +8,6 @@ import type {
   ConfigResponseError,
   EventRequest,
   EventResponse,
-  EventResponseError,
 } from "./types.js";
 
 export interface BackendService {
@@ -26,5 +25,5 @@ export interface BackendService {
   event(
     request: EventRequest,
     domain?: string,
-  ): Promise<Either<EventResponseError, EventResponse>>;
+  ): Promise<Either<Error, EventResponse>>;
 }

@@ -46,10 +46,10 @@ describe("DefaultBackendService", () => {
   describe("event", () => {
     const mockEventRequest: EventRequest = {
       name: "test-event",
-      type: "OpenSession",
+      type: "open_session",
       data: {
         event_id: "test-event-id",
-        event_type: "OpenSession",
+        event_type: "open_session",
         transaction_dapp_id: "test-dapp",
         timestamp_ms: Date.now(),
         session_id: "test-session-id",
@@ -57,12 +57,16 @@ describe("DefaultBackendService", () => {
     };
 
     const mockSuccessResponse: EventResponse = {
-      success: true,
+      EventResponseSuccess: {
+        success: true,
+      },
     };
 
     const mockErrorResponse: EventResponse = {
-      error: "Validation failed",
-      code: 400,
+      time: null,
+      message: "Invalid value for: body (Missing required field at 'data.source_token')",
+      status: 400,
+      type: "BAD_REQUEST",
     };
 
     it("should send event request with correct headers and URL", async () => {
@@ -132,10 +136,10 @@ describe("DefaultBackendService", () => {
     it("should handle different event types", async () => {
       const consentEventRequest: EventRequest = {
         name: "consent-given",
-        type: "ConsentGiven",
+        type: "consent_given",
         data: {
           event_id: "consent-event-id",
-          event_type: "ConsentGiven",
+          event_type: "consent_given",
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
           ledger_sync_user_id: "user-123",
@@ -157,19 +161,20 @@ describe("DefaultBackendService", () => {
     it("should handle transaction flow events with additional fields", async () => {
       const transactionEventRequest: EventRequest = {
         name: "transaction-flow-completion",
-        type: "TransactionFlowCompletion",
+        type: "transaction_flow_completion",
         data: {
           event_id: "transaction-event-id",
-          event_type: "TransactionFlowCompletion",
+          event_type: "transaction_flow_completion",
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
           session_id: "session-123",
           ledger_sync_user_id: "user-123",
           blockchain_network_selected: "ethereum",
           account_currency: "ETH",
-          account_balance: "1.5",
-          transaction_hash: "0x123abc",
-          transaction_type: "transfer",
+          account_balance: "1500000000000000000",
+          unsigned_transaction_hash: "abc123def456",
+          transaction_type: "standard_tx",
+          transaction_hash: "123abc456def",
         },
       };
 
