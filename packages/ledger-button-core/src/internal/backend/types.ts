@@ -37,7 +37,7 @@ export type EventType =
   | "consent_given"
   | "consent_removed"
   | "invoicing_transaction_signed"
-  | "ledger_sync_activiated"
+  | "ledger_sync_activated"
   | "onboarding"
   | "open_ledger_sync"
   | "open_session"
@@ -83,7 +83,7 @@ export type OpenLedgerSyncEventData = BaseEventData & {
 };
 
 export type LedgerSyncActivatedEventData = BaseEventData & {
-  event_type: "ledger_sync_activiated";
+  event_type: "ledger_sync_activated";
   session_id: string;
   ledger_sync_user_id: string;
 };
@@ -105,7 +105,7 @@ export type TransactionFlowInitializationEventData = BaseEventData & {
   account_currency: string;
   account_balance: string;
   unsigned_transaction_hash: string;
-  transaction_type: "authentification_tx" | "standard_tx";
+  transaction_type: "authentication_tx" | "standard_tx";
 };
 
 export type TransactionFlowCompletionEventData = BaseEventData & {
@@ -116,7 +116,7 @@ export type TransactionFlowCompletionEventData = BaseEventData & {
   account_currency: string;
   account_balance: string;
   unsigned_transaction_hash: string;
-  transaction_type: "authentification_tx" | "standard_tx";
+  transaction_type: "authentication_tx" | "standard_tx";
   transaction_hash: string;
 };
 
@@ -126,7 +126,7 @@ export type SessionAuthenticationEventData = BaseEventData & {
   ledger_sync_user_id: string;
   blockchain_network_selected: "ethereum";
   unsigned_transaction_hash: string;
-  transaction_type: "authentification_tx";
+  transaction_type: "authentication_tx";
   transaction_hash: string;
 };
 
