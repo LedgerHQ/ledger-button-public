@@ -91,6 +91,14 @@
         "cta1": "Connect another Ledger device",
         "cta2": "Upgrade to a new Ledger Device with 20% off"
       }
+    },
+    "ledgerSync": {
+      "ConnectionFailed": {
+        "title": "Unable to activate Ledger Sync",
+        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
+        "cta1": "Close this tab",
+        "cta2": "What is Ledger Sync?"
+      }
     }
   }
 }
