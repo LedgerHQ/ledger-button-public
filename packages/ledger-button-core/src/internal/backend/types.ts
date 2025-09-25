@@ -58,8 +58,10 @@ export type InvoicingTransactionSignedEventData = BaseEventData & {
   transaction_type: "ETH_transfer" | "ERC-20_approve";
   transaction_hash: string;
   source_token: string;
+  target_token: string;
   recipient_address: string;
   transaction_amount: string;
+  transaction_id: string;
 };
 
 export type ConsentGivenEventData = BaseEventData & {
