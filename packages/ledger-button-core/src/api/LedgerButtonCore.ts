@@ -13,7 +13,7 @@ import { SignRawTransactionParams } from "./model/signing/SignRawTransactionPara
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { type AccountService } from "../internal/account/service/AccountService.js";
+import { type Account, type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { alpacaModuleTypes } from "../internal/alpaca/alpacaModuleTypes.js";
 import { type AlpacaBalanceRequest } from "../internal/alpaca/model/types.js";
@@ -29,15 +29,15 @@ import {
   type ConnectionType,
   type DeviceManagementKitService,
 } from "../internal/device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
-import { type EventTrackingService } from "../internal/event-tracking/EventTrackingService.js";
-import { EventTrackingUtils } from "../internal/event-tracking/EventTrackingUtils.js";
 import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
 import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
+import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { type EventTrackingService } from "../internal/event-tracking/EventTrackingService.js";
+import { EventTrackingUtils } from "../internal/event-tracking/EventTrackingUtils.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -240,7 +240,7 @@ export class LedgerButtonCore {
     this.trackOnboardingEvent(selectedAccount);
   }
 
-  private async trackOnboardingEvent(selectedAccount: any): Promise<void> {
+  private async trackOnboardingEvent(selectedAccount: Account | null): Promise<void> {
     try {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,

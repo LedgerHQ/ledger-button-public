@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { type Factory, inject, injectable } from "inversify";
 
 import { backendModuleTypes } from "../backend/backendModuleTypes.js";
 import type { BackendService } from "../backend/BackendService.js";
@@ -19,7 +19,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
     @inject(loggerModuleTypes.LoggerPublisher)
-    loggerFactory: any,
+    loggerFactory: Factory<LoggerPublisher>,
   ) {
     this.logger = loggerFactory("[Event Tracking]");
   }
