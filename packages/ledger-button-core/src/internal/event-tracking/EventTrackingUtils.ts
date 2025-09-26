@@ -1,5 +1,5 @@
 function generateUUID(): string {
-  return URL.createObjectURL(new Blob([])).slice(-36);
+  return crypto.randomUUID();
 }
 
 import type {
