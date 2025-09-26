@@ -34,7 +34,10 @@ import {
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
+import {
+  createSignedTransaction,
+  getInvoicingEventDataFromTransaction,
+} from "../../../internal/transaction/utils/TransactionHelper.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
@@ -445,7 +448,7 @@ export class SignRawTransaction {
         throw new Error("Session ID or Trust Chain ID is missing");
       }
 
-      const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
+      const completionEvent = EventTrackingUtils.createTransactionFlowCompletionEvent({
         dAppId: this.config.dAppIdentifier,
         sessionId,
         ledgerSyncUserId: trustChainId,
@@ -456,7 +459,22 @@ export class SignRawTransaction {
         transactionHash,
       });
 
-      await this.eventTrackingService.trackEvent(event);
+      await this.eventTrackingService.trackEvent(completionEvent);
+
+      const invoicingData = getInvoicingEventDataFromTransaction(rawTransaction);
+      const invoicingEvent = EventTrackingUtils.createInvoicingTransactionSignedEvent({
+        dAppId: this.config.dAppIdentifier,
+        ledgerSyncUserId: trustChainId,
+        transactionHash,
+        transactionType: invoicingData.transactionType,
+        sourceToken: invoicingData.sourceToken,
+        targetToken: invoicingData.targetToken,
+        recipientAddress: invoicingData.recipientAddress,
+        transactionAmount: invoicingData.transactionAmount,
+        transactionId: transactionHash,
+      });
+
+      await this.eventTrackingService.trackEvent(invoicingEvent);
     } catch (error) {
       this.logger.error("Failed to track transaction flow completion", { error });
     }
