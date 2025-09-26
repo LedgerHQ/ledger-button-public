@@ -4,7 +4,7 @@ import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 
-export class TurnOnSyncController implements ReactiveController {
+export class TurnOnSyncDesktopController implements ReactiveController {
   host: ReactiveControllerHost;
 
   constructor(
@@ -20,26 +20,13 @@ export class TurnOnSyncController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  handleTurnOnSyncOnMobile() {
-    console.log("handleTurnOnSyncOnMobile");
-    this.navigation.navigateTo(this.destinations.turnOnSyncMobile);
+  handleTurnOnLedgerSync() {
+    window.open("https://go.ledger.com/ledger/ledgersync");
   }
 
-  handleTurnOnSyncOnDesktop() {
-    console.log("handleTurnOnSyncOnDesktop");
-    this.navigation.navigateTo(this.destinations.turnOnSyncDesktop);
-  }
-
-  handleLearnMore() {
-    window
-      .open(
-        "https://support.ledger.com/article/How-to-synchronize-your-Ledger-Live-accounts-with-Ledger-Sync",
-        "_blank",
-      )
-      ?.focus();
-
+  handleLedgerSyncActivated() {
     if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.closeModal();
+      this.navigation.navigateTo(this.destinations.onboardingFlow);
     }
   }
 }

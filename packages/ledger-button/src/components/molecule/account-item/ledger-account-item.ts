@@ -53,8 +53,8 @@ export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: String, attribute: "link-label" })
   linkLabel = "";
 
-  @property({ type: Boolean })
-  hasTokens = false;
+  @property({ type: Number })
+  tokens = 0;
 
   private get containerClasses() {
     return {
@@ -153,17 +153,17 @@ export class LedgerAccountItemMolecule extends LitElement {
         >
           ${this.renderAccountInfo()} ${this.renderValueInfo()}
         </button>
-        ${this.linkLabel && this.hasTokens
+        ${this.linkLabel && this.tokens > 0
           ? html`
               <button
-                class="group flex items-center justify-between border-t-1 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
+                class="border-t-1 group flex items-center justify-between border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
                 @click=${this.handleShowTokens}
               >
                 <div class="flex h-20 items-center text-base body-3-semi-bold">
-                  ${this.linkLabel}
+                  ${this.linkLabel} (${this.tokens})
                 </div>
                 <div
-                  class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
+                  class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
                 >
                   <ledger-icon type="chevronRight" size="small"></ledger-icon>
                 </div>

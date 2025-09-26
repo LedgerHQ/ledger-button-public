@@ -14,8 +14,11 @@
     "ad": {
       "buyALedger": "Buy a Ledger"
     },
+    "platform": {
+      "onDesktop": "On desktop",
+      "onMobile": "On mobile"
+    },
     "learnMore": "Learn more",
-    "turnOnLedgerSync": "Turn on Ledger Sync",
     "device": {
       "model": {
         "nanoS": "Ledger Nano S",
@@ -54,6 +57,17 @@
       "connected": "Connected",
       "available": "Available"
     }
+  },
+  "ledgerSync": {
+    "turnOnLedgerSyncTitle": "Turn on Ledger Sync to continue",
+    "turnOnLedgerSyncSubtitle": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature.",
+    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "activate": "Activate Ledger Sync",
+    "activateStep1Desktop": "1. Click on the link below to activate Ledger Sync",
+    "activateStep1DesktopLLInstalled": "Make sure Ledger Live is installed on your computer.",
+    "activateStep1Mobile": "1. Scan the QR code with your mobile phone and follow instruction",
+    "activateStep2": "2. Once Ledger Sync is activated you can continue by clicking the link below",
+    "activated": "Ledger Sync is activated, continue"
   },
   "onboarding": {
     "selectDevice": {

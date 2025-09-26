@@ -24,6 +24,7 @@ const meta: Meta = {
         "check",
         "error",
         "device",
+        "platform",
       ],
       description: "The type of icon to display",
     },
@@ -281,6 +282,10 @@ export const AllIcons: Story = {
       <div style="text-align: center;">
         <ledger-icon type="device" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Device</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon type="platform" size="medium"></ledger-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Platform</p>
       </div>
     </div>
   `,

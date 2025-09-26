@@ -101,6 +101,7 @@ export class SelectDeviceScreen extends LitElement {
           return html`
             <ledger-connection-item
               title=${lang.common.button[el]}
+              hint=${lang.common.button[`${el}_hint`]}
               connection-type=${el}
               @connection-item-click=${this.handleConnectionItemClick}
             ></ledger-connection-item>

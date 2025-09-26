@@ -1,4 +1,3 @@
-export * from "../internal/account/service/AccountService.js";
 export type { Device } from "../internal/device/model/Device.js";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
 export * from "./errors/index.js";

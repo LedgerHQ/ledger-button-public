@@ -13,6 +13,7 @@ import {
   DeviceIcon,
   ErrorIcon,
   LedgerLogoIcon,
+  PlatformIcon,
   UsbIcon,
 } from "./index";
 
@@ -28,6 +29,7 @@ export interface LedgerIconAttributes {
     | "check"
     | "error"
     | "device"
+    | "platform"
     | "cart";
   size: "small" | "medium" | "large" | "icon";
 }
@@ -71,6 +73,7 @@ export class LedgerIcon extends LitElement {
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
+      platform: () => PlatformIcon,
       cart: () => CartIcon,
     };
     const renderIcon =

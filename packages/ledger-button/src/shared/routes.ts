@@ -10,6 +10,8 @@ import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
 import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
 import "../domain/signing-flow/signing-flow.js";
 import "../domain/account-tokens/account-tokens.js";
+import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
+import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -118,6 +120,24 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.turnOnSync.title,
+        showCloseButton: true,
+      },
+    },
+    turnOnSyncDesktop: {
+      name: "turnOnSyncDesktop",
+      component: "turn-on-sync-desktop-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.ledgerSync.activate,
+        showCloseButton: true,
+      },
+    },
+    turnOnSyncMobile: {
+      name: "turnOnSyncMobile",
+      component: "turn-on-sync-mobile-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.ledgerSync.activate,
         showCloseButton: true,
       },
     },

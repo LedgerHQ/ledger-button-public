@@ -11,10 +11,10 @@ img.token-icon[alt]:after {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #ababab;
+    background-color: #1F1F1F;
     padding-top: 7px;
     text-align: center;
     font-size: x-large;
-    color: #000000;
+    color: #FFFFFF;
     content: attr(alt);
   }
