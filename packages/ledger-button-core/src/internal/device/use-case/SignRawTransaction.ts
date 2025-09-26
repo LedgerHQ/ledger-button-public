@@ -469,7 +469,7 @@ export class SignRawTransaction {
         accountBalance: selectedAccount.balance?.toString() || "0",
         unsignedTransactionHash: rawTransaction,
         transactionType: "standard_tx",
-        transactionHash,
+        transactionHash: transactionHash || "",
       });
 
       await this.eventTrackingService.trackEvent(completionEvent);
@@ -479,13 +479,13 @@ export class SignRawTransaction {
         dAppId: this.config.dAppIdentifier,
         sessionId,
         ledgerSyncUserId: trustChainId,
-        transactionHash,
+        transactionHash: transactionHash || "",
         transactionType: invoicingData.transactionType,
         sourceToken: invoicingData.sourceToken,
         targetToken: invoicingData.targetToken,
         recipientAddress: invoicingData.recipientAddress,
         transactionAmount: invoicingData.transactionAmount,
-        transactionId: transactionHash,
+        transactionId: transactionHash || "",
       });
 
       await this.eventTrackingService.trackEvent(invoicingEvent);
