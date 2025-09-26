@@ -464,6 +464,7 @@ export class SignRawTransaction {
       const invoicingData = getInvoicingEventDataFromTransaction(rawTransaction);
       const invoicingEvent = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: this.config.dAppIdentifier,
+        sessionId,
         ledgerSyncUserId: trustChainId,
         transactionHash,
         transactionType: invoicingData.transactionType,

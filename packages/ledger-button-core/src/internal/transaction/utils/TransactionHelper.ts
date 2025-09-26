@@ -6,6 +6,7 @@ import type {
   SignedTransactionResult,
 } from "../../../api/model/signing/SignedTransaction.js";
 import type { Transaction } from "../../../api/model/signing/SignTransactionParams.js";
+import type { InvoicingEventData } from "../types.js";
 
 export function createSignedTransaction(
   rawTransaction: string,
@@ -49,19 +50,10 @@ export function getHexaStringFromSignature(signature: DeviceSignature) {
   return ethers.Signature.from(signature).serialized;
 }
 
-export interface InvoicingEventData {
-  transactionType: "ETH_transfer" | "ERC-20_approve";
-  sourceToken: string;
-  targetToken: string;
-  recipientAddress: string;
-  transactionAmount: string;
-}
-
 export function getInvoicingEventDataFromTransaction(
   rawTransaction: string,
 ): InvoicingEventData {
   const parsedTx = ethers.Transaction.from(rawTransaction);
-
   const isETHTransfer = parsedTx.value && parsedTx.value > 0n;
 
   return {
