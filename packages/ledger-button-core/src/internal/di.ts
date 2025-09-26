@@ -8,6 +8,7 @@ import { configModuleFactory } from "./config/configModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
 import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
+import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
@@ -43,6 +44,7 @@ export function createContainer({
     backendModuleFactory({ stub: devConfig.stub.base }),
     dAppConfigModuleFactory({ stub: devConfig.stub.dAppConfig }),
     deviceModuleFactory({ stub: devConfig.stub.device, dmkConfig }),
+    eventTrackingModuleFactory({ stub: devConfig.stub.base }),
     storageModuleFactory({ stub: devConfig.stub.base }),
     networkModuleFactory({ stub: devConfig.stub.base }),
     transactionModuleFactory({ stub: devConfig.stub.base }),
