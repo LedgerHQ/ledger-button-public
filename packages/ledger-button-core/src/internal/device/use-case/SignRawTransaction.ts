@@ -245,6 +245,19 @@ export class SignRawTransaction {
               }
 
               return broadcastResult;
+            } else if (result.status === DeviceActionStatus.Completed) {
+              // Track completion for sign-only transactions
+              const signedTx = createSignedTransaction(rawTransaction, {
+                r: result.output.r,
+                s: result.output.s,
+                v: result.output.v,
+              } as Signature);
+
+              if (isBroadcastedTransactionResult(signedTx)) {
+                this.trackTransactionFlowCompletion(rawTransaction, selectedAccount, signedTx.hash);
+              }
+
+              return result;
             } else {
               return result;
             }
