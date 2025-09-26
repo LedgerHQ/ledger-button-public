@@ -23,6 +23,11 @@ import {
   tap,
 } from "rxjs";
 
+import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
+import {
+  GetAddressDAState,
+  isGetAddressResult,
+} from "../../../api/model/signing/GetAddress.js";
 import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -187,16 +192,44 @@ export class SignRawTransaction {
             );
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
+
+            const { observable: addressObservable } = ethSigner.getAddress(
+              derivationPath,
+              {
+                skipOpenApp: true,
+              },
+            );
+
+            return addressObservable.pipe(
+              filter((result: GetAddressDAState) => {
+                return (
+                  result.status === DeviceActionStatus.Error ||
+                  result.status === DeviceActionStatus.Completed
+                );
+              }),
+            );
+          }),
+          switchMap((result: GetAddressDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              // TODO: Add error code
+              throw result.error;
+            }
+
+            if (
+              result.status === DeviceActionStatus.Completed &&
+              result.output.address !== selectedAccount.freshAddress
+            ) {
+              throw new IncorrectSeedError("Adress mismatch");
+            }
+
             resultObservable.next({
               signType,
               status: "debugging",
               message: "Starting Sign Transaction DA",
             });
-            if (result.status === DeviceActionStatus.Error) {
-              throw new Error("Open app with dependencies failed");
-            }
-
-            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
 
             const { observable: signObservable } = ethSigner.signTransaction(
               derivationPath,
@@ -267,7 +300,7 @@ export class SignRawTransaction {
           next: (result) => {
             resultObservable.next(
               this.getTransactionResultForEvent(
-                result,
+                result as SignTransactionDAState,
                 rawTransaction,
                 signType,
               ),
@@ -317,6 +350,7 @@ export class SignRawTransaction {
   private getTransactionResultForEvent(
     result:
       | OpenAppWithDependenciesDAState
+      | GetAddressDAState
       | SignTransactionDAState
       | SignedResults,
     rawTx: string,
@@ -379,9 +413,16 @@ export class SignRawTransaction {
               message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
             };
         }
-      case DeviceActionStatus.Completed:
-        console.log("Transaction signing completed", { result });
-        if (!("deviceMetadata" in result.output)) {
+      case DeviceActionStatus.Completed: {
+        if (isGetAddressResult(result)) {
+          return {
+            signType,
+            status: "debugging",
+            message: `Got address: ${result.output.address}`,
+          };
+        }
+
+        if ("r" in result.output) {
           const signedTransaction = createSignedTransaction(rawTx, {
             r: result.output.r,
             s: result.output.s,
@@ -400,6 +441,7 @@ export class SignRawTransaction {
             message: `App Opened`,
           };
         }
+      }
       case DeviceActionStatus.Error:
         console.error("Error signing transaction in SignRawTransaction", {
           error: result.error.toString(),

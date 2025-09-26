@@ -21,6 +21,11 @@ import {
   tap,
 } from "rxjs";
 
+import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
+import {
+  type GetAddressDAState,
+  isGetAddressResult,
+} from "../../../api/model/signing/GetAddress.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
@@ -89,7 +94,7 @@ export class SignTypedData {
       });
     }
 
-    const [address, typedData] = params;
+    const [, typedData] = params;
     const signType = "typed-message";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -158,23 +163,44 @@ export class SignTypedData {
             );
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
+
+            const { observable: addressObservable } = ethSigner.getAddress(
+              derivationPath,
+              {
+                skipOpenApp: true,
+              },
+            );
+
+            return addressObservable.pipe(
+              filter((result: GetAddressDAState) => {
+                return (
+                  result.status === DeviceActionStatus.Error ||
+                  result.status === DeviceActionStatus.Completed
+                );
+              }),
+            );
+          }),
+          switchMap((result: GetAddressDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw result.error;
+            }
+
+            if (
+              result.status === DeviceActionStatus.Completed &&
+              result.output.address !== selectedAccount.freshAddress
+            ) {
+              throw new IncorrectSeedError("Adress mismatch");
+            }
+
             resultObservable.next({
               signType,
               status: "debugging",
               message: "Starting Sign Typed Data DA",
             });
-            if (result.status === DeviceActionStatus.Error) {
-              throw new Error("Open app with dependencies failed");
-            }
 
-            console.log("Signing typed data", {
-              address,
-              typedData,
-              derivationPath,
-              equals: address === derivationPath,
-            });
-
-            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
             const { observable: signObservable } = ethSigner.signTypedData(
               derivationPath,
               typedData,
@@ -254,6 +280,7 @@ export class SignTypedData {
     result:
       | OpenAppWithDependenciesDAState
       | SignTypedDataDAState
+      | GetAddressDAState
       | SignedPersonalMessageOrTypedDataResult,
     signType: SignType,
   ): SignFlowStatus {
@@ -311,7 +338,15 @@ export class SignTypedData {
               message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
             };
         }
-      case DeviceActionStatus.Completed:
+      case DeviceActionStatus.Completed: {
+        if (isGetAddressResult(result)) {
+          return {
+            signType,
+            status: "debugging",
+            message: `Got address: ${result.output.address}`,
+          };
+        }
+
         console.log("Typed data signing completed", { result });
         if (!("deviceMetadata" in result.output)) {
           return {
@@ -329,6 +364,7 @@ export class SignTypedData {
             message: `App Opened`,
           };
         }
+      }
       case DeviceActionStatus.Error:
         console.error("Error signing typed data in SignTypedData", {
           error: result.error.toString(),

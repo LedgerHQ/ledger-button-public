@@ -14,7 +14,16 @@ export class DeviceDisconnectedError extends LedgerButtonError<{
   deviceModel?: string;
   connectionType?: "bluetooth" | "usb";
 }> {
-  constructor(message: string, context?: { deviceModel?: string; connectionType?: "bluetooth" | "usb" }) {
+  constructor(
+    message: string,
+    context?: { deviceModel?: string; connectionType?: "bluetooth" | "usb" },
+  ) {
     super(message, "DeviceDisconnectedError", context);
+  }
+}
+
+export class IncorrectSeedError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "IncorrectSeedError", context);
   }
 }

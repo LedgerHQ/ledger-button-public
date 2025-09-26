@@ -1,4 +1,8 @@
 import {
+  IncorrectSeedError,
+  isBroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
+  isSignedTransactionResult,
   type SignedResults,
   SignFlowStatus,
   type SignPersonalMessageParams,
@@ -9,6 +13,7 @@ import {
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
+import { LanguageContext } from "src/context/language-context.js";
 
 import { AnimationKey } from "../../components/index.js";
 import { type CoreContext } from "../../context/core-context.js";
@@ -31,10 +36,18 @@ export class SignTransactionController implements ReactiveController {
     deviceAnimation: "signTransaction",
   };
 
+  errorData?: {
+    message: string;
+    title: string;
+    cta1?: { label: string; action: () => void | Promise<void> };
+    cta2?: { label: string; action: () => void | Promise<void> };
+  } = undefined;
+
   constructor(
     host: SignTransactionHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
+    private readonly lang: LanguageContext,
   ) {
     this.host = host;
     this.host.addController(this);
@@ -81,17 +94,22 @@ export class SignTransactionController implements ReactiveController {
       .sign(transactionParams, broadcast)
       .subscribe({
         next: (result: SignFlowStatus) => {
-          console.log("Signed transaction result", result);
           switch (result.status) {
             case "success":
               if (result.data) {
-                this.state.screen = "success";
-                if ("hash" in result.data) {
-                  this.host.transactionId = result.data.hash;
+                if (
+                  isSignedTransactionResult(result.data) ||
+                  isSignedMessageOrTypedDataResult(result.data) ||
+                  isBroadcastedTransactionResult(result.data)
+                ) {
+                  this.state.screen = "success";
+                  if (isBroadcastedTransactionResult(result.data)) {
+                    this.host.transactionId = result.data.hash;
+                  }
+                  this.result = result.data;
+                  break;
                 }
-                this.result = result.data;
               }
-              this.result = result.data;
               break;
             case "user-interaction-needed":
               //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
@@ -101,18 +119,81 @@ export class SignTransactionController implements ReactiveController {
                 this.mapUserInteractionToDeviceAnimation(result.interaction);
               break;
             case "error":
-              console.log("Error signing transaction", result.error);
               this.state.screen = "error";
+              this.mapErrors(result.error);
               break;
           }
           this.host.requestUpdate();
         },
         error: (error: Error) => {
-          console.log("Error signing transaction", error);
           this.state.screen = "error";
+          this.mapErrors(error);
           this.host.requestUpdate();
         },
       });
+  }
+
+  private getDeviceName() {
+    const device = this.core.getConnectedDevice();
+    return device?.name || device?.modelId
+      ? this.lang.currentTranslation.common.device.model[device.modelId]
+      : this.lang.currentTranslation.common.device.model.fallback;
+  }
+
+  private mapErrors(error: unknown) {
+    const lang = this.lang.currentTranslation;
+    switch (true) {
+      case error instanceof IncorrectSeedError: {
+        const selectedAccount = this.core.getSelectedAccount();
+        const deviceName = this.getDeviceName();
+
+        let accountName = "";
+        if (selectedAccount) {
+          if (selectedAccount.name) {
+            accountName = selectedAccount.name;
+          } else {
+            accountName =
+              selectedAccount.freshAddress.slice(0, 6) +
+              "..." +
+              selectedAccount.freshAddress.slice(-4);
+          }
+        }
+
+        const message = lang.error.device.IncorrectSeed.description
+          .replace("{device}", deviceName)
+          .replace("{account}", accountName || "");
+
+        this.errorData = {
+          title: lang.error.device.IncorrectSeed.title,
+          message,
+          cta1: {
+            label: lang.error.device.IncorrectSeed.cta1,
+            action: async () => {
+              this.errorData = undefined;
+              await this.core.disconnectFromDevice();
+              this.host.requestUpdate();
+            },
+          },
+        };
+        break;
+      }
+      default: {
+        console.log("Mapping default error");
+        this.errorData = {
+          title: lang.error.generic.sign.title,
+          message: lang.error.generic.sign.description,
+          cta1: {
+            label: lang.error.generic.sign.cta1,
+            action: async () => {
+              this.errorData = undefined;
+              await this.core.disconnectFromDevice();
+              this.host.requestUpdate();
+            },
+          },
+        };
+        break;
+      }
+    }
   }
 
   //TODO do not display this button for EIP712 messages

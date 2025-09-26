@@ -156,8 +156,7 @@ export class LedgerButtonApp extends LitElement {
   }
 
   public disconnect() {
-    this.core?.disconnect();
-    this.dispatchEvent(
+    window.dispatchEvent(
       new CustomEvent("ledger-provider-disconnect", {
         bubbles: true,
         composed: true,

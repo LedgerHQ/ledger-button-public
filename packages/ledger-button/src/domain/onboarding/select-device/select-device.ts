@@ -79,7 +79,7 @@ export class SelectDeviceScreen extends LitElement {
     this.controller.clickAdItem();
   };
 
-  handleStatusAction = (
+  private handleStatusAction = async (
     e: CustomEvent<{
       timestamp: number;
       action: "primary" | "secondary";
@@ -87,9 +87,9 @@ export class SelectDeviceScreen extends LitElement {
     }>,
   ) => {
     if (e.detail.action === "primary") {
-      this.controller.errorData?.cta1?.action();
+      await this.controller.errorData?.cta1?.action();
     } else if (e.detail.action === "secondary") {
-      this.controller.errorData?.cta2?.action();
+      await this.controller.errorData?.cta2?.action();
     }
   };
 
@@ -126,10 +126,10 @@ export class SelectDeviceScreen extends LitElement {
       <div class="flex flex-col gap-12 p-24 pt-0">
         <ledger-status
           type="error"
-          title=${this.controller.errorData?.title}
-          description=${this.controller.errorData?.message}
-          primary-button-label=${this.controller.errorData?.cta1?.label ?? ""}
-          secondary-button-label=${this.controller.errorData?.cta2?.label ?? ""}
+          title=${this.controller.errorData.title}
+          description=${this.controller.errorData.message}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
           @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>

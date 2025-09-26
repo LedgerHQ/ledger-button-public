@@ -96,6 +96,7 @@ export class SignTransactionScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.languageContext,
     );
 
     if (this.isParams(this.params)) {
@@ -194,21 +195,24 @@ export class SignTransactionScreen extends LitElement {
           title=${lang.signTransaction?.success?.title || "Transaction signed"}
           description=${lang.signTransaction?.success?.description ||
           "You will receive the funds soon."}
-          primary-button-label=${lang.common.button.close || "Close"}
+          primary-button-label=${lang.common.button.close}
           secondary-button-label=${isBroadcastedTransactionResult(
             this.controller.result,
           )
             ? lang.signTransaction?.success?.viewTransaction ||
               "View transaction details"
             : ""}
-          @status-action=${this.handleStatusAction}
+          @status-action=${this.handleStatusActionSuccess}
         ></ledger-status>
       </div>
     `;
   }
 
   private renderErrorState() {
-    const lang = this.languageContext.currentTranslation;
+    console.log("Rendering error state", this.controller.errorData);
+    if (!this.controller.errorData) {
+      return html``;
+    }
 
     return html`
       <div
@@ -216,38 +220,45 @@ export class SignTransactionScreen extends LitElement {
       >
         <ledger-status
           type="error"
-          title=${lang.signTransaction?.error?.title || "Transaction failed"}
-          description=${lang.signTransaction?.error?.description ||
-          "There was an error signing your transaction. Please try again."}
-          primary-button-label=${lang.common.button.tryAgain || "Try Again"}
-          secondary-button-label=${lang.common.button.close || "Close"}
-          @status-action=${this.handleStatusAction}
+          title=${this.controller.errorData.title}
+          description=${this.controller.errorData.message}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusActionError}
         ></ledger-status>
       </div>
     `;
   }
 
-  private handleStatusAction(
+  private handleStatusActionSuccess(
     event: CustomEvent<{
       timestamp: number;
       action: "primary" | "secondary";
       type: StatusType;
     }>,
   ) {
-    const { action, type } = event.detail;
+    const { action } = event.detail;
 
-    if (type === "success") {
-      if (action === "primary") {
-        this.handleClose();
-      } else if (action === "secondary") {
-        this.handleViewTransaction();
-      }
-    } else if (type === "error") {
-      if (action === "primary") {
-        this.handleRetry();
-      } else if (action === "secondary") {
-        this.handleClose();
-      }
+    if (action === "primary") {
+      this.handleClose();
+    } else if (action === "secondary") {
+      this.handleViewTransaction();
+    }
+  }
+
+  private async handleStatusActionError(
+    event: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
+    const { action } = event.detail;
+
+    if (action === "primary") {
+      await this.controller.errorData?.cta1?.action();
+    } else if (action === "secondary") {
+      await this.controller.errorData?.cta2?.action();
     }
   }
 
@@ -257,16 +268,6 @@ export class SignTransactionScreen extends LitElement {
 
   private handleClose() {
     this.controller.close();
-  }
-
-  private handleRetry() {
-    this.controller.state.screen = "signing";
-    if (!this.transactionParams) {
-      this.controller.state.screen = "error";
-      this.requestUpdate();
-      return;
-    }
-    this.controller.startSigning(this.transactionParams, this.broadcast);
   }
 
   override render() {

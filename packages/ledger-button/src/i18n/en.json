@@ -26,7 +26,8 @@
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
-        "apexp": "Ledger Apex"
+        "apexp": "Ledger Apex",
+        "fallback": "Ledger device"
       },
       "deviceActions": {
         "continueOnLedger": {
@@ -105,12 +106,24 @@
     }
   },
   "error": {
+    "generic": {
+      "sign": {
+        "title": "An error occurred",
+        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "cta1": "Try again"
+      }
+    },
     "device": {
       "DeviceNotSupported": {
         "title": "{device} isn't supported",
         "description": "The {device} isn't supported for the Ledger Direct connectivity on this Dapp",
         "cta1": "Connect another Ledger device",
         "cta2": "Upgrade to a new Ledger Device with 20% off"
+      },
+      "IncorrectSeed": {
+        "title": "Incorrect device",
+        "description": "This {device} does not match the selected account: {account}. Please connect the correct Ledger device",
+        "cta1": "Connect another Ledger device"
       }
     },
     "ledgerSync": {

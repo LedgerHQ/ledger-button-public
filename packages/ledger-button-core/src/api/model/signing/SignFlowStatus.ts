@@ -1,3 +1,5 @@
+import { GetAddressDAOutput } from "@ledgerhq/device-signer-kit-ethereum";
+
 import type { UserInteractionNeeded } from "../UserInteractionNeeded.js";
 import type { SignedResults } from "./SignedTransaction.js";
 
@@ -12,7 +14,7 @@ export type SignFlowStatus =
   | {
       signType: SignType;
       status: "success";
-      data: SignedResults;
+      data: SignedResults | GetAddressDAOutput;
     }
   | {
       signType: SignType;

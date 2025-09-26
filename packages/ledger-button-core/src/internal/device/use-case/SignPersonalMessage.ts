@@ -24,6 +24,11 @@ import {
   tap,
 } from "rxjs";
 
+import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
+import {
+  GetAddressDAState,
+  isGetAddressResult,
+} from "../../../api/model/signing/GetAddress.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
@@ -99,7 +104,7 @@ export class SignPersonalMessage {
       });
     }
 
-    const [address, message] = params;
+    const [, message] = params;
     const signType: SignType = "personal-sign";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -168,23 +173,44 @@ export class SignPersonalMessage {
             );
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
+
+            const { observable: addressObservable } = ethSigner.getAddress(
+              derivationPath,
+              {
+                skipOpenApp: true,
+              },
+            );
+
+            return addressObservable.pipe(
+              filter((result: GetAddressDAState) => {
+                return (
+                  result.status === DeviceActionStatus.Error ||
+                  result.status === DeviceActionStatus.Completed
+                );
+              }),
+            );
+          }),
+          switchMap((result: GetAddressDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw result.error;
+            }
+
+            if (
+              result.status === DeviceActionStatus.Completed &&
+              result.output.address !== selectedAccount.freshAddress
+            ) {
+              throw new IncorrectSeedError("Adress mismatch");
+            }
+
             resultObservable.next({
               signType,
               status: "debugging",
               message: "Starting Sign Personal Message DA",
             });
-            if (result.status === DeviceActionStatus.Error) {
-              throw new Error("Open app with dependencies failed");
-            }
 
-            console.log("Signing personal message", {
-              address,
-              message,
-              derivationPath,
-              equals: address === derivationPath,
-            });
-
-            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
             const { observable: signObservable } = ethSigner.signMessage(
               derivationPath,
               message,
@@ -216,7 +242,11 @@ export class SignPersonalMessage {
         .subscribe({
           next: (result) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, message, signType),
+              this.getTransactionResultForEvent(
+                result as SignPersonalMessageDAState,
+                message,
+                signType,
+              ),
             );
           },
           error: (error: Error) => {
@@ -268,6 +298,7 @@ export class SignPersonalMessage {
   private getTransactionResultForEvent(
     result:
       | OpenAppWithDependenciesDAState
+      | GetAddressDAState
       | SignPersonalMessageDAState
       | SignedPersonalMessageOrTypedDataResult,
     _message: string | Uint8Array,
@@ -321,13 +352,17 @@ export class SignPersonalMessage {
               message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
             };
         }
-      case DeviceActionStatus.Completed:
+      case DeviceActionStatus.Completed: {
+        if (isGetAddressResult(result)) {
+          return {
+            signType,
+            status: "debugging",
+            message: `Got address: ${result.output.address}`,
+          };
+        }
+
         if (!("deviceMetadata" in result.output)) {
           const signature = getHexaStringFromSignature(result.output);
-          console.log("Personal message signing completed", {
-            result,
-            signature,
-          });
           return {
             signType,
             status: "success",
@@ -336,17 +371,14 @@ export class SignPersonalMessage {
             },
           };
         } else {
-          console.debug("Open app completed", { result });
           return {
             signType,
             status: "debugging",
             message: `App Opened`,
           };
         }
+      }
       case DeviceActionStatus.Error:
-        console.error("Error signing personal message in SignPersonalMessage", {
-          error: result.error.toString(),
-        });
         return {
           signType,
           status: "error",
