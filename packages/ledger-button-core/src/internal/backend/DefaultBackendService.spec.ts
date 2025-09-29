@@ -2,10 +2,11 @@ import { Left, Right } from "purify-ts";
 
 import type { NetworkService } from "../network/NetworkService.js";
 import { DefaultBackendService } from "./DefaultBackendService.js";
-import type {
-  BroadcastRequest,
-  EventRequest,
-  EventResponse,
+import {
+  EventType,
+  type BroadcastRequest,
+  type EventRequest,
+  type EventResponse,
 } from "./types.js";
 
 describe("DefaultBackendService", () => {
@@ -46,10 +47,10 @@ describe("DefaultBackendService", () => {
   describe("event", () => {
     const mockEventRequest: EventRequest = {
       name: "test-event",
-      type: "open_session",
+      type: EventType.OpenSession,
       data: {
         event_id: "test-event-id",
-        event_type: "open_session",
+        event_type: EventType.OpenSession,
         transaction_dapp_id: "test-dapp",
         timestamp_ms: Date.now(),
         session_id: "test-session-id",

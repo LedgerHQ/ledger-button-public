@@ -5,12 +5,14 @@ import type { EventTrackingService } from "./EventTrackingService.js";
 
 @injectable()
 export class StubEventTrackingService implements EventTrackingService {
-  async trackEvent(event: EventRequest): Promise<void> {
+  async trackEvent(event: EventRequest, sessionId?: string, trustChainId?: string): Promise<void> {
     console.log("[Stub Event Tracking]", {
       type: event.type,
       name: event.name,
       eventId: event.data.event_id,
       timestamp: event.data.timestamp_ms,
+      sessionId,
+      trustChainId,
     });
 
     await new Promise(resolve => setTimeout(resolve, 10));

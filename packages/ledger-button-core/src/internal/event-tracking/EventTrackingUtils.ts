@@ -2,18 +2,19 @@ function generateUUID(): string {
   return crypto.randomUUID();
 }
 
-import type {
-  ConsentGivenEventData,
-  ConsentRemovedEventData,
-  EventRequest,
-  InvoicingTransactionSignedEventData,
-  LedgerSyncActivatedEventData,
-  OnboardingEventData,
-  OpenLedgerSyncEventData,
-  OpenSessionEventData,
-  SessionAuthenticationEventData,
-  TransactionFlowCompletionEventData,
-  TransactionFlowInitializationEventData,
+import {
+  EventType,
+  type ConsentGivenEventData,
+  type ConsentRemovedEventData,
+  type EventRequest,
+  type InvoicingTransactionSignedEventData,
+  type LedgerSyncActivatedEventData,
+  type OnboardingEventData,
+  type OpenLedgerSyncEventData,
+  type OpenSessionEventData,
+  type SessionAuthenticationEventData,
+  type TransactionFlowCompletionEventData,
+  type TransactionFlowInitializationEventData,
 } from "../backend/types.js";
 
 interface BaseEventParams {
@@ -41,13 +42,13 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "open_session",
+      event_type: EventType.OpenSession,
       session_id: params.sessionId,
     };
 
     return {
-      name: "open_session",
-      type: "open_session",
+      name: EventType.OpenSession,
+      type: EventType.OpenSession,
       data,
     };
   }
@@ -57,13 +58,13 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "open_ledger_sync",
+      event_type: EventType.OpenLedgerSync,
       session_id: params.sessionId,
     };
 
     return {
-      name: "open_ledger_sync",
-      type: "open_ledger_sync",
+      name: EventType.OpenLedgerSync,
+      type: EventType.OpenLedgerSync,
       data,
     };
   }
@@ -75,14 +76,14 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "ledger_sync_activated",
+      event_type: EventType.LedgerSyncActivated,
       session_id: params.sessionId,
       ledger_sync_user_id: params.ledgerSyncUserId,
     };
 
     return {
-      name: "ledger_sync_activated",
-      type: "ledger_sync_activated",
+      name: EventType.LedgerSyncActivated,
+      type: EventType.LedgerSyncActivated,
       data,
     };
   }
@@ -94,13 +95,13 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "consent_given",
+      event_type: EventType.ConsentGiven,
       ledger_sync_user_id: params.ledgerSyncUserId,
     };
 
     return {
-      name: "consent_given",
-      type: "consent_given",
+      name: EventType.ConsentGiven,
+      type: EventType.ConsentGiven,
       data,
     };
   }
@@ -112,13 +113,13 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "consent_removed",
+      event_type: EventType.ConsentRemoved,
       ledger_sync_user_id: params.ledgerSyncUserId,
     };
 
     return {
-      name: "consent_removed",
-      type: "consent_removed",
+      name: EventType.ConsentRemoved,
+      type: EventType.ConsentRemoved,
       data,
     };
   }
@@ -133,7 +134,7 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "onboarding",
+      event_type: EventType.Onboarding,
       session_id: params.sessionId,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
@@ -142,8 +143,8 @@ export class EventTrackingUtils {
     };
 
     return {
-      name: "onboarding",
-      type: "onboarding",
+      name: EventType.Onboarding,
+      type: EventType.Onboarding,
       data,
     };
   }
@@ -155,7 +156,7 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "transaction_flow_initialization",
+      event_type: EventType.TransactionFlowInitialization,
       session_id: params.sessionId,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
@@ -166,8 +167,8 @@ export class EventTrackingUtils {
     };
 
     return {
-      name: "transaction_flow_initialization",
-      type: "transaction_flow_initialization",
+      name: EventType.TransactionFlowInitialization,
+      type: EventType.TransactionFlowInitialization,
       data,
     };
   }
@@ -179,7 +180,7 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "transaction_flow_completion",
+      event_type: EventType.TransactionFlowCompletion,
       session_id: params.sessionId,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
@@ -191,8 +192,8 @@ export class EventTrackingUtils {
     };
 
     return {
-      name: "transaction_flow_completion",
-      type: "transaction_flow_completion",
+      name: EventType.TransactionFlowCompletion,
+      type: EventType.TransactionFlowCompletion,
       data,
     };
   }
@@ -204,7 +205,7 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "session_authentication",
+      event_type: EventType.SessionAuthentication,
       session_id: params.sessionId,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
@@ -214,8 +215,8 @@ export class EventTrackingUtils {
     };
 
     return {
-      name: "session_authentication",
-      type: "session_authentication",
+      name: EventType.SessionAuthentication,
+      type: EventType.SessionAuthentication,
       data,
     };
   }
@@ -235,7 +236,7 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: "invoicing_transaction_signed",
+      event_type: EventType.InvoicingTransactionSigned,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
       transaction_type: params.transactionType,
@@ -248,8 +249,8 @@ export class EventTrackingUtils {
     };
 
     return {
-      name: "invoicing_transaction_signed",
-      type: "invoicing_transaction_signed",
+      name: EventType.InvoicingTransactionSigned,
+      type: EventType.InvoicingTransactionSigned,
       data,
     };
   }

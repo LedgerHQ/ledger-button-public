@@ -428,21 +428,17 @@ export class SignRawTransaction {
       const sessionId = this.deviceManagementKitService.sessionId;
       const trustChainId = this.storageService.getTrustChainId().extract();
 
-      if (!sessionId || !trustChainId) {
-        throw new Error("Session ID or Trust Chain ID is missing");
-      }
-
       const event = EventTrackingUtils.createTransactionFlowInitializationEvent({
         dAppId: this.config.dAppIdentifier,
-        sessionId,
-        ledgerSyncUserId: trustChainId,
+        sessionId: sessionId || "",
+        ledgerSyncUserId: trustChainId || "",
         accountCurrency: selectedAccount.currencyId,
         accountBalance: selectedAccount.balance?.toString() || "0",
         unsignedTransactionHash: rawTransaction,
         transactionType: "standard_tx",
       });
 
-      await this.eventTrackingService.trackEvent(event);
+      await this.eventTrackingService.trackEvent(event, sessionId, trustChainId);
     } catch (error) {
       this.logger.error("Failed to track transaction flow initialization", { error });
     }
@@ -457,14 +453,10 @@ export class SignRawTransaction {
       const sessionId = this.deviceManagementKitService.sessionId;
       const trustChainId = this.storageService.getTrustChainId().extract();
 
-      if (!sessionId || !trustChainId) {
-        throw new Error("Session ID or Trust Chain ID is missing");
-      }
-
       const completionEvent = EventTrackingUtils.createTransactionFlowCompletionEvent({
         dAppId: this.config.dAppIdentifier,
-        sessionId,
-        ledgerSyncUserId: trustChainId,
+        sessionId: sessionId || "",
+        ledgerSyncUserId: trustChainId || "",
         accountCurrency: selectedAccount.currencyId,
         accountBalance: selectedAccount.balance?.toString() || "0",
         unsignedTransactionHash: rawTransaction,
@@ -472,13 +464,13 @@ export class SignRawTransaction {
         transactionHash: transactionHash || "",
       });
 
-      await this.eventTrackingService.trackEvent(completionEvent);
+      await this.eventTrackingService.trackEvent(completionEvent, sessionId, trustChainId);
 
       const invoicingData = getInvoicingEventDataFromTransaction(rawTransaction);
       const invoicingEvent = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: this.config.dAppIdentifier,
-        sessionId,
-        ledgerSyncUserId: trustChainId,
+        sessionId: sessionId || "",
+        ledgerSyncUserId: trustChainId || "",
         transactionHash: transactionHash || "",
         transactionType: invoicingData.transactionType,
         sourceToken: invoicingData.sourceToken,
@@ -488,7 +480,7 @@ export class SignRawTransaction {
         transactionId: transactionHash || "",
       });
 
-      await this.eventTrackingService.trackEvent(invoicingEvent);
+      await this.eventTrackingService.trackEvent(invoicingEvent, sessionId, trustChainId);
     } catch (error) {
       this.logger.error("Failed to track transaction flow completion", { error });
     }
