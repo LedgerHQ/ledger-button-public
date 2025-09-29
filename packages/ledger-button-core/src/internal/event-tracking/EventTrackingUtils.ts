@@ -3,10 +3,10 @@ function generateUUID(): string {
 }
 
 import {
-  EventType,
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
   type EventRequest,
+  EventType,
   type InvoicingTransactionSignedEventData,
   type LedgerSyncActivatedEventData,
   type OnboardingEventData,

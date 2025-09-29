@@ -3,10 +3,10 @@ import { Left, Right } from "purify-ts";
 import type { NetworkService } from "../network/NetworkService.js";
 import { DefaultBackendService } from "./DefaultBackendService.js";
 import {
-  EventType,
   type BroadcastRequest,
   type EventRequest,
   type EventResponse,
+  EventType,
 } from "./types.js";
 
 describe("DefaultBackendService", () => {
@@ -137,10 +137,10 @@ describe("DefaultBackendService", () => {
     it("should handle different event types", async () => {
       const consentEventRequest: EventRequest = {
         name: "consent-given",
-        type: "consent_given",
+        type: EventType.ConsentGiven,
         data: {
           event_id: "consent-event-id",
-          event_type: "consent_given",
+          event_type: EventType.ConsentGiven,
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
           ledger_sync_user_id: "user-123",
@@ -162,10 +162,10 @@ describe("DefaultBackendService", () => {
     it("should handle transaction flow events with additional fields", async () => {
       const transactionEventRequest: EventRequest = {
         name: "transaction-flow-completion",
-        type: "transaction_flow_completion",
+        type: EventType.TransactionFlowCompletion,
         data: {
           event_id: "transaction-event-id",
-          event_type: "transaction_flow_completion",
+          event_type: EventType.TransactionFlowCompletion,
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
           session_id: "session-123",
