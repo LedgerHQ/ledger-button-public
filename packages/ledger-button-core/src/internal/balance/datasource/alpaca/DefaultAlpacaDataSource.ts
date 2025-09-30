@@ -7,11 +7,7 @@ import type { NetworkServiceOpts } from "../../../network/DefaultNetworkService.
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import type { AlpacaDataSource } from "./AlpacaDataSource.js";
-import {
-  AlpacaBalance,
-  AlpacaBalanceDto,
-  AlpacaBalanceResponse,
-} from "./alpacaTypes.js";
+import { AlpacaBalance, AlpacaBalanceDto } from "./alpacaTypes.js";
 
 @injectable()
 export class DefaultAlpacaDataSource implements AlpacaDataSource {

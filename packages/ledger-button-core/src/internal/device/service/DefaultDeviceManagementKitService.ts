@@ -49,7 +49,7 @@ export class DefaultDeviceManagementKitService
 
     builder
       .addConfig(args)
-      .addLogger(new ConsoleLogger(LogLevel.Debug))
+      .addLogger(new ConsoleLogger(LogLevel.Error))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
 

@@ -209,7 +209,6 @@ export class SignTransactionScreen extends LitElement {
   }
 
   private renderErrorState() {
-    console.log("Rendering error state", this.controller.errorData);
     if (!this.controller.errorData) {
       return html``;
     }

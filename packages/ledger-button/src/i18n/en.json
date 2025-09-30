@@ -124,6 +124,11 @@
         "title": "Incorrect device",
         "description": "This {device} does not match the selected account: {account}. Please connect the correct Ledger device",
         "cta1": "Connect another Ledger device"
+      },
+      "BlindSigningDisabled": {
+        "title": "Blind signing disabled",
+        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

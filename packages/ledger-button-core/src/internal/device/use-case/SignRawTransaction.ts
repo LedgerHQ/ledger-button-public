@@ -9,7 +9,9 @@ import {
 import {
   SignerEthBuilder,
   SignTransactionDAState,
+  SignTransactionDAStep,
 } from "@ledgerhq/device-signer-kit-ethereum";
+import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { Signature } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 import {
@@ -23,7 +25,10 @@ import {
   tap,
 } from "rxjs";
 
-import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
+import {
+  BlindSigningDisabledError,
+  IncorrectSeedError,
+} from "../../../api/errors/DeviceErrors.js";
 import {
   GetAddressDAState,
   isGetAddressResult,
@@ -71,6 +76,7 @@ import {
 @injectable()
 export class SignRawTransaction {
   private readonly logger: LoggerPublisher;
+  private pendingStep = "";
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -241,6 +247,11 @@ export class SignRawTransaction {
 
             return signObservable;
           }),
+          tap((result: SignTransactionDAState) => {
+            if (result.status === DeviceActionStatus.Pending) {
+              this.pendingStep = result.intermediateValue?.step ?? "";
+            }
+          }),
           filter(
             (result: SignTransactionDAState) =>
               result.status !== DeviceActionStatus.Pending ||
@@ -253,7 +264,17 @@ export class SignRawTransaction {
               result.status === DeviceActionStatus.Completed
             );
           }),
-          tap((result: SignTransactionDAState) => {
+          map((result: SignTransactionDAState) => {
+            if (
+              this.pendingStep ===
+                SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK &&
+              result.status === DeviceActionStatus.Error &&
+              result.error instanceof EthAppCommandError &&
+              result.error.errorCode === "6a80"
+            ) {
+              throw new BlindSigningDisabledError("Blind signing disabled");
+            }
+
             resultObservable.next(
               this.getTransactionResultForEvent(
                 result,
@@ -261,6 +282,8 @@ export class SignRawTransaction {
                 signType,
               ),
             );
+
+            return result;
           }),
           switchMap(async (result: SignTransactionDAState) => {
             if (broadcast && result.status === DeviceActionStatus.Completed) {
@@ -306,19 +329,17 @@ export class SignRawTransaction {
               ),
             );
           },
-          error: (error: Error) => {
-            console.error("Failed to sign transaction in SignRawTransaction", {
-              error,
+          error: (error) => {
+            resultObservable.next({
+              signType,
+              status: "error",
+              error: error,
             });
-            resultObservable.next({ signType, status: "error", error: error });
           },
         });
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign transaction in SignRawTransaction", {
-        error,
-      });
       this.logger.error("Failed to sign transaction", { error });
       return of({
         signType,
@@ -443,15 +464,10 @@ export class SignRawTransaction {
         }
       }
       case DeviceActionStatus.Error:
-        console.error("Error signing transaction in SignRawTransaction", {
-          error: result.error.toString(),
-        });
         return {
           signType,
           status: "error",
-          error: new SignTransactionError(
-            result.error.toString() ?? "Unknown error",
-          ),
+          error: result,
         };
       default:
         return {

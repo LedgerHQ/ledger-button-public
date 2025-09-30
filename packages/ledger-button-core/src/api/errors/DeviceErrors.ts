@@ -27,3 +27,9 @@ export class IncorrectSeedError extends LedgerButtonError {
     super(message, "IncorrectSeedError", context);
   }
 }
+
+export class BlindSigningDisabledError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "BlindSigningDisabledError", context);
+  }
+}

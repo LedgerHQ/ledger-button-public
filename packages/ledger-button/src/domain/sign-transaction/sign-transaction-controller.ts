@@ -1,4 +1,5 @@
 import {
+  BlindSigningDisabledError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -177,8 +178,22 @@ export class SignTransactionController implements ReactiveController {
         };
         break;
       }
+      case error instanceof BlindSigningDisabledError: {
+        this.errorData = {
+          title: lang.error.device.BlindSigningDisabled.title,
+          message: lang.error.device.BlindSigningDisabled.description,
+          cta1: {
+            label: lang.error.device.BlindSigningDisabled.cta1,
+            action: async () => {
+              this.errorData = undefined;
+              await this.core.disconnectFromDevice();
+              this.host.requestUpdate();
+            },
+          },
+        };
+        break;
+      }
       default: {
-        console.log("Mapping default error");
         this.errorData = {
           title: lang.error.generic.sign.title,
           message: lang.error.generic.sign.description,
@@ -196,7 +211,6 @@ export class SignTransactionController implements ReactiveController {
     }
   }
 
-  //TODO do not display this button for EIP712 messages
   viewTransactionDetails(transactionId: string) {
     window.open(`https://etherscan.io/tx/${transactionId}`);
     if (this.navigation.host instanceof RootNavigationComponent) {
