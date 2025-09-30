@@ -1,4 +1,4 @@
-import "./ledger-connection-item";
+import "./ledger-platform-item.js";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
@@ -158,9 +158,7 @@ export const TestInteractions: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {
-      const platformItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
       expect(platformItem).toBeInTheDocument();
 
       const button = platformItem?.shadowRoot?.querySelector("button");
@@ -168,50 +166,44 @@ export const TestInteractions: Story = {
     });
 
     await step("Verify title is displayed", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
-      const button = connectionItem?.shadowRoot?.querySelector("button");
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
+      const button = platformItem?.shadowRoot?.querySelector("button");
       const span = button?.querySelector("span");
 
       expect(span).toBeInTheDocument();
-      expect(span?.textContent?.trim()).toBe("Test Button");
+      expect(span?.textContent?.trim()).toBe("Test Mobile Platform");
     });
 
     await step("Verify icon is present", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
-      const button = connectionItem?.shadowRoot?.querySelector("button");
-      const icon = button?.querySelector("ledger-icon[type='bluetooth']");
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
+      const button = platformItem?.shadowRoot?.querySelector("button");
+      const icon = button?.querySelector("platform-icon");
 
       expect(icon).toBeInTheDocument();
     });
 
     await step("Verify chevron is present", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
-      const button = connectionItem?.shadowRoot?.querySelector("button");
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
+      const button = platformItem?.shadowRoot?.querySelector("button");
       const chevron = button?.querySelector("ledger-icon[type='chevronRight']");
 
       expect(chevron).toBeInTheDocument();
     });
 
     await step("Verify click functionality", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
       let clickEventFired = false;
 
-      connectionItem?.addEventListener("connection-item-click", (e: Event) => {
-        const customEvent = e as CustomEvent;
-        clickEventFired = true;
-        expect(customEvent.detail.title).toBe("Test Button");
-        expect(customEvent.detail.connectionType).toBe("bluetooth");
-      });
+      platformItem?.addEventListener(
+        "ledger-platform-item-click",
+        (e: Event) => {
+          const customEvent = e as CustomEvent;
+          clickEventFired = true;
+          expect(customEvent.detail.platformType).toBe("mobile");
+        },
+      );
 
-      const button = connectionItem?.shadowRoot?.querySelector("button");
+      const button = platformItem?.shadowRoot?.querySelector("button");
       if (button) {
         await userEvent.click(button);
         await waitFor(() => {
@@ -221,16 +213,14 @@ export const TestInteractions: Story = {
     });
 
     await step("Verify keyboard navigation", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
       let keyboardEventFired = false;
 
-      connectionItem?.addEventListener("connection-item-click", () => {
+      platformItem?.addEventListener("ledger-platform-item-click", () => {
         keyboardEventFired = true;
       });
 
-      const button = connectionItem?.shadowRoot?.querySelector("button");
+      const button = platformItem?.shadowRoot?.querySelector("button");
       if (button) {
         button.focus();
         await userEvent.keyboard("{Enter}");
@@ -257,26 +247,22 @@ export const TestDisabledState: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify disabled styling", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
-      const button = connectionItem?.shadowRoot?.querySelector("button");
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
+      const button = platformItem?.shadowRoot?.querySelector("button");
 
       expect(button).toBeInTheDocument();
       expect(button).toHaveAttribute("disabled");
     });
 
     await step("Verify no click events when disabled", async () => {
-      const connectionItem = canvasElement.querySelector(
-        "ledger-connection-item",
-      );
+      const platformItem = canvasElement.querySelector("ledger-platform-item");
       let clickEventFired = false;
 
-      connectionItem?.addEventListener("connection-item-click", () => {
+      platformItem?.addEventListener("connection-item-click", () => {
         clickEventFired = true;
       });
 
-      const button = connectionItem?.shadowRoot?.querySelector("button");
+      const button = platformItem?.shadowRoot?.querySelector("button");
       if (button) {
         // For disabled elements, simulate the click directly instead of using userEvent
         // since disabled elements with pointer-events: none can't be clicked through userEvent

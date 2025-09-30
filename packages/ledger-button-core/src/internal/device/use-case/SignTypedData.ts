@@ -50,7 +50,6 @@ import { deviceModuleTypes } from "../deviceModuleTypes.js";
 import {
   AccountNotSelectedError,
   DeviceConnectionError,
-  SignTransactionError,
 } from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
@@ -252,7 +251,7 @@ export class SignTypedData {
       return of({
         signType,
         status: "error",
-        error: new SignTransactionError(`Typed date signing failed: ${error}`),
+        error,
       });
     }
   }
@@ -372,9 +371,7 @@ export class SignTypedData {
         return {
           signType,
           status: "error",
-          error: new SignTransactionError(
-            result.error.toString() ?? "Unknown error",
-          ),
+          error: result.error,
         };
       default:
         return {

@@ -107,6 +107,11 @@
   },
   "error": {
     "generic": {
+      "account": {
+        "title": "An error occurred",
+        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "cta1": "Try again"
+      },
       "sign": {
         "title": "An error occurred",
         "description": "An unexpected error occurred while signing your transaction. Please try again",
@@ -137,6 +142,20 @@
         "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
         "cta1": "Close this tab",
         "cta2": "What is Ledger Sync?"
+      },
+      "NoCompatibleAccounts": {
+        "title": "No compatible account found",
+        "description": "This Dapp is supporting the following networks {networks} for which you don't have any accounts. Please create a new account on Ledger Live",
+        "cta1": "Create a new account on Ledger Live",
+        "cta2": "Use another Ledger device"
+      }
+    },
+    "network": {
+      "BroadcastTransactionError": {
+        "title": "Transaction failed",
+        "description": "Your transaction was sent to the network but failed to execute.",
+        "cta1": "Retry",
+        "cta2": "View on Etherscan"
       }
     },
     "connection": {

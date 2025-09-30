@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
+import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
@@ -90,7 +91,7 @@ export class DefaultAccountService implements AccountService {
     const supportedBlockchains = (await this.dAppConfigService.getDAppConfig())
       .supportedBlockchains;
 
-    return accounts
+    const accs = accounts
       .map((account) => {
         const blockchain = supportedBlockchains.find(
           (blockchain) => blockchain.currency_id === account.currencyId,
@@ -115,6 +116,14 @@ export class DefaultAccountService implements AccountService {
           : undefined;
       })
       .filter((account) => account !== undefined);
+
+    if (accs.length === 0) {
+      throw new NoCompatibleAccountsError("No accounts found", {
+        networks: supportedBlockchains.map((network) => network.currency_name),
+      });
+    }
+
+    return accs;
   }
 
   private async getAccountsWithBalance(

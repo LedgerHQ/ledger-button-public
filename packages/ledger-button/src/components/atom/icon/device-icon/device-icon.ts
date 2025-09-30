@@ -1,3 +1,4 @@
+import { DeviceModelId as CoreDeviceModelId } from "@ledgerhq/ledger-button-core";
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -19,7 +20,7 @@ const iconContainerVariants = cva([
 @tailwindElement()
 export class DeviceIcon extends LitElement {
   @property({ type: String })
-  modelId: DeviceModelId = "stax";
+  modelId: CoreDeviceModelId = CoreDeviceModelId.STAX;
 
   private get iconContainerClass() {
     return {
@@ -29,13 +30,13 @@ export class DeviceIcon extends LitElement {
 
   private getIcon() {
     switch (this.modelId) {
-      case "stax":
+      case CoreDeviceModelId.STAX:
         return stax;
-      case "flex":
+      case CoreDeviceModelId.FLEX:
         return flex;
-      case "nanos":
-      case "nanosp":
-      case "nanox":
+      case CoreDeviceModelId.NANO_S:
+      case CoreDeviceModelId.NANO_SP:
+      case CoreDeviceModelId.NANO_X:
         return nano;
       default:
         return flex;

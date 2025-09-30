@@ -47,17 +47,23 @@ export class BroadcastTransaction {
     );
     const result = await this.backendService.broadcast(broadcastJsonRpcRequest);
 
-    if (result.isRight()) {
-      //TODO Check hash from helper and result from node response
-      return {
-        hash: result.extract().result as string,
-        rawTransaction:
-          params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
-        signedRawTransaction: signedTransaction.signedRawTransaction,
-      };
-    } else {
-      throw new Error("Failed to broadcast transaction");
-    }
+    return result.caseOf({
+      Right: (response) => {
+        //TODO Check hash from helper and result from node response
+        return {
+          hash: response.result as string,
+          rawTransaction:
+            params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
+          signedRawTransaction: signedTransaction.signedRawTransaction,
+        };
+      },
+      Left: (error) => {
+        this.logger.error("Failed to broadcast transaction", {
+          error,
+        });
+        throw error;
+      },
+    });
   }
 
   private craftRequestFromSignedTransaction(

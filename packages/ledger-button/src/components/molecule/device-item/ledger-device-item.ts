@@ -1,13 +1,13 @@
 import "../../atom/icon/ledger-icon";
 import "../../atom/icon/device-icon/device-icon";
 
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import { DeviceModelId } from "../../atom/icon/device-icon/device-icon.js";
 
 const deviceItemVariants = cva(
   [
@@ -84,7 +84,7 @@ export class LedgerDeviceItem extends LitElement {
   connectionType: "bluetooth" | "usb" | "" = "";
 
   @property({ type: String, attribute: "device-model-id" })
-  deviceModelId: DeviceModelId = "flex";
+  deviceModelId: DeviceModelId = DeviceModelId.FLEX;
 
   @property({ type: String })
   status: DeviceStatus = "available";

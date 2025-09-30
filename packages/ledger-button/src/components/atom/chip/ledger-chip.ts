@@ -1,13 +1,13 @@
 import "../icon/ledger-icon";
 import "../icon/device-icon/device-icon.js";
 
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import { DeviceModelId } from "../icon/device-icon/device-icon.js";
 
 export interface LedgerChipAttributes {
   label?: string;
@@ -30,7 +30,7 @@ export class LedgerChip extends LitElement {
   label = "";
 
   @property({ type: String })
-  deviceModelId: DeviceModelId = "flex";
+  deviceModelId: DeviceModelId = DeviceModelId.FLEX;
 
   private get chipContainerClasses() {
     return {

@@ -1,5 +1,6 @@
 import {
   BlindSigningDisabledError,
+  BroadcastTransactionError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -22,7 +23,7 @@ import { Navigation } from "../../shared/navigation.js";
 import { RootNavigationComponent } from "../../shared/root-navigation.js";
 
 interface SignTransactionHost extends ReactiveControllerHost {
-  transactionId?: string;
+  transactionId: string;
 }
 
 export type SignTransactionState = "signing" | "success" | "error";
@@ -193,6 +194,27 @@ export class SignTransactionController implements ReactiveController {
         };
         break;
       }
+      case error instanceof BroadcastTransactionError: {
+        this.errorData = {
+          title: lang.error.network.BroadcastTransactionError.title,
+          message: lang.error.network.BroadcastTransactionError.description,
+          cta1: {
+            label: lang.error.network.BroadcastTransactionError.cta1,
+            action: async () => {
+              this.errorData = undefined;
+              await this.core.disconnectFromDevice();
+              this.host.requestUpdate();
+            },
+          },
+          cta2: {
+            label: lang.error.network.BroadcastTransactionError.cta2,
+            action: async () => {
+              this.viewTransactionDetails(this.host.transactionId);
+            },
+          },
+        };
+        break;
+      }
       default: {
         this.errorData = {
           title: lang.error.generic.sign.title,
@@ -213,9 +235,7 @@ export class SignTransactionController implements ReactiveController {
 
   viewTransactionDetails(transactionId: string) {
     window.open(`https://etherscan.io/tx/${transactionId}`);
-    if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.closeModal();
-    }
+    this.close();
   }
 
   close() {

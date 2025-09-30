@@ -87,7 +87,6 @@ export class RootNavigationComponent extends LitElement {
 
     const tag = unsafeStatic(currentScreen?.component ?? "ledger-button-404");
 
-
     if (currentScreen) {
       return staticHtml`
         <${tag}
@@ -129,7 +128,7 @@ export class RootNavigationComponent extends LitElement {
           <ledger-toolbar
             title=${ifDefined(title)}
             aria-label=${ifDefined(title)}
-            canGoBack=${ifDefined(canGoBackProp)}
+            .canGoBack=${canGoBackProp}
             .showCloseButton=${this.rootNavigationController.currentScreen
               ?.toolbar.showCloseButton ?? true}
             deviceModelId=${ifDefined(deviceModelId)}

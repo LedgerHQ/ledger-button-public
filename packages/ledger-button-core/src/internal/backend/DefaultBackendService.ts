@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
 import { configModuleTypes } from "../config/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
 import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
@@ -52,7 +53,10 @@ export class DefaultBackendService implements BackendService {
     );
 
     return result.mapLeft(
-      (error: Error) => new Error(`Broadcast failed: ${error.message}`),
+      (error: Error) =>
+        new BroadcastTransactionError(`Broadcast failed: ${error.message}`, {
+          error,
+        }),
     );
   }
 

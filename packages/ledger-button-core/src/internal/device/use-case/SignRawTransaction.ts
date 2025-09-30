@@ -245,12 +245,13 @@ export class SignRawTransaction {
               },
             );
 
-            return signObservable;
-          }),
-          tap((result: SignTransactionDAState) => {
-            if (result.status === DeviceActionStatus.Pending) {
-              this.pendingStep = result.intermediateValue?.step ?? "";
-            }
+            return signObservable.pipe(
+              tap((result: SignTransactionDAState) => {
+                if (result.status === DeviceActionStatus.Pending) {
+                  this.pendingStep = result.intermediateValue?.step ?? "";
+                }
+              }),
+            );
           }),
           filter(
             (result: SignTransactionDAState) =>

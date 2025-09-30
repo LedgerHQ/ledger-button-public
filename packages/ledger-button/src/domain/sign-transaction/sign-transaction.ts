@@ -261,7 +261,7 @@ export class SignTransactionScreen extends LitElement {
     }
   }
 
-  private handleViewTransaction() {
+  handleViewTransaction() {
     this.controller.viewTransactionDetails(this.transactionId);
   }
 

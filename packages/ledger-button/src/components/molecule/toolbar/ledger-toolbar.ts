@@ -2,11 +2,11 @@ import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
 import "../../atom/chip/ledger-chip";
 
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import { DeviceModelId } from "../../atom/icon/device-icon/device-icon.js";
 
 export interface LedgerToolbarAttributes {
   title?: string;
@@ -30,7 +30,7 @@ export class LedgerToolbar extends LitElement {
   showCloseButton? = true;
 
   @property({ type: Boolean })
-  canGoBack = false;
+  canGoBack?: boolean;
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;

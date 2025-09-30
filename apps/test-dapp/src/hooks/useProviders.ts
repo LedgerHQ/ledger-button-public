@@ -38,15 +38,6 @@ export const useProviders = () => {
     const { initializeLedgerProvider } = LedgerButtonModule;
 
     const cleanup = initializeLedgerProvider({
-      devConfig: {
-        stub: {
-          base: false,
-          account: false,
-          device: false,
-          dAppConfig: false, // NOTE: stub the config until the backend is ready
-          web3Provider: false,
-        },
-      },
       target: document.body,
       dAppIdentifier: "1inch",
       apiKey:

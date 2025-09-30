@@ -5,6 +5,10 @@ import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 import { tailwindElement } from "../../../tailwind-element.js";
@@ -43,6 +47,10 @@ export class RetrievingAccountsScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
   controller!: RetrievingAccountsController;
 
   override connectedCallback() {
@@ -52,6 +60,7 @@ export class RetrievingAccountsScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
+      this.languages,
     );
   }
 

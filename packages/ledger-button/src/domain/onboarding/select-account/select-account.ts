@@ -5,6 +5,7 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { StatusType } from "../../../components/index.js";
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
@@ -29,10 +30,6 @@ export class SelectAccountScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  // NOTE: Demo purpose only
-  @property({ type: Boolean })
-  shouldRefreshAccounts = false;
-
   controller!: SelectAccountController;
 
   override connectedCallback() {
@@ -41,7 +38,6 @@ export class SelectAccountScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
-      this.shouldRefreshAccounts,
     );
   }
 
@@ -100,12 +96,53 @@ export class SelectAccountScreen extends LitElement {
     `;
   };
 
-  override render() {
+  renderErrorScreen() {
+    if (!this.controller.errorData) {
+      return html``;
+    }
+
+    return html`
+      <div class="flex flex-col gap-12 p-24 pt-0">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData.title}
+          description=${this.controller.errorData.message}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusActionError}
+        ></ledger-status>
+      </div>
+    `;
+  }
+
+  private async handleStatusActionError(
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
+    if (e.detail.action === "primary") {
+      await this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      await this.controller.errorData?.cta2?.action();
+    }
+  }
+
+  renderNormalScreen() {
     return html`
       <div class="flex flex-col gap-12 p-24 pt-0">
         ${this.controller.accounts.map(this.renderAccountItem)}
       </div>
     `;
+  }
+
+  override render() {
+    if (this.controller.errorData) {
+      return this.renderErrorScreen();
+    }
+
+    return this.renderNormalScreen();
   }
 }
 

@@ -1,7 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
-import { Account } from "src/internal/account/service/AccountService.js";
 
+import { Account } from "../../../internal/account/service/AccountService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { balanceModuleTypes } from "../balanceModuleTypes.js";
