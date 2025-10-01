@@ -134,6 +134,12 @@
         "title": "Blind signing disabled",
         "description": "This transaction can not be clear signed, enable blind signing in the application settings",
         "cta1": "Retry"
+      },
+      "UserRejectedTransaction": {
+        "title": "Transaction rejected",
+        "description": "You have rejected the transaction on your {device}",
+        "cta1": "Close Ledger",
+        "cta2": "Retry transaction"
       }
     },
     "ledgerSync": {

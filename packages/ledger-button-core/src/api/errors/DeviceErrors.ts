@@ -33,3 +33,9 @@ export class BlindSigningDisabledError extends LedgerButtonError {
     super(message, "BlindSigningDisabledError", context);
   }
 }
+
+export class UserRejectedTransactionError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "UserRejectedTransactionError", context);
+  }
+}

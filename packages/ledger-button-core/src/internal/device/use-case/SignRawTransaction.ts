@@ -28,6 +28,7 @@ import {
 import {
   BlindSigningDisabledError,
   IncorrectSeedError,
+  UserRejectedTransactionError,
 } from "../../../api/errors/DeviceErrors.js";
 import {
   GetAddressDAState,
@@ -265,14 +266,21 @@ export class SignRawTransaction {
             );
           }),
           map((result: SignTransactionDAState) => {
-            if (
-              this.pendingStep ===
-                SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK &&
-              result.status === DeviceActionStatus.Error &&
-              result.error instanceof EthAppCommandError &&
-              result.error.errorCode === "6a80"
-            ) {
-              throw new BlindSigningDisabledError("Blind signing disabled");
+            if (result.status === DeviceActionStatus.Error) {
+              switch (true) {
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6a80" &&
+                  this.pendingStep ===
+                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
+                  throw new BlindSigningDisabledError("Blind signing disabled");
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6985":
+                  throw new UserRejectedTransactionError(
+                    "User rejected transaction",
+                  );
+                default:
+                  throw result.error;
+              }
             }
 
             resultObservable.next(
@@ -330,6 +338,7 @@ export class SignRawTransaction {
             );
           },
           error: (error) => {
+            console.error("Failed to sign transaction subscribe", { error });
             resultObservable.next({
               signType,
               status: "error",
@@ -340,6 +349,7 @@ export class SignRawTransaction {
 
       return resultObservable.asObservable();
     } catch (error) {
+      console.error("Failed to sign transaction catch", { error });
       this.logger.error("Failed to sign transaction", { error });
       return of({
         signType,

@@ -12,6 +12,7 @@ import {
   type SignTransactionParams,
   type SignTypedMessageParams,
   type UserInteractionNeeded,
+  UserRejectedTransactionError,
 } from "@ledgerhq/ledger-button-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
@@ -109,6 +110,7 @@ export class SignTransactionController implements ReactiveController {
                     this.host.transactionId = result.data.hash;
                   }
                   this.result = result.data;
+                  this.host.requestUpdate();
                   break;
                 }
               }
@@ -119,6 +121,7 @@ export class SignTransactionController implements ReactiveController {
               this.state.screen = "signing";
               this.state.deviceAnimation =
                 this.mapUserInteractionToDeviceAnimation(result.interaction);
+              this.host.requestUpdate();
               break;
             case "error":
               this.state.screen = "error";
@@ -210,6 +213,33 @@ export class SignTransactionController implements ReactiveController {
             label: lang.error.network.BroadcastTransactionError.cta2,
             action: async () => {
               this.viewTransactionDetails(this.host.transactionId);
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof UserRejectedTransactionError: {
+        const deviceName = this.getDeviceName();
+        this.errorData = {
+          title: lang.error.device.UserRejectedTransaction.title,
+          message:
+            lang.error.device.UserRejectedTransaction.description.replace(
+              "{device}",
+              deviceName,
+            ),
+          cta1: {
+            label: lang.error.device.UserRejectedTransaction.cta1,
+            action: async () => {
+              this.errorData = undefined;
+              this.close();
+            },
+          },
+          cta2: {
+            label: lang.error.device.UserRejectedTransaction.cta2,
+            action: async () => {
+              this.errorData = undefined;
+              this.core.disconnectFromDevice();
+              this.host.requestUpdate();
             },
           },
         };

@@ -7,8 +7,10 @@ import {
 } from "@ledgerhq/device-management-kit";
 import {
   SignerEthBuilder,
+  SignTransactionDAStep,
   type SignTypedDataDAState,
 } from "@ledgerhq/device-signer-kit-ethereum";
+import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { type Factory, inject, injectable } from "inversify";
 import {
   BehaviorSubject,
@@ -21,7 +23,11 @@ import {
   tap,
 } from "rxjs";
 
-import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
+import {
+  BlindSigningDisabledError,
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "../../../api/errors/DeviceErrors.js";
 import {
   type GetAddressDAState,
   isGetAddressResult,
@@ -56,6 +62,7 @@ import type { DeviceManagementKitService } from "../service/DeviceManagementKitS
 @injectable()
 export class SignTypedData {
   private readonly logger: LoggerPublisher;
+  private pendingStep = "";
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -207,7 +214,13 @@ export class SignTypedData {
               },
             );
 
-            return signObservable;
+            return signObservable.pipe(
+              tap((result: SignTypedDataDAState) => {
+                if (result.status === DeviceActionStatus.Pending) {
+                  this.pendingStep = result.intermediateValue?.step ?? "";
+                }
+              }),
+            );
           }),
           filter(
             (result: SignTypedDataDAState) =>
@@ -221,10 +234,28 @@ export class SignTypedData {
               result.status === DeviceActionStatus.Completed
             );
           }),
-          tap((result: SignTypedDataDAState) => {
+          map((result: SignTypedDataDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              switch (true) {
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6a80" &&
+                  this.pendingStep ===
+                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
+                  throw new BlindSigningDisabledError("Blind signing disabled");
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6985":
+                  throw new UserRejectedTransactionError(
+                    "User rejected transaction",
+                  );
+                default:
+                  throw result.error;
+              }
+            }
             resultObservable.next(
               this.getTransactionResultForEvent(result, signType),
             );
+
+            return result;
           }),
         )
         .subscribe({

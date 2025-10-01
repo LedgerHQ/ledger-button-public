@@ -12,6 +12,7 @@ import {
   type SignPersonalMessageDAIntermediateValue,
   type SignPersonalMessageDAOutput,
 } from "@ledgerhq/device-signer-kit-ethereum";
+import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { type Factory, inject, injectable } from "inversify";
 import {
   BehaviorSubject,
@@ -24,7 +25,10 @@ import {
   tap,
 } from "rxjs";
 
-import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
+import {
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "../../../api/errors/DeviceErrors.js";
 import {
   GetAddressDAState,
   isGetAddressResult,
@@ -235,6 +239,21 @@ export class SignPersonalMessage {
             resultObservable.next(
               this.getTransactionResultForEvent(result, message, signType),
             );
+          }),
+          map((result: SignPersonalMessageDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              switch (true) {
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6985":
+                  throw new UserRejectedTransactionError(
+                    "User rejected transaction",
+                  );
+                default:
+                  return result;
+              }
+            }
+
+            return result;
           }),
         )
         .subscribe({
