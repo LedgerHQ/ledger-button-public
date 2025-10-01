@@ -163,7 +163,7 @@ export default function Index() {
 
     if (!sendTxRef.current?.value) return;
     try {
-      const transx = JSON.parse(sendTxRef?.current?.value);
+      const transx = ethers.Transaction.from(sendTxRef.current.value);
       console.log("JSON RPC eth_sendTransaction TX ", transx);
 
       const result = (await selectedProvider.provider.request({

@@ -145,7 +145,7 @@
       },
       "NoCompatibleAccounts": {
         "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks} for which you don't have any accounts. Please create a new account on Ledger Live",
+        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
         "cta1": "Create a new account on Ledger Live",
         "cta2": "Use another Ledger device"
       }

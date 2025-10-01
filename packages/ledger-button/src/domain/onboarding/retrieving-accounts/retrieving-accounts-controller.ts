@@ -49,13 +49,20 @@ export class RetrievingAccountsController implements ReactiveController {
   mapError(error: unknown) {
     switch (true) {
       case error instanceof NoCompatibleAccountsError: {
+        const networks =
+          error.context && error.context.networks.length > 1
+            ? `${error.context?.networks.slice(0, -1).join(", ")} and ${error.context?.networks.slice(-1)[0]}`
+            : "";
+
         this.errorData = {
           title:
             this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts
               .title,
           message:
-            this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts
-              .description,
+            this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts.description.replace(
+              "{networks}",
+              networks,
+            ),
           cta1: {
             label:
               this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts
@@ -63,7 +70,7 @@ export class RetrievingAccountsController implements ReactiveController {
             action: () => {
               // TODO: handle deeplink
               this.errorData = undefined;
-              window.open("ledgerlive://accounts", "_blank");
+              window.open("ledgerlive://accounts");
               if (this.navigation.host instanceof RootNavigationComponent) {
                 this.navigation.host.closeModal();
               }
@@ -75,7 +82,7 @@ export class RetrievingAccountsController implements ReactiveController {
                 .cta2,
             action: () => {
               this.errorData = undefined;
-              this.navigation.navigateTo(this.destinations.selectDevice);
+              this.navigation.navigateTo(this.destinations.onboarding);
             },
           },
         };
@@ -89,7 +96,7 @@ export class RetrievingAccountsController implements ReactiveController {
           cta1: {
             label: this.lang.currentTranslation.error.generic.account.cta1,
             action: () => {
-              this.navigation.navigateTo(this.destinations.selectDevice);
+              this.navigation.navigateTo(this.destinations.onboardingFlow);
             },
           },
         };

@@ -45,6 +45,7 @@ export class BroadcastTransaction {
       signedTransaction,
       params.currencyId,
     );
+
     const result = await this.backendService.broadcast(broadcastJsonRpcRequest);
 
     return result.caseOf({

@@ -9,12 +9,6 @@ import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
 export class SelectAccountController implements ReactiveController {
   accounts: Account[] = [];
-  errorData?: {
-    message: string;
-    title: string;
-    cta1?: { label: string; action: () => void };
-    cta2?: { label: string; action: () => void };
-  } = undefined;
 
   constructor(
     private readonly host: ReactiveControllerHost,
