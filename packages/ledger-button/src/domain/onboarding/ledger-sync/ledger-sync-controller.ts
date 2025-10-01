@@ -55,13 +55,9 @@ export class LedgerSyncController implements ReactiveController {
         console.info("Ledger sync response", { value });
         switch (true) {
           case this.isAuthContext(value):
-            console.log("Auth context", value);
             this.host.requestUpdate();
             break;
           case this.isUserInteractionNeededResponse(value):
-            console.log(
-              `user interaction needed of type ${value.requiredUserInteraction}`,
-            );
             //TODO: Handle user interaction needed
             this.animation =
               value.requiredUserInteraction === "unlock-device"
@@ -70,26 +66,33 @@ export class LedgerSyncController implements ReactiveController {
             this.host.requestUpdate();
             break;
           case value instanceof LedgerSyncAuthenticationError:
-            console.log("Ledger sync authentication error", value);
             this.navigation.navigateTo(this.destinations.turnOnSync);
             break;
         }
       },
       error: (error) => {
         console.error("Error in ledger sync", error);
-        
+
         if (error instanceof LedgerSyncConnectionFailedError) {
           this.errorData = {
-            title: this.lang.currentTranslation.error.ledgerSync.ConnectionFailed.title,
-            message: this.lang.currentTranslation.error.ledgerSync.ConnectionFailed.description,
+            title:
+              this.lang.currentTranslation.error.ledgerSync.ConnectionFailed
+                .title,
+            message:
+              this.lang.currentTranslation.error.ledgerSync.ConnectionFailed
+                .description,
             cta1: {
-              label: this.lang.currentTranslation.error.ledgerSync.ConnectionFailed.cta1,
+              label:
+                this.lang.currentTranslation.error.ledgerSync.ConnectionFailed
+                  .cta1,
               action: () => {
                 window.close();
               },
             },
             cta2: {
-              label: this.lang.currentTranslation.error.ledgerSync.ConnectionFailed.cta2,
+              label:
+                this.lang.currentTranslation.error.ledgerSync.ConnectionFailed
+                  .cta2,
               action: () => {
                 window.open(
                   "https://support.ledger.com/article/16257083527325-zd",
@@ -98,12 +101,9 @@ export class LedgerSyncController implements ReactiveController {
               },
             },
           };
-          
+
           this.host.requestUpdate();
         }
-      },
-      complete: () => {
-        console.log("Ledger sync completed");
       },
     });
   }

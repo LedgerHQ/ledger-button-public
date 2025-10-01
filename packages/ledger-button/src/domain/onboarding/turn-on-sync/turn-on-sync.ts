@@ -35,7 +35,6 @@ export class TurnOnSyncScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    console.log("Connected to turn-on-sync-screen");
 
     this.controller = new TurnOnSyncController(
       this,
@@ -45,27 +44,22 @@ export class TurnOnSyncScreen extends LitElement {
   }
 
   private handleActivateMobile(
-    event: CustomEvent<PlatformItemClickEventDetail>,
+    _event: CustomEvent<PlatformItemClickEventDetail>,
   ) {
-    console.log("handleActivateMobile", event.detail);
     this.controller.handleTurnOnSyncOnMobile();
   }
 
   private handleActivateDesktop(
-    event: CustomEvent<PlatformItemClickEventDetail>,
+    _event: CustomEvent<PlatformItemClickEventDetail>,
   ) {
-    console.log("handleActivateDesktop", event.detail);
     this.controller.handleTurnOnSyncOnDesktop();
   }
 
   private handleLearnMore() {
-    console.log("handleLearnMore");
     this.controller.handleLearnMore();
   }
 
   override render() {
-    console.log("Rendering turn-on-sync-screen");
-
     const lang = this.languageContext.currentTranslation;
     return html`
       <div class="flex flex-col gap-32 p-24 pt-0">

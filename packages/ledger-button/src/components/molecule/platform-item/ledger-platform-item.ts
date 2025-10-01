@@ -58,10 +58,8 @@ export class LedgerPlatformItem extends LitElement {
   }
 
   private handleClick() {
-    console.log("handleClick");
     if (this.disabled || !this.clickable) return;
 
-    console.log("dispatchEvent for platform item click");
     this.dispatchEvent(
       new CustomEvent<PlatformItemClickEventDetail>(
         "ledger-platform-item-click",

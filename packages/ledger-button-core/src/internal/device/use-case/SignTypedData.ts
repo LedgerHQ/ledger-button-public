@@ -131,7 +131,6 @@ export class SignTypedData {
         );
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
-      console.log("Derivation path", { derivationPath });
 
       initObservable
         .pipe(
@@ -346,7 +345,6 @@ export class SignTypedData {
           };
         }
 
-        console.log("Typed data signing completed", { result });
         if (!("deviceMetadata" in result.output)) {
           return {
             signType,

@@ -52,7 +52,6 @@ export class DefaultAccountService implements AccountService {
 
     const accountsWithBalance =
       await this.getAccountsWithBalance(mappedAccounts);
-    console.log("Accounts with balance", accountsWithBalance);
 
     this.setAccounts(accountsWithBalance);
   }

@@ -275,20 +275,11 @@ export class LedgerEIP1193Provider
 
   // Public API
   public async request({ method, params }: RequestArguments) {
-    console.log(
-      "[Ledger Provider] EIP1193 Provider request called",
-      method,
-      params,
-    );
-
     if (method in this.handlers) {
       const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
       );
-      console.log(
-        "[Ledger Provider] EIP1193 Provider request response (handlers)",
-        res,
-      );
+
       return res;
     }
 
@@ -298,11 +289,6 @@ export class LedgerEIP1193Provider
       method,
       params,
     });
-
-    console.log(
-      "[Ledger Provider] EIP1193 Provider request response (backend)",
-      res,
-    );
 
     return res;
   }

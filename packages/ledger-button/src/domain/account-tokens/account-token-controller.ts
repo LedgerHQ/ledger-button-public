@@ -42,14 +42,12 @@ export class AccountTokenController implements ReactiveController {
   }
 
   connectAccount() {
-    console.log("connectAccount", this.account!.freshAddress);
+    if (!this.account) {
+      return;
+    }
 
     if (this.navigation.host instanceof RootNavigationComponent) {
-      console.log(
-        "connectAccount send selectAccount event",
-        this.account!.freshAddress,
-      );
-      this.navigation.host.selectAccount(this.account!.freshAddress); //If
+      this.navigation.host.selectAccount(this.account.freshAddress);
       this.host.requestUpdate();
     }
   }

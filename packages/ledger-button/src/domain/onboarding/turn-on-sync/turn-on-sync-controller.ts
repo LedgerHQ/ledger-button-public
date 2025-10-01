@@ -21,12 +21,10 @@ export class TurnOnSyncController implements ReactiveController {
   }
 
   handleTurnOnSyncOnMobile() {
-    console.log("handleTurnOnSyncOnMobile");
     this.navigation.navigateTo(this.destinations.turnOnSyncMobile);
   }
 
   handleTurnOnSyncOnDesktop() {
-    console.log("handleTurnOnSyncOnDesktop");
     this.navigation.navigateTo(this.destinations.turnOnSyncDesktop);
   }
 

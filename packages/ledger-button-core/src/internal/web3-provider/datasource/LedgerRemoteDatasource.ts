@@ -19,7 +19,6 @@ export class LedgerRemoteDatasource {
   async JSONRPCRequest(
     args: JSONRPCRequest,
   ): Promise<Either<Error, JSONRPCResponse>> {
-    console.log("JSONRPCRequest", args);
     // TODO: Update when we have the backend ready
     try {
       const response = await this.networkService.post<JSONRPCResponse>(

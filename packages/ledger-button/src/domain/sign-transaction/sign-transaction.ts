@@ -109,7 +109,6 @@ export class SignTransactionScreen extends LitElement {
       this.coreContext.getPendingTransactionParams();
 
     if (!transactionParams) {
-      console.log("No transaction params");
       this.controller.state.screen = "error";
       this.requestUpdate();
       return;

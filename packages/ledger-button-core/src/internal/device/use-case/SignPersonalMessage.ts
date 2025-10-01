@@ -141,7 +141,6 @@ export class SignPersonalMessage {
         );
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
-      console.log("Derivation path", { derivationPath });
 
       initObservable
         .pipe(

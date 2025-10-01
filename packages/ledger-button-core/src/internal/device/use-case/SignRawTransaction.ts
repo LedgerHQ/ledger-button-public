@@ -161,7 +161,6 @@ export class SignRawTransaction {
         );
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
-      console.log("Derivation path", { derivationPath });
 
       this.trackTransactionFlowInitialization(rawTransaction, selectedAccount);
 

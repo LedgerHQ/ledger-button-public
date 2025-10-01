@@ -132,7 +132,7 @@ export class SelectDeviceController implements ReactiveController {
     timestamp: number;
   }) {
     if (detail.connectionType === "") {
-      console.log("No connection type selected");
+      console.error("No connection type selected");
       return;
     }
 

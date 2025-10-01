@@ -16,7 +16,6 @@ export function createSignedTransaction(
   const signedTx = ethers.Transaction.from(rawTransaction);
   signedTx.signature = signature;
   const signedRawTransaction = signedTx.serialized;
-  console.log("Signed Raw Transaction", { signedRawTransaction });
 
   return {
     hash: signedTx.hash ?? undefined,

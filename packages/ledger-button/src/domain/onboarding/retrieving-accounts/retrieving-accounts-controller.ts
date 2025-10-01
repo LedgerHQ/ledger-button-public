@@ -51,7 +51,7 @@ export class RetrievingAccountsController implements ReactiveController {
       case error instanceof NoCompatibleAccountsError: {
         const networks =
           error.context && error.context.networks.length > 1
-            ? `${error.context?.networks.slice(0, -1).join(", ")} and ${error.context?.networks.slice(-1)[0]}`
+            ? `${error.context.networks.slice(0, -1).join(", ")} and ${error.context.networks.slice(-1)[0]}`
             : "";
 
         this.errorData = {

@@ -34,8 +34,6 @@ export class OnboardingFlowController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((context) => {
-        console.log("Button Core Context changed", context);
-
         if (context.trustChainId && context.applicationPath) {
           this.state = "retrieving-accounts";
         } else if (
@@ -47,7 +45,6 @@ export class OnboardingFlowController implements ReactiveController {
           this.state = "select-device";
         }
 
-        console.log("Current State", this.state);
         this.host.requestUpdate();
       });
   }

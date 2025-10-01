@@ -34,7 +34,6 @@ export class TurnOnSyncMobileScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    console.log("Connected to turn-on-sync-screen");
 
     this.controller = new TurnOnSyncMobileController(
       this,
@@ -48,8 +47,6 @@ export class TurnOnSyncMobileScreen extends LitElement {
   }
 
   override render() {
-    console.log("Rendering turn-on-sync-screen");
-
     const lang = this.languageContext.currentTranslation;
     return html`
       <div class="flex flex-col gap-32 p-24 pt-0">
