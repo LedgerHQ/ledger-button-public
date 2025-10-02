@@ -10,8 +10,8 @@ import {
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import { TurnOnSyncMobileController } from "./turn-on-sync-mobile-controller.js";
 import qrLedgerSync from "./qr-ledger-sync.png";
+import { TurnOnSyncMobileController } from "./turn-on-sync-mobile-controller.js";
 
 @customElement("turn-on-sync-mobile-screen")
 @tailwindElement()

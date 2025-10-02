@@ -1,4 +1,8 @@
-//TODO move these types to api model folder
+// TODO: Move Account to api model folder
+export type {
+  Account,
+  Token,
+} from "../../internal/account/service/AccountService.js";
 export * from "./eip/EIPTypes.js";
 export * from "./errors.js";
 export * from "./LedgerSyncAuthenticateResponse.js";
