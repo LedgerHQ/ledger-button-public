@@ -178,14 +178,18 @@ export class DefaultAccountService implements AccountService {
               },
             });
 
-            if (
-              balanceRpcResult.isRight() &&
-              balanceRpcResult.extract().result !== undefined // RPC do not return error but undefined
-            ) {
-              const balanceHex = balanceRpcResult.extract().result as string;
-              balance = ethers.formatEther(balanceHex);
-              balance =
-                balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4);
+            if (balanceRpcResult.isRight()) {
+              const extract = balanceRpcResult.extract();
+              if ("result" in extract) {
+                // RPC do not return error but undefined
+                const balanceHex = extract.result as string;
+                balance = ethers.formatEther(balanceHex);
+                balance =
+                  balance.split(".")[0] +
+                  "." +
+                  balance.split(".")[1].slice(0, 4);
+              }
+              // TODO: What do we do when Alpaca responds with { transactionIdentifier } ?
             }
 
             return { ...account, balance, tokens: [] };

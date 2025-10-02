@@ -9,10 +9,9 @@ import {
 import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { BroadcastResponse } from "../../backend/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
-import { BroadcastResponse } from "src/internal/backend/types.js";
 
 export type BroadcastTransactionParams = {
   signature: Signature;

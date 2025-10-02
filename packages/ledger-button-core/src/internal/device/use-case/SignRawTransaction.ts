@@ -386,7 +386,6 @@ export class SignRawTransaction {
       isSignedTransactionResult(result) ||
       isSignedMessageOrTypedDataResult(result)
     ) {
-      console.log("getTransactionResultForEvent", { result });
       return {
         signType,
         status: "success",
