@@ -1,24 +1,20 @@
 import { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
 import { ethers, Signature, TransactionLike } from "ethers";
 
-import type {
-  BroadcastedTransactionResult,
-  SignedTransactionResult,
-} from "../../../api/model/signing/SignedTransaction.js";
+import type { SignedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
 import type { Transaction } from "../../../api/model/signing/SignTransactionParams.js";
 import type { InvoicingEventData } from "../types.js";
 
 export function createSignedTransaction(
   rawTransaction: string,
   signature: Signature,
-): SignedTransactionResult | BroadcastedTransactionResult {
+): SignedTransactionResult {
   //Generate Signed transaction
   const signedTx = ethers.Transaction.from(rawTransaction);
   signedTx.signature = signature;
   const signedRawTransaction = signedTx.serialized;
 
   return {
-    hash: signedTx.hash ?? undefined,
     rawTransaction: rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
     signedRawTransaction: signedRawTransaction,
   };
@@ -57,8 +53,8 @@ export function getInvoicingEventDataFromTransaction(
 
   return {
     transactionType: isETHTransfer ? "ETH_transfer" : "ERC-20_approve",
-    sourceToken: isETHTransfer ? "ETH" : (parsedTx.to || "unknown"),
-    targetToken: isETHTransfer ? "ETH" : (parsedTx.to || "unknown"),
+    sourceToken: isETHTransfer ? "ETH" : parsedTx.to || "unknown",
+    targetToken: isETHTransfer ? "ETH" : parsedTx.to || "unknown",
     recipientAddress: parsedTx.to || "",
     transactionAmount: isETHTransfer ? ethers.formatEther(parsedTx.value) : "0",
   };

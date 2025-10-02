@@ -21,7 +21,7 @@ export class TurnOnSyncDesktopController implements ReactiveController {
   }
 
   handleTurnOnLedgerSync() {
-    window.open("https://go.ledger.com/ledger/ledgersync");
+    window.open("https://go.ledger.com/ledger/ledgersync", "_blank");
   }
 
   handleLedgerSyncActivated() {

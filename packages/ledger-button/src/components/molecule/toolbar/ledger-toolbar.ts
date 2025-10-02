@@ -65,8 +65,6 @@ export class LedgerToolbar extends LitElement {
   };
 
   override render() {
-    console.log("canGoBack in toolbar", this.canGoBack);
-
     return html`
       <div
         class="flex w-full min-w-full items-center justify-between px-24 py-16"

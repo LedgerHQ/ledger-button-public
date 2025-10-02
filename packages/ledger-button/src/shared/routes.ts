@@ -171,7 +171,7 @@ export const makeDestinations = (translation: Translation) => {
     signTransaction: {
       name: "signTransaction",
       component: "sign-transaction-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: "",
         showCloseButton: false,
@@ -180,7 +180,7 @@ export const makeDestinations = (translation: Translation) => {
     signingFlow: {
       name: "signingFlow",
       component: "signing-flow",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: "",
         showCloseButton: false,

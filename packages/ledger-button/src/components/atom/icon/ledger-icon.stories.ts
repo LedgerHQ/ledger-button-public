@@ -24,7 +24,8 @@ const meta: Meta = {
         "check",
         "error",
         "device",
-        "platform",
+        "mobile",
+        "desktop",
       ],
       description: "The type of icon to display",
     },
@@ -32,6 +33,11 @@ const meta: Meta = {
       control: "select",
       options: ["small", "medium", "large"],
       description: "The size of the icon",
+    },
+    fillColor: {
+      control: "color",
+      description: "The color of the icon",
+      options: ["white", "black"],
     },
   },
 };
@@ -239,6 +245,29 @@ export const DeviceIconLarge: Story = {
   args: {
     type: "device",
     size: "large",
+  },
+};
+
+export const MobileIconSmall: Story = {
+  args: {
+    type: "mobile",
+    size: "small",
+    fillColor: "white",
+  },
+};
+export const MobileIconMedium: Story = {
+  args: {
+    type: "mobile",
+    size: "medium",
+    fillColor: "black",
+  },
+};
+
+export const MobileIconLarge: Story = {
+  args: {
+    type: "mobile",
+    size: "large",
+    fillColor: "white",
   },
 };
 

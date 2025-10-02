@@ -11,6 +11,8 @@ import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
+import { BroadcastResponse } from "src/internal/backend/types.js";
 
 export type BroadcastTransactionParams = {
   signature: Signature;
@@ -49,10 +51,21 @@ export class BroadcastTransaction {
     const result = await this.backendService.broadcast(broadcastJsonRpcRequest);
 
     return result.caseOf({
-      Right: (response) => {
-        //TODO Check hash from helper and result from node response
+      Right: (response: BroadcastResponse) => {
+        //JSONRPCResponse from node
+        if ("id" in response) {
+          //TODO Check hash from helper and result from node response
+          return {
+            hash: response.result as string,
+            rawTransaction:
+              params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
+            signedRawTransaction: signedTransaction.signedRawTransaction,
+          };
+        }
+
+        //Response from alpaca broadcast
         return {
-          hash: response.result as string,
+          hash: response.transactionIdentifier,
           rawTransaction:
             params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
           signedRawTransaction: signedTransaction.signedRawTransaction,

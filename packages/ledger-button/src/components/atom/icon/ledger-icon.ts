@@ -13,7 +13,6 @@ import {
   DeviceIcon,
   ErrorIcon,
   LedgerLogoIcon,
-  PlatformIcon,
   UsbIcon,
 } from "./index";
 
@@ -29,9 +28,11 @@ export interface LedgerIconAttributes {
     | "check"
     | "error"
     | "device"
-    | "platform"
+    | "mobile"
+    | "desktop"
     | "cart";
   size: "small" | "medium" | "large" | "icon";
+  fillColor?: string;
 }
 
 const styles = css`
@@ -50,6 +51,9 @@ export class LedgerIcon extends LitElement {
 
   @property({ type: String })
   size = "medium";
+
+  @property({ type: String })
+  fillColor?: string;
 
   private get iconClasses(): string {
     const sizeClasses: { [key: string]: string } = {
@@ -73,7 +77,9 @@ export class LedgerIcon extends LitElement {
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
-      platform: () => PlatformIcon,
+      mobile: () => html`<platform-icon platformType="mobile"></platform-icon>`,
+      desktop: () =>
+        html`<platform-icon platformType="desktop"></platform-icon>`,
       cart: () => CartIcon,
     };
     const renderIcon =
@@ -82,6 +88,7 @@ export class LedgerIcon extends LitElement {
     return html`<div
       aria-hidden="true"
       role="img"
+      style="fill: ${this.fillColor ?? "black"};"
       class="${this.iconClasses} flex items-center justify-center"
     >
       ${renderIcon()}

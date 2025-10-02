@@ -1,5 +1,5 @@
 export interface SignRawTransactionParams {
-  rawTransaction: string;
+  transaction: string;
   broadcast: boolean;
 }
 
@@ -8,8 +8,9 @@ export function isSignRawTransactionParams(
 ): params is SignRawTransactionParams {
   return (
     !!params &&
-    typeof params === "object" &&
     params !== null &&
-    "rawTransaction" in params
+    typeof params === "object" &&
+    "transaction" in params &&
+    typeof params.transaction === "string"
   );
 }

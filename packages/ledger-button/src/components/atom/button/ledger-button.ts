@@ -114,6 +114,7 @@ export class LedgerButton extends LitElement {
       return nothing;
     }
 
+    const fillColor = this.variant === "primary" ? "black" : "white";
     const size = this.size === "xs" ? "small" : this.size;
 
     return html`
@@ -121,6 +122,7 @@ export class LedgerButton extends LitElement {
         .type=${this.iconType ?? "ledger"}
         size=${size}
         class="text-base"
+        .fillColor=${fillColor}
       >
       </ledger-icon>
     `;

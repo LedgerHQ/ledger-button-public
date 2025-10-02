@@ -13,7 +13,10 @@ import { SignRawTransactionParams } from "./model/signing/SignRawTransactionPara
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { type Account, type AccountService } from "../internal/account/service/AccountService.js";
+import {
+  type Account,
+  type AccountService,
+} from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
@@ -155,9 +158,9 @@ export class LedgerButtonCore {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
       );
-      const sessionId = this.container
-        .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-        .sessionId;
+      const sessionId = this.container.get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      ).sessionId;
 
       const openSessionEvent = EventTrackingUtils.createOpenSessionEvent({
         dAppId: this.getConfig().dAppIdentifier,
@@ -236,14 +239,16 @@ export class LedgerButtonCore {
     this.trackOnboardingEvent(selectedAccount);
   }
 
-  private async trackOnboardingEvent(selectedAccount: Account | null): Promise<void> {
+  private async trackOnboardingEvent(
+    selectedAccount: Account | null,
+  ): Promise<void> {
     try {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
       );
-      const sessionId = this.container
-        .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-        .sessionId;
+      const sessionId = this.container.get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      ).sessionId;
       const trustChainId = this._currentContext.value.trustChainId;
 
       if (!selectedAccount) {
@@ -257,7 +262,11 @@ export class LedgerButtonCore {
         accountCurrency: selectedAccount.currencyId || "ETH",
         accountBalance: selectedAccount.balance?.toString() || "0",
       });
-      await eventTrackingService.trackEvent(onboardingEvent, sessionId, trustChainId);
+      await eventTrackingService.trackEvent(
+        onboardingEvent,
+        sessionId,
+        trustChainId,
+      );
     } catch (error) {
       this._logger.error("Failed to track onboarding event", { error });
     }
@@ -360,17 +369,21 @@ export class LedgerButtonCore {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
       );
-      const sessionId = this.container
-        .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-        .sessionId;
+      const sessionId = this.container.get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      ).sessionId;
 
       const openLedgerSyncEvent = EventTrackingUtils.createOpenLedgerSyncEvent({
         dAppId: this.getConfig().dAppIdentifier,
         sessionId: sessionId || "",
       });
-      eventTrackingService.trackEvent(openLedgerSyncEvent, sessionId).catch((error) => {
-        this._logger.error("Failed to track open ledger sync event", { error });
-      });
+      eventTrackingService
+        .trackEvent(openLedgerSyncEvent, sessionId)
+        .catch((error) => {
+          this._logger.error("Failed to track open ledger sync event", {
+            error,
+          });
+        });
     } catch (error) {
       this._logger.error("Failed to track open ledger sync event", { error });
     }
@@ -394,18 +407,25 @@ export class LedgerButtonCore {
           const eventTrackingService = this.container.get<EventTrackingService>(
             eventTrackingModuleTypes.EventTrackingService,
           );
-          const sessionId = this.container
-            .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-            .sessionId;
+          const sessionId = this.container.get<DeviceManagementKitService>(
+            deviceModuleTypes.DeviceManagementKitService,
+          ).sessionId;
 
-          const ledgerSyncActivatedEvent = EventTrackingUtils.createLedgerSyncActivatedEvent({
-            dAppId: this.getConfig().dAppIdentifier,
-            sessionId: sessionId || "",
-            ledgerSyncUserId: res.trustChainId, // Using trustChainId as user ID
-          });
-          await eventTrackingService.trackEvent(ledgerSyncActivatedEvent, sessionId, res.trustChainId);
+          const ledgerSyncActivatedEvent =
+            EventTrackingUtils.createLedgerSyncActivatedEvent({
+              dAppId: this.getConfig().dAppIdentifier,
+              sessionId: sessionId || "",
+              ledgerSyncUserId: res.trustChainId, // Using trustChainId as user ID
+            });
+          await eventTrackingService.trackEvent(
+            ledgerSyncActivatedEvent,
+            sessionId,
+            res.trustChainId,
+          );
         } catch (error) {
-          this._logger.error("Failed to track ledger sync activated event", { error });
+          this._logger.error("Failed to track ledger sync activated event", {
+            error,
+          });
         }
       }),
     );

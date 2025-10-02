@@ -119,7 +119,7 @@ export class SignRawTransaction {
       });
     }
 
-    const { rawTransaction, broadcast } = params;
+    const { transaction, broadcast } = params;
     const signType = "transaction";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -136,7 +136,7 @@ export class SignRawTransaction {
         sessionId,
       }).build();
 
-      const tx = hexaStringToBuffer(rawTransaction);
+      const tx = hexaStringToBuffer(transaction);
       if (!tx) {
         throw Error("Invalid raw transaction format");
       }
@@ -163,7 +163,7 @@ export class SignRawTransaction {
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
 
-      this.trackTransactionFlowInitialization(rawTransaction, selectedAccount);
+      this.trackTransactionFlowInitialization(transaction, selectedAccount);
 
       initObservable
         .pipe(
@@ -184,11 +184,7 @@ export class SignRawTransaction {
           ),
           tap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
+              this.getTransactionResultForEvent(result, transaction, signType),
             );
           }),
           filter((result: OpenAppWithDependenciesDAState) => {
@@ -283,21 +279,17 @@ export class SignRawTransaction {
               }
             }
 
-            resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
-            );
-
             return result;
           }),
-          switchMap(async (result: SignTransactionDAState) => {
-            if (broadcast && result.status === DeviceActionStatus.Completed) {
+          filter((result: SignTransactionDAState) => {
+            return result.status === DeviceActionStatus.Completed;
+          }),
+          switchMap(async (result) => {
+            //Broadcast TX
+            if (broadcast) {
               const broadcastParams: BroadcastTransactionParams = {
                 signature: result.output as Signature,
-                rawTransaction,
+                rawTransaction: transaction,
                 currencyId: selectedAccount.currencyId,
               };
               const broadcastResult =
@@ -305,44 +297,40 @@ export class SignRawTransaction {
 
               if (isBroadcastedTransactionResult(broadcastResult)) {
                 this.trackTransactionFlowCompletion(
-                  rawTransaction,
+                  transaction,
                   selectedAccount,
                   broadcastResult.hash,
                 );
               }
 
               return broadcastResult;
-            } else if (result.status === DeviceActionStatus.Completed) {
-              // Track completion for sign-only transactions
-              const signedTx = createSignedTransaction(rawTransaction, {
-                r: result.output.r,
-                s: result.output.s,
-                v: result.output.v,
-              } as Signature);
-
-              if (isBroadcastedTransactionResult(signedTx)) {
-                this.trackTransactionFlowCompletion(
-                  rawTransaction,
-                  selectedAccount,
-                  signedTx.hash,
-                );
-              }
-
-              return result;
-            } else {
-              return result;
             }
+            // No Broadcast TX
+            // TODO Track completion for sign-only transactions
+            const signedTx = createSignedTransaction(transaction, {
+              r: result.output.r,
+              s: result.output.s,
+              v: result.output.v,
+            } as Signature);
+
+            // Track completion for sign-only transactions
+            return signedTx;
           }),
         )
         .subscribe({
           next: (result) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(
-                result as SignTransactionDAState,
-                rawTransaction,
-                signType,
-              ),
-            );
+            if (
+              isSignedTransactionResult(result) ||
+              isBroadcastedTransactionResult(result)
+            ) {
+              resultObservable.next(
+                this.getTransactionResultForEvent(
+                  result,
+                  transaction,
+                  signType,
+                ),
+              );
+            }
           },
           error: (error) => {
             console.error("Failed to sign transaction subscribe", { error });
@@ -398,6 +386,7 @@ export class SignRawTransaction {
       isSignedTransactionResult(result) ||
       isSignedMessageOrTypedDataResult(result)
     ) {
+      console.log("getTransactionResultForEvent", { result });
       return {
         signType,
         status: "success",
@@ -472,7 +461,6 @@ export class SignRawTransaction {
             data: signedTransaction,
           };
         } else {
-          console.debug("Open app completed", { result });
           return {
             signType,
             status: "debugging",

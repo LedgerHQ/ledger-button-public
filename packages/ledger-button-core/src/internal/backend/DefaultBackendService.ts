@@ -52,12 +52,15 @@ export class DefaultBackendService implements BackendService {
       options,
     );
 
-    return result.mapLeft(
-      (error: Error) =>
-        new BroadcastTransactionError(`Broadcast failed: ${error.message}`, {
+    return result.mapLeft((error: Error) => {
+      console.log("error in backend service", error);
+      return new BroadcastTransactionError(
+        `Broadcast failed: ${error.message}`,
+        {
           error,
-        }),
-    );
+        },
+      );
+    });
   }
 
   async getConfig(request: ConfigRequest) {

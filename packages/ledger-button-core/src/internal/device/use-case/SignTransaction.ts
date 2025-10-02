@@ -27,7 +27,7 @@ export class SignTransaction {
     try {
       const rawTransaction = getRawTransactionFromEipTransaction(transaction);
       return this.signRawTransaction.execute({
-        rawTransaction: rawTransaction,
+        transaction: rawTransaction,
         broadcast: params.broadcast,
       });
     } catch (error) {

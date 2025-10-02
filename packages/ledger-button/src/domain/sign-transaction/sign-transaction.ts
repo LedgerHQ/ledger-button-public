@@ -3,9 +3,6 @@ import "../onboarding/ledger-sync/ledger-sync";
 
 import {
   type BroadcastedTransactionResult,
-  isBroadcastedTransactionResult,
-  isSignedMessageOrTypedDataResult,
-  isSignedTransactionResult,
   type SignedPersonalMessageOrTypedDataResult,
   type SignedTransactionResult,
   type SignPersonalMessageParams,
@@ -72,9 +69,6 @@ export class SignTransactionScreen extends LitElement {
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
-  @property({ type: String })
-  transactionId = "";
-
   @property({ type: Object })
   transactionParams?:
     | SignTransactionParams
@@ -128,6 +122,10 @@ export class SignTransactionScreen extends LitElement {
   }
 
   private renderSigningState() {
+    if (this.controller.state.screen !== "signing") {
+      return html``;
+    }
+
     const lang = this.languageContext.currentTranslation;
     const deviceModel = this.coreContext.getConnectedDevice()?.modelId;
     const deviceAnimation = this.controller.state.deviceAnimation;
@@ -147,7 +145,9 @@ export class SignTransactionScreen extends LitElement {
         <div class="flex flex-col items-center gap-8 self-stretch">
           <p class="text-center body-1">
             ${lang.common.device.deviceActions.continueOnLedger.title}
-            ${lang.common.device.model[deviceModel]}
+            ${lang.common.device.model[
+              deviceModel as keyof typeof lang.common.device.model
+            ]}
           </p>
           <p class="text-center text-muted body-2">
             ${lang.common.device.deviceActions.continueOnLedger.description}
@@ -157,58 +157,8 @@ export class SignTransactionScreen extends LitElement {
     `;
   }
 
-  private renderSuccessState() {
-    const lang = this.languageContext.currentTranslation;
-
-    if (this.controller.result) {
-      if (isSignedTransactionResult(this.controller.result)) {
-        window.dispatchEvent(
-          new CustomEvent<
-            SignedTransactionResult | BroadcastedTransactionResult
-          >("ledger-internal-sign-transaction", {
-            bubbles: true,
-            composed: true,
-            detail: this.controller.result,
-          }),
-        );
-      } else if (isSignedMessageOrTypedDataResult(this.controller.result)) {
-        window.dispatchEvent(
-          new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
-            "ledger-internal-sign-message",
-            {
-              bubbles: true,
-              composed: true,
-              detail: this.controller.result,
-            },
-          ),
-        );
-      }
-    }
-
-    return html`
-      <div
-        class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
-      >
-        <ledger-status
-          type="success"
-          title=${lang.signTransaction?.success?.title || "Transaction signed"}
-          description=${lang.signTransaction?.success?.description ||
-          "You will receive the funds soon."}
-          primary-button-label=${lang.common.button.close}
-          secondary-button-label=${isBroadcastedTransactionResult(
-            this.controller.result,
-          )
-            ? lang.signTransaction?.success?.viewTransaction ||
-              "View transaction details"
-            : ""}
-          @status-action=${this.handleStatusActionSuccess}
-        ></ledger-status>
-      </div>
-    `;
-  }
-
-  private renderErrorState() {
-    if (!this.controller.errorData) {
+  private renderStatusState() {
+    if (this.controller.state.screen === "signing") {
       return html``;
     }
 
@@ -217,55 +167,35 @@ export class SignTransactionScreen extends LitElement {
         class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
       >
         <ledger-status
-          type="error"
-          title=${this.controller.errorData.title}
-          description=${this.controller.errorData.message}
-          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
-          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
-          @status-action=${this.handleStatusActionError}
+          type=${this.controller.state.screen}
+          title=${this.controller.state.status.title}
+          description=${this.controller.state.status.message}
+          primary-button-label=${this.controller.state.status.cta1?.label}
+          secondary-button-label=${this.controller.state.status.cta2?.label}
+          @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>
     `;
   }
 
-  private handleStatusActionSuccess(
+  private handleStatusAction(
     event: CustomEvent<{
       timestamp: number;
       action: "primary" | "secondary";
       type: StatusType;
     }>,
   ) {
+    if (this.controller.state.screen === "signing") {
+      return;
+    }
+
     const { action } = event.detail;
 
     if (action === "primary") {
-      this.handleClose();
+      this.controller.state.status.cta1.action();
     } else if (action === "secondary") {
-      this.handleViewTransaction();
+      this.controller.state.status.cta2?.action();
     }
-  }
-
-  private async handleStatusActionError(
-    event: CustomEvent<{
-      timestamp: number;
-      action: "primary" | "secondary";
-      type: StatusType;
-    }>,
-  ) {
-    const { action } = event.detail;
-
-    if (action === "primary") {
-      await this.controller.errorData?.cta1?.action();
-    } else if (action === "secondary") {
-      await this.controller.errorData?.cta2?.action();
-    }
-  }
-
-  handleViewTransaction() {
-    this.controller.viewTransactionDetails(this.transactionId);
-  }
-
-  private handleClose() {
-    this.controller.close();
   }
 
   override render() {
@@ -273,9 +203,8 @@ export class SignTransactionScreen extends LitElement {
       case "signing":
         return this.renderSigningState();
       case "success":
-        return this.renderSuccessState();
       case "error":
-        return this.renderErrorState();
+        return this.renderStatusState();
       default:
         return this.renderSigningState();
     }

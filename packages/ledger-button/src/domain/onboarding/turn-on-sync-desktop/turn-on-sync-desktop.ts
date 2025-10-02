@@ -62,6 +62,8 @@ export class TurnOnSyncDesktopScreen extends LitElement {
           <div class="flex flex-row items-center justify-center">
             <ledger-button
               variant="primary"
+              icon="true"
+              icon-type="platform"
               .label=${lang.ledgerSync.activate}
               @click=${this.handleTurnOnLedgerSync}
             ></ledger-button>

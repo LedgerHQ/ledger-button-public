@@ -22,6 +22,9 @@ export function isSignTransactionParams(
   params: unknown,
 ): params is SignTransactionParams {
   return (
-    typeof params === "object" && params !== null && "transaction" in params
+    typeof params === "object" &&
+    params !== null &&
+    "transaction" in params &&
+    typeof params.transaction === "object"
   );
 }

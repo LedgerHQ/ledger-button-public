@@ -161,9 +161,15 @@ export class LedgerEIP1193Provider
         );
       }
 
+      let tx: Record<string, unknown> | string;
       //Sanitize transaction for EIP-1193
-      const transaction = params[0] as Record<string, unknown>;
-      transaction["chainId"] = this._selectedChainId;
+      if (typeof params[0] === "object") {
+        const transaction = params[0] as Record<string, unknown>;
+        transaction["chainId"] = this._selectedChainId;
+        tx = transaction;
+      } else {
+        tx = params[0] as string;
+      }
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
@@ -180,7 +186,7 @@ export class LedgerEIP1193Provider
       );
 
       this.app.navigationIntent("signTransaction", {
-        transaction: transaction,
+        transaction: tx,
         broadcast,
       });
     });
