@@ -33,17 +33,18 @@ export type BackendServiceError = Error;
 
 export type ConfigResponseError = Error | ZodError;
 
-export type EventType =
-  | "consent_given"
-  | "consent_removed"
-  | "invoicing_transaction_signed"
-  | "ledger_sync_activated"
-  | "onboarding"
-  | "open_ledger_sync"
-  | "open_session"
-  | "session_authentication"
-  | "transaction_flow_completion"
-  | "transaction_flow_initialization";
+export enum EventType {
+  ConsentGiven = "consent_given",
+  ConsentRemoved = "consent_removed",
+  InvoicingTransactionSigned = "invoicing_transaction_signed",
+  LedgerSyncActivated = "ledger_sync_activated",
+  Onboarding = "onboarding",
+  OpenLedgerSync = "open_ledger_sync",
+  OpenSession = "open_session",
+  SessionAuthentication = "session_authentication",
+  TransactionFlowCompletion = "transaction_flow_completion",
+  TransactionFlowInitialization = "transaction_flow_initialization",
+}
 
 type BaseEventData = {
   event_id: string;

@@ -24,6 +24,7 @@ import {
 } from "rxjs";
 
 import {
+  isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
   type SignedResults,
@@ -33,13 +34,19 @@ import {
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
+import {
+  createSignedTransaction,
+  getInvoicingEventDataFromTransaction,
+} from "../../../internal/transaction/utils/TransactionHelper.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
+import type { EventTrackingService } from "../../event-tracking/EventTrackingService.js";
+import { EventTrackingUtils } from "../../event-tracking/EventTrackingUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -73,6 +80,8 @@ export class SignRawTransaction {
     private readonly dappConfigService: DAppConfigService,
     @inject(deviceModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
+    @inject(eventTrackingModuleTypes.EventTrackingService)
+    private readonly eventTrackingService: EventTrackingService,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -142,6 +151,8 @@ export class SignRawTransaction {
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
       console.log("Derivation path", { derivationPath });
+
+      this.trackTransactionFlowInitialization(rawTransaction, selectedAccount);
 
       initObservable
         .pipe(
@@ -225,9 +236,28 @@ export class SignRawTransaction {
                 rawTransaction,
                 currencyId: selectedAccount.currencyId,
               };
-              return await this.broadcastTransactionUseCase.execute(
+              const broadcastResult = await this.broadcastTransactionUseCase.execute(
                 broadcastParams,
               );
+
+              if (isBroadcastedTransactionResult(broadcastResult)) {
+                this.trackTransactionFlowCompletion(rawTransaction, selectedAccount, broadcastResult.hash);
+              }
+
+              return broadcastResult;
+            } else if (result.status === DeviceActionStatus.Completed) {
+              // Track completion for sign-only transactions
+              const signedTx = createSignedTransaction(rawTransaction, {
+                r: result.output.r,
+                s: result.output.s,
+                v: result.output.v,
+              } as Signature);
+
+              if (isBroadcastedTransactionResult(signedTx)) {
+                this.trackTransactionFlowCompletion(rawTransaction, selectedAccount, signedTx.hash);
+              }
+
+              return result;
             } else {
               return result;
             }
@@ -387,6 +417,72 @@ export class SignRawTransaction {
           status: "debugging",
           message: `DA status: ${result.status} - ${JSON.stringify(result)}`,
         };
+    }
+  }
+
+  private async trackTransactionFlowInitialization(
+    rawTransaction: string,
+    selectedAccount: Account,
+  ): Promise<void> {
+    try {
+      const sessionId = this.deviceManagementKitService.sessionId;
+      const trustChainId = this.storageService.getTrustChainId().extract();
+
+      const event = EventTrackingUtils.createTransactionFlowInitializationEvent({
+        dAppId: this.config.dAppIdentifier,
+        sessionId: sessionId || "",
+        ledgerSyncUserId: trustChainId || "",
+        accountCurrency: selectedAccount.currencyId,
+        accountBalance: selectedAccount.balance?.toString() || "0",
+        unsignedTransactionHash: rawTransaction,
+        transactionType: "standard_tx",
+      });
+
+      await this.eventTrackingService.trackEvent(event, sessionId, trustChainId);
+    } catch (error) {
+      this.logger.error("Failed to track transaction flow initialization", { error });
+    }
+  }
+
+  private async trackTransactionFlowCompletion(
+    rawTransaction: string,
+    selectedAccount: Account,
+    transactionHash: string,
+  ): Promise<void> {
+    try {
+      const sessionId = this.deviceManagementKitService.sessionId;
+      const trustChainId = this.storageService.getTrustChainId().extract();
+
+      const completionEvent = EventTrackingUtils.createTransactionFlowCompletionEvent({
+        dAppId: this.config.dAppIdentifier,
+        sessionId: sessionId || "",
+        ledgerSyncUserId: trustChainId || "",
+        accountCurrency: selectedAccount.currencyId,
+        accountBalance: selectedAccount.balance?.toString() || "0",
+        unsignedTransactionHash: rawTransaction,
+        transactionType: "standard_tx",
+        transactionHash: transactionHash || "",
+      });
+
+      await this.eventTrackingService.trackEvent(completionEvent, sessionId, trustChainId);
+
+      const invoicingData = getInvoicingEventDataFromTransaction(rawTransaction);
+      const invoicingEvent = EventTrackingUtils.createInvoicingTransactionSignedEvent({
+        dAppId: this.config.dAppIdentifier,
+        sessionId: sessionId || "",
+        ledgerSyncUserId: trustChainId || "",
+        transactionHash: transactionHash || "",
+        transactionType: invoicingData.transactionType,
+        sourceToken: invoicingData.sourceToken,
+        targetToken: invoicingData.targetToken,
+        recipientAddress: invoicingData.recipientAddress,
+        transactionAmount: invoicingData.transactionAmount,
+        transactionId: transactionHash || "",
+      });
+
+      await this.eventTrackingService.trackEvent(invoicingEvent, sessionId, trustChainId);
+    } catch (error) {
+      this.logger.error("Failed to track transaction flow completion", { error });
     }
   }
 }
