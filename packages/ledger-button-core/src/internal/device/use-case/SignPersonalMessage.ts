@@ -204,7 +204,7 @@ export class SignPersonalMessage {
               result.status === DeviceActionStatus.Completed &&
               result.output.address !== selectedAccount.freshAddress
             ) {
-              throw new IncorrectSeedError("Adress mismatch");
+              throw new IncorrectSeedError("Address mismatch");
             }
 
             resultObservable.next({
