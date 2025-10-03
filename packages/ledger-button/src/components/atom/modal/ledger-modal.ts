@@ -58,28 +58,28 @@ export class LedgerModal extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    document.addEventListener("keydown", this.handleKeydown);
+    // document.addEventListener("keydown", this.handleKeydown);
     this.addEventListener("modal-opened", this.handleOpen);
     this.addEventListener("modal-closed", this.handleClose);
   }
 
   override disconnectedCallback() {
     super.disconnectedCallback();
-    document.removeEventListener("keydown", this.handleKeydown);
+    // document.removeEventListener("keydown", this.handleKeydown);
     this.removeEventListener("modal-opened", this.handleOpen);
     this.removeEventListener("modal-closed", this.handleClose);
   }
 
-  private handleKeydown = (event: KeyboardEvent) => {
-    if (this.isClosing) {
-      return;
-    }
+  // private handleKeydown = (event: KeyboardEvent) => {
+  //   if (this.isClosing) {
+  //     return;
+  //   }
 
-    if (event.key === "Escape") {
-      event.preventDefault();
-      this.closeModal();
-    }
-  };
+  //   if (event.key === "Escape") {
+  //     event.preventDefault();
+  //     this.closeModal();
+  //   }
+  // };
 
   private focusFirstElement() {
     if (this.toolbarElement) {
