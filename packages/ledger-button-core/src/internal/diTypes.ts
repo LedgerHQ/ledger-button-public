@@ -10,9 +10,9 @@ export type ContainerOptions = {
   dmkConfig?: DeviceModuleOptions;
   loggerLevel?: LogLevelKey;
   environment?: "staging" | "production";
-  devConfig: {
+  devConfig?: {
     stub: Partial<{
-      alpaca: boolean;
+      balance: boolean;
       base: boolean;
       account: boolean;
       device: boolean;

@@ -50,6 +50,9 @@ export class LedgerConnectionItem extends LitElement {
   @property({ type: String })
   override title = "";
 
+  @property({ type: String, attribute: "hint" })
+  hint = "";
+
   @property({ type: String, attribute: "connection-type" })
   connectionType: "bluetooth" | "usb" | "" = "";
 
@@ -106,7 +109,7 @@ export class LedgerConnectionItem extends LitElement {
   private renderChevron() {
     return html`
       <div
-        class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
+        class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
       >
         <ledger-icon type="chevronRight" size="small"></ledger-icon>
       </div>
@@ -116,7 +119,7 @@ export class LedgerConnectionItem extends LitElement {
   private renderTitle() {
     return html`
       ${this.title
-        ? html`<span class="py-8 text-base body-2">${this.title}</span>`
+        ? html`<span class="py-2 text-base body-2">${this.title}</span>`
         : ""}
     `;
   }
@@ -133,11 +136,17 @@ export class LedgerConnectionItem extends LitElement {
         aria-label=${this.title || ""}
       >
         <div class="flex items-center gap-12">
-          ${this.renderIcon()} ${this.renderTitle()}
+          ${this.renderIcon()}
+          <div class="flex flex-col items-start gap-2">
+            ${this.renderTitle()} ${this.renderHint()}
+          </div>
         </div>
         ${this.renderChevron()}
       </button>
     `;
+  }
+  renderHint(): unknown {
+    return html`<span class="text-muted body-3">${this.hint}</span>`;
   }
 }
 

@@ -1,11 +1,18 @@
-import { headers } from "./model/constant.js";
+import { Config } from "../config/model/config.js";
 import { DefaultNetworkService } from "./DefaultNetworkService.js";
 
 describe("DefaultNetworkService", () => {
   let networkService: DefaultNetworkService;
 
   beforeEach(() => {
-    networkService = new DefaultNetworkService();
+    networkService = new DefaultNetworkService(
+      new Config({
+        originToken: "test-origin-token",
+        dAppIdentifier: "test-dapp-identifier",
+        logLevel: "info",
+        environment: "staging",
+      }),
+    );
     vi.clearAllMocks();
   });
 
@@ -26,7 +33,8 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          ...headers,
+          "X-Ledger-Client-Version": "test-dapp-identifier",
+          "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
         method: "GET",
@@ -90,13 +98,14 @@ describe("DefaultNetworkService", () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          ...headers,
+          "X-Ledger-Client-Version": "test-dapp-identifier",
+          "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
         method: "POST",
@@ -165,13 +174,14 @@ describe("DefaultNetworkService", () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          ...headers,
+          "X-Ledger-Client-Version": "test-dapp-identifier",
+          "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
         method: "PUT",
@@ -240,13 +250,14 @@ describe("DefaultNetworkService", () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          ...headers,
+          "X-Ledger-Client-Version": "test-dapp-identifier",
+          "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
         method: "PATCH",
@@ -315,7 +326,8 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          ...headers,
+          "X-Ledger-Client-Version": "test-dapp-identifier",
+          "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
         method: "DELETE",

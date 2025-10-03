@@ -7,8 +7,10 @@ import {
 } from "@ledgerhq/device-management-kit";
 import {
   SignerEthBuilder,
+  SignTransactionDAStep,
   type SignTypedDataDAState,
 } from "@ledgerhq/device-signer-kit-ethereum";
+import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { type Factory, inject, injectable } from "inversify";
 import {
   BehaviorSubject,
@@ -21,6 +23,15 @@ import {
   tap,
 } from "rxjs";
 
+import {
+  BlindSigningDisabledError,
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "../../../api/errors/DeviceErrors.js";
+import {
+  type GetAddressDAState,
+  isGetAddressResult,
+} from "../../../api/model/signing/GetAddress.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
@@ -45,13 +56,13 @@ import { deviceModuleTypes } from "../deviceModuleTypes.js";
 import {
   AccountNotSelectedError,
   DeviceConnectionError,
-  SignTransactionError,
 } from "../model/errors.js";
 import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
 
 @injectable()
 export class SignTypedData {
   private readonly logger: LoggerPublisher;
+  private pendingStep = "";
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -89,7 +100,7 @@ export class SignTypedData {
       });
     }
 
-    const [address, typedData] = params;
+    const [, typedData] = params;
     const signType = "typed-message";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -127,7 +138,6 @@ export class SignTypedData {
         );
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
-      console.log("Derivation path", { derivationPath });
 
       initObservable
         .pipe(
@@ -158,23 +168,44 @@ export class SignTypedData {
             );
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
+
+            const { observable: addressObservable } = ethSigner.getAddress(
+              derivationPath,
+              {
+                skipOpenApp: true,
+              },
+            );
+
+            return addressObservable.pipe(
+              filter((result: GetAddressDAState) => {
+                return (
+                  result.status === DeviceActionStatus.Error ||
+                  result.status === DeviceActionStatus.Completed
+                );
+              }),
+            );
+          }),
+          switchMap((result: GetAddressDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw result.error;
+            }
+
+            if (
+              result.status === DeviceActionStatus.Completed &&
+              result.output.address !== selectedAccount.freshAddress
+            ) {
+              throw new IncorrectSeedError("Address mismatch");
+            }
+
             resultObservable.next({
               signType,
               status: "debugging",
               message: "Starting Sign Typed Data DA",
             });
-            if (result.status === DeviceActionStatus.Error) {
-              throw new Error("Open app with dependencies failed");
-            }
 
-            console.log("Signing typed data", {
-              address,
-              typedData,
-              derivationPath,
-              equals: address === derivationPath,
-            });
-
-            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
             const { observable: signObservable } = ethSigner.signTypedData(
               derivationPath,
               typedData,
@@ -183,7 +214,13 @@ export class SignTypedData {
               },
             );
 
-            return signObservable;
+            return signObservable.pipe(
+              tap((result: SignTypedDataDAState) => {
+                if (result.status === DeviceActionStatus.Pending) {
+                  this.pendingStep = result.intermediateValue?.step ?? "";
+                }
+              }),
+            );
           }),
           filter(
             (result: SignTypedDataDAState) =>
@@ -197,10 +234,28 @@ export class SignTypedData {
               result.status === DeviceActionStatus.Completed
             );
           }),
-          tap((result: SignTypedDataDAState) => {
+          map((result: SignTypedDataDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              switch (true) {
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6a80" &&
+                  this.pendingStep ===
+                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
+                  throw new BlindSigningDisabledError("Blind signing disabled");
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6985":
+                  throw new UserRejectedTransactionError(
+                    "User rejected transaction",
+                  );
+                default:
+                  throw result.error;
+              }
+            }
             resultObservable.next(
               this.getTransactionResultForEvent(result, signType),
             );
+
+            return result;
           }),
         )
         .subscribe({
@@ -226,7 +281,7 @@ export class SignTypedData {
       return of({
         signType,
         status: "error",
-        error: new SignTransactionError(`Typed date signing failed: ${error}`),
+        error,
       });
     }
   }
@@ -254,6 +309,7 @@ export class SignTypedData {
     result:
       | OpenAppWithDependenciesDAState
       | SignTypedDataDAState
+      | GetAddressDAState
       | SignedPersonalMessageOrTypedDataResult,
     signType: SignType,
   ): SignFlowStatus {
@@ -311,8 +367,15 @@ export class SignTypedData {
               message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
             };
         }
-      case DeviceActionStatus.Completed:
-        console.log("Typed data signing completed", { result });
+      case DeviceActionStatus.Completed: {
+        if (isGetAddressResult(result)) {
+          return {
+            signType,
+            status: "debugging",
+            message: `Got address: ${result.output.address}`,
+          };
+        }
+
         if (!("deviceMetadata" in result.output)) {
           return {
             signType,
@@ -329,6 +392,7 @@ export class SignTypedData {
             message: `App Opened`,
           };
         }
+      }
       case DeviceActionStatus.Error:
         console.error("Error signing typed data in SignTypedData", {
           error: result.error.toString(),
@@ -336,9 +400,7 @@ export class SignTypedData {
         return {
           signType,
           status: "error",
-          error: new SignTransactionError(
-            result.error.toString() ?? "Unknown error",
-          ),
+          error: result.error,
         };
       default:
         return {

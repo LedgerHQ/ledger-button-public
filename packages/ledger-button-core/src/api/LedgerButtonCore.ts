@@ -13,11 +13,11 @@ import { SignRawTransactionParams } from "./model/signing/SignRawTransactionPara
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { type Account, type AccountService } from "../internal/account/service/AccountService.js";
+import {
+  type Account,
+  type AccountService,
+} from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import { alpacaModuleTypes } from "../internal/alpaca/alpacaModuleTypes.js";
-import { type AlpacaBalanceRequest } from "../internal/alpaca/model/types.js";
-import { type AlpacaService } from "../internal/alpaca/service/AlpacaService.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
@@ -56,6 +56,7 @@ export class LedgerButtonCore {
   private _pendingTransactionParams?:
     | SignRawTransactionParams
     | SignTransactionParams;
+  private _pendingAccountAddress?: string;
   private readonly _logger: LoggerPublisher;
 
   private _currentContext: BehaviorSubject<ButtonCoreContext> =
@@ -157,9 +158,9 @@ export class LedgerButtonCore {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
       );
-      const sessionId = this.container
-        .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-        .sessionId;
+      const sessionId = this.container.get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      ).sessionId;
 
       const openSessionEvent = EventTrackingUtils.createOpenSessionEvent({
         dAppId: this.getConfig().dAppIdentifier,
@@ -238,14 +239,16 @@ export class LedgerButtonCore {
     this.trackOnboardingEvent(selectedAccount);
   }
 
-  private async trackOnboardingEvent(selectedAccount: Account | null): Promise<void> {
+  private async trackOnboardingEvent(
+    selectedAccount: Account | null,
+  ): Promise<void> {
     try {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
       );
-      const sessionId = this.container
-        .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-        .sessionId;
+      const sessionId = this.container.get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      ).sessionId;
       const trustChainId = this._currentContext.value.trustChainId;
 
       if (!selectedAccount) {
@@ -259,7 +262,11 @@ export class LedgerButtonCore {
         accountCurrency: selectedAccount.currencyId || "ETH",
         accountBalance: selectedAccount.balance?.toString() || "0",
       });
-      await eventTrackingService.trackEvent(onboardingEvent, sessionId, trustChainId);
+      await eventTrackingService.trackEvent(
+        onboardingEvent,
+        sessionId,
+        trustChainId,
+      );
     } catch (error) {
       this._logger.error("Failed to track onboarding event", { error });
     }
@@ -318,6 +325,22 @@ export class LedgerButtonCore {
     return this._pendingTransactionParams;
   }
 
+  setPendingAccountAddress(address: string | undefined) {
+    this._logger.debug("Setting pending account address", { address });
+    this._pendingAccountAddress = address;
+  }
+
+  getPendingAccountAddress(): string | undefined {
+    this._logger.debug("Getting pending account address");
+
+    return this._pendingAccountAddress;
+  }
+
+  clearPendingAccountAddress() {
+    this._logger.debug("Clearing pending account address");
+    this._pendingAccountAddress = undefined;
+  }
+
   getTransactionService(): TransactionService {
     this._logger.debug("Getting transaction service");
     return this.container.get<TransactionService>(
@@ -346,17 +369,21 @@ export class LedgerButtonCore {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
       );
-      const sessionId = this.container
-        .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-        .sessionId;
+      const sessionId = this.container.get<DeviceManagementKitService>(
+        deviceModuleTypes.DeviceManagementKitService,
+      ).sessionId;
 
       const openLedgerSyncEvent = EventTrackingUtils.createOpenLedgerSyncEvent({
         dAppId: this.getConfig().dAppIdentifier,
         sessionId: sessionId || "",
       });
-      eventTrackingService.trackEvent(openLedgerSyncEvent, sessionId).catch((error) => {
-        this._logger.error("Failed to track open ledger sync event", { error });
-      });
+      eventTrackingService
+        .trackEvent(openLedgerSyncEvent, sessionId)
+        .catch((error) => {
+          this._logger.error("Failed to track open ledger sync event", {
+            error,
+          });
+        });
     } catch (error) {
       this._logger.error("Failed to track open ledger sync event", { error });
     }
@@ -380,18 +407,25 @@ export class LedgerButtonCore {
           const eventTrackingService = this.container.get<EventTrackingService>(
             eventTrackingModuleTypes.EventTrackingService,
           );
-          const sessionId = this.container
-            .get<DeviceManagementKitService>(deviceModuleTypes.DeviceManagementKitService)
-            .sessionId;
+          const sessionId = this.container.get<DeviceManagementKitService>(
+            deviceModuleTypes.DeviceManagementKitService,
+          ).sessionId;
 
-          const ledgerSyncActivatedEvent = EventTrackingUtils.createLedgerSyncActivatedEvent({
-            dAppId: this.getConfig().dAppIdentifier,
-            sessionId: sessionId || "",
-            ledgerSyncUserId: res.trustChainId, // Using trustChainId as user ID
-          });
-          await eventTrackingService.trackEvent(ledgerSyncActivatedEvent, sessionId, res.trustChainId);
+          const ledgerSyncActivatedEvent =
+            EventTrackingUtils.createLedgerSyncActivatedEvent({
+              dAppId: this.getConfig().dAppIdentifier,
+              sessionId: sessionId || "",
+              ledgerSyncUserId: res.trustChainId, // Using trustChainId as user ID
+            });
+          await eventTrackingService.trackEvent(
+            ledgerSyncActivatedEvent,
+            sessionId,
+            res.trustChainId,
+          );
         } catch (error) {
-          this._logger.error("Failed to track ledger sync activated event", { error });
+          this._logger.error("Failed to track ledger sync activated event", {
+            error,
+          });
         }
       }),
     );
@@ -405,13 +439,6 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._currentContext.asObservable();
-  }
-
-  // Coin methods
-  async getBalance(request: AlpacaBalanceRequest) {
-    return this.container
-      .get<AlpacaService>(alpacaModuleTypes.AlpacaService)
-      .getBalance(request);
   }
 
   // Config methods

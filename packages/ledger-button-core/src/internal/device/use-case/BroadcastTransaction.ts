@@ -9,6 +9,7 @@ import {
 import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { BroadcastResponse } from "../../backend/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
@@ -45,19 +46,37 @@ export class BroadcastTransaction {
       signedTransaction,
       params.currencyId,
     );
+
     const result = await this.backendService.broadcast(broadcastJsonRpcRequest);
 
-    if (result.isRight()) {
-      //TODO Check hash from helper and result from node response
-      return {
-        hash: result.extract().result as string,
-        rawTransaction:
-          params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
-        signedRawTransaction: signedTransaction.signedRawTransaction,
-      };
-    } else {
-      throw new Error("Failed to broadcast transaction");
-    }
+    return result.caseOf({
+      Right: (response: BroadcastResponse) => {
+        //JSONRPCResponse from node
+        if ("id" in response) {
+          //TODO Check hash from helper and result from node response
+          return {
+            hash: response.result as string,
+            rawTransaction:
+              params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
+            signedRawTransaction: signedTransaction.signedRawTransaction,
+          };
+        }
+
+        //Response from alpaca broadcast
+        return {
+          hash: response.transactionIdentifier,
+          rawTransaction:
+            params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
+          signedRawTransaction: signedTransaction.signedRawTransaction,
+        };
+      },
+      Left: (error) => {
+        this.logger.error("Failed to broadcast transaction", {
+          error,
+        });
+        throw error;
+      },
+    });
   }
 
   private craftRequestFromSignedTransaction(

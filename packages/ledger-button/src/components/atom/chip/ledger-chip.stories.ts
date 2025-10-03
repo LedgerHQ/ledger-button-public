@@ -1,6 +1,7 @@
 import "./ledger-chip";
 import "../icon/ledger-icon";
 
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
@@ -92,10 +93,10 @@ export const InteractiveExample: Story = {
       const chipElement = e.target as LedgerChip;
       chipElement.label = selectedDevice;
       chipElement.deviceModelId = selectedDevice.includes("Nano")
-        ? "nanos"
+        ? DeviceModelId.NANO_S
         : selectedDevice.includes("Stax")
-          ? "stax"
-          : "flex";
+          ? DeviceModelId.STAX
+          : DeviceModelId.FLEX;
 
       console.log("Device changed to:", selectedDevice);
     };

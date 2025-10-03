@@ -1,9 +1,12 @@
 {
   "common": {
+    "connect": "Connect",
     "button": {
       "connect": "Connect a Ledger",
       "usb": "Connect with USB",
       "bluetooth": "Connect with Bluetooth",
+      "usb_hint": "Plug in and unlock your device",
+      "bluetooth_hint": "Power on and unlock your device",
       "close": "Close",
       "tryAgain": "Try Again",
       "disconnect": "Disconnect"
@@ -11,8 +14,11 @@
     "ad": {
       "buyALedger": "Buy a Ledger"
     },
+    "platform": {
+      "onDesktop": "On desktop",
+      "onMobile": "On mobile"
+    },
     "learnMore": "Learn more",
-    "turnOnLedgerSync": "Turn on Ledger Sync",
     "device": {
       "model": {
         "nanoS": "Ledger Nano S",
@@ -20,7 +26,8 @@
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
-        "apexp": "Ledger Apex"
+        "apexp": "Ledger Apex",
+        "fallback": "Ledger device"
       },
       "deviceActions": {
         "continueOnLedger": {
@@ -52,6 +59,17 @@
       "available": "Available"
     }
   },
+  "ledgerSync": {
+    "turnOnLedgerSyncTitle": "Turn on Ledger Sync to continue",
+    "turnOnLedgerSyncSubtitle": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature.",
+    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "activate": "Activate Ledger Sync",
+    "activateStep1Desktop": "1. Click on the link below to activate Ledger Sync",
+    "activateStep1DesktopLLInstalled": "Make sure Ledger Live is installed on your computer.",
+    "activateStep1Mobile": "1. Scan the QR code with your mobile phone and follow instruction",
+    "activateStep2": "2. Once Ledger Sync is activated you can continue by clicking the link below",
+    "activated": "Ledger Sync is activated, continue"
+  },
   "onboarding": {
     "selectDevice": {
       "title": "Connect a Ledger"
@@ -72,6 +90,10 @@
       "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
     }
   },
+  "accountTokens": {
+    "title": "Account Tokens",
+    "noTokens": "No tokens found for this account"
+  },
   "signTransaction": {
     "success": {
       "title": "Transaction signed",
@@ -84,12 +106,40 @@
     }
   },
   "error": {
+    "generic": {
+      "account": {
+        "title": "An error occurred",
+        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "cta1": "Try again"
+      },
+      "sign": {
+        "title": "An error occurred",
+        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "cta1": "Try again"
+      }
+    },
     "device": {
       "DeviceNotSupported": {
         "title": "{device} isn't supported",
         "description": "The {device} isn't supported for the Ledger Direct connectivity on this Dapp",
         "cta1": "Connect another Ledger device",
         "cta2": "Upgrade to a new Ledger Device with 20% off"
+      },
+      "IncorrectSeed": {
+        "title": "Incorrect device",
+        "description": "This {device} does not match the selected account: {account}. Please connect the correct Ledger device",
+        "cta1": "Connect another Ledger device"
+      },
+      "BlindSigningDisabled": {
+        "title": "Blind signing disabled",
+        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "cta1": "Retry"
+      },
+      "UserRejectedTransaction": {
+        "title": "Transaction rejected",
+        "description": "You have rejected the transaction on your {device}",
+        "cta1": "Close Ledger",
+        "cta2": "Retry transaction"
       }
     },
     "ledgerSync": {
@@ -98,6 +148,20 @@
         "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
         "cta1": "Close this tab",
         "cta2": "What is Ledger Sync?"
+      },
+      "NoCompatibleAccounts": {
+        "title": "No compatible account found",
+        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
+        "cta1": "Create a new account on Ledger Live",
+        "cta2": "Use another Ledger device"
+      }
+    },
+    "network": {
+      "BroadcastTransactionError": {
+        "title": "Transaction failed",
+        "description": "Your transaction was sent to the network but failed to execute.",
+        "cta1": "Retry",
+        "cta2": "View on Etherscan"
       }
     },
     "connection": {

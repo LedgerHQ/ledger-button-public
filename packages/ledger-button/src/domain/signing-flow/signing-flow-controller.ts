@@ -34,14 +34,12 @@ export class SigningFlowController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((context) => {
-        console.log("Button Core Context changed", context);
         if (context.connectedDevice) {
           this.state = "sign-transaction";
         } else {
           this.state = "select-device";
         }
 
-        console.log("Current State", this.state);
         this.host.requestUpdate();
       });
   }

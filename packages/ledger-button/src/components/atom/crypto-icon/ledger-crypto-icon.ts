@@ -10,12 +10,13 @@ export type CryptoIconVariant = "rounded" | "square";
 
 export interface LedgerCryptoIconAttributes {
   ledgerId: string;
+  ticker: string;
   size?: CryptoIconSize;
   variant?: CryptoIconVariant;
 }
 
 const cryptoIconVariants = cva(
-  ["flex items-center justify-center overflow-hidden"],
+  ["position-relative flex items-center justify-center overflow-hidden"],
   {
     variants: {
       size: {
@@ -60,6 +61,12 @@ export class LedgerCryptoIcon extends LitElement {
   @property({ type: String, attribute: "ledger-id" })
   ledgerId = "";
 
+  @property({ type: String, attribute: "ticker" })
+  ticker = "";
+
+  @property({ type: String, attribute: "alt" })
+  alt = "";
+
   @property({ type: String })
   size: CryptoIconSize = "large";
 
@@ -82,16 +89,18 @@ export class LedgerCryptoIcon extends LitElement {
   }
 
   private renderFallback() {
-    return html` <div class="${this.iconClasses} bg-active"></div> `;
+    return html`
+      <div class="${this.iconClasses} bg-grey-500">${this.alt}</div>
+    `;
   }
 
   private renderCryptoIcon(iconUrl: string) {
     return html`
-      <div class="${this.iconClasses}">
+      <div class="${this.iconClasses}" style="position: relative;">
         <img
-          class="block h-full w-full object-cover"
+          class="token-icon block h-full w-full bg-active object-cover"
           src=${iconUrl}
-          alt=${this.ledgerId || "Crypto icon"}
+          alt=${this.alt}
         />
       </div>
     `;
@@ -102,14 +111,14 @@ export class LedgerCryptoIcon extends LitElement {
       return this.renderFallback();
     }
 
-    const iconUrl = this.getCryptoIconUrl(this.ledgerId);
+    const iconForIdUrl = this.getCryptoIconUrl(this.ledgerId);
 
-    if (iconUrl) {
-      return this.renderCryptoIcon(iconUrl);
+    if (iconForIdUrl) {
+      return this.renderCryptoIcon(iconForIdUrl);
     }
 
-    // Fallback: render blank circle
-    return this.renderFallback();
+    const iconForTickerUrl = `${CRYPTO_ICONS_BASE_URL}${this.ticker}.png`;
+    return this.renderCryptoIcon(iconForTickerUrl);
   }
 }
 

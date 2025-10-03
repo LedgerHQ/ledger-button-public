@@ -4,7 +4,12 @@ import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { StatusType } from "../../../components/organism/status/ledger-status.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 import { tailwindElement } from "../../../tailwind-element.js";
@@ -43,6 +48,10 @@ export class RetrievingAccountsScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
   controller!: RetrievingAccountsController;
 
   override connectedCallback() {
@@ -52,14 +61,48 @@ export class RetrievingAccountsScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
+      this.languages,
     );
   }
 
-  override render() {
+  private async handleStatusActionError(
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
+    if (e.detail.action === "primary") {
+      await this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      await this.controller.errorData?.cta2?.action();
+    }
+  }
+
+  renderErrorScreen() {
+    if (!this.controller.errorData) {
+      return html``;
+    }
+
+    return html`
+      <div class="flex flex-col gap-12 p-24 pt-0">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData.title}
+          description=${this.controller.errorData.message}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusActionError}
+        ></ledger-status>
+      </div>
+    `;
+  }
+
+  renderScreen() {
     return html`
       <div class="min-h-full overflow-hidden">
         <ledger-lottie
-          class="animation"
+          class="animation overflow-hidden"
           animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}
@@ -67,6 +110,12 @@ export class RetrievingAccountsScreen extends LitElement {
         ></ledger-lottie>
       </div>
     `;
+  }
+
+  override render() {
+    return this.controller.errorData
+      ? this.renderErrorScreen()
+      : this.renderScreen();
   }
 }
 

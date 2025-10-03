@@ -1,8 +1,8 @@
 import { Container } from "inversify";
 
 import { accountModuleFactory } from "./account/accountModule.js";
-import { alpacaModuleFactory } from "./alpaca/alpacaModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
+import { balanceModuleFactory } from "./balance/balanceModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
@@ -29,7 +29,7 @@ export function createContainer({
       account: false,
       device: false,
       web3Provider: false,
-      alpaca: false,
+      balance: false,
       dAppConfig: false,
     },
   },
@@ -38,7 +38,7 @@ export function createContainer({
 
   container.loadSync(
     configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
-    alpacaModuleFactory({ stub: devConfig.stub.alpaca }),
+    balanceModuleFactory({ stub: devConfig.stub.balance }),
     loggerModuleFactory({ stub: devConfig.stub.base }),
     accountModuleFactory({ stub: devConfig.stub.account }),
     backendModuleFactory({ stub: devConfig.stub.base }),

@@ -15,17 +15,17 @@ const meta: Meta = {
       control: "select",
       options: [
         "ledger",
+        "back",
         "close",
         "bluetooth",
         "usb",
         "chevronRight",
         "chevronDown",
-        "ethereum",
-        "bsc",
-        "polygon",
         "check",
         "error",
         "device",
+        "mobile",
+        "desktop",
       ],
       description: "The type of icon to display",
     },
@@ -33,6 +33,11 @@ const meta: Meta = {
       control: "select",
       options: ["small", "medium", "large"],
       description: "The size of the icon",
+    },
+    fillColor: {
+      control: "color",
+      description: "The color of the icon",
+      options: ["white", "black"],
     },
   },
 };
@@ -166,66 +171,17 @@ export const ChevronDownIconLarge: Story = {
   },
 };
 
-export const EthereumIconSmall: Story = {
+export const BackIconSmall: Story = {
   args: {
-    type: "ethereum",
+    type: "back",
     size: "small",
   },
 };
 
-export const EthereumIconMedium: Story = {
+export const BackIconMedium: Story = {
   args: {
-    type: "ethereum",
+    type: "back",
     size: "medium",
-  },
-};
-
-export const EthereumIconLarge: Story = {
-  args: {
-    type: "ethereum",
-    size: "large",
-  },
-};
-
-export const BSCIconSmall: Story = {
-  args: {
-    type: "bsc",
-    size: "small",
-  },
-};
-
-export const BSCIconMedium: Story = {
-  args: {
-    type: "bsc",
-    size: "medium",
-  },
-};
-
-export const BSCIconLarge: Story = {
-  args: {
-    type: "bsc",
-    size: "large",
-  },
-};
-
-export const PolygonIconSmall: Story = {
-  args: {
-    type: "polygon",
-    size: "small",
-  },
-};
-
-export const PolygonIconMedium: Story = {
-  args: {
-    type: "polygon",
-    size: "medium",
-  },
-};
-
-export const PolygonIconLarge: Story = {
-  args: {
-    type: "polygon",
-    size: "large",
   },
 };
 
@@ -292,6 +248,29 @@ export const DeviceIconLarge: Story = {
   },
 };
 
+export const MobileIconSmall: Story = {
+  args: {
+    type: "mobile",
+    size: "small",
+    fillColor: "white",
+  },
+};
+export const MobileIconMedium: Story = {
+  args: {
+    type: "mobile",
+    size: "medium",
+    fillColor: "black",
+  },
+};
+
+export const MobileIconLarge: Story = {
+  args: {
+    type: "mobile",
+    size: "large",
+    fillColor: "white",
+  },
+};
+
 export const AllIcons: Story = {
   render: () => html`
     <div
@@ -314,6 +293,10 @@ export const AllIcons: Story = {
         <p style="margin: 8px 0 0 0; font-size: 12px;">USB</p>
       </div>
       <div style="text-align: center;">
+        <ledger-icon type="back" size="medium"></ledger-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Back</p>
+      </div>
+      <div style="text-align: center;">
         <ledger-icon type="chevronRight" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron Right</p>
       </div>
@@ -328,6 +311,10 @@ export const AllIcons: Story = {
       <div style="text-align: center;">
         <ledger-icon type="device" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Device</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon type="platform" size="medium"></ledger-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Platform</p>
       </div>
     </div>
   `,

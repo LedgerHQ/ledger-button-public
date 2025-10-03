@@ -9,6 +9,9 @@ import "../domain/device-connection-status/device-connection-status.js";
 import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
 import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
 import "../domain/signing-flow/signing-flow.js";
+import "../domain/account-tokens/account-tokens.js";
+import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
+import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -105,7 +108,7 @@ export const makeDestinations = (translation: Translation) => {
     ledgerSync: {
       name: "ledgerSync",
       component: "ledger-sync-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: translation.onboarding.ledgerSync.title,
         showCloseButton: false,
@@ -114,9 +117,27 @@ export const makeDestinations = (translation: Translation) => {
     turnOnSync: {
       name: "turnOnSync",
       component: "turn-on-sync-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: translation.onboarding.turnOnSync.title,
+        showCloseButton: true,
+      },
+    },
+    turnOnSyncDesktop: {
+      name: "turnOnSyncDesktop",
+      component: "turn-on-sync-desktop-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.ledgerSync.activate,
+        showCloseButton: true,
+      },
+    },
+    turnOnSyncMobile: {
+      name: "turnOnSyncMobile",
+      component: "turn-on-sync-mobile-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.ledgerSync.activate,
         showCloseButton: true,
       },
     },
@@ -150,7 +171,7 @@ export const makeDestinations = (translation: Translation) => {
     signTransaction: {
       name: "signTransaction",
       component: "sign-transaction-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: "",
         showCloseButton: false,
@@ -159,10 +180,19 @@ export const makeDestinations = (translation: Translation) => {
     signingFlow: {
       name: "signingFlow",
       component: "signing-flow",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: "",
         showCloseButton: false,
+      },
+    },
+    accountTokens: {
+      name: "accountTokens",
+      component: "account-tokens-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.accountTokens?.title || "Account Tokens",
+        showCloseButton: true,
       },
     },
     notFound: {

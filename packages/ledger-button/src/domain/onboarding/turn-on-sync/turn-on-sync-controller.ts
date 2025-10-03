@@ -2,6 +2,7 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
+import { Destinations } from "../../../shared/routes.js";
 
 export class TurnOnSyncController implements ReactiveController {
   host: ReactiveControllerHost;
@@ -9,6 +10,7 @@ export class TurnOnSyncController implements ReactiveController {
   constructor(
     host: ReactiveControllerHost,
     private readonly navigation: Navigation,
+    private readonly destinations: Destinations,
   ) {
     this.host = host;
     this.host.addController(this);
@@ -18,11 +20,12 @@ export class TurnOnSyncController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  handleTurnOnSync() {
-    window.open("ledgerlive://ledgersync");
-    if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.closeModal();
-    }
+  handleTurnOnSyncOnMobile() {
+    this.navigation.navigateTo(this.destinations.turnOnSyncMobile);
+  }
+
+  handleTurnOnSyncOnDesktop() {
+    this.navigation.navigateTo(this.destinations.turnOnSyncDesktop);
   }
 
   handleLearnMore() {

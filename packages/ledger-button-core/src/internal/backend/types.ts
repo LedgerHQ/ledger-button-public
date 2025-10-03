@@ -13,15 +13,19 @@ export type BroadcastRequest = {
   rpc: JSONRPCRequest;
 };
 
-export type BroadcastResponse = {
-  result?: string;
-  error?: {
-    code: number;
-    message: string;
-  };
-  id: number;
-  jsonrpc: string;
-};
+export type BroadcastResponse =
+  | {
+      result?: string;
+      error?: {
+        code: number;
+        message: string;
+      };
+      id: number;
+      jsonrpc: string;
+    }
+  | {
+      transactionIdentifier: string;
+    };
 
 export type ConfigRequest = {
   dAppIdentifier: string;

@@ -163,7 +163,7 @@ export default function Index() {
 
     if (!sendTxRef.current?.value) return;
     try {
-      const transx = JSON.parse(sendTxRef?.current?.value);
+      const transx = JSON.parse(sendTxRef.current.value);
       console.log("JSON RPC eth_sendTransaction TX ", transx);
 
       const result = (await selectedProvider.provider.request({
@@ -259,15 +259,17 @@ export default function Index() {
     setResult(null);
     setIsOpen(false);
     setError(null);
-    console.log("JSON RPC eth_signRawTransaction TX ", rawTxRef.current.value);
-    const transx = ethers.Transaction.from(rawTxRef.current.value);
+    const rawTx = rawTxRef.current.value;
+    console.log("JSON RPC eth_signRawTransaction TX ", rawTx);
+    const transx = ethers.Transaction.from(rawTx);
     console.log("JSON RPC eth_signRawTransaction Ethers Transaction", {
       transx,
     });
+
     try {
       const result = (await selectedProvider.provider.request({
         method: "eth_signRawTransaction",
-        params: [transx],
+        params: [rawTx],
       })) as string;
       console.log({ transaction: result });
       setResult(result);

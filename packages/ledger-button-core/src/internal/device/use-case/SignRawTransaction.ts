@@ -9,7 +9,9 @@ import {
 import {
   SignerEthBuilder,
   SignTransactionDAState,
+  SignTransactionDAStep,
 } from "@ledgerhq/device-signer-kit-ethereum";
+import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { Signature } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 import {
@@ -23,6 +25,15 @@ import {
   tap,
 } from "rxjs";
 
+import {
+  BlindSigningDisabledError,
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "../../../api/errors/DeviceErrors.js";
+import {
+  GetAddressDAState,
+  isGetAddressResult,
+} from "../../../api/model/signing/GetAddress.js";
 import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -66,6 +77,7 @@ import {
 @injectable()
 export class SignRawTransaction {
   private readonly logger: LoggerPublisher;
+  private pendingStep = "";
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -107,7 +119,7 @@ export class SignRawTransaction {
       });
     }
 
-    const { rawTransaction, broadcast } = params;
+    const { transaction, broadcast } = params;
     const signType = "transaction";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -124,7 +136,7 @@ export class SignRawTransaction {
         sessionId,
       }).build();
 
-      const tx = hexaStringToBuffer(rawTransaction);
+      const tx = hexaStringToBuffer(transaction);
       if (!tx) {
         throw Error("Invalid raw transaction format");
       }
@@ -150,9 +162,8 @@ export class SignRawTransaction {
         );
 
       const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
-      console.log("Derivation path", { derivationPath });
 
-      this.trackTransactionFlowInitialization(rawTransaction, selectedAccount);
+      this.trackTransactionFlowInitialization(transaction, selectedAccount);
 
       initObservable
         .pipe(
@@ -173,11 +184,7 @@ export class SignRawTransaction {
           ),
           tap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
+              this.getTransactionResultForEvent(result, transaction, signType),
             );
           }),
           filter((result: OpenAppWithDependenciesDAState) => {
@@ -187,16 +194,44 @@ export class SignRawTransaction {
             );
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              throw new Error("Open app with dependencies failed");
+            }
+
+            const { observable: addressObservable } = ethSigner.getAddress(
+              derivationPath,
+              {
+                skipOpenApp: true,
+              },
+            );
+
+            return addressObservable.pipe(
+              filter((result: GetAddressDAState) => {
+                return (
+                  result.status === DeviceActionStatus.Error ||
+                  result.status === DeviceActionStatus.Completed
+                );
+              }),
+            );
+          }),
+          switchMap((result: GetAddressDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              // TODO: Add error code
+              throw result.error;
+            }
+
+            if (
+              result.status === DeviceActionStatus.Completed &&
+              result.output.address !== selectedAccount.freshAddress
+            ) {
+              throw new IncorrectSeedError("Address mismatch");
+            }
+
             resultObservable.next({
               signType,
               status: "debugging",
               message: "Starting Sign Transaction DA",
             });
-            if (result.status === DeviceActionStatus.Error) {
-              throw new Error("Open app with dependencies failed");
-            }
-
-            //TODO Check account with Command getAddress(derivation path) and throw error if not matching
 
             const { observable: signObservable } = ethSigner.signTransaction(
               derivationPath,
@@ -206,7 +241,13 @@ export class SignRawTransaction {
               },
             );
 
-            return signObservable;
+            return signObservable.pipe(
+              tap((result: SignTransactionDAState) => {
+                if (result.status === DeviceActionStatus.Pending) {
+                  this.pendingStep = result.intermediateValue?.step ?? "";
+                }
+              }),
+            );
           }),
           filter(
             (result: SignTransactionDAState) =>
@@ -220,72 +261,90 @@ export class SignRawTransaction {
               result.status === DeviceActionStatus.Completed
             );
           }),
-          tap((result: SignTransactionDAState) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
-            );
+          map((result: SignTransactionDAState) => {
+            if (result.status === DeviceActionStatus.Error) {
+              switch (true) {
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6a80" &&
+                  this.pendingStep ===
+                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
+                  throw new BlindSigningDisabledError("Blind signing disabled");
+                case result.error instanceof EthAppCommandError &&
+                  result.error.errorCode === "6985":
+                  throw new UserRejectedTransactionError(
+                    "User rejected transaction",
+                  );
+                default:
+                  throw result.error;
+              }
+            }
+
+            return result;
           }),
-          switchMap(async (result: SignTransactionDAState) => {
-            if (broadcast && result.status === DeviceActionStatus.Completed) {
+          filter((result: SignTransactionDAState) => {
+            return result.status === DeviceActionStatus.Completed;
+          }),
+          switchMap(async (result) => {
+            //Broadcast TX
+            if (broadcast) {
               const broadcastParams: BroadcastTransactionParams = {
                 signature: result.output as Signature,
-                rawTransaction,
+                rawTransaction: transaction,
                 currencyId: selectedAccount.currencyId,
               };
-              const broadcastResult = await this.broadcastTransactionUseCase.execute(
-                broadcastParams,
-              );
+              const broadcastResult =
+                await this.broadcastTransactionUseCase.execute(broadcastParams);
 
               if (isBroadcastedTransactionResult(broadcastResult)) {
-                this.trackTransactionFlowCompletion(rawTransaction, selectedAccount, broadcastResult.hash);
+                this.trackTransactionFlowCompletion(
+                  transaction,
+                  selectedAccount,
+                  broadcastResult.hash,
+                );
               }
 
               return broadcastResult;
-            } else if (result.status === DeviceActionStatus.Completed) {
-              // Track completion for sign-only transactions
-              const signedTx = createSignedTransaction(rawTransaction, {
-                r: result.output.r,
-                s: result.output.s,
-                v: result.output.v,
-              } as Signature);
-
-              if (isBroadcastedTransactionResult(signedTx)) {
-                this.trackTransactionFlowCompletion(rawTransaction, selectedAccount, signedTx.hash);
-              }
-
-              return result;
-            } else {
-              return result;
             }
+            // No Broadcast TX
+            // TODO Track completion for sign-only transactions
+            const signedTx = createSignedTransaction(transaction, {
+              r: result.output.r,
+              s: result.output.s,
+              v: result.output.v,
+            } as Signature);
+
+            // Track completion for sign-only transactions
+            return signedTx;
           }),
         )
         .subscribe({
           next: (result) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(
-                result,
-                rawTransaction,
-                signType,
-              ),
-            );
+            if (
+              isSignedTransactionResult(result) ||
+              isBroadcastedTransactionResult(result)
+            ) {
+              resultObservable.next(
+                this.getTransactionResultForEvent(
+                  result,
+                  transaction,
+                  signType,
+                ),
+              );
+            }
           },
-          error: (error: Error) => {
-            console.error("Failed to sign transaction in SignRawTransaction", {
-              error,
+          error: (error) => {
+            console.error("Failed to sign transaction subscribe", { error });
+            resultObservable.next({
+              signType,
+              status: "error",
+              error: error,
             });
-            resultObservable.next({ signType, status: "error", error: error });
           },
         });
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign transaction in SignRawTransaction", {
-        error,
-      });
+      console.error("Failed to sign transaction catch", { error });
       this.logger.error("Failed to sign transaction", { error });
       return of({
         signType,
@@ -317,6 +376,7 @@ export class SignRawTransaction {
   private getTransactionResultForEvent(
     result:
       | OpenAppWithDependenciesDAState
+      | GetAddressDAState
       | SignTransactionDAState
       | SignedResults,
     rawTx: string,
@@ -379,9 +439,16 @@ export class SignRawTransaction {
               message: `Unhandled user interaction: ${JSON.stringify(result.intermediateValue?.requiredUserInteraction)}`,
             };
         }
-      case DeviceActionStatus.Completed:
-        console.log("Transaction signing completed", { result });
-        if (!("deviceMetadata" in result.output)) {
+      case DeviceActionStatus.Completed: {
+        if (isGetAddressResult(result)) {
+          return {
+            signType,
+            status: "debugging",
+            message: `Got address: ${result.output.address}`,
+          };
+        }
+
+        if ("r" in result.output) {
           const signedTransaction = createSignedTransaction(rawTx, {
             r: result.output.r,
             s: result.output.s,
@@ -393,23 +460,18 @@ export class SignRawTransaction {
             data: signedTransaction,
           };
         } else {
-          console.debug("Open app completed", { result });
           return {
             signType,
             status: "debugging",
             message: `App Opened`,
           };
         }
+      }
       case DeviceActionStatus.Error:
-        console.error("Error signing transaction in SignRawTransaction", {
-          error: result.error.toString(),
-        });
         return {
           signType,
           status: "error",
-          error: new SignTransactionError(
-            result.error.toString() ?? "Unknown error",
-          ),
+          error: result,
         };
       default:
         return {
@@ -428,19 +490,27 @@ export class SignRawTransaction {
       const sessionId = this.deviceManagementKitService.sessionId;
       const trustChainId = this.storageService.getTrustChainId().extract();
 
-      const event = EventTrackingUtils.createTransactionFlowInitializationEvent({
-        dAppId: this.config.dAppIdentifier,
-        sessionId: sessionId || "",
-        ledgerSyncUserId: trustChainId || "",
-        accountCurrency: selectedAccount.currencyId,
-        accountBalance: selectedAccount.balance?.toString() || "0",
-        unsignedTransactionHash: rawTransaction,
-        transactionType: "standard_tx",
-      });
+      const event = EventTrackingUtils.createTransactionFlowInitializationEvent(
+        {
+          dAppId: this.config.dAppIdentifier,
+          sessionId: sessionId || "",
+          ledgerSyncUserId: trustChainId || "",
+          accountCurrency: selectedAccount.currencyId,
+          accountBalance: selectedAccount.balance?.toString() || "0",
+          unsignedTransactionHash: rawTransaction,
+          transactionType: "standard_tx",
+        },
+      );
 
-      await this.eventTrackingService.trackEvent(event, sessionId, trustChainId);
+      await this.eventTrackingService.trackEvent(
+        event,
+        sessionId,
+        trustChainId,
+      );
     } catch (error) {
-      this.logger.error("Failed to track transaction flow initialization", { error });
+      this.logger.error("Failed to track transaction flow initialization", {
+        error,
+      });
     }
   }
 
@@ -453,36 +523,49 @@ export class SignRawTransaction {
       const sessionId = this.deviceManagementKitService.sessionId;
       const trustChainId = this.storageService.getTrustChainId().extract();
 
-      const completionEvent = EventTrackingUtils.createTransactionFlowCompletionEvent({
-        dAppId: this.config.dAppIdentifier,
-        sessionId: sessionId || "",
-        ledgerSyncUserId: trustChainId || "",
-        accountCurrency: selectedAccount.currencyId,
-        accountBalance: selectedAccount.balance?.toString() || "0",
-        unsignedTransactionHash: rawTransaction,
-        transactionType: "standard_tx",
-        transactionHash: transactionHash || "",
-      });
+      const completionEvent =
+        EventTrackingUtils.createTransactionFlowCompletionEvent({
+          dAppId: this.config.dAppIdentifier,
+          sessionId: sessionId || "",
+          ledgerSyncUserId: trustChainId || "",
+          accountCurrency: selectedAccount.currencyId,
+          accountBalance: selectedAccount.balance?.toString() || "0",
+          unsignedTransactionHash: rawTransaction,
+          transactionType: "standard_tx",
+          transactionHash: transactionHash || "",
+        });
 
-      await this.eventTrackingService.trackEvent(completionEvent, sessionId, trustChainId);
+      await this.eventTrackingService.trackEvent(
+        completionEvent,
+        sessionId,
+        trustChainId,
+      );
 
-      const invoicingData = getInvoicingEventDataFromTransaction(rawTransaction);
-      const invoicingEvent = EventTrackingUtils.createInvoicingTransactionSignedEvent({
-        dAppId: this.config.dAppIdentifier,
-        sessionId: sessionId || "",
-        ledgerSyncUserId: trustChainId || "",
-        transactionHash: transactionHash || "",
-        transactionType: invoicingData.transactionType,
-        sourceToken: invoicingData.sourceToken,
-        targetToken: invoicingData.targetToken,
-        recipientAddress: invoicingData.recipientAddress,
-        transactionAmount: invoicingData.transactionAmount,
-        transactionId: transactionHash || "",
-      });
+      const invoicingData =
+        getInvoicingEventDataFromTransaction(rawTransaction);
+      const invoicingEvent =
+        EventTrackingUtils.createInvoicingTransactionSignedEvent({
+          dAppId: this.config.dAppIdentifier,
+          sessionId: sessionId || "",
+          ledgerSyncUserId: trustChainId || "",
+          transactionHash: transactionHash || "",
+          transactionType: invoicingData.transactionType,
+          sourceToken: invoicingData.sourceToken,
+          targetToken: invoicingData.targetToken,
+          recipientAddress: invoicingData.recipientAddress,
+          transactionAmount: invoicingData.transactionAmount,
+          transactionId: transactionHash || "",
+        });
 
-      await this.eventTrackingService.trackEvent(invoicingEvent, sessionId, trustChainId);
+      await this.eventTrackingService.trackEvent(
+        invoicingEvent,
+        sessionId,
+        trustChainId,
+      );
     } catch (error) {
-      this.logger.error("Failed to track transaction flow completion", { error });
+      this.logger.error("Failed to track transaction flow completion", {
+        error,
+      });
     }
   }
 }

@@ -10,6 +10,7 @@ const styles = css`
     width: 100%;
     height: 100%;
     position: absolute;
+    overflow: hidden;
     top: 0;
     left: 0;
     z-index: 1000;
@@ -36,6 +37,7 @@ const styles = css`
     width: min(calc(100% - 32px), 400px);
     height: auto;
     max-height: min(calc(100vh - 64px), 550px);
+    overflow: hidden;
   }
 `;
 
@@ -151,7 +153,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-backdrop"
       >
         <div
-          class="modal-container fixed inset-0 z-10 flex flex-col self-center justify-self-center rounded-xl bg-black"
+          class="modal-container z-10 fixed inset-0 flex flex-col self-center justify-self-center overflow-hidden rounded-xl bg-black"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">

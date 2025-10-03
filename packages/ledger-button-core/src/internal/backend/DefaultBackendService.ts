@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
 import { configModuleTypes } from "../config/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
 import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
@@ -17,6 +18,7 @@ import type {
   EventResponse,
 } from "./types.js";
 
+//TODO change to config.getBackendUrl(config.environment)
 const BACKEND_BASE_URL = "https://ledgerb.aws.stg.ldg-tech.com";
 
 @injectable()
@@ -50,9 +52,14 @@ export class DefaultBackendService implements BackendService {
       options,
     );
 
-    return result.mapLeft(
-      (error: Error) => new Error(`Broadcast failed: ${error.message}`),
-    );
+    return result.mapLeft((error: Error) => {
+      return new BroadcastTransactionError(
+        `Broadcast failed: ${error.message}`,
+        {
+          error,
+        },
+      );
+    });
   }
 
   async getConfig(request: ConfigRequest) {

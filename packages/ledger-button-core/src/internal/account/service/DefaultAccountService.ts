@@ -1,8 +1,15 @@
 import { ethers } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
+import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import {
+  type AccountBalance,
+  type TokenBalance,
+} from "../../balance/model/types.js";
+import { type BalanceService } from "../../balance/service/BalanceService.js";
 import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
@@ -10,7 +17,12 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
-import { Account, AccountService, CloudSyncData } from "./AccountService.js";
+import {
+  type Account,
+  type AccountService,
+  type CloudSyncData,
+  type Token,
+} from "./AccountService.js";
 
 @injectable()
 export class DefaultAccountService implements AccountService {
@@ -27,6 +39,8 @@ export class DefaultAccountService implements AccountService {
     private readonly dAppConfigService: DAppConfigService,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(balanceModuleTypes.BalanceService)
+    private readonly balanceService: BalanceService,
   ) {
     this.logger = this.loggerFactory("[Account Service]");
   }
@@ -38,7 +52,6 @@ export class DefaultAccountService implements AccountService {
 
     const accountsWithBalance =
       await this.getAccountsWithBalance(mappedAccounts);
-    console.log("Accounts with balance", accountsWithBalance);
 
     this.setAccounts(accountsWithBalance);
   }
@@ -77,7 +90,7 @@ export class DefaultAccountService implements AccountService {
     const supportedBlockchains = (await this.dAppConfigService.getDAppConfig())
       .supportedBlockchains;
 
-    return accounts
+    const accs = accounts
       .map((account) => {
         const blockchain = supportedBlockchains.find(
           (blockchain) => blockchain.currency_id === account.currencyId,
@@ -88,12 +101,6 @@ export class DefaultAccountService implements AccountService {
           `${blockchain?.currency_name} Account ${account.index}`;
 
         const ticker = blockchain?.currency_ticker;
-        console.log(
-          "ticker for blockchain",
-          blockchain,
-          account.currencyId,
-          ticker,
-        );
         return ticker
           ? ({
               ...account,
@@ -108,40 +115,105 @@ export class DefaultAccountService implements AccountService {
           : undefined;
       })
       .filter((account) => account !== undefined);
+
+    if (accs.length === 0) {
+      throw new NoCompatibleAccountsError("No accounts found", {
+        networks: supportedBlockchains.map((network) => network.currency_name),
+      });
+    }
+
+    return accs;
   }
 
   private async getAccountsWithBalance(
     accounts: Account[],
   ): Promise<Account[]> {
-    const accountsWithBalance = await Promise.all(
+    const accountsWithBalanceAndTokens = await Promise.all(
       accounts.map(async (account: Account) => {
-        //TMP use alpaca service to get balance when ready
-        const chainId = getChainIdFromCurrencyId(account.currencyId);
-        const balanceResult = await this.backendService.broadcast({
-          blockchain: { name: "ethereum", chainId: chainId },
-          rpc: {
-            method: "eth_getBalance",
-            params: [account.freshAddress, "latest"],
-            id: 1,
-            jsonrpc: "2.0",
-          },
+        this.logger.debug("Fetching balance and tokens for account", {
+          address: account.freshAddress,
+          currencyId: account.currencyId,
         });
 
+        const balanceResult =
+          await this.balanceService.getBalanceForAccount(account);
+
         let balance = "0.0000";
+        let tokens: Token[] = [];
+
         if (balanceResult.isRight()) {
-          //Result is  hex value in WEI
-          const balanceHex = balanceResult.extract().result as string;
-          balance = ethers.formatEther(balanceHex);
+          const balanceData = balanceResult.extract() as AccountBalance;
+          balance = ethers.formatEther(balanceData.nativeBalance.balance);
           balance =
-            balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4); //Only keep 4 decimals
+            balance.split(".")[0] + "." + balance.split(".")[1].slice(0, 4);
+
+          tokens = balanceData.tokenBalances.map(
+            (tokenBalance: TokenBalance) => ({
+              ticker: tokenBalance.ticker,
+              name: tokenBalance.name,
+              balance: tokenBalance.balanceFormatted,
+            }),
+          );
+        } else {
+          //RPC fallback if balance service fails
+          if (balanceResult.isLeft()) {
+            const balanceError = balanceResult.extract();
+            this.logger.warn(
+              "Failed to fetch balance from balance service (Alpaca), falling back to backend and getting balance from RPC node",
+              {
+                error: balanceError,
+                address: account.freshAddress,
+              },
+            );
+
+            // Fallback to the original backend method
+            const chainId = getChainIdFromCurrencyId(account.currencyId);
+            const balanceRpcResult = await this.backendService.broadcast({
+              blockchain: { name: "ethereum", chainId: chainId },
+              rpc: {
+                method: "eth_getBalance",
+                params: [account.freshAddress, "latest"],
+                id: 1,
+                jsonrpc: "2.0",
+              },
+            });
+
+            if (balanceRpcResult.isRight()) {
+              const extract = balanceRpcResult.extract();
+              if ("result" in extract) {
+                // RPC do not return error but undefined
+                const balanceHex = extract.result as string;
+                balance = ethers.formatEther(balanceHex);
+                balance =
+                  balance.split(".")[0] +
+                  "." +
+                  balance.split(".")[1].slice(0, 4);
+              }
+              // TODO: What do we do when Alpaca responds with { transactionIdentifier } ?
+            }
+
+            return { ...account, balance, tokens: [] };
+          }
         }
 
-        return { ...account, balance };
+        this.logger.debug("Successfully fetched balance and tokens", {
+          address: account.freshAddress,
+          balance,
+          tokenCount: tokens.length,
+        });
+
+        return { ...account, balance, tokens };
       }),
     );
 
-    console.log("accountsWithBalance", accountsWithBalance);
+    this.logger.debug("All accounts with balance and tokens", {
+      accountCount: accountsWithBalanceAndTokens.length,
+      totalTokensAcrossAccounts: accountsWithBalanceAndTokens.reduce(
+        (sum, acc) => sum + acc.tokens.length,
+        0,
+      ),
+    });
 
-    return accountsWithBalance;
+    return accountsWithBalanceAndTokens;
   }
 }

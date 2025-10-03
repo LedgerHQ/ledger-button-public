@@ -1,3 +1,4 @@
+export { default as BackIcon } from "./backIcon";
 export { default as BluetoothIcon } from "./bluetoothIcon";
 export { default as CartIcon } from "./cartIcon";
 export { default as CheckIcon } from "./checkIcon";
@@ -7,4 +8,5 @@ export { default as CloseIcon } from "./closeIcon";
 export { default as DeviceIcon } from "./deviceIcon";
 export { default as ErrorIcon } from "./errorIcon";
 export { default as LedgerLogoIcon } from "./ledgerLogoIcon";
+export { PlatformIcon } from "./platform-icon/platform-icon.js";
 export { default as UsbIcon } from "./usbIcon";

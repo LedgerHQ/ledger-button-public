@@ -78,6 +78,10 @@ export class RootNavigationComponent extends LitElement {
     this.rootNavigationController.handleChipClick();
   }
 
+  private goBack() {
+    this.rootNavigationController.navigateBack();
+  }
+
   private renderScreen() {
     const currentScreen = this.rootNavigationController.currentScreen;
 
@@ -98,6 +102,10 @@ export class RootNavigationComponent extends LitElement {
 
   override render() {
     const connectedDevice = this.coreContext.getConnectedDevice();
+    const canGoBack =
+      this.rootNavigationController.currentScreen?.canGoBack ?? false;
+    const canGoBackProp = canGoBack ? true : undefined; //cf. https://lit.dev/docs/components/properties/#conversion-type Boolean property
+
     const title =
       connectedDevice &&
       this.rootNavigationController.currentScreen?.name === "home"
@@ -120,10 +128,12 @@ export class RootNavigationComponent extends LitElement {
           <ledger-toolbar
             title=${ifDefined(title)}
             aria-label=${ifDefined(title)}
+            .canGoBack=${canGoBackProp}
             .showCloseButton=${this.rootNavigationController.currentScreen
               ?.toolbar.showCloseButton ?? true}
             deviceModelId=${ifDefined(deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
+            @ledger-toolbar-go-back-click=${this.goBack}
             @ledger-toolbar-chip-click=${this.handleChipClick}
           >
           </ledger-toolbar>

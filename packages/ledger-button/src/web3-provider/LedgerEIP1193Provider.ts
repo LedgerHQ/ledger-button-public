@@ -161,9 +161,15 @@ export class LedgerEIP1193Provider
         );
       }
 
+      let tx: Record<string, unknown> | string;
       //Sanitize transaction for EIP-1193
-      const transaction = params[0] as Record<string, unknown>;
-      transaction["chainId"] = this._selectedChainId;
+      if (typeof params[0] === "object") {
+        const transaction = params[0] as Record<string, unknown>;
+        transaction["chainId"] = this._selectedChainId;
+        tx = transaction;
+      } else {
+        tx = params[0] as string;
+      }
 
       window.addEventListener(
         "ledger-provider-sign-transaction",
@@ -180,7 +186,7 @@ export class LedgerEIP1193Provider
       );
 
       this.app.navigationIntent("signTransaction", {
-        transaction: transaction,
+        transaction: tx,
         broadcast,
       });
     });
@@ -275,20 +281,11 @@ export class LedgerEIP1193Provider
 
   // Public API
   public async request({ method, params }: RequestArguments) {
-    console.log(
-      "[Ledger Provider] EIP1193 Provider request called",
-      method,
-      params,
-    );
-
     if (method in this.handlers) {
       const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
       );
-      console.log(
-        "[Ledger Provider] EIP1193 Provider request response (handlers)",
-        res,
-      );
+
       return res;
     }
 
@@ -298,11 +295,6 @@ export class LedgerEIP1193Provider
       method,
       params,
     });
-
-    console.log(
-      "[Ledger Provider] EIP1193 Provider request response (backend)",
-      res,
-    );
 
     return res;
   }

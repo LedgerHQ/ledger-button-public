@@ -41,9 +41,8 @@ export class OnboardingFlow extends LitElement {
   }
 
   override render() {
-    console.log("Rendering tag for state", this.controller.state);
     const stateTag = unsafeStatic(this.controller.state + "-screen");
-    console.log("stateTag", stateTag);
+
     return staticHtml`
         <${stateTag}
         .destinations=${this.destinations}

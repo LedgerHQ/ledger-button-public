@@ -2,6 +2,7 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { PlatformItemClickEventDetail } from "../../../components/molecule/platform-item/ledger-platform-item.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
@@ -34,13 +35,24 @@ export class TurnOnSyncScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    console.log("Connected to turn-on-sync-screen");
 
-    this.controller = new TurnOnSyncController(this, this.navigation);
+    this.controller = new TurnOnSyncController(
+      this,
+      this.navigation,
+      this.destinations,
+    );
   }
 
-  private handleTurnOnSync() {
-    this.controller.handleTurnOnSync();
+  private handleActivateMobile(
+    _event: CustomEvent<PlatformItemClickEventDetail>,
+  ) {
+    this.controller.handleTurnOnSyncOnMobile();
+  }
+
+  private handleActivateDesktop(
+    _event: CustomEvent<PlatformItemClickEventDetail>,
+  ) {
+    this.controller.handleTurnOnSyncOnDesktop();
   }
 
   private handleLearnMore() {
@@ -48,8 +60,6 @@ export class TurnOnSyncScreen extends LitElement {
   }
 
   override render() {
-    console.log("Rendering turn-on-sync-screen");
-
     const lang = this.languageContext.currentTranslation;
     return html`
       <div class="flex flex-col gap-32 p-24 pt-0">
@@ -58,26 +68,35 @@ export class TurnOnSyncScreen extends LitElement {
         </div>
         <div class="flex flex-col gap-8">
           <h4 class="text-center text-base heading-4">
-            ${lang.onboarding.turnOnSync.subtitle}
+            ${lang.ledgerSync.turnOnLedgerSyncTitle}
           </h4>
           <p class="text-center text-muted body-2">
-            ${lang.onboarding.turnOnSync.text}
+            ${lang.ledgerSync.turnOnLedgerSyncSubtitle}
           </p>
         </div>
+        <div class="flex flex-col gap-8">
+          <h6 class="heading-6 text-center text-base">
+            ${lang.ledgerSync.activateSelectPlatform}
+          </h6>
+        </div>
         <div class="flex flex-col gap-16">
-          <ledger-button
-            variant="primary"
-            size="full"
-            .label=${lang.common.turnOnLedgerSync}
-            @click=${this.handleTurnOnSync}
-          ></ledger-button>
-
-          <ledger-button
-            variant="secondary"
-            size="full"
+          <ledger-platform-item
+            title=${lang.common.platform.onMobile}
+            platform-type="mobile"
+            @ledger-platform-item-click=${this.handleActivateMobile}
+          ></ledger-platform-item>
+          <ledger-platform-item
+            title=${lang.common.platform.onDesktop}
+            platform-type="desktop"
+            @ledger-platform-item-click=${this.handleActivateDesktop}
+          ></ledger-platform-item>
+        </div>
+        <div class="flex flex-col gap-16">
+          <ledger-link
+            style="color: #FFFFFF"
             .label=${lang.common.learnMore}
-            @click=${this.handleLearnMore}
-          ></ledger-button>
+            @link-click=${this.handleLearnMore}
+          ></ledger-link>
         </div>
       </div>
     `;

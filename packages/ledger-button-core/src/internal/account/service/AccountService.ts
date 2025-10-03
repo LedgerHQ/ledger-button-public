@@ -21,8 +21,7 @@ export type Account = CloudSyncAccount & {
 };
 
 export type Token = {
-  address: string;
-  symbol: string;
+  ticker: string;
   name: string;
   balance: string;
 };

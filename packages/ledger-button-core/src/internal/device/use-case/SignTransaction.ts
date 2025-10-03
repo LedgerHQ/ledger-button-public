@@ -7,7 +7,6 @@ import { getRawTransactionFromEipTransaction } from "../../../internal/transacti
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { SignTransactionError } from "../model/errors.js";
 import { SignRawTransaction } from "./SignRawTransaction.js";
 @injectable()
 export class SignTransaction {
@@ -28,7 +27,7 @@ export class SignTransaction {
     try {
       const rawTransaction = getRawTransactionFromEipTransaction(transaction);
       return this.signRawTransaction.execute({
-        rawTransaction: rawTransaction,
+        transaction: rawTransaction,
         broadcast: params.broadcast,
       });
     } catch (error) {
@@ -36,9 +35,7 @@ export class SignTransaction {
       return of({
         signType: "transaction",
         status: "error",
-        error: new SignTransactionError("Failed to parse transaction", {
-          error,
-        }),
+        error,
       });
     }
   }

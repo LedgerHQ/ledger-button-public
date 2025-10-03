@@ -17,7 +17,7 @@ export type SignFlowStatus =
   | {
       signType: SignType;
       status: "error";
-      error: Error;
+      error: unknown;
     }
   | {
       signType: SignType;

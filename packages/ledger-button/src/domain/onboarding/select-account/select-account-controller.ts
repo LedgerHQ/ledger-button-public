@@ -6,7 +6,6 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-// import { destinations } from "../../../shared/routes.js";
 
 export class SelectAccountController implements ReactiveController {
   accounts: Account[] = [];
@@ -15,21 +14,11 @@ export class SelectAccountController implements ReactiveController {
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
-    // NOTE: Used for testing purposes only
-    // we should not fetch the accounts again on this screen
-    private shouldRefreshAccounts = false,
   ) {
     this.host.addController(this);
   }
 
   hostConnected() {
-    if (this.shouldRefreshAccounts) {
-      this.core.fetchAccounts().then(() => {
-        this.getAccounts();
-      });
-      return;
-    }
-
     this.getAccounts();
   }
 

@@ -1,4 +1,7 @@
-import { DeviceDisconnectedError, DeviceNotSupportedError } from "@ledgerhq/ledger-button-core";
+import {
+  DeviceDisconnectedError,
+  DeviceNotSupportedError,
+} from "@ledgerhq/ledger-button-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
@@ -8,8 +11,8 @@ export class SelectDeviceController implements ReactiveController {
   errorData?: {
     message: string;
     title: string;
-    cta1?: { label: string; action: () => void };
-    cta2?: { label: string; action: () => void };
+    cta1?: { label: string; action: () => void | Promise<void> };
+    cta2?: { label: string; action: () => void | Promise<void> };
   } = undefined;
 
   constructor(
@@ -33,14 +36,14 @@ export class SelectDeviceController implements ReactiveController {
       );
   }
 
-  mapErrors(error: unknown) {
+  private mapErrors(error: unknown) {
     const lang = this.lang.currentTranslation;
 
     switch (true) {
       case error instanceof DeviceNotSupportedError: {
         const deviceName = error.context?.modelId
           ? lang.common.device.model[error.context.modelId]
-          : lang.common.device.model.nanoS;
+          : lang.common.device.model.fallback;
 
         const title = lang.error.device.DeviceNotSupported.title.replace(
           "{device}",
@@ -76,14 +79,28 @@ export class SelectDeviceController implements ReactiveController {
       }
       case error instanceof DeviceDisconnectedError: {
         const deviceName = error.context?.deviceModel
-          ? lang.common.device.model[error.context.deviceModel as keyof typeof lang.common.device.model]
+          ? lang.common.device.model[
+              error.context.deviceModel as keyof typeof lang.common.device.model
+            ]
           : "Device";
 
         const connectionType = error.context?.connectionType;
         const descriptionMapper = {
-          usb: () => lang.error.connection.DeviceDisconnected.descriptionUsb.replace("{device}", deviceName),
-          bluetooth: () => lang.error.connection.DeviceDisconnected.descriptionBluetooth.replace("{device}", deviceName),
-          generic: () => lang.error.connection.DeviceDisconnected.descriptionGeneric.replace("{device}", deviceName),
+          usb: () =>
+            lang.error.connection.DeviceDisconnected.descriptionUsb.replace(
+              "{device}",
+              deviceName,
+            ),
+          bluetooth: () =>
+            lang.error.connection.DeviceDisconnected.descriptionBluetooth.replace(
+              "{device}",
+              deviceName,
+            ),
+          generic: () =>
+            lang.error.connection.DeviceDisconnected.descriptionGeneric.replace(
+              "{device}",
+              deviceName,
+            ),
         };
 
         const description = descriptionMapper[connectionType || "generic"]();
@@ -115,7 +132,7 @@ export class SelectDeviceController implements ReactiveController {
     timestamp: number;
   }) {
     if (detail.connectionType === "") {
-      console.log("No connection type selected");
+      console.error("No connection type selected");
       return;
     }
 

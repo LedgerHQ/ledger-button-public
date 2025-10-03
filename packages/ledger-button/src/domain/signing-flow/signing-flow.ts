@@ -35,18 +35,11 @@ export class SigningFlow extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    console.log("SigningFlow connectedCallback");
     this.controller = new SigningFlowController(this, this.coreContext);
   }
 
   override render() {
-    console.log(
-      "Rendering tag for state in SigningFlow",
-      this.controller.state,
-    );
-
     const stateTag = unsafeStatic(this.controller.state + "-screen");
-    console.log("stateTag", stateTag);
     return staticHtml`
         <${stateTag}
         .destinations=${this.destinations}

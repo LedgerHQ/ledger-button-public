@@ -49,7 +49,7 @@ export class DefaultDeviceManagementKitService
 
     builder
       .addConfig(args)
-      .addLogger(new ConsoleLogger(LogLevel.Debug))
+      .addLogger(new ConsoleLogger(LogLevel.Error))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
 
@@ -87,6 +87,9 @@ export class DefaultDeviceManagementKitService
     try {
       const sessionId = await dmk.connect({
         device,
+        sessionRefresherOptions: {
+          isRefresherDisabled: true,
+        },
       });
       this._currentSessionId = sessionId;
       this._connectedDevice = new Device(

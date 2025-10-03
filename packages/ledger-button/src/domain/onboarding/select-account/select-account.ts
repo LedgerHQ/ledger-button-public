@@ -29,10 +29,6 @@ export class SelectAccountScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  // NOTE: Demo purpose only
-  @property({ type: Boolean })
-  shouldRefreshAccounts = false;
-
   controller!: SelectAccountController;
 
   override connectedCallback() {
@@ -41,7 +37,6 @@ export class SelectAccountScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
-      this.shouldRefreshAccounts,
     );
   }
 
@@ -59,9 +54,26 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  private handleAccountItemShowTokensClick = (event: CustomEvent<Account>) => {
-    // TODO: Should we display the tokens ?
-    console.log("account-item-show-tokens-click", event);
+  private handleAccountItemShowTokensClick = (
+    event: CustomEvent<AccountItemClickEventDetail>,
+  ) => {
+    const account = this.coreContext
+      .getAccounts()
+      .find((acc) => acc.freshAddress === event.detail.address);
+
+    if (account) {
+      this.coreContext.setPendingAccountAddress(account.freshAddress);
+
+      this.navigation.navigateTo({
+        name: "accountTokens",
+        component: "account-tokens-screen",
+        canGoBack: true,
+        toolbar: {
+          title: `${account.name}`,
+          showCloseButton: true,
+        },
+      });
+    }
   };
 
   renderAccountItem = (account: Account) => {
@@ -76,7 +88,7 @@ export class SelectAccountScreen extends LitElement {
         .ledgerId=${account.currencyId}
         .ticker=${account.ticker}
         .balance=${account.balance ?? "0"}
-        .hasTokens=${account.tokens.length > 0}
+        .tokens=${account.tokens.length}
         @account-item-click=${this.handleAccountItemClick}
         @account-item-show-tokens-click=${this.handleAccountItemShowTokensClick}
       ></ledger-account-item>
