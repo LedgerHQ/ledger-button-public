@@ -154,6 +154,11 @@
         "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
         "cta1": "Create a new account on Ledger Live",
         "cta2": "Use another Ledger device"
+      },
+      "NoAccountInSync": {
+        "title": "No accounts in sync",
+        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "cta1": "Close"
       }
     },
     "network": {

@@ -1,4 +1,7 @@
-import { NoCompatibleAccountsError } from "@ledgerhq/ledger-button-core";
+import {
+  NoAccountInSyncError,
+  NoCompatibleAccountsError,
+} from "@ledgerhq/ledger-button-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
@@ -83,6 +86,26 @@ export class RetrievingAccountsController implements ReactiveController {
             action: () => {
               this.errorData = undefined;
               this.navigation.navigateTo(this.destinations.onboarding);
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof NoAccountInSyncError: {
+        this.errorData = {
+          title:
+            this.lang.currentTranslation.error.ledgerSync.NoAccountInSync.title,
+          message:
+            this.lang.currentTranslation.error.ledgerSync.NoAccountInSync
+              .description,
+          cta1: {
+            label:
+              this.lang.currentTranslation.error.ledgerSync.NoAccountInSync
+                .cta1,
+            action: () => {
+              if (this.navigation.host instanceof RootNavigationComponent) {
+                this.navigation.host.closeModal();
+              }
             },
           },
         };

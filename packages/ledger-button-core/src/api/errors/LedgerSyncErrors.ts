@@ -10,3 +10,15 @@ export class NoCompatibleAccountsError extends LedgerButtonError<{
     super(message, "NoCompatibleAccountsError", context);
   }
 }
+
+export class NoAccountInSyncError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "NoAccountInSyncError", context);
+  }
+}
+
+export class FailedToFetchEncryptedAccountsError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "FailedToFetchEncryptedAccountsError", context);
+  }
+}
