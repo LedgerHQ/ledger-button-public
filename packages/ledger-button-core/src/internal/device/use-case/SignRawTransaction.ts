@@ -318,7 +318,9 @@ export class SignRawTransaction {
               this.trackTransactionFlowCompletion(
                 transaction,
                 selectedAccount,
-                result.signedRawTransaction,
+                isBroadcastedTransactionResult(result)
+                  ? result.hash
+                  : result.signedRawTransaction,
               );
 
               resultObservable.next(
