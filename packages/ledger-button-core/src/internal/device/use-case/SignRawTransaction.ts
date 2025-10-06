@@ -295,14 +295,6 @@ export class SignRawTransaction {
               const broadcastResult =
                 await this.broadcastTransactionUseCase.execute(broadcastParams);
 
-              if (isBroadcastedTransactionResult(broadcastResult)) {
-                this.trackTransactionFlowCompletion(
-                  transaction,
-                  selectedAccount,
-                  broadcastResult.hash,
-                );
-              }
-
               return broadcastResult;
             }
             // No Broadcast TX
@@ -323,6 +315,12 @@ export class SignRawTransaction {
               isSignedTransactionResult(result) ||
               isBroadcastedTransactionResult(result)
             ) {
+              this.trackTransactionFlowCompletion(
+                transaction,
+                selectedAccount,
+                result.signedRawTransaction,
+              );
+
               resultObservable.next(
                 this.getTransactionResultForEvent(
                   result,
