@@ -417,9 +417,11 @@ export class LedgerEIP1193Provider
     message: string,
     data?: unknown,
   ): ProviderRpcError {
-    const error = new Error(message) as ProviderRpcError;
+    const err = new Error(message) as ProviderRpcError;
+    const error = err;
     error.code = code;
     error.data = data;
+    error.stack = err.stack;
     return error;
   }
 }
