@@ -6,8 +6,10 @@ export function isSignPersonalMessageParams(
   return (
     !!params &&
     Array.isArray(params) &&
-    params.length === 2 &&
+    params.length === 3 &&
     typeof params[0] === "string" &&
-    (typeof params[1] === "string" || params[1] instanceof Uint8Array)
+    (typeof params[1] === "string" || params[1] instanceof Uint8Array) &&
+    typeof params[2] === "string" &&
+    params[2] === "eth_sign"
   );
 }

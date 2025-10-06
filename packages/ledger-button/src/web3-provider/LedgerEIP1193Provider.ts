@@ -18,12 +18,14 @@ import {
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
+  EthSignTypedDataParams,
   isBroadcastedTransactionResult,
   type ProviderConnectInfo,
   type ProviderEvent,
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
+  type RpcMethods,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -149,6 +151,7 @@ export class LedgerEIP1193Provider
 
   private async handleSignTransaction(
     params: unknown[],
+    method: RpcMethods,
     broadcast = false,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -187,12 +190,16 @@ export class LedgerEIP1193Provider
 
       this.app.navigationIntent("signTransaction", {
         transaction: tx,
+        method,
         broadcast,
       });
     });
   }
 
-  private async handleSignTypedData(params: object): Promise<string> {
+  private async handleSignTypedData(
+    params: unknown[],
+    method: RpcMethods,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -213,11 +220,44 @@ export class LedgerEIP1193Provider
         },
       );
 
-      this.app.navigationIntent("signTransaction", params);
+      if (params[0] === "string" && params[0] !== this._selectedAccount) {
+        return reject(
+          this.createError(
+            CommonEIP1193ErrorCode.Unauthorized,
+            "Address mismatch",
+          ),
+        );
+      }
+
+      if (params[1] === "string") {
+        try {
+          const p = JSON.parse(
+            params[1] as string,
+          ) as EthSignTypedDataParams["typedData"];
+          this.app.navigationIntent("signTransaction", [params[0], p, method]);
+          return;
+        } catch (error) {
+          console.error(error);
+          return reject(
+            this.createError(
+              CommonEIP1193ErrorCode.InvalidParams,
+              "Invalid typed data",
+              {
+                error,
+              },
+            ),
+          );
+        }
+      }
+
+      this.app.navigationIntent("signTransaction", [...params, method]);
     });
   }
 
-  private async handleSignPersonalMessage(params: object): Promise<string> {
+  private async handleSignPersonalMessage(
+    params: unknown[],
+    method: RpcMethods,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this._selectedAccount) {
         return reject(
@@ -228,8 +268,6 @@ export class LedgerEIP1193Provider
         );
       }
 
-      this.app.navigationIntent("signTransaction", params);
-
       window.addEventListener(
         "ledger-provider-sign-message",
         (e) => {
@@ -239,6 +277,8 @@ export class LedgerEIP1193Provider
           once: true,
         },
       );
+
+      this.app.navigationIntent("signTransaction", [...params, method]);
     });
   }
 
@@ -260,23 +300,25 @@ export class LedgerEIP1193Provider
   }
 
   handlers = {
-    eth_accounts: async (_: unknown) => this.handleAccounts(),
-    eth_requestAccounts: async (_: unknown) => this.handleRequestAccounts(),
+    eth_accounts: async (_: unknown, _method: RpcMethods) =>
+      this.handleAccounts(),
+    eth_requestAccounts: async (_: unknown, _method: RpcMethods) =>
+      this.handleRequestAccounts(),
     eth_chainId: async (_: unknown) => this.handleChainId(),
-    eth_sendTransaction: async (params: unknown[]) =>
-      this.handleSignTransaction(params, true),
-    eth_signTransaction: async (params: unknown[]) =>
-      this.handleSignTransaction(params),
-    eth_signRawTransaction: async (params: unknown[]) =>
-      this.handleSignTransaction(params),
-    eth_sign: async (params: unknown[]) =>
-      this.handleSignPersonalMessage(params),
-    eth_sendRawTransaction: async (params: unknown[]) =>
-      this.handleSignTransaction(params, true),
-    eth_signTypedData: async (params: unknown[]) =>
-      this.handleSignTypedData(params),
-    eth_signTypedData_v4: async (params: unknown[]) =>
-      this.handleSignTypedData(params),
+    eth_sendTransaction: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignTransaction(params, method, true),
+    eth_signTransaction: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignTransaction(params, method),
+    eth_signRawTransaction: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignTransaction(params, method),
+    eth_sign: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignPersonalMessage(params, method),
+    eth_sendRawTransaction: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignTransaction(params, method, true),
+    eth_signTypedData: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignTypedData(params, method),
+    eth_signTypedData_v4: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignTypedData(params, method),
   } as const;
 
   // Public API
@@ -284,6 +326,7 @@ export class LedgerEIP1193Provider
     if (method in this.handlers) {
       const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
+        method,
       );
 
       return res;
@@ -379,18 +422,6 @@ export class LedgerEIP1193Provider
     error.data = data;
     return error;
   }
-
-  //TODO: check if still needed
-  // private initializeSupportedChains(): void {
-  //   // NOTE: Initialize with common Ethereum chains (infos to be verified!)
-  //   this._supportedChains.set("0x1", {
-  //     chainId: "0x1",
-  //     chainName: "Ethereum Mainnet",
-  //     nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  //     rpcUrls: ["https://ethereum.publicnode.com"],
-  //     blockExplorerUrls: ["https://etherscan.io"],
-  //   });
-  // }
 }
 
 declare global {

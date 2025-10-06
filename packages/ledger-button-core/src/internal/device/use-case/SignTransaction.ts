@@ -23,12 +23,14 @@ export class SignTransaction {
 
   execute(params: SignTransactionParams): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
-    const transaction = params.transaction;
+    const { transaction, broadcast, method } = params;
+
     try {
       const rawTransaction = getRawTransactionFromEipTransaction(transaction);
       return this.signRawTransaction.execute({
         transaction: rawTransaction,
-        broadcast: params.broadcast,
+        method,
+        broadcast,
       });
     } catch (error) {
       this.logger.error("Failed to parse transaction", { error });

@@ -170,8 +170,9 @@ export class SignTransactionScreen extends LitElement {
           type=${this.controller.state.screen}
           title=${this.controller.state.status.title}
           description=${this.controller.state.status.message}
-          primary-button-label=${this.controller.state.status.cta1?.label}
-          secondary-button-label=${this.controller.state.status.cta2?.label}
+          primary-button-label=${this.controller.state.status.cta1.label}
+          secondary-button-label=${this.controller.state.status.cta2?.label ??
+          ""}
           @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>
