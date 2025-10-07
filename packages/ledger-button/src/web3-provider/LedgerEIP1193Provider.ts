@@ -18,7 +18,7 @@ import {
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
-  EthSignTypedDataParams,
+  type EthSignTypedDataParams,
   isBroadcastedTransactionResult,
   type ProviderConnectInfo,
   type ProviderEvent,
@@ -222,7 +222,10 @@ export class LedgerEIP1193Provider
         },
       );
 
-      if (params[0] === "string" && params[0] !== this._selectedAccount) {
+      if (
+        typeof params[0] === "string" &&
+        params[0] !== this._selectedAccount
+      ) {
         return reject(
           this.createError(
             CommonEIP1193ErrorCode.Unauthorized,
