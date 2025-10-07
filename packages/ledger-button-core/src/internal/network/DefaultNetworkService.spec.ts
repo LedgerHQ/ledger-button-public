@@ -44,6 +44,7 @@ describe("DefaultNetworkService", () => {
 
     it("should be able to get a resource", async () => {
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
           title:
@@ -91,6 +92,7 @@ describe("DefaultNetworkService", () => {
   describe("post", () => {
     it("should have the correct headers", async () => {
       const spy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -124,6 +126,7 @@ describe("DefaultNetworkService", () => {
 
     it("should be able to post a resource", async () => {
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -175,6 +178,7 @@ describe("DefaultNetworkService", () => {
   describe("put", () => {
     it("should have the correct headers", async () => {
       const spy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -208,6 +212,7 @@ describe("DefaultNetworkService", () => {
 
     it("should be able to put a resource", async () => {
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -259,6 +264,7 @@ describe("DefaultNetworkService", () => {
   describe("patch", () => {
     it("should have the correct headers", async () => {
       const spy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -292,6 +298,7 @@ describe("DefaultNetworkService", () => {
 
     it("should be able to patch a resource", async () => {
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -352,6 +359,7 @@ describe("DefaultNetworkService", () => {
   describe("delete", () => {
     it("should call fetch with the correct headers", async () => {
       const spy = vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),
@@ -376,6 +384,7 @@ describe("DefaultNetworkService", () => {
 
     it("should be able to delete a resource", async () => {
       vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
         json: vi.fn().mockResolvedValueOnce({
           id: 1,
         }),

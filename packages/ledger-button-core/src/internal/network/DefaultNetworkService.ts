@@ -43,7 +43,7 @@ export class DefaultNetworkService
       method: "GET",
     };
 
-    return EitherAsync.fromPromise<Error, T>(async () => {
+    return EitherAsync(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
       if (!response.ok) {
         throw new NetworkError("GET request failed", {
@@ -67,7 +67,7 @@ export class DefaultNetworkService
       body,
     };
 
-    return EitherAsync.fromPromise<Error, T>(async () => {
+    return EitherAsync(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
       if (!response.ok) {
         throw new NetworkError("POST request failed", {
@@ -92,7 +92,7 @@ export class DefaultNetworkService
       body,
     };
 
-    return EitherAsync.fromPromise<Error, T>(async () => {
+    return EitherAsync(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
       if (!response.ok) {
         throw new NetworkError("PUT request failed", {
@@ -117,7 +117,7 @@ export class DefaultNetworkService
       body,
     };
 
-    return EitherAsync.fromPromise<Error, T>(async () => {
+    return EitherAsync(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
       if (!response.ok) {
         throw new NetworkError("PATCH request failed", {
@@ -140,7 +140,7 @@ export class DefaultNetworkService
       method: "DELETE",
     };
 
-    return EitherAsync.fromPromise<Error, T>(async () => {
+    return EitherAsync(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
       if (!response.ok) {
         throw new NetworkError("DELETE request failed", {
