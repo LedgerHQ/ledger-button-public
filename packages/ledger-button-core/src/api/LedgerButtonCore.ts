@@ -49,6 +49,7 @@ import { type TransactionService } from "../internal/transaction/service/Transac
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
+import { DeviceStatus } from "@ledgerhq/device-management-kit";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
@@ -116,6 +117,35 @@ export class LedgerButtonCore {
     });
   }
 
+  private listenDevice() {
+    const deviceService = this.container.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    );
+    const dmk = deviceService.dmk;
+    const sessionId = deviceService.connectedDevice?.sessionId;
+
+    if (!sessionId) {
+      return;
+    }
+
+    dmk
+      .getDeviceSessionState({
+        sessionId: sessionId as string,
+      })
+      .subscribe((state) => {
+        if (state.deviceStatus === DeviceStatus.NOT_CONNECTED) {
+          this._logger.info("Device disconnected");
+
+          this._currentContext.next({
+            connectedDevice: undefined,
+            selectedAccount: this._currentContext.value.selectedAccount,
+            trustChainId: this._currentContext.value.trustChainId,
+            applicationPath: this._currentContext.value.applicationPath,
+          });
+        }
+      });
+  }
+
   async disconnect() {
     this._logger.debug("Disconnecting from device");
     await this.disconnectFromDevice();
@@ -153,6 +183,8 @@ export class LedgerButtonCore {
       trustChainId: this._currentContext.value.trustChainId,
       applicationPath: this._currentContext.value.applicationPath,
     });
+
+    this.listenDevice();
 
     try {
       const eventTrackingService = this.container.get<EventTrackingService>(

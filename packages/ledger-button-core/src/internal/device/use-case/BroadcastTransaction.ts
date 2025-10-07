@@ -57,7 +57,6 @@ export class BroadcastTransaction {
       Right: (response: BroadcastResponse) => {
         //JSONRPCResponse from node
         if (isJsonRpcResponse(response)) {
-          //TODO Check hash from helper and result from node response
           if (isJsonRpcResponseSuccess(response)) {
             return {
               hash: response.result as string,
@@ -69,7 +68,7 @@ export class BroadcastTransaction {
             this.logger.error("Failed to broadcast transaction", {
               error: response.error,
             });
-            throw new Error("Failed to broadcast transaction"); //TODO CHECK HANDLE ERROR
+            throw new Error("Failed to broadcast transaction"); //TODO CHECK Create specific broadcast error
           }
         }
 
@@ -94,7 +93,6 @@ export class BroadcastTransaction {
     signedTransaction: SignedTransactionResult | BroadcastedTransactionResult,
     currencyId: string,
   ) {
-    //TODO Get chainId from currencyId
     this.logger.debug("Crafting `eth_sendRawTransaction` request", {
       currencyId,
       signedTransaction,
