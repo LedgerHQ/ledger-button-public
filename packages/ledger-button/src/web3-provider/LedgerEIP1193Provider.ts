@@ -42,6 +42,8 @@ export class LedgerEIP1193Provider
 
   private _id = 0;
 
+  public isLedgerButton = true;
+
   // NOTE: Tracking listeners by function reference
   // This is a workaround to wrap the event listener in the `on` method
   // so we can remove it later
