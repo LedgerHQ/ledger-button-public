@@ -17,15 +17,21 @@ export type JSONRPCRequest = {
   readonly params: readonly unknown[] | object;
 };
 
-export type JSONRPCResponse = {
-  readonly jsonrpc: string;
-  readonly id: number;
-  readonly result?: unknown;
-  readonly error?: {
-    readonly code: number;
-    readonly message: string;
+export type JsonRpcResponseSuccess = {
+  id: number;
+  jsonrpc: string;
+  result: string | object;
+};
+
+export type JsonRpcResponseError = {
+  id: number;
+  jsonrpc: string;
+  error: {
+    code: number;
+    message: string;
   };
 };
+export type JsonRpcResponse = JsonRpcResponseSuccess | JsonRpcResponseError;
 
 export type RequestArguments = Pick<JSONRPCRequest, "method" | "params">;
 

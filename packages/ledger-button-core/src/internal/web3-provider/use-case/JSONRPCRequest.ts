@@ -2,7 +2,7 @@ import { type Factory, inject, injectable } from "inversify";
 
 import {
   JSONRPCRequest,
-  JSONRPCResponse,
+  JsonRpcResponse,
 } from "../../../api/model/eip/EIPTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -24,7 +24,7 @@ export class JSONRPCCallUseCase {
   async execute(args: JSONRPCRequest) {
     this.logger.debug("JSONRPCRequest", { args });
     const response = await this.datasource.JSONRPCRequest(args);
-    return response.caseOf<JSONRPCResponse | void>({
+    return response.caseOf<JsonRpcResponse | void>({
       Right: (response) => {
         this.logger.debug("JSONRPCRequest response", { response });
         return response;

@@ -1,6 +1,10 @@
 import { infer as ZodInfer, ZodError } from "zod";
 
-import type { JSONRPCRequest } from "../../api/model/eip/EIPTypes.js";
+import type {
+  JSONRPCRequest,
+  JsonRpcResponse,
+  JsonRpcResponseSuccess,
+} from "../../api/model/eip/EIPTypes.js";
 import { ConfigResponseSchema } from "./schemas.js";
 
 export type Blockchain = {
@@ -13,19 +17,33 @@ export type BroadcastRequest = {
   rpc: JSONRPCRequest;
 };
 
-export type BroadcastResponse =
-  | {
-      result?: string;
-      error?: {
-        code: number;
-        message: string;
-      };
-      id: number;
-      jsonrpc: string;
-    }
-  | {
-      transactionIdentifier: string;
-    };
+export type AlapacaBroadcastResponse = {
+  transactionIdentifier: string;
+};
+
+export type BroadcastResponse = JsonRpcResponse | AlapacaBroadcastResponse;
+
+export function isJsonRpcResponse(
+  jsonRpc: BroadcastResponse,
+): jsonRpc is JsonRpcResponse {
+  return (
+    "jsonrpc" in jsonRpc &&
+    "id" in jsonRpc &&
+    ("result" in jsonRpc || "error" in jsonRpc)
+  );
+}
+
+export function isJsonRpcResponseSuccess(
+  jsonRpc: BroadcastResponse,
+): jsonRpc is JsonRpcResponseSuccess {
+  return "jsonrpc" in jsonRpc && "id" in jsonRpc && "result" in jsonRpc;
+}
+
+export function isAlapacaBroadcastResponse(
+  jsonRpc: BroadcastResponse,
+): jsonRpc is AlapacaBroadcastResponse {
+  return "transactionIdentifier" in jsonRpc;
+}
 
 export type ConfigRequest = {
   dAppIdentifier: string;

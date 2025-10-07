@@ -1,33 +1,53 @@
-import { inject, injectable } from "inversify";
-import { Either, Left } from "purify-ts";
+import { type Factory, inject, injectable } from "inversify";
+import { Either, Left, Right } from "purify-ts";
 
 import {
   JSONRPCRequest,
-  JSONRPCResponse,
+  JsonRpcResponse,
 } from "../../../api/model/eip/EIPTypes.js";
-import { type NetworkServiceOpts } from "../../network/DefaultNetworkService.js";
-import { networkModuleTypes } from "../../network/networkModuleTypes.js";
-import { type NetworkService } from "../../network/NetworkService.js";
+import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
+import { type BackendService } from "../../backend/BackendService.js";
+import { isJsonRpcResponse } from "../../backend/types.js";
+import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
 @injectable()
 export class LedgerRemoteDatasource {
+  private readonly logger: LoggerPublisher;
   constructor(
-    @inject(networkModuleTypes.NetworkService)
-    private readonly networkService: NetworkService<NetworkServiceOpts>,
-  ) {}
+    @inject(loggerModuleTypes.LoggerPublisher)
+    private readonly loggerFactory: Factory<LoggerPublisher>,
+    @inject(backendModuleTypes.BackendService)
+    private readonly backendService: BackendService,
+  ) {
+    this.logger = this.loggerFactory("[LedgerRemoteDatasource]");
+  }
 
   async JSONRPCRequest(
     args: JSONRPCRequest,
-  ): Promise<Either<Error, JSONRPCResponse>> {
-    // TODO: Update when we have the backend ready
+  ): Promise<Either<Error, JsonRpcResponse>> {
     try {
-      const response = await this.networkService.post<JSONRPCResponse>(
-        `https://api.ledger.com/jsonrpc`,
-        args,
+      const response = await this.backendService.broadcast({
+        blockchain: {
+          name: "ethereum",
+          chainId: "1",
+        },
+        rpc: args,
+      });
+
+      if (response.isLeft()) {
+        return Left(
+          new Error("Error in JSONRPCRequest", { cause: response.extract() }),
+        );
+      }
+      if (response.isRight() && isJsonRpcResponse(response.extract())) {
+        return Right(response.extract() as JsonRpcResponse);
+      }
+      return Left(
+        new Error("Error in JSONRPCRequest", { cause: response.extract() }),
       );
-      return response;
     } catch (error) {
-      console.error("Error in JSONRPCRequest", error);
+      this.logger.error("Error in JSONRPCRequest", { error });
       return Left(new Error("Error in JSONRPCRequest", { cause: error }));
     }
   }
