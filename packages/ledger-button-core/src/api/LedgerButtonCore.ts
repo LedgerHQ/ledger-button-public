@@ -302,12 +302,11 @@ export class LedgerButtonCore {
       | SignRawTransactionParams
       | SignTypedMessageParams
       | SignPersonalMessageParams,
-    broadcast: boolean,
   ): Observable<SignFlowStatus> {
     this._logger.debug("Signing transaction", { params });
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)
-      .sign(params, broadcast);
+      .sign(params);
   }
 
   setPendingTransactionParams(

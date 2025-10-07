@@ -110,12 +110,14 @@
       "account": {
         "title": "An error occurred",
         "description": "An unexpected error occurred while fetching your accounts. Please try again",
-        "cta1": "Try again"
+        "cta1": "Try again",
+        "cta2": "Close Ledger"
       },
       "sign": {
         "title": "An error occurred",
         "description": "An unexpected error occurred while signing your transaction. Please try again",
-        "cta1": "Try again"
+        "cta1": "Try again",
+        "cta2": "Close Ledger"
       }
     },
     "device": {
@@ -128,12 +130,14 @@
       "IncorrectSeed": {
         "title": "Incorrect device",
         "description": "This {device} does not match the selected account: {account}. Please connect the correct Ledger device",
-        "cta1": "Connect another Ledger device"
+        "cta1": "Connect another Ledger device",
+        "cta2": "Close Ledger"
       },
       "BlindSigningDisabled": {
         "title": "Blind signing disabled",
         "description": "This transaction can not be clear signed, enable blind signing in the application settings",
-        "cta1": "Retry"
+        "cta1": "Retry",
+        "cta2": "Close Ledger"
       },
       "UserRejectedTransaction": {
         "title": "Transaction rejected",

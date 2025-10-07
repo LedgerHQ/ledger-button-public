@@ -1,4 +1,4 @@
-export type SignPersonalMessageParams = [string, string | Uint8Array];
+export type SignPersonalMessageParams = [string, string | Uint8Array, string];
 
 export function isSignPersonalMessageParams(
   params: unknown,

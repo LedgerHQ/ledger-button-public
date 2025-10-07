@@ -82,11 +82,14 @@ export class AccountTokensScreen extends LitElement {
     this.controller.connectAccount();
     const selectedAccount = this.coreContext.getSelectedAccount();
     this.dispatchEvent(
-      new CustomEvent<Account>("ledger-internal-account-selected", {
-        bubbles: true,
-        composed: true,
-        detail: selectedAccount,
-      }),
+      new CustomEvent<{ account: Account; status: "success" }>(
+        "ledger-internal-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: { account: selectedAccount as Account, status: "success" },
+        },
+      ),
     );
   }
 
@@ -154,6 +157,15 @@ declare global {
     "account-tokens-screen": AccountTokensScreen;
   }
   interface WindowEventMap {
-    "ledger-internal-account-selected": CustomEvent<Account>;
+    "ledger-internal-account-selected": CustomEvent<
+      | {
+          account: Account;
+          status: "success";
+        }
+      | {
+          status: "error";
+          error: unknown;
+        }
+    >;
   }
 }

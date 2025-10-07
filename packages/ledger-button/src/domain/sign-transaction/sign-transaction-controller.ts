@@ -6,10 +6,8 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-  SignedPersonalMessageOrTypedDataResult,
   type SignedResults,
-  SignedTransactionResult,
-  SignFlowStatus,
+  type SignFlowStatus,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignTransactionParams,
@@ -45,7 +43,6 @@ export class SignTransactionController implements ReactiveController {
     | SignRawTransactionParams
     | SignTypedMessageParams
     | SignPersonalMessageParams;
-  private currentBroadcast = false;
   result?: SignedResults;
 
   state: ScreenState = {
@@ -94,74 +91,63 @@ export class SignTransactionController implements ReactiveController {
       | SignRawTransactionParams
       | SignTypedMessageParams
       | SignPersonalMessageParams,
-    broadcast: boolean,
   ) {
     this.currentTransaction = transactionParams;
-    this.currentBroadcast = broadcast;
 
     if (this.transactionSubscription) {
       this.transactionSubscription.unsubscribe();
     }
 
-    this.transactionSubscription = this.core
-      .sign(transactionParams, broadcast)
-      .subscribe({
-        next: (result: SignFlowStatus) => {
-          switch (result.status) {
-            case "success":
-              if (result.data) {
-                if (isSignedTransactionResult(result.data)) {
-                  window.dispatchEvent(
-                    new CustomEvent<
-                      SignedTransactionResult | BroadcastedTransactionResult
-                    >("ledger-internal-sign-transaction", {
+    this.transactionSubscription = this.core.sign(transactionParams).subscribe({
+      next: (result: SignFlowStatus) => {
+        switch (result.status) {
+          case "success":
+            if (result.data) {
+              if (
+                isSignedTransactionResult(result.data) ||
+                isSignedMessageOrTypedDataResult(result.data)
+              ) {
+                window.dispatchEvent(
+                  new CustomEvent<{ status: "success"; data: SignedResults }>(
+                    "ledger-internal-sign",
+                    {
                       bubbles: true,
                       composed: true,
-                      detail: result.data,
-                    }),
-                  );
-                } else if (isSignedMessageOrTypedDataResult(result.data)) {
-                  window.dispatchEvent(
-                    new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
-                      "ledger-internal-sign-message",
-                      {
-                        bubbles: true,
-                        composed: true,
-                        detail: result.data,
-                      },
-                    ),
-                  );
-                }
-
-                this.state = this.mapSuccessToState(result.data);
-                this.host.requestUpdate();
-                break;
+                      detail: { status: "success", data: result.data },
+                    },
+                  ),
+                );
               }
-              break;
-            case "user-interaction-needed": {
-              //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
-              //Interactions: unlock-device, allow-secure-connection, confirm-open-app, sign-transaction, allow-list-apps, web3-checks-opt-in
-              const animation = this.mapUserInteractionToDeviceAnimation(
-                result.interaction,
-              );
-              this.state = { screen: "signing", deviceAnimation: animation };
+
+              this.state = this.mapSuccessToState(result.data);
               this.host.requestUpdate();
               break;
             }
-            case "error":
-              this.state.screen = "error";
-              this.mapErrors(result.error);
-              break;
+            break;
+          case "user-interaction-needed": {
+            //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
+            //Interactions: unlock-device, allow-secure-connection, confirm-open-app, sign-transaction, allow-list-apps, web3-checks-opt-in
+            const animation = this.mapUserInteractionToDeviceAnimation(
+              result.interaction,
+            );
+            this.state = { screen: "signing", deviceAnimation: animation };
+            this.host.requestUpdate();
+            break;
           }
+          case "error":
+            this.state.screen = "error";
+            this.mapErrors(result.error);
+            break;
+        }
 
-          this.host.requestUpdate();
-        },
-        error: (error: Error) => {
-          this.state.screen = "error";
-          this.mapErrors(error);
-          this.host.requestUpdate();
-        },
-      });
+        this.host.requestUpdate();
+      },
+      error: (error: Error) => {
+        this.state.screen = "error";
+        this.mapErrors(error);
+        this.host.requestUpdate();
+      },
+    });
   }
 
   private getDeviceName() {
@@ -189,7 +175,9 @@ export class SignTransactionController implements ReactiveController {
         title: lang.signTransaction?.success?.title,
         cta1: {
           label: lang.common.button.close,
-          action: this.close,
+          action: async () => {
+            this.close();
+          },
         },
         cta2,
       },
@@ -231,6 +219,22 @@ export class SignTransactionController implements ReactiveController {
                 this.host.requestUpdate();
               },
             },
+            cta2: {
+              label: lang.error.device.BlindSigningDisabled.cta2,
+              action: async () => {
+                window.dispatchEvent(
+                  new CustomEvent("ledger-internal-sign", {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                      status: "error",
+                      error: error,
+                    },
+                  }),
+                );
+                this.close();
+              },
+            },
           },
         };
         break;
@@ -247,11 +251,24 @@ export class SignTransactionController implements ReactiveController {
                 if (!this.currentTransaction) {
                   return;
                 }
-                this.startSigning(
-                  this.currentTransaction,
-                  this.currentBroadcast,
-                );
+                this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
+              },
+            },
+            cta2: {
+              label: lang.error.device.BlindSigningDisabled.cta2,
+              action: async () => {
+                window.dispatchEvent(
+                  new CustomEvent("ledger-internal-sign", {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                      status: "error",
+                      error: error,
+                    },
+                  }),
+                );
+                this.close();
               },
             },
           },
@@ -270,11 +287,24 @@ export class SignTransactionController implements ReactiveController {
                 if (!this.currentTransaction) {
                   return;
                 }
-                this.startSigning(
-                  this.currentTransaction,
-                  this.currentBroadcast,
-                );
+                this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
+              },
+            },
+            cta2: {
+              label: lang.error.network.BroadcastTransactionError.cta2,
+              action: async () => {
+                window.dispatchEvent(
+                  new CustomEvent("ledger-internal-sign", {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                      status: "error",
+                      error: error,
+                    },
+                  }),
+                );
+                this.close();
               },
             },
           },
@@ -295,6 +325,16 @@ export class SignTransactionController implements ReactiveController {
             cta1: {
               label: lang.error.device.UserRejectedTransaction.cta1,
               action: async () => {
+                window.dispatchEvent(
+                  new CustomEvent("ledger-internal-sign", {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                      status: "error",
+                      error: error,
+                    },
+                  }),
+                );
                 this.close();
               },
             },
@@ -304,10 +344,7 @@ export class SignTransactionController implements ReactiveController {
                 if (!this.currentTransaction) {
                   return;
                 }
-                this.startSigning(
-                  this.currentTransaction,
-                  this.currentBroadcast,
-                );
+                this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
               },
             },
@@ -327,11 +364,24 @@ export class SignTransactionController implements ReactiveController {
                 if (!this.currentTransaction) {
                   return;
                 }
-                this.startSigning(
-                  this.currentTransaction,
-                  this.currentBroadcast,
-                );
+                this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
+              },
+            },
+            cta2: {
+              label: lang.error.generic.sign.cta2,
+              action: async () => {
+                window.dispatchEvent(
+                  new CustomEvent("ledger-internal-sign", {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                      status: "error",
+                      error: error,
+                    },
+                  }),
+                );
+                this.close();
               },
             },
           },

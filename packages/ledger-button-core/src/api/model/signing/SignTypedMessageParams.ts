@@ -1,5 +1,5 @@
 import { type TypedData } from "@ledgerhq/device-signer-kit-ethereum";
-export type SignTypedMessageParams = [string, TypedData];
+export type SignTypedMessageParams = [string, TypedData, string];
 
 export function isSignTypedMessageParams(
   params: unknown,
