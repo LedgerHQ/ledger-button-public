@@ -1,3 +1,4 @@
+import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
 import { BehaviorSubject, Observable, tap } from "rxjs";
 
@@ -49,7 +50,6 @@ import { type TransactionService } from "../internal/transaction/service/Transac
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
 import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
-import { DeviceStatus } from "@ledgerhq/device-management-kit";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {

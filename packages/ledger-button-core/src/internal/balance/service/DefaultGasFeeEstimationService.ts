@@ -4,8 +4,6 @@ import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
 import { isJsonRpcResponseSuccess } from "../../../internal/backend/types.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { TransactionInfo } from "../model/types.js";
@@ -20,26 +18,24 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
   ) {
     this.logger = this.loggerFactory("[DefaultGasFeeEstimationService]");
   }
 
   async getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation> {
     const estimateGas = await this.estimateGas(tx);
-    this.logger.debug("Estimated gas", { estimateGas });
     const baseFeePerGasResult = await this.getBaseFeePerGas(tx);
-    this.logger.debug("Estimated base fee per gas", { baseFeePerGasResult });
     const maxPriorityFeePerGasResult = await this.getMaxPriorityFeePerGas(tx);
+
+    //TODO: Remove this for final release
+    this.logger.debug("Estimated gas", { estimateGas });
+    this.logger.debug("Estimated base fee per gas", { baseFeePerGasResult });
     this.logger.debug("Estimated base priority fee per gas", {
       maxPriorityFeePerGasResult,
     });
 
-    // Add a 20% buffer to the estimated gas limit from estimate gas value
+    // Add a 20% buffer to the estimated gas limit from estimate gas value => Use config for 20% making it dynamic
     const gasLimit = Number((estimateGas * 1.2).toFixed(0));
-
-    //maxPriorityFeePerGas == basePriorityFeePerGas
 
     //maxFeePerGas == baseFeePerGas * 2 + maxPriorityFeePerGas
     //https://www.blocknative.com/blog/eip-1559-fees#3
