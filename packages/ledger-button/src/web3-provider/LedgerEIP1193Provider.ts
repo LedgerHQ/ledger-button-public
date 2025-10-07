@@ -37,6 +37,20 @@ import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
 
+const EIP1193_SUPPORTED_METHODS = [
+  "eth_accounts",
+  "eth_requestAccounts",
+  "eth_chainId",
+  "eth_sendTransaction",
+  "eth_signTransaction",
+  "eth_signRawTransaction",
+  "eth_sign",
+  "eth_sendRawTransaction",
+  "eth_signTypedData",
+  "eth_signTypedData_v4",
+];
+//TODO complete with Node JSON rpc methods that can be broadcasted and directly handled by nodes
+
 export class LedgerEIP1193Provider
   extends EventTarget
   implements EIP1193Provider
@@ -369,14 +383,20 @@ export class LedgerEIP1193Provider
       return res;
     }
 
-    const res = await this.core.jsonRpcRequest({
-      jsonrpc: "2.0",
-      id: this._id++,
-      method,
-      params,
-    });
+    if (EIP1193_SUPPORTED_METHODS.includes(method)) {
+      const res = await this.core.jsonRpcRequest({
+        jsonrpc: "2.0",
+        id: this._id++,
+        method,
+        params,
+      });
+      return res;
+    }
 
-    return res;
+    return this.createError(
+      CommonEIP1193ErrorCode.UnsupportedMethod,
+      `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
+    );
   }
 
   public on<TEvent extends keyof ProviderEvent>(
