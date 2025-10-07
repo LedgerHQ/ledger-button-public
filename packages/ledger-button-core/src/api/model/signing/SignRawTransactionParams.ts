@@ -1,5 +1,8 @@
+import { RpcMethods } from "../eip/EIPTypes.js";
+
 export interface SignRawTransactionParams {
   transaction: string;
+  method: RpcMethods;
   broadcast: boolean;
 }
 
@@ -11,6 +14,10 @@ export function isSignRawTransactionParams(
     params !== null &&
     typeof params === "object" &&
     "transaction" in params &&
-    typeof params.transaction === "string"
+    typeof params.transaction === "string" &&
+    "method" in params &&
+    typeof params.method === "string" &&
+    (params.method === "eth_sendRawTransaction" ||
+      params.method === "eth_signRawTransaction")
   );
 }

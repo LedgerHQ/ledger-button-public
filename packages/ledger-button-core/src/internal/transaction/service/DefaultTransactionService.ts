@@ -57,11 +57,10 @@ export class DefaultTransactionService implements TransactionService {
       | SignTypedMessageParams
       | SignTransactionParams
       | SignPersonalMessageParams,
-    broadcast: boolean,
   ): Observable<SignFlowStatus> {
     this._pendingParams = params;
 
-    this.logger.debug("[Sign] Signing intent received", { params, broadcast });
+    this.logger.debug("[Sign] Signing intent received", { params });
 
     let useCase: Observable<SignFlowStatus>;
     switch (true) {

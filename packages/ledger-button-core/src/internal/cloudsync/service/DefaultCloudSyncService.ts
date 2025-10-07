@@ -1,6 +1,10 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either } from "purify-ts";
 
+import {
+  FailedToFetchEncryptedAccountsError,
+  NoAccountInSyncError,
+} from "../../../api/errors/LedgerSyncErrors.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { InternalAuthContext } from "../../ledgersync/model/InternalAuthContext.js";
@@ -47,9 +51,20 @@ export class DefaultCloudSyncService implements CloudSyncService {
         },
       );
 
-    return response.orDefaultLazy(() => {
-      this.logger.error("Failed to fetch encrypted accounts");
-      throw new Error("Failed to fetch encrypted accounts");
+    return response.caseOf({
+      Right: (data) => {
+        if (data.status === "no-data") {
+          throw new NoAccountInSyncError("No data found");
+        }
+
+        return data;
+      },
+      Left: (error) => {
+        this.logger.error("Failed to fetch encrypted accounts", { error });
+        throw new FailedToFetchEncryptedAccountsError(
+          "Failed to fetch encrypted accounts",
+        );
+      },
     });
   }
 }
