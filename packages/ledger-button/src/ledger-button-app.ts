@@ -6,14 +6,11 @@ import "./shared/routes.js";
 
 import {
   Account,
-  BroadcastedTransactionResult,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
   LedgerButtonCore,
-  SignedPersonalMessageOrTypedDataResult,
   SignedResults,
-  SignedTransactionResult,
 } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -50,14 +47,7 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-account-switch",
       this.handleAccountSwitch,
     );
-    window.addEventListener(
-      "ledger-internal-sign-transaction",
-      this.handleSignTransaction,
-    );
-    window.addEventListener(
-      "ledger-internal-sign-message",
-      this.handleSignMessage,
-    );
+    window.addEventListener("ledger-internal-sign", this.handleSign);
   }
 
   override disconnectedCallback() {
@@ -74,37 +64,55 @@ export class LedgerButtonApp extends LitElement {
       "ledger-internal-account-switch",
       this.handleAccountSwitch,
     );
-    window.removeEventListener(
-      "ledger-internal-sign-transaction",
-      this.handleSignTransaction,
-    );
-
-    window.removeEventListener(
-      "ledger-internal-sign-message",
-      this.handleSignMessage,
-    );
+    window.removeEventListener("ledger-internal-sign", this.handleSign);
   }
 
   // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
   // when passed to window.addEventListener
-  private handleAccountSelected = (e: CustomEvent<Account>) => {
-    window.dispatchEvent(
-      new CustomEvent<{ account: Account }>(
-        "ledger-provider-account-selected",
-        {
-          bubbles: true,
-          composed: true,
-          detail: { account: e.detail },
-        },
-      ),
-    );
+  private handleAccountSelected = (
+    e: CustomEvent<
+      | { account: Account; status: "success" }
+      | { status: "error"; error: unknown }
+    >,
+  ) => {
+    if (e.detail.status === "error") {
+      window.dispatchEvent(
+        new CustomEvent<{ status: "error"; error: unknown }>(
+          "ledger-provider-account-selected",
+          {
+            bubbles: true,
+            composed: true,
+            detail: e.detail,
+          },
+        ),
+      );
+      return;
+    }
+
+    if (e.detail.status === "success") {
+      window.dispatchEvent(
+        new CustomEvent<{ account: Account; status: "success" }>(
+          "ledger-provider-account-selected",
+          {
+            bubbles: true,
+            composed: true,
+            detail: { account: e.detail.account, status: "success" },
+          },
+        ),
+      );
+    }
   };
 
-  private handleSignTransaction = (e: CustomEvent<SignedResults>) => {
-    if (isBroadcastedTransactionResult(e.detail)) {
+  private handleSign = (
+    e: CustomEvent<
+      | { status: "success"; data: SignedResults }
+      | { status: "error"; error: unknown }
+    >,
+  ) => {
+    if (e.detail.status === "error") {
       window.dispatchEvent(
-        new CustomEvent<BroadcastedTransactionResult>(
-          "ledger-provider-sign-transaction",
+        new CustomEvent<{ status: "error"; error: unknown }>(
+          "ledger-provider-sign",
           {
             bubbles: true,
             composed: true,
@@ -112,17 +120,29 @@ export class LedgerButtonApp extends LitElement {
           },
         ),
       );
-    } else if (isSignedTransactionResult(e.detail)) {
-      window.dispatchEvent(
-        new CustomEvent<SignedTransactionResult>(
-          "ledger-provider-sign-transaction",
-          {
+      return;
+    }
+
+    if (e.detail.status === "success") {
+      if (
+        isBroadcastedTransactionResult(e.detail.data) ||
+        isSignedTransactionResult(e.detail.data) ||
+        isSignedMessageOrTypedDataResult(e.detail.data)
+      ) {
+        window.dispatchEvent(
+          new CustomEvent<{
+            status: "success";
+            data: SignedResults;
+          }>("ledger-provider-sign", {
             bubbles: true,
             composed: true,
-            detail: e.detail,
-          },
-        ),
-      );
+            detail: {
+              status: "success",
+              data: e.detail.data,
+            },
+          }),
+        );
+      }
     }
   };
 
@@ -134,21 +154,6 @@ export class LedgerButtonApp extends LitElement {
     this.root.rootNavigationController.navigation.navigateTo(
       this.root.rootNavigationController.destinations.fetchAccounts,
     );
-  };
-
-  private handleSignMessage = (e: CustomEvent<SignedResults>) => {
-    if (isSignedMessageOrTypedDataResult(e.detail)) {
-      window.dispatchEvent(
-        new CustomEvent<SignedPersonalMessageOrTypedDataResult>(
-          "ledger-provider-sign-message",
-          {
-            bubbles: true,
-            composed: true,
-            detail: e.detail,
-          },
-        ),
-      );
-    }
   };
 
   public navigationIntent(intent: Destination["name"], params?: unknown) {
@@ -187,11 +192,20 @@ export class LedgerButtonApp extends LitElement {
 // Make sure to prefix with "ledger-provider-" (or something else, to be discussed)
 declare global {
   interface WindowEventMap {
-    "ledger-provider-account-selected": CustomEvent<{ account: Account }>;
-    "ledger-provider-sign-transaction": CustomEvent<
-      SignedTransactionResult | BroadcastedTransactionResult
+    "ledger-provider-account-selected": CustomEvent<
+      | { account: Account; status: "success" }
+      | { status: "error"; error: unknown }
     >;
-    "ledger-provider-sign-message": CustomEvent<SignedPersonalMessageOrTypedDataResult>;
+    "ledger-provider-sign": CustomEvent<
+      | {
+          status: "success";
+          data: SignedResults;
+        }
+      | {
+          status: "error";
+          error: unknown;
+        }
+    >;
     "ledger-provider-disconnect": CustomEvent;
   }
 }

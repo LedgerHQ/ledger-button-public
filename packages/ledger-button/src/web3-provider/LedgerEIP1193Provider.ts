@@ -13,19 +13,25 @@
 import "../ledger-button-app.js";
 
 import {
+  BlindSigningDisabledError,
+  BroadcastTransactionError,
   // type ChainInfo,
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
   type EthSignTypedDataParams,
+  IncorrectSeedError,
   isBroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
+  isSignedTransactionResult,
   type ProviderConnectInfo,
   type ProviderEvent,
   type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
   type RpcMethods,
+  UserRejectedTransactionError,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
 
@@ -107,7 +113,7 @@ export class LedgerEIP1193Provider
 
   // Handlers for the different RPC methods
   private async handleRequestAccounts(): Promise<string[]> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const selectedAccount = this.core.getSelectedAccount();
 
       if (selectedAccount) {
@@ -126,20 +132,25 @@ export class LedgerEIP1193Provider
           "ledger-provider-account-selected",
           (e) => {
             this._isConnected = true;
-            this._selectedAccount = e.detail.account.freshAddress;
+            if (e.detail.status === "error") {
+              return reject(this.mapErrors(e.detail.error));
+            }
 
-            this.dispatchEvent(
-              new CustomEvent<string[]>("accountsChanged", {
-                bubbles: true,
-                composed: true,
-                detail: [e.detail.account.freshAddress],
-              }),
-            );
-            this._selectedAccount = e.detail.account.freshAddress;
-            // TODO: create mapping between chainId and account.currencyId
-            this._selectedChainId = 1; // TODO: fetch the chain id from ?
-            this._isConnected = true;
-            resolve([e.detail.account.freshAddress]);
+            if (e.detail.status === "success") {
+              this._selectedAccount = e.detail.account.freshAddress;
+              this.dispatchEvent(
+                new CustomEvent<string[]>("accountsChanged", {
+                  bubbles: true,
+                  composed: true,
+                  detail: [e.detail.account.freshAddress],
+                }),
+              );
+              this._selectedAccount = e.detail.account.freshAddress;
+              // TODO: create mapping between chainId and account.currencyId
+              this._selectedChainId = 1; // TODO: fetch the chain id from ?
+              this._isConnected = true;
+              resolve([e.detail.account.freshAddress]);
+            }
           },
           {
             once: true,
@@ -177,12 +188,19 @@ export class LedgerEIP1193Provider
       }
 
       window.addEventListener(
-        "ledger-provider-sign-transaction",
+        "ledger-provider-sign",
         (e) => {
-          if (isBroadcastedTransactionResult(e.detail)) {
-            resolve(e.detail.hash);
-          } else {
-            resolve(e.detail.signedRawTransaction);
+          if (e.detail.status === "success") {
+            if (isBroadcastedTransactionResult(e.detail.data)) {
+              return resolve(e.detail.data.hash);
+            }
+            if (isSignedTransactionResult(e.detail.data)) {
+              return resolve(e.detail.data.signedRawTransaction);
+            }
+          }
+
+          if (e.detail.status === "error") {
+            return reject(this.mapErrors(e.detail.error));
           }
         },
         {
@@ -213,9 +231,17 @@ export class LedgerEIP1193Provider
       }
 
       window.addEventListener(
-        "ledger-provider-sign-message",
+        "ledger-provider-sign",
         (e) => {
-          resolve(e.detail.signature);
+          if (e.detail.status === "success") {
+            if (isSignedMessageOrTypedDataResult(e.detail.data)) {
+              return resolve(e.detail.data.signature);
+            }
+          }
+
+          if (e.detail.status === "error") {
+            return reject(this.mapErrors(e.detail.error));
+          }
         },
         {
           once: true,
@@ -242,7 +268,6 @@ export class LedgerEIP1193Provider
           this.app.navigationIntent("signTransaction", [params[0], p, method]);
           return;
         } catch (error) {
-          console.error(error);
           return reject(
             this.createError(
               CommonEIP1193ErrorCode.InvalidParams,
@@ -274,9 +299,16 @@ export class LedgerEIP1193Provider
       }
 
       window.addEventListener(
-        "ledger-provider-sign-message",
+        "ledger-provider-sign",
         (e) => {
-          resolve(e.detail.signature);
+          if (e.detail.status === "success") {
+            if (isSignedMessageOrTypedDataResult(e.detail.data)) {
+              return resolve(e.detail.data.signature);
+            }
+          }
+          if (e.detail.status === "error") {
+            return reject(this.mapErrors(e.detail.error));
+          }
         },
         {
           once: true,
@@ -428,6 +460,41 @@ export class LedgerEIP1193Provider
     error.data = data;
     error.stack = err.stack;
     return error;
+  }
+
+  private mapErrors(error: unknown) {
+    switch (true) {
+      case error instanceof UserRejectedTransactionError:
+        return this.createError(
+          CommonEIP1193ErrorCode.UserRejectedRequest,
+          "User rejected transaction",
+          error,
+        );
+      case error instanceof BroadcastTransactionError:
+        return this.createError(
+          CommonEIP1193ErrorCode.InternalError,
+          "Broadcast transaction failed",
+          error,
+        );
+      case error instanceof BlindSigningDisabledError:
+        return this.createError(
+          CommonEIP1193ErrorCode.InternalError,
+          "Blind signing disabled",
+          error,
+        );
+      case error instanceof IncorrectSeedError:
+        return this.createError(
+          CommonEIP1193ErrorCode.Unauthorized,
+          "Address mismatch",
+          error,
+        );
+      default:
+        return this.createError(
+          CommonEIP1193ErrorCode.InternalError,
+          "Unknown error",
+          error,
+        );
+    }
   }
 }
 

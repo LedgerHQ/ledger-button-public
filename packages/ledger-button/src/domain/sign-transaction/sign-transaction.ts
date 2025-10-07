@@ -2,9 +2,7 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
-  type BroadcastedTransactionResult,
-  type SignedPersonalMessageOrTypedDataResult,
-  type SignedTransactionResult,
+  type SignedResults,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignTransactionParams,
@@ -109,7 +107,7 @@ export class SignTransactionScreen extends LitElement {
     }
 
     this.transactionParams = transactionParams;
-    this.controller.startSigning(transactionParams, this.broadcast);
+    this.controller.startSigning(transactionParams);
   }
 
   private isParams(params: unknown): params is Params {
@@ -201,11 +199,10 @@ export class SignTransactionScreen extends LitElement {
 
   override render() {
     switch (this.controller.state.screen) {
-      case "signing":
-        return this.renderSigningState();
       case "success":
       case "error":
         return this.renderStatusState();
+      case "signing":
       default:
         return this.renderSigningState();
     }
@@ -218,9 +215,9 @@ declare global {
   }
 
   interface WindowEventMap {
-    "ledger-internal-sign-transaction": CustomEvent<
-      SignedTransactionResult | BroadcastedTransactionResult
+    "ledger-internal-sign": CustomEvent<
+      | { status: "success"; data: SignedResults }
+      | { status: "error"; error: unknown }
     >;
-    "ledger-internal-sign-message": CustomEvent<SignedPersonalMessageOrTypedDataResult>;
   }
 }

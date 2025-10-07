@@ -32,7 +32,6 @@ export interface TransactionService {
       | SignRawTransactionParams
       | SignTypedMessageParams
       | SignPersonalMessageParams,
-    broadcast: boolean,
   ): Observable<SignFlowStatus>;
 
   getPendingTransaction():

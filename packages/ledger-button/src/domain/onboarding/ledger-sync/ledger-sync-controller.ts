@@ -52,7 +52,6 @@ export class LedgerSyncController implements ReactiveController {
 
     this.ledgerSyncSubscription = this.core.connectToLedgerSync().subscribe({
       next: (value: LedgerSyncAuthenticateResponse) => {
-        console.info("Ledger sync response", { value });
         switch (true) {
           case this.isAuthContext(value):
             this.host.requestUpdate();
@@ -71,8 +70,6 @@ export class LedgerSyncController implements ReactiveController {
         }
       },
       error: (error) => {
-        console.error("Error in ledger sync", error);
-
         if (error instanceof LedgerSyncConnectionFailedError) {
           this.errorData = {
             title:
