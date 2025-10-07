@@ -67,6 +67,12 @@ export class Config {
       : "https://crypto-assets-service.api.ledger-test.com";
   }
 
+  getBackendUrl(environment: Environment): string {
+    return environment === "production"
+      ? "https://ledgerb.aws.prd.ldg-tech.com"
+      : "https://ledgerb.aws.stg.ldg-tech.com";
+  }
+
   setEnvironment(environment: Environment) {
     this.environment = environment;
     this.lkrp = {
