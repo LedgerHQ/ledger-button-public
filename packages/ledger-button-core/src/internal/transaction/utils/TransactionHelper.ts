@@ -36,9 +36,16 @@ export function getRawTransactionFromEipTransaction(transaction: Transaction) {
       : undefined,
   };
 
-  const etherTx = ethers.Transaction.from(sanitizedTransaction);
-  const tx = etherTx.unsignedSerialized;
-  return tx;
+  console.log("Ethers: Sanitized transaction", { sanitizedTransaction });
+  try {
+    const etherTx = ethers.Transaction.from(sanitizedTransaction);
+    const tx = etherTx.unsignedSerialized;
+    console.log("Raw Tx", { tx });
+    return tx;
+  } catch (error) {
+    console.error("Failed to get raw transaction from Ethers", { error });
+    throw error;
+  }
 }
 
 export function getHexaStringFromSignature(signature: DeviceSignature) {

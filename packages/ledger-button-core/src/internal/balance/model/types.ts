@@ -7,6 +7,20 @@ export type NativeBalance = {
   readonly balance: bigint;
 };
 
+export type TransactionInfo = {
+  from: string;
+  to: string;
+  value: string;
+  data: string;
+  chainId: string;
+};
+
+export type GasFeeEstimation = {
+  gasLimit: string;
+  maxFeePerGas: string;
+  maxPriorityFeePerGas: string;
+};
+
 export class TokenBalance {
   readonly decimals: number;
   readonly balance: bigint;
