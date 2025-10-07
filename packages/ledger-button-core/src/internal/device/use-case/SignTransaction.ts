@@ -86,6 +86,7 @@ export class SignTransaction {
         gas: fees.gasLimit,
         maxFeePerGas: fees.maxFeePerGas,
         maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
+        nonce: fees.nonce,
       };
 
       this.logger.debug("Transaction with fees", { transactionWithFees });
