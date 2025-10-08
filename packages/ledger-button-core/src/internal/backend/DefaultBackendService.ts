@@ -31,7 +31,7 @@ export class DefaultBackendService implements BackendService {
     request: BroadcastRequest,
     domain = "ledger-button-domain",
   ): Promise<Either<Error, BroadcastResponse>> {
-    const url = `${this.config.getBackendUrl(this.config.environment)}/broadcast`;
+    const url = `${this.config.getBackendUrl()}/broadcast`;
 
     const headers = {
       "Content-Type": "application/json",
@@ -60,7 +60,7 @@ export class DefaultBackendService implements BackendService {
   }
 
   async getConfig(request: ConfigRequest) {
-    const url = `${this.config.getBackendUrl(this.config.environment)}/config?dAppIdentifier=${encodeURIComponent(
+    const url = `${this.config.getBackendUrl()}/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
 
@@ -89,7 +89,7 @@ export class DefaultBackendService implements BackendService {
     request: EventRequest,
     domain = "ledger-button-domain",
   ): Promise<Either<Error, EventResponse>> {
-    const url = `${this.config.getBackendUrl(this.config.environment)}/event`;
+    const url = `${this.config.getBackendUrl()}/event`;
 
     const headers = {
       "Content-Type": "application/json",

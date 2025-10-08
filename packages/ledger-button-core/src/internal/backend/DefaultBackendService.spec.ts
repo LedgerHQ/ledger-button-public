@@ -37,7 +37,7 @@ describe("DefaultBackendService", () => {
     mockConfig = {
       originToken: "test-origin-token",
       dAppIdentifier: "test-dapp-identifier",
-      environment: "staging",
+      environment: "staging" as const,
       getBackendUrl: () => "https://test-backend-url.com",
     };
 
