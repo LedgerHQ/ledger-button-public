@@ -2,6 +2,10 @@ function generateUUID(): string {
   return crypto.randomUUID();
 }
 
+function normalizeTransactionHash(hash: string): string {
+  return hash.toLowerCase().replace(/^0x/, "");
+}
+
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
@@ -16,6 +20,7 @@ import {
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
 } from "../backend/types.js";
+import { EventDataSchema } from "../../schemas/event-schemas.js";
 
 interface BaseEventParams {
   dAppId: string;
@@ -37,6 +42,25 @@ interface TransactionEventParams extends LedgerSyncEventParams {
 }
 
 export class EventTrackingUtils {
+  static validateEvent(event: EventRequest): {
+    success: boolean;
+    errors?: Array<{ path: string; message: string }>;
+  } {
+    const result = EventDataSchema.safeParse(event.data);
+
+    if (result.success) {
+      return { success: true };
+    }
+
+    return {
+      success: false,
+      errors: result.error.issues.map((issue) => ({
+        path: issue.path.join("."),
+        message: issue.message,
+      })),
+    };
+  }
+
   static createOpenSessionEvent(params: SessionEventParams): EventRequest {
     const data: OpenSessionEventData = {
       event_id: generateUUID(),
@@ -162,7 +186,7 @@ export class EventTrackingUtils {
       blockchain_network_selected: "ethereum",
       account_currency: params.accountCurrency,
       account_balance: params.accountBalance,
-      unsigned_transaction_hash: params.unsignedTransactionHash,
+      unsigned_transaction_hash: normalizeTransactionHash(params.unsignedTransactionHash),
       transaction_type: params.transactionType,
     };
 
@@ -186,9 +210,9 @@ export class EventTrackingUtils {
       blockchain_network_selected: "ethereum",
       account_currency: params.accountCurrency,
       account_balance: params.accountBalance,
-      unsigned_transaction_hash: params.unsignedTransactionHash,
+      unsigned_transaction_hash: normalizeTransactionHash(params.unsignedTransactionHash),
       transaction_type: params.transactionType,
-      transaction_hash: params.transactionHash,
+      transaction_hash: normalizeTransactionHash(params.transactionHash),
     };
 
     return {
@@ -209,9 +233,9 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: params.unsignedTransactionHash,
+      unsigned_transaction_hash: normalizeTransactionHash(params.unsignedTransactionHash),
       transaction_type: "authentication_tx",
-      transaction_hash: params.transactionHash,
+      transaction_hash: normalizeTransactionHash(params.transactionHash),
     };
 
     return {
@@ -240,12 +264,12 @@ export class EventTrackingUtils {
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
       transaction_type: params.transactionType,
-      transaction_hash: params.transactionHash,
+      transaction_hash: normalizeTransactionHash(params.transactionHash),
       source_token: params.sourceToken,
       target_token: params.targetToken,
-      recipient_address: params.recipientAddress,
+      recipient_address: params.recipientAddress.toLowerCase(),
       transaction_amount: params.transactionAmount,
-      transaction_id: params.transactionId,
+      transaction_id: normalizeTransactionHash(params.transactionId),
     };
 
     return {

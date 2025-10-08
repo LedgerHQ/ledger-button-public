@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ledger.com/json-schemas/ledger-button/invocing-events.json",
+  "title": "Ledger Button Invoicing Events",
+  "description": "Invoicing events for Ledger Button",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique ID of this event",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "event_type": {
+      "const": "invoicing_transaction_signed",
+      "description": "Emitted when a transaction is signed"
+    },
+    "transaction_dapp_id": {
+      "type": "string",
+      "description": "The ID of the DApp: its URL"
+    },
+    "timestamp_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Timestamp in milliseconds"
+    },
+    "ledger_sync_user_id": {
+      "type": "string",
+      "description": "ID of User's Ledger Sync Account"
+    },
+    "blockchain_network_selected": {
+      "enum": ["ethereum"]
+    },
+    "transaction_type": {
+      "enum" : ["ETH_transfer", "ERC-20_approve"]
+    },
+    "transaction_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]+$",
+      "description": "Lowercase hex string, without the 0x prefix, of the signed transaction hash (as defined for the selected network)."
+    },
+    "source_token": {
+      "type": "string",
+      "description": "The ticker of the source token"
+    },
+    "recipient_address" : {
+      "type": "string",
+      "description" : "Normalized recipient address (lowercase for ethereum)"
+    },
+    "transaction_amount" : {
+      "type": "string",
+      "pattern": "^([1-9][0-9]*|0)$",
+      "description": "Amount expressed in the lowest source-token unit"
+    },
+    "target_token": {
+      "type": "string",
+      "description": "The ticker of the source token"
+    },
+    "transaction_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "transaction_dapp_id",
+    "timestamp_ms",
+    "ledger_sync_user_id",
+    "blockchain_network_selected",
+    "transaction_type",
+    "transaction_hash",
+    "source_token",
+    "recipient_address",
+    "transaction_amount",
+    "transaction_id",
+    "target_token"
+  ],
+  "additionalProperties": false
+}

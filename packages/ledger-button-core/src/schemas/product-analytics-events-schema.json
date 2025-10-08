@@ -1,0 +1,438 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://ledger.com/json-schemas/ledger-button/product-analysis.json",
+    "title": "Ledger Button Product Analysis Events",
+    "description": "Product analysis events for Ledger Button",
+    "oneOf": [
+        {
+            "$ref": "#/$defs/events/consent_given"
+        },
+        {
+            "$ref": "#/$defs/events/consent_removed"
+        },
+        {
+            "$ref": "#/$defs/events/open_session"
+        },
+        {
+            "$ref": "#/$defs/events/open_ledger_sync"
+        },
+        {
+            "$ref": "#/$defs/events/ledger_sync_activated"
+        },
+        {
+            "$ref": "#/$defs/events/onboarding"
+        },
+        {
+            "$ref": "#/$defs/events/transaction_flow_initialization"
+        },
+        {
+            "$ref": "#/$defs/events/transaction_flow_completion"
+        },
+        {
+            "$ref": "#/$defs/events/session_authentication"
+        }
+    ],
+    "$defs": {
+        "types": {
+            "blockchain_network_selected": {
+                "enum": [
+                    "ethereum"
+                ]
+            },
+            "event_id": {
+                "type": "string",
+                "description": "Unique ID of this event",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "ledger_sync_user_id": {
+                "type": "string",
+                "description": "ID of User's Ledger Sync Account"
+            },
+            "session_id": {
+                "type": "string",
+                "description": "Unique ID of this session",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+            },
+            "timestamp_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Timestamp in milliseconds"
+            },
+            "transaction_dapp_id": {
+                "type": "string",
+                "description": "The ID of the DApp: its URL"
+            },
+            "transaction_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]+$",
+                "description": "Lowercase hex string, without the 0x prefix, of the signed transaction hash (as defined for the selected network)."
+            },
+            "unsigned_transaction_hash": {
+                "type": "string",
+                "pattern": "^[0-9a-f]+$",
+                "description": "Lowercase hex string, without the 0x prefix, of the UNsigned transaction hash with SHA3 256."
+            }
+        },
+        "events": {
+            "consent_given": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "consent_given"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "ledger_sync_user_id"
+                ],
+                "additionalProperties": false
+            },
+            "consent_removed": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "consent_removed"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "ledger_sync_user_id"
+                ],
+                "additionalProperties": false
+            },
+            "open_session": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "open_session"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id"
+                ],
+                "additionalProperties": false
+            },
+            "open_ledger_sync": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "open_ledger_sync"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id"
+                ],
+                "additionalProperties": false
+            },
+            "ledger_sync_activated": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "ledger_sync_activated"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id",
+                    "ledger_sync_user_id"
+                ],
+                "additionalProperties": false
+            },
+            "onboarding": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "onboarding"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    },
+                    "blockchain_network_selected": {
+                        "$ref": "#/$defs/types/blockchain_network_selected"
+                    },
+                    "account_currency": {
+                        "type": "string",
+                        "description": "Ticker of the selected token"
+                    },
+                    "account_balance": {
+                        "type": "string",
+                        "pattern": "^([1-9][0-9]*|0)$",
+                        "description": "Amount of owned units of this currency"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id",
+                    "ledger_sync_user_id",
+                    "blockchain_network_selected",
+                    "account_currency",
+                    "account_balance"
+                ],
+                "additionalProperties": false
+            },
+            "transaction_flow_initialization": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "transaction_flow_initialization"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    },
+                    "blockchain_network_selected": {
+                        "$ref": "#/$defs/types/blockchain_network_selected"
+                    },
+                    "account_currency": {
+                        "type": "string",
+                        "description": "Ticker of the selected token"
+                    },
+                    "account_balance": {
+                        "type": "string",
+                        "pattern": "^([1-9][0-9]*|0)$",
+                        "description": "Amount of owned units of this currency"
+                    },
+                    "unsigned_transaction_hash": {
+                        "$ref": "#/$defs/types/unsigned_transaction_hash"
+                    },
+                    "transaction_type": {
+                        "enum": [
+                            "authentication_tx",
+                            "standard_tx"
+                        ]
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id",
+                    "ledger_sync_user_id",
+                    "blockchain_network_selected",
+                    "account_currency",
+                    "account_balance",
+                    "unsigned_transaction_hash",
+                    "transaction_type"
+                ],
+                "additionalProperties": false
+            },
+            "transaction_flow_completion": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "transaction_flow_completion"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    },
+                    "blockchain_network_selected": {
+                        "$ref": "#/$defs/types/blockchain_network_selected"
+                    },
+                    "account_currency": {
+                        "type": "string",
+                        "description": "Ticker of the selected token"
+                    },
+                    "account_balance": {
+                        "type": "string",
+                        "pattern": "^([1-9][0-9]*|0)$",
+                        "description": "Amount of owned units of this currency"
+                    },
+                    "unsigned_transaction_hash": {
+                        "$ref": "#/$defs/types/unsigned_transaction_hash"
+                    },
+                    "transaction_type": {
+                        "enum": [
+                            "authentication_tx",
+                            "standard_tx"
+                        ]
+                    },
+                    "transaction_hash": {
+                        "$ref": "#/$defs/types/transaction_hash"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id",
+                    "ledger_sync_user_id",
+                    "blockchain_network_selected",
+                    "account_currency",
+                    "account_balance",
+                    "unsigned_transaction_hash",
+                    "transaction_type",
+                    "transaction_hash"
+                ],
+                "additionalProperties": false
+            },
+            "session_authentication": {
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "$ref": "#/$defs/types/event_id"
+                    },
+                    "event_type": {
+                        "const": "session_authentication"
+                    },
+                    "transaction_dapp_id": {
+                        "$ref": "#/$defs/types/transaction_dapp_id"
+                    },
+                    "timestamp_ms": {
+                        "$ref": "#/$defs/types/timestamp_ms"
+                    },
+                    "session_id": {
+                        "$ref": "#/$defs/types/session_id"
+                    },
+                    "ledger_sync_user_id": {
+                        "$ref": "#/$defs/types/ledger_sync_user_id"
+                    },
+                    "blockchain_network_selected": {
+                        "$ref": "#/$defs/types/blockchain_network_selected"
+                    },
+                    "unsigned_transaction_hash": {
+                        "$ref": "#/$defs/types/unsigned_transaction_hash"
+                    },
+                    "transaction_type": {
+                        "const": "authentication_tx"
+                    },
+                    "transaction_hash": {
+                        "$ref": "#/$defs/types/transaction_hash"
+                    }
+                },
+                "required": [
+                    "event_id",
+                    "event_type",
+                    "transaction_dapp_id",
+                    "timestamp_ms",
+                    "session_id",
+                    "ledger_sync_user_id",
+                    "blockchain_network_selected",
+                    "unsigned_transaction_hash",
+                    "transaction_type",
+                    "transaction_hash"
+                ],
+                "additionalProperties": false
+            }
+        }
+    }
+}

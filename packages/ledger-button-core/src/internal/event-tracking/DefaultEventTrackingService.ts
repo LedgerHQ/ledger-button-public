@@ -8,6 +8,7 @@ import type { Config } from "../config/model/config.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import type { EventTrackingService } from "./EventTrackingService.js";
+import { EventTrackingUtils } from "./EventTrackingUtils.js";
 
 @injectable()
 export class DefaultEventTrackingService implements EventTrackingService {
@@ -37,8 +38,19 @@ export class DefaultEventTrackingService implements EventTrackingService {
         return;
       }
 
+      const validationResult = EventTrackingUtils.validateEvent(event);
+
+      if (!validationResult.success) {
+        this.logger.error("Event validation failed", {
+          eventType: event.type,
+          errors: validationResult.errors,
+          event
+        });
+        return;
+      }
+
       this.logger.info("Tracking event", { event });
-      
+
       const result = await this.backendService.event(
         event,
         this.config.dAppIdentifier,
