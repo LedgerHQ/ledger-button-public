@@ -269,21 +269,12 @@ export class SignPersonalMessage {
             );
           },
           error: (error: Error) => {
-            console.error(
-              "Failed to sign personal message in SignPersonalMessage",
-              {
-                error,
-              },
-            );
             resultObservable.next({ signType, status: "error", error: error });
           },
         });
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign personal message in SignPersonalMessage", {
-        error,
-      });
       this.logger.error("Failed to sign personal message", { error });
       return of({
         signType,

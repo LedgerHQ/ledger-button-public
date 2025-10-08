@@ -11,7 +11,8 @@ import { tailwindElement } from "../../../tailwind-element.js";
 export interface LedgerToolbarAttributes {
   title?: string;
   deviceModelId?: DeviceModelId;
-  canGoBack?: boolean;
+  canGoBack: boolean;
+  canClose: boolean;
 }
 
 const styles = css`
@@ -26,11 +27,11 @@ export class LedgerToolbar extends LitElement {
   @property({ type: String })
   override title = "";
 
-  @property({ type: Boolean })
-  showCloseButton? = true;
+  @property({ type: Boolean, reflect: true })
+  canClose = false;
 
-  @property({ type: Boolean })
-  canGoBack?: boolean;
+  @property({ type: Boolean, reflect: true })
+  canGoBack = false;
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;
@@ -101,7 +102,7 @@ export class LedgerToolbar extends LitElement {
             : nothing}
 
         <div class="flex h-32 w-32 items-center justify-center">
-          ${this.showCloseButton
+          ${this.canClose
             ? html`
                 <ledger-button
                   data-testid="close-button"

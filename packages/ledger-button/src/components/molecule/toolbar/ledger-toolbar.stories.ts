@@ -1,5 +1,6 @@
 import "./ledger-toolbar";
 
+import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
@@ -31,7 +32,13 @@ const meta: Meta<LedgerToolbarAttributes> = {
     deviceModelId: {
       control: "select",
       description: "The device model ID to display the corresponding icon",
-      options: ["flex", "stax", "nanos", "nanosp", "nanox"],
+      options: [
+        DeviceModelId.FLEX,
+        DeviceModelId.STAX,
+        DeviceModelId.NANO_S,
+        DeviceModelId.NANO_SP,
+        DeviceModelId.NANO_X,
+      ],
       table: {
         type: { summary: "string" },
         defaultValue: { summary: "" },
@@ -40,6 +47,14 @@ const meta: Meta<LedgerToolbarAttributes> = {
     canGoBack: {
       control: "boolean",
       description: "Whether can go back to previous screen",
+      table: {
+        type: { summary: "boolean" },
+        defaultValue: { summary: "false" },
+      },
+    },
+    canClose: {
+      control: "boolean",
+      description: "Whether can close the toolbar",
       table: {
         type: { summary: "boolean" },
         defaultValue: { summary: "false" },
@@ -115,7 +130,7 @@ export const AllVariations: Story = {
           </h3>
           <ledger-toolbar
             title="GM's Flex"
-            deviceModelId="flex"
+            deviceModelId=${DeviceModelId.FLEX}
             @ledger-toolbar-chip-click=${handleToolbarChipClick}
           ></ledger-toolbar>
         </div>
@@ -128,7 +143,7 @@ export const AllVariations: Story = {
           </h3>
           <ledger-toolbar
             title="GM's Stax"
-            deviceModelId="stax"
+            deviceModelId=${DeviceModelId.STAX}
             @ledger-toolbar-chip-click=${handleToolbarChipClick}
           ></ledger-toolbar>
         </div>
@@ -141,7 +156,7 @@ export const AllVariations: Story = {
           </h3>
           <ledger-toolbar
             title="GM's Nano S"
-            deviceModelId="nanos"
+            deviceModelId=${DeviceModelId.NANO_S}
             @ledger-toolbar-chip-click=${handleToolbarChipClick}
           ></ledger-toolbar>
         </div>
@@ -154,7 +169,7 @@ export const AllVariations: Story = {
           </h3>
           <ledger-toolbar
             title="GM's Nano SP"
-            deviceModelId="nanosp"
+            deviceModelId=${DeviceModelId.NANO_SP}
             @ledger-toolbar-chip-click=${handleToolbarChipClick}
           ></ledger-toolbar>
         </div>
@@ -167,7 +182,7 @@ export const AllVariations: Story = {
           </h3>
           <ledger-toolbar
             title="GM's Nano X"
-            deviceModelId="nanox"
+            deviceModelId=${DeviceModelId.NANO_X}
             @ledger-toolbar-chip-click=${handleToolbarChipClick}
           ></ledger-toolbar>
         </div>
