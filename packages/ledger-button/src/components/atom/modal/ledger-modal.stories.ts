@@ -30,6 +30,7 @@ const meta: Meta<LedgerModal> = {
       <div slot="toolbar">
         <ledger-toolbar
           title="Ledger Modal Example"
+          .canClose=${true}
           @ledger-toolbar-close=${() => {
             const modal = document.querySelector("ledger-modal");
             if (modal) {
@@ -75,7 +76,7 @@ export const TestModalInteractions: Story = {
       "Click the close button - wait for the modal to close",
       async () => {
         const closeButtons = canvas.getAllByShadowTestId("close-button");
-        const [, closeButton] = closeButtons; // Skipping the first close button as it's the default toolbar (they both get rendered)
+        const [closeButton] = closeButtons; // Skipping the first close button as it's the default toolbar (they both get rendered)
         await userEvent.click(closeButton);
         await waitFor(async () => {
           const backdrop = canvas.queryByShadowRole("dialog");
