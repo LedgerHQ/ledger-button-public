@@ -1,3 +1,4 @@
+import { NetworkError } from "../../api/errors/NetworkErrors.js";
 import { Config } from "../config/model/config.js";
 import { DefaultNetworkService } from "./DefaultNetworkService.js";
 
@@ -24,13 +25,13 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      await networkService.get("https://whater.com/ap1/posts/1", {
+      await networkService.get("https://whatever.com/ap1/posts/1", {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
+      expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
           "X-Ledger-Client-Version": "test-dapp-identifier",
@@ -50,8 +51,7 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      const res = await networkService.get("https://whater.com/ap1/posts/1");
-
+      const res = await networkService.get("https://whatever.com/ap1/posts/1");
       expect(res.isRight()).toBe(true);
       expect(res.extract()).toEqual({
         id: 1,
@@ -63,21 +63,28 @@ describe("DefaultNetworkService", () => {
     it("should be able to get a resource and return an error (response error)", async () => {
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
-      const res = await networkService.get("https://whater.com/ap1/posts/1");
+      const res = await networkService.get("https://whatever.com/ap1/posts/1");
 
       expect(res.isLeft()).toBe(true);
       expect(res.extract()).toEqual(new Error("Network error"));
     });
 
-    it("should be able to get a resource and return an error (res.json())", async () => {
+    it("should be able to get a resource and return an error (res.ok = false)", async () => {
       vi.spyOn(global, "fetch").mockResolvedValue({
-        json: vi.fn().mockRejectedValue(new Error("Parsing failed")),
+        ok: false,
+        status: 404,
       } as unknown as Response);
 
-      const res = await networkService.get("https://whater.com/ap1/posts/1");
+      const res = await networkService.get("https://whatever.com/ap1/posts/1");
 
       expect(res.isLeft()).toBe(true);
-      expect(res.extract()).toEqual(new Error("Parsing failed"));
+      expect(res.extract()).toEqual(
+        new NetworkError("GET request failed", {
+          status: 404,
+          url: "https://whatever.com/ap1/posts/1",
+          options: undefined,
+        }),
+      );
     });
   });
 
@@ -90,7 +97,7 @@ describe("DefaultNetworkService", () => {
       } as unknown as Response);
 
       await networkService.post(
-        "https://whater.com/ap1/posts",
+        "https://whatever.com/ap1/posts",
         {
           id: 1,
         },
@@ -101,7 +108,7 @@ describe("DefaultNetworkService", () => {
         },
       );
 
-      expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts");
+      expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
           "X-Ledger-Client-Version": "test-dapp-identifier",
@@ -122,7 +129,7 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      const res = await networkService.post("https://whater.com/ap1/posts", {
+      const res = await networkService.post("https://whatever.com/ap1/posts", {
         id: 1,
       });
 
@@ -135,7 +142,7 @@ describe("DefaultNetworkService", () => {
     it("should be able to post a resource and return an error (response error)", async () => {
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
-      const res = await networkService.post("https://whater.com/ap1/posts", {
+      const res = await networkService.post("https://whatever.com/ap1/posts", {
         id: 1,
       });
 
@@ -143,17 +150,25 @@ describe("DefaultNetworkService", () => {
       expect(res.extract()).toEqual(new Error("Network error"));
     });
 
-    it("should be able to post a resource and return an error (res.json())", async () => {
+    it("should be able to post a resource and return an error (res.ok = false)", async () => {
       vi.spyOn(global, "fetch").mockResolvedValue({
-        json: vi.fn().mockRejectedValue(new Error("Parsing failed")),
+        ok: false,
+        status: 404,
       } as unknown as Response);
 
-      const res = await networkService.post("https://whater.com/ap1/posts", {
+      const res = await networkService.post("https://whatever.com/ap1/posts", {
         id: 1,
       });
 
       expect(res.isLeft()).toBe(true);
-      expect(res.extract()).toEqual(new Error("Parsing failed"));
+      expect(res.extract()).toEqual(
+        new NetworkError("POST request failed", {
+          status: 404,
+          url: "https://whatever.com/ap1/posts",
+          options: undefined,
+          body: { id: 1 },
+        }),
+      );
     });
   });
 
@@ -166,7 +181,7 @@ describe("DefaultNetworkService", () => {
       } as unknown as Response);
 
       await networkService.put(
-        "https://whater.com/ap1/posts/1",
+        "https://whatever.com/ap1/posts/1",
         {
           id: 1,
         },
@@ -177,7 +192,7 @@ describe("DefaultNetworkService", () => {
         },
       );
 
-      expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
+      expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
           "X-Ledger-Client-Version": "test-dapp-identifier",
@@ -198,7 +213,7 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      const res = await networkService.put("https://whater.com/ap1/posts/1", {
+      const res = await networkService.put("https://whatever.com/ap1/posts/1", {
         id: 1,
       });
 
@@ -211,7 +226,7 @@ describe("DefaultNetworkService", () => {
     it("should be able to put a resource and return an error (response error)", async () => {
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
-      const res = await networkService.put("https://whater.com/ap1/posts/1", {
+      const res = await networkService.put("https://whatever.com/ap1/posts/1", {
         id: 1,
       });
 
@@ -219,17 +234,25 @@ describe("DefaultNetworkService", () => {
       expect(res.extract()).toEqual(new Error("Network error"));
     });
 
-    it("should be able to put a resource and return an error (res.json())", async () => {
+    it("should be able to put a resource and return an error (res.ok = false)", async () => {
       vi.spyOn(global, "fetch").mockResolvedValue({
-        json: vi.fn().mockRejectedValue(new Error("Parsing failed")),
+        ok: false,
+        status: 404,
       } as unknown as Response);
 
-      const res = await networkService.put("https://whater.com/ap1/posts/1", {
+      const res = await networkService.put("https://whatever.com/ap1/posts/1", {
         id: 1,
       });
 
       expect(res.isLeft()).toBe(true);
-      expect(res.extract()).toEqual(new Error("Parsing failed"));
+      expect(res.extract()).toEqual(
+        new NetworkError("PUT request failed", {
+          status: 404,
+          url: "https://whatever.com/ap1/posts/1",
+          options: undefined,
+          body: { id: 1 },
+        }),
+      );
     });
   });
 
@@ -242,7 +265,7 @@ describe("DefaultNetworkService", () => {
       } as unknown as Response);
 
       await networkService.patch(
-        "https://whater.com/ap1/posts/1",
+        "https://whatever.com/ap1/posts/1",
         {
           id: 1,
         },
@@ -253,7 +276,7 @@ describe("DefaultNetworkService", () => {
         },
       );
 
-      expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
+      expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
           "X-Ledger-Client-Version": "test-dapp-identifier",
@@ -274,9 +297,12 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      const res = await networkService.patch("https://whater.com/ap1/posts/1", {
-        id: 1,
-      });
+      const res = await networkService.patch(
+        "https://whatever.com/ap1/posts/1",
+        {
+          id: 1,
+        },
+      );
 
       expect(res.isRight()).toBe(true);
       expect(res.extract()).toEqual({
@@ -287,25 +313,39 @@ describe("DefaultNetworkService", () => {
     it("should be able to patch a resource and return an error (response error)", async () => {
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
-      const res = await networkService.patch("https://whater.com/ap1/posts/1", {
-        id: 1,
-      });
+      const res = await networkService.patch(
+        "https://whatever.com/ap1/posts/1",
+        {
+          id: 1,
+        },
+      );
 
       expect(res.isLeft()).toBe(true);
       expect(res.extract()).toEqual(new Error("Network error"));
     });
 
-    it("should be able to patch a resource and return an error (res.json())", async () => {
+    it("should be able to patch a resource and return an error (res.ok = false)", async () => {
       vi.spyOn(global, "fetch").mockResolvedValue({
-        json: vi.fn().mockRejectedValue(new Error("Parsing failed")),
+        ok: false,
+        status: 404,
       } as unknown as Response);
 
-      const res = await networkService.patch("https://whater.com/ap1/posts/1", {
-        id: 1,
-      });
+      const res = await networkService.patch(
+        "https://whatever.com/ap1/posts/1",
+        {
+          id: 1,
+        },
+      );
 
       expect(res.isLeft()).toBe(true);
-      expect(res.extract()).toEqual(new Error("Parsing failed"));
+      expect(res.extract()).toEqual(
+        new NetworkError("PATCH request failed", {
+          status: 404,
+          url: "https://whatever.com/ap1/posts/1",
+          options: undefined,
+          body: { id: 1 },
+        }),
+      );
     });
   });
 
@@ -317,13 +357,13 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      await networkService.delete("https://whater.com/ap1/posts/1", {
+      await networkService.delete("https://whatever.com/ap1/posts/1", {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      expect(spy.mock.calls[0][0]).toBe("https://whater.com/ap1/posts/1");
+      expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
           "X-Ledger-Client-Version": "test-dapp-identifier",
@@ -341,7 +381,9 @@ describe("DefaultNetworkService", () => {
         }),
       } as unknown as Response);
 
-      const res = await networkService.delete("https://whater.com/ap1/posts/1");
+      const res = await networkService.delete(
+        "https://whatever.com/ap1/posts/1",
+      );
 
       expect(res.isRight()).toBe(true);
       expect(res.extract()).toEqual({
@@ -352,21 +394,32 @@ describe("DefaultNetworkService", () => {
     it("should be able to delete a resource and return an error (response error)", async () => {
       vi.spyOn(global, "fetch").mockRejectedValue(new Error("Network error"));
 
-      const res = await networkService.delete("https://whater.com/ap1/posts/1");
+      const res = await networkService.delete(
+        "https://whatever.com/ap1/posts/1",
+      );
 
       expect(res.isLeft()).toBe(true);
       expect(res.extract()).toEqual(new Error("Network error"));
     });
 
-    it("should be able to delete a resource and return an error (res.json())", async () => {
+    it("should be able to delete a resource and return an error (res.ok = false)", async () => {
       vi.spyOn(global, "fetch").mockResolvedValue({
-        json: vi.fn().mockRejectedValue(new Error("Parsing failed")),
+        ok: false,
+        status: 404,
       } as unknown as Response);
 
-      const res = await networkService.delete("https://whater.com/ap1/posts/1");
+      const res = await networkService.delete(
+        "https://whatever.com/ap1/posts/1",
+      );
 
       expect(res.isLeft()).toBe(true);
-      expect(res.extract()).toEqual(new Error("Parsing failed"));
+      expect(res.extract()).toEqual(
+        new NetworkError("DELETE request failed", {
+          status: 404,
+          url: "https://whatever.com/ap1/posts/1",
+          options: undefined,
+        }),
+      );
     });
   });
 });

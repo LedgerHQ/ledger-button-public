@@ -1,17 +1,17 @@
 import { inject, injectable } from "inversify";
-import { Either, EitherAsync, Right } from "purify-ts";
+import { Either, EitherAsync } from "purify-ts";
 
 import {
   DEFAULT_HEADERS,
   LEDGER_CLIENT_VERSION_HEADER,
   LEDGER_ORIGIN_TOKEN_HEADER,
 } from "./model/constant.js";
+import { type NetworkServiceOpts } from "./model/types.js";
 import { merge } from "./utils/merge.js";
+import { NetworkError } from "../../api/errors/NetworkErrors.js";
 import { configModuleTypes } from "../config/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
 import { NetworkService } from "./NetworkService.js";
-
-export type NetworkServiceOpts = Omit<RequestInit, "method">;
 
 @injectable()
 export class DefaultNetworkService
@@ -45,8 +45,14 @@ export class DefaultNetworkService
 
     return EitherAsync.fromPromise<Error, T>(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
-      const data = (await response.json()) as T;
-      return Right(data);
+      if (!response.ok) {
+        throw new NetworkError("GET request failed", {
+          status: response.status,
+          url,
+          options,
+        });
+      }
+      return response.json();
     });
   }
 
@@ -63,8 +69,15 @@ export class DefaultNetworkService
 
     return EitherAsync.fromPromise<Error, T>(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
-      const data = await response.json();
-      return Right(data);
+      if (!response.ok) {
+        throw new NetworkError("POST request failed", {
+          status: response.status,
+          url,
+          options,
+          body,
+        });
+      }
+      return response.json();
     });
   }
 
@@ -81,8 +94,15 @@ export class DefaultNetworkService
 
     return EitherAsync.fromPromise<Error, T>(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
-      const data = await response.json();
-      return Right(data);
+      if (!response.ok) {
+        throw new NetworkError("PUT request failed", {
+          status: response.status,
+          url,
+          options,
+          body,
+        });
+      }
+      return response.json();
     });
   }
 
@@ -99,8 +119,15 @@ export class DefaultNetworkService
 
     return EitherAsync.fromPromise<Error, T>(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
-      const data = await response.json();
-      return Right(data);
+      if (!response.ok) {
+        throw new NetworkError("PATCH request failed", {
+          status: response.status,
+          url,
+          options,
+          body,
+        });
+      }
+      return response.json();
     });
   }
 
@@ -115,8 +142,14 @@ export class DefaultNetworkService
 
     return EitherAsync.fromPromise<Error, T>(async () => {
       const response = await fetch(url, merge(defaultOpts, options || {}));
-      const data = await response.json();
-      return Right(data);
+      if (!response.ok) {
+        throw new NetworkError("DELETE request failed", {
+          status: response.status,
+          url,
+          options,
+        });
+      }
+      return response.json();
     });
   }
 }

@@ -4,7 +4,7 @@ import { Either, Left, Right } from "purify-ts";
 import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
 import { configModuleTypes } from "../config/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
-import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
+import type { NetworkServiceOpts } from "../network/model/types.js";
 import { networkModuleTypes } from "../network/networkModuleTypes.js";
 import type { NetworkService } from "../network/NetworkService.js";
 import type { BackendService } from "./BackendService.js";
