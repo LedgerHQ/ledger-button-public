@@ -43,6 +43,7 @@ import type {
 } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
 import { getHexaStringFromSignature } from "../../../internal/transaction/utils/TransactionHelper.js";
+import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
@@ -144,7 +145,7 @@ export class SignPersonalMessage {
           ),
         );
 
-      const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
+      const derivationPath = getDerivationPath(selectedAccount);
 
       initObservable
         .pipe(

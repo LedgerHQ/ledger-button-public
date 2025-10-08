@@ -40,7 +40,8 @@ export class SignTransaction {
     if (
       !transaction.gas &&
       !transaction.maxFeePerGas &&
-      !transaction.maxPriorityFeePerGas
+      !transaction.maxPriorityFeePerGas &&
+      !transaction.nonce
     ) {
       this.logger.debug(
         "Gas or max fee per gas or max priority fee per gas is not set",
