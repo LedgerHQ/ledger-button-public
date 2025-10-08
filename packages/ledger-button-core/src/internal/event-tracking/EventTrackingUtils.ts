@@ -6,6 +6,7 @@ function normalizeTransactionHash(hash: string): string {
   return hash.toLowerCase().replace(/^0x/, "");
 }
 
+import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
@@ -20,7 +21,6 @@ import {
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
 } from "../backend/types.js";
-import { EventDataSchema } from "../../schemas/event-schemas.js";
 
 interface BaseEventParams {
   dAppId: string;

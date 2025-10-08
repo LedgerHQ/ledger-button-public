@@ -1,4 +1,9 @@
 import { describe, expect, it } from "vitest";
+
+import type {
+  InvoicingTransactionSignedEventData,
+  TransactionFlowCompletionEventData,
+} from "../backend/types.js";
 import { EventTrackingUtils } from "./EventTrackingUtils.js";
 
 describe("EventTrackingUtils", () => {
@@ -71,6 +76,7 @@ describe("EventTrackingUtils", () => {
         transactionId: "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (event.data as any).event_id = "not-a-valid-uuid";
 
       const result = EventTrackingUtils.validateEvent(event);
@@ -96,8 +102,9 @@ describe("EventTrackingUtils", () => {
         transactionId: "0xCAF172BF3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
       });
 
-      expect(event.data.transaction_hash).toBe("caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c");
-      expect(event.data.transaction_id).toBe("caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c");
+      const data = event.data as InvoicingTransactionSignedEventData;
+      expect(data.transaction_hash).toBe("caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c");
+      expect(data.transaction_id).toBe("caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c");
     });
 
     it("should normalize recipient address to lowercase", () => {
@@ -114,7 +121,8 @@ describe("EventTrackingUtils", () => {
         transactionId: "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
       });
 
-      expect(event.data.recipient_address).toBe("0x111111125421ca6dc452d289314280a0f8842a65");
+      const data = event.data as InvoicingTransactionSignedEventData;
+      expect(data.recipient_address).toBe("0x111111125421ca6dc452d289314280a0f8842a65");
     });
 
     it("should normalize unsigned transaction hashes", () => {
@@ -129,8 +137,9 @@ describe("EventTrackingUtils", () => {
         transactionHash: "0XCAF172BF3784A1EA3DBB2C551DE9E2B263C9C4F762589363776CDA325B6DE11C",
       });
 
-      expect(event.data.unsigned_transaction_hash).toBe("02f90552017a8427e021408427e021408304c04c");
-      expect(event.data.transaction_hash).toBe("caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c");
+      const data = event.data as TransactionFlowCompletionEventData;
+      expect(data.unsigned_transaction_hash).toBe("02f90552017a8427e021408427e021408304c04c");
+      expect(data.transaction_hash).toBe("caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c");
     });
   });
 });

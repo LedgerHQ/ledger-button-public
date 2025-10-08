@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
+
 import {
   InvoicingTransactionSignedEventSchema,
-  TransactionFlowCompletionEventSchema,
   SessionAuthenticationEventSchema,
+  TransactionFlowCompletionEventSchema,
 } from "./event-schemas.js";
 
 describe("Event Schema Validation", () => {
