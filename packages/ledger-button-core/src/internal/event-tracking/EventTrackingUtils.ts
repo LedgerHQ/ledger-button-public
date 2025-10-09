@@ -1,10 +1,4 @@
-function generateUUID(): string {
-  return crypto.randomUUID();
-}
-
-function normalizeTransactionHash(hash: string): string {
-  return hash.toLowerCase().replace(/^0x/, "");
-}
+import { parseEther } from "ethers";
 
 import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
@@ -21,6 +15,22 @@ import {
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
 } from "../backend/types.js";
+
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
+
+function normalizeTransactionHash(hash: string): string {
+  return hash.toLowerCase().replace(/^0x/, "");
+}
+
+function normalizeTransactionAmount(amount: string): string {
+  if (!amount.includes('.')) {
+    return amount;
+  }
+
+  return parseEther(amount).toString();
+}
 
 interface BaseEventParams {
   dAppId: string;
@@ -268,7 +278,7 @@ export class EventTrackingUtils {
       source_token: params.sourceToken,
       target_token: params.targetToken,
       recipient_address: params.recipientAddress.toLowerCase(),
-      transaction_amount: params.transactionAmount,
+      transaction_amount: normalizeTransactionAmount(params.transactionAmount),
       transaction_id: normalizeTransactionHash(params.transactionId),
     };
 
