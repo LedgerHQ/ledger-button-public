@@ -264,7 +264,7 @@ export class LedgerEIP1193Provider
 
       if (
         typeof params[0] === "string" &&
-        params[0] !== this._selectedAccount
+        params[0].toLowerCase() !== this._selectedAccount.toLowerCase()
       ) {
         return reject(
           this.createError(

@@ -223,7 +223,8 @@ export class SignRawTransaction {
 
             if (
               result.status === DeviceActionStatus.Completed &&
-              result.output.address !== selectedAccount.freshAddress
+              result.output.address.toLowerCase() !==
+                selectedAccount.freshAddress.toLowerCase()
             ) {
               throw new IncorrectSeedError("Address mismatch");
             }
