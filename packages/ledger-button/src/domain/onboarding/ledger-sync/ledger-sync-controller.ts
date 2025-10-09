@@ -4,6 +4,7 @@ import {
   type LedgerSyncAuthenticateResponse,
   LedgerSyncAuthenticationError,
   LedgerSyncConnectionFailedError,
+  type UserInteractionNeeded,
   type UserInteractionNeededResponse,
 } from "@ledgerhq/ledger-button-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
@@ -17,7 +18,8 @@ import { type Destinations } from "../../../shared/routes.js";
 
 export class LedgerSyncController implements ReactiveController {
   device?: Device;
-  animation: AnimationKey = "continueOnLedger";
+  animation: Omit<AnimationKey, "pairing" | "pairingSuccess" | "frontView"> =
+    "continueOnLedger";
   ledgerSyncSubscription: Subscription | undefined = undefined;
   errorData?: {
     message: string;
@@ -40,6 +42,23 @@ export class LedgerSyncController implements ReactiveController {
     this.getConnectedDevice();
   }
 
+  private mapUserInteractionToDeviceAnimation(
+    interaction: UserInteractionNeeded,
+  ): Omit<AnimationKey, "pairing" | "pairingSuccess" | "frontView"> {
+    switch (interaction) {
+      case "unlock-device":
+        return "pin";
+      case "allow-secure-connection":
+      case "confirm-open-app":
+      case "allow-list-apps":
+      case "web3-checks-opt-in":
+        return "continueOnLedger";
+      case "sign-transaction":
+      default:
+        return "signTransaction";
+    }
+  }
+
   async getConnectedDevice() {
     this.host.requestUpdate();
     this.triggerLedgerSync();
@@ -57,11 +76,9 @@ export class LedgerSyncController implements ReactiveController {
             this.host.requestUpdate();
             break;
           case this.isUserInteractionNeededResponse(value):
-            //TODO: Handle user interaction needed
-            this.animation =
-              value.requiredUserInteraction === "unlock-device"
-                ? "pin"
-                : "continueOnLedger";
+            this.animation = this.mapUserInteractionToDeviceAnimation(
+              value.requiredUserInteraction,
+            );
             this.host.requestUpdate();
             break;
           case value instanceof LedgerSyncAuthenticationError:

@@ -12,6 +12,7 @@ import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { AnimationKey } from "../../components/index.js";
 import { type StatusType } from "../../components/organism/status/ledger-status.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
@@ -130,6 +131,20 @@ export class SignTransactionScreen extends LitElement {
 
     if (!deviceModel) return;
 
+    const deviceTitle = lang.common.device.deviceActions[
+      deviceAnimation as keyof typeof lang.common.device.deviceActions
+    ].title.replace(
+      "{device}",
+      lang.common.device.model[
+        deviceModel as keyof typeof lang.common.device.model
+      ],
+    );
+
+    const deviceDescription =
+      lang.common.device.deviceActions[
+        deviceAnimation as keyof typeof lang.common.device.deviceActions
+      ].description;
+
     return html`
       <div
         class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
@@ -137,19 +152,12 @@ export class SignTransactionScreen extends LitElement {
         <div class="w-208">
           <ledger-device-animation
             modelId=${deviceModel}
-            animation=${deviceAnimation}
+            animation=${deviceAnimation as AnimationKey}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
-          <p class="text-center body-1">
-            ${lang.common.device.deviceActions.continueOnLedger.title}
-            ${lang.common.device.model[
-              deviceModel as keyof typeof lang.common.device.model
-            ]}
-          </p>
-          <p class="text-center text-muted body-2">
-            ${lang.common.device.deviceActions.continueOnLedger.description}
-          </p>
+          <p class="text-center body-1">${deviceTitle}</p>
+          <p class="text-center text-muted body-2">${deviceDescription}</p>
         </div>
       </div>
     `;
