@@ -13,7 +13,7 @@ const styles = css`
     overflow: hidden;
     top: 0;
     left: 0;
-    z-index: 1000;
+    z-index: 7730;
   }
 
   :host([isOpen]) {

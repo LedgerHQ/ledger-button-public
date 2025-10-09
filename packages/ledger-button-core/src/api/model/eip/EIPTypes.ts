@@ -132,14 +132,15 @@ export interface PersonalSignParams {
   address: string;
 }
 
+export type TypedData = {
+  types: Record<string, Array<{ name: string; type: string }>>;
+  primaryType: string;
+  domain: Record<string, unknown>;
+  message: Record<string, unknown>;
+};
 export interface EthSignTypedDataParams {
   address: string;
-  typedData: {
-    types: Record<string, Array<{ name: string; type: string }>>;
-    primaryType: string;
-    domain: Record<string, unknown>;
-    message: Record<string, unknown>;
-  };
+  typedData: TypedData;
 }
 
 // Provider events

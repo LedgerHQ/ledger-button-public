@@ -20,7 +20,6 @@ import {
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
-  type EthSignTypedDataParams,
   hexToUtf8,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
@@ -32,6 +31,7 @@ import {
   type ProviderRpcError,
   type RequestArguments,
   type RpcMethods,
+  TypedData,
   UserRejectedTransactionError,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
@@ -276,11 +276,9 @@ export class LedgerEIP1193Provider
         );
       }
 
-      if (params[1] === "string") {
+      if (typeof params[1] === "string") {
         try {
-          const p = JSON.parse(
-            params[1] as string,
-          ) as EthSignTypedDataParams["typedData"];
+          const p = JSON.parse(params[1] as string) as TypedData;
           this.app.navigationIntent("signTransaction", [params[0], p, method]);
           return;
         } catch (error) {
