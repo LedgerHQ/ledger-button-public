@@ -11,7 +11,7 @@ const BaseEventDataSchema = z.object({
 });
 
 /**
- * Matches: containers/ledger-button-invoicing-events/config/schema.json
+ * Matches: ./sre-bento/containers/ledger-button-invoicing-events/config/schema.json
  */
 export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("invoicing_transaction_signed"),
@@ -27,7 +27,7 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
 });
 
 /**
- * Matches: containers/ledger-button-product-analytics-events/config/schema.json
+ * Matches: ./sre-bento/containers/ledger-button-product-analytics-events/config/schema.json
  */
 export const ConsentGivenEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_given"),

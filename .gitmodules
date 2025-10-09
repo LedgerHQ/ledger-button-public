@@ -1,0 +1,3 @@
+[submodule "sre-bento"]
+	path = sre-bento
+	url = https://github.com/LedgerHQ/sre-bento.git
