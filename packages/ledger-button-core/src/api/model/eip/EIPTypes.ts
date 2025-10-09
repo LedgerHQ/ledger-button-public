@@ -3,12 +3,15 @@ export type { Signature } from "@ledgerhq/device-signer-kit-ethereum";
 export type RpcMethods =
   | "eth_accounts"
   | "eth_requestAccounts"
-  | "personal_sign"
-  | "eth_sendRawTransaction"
+  | "eth_chainId"
   | "eth_sendTransaction"
   | "eth_signTransaction"
+  | "eth_signRawTransaction"
+  | "eth_sign"
+  | "personal_sign"
+  | "eth_sendRawTransaction"
   | "eth_signTypedData"
-  | string;
+  | "eth_signTypedData_v4";
 
 export type JSONRPCRequest = {
   readonly jsonrpc: string;

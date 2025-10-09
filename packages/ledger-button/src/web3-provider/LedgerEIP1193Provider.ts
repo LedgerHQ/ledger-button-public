@@ -45,6 +45,7 @@ const EIP1193_SUPPORTED_METHODS = [
   "eth_signTransaction",
   "eth_signRawTransaction",
   "eth_sign",
+  "personal_sign",
   "eth_sendRawTransaction",
   "eth_signTypedData",
   "eth_signTypedData_v4",
@@ -363,6 +364,8 @@ export class LedgerEIP1193Provider
     eth_signRawTransaction: async (params: unknown[], method: RpcMethods) =>
       this.handleSignTransaction(params, method),
     eth_sign: async (params: unknown[], method: RpcMethods) =>
+      this.handleSignPersonalMessage(params, method),
+    personal_sign: async (params: unknown[], method: RpcMethods) =>
       this.handleSignPersonalMessage(params, method),
     eth_sendRawTransaction: async (params: unknown[], method: RpcMethods) =>
       this.handleSignTransaction(params, method, true),
