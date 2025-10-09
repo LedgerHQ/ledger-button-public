@@ -4,7 +4,7 @@ import { Either, Left, Right } from "purify-ts";
 import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
 import { configModuleTypes } from "../config/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
-import type { NetworkServiceOpts } from "../network/DefaultNetworkService.js";
+import type { NetworkServiceOpts } from "../network/model/types.js";
 import { networkModuleTypes } from "../network/networkModuleTypes.js";
 import type { NetworkService } from "../network/NetworkService.js";
 import type { BackendService } from "./BackendService.js";
@@ -17,9 +17,6 @@ import type {
   EventRequest,
   EventResponse,
 } from "./types.js";
-
-//TODO change to config.getBackendUrl(config.environment)
-const BACKEND_BASE_URL = "https://ledgerb.aws.stg.ldg-tech.com";
 
 @injectable()
 export class DefaultBackendService implements BackendService {
@@ -34,7 +31,7 @@ export class DefaultBackendService implements BackendService {
     request: BroadcastRequest,
     domain = "ledger-button-domain",
   ): Promise<Either<Error, BroadcastResponse>> {
-    const url = `${BACKEND_BASE_URL}/broadcast`;
+    const url = `${this.config.getBackendUrl()}/broadcast`;
 
     const headers = {
       "Content-Type": "application/json",
@@ -63,7 +60,7 @@ export class DefaultBackendService implements BackendService {
   }
 
   async getConfig(request: ConfigRequest) {
-    const url = `${BACKEND_BASE_URL}/config?dAppIdentifier=${encodeURIComponent(
+    const url = `${this.config.getBackendUrl()}/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
 
@@ -92,7 +89,7 @@ export class DefaultBackendService implements BackendService {
     request: EventRequest,
     domain = "ledger-button-domain",
   ): Promise<Either<Error, EventResponse>> {
-    const url = `${BACKEND_BASE_URL}/event`;
+    const url = `${this.config.getBackendUrl()}/event`;
 
     const headers = {
       "Content-Type": "application/json",

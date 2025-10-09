@@ -21,6 +21,8 @@ describe("DefaultBackendService", () => {
   let mockConfig: {
     originToken: string;
     dAppIdentifier: string;
+    environment: "staging" | "production";
+    getBackendUrl: (environment: "staging" | "production") => string;
   };
 
   beforeEach(() => {
@@ -35,6 +37,8 @@ describe("DefaultBackendService", () => {
     mockConfig = {
       originToken: "test-origin-token",
       dAppIdentifier: "test-dapp-identifier",
+      environment: "staging" as const,
+      getBackendUrl: () => "https://test-backend-url.com",
     };
 
     backendService = new DefaultBackendService(
@@ -76,7 +80,7 @@ describe("DefaultBackendService", () => {
       await backendService.event(mockEventRequest, "test-domain");
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        "https://ledgerb.aws.stg.ldg-tech.com/event",
+        "https://test-backend-url.com/event",
         JSON.stringify(mockEventRequest),
         {
           headers: {
@@ -93,7 +97,7 @@ describe("DefaultBackendService", () => {
       await backendService.event(mockEventRequest);
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        "https://ledgerb.aws.stg.ldg-tech.com/event",
+        "https://test-backend-url.com/event",
         JSON.stringify(mockEventRequest),
         {
           headers: {
@@ -153,7 +157,7 @@ describe("DefaultBackendService", () => {
 
       expect(result.isRight()).toBe(true);
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        "https://ledgerb.aws.stg.ldg-tech.com/event",
+        "https://test-backend-url.com/event",
         JSON.stringify(consentEventRequest),
         expect.any(Object),
       );
@@ -185,7 +189,7 @@ describe("DefaultBackendService", () => {
 
       expect(result.isRight()).toBe(true);
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        "https://ledgerb.aws.stg.ldg-tech.com/event",
+        "https://test-backend-url.com/event",
         JSON.stringify(transactionEventRequest),
         expect.any(Object),
       );
@@ -221,7 +225,7 @@ describe("DefaultBackendService", () => {
       );
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        "https://ledgerb.aws.stg.ldg-tech.com/broadcast",
+        "https://test-backend-url.com/broadcast",
         JSON.stringify(mockBroadcastRequest),
         {
           headers: {
@@ -250,7 +254,7 @@ describe("DefaultBackendService", () => {
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        "https://ledgerb.aws.stg.ldg-tech.com/config?dAppIdentifier=test-dapp",
+        "https://test-backend-url.com/config?dAppIdentifier=test-dapp",
         {
           headers: {
             "X-Ledger-Domain": "test-dapp-identifier",

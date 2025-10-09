@@ -10,6 +10,7 @@ import { createSignedTransaction } from "../../../internal/transaction/utils/Tra
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import {
+  BroadcastRequest,
   BroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
@@ -92,7 +93,7 @@ export class BroadcastTransaction {
   private craftRequestFromSignedTransaction(
     signedTransaction: SignedTransactionResult | BroadcastedTransactionResult,
     currencyId: string,
-  ) {
+  ): BroadcastRequest {
     this.logger.debug("Crafting `eth_sendRawTransaction` request", {
       currencyId,
       signedTransaction,

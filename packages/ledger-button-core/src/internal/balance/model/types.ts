@@ -19,6 +19,7 @@ export type GasFeeEstimation = {
   gasLimit: string;
   maxFeePerGas: string;
   maxPriorityFeePerGas: string;
+  nonce: string;
 };
 
 export class TokenBalance {

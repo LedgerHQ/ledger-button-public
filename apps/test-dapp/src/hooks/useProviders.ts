@@ -37,6 +37,8 @@ export const useProviders = () => {
 
     const { initializeLedgerProvider } = LedgerButtonModule;
 
+    const disableEventTracking = process.env.NEXT_PUBLIC_DISABLE_EVENT_TRACKING === "true";
+
     const cleanup = initializeLedgerProvider({
       target: document.body,
       dAppIdentifier: "1inch",
@@ -44,6 +46,11 @@ export const useProviders = () => {
         "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
       loggerLevel: "info",
       dmkConfig: undefined,
+      devConfig: disableEventTracking ? {
+        stub: {
+          base: true,
+        },
+      } : undefined,
     });
 
     window.addEventListener(
