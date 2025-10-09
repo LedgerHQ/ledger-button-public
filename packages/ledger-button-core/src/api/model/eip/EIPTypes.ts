@@ -11,6 +11,11 @@ export type RpcMethods =
   | "personal_sign"
   | "eth_sendRawTransaction"
   | "eth_signTypedData"
+  | "eth_getBalance"
+  | "eth_maxPriorityFeePerGas"
+  | "eth_getBlockByNumber"
+  | "eth_estimateGas"
+  | "eth_getTransactionCount"
   | "eth_signTypedData_v4";
 
 export type JSONRPCRequest = {

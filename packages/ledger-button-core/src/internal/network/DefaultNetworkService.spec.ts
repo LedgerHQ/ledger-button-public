@@ -6,6 +6,8 @@ describe("DefaultNetworkService", () => {
   let networkService: DefaultNetworkService;
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2025-06-24T16:05:37.110Z"));
     networkService = new DefaultNetworkService(
       new Config({
         originToken: "test-origin-token",
@@ -15,6 +17,10 @@ describe("DefaultNetworkService", () => {
       }),
     );
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("get", () => {
