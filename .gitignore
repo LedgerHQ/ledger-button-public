@@ -59,3 +59,5 @@ storybook-static
 
 # Elm
 elm-stuff
+
+.env
