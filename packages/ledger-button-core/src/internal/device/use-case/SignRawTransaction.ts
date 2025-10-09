@@ -49,6 +49,7 @@ import {
   createSignedTransaction,
   getInvoicingEventDataFromTransaction,
 } from "../../../internal/transaction/utils/TransactionHelper.js";
+import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
@@ -161,7 +162,7 @@ export class SignRawTransaction {
           ),
         );
 
-      const derivationPath = `44'/60'/0'/0/${selectedAccount.index}`;
+      const derivationPath = getDerivationPath(selectedAccount);
 
       this.trackTransactionFlowInitialization(transaction, selectedAccount);
 
@@ -222,7 +223,8 @@ export class SignRawTransaction {
 
             if (
               result.status === DeviceActionStatus.Completed &&
-              result.output.address !== selectedAccount.freshAddress
+              result.output.address.toLowerCase() !==
+                selectedAccount.freshAddress.toLowerCase()
             ) {
               throw new IncorrectSeedError("Address mismatch");
             }

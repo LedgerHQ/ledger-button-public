@@ -1,7 +1,10 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
-import { isJsonRpcResponseSuccess } from "../../../internal/backend/types.js";
+import {
+  BroadcastResponse,
+  isJsonRpcResponseSuccess,
+} from "../../../internal/backend/types.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -26,6 +29,11 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     const estimateGas = await this.estimateGas(tx);
     const baseFeePerGasResult = await this.getBaseFeePerGas(tx);
     const maxPriorityFeePerGasResult = await this.getMaxPriorityFeePerGas(tx);
+    const nonce = await this.getNonce(tx);
+
+    if (!nonce) {
+      throw new Error("Failed to get nonce"); //TODO Handle in case of
+    }
 
     //TODO: Remove this for final release
     this.logger.debug("Estimated gas", { estimateGas });
@@ -46,6 +54,7 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
       gasLimit: `0x${gasLimit.toString(16)}`,
       maxFeePerGas: `0x${maxFeePerGas.toString(16)}`,
       maxPriorityFeePerGas: `0x${maxPriorityFeePerGasResult.toString(16)}`,
+      nonce,
     };
   }
 
@@ -145,5 +154,30 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
       return Number(estimateGasHex);
     }
     throw new Error("Failed to estimate gas");
+  }
+
+  async getNonce(tx: TransactionInfo): Promise<string | undefined> {
+    const nonceResult = await this.backendService.broadcast({
+      blockchain: { name: "ethereum", chainId: tx.chainId },
+      rpc: {
+        method: "eth_getTransactionCount",
+        params: [tx.from, "latest"],
+        id: 1,
+        jsonrpc: "2.0",
+      },
+    });
+
+    return nonceResult.caseOf({
+      Left: () => undefined,
+      Right: (jsonRpcResponseSuccess: BroadcastResponse) => {
+        if (
+          isJsonRpcResponseSuccess(jsonRpcResponseSuccess) &&
+          typeof jsonRpcResponseSuccess.result === "string"
+        ) {
+          return jsonRpcResponseSuccess.result;
+        }
+        return undefined;
+      },
+    });
   }
 }
