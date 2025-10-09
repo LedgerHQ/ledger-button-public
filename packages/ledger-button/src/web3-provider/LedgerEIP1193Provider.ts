@@ -21,6 +21,7 @@ import {
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
   type EthSignTypedDataParams,
+  hexToUtf8,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -330,7 +331,21 @@ export class LedgerEIP1193Provider
         },
       );
 
-      this.app.navigationIntent("signTransaction", [...params, method]);
+      //CF: https://docs.metamask.io/wallet/reference/json-rpc-methods/personal_sign
+      if (method === "personal_sign") {
+        const address = params[1] as string;
+        const messageHex = params[0] as string;
+        const message = hexToUtf8(messageHex);
+
+        this.app.navigationIntent("signTransaction", [
+          address,
+          message,
+          method,
+        ]);
+      } else {
+        //eth_sign
+        this.app.navigationIntent("signTransaction", [...params, method]);
+      }
     });
   }
 
