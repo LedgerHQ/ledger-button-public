@@ -4,19 +4,19 @@ export type RpcMethods =
   | "eth_accounts"
   | "eth_requestAccounts"
   | "eth_chainId"
+  | "eth_estimateGas"
+  | "eth_getBalance"
+  | "eth_getBlockByNumber"
+  | "eth_getTransactionCount"
+  | "eth_maxPriorityFeePerGas"
   | "eth_sendTransaction"
+  | "eth_sendRawTransaction"
   | "eth_signTransaction"
   | "eth_signRawTransaction"
-  | "eth_sign"
-  | "personal_sign"
-  | "eth_sendRawTransaction"
   | "eth_signTypedData"
-  | "eth_getBalance"
-  | "eth_maxPriorityFeePerGas"
-  | "eth_getBlockByNumber"
-  | "eth_estimateGas"
-  | "eth_getTransactionCount"
-  | "eth_signTypedData_v4";
+  | "eth_signTypedData_v4"
+  | "eth_sign"
+  | "personal_sign";
 
 export type JSONRPCRequest = {
   readonly jsonrpc: string;
