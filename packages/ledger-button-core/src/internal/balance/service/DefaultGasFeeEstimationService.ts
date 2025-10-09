@@ -25,15 +25,20 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     this.logger = this.loggerFactory("[DefaultGasFeeEstimationService]");
   }
 
+  //TODO: Move to a different service
+  async getNonceForTx(tx: TransactionInfo): Promise<string> {
+    const nonce = await this.getNonce(tx);
+    if (!nonce) {
+      throw new Error("Failed to get nonce");
+    }
+
+    return nonce;
+  }
+
   async getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation> {
     const estimateGas = await this.estimateGas(tx);
     const baseFeePerGasResult = await this.getBaseFeePerGas(tx);
     const maxPriorityFeePerGasResult = await this.getMaxPriorityFeePerGas(tx);
-    const nonce = await this.getNonce(tx);
-
-    if (!nonce) {
-      throw new Error("Failed to get nonce"); //TODO Handle in case of
-    }
 
     //TODO: Remove this for final release
     this.logger.debug("Estimated gas", { estimateGas });
@@ -54,7 +59,6 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
       gasLimit: `0x${gasLimit.toString(16)}`,
       maxFeePerGas: `0x${maxFeePerGas.toString(16)}`,
       maxPriorityFeePerGas: `0x${maxPriorityFeePerGasResult.toString(16)}`,
-      nonce,
     };
   }
 
