@@ -20,7 +20,7 @@ import {
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
-  type EthSignTypedDataParams,
+  hexToUtf8,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -32,6 +32,7 @@ import {
   type ProviderRpcError,
   type RequestArguments,
   type RpcMethods,
+  TypedData,
   UserRejectedTransactionError,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
@@ -307,11 +308,9 @@ export class LedgerEIP1193Provider
         );
       }
 
-      if (params[1] === "string") {
+      if (typeof params[1] === "string") {
         try {
-          const p = JSON.parse(
-            params[1] as string,
-          ) as EthSignTypedDataParams["typedData"];
+          const p = JSON.parse(params[1] as string) as TypedData;
           this.app.navigationIntent("signTransaction", [params[0], p, method]);
           return;
         } catch (error) {
@@ -365,7 +364,21 @@ export class LedgerEIP1193Provider
         },
       );
 
-      this.app.navigationIntent("signTransaction", [...params, method]);
+      //CF: https://docs.metamask.io/wallet/reference/json-rpc-methods/personal_sign
+      if (method === "personal_sign") {
+        const address = params[1] as string;
+        const messageHex = params[0] as string;
+        const message = hexToUtf8(messageHex);
+
+        this.app.navigationIntent("signTransaction", [
+          address,
+          message,
+          method,
+        ]);
+      } else {
+        //eth_sign
+        this.app.navigationIntent("signTransaction", [...params, method]);
+      }
     });
   }
 

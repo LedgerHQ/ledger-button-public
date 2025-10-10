@@ -1,5 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
-import { from, Observable, of, switchMap } from "rxjs";
+import { from, Observable, switchMap } from "rxjs";
 
 import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import {
@@ -36,23 +36,12 @@ export class SignTransaction {
     this.logger.info("Starting transaction signing", { params });
     const { transaction, broadcast, method } = params;
 
-    let initObservable: Observable<Transaction> = of(transaction);
-    if (
-      !transaction.gas &&
-      !transaction.maxFeePerGas &&
-      !transaction.maxPriorityFeePerGas &&
-      !transaction.nonce
-    ) {
-      this.logger.debug(
-        "Gas or max fee per gas or max priority fee per gas is not set",
-      );
-
-      initObservable = from(this.addFeesToTransaction(transaction));
-    }
+    const initObservable: Observable<Transaction> = from(
+      this.completeTransaction(transaction),
+    );
 
     return initObservable.pipe(
       switchMap((transactionWithFees) => {
-        this.logger.debug("Transaction with fees", { transactionWithFees });
         const rawTransaction =
           getRawTransactionFromEipTransaction(transactionWithFees);
 
@@ -87,7 +76,6 @@ export class SignTransaction {
         gas: fees.gasLimit,
         maxFeePerGas: fees.maxFeePerGas,
         maxPriorityFeePerGas: fees.maxPriorityFeePerGas,
-        nonce: fees.nonce,
       };
 
       this.logger.debug("Transaction with fees", { transactionWithFees });
@@ -97,5 +85,60 @@ export class SignTransaction {
       this.logger.error("Failed to add fees to transaction", { error });
       throw error;
     }
+  }
+
+  private async addNonceToTransaction(
+    transaction: Transaction,
+  ): Promise<Transaction> {
+    try {
+      const nonce = await this.gasFeeEstimationService.getNonceForTx({
+        from:
+          transaction.from ||
+          this.storageService.getSelectedAccount()?.extract()?.freshAddress ||
+          "", //Should never happen
+        to: transaction.to,
+        value: transaction.value,
+        data: transaction.data,
+        chainId: transaction.chainId.toString(),
+      });
+
+      const transactionWithNonce = {
+        ...transaction,
+        nonce: nonce,
+      };
+
+      this.logger.debug("Transaction with nonce", { transactionWithNonce });
+
+      return transactionWithNonce;
+    } catch (error) {
+      this.logger.error("Failed to add nonce to transaction", { error });
+      throw error;
+    }
+  }
+
+  private async completeTransaction(
+    transaction: Transaction,
+  ): Promise<Transaction> {
+    let completedTransaction: Transaction = transaction;
+    if (
+      !completedTransaction.gas &&
+      !completedTransaction.maxFeePerGas &&
+      !completedTransaction.maxPriorityFeePerGas
+    ) {
+      this.logger.debug(
+        "Gas or max fee per gas or max priority fee per gas is not set",
+      );
+      completedTransaction =
+        await this.addFeesToTransaction(completedTransaction);
+    }
+
+    if (!completedTransaction.nonce) {
+      this.logger.debug("Nonce is not set");
+      completedTransaction =
+        await this.addNonceToTransaction(completedTransaction);
+    }
+
+    this.logger.debug("Transaction completed", { completedTransaction });
+    return completedTransaction;
   }
 }
