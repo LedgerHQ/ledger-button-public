@@ -1,6 +1,5 @@
 import "./device-icon";
 
-import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
@@ -14,7 +13,7 @@ const meta: Meta = {
   argTypes: {
     modelId: {
       control: "select",
-      options: ["stax", "flex", "nanos", "nanosp", "nanox"],
+      options: ["stax", "flex", "nanoS", "nanoSP", "nanoX"],
       description: "The device model ID to display the corresponding icon",
     },
   },
@@ -59,23 +58,23 @@ export const AllDevices: Story = {
       style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;"
     >
       <div style="text-align: center;">
-        <device-icon modelId=${DeviceModelId.STAX}></device-icon>
+        <device-icon modelId="stax"></device-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Stax</p>
       </div>
       <div style="text-align: center;">
-        <device-icon modelId=${DeviceModelId.FLEX}></device-icon>
+        <device-icon modelId="flex"></device-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Flex</p>
       </div>
       <div style="text-align: center;">
-        <device-icon modelId=${DeviceModelId.NANO_S}></device-icon>
+        <device-icon modelId="nanoS"></device-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Nano S</p>
       </div>
       <div style="text-align: center;">
-        <device-icon modelId=${DeviceModelId.NANO_SP}></device-icon>
+        <device-icon modelId="nanoSP"></device-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Nano S Plus</p>
       </div>
       <div style="text-align: center;">
-        <device-icon modelId=${DeviceModelId.NANO_X}></device-icon>
+        <device-icon modelId="nanoX"></device-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Nano X</p>
       </div>
     </div>

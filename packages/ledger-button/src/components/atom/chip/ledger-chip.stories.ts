@@ -1,7 +1,5 @@
 import "./ledger-chip";
-import "../icon/ledger-icon";
 
-import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
@@ -29,7 +27,7 @@ const meta: Meta = {
     },
     deviceModelId: {
       control: "select",
-      options: ["stax", "flex", "nanos", "nanosp", "nanox"],
+      options: ["flex", "stax", "nanoS", "nanoX", "nanoSP"],
       description: "The device model ID to display the corresponding icon",
     },
   },
@@ -55,21 +53,21 @@ export const ChipWithStax: Story = {
 export const ChipWithNanoS: Story = {
   args: {
     label: "GM's Nano S",
-    deviceModelId: "nanos",
+    deviceModelId: "nanoS",
   },
 };
 
 export const ChipWithNanoX: Story = {
   args: {
     label: "GM's Nano X",
-    deviceModelId: "nanox",
+    deviceModelId: "nanoX",
   },
 };
 
 export const ChipWithNanoSP: Story = {
   args: {
     label: "GM's Nano SP",
-    deviceModelId: "nanosp",
+    deviceModelId: "nanoSP",
   },
 };
 
@@ -93,10 +91,10 @@ export const InteractiveExample: Story = {
       const chipElement = e.target as LedgerChip;
       chipElement.label = selectedDevice;
       chipElement.deviceModelId = selectedDevice.includes("Nano")
-        ? DeviceModelId.NANO_S
+        ? "nanoS"
         : selectedDevice.includes("Stax")
-          ? DeviceModelId.STAX
-          : DeviceModelId.FLEX;
+          ? "stax"
+          : "flex";
 
       console.log("Device changed to:", selectedDevice);
     };

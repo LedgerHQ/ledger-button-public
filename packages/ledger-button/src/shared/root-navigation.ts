@@ -45,6 +45,12 @@ export class RootNavigationComponent extends LitElement {
 
   public closeModal() {
     this.ledgerModal.closeModal();
+    window.dispatchEvent(
+      new CustomEvent("ledger-provider-close", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   public selectAccount(address: string) {
@@ -64,9 +70,29 @@ export class RootNavigationComponent extends LitElement {
   // PRIVATE METHODS
   private handleModalOpen() {
     this.rootNavigationController.handleModalOpen();
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-open", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private handleModalClose() {
+    window.dispatchEvent(
+      new CustomEvent("ledger-provider-close", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-close", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+
     setTimeout(() => {
       this.rootNavigationController.handleModalClose();
       // NOTE: The 250ms delay here is to allow for animation to complete
@@ -104,7 +130,9 @@ export class RootNavigationComponent extends LitElement {
     const connectedDevice = this.coreContext.getConnectedDevice();
     const canGoBack =
       this.rootNavigationController.currentScreen?.canGoBack ?? false;
-    const canGoBackProp = canGoBack ? true : undefined; //cf. https://lit.dev/docs/components/properties/#conversion-type Boolean property
+
+    const canClose =
+      this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;
 
     const title =
       connectedDevice &&
@@ -128,9 +156,8 @@ export class RootNavigationComponent extends LitElement {
           <ledger-toolbar
             title=${ifDefined(title)}
             aria-label=${ifDefined(title)}
-            .canGoBack=${canGoBackProp}
-            .showCloseButton=${this.rootNavigationController.currentScreen
-              ?.toolbar.showCloseButton ?? true}
+            .canGoBack=${canGoBack}
+            .canClose=${canClose}
             deviceModelId=${ifDefined(deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-go-back-click=${this.goBack}
@@ -147,5 +174,11 @@ export class RootNavigationComponent extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "root-navigation-component": RootNavigationComponent;
+  }
+
+  interface WindowEventMap {
+    "ledger-provider-close": CustomEvent;
+    "ledger-core-modal-open": CustomEvent;
+    "ledger-core-modal-close": CustomEvent;
   }
 }

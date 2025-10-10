@@ -25,6 +25,7 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
+  LedgerButtonError,
   type ProviderConnectInfo,
   type ProviderEvent,
   type ProviderMessage,
@@ -52,6 +53,12 @@ const EIP1193_SUPPORTED_METHODS = [
 ];
 //TODO complete with Node JSON rpc methods that can be broadcasted and directly handled by nodes
 
+class ModalClosedError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "ModalClosedError", context);
+  }
+}
+
 export class LedgerEIP1193Provider
   extends EventTarget
   implements EIP1193Provider
@@ -73,6 +80,8 @@ export class LedgerEIP1193Provider
     (e: CustomEvent | Event) => void
   > = new Map();
 
+  private _currentEvent: string | null = null;
+
   constructor(
     private readonly core: LedgerButtonCore,
     private readonly app: LedgerButtonApp,
@@ -81,6 +90,21 @@ export class LedgerEIP1193Provider
 
     window.addEventListener("ledger-provider-disconnect", () => {
       this.disconnect();
+    });
+
+    window.addEventListener("ledger-provider-close", () => {
+      if (this._currentEvent) {
+        window.dispatchEvent(
+          new CustomEvent(this._currentEvent, {
+            bubbles: true,
+            composed: true,
+            detail: {
+              status: "error",
+              error: new ModalClosedError("User closed the modal"),
+            },
+          }),
+        );
+      }
     });
   }
 
@@ -129,6 +153,7 @@ export class LedgerEIP1193Provider
   // Handlers for the different RPC methods
   private async handleRequestAccounts(): Promise<string[]> {
     return new Promise((resolve, reject) => {
+      this._currentEvent = "ledger-provider-account-selected";
       const selectedAccount = this.core.getSelectedAccount();
 
       if (selectedAccount) {
@@ -147,6 +172,7 @@ export class LedgerEIP1193Provider
           "ledger-provider-account-selected",
           (e) => {
             this._isConnected = true;
+            this._currentEvent = null;
             if (e.detail.status === "error") {
               return reject(this.mapErrors(e.detail.error));
             }
@@ -192,6 +218,8 @@ export class LedgerEIP1193Provider
         );
       }
 
+      this._currentEvent = "ledger-provider-sign";
+
       let tx: Record<string, unknown> | string;
       //Sanitize transaction for EIP-1193
       if (typeof params[0] === "object") {
@@ -205,6 +233,7 @@ export class LedgerEIP1193Provider
       window.addEventListener(
         "ledger-provider-sign",
         (e) => {
+          this._currentEvent = null;
           if (e.detail.status === "success") {
             if (isBroadcastedTransactionResult(e.detail.data)) {
               return resolve(e.detail.data.hash);
@@ -245,9 +274,12 @@ export class LedgerEIP1193Provider
         );
       }
 
+      this._currentEvent = "ledger-provider-sign";
+
       window.addEventListener(
         "ledger-provider-sign",
         (e) => {
+          this._currentEvent = null;
           if (e.detail.status === "success") {
             if (isSignedMessageOrTypedDataResult(e.detail.data)) {
               return resolve(e.detail.data.signature);
@@ -313,9 +345,12 @@ export class LedgerEIP1193Provider
         );
       }
 
+      this._currentEvent = "ledger-provider-sign";
+
       window.addEventListener(
         "ledger-provider-sign",
         (e) => {
+          this._currentEvent = null;
           if (e.detail.status === "success") {
             if (isSignedMessageOrTypedDataResult(e.detail.data)) {
               return resolve(e.detail.data.signature);
@@ -509,6 +544,12 @@ export class LedgerEIP1193Provider
         return this.createError(
           CommonEIP1193ErrorCode.Unauthorized,
           "Address mismatch",
+          error,
+        );
+      case error instanceof ModalClosedError:
+        return this.createError(
+          CommonEIP1193ErrorCode.UserRejectedRequest,
+          "User closed the modal",
           error,
         );
       default:

@@ -208,7 +208,6 @@ export default function Index() {
   }, [selectedProvider, account]);
 
   const handleSignPersonalMessage = useCallback(async () => {
-    console.log("handleSignPersonalMessage eth_sign");
     if (!selectedProvider || !personalMessageRef.current?.value) return;
     setResult(null);
     setIsOpen(false);
@@ -217,17 +216,12 @@ export default function Index() {
     if (!personalMessageRef.current?.value) return;
 
     try {
-      console.log(
-        "handleSignPersonalMessage trying to use request({ method: 'eth_sign' })",
-      );
       const result = (await selectedProvider.provider.request({
         method: "eth_sign",
         params: [account, personalMessageRef.current.value],
       })) as string;
-      console.log("handleSignPersonalMessage result", { result });
       setResult(result);
     } catch (error) {
-      console.log("handleSignPersonalMessage error", error);
       console.error(error);
       if (error instanceof Error) {
         setError(error.message);
@@ -235,7 +229,6 @@ export default function Index() {
         setError(error as string);
       }
     }
-    console.log("handleSignPersonalMessage end");
   }, [selectedProvider, account]);
 
   const handleDisconnect = useCallback(async () => {

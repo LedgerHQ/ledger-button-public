@@ -73,7 +73,7 @@ export class SelectAccountScreen extends LitElement {
         canGoBack: true,
         toolbar: {
           title: `${account.name}`,
-          showCloseButton: true,
+          canClose: true,
         },
       });
     }
