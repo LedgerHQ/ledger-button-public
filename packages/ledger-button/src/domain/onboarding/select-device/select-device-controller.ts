@@ -78,32 +78,8 @@ export class SelectDeviceController implements ReactiveController {
         break;
       }
       case error instanceof DeviceDisconnectedError: {
-        const deviceName = error.context?.deviceModel
-          ? lang.common.device.model[
-              error.context.deviceModel as keyof typeof lang.common.device.model
-            ]
-          : "Device";
-
-        const connectionType = error.context?.connectionType;
-        const descriptionMapper = {
-          usb: () =>
-            lang.error.connection.DeviceDisconnected.descriptionUsb.replace(
-              "{device}",
-              deviceName,
-            ),
-          bluetooth: () =>
-            lang.error.connection.DeviceDisconnected.descriptionBluetooth.replace(
-              "{device}",
-              deviceName,
-            ),
-          generic: () =>
-            lang.error.connection.DeviceDisconnected.descriptionGeneric.replace(
-              "{device}",
-              deviceName,
-            ),
-        };
-
-        const description = descriptionMapper[connectionType || "generic"]();
+        const description =
+          lang.error.connection.DeviceDisconnected.description;
 
         this.errorData = {
           title: lang.error.connection.DeviceDisconnected.title,

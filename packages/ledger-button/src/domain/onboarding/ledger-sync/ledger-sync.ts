@@ -2,7 +2,7 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { type StatusType } from "../../../components/index.js";
+import { AnimationKey, type StatusType } from "../../../components/index.js";
 import {
   type CoreContext,
   coreContext,
@@ -68,6 +68,21 @@ export class LedgerSyncScreen extends LitElement {
   renderNormalScreen() {
     const { animation } = this.controller;
     const lang = this.languages.currentTranslation;
+    const deviceModel = this.coreContext.getConnectedDevice()?.modelId;
+
+    const deviceTitle = lang.common.device.deviceActions[
+      animation as keyof typeof lang.common.device.deviceActions
+    ].title.replace(
+      "{device}",
+      lang.common.device.model[
+        deviceModel as keyof typeof lang.common.device.model
+      ],
+    );
+
+    const deviceDescription =
+      lang.common.device.deviceActions[
+        animation as keyof typeof lang.common.device.deviceActions
+      ].description;
 
     return html`
       <div
@@ -76,17 +91,12 @@ export class LedgerSyncScreen extends LitElement {
         <div class="w-208">
           <ledger-device-animation
             modelId="flex"
-            animation=${animation}
+            animation=${animation as AnimationKey}
           ></ledger-device-animation>
         </div>
         <div class="flex flex-col items-center gap-8 self-stretch">
-          <p class="text-center body-1">
-            ${lang.common.device.deviceActions.continueOnLedger.title}
-            ${lang.common.device.model["flex"]}
-          </p>
-          <p class="text-center text-muted body-2">
-            ${lang.common.device.deviceActions.continueOnLedger.description}
-          </p>
+          <p class="text-center body-1">${deviceTitle}</p>
+          <p class="text-center text-muted body-2">${deviceDescription}</p>
         </div>
       </div>
     `;

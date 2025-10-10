@@ -2,7 +2,7 @@
   "common": {
     "connect": "Connect",
     "button": {
-      "connect": "Connect a Ledger",
+      "connect": "Connect your Ledger device",
       "usb": "Connect with USB",
       "bluetooth": "Connect with Bluetooth",
       "usb_hint": "Plug in and unlock your device",
@@ -12,7 +12,7 @@
       "disconnect": "Disconnect"
     },
     "ad": {
-      "buyALedger": "Buy a Ledger"
+      "buyALedger": "Buy a Ledger device"
     },
     "platform": {
       "onDesktop": "On desktop",
@@ -31,16 +31,16 @@
       },
       "deviceActions": {
         "continueOnLedger": {
-          "title": "Continue on your",
-          "description": "Follow the instructions displayed on your Ledger device."
+          "title": "Continue on your {device}",
+          "description": "Follow the instructions displayed on the Secure Screen."
         },
         "pin": {
-          "title": "Enter your PIN",
+          "title": "Unlock your {device}",
           "description": "Enter your PIN to unlock your Ledger device."
         },
         "signTransaction": {
-          "title": "Sign transaction",
-          "description": "Follow the instructions displayed on your Ledger device."
+          "title": "Continue on your {device}",
+          "description": "Follow the instructions displayed on the Secure Screen."
         }
       }
     }
@@ -60,14 +60,14 @@
     }
   },
   "ledgerSync": {
-    "turnOnLedgerSyncTitle": "Turn on Ledger Sync to continue",
-    "turnOnLedgerSyncSubtitle": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature.",
+    "turnOnLedgerSyncTitle": "Activate Ledger Sync to continue",
+    "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
     "activateSelectPlatform": "Select how you want to activate Ledger Sync",
     "activate": "Activate Ledger Sync",
-    "activateStep1Desktop": "1. Click on the link below to activate Ledger Sync",
-    "activateStep1DesktopLLInstalled": "Make sure Ledger Live is installed on your computer.",
-    "activateStep1Mobile": "1. Scan the QR code with your mobile phone and follow instruction",
-    "activateStep2": "2. Once Ledger Sync is activated you can continue by clicking the link below",
+    "activateStep1Desktop": "1. Select the button below to activate Ledger Sync",
+    "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
+    "activateStep1Mobile": "1. To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
+    "activateStep2": "2. Once activated, select \"Continue\" below.",
     "activated": "Ledger Sync is activated, continue"
   },
   "onboarding": {
@@ -81,7 +81,7 @@
       "title": "Retrieving accounts"
     },
     "selectAccount": {
-      "title": "Choose an account",
+      "title": "Select an account",
       "showTokens": "Show tokens"
     },
     "turnOnSync": {
@@ -111,38 +111,38 @@
         "title": "An error occurred",
         "description": "An unexpected error occurred while fetching your accounts. Please try again",
         "cta1": "Try again",
-        "cta2": "Close Ledger"
+        "cta2": "Close"
       },
       "sign": {
         "title": "An error occurred",
         "description": "An unexpected error occurred while signing your transaction. Please try again",
         "cta1": "Try again",
-        "cta2": "Close Ledger"
+        "cta2": "Close"
       }
     },
     "device": {
       "DeviceNotSupported": {
-        "title": "{device} isn't supported",
-        "description": "The {device} isn't supported for the Ledger Direct connectivity on this Dapp",
-        "cta1": "Connect another Ledger device",
-        "cta2": "Upgrade to a new Ledger Device with 20% off"
+        "title": "{device} is not supported",
+        "description": "Here’s a list of compatible Ledger devices: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
+        "cta1": "Connect another device",
+        "cta2": "Buy a new Ledger device"
       },
       "IncorrectSeed": {
-        "title": "Incorrect device",
-        "description": "This {device} does not match the selected account: {account}. Please connect the correct Ledger device",
-        "cta1": "Connect another Ledger device",
-        "cta2": "Close Ledger"
+        "title": "Incompatibility between Ledger device and crypto account",
+        "description": "To continue, connect the Ledger device that manages this crypto account, or choose a different account.",
+        "cta1": "Use another Ledger device",
+        "cta2": "Close"
       },
       "BlindSigningDisabled": {
         "title": "Blind signing disabled",
         "description": "This transaction can not be clear signed, enable blind signing in the application settings",
         "cta1": "Retry",
-        "cta2": "Close Ledger"
+        "cta2": "Close"
       },
       "UserRejectedTransaction": {
         "title": "Transaction rejected",
-        "description": "You have rejected the transaction on your {device}",
-        "cta1": "Close Ledger",
+        "description": "You rejected the transaction on your {device}",
+        "cta1": "Close",
         "cta2": "Retry transaction"
       }
     },
@@ -168,18 +168,16 @@
     "network": {
       "BroadcastTransactionError": {
         "title": "Transaction failed",
-        "description": "Your transaction was sent to the network but failed to execute.",
-        "cta1": "Retry",
+        "description": "Your transaction was broadcasted to the network but failed to execute.",
+        "cta1": "Retry transaction",
         "cta2": "View on Etherscan"
       }
     },
     "connection": {
       "DeviceDisconnected": {
-        "title": "Ledger Device disconnected",
-        "descriptionUsb": "The connection to your Ledger {device} has been lost. Plug your Device and unlock it.",
-        "descriptionBluetooth": "The connection to your Ledger {device} has been lost. Unlock it and make sure it is nearby.",
-        "descriptionGeneric": "The connection to your Ledger {device} has been lost. If you are using USB, plug your Device and unlock it. If you are using Bluetooth, unlock it and make sure it is nearby.",
-        "cta1": "Reconnect my Device"
+        "title": "Your Ledger device is disconnected",
+        "description": "If you’re using USB, plug in and unlock your Ledger device. If you’re using Bluetooth, unlock it and keep it nearby.",
+        "cta1": "Reconnect Ledger device"
       }
     }
   }
