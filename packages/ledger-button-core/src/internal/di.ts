@@ -11,6 +11,7 @@ import { deviceModuleFactory } from "./device/deviceModule.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
+import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
@@ -52,6 +53,7 @@ export function createContainer({
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
+    modalModuleFactory(),
   );
 
   return container;

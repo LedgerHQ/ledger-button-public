@@ -44,6 +44,8 @@ import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncServ
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
 import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
+import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
+import { ModalService } from "../internal/modal/service/ModalService.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
@@ -59,6 +61,8 @@ export class LedgerButtonCore {
     | SignTransactionParams;
   private _pendingAccountAddress?: string;
   private readonly _logger: LoggerPublisher;
+  // @ts-expect-error making sure ModalService is created, not used
+  private readonly _modalService: ModalService;
 
   private _currentContext: BehaviorSubject<ButtonCoreContext> =
     new BehaviorSubject<ButtonCoreContext>({
@@ -74,6 +78,9 @@ export class LedgerButtonCore {
       loggerModuleTypes.LoggerPublisher,
     );
     this._logger = loggerFactory("[Ledger Button Core]");
+    this._modalService = this.container.get<ModalService>(
+      modalModuleTypes.ModalService,
+    );
     this.initializeContext();
   }
 

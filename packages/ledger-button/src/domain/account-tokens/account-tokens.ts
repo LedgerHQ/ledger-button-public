@@ -79,9 +79,8 @@ export class AccountTokensScreen extends LitElement {
   }
 
   private handleConnect() {
-    this.controller.connectAccount();
     const selectedAccount = this.coreContext.getSelectedAccount();
-    this.dispatchEvent(
+    window.dispatchEvent(
       new CustomEvent<{ account: Account; status: "success" }>(
         "ledger-internal-account-selected",
         {
@@ -91,6 +90,7 @@ export class AccountTokensScreen extends LitElement {
         },
       ),
     );
+    this.controller.connectAccount();
   }
 
   override render() {

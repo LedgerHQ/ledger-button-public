@@ -70,6 +70,12 @@ export class RootNavigationComponent extends LitElement {
   // PRIVATE METHODS
   private handleModalOpen() {
     this.rootNavigationController.handleModalOpen();
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-open", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private handleModalClose() {
@@ -79,6 +85,14 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-close", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+
     setTimeout(() => {
       this.rootNavigationController.handleModalClose();
       // NOTE: The 250ms delay here is to allow for animation to complete
@@ -164,5 +178,7 @@ declare global {
 
   interface WindowEventMap {
     "ledger-provider-close": CustomEvent;
+    "ledger-core-modal-open": CustomEvent;
+    "ledger-core-modal-close": CustomEvent;
   }
 }

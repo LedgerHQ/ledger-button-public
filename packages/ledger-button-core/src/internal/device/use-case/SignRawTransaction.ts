@@ -61,6 +61,8 @@ import type { EventTrackingService } from "../../event-tracking/EventTrackingSer
 import { EventTrackingUtils } from "../../event-tracking/EventTrackingUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { modalModuleTypes } from "../../modal/modalModuleTypes.js";
+import { ModalService } from "../../modal/service/ModalService.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
@@ -95,6 +97,8 @@ export class SignRawTransaction {
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
     @inject(eventTrackingModuleTypes.EventTrackingService)
     private readonly eventTrackingService: EventTrackingService,
+    @inject(modalModuleTypes.ModalService)
+    private readonly modalService: ModalService,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -288,7 +292,7 @@ export class SignRawTransaction {
           }),
           switchMap(async (result) => {
             //Broadcast TX
-            if (broadcast) {
+            if (broadcast && this.modalService.open) {
               const broadcastParams: BroadcastTransactionParams = {
                 signature: result.output as Signature,
                 rawTransaction: transaction,
