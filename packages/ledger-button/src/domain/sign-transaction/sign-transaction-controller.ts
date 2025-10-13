@@ -350,6 +350,10 @@ export class SignTransactionController implements ReactiveController {
                 if (!this.currentTransaction) {
                   return;
                 }
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "continueOnLedger",
+                };
                 this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
               },
