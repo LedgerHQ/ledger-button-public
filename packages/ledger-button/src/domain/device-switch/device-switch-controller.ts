@@ -92,14 +92,14 @@ export class DeviceSwitchController {
     }
 
     const modelStr = deviceModelId.toString();
-    const transformedModel = modelStr.toLowerCase().replace(/_/g, "");
+    const transformedModel = modelStr.replace(/_/g, "");
 
     const validModels: UIDeviceModelId[] = [
       "stax",
       "flex",
-      "nanox",
-      "nanos",
-      "nanosp",
+      "nanoX",
+      "nanoS",
+      "nanoSP",
     ];
 
     if (validModels.includes(transformedModel as UIDeviceModelId)) {

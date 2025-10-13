@@ -62,7 +62,7 @@ export type Destination = {
   canGoBack: boolean;
   toolbar: {
     title: string;
-    showCloseButton: boolean;
+    canClose: boolean;
   };
 };
 
@@ -75,7 +75,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "",
-        showCloseButton: true,
+        canClose: true,
       },
     },
     deviceSwitch: {
@@ -84,7 +84,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.deviceSwitch.title,
-        showCloseButton: true,
+        canClose: true,
       },
     },
     deviceConnectionStatus: {
@@ -93,7 +93,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: "",
-        showCloseButton: true,
+        canClose: true,
       },
     },
     onboardingFlow: {
@@ -102,7 +102,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectDevice.title,
-        showCloseButton: false,
+        canClose: true,
       },
     },
     ledgerSync: {
@@ -111,7 +111,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.ledgerSync.title,
-        showCloseButton: false,
+        canClose: false,
       },
     },
     turnOnSync: {
@@ -120,7 +120,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.turnOnSync.title,
-        showCloseButton: true,
+        canClose: true,
       },
     },
     turnOnSyncDesktop: {
@@ -129,7 +129,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.ledgerSync.activate,
-        showCloseButton: true,
+        canClose: true,
       },
     },
     turnOnSyncMobile: {
@@ -138,7 +138,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.ledgerSync.activate,
-        showCloseButton: true,
+        canClose: true,
       },
     },
     fetchAccounts: {
@@ -147,7 +147,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.retrievingAccounts.title,
-        showCloseButton: false,
+        canClose: false,
       },
     },
     selectAccount: {
@@ -156,7 +156,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectAccount.title,
-        showCloseButton: true,
+        canClose: true,
       },
     },
     onboarding: {
@@ -165,7 +165,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectDevice.title,
-        showCloseButton: true,
+        canClose: true,
       },
     },
     signTransaction: {
@@ -174,7 +174,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "",
-        showCloseButton: false,
+        canClose: true,
       },
     },
     signingFlow: {
@@ -183,7 +183,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "",
-        showCloseButton: false,
+        canClose: true,
       },
     },
     accountTokens: {
@@ -192,7 +192,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.accountTokens?.title || "Account Tokens",
-        showCloseButton: true,
+        canClose: true,
       },
     },
     notFound: {
@@ -201,7 +201,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: "404",
-        showCloseButton: true,
+        canClose: true,
       },
     },
   } as const;

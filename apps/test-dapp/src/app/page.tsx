@@ -6,6 +6,9 @@ import {
   DialogPanel,
   DialogTitle,
   Field,
+  Fieldset,
+  Label,
+  Select,
   Textarea,
 } from "@headlessui/react";
 import { ethers } from "ethers";
@@ -28,6 +31,7 @@ export default function Index() {
     | "sign-raw-tx"
     | "sign-typed-data"
     | "sign-personal-message"
+    | "provider-request"
     | null
   >(null);
   const [account, setAccount] = useState<string | null>(null);
@@ -37,6 +41,8 @@ export default function Index() {
   const rawTxRef = useRef<HTMLTextAreaElement>(null);
   const typedDataRef = useRef<HTMLTextAreaElement>(null);
   const personalMessageRef = useRef<HTMLTextAreaElement>(null);
+  const providerRequestMethodRef = useRef<HTMLSelectElement>(null);
+  const providerRequestParamsRef = useRef<HTMLTextAreaElement>(null);
   const [result, setResult] = useState<string | null>(null);
 
   const dispatchRequestProvider = useCallback(() => {
@@ -130,6 +136,13 @@ export default function Index() {
     setIsOpen(true);
   }, []);
 
+  const startProviderRequest = useCallback(() => {
+    setResult(null);
+    setError(null);
+    setModalType("provider-request");
+    setIsOpen(true);
+  }, []);
+
   const handleSignTransaction = useCallback(async () => {
     if (!selectedProvider || !txRef.current?.value) return;
     setResult(null);
@@ -208,7 +221,6 @@ export default function Index() {
   }, [selectedProvider, account]);
 
   const handleSignPersonalMessage = useCallback(async () => {
-    console.log("handleSignPersonalMessage eth_sign");
     if (!selectedProvider || !personalMessageRef.current?.value) return;
     setResult(null);
     setIsOpen(false);
@@ -217,17 +229,12 @@ export default function Index() {
     if (!personalMessageRef.current?.value) return;
 
     try {
-      console.log(
-        "handleSignPersonalMessage trying to use request({ method: 'eth_sign' })",
-      );
       const result = (await selectedProvider.provider.request({
         method: "eth_sign",
         params: [account, personalMessageRef.current.value],
       })) as string;
-      console.log("handleSignPersonalMessage result", { result });
       setResult(result);
     } catch (error) {
-      console.log("handleSignPersonalMessage error", error);
       console.error(error);
       if (error instanceof Error) {
         setError(error.message);
@@ -235,7 +242,6 @@ export default function Index() {
         setError(error as string);
       }
     }
-    console.log("handleSignPersonalMessage end");
   }, [selectedProvider, account]);
 
   const handleDisconnect = useCallback(async () => {
@@ -283,27 +289,53 @@ export default function Index() {
     }
   }, [selectedProvider]);
 
+  const handleProviderRequest = useCallback(async () => {
+    if (!selectedProvider || !providerRequestMethodRef.current?.value) return;
+    setResult(null);
+    setIsOpen(false);
+    setError(null);
+    try {
+      console.log("handleProviderRequest calling provider.request()");
+      console.log("handleProviderRequest", {
+        method: providerRequestMethodRef.current.value,
+        params: JSON.parse(providerRequestParamsRef.current?.value || "[]"),
+      });
+      const result = await selectedProvider.provider.request({
+        // @ts-expect-error - We don't import @ledgerhq/ledger-button-core, so we don't have the types
+        method: providerRequestMethodRef.current.value,
+        params: JSON.parse(providerRequestParamsRef.current?.value || "[]"),
+      });
+      console.log("handleProviderRequest result", { result });
+      setResult(JSON.stringify(result));
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError(error as string);
+      }
+    }
+  }, [selectedProvider]);
+
   return (
     <div className={styles.page}>
       <div className="wrapper">
-        {account && (
-          <div className={styles.account}>
-            <p>Account: {account}</p>
-          </div>
-        )}
-
-        <div className={styles.metadata}>
+        <div className={styles.wrapperMetadata}>
           {selectedProvider && (
             <img
               src={selectedProvider.info.icon}
               alt={selectedProvider.info.name}
             />
           )}
-          <p>
-            {selectedProvider?.provider.isConnected()
-              ? "Connected"
-              : "Not Connected"}
-          </p>
+          {account && (
+            <div className={styles.account}>
+              <p>Account: {account}</p>
+            </div>
+          )}
+          {selectedProvider && !account && <p>Connected</p>}
+        </div>
+
+        <div className={styles.metadata}>
           <button onClick={dispatchRequestProvider}>List Providers</button>
           {selectedProvider && (
             <>
@@ -325,6 +357,7 @@ export default function Index() {
             <button onClick={startSignPersonalMessage}>
               Sign Personal Message
             </button>
+            <button onClick={startProviderRequest}>Provider Request</button>
           </div>
         )}
 
@@ -451,6 +484,74 @@ export default function Index() {
                   </Field>
                   <button onClick={handleSignPersonalMessage}>
                     Sign Personal Message
+                  </button>
+                </DialogPanel>
+              )}
+
+              {/* PROVIDER REQUEST */}
+              {modalType === "provider-request" && (
+                <DialogPanel transition className={styles.dialogPanel}>
+                  <DialogTitle as="h3" className={styles.dialogTitle}>
+                    Provider Request
+                  </DialogTitle>
+                  <Fieldset>
+                    <Field className={styles.field}>
+                      <Label className={styles.label}>Method</Label>
+                      <Select
+                        ref={providerRequestMethodRef}
+                        className={styles.select}
+                      >
+                        <option value="eth_accounts">eth_accounts</option>
+                        <option value="eth_requestAccounts">
+                          eth_requestAccounts
+                        </option>
+                        <option value="eth_chainId">eth_chainId</option>
+                        <option value="eth_signTransaction">
+                          eth_signTransaction
+                        </option>
+                        <option value="eth_sendTransaction">
+                          eth_sendTransaction
+                        </option>
+                        <option value="eth_signRawTransaction">
+                          eth_signRawTransaction
+                        </option>
+                        <option value="eth_sendRawTransaction">
+                          eth_sendRawTransaction
+                        </option>
+                        <option value="eth_sign">eth_sign</option>
+                        <option value="personal_sign">personal_sign</option>
+                        <option value="eth_signTypedData">
+                          eth_signTypedData
+                        </option>
+                        <option value="eth_signTypedData_v4">
+                          eth_signTypedData_v4
+                        </option>
+                        <option value="eth_getBalance">eth_getBalance</option>
+                        <option value="eth_getBlockByNumber">
+                          eth_getBlockByNumber
+                        </option>
+                        <option value="eth_estimateGas">eth_estimateGas</option>
+                        <option value="eth_getTransactionCount">
+                          eth_getTransactionCount
+                        </option>
+                        <option value="eth_maxPriorityFeePerGas">
+                          eth_maxPriorityFeePerGas
+                        </option>
+                      </Select>
+                    </Field>
+                    <Field className={styles.field}>
+                      <Label className={styles.label}>
+                        Params (json array):
+                      </Label>
+                      <Textarea
+                        ref={providerRequestParamsRef}
+                        className={styles.textarea}
+                        rows={3}
+                      />
+                    </Field>
+                  </Fieldset>
+                  <button onClick={handleProviderRequest}>
+                    Call provider.request()
                   </button>
                 </DialogPanel>
               )}

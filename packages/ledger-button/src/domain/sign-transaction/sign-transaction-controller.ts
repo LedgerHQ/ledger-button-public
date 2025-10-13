@@ -25,7 +25,13 @@ import { Navigation } from "../../shared/navigation.js";
 import { RootNavigationComponent } from "../../shared/root-navigation.js";
 
 export type ScreenState =
-  | { screen: "signing"; deviceAnimation: AnimationKey }
+  | {
+      screen: "signing";
+      deviceAnimation: Omit<
+        AnimationKey,
+        "pairing" | "pairingSuccess" | "frontView"
+      >;
+    }
   | { screen: "success"; status: StatusState }
   | { screen: "error"; status: StatusState };
 
@@ -70,16 +76,16 @@ export class SignTransactionController implements ReactiveController {
 
   private mapUserInteractionToDeviceAnimation(
     interaction: UserInteractionNeeded,
-  ): AnimationKey {
+  ): Omit<AnimationKey, "pairing" | "pairingSuccess" | "frontView"> {
     switch (interaction) {
       case "unlock-device":
         return "pin";
       case "allow-secure-connection":
       case "confirm-open-app":
-      case "sign-transaction":
       case "allow-list-apps":
       case "web3-checks-opt-in":
         return "continueOnLedger";
+      case "sign-transaction":
       default:
         return "signTransaction";
     }
@@ -220,7 +226,7 @@ export class SignTransactionController implements ReactiveController {
               },
             },
             cta2: {
-              label: lang.error.device.BlindSigningDisabled.cta2,
+              label: lang.error.device.IncorrectSeed.cta2,
               action: async () => {
                 window.dispatchEvent(
                   new CustomEvent("ledger-internal-sign", {
