@@ -78,7 +78,6 @@ export type InvoicingTransactionSignedEventData = BaseEventData & {
   event_type: "invoicing_transaction_signed";
   ledger_sync_user_id: string;
   blockchain_network_selected: "ethereum";
-  transaction_type: "ETH_transfer" | "ERC-20_approve";
   transaction_hash: string;
   source_token: string;
   target_token: string;

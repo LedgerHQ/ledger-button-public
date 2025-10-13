@@ -59,7 +59,6 @@ export function getInvoicingEventDataFromTransaction(
   const isETHTransfer = parsedTx.value && parsedTx.value > 0n;
 
   return {
-    transactionType: isETHTransfer ? "ETH_transfer" : "ERC-20_approve",
     sourceToken: isETHTransfer ? "ETH" : parsedTx.to || "unknown",
     targetToken: isETHTransfer ? "ETH" : parsedTx.to || "unknown",
     recipientAddress: parsedTx.to || "",

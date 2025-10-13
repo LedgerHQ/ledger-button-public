@@ -258,7 +258,6 @@ export class EventTrackingUtils {
   static createInvoicingTransactionSignedEvent(
     params: LedgerSyncEventParams & {
       transactionHash: string;
-      transactionType: "ETH_transfer" | "ERC-20_approve";
       sourceToken: string;
       targetToken: string;
       recipientAddress: string;
@@ -273,7 +272,6 @@ export class EventTrackingUtils {
       event_type: EventType.InvoicingTransactionSigned,
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
-      transaction_type: params.transactionType,
       transaction_hash: normalizeTransactionHash(params.transactionHash),
       source_token: params.sourceToken,
       target_token: params.targetToken,

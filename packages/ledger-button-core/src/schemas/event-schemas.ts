@@ -17,7 +17,6 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
   event_type: z.literal("invoicing_transaction_signed"),
   ledger_sync_user_id: z.string(),
   blockchain_network_selected: z.enum(["ethereum"]),
-  transaction_type: z.enum(["ETH_transfer", "ERC-20_approve"]),
   transaction_hash: z.string().regex(hexPattern, "Transaction hash must be lowercase hex without 0x prefix"),
   source_token: z.string(),
   recipient_address: z.string(),

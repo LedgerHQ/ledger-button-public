@@ -555,7 +555,6 @@ export class SignRawTransaction {
           sessionId: sessionId || "",
           ledgerSyncUserId: trustChainId || "",
           transactionHash: transactionHash || "",
-          transactionType: invoicingData.transactionType,
           sourceToken: invoicingData.sourceToken,
           targetToken: invoicingData.targetToken,
           recipientAddress: invoicingData.recipientAddress,
