@@ -261,6 +261,11 @@ export class SignRawTransaction {
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
+          tap((result: SignTransactionDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, transaction, signType),
+            );
+          }),
           filter((result: SignTransactionDAState) => {
             return (
               result.status === DeviceActionStatus.Error ||
