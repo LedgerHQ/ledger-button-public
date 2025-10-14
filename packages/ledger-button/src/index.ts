@@ -31,6 +31,7 @@ export function initializeLedgerProvider({
   dmkConfig = undefined,
   target = document.body,
   loggerLevel = "info",
+  environment,
   devConfig = {
     stub: {
       base: false,
@@ -49,6 +50,7 @@ export function initializeLedgerProvider({
       dAppIdentifier,
       dmkConfig,
       loggerLevel,
+      environment,
       devConfig,
     });
   }
