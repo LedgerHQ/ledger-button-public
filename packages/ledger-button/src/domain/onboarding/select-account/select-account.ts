@@ -5,7 +5,6 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
@@ -40,45 +39,6 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  private handleAccountItemClick(
-    event: CustomEvent<AccountItemClickEventDetail>,
-  ) {
-    this.controller.selectAccount(event.detail.address);
-    const selectedAccount = this.coreContext.getSelectedAccount();
-    this.dispatchEvent(
-      new CustomEvent<{ account: Account; status: "success" }>(
-        "ledger-internal-account-selected",
-        {
-          bubbles: true,
-          composed: true,
-          detail: { account: selectedAccount as Account, status: "success" },
-        },
-      ),
-    );
-  }
-
-  private handleAccountItemShowTokensClick = (
-    event: CustomEvent<AccountItemClickEventDetail>,
-  ) => {
-    const account = this.coreContext
-      .getAccounts()
-      .find((acc) => acc.freshAddress === event.detail.address);
-
-    if (account) {
-      this.coreContext.setPendingAccountAddress(account.freshAddress);
-
-      this.navigation.navigateTo({
-        name: "accountTokens",
-        component: "account-tokens-screen",
-        canGoBack: true,
-        toolbar: {
-          title: `${account.name}`,
-          canClose: true,
-        },
-      });
-    }
-  };
-
   renderAccountItem = (account: Account) => {
     const translations = this.languages.currentTranslation;
 
@@ -92,8 +52,9 @@ export class SelectAccountScreen extends LitElement {
         .ticker=${account.ticker}
         .balance=${account.balance ?? "0"}
         .tokens=${account.tokens.length}
-        @account-item-click=${this.handleAccountItemClick}
-        @account-item-show-tokens-click=${this.handleAccountItemShowTokensClick}
+        @account-item-click=${this.controller.handleAccountItemClick}
+        @account-item-show-tokens-click=${this.controller
+          .handleAccountItemShowTokensClick}
       ></ledger-account-item>
     `;
   };

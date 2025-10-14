@@ -1,4 +1,5 @@
 import {
+  DeviceConnectionError,
   DeviceDisconnectedError,
   DeviceNotSupportedError,
 } from "@ledgerhq/ledger-button-core";
@@ -94,6 +95,16 @@ export class SelectDeviceController implements ReactiveController {
         };
         break;
       }
+      case error instanceof DeviceConnectionError:
+        if (
+          error.context?.type === "no-accessible-device" ||
+          error.context?.type === "failed-to-start-discovery"
+        ) {
+          this.errorData = undefined;
+          break;
+        }
+
+        break;
       default:
         // TODO: handle other errors
         break;
@@ -116,7 +127,6 @@ export class SelectDeviceController implements ReactiveController {
       await this.core.connectToDevice(detail.connectionType);
     } catch (error) {
       console.error("Failed to connect to device", error);
-
       this.mapErrors(error);
     }
   }

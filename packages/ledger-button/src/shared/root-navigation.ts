@@ -55,7 +55,6 @@ export class RootNavigationComponent extends LitElement {
 
   public selectAccount(address: string) {
     this.rootNavigationController.selectAccount(address);
-    this.closeModal();
   }
 
   public getSelectedAccount() {
