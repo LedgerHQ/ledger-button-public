@@ -72,25 +72,10 @@ export class AccountTokensScreen extends LitElement {
           variant="secondary"
           size="full"
           .label=${translations.common.connect}
-          @ledger-button-click=${this.handleConnect}
+          @ledger-button-click=${this.controller.handleConnect}
         ></ledger-button>
       </div>
     `;
-  }
-
-  private handleConnect() {
-    const selectedAccount = this.coreContext.getSelectedAccount();
-    window.dispatchEvent(
-      new CustomEvent<{ account: Account; status: "success" }>(
-        "ledger-internal-account-selected",
-        {
-          bubbles: true,
-          composed: true,
-          detail: { account: selectedAccount as Account, status: "success" },
-        },
-      ),
-    );
-    this.controller.connectAccount();
   }
 
   override render() {

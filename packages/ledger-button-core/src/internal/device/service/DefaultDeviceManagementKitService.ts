@@ -4,6 +4,7 @@ import {
   DeviceManagementKitBuilder,
   DiscoveredDevice,
   LogLevel,
+  NoAccessibleDeviceError,
   TransportIdentifier,
 } from "@ledgerhq/device-management-kit";
 import {
@@ -81,7 +82,17 @@ export class DefaultDeviceManagementKitService
       await dmk.stopDiscovering();
     } catch (error) {
       this.logger.error(`Failed to start discovery`, { error });
-      throw new DeviceConnectionError(`Failed to start discovery`, { error });
+      if (error instanceof NoAccessibleDeviceError) {
+        throw new DeviceConnectionError(`No accessible device`, {
+          type: "no-accessible-device",
+          error,
+        });
+      }
+
+      throw new DeviceConnectionError(`Failed to start discovery`, {
+        type: "failed-to-start-discovery",
+        error,
+      });
     }
 
     try {
@@ -99,6 +110,7 @@ export class DefaultDeviceManagementKitService
     } catch (error) {
       this.logger.error(`Failed to connect to device`, { error });
       throw new DeviceConnectionError(`Failed to connect to device`, {
+        type: "failed-to-connect",
         error,
       });
     }
@@ -150,6 +162,7 @@ export class DefaultDeviceManagementKitService
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });
       throw new DeviceConnectionError(`Failed to disconnect from device`, {
+        type: "failed-to-disconnect",
         error,
       });
     }

@@ -23,10 +23,6 @@ export class AccountTokenController implements ReactiveController {
   }
 
   getAccount() {
-    if (this.account) {
-      return;
-    }
-
     const targetAddress = this.core.getPendingAccountAddress();
     this.account =
       this.core
@@ -41,14 +37,36 @@ export class AccountTokenController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  connectAccount() {
-    if (!this.account) {
+  handleConnect = () => {
+    this.selectAccount(this.account);
+    const selectedAccount = this.core.getSelectedAccount();
+    window.dispatchEvent(
+      new CustomEvent<{ account: Account; status: "success" }>(
+        "ledger-internal-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: { account: selectedAccount as Account, status: "success" },
+        },
+      ),
+    );
+    this.close();
+  };
+
+  selectAccount = (account?: Account | null) => {
+    if (!account) {
       return;
     }
 
     if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.selectAccount(this.account.freshAddress);
+      this.navigation.host.selectAccount(account.freshAddress);
+    }
+  };
+
+  close = () => {
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.closeModal();
       this.host.requestUpdate();
     }
-  }
+  };
 }
