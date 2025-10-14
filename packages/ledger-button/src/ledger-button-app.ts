@@ -50,6 +50,10 @@ export class LedgerButtonApp extends LitElement {
     window.addEventListener("ledger-internal-sign", this.handleSign);
   }
 
+  get isModalOpen() {
+    return this.root.isModalOpen;
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback();
     window.removeEventListener(

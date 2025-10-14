@@ -28,6 +28,8 @@ export class RootNavigationComponent extends LitElement {
 
   rootNavigationController!: RootNavigationController;
 
+  isModalOpen = false;
+
   override connectedCallback() {
     super.connectedCallback();
     this.rootNavigationController = new RootNavigationController(
@@ -41,6 +43,7 @@ export class RootNavigationComponent extends LitElement {
   // PUBLIC METHODS
   public openModal() {
     this.ledgerModal.openModal();
+    this.isModalOpen = true;
   }
 
   public closeModal() {
@@ -51,6 +54,7 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+    this.isModalOpen = false;
   }
 
   public selectAccount(address: string) {

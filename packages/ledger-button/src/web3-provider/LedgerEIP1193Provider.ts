@@ -83,6 +83,12 @@ export class LedgerEIP1193Provider
 
   public isLedgerButton = true;
 
+  private _pendingRequest: RequestArguments | null = null;
+  private _pendingPromise: {
+    resolve: (value: unknown) => void;
+    reject: (reason?: unknown) => void;
+  } | null = null;
+
   // NOTE: Tracking listeners by function reference
   // This is a workaround to wrap the event listener in the `on` method
   // so we can remove it later
@@ -117,6 +123,33 @@ export class LedgerEIP1193Provider
         );
       }
     });
+
+    setInterval(() => {
+      if (
+        this._pendingRequest &&
+        !this.app.isModalOpen &&
+        this._pendingPromise
+      ) {
+        console.log("Executing pending request");
+        const tmpRequest = this._pendingRequest;
+        this._pendingRequest = null;
+
+        // Execute the pending request and resolve the promise
+        this.executeRequest(tmpRequest)
+          .then((result) => {
+            if (this._pendingPromise) {
+              this._pendingPromise.resolve(result);
+              this._pendingPromise = null;
+            }
+          })
+          .catch((error) => {
+            if (this._pendingPromise) {
+              this._pendingPromise.reject(error);
+              this._pendingPromise = null;
+            }
+          });
+      }
+    }, 1000);
   }
 
   private async handleAccounts(): Promise<string[]> {
@@ -484,9 +517,10 @@ export class LedgerEIP1193Provider
     ) => this.handleSwitchChainId(params),
   } as const;
 
-  // Public API
-  public async request({ method, params }: RequestArguments) {
+  // Private method to execute request logic
+  private async executeRequest({ method, params }: RequestArguments) {
     console.log("request in LedgerEIP1193Provider", { method, params });
+
     if (method in this.handlers) {
       const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
@@ -510,6 +544,28 @@ export class LedgerEIP1193Provider
       CommonEIP1193ErrorCode.UnsupportedMethod,
       `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
     );
+  }
+
+  // Public API
+  public async request({ method, params }: RequestArguments) {
+    console.log("request in LedgerEIP1193Provider", { method, params });
+
+    if (this._pendingPromise) {
+      return this.createError(
+        CommonEIP1193ErrorCode.InternalError,
+        "Ledger Provider is busy",
+      );
+    }
+
+    if (this.app.isModalOpen) {
+      this._pendingRequest = { method, params };
+      return new Promise<unknown>((resolve, reject) => {
+        this._pendingPromise = { resolve, reject };
+      });
+    }
+
+    // If modal is not open, execute the request immediately
+    return this.executeRequest({ method, params });
   }
 
   public on<TEvent extends keyof ProviderEvent>(
@@ -571,6 +627,14 @@ export class LedgerEIP1193Provider
     if (this._isConnected) {
       this._isConnected = false;
       this.core.disconnect();
+
+      // Clean up pending request on disconnect
+      if (this._pendingPromise) {
+        this._pendingPromise.reject(this.createError(code, message, data));
+        this._pendingPromise = null;
+        this._pendingRequest = null;
+      }
+
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
           bubbles: true,
