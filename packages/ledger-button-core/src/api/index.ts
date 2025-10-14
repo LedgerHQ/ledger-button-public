@@ -4,7 +4,4 @@ export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
 export * from "./model/index.js";
 export * from "./utils/index.js";
-export {
-  DeviceModelId,
-  type DiscoveredDevice,
-} from "@ledgerhq/device-management-kit";
+export { type DiscoveredDevice } from "@ledgerhq/device-management-kit";

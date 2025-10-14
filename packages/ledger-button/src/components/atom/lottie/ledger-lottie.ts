@@ -30,13 +30,13 @@ export interface LedgerLottieAttributes {
   paused?: boolean;
 }
 
-const lottieVariants = cva(["lottie-container", "overflow-hidden"], {
+const lottieVariants = cva(["lottie-container", "lb-overflow-hidden"], {
   variants: {
     size: {
-      small: ["w-8", "h-8"],
-      medium: ["w-16", "h-16"],
-      large: ["w-32", "h-32"],
-      full: ["w-full", "h-full"],
+      small: ["lb-w-8", "lb-h-8"],
+      medium: ["lb-w-16", "lb-h-16"],
+      large: ["lb-w-32", "lb-h-32"],
+      full: ["lb-w-full", "lb-h-full"],
     },
   },
   defaultVariants: {

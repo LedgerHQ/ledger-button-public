@@ -1,7 +1,6 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 
 export class TurnOnSyncController implements ReactiveController {
@@ -35,9 +34,5 @@ export class TurnOnSyncController implements ReactiveController {
         "_blank",
       )
       ?.focus();
-
-    if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.closeModal();
-    }
   }
 }

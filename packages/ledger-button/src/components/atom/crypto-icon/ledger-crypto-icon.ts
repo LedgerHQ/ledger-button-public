@@ -16,16 +16,18 @@ export interface LedgerCryptoIconAttributes {
 }
 
 const cryptoIconVariants = cva(
-  ["position-relative flex items-center justify-center overflow-hidden"],
+  [
+    "position-relative lb-flex lb-items-center lb-justify-center lb-overflow-hidden",
+  ],
   {
     variants: {
       size: {
-        small: ["h-20 w-20"],
-        medium: ["h-32 w-32"],
-        large: ["h-48 w-48"],
+        small: ["lb-h-20 lb-w-20"],
+        medium: ["lb-h-32 lb-w-32"],
+        large: ["lb-h-48 lb-w-48"],
       },
       variant: {
-        rounded: ["rounded-full"],
+        rounded: ["lb-rounded-full"],
         square: [],
       },
     },
@@ -33,17 +35,17 @@ const cryptoIconVariants = cva(
       {
         variant: "square",
         size: "small",
-        class: ["rounded-xs"],
+        class: ["lb-rounded-xs"],
       },
       {
         variant: "square",
         size: "medium",
-        class: ["rounded-sm"],
+        class: ["lb-rounded-sm"],
       },
       {
         variant: "square",
         size: "large",
-        class: ["rounded-md"],
+        class: ["lb-rounded-md"],
       },
     ],
     defaultVariants: {
@@ -90,7 +92,7 @@ export class LedgerCryptoIcon extends LitElement {
 
   private renderFallback() {
     return html`
-      <div class="${this.iconClasses} bg-grey-500">${this.alt}</div>
+      <div class="${this.iconClasses} lb-bg-grey-500">${this.alt}</div>
     `;
   }
 
@@ -98,7 +100,7 @@ export class LedgerCryptoIcon extends LitElement {
     return html`
       <div class="${this.iconClasses}" style="position: relative;">
         <img
-          class="token-icon block h-full w-full bg-active object-cover"
+          class="token-icon lb-block lb-h-full lb-w-full lb-bg-active lb-object-cover"
           src=${iconUrl}
           alt=${this.alt}
         />

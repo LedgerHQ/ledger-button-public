@@ -24,39 +24,39 @@ export interface LedgerButtonAttributes {
 
 const buttonVariants = cva(
   [
-    "flex cursor-pointer items-center justify-center gap-8 rounded-full body-1-semi-bold",
-    "disabled:cursor-not-allowed disabled:bg-disabled disabled:text-disabled",
+    "lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-gap-8 lb-rounded-full lb-body-1-semi-bold",
+    "disabled:lb-cursor-not-allowed disabled:lb-bg-disabled disabled:lb-text-disabled",
   ],
   {
     variants: {
       variant: {
         accent: [
-          "bg-accent text-on-accent",
-          "hover:bg-accent-hover active:bg-accent-pressed",
+          "lb-bg-accent lb-text-on-accent",
+          "hover:lb-bg-accent-hover active:lb-bg-accent-pressed",
         ],
         primary: [
-          "bg-interactive text-on-interactive",
-          "hover:bg-interactive-hover active:bg-interactive-pressed",
+          "lb-bg-interactive lb-text-on-interactive",
+          "hover:lb-bg-interactive-hover active:lb-bg-interactive-pressed",
         ],
         secondary: [
-          "bg-muted text-base",
-          "hover:bg-muted-hover active:bg-muted-pressed",
+          "lb-bg-muted lb-text-base",
+          "hover:lb-bg-muted-hover active:lb-bg-muted-pressed",
         ],
         "secondary-transparent": [
-          "bg-muted-transparent text-base",
-          "hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
+          "lb-bg-muted-transparent lb-text-base",
+          "hover:lb-bg-muted-transparent-hover active:lb-bg-muted-transparent-pressed",
         ],
         noBackground: [
-          "bg-base-transparent text-base",
-          "hover:bg-base-transparent-hover active:bg-base-transparent-pressed",
+          "lb-bg-base-transparent lb-text-base",
+          "hover:lb-bg-base-transparent-hover active:lb-bg-base-transparent-pressed",
         ],
       },
       size: {
-        xs: ["p-8"],
-        small: ["px-16 py-8", "body-2-semi-bold"],
-        medium: ["p-16"],
-        large: ["px-32 py-16"],
-        full: ["w-full", "h-56"],
+        xs: ["lb-p-8"],
+        small: ["lb-px-16 lb-py-12", "lb-body-2-semi-bold"],
+        medium: ["lb-px-16 lb-py-12"],
+        large: ["lb-px-32 lb-py-16"],
+        full: ["lb-w-full", "lb-h-56"],
       },
     },
     defaultVariants: {
@@ -121,7 +121,7 @@ export class LedgerButton extends LitElement {
       <ledger-icon
         .type=${this.iconType ?? "ledger"}
         size=${size}
-        class="text-base"
+        class="lb-text-base"
         .fillColor=${fillColor}
       >
       </ledger-icon>
@@ -133,7 +133,7 @@ export class LedgerButton extends LitElement {
       return nothing;
     }
 
-    return html`<span class="body-2">${this.label}</span>`;
+    return html`${this.label}`;
   }
 
   override render() {

@@ -1,10 +1,7 @@
-import type {
-  DeviceModelId,
-  DiscoveredDevice,
-} from "@ledgerhq/ledger-button-core";
+import type { DiscoveredDevice } from "@ledgerhq/ledger-button-core";
 import { LitElement } from "lit";
 
-import type { DeviceModelId as UIDeviceModelId } from "../../components/atom/icon/device-icon/device-icon.js";
+import type { DeviceModelId } from "../../components/atom/icon/device-icon/device-icon.js";
 import type { CoreContext } from "../../context/core-context.js";
 import type { Navigation } from "../../shared/navigation.js";
 import type { Destinations } from "../../shared/routes.js";
@@ -86,7 +83,7 @@ export class DeviceSwitchController {
     return "";
   }
 
-  mapDeviceModelId(deviceModelId?: DeviceModelId): UIDeviceModelId {
+  mapDeviceModelId(deviceModelId?: string): DeviceModelId {
     if (!deviceModelId) {
       return "flex";
     }
@@ -94,7 +91,7 @@ export class DeviceSwitchController {
     const modelStr = deviceModelId.toString();
     const transformedModel = modelStr.replace(/_/g, "");
 
-    const validModels: UIDeviceModelId[] = [
+    const validModels: DeviceModelId[] = [
       "stax",
       "flex",
       "nanoX",
@@ -102,8 +99,8 @@ export class DeviceSwitchController {
       "nanoSP",
     ];
 
-    if (validModels.includes(transformedModel as UIDeviceModelId)) {
-      return transformedModel as UIDeviceModelId;
+    if (validModels.includes(transformedModel as DeviceModelId)) {
+      return transformedModel as DeviceModelId;
     }
 
     return "flex";

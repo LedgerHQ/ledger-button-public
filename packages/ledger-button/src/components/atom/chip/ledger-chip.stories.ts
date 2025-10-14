@@ -10,7 +10,7 @@ const meta: Meta = {
   title: "Component/Atom/Chip",
   tags: ["autodocs"],
   render: (args) => html`
-    <div class="flex flex-col bg-black p-24">
+    <div class="lb-flex lb-flex-col lb-bg-black lb-p-24">
       <ledger-chip
         .label=${args.label || ""}
         .deviceModelId=${args.deviceModelId || "flex"}

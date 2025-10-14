@@ -197,7 +197,7 @@ export const TestToolbarInteractions: Story = {
       expect(toolbar).toBeInTheDocument();
 
       const container = toolbar?.shadowRoot?.querySelector(
-        ".flex.items-center.justify-between",
+        ".lb-flex.lb-items-center.lb-justify-between",
       );
 
       expect(container).toBeInTheDocument();

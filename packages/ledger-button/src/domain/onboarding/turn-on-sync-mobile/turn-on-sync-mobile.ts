@@ -49,25 +49,31 @@ export class TurnOnSyncMobileScreen extends LitElement {
   override render() {
     const lang = this.languageContext.currentTranslation;
     return html`
-      <div class="flex flex-col gap-32 p-24 pt-0">
-        <div class="flex flex-col gap-8">
-          <p class="text-center text-base body-2">
-            ${lang.ledgerSync.activateStep1Mobile}
-          </p>
-          <div class="flex flex-row items-center justify-center gap-16">
+      <div class="lb-flex lb-flex-col lb-gap-40 lb-p-24 lb-pt-0">
+        <div class="lb-flex lb-flex-col lb-gap-24">
+          <div class="lb-flex lb-flex-row lb-gap-4">
+            <p class="lb-text-base lb-body-2">1.</p>
+            <p class="lb-text-base lb-body-2">
+              ${lang.ledgerSync.activateStep1Mobile}
+            </p>
+          </div>
+          <div
+            class="lb-flex lb-flex-row lb-items-center lb-justify-center lb-gap-16"
+          >
             <img
-              class="w-full max-w-176"
+              class="lb-w-full lb-max-w-176"
               src=${qrLedgerSync}
               alt="https://go.ledger.com/ledger/ledgersync"
             />
           </div>
         </div>
-        <div class="flex flex-col gap-8">
-          <p class="text-center text-base body-2">
-            ${lang.ledgerSync.activateStep2}
-          </p>
-        </div>
-        <div class="flex flex-col gap-16">
+        <div class="lb-flex lb-flex-col lb-gap-24">
+          <div class="lb-flex lb-flex-row lb-gap-4">
+            <p class="lb-text-base lb-body-2">2.</p>
+            <p class="lb-text-base lb-body-2">
+              ${lang.ledgerSync.activateStep2}
+            </p>
+          </div>
           <ledger-button
             variant="primary"
             size="full"

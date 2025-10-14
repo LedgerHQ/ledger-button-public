@@ -82,9 +82,13 @@ export class LedgerHomeScreen extends LitElement {
     const balance = 1234.56;
 
     return html`
-      <div class="flex flex-col items-stretch gap-24 p-24 pt-0">
-        <div class="flex flex-col gap-32 rounded-md bg-muted p-16">
-          <div class="flex flex-row items-center justify-between">
+      <div
+        class="lb-flex lb-flex-col lb-items-stretch lb-gap-24 lb-p-24 lb-pt-0"
+      >
+        <div
+          class="lb-flex lb-flex-col lb-gap-32 lb-rounded-md lb-bg-muted lb-p-16"
+        >
+          <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
             <ledger-account-switch
               .account=${account}
               @account-switch=${this.handleAccountItemClick}
@@ -95,7 +99,7 @@ export class LedgerHomeScreen extends LitElement {
               variant="square"
             ></ledger-crypto-icon>
           </div>
-          <div class="flex flex-row items-center justify-between">
+          <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
             <ledger-balance
               label=${lang.home.balance}
               .balance=${balance}

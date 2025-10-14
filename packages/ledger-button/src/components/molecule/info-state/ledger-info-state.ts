@@ -12,13 +12,13 @@ import StaxDeviceIcon from "./stax-device-icon.js";
 export type DeviceType = "nanox" | "stax" | "flex";
 
 const infoStateVariants = cva(
-  "flex flex-col items-center justify-center text-center text-base",
+  "lb-flex lb-flex-col lb-items-center lb-justify-center lb-text-center lb-text-base",
   {
     variants: {
       device: {
-        flex: "p-24 pt-0",
-        nanox: "p-20 pt-0",
-        stax: "p-28 pt-0",
+        flex: "lb-p-24 lb-pt-0",
+        nanox: "lb-p-20 lb-pt-0",
+        stax: "lb-p-28 lb-pt-0",
       },
     },
     defaultVariants: {
@@ -31,8 +31,8 @@ const deviceIconVariants = cva("", {
   variants: {
     device: {
       flex: "",
-      nanox: "opacity-80",
-      stax: "opacity-90",
+      nanox: "lb-opacity-80",
+      stax: "lb-opacity-90",
     },
   },
   defaultVariants: {
@@ -71,16 +71,20 @@ export class LedgerInfoState extends LitElement {
   override render() {
     return html`
       <div class="${infoStateVariants({ device: this.device })}">
-        <div class="flex flex-col items-center justify-center gap-32">
+        <div
+          class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-gap-32"
+        >
           <div
             class="${deviceIconVariants({ device: this.device })}"
             data-testid="device-icon"
           >
             ${this.renderDeviceIcon()}
           </div>
-          <div class="flex flex-col items-center justify-center gap-16">
+          <div
+            class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-gap-16"
+          >
             <h4
-              class="font-semibold leading-tight font-inter text-base heading-4"
+              class="lb-font-semibold lb-leading-tight lb-font-inter lb-text-base lb-heading-4"
               data-testid="title"
             >
               ${this.title}
@@ -89,7 +93,7 @@ export class LedgerInfoState extends LitElement {
             ${this.subtitle
               ? html`
                   <p
-                    class="font-normal leading-relaxed max-w-300 font-inter text-base opacity-60 body-1"
+                    class="lb-font-normal lb-leading-relaxed lb-max-w-300 lb-font-inter lb-text-base lb-opacity-60 lb-body-1"
                     data-testid="subtitle"
                   >
                     ${this.subtitle}

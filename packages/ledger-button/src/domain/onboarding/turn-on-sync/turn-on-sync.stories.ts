@@ -1,4 +1,4 @@
-import "./turn-on-sync";
+import "./turn-on-sync.js";
 import "../../../context/core-context.js";
 import "../../../context/language-context.js";
 import "../../../components/index.js";

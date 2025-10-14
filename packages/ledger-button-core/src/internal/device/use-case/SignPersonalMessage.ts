@@ -231,6 +231,11 @@ export class SignPersonalMessage {
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
+          tap((result: SignPersonalMessageDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, message, signType),
+            );
+          }),
           filter((result: SignPersonalMessageDAState) => {
             return (
               result.status === DeviceActionStatus.Error ||

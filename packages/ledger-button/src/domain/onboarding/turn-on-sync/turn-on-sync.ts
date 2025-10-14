@@ -62,24 +62,24 @@ export class TurnOnSyncScreen extends LitElement {
   override render() {
     const lang = this.languageContext.currentTranslation;
     return html`
-      <div class="flex flex-col gap-32 p-24 pt-0">
-        <div class="flex flex-row items-center justify-center">
-          <img class="w-full max-w-176" src=${banner} alt="banner" />
+      <div class="lb-flex lb-flex-col lb-gap-32 lb-p-24 lb-pt-0">
+        <div class="lb-flex lb-flex-row lb-items-center lb-justify-center">
+          <img class="lb-w-full lb-max-w-176" src=${banner} alt="banner" />
         </div>
-        <div class="flex flex-col gap-8">
-          <h4 class="text-center text-base heading-4">
+        <div class="lb-flex lb-flex-col lb-gap-8">
+          <h4 class="lb-text-center lb-text-base lb-heading-4">
             ${lang.ledgerSync.turnOnLedgerSyncTitle}
           </h4>
-          <p class="text-center text-muted body-2">
+          <p class="lb-text-center lb-text-muted lb-body-2">
             ${lang.ledgerSync.turnOnLedgerSyncSubtitle}
           </p>
         </div>
-        <div class="flex flex-col gap-8">
-          <h6 class="heading-6 text-center text-base">
-            ${lang.ledgerSync.activateSelectPlatform}
-          </h6>
-        </div>
-        <div class="flex flex-col gap-16">
+        <div class="lb-flex lb-flex-col lb-gap-16">
+          <div class="lb-flex lb-flex-col lb-gap-8">
+            <h6 class="lb-body-2 lb-text-center lb-text-base">
+              ${lang.ledgerSync.activateSelectPlatform}
+            </h6>
+          </div>
           <ledger-platform-item
             title=${lang.common.platform.onMobile}
             platform-type="mobile"
@@ -91,12 +91,22 @@ export class TurnOnSyncScreen extends LitElement {
             @ledger-platform-item-click=${this.handleActivateDesktop}
           ></ledger-platform-item>
         </div>
-        <div class="flex flex-col gap-16">
-          <ledger-link
-            style="color: #FFFFFF"
-            .label=${lang.common.learnMore}
-            @link-click=${this.handleLearnMore}
-          ></ledger-link>
+        <div class="lb-flex lb-flex-col lb-gap-16">
+          <button
+            class="lb-text-muted lb-body-1-semi-bold lb-flex lb-items-center lb-justify-center lb-gap-8"
+            @click=${this.handleLearnMore}
+          >
+            <p
+              class="lb-text-muted lb-body-1-semi-bold lb-underline lb-underline-offset-4"
+            >
+              ${lang.common.learnMore}
+            </p>
+            <ledger-icon
+              type="externalLink"
+              fillColor="currentColor"
+              size="medium"
+            ></ledger-icon>
+          </button>
         </div>
       </div>
     `;

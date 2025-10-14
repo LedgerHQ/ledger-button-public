@@ -48,21 +48,23 @@ export class LedgerAccountSwitch extends LitElement {
 
     return html`
       <button
-        class="flex h-48 max-w-full cursor-pointer flex-col rounded-sm p-4 text-left hover:bg-muted-hover active:bg-muted-pressed"
+        class="lb-flex lb-h-48 lb-max-w-full lb-cursor-pointer lb-flex-col lb-rounded-sm lb-p-4 lb-text-left hover:lb-bg-muted-hover active:lb-bg-muted-pressed"
         @click=${this.handleClick}
       >
-        <div class="flex items-center gap-4">
-          <div class="flex min-w-0 flex-1 truncate text-base body-2-semi-bold">
-            <span class="truncate">${this.account.name}</span>
+        <div class="lb-flex lb-items-center lb-gap-4">
+          <div
+            class="lb-flex lb-min-w-0 lb-flex-1 lb-truncate lb-text-base lb-body-2-semi-bold"
+          >
+            <span class="lb-truncate">${this.account.name}</span>
           </div>
           <ledger-icon
-            class="shrink-0"
+            class="lb-shrink-0"
             type="chevronDown"
             size="medium"
           ></ledger-icon>
         </div>
         <span
-          class="grow basis-80 overflow-hidden text-ellipsis text-nowrap text-muted body-3"
+          class="lb-grow lb-basis-80 lb-overflow-hidden lb-text-ellipsis lb-text-nowrap lb-text-muted lb-body-3"
         >
           ${this.formatAddress(this.account.freshAddress)}
         </span>

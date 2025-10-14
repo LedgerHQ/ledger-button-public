@@ -7,6 +7,7 @@ export { default as ChevronRightIcon } from "./chevronRightIcon.js";
 export { default as CloseIcon } from "./closeIcon";
 export { default as DeviceIcon } from "./deviceIcon";
 export { default as ErrorIcon } from "./errorIcon";
+export { default as ExternalLinkIcon } from "./externalLinkIcon";
 export { default as LedgerLogoIcon } from "./ledgerLogoIcon";
 export { PlatformIcon } from "./platform-icon/platform-icon.js";
 export { default as UsbIcon } from "./usbIcon";

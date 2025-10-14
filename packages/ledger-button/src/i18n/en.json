@@ -64,10 +64,10 @@
     "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
     "activateSelectPlatform": "Select how you want to activate Ledger Sync",
     "activate": "Activate Ledger Sync",
-    "activateStep1Desktop": "1. Select the button below to activate Ledger Sync",
+    "activateStep1Desktop": "Select the button below to activate Ledger Sync",
     "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
-    "activateStep1Mobile": "1. To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
-    "activateStep2": "2. Once activated, select \"Continue\" below.",
+    "activateStep1Mobile": "To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
+    "activateStep2": "Once activated, select \"Continue\" below.",
     "activated": "Ledger Sync is activated, continue"
   },
   "onboarding": {

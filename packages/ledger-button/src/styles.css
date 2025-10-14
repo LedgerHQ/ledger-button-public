@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-img.token-icon[alt]:after {  
+img.token-icon[alt]:after {
     display: block;
     position: absolute;
     top: 0;

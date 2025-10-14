@@ -423,7 +423,9 @@ export const TestNonClickableRendering: Story = {
     await step("Verify renders as div when isClickable is false", async () => {
       const chainItem = canvasElement.querySelector("ledger-chain-item");
       const button = chainItem?.shadowRoot?.querySelector("button");
-      const div = chainItem?.shadowRoot?.querySelector("div.flex.min-w-full");
+      const div = chainItem?.shadowRoot?.querySelector(
+        "div.lb-flex.lb-min-w-full",
+      );
 
       expect(button).not.toBeInTheDocument();
       expect(div).toBeInTheDocument();

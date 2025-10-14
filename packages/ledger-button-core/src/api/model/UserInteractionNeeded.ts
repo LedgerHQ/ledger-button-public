@@ -6,7 +6,8 @@ export type UserInteractionNeeded =
   | "allow-list-apps"
   | "web3-checks-opt-in"
   | "sign-personal-message"
-  | "sign-typed-data";
+  | "sign-typed-data"
+  | "lkrp-authenticate";
 
 export type UserInteractionNeededResponse = {
   requiredUserInteraction: UserInteractionNeeded;

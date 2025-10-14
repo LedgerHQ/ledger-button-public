@@ -5,6 +5,7 @@ import { join } from "path";
 export default {
   presets: [ledgerLivePreset],
   content: [join(__dirname, "./src/**/*!(*.stories|*.spec).{ts,js,html}")],
+  prefix: 'lb-',
   theme: {
     extend: {},
   },

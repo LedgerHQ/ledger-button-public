@@ -52,6 +52,7 @@ export class LedgerSyncController implements ReactiveController {
       case "confirm-open-app":
       case "allow-list-apps":
       case "web3-checks-opt-in":
+      case "lkrp-authenticate":
         return "continueOnLedger";
       case "sign-transaction":
       default:
