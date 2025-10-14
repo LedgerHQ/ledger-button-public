@@ -5,6 +5,7 @@ import { backendModuleFactory } from "./backend/backendModule.js";
 import { balanceModuleFactory } from "./balance/balanceModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
+import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
 import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
@@ -54,6 +55,7 @@ export function createContainer({
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
     modalModuleFactory(),
+    contextModuleFactory(),
   );
 
   return container;

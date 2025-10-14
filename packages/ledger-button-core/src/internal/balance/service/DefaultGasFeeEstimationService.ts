@@ -63,8 +63,9 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   }
 
   async getMaxPriorityFeePerGas(tx: TransactionInfo): Promise<number> {
+    const chainIdNumber = Number(tx.chainId);
     const basePriorityFeePerGasResult = await this.backendService.broadcast({
-      blockchain: { name: "ethereum", chainId: tx.chainId },
+      blockchain: { name: "ethereum", chainId: chainIdNumber.toString() },
       rpc: {
         method: "eth_maxPriorityFeePerGas",
         params: [],
@@ -92,8 +93,10 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   }
 
   async getBaseFeePerGas(tx: TransactionInfo): Promise<number> {
+    const chainIdNumber = Number(tx.chainId);
+
     const baseFeePerGasResult = await this.backendService.broadcast({
-      blockchain: { name: "ethereum", chainId: tx.chainId },
+      blockchain: { name: "ethereum", chainId: chainIdNumber.toString() },
       rpc: {
         method: "eth_getBlockByNumber",
         params: ["latest", false],
@@ -133,9 +136,9 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     };
 
     this.logger.debug("Estimating gas: request sent", { estimateRequest });
-
+    const chainIdNumber = Number(tx.chainId);
     const estimateGasResult = await this.backendService.broadcast({
-      blockchain: { name: "ethereum", chainId: tx.chainId },
+      blockchain: { name: "ethereum", chainId: chainIdNumber.toString() },
       rpc: {
         method: "eth_estimateGas",
         params: [estimateRequest, "latest"],
@@ -161,8 +164,9 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   }
 
   async getNonce(tx: TransactionInfo): Promise<string | undefined> {
+    const chainIdNumber = Number(tx.chainId);
     const nonceResult = await this.backendService.broadcast({
-      blockchain: { name: "ethereum", chainId: tx.chainId },
+      blockchain: { name: "ethereum", chainId: chainIdNumber.toString() },
       rpc: {
         method: "eth_getTransactionCount",
         params: [tx.from, "latest"],

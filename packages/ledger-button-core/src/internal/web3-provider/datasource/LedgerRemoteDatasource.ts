@@ -8,6 +8,8 @@ import {
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
 import { isJsonRpcResponse } from "../../backend/types.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
@@ -19,6 +21,8 @@ export class LedgerRemoteDatasource {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = this.loggerFactory("[LedgerRemoteDatasource]");
   }
@@ -30,7 +34,7 @@ export class LedgerRemoteDatasource {
       const response = await this.backendService.broadcast({
         blockchain: {
           name: "ethereum",
-          chainId: "1",
+          chainId: this.contextService.getContext().chainId.toString(),
         },
         rpc: args,
       });
