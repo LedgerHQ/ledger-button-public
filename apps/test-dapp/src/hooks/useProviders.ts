@@ -45,6 +45,7 @@ export const useProviders = () => {
       apiKey:
         "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
       loggerLevel: "info",
+      environment: "staging",
       dmkConfig: undefined,
       devConfig: disableEventTracking ? {
         stub: {
