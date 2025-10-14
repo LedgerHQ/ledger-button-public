@@ -32,5 +32,6 @@ export function getDerivationPath(account: Account) {
     );
   }
 
+  //Default Ledger Live derivation path mode
   return `44'/60'/${index}'/0/0`;
 }

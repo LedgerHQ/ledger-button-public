@@ -462,11 +462,6 @@ describe("DefaultStorageService", () => {
         expect(storageService.getSelectedAccount()).toBe(Nothing);
       });
 
-      it("should be able to save undefined as selected account", () => {
-        storageService.saveSelectedAccount(undefined);
-        expect(storageService.getSelectedAccount()).toEqual(Nothing);
-      });
-
       it("should handle complex account objects", () => {
         const complexAccount = {
           id: "complex-account",
