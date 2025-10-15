@@ -134,8 +134,12 @@ export class LedgerEIP1193Provider
         const tmpRequest = this._pendingRequest;
         this._pendingRequest = null;
 
-        // Execute the pending request and resolve the promise
-        this.executeRequest(tmpRequest)
+        // Wait for 1 second before executing the pending request and resolve the promise
+        // Wait is needed to avoid race condition with the modal open event (to be improved)
+        new Promise((resolve) => setTimeout(resolve, 1000))
+          .then(() => {
+            return this.executeRequest(tmpRequest);
+          })
           .then((result) => {
             if (this._pendingPromise) {
               this._pendingPromise.resolve(result);

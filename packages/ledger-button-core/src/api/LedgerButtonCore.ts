@@ -394,6 +394,7 @@ export class LedgerButtonCore {
   connectToLedgerSync(): Observable<LedgerSyncAuthenticateResponse> {
     this._logger.debug("Connecting to ledger sync");
 
+    //Move to tracking service
     try {
       const eventTrackingService = this.container.get<EventTrackingService>(
         eventTrackingModuleTypes.EventTrackingService,
