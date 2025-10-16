@@ -1,15 +1,13 @@
 import type { Either } from "purify-ts";
 
+import type { EventRequest, EventResponse } from "./model/trackEvent.ts";
 import type {
   BroadcastRequest,
   BroadcastResponse,
   ConfigRequest,
   ConfigResponse,
   ConfigResponseError,
-  EventRequest,
-  EventResponse,
 } from "./types.js";
-
 export interface BackendService {
   broadcast(
     request: BroadcastRequest,

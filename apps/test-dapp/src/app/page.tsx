@@ -60,13 +60,20 @@ export default function Index() {
   useEffect(() => {
     if (!selectedProvider) return;
 
+    window.ledgerDebug = selectedProvider.provider;
+
     // Type assertion for the specific event handler
     const handleAccountsChanged = (accounts: string[]) => {
       setIsOpen(false);
       setAccount(accounts[0]);
     };
 
+    const handleChainChanged = (chainId: string) => {
+      console.log("chainChanged", chainId);
+    };
+
     selectedProvider.provider.on("accountsChanged", handleAccountsChanged);
+    selectedProvider.provider.on("chainChanged", handleChainChanged);
 
     return () => {
       selectedProvider.provider.removeListener(
