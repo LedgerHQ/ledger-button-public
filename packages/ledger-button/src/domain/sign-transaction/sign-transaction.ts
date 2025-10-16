@@ -147,17 +147,21 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
+        class="lb-min-h-200 lb-flex lb-flex-col lb-items-center lb-justify-center lb-gap-24 lb-self-stretch lb-px-24 lb-pb-48"
       >
-        <div class="w-208">
+        <div class="lb-w-208">
           <ledger-device-animation
             modelId=${deviceModel}
             animation=${deviceAnimation as AnimationKey}
           ></ledger-device-animation>
         </div>
-        <div class="flex flex-col items-center gap-8 self-stretch">
-          <p class="text-center body-1">${deviceTitle}</p>
-          <p class="text-center text-muted body-2">${deviceDescription}</p>
+        <div
+          class="lb-flex lb-flex-col lb-items-center lb-gap-8 lb-self-stretch"
+        >
+          <p class="lb-text-center lb-body-1">${deviceTitle}</p>
+          <p class="lb-text-center lb-text-muted lb-body-2">
+            ${deviceDescription}
+          </p>
         </div>
       </div>
     `;
@@ -170,7 +174,7 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
+        class="lb-flex lb-min-h-0 lb-flex-col lb-items-stretch lb-justify-center lb-self-stretch lb-p-24 lb-pt-0"
       >
         <ledger-status
           type=${this.controller.state.screen}

@@ -221,6 +221,10 @@ export class SignTypedData {
                 if (result.status === DeviceActionStatus.Pending) {
                   this.pendingStep = result.intermediateValue?.step ?? "";
                 }
+
+                resultObservable.next(
+                  this.getTransactionResultForEvent(result, signType),
+                );
               }),
             );
           }),

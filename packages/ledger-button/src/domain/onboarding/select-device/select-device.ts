@@ -96,7 +96,7 @@ export class SelectDeviceScreen extends LitElement {
   renderScreen() {
     const lang = this.languageContext.currentTranslation;
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         ${(["bluetooth", "usb"] as const).map((el) => {
           return html`
             <ledger-connection-item
@@ -108,7 +108,9 @@ export class SelectDeviceScreen extends LitElement {
           `;
         })}
       </div>
-      <div class="border-t-1 flex flex-col gap-12 border-muted-subtle p-24">
+      <div
+        class="lb-flex lb-flex-col lb-gap-12 lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-p-24"
+      >
         <ledger-ad-item
           title=${lang.common.ad.buyALedger}
           @ad-item-click=${this.handleAdItemClick}
@@ -123,7 +125,7 @@ export class SelectDeviceScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         <ledger-status
           type="error"
           title=${this.controller.errorData.title}
@@ -137,7 +139,7 @@ export class SelectDeviceScreen extends LitElement {
   }
 
   override render() {
-    return html` <div class="flex flex-col">
+    return html` <div class="lb-flex lb-flex-col">
       ${this.controller.errorData
         ? this.renderErrorScreen()
         : this.renderScreen()}

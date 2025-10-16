@@ -1,7 +1,6 @@
 import "./ledger-device-item";
 import "../../atom/modal/ledger-modal-story-wrapper";
 
-import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
@@ -130,7 +129,7 @@ export const AllDevices: Story = {
         device-id="device-1"
         title="GM's Flex"
         connection-type="bluetooth"
-        device-model-id=${DeviceModelId.FLEX}
+        device-model-id=${"flex"}
         status="connected"
         connected-text="Connected"
         available-text="Available"
@@ -139,7 +138,7 @@ export const AllDevices: Story = {
         device-id="device-2"
         title="GM's Stax"
         connection-type="usb"
-        device-model-id=${DeviceModelId.STAX}
+        device-model-id=${"stax"}
         status="available"
         connected-text="Connected"
         available-text="Available"
@@ -148,7 +147,7 @@ export const AllDevices: Story = {
         device-id="device-3"
         title="My Nano X"
         connection-type="bluetooth"
-        device-model-id=${DeviceModelId.NANO_X}
+        device-model-id=${"nanoX"}
         status="available"
         connected-text="Connected"
         available-text="Available"
@@ -157,7 +156,7 @@ export const AllDevices: Story = {
         device-id="device-4"
         title="Work Nano S"
         connection-type="usb"
-        device-model-id=${DeviceModelId.NANO_S}
+        device-model-id=${"nanoS"}
         status="available"
         connected-text="Connected"
         available-text="Available"

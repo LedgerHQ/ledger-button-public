@@ -10,7 +10,7 @@ import mobile from "./mobile.js";
 export type PlatformType = "mobile" | "desktop";
 
 const iconContainerVariants = cva([
-  "flex h-24 w-24 items-center justify-center rounded-full",
+  "lb-flex lb-h-24 lb-w-24 lb-items-center lb-justify-center lb-rounded-full",
   "bg-muted-transparent",
 ]);
 

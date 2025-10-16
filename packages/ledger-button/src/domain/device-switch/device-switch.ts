@@ -96,9 +96,9 @@ export class DeviceSwitchScreen extends LitElement {
 
     if (this.isLoading) {
       return html`
-        <div class="flex items-center justify-center p-24">
+        <div class="lb-flex lb-items-center lb-justify-center lb-p-24">
           <div
-            class="border-primary h-32 w-32 animate-spin rounded-full border-b-2"
+            class="lb-border-primary lb-h-32 lb-w-32 lb-animate-spin lb-rounded-full lb-border-b-2"
           ></div>
         </div>
       `;
@@ -106,8 +106,10 @@ export class DeviceSwitchScreen extends LitElement {
 
     if (devices.length === 0) {
       return html`
-        <div class="flex flex-col items-center gap-16 p-24 text-center">
-          <div class="text-muted body-2">
+        <div
+          class="lb-flex lb-flex-col lb-items-center lb-gap-16 lb-p-24 lb-text-center"
+        >
+          <div class="lb-text-muted lb-body-2">
             ${this.languageContext.currentTranslation.deviceSwitch.noDevices}
           </div>
         </div>
@@ -115,7 +117,7 @@ export class DeviceSwitchScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         ${devices.map((device) => {
           const connectionType = this.controller.getConnectionTypeFromTransport(
             device.transport,
@@ -149,20 +151,20 @@ export class DeviceSwitchScreen extends LitElement {
 
   private renderSeparator() {
     return html`
-      <div class="relative flex items-center gap-8 px-24">
-        <div class="h-1 flex-1 bg-muted-pressed"></div>
-        <span class="px-4 text-muted body-3"
+      <div class="lb-relative lb-flex lb-items-center lb-gap-8 lb-px-24">
+        <div class="lb-h-1 lb-flex-1 lb-bg-muted-pressed"></div>
+        <span class="lb-px-4 lb-text-muted lb-body-3"
           >${this.languageContext.currentTranslation.deviceSwitch
             .connectAnother}</span
         >
-        <div class="h-1 flex-1 bg-muted-pressed"></div>
+        <div class="lb-h-1 lb-flex-1 lb-bg-muted-pressed"></div>
       </div>
     `;
   }
 
   private renderAddNewDeviceSection() {
     return html`
-      <div class="flex flex-col gap-12 p-24">
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24">
         <ledger-connection-item
           title="${this.languageContext.currentTranslation.deviceSwitch
             .connectBluetooth}"
@@ -181,7 +183,7 @@ export class DeviceSwitchScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="flex flex-col">
+      <div class="lb-flex lb-flex-col">
         ${this.renderDeviceList()} ${this.renderSeparator()}
         ${this.renderAddNewDeviceSection()}
       </div>

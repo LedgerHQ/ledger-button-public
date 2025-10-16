@@ -1,4 +1,3 @@
-import { DeviceModelId } from "@ledgerhq/ledger-button-core";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -19,6 +18,7 @@ import { default as PairedSuccessStaxDark } from "./stax/03_STAX_DARK_PAIRED_SUC
 import { default as ContinueOnLedgerStaxDark } from "./stax/04_STAX_DARK_CONTINUE_ON_LEDGER.json";
 import { default as SignTransactionStaxDark } from "./stax/05_STAX_DARK_SIGN_TRANSACTION.json";
 import { default as FrontViewStaxDark } from "./stax/06_STAX_DARK_FRONT_VIEW.json";
+import { type DeviceModelId } from "../../../components/atom/icon/device-icon/device-icon.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 export type AnimationKey =
@@ -88,7 +88,7 @@ export const animationDataMap: Record<
 @tailwindElement()
 export class LedgerDeviceAnimation extends LitElement {
   @property({ type: String })
-  modelId: DeviceModelId = DeviceModelId.STAX;
+  modelId: DeviceModelId = "stax";
 
   @property({ type: String })
   animation: AnimationKey = "pin";
@@ -104,7 +104,7 @@ export class LedgerDeviceAnimation extends LitElement {
 
     if (!animationData) {
       return html`
-        <div class="flex h-full items-center justify-center">
+        <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
           <ledger-lottie
             animationName="loadingSpinner"
             .autoplay=${this.autoplay}
@@ -116,7 +116,7 @@ export class LedgerDeviceAnimation extends LitElement {
     }
 
     return html`
-      <div class="flex h-full items-center justify-center">
+      <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
         <ledger-lottie
           .animationData=${animationData}
           .autoplay=${this.autoplay}

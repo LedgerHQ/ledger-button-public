@@ -65,11 +65,10 @@ export class AccountTokensScreen extends LitElement {
 
     return html`
       <div
-        class="bottom-24 left-24 right-24"
-        style="position: sticky; bottom: 0; z-index: 100; background-color: black; padding: 12px;"
+        class="lb-sticky lb-bottom-0 lb-rounded-2xl lb-bg-canvas-sheet lb-p-24 lb-pt-0"
       >
         <ledger-button
-          variant="secondary"
+          variant="primary"
           size="full"
           .label=${translations.common.connect}
           @ledger-button-click=${this.controller.handleConnect}
@@ -83,29 +82,29 @@ export class AccountTokensScreen extends LitElement {
 
     if (!this.controller.account) {
       return html`
-        <div class="flex h-full items-center justify-center">
-          <span class="text-muted body-2">Account not found</span>
+        <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
+          <span class="lb-text-muted lb-body-2">Account not found</span>
         </div>
       `;
     }
 
     return html`
-      <div class="flex h-full flex-col" style="position: relative;">
+      <div class="lb-relative lb-flex lb-h-full lb-flex-col">
         <div
-          class="flex flex-col gap-4 border-b border-muted-subtle p-24 pt-12"
-          style="position: sticky; top: 0; z-index: 100; background-color: black;"
+          class="lb-sticky lb-top-0 lb-flex lb-flex-col lb-gap-4 lb-border-b lb-border-muted-subtle lb-bg-canvas-sheet lb-p-12"
+          style="z-index: 100;"
         >
-          <div class="flex items-center gap-12">
+          <div class="lb-flex lb-items-center lb-gap-12">
             <ledger-crypto-icon
               ledger-id=${this.controller.account.currencyId}
               variant="square"
               size="large"
             ></ledger-crypto-icon>
-            <div class="flex flex-col gap-4">
-              <span class="text-lg body-1-semi-bold"
+            <div class="lb-flex lb-flex-col lb-gap-4">
+              <span class="lb-text-lg lb-body-1-semi-bold"
                 >${this.controller.account.name}</span
               >
-              <span class="text-muted body-3"
+              <span class="lb-text-muted lb-body-3"
                 >${this.formatAddress(
                   this.controller.account.freshAddress,
                 )}</span
@@ -114,15 +113,15 @@ export class AccountTokensScreen extends LitElement {
           </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-24 pb-96">
-          <div class="flex flex-col gap-12">
+        <div class="lb-h-full lb-overflow-y-auto lb-p-24">
+          <div class="lb-flex lb-flex-col lb-gap-12">
             ${this.controller.account.tokens.length > 0
               ? this.controller.account.tokens.map(this.renderTokenItem)
               : html`
                   <div
-                    class="flex flex-col items-center justify-center py-48 text-center"
+                    class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
                   >
-                    <span class="text-muted body-2">
+                    <span class="lb-text-muted lb-body-2">
                       ${translations.accountTokens?.noTokens ||
                       "No tokens found for this account"}
                     </span>

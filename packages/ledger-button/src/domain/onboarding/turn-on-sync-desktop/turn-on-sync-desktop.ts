@@ -51,28 +51,36 @@ export class TurnOnSyncDesktopScreen extends LitElement {
   override render() {
     const lang = this.languageContext.currentTranslation;
     return html`
-      <div class="flex flex-col gap-32 p-24 pt-0">
-        <div class="flex flex-col gap-8">
-          <p class="text-center text-base body-2">
-            ${lang.ledgerSync.activateStep1Desktop}
-          </p>
-          <p class="text-center text-muted body-3">
-            ${lang.ledgerSync.activateStep1DesktopLLInstalled}
-          </p>
-          <div class="flex flex-row items-center justify-center">
+      <div class="lb-flex lb-flex-col lb-gap-40 lb-p-24 lb-pt-0">
+        <div class="lb-flex lb-flex-col lb-gap-24">
+          <div class="lb-flex lb-flex-col lb-gap-4">
+            <div class="lb-flex lb-flex-row lb-gap-4">
+              <p class="lb-text-base lb-body-2">1.</p>
+              <p class="lb-text-base lb-body-2">
+                ${lang.ledgerSync.activateStep1Desktop}
+              </p>
+            </div>
+            <p class="lb-text-center lb-text-muted lb-body-3">
+              ${lang.ledgerSync.activateStep1DesktopLLInstalled}
+            </p>
+          </div>
+          <div class="lb-flex lb-flex-row lb-items-center lb-justify-center">
             <ledger-button
               variant="primary"
-              .icon=${true}
+              size="small"
               icon-type="platform"
               .label=${lang.ledgerSync.activate}
               @click=${this.handleTurnOnLedgerSync}
             ></ledger-button>
           </div>
         </div>
-        <div class="flex flex-col gap-16">
-          <p class="text-center text-base body-2">
-            ${lang.ledgerSync.activateStep2}
-          </p>
+        <div class="lb-flex lb-flex-col lb-gap-24">
+          <div class="lb-flex lb-flex-row lb-gap-4">
+            <p class="lb-text-base lb-body-2">2.</p>
+            <p class="lb-text-base lb-body-2">
+              ${lang.ledgerSync.activateStep2}
+            </p>
+          </div>
           <ledger-button
             variant="primary"
             size="full"

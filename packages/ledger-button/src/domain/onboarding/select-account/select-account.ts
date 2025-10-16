@@ -61,7 +61,7 @@ export class SelectAccountScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         ${this.controller.accounts.map(this.renderAccountItem)}
       </div>
     `;

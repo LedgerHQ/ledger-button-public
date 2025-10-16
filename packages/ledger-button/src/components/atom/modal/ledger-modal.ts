@@ -146,7 +146,7 @@ export class LedgerModal extends LitElement {
   override render() {
     return html`
       <div
-        class="modal-backdrop z-1 fixed left-0 top-0 flex h-full min-h-screen w-full content-center items-center justify-center bg-canvas-overlay"
+        class="modal-backdrop lb-fixed lb-left-0 lb-top-0 lb-flex lb-h-full lb-min-h-screen lb-w-full lb-content-center lb-items-center lb-justify-center lb-bg-canvas-overlay"
         role="dialog"
         aria-modal="true"
         aria-describedby="modal-content"
@@ -154,7 +154,7 @@ export class LedgerModal extends LitElement {
         @click=${this.closeModal}
       >
         <div
-          class="modal-container z-10 fixed inset-0 flex flex-col self-center justify-self-center overflow-hidden rounded-xl bg-black"
+          class="modal-container lb-fixed lb-inset-0 lb-flex lb-flex-col lb-self-center lb-justify-self-center lb-overflow-hidden lb-rounded-2xl lb-bg-canvas-sheet"
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
@@ -165,7 +165,7 @@ export class LedgerModal extends LitElement {
               @ledger-toolbar-close=${this.closeModal}
             ></ledger-toolbar>
           </slot>
-          <div id="modal-content" class="overflow-y-auto text-base">
+          <div id="modal-content" class="lb-overflow-y-auto lb-text-base">
             <slot>hello</slot>
           </div>
         </div>

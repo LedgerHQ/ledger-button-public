@@ -9,7 +9,7 @@ import { html } from "lit";
 const meta: Meta = {
   title: "Screens/DeviceSwitch/DeviceSwitch",
   render: () => html`
-    <core-provider .stub=${true} .stubDevice=${true}>
+    <core-provider>
       <language-provider>
         <device-switch-screen></device-switch-screen>
       </language-provider>
@@ -34,7 +34,7 @@ export const Default: Story = {};
 
 export const InContext: Story = {
   render: () => html`
-    <core-provider .stub=${true} .stubDevice=${true}>
+    <core-provider>
       <language-provider>
         <ledger-modal-story-wrapper title="Your Ledgers">
           <device-switch-screen></device-switch-screen>

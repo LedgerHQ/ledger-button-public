@@ -6,7 +6,7 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import { DeviceModelId } from "../../atom/icon/device-icon/device-icon";
+import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
 
 export interface LedgerToolbarAttributes {
   title?: string;
@@ -68,9 +68,9 @@ export class LedgerToolbar extends LitElement {
   override render() {
     return html`
       <div
-        class="flex w-full min-w-full items-center justify-between px-24 py-16"
+        class="lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
       >
-        <div class="flex h-32 w-32 items-center justify-center">
+        <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
           <slot name="left-icon">
             ${this.canGoBack
               ? html`
@@ -98,10 +98,10 @@ export class LedgerToolbar extends LitElement {
               </slot>
             `
           : this.title
-            ? html`<h2 class="text-base body-2">${this.title}</h2>`
+            ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
             : nothing}
 
-        <div class="flex h-32 w-32 items-center justify-center">
+        <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
           ${this.canClose
             ? html`
                 <ledger-button

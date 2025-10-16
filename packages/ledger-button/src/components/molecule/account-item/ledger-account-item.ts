@@ -9,8 +9,8 @@ import { classMap } from "lit/directives/class-map.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 const accountItemVariants = cva([
-  "flex min-w-full cursor-pointer justify-between p-12",
-  "bg-muted transition duration-150 ease-in-out hover:bg-muted-hover",
+  "lb-flex lb-min-w-full lb-cursor-pointer lb-justify-between lb-p-12",
+  "lb-bg-muted lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover",
 ]);
 
 export type AccountItemClickEventDetail = {
@@ -114,10 +114,10 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   private renderAccountInfo() {
     return html`
-      <div class="flex flex-col gap-4 text-left">
-        <span class="text-base body-2-semi-bold">${this.title}</span>
-        <div class="flex items-center gap-4">
-          <span class="whitespace-nowrap text-muted body-3">
+      <div class="lb-flex lb-flex-col lb-gap-4 lb-text-left">
+        <span class="lb-text-base lb-body-2-semi-bold">${this.title}</span>
+        <div class="lb-flex lb-items-center lb-gap-4">
+          <span class="lb-whitespace-nowrap lb-text-muted lb-body-3">
             ${this.formatAddress(this.address)}
           </span>
           <ledger-crypto-icon
@@ -132,8 +132,8 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   private renderValueInfo() {
     return html`
-      <div class="flex items-center justify-center">
-        <span class="text-base body-2-semi-bold"
+      <div class="lb-flex lb-items-center lb-justify-center">
+        <span class="lb-text-base lb-body-2-semi-bold"
           >${this.balance} ${this.ticker}</span
         >
       </div>
@@ -142,7 +142,9 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   override render() {
     return html`
-      <div class="flex min-w-full flex-col overflow-hidden rounded-md">
+      <div
+        class="lb-flex lb-min-w-full lb-flex-col lb-overflow-hidden lb-rounded-md"
+      >
         <button
           class=${classMap(this.containerClasses)}
           @click=${this.handleAccountClick}
@@ -156,14 +158,16 @@ export class LedgerAccountItemMolecule extends LitElement {
         ${this.linkLabel && this.tokens > 0
           ? html`
               <button
-                class="border-t-1 group flex items-center justify-between border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
+                class="group lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12 lb-transition lb-duration-300 lb-ease-in-out hover:lb-bg-muted-hover"
                 @click=${this.handleShowTokens}
               >
-                <div class="flex h-20 items-center text-base body-3-semi-bold">
+                <div
+                  class="lb-flex lb-h-20 lb-items-center lb-text-base lb-body-3-semi-bold"
+                >
                   ${this.linkLabel} (${this.tokens})
                 </div>
                 <div
-                  class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
+                  class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
                 >
                   <ledger-icon type="chevronRight" size="small"></ledger-icon>
                 </div>

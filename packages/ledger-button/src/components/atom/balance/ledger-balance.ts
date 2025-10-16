@@ -17,9 +17,11 @@ export class LedgerBalance extends LitElement {
 
   override render() {
     return html`
-      <div class="flex flex-col">
-        <span class="self-stretch text-muted body-3">${this.label}</span>
-        <span class="self-stretch text-base body-2-semi-bold">
+      <div class="lb-flex lb-flex-col">
+        <span class="lb-self-stretch lb-text-muted lb-body-3"
+          >${this.label}</span
+        >
+        <span class="lb-self-stretch lb-text-base lb-body-2-semi-bold">
           ${this.balance} ${this.ticker}
         </span>
       </div>
