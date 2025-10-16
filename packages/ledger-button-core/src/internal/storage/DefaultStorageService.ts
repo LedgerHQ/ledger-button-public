@@ -246,25 +246,29 @@ export class DefaultStorageService implements StorageService {
     const accountDbModel: AccountDbModel = mapToAccountDbModel(selectedAccount);
     this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNT, accountDbModel);
   }
+
   getSelectedAccount(): Maybe<Account> {
-    const accountMaybe = this.getItem(STORAGE_KEYS.SELECTED_ACCOUNT);
-    if (accountMaybe.isNothing()) {
-      return Nothing;
-    } else {
-      const accountDbModel = accountMaybe.extract() as AccountDbModel;
-      return Just<Account>({
-        id: "",
-        name: "",
-        freshAddress: accountDbModel.address,
-        seedIdentifier: "",
-        derivationMode: accountDbModel.derivationMode,
-        index: accountDbModel.index,
-        currencyId: accountDbModel.currencyId,
-        ticker: "",
-        balance: "",
-        tokens: [],
-      } as Account);
-    }
+    const accountMaybe = this.getItem<AccountDbModel>(
+      STORAGE_KEYS.SELECTED_ACCOUNT,
+    );
+
+    return accountMaybe.caseOf({
+      Just: (accountDbModel) => {
+        return Just({
+          id: "",
+          name: "",
+          freshAddress: accountDbModel.address,
+          seedIdentifier: "",
+          derivationMode: accountDbModel.derivationMode,
+          index: accountDbModel.index,
+          currencyId: accountDbModel.currencyId,
+          ticker: "",
+          balance: "",
+          tokens: [],
+        });
+      },
+      Nothing: () => Nothing,
+    });
   }
   removeSelectedAccount(): void {
     this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNT);
