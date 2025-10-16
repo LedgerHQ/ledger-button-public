@@ -10,7 +10,10 @@ import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
 import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
-import { EventTrackingUtils } from "../EventTrackingUtils.js";
+import {
+  EventTrackingUtils,
+  normalizeTransactionHash,
+} from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
 
 @injectable()
@@ -38,7 +41,9 @@ export class TrackTransactionStarted {
     if (trustChainIdResult.isJust()) {
       const trustChainId = trustChainIdResult.extract();
 
-      const unsignedTransactionHash = sha256(rawTransaction).substring(2); // Remove "0x" prefix
+      const unsignedTransactionHash = normalizeTransactionHash(
+        sha256(rawTransaction),
+      );
       const chainId = this.contextService.getContext().chainId.toString();
 
       const event = EventTrackingUtils.createTransactionFlowInitializationEvent(

@@ -11,7 +11,10 @@ import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
 import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
-import { EventTrackingUtils } from "../EventTrackingUtils.js";
+import {
+  EventTrackingUtils,
+  normalizeTransactionHash,
+} from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
 
 @injectable()
@@ -42,18 +45,20 @@ export class TrackTransactionCompleted {
 
     if (trustChainIdResult.isJust()) {
       const trustChainId = trustChainIdResult.extract();
-      const unsignedTransactionHash = sha256(rawTransaction).substring(2); // Remove "0x" prefix
+      const unsignedTransactionHash = normalizeTransactionHash(
+        sha256(rawTransaction),
+      );
       const chainId = this.contextService.getContext().chainId.toString();
       const tx = ethers.Transaction.from(rawTransaction);
       const recipientAddress = tx.to || "";
-
+      const normalizedTransactionHash = normalizeTransactionHash(txResult.hash);
       const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
         dAppId: this.config.dAppIdentifier,
         sessionId: sessionId,
         ledgerSyncUserId: trustChainId,
         chainId: chainId,
         unsignedTransactionHash: unsignedTransactionHash,
-        transactionHash: txResult.hash,
+        transactionHash: normalizedTransactionHash,
       });
 
       await this.eventTrackingService.trackEvent(event);
@@ -64,7 +69,7 @@ export class TrackTransactionCompleted {
           dAppId: this.config.dAppIdentifier,
           sessionId: sessionId,
           ledgerSyncUserId: trustChainId,
-          transactionHash: txResult.hash,
+          transactionHash: normalizedTransactionHash,
           unsignedTransactionHash: unsignedTransactionHash,
           chainId: chainId,
           recipientAddress: recipientAddress,

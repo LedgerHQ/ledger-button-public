@@ -15,7 +15,7 @@ import {
 } from "../backend/model/trackEvent.js";
 import { generateUUID } from "./utils.js";
 
-function normalizeTransactionHash(hash: string): string {
+export function normalizeTransactionHash(hash: string): string {
   return hash.toLowerCase().replace(/^0x/, "");
 }
 

@@ -1,13 +1,13 @@
 import { Left, Right } from "purify-ts";
 
-import type { NetworkService } from "../network/NetworkService.js";
-import { DefaultBackendService } from "./DefaultBackendService.js";
 import {
-  type BroadcastRequest,
   type EventRequest,
   type EventResponse,
   EventType,
-} from "./types.js";
+} from "./model/trackEvent.js";
+import type { NetworkService } from "../network/NetworkService.js";
+import { DefaultBackendService } from "./DefaultBackendService.js";
+import type { BroadcastRequest } from "./types.js";
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;
@@ -42,8 +42,10 @@ describe("DefaultBackendService", () => {
     };
 
     backendService = new DefaultBackendService(
-      mockNetworkService as NetworkService<{ headers?: Record<string, string> }>,
-      mockConfig as any
+      mockNetworkService as NetworkService<{
+        headers?: Record<string, string>;
+      }>,
+      mockConfig as any,
     );
     vi.clearAllMocks();
   });
@@ -69,7 +71,8 @@ describe("DefaultBackendService", () => {
 
     const mockErrorResponse: EventResponse = {
       time: null,
-      message: "Invalid value for: body (Missing required field at 'data.source_token')",
+      message:
+        "Invalid value for: body (Missing required field at 'data.source_token')",
       status: 400,
       type: "BAD_REQUEST",
     };
@@ -175,10 +178,8 @@ describe("DefaultBackendService", () => {
           session_id: "session-123",
           ledger_sync_user_id: "user-123",
           blockchain_network_selected: "ethereum",
-          account_currency: "ETH",
-          account_balance: "1500000000000000000",
           unsigned_transaction_hash: "abc123def456",
-          transaction_type: "standard_tx",
+          chain_id: "1",
           transaction_hash: "123abc456def",
         },
       };
@@ -219,10 +220,7 @@ describe("DefaultBackendService", () => {
 
       mockNetworkService.post.mockResolvedValueOnce(Right(mockResponse));
 
-      await backendService.broadcast(
-        mockBroadcastRequest,
-        "test-domain"
-      );
+      await backendService.broadcast(mockBroadcastRequest, "test-domain");
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
         "https://test-backend-url.com/broadcast",
@@ -249,9 +247,7 @@ describe("DefaultBackendService", () => {
 
       mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
 
-      await backendService.getConfig(
-        { dAppIdentifier: "test-dapp" }
-      );
+      await backendService.getConfig({ dAppIdentifier: "test-dapp" });
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
         "https://test-backend-url.com/config?dAppIdentifier=test-dapp",
