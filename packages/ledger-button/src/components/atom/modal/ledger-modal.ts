@@ -151,7 +151,6 @@ export class LedgerModal extends LitElement {
         aria-modal="true"
         aria-describedby="modal-content"
         data-testid="modal-backdrop"
-        @click=${this.closeModal}
       >
         <div
           class="modal-container lb-fixed lb-inset-0 lb-flex lb-flex-col lb-self-center lb-justify-self-center lb-overflow-hidden lb-rounded-2xl lb-bg-canvas-sheet"
