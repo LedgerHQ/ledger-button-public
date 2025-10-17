@@ -1,0 +1,20 @@
+import { Callout } from 'nextra/components'
+
+# Requirements
+
+## Platform requirements
+
+- ES2020+ support
+- Modern bundler (Vite, Webpack 5+, etc.)
+- Browser environment (no Node.js server-side execution)
+- Web HID API support (for USB connections)
+- Web Bluetooth API support (for Bluetooth connections)
+
+<Callout type="info">
+**Note**: Mobile browsers are not supported due to Web HID/BLE API not being implemented.
+</Callout>
+
+## Browser support
+
+- **Desktop**: Chrome 89+, Firefox 89+, Safari 14.1+, Edge 89+
+- **Mobile**: Not supported (Web HID/BLE APIs not available)

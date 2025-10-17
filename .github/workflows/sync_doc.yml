@@ -1,0 +1,72 @@
+name: "[Automation] Sync Doc"
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The base branch to publish a snapshot release from
+        required: false
+        default: develop
+  push:
+    branches:
+      - develop
+    paths:
+      - "apps/docs/pages/docs/ledger-wallet-provider/*"
+      - "apps/docs/pages/public/wallet-provider/*"
+
+jobs:
+  sync_doc:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.ref || github.event.ref }}
+          path: button
+          sparse-checkout: |
+            apps/docs/pages/docs
+
+      - uses: actions/checkout@v5
+        with:
+          repository: ledgerhq/developer-portal
+          path: portal
+          token: ${{ secrets.CI_BOT_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Copy files
+        run: |
+          mkdir -p portal/pages/docs/ledger-wallet-provider
+          cp -r button/apps/docs/pages/docs/ledger-wallet-provider/* portal/pages/docs/ledger-wallet-provider
+          cp -r button/apps/docs/pages/public/wallet-provider/* portal/pages/public/wallet-provider
+
+      - name: Set branch name in outputs
+        id: branch-name
+        run: |
+          branch_name="sync-ledger-wallet-provider-doc"
+          echo "BRANCH_NAME=$branch_name" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        run: |
+          cd portal
+          # add timestamp to commit message
+          git checkout -b ${{ steps.branch-name.outputs.BRANCH_NAME }}
+          git add pages/docs/ledger-wallet-provider
+          git add pages/public/wallet-provider
+          git commit -m "doc: add new changes from device management kit to portal"
+
+      - name: Push branch to remote
+        env:
+          GH_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+        run: |
+          cd portal
+          git push origin ${{ steps.branch-name.outputs.BRANCH_NAME }} --force
+
+      - name: Create pull request
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+        run: |
+          cd portal
+          gh pr create --title "doc: add new changes from ledger wallet provider to portal" --body "update doc from ledger wallet provider" --base main --head ${{ steps.branch-name.outputs.BRANCH_NAME }}

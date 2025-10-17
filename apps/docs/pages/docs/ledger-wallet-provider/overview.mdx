@@ -1,0 +1,74 @@
+import { Callout } from 'nextra/components'
+import Link from 'next/link'
+
+# Ledger Wallet Provider
+
+<div className="text-lg text-gray-600 dark:text-gray-400 mt-4 mb-8">
+  Give your users a first-party Ledger experience inside your application with secure device pairing, Clear Signing, and Transaction Check built in.
+</div>
+
+## What is Ledger Wallet Provider
+
+Ledger Wallet Provider is a web component SDK that embeds Ledger's official connect flow directly inside your application, enabling direct device connections and ensuring full access to Ledger's security features like Clear Signing and Transaction Check.
+
+The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and provides a standards-based EIP-1193 provider that works with any JavaScript framework.
+
+<div className="my-12 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-12">
+  <img
+    alt="Ledger connect modal with transport choices"
+    src="/wallet-provider/connect-a-ledger-modal.png"
+    className="w-[320px] rounded-[18px] shadow-[0_20px_70px_-50px_rgba(15,15,40,0.88)]"
+  />
+  <img
+    alt="Token balances displayed for the connected account"
+    src="/wallet-provider/tokens.png"
+    className="w-[320px] rounded-[18px] shadow-[0_20px_70px_-50px_rgba(18,18,60,0.9)]"
+  />
+</div>
+
+## What you get with Ledger Wallet Provider
+
+<div className="grid md:grid-cols-2 gap-4 my-8">
+  <div className="flex items-start gap-3">
+    <span className="text-emerald-500 mt-1">✓</span>
+    <div>
+      <div className="text-gray-200 font-semibold">Built-in Security</div>
+      <div className="text-sm text-gray-400 mt-1">Clear Signing and Transaction Check enabled automatically</div>
+    </div>
+  </div>
+  <div className="flex items-start gap-3">
+    <span className="text-emerald-500 mt-1">✓</span>
+    <div>
+      <div className="text-gray-200 font-semibold">Complete User Flow</div>
+      <div className="text-sm text-gray-400 mt-1">Handles device pairing, account selection, and connection state</div>
+    </div>
+  </div>
+  <div className="flex items-start gap-3">
+    <span className="text-emerald-500 mt-1">✓</span>
+    <div>
+      <div className="text-gray-200 font-semibold">Standard Integration</div>
+      <div className="text-sm text-gray-400 mt-1">EIP-1193 provider works with any JavaScript framework</div>
+    </div>
+  </div>
+  <div className="flex items-start gap-3">
+    <span className="text-emerald-500 mt-1">✓</span>
+    <div>
+      <div className="text-gray-200 font-semibold">Managed Transports</div>
+      <div className="text-sm text-gray-400 mt-1">Ledger maintains USB and Bluetooth connection layers</div>
+    </div>
+  </div>
+</div>
+
+## Where to go next
+
+<div className="grid md:grid-cols-2 gap-4 mt-8">
+  <Link href="./get-started" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+    <div className="font-semibold mb-2">Get Started →</div>
+    <div className="text-sm text-gray-400">Install the SDK and integrate Ledger Wallet Provider into your application</div>
+  </Link>
+
+  <Link href="./api-reference" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+    <div className="font-semibold mb-2">API Reference →</div>
+    <div className="text-sm text-gray-400">Explore events, methods, and provider capabilities</div>
+  </Link>
+</div>
