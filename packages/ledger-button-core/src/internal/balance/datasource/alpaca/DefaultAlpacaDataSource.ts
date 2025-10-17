@@ -23,7 +23,7 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
     currencyId: string,
   ): Promise<Either<Error, AlpacaBalance[]>> {
     //Add check if blockchain is supported by Alpaca
-    const requestUrl = `${this.config.getAlpacaUrl(this.config.environment)}/${currencyId}/account/${address}/balance`;
+    const requestUrl = `${this.config.getAlpacaUrl()}/v1/${currencyId}/account/${address}/balance`;
     const balanceResult: Either<Error, AlpacaBalanceDto[]> =
       await this.networkService.get(requestUrl);
 

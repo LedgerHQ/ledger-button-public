@@ -108,7 +108,7 @@ export class DefaultAccountService implements AccountService {
               ticker,
               derivationMode: account.derivationMode
                 ? account.derivationMode
-                : "44'/60'/0'/0/0",
+                : "",
               balance: undefined,
               tokens: [],
             } as Account)
@@ -169,7 +169,7 @@ export class DefaultAccountService implements AccountService {
             // Fallback to the original backend method
             const chainId = getChainIdFromCurrencyId(account.currencyId);
             const balanceRpcResult = await this.backendService.broadcast({
-              blockchain: { name: "ethereum", chainId: chainId },
+              blockchain: { name: "ethereum", chainId: chainId.toString() },
               rpc: {
                 method: "eth_getBalance",
                 params: [account.freshAddress, "latest"],

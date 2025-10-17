@@ -81,9 +81,9 @@ export function initializeLedgerProvider({
 
   const info: EIP6963ProviderInfo = {
     uuid: uuidv4(),
-    name: "Ledger",
+    name: "Ledger Wallet",
     icon: icon,
-    rdns: "com.ledger.button",
+    rdns: "com.ledger.wallet.provider",
   };
 
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;

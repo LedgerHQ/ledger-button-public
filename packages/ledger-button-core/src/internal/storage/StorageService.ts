@@ -21,7 +21,7 @@ export interface StorageService {
   isTrustChainValid(): boolean;
   removeTrustChainId(): void;
 
-  saveSelectedAccount(selectedAccount: Account | undefined): unknown;
+  saveSelectedAccount(selectedAccount: Account): unknown;
   getSelectedAccount(): Maybe<Account>;
   removeSelectedAccount(): void;
 }

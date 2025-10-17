@@ -6,4 +6,5 @@ export type ButtonCoreContext = {
   selectedAccount: Account | undefined;
   trustChainId: string | undefined;
   applicationPath: string | undefined;
+  chainId: number;
 };

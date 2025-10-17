@@ -36,6 +36,7 @@ import {
   UserRejectedTransactionError,
 } from "@ledgerhq/ledger-button-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-button-core";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
 
@@ -51,14 +52,23 @@ const EIP1193_SUPPORTED_METHODS = [
   "eth_sendRawTransaction",
   "eth_signTypedData",
   "eth_signTypedData_v4",
+  "wallet_switchEthereumChain",
 ];
-//TODO complete with Node JSON rpc methods that can be broadcasted and directly handled by nodes
 
-class ModalClosedError extends LedgerButtonError {
-  constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "ModalClosedError", context);
-  }
-}
+//TODO complete with Node JSON rpc methods that can be broadcasted and directly handled by nodes
+const SUPPORTED_CHAINS = [
+  "1",
+  "42161",
+  "43114",
+  "8453",
+  "56",
+  "59144",
+  "10",
+  "137",
+  "146",
+  "324",
+  "100",
+];
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -72,6 +82,12 @@ export class LedgerEIP1193Provider
   private _id = 0;
 
   public isLedgerButton = true;
+
+  private _pendingRequest: RequestArguments | null = null;
+  private _pendingPromise: {
+    resolve: (value: unknown) => void;
+    reject: (reason?: unknown) => void;
+  } | null = null;
 
   // NOTE: Tracking listeners by function reference
   // This is a workaround to wrap the event listener in the `on` method
@@ -107,6 +123,37 @@ export class LedgerEIP1193Provider
         );
       }
     });
+
+    setInterval(() => {
+      if (
+        this._pendingRequest &&
+        !this.app.isModalOpen &&
+        this._pendingPromise
+      ) {
+        console.log("Executing pending request");
+        const tmpRequest = this._pendingRequest;
+        this._pendingRequest = null;
+
+        // Wait for 1 second before executing the pending request and resolve the promise
+        // Wait is needed to avoid race condition with the modal open event (to be improved)
+        new Promise((resolve) => setTimeout(resolve, 1000))
+          .then(() => {
+            return this.executeRequest(tmpRequest);
+          })
+          .then((result) => {
+            if (this._pendingPromise) {
+              this._pendingPromise.resolve(result);
+              this._pendingPromise = null;
+            }
+          })
+          .catch((error) => {
+            if (this._pendingPromise) {
+              this._pendingPromise.reject(error);
+              this._pendingPromise = null;
+            }
+          });
+      }
+    }, 1000);
   }
 
   private async handleAccounts(): Promise<string[]> {
@@ -179,6 +226,7 @@ export class LedgerEIP1193Provider
             }
 
             if (e.detail.status === "success") {
+              //Update the selected account
               this._selectedAccount = e.detail.account.freshAddress;
               this.dispatchEvent(
                 new CustomEvent<string[]>("accountsChanged", {
@@ -187,9 +235,22 @@ export class LedgerEIP1193Provider
                   detail: [e.detail.account.freshAddress],
                 }),
               );
-              this._selectedAccount = e.detail.account.freshAddress;
-              // TODO: create mapping between chainId and account.currencyId
-              this._selectedChainId = 1; // TODO: fetch the chain id from ?
+
+              //Update the selected chain id
+              const chainId = getChainIdFromCurrencyId(
+                e.detail.account.currencyId,
+              );
+              this._selectedChainId = chainId;
+
+              this.dispatchEvent(
+                new CustomEvent<string>("chainChanged", {
+                  bubbles: true,
+                  composed: true,
+                  detail: "0x" + this._selectedChainId.toString(16),
+                }),
+              );
+
+              //Update the connected status
               this._isConnected = true;
               resolve([e.detail.account.freshAddress]);
             }
@@ -225,7 +286,7 @@ export class LedgerEIP1193Provider
       //Sanitize transaction for EIP-1193
       if (typeof params[0] === "object") {
         const transaction = params[0] as Record<string, unknown>;
-        transaction["chainId"] = this._selectedChainId;
+        transaction["chainId"] = "0x" + this._selectedChainId.toString(16);
         tx = transaction;
       } else {
         tx = params[0] as string;
@@ -382,20 +443,53 @@ export class LedgerEIP1193Provider
     });
   }
 
-  handleChainId(): Promise<string> {
-    return new Promise((resolve) => {
-      this.dispatchEvent(
+  private async handleSwitchChainId(params: unknown[]): Promise<null> {
+    return new Promise((resolve, reject) => {
+      if (!this._isConnected) {
+        return reject(
+          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
+        );
+      }
+
+      const chainId = (params[0] as { chainId: string }).chainId;
+      const chainIdNumber = parseInt(chainId, 16);
+
+      if (!SUPPORTED_CHAINS.includes(chainIdNumber.toString())) {
+        return reject(
+          this.createError(
+            CommonEIP1193ErrorCode.ChainDisconnected,
+            "Unsupported chain",
+          ),
+        );
+      }
+      this._selectedChainId = chainIdNumber;
+      this.core.setChainId(chainIdNumber);
+      window.dispatchEvent(
         new CustomEvent("chainChanged", {
           bubbles: true,
           composed: true,
-          detail: {
-            chainId: this._selectedChainId.toString(16),
-          },
+          detail: "0x" + this._selectedChainId.toString(16),
+        }),
+      );
+
+      //returns null if the active chain is switched.
+      //cf. https://docs.metamask.io/wallet/reference/json-rpc-methods/wallet_switchEthereumChain#returns
+      resolve(null);
+    });
+  }
+
+  private async handleChainId(): Promise<string> {
+    return new Promise((resolve) => {
+      this.dispatchEvent(
+        new CustomEvent<string>("chainChanged", {
+          bubbles: true,
+          composed: true,
+          detail: "0x" + this._selectedChainId.toString(16),
         }),
       );
 
       //Chain ID must be in hex format => https://ethereum.org/developers/docs/apis/json-rpc/#eth_chainId
-      resolve(this._selectedChainId.toString(16));
+      resolve("0x" + this._selectedChainId.toString(16));
     });
   }
 
@@ -421,10 +515,16 @@ export class LedgerEIP1193Provider
       this.handleSignTypedData(params, method),
     eth_signTypedData_v4: async (params: unknown[], method: RpcMethods) =>
       this.handleSignTypedData(params, method),
+    wallet_switchEthereumChain: async (
+      params: unknown[],
+      _method: RpcMethods,
+    ) => this.handleSwitchChainId(params),
   } as const;
 
-  // Public API
-  public async request({ method, params }: RequestArguments) {
+  // Private method to execute request logic
+  private async executeRequest({ method, params }: RequestArguments) {
+    console.log("request in LedgerEIP1193Provider", { method, params });
+
     if (method in this.handlers) {
       const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
@@ -448,6 +548,28 @@ export class LedgerEIP1193Provider
       CommonEIP1193ErrorCode.UnsupportedMethod,
       `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
     );
+  }
+
+  // Public API
+  public async request({ method, params }: RequestArguments) {
+    console.log("request in LedgerEIP1193Provider", { method, params });
+
+    if (this._pendingPromise) {
+      return this.createError(
+        CommonEIP1193ErrorCode.InternalError,
+        "Ledger Provider is busy",
+      );
+    }
+
+    if (this.app.isModalOpen) {
+      this._pendingRequest = { method, params };
+      return new Promise<unknown>((resolve, reject) => {
+        this._pendingPromise = { resolve, reject };
+      });
+    }
+
+    // If modal is not open, execute the request immediately
+    return this.executeRequest({ method, params });
   }
 
   public on<TEvent extends keyof ProviderEvent>(
@@ -509,6 +631,14 @@ export class LedgerEIP1193Provider
     if (this._isConnected) {
       this._isConnected = false;
       this.core.disconnect();
+
+      // Clean up pending request on disconnect
+      if (this._pendingPromise) {
+        this._pendingPromise.reject(this.createError(code, message, data));
+        this._pendingPromise = null;
+        this._pendingRequest = null;
+      }
+
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
           bubbles: true,
@@ -575,11 +705,17 @@ export class LedgerEIP1193Provider
   }
 }
 
+class ModalClosedError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "ModalClosedError", context);
+  }
+}
+
 declare global {
   interface WindowEventMap {
     connect: CustomEvent<ProviderConnectInfo>;
     disconnect: CustomEvent<ProviderRpcError>;
-    chainChanged: CustomEvent<ProviderConnectInfo>;
+    chainChanged: CustomEvent<string>;
     accountsChanged: CustomEvent<string[]>;
     message: CustomEvent<ProviderMessage>;
     "eip6963:announceProvider": EIP6963AnnounceProviderEvent;

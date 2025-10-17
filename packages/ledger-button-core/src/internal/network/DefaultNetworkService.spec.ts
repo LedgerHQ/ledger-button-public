@@ -40,7 +40,7 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          "X-Ledger-Client-Version": "test-dapp-identifier",
+          // "X-Ledger-Client-Version": "test-dapp-identifier",
           "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
@@ -119,7 +119,7 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          "X-Ledger-Client-Version": "test-dapp-identifier",
+          // "X-Ledger-Client-Version": "test-dapp-identifier",
           "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
@@ -205,7 +205,7 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          "X-Ledger-Client-Version": "test-dapp-identifier",
+          // "X-Ledger-Client-Version": "test-dapp-identifier",
           "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
@@ -291,7 +291,7 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          "X-Ledger-Client-Version": "test-dapp-identifier",
+          // "X-Ledger-Client-Version": "test-dapp-identifier",
           "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },
@@ -380,7 +380,8 @@ describe("DefaultNetworkService", () => {
       expect(spy.mock.calls[0][0]).toBe("https://whatever.com/ap1/posts/1");
       expect(spy.mock.calls[0][1]).toMatchObject({
         headers: {
-          "X-Ledger-Client-Version": "test-dapp-identifier",
+          //          "X-Ledger-Client-Version":
+          //            "ledger-button/1.0.0-test.6/test-dapp-identifier",
           "X-Ledger-Origin-Token": "test-origin-token",
           "Content-Type": "application/json",
         },

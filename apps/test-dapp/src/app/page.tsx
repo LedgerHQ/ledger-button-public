@@ -60,13 +60,21 @@ export default function Index() {
   useEffect(() => {
     if (!selectedProvider) return;
 
+    // TODO for dev purpose only, remove this before production
+    // window.ledgerDebug = selectedProvider.provider;
+
     // Type assertion for the specific event handler
     const handleAccountsChanged = (accounts: string[]) => {
       setIsOpen(false);
       setAccount(accounts[0]);
     };
 
+    const handleChainChanged = (chainId: string) => {
+      console.log("chainChanged", chainId);
+    };
+
     selectedProvider.provider.on("accountsChanged", handleAccountsChanged);
+    selectedProvider.provider.on("chainChanged", handleChainChanged);
 
     return () => {
       selectedProvider.provider.removeListener(
@@ -295,16 +303,21 @@ export default function Index() {
     setIsOpen(false);
     setError(null);
     try {
-      console.log("handleProviderRequest calling provider.request()");
+      const method = providerRequestMethodRef.current.value;
+      const params = JSON.parse(
+        providerRequestParamsRef.current?.value || "[]",
+      );
+
       console.log("handleProviderRequest", {
-        method: providerRequestMethodRef.current.value,
-        params: JSON.parse(providerRequestParamsRef.current?.value || "[]"),
+        method,
+        params,
       });
       const result = await selectedProvider.provider.request({
         // @ts-expect-error - We don't import @ledgerhq/ledger-button-core, so we don't have the types
-        method: providerRequestMethodRef.current.value,
-        params: JSON.parse(providerRequestParamsRef.current?.value || "[]"),
+        method,
+        params,
       });
+
       console.log("handleProviderRequest result", { result });
       setResult(JSON.stringify(result));
     } catch (error) {
@@ -536,6 +549,9 @@ export default function Index() {
                         </option>
                         <option value="eth_maxPriorityFeePerGas">
                           eth_maxPriorityFeePerGas
+                        </option>
+                        <option value="wallet_switchEthereumChain">
+                          wallet_switchEthereumChain
                         </option>
                       </Select>
                     </Field>

@@ -83,12 +83,14 @@ export class LedgerSyncController implements ReactiveController {
             this.host.requestUpdate();
             break;
           case value instanceof LedgerSyncAuthenticationError:
+            console.debug("LedgerSyncAuthenticationError", { value });
             this.navigation.navigateTo(this.destinations.turnOnSync);
             break;
         }
       },
       error: (error) => {
         if (error instanceof LedgerSyncConnectionFailedError) {
+          console.debug("LedgerSyncConnectionFailedError", { error });
           this.errorData = {
             title:
               this.lang.currentTranslation.error.ledgerSync.ConnectionFailed

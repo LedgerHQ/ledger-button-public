@@ -16,7 +16,8 @@ export type RpcMethods =
   | "eth_signTypedData"
   | "eth_signTypedData_v4"
   | "eth_sign"
-  | "personal_sign";
+  | "personal_sign"
+  | "wallet_switchEthereumChain";
 
 export type JSONRPCRequest = {
   readonly jsonrpc: string;

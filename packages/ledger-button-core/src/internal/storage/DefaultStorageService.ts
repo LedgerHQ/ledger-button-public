@@ -7,6 +7,7 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
+import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import {
   StorageIDBErrors,
@@ -238,11 +239,36 @@ export class DefaultStorageService implements StorageService {
   }
 
   // Selected Account
-  saveSelectedAccount(selectedAccount: Account | undefined): void {
-    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNT, selectedAccount);
+  saveSelectedAccount(selectedAccount: Account): void {
+    if (!selectedAccount) {
+      return;
+    }
+    const accountDbModel: AccountDbModel = mapToAccountDbModel(selectedAccount);
+    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNT, accountDbModel);
   }
+
   getSelectedAccount(): Maybe<Account> {
-    return this.getItem(STORAGE_KEYS.SELECTED_ACCOUNT);
+    const accountMaybe = this.getItem<AccountDbModel>(
+      STORAGE_KEYS.SELECTED_ACCOUNT,
+    );
+
+    return accountMaybe.caseOf({
+      Just: (accountDbModel) => {
+        return Just({
+          id: "",
+          name: "",
+          freshAddress: accountDbModel.address,
+          seedIdentifier: "",
+          derivationMode: accountDbModel.derivationMode,
+          index: accountDbModel.index,
+          currencyId: accountDbModel.currencyId,
+          ticker: "",
+          balance: "",
+          tokens: [],
+        });
+      },
+      Nothing: () => Nothing,
+    });
   }
   removeSelectedAccount(): void {
     this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNT);

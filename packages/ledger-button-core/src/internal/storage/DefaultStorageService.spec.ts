@@ -451,7 +451,18 @@ describe("DefaultStorageService", () => {
         const mockAccount = { id: "test-account", name: "Test Account" } as any;
         storageService.saveSelectedAccount(mockAccount);
         expect(storageService.getSelectedAccount()).toEqual(
-          Maybe.of(mockAccount),
+          Maybe.of({
+            id: "",
+            name: "",
+            currencyId: undefined,
+            freshAddress: undefined,
+            seedIdentifier: "",
+            derivationMode: undefined,
+            index: undefined,
+            ticker: "",
+            balance: "",
+            tokens: [],
+          }),
         );
       });
 
@@ -460,11 +471,6 @@ describe("DefaultStorageService", () => {
         storageService.saveSelectedAccount(mockAccount);
         storageService.removeSelectedAccount();
         expect(storageService.getSelectedAccount()).toBe(Nothing);
-      });
-
-      it("should be able to save undefined as selected account", () => {
-        storageService.saveSelectedAccount(undefined);
-        expect(storageService.getSelectedAccount()).toEqual(Nothing);
       });
 
       it("should handle complex account objects", () => {
@@ -476,11 +482,27 @@ describe("DefaultStorageService", () => {
           seedIdentifier: "seed123",
           derivationMode: "44'/0'/0'",
           index: 0,
+          ticker: "BTC",
+          balance: "0.0000",
+          tokens: [],
         } as any;
 
         storageService.saveSelectedAccount(complexAccount);
         const retrieved = storageService.getSelectedAccount();
-        expect(retrieved).toEqual(Maybe.of(complexAccount));
+        expect(retrieved).toEqual(
+          Maybe.of({
+            id: "",
+            name: "",
+            index: 0,
+            balance: "",
+            tokens: [],
+            currencyId: "BTC",
+            freshAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+            seedIdentifier: "",
+            ticker: "",
+            derivationMode: "44'/0'/0'",
+          }),
+        );
       });
     });
   });

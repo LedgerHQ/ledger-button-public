@@ -1,0 +1,126 @@
+export enum EventType {
+  ConsentGiven = "consent_given",
+  ConsentRemoved = "consent_removed",
+  InvoicingTransactionSigned = "invoicing_transaction_signed",
+  LedgerSyncActivated = "ledger_sync_activated",
+  Onboarding = "onboarding",
+  OpenLedgerSync = "open_ledger_sync",
+  OpenSession = "open_session",
+  SessionAuthentication = "session_authentication",
+  TransactionFlowCompletion = "transaction_flow_completion",
+  TransactionFlowInitialization = "transaction_flow_initialization",
+}
+
+type BaseEventData = {
+  event_id: string;
+  transaction_dapp_id: string;
+  timestamp_ms: number;
+};
+
+export type InvoicingTransactionSignedEventData = BaseEventData & {
+  event_type: "invoicing_transaction_signed";
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  transaction_hash: string;
+  recipient_address: string;
+  unsigned_transaction_hash: string;
+};
+
+export type ConsentGivenEventData = BaseEventData & {
+  event_type: "consent_given";
+  ledger_sync_user_id: string;
+};
+
+export type ConsentRemovedEventData = BaseEventData & {
+  event_type: "consent_removed";
+  ledger_sync_user_id: string;
+};
+
+export type OpenSessionEventData = BaseEventData & {
+  event_type: "open_session";
+  session_id: string;
+};
+
+export type OpenLedgerSyncEventData = BaseEventData & {
+  event_type: "open_ledger_sync";
+  session_id: string;
+};
+
+export type LedgerSyncActivatedEventData = BaseEventData & {
+  event_type: "ledger_sync_activated";
+  session_id: string;
+  ledger_sync_user_id: string;
+};
+
+export type OnboardingEventData = BaseEventData & {
+  event_type: "onboarding";
+  session_id: string;
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  account_currency: string;
+  account_balance: string;
+};
+
+export type TransactionFlowInitializationEventData = BaseEventData & {
+  event_type: "transaction_flow_initialization";
+  session_id: string;
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  unsigned_transaction_hash: string;
+};
+
+export type TransactionFlowCompletionEventData = BaseEventData & {
+  event_type: "transaction_flow_completion";
+  session_id: string;
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  unsigned_transaction_hash: string;
+  transaction_hash: string;
+};
+
+export type SessionAuthenticationEventData = BaseEventData & {
+  event_type: "session_authentication";
+  session_id: string;
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  unsigned_transaction_hash: string;
+  transaction_type: "authentication_tx";
+  transaction_hash: string;
+};
+
+export type EventData =
+  | InvoicingTransactionSignedEventData
+  | ConsentGivenEventData
+  | ConsentRemovedEventData
+  | OpenSessionEventData
+  | OpenLedgerSyncEventData
+  | LedgerSyncActivatedEventData
+  | OnboardingEventData
+  | TransactionFlowInitializationEventData
+  | TransactionFlowCompletionEventData
+  | SessionAuthenticationEventData;
+
+export type EventRequest = {
+  name: string;
+  type: EventType;
+  data: EventData;
+};
+
+export type EventResponseSuccess = {
+  EventResponseSuccess: {
+    success: true;
+  };
+};
+
+export type EventResponseError = {
+  time: null;
+  message: string;
+  status: number;
+  type: string;
+};
+
+export type EventResponse = EventResponseSuccess | EventResponseError;

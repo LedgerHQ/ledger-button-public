@@ -6,6 +6,7 @@ import {
   SignedResults,
   SignedTransactionResult,
 } from "../../../api/model/signing/SignedTransaction.js";
+import { getChainIdFromCurrencyId } from "../../../internal/blockchain/evm/chainUtils.js";
 import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
@@ -99,10 +100,10 @@ export class BroadcastTransaction {
       signedTransaction,
     });
 
-    const chainId = "1";
+    const chainId = getChainIdFromCurrencyId(currencyId);
 
     return {
-      blockchain: { name: "ethereum", chainId: chainId },
+      blockchain: { name: "ethereum", chainId: chainId.toString() },
       rpc: {
         method: "eth_sendRawTransaction",
         params: [signedTransaction.signedRawTransaction],

@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { BehaviorSubject, Observable, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -13,16 +13,16 @@ import { SignFlowStatus } from "./model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "./model/signing/SignRawTransactionParams.js";
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
+import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import {
-  type Account,
-  type AccountService,
-} from "../internal/account/service/AccountService.js";
+import { type AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
+import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
+import { ContextService } from "../internal/context/ContextService.js";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
@@ -37,8 +37,10 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
-import { type EventTrackingService } from "../internal/event-tracking/EventTrackingService.js";
-import { EventTrackingUtils } from "../internal/event-tracking/EventTrackingUtils.js";
+import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
+import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
+import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackOpenSession } from "../internal/event-tracking/usecase/TrackOpenSession.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -63,14 +65,7 @@ export class LedgerButtonCore {
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
-
-  private _currentContext: BehaviorSubject<ButtonCoreContext> =
-    new BehaviorSubject<ButtonCoreContext>({
-      connectedDevice: undefined,
-      selectedAccount: undefined,
-      trustChainId: undefined,
-      applicationPath: undefined,
-    });
+  private readonly _contextService: ContextService;
 
   constructor(private readonly opts: LedgerButtonCoreOptions) {
     this.container = createContainer(this.opts);
@@ -80,6 +75,9 @@ export class LedgerButtonCore {
     this._logger = loggerFactory("[Ledger Button Core]");
     this._modalService = this.container.get<ModalService>(
       modalModuleTypes.ModalService,
+    );
+    this._contextService = this.container.get<ContextService>(
+      contextModuleTypes.ContextService,
     );
     this.initializeContext();
   }
@@ -115,12 +113,17 @@ export class LedgerButtonCore {
       await this.disconnect();
     }
 
-    // Restore context
-    this._currentContext.next({
-      connectedDevice: undefined,
-      selectedAccount: isTrustChainValid ? selectedAccount : undefined,
-      trustChainId: isTrustChainValid ? trustChainId : undefined,
-      applicationPath: undefined,
+    this._contextService.onEvent({
+      type: "initialize_context",
+      context: {
+        connectedDevice: undefined,
+        selectedAccount: isTrustChainValid ? selectedAccount : undefined,
+        trustChainId: isTrustChainValid ? trustChainId : undefined,
+        applicationPath: undefined,
+        chainId: selectedAccount
+          ? getChainIdFromCurrencyId(selectedAccount.currencyId)
+          : 1,
+      },
     });
   }
 
@@ -143,11 +146,8 @@ export class LedgerButtonCore {
         if (state.deviceStatus === DeviceStatus.NOT_CONNECTED) {
           this._logger.info("Device disconnected");
 
-          this._currentContext.next({
-            connectedDevice: undefined,
-            selectedAccount: this._currentContext.value.selectedAccount,
-            trustChainId: this._currentContext.value.trustChainId,
-            applicationPath: this._currentContext.value.applicationPath,
+          this._contextService.onEvent({
+            type: "device_disconnected",
           });
         }
       });
@@ -160,11 +160,8 @@ export class LedgerButtonCore {
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
 
-    this._currentContext.next({
-      connectedDevice: undefined,
-      selectedAccount: undefined,
-      trustChainId: undefined,
-      applicationPath: undefined,
+    this._contextService.onEvent({
+      type: "wallet_disconnected",
     });
 
     try {
@@ -180,36 +177,22 @@ export class LedgerButtonCore {
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
+
+    //Track open session event, every user interaction with the app should start with a device connection intent
+    await this.container
+      .get<TrackOpenSession>(eventTrackingModuleTypes.TrackOpenSession)
+      .execute();
+
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
       .execute({ type });
 
-    this._currentContext.next({
-      connectedDevice: device,
-      selectedAccount: this._currentContext.value.selectedAccount,
-      trustChainId: this._currentContext.value.trustChainId,
-      applicationPath: this._currentContext.value.applicationPath,
+    this._contextService.onEvent({
+      type: "device_connected",
+      device: device,
     });
 
     this.listenDevice();
-
-    try {
-      const eventTrackingService = this.container.get<EventTrackingService>(
-        eventTrackingModuleTypes.EventTrackingService,
-      );
-      const sessionId = this.container.get<DeviceManagementKitService>(
-        deviceModuleTypes.DeviceManagementKitService,
-      ).sessionId;
-
-      const openSessionEvent = EventTrackingUtils.createOpenSessionEvent({
-        dAppId: this.getConfig().dAppIdentifier,
-        sessionId: sessionId || "",
-      });
-      await eventTrackingService.trackEvent(openSessionEvent, sessionId);
-    } catch (error) {
-      this._logger.error("Failed to track open session event", { error });
-    }
-
     return device;
   }
 
@@ -219,11 +202,8 @@ export class LedgerButtonCore {
       .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();
 
-    this._currentContext.next({
-      connectedDevice: undefined,
-      selectedAccount: undefined,
-      trustChainId: this._currentContext.value.trustChainId,
-      applicationPath: this._currentContext.value.applicationPath,
+    this._contextService.onEvent({
+      type: "device_disconnected",
     });
 
     return result;
@@ -268,46 +248,16 @@ export class LedgerButtonCore {
       .get<AccountService>(accountModuleTypes.AccountService)
       .getSelectedAccount();
 
-    this._currentContext.next({
-      connectedDevice: this._currentContext.value.connectedDevice,
-      selectedAccount: selectedAccount ?? undefined,
-      trustChainId: this._currentContext.value.trustChainId,
-      applicationPath: this._currentContext.value.applicationPath,
-    });
-
-    this.trackOnboardingEvent(selectedAccount);
-  }
-
-  private async trackOnboardingEvent(
-    selectedAccount: Account | null,
-  ): Promise<void> {
-    try {
-      const eventTrackingService = this.container.get<EventTrackingService>(
-        eventTrackingModuleTypes.EventTrackingService,
-      );
-      const sessionId = this.container.get<DeviceManagementKitService>(
-        deviceModuleTypes.DeviceManagementKitService,
-      ).sessionId;
-      const trustChainId = this._currentContext.value.trustChainId;
-
-      if (!selectedAccount) {
-        return;
-      }
-
-      const onboardingEvent = EventTrackingUtils.createOnboardingEvent({
-        dAppId: this.getConfig().dAppIdentifier,
-        sessionId: sessionId || "",
-        ledgerSyncUserId: trustChainId || "",
-        accountCurrency: selectedAccount.currencyId || "ETH",
-        accountBalance: selectedAccount.balance?.toString() || "0",
+    //SHOULD ALWAYS BE TRUE when use here.
+    if (selectedAccount) {
+      this._contextService.onEvent({
+        type: "account_changed",
+        account: selectedAccount,
       });
-      await eventTrackingService.trackEvent(
-        onboardingEvent,
-        sessionId,
-        trustChainId,
-      );
-    } catch (error) {
-      this._logger.error("Failed to track onboarding event", { error });
+
+      this.container
+        .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
+        .execute(selectedAccount);
     }
   }
 
@@ -403,28 +353,11 @@ export class LedgerButtonCore {
   connectToLedgerSync(): Observable<LedgerSyncAuthenticateResponse> {
     this._logger.debug("Connecting to ledger sync");
 
-    try {
-      const eventTrackingService = this.container.get<EventTrackingService>(
-        eventTrackingModuleTypes.EventTrackingService,
-      );
-      const sessionId = this.container.get<DeviceManagementKitService>(
-        deviceModuleTypes.DeviceManagementKitService,
-      ).sessionId;
-
-      const openLedgerSyncEvent = EventTrackingUtils.createOpenLedgerSyncEvent({
-        dAppId: this.getConfig().dAppIdentifier,
-        sessionId: sessionId || "",
-      });
-      eventTrackingService
-        .trackEvent(openLedgerSyncEvent, sessionId)
-        .catch((error) => {
-          this._logger.error("Failed to track open ledger sync event", {
-            error,
-          });
-        });
-    } catch (error) {
-      this._logger.error("Failed to track open ledger sync event", { error });
-    }
+    this.container
+      .get<TrackLedgerSyncOpened>(
+        eventTrackingModuleTypes.TrackLedgerSyncOpened,
+      )
+      .execute();
 
     const res = this.container
       .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
@@ -434,37 +367,18 @@ export class LedgerButtonCore {
       tap(async (res: LedgerSyncAuthenticateResponse) => {
         if (!this.isAuthContext(res)) return;
 
-        this._currentContext.next({
-          connectedDevice: this._currentContext.value.connectedDevice,
-          selectedAccount: this._currentContext.value.selectedAccount,
+        this._contextService.onEvent({
+          type: "trustchain_connected",
           trustChainId: res.trustChainId,
           applicationPath: res.applicationPath,
         });
 
-        try {
-          const eventTrackingService = this.container.get<EventTrackingService>(
-            eventTrackingModuleTypes.EventTrackingService,
-          );
-          const sessionId = this.container.get<DeviceManagementKitService>(
-            deviceModuleTypes.DeviceManagementKitService,
-          ).sessionId;
-
-          const ledgerSyncActivatedEvent =
-            EventTrackingUtils.createLedgerSyncActivatedEvent({
-              dAppId: this.getConfig().dAppIdentifier,
-              sessionId: sessionId || "",
-              ledgerSyncUserId: res.trustChainId, // Using trustChainId as user ID
-            });
-          await eventTrackingService.trackEvent(
-            ledgerSyncActivatedEvent,
-            sessionId,
-            res.trustChainId,
-          );
-        } catch (error) {
-          this._logger.error("Failed to track ledger sync activated event", {
-            error,
-          });
-        }
+        //TODO move inside context service onEvent
+        await this.container
+          .get<TrackLedgerSyncActivated>(
+            eventTrackingModuleTypes.TrackLedgerSyncActivated,
+          )
+          .execute(res.trustChainId);
       }),
     );
   }
@@ -476,7 +390,7 @@ export class LedgerButtonCore {
   }
 
   observeContext(): Observable<ButtonCoreContext> {
-    return this._currentContext.asObservable();
+    return this._contextService.observeContext();
   }
 
   // Config methods
@@ -494,5 +408,12 @@ export class LedgerButtonCore {
         deviceModuleTypes.DeviceManagementKitService,
       )
       .dmk.isEnvironmentSupported();
+  }
+
+  setChainId(chainId: number) {
+    this._contextService.onEvent({
+      type: "chain_changed",
+      chainId,
+    });
   }
 }
