@@ -1,0 +1,23 @@
+---
+description: Import rules for the Ledger Button project
+globs: 
+alwaysApply: true
+---
+
+# Import Rules for Ledger Button Project
+
+## Import Guidelines
+- Always use relative imports instead of absolute imports that start with `src/`
+- When auto-importing, prefer relative paths like `./Component` or `../utils/helper` over `src/components/Component`
+- Never use imports that start with `src/` - this is enforced by ESLint and should be avoided in auto-imports
+- Use the shortest relative path possible (e.g., `./Button` instead of `../components/Button` when in the same directory)
+
+## Code Style
+- Follow the existing ESLint configuration for import sorting
+- Maintain consistency with the project's TypeScript and React patterns
+- Use the established component structure and naming conventions
+
+## File Organization
+- Keep components in their appropriate directories within the `src/` structure
+- Use index files for clean exports
+- Follow the existing domain-driven structure for business logic
