@@ -60,7 +60,8 @@ export default function Index() {
   useEffect(() => {
     if (!selectedProvider) return;
 
-    window.ledgerDebug = selectedProvider.provider;
+    // TODO for dev purpose only, remove this before production
+    // window.ledgerDebug = selectedProvider.provider;
 
     // Type assertion for the specific event handler
     const handleAccountsChanged = (accounts: string[]) => {

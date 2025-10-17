@@ -1,10 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
 import { Observable, tap } from "rxjs";
-import { TrackLedgerSyncActivated } from "src/internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
-import { TrackLedgerSyncOpened } from "src/internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
-import { TrackOnboarding } from "src/internal/event-tracking/usecase/TrackOnboarding.js";
-import { TrackOpenSession } from "src/internal/event-tracking/usecase/TrackOpenSession.js";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -41,6 +37,10 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
+import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
+import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackOpenSession } from "../internal/event-tracking/usecase/TrackOpenSession.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";

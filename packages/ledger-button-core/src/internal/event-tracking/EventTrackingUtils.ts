@@ -258,8 +258,8 @@ export class EventTrackingUtils {
       ledger_sync_user_id: params.ledgerSyncUserId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
-      transaction_hash: params.transactionHash,
-      recipient_address: params.recipientAddress,
+      transaction_hash: normalizeTransactionHash(params.transactionHash),
+      recipient_address: params.recipientAddress.toLowerCase(),
       unsigned_transaction_hash: normalizeTransactionHash(
         params.unsignedTransactionHash,
       ),
