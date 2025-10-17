@@ -1,90 +1,223 @@
 # LedgerButton
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A comprehensive monorepo for Ledger's Web3 integration components, providing seamless hardware wallet connectivity for web applications.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## 🚀 Overview
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+LedgerButton is a modern monorepo built with **Nx**, **pnpm**, and **TypeScript** that provides:
 
-## Finish your CI setup
+- **Web Components** for easy integration into any web framework
+- **Core SDK** for advanced wallet management and transaction signing
+- **Test DApp** for development and testing
+- **Framework-agnostic** design with support for React, Angular, Vue, and vanilla JavaScript
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/KFt5ZsFI5H)
+## 📦 Packages
+
+### Core Packages
+
+| Package | Description | Version |
+|---------|-------------|---------|
+| [`@ledgerhq/ledger-button`](./packages/ledger-button) | Main Web Component library with UI components | `1.0.0-rc.5` |
+| [`@ledgerhq/ledger-button-core`](./packages/ledger-button-core) | Core SDK for wallet management and transaction signing | `1.0.0-rc.5` |
+
+### Applications
+
+| Application | Description |
+|-------------|-------------|
+| [`test-dapp`](./apps/test-dapp) | Next.js test application for development and testing |
 
 
-## Generate a library
+## 🛠️ Tech Stack
 
-```sh
-npx nx g @nx/js:lib packages/pkg1 --publishable --importPath=@my-org/pkg1
+- **Monorepo Management**: [Nx](https://nx.dev) 21.3.9
+- **Package Manager**: [pnpm](https://pnpm.io) with workspace support
+- **Toolchain Management**: [prototools](https://moonrepo.dev/docs/proto) for development environment setup
+- **Build System**: [Vite](https://vitejs.dev) for fast builds
+- **Testing**: [Vitest](https://vitest.dev) for unit tests, [Playwright](https://playwright.dev) for E2E
+- **UI Framework**: [Lit](https://lit.dev) for Web Components
+- **Styling**: [Tailwind CSS](https://tailwindcss.com) with [CVA](https://cva.style)
+- **TypeScript**: 5.8.3 with strict configuration
+- **Linting**: ESLint with TypeScript support
+- **Documentation**: Storybook for component documentation
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js**: 18+ (recommended: 20+)
+- **pnpm**: Latest version
+
+### Usage with prototools
+
+For an easier setup, install [prototools](https://moonrepo.dev/docs/proto/install).
+Once installed, the prerequisite tools can be easily installed using:
+```bash
+cd ledger-button
+proto use
 ```
 
-## Run tasks
+The command `proto use` will look into the `.prototools` file and install the required version of the tools needed (node, pnpm). For more information, see the [prototools documentation](https://moonrepo.dev/docs/proto).
 
-To build the library use:
+### Installation
 
-```sh
-npx nx build pkg1
+```bash
+# Clone the repository
+git clone https://github.com/LedgerHQ/ledger-button.git
+cd ledger-button
+
+# Install dependencies
+pnpm install
 ```
 
-To run any task with Nx use:
+### Development
 
-```sh
-npx nx <target> <project-name>
+```bash
+# Build the main package
+pnpm nx run build ledger-button
+
+# Start the test DApp
+pnpm nx run dev test-dapp
+
+# Run Storybook for component documentation
+pnpm nx run storybook ledger-button
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## 📋 Available Scripts
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Workspace Commands
 
-## Versioning and releasing
-
-To version and release the library use
-
-```
-npx nx release
-```
-
-Pass `--dry-run` to see what would happen without actually releasing the library.
-
-[Learn more about Nx release &raquo;](hhttps://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Keep TypeScript project references up to date
-
-Nx automatically updates TypeScript [project references](https://www.typescriptlang.org/docs/handbook/project-references.html) in `tsconfig.json` files to ensure they remain accurate based on your project dependencies (`import` or `require` statements). This sync is automatically done when running tasks such as `build` or `typecheck`, which require updated references to function correctly.
-
-To manually trigger the process to sync the project graph dependencies information to the TypeScript project references, run the following command:
-
-```sh
-npx nx sync
+```bash
+# Package-specific commands
+pnpm nx run <command> ledger-button          # Run commands for @ledgerhq/ledger-button
+pnpm nx run <command> ledger-button-core     # Run commands for @ledgerhq/ledger-button-core
+pnpm nx run <command> test-dapp               # Run commands for test-dapp
 ```
 
-You can enforce that the TypeScript project references are always in the correct state when running in CI by adding a step to your CI job configuration that runs the following command:
+### Build & Test
 
-```sh
-npx nx sync:check
+```bash
+# Build all packages
+pnpm nx run-many -t build
+
+# Run tests
+pnpm nx run-many -t test
+
+# Run linting
+pnpm nx run-many -t lint
+
+# Run typecheck
+pnpm nx run-many -t typecheck
 ```
 
-[Learn more about nx sync](https://nx.dev/reference/nx-commands#sync)
+### Release Management
 
+```bash
+# Version management
+pnpm version:patch              # Patch version bump
+pnpm version:minor              # Minor version bump
+pnpm version:major              # Major version bump
+pnpm version:prerelease         # Prerelease version
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+# Release
+pnpm release                    # Publish packages
+```
 
-## Install Nx Console
+## 🏗️ Architecture
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Monorepo Structure
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```
+ledger-button/
+├── packages/                   # Published packages
+│   ├── ledger-button/         # Main Web Component library
+│   └── ledger-button-core/    # Core SDK
+├── apps/                      # Applications
+│   └── test-dapp/            # Next.js test application
+└── tools/                    # Development tools
+    └── danger/               # Danger.js configuration
+```
 
-## Useful links
+### Package Dependencies
 
-Learn more:
+```mermaid
+graph TD
+    A[ledger-button] --> B[ledger-button-core]
+    C[test-dapp] --> A
+```
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/js?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## 🔧 Development
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Adding New Packages
+
+```bash
+# Generate a new library
+pnpm nx g @nx/js:lib packages/my-new-lib --publishable --importPath=@ledgerhq/my-new-lib
+
+# Generate a new application
+pnpm nx g @nx/next:app apps/my-new-app
+```
+
+### Code Quality
+
+The project uses several tools to maintain code quality:
+
+- **ESLint**: Code linting with TypeScript support
+- **Prettier**: Code formatting
+- **Danger.js**: Automated code review
+- **Conventional Commits**: Standardized commit messages
+- **Gitmoji**: Emoji-based commit messages
+
+### Testing Strategy
+
+- **Unit Tests**: Vitest for fast unit testing
+- **Component Tests**: Storybook test runner
+- **E2E Tests**: Playwright for end-to-end testing
+- **Visual Regression**: Storybook visual testing
+
+## 📚 Documentation
+
+- **Component Documentation**: [Storybook](./packages/ledger-button/storybook-static)
+- **API Documentation**: Generated from TypeScript definitions
+- **Examples**: Available in the test-dapp application
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m '✨ Add amazing feature'`
+4. **Push** to the branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+### Commit Convention
+
+This project uses [Conventional Commits](https://conventionalcommits.org) with [Gitmoji](https://gitmoji.dev):
+
+```bash
+✨ Add new feature
+🐛 Fix bug
+📝 Update documentation
+🎨 Improve code structure
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE.MD](./LICENSE.MD) file for details.
+
+## 🔗 Links
+
+- **Nx Documentation**: [nx.dev](https://nx.dev)
+- **pnpm Documentation**: [pnpm.io](https://pnpm.io)
+- **prototools Documentation**: [moonrepo.dev](https://moonrepo.dev/docs/proto)
+- **Lit Documentation**: [lit.dev](https://lit.dev)
+- **Tailwind CSS**: [tailwindcss.com](https://tailwindcss.com)
+
+## 🆘 Support
+
+For support and questions:
+
+- **Issues**: [GitHub Issues](https://github.com/LedgerHQ/ledger-button/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/LedgerHQ/ledger-button/discussions)
+
+---
+
+Built with ❤️ by the Ledger team
