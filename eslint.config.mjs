@@ -82,6 +82,19 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
+      // Custom rule to prevent imports starting with 'src/'
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["src/**"],
+              message:
+                "Import paths should not start with 'src/'. Use relative imports instead.",
+            },
+          ],
+        },
+      ],
     },
   },
 ];
