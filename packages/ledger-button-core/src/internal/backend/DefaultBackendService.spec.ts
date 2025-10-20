@@ -45,6 +45,7 @@ describe("DefaultBackendService", () => {
       mockNetworkService as NetworkService<{
         headers?: Record<string, string>;
       }>,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockConfig as any,
     );
     vi.clearAllMocks();

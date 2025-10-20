@@ -142,9 +142,9 @@ describe("DefaultStorageService", () => {
         const originalOpen = indexedDB.open;
         indexedDB.open = vi.fn().mockImplementation(() => {
           const mockRequest = {
-            onerror: null as any,
-            onsuccess: null as any,
-            onupgradeneeded: null as any,
+            onerror: null as ((event: Event) => void) | null,
+            onsuccess: null as ((event: Event) => void) | null,
+            onupgradeneeded: null as ((event: Event) => void) | null,
           };
           // Simulate error
           setTimeout(() => {
@@ -169,6 +169,7 @@ describe("DefaultStorageService", () => {
     describe("storeKeyPair", () => {
       it("should be able to store a key pair", async () => {
         // Create a mock key pair for testing
+         
         const mockKeyPair = {
           id: "test-id",
           getPublicKeyToHex: () => "test-public-key",
@@ -183,8 +184,8 @@ describe("DefaultStorageService", () => {
       it("should handle storage errors", async () => {
         // Mock the IDB to simulate an error during storage
         const mockRequest = {
-          onsuccess: null as any,
-          onerror: null as any,
+          onsuccess: null as ((event: Event) => void) | null,
+          onerror: null as ((event: Event) => void) | null,
         };
 
         const mockDb = {
@@ -197,9 +198,10 @@ describe("DefaultStorageService", () => {
 
         // Mock initIdb to return a mock database
         vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as any),
+          Right(mockDb as unknown as IDBDatabase),
         );
 
+         
         const mockKeyPair = {
           id: "test-id",
           getPublicKeyToHex: () => "test-public-key",
@@ -228,8 +230,8 @@ describe("DefaultStorageService", () => {
         // This test would require complex IndexedDB mocking
         // For now, we'll test the error handling path
         const mockRequest = {
-          onsuccess: null as any,
-          onerror: null as any,
+          onsuccess: null as ((event: Event) => void) | null,
+          onerror: null as ((event: Event) => void) | null,
         };
 
         const mockDb = {
@@ -241,7 +243,7 @@ describe("DefaultStorageService", () => {
         };
 
         vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as any),
+          Right(mockDb as unknown as IDBDatabase),
         );
 
         // Start the async operation
@@ -260,8 +262,8 @@ describe("DefaultStorageService", () => {
 
       it("should handle get errors", async () => {
         const mockRequest = {
-          onsuccess: null as any,
-          onerror: null as any,
+          onsuccess: null as ((event: Event) => void) | null,
+          onerror: null as ((event: Event) => void) | null,
         };
 
         const mockDb = {
@@ -273,7 +275,7 @@ describe("DefaultStorageService", () => {
         };
 
         vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as any),
+          Right(mockDb as unknown as IDBDatabase),
         );
 
         // Start the async operation
@@ -297,8 +299,8 @@ describe("DefaultStorageService", () => {
     describe("removeKeyPair", () => {
       it("should be able to remove a key pair", async () => {
         const mockRequest = {
-          onsuccess: null as any,
-          onerror: null as any,
+          onsuccess: null as ((event: Event) => void) | null,
+          onerror: null as ((event: Event) => void) | null,
         };
 
         const mockDb = {
@@ -310,7 +312,7 @@ describe("DefaultStorageService", () => {
         };
 
         vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as any),
+          Right(mockDb as unknown as IDBDatabase),
         );
 
         // Start the async operation
@@ -332,8 +334,8 @@ describe("DefaultStorageService", () => {
 
       it("should handle remove errors", async () => {
         const mockRequest = {
-          onsuccess: null as any,
-          onerror: null as any,
+          onsuccess: null as ((event: Event) => void) | null,
+          onerror: null as ((event: Event) => void) | null,
         };
 
         const mockDb = {
@@ -345,7 +347,7 @@ describe("DefaultStorageService", () => {
         };
 
         vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as any),
+          Right(mockDb as unknown as IDBDatabase),
         );
 
         // Start the async operation
@@ -448,7 +450,11 @@ describe("DefaultStorageService", () => {
   describe("Selected Account methods", () => {
     describe("saveSelectedAccount", () => {
       it("should be able to save and get a selected account", () => {
-        const mockAccount = { id: "test-account", name: "Test Account" } as any;
+         
+        const mockAccount = { 
+          id: "test-account", 
+          name: "Test Account" 
+        } as any;
         storageService.saveSelectedAccount(mockAccount);
         expect(storageService.getSelectedAccount()).toEqual(
           Maybe.of({
@@ -467,13 +473,18 @@ describe("DefaultStorageService", () => {
       });
 
       it("should be able to remove a selected account", () => {
-        const mockAccount = { id: "test-account", name: "Test Account" } as any;
+         
+        const mockAccount = { 
+          id: "test-account", 
+          name: "Test Account" 
+        } as any;
         storageService.saveSelectedAccount(mockAccount);
         storageService.removeSelectedAccount();
         expect(storageService.getSelectedAccount()).toBe(Nothing);
       });
 
       it("should handle complex account objects", () => {
+         
         const complexAccount = {
           id: "complex-account",
           name: "Complex Account",

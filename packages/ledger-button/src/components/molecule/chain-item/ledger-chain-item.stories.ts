@@ -457,11 +457,11 @@ export const TestEventFiring: Story = {
       "Verify chain-item-click event fires with correct data",
       async () => {
         const chainItem = canvasElement.querySelector("ledger-chain-item");
-        let eventDetail: any = null;
+        let eventDetail: Record<string, unknown> | null = null;
 
         chainItem?.addEventListener("chain-item-click", (e: Event) => {
           const customEvent = e as CustomEvent;
-          eventDetail = customEvent.detail;
+          eventDetail = customEvent.detail as Record<string, unknown>;
         });
 
         const button = chainItem?.shadowRoot?.querySelector(
@@ -470,13 +470,14 @@ export const TestEventFiring: Story = {
         await userEvent.click(button);
 
         expect(eventDetail).toBeTruthy();
-        expect((eventDetail as any).ledgerId).toBe("ethereum");
-        expect((eventDetail as any).title).toBe("Ethereum");
-        expect((eventDetail as any).subtitle).toBe("ETH");
-        expect((eventDetail as any).ticker).toBe("ETH");
-        expect((eventDetail as any).value).toBe("2.5432");
-        expect((eventDetail as any).type).toBe("token");
-        expect(typeof (eventDetail as any).timestamp).toBe("number");
+        const detail = eventDetail as unknown as Record<string, unknown>;
+        expect(detail.ledgerId).toBe("ethereum");
+        expect(detail.title).toBe("Ethereum");
+        expect(detail.subtitle).toBe("ETH");
+        expect(detail.ticker).toBe("ETH");
+        expect(detail.value).toBe("2.5432");
+        expect(detail.type).toBe("token");
+        expect(typeof detail.timestamp).toBe("number");
       },
     );
   },
