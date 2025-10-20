@@ -48,7 +48,7 @@ export class DefaultBalanceService implements BalanceService {
       const alpacaNativeBalance = alpacaBalances.find(
         (balance) => balance.type === "native",
       );
-      const tokenBalances: TokenBalance[] = await Promise.all(
+      const tokenBalances: (TokenBalance | undefined)[] = await Promise.all(
         alpacaBalances
           .filter((balance) => balance.type !== "native")
           .map(async (balance) => {
@@ -69,20 +69,24 @@ export class DefaultBalanceService implements BalanceService {
                 tokenInformationResult.extract().ticker,
               );
             } else {
-              return undefined as TokenBalance | undefined;
+              return undefined;
             }
-          }) as unknown as TokenBalance[],
+          }),
       );
-
       if (!alpacaNativeBalance) {
         return Left(new Error("No native balance found"));
       }
+
+      //remove undefined from tokenBalances
+      const filteredTokenBalances = tokenBalances.filter(
+        (tokenBalance) => tokenBalance !== undefined,
+      ) as TokenBalance[];
 
       return Right({
         nativeBalance: {
           balance: BigInt(alpacaNativeBalance.value),
         } as NativeBalance,
-        tokenBalances: tokenBalances.filter((t) => t !== undefined),
+        tokenBalances: filteredTokenBalances,
       });
     } else {
       return Left(new Error("Failed to fetch balance from Alpaca"));
