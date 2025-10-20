@@ -52,9 +52,12 @@ export class DefaultBalanceService implements BalanceService {
         alpacaBalances
           .filter((balance) => balance.type !== "native")
           .map(async (balance) => {
+            if (!balance.reference) {
+              return undefined as TokenBalance | undefined;
+            }
             const tokenInformationResult =
               await this.calDataSource.getTokenInformation(
-                balance.reference!,
+                balance.reference,
                 account.currencyId,
               );
 
@@ -68,17 +71,18 @@ export class DefaultBalanceService implements BalanceService {
             } else {
               return undefined as TokenBalance | undefined;
             }
-          })
-          .filter(
-            (tokenBalance) => tokenBalance !== undefined,
-          ) as unknown as TokenBalance[],
+          }) as unknown as TokenBalance[],
       );
+
+      if (!alpacaNativeBalance) {
+        return Left(new Error("No native balance found"));
+      }
 
       return Right({
         nativeBalance: {
-          balance: BigInt(alpacaNativeBalance!.value),
+          balance: BigInt(alpacaNativeBalance.value),
         } as NativeBalance,
-        tokenBalances,
+        tokenBalances: tokenBalances.filter((t) => t !== undefined),
       });
     } else {
       return Left(new Error("Failed to fetch balance from Alpaca"));

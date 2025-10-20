@@ -28,32 +28,32 @@ describe("ConsoleLoggerSubscriber", () => {
   beforeEach(() => {
     debugSpy = vi
       .spyOn(console, "debug")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     infoSpy = vi
       .spyOn(console, "info")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     warnSpy = vi
       .spyOn(console, "warn")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     errorSpy = vi
       .spyOn(console, "error")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     groupSpy = vi
       .spyOn(console, "group")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     groupEndSpy = vi
       .spyOn(console, "groupEnd")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
   });

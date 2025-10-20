@@ -1,4 +1,5 @@
 import {
+  type ConnectedDevice,
   DeviceManagementKit,
   DeviceModelId,
 } from "@ledgerhq/device-management-kit";
@@ -17,9 +18,9 @@ export class StubDeviceManagementKitService
     name: "GM's Flex",
     modelId: DeviceModelId.FLEX,
     sessionId: "session-id-123",
-    type: "bluetooth" as any,
+    type: "BLE",
     id: "device-1",
-  });
+  } as ConnectedDevice);
 
   connectToDevice = () => Promise.resolve(this.connectedDevice as Device);
   disconnectFromDevice = () => Promise.resolve();

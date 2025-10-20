@@ -93,7 +93,7 @@ export class LedgerEIP1193Provider
   // This is a workaround to wrap the event listener in the `on` method
   // so we can remove it later
   private _listeners: Map<
-    (args: any) => void,
+    (args: unknown) => void,
     (e: CustomEvent | Event) => void
   > = new Map();
 
@@ -576,14 +576,16 @@ export class LedgerEIP1193Provider
     eventName: TEvent,
     listener: (args: ProviderEvent[TEvent]) => void,
   ): this {
-    this._listeners.set(listener, (e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._listeners.set(listener as any, (e) => {
       // NOTE: we should not handle non-custom events here
       if (e instanceof CustomEvent) {
         listener(e.detail);
       }
     });
 
-    const fn = this._listeners.get(listener);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fn = this._listeners.get(listener as any);
     if (!fn) return this;
 
     this.addEventListener(eventName, fn);
@@ -594,10 +596,12 @@ export class LedgerEIP1193Provider
     eventName: TEvent,
     listener: (args: ProviderEvent[TEvent]) => void,
   ): this {
-    const fn = this._listeners.get(listener);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fn = this._listeners.get(listener as any);
     if (!fn) return this;
     this.removeEventListener(eventName, fn);
-    this._listeners.delete(listener);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._listeners.delete(listener as any);
     return this;
   }
 

@@ -1,7 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "out-tsc/storybook",
+    "tsBuildInfoFile": "out-tsc/storybook/tsconfig.storybook.tsbuildinfo",
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
