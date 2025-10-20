@@ -48,10 +48,11 @@ export class SelectAccountScreen extends LitElement {
         .title=${account.name}
         .address=${account.freshAddress}
         .linkLabel=${translations.onboarding.selectAccount.showTokens}
-        .ledgerId=${account.currencyId}
+        .ledgerId=${account.id}
         .ticker=${account.ticker}
         .balance=${account.balance ?? "0"}
         .tokens=${account.tokens.length}
+        .currencyId=${account.currencyId}
         @account-item-click=${this.controller.handleAccountItemClick}
         @account-item-show-tokens-click=${this.controller
           .handleAccountItemShowTokensClick}

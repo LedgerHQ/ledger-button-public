@@ -1,4 +1,5 @@
 import {
+  Account,
   SignRawTransactionParams,
   SignTransactionParams,
 } from "@ledgerhq/ledger-button-core";
@@ -154,8 +155,8 @@ export class RootNavigationController implements ReactiveController {
     this.navigation.navigateTo(this.destinations.deviceSwitch);
   }
 
-  selectAccount(address: string) {
-    this.core.selectAccount(address);
+  selectAccount(account: Account) {
+    this.core.selectAccount(account);
     this.host.requestUpdate();
   }
 

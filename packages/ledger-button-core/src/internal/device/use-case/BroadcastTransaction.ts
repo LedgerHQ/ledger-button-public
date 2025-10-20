@@ -6,7 +6,6 @@ import {
   SignedResults,
   SignedTransactionResult,
 } from "../../../api/model/signing/SignedTransaction.js";
-import { getChainIdFromCurrencyId } from "../../../internal/blockchain/evm/chainUtils.js";
 import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
@@ -16,13 +15,14 @@ import {
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
 } from "../../backend/types.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
 export type BroadcastTransactionParams = {
   signature: Signature;
   rawTransaction: string;
-  currencyId: string;
 };
 
 @injectable()
@@ -34,6 +34,8 @@ export class BroadcastTransaction {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("[SendTransaction]");
   }
@@ -50,7 +52,7 @@ export class BroadcastTransaction {
 
     const broadcastJsonRpcRequest = this.craftRequestFromSignedTransaction(
       signedTransaction,
-      params.currencyId,
+      this.contextService.getContext().chainId.toString(),
     );
 
     const result = await this.backendService.broadcast(broadcastJsonRpcRequest);
@@ -100,10 +102,8 @@ export class BroadcastTransaction {
       signedTransaction,
     });
 
-    const chainId = getChainIdFromCurrencyId(currencyId);
-
     return {
-      blockchain: { name: "ethereum", chainId: chainId.toString() },
+      blockchain: { name: "ethereum", chainId: currencyId },
       rpc: {
         method: "eth_sendRawTransaction",
         params: [signedTransaction.signedRawTransaction],

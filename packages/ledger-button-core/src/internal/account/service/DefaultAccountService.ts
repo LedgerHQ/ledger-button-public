@@ -56,10 +56,8 @@ export class DefaultAccountService implements AccountService {
     this.setAccounts(accountsWithBalance);
   }
 
-  selectAccount(address: string): void {
-    const found = this.accounts.find(
-      (account) => account.freshAddress === address,
-    );
+  selectAccount(account: Account): void {
+    const found = this.accounts.find((acc) => acc.id === account.id);
 
     if (found) {
       this.selectedAccount = found;

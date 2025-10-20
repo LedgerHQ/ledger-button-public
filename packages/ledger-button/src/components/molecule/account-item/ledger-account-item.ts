@@ -21,6 +21,7 @@ export type AccountItemClickEventDetail = {
   balance: string;
   linkLabel: string;
   timestamp: number;
+  currencyId: string;
 };
 
 export interface LedgerAccountItemMoleculeAttributes {
@@ -56,6 +57,9 @@ export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: Number })
   tokens = 0;
 
+  @property({ type: String })
+  currencyId = "";
+
   private get containerClasses() {
     return {
       [accountItemVariants()]: true,
@@ -74,6 +78,7 @@ export class LedgerAccountItemMolecule extends LitElement {
           ledgerId: this.ledgerId,
           balance: this.balance,
           linkLabel: this.linkLabel,
+          currencyId: this.currencyId,
           timestamp: Date.now(),
         },
       }),
@@ -99,6 +104,7 @@ export class LedgerAccountItemMolecule extends LitElement {
           ledgerId: this.ledgerId,
           balance: this.balance,
           linkLabel: this.linkLabel,
+          currencyId: this.currencyId,
           timestamp: Date.now(),
         },
       }),
@@ -121,7 +127,7 @@ export class LedgerAccountItemMolecule extends LitElement {
             ${this.formatAddress(this.address)}
           </span>
           <ledger-crypto-icon
-            ledger-id=${this.ledgerId}
+            ledger-id=${this.currencyId}
             variant="square"
             size="small"
           ></ledger-crypto-icon>

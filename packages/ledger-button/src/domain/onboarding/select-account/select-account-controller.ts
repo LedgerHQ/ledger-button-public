@@ -28,10 +28,10 @@ export class SelectAccountController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  selectAccount(address: string) {
+  selectAccount(account: Account) {
     if (this.navigation.host instanceof RootNavigationComponent) {
       //this.core.selectAccount(address);
-      this.navigation.host.selectAccount(address);
+      this.navigation.host.selectAccount(account);
       this.host.requestUpdate();
     }
   }
@@ -39,7 +39,14 @@ export class SelectAccountController implements ReactiveController {
   handleAccountItemClick = (
     event: CustomEvent<AccountItemClickEventDetail>,
   ) => {
-    this.selectAccount(event.detail.address);
+    const account = this.core
+      .getAccounts()
+      .find((acc) => acc.id === event.detail.ledgerId);
+
+    if (account) {
+      this.selectAccount(account);
+    }
+
     const selectedAccount = this.core.getSelectedAccount();
     window.dispatchEvent(
       new CustomEvent<{ account: Account; status: "success" }>(
@@ -59,10 +66,10 @@ export class SelectAccountController implements ReactiveController {
   ) => {
     const account = this.core
       .getAccounts()
-      .find((acc) => acc.freshAddress === event.detail.address);
+      .find((acc) => acc.id === event.detail.ledgerId);
 
     if (account) {
-      this.core.setPendingAccountAddress(account.freshAddress);
+      this.core.setPendingAccountId(account.id);
 
       this.navigation.navigateTo({
         name: "accountTokens",

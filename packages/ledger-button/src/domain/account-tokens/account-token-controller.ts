@@ -23,11 +23,14 @@ export class AccountTokenController implements ReactiveController {
   }
 
   getAccount() {
-    const targetAddress = this.core.getPendingAccountAddress();
-    this.account =
-      this.core
-        .getAccounts()
-        .find((acc) => acc.freshAddress === targetAddress) || null;
+    const targetId = this.core.getPendingAccountId();
+    if (!targetId) {
+      this.navigation.navigateBack();
+      return;
+    }
+    this.account = this.core
+      .getAccounts()
+      .find((acc) => acc.id === targetId) as Account | null;
 
     // If the account is not found, navigate back to account list
     if (!this.account) {
@@ -59,7 +62,7 @@ export class AccountTokenController implements ReactiveController {
     }
 
     if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.selectAccount(account.freshAddress);
+      this.navigation.host.selectAccount(account);
     }
   };
 
