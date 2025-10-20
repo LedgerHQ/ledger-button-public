@@ -11,7 +11,7 @@ const meta: Meta<LedgerDeviceAnimation> = {
   argTypes: {
     modelId: {
       control: { type: "select" },
-      options: ["nanos", "nanosp", "nanox", "stax", "flex"],
+      options: ["nanos", "nanosp", "nanox", "stax", "flex", "apexp"],
     },
     animation: {
       control: { type: "select" },
@@ -179,10 +179,40 @@ export const AllFlexAnimations: Story = {
   `,
 };
 
+export const AllApexAnimations: Story = {
+  render: (args) => html`
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 2rem; background-color: black; padding: 2rem;"
+    >
+      ${["pin", "continueOnLedger", "signTransaction"].map((animation) => {
+        return html`
+          <div
+            style="flex: 0 0 220px; display: flex; flex-direction: column; align-items: center;"
+          >
+            <div
+              style="margin-bottom: 0.5rem; font-weight: bold; color: white;"
+            >
+              ${animation}
+            </div>
+            <ledger-device-animation
+              .modelId=${"apexp"}
+              .animation=${animation as AnimationKey}
+              .autoplay=${args.autoplay}
+              .loop=${args.loop}
+            ></ledger-device-animation>
+          </div>
+        `;
+      })}
+    </div>
+  `,
+};
+
 export const AllDeviceAnimations: Story = {
   render: (args) => html`
-    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
-      ${(["nanoS", "nanoSP", "nanoX", "stax", "flex"] as const).map(
+    <div
+      style="display: flex; flex-wrap: wrap; gap: 2rem; background-color: black;"
+    >
+      ${(["nanoS", "nanoSP", "nanoX", "stax", "flex", "apexp"] as const).map(
         (modelId) => html`
           <div
             style="flex: 0 0 220px; display: flex; flex-direction: column; align-items: center;"

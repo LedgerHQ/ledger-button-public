@@ -177,7 +177,7 @@ export const TestInteractions: Story = {
     await step("Verify icon is present", async () => {
       const platformItem = canvasElement.querySelector("ledger-platform-item");
       const button = platformItem?.shadowRoot?.querySelector("button");
-      const icon = button?.querySelector("platform-icon");
+      const icon = button?.querySelector("ledger-icon[type='mobile']");
 
       expect(icon).toBeInTheDocument();
     });

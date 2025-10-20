@@ -340,10 +340,10 @@ export const TestWithoutSubtitle: Story = {
 };
 
 export const InModalIntegration: Story = {
-  render: () => html`
+  render: (args) => html`
     <ledger-modal title="Ledger Connect" .isOpen=${true}>
       <ledger-info-state
-        device="flex"
+        device=${args.device ?? "flex"}
         title="Continue on your Ledger Flex"
         subtitle="Follow instructions appearing on your Ledger's Trusted Display"
       ></ledger-info-state>

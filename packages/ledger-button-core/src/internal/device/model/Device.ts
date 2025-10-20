@@ -22,7 +22,7 @@ export class Device {
     return this._connectedDevice.type;
   }
 
-  get iconType() {
+  get iconType(): "nanox" | "stax" | "flex" | "apexp" {
     switch (this.modelId) {
       case DeviceModelId.NANO_X:
       case DeviceModelId.NANO_S:
@@ -31,8 +31,9 @@ export class Device {
       case DeviceModelId.STAX:
         return "stax";
       case DeviceModelId.FLEX:
-      case DeviceModelId.APEX:
         return "flex";
+      case DeviceModelId.APEX:
+        return "apexp";
     }
   }
 }

@@ -7,7 +7,7 @@ import { tailwindElement } from "../../../tailwind-element.js";
 
 const platformItemVariants = cva(
   [
-    "lb-flex lb-items-center lb-justify-between lb-rounded-md group",
+    "group lb-flex lb-items-center lb-justify-between lb-rounded-md",
     "lb-min-w-full",
     "lb-bg-muted lb-p-12 lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover",
   ],
@@ -88,7 +88,11 @@ export class LedgerPlatformItem extends LitElement {
       <div
         class="lb-rounded-full lb-bg-muted-transparent lb-p-8 lb-drop-shadow-md"
       >
-        <platform-icon .platformType=${this.platformType}></platform-icon>
+        <ledger-icon
+          type=${this.platformType}
+          size="small"
+          fillColor="white"
+        ></ledger-icon>
       </div>
     `;
   }
