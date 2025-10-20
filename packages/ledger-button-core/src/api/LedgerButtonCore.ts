@@ -116,6 +116,10 @@ export class LedgerButtonCore {
       await this.disconnect();
     }
 
+    const chainId = selectedAccount
+      ? getChainIdFromCurrencyId(selectedAccount.currencyId)
+      : 1;
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -123,9 +127,7 @@ export class LedgerButtonCore {
         selectedAccount: isTrustChainValid ? selectedAccount : undefined,
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
-        chainId: selectedAccount
-          ? getChainIdFromCurrencyId(selectedAccount.currencyId)
-          : 1,
+        chainId: chainId,
       },
     });
   }

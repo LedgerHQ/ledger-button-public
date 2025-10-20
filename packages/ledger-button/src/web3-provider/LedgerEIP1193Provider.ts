@@ -75,7 +75,6 @@ export class LedgerEIP1193Provider
   implements EIP1193Provider
 {
   private _isConnected = false;
-  // private _supportedChains: Map<string, ChainInfo> = new Map();
   private _selectedAccount: string | null = null;
   private _selectedChainId = 1;
 
@@ -130,7 +129,6 @@ export class LedgerEIP1193Provider
         !this.app.isModalOpen &&
         this._pendingPromise
       ) {
-        console.log("Executing pending request");
         const tmpRequest = this._pendingRequest;
         this._pendingRequest = null;
 
@@ -207,6 +205,11 @@ export class LedgerEIP1193Provider
       if (selectedAccount) {
         this._selectedAccount = selectedAccount.freshAddress;
         this._isConnected = true;
+
+        //Update the selected chain id
+        const chainId = getChainIdFromCurrencyId(selectedAccount.currencyId);
+        this._selectedChainId = chainId;
+
         this.dispatchEvent(
           new CustomEvent<string[]>("accountsChanged", {
             bubbles: true,
@@ -214,6 +217,15 @@ export class LedgerEIP1193Provider
             detail: [selectedAccount.freshAddress],
           }),
         );
+
+        this.dispatchEvent(
+          new CustomEvent<string>("chainChanged", {
+            bubbles: true,
+            composed: true,
+            detail: "0x" + this._selectedChainId.toString(16),
+          }),
+        );
+
         return resolve([selectedAccount.freshAddress]);
       } else {
         window.addEventListener(
@@ -297,7 +309,6 @@ export class LedgerEIP1193Provider
         (e) => {
           this._currentEvent = null;
           if (e.detail.status === "success") {
-            console.log(e.detail.data);
             if (isBroadcastedTransactionResult(e.detail.data)) {
               console.log("return hash for broadcasted TX");
               return resolve(e.detail.data.hash);
@@ -526,8 +537,6 @@ export class LedgerEIP1193Provider
 
   // Private method to execute request logic
   private async executeRequest({ method, params }: RequestArguments) {
-    console.log("request in LedgerEIP1193Provider", { method, params });
-
     if (method in this.handlers) {
       const res = await this.handlers[method as keyof typeof this.handlers](
         params as unknown[],

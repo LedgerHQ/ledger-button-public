@@ -92,12 +92,12 @@ export class SignRawTransaction {
     private readonly dappConfigService: DAppConfigService,
     @inject(deviceModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
-    @inject(modalModuleTypes.ModalService)
-    private readonly modalService: ModalService,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
     private readonly trackTransactionCompleted: TrackTransactionCompleted,
+    @inject(modalModuleTypes.ModalService)
+    private readonly modalService: ModalService,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -261,9 +261,18 @@ export class SignRawTransaction {
                 UserInteractionRequired.None,
           ),
           tap((result: SignTransactionDAState) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(result, transaction, signType),
-            );
+            if (
+              result.status !== DeviceActionStatus.Completed &&
+              result.status !== DeviceActionStatus.Error
+            ) {
+              resultObservable.next(
+                this.getTransactionResultForEvent(
+                  result,
+                  transaction,
+                  signType,
+                ),
+              );
+            }
           }),
           filter((result: SignTransactionDAState) => {
             return (
@@ -338,7 +347,6 @@ export class SignRawTransaction {
             }
           },
           error: (error) => {
-            console.error("Failed to sign transaction subscribe", { error });
             resultObservable.next({
               signType,
               status: "error",
@@ -349,7 +357,6 @@ export class SignRawTransaction {
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign transaction catch", { error });
       this.logger.error("Failed to sign transaction", { error });
       return of({
         signType,
