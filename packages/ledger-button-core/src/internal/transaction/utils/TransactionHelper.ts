@@ -40,7 +40,6 @@ export function getRawTransactionFromEipTransaction(transaction: Transaction) {
   try {
     const etherTx = ethers.Transaction.from(sanitizedTransaction);
     const tx = etherTx.unsignedSerialized;
-    console.log("Raw Tx", { tx });
     return tx;
   } catch (error) {
     console.error("Failed to get raw transaction from Ethers", { error });

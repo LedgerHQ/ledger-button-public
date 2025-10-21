@@ -29,6 +29,6 @@ export type Token = {
 export interface AccountService {
   setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];
-  selectAccount(address: string): void;
+  selectAccount(account: Account): void;
   getSelectedAccount(): Account | null;
 }

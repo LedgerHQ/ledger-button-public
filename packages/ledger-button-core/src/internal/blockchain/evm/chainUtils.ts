@@ -5,7 +5,7 @@ export function getChainIdFromCurrencyId(currencyId: string) {
 export const EVM_MAPPING_TABLE: Record<string, number> = {
   ethereum: 1,
   arbitrum: 42161,
-  avalanche: 43114,
+  avalanche_c_chain: 43114,
   base: 8453,
   bsc: 56,
   linea: 59144,

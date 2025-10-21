@@ -15,7 +15,10 @@ import { SignTransactionParams } from "./model/signing/SignTransactionParams.js"
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { type AccountService } from "../internal/account/service/AccountService.js";
+import {
+  Account,
+  type AccountService,
+} from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
@@ -61,7 +64,7 @@ export class LedgerButtonCore {
   private _pendingTransactionParams?:
     | SignRawTransactionParams
     | SignTransactionParams;
-  private _pendingAccountAddress?: string;
+  private _pendingAccountId?: string;
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
@@ -113,6 +116,10 @@ export class LedgerButtonCore {
       await this.disconnect();
     }
 
+    const chainId = selectedAccount
+      ? getChainIdFromCurrencyId(selectedAccount.currencyId)
+      : 1;
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -120,9 +127,7 @@ export class LedgerButtonCore {
         selectedAccount: isTrustChainValid ? selectedAccount : undefined,
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
-        chainId: selectedAccount
-          ? getChainIdFromCurrencyId(selectedAccount.currencyId)
-          : 1,
+        chainId: chainId,
       },
     });
   }
@@ -238,11 +243,11 @@ export class LedgerButtonCore {
       .getAccounts();
   }
 
-  selectAccount(address: string) {
-    this._logger.debug("Selecting account", { address });
+  selectAccount(account: Account) {
+    this._logger.debug("Selecting account", { account });
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
-      .selectAccount(address);
+      .selectAccount(account);
 
     const selectedAccount = this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -313,20 +318,19 @@ export class LedgerButtonCore {
     return this._pendingTransactionParams;
   }
 
-  setPendingAccountAddress(address: string | undefined) {
-    this._logger.debug("Setting pending account address", { address });
-    this._pendingAccountAddress = address;
+  setPendingAccountId(id: string | undefined) {
+    this._logger.debug("Setting pending account id", { id });
+    this._pendingAccountId = id;
   }
 
-  getPendingAccountAddress(): string | undefined {
+  getPendingAccountId(): string | undefined {
     this._logger.debug("Getting pending account address");
-
-    return this._pendingAccountAddress;
+    return this._pendingAccountId;
   }
 
-  clearPendingAccountAddress() {
-    this._logger.debug("Clearing pending account address");
-    this._pendingAccountAddress = undefined;
+  clearPendingAccountId() {
+    this._logger.debug("Clearing pending account id");
+    this._pendingAccountId = undefined;
   }
 
   getTransactionService(): TransactionService {

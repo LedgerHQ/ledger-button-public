@@ -1,3 +1,4 @@
+import { Account } from "@ledgerhq/ledger-button-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -57,8 +58,8 @@ export class RootNavigationComponent extends LitElement {
     this.isModalOpen = false;
   }
 
-  public selectAccount(address: string) {
-    this.rootNavigationController.selectAccount(address);
+  public selectAccount(account: Account) {
+    this.rootNavigationController.selectAccount(account);
   }
 
   public getSelectedAccount() {

@@ -92,12 +92,12 @@ export class SignRawTransaction {
     private readonly dappConfigService: DAppConfigService,
     @inject(deviceModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
-    @inject(modalModuleTypes.ModalService)
-    private readonly modalService: ModalService,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
     private readonly trackTransactionCompleted: TrackTransactionCompleted,
+    @inject(modalModuleTypes.ModalService)
+    private readonly modalService: ModalService,
   ) {
     this.logger = loggerFactory("[SignRawTransaction]");
   }
@@ -261,9 +261,18 @@ export class SignRawTransaction {
                 UserInteractionRequired.None,
           ),
           tap((result: SignTransactionDAState) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(result, transaction, signType),
-            );
+            if (
+              result.status !== DeviceActionStatus.Completed &&
+              result.status !== DeviceActionStatus.Error
+            ) {
+              resultObservable.next(
+                this.getTransactionResultForEvent(
+                  result,
+                  transaction,
+                  signType,
+                ),
+              );
+            }
           }),
           filter((result: SignTransactionDAState) => {
             return (
@@ -295,29 +304,25 @@ export class SignRawTransaction {
             return result.status === DeviceActionStatus.Completed;
           }),
           switchMap(async (result) => {
-            //TODO add tracking for signed Transaction
-
             //Broadcast TX
             if (broadcast && this.modalService.open) {
               const broadcastParams: BroadcastTransactionParams = {
                 signature: result.output as Signature,
                 rawTransaction: transaction,
-                currencyId: selectedAccount.currencyId,
               };
               const broadcastResult =
                 await this.broadcastTransactionUseCase.execute(broadcastParams);
 
               return broadcastResult;
             }
+
             // No Broadcast TX
-            // TODO Track completion for sign-only transactions
             const signedTx = createSignedTransaction(transaction, {
               r: result.output.r,
               s: result.output.s,
               v: result.output.v,
             } as Signature);
 
-            // Track completion for sign-only transactions
             return signedTx;
           }),
         )
@@ -342,7 +347,6 @@ export class SignRawTransaction {
             }
           },
           error: (error) => {
-            console.error("Failed to sign transaction subscribe", { error });
             resultObservable.next({
               signType,
               status: "error",
@@ -353,7 +357,6 @@ export class SignRawTransaction {
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign transaction catch", { error });
       this.logger.error("Failed to sign transaction", { error });
       return of({
         signType,

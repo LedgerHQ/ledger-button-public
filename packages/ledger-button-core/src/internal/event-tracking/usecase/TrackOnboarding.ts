@@ -1,10 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { Account } from "../../account/service/AccountService.js";
+import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { type Config } from "../../config/model/config.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -25,8 +24,6 @@ export class TrackOnboarding {
     private readonly storageService: StorageService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("[TrackOnboarding UseCase]");
   }
@@ -40,7 +37,7 @@ export class TrackOnboarding {
       const trustChainId = trustChainIdResult.extract();
 
       const currency = currencyId;
-      const chainId = this.contextService.getContext().chainId.toString();
+      const chainId = getChainIdFromCurrencyId(currencyId).toString();
 
       const event = EventTrackingUtils.createOnboardingEvent({
         dAppId: this.config.dAppIdentifier,

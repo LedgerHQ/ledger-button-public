@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 
 import { type ContextEvent } from "./model/ContextEvent.js";
 import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
+import { getChainIdFromCurrencyId } from "../blockchain/evm/chainUtils.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type ContextService } from "./ContextService.js";
@@ -46,6 +47,9 @@ export class DefaultContextService implements ContextService {
         break;
       case "account_changed":
         this.context.selectedAccount = event.account;
+        this.context.chainId = getChainIdFromCurrencyId(
+          event.account.currencyId,
+        );
         break;
       case "device_connected":
         this.context.connectedDevice = event.device;

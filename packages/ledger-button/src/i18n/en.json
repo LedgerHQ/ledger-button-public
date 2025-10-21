@@ -169,8 +169,7 @@
       "BroadcastTransactionError": {
         "title": "Transaction failed",
         "description": "Your transaction was broadcasted to the network but failed to execute.",
-        "cta1": "Retry transaction",
-        "cta2": "View on Etherscan"
+        "cta1": "Retry transaction"
       }
     },
     "connection": {

@@ -141,7 +141,6 @@ export class SignTransactionController implements ReactiveController {
             break;
           }
           case "error":
-            this.state.screen = "error";
             this.mapErrors(result.error);
             break;
         }
@@ -149,7 +148,6 @@ export class SignTransactionController implements ReactiveController {
         this.host.requestUpdate();
       },
       error: (error: Error) => {
-        this.state.screen = "error";
         this.mapErrors(error);
         this.host.requestUpdate();
       },
@@ -295,22 +293,6 @@ export class SignTransactionController implements ReactiveController {
                 }
                 this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
-              },
-            },
-            cta2: {
-              label: lang.error.network.BroadcastTransactionError.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
-                this.close();
               },
             },
           },

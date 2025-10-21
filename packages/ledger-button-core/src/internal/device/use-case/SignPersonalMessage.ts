@@ -232,9 +232,14 @@ export class SignPersonalMessage {
                 UserInteractionRequired.None,
           ),
           tap((result: SignPersonalMessageDAState) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(result, message, signType),
-            );
+            if (
+              result.status !== DeviceActionStatus.Completed &&
+              result.status !== DeviceActionStatus.Error
+            ) {
+              resultObservable.next(
+                this.getTransactionResultForEvent(result, message, signType),
+              );
+            }
           }),
           filter((result: SignPersonalMessageDAState) => {
             return (

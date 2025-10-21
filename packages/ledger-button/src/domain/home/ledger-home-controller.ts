@@ -27,7 +27,7 @@ export class LedgerHomeController implements ReactiveController {
   hostConnected() {
     if (this.demoMode) {
       this.core.fetchAccounts().then(() => {
-        this.core.selectAccount(this.core.getAccounts()[0].freshAddress);
+        this.core.selectAccount(this.core.getAccounts()[0]);
         this.host.requestUpdate();
       });
     }

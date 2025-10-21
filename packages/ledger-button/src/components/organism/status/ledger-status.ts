@@ -67,15 +67,27 @@ export class LedgerStatus extends LitElement {
   secondaryButtonLabel = "Secondary action";
 
   private get containerClasses() {
-    return {
-      [statusVariants({ type: this.type })]: true,
-    };
+    const classString = statusVariants({ type: this.type });
+    const classes = classString.split(" ").filter(Boolean);
+    return classes.reduce(
+      (acc, className) => {
+        acc[className] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
   }
 
   private get statusIconClasses() {
-    return {
-      [statusIconVariants({ type: this.type })]: true,
-    };
+    const classString = statusIconVariants({ type: this.type });
+    const classes = classString.split(" ").filter(Boolean);
+    return classes.reduce(
+      (acc, className) => {
+        acc[className] = true;
+        return acc;
+      },
+      {} as Record<string, boolean>,
+    );
   }
 
   private get iconType() {
