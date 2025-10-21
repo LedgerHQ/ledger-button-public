@@ -53,7 +53,7 @@ export class DefaultBalanceService implements BalanceService {
           .filter((balance) => balance.type !== "native")
           .map(async (balance) => {
             if (!balance.reference) {
-              return undefined as TokenBalance | undefined;
+              return undefined;
             }
             const tokenInformationResult =
               await this.calDataSource.getTokenInformation(
@@ -78,8 +78,8 @@ export class DefaultBalanceService implements BalanceService {
       }
 
       //remove undefined from tokenBalances
-      const filteredTokenBalances = tokenBalances.filter(
-        (tokenBalance) => tokenBalance !== undefined,
+      const filteredTokenBalances: TokenBalance[] = tokenBalances.filter(
+        Boolean,
       ) as TokenBalance[];
 
       return Right({

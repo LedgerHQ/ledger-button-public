@@ -310,11 +310,9 @@ export class LedgerEIP1193Provider
           this._currentEvent = null;
           if (e.detail.status === "success") {
             if (isBroadcastedTransactionResult(e.detail.data)) {
-              console.log("return hash for broadcasted TX");
               return resolve(e.detail.data.hash);
             }
             if (isSignedTransactionResult(e.detail.data)) {
-              console.log("return signed TX (not Broadcasted)");
               return resolve(e.detail.data.signedRawTransaction);
             }
           }

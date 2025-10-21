@@ -222,9 +222,14 @@ export class SignTypedData {
                   this.pendingStep = result.intermediateValue?.step ?? "";
                 }
 
-                resultObservable.next(
-                  this.getTransactionResultForEvent(result, signType),
-                );
+                if (
+                  result.status !== DeviceActionStatus.Completed &&
+                  result.status !== DeviceActionStatus.Error
+                ) {
+                  resultObservable.next(
+                    this.getTransactionResultForEvent(result, signType),
+                  );
+                }
               }),
             );
           }),
