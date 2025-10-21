@@ -45,12 +45,16 @@ export default function Index() {
   const providerRequestParamsRef = useRef<HTMLTextAreaElement>(null);
   const [result, setResult] = useState<string | null>(null);
 
-  const dispatchRequestProvider = useCallback(() => {
+  const dispatchRequestProvider = useCallback(async () => {
     if (typeof window === "undefined") return;
 
-    import("@ledgerhq/ledger-button").then((module) => {
-      Provider = module.LedgerEIP1193Provider;
-    });
+    await Promise.all([
+      // @ts-expect-error - CSS module is not typed
+      import("@ledgerhq/ledger-button/styles.css"),
+      import("@ledgerhq/ledger-button").then((module) => {
+        Provider = module.LedgerEIP1193Provider;
+      }),
+    ]);
 
     window.dispatchEvent(new Event("eip6963:requestProvider"));
     setModalType("accounts");
