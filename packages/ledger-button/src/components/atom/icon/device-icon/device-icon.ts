@@ -4,9 +4,10 @@ import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../../tailwind-element.js";
-import flex from "./flex";
-import nano from "./nano";
-import stax from "./stax";
+import apexp from "./apexp.js";
+import flex from "./flex.js";
+import nano from "./nano.js";
+import stax from "./stax.js";
 
 export type DeviceModelId =
   | "stax"
@@ -43,6 +44,8 @@ export class DeviceIcon extends LitElement {
       case "nanoSP":
       case "nanoX":
         return nano;
+      case "apexp":
+        return apexp;
       default:
         return flex;
     }

@@ -7,7 +7,7 @@ const meta: Meta = {
   title: "Component/Atom/Icon/DeviceIcons",
   tags: ["autodocs"],
   render: (args) =>
-    html`<div>
+    html`<div style="background-color: #000;">
       <device-icon .modelId=${args.modelId}></device-icon>
     </div>`,
   argTypes: {
@@ -55,7 +55,7 @@ export const NanoX: Story = {
 export const AllDevices: Story = {
   render: () => html`
     <div
-      style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;"
+      style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; background-color: black; color: white;"
     >
       <div style="text-align: center;">
         <device-icon modelId="stax"></device-icon>

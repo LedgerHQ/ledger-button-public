@@ -1,6 +1,8 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { default as PinApexDark } from "./apex/01_APEX_DARK_PIN.json";
+import { default as ContinueOnLedgerApexDark } from "./apex/02_APEX_DARK_CONTINUE_ON_LEDGER.json";
 import { default as PinFlexDark } from "./flex/01_EUROPA_DARK_PIN.json";
 import { default as PairingFlexDark } from "./flex/02_EUROPA_DARK_PAIRING.json";
 import { default as PairedSuccessFlexDark } from "./flex/03_EUROPA_DARK_PAIRED_SUCCESS.json";
@@ -73,14 +75,13 @@ export const animationDataMap: Record<
     continueOnLedger: ContinueOnLedgerNanoSDark,
     signTransaction: ContinueOnLedgerNanoSDark,
   },
-  // TODO: ¯\_(ツ)_/¯
   apexp: {
-    pin: PinFlexDark,
-    pairing: PairingFlexDark,
-    pairingSuccess: PairedSuccessFlexDark,
-    frontView: FrontViewFlexDark,
-    continueOnLedger: ContinueOnLedgerFlexDark,
-    signTransaction: SignTransactionFlexDark,
+    pin: PinApexDark,
+    pairing: null,
+    pairingSuccess: null,
+    frontView: null,
+    continueOnLedger: ContinueOnLedgerApexDark,
+    signTransaction: ContinueOnLedgerApexDark,
   },
 };
 

@@ -10,10 +10,12 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   CloseIcon,
+  DesktopIcon,
   DeviceIcon,
   ErrorIcon,
   ExternalLinkIcon,
   LedgerLogoIcon,
+  MobileIcon,
   UsbIcon,
 } from "./index";
 
@@ -79,9 +81,8 @@ export class LedgerIcon extends LitElement {
       check: () => CheckIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
-      mobile: () => html`<platform-icon platformType="mobile"></platform-icon>`,
-      desktop: () =>
-        html`<platform-icon platformType="desktop"></platform-icon>`,
+      mobile: () => MobileIcon,
+      desktop: () => DesktopIcon,
       cart: () => CartIcon,
       externalLink: () => ExternalLinkIcon,
     };
@@ -91,7 +92,8 @@ export class LedgerIcon extends LitElement {
     return html`<div
       aria-hidden="true"
       role="img"
-      style="fill: ${this.fillColor ?? "black"};"
+      style="fill: ${this.fillColor ?? "black"}; color: ${this.fillColor ??
+      "black"};"
       class="${this.iconClasses} lb-flex lb-items-center lb-justify-center"
     >
       ${renderIcon()}

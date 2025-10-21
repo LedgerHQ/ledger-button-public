@@ -31,6 +31,13 @@ const styles = css`
     height: 100%;
     opacity: 0;
     display: none;
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(102, 102, 102, 0.6) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    /* blur/backdrop blur */
+    backdrop-filter: blur(calc(var(--blur-md, 12px) / 2));
   }
 
   .modal-container {

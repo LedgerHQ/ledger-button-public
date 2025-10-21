@@ -9,7 +9,7 @@ import FlexDeviceIcon from "./flex-device-icon.js";
 import NanoxDeviceIcon from "./nanox-device-icon.js";
 import StaxDeviceIcon from "./stax-device-icon.js";
 
-export type DeviceType = "nanox" | "stax" | "flex";
+export type DeviceType = "nanox" | "stax" | "flex" | "apexp";
 
 const infoStateVariants = cva(
   "lb-flex lb-flex-col lb-items-center lb-justify-center lb-text-center lb-text-base",
@@ -17,6 +17,7 @@ const infoStateVariants = cva(
     variants: {
       device: {
         flex: "lb-p-24 lb-pt-0",
+        apexp: "lb-p-24 lb-pt-0",
         nanox: "lb-p-20 lb-pt-0",
         stax: "lb-p-28 lb-pt-0",
       },
@@ -31,6 +32,7 @@ const deviceIconVariants = cva("", {
   variants: {
     device: {
       flex: "",
+      apexp: "",
       nanox: "lb-opacity-80",
       stax: "lb-opacity-90",
     },
@@ -63,6 +65,7 @@ export class LedgerInfoState extends LitElement {
       flex: FlexDeviceIcon,
       nanox: NanoxDeviceIcon,
       stax: StaxDeviceIcon,
+      apexp: FlexDeviceIcon,
     };
 
     return deviceMapper[this.device];

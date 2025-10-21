@@ -4,7 +4,6 @@ export * from "./atom/chip/ledger-chip.js";
 export * from "./atom/crypto-icon/ledger-crypto-icon.js";
 export * from "./atom/icon/device-icon/device-icon.js";
 export * from "./atom/icon/ledger-icon.js";
-export * from "./atom/icon/platform-icon/platform-icon.js";
 export * from "./atom/lottie/ledger-lottie.js";
 export * from "./atom/modal/ledger-modal.js";
 export * from "./atom/modal/ledger-modal-story-wrapper.js";

@@ -91,7 +91,7 @@ export class LedgerButton extends LitElement {
   @property({ type: Boolean })
   disabled = false;
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   icon = false;
 
   @property({ type: String })
