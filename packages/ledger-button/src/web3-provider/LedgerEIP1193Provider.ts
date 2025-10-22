@@ -13,6 +13,7 @@
 import "../ledger-button-app.js";
 
 import {
+  Account,
   BlindSigningDisabledError,
   BroadcastTransactionError,
   // type ChainInfo,
@@ -76,7 +77,7 @@ export class LedgerEIP1193Provider
 {
   private _isConnected = false;
   private _selectedAccount: string | null = null;
-  private _selectedChainId = 1;
+  private _selectedChainId = -1;
 
   private _id = 0;
 
@@ -154,44 +155,58 @@ export class LedgerEIP1193Provider
     }, 1000);
   }
 
+  private setSelectedAccount(account: Account) {
+    if (
+      this._selectedAccount &&
+      this._selectedAccount === account.freshAddress &&
+      this._isConnected
+    ) {
+      return;
+    }
+    this._isConnected = true;
+    this._selectedAccount = account.freshAddress;
+    this.dispatchEvent(
+      new CustomEvent<string[]>("accountsChanged", {
+        bubbles: true,
+        composed: true,
+        detail: [this._selectedAccount],
+      }),
+    );
+  }
+
+  private setSelectedChainId(chainId: number) {
+    if (this._selectedChainId === chainId) {
+      return;
+    }
+    this._selectedChainId = chainId;
+    this.dispatchEvent(
+      new CustomEvent<string>("chainChanged", {
+        bubbles: true,
+        composed: true,
+        detail: "0x" + chainId.toString(16),
+      }),
+    );
+  }
+
   private async handleAccounts(): Promise<string[]> {
     return new Promise((resolve) => {
+      const selectedAccount = this.core.getSelectedAccount();
+      //Selected account is already set and the same as the selected account in core
       if (
         this._selectedAccount &&
-        this.core.getSelectedAccount()?.freshAddress === this._selectedAccount
+        selectedAccount &&
+        selectedAccount.freshAddress === this._selectedAccount
       ) {
-        this.dispatchEvent(
-          new CustomEvent<string[]>("accountsChanged", {
-            bubbles: true,
-            composed: true,
-            detail: [this._selectedAccount],
-          }),
-        );
         return resolve([this._selectedAccount]);
       }
 
-      const selectedAccount = this.core.getSelectedAccount();
       if (selectedAccount) {
-        this._selectedAccount = selectedAccount.freshAddress;
-        this._isConnected = true;
-        this.dispatchEvent(
-          new CustomEvent<string[]>("accountsChanged", {
-            bubbles: true,
-            composed: true,
-            detail: [selectedAccount.freshAddress],
-          }),
-        );
-        return resolve([selectedAccount.freshAddress]);
+        this.setSelectedAccount(selectedAccount);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return resolve([this._selectedAccount!]);
       }
 
-      this.dispatchEvent(
-        new CustomEvent<string[]>("accountsChanged", {
-          bubbles: true,
-          composed: true,
-          detail: [],
-        }),
-      );
-
+      //SHOULD NEVER HAPPEN
       return resolve([]);
     });
   }
@@ -204,34 +219,18 @@ export class LedgerEIP1193Provider
 
       if (selectedAccount) {
         this._selectedAccount = selectedAccount.freshAddress;
-        this._isConnected = true;
 
         //Update the selected chain id
+        const address = selectedAccount.freshAddress;
         const chainId = getChainIdFromCurrencyId(selectedAccount.currencyId);
-        this._selectedChainId = chainId;
 
-        this.dispatchEvent(
-          new CustomEvent<string[]>("accountsChanged", {
-            bubbles: true,
-            composed: true,
-            detail: [selectedAccount.freshAddress],
-          }),
-        );
-
-        this.dispatchEvent(
-          new CustomEvent<string>("chainChanged", {
-            bubbles: true,
-            composed: true,
-            detail: "0x" + this._selectedChainId.toString(16),
-          }),
-        );
-
-        return resolve([selectedAccount.freshAddress]);
+        this.setSelectedAccount(selectedAccount);
+        this.setSelectedChainId(chainId);
+        return resolve([address]);
       } else {
         window.addEventListener(
           "ledger-provider-account-selected",
           (e) => {
-            this._isConnected = true;
             this._currentEvent = null;
             if (e.detail.status === "error") {
               return reject(this.mapErrors(e.detail.error));
@@ -239,28 +238,15 @@ export class LedgerEIP1193Provider
 
             if (e.detail.status === "success") {
               //Update the selected account
+
               this._selectedAccount = e.detail.account.freshAddress;
-              this.dispatchEvent(
-                new CustomEvent<string[]>("accountsChanged", {
-                  bubbles: true,
-                  composed: true,
-                  detail: [e.detail.account.freshAddress],
-                }),
-              );
+              this.setSelectedAccount(e.detail.account);
 
               //Update the selected chain id
               const chainId = getChainIdFromCurrencyId(
                 e.detail.account.currencyId,
               );
-              this._selectedChainId = chainId;
-
-              this.dispatchEvent(
-                new CustomEvent<string>("chainChanged", {
-                  bubbles: true,
-                  composed: true,
-                  detail: "0x" + this._selectedChainId.toString(16),
-                }),
-              );
+              this.setSelectedChainId(chainId);
 
               //Update the connected status
               this._isConnected = true;
@@ -474,15 +460,9 @@ export class LedgerEIP1193Provider
           ),
         );
       }
-      this._selectedChainId = chainIdNumber;
+
       this.core.setChainId(chainIdNumber);
-      window.dispatchEvent(
-        new CustomEvent("chainChanged", {
-          bubbles: true,
-          composed: true,
-          detail: "0x" + this._selectedChainId.toString(16),
-        }),
-      );
+      this.setSelectedChainId(chainIdNumber);
 
       //returns null if the active chain is switched.
       //cf. https://docs.metamask.io/wallet/reference/json-rpc-methods/wallet_switchEthereumChain#returns
@@ -492,14 +472,6 @@ export class LedgerEIP1193Provider
 
   private async handleChainId(): Promise<string> {
     return new Promise((resolve) => {
-      this.dispatchEvent(
-        new CustomEvent<string>("chainChanged", {
-          bubbles: true,
-          composed: true,
-          detail: "0x" + this._selectedChainId.toString(16),
-        }),
-      );
-
       //Chain ID must be in hex format => https://ethereum.org/developers/docs/apis/json-rpc/#eth_chainId
       resolve("0x" + this._selectedChainId.toString(16));
     });
@@ -635,7 +607,6 @@ export class LedgerEIP1193Provider
       );
     }
   }
-
   async disconnect(
     code = 1000, // NOTE: Code here must follow the [CloseEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes) convention
     message = "Provider disconnected",
@@ -644,7 +615,12 @@ export class LedgerEIP1193Provider
     // TODO: Logic to disconnect from the chain
     if (this._isConnected) {
       this._isConnected = false;
+
       this.core.disconnect();
+      this._isConnected = false;
+      this._selectedAccount = null;
+      this._selectedChainId = -1;
+      this._currentEvent = null;
 
       // Clean up pending request on disconnect
       if (this._pendingPromise) {

@@ -65,12 +65,13 @@ export default function Index() {
 
     // Type assertion for the specific event handler
     const handleAccountsChanged = (accounts: string[]) => {
+      console.log("accountsChanged received", accounts);
       setIsOpen(false);
       setAccount(accounts[0]);
     };
 
     const handleChainChanged = (chainId: string) => {
-      console.log("chainChanged", chainId);
+      console.log("chainChanged received", chainId);
     };
 
     selectedProvider.provider.on("accountsChanged", handleAccountsChanged);
