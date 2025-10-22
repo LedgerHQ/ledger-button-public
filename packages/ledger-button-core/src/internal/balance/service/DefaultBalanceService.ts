@@ -79,7 +79,8 @@ export class DefaultBalanceService implements BalanceService {
 
       //remove undefined from tokenBalances
       const filteredTokenBalances: TokenBalance[] = tokenBalances.filter(
-        Boolean,
+        (tokenBalance) =>
+          tokenBalance !== undefined && tokenBalance.balance > 0,
       ) as TokenBalance[];
 
       return Right({
