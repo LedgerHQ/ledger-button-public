@@ -1,4 +1,6 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
+import { sha256 } from "ethers";
+
 import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
@@ -17,7 +19,6 @@ import {
   type TypedMessageFlowInitializationEventData,
 } from "../backend/model/trackEvent.js";
 import { generateUUID } from "./utils.js";
-import { sha256 } from "ethers";
 
 export function normalizeTransactionHash(hash: string): string {
   return hash.toLowerCase().replace(/^0x/, "");

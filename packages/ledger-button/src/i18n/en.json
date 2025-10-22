@@ -154,6 +154,12 @@
         "description": "You rejected the transaction on your {device}",
         "cta1": "Close",
         "cta2": "Retry transaction"
+      },
+      "UserRejectedMessage": {
+        "title": "Message rejected",
+        "description": "You rejected the message signing on your {device}",
+        "cta1": "Close",
+        "cta2": "Retry message signing"
       }
     },
     "ledgerSync": {

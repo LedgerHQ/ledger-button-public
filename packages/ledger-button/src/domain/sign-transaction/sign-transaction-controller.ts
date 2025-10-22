@@ -323,17 +323,26 @@ export class SignTransactionController implements ReactiveController {
       }
       case error instanceof UserRejectedTransactionError: {
         const deviceName = this.getDeviceName();
+        const isTx = isSignedTransactionResult(this.currentTransaction);
         this.state = {
           screen: "error",
           status: {
-            title: lang.error.device.UserRejectedTransaction.title,
-            message:
-              lang.error.device.UserRejectedTransaction.description.replace(
-                "{device}",
-                deviceName,
-              ),
+            title: isTx
+              ? lang.error.device.UserRejectedTransaction.title
+              : lang.error.device.UserRejectedMessage.title,
+            message: isTx
+              ? lang.error.device.UserRejectedTransaction.description.replace(
+                  "{device}",
+                  deviceName,
+                )
+              : lang.error.device.UserRejectedMessage.description.replace(
+                  "{device}",
+                  deviceName,
+                ),
             cta1: {
-              label: lang.error.device.UserRejectedTransaction.cta1,
+              label: isTx
+                ? lang.error.device.UserRejectedTransaction.cta1
+                : lang.error.device.UserRejectedMessage.cta1,
               action: async () => {
                 window.dispatchEvent(
                   new CustomEvent("ledger-internal-sign", {
@@ -349,7 +358,9 @@ export class SignTransactionController implements ReactiveController {
               },
             },
             cta2: {
-              label: lang.error.device.UserRejectedTransaction.cta2,
+              label: isTx
+                ? lang.error.device.UserRejectedTransaction.cta2
+                : lang.error.device.UserRejectedMessage.cta2,
               action: async () => {
                 if (!this.currentTransaction) {
                   return;
@@ -419,13 +430,13 @@ export class SignTransactionController implements ReactiveController {
       case 56:
         return `https://bscscan.com/tx/${transactionHash}`;
       case 59144:
-        return `https://linea.blockscout.com/tx/${transactionHash}`;
+        return `https://lineascan.build/tx/${transactionHash}`;
       case 146:
-        return `https://sonic.blockscout.com/tx/${transactionHash}`;
+        return `https://sonicscan.org/tx/${transactionHash}`;
       case 324:
-        return `https://zkscan.io/tx/${transactionHash}`;
+        return `https://zkscan.io/explorer/transactions/${transactionHash}`;
       case 43114:
-        return `https://snowtrace.io/tx/${transactionHash}`;
+        return `https://snowtrace.io/tx/${transactionHash}?chainid=43114`;
       default:
         return null;
     }

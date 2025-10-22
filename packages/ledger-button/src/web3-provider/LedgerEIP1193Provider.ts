@@ -68,7 +68,6 @@ const SUPPORTED_CHAINS = [
   "137",
   "146",
   "324",
-  "100",
 ];
 
 export class LedgerEIP1193Provider
