@@ -1,3 +1,4 @@
+import { bufferToHexaString } from "@ledgerhq/device-management-kit";
 import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
@@ -12,8 +13,11 @@ import {
   type SessionAuthenticationEventData,
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
+  TypedMessageFlowCompletionEventData,
+  type TypedMessageFlowInitializationEventData,
 } from "../backend/model/trackEvent.js";
 import { generateUUID } from "./utils.js";
+import { sha256 } from "ethers";
 
 export function normalizeTransactionHash(hash: string): string {
   return hash.toLowerCase().replace(/^0x/, "");
@@ -34,6 +38,12 @@ interface LedgerSyncEventParams extends SessionEventParams {
 interface TransactionEventParams extends LedgerSyncEventParams {
   unsignedTransactionHash: string;
   chainId: string | null;
+}
+
+export function stringToSha256(string: string): string {
+  const bytes = new TextEncoder().encode(string);
+  const hexString = bufferToHexaString(bytes);
+  return sha256(hexString);
 }
 
 export class EventTrackingUtils {
@@ -268,6 +278,58 @@ export class EventTrackingUtils {
     return {
       name: EventType.InvoicingTransactionSigned,
       type: EventType.InvoicingTransactionSigned,
+      data,
+    };
+  }
+
+  static createTypedMessageFlowInitializationEvent(params: {
+    dAppId: string;
+    sessionId: string;
+    ledgerSyncUserId: string;
+    typedMessageHash: string;
+    chainId: string;
+  }): EventRequest {
+    const data: TypedMessageFlowInitializationEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.TypedMessageFlowInitialization,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.ledgerSyncUserId,
+      blockchain_network_selected: "ethereum",
+      chain_id: params.chainId,
+      typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
+    };
+
+    return {
+      name: EventType.TypedMessageFlowInitialization,
+      type: EventType.TypedMessageFlowInitialization,
+      data,
+    };
+  }
+
+  static createTypedMessageFlowCompletionEvent(params: {
+    dAppId: string;
+    sessionId: string;
+    ledgerSyncUserId: string;
+    typedMessageHash: string;
+    chainId: string;
+  }): EventRequest {
+    const data: TypedMessageFlowCompletionEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.TypedMessageFlowCompletion,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.ledgerSyncUserId,
+      blockchain_network_selected: "ethereum",
+      chain_id: params.chainId,
+      typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
+    };
+
+    return {
+      name: EventType.TypedMessageFlowCompletion,
+      type: EventType.TypedMessageFlowCompletion,
       data,
     };
   }

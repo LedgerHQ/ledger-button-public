@@ -9,6 +9,8 @@ export enum EventType {
   SessionAuthentication = "session_authentication",
   TransactionFlowCompletion = "transaction_flow_completion",
   TransactionFlowInitialization = "transaction_flow_initialization",
+  TypedMessageFlowInitialization = "typed_message_flow_initialization",
+  TypedMessageFlowCompletion = "typed_message_flow_completion",
 }
 
 type BaseEventData = {
@@ -92,6 +94,24 @@ export type SessionAuthenticationEventData = BaseEventData & {
   transaction_hash: string;
 };
 
+export type TypedMessageFlowInitializationEventData = BaseEventData & {
+  event_type: "typed_message_flow_initialization";
+  session_id: string;
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  typed_message_hash: string;
+};
+
+export type TypedMessageFlowCompletionEventData = BaseEventData & {
+  event_type: "typed_message_flow_completion";
+  session_id: string;
+  ledger_sync_user_id: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  typed_message_hash: string;
+};
+
 export type EventData =
   | InvoicingTransactionSignedEventData
   | ConsentGivenEventData
@@ -102,7 +122,9 @@ export type EventData =
   | OnboardingEventData
   | TransactionFlowInitializationEventData
   | TransactionFlowCompletionEventData
-  | SessionAuthenticationEventData;
+  | SessionAuthenticationEventData
+  | TypedMessageFlowInitializationEventData
+  | TypedMessageFlowCompletionEventData;
 
 export type EventRequest = {
   name: string;
