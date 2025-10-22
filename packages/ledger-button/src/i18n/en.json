@@ -105,6 +105,16 @@
       "description": "There was an error signing your transaction. Please try again."
     }
   },
+  "signMessage": {
+    "success": {
+      "title": "Message successfully signed.",
+      "description": "Your message has been signed successfully."
+    },
+    "error": {
+      "title": "Message signing failed",
+      "description": "There was an error signing your message. Please try again."
+    }
+  },
   "error": {
     "generic": {
       "account": {
