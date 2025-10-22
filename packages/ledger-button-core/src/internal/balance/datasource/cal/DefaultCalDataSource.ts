@@ -23,20 +23,21 @@ export class DefaultCalDataSource implements CalDataSource {
     tokenAddress: string,
     currencyId: string,
   ): Promise<Either<Error, TokenInformation>> {
-    //Add check if blockchain is supported by Alpaca
     const chainId = getChainIdFromCurrencyId(currencyId);
+
     const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=name,decimals,ticker`;
     const getTokenInformationResult: Either<Error, CalTokenResponse> =
       await this.networkService.get(requestUrl);
 
-    if (getTokenInformationResult.isRight()) {
-      if (getTokenInformationResult.extract().length > 0) {
-        return Right(getTokenInformationResult.extract()[0]);
-      } else {
-        return Left(new Error("No token information found in Cal"));
-      }
-    } else {
+    if (getTokenInformationResult.isLeft()) {
       return Left(new Error("Failed to fetch token information from Cal"));
     }
+
+    const tokenInformation = getTokenInformationResult.extract();
+    if (!Array.isArray(tokenInformation) || tokenInformation.length === 0) {
+      return Left(new Error("No token information found in Cal"));
+    }
+
+    return Right(tokenInformation[0]);
   }
 }
