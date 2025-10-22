@@ -22,7 +22,7 @@ jobs:
           ref: ${{ github.event.inputs.ref || github.event.ref }}
           path: button
           sparse-checkout: |
-            apps/docs/pages/docs
+            apps/docs
 
       - uses: actions/checkout@v5
         with:
@@ -35,11 +35,16 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
+      - name: LS
+        run: |
+          ls -la button/apps/docs/pages
+          ls -la button/apps/docs/public
       - name: Copy files
         run: |
           mkdir -p portal/pages/docs/ledger-wallet-provider
+          mkdir -p portal/public/wallet-provider
           cp -r button/apps/docs/pages/docs/ledger-wallet-provider/* portal/pages/docs/ledger-wallet-provider
-          cp -r button/apps/docs/pages/public/wallet-provider/* portal/pages/public/wallet-provider
+          cp -r button/apps/docs/public/wallet-provider/* portal/public/wallet-provider
 
       - name: Set branch name in outputs
         id: branch-name
@@ -53,7 +58,7 @@ jobs:
           # add timestamp to commit message
           git checkout -b ${{ steps.branch-name.outputs.BRANCH_NAME }}
           git add pages/docs/ledger-wallet-provider
-          git add pages/public/wallet-provider
+          git add public/wallet-provider
           git commit -m "doc: add new changes from device management kit to portal"
 
       - name: Push branch to remote
