@@ -283,7 +283,6 @@ export class LedgerEIP1193Provider
       //Sanitize transaction for EIP-1193
       if (typeof params[0] === "object") {
         const transaction = params[0] as Record<string, unknown>;
-        transaction["chainId"] = "0x" + this._selectedChainId.toString(16);
         tx = transaction;
       } else {
         tx = params[0] as string;

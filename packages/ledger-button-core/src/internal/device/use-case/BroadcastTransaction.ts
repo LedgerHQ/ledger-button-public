@@ -1,4 +1,4 @@
-import { Signature } from "ethers";
+import { ethers, Signature } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
 import {
@@ -15,6 +15,7 @@ import {
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
 } from "../../backend/types.js";
+import { getCurrencyIdFromChainId } from "../../blockchain/evm/chainUtils.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -50,9 +51,38 @@ export class BroadcastTransaction {
 
     this.logger.debug("Signed Transaction to broadcast", { signedTransaction });
 
+    let chainIdToUse = this.contextService.getContext().chainId;
+    const txChainId = ethers.Transaction.from(params.rawTransaction).chainId;
+    if (Number(txChainId) !== chainIdToUse) {
+      this.logger.error(
+        "Chain ID mismatch between selected Chain ID and transaction Chain ID",
+        {
+          txChainId,
+          eipProviderChainId: this.contextService
+            .getContext()
+            .chainId.toString(),
+        },
+      );
+
+      const currencyId = getCurrencyIdFromChainId(Number(txChainId));
+      if (!currencyId) {
+        this.logger.error(
+          "Unsupported chain ID for tx, cannot broadcast transaction",
+          {
+            txChainId,
+          },
+        );
+        throw new Error(
+          "Unsupported chain id for tx, cannot broadcast transaction",
+        );
+      }
+
+      chainIdToUse = Number(txChainId);
+    }
+
     const broadcastJsonRpcRequest = this.craftRequestFromSignedTransaction(
       signedTransaction,
-      this.contextService.getContext().chainId.toString(),
+      chainIdToUse.toString(),
     );
 
     const result = await this.backendService.broadcast(broadcastJsonRpcRequest);
