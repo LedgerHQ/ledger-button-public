@@ -1,6 +1,6 @@
 import "../../../components/index.js";
 
-import { Account } from "@ledgerhq/ledger-button-core";
+import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";

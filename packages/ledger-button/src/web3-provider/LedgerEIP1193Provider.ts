@@ -35,9 +35,9 @@ import {
   type RpcMethods,
   TypedData,
   UserRejectedTransactionError,
-} from "@ledgerhq/ledger-button-core";
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
+import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
+import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
 

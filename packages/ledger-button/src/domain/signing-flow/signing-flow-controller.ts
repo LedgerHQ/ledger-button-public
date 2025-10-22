@@ -1,4 +1,4 @@
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 

@@ -1,10 +1,10 @@
-# LedgerButton
+# Ledger Wallet Provider
 
 A comprehensive monorepo for Ledger's Web3 integration components, providing seamless hardware wallet connectivity for web applications.
 
 ## 🚀 Overview
 
-LedgerButton is a modern monorepo built with **Nx**, **pnpm**, and **TypeScript** that provides:
+Ledger Wallet Provider is a modern monorepo built with **Nx**, **pnpm**, and **TypeScript** that provides:
 
 - **Web Components** for easy integration into any web framework
 - **Core SDK** for advanced wallet management and transaction signing
@@ -17,8 +17,8 @@ LedgerButton is a modern monorepo built with **Nx**, **pnpm**, and **TypeScript*
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@ledgerhq/ledger-button`](./packages/ledger-button) | Main Web Component library with UI components | `1.0.0-rc.5` |
-| [`@ledgerhq/ledger-button-core`](./packages/ledger-button-core) | Core SDK for wallet management and transaction signing | `1.0.0-rc.5` |
+| [`@ledgerhq/ledger-wallet-provider`](./packages/ledger-button) | Main Web Component library with UI components | `1.0.0-rc.5` |
+| [`@ledgerhq/ledger-wallet-provider-core`](./packages/ledger-button-core) | Core SDK for wallet management and transaction signing | `1.0.0-rc.5` |
 
 ### Applications
 
@@ -29,7 +29,7 @@ LedgerButton is a modern monorepo built with **Nx**, **pnpm**, and **TypeScript*
 
 ## 🛠️ Tech Stack
 
-- **Monorepo Management**: [Nx](https://nx.dev) 21.3.9
+- **Monorepo Management**: [Nx](https://nx.dev)
 - **Package Manager**: [pnpm](https://pnpm.io) with workspace support
 - **Toolchain Management**: [prototools](https://moonrepo.dev/docs/proto) for development environment setup
 - **Build System**: [Vite](https://vitejs.dev) for fast builds
@@ -52,7 +52,7 @@ LedgerButton is a modern monorepo built with **Nx**, **pnpm**, and **TypeScript*
 For an easier setup, install [prototools](https://moonrepo.dev/docs/proto/install).
 Once installed, the prerequisite tools can be easily installed using:
 ```bash
-cd ledger-button
+cd ledger-wallet-provider
 proto use
 ```
 
@@ -62,8 +62,8 @@ The command `proto use` will look into the `.prototools` file and install the re
 
 ```bash
 # Clone the repository
-git clone https://github.com/LedgerHQ/ledger-button.git
-cd ledger-button
+git clone https://github.com/LedgerHQ/ledger-button.git ledger-wallet-provider
+cd ledger-wallet-provider
 
 # Install dependencies
 pnpm install
@@ -73,13 +73,13 @@ pnpm install
 
 ```bash
 # Build the main package
-pnpm nx run build ledger-button
+pnpm nx run build ledger-wallet-provider
 
 # Start the test DApp
 pnpm nx run dev test-dapp
 
 # Run Storybook for component documentation
-pnpm nx run storybook ledger-button
+pnpm nx run storybook ledger-wallet-provider
 ```
 
 ## 📋 Available Scripts
@@ -88,9 +88,9 @@ pnpm nx run storybook ledger-button
 
 ```bash
 # Package-specific commands
-pnpm nx run <command> ledger-button          # Run commands for @ledgerhq/ledger-button
-pnpm nx run <command> ledger-button-core     # Run commands for @ledgerhq/ledger-button-core
-pnpm nx run <command> test-dapp               # Run commands for test-dapp
+pnpm nx run <command> ledger-wallet-provider          # Run commands for @ledgerhq/ledger-wallet-provider
+pnpm nx run <command> ledger-wallet-provider-core     # Run commands for @ledgerhq/ledger-wallet-provider-core
+pnpm nx run <command> test-dapp                       # Run commands for test-dapp
 ```
 
 ### Build & Test
@@ -127,8 +127,8 @@ pnpm release                    # Publish packages
 ### Monorepo Structure
 
 ```
-ledger-button/
-├── packages/                   # Published packages
+ledger-wallet-provider/
+├── packages/                  # Published packages
 │   ├── ledger-button/         # Main Web Component library
 │   └── ledger-button-core/    # Core SDK
 ├── apps/                      # Applications
@@ -141,7 +141,7 @@ ledger-button/
 
 ```mermaid
 graph TD
-    A[ledger-button] --> B[ledger-button-core]
+    A[ledger-wallet-provider] --> B[ledger-wallet-provider-core]
     C[test-dapp] --> A
 ```
 
@@ -201,7 +201,7 @@ This project uses [Conventional Commits](https://conventionalcommits.org) with [
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE.MD](./LICENSE.MD) file for details.
+This project is licensed under the APACHE 2.0 License - see the [LICENSE](./LICENSE) file for details.
 
 ## 🔗 Links
 

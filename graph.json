@@ -10,7 +10,7 @@
           "targets": {
             "typecheck": {
               "dependsOn": [
-                "^typecheck"
+                "^build"
               ],
               "cache": true,
               "inputs": [
@@ -286,7 +286,7 @@
           "targets": {
             "typecheck": {
               "dependsOn": [
-                "^typecheck"
+                "^build"
               ],
               "cache": true,
               "inputs": [
@@ -604,7 +604,7 @@
           "targets": {
             "typecheck": {
               "dependsOn": [
-                "^typecheck"
+                "^build"
               ],
               "cache": true,
               "inputs": [
@@ -931,8 +931,8 @@
           "implicitDependencies": []
         }
       },
-      "@ledgerhq/ledger-button-core": {
-        "name": "@ledgerhq/ledger-button-core",
+      "@ledgerhq/ledger-wallet-provider-core": {
+        "name": "@ledgerhq/ledger-wallet-provider-core",
         "type": "lib",
         "data": {
           "root": "packages/ledger-button-core",
@@ -940,7 +940,7 @@
           "targets": {
             "typecheck": {
               "dependsOn": [
-                "^typecheck"
+                "^build"
               ],
               "cache": true,
               "inputs": [
@@ -953,20 +953,8 @@
                 }
               ],
               "outputs": [
-                "{projectRoot}/**/*.js",
-                "{projectRoot}/**/*.cjs",
-                "{projectRoot}/**/*.mjs",
-                "{projectRoot}/**/*.jsx",
-                "{projectRoot}/**/*.js.map",
-                "{projectRoot}/**/*.jsx.map",
-                "{projectRoot}/**/*.d.ts",
-                "{projectRoot}/**/*.d.cts",
-                "{projectRoot}/**/*.d.mts",
-                "{projectRoot}/**/*.d.ts.map",
-                "{projectRoot}/**/*.d.cts.map",
-                "{projectRoot}/**/*.d.mts.map",
-                "{projectRoot}/tsconfig.tsbuildinfo",
                 "{projectRoot}/out-tsc/vitest/**/*.d.ts",
+                "{projectRoot}/out-tsc/vitest/**/*.d.ts.map",
                 "{projectRoot}/out-tsc/vitest/tsconfig.tsbuildinfo"
               ],
               "syncGenerators": [
@@ -1055,7 +1043,7 @@
               ],
               "executor": "nx:run-commands",
               "options": {
-                "command": "pnpm exec nx watch --projects @ledgerhq/ledger-button-core --includeDependentProjects -- pnpm exec nx build-deps @ledgerhq/ledger-button-core"
+                "command": "pnpm exec nx watch --projects @ledgerhq/ledger-wallet-provider-core --includeDependentProjects -- pnpm exec nx build-deps @ledgerhq/ledger-wallet-provider-core"
               },
               "configurations": {},
               "parallelism": true
@@ -1257,7 +1245,7 @@
           "metadata": {
             "targetGroups": {},
             "js": {
-              "packageName": "@ledgerhq/ledger-button-core",
+              "packageName": "@ledgerhq/ledger-wallet-provider-core",
               "packageExports": {
                 "./package.json": "./package.json",
                 ".": {
@@ -1271,15 +1259,15 @@
               "isInPackageManagerWorkspaces": true
             }
           },
-          "name": "@ledgerhq/ledger-button-core",
+          "name": "@ledgerhq/ledger-wallet-provider-core",
           "tags": [
             "npm:public"
           ],
           "implicitDependencies": []
         }
       },
-      "@ledgerhq/ledger-button": {
-        "name": "@ledgerhq/ledger-button",
+      "@ledgerhq/ledger-wallet-provider": {
+        "name": "@ledgerhq/ledger-wallet-provider",
         "type": "lib",
         "data": {
           "root": "packages/ledger-button",
@@ -1287,7 +1275,7 @@
           "targets": {
             "typecheck": {
               "dependsOn": [
-                "^typecheck"
+                "^build"
               ],
               "cache": true,
               "inputs": [
@@ -1300,25 +1288,15 @@
                 }
               ],
               "outputs": [
-                "{projectRoot}/**/*.js",
-                "{projectRoot}/**/*.cjs",
-                "{projectRoot}/**/*.mjs",
-                "{projectRoot}/**/*.jsx",
-                "{projectRoot}/**/*.js.map",
-                "{projectRoot}/**/*.jsx.map",
-                "{projectRoot}/**/*.d.ts",
-                "{projectRoot}/**/*.d.cts",
-                "{projectRoot}/**/*.d.mts",
-                "{projectRoot}/**/*.d.ts.map",
-                "{projectRoot}/**/*.d.cts.map",
-                "{projectRoot}/**/*.d.mts.map",
-                "{projectRoot}/tsconfig.tsbuildinfo",
                 "{projectRoot}/dist/**/*.d.ts",
+                "{projectRoot}/dist/**/*.d.ts.map",
                 "{projectRoot}/dist/tsconfig.lib.tsbuildinfo",
                 "{projectRoot}/out-tsc/vitest/**/*.d.ts",
+                "{projectRoot}/out-tsc/vitest/**/*.d.ts.map",
                 "{projectRoot}/out-tsc/vitest/tsconfig.tsbuildinfo",
                 "{projectRoot}/out-tsc/storybook/**/*.d.ts",
-                "{projectRoot}/out-tsc/storybook/tsconfig.tsbuildinfo"
+                "{projectRoot}/out-tsc/storybook/**/*.d.ts.map",
+                "{projectRoot}/out-tsc/storybook/tsconfig.storybook.tsbuildinfo"
               ],
               "syncGenerators": [
                 "@nx/js:typescript-sync"
@@ -1376,7 +1354,7 @@
               ],
               "executor": "nx:run-commands",
               "options": {
-                "command": "pnpm exec nx watch --projects @ledgerhq/ledger-button --includeDependentProjects -- pnpm exec nx build-deps @ledgerhq/ledger-button"
+                "command": "pnpm exec nx watch --projects @ledgerhq/ledger-wallet-provider --includeDependentProjects -- pnpm exec nx build-deps @ledgerhq/ledger-wallet-provider"
               },
               "configurations": {},
               "parallelism": true
@@ -1650,7 +1628,7 @@
           "metadata": {
             "targetGroups": {},
             "js": {
-              "packageName": "@ledgerhq/ledger-button",
+              "packageName": "@ledgerhq/ledger-wallet-provider",
               "packageExports": {
                 "./package.json": "./package.json",
                 ".": {
@@ -1664,7 +1642,7 @@
               "isInPackageManagerWorkspaces": true
             }
           },
-          "name": "@ledgerhq/ledger-button",
+          "name": "@ledgerhq/ledger-wallet-provider",
           "tags": [
             "npm:public"
           ],
@@ -1818,7 +1796,7 @@
             "npm:private"
           ],
           "implicitDependencies": [
-            "!@ledgerhq/ledger-button"
+            "!@ledgerhq/ledger-wallet-provider"
           ],
           "metadata": {
             "targetGroups": {},
@@ -1829,12 +1807,12 @@
           }
         }
       },
-      "@ledgerhq/ledger-button-workspace": {
-        "name": "@ledgerhq/ledger-button-workspace",
+      "@ledgerhq/ledger-wallet-provider-workspace": {
+        "name": "@ledgerhq/ledger-wallet-provider-workspace",
         "type": "app",
         "data": {
           "root": ".",
-          "name": "@ledgerhq/ledger-button-workspace",
+          "name": "@ledgerhq/ledger-wallet-provider-workspace",
           "includedScripts": [],
           "tags": [
             "npm:private"
@@ -1842,7 +1820,7 @@
           "metadata": {
             "targetGroups": {},
             "js": {
-              "packageName": "@ledgerhq/ledger-button-workspace",
+              "packageName": "@ledgerhq/ledger-wallet-provider-workspace",
               "isInPackageManagerWorkspaces": true
             }
           },
@@ -1873,16 +1851,16 @@
         }
       ],
       "@ledgerhq/ledger-button-webcomponent-poc": [],
-      "@ledgerhq/ledger-button-core": [],
-      "@ledgerhq/ledger-button": [
+      "@ledgerhq/ledger-wallet-provider-core": [],
+      "@ledgerhq/ledger-wallet-provider": [
         {
-          "source": "@ledgerhq/ledger-button",
-          "target": "@ledgerhq/ledger-button-core",
+          "source": "@ledgerhq/ledger-wallet-provider",
+          "target": "@ledgerhq/ledger-wallet-provider-core",
           "type": "static"
         }
       ],
       "@ledgerhq/test-dapp": [],
-      "@ledgerhq/ledger-button-workspace": []
+      "@ledgerhq/ledger-wallet-provider-workspace": []
     }
   }
 }

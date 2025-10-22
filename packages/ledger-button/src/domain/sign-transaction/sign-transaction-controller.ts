@@ -13,7 +13,7 @@ import {
   type SignTypedMessageParams,
   type UserInteractionNeeded,
   UserRejectedTransactionError,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 

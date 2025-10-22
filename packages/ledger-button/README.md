@@ -1,4 +1,4 @@
-# @ledgerhq/ledger-button
+# @ledgerhq/ledger-wallet-provider
 
 A comprehensive Web Components-based library that provides a complete Ledger hardware wallet integration solution for web applications. Built with Lit and designed to work with any frontend framework.
 
@@ -17,7 +17,7 @@ A comprehensive Web Components-based library that provides a complete Ledger har
 ## Installation
 
 ```bash
-npm install @ledgerhq/ledger-button
+npm install @ledgerhq/ledger-wallet-provider
 ```
 
 ## Quick Start
@@ -25,8 +25,8 @@ npm install @ledgerhq/ledger-button
 ### Basic Setup
 
 ```javascript
-import { initializeLedgerProvider } from '@ledgerhq/ledger-button';
-import '@ledgerhq/ledger-button/styles.css';
+import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider';
+import '@ledgerhq/ledger-wallet-provider/styles.css';
 
 // Initialize the Ledger provider
 const cleanup = initializeLedgerProvider({
@@ -54,7 +54,7 @@ window.dispatchEvent(new Event('eip6963:requestProvider'));
 
 ```tsx
 import { useEffect, useState, useCallback } from 'react';
-import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-button';
+import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-wallet-provider';
 
 function useProviders() {
   const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([]);
@@ -72,7 +72,7 @@ function useProviders() {
     // Dynamic import is required because the library uses browser APIs
     // and won't work with Server-Side Rendering (SSR)
     const initializeProvider = async () => {
-      const { initializeLedgerProvider } = await import('@ledgerhq/ledger-button');
+      const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider');
       
       const cleanup = initializeLedgerProvider({
         devConfig: {
@@ -169,7 +169,7 @@ function App() {
 
 ### `initializeLedgerProvider(options)`
 
-Initializes the Ledger Button provider and injects the UI components into the DOM.
+Initializes the Ledger Wallet Provider and injects the UI components into the DOM.
 
 #### Parameters
 
@@ -236,12 +236,12 @@ The library uses browser-specific APIs and requires dynamic imports in SSR envir
 
 ```javascript
 // ❌ Don't do this in SSR environments
-import { initializeLedgerProvider } from '@ledgerhq/ledger-button';
+import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider';
 
 // ✅ Use dynamic imports instead
 useEffect(() => {
   const initializeProvider = async () => {
-    const { initializeLedgerProvider } = await import('@ledgerhq/ledger-button');
+    const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider');
     return initializeLedgerProvider({ /* options */ });
   };
   
@@ -259,7 +259,7 @@ useEffect(() => {
 Import the CSS file to get the default styling:
 
 ```javascript
-import '@ledgerhq/ledger-button/styles.css';
+import '@ledgerhq/ledger-wallet-provider/styles.css';
 ```
 
 ## Development Mode
@@ -299,15 +299,15 @@ const cleanup = initializeLedgerProvider({
 
 ## Building
 
-Run `nx build ledger-button` to build the library.
+Run `nx build ledger-wallet-provider` to build the library.
 
 ## Testing
 
-Run `nx test ledger-button` to execute the unit tests via [Vitest](https://vitest.dev/).
+Run `nx test ledger-wallet-provider` to execute the unit tests via [Vitest](https://vitest.dev/).
 
 ## Storybook
 
-Run `nx storybook ledger-button` to start the Storybook development server for component development and testing.
+Run `nx storybook ledger-wallet-provider` to start the Storybook development server for component development and testing.
 
 ## Version
 

@@ -2,7 +2,7 @@ import {
   DeviceConnectionError,
   DeviceDisconnectedError,
   DeviceNotSupportedError,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
