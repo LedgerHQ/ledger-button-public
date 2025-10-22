@@ -1,6 +1,6 @@
 {
   "name": "@ledgerhq/ledger-button",
-  "version": "1.0.0-rc.6",
+  "version": "1.0.0-rc.8",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
