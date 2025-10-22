@@ -48,13 +48,9 @@ export default function Index() {
   const dispatchRequestProvider = useCallback(async () => {
     if (typeof window === "undefined") return;
 
-    await Promise.all([
-      // @ts-expect-error - CSS module is not typed
-      import("@ledgerhq/ledger-button/styles.css"),
-      import("@ledgerhq/ledger-button").then((module) => {
-        Provider = module.LedgerEIP1193Provider;
-      }),
-    ]);
+    import("@ledgerhq/ledger-button").then((module) => {
+      Provider = module.LedgerEIP1193Provider;
+    });
 
     window.dispatchEvent(new Event("eip6963:requestProvider"));
     setModalType("accounts");
