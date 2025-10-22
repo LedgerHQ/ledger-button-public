@@ -29,9 +29,8 @@ const styles = css`
     height: 100%;
     background: linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0) 29.8%,
-      rgba(0, 0, 0, 0.35) 51.02%,
-      var(--background-base) 93.25%
+      rgba(21, 21, 21, 0) 0%,
+      var(--background-canvas-sheet) 100%
     );
   }
 `;
