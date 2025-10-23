@@ -9,6 +9,8 @@ import {
 import { getRawTransactionFromEipTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type GasFeeEstimationService } from "../../balance/service/GasFeeEstimationService.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -28,6 +30,8 @@ export class SignTransaction {
     private readonly storageService: StorageService,
     @inject(deviceModuleTypes.SignRawTransactionUseCase)
     private readonly signRawTransaction: SignRawTransaction,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("[SignTransaction]");
   }
@@ -120,6 +124,15 @@ export class SignTransaction {
     transaction: Transaction,
   ): Promise<Transaction> {
     let completedTransaction: Transaction = transaction;
+
+    if (!completedTransaction.chainId) {
+      this.logger.debug("Chain ID is not set");
+      completedTransaction = {
+        ...completedTransaction,
+        chainId: this.contextService.getContext().chainId,
+      };
+    }
+
     if (
       !completedTransaction.gas &&
       !completedTransaction.maxFeePerGas &&

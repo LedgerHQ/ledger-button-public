@@ -420,4 +420,8 @@ export class LedgerButtonCore {
       chainId,
     });
   }
+
+  getChainId(): number {
+    return this._contextService.getContext().chainId;
+  }
 }

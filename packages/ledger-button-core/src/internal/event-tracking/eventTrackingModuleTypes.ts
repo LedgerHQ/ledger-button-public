@@ -6,4 +6,6 @@ export const eventTrackingModuleTypes = {
   TrackOnboarding: Symbol.for("TrackOnboarding"),
   TrackTransactionStarted: Symbol.for("TrackTransactionStarted"),
   TrackTransactionCompleted: Symbol.for("TrackTransactionCompleted"),
+  TrackTypedMessageStarted: Symbol.for("TrackTypedMessageStarted"),
+  TrackTypedMessageCompleted: Symbol.for("TrackTypedMessageCompleted"),
 };

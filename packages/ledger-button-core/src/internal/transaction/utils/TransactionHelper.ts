@@ -3,7 +3,6 @@ import { ethers, Signature, TransactionLike } from "ethers";
 
 import type { SignedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
 import type { Transaction } from "../../../api/model/signing/SignTransactionParams.js";
-import type { InvoicingEventData } from "../types.js";
 
 export function createSignedTransaction(
   rawTransaction: string,
@@ -21,7 +20,6 @@ export function createSignedTransaction(
 }
 
 export function getRawTransactionFromEipTransaction(transaction: Transaction) {
-  //Sanitize the transaction for Ethers library to avoid errors
   const sanitizedTransaction: TransactionLike = {
     chainId: transaction["chainId"],
     to: transaction["to"],
@@ -49,18 +47,4 @@ export function getRawTransactionFromEipTransaction(transaction: Transaction) {
 
 export function getHexaStringFromSignature(signature: DeviceSignature) {
   return ethers.Signature.from(signature).serialized;
-}
-
-export function getInvoicingEventDataFromTransaction(
-  rawTransaction: string,
-): InvoicingEventData {
-  const parsedTx = ethers.Transaction.from(rawTransaction);
-  const isETHTransfer = parsedTx.value && parsedTx.value > 0n;
-
-  return {
-    sourceToken: isETHTransfer ? "ETH" : parsedTx.to || "unknown",
-    targetToken: isETHTransfer ? "ETH" : parsedTx.to || "unknown",
-    recipientAddress: parsedTx.to || "",
-    transactionAmount: isETHTransfer ? ethers.formatEther(parsedTx.value) : "0",
-  };
 }

@@ -9,6 +9,8 @@ import { TrackOnboarding } from "./usecase/TrackOnboarding.js";
 import { TrackOpenSession } from "./usecase/TrackOpenSession.js";
 import { TrackTransactionCompleted } from "./usecase/TrackTransactionCompleted.js";
 import { TrackTransactionStarted } from "./usecase/TrackTransactionStarted.js";
+import { TrackTypedMessageCompleted } from "./usecase/TrackTypedMessageCompleted.js";
+import { TrackTypedMessageStarted } from "./usecase/TrackTypedMessageStarted.js";
 import { eventTrackingModuleTypes } from "./eventTrackingModuleTypes.js";
 
 interface EventTrackingModuleFactoryOptions {
@@ -54,5 +56,13 @@ export const eventTrackingModuleFactory = ({
     bind<TrackLedgerSyncActivated>(
       eventTrackingModuleTypes.TrackLedgerSyncActivated,
     ).to(TrackLedgerSyncActivated);
+
+    bind<TrackTypedMessageStarted>(
+      eventTrackingModuleTypes.TrackTypedMessageStarted,
+    ).to(TrackTypedMessageStarted);
+
+    bind<TrackTypedMessageCompleted>(
+      eventTrackingModuleTypes.TrackTypedMessageCompleted,
+    ).to(TrackTypedMessageCompleted);
   });
 };

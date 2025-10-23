@@ -49,6 +49,9 @@ import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
+import { TrackTypedMessageCompleted } from "../../event-tracking/usecase/TrackTypedMessageCompleted.js";
+import { TrackTypedMessageStarted } from "../../event-tracking/usecase/TrackTypedMessageStarted.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -76,12 +79,19 @@ export class SignTypedData {
     private readonly dappConfigService: DAppConfigService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
+    @inject(eventTrackingModuleTypes.TrackTypedMessageStarted)
+    private readonly trackTypedMessageStarted: TrackTypedMessageStarted,
+    @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
+    private readonly trackTypedMessageCompleted: TrackTypedMessageCompleted,
   ) {
     this.logger = loggerFactory("[SignTypedData]");
   }
 
   execute(params: SignTypedMessageParams): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
+    const [, typedData] = params;
+
+    this.trackTypedMessageStarted.execute(typedData);
 
     const sessionId = this.deviceManagementKitService.sessionId;
 
@@ -101,7 +111,6 @@ export class SignTypedData {
       });
     }
 
-    const [, typedData] = params;
     const signType = "typed-message";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -262,9 +271,9 @@ export class SignTypedData {
                   throw result.error;
               }
             }
-            resultObservable.next(
-              this.getTransactionResultForEvent(result, signType),
-            );
+
+            // Track typed message flow successfully completed
+            this.trackTypedMessageCompleted.execute(typedData);
 
             return result;
           }),

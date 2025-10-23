@@ -1,6 +1,5 @@
 import {
   BlindSigningDisabledError,
-  BroadcastedTransactionResult,
   BroadcastTransactionError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
@@ -41,6 +40,7 @@ export type StatusState = {
   cta1: { label: string; action: () => void | Promise<void> };
   cta2?: { label: string; action: () => void | Promise<void> };
 };
+
 export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
   private transactionSubscription?: Subscription;
@@ -164,14 +164,36 @@ export class SignTransactionController implements ReactiveController {
   private mapSuccessToState(data: SignedResults): ScreenState {
     const lang = this.lang.currentTranslation;
 
-    const cta2 = isBroadcastedTransactionResult(data)
-      ? {
+    let cta2 = undefined;
+    if (isBroadcastedTransactionResult(data)) {
+      const scanWebsiteUrl = this.getScanWebsiteUrl(
+        this.core.getChainId(),
+        data.hash,
+      );
+      if (scanWebsiteUrl) {
+        cta2 = {
           label: lang.signTransaction?.success?.viewTransaction,
-          action: () =>
-            this.viewTransactionDetails(data as BroadcastedTransactionResult),
-        }
-      : undefined;
+          action: () => this.viewTransactionDetails(scanWebsiteUrl),
+        };
+      }
+    }
 
+    if (isSignedMessageOrTypedDataResult(data)) {
+      return {
+        screen: "success",
+        status: {
+          message: lang.signMessage?.success?.description,
+          title: lang.signMessage?.success?.title,
+          cta1: {
+            label: lang.common.button.close,
+            action: async () => {
+              this.close();
+            },
+          },
+          cta2,
+        },
+      };
+    }
     return {
       screen: "success",
       status: {
@@ -301,17 +323,26 @@ export class SignTransactionController implements ReactiveController {
       }
       case error instanceof UserRejectedTransactionError: {
         const deviceName = this.getDeviceName();
+        const isTx = isSignedTransactionResult(this.currentTransaction);
         this.state = {
           screen: "error",
           status: {
-            title: lang.error.device.UserRejectedTransaction.title,
-            message:
-              lang.error.device.UserRejectedTransaction.description.replace(
-                "{device}",
-                deviceName,
-              ),
+            title: isTx
+              ? lang.error.device.UserRejectedTransaction.title
+              : lang.error.device.UserRejectedMessage.title,
+            message: isTx
+              ? lang.error.device.UserRejectedTransaction.description.replace(
+                  "{device}",
+                  deviceName,
+                )
+              : lang.error.device.UserRejectedMessage.description.replace(
+                  "{device}",
+                  deviceName,
+                ),
             cta1: {
-              label: lang.error.device.UserRejectedTransaction.cta1,
+              label: isTx
+                ? lang.error.device.UserRejectedTransaction.cta1
+                : lang.error.device.UserRejectedMessage.cta1,
               action: async () => {
                 window.dispatchEvent(
                   new CustomEvent("ledger-internal-sign", {
@@ -327,7 +358,9 @@ export class SignTransactionController implements ReactiveController {
               },
             },
             cta2: {
-              label: lang.error.device.UserRejectedTransaction.cta2,
+              label: isTx
+                ? lang.error.device.UserRejectedTransaction.cta2
+                : lang.error.device.UserRejectedMessage.cta2,
               action: async () => {
                 if (!this.currentTransaction) {
                   return;
@@ -382,10 +415,35 @@ export class SignTransactionController implements ReactiveController {
       }
     }
   }
+  getScanWebsiteUrl(chainId: number, transactionHash: string): string | null {
+    switch (chainId) {
+      case 1:
+        return `https://etherscan.io/tx/${transactionHash}`;
+      case 10:
+        return `https://optimistic.etherscan.io/tx/${transactionHash}`;
+      case 137:
+        return `https://polygonscan.com/tx/${transactionHash}`;
+      case 42161:
+        return `https://arbiscan.io/tx/${transactionHash}`;
+      case 8453:
+        return `https://basescan.org/tx/${transactionHash}`;
+      case 56:
+        return `https://bscscan.com/tx/${transactionHash}`;
+      case 59144:
+        return `https://lineascan.build/tx/${transactionHash}`;
+      case 146:
+        return `https://sonicscan.org/tx/${transactionHash}`;
+      case 324:
+        return `https://zkscan.io/explorer/transactions/${transactionHash}`;
+      case 43114:
+        return `https://snowtrace.io/tx/${transactionHash}?chainid=43114`;
+      default:
+        return null;
+    }
+  }
 
-  viewTransactionDetails(data: BroadcastedTransactionResult) {
-    const transactionId = data.hash;
-    window.open(`https://etherscan.io/tx/${transactionId}`, "_blank");
+  viewTransactionDetails(url: string) {
+    window.open(url, "_blank");
     this.close();
   }
 
