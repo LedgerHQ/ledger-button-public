@@ -114,6 +114,7 @@ export class LedgerSyncController implements ReactiveController {
                 window.open(
                   "https://support.ledger.com/article/16257083527325-zd",
                   "_blank",
+                  "noopener,noreferrer",
                 );
               },
             },
