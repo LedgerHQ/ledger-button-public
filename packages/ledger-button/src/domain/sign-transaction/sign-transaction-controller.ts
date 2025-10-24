@@ -443,7 +443,7 @@ export class SignTransactionController implements ReactiveController {
   }
 
   viewTransactionDetails(url: string) {
-    window.open(url, "_blank");
+    window.open(url, "_blank", "noopener,noreferrer");
     this.close();
   }
 

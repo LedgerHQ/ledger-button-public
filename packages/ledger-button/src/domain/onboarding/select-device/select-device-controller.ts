@@ -31,7 +31,7 @@ export class SelectDeviceController implements ReactiveController {
   async clickAdItem() {
     await this.core
       .getReferralUrl()
-      .then((url) => window.open(url, "_blank"))
+      .then((url) => window.open(url, "_blank", "noopener,noreferrer"))
       .catch((error) =>
         console.error("Failed to get a valid referral url", error),
       );
@@ -72,6 +72,7 @@ export class SelectDeviceController implements ReactiveController {
               window.open(
                 "https://shop.ledger.com/pages/ledger-nano-s-upgrade-program?utm_source=support",
                 "_blank",
+                "noopener,noreferrer",
               );
             },
           },

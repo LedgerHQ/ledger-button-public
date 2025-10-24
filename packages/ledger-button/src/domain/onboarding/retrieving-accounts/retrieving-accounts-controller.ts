@@ -73,7 +73,7 @@ export class RetrievingAccountsController implements ReactiveController {
             action: () => {
               // TODO: handle deeplink
               this.errorData = undefined;
-              window.open("ledgerlive://accounts");
+              window.open("ledgerlive://accounts", "_blank", "noopener,noreferrer");
               if (this.navigation.host instanceof RootNavigationComponent) {
                 this.navigation.host.closeModal();
               }
