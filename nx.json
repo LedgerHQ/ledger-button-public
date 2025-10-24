@@ -125,16 +125,21 @@
   ],
   "release": {
     "projects": ["packages/*"],
-    "releaseTagPatternStrictPreid": true,
-    "releaseTagPattern": "{projectName}/v{version}",
     "projectsRelationship": "independent",
+    "groups": {
+      "libraries": {
+        "projects": ["ledger-button", "ledger-button-core"],
+        "projectsRelationship": "independent"
+      }
+    },
     "version": {
       "git": {
         "commit": true,
         "commitMessage": "🔖 (version): New versions"
       },
       "conventionalCommits": true,
-      "fallbackCurrentVersionResolver": "disk"
+      "fallbackCurrentVersionResolver": "disk",
+      "updateDependents": "always"
     },
     "changelog": {
       "projectChangelogs": true
@@ -364,6 +369,10 @@
           "semverBump": "none"
         }
       }
+    },
+    "releaseTag": {
+      "pattern": "{projectName}@{version}",
+      "strictPreid": true
     }
   },
   "generators": {
