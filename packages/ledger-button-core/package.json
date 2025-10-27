@@ -8,7 +8,7 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "development": "./src/index.ts",
+      "@ledgerhq/ledger-button-workspace": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
@@ -21,22 +21,22 @@
     "dist"
   ],
   "dependencies": {
-    "@ledgerhq/device-management-kit": "0.9.1",
-    "@ledgerhq/device-signer-kit-ethereum": "1.8.0",
-    "@ledgerhq/context-module": "1.8.0",
-    "@ledgerhq/device-transport-kit-web-ble": "1.2.0",
-    "@ledgerhq/device-transport-kit-web-hid": "1.2.0",
-    "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "0.3.0",
-    "chalk": "^5.4.1",
-    "ethers": "^6.15.0",
-    "inversify": "^7.5.1",
-    "pako": "^2.0.4",
-    "purify-ts": "2.1.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "7.8.2",
-    "zod": "^4.1.5"
+    "@ledgerhq/device-management-kit": "catalog:",
+    "@ledgerhq/device-signer-kit-ethereum": "catalog:",
+    "@ledgerhq/context-module": "catalog:",
+    "@ledgerhq/device-transport-kit-web-ble": "catalog:",
+    "@ledgerhq/device-transport-kit-web-hid": "catalog:",
+    "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "catalog:",
+    "chalk": "catalog:",
+    "ethers": "catalog:",
+    "inversify": "catalog:",
+    "pako": "catalog:",
+    "purify-ts": "catalog:",
+    "reflect-metadata": "catalog:",
+    "rxjs": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/pako": "^2.0.4"
+    "@types/pako": "catalog:"
   }
 }
