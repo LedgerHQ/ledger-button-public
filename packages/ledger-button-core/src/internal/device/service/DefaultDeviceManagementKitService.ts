@@ -16,7 +16,7 @@ import {
   webHidTransportFactory,
 } from "@ledgerhq/device-transport-kit-web-hid";
 import { type Factory, inject, injectable } from "inversify";
-import { firstValueFrom, Subscription } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { type DeviceModuleOptions } from "../../diTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -119,8 +119,7 @@ export class DefaultDeviceManagementKitService
   async listAvailableDevices() {
     let counter = 0;
     return new Promise<DiscoveredDevice[]>((resolve, reject) => {
-      let subscription: Subscription;
-      subscription = this.dmk.listenToAvailableDevices({}).subscribe({
+      const subscription = this.dmk.listenToAvailableDevices({}).subscribe({
         next: (discoveredDevices) => {
           counter++;
 
