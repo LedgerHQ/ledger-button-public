@@ -7,7 +7,13 @@ import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import type { AlpacaDataSource } from "./AlpacaDataSource.js";
-import { AlpacaBalance, AlpacaBalanceDto } from "./alpacaTypes.js";
+import {
+  AlpacaBalance,
+  AlpacaBalanceDto,
+  AlpacaFeeEstimationRequest,
+  AlpacaFeeEstimationResponse,
+  AlpacaTransactionIntent,
+} from "./alpacaTypes.js";
 
 @injectable()
 export class DefaultAlpacaDataSource implements AlpacaDataSource {
@@ -44,6 +50,29 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
       return Right(balances);
     } else {
       return Left(new Error("Failed to fetch balance from Alpaca"));
+    }
+  }
+
+  async estimateTransactionFee(
+    network: string,
+    intent: AlpacaTransactionIntent,
+  ): Promise<Either<Error, AlpacaFeeEstimationResponse>> {
+    const requestUrl = `${this.config.getAlpacaUrl()}/v1/${network}/transaction/estimate`;
+    const requestBody: AlpacaFeeEstimationRequest = { intent };
+
+    const feeEstimationResult: Either<Error, AlpacaFeeEstimationResponse> =
+      await this.networkService.post(requestUrl, requestBody);
+
+    if (feeEstimationResult.isRight()) {
+      const response = feeEstimationResult.extract();
+      return Right(response);
+    } else {
+      const error = feeEstimationResult.extract() as Error;
+      return Left(
+        new Error(
+          `Failed to estimate transaction fee from Alpaca: ${error.message}`,
+        ),
+      );
     }
   }
 }

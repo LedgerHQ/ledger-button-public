@@ -9,6 +9,8 @@ import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { balanceModuleTypes } from "../balanceModuleTypes.js";
+import type { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
 import { TransactionInfo } from "../model/types.js";
 import { GasFeeEstimation } from "../model/types.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
@@ -21,8 +23,69 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(balanceModuleTypes.AlpacaDataSource)
+    private readonly alpacaDataSource: AlpacaDataSource,
   ) {
     this.logger = this.loggerFactory("[DefaultGasFeeEstimationService]");
+  }
+
+  /**
+   * Based on Alpaca's supported networks
+   * See: https://alpaca.api.ledger.com/docs/#tag/network/get/networks
+   */
+  private getAlpacaNetworkName(chainId: string): string | undefined {
+    const chainIdToNetwork: Record<string, string> = {
+      "1": "ethereum",
+      "61": "ethereum_classic",
+      "17000": "ethereum_holesky",
+      "11155111": "ethereum_sepolia",
+      "42161": "arbitrum",
+      "421614": "arbitrum_sepolia",
+      "592": "astar",
+      "43114": "avalanche_c_chain",
+      "8453": "base",
+      "84532": "base_sepolia",
+      "80094": "berachain",
+      "199": "bittorrent",
+      "81457": "blast",
+      "168587773": "blast_sepolia",
+      "288": "boba",
+      "56": "bsc",
+      "25": "cronos",
+      "246": "energy_web",
+      "128123": "etherlink",
+      "250": "fantom",
+      "14": "flare",
+      "295": "hedera",
+      "296": "hedera-testnet",
+      "998": "hyperevm",
+      "8217": "klaytn",
+      "59144": "linea",
+      "59141": "linea_sepolia",
+      "42": "lukso",
+      "1088": "metis",
+      "1284": "moonbeam",
+      "1285": "moonriver",
+      "245022934": "neon_evm",
+      "10": "optimism",
+      "11155420": "optimism_sepolia",
+      "137": "polygon",
+      "1101": "polygon_zk_evm",
+      "2442": "polygon_zk_evm_testnet",
+      "30": "rsk",
+      "534352": "scroll",
+      "534351": "scroll_sepolia",
+      "1329": "sei_network_evm",
+      "19": "songbird",
+      "146": "sonic",
+      "57054": "syscoin",
+      "40": "telos_evm",
+      "106": "velas_evm",
+      "324": "zksync",
+      "300": "zksync_sepolia",
+    };
+
+    return chainIdToNetwork[chainId];
   }
 
   //TODO: Move to a different service
@@ -36,6 +99,78 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   }
 
   async getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation> {
+    const alpacaNetwork = this.getAlpacaNetworkName(tx.chainId);
+
+    if (alpacaNetwork) {
+      this.logger.debug("Attempting to get gas fee estimation from Alpaca", {
+        network: alpacaNetwork,
+      });
+
+      const alpacaResult = await this.getFeesFromAlpaca(tx, alpacaNetwork);
+      if (alpacaResult) {
+        this.logger.debug("Successfully got gas fee estimation from Alpaca", {
+          alpacaResult,
+        });
+        return alpacaResult;
+      }
+
+      this.logger.debug(
+        "Alpaca gas fee estimation failed, falling back to RPC method",
+      );
+    } else {
+      this.logger.debug(
+        "Network not supported by Alpaca, using fallback RPC method",
+        { chainId: tx.chainId },
+      );
+    }
+
+    return this.getFeesFromRpc(tx);
+  }
+
+  private async getFeesFromAlpaca(
+    tx: TransactionInfo,
+    network: string,
+  ): Promise<GasFeeEstimation | undefined> {
+    try {
+      const intent = {
+        type: "send",
+        sender: tx.from,
+        recipient: tx.to,
+        amount: tx.value,
+        asset: {
+          type: "native",
+        },
+        feesStrategy: "medium" as const,
+        data: tx.data,
+      };
+
+      const result = await this.alpacaDataSource.estimateTransactionFee(
+        network,
+        intent,
+      );
+
+      if (result.isRight()) {
+        const response = result.extract();
+        return {
+          gasLimit: response.parameters.gasLimit,
+          maxFeePerGas: response.parameters.maxFeePerGas,
+          maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
+        };
+      }
+
+      this.logger.debug("Alpaca estimation returned an error", {
+        error: result.extract(),
+      });
+      return undefined;
+    } catch (error) {
+      this.logger.debug("Exception during Alpaca gas fee estimation", {
+        error,
+      });
+      return undefined;
+    }
+  }
+
+  private async getFeesFromRpc(tx: TransactionInfo): Promise<GasFeeEstimation> {
     const estimateGas = await this.estimateGas(tx);
     const baseFeePerGasResult = await this.getBaseFeePerGas(tx);
     const maxPriorityFeePerGasResult = await this.getMaxPriorityFeePerGas(tx);
