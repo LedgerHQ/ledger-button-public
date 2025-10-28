@@ -61,7 +61,7 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
     const requestBody: AlpacaFeeEstimationRequest = { intent };
 
     const feeEstimationResult: Either<Error, AlpacaFeeEstimationResponse> =
-      await this.networkService.post(requestUrl, requestBody);
+      await this.networkService.post(requestUrl, JSON.stringify(requestBody));
 
     if (feeEstimationResult.isRight()) {
       const response = feeEstimationResult.extract();
