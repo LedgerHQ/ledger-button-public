@@ -43,7 +43,6 @@ import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTracki
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
-import { TrackOpenSession } from "../internal/event-tracking/usecase/TrackOpenSession.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -187,11 +186,6 @@ export class LedgerButtonCore {
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
-
-    //Track open session event, every user interaction with the app should start with a device connection intent
-    await this.container
-      .get<TrackOpenSession>(eventTrackingModuleTypes.TrackOpenSession)
-      .execute();
 
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
