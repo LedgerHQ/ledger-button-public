@@ -53,10 +53,7 @@ export class MigrateDbUseCase {
       this.logger.info("Keypair found in storage, need to encrypt it");
       const keypairBuffer = keypairResult.extract();
       const cryptoService = new NobleCryptoService();
-      const keypair = cryptoService.importKeyPair(
-        keypairBuffer as Uint8Array,
-        Curve.K256,
-      );
+      const keypair = cryptoService.importKeyPair(keypairBuffer, Curve.K256);
 
       const encryptionKey = await this.getEncryptionKeyUseCase.execute();
       const encryptedKeypair = await this.encryptKeypairUseCase.execute(

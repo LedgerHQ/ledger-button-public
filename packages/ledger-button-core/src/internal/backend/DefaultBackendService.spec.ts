@@ -151,7 +151,6 @@ describe("DefaultBackendService", () => {
           event_type: EventType.ConsentGiven,
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
-          ledger_sync_user_id: "user-123",
         },
       };
 
@@ -177,7 +176,6 @@ describe("DefaultBackendService", () => {
           transaction_dapp_id: "test-dapp",
           timestamp_ms: Date.now(),
           session_id: "session-123",
-          ledger_sync_user_id: "user-123",
           blockchain_network_selected: "ethereum",
           unsigned_transaction_hash: "abc123def456",
           chain_id: "1",

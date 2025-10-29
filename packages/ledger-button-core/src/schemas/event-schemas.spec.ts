@@ -14,8 +14,6 @@ describe("Event Schema Validation", () => {
         transaction_dapp_id: "1inch",
         timestamp_ms: 1759918630007,
         event_type: "invoicing_transaction_signed",
-        ledger_sync_user_id:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         blockchain_network_selected: "ethereum",
         transaction_hash:
           "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
@@ -34,8 +32,6 @@ describe("Event Schema Validation", () => {
         transaction_dapp_id: "1inch",
         timestamp_ms: 1759918630007,
         event_type: "invoicing_transaction_signed",
-        ledger_sync_user_id:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         blockchain_network_selected: "ethereum",
         transaction_hash:
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
@@ -65,8 +61,6 @@ describe("Event Schema Validation", () => {
         transaction_dapp_id: "1inch",
         timestamp_ms: 1759918630007,
         event_type: "invoicing_transaction_signed",
-        ledger_sync_user_id:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         blockchain_network_selected: "ethereum",
         transaction_hash:
           "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
@@ -92,8 +86,6 @@ describe("Event Schema Validation", () => {
         timestamp_ms: 1759918628839,
         event_type: "transaction_flow_completion",
         session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledger_sync_user_id:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         blockchain_network_selected: "ethereum",
         account_currency: "bsc",
         account_balance: "0",
@@ -115,8 +107,6 @@ describe("Event Schema Validation", () => {
         timestamp_ms: 1759918628839,
         event_type: "transaction_flow_completion",
         session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledger_sync_user_id:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         blockchain_network_selected: "ethereum",
         account_currency: "bsc",
         account_balance: "0",
@@ -147,8 +137,6 @@ describe("Event Schema Validation", () => {
         timestamp_ms: 1759918628839,
         event_type: "session_authentication",
         session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledger_sync_user_id:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         blockchain_network_selected: "ethereum",
         unsigned_transaction_hash: "02f90552017a8427e021408427e021408304c04c",
         transaction_type: "authentication_tx",

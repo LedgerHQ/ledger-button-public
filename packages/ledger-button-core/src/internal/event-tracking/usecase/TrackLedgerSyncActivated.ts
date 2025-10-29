@@ -22,12 +22,11 @@ export class TrackLedgerSyncActivated {
     this.logger = loggerFactory("[TrackLedgerSyncActivated UseCase]");
   }
 
-  async execute(trustChainId: string): Promise<void> {
+  async execute(): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
     const event = EventTrackingUtils.createLedgerSyncActivatedEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
-      ledgerSyncUserId: trustChainId,
     });
 
     this.logger.debug("Tracking ledger sync activated event", { event });

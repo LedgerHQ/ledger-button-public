@@ -381,7 +381,7 @@ export class LedgerButtonCore {
           .get<TrackLedgerSyncActivated>(
             eventTrackingModuleTypes.TrackLedgerSyncActivated,
           )
-          .execute(res.trustChainId);
+          .execute();
       }),
     );
   }
