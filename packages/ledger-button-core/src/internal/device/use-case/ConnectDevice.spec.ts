@@ -44,6 +44,14 @@ describe("ConnectDevice", () => {
     id: "device-2",
   } as ConnectedDevice);
 
+  const mockNanoSDevice = new Device({
+    name: "Nano S",
+    modelId: DeviceModelId.NANO_S,
+    sessionId: "session-789",
+    type: "USB",
+    id: "device-3",
+  } as ConnectedDevice);
+
   beforeEach(() => {
     mockLogger = {
       log: vi.fn(),
@@ -71,119 +79,89 @@ describe("ConnectDevice", () => {
   });
 
   describe("execute", () => {
-    it("should connect to USB device successfully", async () => {
-      mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
-        mockUsbDevice,
-      );
-
-      const result = await connectDevice.execute({ type: "usb" });
-
-      expect(result).toBe(mockUsbDevice);
-      expect(
-        mockDeviceManagementKitService.connectToDevice,
-      ).toHaveBeenCalledWith({ type: "usb" });
-    });
-
-    it("should connect to Bluetooth device successfully", async () => {
-      mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
-        mockBleDevice,
-      );
-
-      const result = await connectDevice.execute({ type: "bluetooth" });
-
-      expect(result).toBe(mockBleDevice);
-      expect(
-        mockDeviceManagementKitService.connectToDevice,
-      ).toHaveBeenCalledWith({ type: "bluetooth" });
-    });
-
-    it("should throw DeviceNotSupportedError for NANO_S device", async () => {
-      const mockDevice: Device = new Device({
-        name: "Nano S",
-        modelId: DeviceModelId.NANO_S,
-        sessionId: "session-123",
-        type: "USB",
-        id: "device-1",
-      } as ConnectedDevice);
-
-      mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
-        mockDevice,
-      );
-      mockDeviceManagementKitService.disconnectFromDevice.mockResolvedValue(
-        undefined,
-      );
-
-      await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
-        DeviceNotSupportedError,
-      );
-
-      await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
-        "Device not supported",
-      );
-    });
-
-    it("should disconnect when NANO_S device is detected", async () => {
-      const mockDevice = new Device({
-        name: "Nano S",
-        modelId: DeviceModelId.NANO_S,
-        sessionId: "session-123",
-        type: "USB",
-        id: "device-1",
-      } as ConnectedDevice);
-
-      mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
-        mockDevice,
-      );
-      mockDeviceManagementKitService.disconnectFromDevice.mockResolvedValue(
-        undefined,
-      );
-
-      try {
-        await connectDevice.execute({ type: "usb" });
-      } catch {
-        // Expected to throw
-      }
-
-      expect(
-        mockDeviceManagementKitService.disconnectFromDevice,
-      ).toHaveBeenCalled();
-    });
-
-    it("should include modelId in error context for NANO_S", async () => {
-      const mockDevice = new Device({
-        name: "Nano S",
-        modelId: DeviceModelId.NANO_S,
-        sessionId: "session-123",
-        type: "USB",
-        id: "device-1",
-      } as ConnectedDevice);
-
-      mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
-        mockDevice,
-      );
-      mockDeviceManagementKitService.disconnectFromDevice.mockResolvedValue(
-        undefined,
-      );
-
-      try {
-        await connectDevice.execute({ type: "usb" });
-      } catch (error) {
-        expect(error).toBeInstanceOf(DeviceNotSupportedError);
-        expect((error as DeviceNotSupportedError).context?.modelId).toBe(
-          DeviceModelId.NANO_S,
+    describe("successful device connection", () => {
+      it("should connect to USB device successfully", async () => {
+        mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
+          mockUsbDevice,
         );
-      }
+
+        const result = await connectDevice.execute({ type: "usb" });
+
+        expect(result).toBe(mockUsbDevice);
+        expect(
+          mockDeviceManagementKitService.connectToDevice,
+        ).toHaveBeenCalledWith({ type: "usb" });
+      });
+
+      it("should connect to Bluetooth device successfully", async () => {
+        mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
+          mockBleDevice,
+        );
+
+        const result = await connectDevice.execute({ type: "bluetooth" });
+
+        expect(result).toBe(mockBleDevice);
+        expect(
+          mockDeviceManagementKitService.connectToDevice,
+        ).toHaveBeenCalledWith({ type: "bluetooth" });
+      });
     });
 
-    it("should propagate connection errors", async () => {
-      const connectionError = new Error("Connection failed");
-      mockDeviceManagementKitService.connectToDevice.mockRejectedValue(
-        connectionError,
-      );
+    describe("NANO_S device rejection", () => {
+      beforeEach(() => {
+        mockDeviceManagementKitService.connectToDevice.mockResolvedValue(
+          mockNanoSDevice,
+        );
+        mockDeviceManagementKitService.disconnectFromDevice.mockResolvedValue(
+          undefined,
+        );
+      });
 
-      await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
-        connectionError,
-      );
+      it("should throw DeviceNotSupportedError for NANO_S device", async () => {
+        await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
+          DeviceNotSupportedError,
+        );
+
+        await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
+          "Device not supported",
+        );
+      });
+
+      it("should disconnect when NANO_S device is detected", async () => {
+        try {
+          await connectDevice.execute({ type: "usb" });
+        } catch {
+          // Expected to throw
+        }
+
+        expect(
+          mockDeviceManagementKitService.disconnectFromDevice,
+        ).toHaveBeenCalled();
+      });
+
+      it("should include modelId in error context for NANO_S", async () => {
+        try {
+          await connectDevice.execute({ type: "usb" });
+        } catch (error) {
+          expect(error).toBeInstanceOf(DeviceNotSupportedError);
+          expect((error as DeviceNotSupportedError).context?.modelId).toBe(
+            DeviceModelId.NANO_S,
+          );
+        }
+      });
+    });
+
+    describe("error handling", () => {
+      it("should propagate connection errors", async () => {
+        const connectionError = new Error("Connection failed");
+        mockDeviceManagementKitService.connectToDevice.mockRejectedValue(
+          connectionError,
+        );
+
+        await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
+          connectionError,
+        );
+      });
     });
   });
 });

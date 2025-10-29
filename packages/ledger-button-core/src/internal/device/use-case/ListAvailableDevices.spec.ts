@@ -77,75 +77,81 @@ describe("ListAvailableDevices", () => {
   });
 
   describe("execute", () => {
-    it("should return list of available devices", async () => {
-      mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
-        mockDiscoveredDevices,
-      );
-
-      const result = await listAvailableDevices.execute();
-
-      expect(
-        mockDeviceManagementKitService.listAvailableDevices,
-      ).toHaveBeenCalledTimes(1);
-      expect(result).toHaveLength(mockDiscoveredDevices.length);
-      expect(result).toEqual(mockDiscoveredDevices);
-    });
-
-    it("should return empty array when no devices are available", async () => {
-      mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue([]);
-
-      const result = await listAvailableDevices.execute();
-
-      expect(result).toEqual([]);
-    });
-
-    it("should return single device when only one is available", async () => {
-      const singleDevice = [mockDiscoveredDevices[0]];
-      mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
-        singleDevice,
-      );
-
-      const result = await listAvailableDevices.execute();
-
-      expect(result).toEqual(singleDevice);
-      expect(result).toHaveLength(singleDevice.length);
-    });
-
-    it("should preserve device properties", async () => {
-      mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
-        mockDiscoveredDevices,
-      );
-
-      const result = await listAvailableDevices.execute();
-
-      result.forEach((device: DiscoveredDevice, i: number) => {
-        expect(device.id).toBe(mockDiscoveredDevices[i].id);
-        expect(device.name).toBe(mockDiscoveredDevices[i].name);
-        expect(device.deviceModel.model).toBe(
-          mockDiscoveredDevices[i].deviceModel.model,
+    describe("successful device listing", () => {
+      it("should return list of available devices", async () => {
+        mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
+          mockDiscoveredDevices,
         );
-        expect(device.transport).toBe(mockDiscoveredDevices[i].transport);
+
+        const result = await listAvailableDevices.execute();
+
+        expect(
+          mockDeviceManagementKitService.listAvailableDevices,
+        ).toHaveBeenCalledTimes(1);
+        expect(result).toHaveLength(mockDiscoveredDevices.length);
+        expect(result).toEqual(mockDiscoveredDevices);
+      });
+
+      it("should return empty array when no devices are available", async () => {
+        mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
+          [],
+        );
+
+        const result = await listAvailableDevices.execute();
+
+        expect(result).toEqual([]);
+      });
+
+      it("should return single device when only one is available", async () => {
+        const singleDevice = [mockDiscoveredDevices[0]];
+        mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
+          singleDevice,
+        );
+
+        const result = await listAvailableDevices.execute();
+
+        expect(result).toEqual(singleDevice);
+        expect(result).toHaveLength(singleDevice.length);
+      });
+
+      it("should preserve device properties", async () => {
+        mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
+          mockDiscoveredDevices,
+        );
+
+        const result = await listAvailableDevices.execute();
+
+        result.forEach((device: DiscoveredDevice, i: number) => {
+          expect(device.id).toBe(mockDiscoveredDevices[i].id);
+          expect(device.name).toBe(mockDiscoveredDevices[i].name);
+          expect(device.deviceModel.model).toBe(
+            mockDiscoveredDevices[i].deviceModel.model,
+          );
+          expect(device.transport).toBe(mockDiscoveredDevices[i].transport);
+        });
       });
     });
 
-    it("should propagate errors from device service", async () => {
-      const error = new Error("Failed to list devices");
-      mockDeviceManagementKitService.listAvailableDevices.mockRejectedValue(
-        error,
-      );
+    describe("error handling", () => {
+      it("should propagate errors from device service", async () => {
+        const error = new Error("Failed to list devices");
+        mockDeviceManagementKitService.listAvailableDevices.mockRejectedValue(
+          error,
+        );
 
-      await expect(listAvailableDevices.execute()).rejects.toThrow(error);
-    });
+        await expect(listAvailableDevices.execute()).rejects.toThrow(error);
+      });
 
-    it("should handle service errors gracefully", async () => {
-      const error = new Error("Service unavailable");
-      mockDeviceManagementKitService.listAvailableDevices.mockRejectedValue(
-        error,
-      );
+      it("should handle service errors gracefully", async () => {
+        const error = new Error("Service unavailable");
+        mockDeviceManagementKitService.listAvailableDevices.mockRejectedValue(
+          error,
+        );
 
-      await expect(listAvailableDevices.execute()).rejects.toThrow(
-        "Service unavailable",
-      );
+        await expect(listAvailableDevices.execute()).rejects.toThrow(
+          "Service unavailable",
+        );
+      });
     });
   });
 });

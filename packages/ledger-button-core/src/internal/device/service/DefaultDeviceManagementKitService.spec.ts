@@ -131,6 +131,15 @@ describe("DefaultDeviceManagementKitService", () => {
       });
     });
 
+    it("should use BLE identifier for non-usb connection type", async () => {
+      const device = await service.connectToDevice({ type: "" });
+
+      expect(device).toBeDefined();
+      expect(mockDmk.startDiscovering).toHaveBeenCalledWith({
+        transport: service.bleIdentifier,
+      });
+    });
+
     it("should stop discovering after device is found", async () => {
       await service.connectToDevice({ type: "usb" });
 
@@ -189,7 +198,7 @@ describe("DefaultDeviceManagementKitService", () => {
       );
     });
 
-    it("should include error type in DeviceConnectionError", async () => {
+    it("should include error type in DeviceConnectionError for no accessible device", async () => {
       const error = new NoAccessibleDeviceError("No device");
       vi.mocked(mockDmk.startDiscovering).mockReturnValue(
         throwError(() => error) as Observable<DiscoveredDevice>,
@@ -197,11 +206,47 @@ describe("DefaultDeviceManagementKitService", () => {
 
       try {
         await service.connectToDevice({ type: "usb" });
+        expect.fail("Should have thrown an error");
       } catch (e) {
         expect(e).toBeInstanceOf(DeviceConnectionError);
         expect((e as DeviceConnectionError).context?.type).toBe(
           "no-accessible-device",
         );
+        expect((e as DeviceConnectionError).context?.error).toBe(error);
+      }
+    });
+
+    it("should include error type in DeviceConnectionError for discovery failure", async () => {
+      const error = new Error("Discovery failed");
+      vi.mocked(mockDmk.startDiscovering).mockReturnValue(
+        throwError(() => error) as Observable<DiscoveredDevice>,
+      );
+
+      try {
+        await service.connectToDevice({ type: "usb" });
+        expect.fail("Should have thrown an error");
+      } catch (e) {
+        expect(e).toBeInstanceOf(DeviceConnectionError);
+        expect((e as DeviceConnectionError).context?.type).toBe(
+          "failed-to-start-discovery",
+        );
+        expect((e as DeviceConnectionError).context?.error).toBe(error);
+      }
+    });
+
+    it("should include error type in DeviceConnectionError for connection failure", async () => {
+      const error = new Error("Connection failed");
+      vi.mocked(mockDmk.connect).mockRejectedValue(error);
+
+      try {
+        await service.connectToDevice({ type: "usb" });
+        expect.fail("Should have thrown an error");
+      } catch (e) {
+        expect(e).toBeInstanceOf(DeviceConnectionError);
+        expect((e as DeviceConnectionError).context?.type).toBe(
+          "failed-to-connect",
+        );
+        expect((e as DeviceConnectionError).context?.error).toBe(error);
       }
     });
   });
@@ -209,34 +254,73 @@ describe("DefaultDeviceManagementKitService", () => {
   describe("listAvailableDevices", () => {
     it("should return discovered devices", async () => {
       const mockDevices = [mockDiscoveredDevice];
-      vi.mocked(mockDmk.listenToAvailableDevices).mockReturnValue(
-        of(mockDevices) as Observable<DiscoveredDevice[]>,
-      );
+      const unsubscribeMock = vi.fn();
+
+      vi.mocked(mockDmk.listenToAvailableDevices).mockReturnValue({
+        subscribe: vi.fn((observer) => {
+          // Immediately call next with devices
+          setTimeout(() => observer.next(mockDevices), 0);
+          return { unsubscribe: unsubscribeMock };
+        }),
+      } as unknown as Observable<DiscoveredDevice[]>);
 
       const devices = await service.listAvailableDevices();
 
       expect(devices).toEqual(mockDevices);
+      expect(unsubscribeMock).toHaveBeenCalled();
     });
 
-    it("should unsubscribe after receiving devices", async () => {
-      const mockDevices = [mockDiscoveredDevice];
+    it("should return empty array after 5 iterations with no devices", async () => {
       const unsubscribeMock = vi.fn();
+
       vi.mocked(mockDmk.listenToAvailableDevices).mockReturnValue({
-        subscribe: vi.fn().mockReturnValue({ unsubscribe: unsubscribeMock }),
+        subscribe: vi.fn((observer) => {
+          // Call next 6 times with empty array
+          setTimeout(() => {
+            for (let i = 0; i < 6; i++) {
+              observer.next([]);
+            }
+          }, 0);
+          return { unsubscribe: unsubscribeMock };
+        }),
       } as unknown as Observable<DiscoveredDevice[]>);
 
-      // Trigger subscription
-      const promise = service.listAvailableDevices();
+      const devices = await service.listAvailableDevices();
 
-      // Get the subscription object
-      const subscribeCall = vi.mocked(mockDmk.listenToAvailableDevices).mock
-        .results[0]?.value;
-      const callback = vi.mocked(subscribeCall?.subscribe).mock.calls[0]?.[0];
+      expect(devices).toEqual([]);
+      expect(unsubscribeMock).toHaveBeenCalled();
+    });
 
-      // Simulate devices being found
-      callback?.next?.(mockDevices);
+    it("should handle errors and reject promise", async () => {
+      const mockError = new Error("Failed to list devices");
+      const unsubscribeMock = vi.fn();
 
-      await promise;
+      vi.mocked(mockDmk.listenToAvailableDevices).mockReturnValue({
+        subscribe: vi.fn((observer) => {
+          setTimeout(() => observer.error(mockError), 0);
+          return { unsubscribe: unsubscribeMock };
+        }),
+      } as unknown as Observable<DiscoveredDevice[]>);
+
+      await expect(service.listAvailableDevices()).rejects.toThrow(
+        "Failed to list devices",
+      );
+
+      expect(unsubscribeMock).toHaveBeenCalled();
+    });
+
+    it("should unsubscribe when devices are found", async () => {
+      const mockDevices = [mockDiscoveredDevice];
+      const unsubscribeMock = vi.fn();
+
+      vi.mocked(mockDmk.listenToAvailableDevices).mockReturnValue({
+        subscribe: vi.fn((observer) => {
+          setTimeout(() => observer.next(mockDevices), 0);
+          return { unsubscribe: unsubscribeMock };
+        }),
+      } as unknown as Observable<DiscoveredDevice[]>);
+
+      await service.listAvailableDevices();
 
       expect(unsubscribeMock).toHaveBeenCalled();
     });
@@ -294,6 +378,34 @@ describe("DefaultDeviceManagementKitService", () => {
       await expect(service.disconnectFromDevice()).rejects.toThrow(
         "Failed to disconnect from device",
       );
+    });
+
+    it("should include error type in DeviceConnectionError for disconnect failure", async () => {
+      vi.mocked(mockDmk.startDiscovering).mockReturnValue(
+        of(mockDiscoveredDevice) as Observable<DiscoveredDevice>,
+      );
+      vi.mocked(mockDmk.stopDiscovering).mockResolvedValue(undefined);
+      vi.mocked(mockDmk.connect).mockResolvedValue(
+        mockConnectedDevice.sessionId,
+      );
+      vi.mocked(mockDmk.getConnectedDevice).mockResolvedValue(
+        mockConnectedDevice,
+      );
+      const error = new Error("Disconnect failed");
+      vi.mocked(mockDmk.close).mockRejectedValue(error);
+
+      await service.connectToDevice({ type: "usb" });
+
+      try {
+        await service.disconnectFromDevice();
+        expect.fail("Should have thrown an error");
+      } catch (e) {
+        expect(e).toBeInstanceOf(DeviceConnectionError);
+        expect((e as DeviceConnectionError).context?.type).toBe(
+          "failed-to-disconnect",
+        );
+        expect((e as DeviceConnectionError).context?.error).toBe(error);
+      }
     });
   });
 });
