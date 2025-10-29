@@ -61,6 +61,7 @@ export class MigrateDbUseCase {
         encryptionKey,
       );
 
+      await this.storageService.removeKeyPair();
       await this.storageService.storeKeyPair(encryptedKeypair);
     } else {
       //No keypair found, generate a new one
