@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
 
+import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
@@ -9,6 +10,7 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "./model/errors.js";
+import { Account } from "../account/service/AccountService.js";
 import { Config } from "../config/model/config.js";
 import { ConsoleLoggerSubscriber } from "../logger/service/ConsoleLoggerSubscriber.js";
 import { DefaultLoggerPublisher } from "../logger/service/DefaultLoggerPublisher.js";
@@ -169,11 +171,11 @@ describe("DefaultStorageService", () => {
     describe("storeKeyPair", () => {
       it("should be able to store a key pair", async () => {
         // Create a mock key pair for testing
-         
+
         const mockKeyPair = {
           id: "test-id",
           getPublicKeyToHex: () => "test-public-key",
-        } as any;
+        } as KeyPair;
         const result = await storageService.storeKeyPair(mockKeyPair);
         expect(result.isRight()).toBe(true);
         result.map((success) => {
@@ -201,11 +203,10 @@ describe("DefaultStorageService", () => {
           Right(mockDb as unknown as IDBDatabase),
         );
 
-         
         const mockKeyPair = {
           id: "test-id",
           getPublicKeyToHex: () => "test-public-key",
-        } as any;
+        } as KeyPair;
 
         // Start the async operation
         const resultPromise = storageService.storeKeyPair(mockKeyPair);
@@ -450,11 +451,10 @@ describe("DefaultStorageService", () => {
   describe("Selected Account methods", () => {
     describe("saveSelectedAccount", () => {
       it("should be able to save and get a selected account", () => {
-         
-        const mockAccount = { 
-          id: "test-account", 
-          name: "Test Account" 
-        } as any;
+        const mockAccount = {
+          id: "test-account",
+          name: "Test Account",
+        } as Account;
         storageService.saveSelectedAccount(mockAccount);
         expect(storageService.getSelectedAccount()).toEqual(
           Maybe.of({
@@ -473,18 +473,16 @@ describe("DefaultStorageService", () => {
       });
 
       it("should be able to remove a selected account", () => {
-         
-        const mockAccount = { 
-          id: "test-account", 
-          name: "Test Account" 
-        } as any;
+        const mockAccount = {
+          id: "test-account",
+          name: "Test Account",
+        } as Account;
         storageService.saveSelectedAccount(mockAccount);
         storageService.removeSelectedAccount();
         expect(storageService.getSelectedAccount()).toBe(Nothing);
       });
 
       it("should handle complex account objects", () => {
-         
         const complexAccount = {
           id: "complex-account",
           name: "Complex Account",
@@ -496,7 +494,7 @@ describe("DefaultStorageService", () => {
           ticker: "BTC",
           balance: "0.0000",
           tokens: [],
-        } as any;
+        } as Account;
 
         storageService.saveSelectedAccount(complexAccount);
         const retrieved = storageService.getSelectedAccount();
