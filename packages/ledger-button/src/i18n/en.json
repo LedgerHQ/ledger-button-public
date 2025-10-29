@@ -26,7 +26,7 @@
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
-        "apexp": "Ledger Apex",
+        "apexp": "Ledger Nano Gen 5",
         "fallback": "Ledger device"
       },
       "deviceActions": {
