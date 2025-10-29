@@ -106,7 +106,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           return this.lkrpAppKit.authenticate({
             keypair: keypair,
             clientName: this.getClientName(),
-            permissions: Permissions.OWNER, // TODO move when deployed on production change to =>  Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+            permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
             trustchainId: undefined,
             sessionId: this.deviceManagementKitService.sessionId,
           } as AuthenticateUsecaseInput).observable;
@@ -115,7 +115,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           return this.lkrpAppKit.authenticate({
             keypair: keypair,
             clientName: this.getClientName(),
-            permissions: Permissions.OWNER,
+            permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
             trustchainId: this.trustChainId,
             sessionId: undefined,
           } as AuthenticateUsecaseInput).observable;
