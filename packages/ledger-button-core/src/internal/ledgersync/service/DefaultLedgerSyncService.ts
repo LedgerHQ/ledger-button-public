@@ -16,10 +16,8 @@ import {
 import { AuthenticateUsecaseInput } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol/internal/use-cases/authentication/AuthenticateUseCase.js";
 import { type Factory, inject, injectable } from "inversify";
 import pako from "pako";
-import { Either } from "purify-ts/Either";
 import { from, map, Observable, switchMap } from "rxjs";
 
-import { StorageIDBErrors } from "../../../api/index.js";
 import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
 import {
   type AuthContext,
@@ -32,7 +30,7 @@ import type {
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
-import { GenerateKeypairUseCase } from "../../cryptographic/usecases/GenerateKeypairUseCase.js";
+import { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -60,8 +58,8 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.GenerateKeypairUseCase)
-    private readonly generateKeypairUseCase: GenerateKeypairUseCase,
+    @inject(cryptographicModuleTypes.GetKeypairUseCase)
+    private readonly getKeypairUseCase: GetKeypairUseCase,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
@@ -85,30 +83,11 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
-    return from(this.storageService.getKeyPair()).pipe(
-      switchMap(
-        async (
-          keypairResult: Either<StorageIDBErrors, KeyPair>,
-        ): Promise<KeyPair> => {
-          return keypairResult.caseOf({
-            Left: async () => {
-              const keypair = await this.generateKeypairUseCase.execute();
-              this.logger.info("New keypair created", {
-                keypair: keypair.getPublicKeyToHex(),
-              });
-              this.storageService.storeKeyPair(keypair);
-              return keypair;
-            },
-            Right: async (keypair) => {
-              this.logger.info("Keypair retrieved from storage", {
-                keypair: keypair.getPublicKeyToHex(),
-              });
-              return keypair;
-            },
-          });
-        },
-      ),
-      switchMap((keypair: KeyPair | undefined) => {
+    return from(this.getKeypairUseCase.execute()).pipe(
+      switchMap((keypair: KeyPair) => {
+        this.logger.info("Keypair retrieved", {
+          keypair: keypair.getPublicKeyToHex(),
+        });
         this.keypair = keypair;
         this.trustChainId = this.storageService.getTrustChainId().extract();
 

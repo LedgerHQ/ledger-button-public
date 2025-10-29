@@ -1,9 +1,7 @@
-import { hexaStringToBuffer } from "@ledgerhq/device-management-kit";
 import {
-  Curve,
-  KeyPair,
-  NobleCryptoService,
-} from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
+  bufferToHexaString,
+  hexaStringToBuffer,
+} from "@ledgerhq/device-management-kit";
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
@@ -17,7 +15,7 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "./model/errors.js";
-import { Account } from "../account/service/AccountService.js";
+import { type Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type StorageService } from "./StorageService.js";
@@ -39,6 +37,15 @@ export class DefaultStorageService implements StorageService {
 
   static formatKey(key: string) {
     return `${STORAGE_KEYS.PREFIX}-${key}`;
+  }
+
+  // Database Version
+  setDbVersion(version: number): void {
+    this.saveItem(STORAGE_KEYS.DB_VERSION, version);
+  }
+
+  getDbVersion(): number {
+    return this.getItem<number>(STORAGE_KEYS.DB_VERSION).orDefault(0);
   }
 
   // IndexDB
@@ -78,6 +85,12 @@ export class DefaultStorageService implements StorageService {
             STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
             { unique: true },
           );
+
+          store.createIndex(
+            STORAGE_KEYS.ENCRYPTION_KEY,
+            STORAGE_KEYS.ENCRYPTION_KEY,
+            { unique: true },
+          );
         };
       }).then((result) => {
         if (Either.isEither(result)) {
@@ -92,9 +105,12 @@ export class DefaultStorageService implements StorageService {
   }
 
   // IndexedDB (KeyPair)
-  async storeKeyPair(keyPair: KeyPair) {
+  async storeKeyPair(keyPair: Uint8Array) {
+    const encryptedKeyPairString = bufferToHexaString(keyPair);
+    this.logger.debug("Storing encrypted keypair in storage", {
+      keyPair: encryptedKeyPairString,
+    });
     const init = await this.initIdb();
-
     return new Promise<Either<StorageIDBErrors, boolean>>((resolve) => {
       init.map((db) => {
         const transaction = db.transaction(
@@ -103,12 +119,14 @@ export class DefaultStorageService implements StorageService {
         );
         const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
         const request = store.add(
-          keyPair.id,
+          encryptedKeyPairString,
           STORAGE_KEYS.DB_STORE_KEYPAIR_KEY,
         );
 
         request.onsuccess = () => {
-          this.logger.debug("Key pair stored", { keyPair });
+          this.logger.debug("Keypair stored", {
+            keyPair: bufferToHexaString(keyPair),
+          });
           resolve(Right(true));
         };
 
@@ -118,7 +136,7 @@ export class DefaultStorageService implements StorageService {
             Left(
               new StorageIDBStoreError("Error storing key pair", {
                 event,
-                keyPair: keyPair.getPublicKeyToHex(),
+                keyPair: encryptedKeyPairString,
               }),
             ),
           );
@@ -127,10 +145,10 @@ export class DefaultStorageService implements StorageService {
     });
   }
 
-  async getKeyPair() {
+  async getKeyPair(): Promise<Either<StorageIDBErrors, Uint8Array>> {
     const init = await this.initIdb();
 
-    return new Promise<Either<StorageIDBErrors, KeyPair>>((resolve) => {
+    return new Promise<Either<StorageIDBErrors, Uint8Array>>((resolve) => {
       init.map((db) => {
         const transaction = db.transaction(
           STORAGE_KEYS.DB_STORE_NAME,
@@ -143,7 +161,7 @@ export class DefaultStorageService implements StorageService {
           const result = (event.target as IDBRequest)?.result;
 
           if (!result) {
-            this.logger.error("Error getting key pair", { event });
+            this.logger.error("Error getting key pair from indexDB", { event });
             resolve(
               Left(new StorageIDBGetError("Error getting key pair", { event })),
             );
@@ -151,21 +169,11 @@ export class DefaultStorageService implements StorageService {
             return;
           }
 
-          const privateKey = hexaStringToBuffer(result);
-          if (!privateKey) {
-            this.logger.error("Error getting key pair", { event });
-            resolve(
-              Left(new StorageIDBGetError("Error getting key pair", { event })),
-            );
-            return;
-          }
-          const cryptoService = new NobleCryptoService();
-          const keypair = cryptoService.importKeyPair(privateKey, Curve.K256);
-          this.logger.info("Key pair retrieved from indexDB", {
-            keypair: keypair.getPublicKeyToHex(),
+          this.logger.info("Keypair retrieved from indexDB", {
+            keypair: result,
           });
 
-          resolve(Right(keypair));
+          resolve(Right(hexaStringToBuffer(result) as Uint8Array));
         };
 
         request.onerror = (event) => {
@@ -208,6 +216,90 @@ export class DefaultStorageService implements StorageService {
           );
         };
       });
+    });
+  }
+
+  // Encryption Key
+  async storeEncryptionKey(encryptionKey: CryptoKey): Promise<void> {
+    const init = await this.initIdb();
+
+    return new Promise<void>((resolve, reject) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readwrite",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+
+          const request = store.put(encryptionKey, STORAGE_KEYS.ENCRYPTION_KEY);
+
+          request.onsuccess = () => {
+            this.logger.debug("Encryption key stored successfully");
+            resolve();
+          };
+
+          request.onerror = (event) => {
+            this.logger.error("Error storing encryption key", { event });
+            reject(new Error("Failed to store encryption key"));
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for encryption key storage",
+              { error },
+            );
+            reject(error);
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
+    });
+  }
+
+  async getEncryptionKey(): Promise<Maybe<CryptoKey>> {
+    const init = await this.initIdb();
+
+    return new Promise<Maybe<CryptoKey>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readonly",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.get(STORAGE_KEYS.ENCRYPTION_KEY);
+
+          request.onsuccess = (event) => {
+            const result = (event.target as IDBRequest)?.result;
+            if (result && result instanceof CryptoKey) {
+              this.logger.debug("Encryption key retrieved successfully");
+              resolve(Just(result));
+            } else {
+              this.logger.debug("No encryption key found in storage");
+              resolve(Nothing);
+            }
+          };
+
+          request.onerror = (event) => {
+            this.logger.error("Error retrieving encryption key", { event });
+            resolve(Nothing);
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for encryption key retrieval",
+              { error },
+            );
+            resolve(Nothing);
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
     });
   }
 

@@ -1,6 +1,10 @@
 import { ContainerModule } from "inversify";
 
+import { DecryptKeypairUseCase } from "./usecases/DecryptKeypairUseCase.js";
+import { EncryptKeypairUseCase } from "./usecases/EncryptKeypairUseCase.js";
 import { GenerateKeypairUseCase } from "./usecases/GenerateKeypairUseCase.js";
+import { GetEncryptionKeyUseCase } from "./usecases/GetEncryptionKey.js";
+import { GetKeypairUseCase } from "./usecases/GetKeypairUseCase.js";
 import { cryptographicModuleTypes } from "./cryptographicModuleTypes.js";
 
 type CryptographicModuleOptions = {
@@ -14,6 +18,16 @@ export function cryptographicModuleFactory({
   return new ContainerModule(({ bind }) => {
     bind(cryptographicModuleTypes.GenerateKeypairUseCase).to(
       GenerateKeypairUseCase,
+    );
+    bind(cryptographicModuleTypes.EncryptKeypairUseCase).to(
+      EncryptKeypairUseCase,
+    );
+    bind(cryptographicModuleTypes.GetEncryptionKeyUseCase).to(
+      GetEncryptionKeyUseCase,
+    );
+    bind(cryptographicModuleTypes.GetKeypairUseCase).to(GetKeypairUseCase);
+    bind(cryptographicModuleTypes.DecryptKeypairUseCase).to(
+      DecryptKeypairUseCase,
     );
   });
 }

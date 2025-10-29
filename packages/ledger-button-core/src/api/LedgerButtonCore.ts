@@ -53,6 +53,7 @@ import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
+import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
@@ -94,6 +95,10 @@ export class LedgerButtonCore {
       .getDAppConfig();
 
     //TODO throw error if dApp config is not found ?
+    // Migrate database to latest version
+    await this.container
+      .get<MigrateDbUseCase>(storageModuleTypes.MigrateDbUseCase)
+      .execute();
 
     // Restore selected account from storage
     const selectedAccount = this.container
