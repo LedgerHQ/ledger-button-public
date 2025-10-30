@@ -145,7 +145,18 @@ describe("DefaultDAppConfigService", () => {
         ],
         referralUrl: "https://example.com/referral",
         domainUrl: "https://example.com",
-        appDependencies: ["wallet-connect", "web3-provider"],
+        appDependencies: [
+          {
+            blockchain: "ethereum",
+            appName: "wallet-connect",
+            dependencies: ["eth-lib", "web3-utils"],
+          },
+          {
+            blockchain: "polygon",
+            appName: "web3-provider",
+            dependencies: ["ethers"],
+          },
+        ],
       };
 
       vi.spyOn(mockBackendService, "getConfig").mockResolvedValue(
@@ -155,8 +166,11 @@ describe("DefaultDAppConfigService", () => {
       const result = await dAppConfigService.getDAppConfig();
 
       expect(result.appDependencies).toHaveLength(2);
-      expect(result.appDependencies).toContain("wallet-connect");
-      expect(result.appDependencies).toContain("web3-provider");
+      expect(result.appDependencies[0].appName).toBe("wallet-connect");
+      expect(result.appDependencies[0].blockchain).toBe("ethereum");
+      expect(result.appDependencies[0].dependencies).toContain("eth-lib");
+      expect(result.appDependencies[1].appName).toBe("web3-provider");
+      expect(result.appDependencies[1].blockchain).toBe("polygon");
     });
 
     it("should preserve all config properties", async () => {
