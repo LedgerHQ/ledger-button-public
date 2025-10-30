@@ -3,8 +3,8 @@ import { type Factory, inject, injectable } from "inversify";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import {
-  EventType,
   type EventRequest,
+  EventType,
 } from "../../backend/model/trackEvent.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import type { Config } from "../../config/model/config.js";
