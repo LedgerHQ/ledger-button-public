@@ -7,7 +7,7 @@ import {
   EIP1193Provider,
   EIP6963AnnounceProviderEvent,
   EIP6963RequestProviderEvent,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 

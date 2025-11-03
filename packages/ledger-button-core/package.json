@@ -1,5 +1,5 @@
 {
-  "name": "@ledgerhq/ledger-button-core",
+  "name": "@ledgerhq/ledger-wallet-provider-core",
   "version": "1.0.0-rc.11",
   "type": "module",
   "main": "./dist/index.js",

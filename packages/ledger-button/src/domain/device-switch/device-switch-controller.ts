@@ -1,4 +1,4 @@
-import type { DiscoveredDevice } from "@ledgerhq/ledger-button-core";
+import type { DiscoveredDevice } from "@ledgerhq/ledger-wallet-provider-core";
 import { LitElement } from "lit";
 
 import type { DeviceModelId } from "../../components/atom/icon/device-icon/device-icon.js";

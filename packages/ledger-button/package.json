@@ -1,5 +1,5 @@
 {
-  "name": "@ledgerhq/ledger-button",
+  "name": "@ledgerhq/ledger-wallet-provider",
   "version": "1.0.0-rc.11",
   "type": "module",
   "main": "./dist/index.js",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@ledgerhq/ldls-design-core": "catalog:",
-    "@ledgerhq/ledger-button-core": "workspace:*",
+    "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
     "@lit/context": "catalog:",
     "@storybook/web-components": "catalog:",
     "@storybook/web-components-vite": "catalog:",

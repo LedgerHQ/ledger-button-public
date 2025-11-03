@@ -2,7 +2,7 @@ import {
   Account,
   SignRawTransactionParams,
   SignTransactionParams,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { CoreContext } from "../context/core-context.js";

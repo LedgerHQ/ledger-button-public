@@ -10,11 +10,11 @@
     "react-dom": "catalog:react19"
   },
   "devDependencies": {
-    "@ledgerhq/ledger-button": "workspace:*"
+    "@ledgerhq/ledger-wallet-provider": "workspace:*"
   },
   "nx": {
     "implicitDependencies": [
-      "!@ledgerhq/ledger-button"
+      "!@ledgerhq/ledger-wallet-provider"
     ]
   }
 }

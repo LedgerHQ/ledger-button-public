@@ -1,4 +1,4 @@
-import { Account } from "@ledgerhq/ledger-button-core";
+import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { CoreContext } from "../../context/core-context";

@@ -7,7 +7,7 @@ import {
   type SignRawTransactionParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";

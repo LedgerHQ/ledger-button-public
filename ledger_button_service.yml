@@ -45,7 +45,7 @@ paths:
               schema:
                 type: object
                 $ref: '#/components/schemas/DAppConfiguration'
-                description: dApp configuration 
+                description: dApp configuration
         '400':
           description: Bad request - invalid request, missing required parameters
           content:
@@ -93,7 +93,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BroadcastResponse'
-        
+
   /event:
     post:
       tags:
@@ -349,7 +349,7 @@ components:
       required: true
       schema:
         type: string
-        example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" 
+        example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     X-Ledger-domain:
       name: X-Ledger-domain
       in: header
@@ -359,4 +359,3 @@ components:
         type: string
         example: "app.1inch.io"
 
-    

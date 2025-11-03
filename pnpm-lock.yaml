@@ -709,7 +709,7 @@ importers:
         specifier: catalog:react19
         version: 19.0.0(react@19.0.0)
     devDependencies:
-      '@ledgerhq/ledger-button':
+      '@ledgerhq/ledger-wallet-provider':
         specifier: workspace:*
         version: link:../../packages/ledger-button
 
@@ -718,7 +718,7 @@ importers:
       '@ledgerhq/ldls-design-core':
         specifier: 'catalog:'
         version: 0.0.15
-      '@ledgerhq/ledger-button-core':
+      '@ledgerhq/ledger-wallet-provider-core':
         specifier: workspace:*
         version: link:../ledger-button-core
       '@lit/context':

@@ -5,7 +5,7 @@ import {
   type EIP6963ProviderInfo,
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { v4 as uuidv4 } from "uuid";
 
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
@@ -15,7 +15,7 @@ export type {
   EIP1193Provider,
   EIP6963ProviderDetail,
   EIP6963ProviderInfo,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 
 export { LedgerEIP1193Provider };
 

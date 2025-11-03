@@ -1,5 +1,5 @@
 {
-  "name": "@ledgerhq/ledger-button",
+  "name": "@ledgerhq/ledger-wallet-provider",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/ledger-button/src",
   "projectType": "library",

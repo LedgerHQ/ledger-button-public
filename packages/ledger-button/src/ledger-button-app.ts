@@ -11,7 +11,7 @@ import {
   isSignedTransactionResult,
   LedgerButtonCore,
   SignedResults,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
@@ -195,6 +195,10 @@ export class LedgerButtonApp extends LitElement {
 // NOTE: Declare here all the custom events so that LedgerEIP1193Provider can have type safey
 // Make sure to prefix with "ledger-provider-" (or something else, to be discussed)
 declare global {
+  interface HTMLElementTagNameMap {
+    "ledger-button-app": LedgerButtonApp;
+  }
+
   interface WindowEventMap {
     "ledger-provider-account-selected": CustomEvent<
       | { account: Account; status: "success" }

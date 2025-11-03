@@ -1,4 +1,7 @@
-import { Account, LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import {
+  Account,
+  LedgerButtonCore,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import type { AccountItemClickEventDetail } from "./components/molecule/account-item/ledger-account-item.js";

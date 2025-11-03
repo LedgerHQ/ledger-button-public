@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-button";
+import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
 
-let LedgerButtonModule: typeof import("@ledgerhq/ledger-button") | null = null;
+let LedgerButtonModule:
+  | typeof import("@ledgerhq/ledger-wallet-provider")
+  | null = null;
 
 export const useProviders = () => {
   const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([]);
@@ -12,7 +14,7 @@ export const useProviders = () => {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    import("@ledgerhq/ledger-button").then((module) => {
+    import("@ledgerhq/ledger-wallet-provider").then((module) => {
       LedgerButtonModule = module;
       setIsLoaded(true);
     });

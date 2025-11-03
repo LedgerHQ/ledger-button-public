@@ -1,6 +1,6 @@
 import "../../../shared/root-navigation.js";
 
-import { Account } from "@ledgerhq/ledger-button-core";
+import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";

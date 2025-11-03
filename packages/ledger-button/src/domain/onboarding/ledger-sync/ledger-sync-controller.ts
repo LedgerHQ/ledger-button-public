@@ -6,7 +6,7 @@ import {
   LedgerSyncConnectionFailedError,
   type UserInteractionNeeded,
   type UserInteractionNeededResponse,
-} from "@ledgerhq/ledger-button-core";
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
