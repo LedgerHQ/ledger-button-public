@@ -18,7 +18,7 @@ import { useProviders } from "../hooks/useProviders";
 import styles from "./page.module.css";
 
 let Provider:
-  | typeof import("@ledgerhq/ledger-button").LedgerEIP1193Provider
+  | typeof import("@ledgerhq/ledger-wallet-provider").LedgerEIP1193Provider
   | null = null;
 
 export default function Index() {
@@ -314,7 +314,7 @@ export default function Index() {
         params,
       });
       const result = await selectedProvider.provider.request({
-        // @ts-expect-error - We don't import @ledgerhq/ledger-button-core, so we don't have the types
+        // @ts-expect-error - We don't import @ledgerhq/ledger-wallet-provider-core, so we don't have the types
         method,
         params,
       });
