@@ -12,8 +12,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         transactionHash:
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0x111111125421cA6dc452d289314280a0f8842A65",
@@ -31,8 +29,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
         chainId: "1",
         transactionHash:
@@ -48,8 +44,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createSessionAuthenticationEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
         chainId: "1",
         transactionHash:
@@ -65,8 +59,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         transactionHash:
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0x111111125421cA6dc452d289314280a0f8842A65",
@@ -90,8 +82,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         transactionHash:
           "0xCAF172BF3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0x111111125421cA6dc452d289314280a0f8842A65",
@@ -112,8 +102,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         transactionHash:
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0X111111125421CA6DC452D289314280A0F8842A65",
@@ -131,8 +119,6 @@ describe("EventTrackingUtils", () => {
       const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
         dAppId: "test-dapp",
         sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        ledgerSyncUserId:
-          "001602325302f1b8aee1e32d7ec5a94b587b74f3c1708d969405efb1fc7ae63b29",
         chainId: "1",
         unsignedTransactionHash: "0X02F90552017A8427E021408427E021408304C04C",
         transactionHash:

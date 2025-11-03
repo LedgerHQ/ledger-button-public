@@ -43,7 +43,6 @@ import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTracki
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
-import { TrackOpenSession } from "../internal/event-tracking/usecase/TrackOpenSession.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -53,6 +52,7 @@ import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
+import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
@@ -94,6 +94,10 @@ export class LedgerButtonCore {
       .getDAppConfig();
 
     //TODO throw error if dApp config is not found ?
+    // Migrate database to latest version
+    await this.container
+      .get<MigrateDbUseCase>(storageModuleTypes.MigrateDbUseCase)
+      .execute();
 
     // Restore selected account from storage
     const selectedAccount = this.container
@@ -182,11 +186,6 @@ export class LedgerButtonCore {
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
-
-    //Track open session event, every user interaction with the app should start with a device connection intent
-    await this.container
-      .get<TrackOpenSession>(eventTrackingModuleTypes.TrackOpenSession)
-      .execute();
 
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
@@ -382,7 +381,7 @@ export class LedgerButtonCore {
           .get<TrackLedgerSyncActivated>(
             eventTrackingModuleTypes.TrackLedgerSyncActivated,
           )
-          .execute(res.trustChainId);
+          .execute();
       }),
     );
   }

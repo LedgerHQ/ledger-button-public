@@ -17,7 +17,6 @@ const BaseEventDataSchema = z.object({
 export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
   {
     event_type: z.literal("invoicing_transaction_signed"),
-    ledger_sync_user_id: z.string(),
     blockchain_network_selected: z.enum(["ethereum"]),
     transaction_hash: z
       .string()
@@ -37,12 +36,10 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
  */
 export const ConsentGivenEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_given"),
-  ledger_sync_user_id: z.string(),
 });
 
 export const ConsentRemovedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_removed"),
-  ledger_sync_user_id: z.string(),
 });
 
 export const OpenSessionEventSchema = BaseEventDataSchema.extend({
@@ -58,13 +55,11 @@ export const OpenLedgerSyncEventSchema = BaseEventDataSchema.extend({
 export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("ledger_sync_activated"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string(),
 });
 
 export const OnboardingEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("onboarding"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string(),
   blockchain_network_selected: z.enum(["ethereum"]),
   account_currency: z.string(),
   account_balance: z
@@ -79,7 +74,6 @@ export const TransactionFlowInitializationEventSchema =
   BaseEventDataSchema.extend({
     event_type: z.literal("transaction_flow_initialization"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-    ledger_sync_user_id: z.string(),
     blockchain_network_selected: z.enum(["ethereum"]),
     unsigned_transaction_hash: z
       .string()
@@ -89,7 +83,6 @@ export const TransactionFlowInitializationEventSchema =
 export const TransactionFlowCompletionEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("transaction_flow_completion"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string(),
   blockchain_network_selected: z.enum(["ethereum"]),
   unsigned_transaction_hash: z
     .string()
@@ -105,7 +98,6 @@ export const TransactionFlowCompletionEventSchema = BaseEventDataSchema.extend({
 export const SessionAuthenticationEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("session_authentication"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string(),
   blockchain_network_selected: z.enum(["ethereum"]),
   unsigned_transaction_hash: z
     .string()

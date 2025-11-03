@@ -2,7 +2,10 @@ import { type Factory, inject, injectable } from "inversify";
 
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
-import { type EventRequest } from "../../backend/model/trackEvent.js";
+import {
+  type EventRequest,
+  EventType,
+} from "../../backend/model/trackEvent.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import type { Config } from "../../config/model/config.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -50,6 +53,15 @@ Check current state with formats in JSON schemas and update the validation.
         return;
       }
 */
+
+      if (!this.isEventActivated(event.type)) {
+        this.logger.debug("Event is not activated, skipping tracking", {
+          event,
+        });
+        return;
+      }
+
+      //TODO: Uncomment this when we have a validation for the events in the backend.
       const result = await this.backendService.event(
         event,
         this.config.dAppIdentifier,
@@ -66,5 +78,13 @@ Check current state with formats in JSON schemas and update the validation.
     } catch (error) {
       this.logger.error("Error tracking event", { error, event });
     }
+  }
+
+  private isEventActivated(type: EventType): boolean {
+    if (type === EventType.InvoicingTransactionSigned) {
+      return true;
+    }
+
+    return false;
   }
 }

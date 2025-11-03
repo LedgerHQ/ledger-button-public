@@ -7,8 +7,6 @@ import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import { type StorageService } from "../../storage/StorageService.js";
 import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
 import { EventTrackingUtils, stringToSha256 } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
@@ -21,8 +19,6 @@ export class TrackTypedMessageStarted {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(eventTrackingModuleTypes.EventTrackingService)
     private readonly eventTrackingService: EventTrackingService,
-    @inject(storageModuleTypes.StorageService)
-    private readonly storageService: StorageService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
     @inject(contextModuleTypes.ContextService)
@@ -33,31 +29,21 @@ export class TrackTypedMessageStarted {
 
   async execute(typedData: TypedData): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
-    const trustChainIdResult = this.storageService.getTrustChainId();
 
-    if (trustChainIdResult.isJust()) {
-      const trustChainId = trustChainIdResult.extract();
-      const typedMessageHash = stringToSha256(JSON.stringify(typedData));
-      const chainId = this.contextService.getContext().chainId.toString();
+    const typedMessageHash = stringToSha256(JSON.stringify(typedData));
+    const chainId = this.contextService.getContext().chainId.toString();
 
-      const event =
-        EventTrackingUtils.createTypedMessageFlowInitializationEvent({
-          dAppId: this.config.dAppIdentifier,
-          sessionId: sessionId,
-          ledgerSyncUserId: trustChainId,
-          typedMessageHash: typedMessageHash,
-          chainId: chainId,
-        });
+    const event = EventTrackingUtils.createTypedMessageFlowInitializationEvent({
+      dAppId: this.config.dAppIdentifier,
+      sessionId: sessionId,
+      typedMessageHash: typedMessageHash,
+      chainId: chainId,
+    });
 
-      this.logger.debug("Tracking typed message flow initialization event", {
-        event,
-      });
+    this.logger.debug("Tracking typed message flow initialization event", {
+      event,
+    });
 
-      await this.eventTrackingService.trackEvent(event);
-    } else {
-      this.logger.error(
-        "Data missing, cannot track typed message flow initialization event",
-      );
-    }
+    await this.eventTrackingService.trackEvent(event);
   }
 }
