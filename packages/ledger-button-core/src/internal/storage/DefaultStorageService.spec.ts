@@ -1,6 +1,5 @@
 import "fake-indexeddb/auto";
 
-import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
@@ -170,12 +169,8 @@ describe("DefaultStorageService", () => {
 
     describe("storeKeyPair", () => {
       it("should be able to store a key pair", async () => {
-        // Create a mock key pair for testing
-
-        const mockKeyPair = {
-          id: "test-id",
-          getPublicKeyToHex: () => "test-public-key",
-        } as unknown as KeyPair;
+        // Create a mock encrypted key pair as Uint8Array
+        const mockKeyPair = new Uint8Array([1, 2, 3, 4, 5]);
         const result = await storageService.storeKeyPair(mockKeyPair);
         expect(result.isRight()).toBe(true);
         result.map((success) => {
@@ -203,10 +198,8 @@ describe("DefaultStorageService", () => {
           Right(mockDb as unknown as IDBDatabase),
         );
 
-        const mockKeyPair = {
-          id: "test-id",
-          getPublicKeyToHex: () => "test-public-key",
-        } as unknown as KeyPair;
+        // Create a mock encrypted key pair as Uint8Array
+        const mockKeyPair = new Uint8Array([1, 2, 3, 4, 5]);
 
         // Start the async operation
         const resultPromise = storageService.storeKeyPair(mockKeyPair);
