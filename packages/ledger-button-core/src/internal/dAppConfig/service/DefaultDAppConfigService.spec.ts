@@ -33,13 +33,11 @@ describe("DefaultDAppConfigService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock Config
     mockConfig = {
       dAppIdentifier: "test-dapp-id",
       originToken: "test-origin-token",
     } as Config;
 
-    // Mock BackendService
     mockBackendService = {
       getConfig: vi.fn(),
       broadcast: vi.fn(),
