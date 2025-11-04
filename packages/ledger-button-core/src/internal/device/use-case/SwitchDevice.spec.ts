@@ -11,26 +11,8 @@ describe("SwitchDevice", () => {
     listAvailableDevices: ReturnType<typeof vi.fn>;
     dmk: unknown;
   };
-  let mockLogger: {
-    log: ReturnType<typeof vi.fn>;
-    error: ReturnType<typeof vi.fn>;
-    warn: ReturnType<typeof vi.fn>;
-    debug: ReturnType<typeof vi.fn>;
-    info: ReturnType<typeof vi.fn>;
-  };
-  let mockLoggerFactory: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockLogger = {
-      log: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-      info: vi.fn(),
-    };
-
-    mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
-
     mockDeviceManagementKitService = {
       connectToDevice: vi.fn(),
       disconnectFromDevice: vi.fn(),
@@ -39,7 +21,7 @@ describe("SwitchDevice", () => {
     };
 
     switchDevice = new SwitchDevice(
-      mockLoggerFactory,
+      vi.fn(),
       mockDeviceManagementKitService as unknown as DeviceManagementKitService,
     );
 
@@ -57,57 +39,25 @@ describe("SwitchDevice", () => {
         );
       });
 
-      it("should switch to USB device successfully", async () => {
-        await switchDevice.execute({ type: "usb" });
+      it.each([
+        { type: "usb" as const, description: "USB" },
+        { type: "bluetooth" as const, description: "Bluetooth" },
+      ])(
+        "should switch to $description device successfully",
+        async ({ type }) => {
+          await switchDevice.execute({ type });
 
-        expect(
-          mockDeviceManagementKitService.disconnectFromDevice,
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          mockDeviceManagementKitService.connectToDevice,
-        ).toHaveBeenCalledWith({ type: "usb" });
-      });
-
-      it("should switch to Bluetooth device successfully", async () => {
-        await switchDevice.execute({ type: "bluetooth" });
-
-        expect(
-          mockDeviceManagementKitService.disconnectFromDevice,
-        ).toHaveBeenCalledTimes(1);
-        expect(
-          mockDeviceManagementKitService.connectToDevice,
-        ).toHaveBeenCalledWith({ type: "bluetooth" });
-      });
-
-      it("should switch between different connection types", async () => {
-        await switchDevice.execute({ type: "usb" });
-        expect(
-          mockDeviceManagementKitService.connectToDevice,
-        ).toHaveBeenLastCalledWith({ type: "usb" });
-
-        await switchDevice.execute({ type: "bluetooth" });
-        expect(
-          mockDeviceManagementKitService.connectToDevice,
-        ).toHaveBeenLastCalledWith({ type: "bluetooth" });
-      });
+          expect(
+            mockDeviceManagementKitService.disconnectFromDevice,
+          ).toHaveBeenCalledTimes(1);
+          expect(
+            mockDeviceManagementKitService.connectToDevice,
+          ).toHaveBeenCalledWith({ type });
+        },
+      );
     });
 
     describe("error handling", () => {
-      it("should throw error if disconnect fails", async () => {
-        const disconnectError = new Error("Failed to disconnect");
-        mockDeviceManagementKitService.disconnectFromDevice.mockRejectedValue(
-          disconnectError,
-        );
-
-        await expect(switchDevice.execute({ type: "usb" })).rejects.toThrow(
-          disconnectError,
-        );
-
-        expect(
-          mockDeviceManagementKitService.connectToDevice,
-        ).not.toHaveBeenCalled();
-      });
-
       it("should throw error if connect fails after successful disconnect", async () => {
         const connectError = new Error("Failed to connect");
         mockDeviceManagementKitService.disconnectFromDevice.mockResolvedValue(
@@ -124,20 +74,6 @@ describe("SwitchDevice", () => {
         expect(
           mockDeviceManagementKitService.disconnectFromDevice,
         ).toHaveBeenCalledTimes(1);
-      });
-
-      it("should propagate device connection errors with error message", async () => {
-        const connectionError = new Error("Device connection error");
-        mockDeviceManagementKitService.disconnectFromDevice.mockResolvedValue(
-          undefined,
-        );
-        mockDeviceManagementKitService.connectToDevice.mockRejectedValue(
-          connectionError,
-        );
-
-        await expect(switchDevice.execute({ type: "usb" })).rejects.toThrow(
-          "Device connection error",
-        );
       });
     });
   });

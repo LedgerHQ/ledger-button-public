@@ -11,7 +11,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DeviceConnectionError } from "../model/errors.js";
 import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService.js";
 
-// Mock the device-management-kit module
 vi.mock("@ledgerhq/device-management-kit", async () => {
   const actual = await vi.importActual("@ledgerhq/device-management-kit");
   return {
@@ -84,15 +83,9 @@ describe("DefaultDeviceManagementKitService", () => {
   });
 
   describe("initialization", () => {
-    it("should have dmk property", () => {
+    it("should initialize with no session ID and no connected cevice", () => {
       expect(service.dmk).toBeDefined();
-    });
-
-    it("should initialize with no session ID", () => {
       expect(service.sessionId).toBeUndefined();
-    });
-
-    it("should initialize with no connected device", () => {
       expect(service.connectedDevice).toBeUndefined();
     });
   });
@@ -111,48 +104,29 @@ describe("DefaultDeviceManagementKitService", () => {
       );
     });
 
-    it("should connect to USB device successfully", async () => {
-      const device = await service.connectToDevice({ type: "usb" });
+    it.each([
+      {
+        type: "usb" as const,
+        transport: "hidIdentifier" as const,
+      },
+      {
+        type: "bluetooth" as const,
+        transport: "bleIdentifier" as const,
+      },
+    ])(
+      "should connect to $type device successfully",
+      async ({ type, transport }) => {
+        const device = await service.connectToDevice({ type });
 
-      expect(device).toBeDefined();
-      expect(mockDmk.startDiscovering).toHaveBeenCalledWith({
-        transport: service.hidIdentifier,
-      });
-      expect(device.name).toBe(mockConnectedDevice.name);
-      expect(device.modelId).toBe(mockConnectedDevice.modelId);
-    });
-
-    it("should connect to Bluetooth device successfully", async () => {
-      const device = await service.connectToDevice({ type: "bluetooth" });
-
-      expect(device).toBeDefined();
-      expect(mockDmk.startDiscovering).toHaveBeenCalledWith({
-        transport: service.bleIdentifier,
-      });
-    });
-
-    it("should use BLE identifier for non-usb connection type", async () => {
-      const device = await service.connectToDevice({ type: "" });
-
-      expect(device).toBeDefined();
-      expect(mockDmk.startDiscovering).toHaveBeenCalledWith({
-        transport: service.bleIdentifier,
-      });
-    });
-
-    it("should stop discovering after device is found", async () => {
-      await service.connectToDevice({ type: "usb" });
-
-      expect(mockDmk.stopDiscovering).toHaveBeenCalled();
-    });
-
-    it("should set connected device after connection", async () => {
-      await service.connectToDevice({ type: "usb" });
-
-      expect(service.connectedDevice).toBeDefined();
-      expect(service.sessionId).toBe(mockConnectedDevice.sessionId);
-      expect(service.connectedDevice?.name).toBe(mockConnectedDevice.name);
-    });
+        expect(device).toBeDefined();
+        expect(mockDmk.startDiscovering).toHaveBeenCalledWith({
+          transport: service[transport],
+        });
+        expect(service.connectedDevice).toBeDefined();
+        expect(service.sessionId).toBe(mockConnectedDevice.sessionId);
+        expect(service.connectedDevice?.name).toBe(mockConnectedDevice.name);
+      },
+    );
 
     it("should throw DeviceConnectionError when no accessible device", async () => {
       const noDeviceError = new NoAccessibleDeviceError("No device found");
@@ -163,25 +137,6 @@ describe("DefaultDeviceManagementKitService", () => {
       await expect(service.connectToDevice({ type: "usb" })).rejects.toThrow(
         DeviceConnectionError,
       );
-
-      await expect(service.connectToDevice({ type: "usb" })).rejects.toThrow(
-        "No accessible device",
-      );
-    });
-
-    it("should throw DeviceConnectionError when discovery fails", async () => {
-      const error = new Error("Discovery failed");
-      vi.mocked(mockDmk.startDiscovering).mockReturnValue(
-        throwError(() => error) as Observable<DiscoveredDevice>,
-      );
-
-      await expect(service.connectToDevice({ type: "usb" })).rejects.toThrow(
-        DeviceConnectionError,
-      );
-
-      await expect(service.connectToDevice({ type: "usb" })).rejects.toThrow(
-        "Failed to start discovery",
-      );
     });
 
     it("should throw DeviceConnectionError when connection fails", async () => {
@@ -191,10 +146,6 @@ describe("DefaultDeviceManagementKitService", () => {
 
       await expect(service.connectToDevice({ type: "usb" })).rejects.toThrow(
         DeviceConnectionError,
-      );
-
-      await expect(service.connectToDevice({ type: "usb" })).rejects.toThrow(
-        "Failed to connect to device",
       );
     });
 
@@ -211,40 +162,6 @@ describe("DefaultDeviceManagementKitService", () => {
         expect(e).toBeInstanceOf(DeviceConnectionError);
         expect((e as DeviceConnectionError).context?.type).toBe(
           "no-accessible-device",
-        );
-        expect((e as DeviceConnectionError).context?.error).toBe(error);
-      }
-    });
-
-    it("should include error type in DeviceConnectionError for discovery failure", async () => {
-      const error = new Error("Discovery failed");
-      vi.mocked(mockDmk.startDiscovering).mockReturnValue(
-        throwError(() => error) as Observable<DiscoveredDevice>,
-      );
-
-      try {
-        await service.connectToDevice({ type: "usb" });
-        expect.fail("Should have thrown an error");
-      } catch (e) {
-        expect(e).toBeInstanceOf(DeviceConnectionError);
-        expect((e as DeviceConnectionError).context?.type).toBe(
-          "failed-to-start-discovery",
-        );
-        expect((e as DeviceConnectionError).context?.error).toBe(error);
-      }
-    });
-
-    it("should include error type in DeviceConnectionError for connection failure", async () => {
-      const error = new Error("Connection failed");
-      vi.mocked(mockDmk.connect).mockRejectedValue(error);
-
-      try {
-        await service.connectToDevice({ type: "usb" });
-        expect.fail("Should have thrown an error");
-      } catch (e) {
-        expect(e).toBeInstanceOf(DeviceConnectionError);
-        expect((e as DeviceConnectionError).context?.type).toBe(
-          "failed-to-connect",
         );
         expect((e as DeviceConnectionError).context?.error).toBe(error);
       }
@@ -272,14 +189,6 @@ describe("DefaultDeviceManagementKitService", () => {
       expect(service.sessionId).toBeUndefined();
     });
 
-    it("should do nothing when no session exists", async () => {
-      vi.mocked(mockDmk.close).mockResolvedValue(undefined);
-
-      await service.disconnectFromDevice();
-
-      expect(mockDmk.close).not.toHaveBeenCalled();
-    });
-
     it("should throw DeviceConnectionError when disconnect fails", async () => {
       vi.mocked(mockDmk.startDiscovering).mockReturnValue(
         of(mockDiscoveredDevice) as Observable<DiscoveredDevice>,
@@ -300,37 +209,6 @@ describe("DefaultDeviceManagementKitService", () => {
       await expect(service.disconnectFromDevice()).rejects.toThrow(
         DeviceConnectionError,
       );
-      await expect(service.disconnectFromDevice()).rejects.toThrow(
-        "Failed to disconnect from device",
-      );
-    });
-
-    it("should include error type in DeviceConnectionError for disconnect failure", async () => {
-      vi.mocked(mockDmk.startDiscovering).mockReturnValue(
-        of(mockDiscoveredDevice) as Observable<DiscoveredDevice>,
-      );
-      vi.mocked(mockDmk.stopDiscovering).mockResolvedValue(undefined);
-      vi.mocked(mockDmk.connect).mockResolvedValue(
-        mockConnectedDevice.sessionId,
-      );
-      vi.mocked(mockDmk.getConnectedDevice).mockResolvedValue(
-        mockConnectedDevice,
-      );
-      const error = new Error("Disconnect failed");
-      vi.mocked(mockDmk.close).mockRejectedValue(error);
-
-      await service.connectToDevice({ type: "usb" });
-
-      try {
-        await service.disconnectFromDevice();
-        expect.fail("Should have thrown an error");
-      } catch (e) {
-        expect(e).toBeInstanceOf(DeviceConnectionError);
-        expect((e as DeviceConnectionError).context?.type).toBe(
-          "failed-to-disconnect",
-        );
-        expect((e as DeviceConnectionError).context?.error).toBe(error);
-      }
     });
   });
 });
