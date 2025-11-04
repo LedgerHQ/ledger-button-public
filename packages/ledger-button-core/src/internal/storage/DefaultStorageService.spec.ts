@@ -175,7 +175,7 @@ describe("DefaultStorageService", () => {
         const mockKeyPair = {
           id: "test-id",
           getPublicKeyToHex: () => "test-public-key",
-        } as KeyPair;
+        } as unknown as KeyPair;
         const result = await storageService.storeKeyPair(mockKeyPair);
         expect(result.isRight()).toBe(true);
         result.map((success) => {
@@ -206,7 +206,7 @@ describe("DefaultStorageService", () => {
         const mockKeyPair = {
           id: "test-id",
           getPublicKeyToHex: () => "test-public-key",
-        } as KeyPair;
+        } as unknown as KeyPair;
 
         // Start the async operation
         const resultPromise = storageService.storeKeyPair(mockKeyPair);
