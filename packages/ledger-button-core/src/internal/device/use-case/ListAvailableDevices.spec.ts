@@ -50,8 +50,16 @@ describe("ListAvailableDevices", () => {
       dmk: {},
     };
 
+    const mockLoggerFactory = vi.fn().mockReturnValue({
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+      log: vi.fn(),
+    });
+
     listAvailableDevices = new ListAvailableDevices(
-      vi.fn(),
+      mockLoggerFactory,
       mockDeviceManagementKitService as unknown as DeviceManagementKitService,
     );
 
