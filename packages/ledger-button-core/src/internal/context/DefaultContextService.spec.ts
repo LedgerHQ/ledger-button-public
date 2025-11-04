@@ -1,6 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
-import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
 import type { Account } from "../account/service/AccountService.js";
 import * as chainUtils from "../blockchain/evm/chainUtils.js";
 import type { Device } from "../device/model/Device.js";
@@ -95,154 +94,130 @@ describe("DefaultContextService", () => {
     });
   });
 
-  describe("onEvent - initialize_context", () => {
-    it("should replace the entire context with the provided context", () => {
-      const newContext: ButtonCoreContext = {
-        connectedDevice: mockDevice,
-        selectedAccount: mockAccount,
-        trustChainId: mockTrustchain.trustChainId,
-        applicationPath: mockTrustchain.applicationPath,
-        chainId: 137,
-      };
-
-      service.onEvent({
-        type: "initialize_context",
-        context: newContext,
-      });
-
-      expect(service.getContext()).toEqual(newContext);
-    });
-  });
-
-  describe("onEvent - chain_changed", () => {
-    it("should only update chainId in the context", () => {
-      service.onEvent({
-        type: "device_connected",
-        device: mockDevice,
-      });
-
-      service.onEvent({
-        type: "chain_changed",
-        chainId: 42161,
-      });
-      const context = service.getContext();
-      expect(context.connectedDevice).toEqual(mockDevice);
-      expect(context.chainId).toBe(42161);
-    });
-  });
-
-  describe("onEvent - account_changed", () => {
-    it("should update selectedAccount and chainId based on account's currencyId", () => {
-      service.onEvent({
-        type: "device_connected",
-        device: mockDevice,
-      });
-
-      service.onEvent({
-        type: "account_changed",
-        account: mockAccountPolygon,
-      });
-
-      const context = service.getContext();
-      expect(context.selectedAccount).toEqual(mockAccountPolygon);
-      expect(context.chainId).toBe(chainIdMap.polygon);
-      expect(context.connectedDevice).toEqual(mockDevice);
-    });
-  });
-
-  describe("onEvent - device_connected", () => {
-    it("should update connectedDevice in the context", () => {
-      service.onEvent({
-        type: "device_connected",
-        device: mockDevice,
-      });
-
-      const context = service.getContext();
-      expect(context.connectedDevice).toEqual(mockDevice);
-    });
-  });
-
-  describe("onEvent - device_disconnected", () => {
-    it("should clear connectedDevice and selectedAccount from the context", () => {
-      service.onEvent({
-        type: "device_connected",
-        device: mockDevice,
-      });
-      service.onEvent({
-        type: "account_changed",
-        account: mockAccount,
-      });
-
-      service.onEvent({
-        type: "device_disconnected",
-      });
-
-      const context = service.getContext();
-      expect(context.connectedDevice).toBeUndefined();
-      expect(context.selectedAccount).toBeUndefined();
-    });
-
-    it("should preserve trustchain properties when device is disconnected", () => {
-      service.onEvent({
-        type: "trustchain_connected",
-        trustChainId: mockTrustchain.trustChainId,
-        applicationPath: mockTrustchain.applicationPath,
-      });
-      service.onEvent({
-        type: "device_connected",
-        device: mockDevice,
-      });
-
-      service.onEvent({
-        type: "device_disconnected",
-      });
-
-      const context = service.getContext();
-      expect(context.connectedDevice).toBeUndefined();
-      expect(context.trustChainId).toBe(mockTrustchain.trustChainId);
-      expect(context.applicationPath).toBe(mockTrustchain.applicationPath);
-    });
-  });
-
-  describe("onEvent - trustchain_connected", () => {
-    it("should update trustChainId and applicationPath in the context", () => {
-      service.onEvent({
-        type: "trustchain_connected",
-        trustChainId: mockTrustchain.trustChainId,
-        applicationPath: mockTrustchain.applicationPath,
-      });
-
-      const context = service.getContext();
-      expect(context.trustChainId).toBe(mockTrustchain.trustChainId);
-      expect(context.applicationPath).toBe(mockTrustchain.applicationPath);
-    });
-  });
-
-  describe("onEvent - wallet_disconnected", () => {
-    it("should clear all context properties except chainId", () => {
-      service.onEvent({
-        type: "initialize_context",
-        context: {
+  describe("onEvent", () => {
+    test.each([
+      {
+        eventType: "initialize_context",
+        eventArgs: {
+          context: {
+            connectedDevice: mockDevice,
+            selectedAccount: mockAccount,
+            trustChainId: mockTrustchain.trustChainId,
+            applicationPath: mockTrustchain.applicationPath,
+            chainId: 137,
+          },
+        },
+        expectedContext: {
           connectedDevice: mockDevice,
           selectedAccount: mockAccount,
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 137,
         },
-      });
+      },
+      {
+        eventType: "chain_changed",
+        eventArgs: { chainId: 42161 },
+        expectedContext: {
+          connectedDevice: undefined,
+          selectedAccount: undefined,
+          trustChainId: undefined,
+          applicationPath: undefined,
+          chainId: 42161,
+        },
+      },
+      {
+        eventType: "account_changed",
+        eventArgs: { account: mockAccountPolygon },
+        expectedContext: {
+          connectedDevice: undefined,
+          selectedAccount: mockAccountPolygon,
+          trustChainId: undefined,
+          applicationPath: undefined,
+          chainId: chainIdMap.polygon,
+        },
+      },
+      {
+        eventType: "device_connected",
+        eventArgs: { device: mockDevice },
+        expectedContext: {
+          connectedDevice: mockDevice,
+          selectedAccount: undefined,
+          trustChainId: undefined,
+          applicationPath: undefined,
+          chainId: 1,
+        },
+      },
+      {
+        eventType: "device_disconnected",
+        eventArgs: {},
+        setup: () => {
+          service.onEvent({
+            type: "device_connected",
+            device: mockDevice,
+          });
+          service.onEvent({
+            type: "account_changed",
+            account: mockAccount,
+          });
+        },
+        expectedContext: {
+          connectedDevice: undefined,
+          selectedAccount: undefined,
+          trustChainId: undefined,
+          applicationPath: undefined,
+          chainId: chainIdMap.ethereum,
+        },
+      },
+      {
+        eventType: "trustchain_connected",
+        eventArgs: {
+          trustChainId: mockTrustchain.trustChainId,
+          applicationPath: mockTrustchain.applicationPath,
+        },
+        expectedContext: {
+          connectedDevice: undefined,
+          selectedAccount: undefined,
+          trustChainId: mockTrustchain.trustChainId,
+          applicationPath: mockTrustchain.applicationPath,
+          chainId: 1,
+        },
+      },
+      {
+        eventType: "wallet_disconnected",
+        eventArgs: {},
+        setup: () => {
+          service.onEvent({
+            type: "initialize_context",
+            context: {
+              connectedDevice: mockDevice,
+              selectedAccount: mockAccount,
+              trustChainId: mockTrustchain.trustChainId,
+              applicationPath: mockTrustchain.applicationPath,
+              chainId: 137,
+            },
+          });
+        },
+        expectedContext: {
+          selectedAccount: undefined,
+          trustChainId: undefined,
+          connectedDevice: undefined,
+          applicationPath: undefined,
+          chainId: 137,
+        },
+      },
+    ])("onEvent - $eventType", (event) => {
+      if (event.setup) {
+        event.setup();
+      }
 
       service.onEvent({
-        type: "wallet_disconnected",
-      });
+        type: event.eventType,
+        ...event.eventArgs,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
-      const context = service.getContext();
-      expect(context).toStrictEqual({
-        selectedAccount: undefined,
-        trustChainId: undefined,
-        connectedDevice: undefined,
-        applicationPath: undefined,
-        chainId: 137,
-      });
+      expect(service.getContext()).toEqual(event.expectedContext);
     });
   });
 });
