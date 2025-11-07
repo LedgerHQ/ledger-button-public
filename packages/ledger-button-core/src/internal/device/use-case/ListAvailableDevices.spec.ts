@@ -1,66 +1,25 @@
-import {
-  DeviceModelId,
-  DiscoveredDevice,
-} from "@ledgerhq/device-management-kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Device } from "../model/Device.js";
-import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import {
+  asMockService,
+  createMockDeviceManagementKitService,
+  createMockLoggerFactory,
+  mockDiscoveredDevices,
+} from "../__tests__/mocks.js";
 import { ListAvailableDevices } from "./ListAvailableDevices.js";
 
 describe("ListAvailableDevices", () => {
   let listAvailableDevices: ListAvailableDevices;
-  let mockDeviceManagementKitService: {
-    connectToDevice: ReturnType<typeof vi.fn>;
-    disconnectFromDevice: ReturnType<typeof vi.fn>;
-    listAvailableDevices: ReturnType<typeof vi.fn>;
-    dmk: unknown;
-    sessionId?: string;
-    connectedDevice?: Device;
-  };
-
-  const mockDiscoveredDevices: DiscoveredDevice[] = [
-    {
-      id: "device-1",
-      name: "Nano X",
-      deviceModel: {
-        id: "nano-x-001",
-        model: DeviceModelId.NANO_X,
-        name: "Nano X",
-      },
-      transport: "USB",
-    },
-    {
-      id: "device-2",
-      name: "Flex",
-      deviceModel: {
-        id: "flex-001",
-        model: DeviceModelId.FLEX,
-        name: "Flex",
-      },
-      transport: "BLE",
-    },
-  ];
+  let mockDeviceManagementKitService: ReturnType<
+    typeof createMockDeviceManagementKitService
+  >;
 
   beforeEach(() => {
-    mockDeviceManagementKitService = {
-      connectToDevice: vi.fn(),
-      disconnectFromDevice: vi.fn(),
-      listAvailableDevices: vi.fn(),
-      dmk: {},
-    };
-
-    const mockLoggerFactory = vi.fn().mockReturnValue({
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-      log: vi.fn(),
-    });
+    mockDeviceManagementKitService = createMockDeviceManagementKitService();
 
     listAvailableDevices = new ListAvailableDevices(
-      mockLoggerFactory,
-      mockDeviceManagementKitService as unknown as DeviceManagementKitService,
+      createMockLoggerFactory(),
+      asMockService(mockDeviceManagementKitService),
     );
 
     vi.clearAllMocks();

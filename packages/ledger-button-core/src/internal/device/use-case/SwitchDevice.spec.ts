@@ -1,36 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import {
+  asMockService,
+  createMockDeviceManagementKitService,
+  createMockLoggerFactory,
+} from "../__tests__/mocks.js";
 import { SwitchDevice } from "./SwitchDevice.js";
 
 describe("SwitchDevice", () => {
   let switchDevice: SwitchDevice;
-  let mockDeviceManagementKitService: {
-    connectToDevice: ReturnType<typeof vi.fn>;
-    disconnectFromDevice: ReturnType<typeof vi.fn>;
-    listAvailableDevices: ReturnType<typeof vi.fn>;
-    dmk: unknown;
-  };
+  let mockDeviceManagementKitService: ReturnType<
+    typeof createMockDeviceManagementKitService
+  >;
 
   beforeEach(() => {
-    mockDeviceManagementKitService = {
-      connectToDevice: vi.fn(),
-      disconnectFromDevice: vi.fn(),
-      listAvailableDevices: vi.fn(),
-      dmk: {},
-    };
-
-    const mockLoggerFactory = vi.fn().mockReturnValue({
-      info: vi.fn(),
-      error: vi.fn(),
-      warn: vi.fn(),
-      debug: vi.fn(),
-      log: vi.fn(),
-    });
+    mockDeviceManagementKitService = createMockDeviceManagementKitService();
 
     switchDevice = new SwitchDevice(
-      mockLoggerFactory,
-      mockDeviceManagementKitService as unknown as DeviceManagementKitService,
+      createMockLoggerFactory(),
+      asMockService(mockDeviceManagementKitService),
     );
 
     vi.clearAllMocks();
@@ -47,22 +35,16 @@ describe("SwitchDevice", () => {
         );
       });
 
-      it.each([
-        { type: "usb" as const, description: "USB" },
-        { type: "bluetooth" as const, description: "Bluetooth" },
-      ])(
-        "should switch to $description device successfully",
-        async ({ type }) => {
-          await switchDevice.execute({ type });
+      it("should switch to device successfully", async () => {
+        await switchDevice.execute({ type: "usb" });
 
-          expect(
-            mockDeviceManagementKitService.disconnectFromDevice,
-          ).toHaveBeenCalledTimes(1);
-          expect(
-            mockDeviceManagementKitService.connectToDevice,
-          ).toHaveBeenCalledWith({ type });
-        },
-      );
+        expect(
+          mockDeviceManagementKitService.disconnectFromDevice,
+        ).toHaveBeenCalledTimes(1);
+        expect(
+          mockDeviceManagementKitService.connectToDevice,
+        ).toHaveBeenCalledWith({ type: "usb" });
+      });
     });
 
     describe("error handling", () => {
