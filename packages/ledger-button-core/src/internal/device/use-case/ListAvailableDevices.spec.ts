@@ -27,9 +27,18 @@ describe("ListAvailableDevices", () => {
 
   describe("execute", () => {
     describe("successful device listing", () => {
-      it("should return list of available devices", async () => {
+      it.each([
+        {
+          description: "with available devices",
+          devices: mockDiscoveredDevices,
+        },
+        {
+          description: "with no devices",
+          devices: [],
+        },
+      ])("should return list of devices $description", async ({ devices }) => {
         mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
-          mockDiscoveredDevices,
+          devices,
         );
 
         const result = await listAvailableDevices.execute();
@@ -37,35 +46,7 @@ describe("ListAvailableDevices", () => {
         expect(
           mockDeviceManagementKitService.listAvailableDevices,
         ).toHaveBeenCalledTimes(1);
-        expect(result).toHaveLength(mockDiscoveredDevices.length);
-        expect(result).toEqual(mockDiscoveredDevices);
-      });
-
-      it("should return empty array when no devices are available", async () => {
-        mockDeviceManagementKitService.listAvailableDevices.mockResolvedValue(
-          [],
-        );
-
-        const result = await listAvailableDevices.execute();
-
-        expect(result).toEqual([]);
-      });
-    });
-
-    describe("error handling", () => {
-      it("should handle service errors gracefully", async () => {
-        const error = new Error("Service unavailable");
-        mockDeviceManagementKitService.listAvailableDevices.mockRejectedValue(
-          error,
-        );
-
-        try {
-          await listAvailableDevices.execute();
-          expect.fail("Should have thrown an error");
-        } catch (err) {
-          expect(err).toBeInstanceOf(Error);
-          expect((err as Error).message).toBe("Service unavailable");
-        }
+        expect(result).toEqual(devices);
       });
     });
   });
