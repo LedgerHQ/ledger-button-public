@@ -6,6 +6,7 @@ import { Config } from "../../../config/model/config.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
+import { AlpacaServiceErrors } from "../../model/error.js";
 import type { AlpacaDataSource } from "./AlpacaDataSource.js";
 import {
   AlpacaBalance,
@@ -66,8 +67,9 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
     } else {
       const error = feeEstimationResult.extract() as Error;
       return Left(
-        new Error(
+        AlpacaServiceErrors.networkError(
           `Failed to estimate transaction fee from Alpaca: ${error.message}`,
+          error,
         ),
       );
     }
