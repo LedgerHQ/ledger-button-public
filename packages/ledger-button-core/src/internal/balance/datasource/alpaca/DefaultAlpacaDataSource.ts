@@ -66,12 +66,7 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
       return Right(response);
     } else {
       const error = feeEstimationResult.extract() as Error;
-      return Left(
-        AlpacaServiceErrors.networkError(
-          `Failed to estimate transaction fee from Alpaca: ${error.message}`,
-          error,
-        ),
-      );
+      return Left(AlpacaServiceErrors.feeEstimationError(network, error));
     }
   }
 }
