@@ -277,20 +277,20 @@ describe("DefaultLedgerSyncService", () => {
       },
       {
         description: "unknown device action status",
-        status: "UnknownStatus" as any,
+        status: "UnknownStatus" as DeviceActionStatus,
         expectedMessage: "Unknown error",
       },
     ])(
       "should return LedgerSyncAuthenticationError when $description",
       async ({ status, error, expectedMessage }) => {
-        const errorState: DeviceActionState<
+        const errorState = {
+          status,
+          ...(error && { error }),
+        } as DeviceActionState<
           AuthenticateDAOutput,
           AuthenticateDAError,
           AuthenticateDAIntermediateValue
-        > = {
-          status,
-          ...(error && { error }),
-        } as any;
+        >;
 
         mockLkrpAppKit.authenticate.mockReturnValue({
           observable: of(errorState),
