@@ -48,7 +48,7 @@ export default function Index() {
   const dispatchRequestProvider = useCallback(async () => {
     if (typeof window === "undefined") return;
 
-    import("@ledgerhq/ledger-button").then((module) => {
+    import("@ledgerhq/ledger-wallet-provider").then((module) => {
       Provider = module.LedgerEIP1193Provider;
     });
 
