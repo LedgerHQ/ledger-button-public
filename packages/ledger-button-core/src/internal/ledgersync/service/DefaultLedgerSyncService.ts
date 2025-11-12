@@ -76,50 +76,15 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     }).build();
   }
 
-  get authContext() {
-    return this._authContext;
-  }
-
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
     return from(this.getKeypairUseCase.execute()).pipe(
       switchMap((keypair: KeyPair) => {
-        this.logger.info("Keypair retrieved", {
-          keypair: keypair.getPublicKeyToHex(),
-        });
-        this.keypair = keypair;
-        this.trustChainId = this.storageService.getTrustChainId().extract();
-
-        this.logger.info(`Trustchain ID : ${this.trustChainId}`);
-        this.logger.info(
-          "Start DeviceAction for authenticate with ledger sync",
-        );
-
-        if (!this.trustChainId) {
-          this.logger.info("Try to authenticate with a Ledger Device");
-
-          if (!this.deviceManagementKitService.sessionId) {
-            throw new Error("No session ID");
-          }
-
-          return this.lkrpAppKit.authenticate({
-            keypair: keypair,
-            clientName: this.getClientName(),
-            permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
-            trustchainId: undefined,
-            sessionId: this.deviceManagementKitService.sessionId,
-          } as AuthenticateUsecaseInput).observable;
-        } else {
-          this.logger.info("Try to authenticate with keypair");
-          return this.lkrpAppKit.authenticate({
-            keypair: keypair,
-            clientName: this.getClientName(),
-            permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
-            trustchainId: this.trustChainId,
-            sessionId: undefined,
-          } as AuthenticateUsecaseInput).observable;
-        }
+        const authenticationData = this.prepareAuthenticationData(keypair);
+        const authenticateInput =
+          this.createAuthenticateInput(authenticationData);
+        return this.executeAuthentication(authenticateInput);
       }),
       map(
         (
@@ -148,8 +113,91 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     return pako.inflate(compressedClearData);
   }
 
+  get authContext() {
+    return this._authContext;
+  }
   private getClientName(): string {
     return `LedgerWalletProvider::${this.config.dAppIdentifier}`;
+  }
+
+  private prepareAuthenticationData(keypair: KeyPair): {
+    keypair: KeyPair;
+    trustChainId: string | undefined;
+  } {
+    this.logger.info("Keypair retrieved", {
+      keypair: keypair.getPublicKeyToHex(),
+    });
+    this.keypair = keypair;
+    const trustChainId = this.storageService.getTrustChainId().extract();
+    this.trustChainId = trustChainId;
+
+    this.logger.info(`Trustchain ID : ${trustChainId}`);
+    this.logger.info("Start DeviceAction for authenticate with ledger sync");
+
+    return { keypair, trustChainId };
+  }
+
+  private createAuthenticateInput(authenticationData: {
+    keypair: KeyPair;
+    trustChainId: string | undefined;
+  }): AuthenticateUsecaseInput {
+    const { keypair, trustChainId } = authenticationData;
+
+    this.logger.info("Create authenticate input", {
+      trustChainId,
+      keypair: keypair.getPublicKeyToHex(),
+    });
+
+    if (!trustChainId) {
+      return this.createDeviceAuthenticateInput(keypair);
+    } else {
+      return this.createKeypairAuthenticateInput(keypair, trustChainId);
+    }
+  }
+
+  private createDeviceAuthenticateInput(
+    keypair: KeyPair,
+  ): AuthenticateUsecaseInput {
+    this.logger.info("Try to authenticate with a Ledger Device");
+
+    if (!this.deviceManagementKitService.sessionId) {
+      throw new Error("No session ID");
+    }
+
+    return {
+      keypair: keypair,
+      clientName: this.getClientName(),
+      permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+      sessionId: this.deviceManagementKitService.sessionId,
+      trustchainId: undefined,
+    } as AuthenticateUsecaseInput;
+  }
+
+  private createKeypairAuthenticateInput(
+    keypair: KeyPair,
+    trustChainId: string,
+  ): AuthenticateUsecaseInput {
+    this.logger.info("Try to authenticate with keypair");
+
+    return {
+      keypair: keypair,
+      clientName: this.getClientName(),
+      permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+      trustchainId: trustChainId,
+      sessionId: undefined,
+    } as AuthenticateUsecaseInput;
+  }
+
+  private executeAuthentication(
+    input: AuthenticateUsecaseInput,
+  ): Observable<
+    DeviceActionState<
+      AuthenticateDAOutput,
+      AuthenticateDAError,
+      AuthenticateDAIntermediateValue
+    >
+  > {
+    return this.lkrpAppKit.authenticate(input).observable;
   }
 
   private mapAuthenticateResponse(
@@ -183,7 +231,9 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
       case DeviceActionStatus.Error:
         this.logger.error(`Error: ${JSON.stringify(state.error)}`);
         return new LedgerSyncAuthenticationError("An unknown error occurred"); //TODO map errors
-      //TODO Handle error when members has been removed from the trustchain => Remove the trustchainId from the storage and retry the authentication
+
+      // TODO https://ledgerhq.atlassian.net/browse/LBD-199
+      //  Handle error when members has been removed from the trustchain => Remove the trustchainId from the storage and retry the authentication
 
       case DeviceActionStatus.Pending:
         return {
