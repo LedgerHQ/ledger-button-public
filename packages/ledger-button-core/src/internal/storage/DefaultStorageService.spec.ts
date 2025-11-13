@@ -9,6 +9,7 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "./model/errors.js";
+import { Account } from "../account/service/AccountService.js";
 import { Config } from "../config/model/config.js";
 import { ConsoleLoggerSubscriber } from "../logger/service/ConsoleLoggerSubscriber.js";
 import { DefaultLoggerPublisher } from "../logger/service/DefaultLoggerPublisher.js";
@@ -138,7 +139,6 @@ describe("DefaultStorageService", () => {
       });
 
       it("should handle IDB initialization errors", async () => {
-        // Mock indexedDB.open to fail
         const originalOpen = indexedDB.open;
         indexedDB.open = vi.fn().mockImplementation(() => {
           const mockRequest = {
@@ -146,7 +146,6 @@ describe("DefaultStorageService", () => {
             onsuccess: null as ((event: Event) => void) | null,
             onupgradeneeded: null as ((event: Event) => void) | null,
           };
-          // Simulate error
           setTimeout(() => {
             if (mockRequest.onerror) {
               mockRequest.onerror(new Event("error"));
@@ -161,19 +160,13 @@ describe("DefaultStorageService", () => {
           expect(error).toBeInstanceOf(StorageIDBOpenError);
         });
 
-        // Restore original
         indexedDB.open = originalOpen;
       });
     });
 
     describe("storeKeyPair", () => {
       it("should be able to store a key pair", async () => {
-        // Create a mock key pair for testing
-         
-        const mockKeyPair = {
-          id: "test-id",
-          getPublicKeyToHex: () => "test-public-key",
-        } as any;
+        const mockKeyPair = new Uint8Array([1, 2, 3, 4, 5]);
         const result = await storageService.storeKeyPair(mockKeyPair);
         expect(result.isRight()).toBe(true);
         result.map((success) => {
@@ -182,7 +175,6 @@ describe("DefaultStorageService", () => {
       });
 
       it("should handle storage errors", async () => {
-        // Mock the IDB to simulate an error during storage
         const mockRequest = {
           onsuccess: null as ((event: Event) => void) | null,
           onerror: null as ((event: Event) => void) | null,
@@ -196,21 +188,14 @@ describe("DefaultStorageService", () => {
           }),
         };
 
-        // Mock initIdb to return a mock database
         vi.spyOn(storageService, "initIdb").mockResolvedValue(
           Right(mockDb as unknown as IDBDatabase),
         );
 
-         
-        const mockKeyPair = {
-          id: "test-id",
-          getPublicKeyToHex: () => "test-public-key",
-        } as any;
+        const mockKeyPair = new Uint8Array([1, 2, 3, 4, 5]);
 
-        // Start the async operation
         const resultPromise = storageService.storeKeyPair(mockKeyPair);
 
-        // Simulate error after a short delay
         setTimeout(() => {
           if (mockRequest.onerror) {
             mockRequest.onerror(new Event("error"));
@@ -246,10 +231,8 @@ describe("DefaultStorageService", () => {
           Right(mockDb as unknown as IDBDatabase),
         );
 
-        // Start the async operation
         const resultPromise = storageService.getKeyPair();
 
-        // Simulate error after a short delay
         setTimeout(() => {
           if (mockRequest.onerror) {
             mockRequest.onerror(new Event("error"));
@@ -278,10 +261,8 @@ describe("DefaultStorageService", () => {
           Right(mockDb as unknown as IDBDatabase),
         );
 
-        // Start the async operation
         const resultPromise = storageService.getKeyPair();
 
-        // Simulate error after a short delay
         setTimeout(() => {
           if (mockRequest.onerror) {
             mockRequest.onerror(new Event("error"));
@@ -315,10 +296,8 @@ describe("DefaultStorageService", () => {
           Right(mockDb as unknown as IDBDatabase),
         );
 
-        // Start the async operation
         const resultPromise = storageService.removeKeyPair();
 
-        // Simulate success after a short delay
         setTimeout(() => {
           if (mockRequest.onsuccess) {
             mockRequest.onsuccess(new Event("success"));
@@ -350,10 +329,8 @@ describe("DefaultStorageService", () => {
           Right(mockDb as unknown as IDBDatabase),
         );
 
-        // Start the async operation
         const resultPromise = storageService.removeKeyPair();
 
-        // Simulate error after a short delay
         setTimeout(() => {
           if (mockRequest.onerror) {
             mockRequest.onerror(new Event("error"));
@@ -407,7 +384,6 @@ describe("DefaultStorageService", () => {
       });
 
       it("should return false when trust chain is expired", () => {
-        // Set a validity timestamp that's more than 30 days old
         const oldTimestamp = new Date();
         oldTimestamp.setDate(oldTimestamp.getDate() - 31);
         storageService.saveItem(
@@ -420,7 +396,6 @@ describe("DefaultStorageService", () => {
       });
 
       it("should return true when trust chain is still valid", () => {
-        // Set a validity timestamp that's less than 30 days old
         const recentTimestamp = new Date();
         recentTimestamp.setDate(recentTimestamp.getDate() - 15);
         storageService.saveItem(
@@ -433,7 +408,6 @@ describe("DefaultStorageService", () => {
       });
 
       it("should return false when trust chain is exactly 30 days old", () => {
-        // Set a validity timestamp that's exactly 30 days old
         const exactTimestamp = new Date();
         exactTimestamp.setDate(exactTimestamp.getDate() - 30);
         storageService.saveItem(
@@ -450,11 +424,10 @@ describe("DefaultStorageService", () => {
   describe("Selected Account methods", () => {
     describe("saveSelectedAccount", () => {
       it("should be able to save and get a selected account", () => {
-         
-        const mockAccount = { 
-          id: "test-account", 
-          name: "Test Account" 
-        } as any;
+        const mockAccount = {
+          id: "test-account",
+          name: "Test Account",
+        } as Account;
         storageService.saveSelectedAccount(mockAccount);
         expect(storageService.getSelectedAccount()).toEqual(
           Maybe.of({
@@ -473,18 +446,16 @@ describe("DefaultStorageService", () => {
       });
 
       it("should be able to remove a selected account", () => {
-         
-        const mockAccount = { 
-          id: "test-account", 
-          name: "Test Account" 
-        } as any;
+        const mockAccount = {
+          id: "test-account",
+          name: "Test Account",
+        } as Account;
         storageService.saveSelectedAccount(mockAccount);
         storageService.removeSelectedAccount();
         expect(storageService.getSelectedAccount()).toBe(Nothing);
       });
 
       it("should handle complex account objects", () => {
-         
         const complexAccount = {
           id: "complex-account",
           name: "Complex Account",
@@ -496,7 +467,7 @@ describe("DefaultStorageService", () => {
           ticker: "BTC",
           balance: "0.0000",
           tokens: [],
-        } as any;
+        } as Account;
 
         storageService.saveSelectedAccount(complexAccount);
         const retrieved = storageService.getSelectedAccount();
@@ -521,7 +492,6 @@ describe("DefaultStorageService", () => {
   describe("Error handling", () => {
     describe("getItem with invalid JSON", () => {
       it("should return Nothing when JSON parsing fails", () => {
-        // Manually set invalid JSON in localStorage
         const invalidKey = DefaultStorageService.formatKey("invalid-json");
         localStorage.setItem(invalidKey, "invalid json content");
 
