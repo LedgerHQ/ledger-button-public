@@ -7,19 +7,36 @@ import {
   AuthenticateDAIntermediateValue,
   AuthenticateDAOutput,
   KeyPair,
-  LedgerKeyringProtocol,
+  LedgerKeyringProtocolBuilder,
+  LKRPEnv,
+  Permissions,
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import pako from "pako";
 import { lastValueFrom, of } from "rxjs";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
 import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
+import type { AuthContext } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
+import type { UserInteractionNeededResponse } from "../../../api/model/UserInteractionNeeded.js";
 import type { Config } from "../../config/model/config.js";
 import type { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
 import { DefaultLedgerSyncService } from "./DefaultLedgerSyncService.js";
+
+vi.mock(
+  "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol",
+  async () => {
+    const actual = await vi.importActual<
+      typeof import("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol")
+    >("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol");
+    return {
+      ...actual,
+      LedgerKeyringProtocolBuilder: vi.fn(),
+    };
+  },
+);
 
 describe("DefaultLedgerSyncService", () => {
   let service: DefaultLedgerSyncService;
@@ -40,6 +57,7 @@ describe("DefaultLedgerSyncService", () => {
     decryptData: ReturnType<typeof vi.fn>;
   };
   let mockKeypair: KeyPair;
+  let mockBuild: ReturnType<typeof vi.fn>;
 
   const mockJWT = {
     access_token: "test-access-token",
@@ -85,6 +103,15 @@ describe("DefaultLedgerSyncService", () => {
       decryptData: vi.fn(),
     };
 
+    mockBuild = vi.fn().mockReturnValue(mockLkrpAppKit);
+
+    vi.mocked(LedgerKeyringProtocolBuilder).mockImplementation(
+      () =>
+        ({
+          build: mockBuild,
+        }) as unknown as LedgerKeyringProtocolBuilder,
+    );
+
     service = new DefaultLedgerSyncService(
       vi.fn().mockReturnValue({
         info: vi.fn(),
@@ -98,9 +125,53 @@ describe("DefaultLedgerSyncService", () => {
       mockConfig,
     );
 
-    service.lkrpAppKit = mockLkrpAppKit as unknown as LedgerKeyringProtocol;
-
     vi.clearAllMocks();
+  });
+
+  describe("when building the class", () => {
+    it("should build a LedgerKeyringProtocolBuilder with correct configuration", () => {
+      expect(LedgerKeyringProtocolBuilder).toHaveBeenCalledWith({
+        dmk: mockDeviceManagementKitService.dmk,
+        applicationId: 16,
+        env: LKRPEnv.STAGING,
+      });
+      expect(mockBuild).toHaveBeenCalled();
+    });
+
+    test.each([
+      {
+        environment: "production" as const,
+        expectedEnv: LKRPEnv.PROD,
+      },
+      {
+        environment: "staging" as const,
+        expectedEnv: LKRPEnv.STAGING,
+      },
+    ])(
+      "should use correct environment when config.environment is $environment",
+      ({ environment, expectedEnv }) => {
+        mockConfig.environment = environment;
+
+        new DefaultLedgerSyncService(
+          vi.fn().mockReturnValue({
+            info: vi.fn(),
+            debug: vi.fn(),
+            warn: vi.fn(),
+            error: vi.fn(),
+          }),
+          mockDeviceManagementKitService as unknown as DeviceManagementKitService,
+          mockStorageService as unknown as StorageService,
+          mockGetKeypairUseCase as unknown as GetKeypairUseCase,
+          mockConfig,
+        );
+
+        expect(LedgerKeyringProtocolBuilder).toHaveBeenCalledWith({
+          dmk: mockDeviceManagementKitService.dmk,
+          applicationId: 16,
+          env: expectedEnv,
+        });
+      },
+    );
   });
 
   describe("authContext", () => {
@@ -110,211 +181,213 @@ describe("DefaultLedgerSyncService", () => {
   });
 
   describe("authenticate", () => {
-    it.each([
-      {
-        description: "no trustchain ID exists",
-        trustchainId: undefined,
-        shouldCheckKeypairExecution: true,
-        shouldCheckSaveTrustChain: true,
-        shouldCheckAuthContext: true,
-        status: DeviceActionStatus.Completed,
-        output: mockAuthOutput,
-        expectedResult: {
-          trustChainId: "test-trustchain-id",
-          applicationPath: "test-app-path",
-        },
-      },
-      {
-        description: "trustchain ID exists",
-        trustchainId: "existing-trustchain-id",
-        shouldCheckKeypairExecution: false,
-        shouldCheckSaveTrustChain: false,
-        shouldCheckAuthContext: false,
-        status: DeviceActionStatus.Completed,
-        output: mockAuthOutput,
-        expectedResult: {
-          trustChainId: "test-trustchain-id",
-          applicationPath: "test-app-path",
-        },
-      },
-      {
-        description: "device action is pending",
-        trustchainId: undefined,
-        shouldCheckKeypairExecution: false,
-        shouldCheckSaveTrustChain: false,
-        shouldCheckAuthContext: false,
-        status: DeviceActionStatus.Pending,
-        intermediateValue: {
-          requiredUserInteraction: "unlock-device",
-        } as AuthenticateDAIntermediateValue,
-        expectedResult: {
-          requiredUserInteraction: "unlock-device",
-        },
-      },
-      {
-        description: "production environment is used",
-        trustchainId: undefined,
-        shouldCheckKeypairExecution: true,
-        shouldCheckSaveTrustChain: true,
-        shouldCheckAuthContext: true,
-        environment: "production" as const,
-        status: DeviceActionStatus.Completed,
-        output: mockAuthOutput,
-        expectedResult: {
-          trustChainId: "test-trustchain-id",
-          applicationPath: "test-app-path",
-        },
-      },
-      {
-        description: "staging environment is used",
-        trustchainId: undefined,
-        shouldCheckKeypairExecution: true,
-        shouldCheckSaveTrustChain: true,
-        shouldCheckAuthContext: true,
-        environment: "staging" as const,
-        status: DeviceActionStatus.Completed,
-        output: mockAuthOutput,
-        expectedResult: {
-          trustChainId: "test-trustchain-id",
-          applicationPath: "test-app-path",
-        },
-      },
-    ])(
-      "should handle authentication when $description",
-      async ({
-        trustchainId,
-        shouldCheckKeypairExecution,
-        shouldCheckSaveTrustChain,
-        shouldCheckAuthContext,
-        environment,
-        status,
-        output,
-        intermediateValue,
-        expectedResult,
-      }) => {
-        if (environment) {
-          mockConfig.environment = environment;
-        }
-
+    describe("when preparing for device action", () => {
+      test("given a trustchainId in storage, it should call authenticate with the given trustchainId", async () => {
+        const existingTrustchainId = "existing-trustchain-id";
         mockStorageService.getTrustChainId.mockReturnValue({
-          extract: vi.fn().mockReturnValue(trustchainId),
+          extract: vi.fn().mockReturnValue(existingTrustchainId),
         });
 
-        let state: DeviceActionState<
+        const state: DeviceActionState<
           AuthenticateDAOutput,
           AuthenticateDAError,
           AuthenticateDAIntermediateValue
-        >;
-
-        if (status === DeviceActionStatus.Completed && output) {
-          state = { status, output };
-        } else if (status === DeviceActionStatus.Pending && intermediateValue) {
-          state = { status, intermediateValue };
-        } else {
-          throw new Error("Invalid test configuration");
-        }
+        > = {
+          status: DeviceActionStatus.Completed,
+          output: mockAuthOutput,
+        };
 
         mockLkrpAppKit.authenticate.mockReturnValue({
           observable: of(state),
         });
 
         const result$ = service.authenticate();
-        const result = await lastValueFrom(result$);
+        await lastValueFrom(result$);
 
-        const authenticateCall = mockLkrpAppKit.authenticate.mock.calls[0][0];
-        const mockSessionId = !trustchainId
-          ? mockDeviceManagementKitService.sessionId
-          : undefined;
+        expect(mockGetKeypairUseCase.execute).toHaveBeenCalled();
+        expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
+          keypair: mockKeypair,
+          clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
+          permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+          trustchainId: existingTrustchainId,
+          sessionId: undefined,
+        });
+      });
 
-        if (shouldCheckKeypairExecution) {
-          expect(mockGetKeypairUseCase.execute).toHaveBeenCalled();
-        }
+      test("when no trustchainId is found, it should authenticate with no trustchainId", async () => {
+        mockStorageService.getTrustChainId.mockReturnValue({
+          extract: vi.fn().mockReturnValue(undefined),
+        });
 
-        expect(mockLkrpAppKit.authenticate).toHaveBeenCalled();
-
-        expect(authenticateCall).toEqual(
-          expect.objectContaining({
-            keypair: mockKeypair,
-            clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
-            trustchainId: trustchainId,
-            sessionId: mockSessionId,
-          }),
-        );
-
-        expect(result).toEqual(expectedResult);
-
-        if (shouldCheckSaveTrustChain) {
-          expect(mockStorageService.saveTrustChainId).toHaveBeenCalledWith(
-            "test-trustchain-id",
-          );
-        }
-
-        if (shouldCheckAuthContext) {
-          expect(service.authContext).toBeDefined();
-          expect(service.authContext?.trustChainId).toBe("test-trustchain-id");
-        }
-      },
-    );
-
-    it.each([
-      {
-        description: "device disconnected",
-        status: DeviceActionStatus.Error,
-        error: { type: "DeviceDisconnected" } as unknown as AuthenticateDAError,
-        expectedMessage: "An unknown error occurred",
-      },
-      {
-        description: "user rejected",
-        status: DeviceActionStatus.Error,
-        error: { type: "UserRejected" } as unknown as AuthenticateDAError,
-        expectedMessage: "An unknown error occurred",
-      },
-      {
-        description: "timeout",
-        status: DeviceActionStatus.Error,
-        error: { type: "Timeout" } as unknown as AuthenticateDAError,
-        expectedMessage: "An unknown error occurred",
-      },
-      {
-        description: "unknown device action status",
-        status: "UnknownStatus" as DeviceActionStatus,
-        expectedMessage: "Unknown error",
-      },
-    ])(
-      "should return LedgerSyncAuthenticationError when $description",
-      async ({ status, error, expectedMessage }) => {
-        const errorState = {
-          status,
-          ...(error && { error }),
-        } as DeviceActionState<
+        const state: DeviceActionState<
           AuthenticateDAOutput,
           AuthenticateDAError,
           AuthenticateDAIntermediateValue
-        >;
+        > = {
+          status: DeviceActionStatus.Completed,
+          output: mockAuthOutput,
+        };
 
         mockLkrpAppKit.authenticate.mockReturnValue({
-          observable: of(errorState),
+          observable: of(state),
         });
 
         const result$ = service.authenticate();
-        const result = await lastValueFrom(result$);
+        await lastValueFrom(result$);
 
-        expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
-        expect((result as LedgerSyncAuthenticationError).message).toBe(
-          expectedMessage,
-        );
-      },
-    );
-
-    it("should throw error when no session ID exists and no trustchain ID", async () => {
-      mockDeviceManagementKitService.sessionId = undefined;
-      mockStorageService.getTrustChainId.mockReturnValue({
-        extract: vi.fn().mockReturnValue(undefined),
+        expect(mockGetKeypairUseCase.execute).toHaveBeenCalled();
+        expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
+          keypair: mockKeypair,
+          clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
+          permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+          trustchainId: undefined,
+          sessionId: mockDeviceManagementKitService.sessionId,
+        });
       });
 
-      const result$ = service.authenticate();
+      test("when no trustchainId is found and no sessionId exists, it should throw an error", async () => {
+        mockDeviceManagementKitService.sessionId = undefined;
+        mockStorageService.getTrustChainId.mockReturnValue({
+          extract: vi.fn().mockReturnValue(undefined),
+        });
 
-      await expect(lastValueFrom(result$)).rejects.toThrow("No session ID");
+        const result$ = service.authenticate();
+
+        await expect(lastValueFrom(result$)).rejects.toThrow("No session ID");
+      });
+    });
+
+    describe("when listening to authentication response", () => {
+      describe("on status Completed", () => {
+        it("should store auth information in context", async () => {
+          const state: DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          > = {
+            status: DeviceActionStatus.Completed,
+            output: mockAuthOutput,
+          };
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          const result$ = service.authenticate();
+          await lastValueFrom(result$);
+
+          expect(service.authContext).toEqual({
+            jwt: mockJWT,
+            trustChainId: mockAuthOutput.trustchainId,
+            encryptionKey: mockAuthOutput.encryptionKey,
+            applicationPath: mockAuthOutput.applicationPath,
+            keypair: mockKeypair,
+          });
+          expect(mockStorageService.saveTrustChainId).toHaveBeenCalledWith(
+            mockAuthOutput.trustchainId,
+          );
+        });
+
+        it("should return AuthContext with trustChainId and applicationPath", async () => {
+          const state: DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          > = {
+            status: DeviceActionStatus.Completed,
+            output: mockAuthOutput,
+          };
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          const result$ = service.authenticate();
+          const result = await lastValueFrom(result$);
+
+          expect(result).toEqual({
+            trustChainId: mockAuthOutput.trustchainId,
+            applicationPath: mockAuthOutput.applicationPath,
+          } satisfies AuthContext);
+        });
+      });
+
+      describe("on status Error", () => {
+        it("should return LedgerSyncAuthenticationError with message 'An unknown error occurred'", async () => {
+          const state: DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          > = {
+            status: DeviceActionStatus.Error,
+            error: {
+              type: "DeviceDisconnected",
+            } as unknown as AuthenticateDAError,
+          };
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          const result$ = service.authenticate();
+          const result = await lastValueFrom(result$);
+
+          expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
+          expect((result as LedgerSyncAuthenticationError).message).toBe(
+            "An unknown error occurred",
+          );
+        });
+      });
+
+      describe("on status Pending", () => {
+        it("should return an intermediate state with requiredUserInteraction", async () => {
+          const state: DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          > = {
+            status: DeviceActionStatus.Pending,
+            intermediateValue: {
+              requiredUserInteraction: "unlock-device",
+            } as AuthenticateDAIntermediateValue,
+          };
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          const result$ = service.authenticate();
+          const result = await lastValueFrom(result$);
+
+          expect(result).toEqual({
+            requiredUserInteraction: "unlock-device",
+          } satisfies UserInteractionNeededResponse);
+        });
+      });
+
+      describe("on unknown status", () => {
+        it("should return LedgerSyncAuthenticationError with message 'Unknown error'", async () => {
+          const state = {
+            status: "UnknownStatus" as DeviceActionStatus,
+          } as DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          >;
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          const result$ = service.authenticate();
+          const result = await lastValueFrom(result$);
+
+          expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
+          expect((result as LedgerSyncAuthenticationError).message).toBe(
+            "Unknown error",
+          );
+        });
+      });
     });
   });
 
@@ -345,7 +418,7 @@ describe("DefaultLedgerSyncService", () => {
       expect(result).toEqual(decompressed);
     });
 
-    it.each([
+    test.each([
       {
         description: "no auth context exists",
         authContext: undefined,
@@ -369,14 +442,11 @@ describe("DefaultLedgerSyncService", () => {
 
         const encryptedData = new Uint8Array([10, 20, 30]);
 
-        await expect(service.decrypt(encryptedData)).rejects.toThrow(
-          LedgerSyncAuthContextMissingError,
-        );
+        const promise = expect(service.decrypt(encryptedData)).rejects;
+        await promise.toThrow(LedgerSyncAuthContextMissingError);
 
         if (shouldCheckMessage) {
-          await expect(service.decrypt(encryptedData)).rejects.toThrow(
-            "No encryption key",
-          );
+          await promise.toThrow("No encryption key");
         }
       },
     );
