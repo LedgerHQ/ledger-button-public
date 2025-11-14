@@ -130,6 +130,19 @@ describe("DefaultLedgerSyncService", () => {
 
   describe("when building the class", () => {
     it("should build a LedgerKeyringProtocolBuilder with correct configuration", () => {
+      new DefaultLedgerSyncService(
+        vi.fn().mockReturnValue({
+          info: vi.fn(),
+          debug: vi.fn(),
+          warn: vi.fn(),
+          error: vi.fn(),
+        }),
+        mockDeviceManagementKitService as unknown as DeviceManagementKitService,
+        mockStorageService as unknown as StorageService,
+        mockGetKeypairUseCase as unknown as GetKeypairUseCase,
+        mockConfig,
+      );
+
       expect(LedgerKeyringProtocolBuilder).toHaveBeenCalledWith({
         dmk: mockDeviceManagementKitService.dmk,
         applicationId: 16,
