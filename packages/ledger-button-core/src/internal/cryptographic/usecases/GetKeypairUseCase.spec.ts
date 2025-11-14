@@ -91,113 +91,65 @@ describe("GetKeypairUseCase", () => {
   });
 
   describe("execute", () => {
-    describe.each([
-      {
-        scenario: "when keypair exists in storage",
-        setupStorage: (service: StorageService) => {
-          vi.mocked(service.getKeyPair).mockResolvedValue(
-            Right(mockEncryptedKeypair),
-          );
-        },
-        expectedCalls: {
-          getKeyPair: true,
-          getEncryptionKey: true,
-          decryptKeypair: true,
-          generateKeypair: false,
-          encryptKeypair: false,
-          storeKeyPair: false,
-          importKeyPair: true,
-        },
-        getDecryptArgs: () => [mockEncryptedKeypair, mockEncryptionKey],
-        getImportArgs: () => [mockDecryptedKeypair, Curve.K256],
-      },
-      {
-        scenario: "when keypair does not exist in storage",
-        setupStorage: (service: StorageService) => {
-          vi.mocked(service.getKeyPair).mockResolvedValue(
-            Left(new StorageIDBGetError("Keypair not found")),
-          );
-        },
-        expectedCalls: {
-          getKeyPair: true,
-          getEncryptionKey: true,
-          decryptKeypair: false,
-          generateKeypair: true,
-          encryptKeypair: true,
-          storeKeyPair: true,
-          importKeyPair: false,
-        },
-        getEncryptArgs: () => [mockKeyPair, mockEncryptionKey],
-        getStoreArgs: () => [mockEncryptedKeypair],
-      },
-    ])(
-      "$scenario",
-      ({
-        setupStorage,
-        expectedCalls,
-        getDecryptArgs,
-        getEncryptArgs,
-        getStoreArgs,
-        getImportArgs,
-      }) => {
-        beforeEach(() => {
-          setupStorage(mockStorageService);
-        });
+    describe("when keyPair exists in storage", () => {
+      beforeEach(() => {
+        vi.mocked(mockStorageService.getKeyPair).mockResolvedValue(
+          Right(mockEncryptedKeypair),
+        );
+      });
 
-        it("should return the keypair", async () => {
-          const result = await useCase.execute();
-          expect(result).toBe(mockKeyPair);
-        });
+      it("should return the keyPair", async () => {
+        const result = await useCase.execute();
+        expect(result).toBe(mockKeyPair);
+      });
 
-        it("should call expected methods", async () => {
-          await useCase.execute();
+      it("should call decrypt the keyPair", async () => {
+        await useCase.execute();
 
-          if (expectedCalls.getKeyPair) {
-            expect(mockStorageService.getKeyPair).toHaveBeenCalled();
-          }
-          if (expectedCalls.getEncryptionKey) {
-            expect(mockGetEncryptionKeyUseCase.execute).toHaveBeenCalled();
-          }
+        expect(mockStorageService.getKeyPair).toHaveBeenCalled();
+        expect(mockGetEncryptionKeyUseCase.execute).toHaveBeenCalled();
+        expect(mockDecryptKeypairUseCase.execute).toHaveBeenCalledWith(
+          mockEncryptedKeypair,
+          mockEncryptionKey,
+        );
+        expect(mockCryptoService.importKeyPair).toHaveBeenCalledWith(
+          mockDecryptedKeypair,
+          Curve.K256,
+        );
+        expect(mockGenerateKeypairUseCase.execute).not.toHaveBeenCalled();
+        expect(mockEncryptKeypairUseCase.execute).not.toHaveBeenCalled();
+        expect(mockStorageService.storeKeyPair).not.toHaveBeenCalled();
+      });
+    });
 
-          if (expectedCalls.decryptKeypair) {
-            expect(mockDecryptKeypairUseCase.execute).toHaveBeenCalledWith(
-              ...getDecryptArgs!(),
-            );
-          } else {
-            expect(mockDecryptKeypairUseCase.execute).not.toHaveBeenCalled();
-          }
+    describe("when keyPair does not exist in storage", () => {
+      beforeEach(() => {
+        vi.mocked(mockStorageService.getKeyPair).mockResolvedValue(
+          Left(new StorageIDBGetError("Keypair not found")),
+        );
+      });
 
-          if (expectedCalls.importKeyPair) {
-            expect(mockCryptoService.importKeyPair).toHaveBeenCalledWith(
-              ...getImportArgs!(),
-            );
-          } else {
-            expect(mockCryptoService.importKeyPair).not.toHaveBeenCalled();
-          }
+      it("should return the keyPair", async () => {
+        const result = await useCase.execute();
+        expect(result).toBe(mockKeyPair);
+      });
 
-          if (expectedCalls.generateKeypair) {
-            expect(mockGenerateKeypairUseCase.execute).toHaveBeenCalled();
-          } else {
-            expect(mockGenerateKeypairUseCase.execute).not.toHaveBeenCalled();
-          }
+      it("should call generate a new keyPair and encrypt it", async () => {
+        await useCase.execute();
 
-          if (expectedCalls.encryptKeypair) {
-            expect(mockEncryptKeypairUseCase.execute).toHaveBeenCalledWith(
-              ...getEncryptArgs!(),
-            );
-          } else {
-            expect(mockEncryptKeypairUseCase.execute).not.toHaveBeenCalled();
-          }
-
-          if (expectedCalls.storeKeyPair) {
-            expect(mockStorageService.storeKeyPair).toHaveBeenCalledWith(
-              ...getStoreArgs!(),
-            );
-          } else {
-            expect(mockStorageService.storeKeyPair).not.toHaveBeenCalled();
-          }
-        });
-      },
-    );
+        expect(mockStorageService.getKeyPair).toHaveBeenCalled();
+        expect(mockGetEncryptionKeyUseCase.execute).toHaveBeenCalled();
+        expect(mockDecryptKeypairUseCase.execute).not.toHaveBeenCalled();
+        expect(mockCryptoService.importKeyPair).not.toHaveBeenCalled();
+        expect(mockGenerateKeypairUseCase.execute).toHaveBeenCalled();
+        expect(mockEncryptKeypairUseCase.execute).toHaveBeenCalledWith(
+          mockKeyPair,
+          mockEncryptionKey,
+        );
+        expect(mockStorageService.storeKeyPair).toHaveBeenCalledWith(
+          mockEncryptedKeypair,
+        );
+      });
+    });
   });
 });

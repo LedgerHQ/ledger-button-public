@@ -69,47 +69,5 @@ describe("DecryptKeypairUseCase", () => {
         mockCiphertext,
       );
     });
-
-    describe.each([
-      {
-        component: "IV",
-        getActual: () => {
-          const decryptCall = vi.mocked(mockCryptoSubtle.decrypt).mock
-            .calls[0];
-          return (decryptCall[0] as AesGcmParams).iv as Uint8Array;
-        },
-        expectedValue: () => mockIv,
-        expectedLength: 12,
-      },
-      {
-        component: "ciphertext",
-        getActual: () => {
-          const decryptCall = vi.mocked(mockCryptoSubtle.decrypt).mock
-            .calls[0];
-          return decryptCall[2] as Uint8Array;
-        },
-        expectedValue: () => mockCiphertext,
-        expectedLength: undefined,
-      },
-    ])(
-      "should extract $component correctly",
-      ({ getActual, expectedValue, expectedLength }) => {
-        beforeEach(async () => {
-          await useCase.execute(mockEncryptedKeypair, mockDecryptionKey);
-        });
-
-        it("should match expected value", () => {
-          const actual = getActual();
-          expect(actual).toEqual(expectedValue());
-        });
-
-        if (expectedLength !== undefined) {
-          it(`should have length ${expectedLength}`, () => {
-            const actual = getActual();
-            expect(actual.length).toBe(expectedLength);
-          });
-        }
-      },
-    );
   });
 });

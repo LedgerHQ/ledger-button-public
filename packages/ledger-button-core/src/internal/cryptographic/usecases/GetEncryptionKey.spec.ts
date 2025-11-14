@@ -4,6 +4,15 @@ import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { StorageService } from "../../storage/StorageService.js";
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
 
+const GENERATE_KEY_PARAMS = {
+  algorithm: {
+    name: "AES-GCM",
+    length: 256,
+  },
+  extractable: false,
+  keyUsages: ["encrypt", "decrypt"] as KeyUsage[],
+};
+
 describe("GetEncryptionKeyUseCase", () => {
   let useCase: GetEncryptionKeyUseCase;
   let mockLogger: LoggerPublisher;
@@ -47,69 +56,56 @@ describe("GetEncryptionKeyUseCase", () => {
   });
 
   describe("execute", () => {
-    describe.each([
-      {
-        scenario: "should return existing encryption key when found in storage",
-        getStorageResult: () => Just(mockEncryptionKey),
-        shouldGenerateKey: false,
-        shouldStoreKey: false,
-      },
-      {
-        scenario: "should generate new key when encryption key is not found",
-        getStorageResult: () => Nothing,
-        shouldGenerateKey: true,
-        shouldStoreKey: true,
-      },
-      {
-        scenario:
-          "should generate new key when extracted encryption key is undefined",
-        getStorageResult: () => Just(undefined as unknown as CryptoKey),
-        shouldGenerateKey: true,
-        shouldStoreKey: true,
-      },
-    ])(
-      "$scenario",
-      ({ getStorageResult, shouldGenerateKey, shouldStoreKey }) => {
-        beforeEach(() => {
-          vi.clearAllMocks();
-          vi.mocked(mockStorageService.getEncryptionKey).mockResolvedValue(
-            getStorageResult(),
-          );
-        });
+    it("returns existing encryption key when found in storage", async () => {
+      vi.mocked(mockStorageService.getEncryptionKey).mockResolvedValue(
+        Just(mockEncryptionKey),
+      );
 
-        it("should return encryption key", async () => {
-          const result = await useCase.execute();
-          expect(result).toBe(mockEncryptionKey);
-        });
+      const result = await useCase.execute();
 
-        it("should handle key generation and storage correctly", async () => {
-          await useCase.execute();
+      expect(result).toBe(mockEncryptionKey);
+      expect(mockStorageService.getEncryptionKey).toHaveBeenCalled();
+      expect(mockCryptoSubtle.generateKey).not.toHaveBeenCalled();
+      expect(mockStorageService.storeEncryptionKey).not.toHaveBeenCalled();
+    });
 
-          expect(mockStorageService.getEncryptionKey).toHaveBeenCalled();
+    it("generates new key when encryption key is not found", async () => {
+      vi.mocked(mockStorageService.getEncryptionKey).mockResolvedValue(
+        Nothing,
+      );
 
-          if (shouldGenerateKey) {
-            expect(mockCryptoSubtle.generateKey).toHaveBeenCalledWith(
-              {
-                name: "AES-GCM",
-                length: 256,
-              },
-              false,
-              ["encrypt", "decrypt"],
-            );
-          } else {
-            expect(mockCryptoSubtle.generateKey).not.toHaveBeenCalled();
-          }
+      const result = await useCase.execute();
 
-          if (shouldStoreKey) {
-            expect(mockStorageService.storeEncryptionKey).toHaveBeenCalledWith(
-              mockEncryptionKey,
-            );
-          } else {
-            expect(mockStorageService.storeEncryptionKey).not.toHaveBeenCalled();
-          }
-        });
-      },
-    );
+      expect(result).toBe(mockEncryptionKey);
+      expect(mockStorageService.getEncryptionKey).toHaveBeenCalled();
+      expect(mockCryptoSubtle.generateKey).toHaveBeenCalledWith(
+        GENERATE_KEY_PARAMS.algorithm,
+        GENERATE_KEY_PARAMS.extractable,
+        GENERATE_KEY_PARAMS.keyUsages,
+      );
+      expect(mockStorageService.storeEncryptionKey).toHaveBeenCalledWith(
+        mockEncryptionKey,
+      );
+    });
+
+    it("generates new key when extracted encryption key is undefined", async () => {
+      vi.mocked(mockStorageService.getEncryptionKey).mockResolvedValue(
+        Just(undefined as unknown as CryptoKey),
+      );
+
+      const result = await useCase.execute();
+
+      expect(result).toBe(mockEncryptionKey);
+      expect(mockStorageService.getEncryptionKey).toHaveBeenCalled();
+      expect(mockCryptoSubtle.generateKey).toHaveBeenCalledWith(
+        GENERATE_KEY_PARAMS.algorithm,
+        GENERATE_KEY_PARAMS.extractable,
+        GENERATE_KEY_PARAMS.keyUsages,
+      );
+      expect(mockStorageService.storeEncryptionKey).toHaveBeenCalledWith(
+        mockEncryptionKey,
+      );
+    });
   });
 
   describe("storeEncryptionKey", () => {
@@ -143,12 +139,9 @@ describe("GetEncryptionKeyUseCase", () => {
 
       expect(result).toBe(mockEncryptionKey);
       expect(mockCryptoSubtle.generateKey).toHaveBeenCalledWith(
-        {
-          name: "AES-GCM",
-          length: 256,
-        },
-        false,
-        ["encrypt", "decrypt"],
+        GENERATE_KEY_PARAMS.algorithm,
+        GENERATE_KEY_PARAMS.extractable,
+        GENERATE_KEY_PARAMS.keyUsages,
       );
       expect(mockStorageService.storeEncryptionKey).toHaveBeenCalledWith(
         mockEncryptionKey,
