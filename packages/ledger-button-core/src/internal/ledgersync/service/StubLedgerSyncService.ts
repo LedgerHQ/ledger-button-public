@@ -14,9 +14,10 @@ export class StubLedgerSyncService implements LedgerSyncService {
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     return of({
       jwt: "jwt",
-      trustchainId: "trustchainId",
+      trustChainId: "trustchainId",
       applicationPath: "applicationPath",
       encryptionKey: new Uint8Array(),
+      keypair: new Uint8Array(),
     } as unknown as InternalAuthContext);
   }
 
