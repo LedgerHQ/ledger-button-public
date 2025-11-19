@@ -30,7 +30,7 @@ import type {
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
-import { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
+import { GetKeyPairUseCase } from "../../cryptographic/usecases/GetKeyPairUseCase.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -48,7 +48,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   private readonly logger: LoggerPublisher;
   private _authContext: InternalAuthContext | undefined;
   lkrpAppKit: LedgerKeyringProtocol;
-  private keypair: KeyPair | undefined;
+  private keyPair: KeyPair | undefined;
   private trustChainId: string | undefined;
 
   constructor(
@@ -58,8 +58,8 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.GetKeypairUseCase)
-    private readonly getKeypairUseCase: GetKeypairUseCase,
+    @inject(cryptographicModuleTypes.GetKeyPairUseCase)
+    private readonly getKeyPairUseCase: GetKeyPairUseCase,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
@@ -83,12 +83,12 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
-    return from(this.getKeypairUseCase.execute()).pipe(
-      switchMap((keypair: KeyPair) => {
-        this.logger.info("Keypair retrieved", {
-          keypair: keypair.getPublicKeyToHex(),
+    return from(this.getKeyPairUseCase.execute()).pipe(
+      switchMap((keyPair: KeyPair) => {
+        this.logger.info("KeyPair retrieved", {
+          keyPair: keyPair.getPublicKeyToHex(),
         });
-        this.keypair = keypair;
+        this.keyPair = keyPair;
         this.trustChainId = this.storageService.getTrustChainId().extract();
 
         this.logger.info(`Trustchain ID : ${this.trustChainId}`);
@@ -104,16 +104,16 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           }
 
           return this.lkrpAppKit.authenticate({
-            keypair: keypair,
+            keypair: keyPair,
             clientName: this.getClientName(),
             permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
             trustchainId: undefined,
             sessionId: this.deviceManagementKitService.sessionId,
           } as AuthenticateUsecaseInput).observable;
         } else {
-          this.logger.info("Try to authenticate with keypair");
+          this.logger.info("Try to authenticate with keyPair");
           return this.lkrpAppKit.authenticate({
-            keypair: keypair,
+            keypair: keyPair,
             clientName: this.getClientName(),
             permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
             trustchainId: this.trustChainId,
@@ -166,7 +166,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           trustChainId: state.output.trustchainId,
           encryptionKey: state.output.encryptionKey,
           applicationPath: state.output.applicationPath,
-          keypair: this.keypair,
+          keyPair: this.keyPair,
         } as unknown as InternalAuthContext;
 
         this.trustChainId = newAuthContext.trustChainId;

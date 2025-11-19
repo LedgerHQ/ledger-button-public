@@ -107,7 +107,7 @@ export class DefaultStorageService implements StorageService {
   // IndexedDB (KeyPair)
   async storeKeyPair(keyPair: Uint8Array) {
     const encryptedKeyPairString = bufferToHexaString(keyPair);
-    this.logger.debug("Storing encrypted keypair in storage", {
+    this.logger.debug("Storing encrypted keyPair in storage", {
       keyPair: encryptedKeyPairString,
     });
     const init = await this.initIdb();
@@ -124,7 +124,7 @@ export class DefaultStorageService implements StorageService {
         );
 
         request.onsuccess = () => {
-          this.logger.debug("Keypair stored", {
+          this.logger.debug("KeyPair stored", {
             keyPair: bufferToHexaString(keyPair),
           });
           resolve(Right(true));
@@ -169,8 +169,8 @@ export class DefaultStorageService implements StorageService {
             return;
           }
 
-          this.logger.info("Keypair retrieved from indexDB", {
-            keypair: result,
+          this.logger.info("KeyPair retrieved from indexDB", {
+            keyPair: result,
           });
 
           resolve(Right(hexaStringToBuffer(result) as Uint8Array));

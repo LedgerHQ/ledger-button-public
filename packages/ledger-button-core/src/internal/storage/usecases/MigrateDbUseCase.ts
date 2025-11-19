@@ -5,9 +5,9 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
-import type { EncryptKeypairUseCase } from "../../cryptographic/usecases/EncryptKeypairUseCase.js";
+import type { EncryptKeyPairUseCase } from "../../cryptographic/usecases/EncryptKeyPairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../cryptographic/usecases/GetEncryptionKey.js";
-import type { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
+import type { GetKeyPairUseCase } from "../../cryptographic/usecases/GetKeyPairUseCase.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../storageModuleTypes.js";
@@ -22,12 +22,12 @@ export class MigrateDbUseCase {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.EncryptKeypairUseCase)
-    private readonly encryptKeypairUseCase: EncryptKeypairUseCase,
+    @inject(cryptographicModuleTypes.EncryptKeyPairUseCase)
+    private readonly encryptKeyPairUseCase: EncryptKeyPairUseCase,
     @inject(cryptographicModuleTypes.GetEncryptionKeyUseCase)
     private readonly getEncryptionKeyUseCase: GetEncryptionKeyUseCase,
-    @inject(cryptographicModuleTypes.GetKeypairUseCase)
-    private readonly getKeypairUseCase: GetKeypairUseCase,
+    @inject(cryptographicModuleTypes.GetKeyPairUseCase)
+    private readonly getKeyPairUseCase: GetKeyPairUseCase,
   ) {
     this.logger = this.loggerFactory("[MigrateDatabase Use Case]");
   }
@@ -47,25 +47,25 @@ export class MigrateDbUseCase {
   }
 
   private async migrateToV1(): Promise<void> {
-    const keypairResult = await this.storageService.getKeyPair();
+    const keyPairResult = await this.storageService.getKeyPair();
 
-    if (keypairResult.isRight()) {
-      this.logger.info("Keypair found in storage, need to encrypt it");
-      const keypairBuffer = keypairResult.extract();
+    if (keyPairResult.isRight()) {
+      this.logger.info("KeyPair found in storage, need to encrypt it");
+      const keyPairBuffer = keyPairResult.extract();
       const cryptoService = new NobleCryptoService();
-      const keypair = cryptoService.importKeyPair(keypairBuffer, Curve.K256);
+      const keyPair = cryptoService.importKeyPair(keyPairBuffer, Curve.K256);
 
       const encryptionKey = await this.getEncryptionKeyUseCase.execute();
-      const encryptedKeypair = await this.encryptKeypairUseCase.execute(
-        keypair,
+      const encryptedKeyPair = await this.encryptKeyPairUseCase.execute(
+        keyPair,
         encryptionKey,
       );
 
       await this.storageService.removeKeyPair();
-      await this.storageService.storeKeyPair(encryptedKeypair);
+      await this.storageService.storeKeyPair(encryptedKeyPair);
     } else {
-      //No keypair found, generate a new one
-      await this.getKeypairUseCase.execute();
+      //No keyPair found, generate a new one
+      await this.getKeyPairUseCase.execute();
     }
 
     await this.storageService.setDbVersion(1);

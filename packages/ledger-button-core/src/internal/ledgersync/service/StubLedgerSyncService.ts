@@ -17,7 +17,7 @@ export class StubLedgerSyncService implements LedgerSyncService {
       trustChainId: "trustchainId",
       applicationPath: "applicationPath",
       encryptionKey: new Uint8Array(),
-      keypair: new Uint8Array(),
+      keyPair: new Uint8Array(),
     } as unknown as InternalAuthContext);
   }
 

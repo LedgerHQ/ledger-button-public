@@ -41,7 +41,7 @@ describe("DefaultCloudSyncService", () => {
     encryptionKey: new Uint8Array([1, 2, 3, 4, 5]),
     trustChainId: "test-trust-chain-id",
     applicationPath: "test-application-path",
-    keypair: new Uint8Array([6, 7, 8, 9, 10]),
+    keyPair: new Uint8Array([6, 7, 8, 9, 10]),
   };
 
   beforeEach(() => {
@@ -169,7 +169,7 @@ describe("DefaultCloudSyncService", () => {
         encryptionKey: new Uint8Array([11, 12, 13]),
         trustChainId: "different-trust-chain-id",
         applicationPath: "different-application-path",
-        keypair: new Uint8Array([14, 15, 16]),
+        keyPair: new Uint8Array([14, 15, 16]),
       };
 
       mockNetworkService.get.mockResolvedValueOnce(Right(mockCloudSyncData));
@@ -196,7 +196,7 @@ describe("DefaultCloudSyncService", () => {
         encryptionKey: new Uint8Array([1, 2, 3]),
         trustChainId: "trust&chain=id",
         applicationPath: "path/with/slashes",
-        keypair: new Uint8Array([4, 5, 6]),
+        keyPair: new Uint8Array([4, 5, 6]),
       };
 
       mockNetworkService.get.mockResolvedValueOnce(Right(mockCloudSyncData));

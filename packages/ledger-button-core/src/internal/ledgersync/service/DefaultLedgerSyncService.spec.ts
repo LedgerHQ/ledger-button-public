@@ -19,7 +19,7 @@ import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
 import type { AuthContext } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
 import type { UserInteractionNeededResponse } from "../../../api/model/UserInteractionNeeded.js";
 import type { Config } from "../../config/model/config.js";
-import type { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
+import type { GetKeyPairUseCase } from "../../cryptographic/usecases/GetKeyPairUseCase.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
@@ -48,7 +48,7 @@ describe("DefaultLedgerSyncService", () => {
     getTrustChainId: ReturnType<typeof vi.fn>;
     saveTrustChainId: ReturnType<typeof vi.fn>;
   };
-  let mockGetKeypairUseCase: {
+  let mockGetKeyPairUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
   let mockConfig: Config;
@@ -56,7 +56,7 @@ describe("DefaultLedgerSyncService", () => {
     authenticate: ReturnType<typeof vi.fn>;
     decryptData: ReturnType<typeof vi.fn>;
   };
-  let mockKeypair: KeyPair;
+  let mockKeyPair: KeyPair;
   let mockBuild: ReturnType<typeof vi.fn>;
 
   const mockJWT = {
@@ -72,7 +72,7 @@ describe("DefaultLedgerSyncService", () => {
   };
 
   beforeEach(() => {
-    mockKeypair = {
+    mockKeyPair = {
       getPublicKeyToHex: vi.fn().mockReturnValue("mock-public-key-hex"),
     } as unknown as KeyPair;
 
@@ -88,8 +88,8 @@ describe("DefaultLedgerSyncService", () => {
       saveTrustChainId: vi.fn(),
     };
 
-    mockGetKeypairUseCase = {
-      execute: vi.fn().mockResolvedValue(mockKeypair),
+    mockGetKeyPairUseCase = {
+      execute: vi.fn().mockResolvedValue(mockKeyPair),
     };
 
     mockConfig = {
@@ -121,7 +121,7 @@ describe("DefaultLedgerSyncService", () => {
       }),
       mockDeviceManagementKitService as unknown as DeviceManagementKitService,
       mockStorageService as unknown as StorageService,
-      mockGetKeypairUseCase as unknown as GetKeypairUseCase,
+      mockGetKeyPairUseCase as unknown as GetKeyPairUseCase,
       mockConfig,
     );
 
@@ -139,7 +139,7 @@ describe("DefaultLedgerSyncService", () => {
         }),
         mockDeviceManagementKitService as unknown as DeviceManagementKitService,
         mockStorageService as unknown as StorageService,
-        mockGetKeypairUseCase as unknown as GetKeypairUseCase,
+        mockGetKeyPairUseCase as unknown as GetKeyPairUseCase,
         mockConfig,
       );
 
@@ -174,7 +174,7 @@ describe("DefaultLedgerSyncService", () => {
           }),
           mockDeviceManagementKitService as unknown as DeviceManagementKitService,
           mockStorageService as unknown as StorageService,
-          mockGetKeypairUseCase as unknown as GetKeypairUseCase,
+          mockGetKeyPairUseCase as unknown as GetKeyPairUseCase,
           mockConfig,
         );
 
@@ -217,9 +217,9 @@ describe("DefaultLedgerSyncService", () => {
         const result$ = service.authenticate();
         await lastValueFrom(result$);
 
-        expect(mockGetKeypairUseCase.execute).toHaveBeenCalled();
+        expect(mockGetKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
-          keypair: mockKeypair,
+          keyPair: mockKeyPair,
           clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: existingTrustchainId,
@@ -248,9 +248,9 @@ describe("DefaultLedgerSyncService", () => {
         const result$ = service.authenticate();
         await lastValueFrom(result$);
 
-        expect(mockGetKeypairUseCase.execute).toHaveBeenCalled();
+        expect(mockGetKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
-          keypair: mockKeypair,
+          keyPair: mockKeyPair,
           clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: undefined,
@@ -294,7 +294,7 @@ describe("DefaultLedgerSyncService", () => {
             trustChainId: mockAuthOutput.trustchainId,
             encryptionKey: mockAuthOutput.encryptionKey,
             applicationPath: mockAuthOutput.applicationPath,
-            keypair: mockKeypair,
+            keyPair: mockKeyPair,
           });
           expect(mockStorageService.saveTrustChainId).toHaveBeenCalledWith(
             mockAuthOutput.trustchainId,
@@ -411,7 +411,7 @@ describe("DefaultLedgerSyncService", () => {
         encryptionKey: new Uint8Array([1, 2, 3, 4, 5]),
         trustChainId: "test-trustchain-id",
         applicationPath: "test-app-path",
-        keypair: new Uint8Array([6, 7, 8]),
+        keyPair: new Uint8Array([6, 7, 8]),
       };
 
       const testData = "test-data";
@@ -444,7 +444,7 @@ describe("DefaultLedgerSyncService", () => {
           encryptionKey: undefined as unknown as Uint8Array,
           trustChainId: "test-trustchain-id",
           applicationPath: "test-app-path",
-          keypair: new Uint8Array([6, 7, 8]),
+          keyPair: new Uint8Array([6, 7, 8]),
         },
         shouldCheckMessage: false,
       },
