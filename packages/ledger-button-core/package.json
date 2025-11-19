@@ -34,7 +34,8 @@
     "purify-ts": "catalog:",
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "vitest": "catalog:"
   },
   "devDependencies": {
     "@types/pako": "catalog:"
