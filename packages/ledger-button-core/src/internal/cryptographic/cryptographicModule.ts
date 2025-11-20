@@ -25,7 +25,9 @@ export function cryptographicModuleFactory({
     bind(cryptographicModuleTypes.GetEncryptionKeyUseCase).to(
       GetEncryptionKeyUseCase,
     );
-    bind(cryptographicModuleTypes.GetOrCreateKeyPairUseCase).to(GetOrCreateKeyPairUseCase);
+    bind(cryptographicModuleTypes.GetOrCreateKeyPairUseCase).to(
+      GetOrCreateKeyPairUseCase,
+    );
     bind(cryptographicModuleTypes.DecryptKeypairUseCase).to(
       DecryptKeypairUseCase,
     );
