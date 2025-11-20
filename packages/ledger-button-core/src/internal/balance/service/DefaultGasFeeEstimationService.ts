@@ -90,19 +90,19 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
 
     const result = await EitherAsync(async () => {
       const either = await this.alpacaDataSource.estimateTransactionFee(network, intent);
-      if (either.isLeft()) {
-        throw either.extract();
-      }
-      return either.extract();
+      return either.caseOf({
+        Left: (error) => { throw error; },
+        Right: (response) => response
+      });
     })
-    .map((response) => ({
-      gasLimit: response.parameters.gasLimit,
-      maxFeePerGas: response.parameters.maxFeePerGas,
-      maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
-    }))
-    .ifLeft((error) => {
-      this.logger.debug("Alpaca gas fee estimation failed", { error });
-    });
+      .map((response) => ({
+        gasLimit: response.parameters.gasLimit,
+        maxFeePerGas: response.parameters.maxFeePerGas,
+        maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
+      }))
+      .ifLeft((error) => {
+        this.logger.debug("Alpaca gas fee estimation failed", { error });
+      });
 
     return result.toMaybe().extract();
   }
