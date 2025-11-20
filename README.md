@@ -15,17 +15,16 @@ Ledger Wallet Provider is a modern monorepo built with **Nx**, **pnpm**, and **T
 
 ### Core Packages
 
-| Package | Description | Version |
-|---------|-------------|---------|
-| [`@ledgerhq/ledger-wallet-provider`](./packages/ledger-button) | Main Web Component library with UI components | `1.0.0-rc.5` |
+| Package                                                                  | Description                                            | Version      |
+| ------------------------------------------------------------------------ | ------------------------------------------------------ | ------------ |
+| [`@ledgerhq/ledger-wallet-provider`](./packages/ledger-button)           | Main Web Component library with UI components          | `1.0.0-rc.5` |
 | [`@ledgerhq/ledger-wallet-provider-core`](./packages/ledger-button-core) | Core SDK for wallet management and transaction signing | `1.0.0-rc.5` |
 
 ### Applications
 
-| Application | Description |
-|-------------|-------------|
+| Application                     | Description                                          |
+| ------------------------------- | ---------------------------------------------------- |
 | [`test-dapp`](./apps/test-dapp) | Next.js test application for development and testing |
-
 
 ## 🛠️ Tech Stack
 
@@ -51,6 +50,7 @@ Ledger Wallet Provider is a modern monorepo built with **Nx**, **pnpm**, and **T
 
 For an easier setup, install [prototools](https://moonrepo.dev/docs/proto/install).
 Once installed, the prerequisite tools can be easily installed using:
+
 ```bash
 cd ledger-wallet-provider
 proto use
@@ -73,13 +73,13 @@ pnpm install
 
 ```bash
 # Build the main package
-pnpm nx run build ledger-wallet-provider
+pnpm nx build ledger-wallet-provider
 
 # Start the test DApp
-pnpm nx run dev test-dapp
+pnpm nx dev test-dapp
 
 # Run Storybook for component documentation
-pnpm nx run storybook ledger-wallet-provider
+pnpm nx storybook ledger-wallet-provider
 ```
 
 ## 📋 Available Scripts
@@ -88,9 +88,9 @@ pnpm nx run storybook ledger-wallet-provider
 
 ```bash
 # Package-specific commands
-pnpm nx run <command> ledger-wallet-provider          # Run commands for @ledgerhq/ledger-wallet-provider
-pnpm nx run <command> ledger-wallet-provider-core     # Run commands for @ledgerhq/ledger-wallet-provider-core
-pnpm nx run <command> test-dapp                       # Run commands for test-dapp
+pnpm nx <command> ledger-wallet-provider          # Run commands for @ledgerhq/ledger-wallet-provider
+pnpm nx <command> ledger-wallet-provider-core     # Run commands for @ledgerhq/ledger-wallet-provider-core
+pnpm nx <command> test-dapp                       # Run commands for test-dapp
 ```
 
 ### Build & Test
