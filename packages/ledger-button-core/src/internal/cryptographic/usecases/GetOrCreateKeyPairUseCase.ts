@@ -17,7 +17,7 @@ import { GenerateKeypairUseCase } from "./GenerateKeypairUseCase.js";
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
 
 @injectable()
-export class GetKeypairUseCase {
+export class GetOrCreateKeyPairUseCase {
   private logger: LoggerPublisher;
 
   constructor(
@@ -34,7 +34,7 @@ export class GetKeypairUseCase {
     @inject(cryptographicModuleTypes.DecryptKeypairUseCase)
     private readonly decryptKeypairUseCase: DecryptKeypairUseCase,
   ) {
-    this.logger = loggerFactory("GetKeypairUseCase");
+    this.logger = loggerFactory("GetOrCreateKeyPairUseCase");
   }
 
   async execute(): Promise<KeyPair> {
