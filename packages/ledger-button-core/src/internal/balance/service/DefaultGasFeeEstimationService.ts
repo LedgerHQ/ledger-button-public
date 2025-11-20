@@ -1,4 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
+import { EitherAsync } from "purify-ts";
 
 import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
 import {
@@ -75,43 +76,35 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     tx: TransactionInfo,
     network: string,
   ): Promise<GasFeeEstimation | undefined> {
-    try {
-      const intent = {
-        type: "send",
-        sender: tx.from,
-        recipient: tx.to,
-        amount: tx.value,
-        asset: {
-          type: "native",
-        },
-        feesStrategy: "medium" as const,
-        data: tx.data,
-      };
+    const intent = {
+      type: "send",
+      sender: tx.from,
+      recipient: tx.to,
+      amount: tx.value,
+      asset: {
+        type: "native",
+      },
+      feesStrategy: "medium" as const,
+      data: tx.data,
+    };
 
-      const result = await this.alpacaDataSource.estimateTransactionFee(
-        network,
-        intent,
-      );
-
-      if (result.isRight()) {
-        const response = result.extract();
-        return {
-          gasLimit: response.parameters.gasLimit,
-          maxFeePerGas: response.parameters.maxFeePerGas,
-          maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
-        };
+    const result = await EitherAsync(async () => {
+      const either = await this.alpacaDataSource.estimateTransactionFee(network, intent);
+      if (either.isLeft()) {
+        throw either.extract();
       }
+      return either.extract();
+    })
+    .map((response) => ({
+      gasLimit: response.parameters.gasLimit,
+      maxFeePerGas: response.parameters.maxFeePerGas,
+      maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
+    }))
+    .ifLeft((error) => {
+      this.logger.debug("Alpaca gas fee estimation failed", { error });
+    });
 
-      this.logger.debug("Alpaca estimation returned an error", {
-        error: result.extract(),
-      });
-      return undefined;
-    } catch (error) {
-      this.logger.debug("Exception during Alpaca gas fee estimation", {
-        error,
-      });
-      return undefined;
-    }
+    return result.toMaybe().extract();
   }
 
   private async getFeesFromRpc(tx: TransactionInfo): Promise<GasFeeEstimation> {
