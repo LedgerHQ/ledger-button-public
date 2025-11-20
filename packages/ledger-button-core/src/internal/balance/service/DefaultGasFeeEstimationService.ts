@@ -45,29 +45,29 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   async getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation> {
     const alpacaNetwork = getAlpacaNetworkName(tx.chainId);
 
-    if (alpacaNetwork) {
-      this.logger.debug("Attempting to get gas fee estimation from Alpaca", {
-        network: alpacaNetwork,
-      });
-
-      const alpacaResult = await this.getFeesFromAlpaca(tx, alpacaNetwork);
-      if (alpacaResult) {
-        this.logger.debug("Successfully got gas fee estimation from Alpaca", {
-          alpacaResult,
-        });
-        return alpacaResult;
-      }
-
-      this.logger.debug(
-        "Alpaca gas fee estimation failed, falling back to RPC method",
-      );
-    } else {
+    if (!alpacaNetwork) {
       this.logger.debug(
         "Network not supported by Alpaca, using fallback RPC method",
         { chainId: tx.chainId },
       );
+      return this.getFeesFromRpc(tx);
     }
 
+    this.logger.debug("Attempting to get gas fee estimation from Alpaca", {
+      network: alpacaNetwork,
+    });
+
+    const alpacaResult = await this.getFeesFromAlpaca(tx, alpacaNetwork);
+    if (alpacaResult) {
+      this.logger.debug("Successfully got gas fee estimation from Alpaca", {
+        alpacaResult,
+      });
+      return alpacaResult;
+    }
+
+    this.logger.debug(
+      "Alpaca gas fee estimation failed, falling back to RPC method",
+    );
     return this.getFeesFromRpc(tx);
   }
 
