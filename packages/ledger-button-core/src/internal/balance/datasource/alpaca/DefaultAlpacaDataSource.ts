@@ -61,12 +61,8 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
     const feeEstimationResult: Either<Error, AlpacaFeeEstimationResponse> =
       await this.networkService.post(requestUrl, JSON.stringify(requestBody));
 
-    if (feeEstimationResult.isRight()) {
-      const response = feeEstimationResult.extract();
-      return Right(response);
-    } else {
-      const error = feeEstimationResult.extract() as Error;
-      return Left(AlpacaServiceErrors.feeEstimationError(network, error));
-    }
+    return feeEstimationResult.mapLeft((error) =>
+      AlpacaServiceErrors.feeEstimationError(network, error)
+    );
   }
 }
