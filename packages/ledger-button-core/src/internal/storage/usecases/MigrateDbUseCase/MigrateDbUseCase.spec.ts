@@ -8,10 +8,7 @@ import {
   createMockLoggerFactory,
   createMockStorageService,
   mockKeyPairBuffer,
-  setupKeyPairMigrationServiceMock,
 } from "./MigrateDbUseCase.mock.js";
-
-vi.mock("./KeypairMigrationService.js");
 
 describe("MigrateDbUseCase", () => {
   let migrateDbUseCase: ReturnType<typeof createMigrateDbUseCase>;
@@ -30,11 +27,10 @@ describe("MigrateDbUseCase", () => {
     mockLoggerFactory = createMockLoggerFactory(mockLogger);
     mockKeyPairMigrationService = createMockKeyPairMigrationService();
 
-    setupKeyPairMigrationServiceMock(mockKeyPairMigrationService);
-
     migrateDbUseCase = createMigrateDbUseCase(
       mockStorageService,
       mockLoggerFactory,
+      mockKeyPairMigrationService,
     );
   });
 

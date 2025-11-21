@@ -12,6 +12,7 @@ import {
   createMockGetKeyPairUseCase,
   createMockKeyPair,
   createMockLogger,
+  createMockLoggerFactory,
   createMockStorageService,
   mockEncryptedKeyPair,
   mockKeyPairBuffer,
@@ -27,6 +28,7 @@ vi.mock("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol", () => ({
 describe("KeyPairMigrationService", () => {
   let keyPairMigrationService: ReturnType<typeof createKeyPairMigrationService>;
   let mockLogger: ReturnType<typeof createMockLogger>;
+  let mockLoggerFactory: ReturnType<typeof createMockLoggerFactory>;
   let mockStorageService: ReturnType<typeof createMockStorageService>;
   let mockEncryptKeyPairUseCase: ReturnType<
     typeof createMockEncryptKeyPairUseCase
@@ -43,6 +45,7 @@ describe("KeyPairMigrationService", () => {
     vi.clearAllMocks();
 
     mockLogger = createMockLogger();
+    mockLoggerFactory = createMockLoggerFactory(mockLogger);
     mockStorageService = createMockStorageService();
     mockEncryptKeyPairUseCase = createMockEncryptKeyPairUseCase();
     mockGetEncryptionKeyUseCase = createMockGetEncryptionKeyUseCase();
@@ -57,7 +60,7 @@ describe("KeyPairMigrationService", () => {
     });
 
     keyPairMigrationService = createKeyPairMigrationService(
-      mockLogger,
+      mockLoggerFactory,
       mockStorageService,
       mockEncryptKeyPairUseCase,
       mockGetEncryptionKeyUseCase,
@@ -106,4 +109,3 @@ describe("KeyPairMigrationService", () => {
     });
   });
 });
-

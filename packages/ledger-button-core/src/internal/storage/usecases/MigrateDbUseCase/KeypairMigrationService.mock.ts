@@ -1,10 +1,11 @@
 import type { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
+import type { Factory } from "inversify";
 import { Right } from "purify-ts";
 import { vi } from "vitest";
 
 import type { EncryptKeypairUseCase } from "../../../cryptographic/usecases/EncryptKeypairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
-import type { GetKeypairUseCase } from "../../../cryptographic/usecases/GetKeypairUseCase.js";
+import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import type { StorageService } from "../../StorageService.js";
 import { KeyPairMigrationService } from "./KeypairMigrationService.js";
@@ -22,6 +23,14 @@ export const createMockLogger = () => ({
   info: vi.fn(),
   error: vi.fn(),
 });
+
+export const createMockLoggerFactory = (
+  mockLogger: ReturnType<typeof createMockLogger>,
+): Factory<LoggerPublisher> => {
+  return vi
+    .fn()
+    .mockReturnValue(mockLogger) as unknown as Factory<LoggerPublisher>;
+};
 
 export const createMockStorageService = () => ({
   removeKeyPair: vi.fn().mockResolvedValue(Right(true)),
@@ -41,7 +50,7 @@ export const createMockGetKeyPairUseCase = () => ({
 });
 
 export const createKeyPairMigrationService = (
-  mockLogger: ReturnType<typeof createMockLogger>,
+  mockLoggerFactory: ReturnType<typeof createMockLoggerFactory>,
   mockStorageService: ReturnType<typeof createMockStorageService>,
   mockEncryptKeyPairUseCase: ReturnType<typeof createMockEncryptKeyPairUseCase>,
   mockGetEncryptionKeyUseCase: ReturnType<
@@ -50,11 +59,10 @@ export const createKeyPairMigrationService = (
   mockGetKeyPairUseCase: ReturnType<typeof createMockGetKeyPairUseCase>,
 ) => {
   return new KeyPairMigrationService(
-    mockLogger as unknown as LoggerPublisher,
+    mockLoggerFactory,
     mockStorageService as unknown as StorageService,
     mockEncryptKeyPairUseCase as unknown as EncryptKeypairUseCase,
     mockGetEncryptionKeyUseCase as unknown as GetEncryptionKeyUseCase,
-    mockGetKeyPairUseCase as unknown as GetKeypairUseCase,
+    mockGetKeyPairUseCase as unknown as GetOrCreateKeyPairUseCase,
   );
 };
-

@@ -2,21 +2,35 @@ import {
   Curve,
   NobleCryptoService,
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
+import { type Factory, inject, injectable } from "inversify";
 
+import { cryptographicModuleTypes } from "../../../cryptographic/cryptographicModuleTypes.js";
 import type { EncryptKeypairUseCase } from "../../../cryptographic/usecases/EncryptKeypairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
 import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { storageModuleTypes } from "../../storageModuleTypes.js";
 import type { StorageService } from "../../StorageService.js";
 
+@injectable()
 export class KeyPairMigrationService {
+  private logger: LoggerPublisher;
+
   constructor(
-    private readonly logger: LoggerPublisher,
+    @inject(loggerModuleTypes.LoggerPublisher)
+    private readonly loggerFactory: Factory<LoggerPublisher>,
+    @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
+    @inject(cryptographicModuleTypes.EncryptKeypairUseCase)
     private readonly encryptKeyPairUseCase: EncryptKeypairUseCase,
+    @inject(cryptographicModuleTypes.GetEncryptionKeyUseCase)
     private readonly getEncryptionKeyUseCase: GetEncryptionKeyUseCase,
+    @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)
     private readonly getOrCreateKeyPairUseCase: GetOrCreateKeyPairUseCase,
-  ) {}
+  ) {
+    this.logger = this.loggerFactory("[KeyPair Migration Service]");
+  }
 
   async migrateKeyPairToEncrypted(
     keyPairResult: Awaited<ReturnType<StorageService["getKeyPair"]>>,
@@ -27,12 +41,12 @@ export class KeyPairMigrationService {
 
         await this.encryptExistingKeyPair(keyPairBuffer);
       } else {
-        await this.generateNewKeyPair();
+        await this.getOrCreateKeyPairUseCase.execute();
       }
     } catch (error) {
       this.logger.error("Error migrating database to version 1", { error });
       await this.storageService.removeKeyPair();
-      await this.generateNewKeyPair();
+      await this.getOrCreateKeyPairUseCase.execute();
     }
   }
 
@@ -51,9 +65,5 @@ export class KeyPairMigrationService {
 
     await this.storageService.removeKeyPair();
     await this.storageService.storeKeyPair(encryptedKeyPair);
-  }
-
-  private async generateNewKeyPair(): Promise<void> {
-    await this.getOrCreateKeyPairUseCase.execute();
   }
 }
