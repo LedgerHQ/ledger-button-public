@@ -66,6 +66,19 @@ export class AlpacaUnknownError extends LedgerButtonError {
   }
 }
 
+export class AlpacaFeeEstimationError extends LedgerButtonError {
+  constructor(
+    network: string,
+    context?: Record<string, unknown>
+  ) {
+    super(
+      `Failed to estimate transaction fee for ${network}`,
+      "AlpacaFeeEstimationError",
+      { network, ...context }
+    );
+  }
+}
+
 export type AlpacaServiceError =
   | AlpacaNetworkError
   | AlpacaInvalidAddressError
@@ -73,6 +86,7 @@ export type AlpacaServiceError =
   | AlpacaApiError
   | AlpacaBalanceFetchError
   | AlpacaTokenFetchError
+  | AlpacaFeeEstimationError
   | AlpacaUnknownError;
 
 export const AlpacaServiceErrors = {
@@ -101,6 +115,12 @@ export const AlpacaServiceErrors = {
     originalError?: unknown
   ): AlpacaTokenFetchError =>
     new AlpacaTokenFetchError(address, currencyId, { originalError }),
+
+  feeEstimationError: (
+    network: string,
+    originalError?: unknown
+  ): AlpacaFeeEstimationError =>
+    new AlpacaFeeEstimationError(network, { originalError }),
 
   unknownError: (message: string, originalError?: unknown): AlpacaUnknownError =>
     new AlpacaUnknownError(message, { originalError }),

@@ -1,4 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
+import { EitherAsync } from "purify-ts";
 
 import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
 import {
@@ -9,6 +10,9 @@ import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { balanceModuleTypes } from "../balanceModuleTypes.js";
+import { getAlpacaNetworkName } from "../constants/networkConstants.js";
+import type { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
 import { TransactionInfo } from "../model/types.js";
 import { GasFeeEstimation } from "../model/types.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
@@ -21,9 +25,13 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(balanceModuleTypes.AlpacaDataSource)
+    private readonly alpacaDataSource: AlpacaDataSource,
   ) {
     this.logger = this.loggerFactory("[DefaultGasFeeEstimationService]");
   }
+
+
 
   //TODO: Move to a different service
   async getNonceForTx(tx: TransactionInfo): Promise<string> {
@@ -36,6 +44,70 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   }
 
   async getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation> {
+    const alpacaNetwork = getAlpacaNetworkName(tx.chainId);
+
+    if (!alpacaNetwork) {
+      this.logger.debug(
+        "Network not supported by Alpaca, using fallback RPC method",
+        { chainId: tx.chainId },
+      );
+      return this.getFeesFromRpc(tx);
+    }
+
+    this.logger.debug("Attempting to get gas fee estimation from Alpaca", {
+      network: alpacaNetwork,
+    });
+
+    const alpacaResult = await this.getFeesFromAlpaca(tx, alpacaNetwork);
+    if (alpacaResult) {
+      this.logger.debug("Successfully got gas fee estimation from Alpaca", {
+        alpacaResult,
+      });
+      return alpacaResult;
+    }
+
+    this.logger.debug(
+      "Alpaca gas fee estimation failed, falling back to RPC method",
+    );
+    return this.getFeesFromRpc(tx);
+  }
+
+  private async getFeesFromAlpaca(
+    tx: TransactionInfo,
+    network: string,
+  ): Promise<GasFeeEstimation | undefined> {
+    const intent = {
+      type: "send",
+      sender: tx.from,
+      recipient: tx.to,
+      amount: tx.value,
+      asset: {
+        type: "native",
+      },
+      feesStrategy: "medium" as const,
+      data: tx.data,
+    };
+
+    const result = await EitherAsync(async () => {
+      const either = await this.alpacaDataSource.estimateTransactionFee(network, intent);
+      return either.caseOf({
+        Left: (error) => { throw error; },
+        Right: (response) => response
+      });
+    })
+      .map((response) => ({
+        gasLimit: response.parameters.gasLimit,
+        maxFeePerGas: response.parameters.maxFeePerGas,
+        maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
+      }))
+      .ifLeft((error) => {
+        this.logger.debug("Alpaca gas fee estimation failed", { error });
+      });
+
+    return result.toMaybe().extract();
+  }
+
+  private async getFeesFromRpc(tx: TransactionInfo): Promise<GasFeeEstimation> {
     const estimateGas = await this.estimateGas(tx);
     const baseFeePerGasResult = await this.getBaseFeePerGas(tx);
     const maxPriorityFeePerGasResult = await this.getMaxPriorityFeePerGas(tx);

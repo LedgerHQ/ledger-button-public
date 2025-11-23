@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "../../../config/model/config.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import type { AlpacaBalanceDto } from "./alpacaTypes.js";
+import type { AlpacaBalanceDto, AlpacaFeeEstimationResponse, AlpacaTransactionIntent } from "./alpacaTypes.js";
 import { DefaultAlpacaDataSource } from "./DefaultAlpacaDataSource.js";
 
 describe("DefaultAlpacaDataSource", () => {
@@ -118,6 +118,99 @@ describe("DefaultAlpacaDataSource", () => {
       expect(result.isLeft()).toBe(true);
       expect((result.extract() as Error).message).toBe(
         "Failed to fetch balance from Alpaca",
+      );
+    });
+  });
+
+  describe("estimateTransactionFee", () => {
+    const mockNetwork = "ethereum";
+    const mockIntent: AlpacaTransactionIntent = {
+      type: "send",
+      sender: "0x1234567890abcdef1234567890abcdef12345678",
+      recipient: "0xabcdef1234567890abcdef1234567890abcdef12",
+      amount: "1000000000000000000",
+      asset: {
+        type: "native",
+      },
+      feesStrategy: "medium",
+      data: "0x",
+    };
+
+    const mockFeeResponse: AlpacaFeeEstimationResponse = {
+      value: "50000",
+      parameters: {
+        gasLimit: "0xc350",
+        maxFeePerGas: "0x6fc23ac00",
+        maxPriorityFeePerGas: "0x77359400",
+        nextBaseFee: "0x3b9aca00",
+        gasOptions: {},
+      },
+    };
+
+    it("should successfully estimate transaction fee", async () => {
+      vi.mocked(mockNetworkService.post).mockResolvedValue(Right(mockFeeResponse));
+
+      const result = await dataSource.estimateTransactionFee(mockNetwork, mockIntent);
+
+      expect(mockNetworkService.post).toHaveBeenCalledWith(
+        `${mockAlpacaUrl}/v1/${mockNetwork}/transaction/estimate`,
+        JSON.stringify({ intent: mockIntent }),
+      );
+
+      expect(result.isRight()).toBe(true);
+      if (result.isRight()) {
+        const response = result.extract();
+        expect(response).toEqual(mockFeeResponse);
+      }
+    });
+
+    it("should return transformed error when network service fails", async () => {
+      const networkError = new Error("Network request failed");
+      vi.mocked(mockNetworkService.post).mockResolvedValue(Left(networkError));
+
+      const result = await dataSource.estimateTransactionFee(mockNetwork, mockIntent);
+
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toBe("Failed to estimate transaction fee for ethereum");
+        expect(error.name).toBe("AlpacaFeeEstimationError");
+      }
+    });
+
+    it("should handle different network names correctly", async () => {
+      const arbitrumNetwork = "arbitrum";
+      vi.mocked(mockNetworkService.post).mockResolvedValue(Right(mockFeeResponse));
+
+      await dataSource.estimateTransactionFee(arbitrumNetwork, mockIntent);
+
+      expect(mockNetworkService.post).toHaveBeenCalledWith(
+        `${mockAlpacaUrl}/v1/${arbitrumNetwork}/transaction/estimate`,
+        JSON.stringify({ intent: mockIntent }),
+      );
+    });
+
+    it("should handle different transaction intents correctly", async () => {
+      const contractIntent: AlpacaTransactionIntent = {
+        type: "contract_call",
+        sender: "0x1234567890abcdef1234567890abcdef12345678",
+        recipient: "0xcontract123456789abcdef123456789abcdef12",
+        amount: "0",
+        asset: {
+          type: "erc20",
+          assetReference: "0xtoken123456789abcdef123456789abcdef123",
+        },
+        feesStrategy: "fast",
+        data: "0xa9059cbb000000000000000000000000recipient123456789abcdef123456789abcdef",
+      };
+
+      vi.mocked(mockNetworkService.post).mockResolvedValue(Right(mockFeeResponse));
+
+      await dataSource.estimateTransactionFee(mockNetwork, contractIntent);
+
+      expect(mockNetworkService.post).toHaveBeenCalledWith(
+        `${mockAlpacaUrl}/v1/${mockNetwork}/transaction/estimate`,
+        JSON.stringify({ intent: contractIntent }),
       );
     });
   });
