@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { MigrateDbUseCase } from "./usecases/MigrateDbUseCase.js";
+import { MigrateDbUseCase } from "./usecases/MigrateDbUseCase/MigrateDbUseCase.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
 import { storageModuleTypes } from "./storageModuleTypes.js";
 
