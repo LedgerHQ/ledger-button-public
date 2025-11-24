@@ -7,7 +7,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
 import type { EncryptKeypairUseCase } from "../../cryptographic/usecases/EncryptKeypairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../cryptographic/usecases/GetEncryptionKey.js";
-import type { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
+import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../storageModuleTypes.js";
@@ -26,8 +26,8 @@ export class MigrateDbUseCase {
     private readonly encryptKeypairUseCase: EncryptKeypairUseCase,
     @inject(cryptographicModuleTypes.GetEncryptionKeyUseCase)
     private readonly getEncryptionKeyUseCase: GetEncryptionKeyUseCase,
-    @inject(cryptographicModuleTypes.GetKeypairUseCase)
-    private readonly getKeypairUseCase: GetKeypairUseCase,
+    @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)
+    private readonly getOrCreateKeyPairUseCase: GetOrCreateKeyPairUseCase,
   ) {
     this.logger = this.loggerFactory("[MigrateDatabase Use Case]");
   }
@@ -65,7 +65,7 @@ export class MigrateDbUseCase {
       await this.storageService.storeKeyPair(encryptedKeypair);
     } else {
       //No keypair found, generate a new one
-      await this.getKeypairUseCase.execute();
+      await this.getOrCreateKeyPairUseCase.execute();
     }
 
     await this.storageService.setDbVersion(1);
