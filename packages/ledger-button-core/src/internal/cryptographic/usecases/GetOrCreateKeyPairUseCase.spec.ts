@@ -13,13 +13,13 @@ import { DecryptKeypairUseCase } from "./DecryptKeypairUseCase.js";
 import { EncryptKeypairUseCase } from "./EncryptKeypairUseCase.js";
 import { GenerateKeypairUseCase } from "./GenerateKeypairUseCase.js";
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
-import { GetKeypairUseCase } from "./GetKeypairUseCase.js";
+import { GetOrCreateKeyPairUseCase } from "./GetOrCreateKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-management-kit");
 vi.mock("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol");
 
 describe("GetKeypairUseCase", () => {
-  let useCase: GetKeypairUseCase;
+  let useCase: GetOrCreateKeyPairUseCase;
   let mockLogger: LoggerPublisher;
   let mockStorageService: StorageService;
   let mockGenerateKeypairUseCase: GenerateKeypairUseCase;
@@ -76,7 +76,7 @@ describe("GetKeypairUseCase", () => {
     vi.mocked(NobleCryptoService).mockImplementation(() => mockCryptoService);
     vi.mocked(bufferToHexaString).mockReturnValue("hex-string");
 
-    useCase = new GetKeypairUseCase(
+    useCase = new GetOrCreateKeyPairUseCase(
       () => mockLogger,
       mockStorageService,
       mockGenerateKeypairUseCase,
