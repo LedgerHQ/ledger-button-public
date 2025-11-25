@@ -30,7 +30,7 @@ import type {
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
-import { GetKeyPairUseCase } from "../../cryptographic/usecases/GetKeyPairUseCase.js";
+import { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -58,8 +58,8 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.GetKeyPairUseCase)
-    private readonly getKeyPairUseCase: GetKeyPairUseCase,
+    @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)
+    private readonly getOrCreateKeyPairUseCase: GetOrCreateKeyPairUseCase,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
@@ -83,10 +83,10 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
-    return from(this.getKeyPairUseCase.execute()).pipe(
+    return from(this.getOrCreateKeyPairUseCase.execute()).pipe(
       switchMap((keyPair: KeyPair) => {
-        this.logger.info("KeyPair retrieved", {
-          keyPair: keyPair.getPublicKeyToHex(),
+        this.logger.info("Keypair retrieved", {
+          keypair: keyPair.getPublicKeyToHex(),
         });
         this.keyPair = keyPair;
         this.trustChainId = this.storageService.getTrustChainId().extract();

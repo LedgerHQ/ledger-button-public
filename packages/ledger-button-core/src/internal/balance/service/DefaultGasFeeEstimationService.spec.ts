@@ -3,6 +3,7 @@ import { Left, Right } from "purify-ts";
 import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
 import { BackendService } from "../../backend/BackendService.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
 import { TransactionInfo } from "../model/types.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
 
@@ -10,6 +11,7 @@ describe("DefaultGasFeeEstimationService", () => {
   let gasFeeEstimationService: DefaultGasFeeEstimationService;
   let mockLoggerFactory: () => LoggerPublisher;
   let mockBackendService: BackendService;
+  let mockAlpacaDataSource: AlpacaDataSource;
   let mockLogger: LoggerPublisher;
 
   const mockTx: TransactionInfo = {
@@ -38,9 +40,15 @@ describe("DefaultGasFeeEstimationService", () => {
       broadcast: vi.fn(),
     } as unknown as BackendService;
 
+    mockAlpacaDataSource = {
+      getBalanceForAddressAndCurrencyId: vi.fn(),
+      estimateTransactionFee: vi.fn(),
+    } as unknown as AlpacaDataSource;
+
     gasFeeEstimationService = new DefaultGasFeeEstimationService(
       mockLoggerFactory,
       mockBackendService,
+      mockAlpacaDataSource,
     );
   });
 
@@ -83,10 +91,111 @@ describe("DefaultGasFeeEstimationService", () => {
   });
 
   describe("getFeesForTransaction", () => {
-    it("should calculate maxFeePerGas correctly (baseFee * 2 + maxPriorityFee)", async () => {
+    it("should use Alpaca for gas fee estimation when network is supported", async () => {
+      const mockAlpacaResponse = {
+        value: "50000",
+        parameters: {
+          gasLimit: "0xc350",
+          maxFeePerGas: "0x6fc23ac00",
+          maxPriorityFeePerGas: "0x77359400",
+          nextBaseFee: "0x3b9aca00",
+          gasOptions: {},
+        },
+      };
+
+      vi.spyOn(mockAlpacaDataSource, "estimateTransactionFee").mockResolvedValue(
+        Right(mockAlpacaResponse),
+      );
+
+      const result =
+        await gasFeeEstimationService.getFeesForTransaction(mockTx);
+
+      expect(mockAlpacaDataSource.estimateTransactionFee).toHaveBeenCalledWith(
+        "ethereum",
+        expect.objectContaining({
+          type: "send",
+          sender: mockTx.from,
+          recipient: mockTx.to,
+          amount: mockTx.value,
+          data: mockTx.data,
+        }),
+      );
+
+      expect(result.gasLimit).toEqual(mockAlpacaResponse.parameters.gasLimit);
+      expect(result.maxFeePerGas).toEqual(
+        mockAlpacaResponse.parameters.maxFeePerGas,
+      );
+      expect(result.maxPriorityFeePerGas).toEqual(
+        mockAlpacaResponse.parameters.maxPriorityFeePerGas,
+      );
+    });
+
+    it("should fallback to RPC method when Alpaca fails", async () => {
+      vi.spyOn(mockAlpacaDataSource, "estimateTransactionFee").mockResolvedValue(
+        Left(new Error("Alpaca error")),
+      );
+
+      const mockEstimateGas = 50000;
+      const mockBaseFeePerGas = 30000000000;
+      const mockMaxPriorityFeePerGas = 2000000000;
+
+      vi.spyOn(gasFeeEstimationService, "estimateGas").mockResolvedValue(
+        mockEstimateGas,
+      );
+      vi.spyOn(gasFeeEstimationService, "getBaseFeePerGas").mockResolvedValue(
+        mockBaseFeePerGas,
+      );
+      vi.spyOn(
+        gasFeeEstimationService,
+        "getMaxPriorityFeePerGas",
+      ).mockResolvedValue(mockMaxPriorityFeePerGas);
+
+      const result =
+        await gasFeeEstimationService.getFeesForTransaction(mockTx);
+
+      expect(mockAlpacaDataSource.estimateTransactionFee).toHaveBeenCalled();
+      expect(gasFeeEstimationService.estimateGas).toHaveBeenCalledWith(mockTx);
+      expect(result.gasLimit).toMatch(/^0x[0-9a-f]+$/i);
+    });
+
+    it("should use RPC method when network is not supported by Alpaca", async () => {
+      const unsupportedTx: TransactionInfo = {
+        ...mockTx,
+        chainId: "999999", // Unsupported network
+      };
+
+      const mockEstimateGas = 50000;
+      const mockBaseFeePerGas = 30000000000;
+      const mockMaxPriorityFeePerGas = 2000000000;
+
+      vi.spyOn(gasFeeEstimationService, "estimateGas").mockResolvedValue(
+        mockEstimateGas,
+      );
+      vi.spyOn(gasFeeEstimationService, "getBaseFeePerGas").mockResolvedValue(
+        mockBaseFeePerGas,
+      );
+      vi.spyOn(
+        gasFeeEstimationService,
+        "getMaxPriorityFeePerGas",
+      ).mockResolvedValue(mockMaxPriorityFeePerGas);
+
+      await gasFeeEstimationService.getFeesForTransaction(unsupportedTx);
+
+      expect(mockAlpacaDataSource.estimateTransactionFee).not.toHaveBeenCalled();
+      expect(gasFeeEstimationService.estimateGas).toHaveBeenCalledWith(
+        unsupportedTx,
+      );
+    });
+
+    it("should calculate maxFeePerGas correctly (baseFee * 2 + maxPriorityFee) when using RPC fallback", async () => {
+      // Assert RPC fallback by forcing Alpaca to fail
+      vi.spyOn(mockAlpacaDataSource, "estimateTransactionFee").mockResolvedValue(
+        Left(new Error("Alpaca error")),
+      );
+
       const mockEstimateGas = 50000;
       const mockBaseFeePerGas = 30000000000; // 30 gwei
-      const mockMaxPriorityFeePerGas = 2000000000; // 2 gwei\
+      const mockMaxPriorityFeePerGas = 2000000000; // 2 gwei
       const mockGasLimit = 1.2;
 
       vi.spyOn(gasFeeEstimationService, "estimateGas").mockResolvedValue(

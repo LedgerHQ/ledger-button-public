@@ -4,7 +4,7 @@ import { DecryptKeyPairUseCase } from "./usecases/DecryptKeyPairUseCase.js";
 import { EncryptKeyPairUseCase } from "./usecases/EncryptKeyPairUseCase.js";
 import { GenerateKeyPairUseCase } from "./usecases/GenerateKeyPairUseCase.js";
 import { GetEncryptionKeyUseCase } from "./usecases/GetEncryptionKey.js";
-import { GetKeyPairUseCase } from "./usecases/GetKeyPairUseCase.js";
+import { GetOrCreateKeyPairUseCase } from "./usecases/GetOrCreateKeyPairUseCase.js";
 import { cryptographicModuleTypes } from "./cryptographicModuleTypes.js";
 
 type CryptographicModuleOptions = {
@@ -25,7 +25,9 @@ export function cryptographicModuleFactory({
     bind(cryptographicModuleTypes.GetEncryptionKeyUseCase).to(
       GetEncryptionKeyUseCase,
     );
-    bind(cryptographicModuleTypes.GetKeyPairUseCase).to(GetKeyPairUseCase);
+    bind(cryptographicModuleTypes.GetOrCreateKeyPairUseCase).to(
+      GetOrCreateKeyPairUseCase,
+    );
     bind(cryptographicModuleTypes.DecryptKeyPairUseCase).to(
       DecryptKeyPairUseCase,
     );

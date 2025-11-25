@@ -17,7 +17,7 @@ import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
 
 @injectable()
-export class GetKeyPairUseCase {
+export class GetOrCreateKeyPairUseCase {
   private logger: LoggerPublisher;
 
   constructor(
@@ -34,19 +34,19 @@ export class GetKeyPairUseCase {
     @inject(cryptographicModuleTypes.DecryptKeyPairUseCase)
     private readonly decryptKeyPairUseCase: DecryptKeyPairUseCase,
   ) {
-    this.logger = loggerFactory("GetKeyPairUseCase");
+    this.logger = loggerFactory("GetOrCreateKeyPairUseCase");
   }
 
   async execute(): Promise<KeyPair> {
-    this.logger.info("Start Getting/Creating keyPair");
-    let keyPair: KeyPair | undefined;
-    const keyPairResult = await this.storageService.getKeyPair();
-    if (keyPairResult.isRight()) {
+    this.logger.info("Start Getting/Creating keypair");
+    let keypair: KeyPair | undefined;
+    const keypairResult = await this.storageService.getKeyPair();
+    if (keypairResult.isRight()) {
       this.logger.info("KeyPair found in storage, decrypting");
-      const encryptedKeyPair = keyPairResult.extract();
+      const encryptedKeyPair = keypairResult.extract();
       const decryptionKey = await this.getEncryptionKeyUseCase.execute();
 
-      this.logger.debug("Decrypting keyPair with pub key", {
+      this.logger.debug("Decrypting keypair with pub key", {
         encryptedKeyPair: bufferToHexaString(encryptedKeyPair),
       });
 
@@ -55,26 +55,26 @@ export class GetKeyPairUseCase {
         decryptionKey,
       );
 
-      this.logger.debug("Decrypted keyPair", {
+      this.logger.debug("Decrypted keypair", {
         decryptedKeyPair: bufferToHexaString(decryptedKeyPair),
       });
 
       const cryptoService = new NobleCryptoService();
-      keyPair = cryptoService.importKeyPair(decryptedKeyPair, Curve.K256);
+      keypair = cryptoService.importKeyPair(decryptedKeyPair, Curve.K256);
     } else {
       this.logger.info("KeyPair not found in storage, generating new one");
-      keyPair = await this.generateKeyPairUseCase.execute();
-      this.logger.info("New keyPair generated", {
-        keyPair: keyPair.getPublicKeyToHex(),
+      keypair = await this.generateKeyPairUseCase.execute();
+      this.logger.info("New keypair generated", {
+        keypair: keypair.getPublicKeyToHex(),
       });
 
       const encryptionKey = await this.getEncryptionKeyUseCase.execute();
       const encryptedKeyPair = await this.encryptKeyPairUseCase.execute(
-        keyPair,
+        keypair,
         encryptionKey,
       );
 
-      this.logger.info("Storing encrypted keyPair in storage", {
+      this.logger.info("Storing encrypted keypair in storage", {
         encryptedKeyPair: bufferToHexaString(encryptedKeyPair),
       });
 
@@ -82,9 +82,9 @@ export class GetKeyPairUseCase {
     }
 
     this.logger.info("KeyPair retrieved with public key", {
-      keyPair: keyPair.getPublicKeyToHex(),
+      keypair: keypair.getPublicKeyToHex(),
     });
 
-    return keyPair;
+    return keypair;
   }
 }
