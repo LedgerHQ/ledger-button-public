@@ -13,7 +13,7 @@ describe("DecryptKeyPairUseCase", () => {
 
   const mockIv = new Uint8Array(12).fill(0x42);
   const mockCiphertext = new Uint8Array(16).fill(0xff);
-  const mockEncryptedKeypair = new Uint8Array([...mockIv, ...mockCiphertext]);
+  const mockEncryptedKeyPair = new Uint8Array([...mockIv, ...mockCiphertext]);
   const mockDecryptedData = new ArrayBuffer(8);
 
   beforeEach(() => {
@@ -48,7 +48,7 @@ describe("DecryptKeyPairUseCase", () => {
   describe("execute", () => {
     it("should decrypt an encrypted keypair successfully", async () => {
       const result = await useCase.execute(
-        mockEncryptedKeypair,
+        mockEncryptedKeyPair,
         mockDecryptionKey,
       );
 
@@ -58,7 +58,7 @@ describe("DecryptKeyPairUseCase", () => {
     });
 
     it("should call decrypt with correct AES-GCM parameters", async () => {
-      await useCase.execute(mockEncryptedKeypair, mockDecryptionKey);
+      await useCase.execute(mockEncryptedKeyPair, mockDecryptionKey);
 
       expect(mockCryptoSubtle.decrypt).toHaveBeenCalledWith(
         {
