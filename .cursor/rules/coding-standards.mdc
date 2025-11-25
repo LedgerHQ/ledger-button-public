@@ -1,0 +1,91 @@
+---
+description: Coding standards and best practices for the Ledger Button project
+globs:
+alwaysApply: true
+---
+
+# Coding Standards
+
+> **Primary Source**: See [CODING_STANDARDS.md](../../CODING_STANDARDS.md) for the complete coding standards document. This file provides a quick reference for AI assistants.
+
+## Quick Reference for AI Assistants
+
+### TypeScript & Dependency Injection
+
+- Always use explicit types for function parameters and return types
+- Prefer `type` over `interface` (unless extending/implementing)
+- Use Inversify for dependency injection with `@injectable()` and `@inject()` decorators
+- Store module types in dedicated `*ModuleTypes.ts` files
+- Use `Factory<T>` pattern for dynamic instance creation
+
+### Class Structure Ordering
+
+Classes must follow this order:
+
+1. **Constructor** - Dependency injection and initialization
+2. **Public methods** - Simple, high-level operations composed of well-named private functions
+3. **Getters/Setters** - Property accessors
+4. **Private methods** - Implementation details and helper functions
+
+**Key principles:**
+
+- Public methods should read like a story, composed of descriptive private functions
+- Private method names should clearly explain what they do
+- Each method has a single responsibility
+- Initialize derived properties (like logger) in constructor body
+
+### Code Organization
+
+- One class per file
+- Use cases in `usecases/` directories with single `execute()` method
+- Services in `service/` directories for cross-cutting concerns
+- Follow domain-driven structure for business logic
+
+### Naming & Style
+
+- PascalCase for classes/types/interfaces
+- camelCase for variables/functions/methods
+- UPPER_SNAKE_CASE for constants
+- Use descriptive names that explain intent
+
+### Async & Error Handling
+
+- Always use `async/await` instead of raw Promises
+- Return `Promise<void>` for methods without return values
+- Use `Either<Error, T>` from purify-ts for operations that can fail (prefer over throwing)
+- Use `Maybe<T>` from purify-ts for optional values (prefer over `T | null | undefined`)
+- Use `EitherAsync` for composing async operations that can fail
+- Check with `.isRight()`, `.isLeft()`, or `.isJust()` before `.extract()`
+- Use `.caseOf()` for pattern matching, `.orDefault()` for fallbacks
+- Log errors with appropriate log levels and context
+
+### Imports
+
+- Always use relative imports (never `src/` paths)
+- Group: external packages → internal modules → relative imports
+- See [import-rules.mdc](./import-rules.mdc) for details
+
+### Comments
+
+- Avoid unnecessary comments - code should be self-documenting
+- Only comment when explaining "why" (business decisions, workarounds, context)
+- Don't comment obvious code (getters, setters, simple operations)
+- Use JSDoc for public APIs and complex logic
+- Remove outdated or redundant comments
+
+### Testing & Quality
+
+- Write tests for all business logic
+- Use descriptive test names (AAA pattern: Arrange, Act, Assert)
+- Write self-documenting code (prefer clear code over comments)
+- Use JSDoc for public APIs and complex logic
+
+### Logging
+
+- Use structured logging with context
+- Create logger instances with descriptive prefixes (e.g., `[MigrateDatabase Use Case]`)
+- Include relevant context in log messages
+
+---
+
+**For complete details, examples, and explanations, refer to [CODING_STANDARDS.md](../../CODING_STANDARDS.md)**
