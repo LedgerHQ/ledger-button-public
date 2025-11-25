@@ -1,7 +1,7 @@
 export const cryptographicModuleTypes = {
-  GenerateKeypairUseCase: Symbol.for("GenerateKeypairUseCase"),
-  EncryptKeypairUseCase: Symbol.for("EncryptKeypairUseCase"),
+  GenerateKeyPairUseCase: Symbol.for("GenerateKeyPairUseCase"),
+  EncryptKeyPairUseCase: Symbol.for("EncryptKeyPairUseCase"),
   GetEncryptionKeyUseCase: Symbol.for("GetEncryptionKeyUseCase"),
-  GetKeypairUseCase: Symbol.for("GetKeypairUseCase"),
-  DecryptKeypairUseCase: Symbol.for("DecryptKeypairUseCase"),
+  GetOrCreateKeyPairUseCase: Symbol.for("GetOrCreateKeyPairUseCase"),
+  DecryptKeyPairUseCase: Symbol.for("DecryptKeyPairUseCase"),
 } as const;

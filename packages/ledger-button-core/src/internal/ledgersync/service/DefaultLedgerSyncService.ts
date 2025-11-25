@@ -30,7 +30,7 @@ import type {
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
-import { GetKeypairUseCase } from "../../cryptographic/usecases/GetKeypairUseCase.js";
+import { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -48,7 +48,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   private readonly logger: LoggerPublisher;
   private _authContext: InternalAuthContext | undefined;
   lkrpAppKit: LedgerKeyringProtocol;
-  private keypair: KeyPair | undefined;
+  private keyPair: KeyPair | undefined;
   private trustChainId: string | undefined;
 
   constructor(
@@ -58,8 +58,8 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.GetKeypairUseCase)
-    private readonly getKeypairUseCase: GetKeypairUseCase,
+    @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)
+    private readonly getOrCreateKeyPairUseCase: GetOrCreateKeyPairUseCase,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
@@ -79,7 +79,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
-    return from(this.getKeypairUseCase.execute()).pipe(
+    return from(this.getOrCreateKeyPairUseCase.execute()).pipe(
       switchMap((keypair: KeyPair) => {
         const authenticationData = this.prepareAuthenticationData(keypair);
         const authenticateInput =
@@ -127,7 +127,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     this.logger.info("Keypair retrieved", {
       keypair: keypair.getPublicKeyToHex(),
     });
-    this.keypair = keypair;
+    this.keyPair = keypair;
     const trustChainId = this.storageService.getTrustChainId().extract();
     this.trustChainId = trustChainId;
 
@@ -214,7 +214,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           trustChainId: state.output.trustchainId,
           encryptionKey: state.output.encryptionKey,
           applicationPath: state.output.applicationPath,
-          keypair: this.keypair,
+          keyPair: this.keyPair,
         } as unknown as InternalAuthContext;
 
         this.trustChainId = newAuthContext.trustChainId;

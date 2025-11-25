@@ -5,27 +5,27 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
 @injectable()
-export class DecryptKeypairUseCase {
+export class DecryptKeyPairUseCase {
   private logger: LoggerPublisher;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Decrypt Keypair Use Case]");
+    this.logger = this.loggerFactory("[Decrypt KeyPair Use Case]");
   }
 
   async execute(
-    encryptedKeypair: Uint8Array,
+    encryptedKeyPair: Uint8Array,
     decryptionKey: CryptoKey,
   ): Promise<Uint8Array> {
-    this.logger.info("Decrypting keypair with decryption key", {
-      encryptedKeypair: bufferToHexaString(encryptedKeypair),
+    this.logger.info("Decrypting keyPair with decryption key", {
+      encryptedKeyPair: bufferToHexaString(encryptedKeyPair),
     });
 
-    const iv = encryptedKeypair.slice(0, 12);
-    const ciphertext = encryptedKeypair.slice(12);
-    const decryptedKeypair = await window.crypto.subtle.decrypt(
+    const iv = encryptedKeyPair.slice(0, 12);
+    const ciphertext = encryptedKeyPair.slice(12);
+    const decryptedKeyPair = await window.crypto.subtle.decrypt(
       {
         name: "AES-GCM",
         iv,
@@ -34,6 +34,6 @@ export class DecryptKeypairUseCase {
       ciphertext,
     );
 
-    return new Uint8Array(decryptedKeypair);
+    return new Uint8Array(decryptedKeyPair);
   }
 }

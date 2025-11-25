@@ -5,5 +5,5 @@ export type InternalAuthContext = {
   encryptionKey: Uint8Array;
   trustChainId: string;
   applicationPath: string;
-  keypair: Uint8Array;
+  keyPair: Uint8Array;
 };

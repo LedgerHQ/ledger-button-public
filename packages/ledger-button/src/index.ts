@@ -42,6 +42,11 @@ export function initializeLedgerProvider({
     },
   },
 }: InitializeLedgerProviderOptions): () => void {
+  const existingApp = target.querySelector("ledger-button-app");
+  if (existingApp) {
+    console.log("Ledger button app already exists");
+    return () => void 0;
+  }
   // NOTE: `core` should be the same instance as the one injected in the lit app
   // so we either need to instanciate it here and give it to the lit app or retrieve it from it
   if (!core) {

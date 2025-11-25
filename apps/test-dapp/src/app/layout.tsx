@@ -1,5 +1,5 @@
 import "./global.css";
-import "@ledgerhq/ledger-button/styles.css";
+import "@ledgerhq/ledger-wallet-provider/styles.css";
 
 export const metadata = {
   title: "Welcome to test-dapp",
