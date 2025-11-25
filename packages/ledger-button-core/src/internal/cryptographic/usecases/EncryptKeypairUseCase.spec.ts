@@ -101,7 +101,7 @@ describe("EncryptKeyPairUseCase", () => {
         setup: () => {
           vi.mocked(hexaStringToBuffer).mockReturnValue(null);
         },
-        expectedError: "Can't encrypt keypair",
+        expectedError: "Can't encrypt keyPair",
       },
     ])("should throw an error when $scenario", ({ setup, expectedError }) => {
       beforeEach(() => {

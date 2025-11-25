@@ -54,7 +54,7 @@ describe("GenerateKeyPairUseCase", () => {
         null as unknown as KeyPair,
       );
 
-      await expect(useCase.execute()).rejects.toThrow("Invalid keypair");
+      await expect(useCase.execute()).rejects.toThrow("Invalid keyPair");
     });
   });
 });
