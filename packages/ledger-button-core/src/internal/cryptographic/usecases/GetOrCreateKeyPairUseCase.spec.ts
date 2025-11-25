@@ -9,9 +9,9 @@ import { Left, Right } from "purify-ts";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { StorageIDBGetError } from "../../storage/model/errors.js";
 import { StorageService } from "../../storage/StorageService.js";
-import { DecryptKeypairUseCase } from "./DecryptKeypairUseCase.js";
-import { EncryptKeypairUseCase } from "./EncryptKeypairUseCase.js";
-import { GenerateKeypairUseCase } from "./GenerateKeypairUseCase.js";
+import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
+import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase.js";
+import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
 import { GetOrCreateKeyPairUseCase } from "./GetOrCreateKeyPairUseCase.js";
 
@@ -22,10 +22,10 @@ describe("GetKeypairUseCase", () => {
   let useCase: GetOrCreateKeyPairUseCase;
   let mockLogger: LoggerPublisher;
   let mockStorageService: StorageService;
-  let mockGenerateKeypairUseCase: GenerateKeypairUseCase;
+  let mockGenerateKeyPairUseCase: GenerateKeyPairUseCase;
   let mockGetEncryptionKeyUseCase: GetEncryptionKeyUseCase;
-  let mockEncryptKeypairUseCase: EncryptKeypairUseCase;
-  let mockDecryptKeypairUseCase: DecryptKeypairUseCase;
+  let mockEncryptKeyPairUseCase: EncryptKeyPairUseCase;
+  let mockDecryptKeyPairUseCase: DecryptKeyPairUseCase;
   let mockCryptoService: NobleCryptoService;
   let mockKeyPair: KeyPair;
   let mockEncryptionKey: CryptoKey;
@@ -53,21 +53,21 @@ describe("GetKeypairUseCase", () => {
       storeKeyPair: vi.fn(),
     } as unknown as StorageService;
 
-    mockGenerateKeypairUseCase = {
+    mockGenerateKeyPairUseCase = {
       execute: vi.fn().mockResolvedValue(mockKeyPair),
-    } as unknown as GenerateKeypairUseCase;
+    } as unknown as GenerateKeyPairUseCase;
 
     mockGetEncryptionKeyUseCase = {
       execute: vi.fn().mockResolvedValue(mockEncryptionKey),
     } as unknown as GetEncryptionKeyUseCase;
 
-    mockEncryptKeypairUseCase = {
+    mockEncryptKeyPairUseCase = {
       execute: vi.fn().mockResolvedValue(mockEncryptedKeypair),
-    } as unknown as EncryptKeypairUseCase;
+    } as unknown as EncryptKeyPairUseCase;
 
-    mockDecryptKeypairUseCase = {
+    mockDecryptKeyPairUseCase = {
       execute: vi.fn().mockResolvedValue(mockDecryptedKeypair),
-    } as unknown as DecryptKeypairUseCase;
+    } as unknown as DecryptKeyPairUseCase;
 
     mockCryptoService = {
       importKeyPair: vi.fn().mockReturnValue(mockKeyPair),
@@ -79,10 +79,10 @@ describe("GetKeypairUseCase", () => {
     useCase = new GetOrCreateKeyPairUseCase(
       () => mockLogger,
       mockStorageService,
-      mockGenerateKeypairUseCase,
+      mockGenerateKeyPairUseCase,
       mockGetEncryptionKeyUseCase,
-      mockEncryptKeypairUseCase,
-      mockDecryptKeypairUseCase,
+      mockEncryptKeyPairUseCase,
+      mockDecryptKeyPairUseCase,
     );
   });
 
@@ -108,7 +108,7 @@ describe("GetKeypairUseCase", () => {
 
         expect(mockStorageService.getKeyPair).toHaveBeenCalled();
         expect(mockGetEncryptionKeyUseCase.execute).toHaveBeenCalled();
-        expect(mockDecryptKeypairUseCase.execute).toHaveBeenCalledWith(
+        expect(mockDecryptKeyPairUseCase.execute).toHaveBeenCalledWith(
           mockEncryptedKeypair,
           mockEncryptionKey,
         );
@@ -116,8 +116,8 @@ describe("GetKeypairUseCase", () => {
           mockDecryptedKeypair,
           Curve.K256,
         );
-        expect(mockGenerateKeypairUseCase.execute).not.toHaveBeenCalled();
-        expect(mockEncryptKeypairUseCase.execute).not.toHaveBeenCalled();
+        expect(mockGenerateKeyPairUseCase.execute).not.toHaveBeenCalled();
+        expect(mockEncryptKeyPairUseCase.execute).not.toHaveBeenCalled();
         expect(mockStorageService.storeKeyPair).not.toHaveBeenCalled();
       });
     });
@@ -139,10 +139,10 @@ describe("GetKeypairUseCase", () => {
 
         expect(mockStorageService.getKeyPair).toHaveBeenCalled();
         expect(mockGetEncryptionKeyUseCase.execute).toHaveBeenCalled();
-        expect(mockDecryptKeypairUseCase.execute).not.toHaveBeenCalled();
+        expect(mockDecryptKeyPairUseCase.execute).not.toHaveBeenCalled();
         expect(mockCryptoService.importKeyPair).not.toHaveBeenCalled();
-        expect(mockGenerateKeypairUseCase.execute).toHaveBeenCalled();
-        expect(mockEncryptKeypairUseCase.execute).toHaveBeenCalledWith(
+        expect(mockGenerateKeyPairUseCase.execute).toHaveBeenCalled();
+        expect(mockEncryptKeyPairUseCase.execute).toHaveBeenCalledWith(
           mockKeyPair,
           mockEncryptionKey,
         );

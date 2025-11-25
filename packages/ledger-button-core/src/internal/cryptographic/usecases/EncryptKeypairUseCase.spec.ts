@@ -5,12 +5,12 @@ import {
 import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { EncryptKeypairUseCase } from "./EncryptKeypairUseCase.js";
+import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-management-kit");
 
-describe("EncryptKeypairUseCase", () => {
-  let useCase: EncryptKeypairUseCase;
+describe("EncryptKeyPairUseCase", () => {
+  let useCase: EncryptKeyPairUseCase;
   let mockLogger: LoggerPublisher;
   let mockKeyPair: KeyPair;
   let mockEncryptionKey: CryptoKey;
@@ -52,7 +52,7 @@ describe("EncryptKeypairUseCase", () => {
     vi.mocked(hexaStringToBuffer).mockReturnValue(mockPrivateKeyBytes);
     vi.mocked(bufferToHexaString).mockReturnValue("encrypted-hex");
 
-    useCase = new EncryptKeypairUseCase(() => mockLogger);
+    useCase = new EncryptKeyPairUseCase(() => mockLogger);
   });
 
   afterEach(() => {

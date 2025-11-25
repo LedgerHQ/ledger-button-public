@@ -1,12 +1,12 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
 
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { DecryptKeypairUseCase } from "./DecryptKeypairUseCase.js";
+import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-management-kit");
 
-describe("DecryptKeypairUseCase", () => {
-  let useCase: DecryptKeypairUseCase;
+describe("DecryptKeyPairUseCase", () => {
+  let useCase: DecryptKeyPairUseCase;
   let mockLogger: LoggerPublisher;
   let mockDecryptionKey: CryptoKey;
   let mockCryptoSubtle: SubtleCrypto;
@@ -38,7 +38,7 @@ describe("DecryptKeypairUseCase", () => {
 
     vi.mocked(bufferToHexaString).mockReturnValue("encrypted-hex");
 
-    useCase = new DecryptKeypairUseCase(() => mockLogger);
+    useCase = new DecryptKeyPairUseCase(() => mockLogger);
   });
 
   afterEach(() => {
