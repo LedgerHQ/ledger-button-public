@@ -3,7 +3,7 @@ import type { Factory } from "inversify";
 import { Right } from "purify-ts";
 import { vi } from "vitest";
 
-import type { EncryptKeypairUseCase } from "../../../cryptographic/usecases/EncryptKeypairUseCase.js";
+import type { EncryptKeyPairUseCase } from "../../../cryptographic/usecases/EncryptKeyPairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
 import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
@@ -61,7 +61,7 @@ export const createKeyPairMigrationService = (
   return new KeyPairMigrationService(
     mockLoggerFactory,
     mockStorageService as unknown as StorageService,
-    mockEncryptKeyPairUseCase as unknown as EncryptKeypairUseCase,
+    mockEncryptKeyPairUseCase as unknown as EncryptKeyPairUseCase,
     mockGetEncryptionKeyUseCase as unknown as GetEncryptionKeyUseCase,
     mockGetKeyPairUseCase as unknown as GetOrCreateKeyPairUseCase,
   );

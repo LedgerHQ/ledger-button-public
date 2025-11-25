@@ -48,7 +48,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   private readonly logger: LoggerPublisher;
   private _authContext: InternalAuthContext | undefined;
   lkrpAppKit: LedgerKeyringProtocol;
-  private keypair: KeyPair | undefined;
+  private keyPair: KeyPair | undefined;
   private trustChainId: string | undefined;
 
   constructor(
@@ -84,11 +84,11 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     this.logger.info("Authenticating with ledger sync");
 
     return from(this.getOrCreateKeyPairUseCase.execute()).pipe(
-      switchMap((keypair: KeyPair) => {
+      switchMap((keyPair: KeyPair) => {
         this.logger.info("Keypair retrieved", {
-          keypair: keypair.getPublicKeyToHex(),
+          keypair: keyPair.getPublicKeyToHex(),
         });
-        this.keypair = keypair;
+        this.keyPair = keyPair;
         this.trustChainId = this.storageService.getTrustChainId().extract();
 
         this.logger.info(`Trustchain ID : ${this.trustChainId}`);
@@ -104,16 +104,16 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           }
 
           return this.lkrpAppKit.authenticate({
-            keypair: keypair,
+            keypair: keyPair,
             clientName: this.getClientName(),
             permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
             trustchainId: undefined,
             sessionId: this.deviceManagementKitService.sessionId,
           } as AuthenticateUsecaseInput).observable;
         } else {
-          this.logger.info("Try to authenticate with keypair");
+          this.logger.info("Try to authenticate with keyPair");
           return this.lkrpAppKit.authenticate({
-            keypair: keypair,
+            keypair: keyPair,
             clientName: this.getClientName(),
             permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
             trustchainId: this.trustChainId,
@@ -166,7 +166,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           trustChainId: state.output.trustchainId,
           encryptionKey: state.output.encryptionKey,
           applicationPath: state.output.applicationPath,
-          keypair: this.keypair,
+          keyPair: this.keyPair,
         } as unknown as InternalAuthContext;
 
         this.trustChainId = newAuthContext.trustChainId;

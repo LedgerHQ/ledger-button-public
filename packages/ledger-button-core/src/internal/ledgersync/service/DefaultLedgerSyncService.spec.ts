@@ -56,7 +56,7 @@ describe("DefaultLedgerSyncService", () => {
     authenticate: ReturnType<typeof vi.fn>;
     decryptData: ReturnType<typeof vi.fn>;
   };
-  let mockKeypair: KeyPair;
+  let mockKeyPair: KeyPair;
   let mockBuild: ReturnType<typeof vi.fn>;
 
   const mockJWT = {
@@ -72,7 +72,7 @@ describe("DefaultLedgerSyncService", () => {
   };
 
   beforeEach(() => {
-    mockKeypair = {
+    mockKeyPair = {
       getPublicKeyToHex: vi.fn().mockReturnValue("mock-public-key-hex"),
     } as unknown as KeyPair;
 
@@ -89,7 +89,7 @@ describe("DefaultLedgerSyncService", () => {
     };
 
     mockGetOrCreateKeyPairUseCase = {
-      execute: vi.fn().mockResolvedValue(mockKeypair),
+      execute: vi.fn().mockResolvedValue(mockKeyPair),
     };
 
     mockConfig = {
@@ -219,7 +219,7 @@ describe("DefaultLedgerSyncService", () => {
 
         expect(mockGetOrCreateKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
-          keypair: mockKeypair,
+          keypair: mockKeyPair,
           clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: existingTrustchainId,
@@ -250,7 +250,7 @@ describe("DefaultLedgerSyncService", () => {
 
         expect(mockGetOrCreateKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
-          keypair: mockKeypair,
+          keypair: mockKeyPair,
           clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: undefined,
@@ -294,7 +294,7 @@ describe("DefaultLedgerSyncService", () => {
             trustChainId: mockAuthOutput.trustchainId,
             encryptionKey: mockAuthOutput.encryptionKey,
             applicationPath: mockAuthOutput.applicationPath,
-            keypair: mockKeypair,
+            keyPair: mockKeyPair,
           });
           expect(mockStorageService.saveTrustChainId).toHaveBeenCalledWith(
             mockAuthOutput.trustchainId,
@@ -411,7 +411,7 @@ describe("DefaultLedgerSyncService", () => {
         encryptionKey: new Uint8Array([1, 2, 3, 4, 5]),
         trustChainId: "test-trustchain-id",
         applicationPath: "test-app-path",
-        keypair: new Uint8Array([6, 7, 8]),
+        keyPair: new Uint8Array([6, 7, 8]),
       };
 
       const testData = "test-data";
@@ -444,7 +444,7 @@ describe("DefaultLedgerSyncService", () => {
           encryptionKey: undefined as unknown as Uint8Array,
           trustChainId: "test-trustchain-id",
           applicationPath: "test-app-path",
-          keypair: new Uint8Array([6, 7, 8]),
+          keyPair: new Uint8Array([6, 7, 8]),
         },
         shouldCheckMessage: false,
       },

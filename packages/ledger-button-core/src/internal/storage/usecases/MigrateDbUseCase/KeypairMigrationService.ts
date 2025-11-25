@@ -5,7 +5,7 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 
 import { cryptographicModuleTypes } from "../../../cryptographic/cryptographicModuleTypes.js";
-import type { EncryptKeypairUseCase } from "../../../cryptographic/usecases/EncryptKeypairUseCase.js";
+import type { EncryptKeyPairUseCase } from "../../../cryptographic/usecases/EncryptKeyPairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
 import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
@@ -22,8 +22,8 @@ export class KeyPairMigrationService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.EncryptKeypairUseCase)
-    private readonly encryptKeyPairUseCase: EncryptKeypairUseCase,
+    @inject(cryptographicModuleTypes.EncryptKeyPairUseCase)
+    private readonly encryptKeyPairUseCase: EncryptKeyPairUseCase,
     @inject(cryptographicModuleTypes.GetEncryptionKeyUseCase)
     private readonly getEncryptionKeyUseCase: GetEncryptionKeyUseCase,
     @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)

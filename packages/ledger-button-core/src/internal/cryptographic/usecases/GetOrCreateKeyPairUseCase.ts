@@ -11,9 +11,9 @@ import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { cryptographicModuleTypes } from "../cryptographicModuleTypes.js";
-import { DecryptKeypairUseCase } from "./DecryptKeypairUseCase.js";
-import { EncryptKeypairUseCase } from "./EncryptKeypairUseCase.js";
-import { GenerateKeypairUseCase } from "./GenerateKeypairUseCase.js";
+import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
+import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase.js";
+import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";
 import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
 
 @injectable()
@@ -25,14 +25,14 @@ export class GetOrCreateKeyPairUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(cryptographicModuleTypes.GenerateKeypairUseCase)
-    private readonly generateKeypairUseCase: GenerateKeypairUseCase,
+    @inject(cryptographicModuleTypes.GenerateKeyPairUseCase)
+    private readonly generateKeyPairUseCase: GenerateKeyPairUseCase,
     @inject(cryptographicModuleTypes.GetEncryptionKeyUseCase)
     private readonly getEncryptionKeyUseCase: GetEncryptionKeyUseCase,
-    @inject(cryptographicModuleTypes.EncryptKeypairUseCase)
-    private readonly encryptKeypairUseCase: EncryptKeypairUseCase,
-    @inject(cryptographicModuleTypes.DecryptKeypairUseCase)
-    private readonly decryptKeypairUseCase: DecryptKeypairUseCase,
+    @inject(cryptographicModuleTypes.EncryptKeyPairUseCase)
+    private readonly encryptKeyPairUseCase: EncryptKeyPairUseCase,
+    @inject(cryptographicModuleTypes.DecryptKeyPairUseCase)
+    private readonly decryptKeyPairUseCase: DecryptKeyPairUseCase,
   ) {
     this.logger = loggerFactory("GetOrCreateKeyPairUseCase");
   }
@@ -42,46 +42,46 @@ export class GetOrCreateKeyPairUseCase {
     let keypair: KeyPair | undefined;
     const keypairResult = await this.storageService.getKeyPair();
     if (keypairResult.isRight()) {
-      this.logger.info("Keypair found in storage, decrypting");
-      const encryptedKeypair = keypairResult.extract();
+      this.logger.info("KeyPair found in storage, decrypting");
+      const encryptedKeyPair = keypairResult.extract();
       const decryptionKey = await this.getEncryptionKeyUseCase.execute();
 
       this.logger.debug("Decrypting keypair with pub key", {
-        encryptedKeypair: bufferToHexaString(encryptedKeypair),
+        encryptedKeyPair: bufferToHexaString(encryptedKeyPair),
       });
 
-      const decryptedKeypair = await this.decryptKeypairUseCase.execute(
-        encryptedKeypair,
+      const decryptedKeyPair = await this.decryptKeyPairUseCase.execute(
+        encryptedKeyPair,
         decryptionKey,
       );
 
       this.logger.debug("Decrypted keypair", {
-        decryptedKeypair: bufferToHexaString(decryptedKeypair),
+        decryptedKeyPair: bufferToHexaString(decryptedKeyPair),
       });
 
       const cryptoService = new NobleCryptoService();
-      keypair = cryptoService.importKeyPair(decryptedKeypair, Curve.K256);
+      keypair = cryptoService.importKeyPair(decryptedKeyPair, Curve.K256);
     } else {
-      this.logger.info("Keypair not found in storage, generating new one");
-      keypair = await this.generateKeypairUseCase.execute();
+      this.logger.info("KeyPair not found in storage, generating new one");
+      keypair = await this.generateKeyPairUseCase.execute();
       this.logger.info("New keypair generated", {
         keypair: keypair.getPublicKeyToHex(),
       });
 
       const encryptionKey = await this.getEncryptionKeyUseCase.execute();
-      const encryptedKeypair = await this.encryptKeypairUseCase.execute(
+      const encryptedKeyPair = await this.encryptKeyPairUseCase.execute(
         keypair,
         encryptionKey,
       );
 
       this.logger.info("Storing encrypted keypair in storage", {
-        encryptedKeypair: bufferToHexaString(encryptedKeypair),
+        encryptedKeyPair: bufferToHexaString(encryptedKeyPair),
       });
 
-      await this.storageService.storeKeyPair(encryptedKeypair);
+      await this.storageService.storeKeyPair(encryptedKeyPair);
     }
 
-    this.logger.info("Keypair retrieved with public key", {
+    this.logger.info("KeyPair retrieved with public key", {
       keypair: keypair.getPublicKeyToHex(),
     });
 

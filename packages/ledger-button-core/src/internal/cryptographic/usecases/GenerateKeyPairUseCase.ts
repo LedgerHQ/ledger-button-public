@@ -9,29 +9,29 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
 @injectable()
-export class GenerateKeypairUseCase {
+export class GenerateKeyPairUseCase {
   private logger: LoggerPublisher;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = loggerFactory("GenerateKeypairUseCase");
+    this.logger = loggerFactory("GenerateKeyPairUseCase");
   }
 
   async execute(): Promise<KeyPair> {
-    this.logger.info("Generating new keypair...");
+    this.logger.info("Generating new keyPair...");
     const cryptoService = new NobleCryptoService();
-    const keypair: KeyPair = await cryptoService.createKeyPair(Curve.K256);
+    const keyPair: KeyPair = await cryptoService.createKeyPair(Curve.K256);
 
-    if (!keypair) {
-      throw new Error("Invalid keypair");
+    if (!keyPair) {
+      throw new Error("Invalid keyPair");
     }
 
-    this.logger.info("Keypair public key", {
-      keypair: keypair.getPublicKeyToHex(),
+    this.logger.info("KeyPair public key", {
+      keyPair: keyPair.getPublicKeyToHex(),
     });
 
-    return keypair;
+    return keyPair;
   }
 }

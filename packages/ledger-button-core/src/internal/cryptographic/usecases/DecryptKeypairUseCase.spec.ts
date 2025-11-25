@@ -1,19 +1,19 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
 
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { DecryptKeypairUseCase } from "./DecryptKeypairUseCase.js";
+import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-management-kit");
 
-describe("DecryptKeypairUseCase", () => {
-  let useCase: DecryptKeypairUseCase;
+describe("DecryptKeyPairUseCase", () => {
+  let useCase: DecryptKeyPairUseCase;
   let mockLogger: LoggerPublisher;
   let mockDecryptionKey: CryptoKey;
   let mockCryptoSubtle: SubtleCrypto;
 
   const mockIv = new Uint8Array(12).fill(0x42);
   const mockCiphertext = new Uint8Array(16).fill(0xff);
-  const mockEncryptedKeypair = new Uint8Array([...mockIv, ...mockCiphertext]);
+  const mockEncryptedKeyPair = new Uint8Array([...mockIv, ...mockCiphertext]);
   const mockDecryptedData = new ArrayBuffer(8);
 
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe("DecryptKeypairUseCase", () => {
 
     vi.mocked(bufferToHexaString).mockReturnValue("encrypted-hex");
 
-    useCase = new DecryptKeypairUseCase(() => mockLogger);
+    useCase = new DecryptKeyPairUseCase(() => mockLogger);
   });
 
   afterEach(() => {
@@ -48,7 +48,7 @@ describe("DecryptKeypairUseCase", () => {
   describe("execute", () => {
     it("should decrypt an encrypted keypair successfully", async () => {
       const result = await useCase.execute(
-        mockEncryptedKeypair,
+        mockEncryptedKeyPair,
         mockDecryptionKey,
       );
 
@@ -58,7 +58,7 @@ describe("DecryptKeypairUseCase", () => {
     });
 
     it("should call decrypt with correct AES-GCM parameters", async () => {
-      await useCase.execute(mockEncryptedKeypair, mockDecryptionKey);
+      await useCase.execute(mockEncryptedKeyPair, mockDecryptionKey);
 
       expect(mockCryptoSubtle.decrypt).toHaveBeenCalledWith(
         {

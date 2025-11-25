@@ -5,12 +5,12 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { GenerateKeypairUseCase } from "./GenerateKeypairUseCase.js";
+import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol");
 
-describe("GenerateKeypairUseCase", () => {
-  let useCase: GenerateKeypairUseCase;
+describe("GenerateKeyPairUseCase", () => {
+  let useCase: GenerateKeyPairUseCase;
   let mockLogger: LoggerPublisher;
   let mockCryptoService: NobleCryptoService;
   let mockKeyPair: KeyPair;
@@ -34,7 +34,7 @@ describe("GenerateKeypairUseCase", () => {
 
     vi.mocked(NobleCryptoService).mockImplementation(() => mockCryptoService);
 
-    useCase = new GenerateKeypairUseCase(() => mockLogger);
+    useCase = new GenerateKeyPairUseCase(() => mockLogger);
   });
 
   afterEach(() => {
@@ -54,7 +54,7 @@ describe("GenerateKeypairUseCase", () => {
         null as unknown as KeyPair,
       );
 
-      await expect(useCase.execute()).rejects.toThrow("Invalid keypair");
+      await expect(useCase.execute()).rejects.toThrow("Invalid keyPair");
     });
   });
 });
