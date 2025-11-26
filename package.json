@@ -13,6 +13,7 @@
     "doc": "pnpm --filter @ledgerhq/ledger-wallet-provider-docs",
     "pocs-webcomponent": "pnpm --filter @ledgerhq/ledger-button-webcomponent-poc",
     "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm provider exec nx build-storybook --quiet && pnpm provider exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm provider exec nx test-storybook\"",
+    "test:coverage": "pnpm nx run-many -t test -- --coverage --coverage.reporter=html --coverage.reporter=text",
     "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core",
     "release": "pnpm nx release publish",
     "version:minor": "pnpm nx release version minor --git-tag",
