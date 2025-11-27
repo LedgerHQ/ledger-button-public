@@ -14,6 +14,15 @@ While you explore these projects, here are some key points to keep in mind:
 
 ## Guidelines
 
+### Code Standards
+
+Before writing code, please review our [Coding Standards](./CODING_STANDARDS.md) document which covers:
+- TypeScript best practices
+- Dependency injection patterns
+- Code organization
+- Naming conventions
+- Testing guidelines
+
 ### Important Steps
 
 **Before submitting a pull request, please make sure the following is done:**
