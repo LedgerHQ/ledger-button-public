@@ -154,6 +154,112 @@ export class LedgerEIP1193Provider
     }, 1000);
   }
 
+  public async request({ method, params }: RequestArguments) {
+    console.log("request in LedgerEIP1193Provider", { method, params });
+
+    if (this._pendingPromise) {
+      return this.createError(
+        CommonEIP1193ErrorCode.InternalError,
+        "Ledger Provider is busy",
+      );
+    }
+
+    if (this.app.isModalOpen) {
+      this._pendingRequest = { method, params };
+      return new Promise<unknown>((resolve, reject) => {
+        this._pendingPromise = { resolve, reject };
+      });
+    }
+
+    // If modal is not open, execute the request immediately
+    return this.executeRequest({ method, params });
+  }
+
+  public on<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
+  ): this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._listeners.set(listener as any, (e) => {
+      // NOTE: we should not handle non-custom events here
+      if (e instanceof CustomEvent) {
+        listener(e.detail);
+      }
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fn = this._listeners.get(listener as any);
+    if (!fn) return this;
+
+    this.addEventListener(eventName, fn);
+    return this;
+  }
+
+  public removeListener<TEvent extends keyof ProviderEvent>(
+    eventName: TEvent,
+    listener: (args: ProviderEvent[TEvent]) => void,
+  ): this {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fn = this._listeners.get(listener as any);
+    if (!fn) return this;
+    this.removeEventListener(eventName, fn);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this._listeners.delete(listener as any);
+    return this;
+  }
+
+  public isConnected(): boolean {
+    return this._isConnected;
+  }
+
+  public async connect(): Promise<void> {
+    // TODO: Logic to check if we are connected to a chain
+    if (!this._isConnected) {
+      this._isConnected = true;
+      this.dispatchEvent(
+        new CustomEvent<ProviderConnectInfo>("connect", {
+          bubbles: true,
+          composed: true,
+          detail: {
+            chainId: "0x1", // TODO: Replace with the actual chainId
+          },
+        }),
+      );
+    }
+  }
+
+  public async disconnect(
+    code = 1000, // NOTE: Code here must follow the [CloseEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes) convention
+    message = "Provider disconnected",
+    data?: unknown,
+  ): Promise<void> {
+    // TODO: Logic to disconnect from the chain
+    if (this._isConnected) {
+      this._isConnected = false;
+
+      this.core.disconnect();
+      this._isConnected = false;
+      this._selectedAccount = null;
+      this._selectedChainId = -1;
+      this._currentEvent = null;
+
+      // Clean up pending request on disconnect
+      if (this._pendingPromise) {
+        this._pendingPromise.reject(this.createError(code, message, data));
+        this._pendingPromise = null;
+        this._pendingRequest = null;
+      }
+
+      this.dispatchEvent(
+        new CustomEvent<ProviderRpcError>("disconnect", {
+          bubbles: true,
+          composed: true,
+          detail: this.createError(code, message, data),
+        }),
+      );
+    }
+  }
+
   private setSelectedAccount(account: Account) {
     if (
       this._selectedAccount &&
@@ -530,114 +636,6 @@ export class LedgerEIP1193Provider
     );
   }
 
-  // Public API
-  public async request({ method, params }: RequestArguments) {
-    console.log("request in LedgerEIP1193Provider", { method, params });
-
-    if (this._pendingPromise) {
-      return this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Ledger Provider is busy",
-      );
-    }
-
-    if (this.app.isModalOpen) {
-      this._pendingRequest = { method, params };
-      return new Promise<unknown>((resolve, reject) => {
-        this._pendingPromise = { resolve, reject };
-      });
-    }
-
-    // If modal is not open, execute the request immediately
-    return this.executeRequest({ method, params });
-  }
-
-  public on<TEvent extends keyof ProviderEvent>(
-    eventName: TEvent,
-    listener: (args: ProviderEvent[TEvent]) => void,
-  ): this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._listeners.set(listener as any, (e) => {
-      // NOTE: we should not handle non-custom events here
-      if (e instanceof CustomEvent) {
-        listener(e.detail);
-      }
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fn = this._listeners.get(listener as any);
-    if (!fn) return this;
-
-    this.addEventListener(eventName, fn);
-    return this;
-  }
-
-  public removeListener<TEvent extends keyof ProviderEvent>(
-    eventName: TEvent,
-    listener: (args: ProviderEvent[TEvent]) => void,
-  ): this {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fn = this._listeners.get(listener as any);
-    if (!fn) return this;
-    this.removeEventListener(eventName, fn);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this._listeners.delete(listener as any);
-    return this;
-  }
-
-  public isConnected(): boolean {
-    return this._isConnected;
-  }
-
-  // NOTE: Those next two might be private in the end.
-  async connect(): Promise<void> {
-    // TODO: Logic to check if we are connected to a chain
-    if (!this._isConnected) {
-      this._isConnected = true;
-      this.dispatchEvent(
-        new CustomEvent<ProviderConnectInfo>("connect", {
-          bubbles: true,
-          composed: true,
-          detail: {
-            chainId: "0x1", // TODO: Replace with the actual chainId
-          },
-        }),
-      );
-    }
-  }
-  async disconnect(
-    code = 1000, // NOTE: Code here must follow the [CloseEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes) convention
-    message = "Provider disconnected",
-    data?: unknown,
-  ): Promise<void> {
-    // TODO: Logic to disconnect from the chain
-    if (this._isConnected) {
-      this._isConnected = false;
-
-      this.core.disconnect();
-      this._isConnected = false;
-      this._selectedAccount = null;
-      this._selectedChainId = -1;
-      this._currentEvent = null;
-
-      // Clean up pending request on disconnect
-      if (this._pendingPromise) {
-        this._pendingPromise.reject(this.createError(code, message, data));
-        this._pendingPromise = null;
-        this._pendingRequest = null;
-      }
-
-      this.dispatchEvent(
-        new CustomEvent<ProviderRpcError>("disconnect", {
-          bubbles: true,
-          composed: true,
-          detail: this.createError(code, message, data),
-        }),
-      );
-    }
-  }
-
-  // Private API
   private createError(
     code: number,
     message: string,
