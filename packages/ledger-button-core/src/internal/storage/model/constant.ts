@@ -1,11 +1,19 @@
-export const STORAGE_KEYS = {
-  PREFIX: "ledger-button",
+const INDEXED_DB_KEYS = {
   DB_NAME: "ledger-button-db",
   DB_STORE_NAME: "ledger-button-store",
   DB_STORE_KEYPAIR_KEY: "keyPair",
   ENCRYPTION_KEY: "encryptionKey",
+} as const;
+
+const LOCAL_STORAGE_KEYS = {
+  PREFIX: "ledger-button",
   SELECTED_ACCOUNT: "selectedAccount",
   TRUST_CHAIN_ID: "trustChainId",
   TRUST_CHAIN_VALIDITY: "trustChainValidity",
   DB_VERSION: "dbVersion",
-};
+} as const;
+
+export const STORAGE_KEYS = {
+  ...INDEXED_DB_KEYS,
+  ...LOCAL_STORAGE_KEYS,
+} as const;
