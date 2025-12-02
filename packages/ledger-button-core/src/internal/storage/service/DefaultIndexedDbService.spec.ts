@@ -3,7 +3,7 @@ import "fake-indexeddb/auto";
 import { Nothing } from "purify-ts";
 
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { STORAGE_KEYS } from "../model/constant.js";
+import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant.js";
 import { StorageIDBGetError, StorageIDBOpenError } from "../model/errors.js";
 import { DefaultIndexedDbService } from "./DefaultIndexedDbService.js";
 
@@ -21,7 +21,10 @@ const clearIndexedDB = async (): Promise<void> => {
 
 const clearObjectStore = async (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const openRequest = indexedDB.open(STORAGE_KEYS.DB_NAME, 3);
+    const openRequest = indexedDB.open(
+      STORAGE_KEYS.DB_NAME,
+      INDEXED_DB_VERSION,
+    );
     openRequest.onsuccess = () => {
       const db = openRequest.result;
       const transaction = db.transaction(

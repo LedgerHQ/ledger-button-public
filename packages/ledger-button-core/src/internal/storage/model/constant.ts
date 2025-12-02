@@ -5,6 +5,8 @@ const INDEXED_DB_KEYS = {
   ENCRYPTION_KEY: "encryptionKey",
 } as const;
 
+export const INDEXED_DB_VERSION = 3;
+
 const LOCAL_STORAGE_KEYS = {
   PREFIX: "ledger-button",
   SELECTED_ACCOUNT: "selectedAccount",

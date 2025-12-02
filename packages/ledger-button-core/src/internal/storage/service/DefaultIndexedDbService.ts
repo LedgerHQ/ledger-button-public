@@ -7,7 +7,7 @@ import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { STORAGE_KEYS } from "../model/constant.js";
+import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant.js";
 import {
   StorageIDBErrors,
   StorageIDBGetError,
@@ -45,7 +45,10 @@ export class DefaultIndexedDbService implements IndexedDbService {
 
     this.initialization = Just(
       new Promise((resolve) => {
-        const request = indexedDB.open(STORAGE_KEYS.DB_NAME, 3);
+        const request = indexedDB.open(
+          STORAGE_KEYS.DB_NAME,
+          INDEXED_DB_VERSION,
+        );
 
         request.onsuccess = (event) => {
           this.logger.debug("IDB opened");
