@@ -1,15 +1,10 @@
 import "fake-indexeddb/auto";
 
-import { Maybe, Nothing, Right } from "purify-ts";
+import { Either, Just, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
-import {
-  StorageIDBGetError,
-  StorageIDBOpenError,
-  StorageIDBRemoveError,
-  StorageIDBStoreError,
-} from "./model/errors.js";
-import { Account } from "../account/service/AccountService.js";
+import { type IndexedDbService } from "./service/IndexedDbService.js";
+import { type Account } from "../account/service/AccountService.js";
 import { Config } from "../config/model/config.js";
 import { ConsoleLoggerSubscriber } from "../logger/service/ConsoleLoggerSubscriber.js";
 import { DefaultLoggerPublisher } from "../logger/service/DefaultLoggerPublisher.js";
@@ -20,6 +15,7 @@ vi.mock("../logger/service/ConsoleLoggerSubscriber.js");
 
 let config: Config;
 let storageService: DefaultStorageService;
+let mockIndexedDbService: IndexedDbService;
 
 describe("DefaultStorageService", () => {
   beforeEach(async () => {
@@ -30,9 +26,20 @@ describe("DefaultStorageService", () => {
       dAppIdentifier: "test-app",
       logLevel: "info",
     });
+
+    mockIndexedDbService = {
+      initIdb: vi.fn(),
+      storeKeyPair: vi.fn(),
+      getKeyPair: vi.fn(),
+      removeKeyPair: vi.fn(),
+      storeEncryptionKey: vi.fn(),
+      getEncryptionKey: vi.fn(),
+    } as unknown as IndexedDbService;
+
     storageService = new DefaultStorageService(
       (tag) =>
         new DefaultLoggerPublisher([new ConsoleLoggerSubscriber(config)], tag),
+      mockIndexedDbService,
     );
   });
 
@@ -123,225 +130,95 @@ describe("DefaultStorageService", () => {
   });
 
   describe("IndexedDB (KeyPair) methods", () => {
-    describe("initIdb", () => {
-      it("should be able to initialize the IDB", async () => {
-        const result = await storageService.initIdb();
-        expect(result.isRight()).toBe(true);
-        result.map((db) => {
-          expect(db).toBeInstanceOf(IDBDatabase);
-        });
-      });
-
-      it("should return cached IDB instance on subsequent calls", async () => {
-        const firstResult = await storageService.initIdb();
-        const secondResult = await storageService.initIdb();
-        expect(firstResult).toBe(secondResult);
-      });
-
-      it("should handle IDB initialization errors", async () => {
-        const originalOpen = indexedDB.open;
-        indexedDB.open = vi.fn().mockImplementation(() => {
-          const mockRequest = {
-            onerror: null as ((event: Event) => void) | null,
-            onsuccess: null as ((event: Event) => void) | null,
-            onupgradeneeded: null as ((event: Event) => void) | null,
-          };
-          setTimeout(() => {
-            if (mockRequest.onerror) {
-              mockRequest.onerror(new Event("error"));
-            }
-          }, 0);
-          return mockRequest;
-        });
-
-        const result = await storageService.initIdb();
-        expect(result.isLeft()).toBe(true);
-        result.mapLeft((error) => {
-          expect(error).toBeInstanceOf(StorageIDBOpenError);
+    describe.each([
+      {
+        methodName: "storeKeyPair",
+        indexedDbMethod: "storeKeyPair",
+        args: [new Uint8Array([1, 2, 3, 4, 5])],
+        mockReturn: Right(true),
+      },
+      {
+        methodName: "getKeyPair",
+        indexedDbMethod: "getKeyPair",
+        args: [],
+        mockReturn: Right(new Uint8Array([1, 2, 3, 4, 5])),
+      },
+      {
+        methodName: "removeKeyPair",
+        indexedDbMethod: "removeKeyPair",
+        args: [],
+        mockReturn: Right(true),
+      },
+    ])(
+      "$methodName delegates to IndexedDbService",
+      ({ methodName, indexedDbMethod, args, mockReturn }) => {
+        beforeEach(() => {
+          vi.mocked(
+            mockIndexedDbService[
+              indexedDbMethod as keyof IndexedDbService
+            ] as () => Promise<Either<unknown, unknown>>,
+          ).mockResolvedValue(mockReturn);
         });
 
-        indexedDB.open = originalOpen;
+        it(`should call indexedDbService.${indexedDbMethod}`, async () => {
+          await (
+            storageService[methodName as keyof DefaultStorageService] as (
+              ...args: unknown[]
+            ) => Promise<unknown>
+          )(...args);
+
+          expect(
+            mockIndexedDbService[indexedDbMethod as keyof IndexedDbService],
+          ).toHaveBeenCalledWith(...args);
+        });
+      },
+    );
+
+    describe("storeEncryptionKey", () => {
+      it("should call indexedDbService.storeEncryptionKey", async () => {
+        const mockEncryptionKey = await crypto.subtle.generateKey(
+          { name: "AES-GCM", length: 256 },
+          true,
+          ["encrypt", "decrypt"],
+        );
+
+        vi.mocked(mockIndexedDbService.storeEncryptionKey).mockResolvedValue();
+
+        await storageService.storeEncryptionKey(mockEncryptionKey);
+
+        expect(mockIndexedDbService.storeEncryptionKey).toHaveBeenCalledWith(
+          mockEncryptionKey,
+        );
       });
     });
 
-    describe("storeKeyPair", () => {
-      it("should be able to store a key pair", async () => {
-        const mockKeyPair = new Uint8Array([1, 2, 3, 4, 5]);
-        const result = await storageService.storeKeyPair(mockKeyPair);
-        expect(result.isRight()).toBe(true);
-        result.map((success) => {
-          expect(success).toBe(true);
-        });
-      });
-
-      it("should handle storage errors", async () => {
-        const mockRequest = {
-          onsuccess: null as ((event: Event) => void) | null,
-          onerror: null as ((event: Event) => void) | null,
-        };
-
-        const mockDb = {
-          transaction: vi.fn().mockReturnValue({
-            objectStore: vi.fn().mockReturnValue({
-              add: vi.fn().mockReturnValue(mockRequest),
-            }),
-          }),
-        };
-
-        vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as unknown as IDBDatabase),
+    describe("getEncryptionKey", () => {
+      it("should call indexedDbService.getEncryptionKey", async () => {
+        const mockEncryptionKey = await crypto.subtle.generateKey(
+          { name: "AES-GCM", length: 256 },
+          true,
+          ["encrypt", "decrypt"],
         );
 
-        const mockKeyPair = new Uint8Array([1, 2, 3, 4, 5]);
-
-        const resultPromise = storageService.storeKeyPair(mockKeyPair);
-
-        setTimeout(() => {
-          if (mockRequest.onerror) {
-            mockRequest.onerror(new Event("error"));
-          }
-        }, 10);
-
-        const result = await resultPromise;
-        expect(result.isLeft()).toBe(true);
-        result.mapLeft((error) => {
-          expect(error).toBeInstanceOf(StorageIDBStoreError);
-        });
-      });
-    });
-
-    describe("getKeyPair", () => {
-      it("should be able to get a stored key pair", async () => {
-        // This test would require complex IndexedDB mocking
-        // For now, we'll test the error handling path
-        const mockRequest = {
-          onsuccess: null as ((event: Event) => void) | null,
-          onerror: null as ((event: Event) => void) | null,
-        };
-
-        const mockDb = {
-          transaction: vi.fn().mockReturnValue({
-            objectStore: vi.fn().mockReturnValue({
-              get: vi.fn().mockReturnValue(mockRequest),
-            }),
-          }),
-        };
-
-        vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as unknown as IDBDatabase),
+        vi.mocked(mockIndexedDbService.getEncryptionKey).mockResolvedValue(
+          Just(mockEncryptionKey),
         );
 
-        const resultPromise = storageService.getKeyPair();
+        const result = await storageService.getEncryptionKey();
 
-        setTimeout(() => {
-          if (mockRequest.onerror) {
-            mockRequest.onerror(new Event("error"));
-          }
-        }, 10);
-
-        const result = await resultPromise;
-        expect(result.isLeft()).toBe(true);
+        expect(mockIndexedDbService.getEncryptionKey).toHaveBeenCalled();
+        expect(result).toEqual(Just(mockEncryptionKey));
       });
 
-      it("should handle get errors", async () => {
-        const mockRequest = {
-          onsuccess: null as ((event: Event) => void) | null,
-          onerror: null as ((event: Event) => void) | null,
-        };
-
-        const mockDb = {
-          transaction: vi.fn().mockReturnValue({
-            objectStore: vi.fn().mockReturnValue({
-              get: vi.fn().mockReturnValue(mockRequest),
-            }),
-          }),
-        };
-
-        vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as unknown as IDBDatabase),
+      it("should return Nothing when indexedDbService returns Nothing", async () => {
+        vi.mocked(mockIndexedDbService.getEncryptionKey).mockResolvedValue(
+          Nothing,
         );
 
-        const resultPromise = storageService.getKeyPair();
+        const result = await storageService.getEncryptionKey();
 
-        setTimeout(() => {
-          if (mockRequest.onerror) {
-            mockRequest.onerror(new Event("error"));
-          }
-        }, 10);
-
-        const result = await resultPromise;
-        expect(result.isLeft()).toBe(true);
-        result.mapLeft((error) => {
-          expect(error).toBeInstanceOf(StorageIDBGetError);
-        });
-      });
-    });
-
-    describe("removeKeyPair", () => {
-      it("should be able to remove a key pair", async () => {
-        const mockRequest = {
-          onsuccess: null as ((event: Event) => void) | null,
-          onerror: null as ((event: Event) => void) | null,
-        };
-
-        const mockDb = {
-          transaction: vi.fn().mockReturnValue({
-            objectStore: vi.fn().mockReturnValue({
-              delete: vi.fn().mockReturnValue(mockRequest),
-            }),
-          }),
-        };
-
-        vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as unknown as IDBDatabase),
-        );
-
-        const resultPromise = storageService.removeKeyPair();
-
-        setTimeout(() => {
-          if (mockRequest.onsuccess) {
-            mockRequest.onsuccess(new Event("success"));
-          }
-        }, 10);
-
-        const result = await resultPromise;
-        expect(result.isRight()).toBe(true);
-        result.map((success) => {
-          expect(success).toBe(true);
-        });
-      });
-
-      it("should handle remove errors", async () => {
-        const mockRequest = {
-          onsuccess: null as ((event: Event) => void) | null,
-          onerror: null as ((event: Event) => void) | null,
-        };
-
-        const mockDb = {
-          transaction: vi.fn().mockReturnValue({
-            objectStore: vi.fn().mockReturnValue({
-              delete: vi.fn().mockReturnValue(mockRequest),
-            }),
-          }),
-        };
-
-        vi.spyOn(storageService, "initIdb").mockResolvedValue(
-          Right(mockDb as unknown as IDBDatabase),
-        );
-
-        const resultPromise = storageService.removeKeyPair();
-
-        setTimeout(() => {
-          if (mockRequest.onerror) {
-            mockRequest.onerror(new Event("error"));
-          }
-        }, 10);
-
-        const result = await resultPromise;
-        expect(result.isLeft()).toBe(true);
-        result.mapLeft((error) => {
-          expect(error).toBeInstanceOf(StorageIDBRemoveError);
-        });
+        expect(mockIndexedDbService.getEncryptionKey).toHaveBeenCalled();
+        expect(result).toEqual(Nothing);
       });
     });
   });

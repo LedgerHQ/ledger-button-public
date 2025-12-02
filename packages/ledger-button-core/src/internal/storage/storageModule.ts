@@ -1,5 +1,6 @@
 import { ContainerModule } from "inversify";
 
+import { DefaultIndexedDbService } from "./service/DefaultIndexedDbService.js";
 import { KeyPairMigrationService } from "./usecases/MigrateDbUseCase/KeypairMigrationService.js";
 import { MigrateDbUseCase } from "./usecases/MigrateDbUseCase/MigrateDbUseCase.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
@@ -13,6 +14,10 @@ export function storageModuleFactory({ stub }: StorageModuleOptions) {
   return new ContainerModule(({ bind }) => {
     bind(storageModuleTypes.StorageService)
       .to(DefaultStorageService)
+      .inSingletonScope();
+
+    bind(storageModuleTypes.IndexedDbService)
+      .to(DefaultIndexedDbService)
       .inSingletonScope();
 
     bind(storageModuleTypes.MigrateDbUseCase)
