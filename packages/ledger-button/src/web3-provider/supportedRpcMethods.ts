@@ -8,16 +8,21 @@ export const STANDARD_JSON_RPC_METHODS = [
   "eth_accounts",
   "eth_requestAccounts",
   "eth_chainId",
-  // Signing operations
+  "eth_blockNumber",
+  "eth_getBalance",
+  "eth_getCode",
+
+  // Signing and transaction operations
   "eth_sign",
   "personal_sign",
   "eth_signTypedData",
   "eth_signTypedData_v4",
-  // Transaction operations
   "eth_sendTransaction",
   "eth_signTransaction",
   "eth_signRawTransaction",
   "eth_sendRawTransaction",
+  "eth_estimateGas",
+  "eth_call",
 ] as const;
 
 /**
