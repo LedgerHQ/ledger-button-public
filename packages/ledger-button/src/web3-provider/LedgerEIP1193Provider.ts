@@ -40,6 +40,7 @@ import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
+import { isSupportedChainId } from "./supportedChains.js";
 
 const EIP1193_SUPPORTED_METHODS = [
   "eth_accounts",
@@ -54,20 +55,6 @@ const EIP1193_SUPPORTED_METHODS = [
   "eth_signTypedData",
   "eth_signTypedData_v4",
   "wallet_switchEthereumChain",
-];
-
-//TODO complete with Node JSON rpc methods that can be broadcasted and directly handled by nodes
-const SUPPORTED_CHAINS = [
-  "1",
-  "42161",
-  "43114",
-  "8453",
-  "56",
-  "59144",
-  "10",
-  "137",
-  "146",
-  "324",
 ];
 
 export class LedgerEIP1193Provider
@@ -556,7 +543,7 @@ export class LedgerEIP1193Provider
       const chainId = (params[0] as { chainId: string }).chainId;
       const chainIdNumber = parseInt(chainId, 16);
 
-      if (!SUPPORTED_CHAINS.includes(chainIdNumber.toString())) {
+      if (!isSupportedChainId(chainIdNumber.toString())) {
         return reject(
           this.createError(
             CommonEIP1193ErrorCode.ChainDisconnected,
