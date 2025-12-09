@@ -11,7 +11,8 @@ export const STANDARD_JSON_RPC_METHODS = [
   "eth_blockNumber",
   "eth_getBalance",
   "eth_getCode",
-
+  "eth_estimateGas",
+  "eth_call",
   // Signing and transaction operations
   "eth_sign",
   "personal_sign",
@@ -21,8 +22,6 @@ export const STANDARD_JSON_RPC_METHODS = [
   "eth_signTransaction",
   "eth_signRawTransaction",
   "eth_sendRawTransaction",
-  "eth_estimateGas",
-  "eth_call",
 ] as const;
 
 /**
