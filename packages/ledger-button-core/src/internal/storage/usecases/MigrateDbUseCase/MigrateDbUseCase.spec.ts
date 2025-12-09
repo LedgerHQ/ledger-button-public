@@ -40,29 +40,36 @@ describe("MigrateDbUseCase", () => {
         version: 0,
         migrationFunctionName: "migrateToV1" as const,
       },
-    ])("when db version = $version", ({ version, migrationFunctionName }) => {
-      let migrationSpy: ReturnType<typeof vi.spyOn>;
+      {
+        version: 1,
+        migrationFunctionName: "migrateToV2" as const,
+      },
+    ])(
+      "should call ${migrationFunctionName} and migrate to version ${version + 1}",
+      ({ version, migrationFunctionName }) => {
+        let migrationSpy: ReturnType<typeof vi.spyOn>;
 
-      beforeEach(() => {
-        vi.clearAllMocks();
+        beforeEach(() => {
+          vi.clearAllMocks();
 
-        migrationSpy = vi.spyOn(
-          migrateDbUseCase,
-          migrationFunctionName as never,
-        );
-      });
+          migrationSpy = vi.spyOn(
+            migrateDbUseCase,
+            migrationFunctionName as never,
+          );
+        });
 
-      it(`should call ${migrationFunctionName} and setDbVersion to ${version + 1}`, async () => {
-        mockStorageService.getDbVersion.mockReturnValue(version);
+        it(`should call ${migrationFunctionName} and setDbVersion to ${version + 1}`, async () => {
+          mockStorageService.getDbVersion.mockResolvedValue(version);
 
-        await migrateDbUseCase.execute();
+          await migrateDbUseCase.execute();
 
-        expect(migrationSpy).toHaveBeenCalledTimes(1);
-        expect(mockStorageService.setDbVersion).toHaveBeenCalledWith(
-          version + 1,
-        );
-      });
-    });
+          expect(migrationSpy).toHaveBeenCalledTimes(1);
+          expect(mockStorageService.setDbVersion).toHaveBeenCalledWith(
+            version + 1,
+          );
+        });
+      },
+    );
   });
 
   describe("migrateToV1", () => {
@@ -83,5 +90,16 @@ describe("MigrateDbUseCase", () => {
       );
     });
   });
-});
 
+  describe("migrateToV2", () => {
+    it("should call setDbVersion and removeItem from localStorage", async () => {
+      await migrateDbUseCase["migrateToV2"]();
+
+      expect(mockStorageService.setDbVersion).toHaveBeenCalledWith(2);
+      expect(mockStorageService.removeItem).toHaveBeenCalledWith("dbVersion");
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        "Database migrated to version 2",
+      );
+    });
+  });
+});

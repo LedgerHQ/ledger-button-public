@@ -28,13 +28,16 @@ export class DefaultStorageService implements StorageService {
     return `${STORAGE_KEYS.PREFIX}-${key}`;
   }
 
-  // Database Version
-  setDbVersion(version: number): void {
-    this.saveItem(STORAGE_KEYS.DB_VERSION, version);
+  async setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>> {
+    return this.indexedDbService.setDbVersion(version);
   }
 
-  getDbVersion(): number {
-    return this.getItem<number>(STORAGE_KEYS.DB_VERSION).orDefault(0);
+  async getDbVersion(): Promise<number> {
+    const version = await this.indexedDbService.getDbVersion();
+    return version.caseOf({
+      Right: (maybeVersion) => maybeVersion.orDefault(0),
+      Left: () => this.getItem<number>(STORAGE_KEYS.DB_VERSION).orDefault(0),
+    });
   }
 
   async storeKeyPair(

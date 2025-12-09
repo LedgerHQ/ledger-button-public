@@ -4,8 +4,8 @@ import { StorageIDBErrors } from "./model/errors.js";
 import { Account } from "../account/service/AccountService.js";
 
 export interface StorageService {
-  setDbVersion(version: number): void;
-  getDbVersion(): number;
+  setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>>;
+  getDbVersion(): Promise<number>;
   getItem<T>(key: string): Maybe<T>;
   saveItem<T>(key: string, value: T): void;
   removeItem(key: string): boolean;

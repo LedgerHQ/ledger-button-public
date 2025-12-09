@@ -11,4 +11,7 @@ export interface IndexedDbService {
 
   storeEncryptionKey(encryptionKey: CryptoKey): Promise<void>;
   getEncryptionKey(): Promise<Maybe<CryptoKey>>;
+
+  setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>>;
+  getDbVersion(): Promise<Either<StorageIDBErrors, Maybe<number>>>;
 }
