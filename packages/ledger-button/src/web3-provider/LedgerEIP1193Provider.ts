@@ -41,21 +41,7 @@ import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-wallet-provider-core"
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
 import { isSupportedChainId } from "./supportedChains.js";
-
-const EIP1193_SUPPORTED_METHODS = [
-  "eth_accounts",
-  "eth_requestAccounts",
-  "eth_chainId",
-  "eth_sendTransaction",
-  "eth_signTransaction",
-  "eth_signRawTransaction",
-  "eth_sign",
-  "personal_sign",
-  "eth_sendRawTransaction",
-  "eth_signTypedData",
-  "eth_signTypedData_v4",
-  "wallet_switchEthereumChain",
-];
+import { isSupportedRpcMethod } from "./supportedRpcMethods.js";
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -607,7 +593,7 @@ export class LedgerEIP1193Provider
       return res;
     }
 
-    if (EIP1193_SUPPORTED_METHODS.includes(method)) {
+    if (isSupportedRpcMethod(method)) {
       const res = await this.core.jsonRpcRequest({
         jsonrpc: "2.0",
         id: this._id++,
