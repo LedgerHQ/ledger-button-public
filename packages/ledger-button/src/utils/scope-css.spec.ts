@@ -218,9 +218,7 @@ describe("scopeCssSelectors", () => {
 
       const output = scopeCssSelectors(input);
 
-      expect(output).toContain(
-        ".ledger-wallet-provider input::placeholder",
-      );
+      expect(output).toContain(".ledger-wallet-provider input::placeholder");
       // Note: Current implementation only scopes the first selector in comma-separated lists
       expect(output).toContain("textarea::placeholder");
     });

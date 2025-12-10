@@ -20,8 +20,7 @@ async function loadScopeCssFunction() {
 }
 
 // Get the CSS file path from command line args or use default
-const cssFile =
-  process.argv[2] || join(__dirname, "dist", "styles.css");
+const cssFile = process.argv[2] || join(__dirname, "dist", "styles.css");
 
 (async () => {
   try {
