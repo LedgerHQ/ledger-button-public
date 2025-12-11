@@ -1,35 +1,44 @@
 /**
- * Standard Ethereum JSON-RPC methods
- * These are the standard methods as defined in the Ethereum JSON-RPC API and common wallet extensions.
- * @see https://ethereum.org/en/developers/docs/apis/json-rpc/
+ * RPC methods handled locally by the provider (not broadcasted to Node RPC)
+ * These methods have local handlers in LedgerEIP1193Provider
  */
-export const STANDARD_JSON_RPC_METHODS = [
+export const LOCALLY_HANDLED_RPC_METHODS = [
   // Account and chain queries
   "eth_accounts",
   "eth_requestAccounts",
   "eth_chainId",
-  // Signing operations
+  // Signing and transaction operations
   "eth_sign",
   "personal_sign",
   "eth_signTypedData",
   "eth_signTypedData_v4",
-  // Transaction operations
   "eth_sendTransaction",
   "eth_signTransaction",
   "eth_signRawTransaction",
   "eth_sendRawTransaction",
+  // EIP-specific methods
+  "wallet_switchEthereumChain",
 ] as const;
 
 /**
- * EIP-specific methods (not part of the standard JSON-RPC API)
- * e.g., wallet_switchEthereumChain from EIP-3326
- * @see https://eips.ethereum.org/EIPS/eip-3326
+ * RPC methods broadcasted to Node RPC
+ * These methods are forwarded directly to the Ethereum node without local handling
  */
-export const EIP_SPECIFIC_METHODS = ["wallet_switchEthereumChain"] as const;
+export const BROADCASTED_TO_NODE_RPC_METHODS = [
+  "eth_blockNumber",
+  "eth_getBalance",
+  "eth_getCode",
+  "eth_estimateGas",
+  "eth_call",
+] as const;
 
+/**
+ * All supported RPC methods.
+ * Combines both locally handled methods and methods broadcasted to Node RPC.
+ */
 export const SUPPORTED_RPC_METHODS = [
-  ...STANDARD_JSON_RPC_METHODS,
-  ...EIP_SPECIFIC_METHODS,
+  ...LOCALLY_HANDLED_RPC_METHODS,
+  ...BROADCASTED_TO_NODE_RPC_METHODS,
 ] as const;
 
 export function isSupportedRpcMethod(method: string): boolean {
