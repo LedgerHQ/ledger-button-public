@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { MockInstance } from "vitest";
 
+import { Config } from "../../config/model/config.js";
 import { LOG_LEVELS } from "../model/constant.js";
 import { ConsoleLoggerSubscriber } from "./ConsoleLoggerSubscriber.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";
@@ -12,6 +13,7 @@ let warnSpy: MockInstance;
 let errorSpy: MockInstance;
 let groupSpy: MockInstance;
 let groupEndSpy: MockInstance;
+let config: Config;
 
 describe("ConsoleLoggerSubscriber", () => {
   beforeAll(() => {
@@ -26,32 +28,32 @@ describe("ConsoleLoggerSubscriber", () => {
   beforeEach(() => {
     debugSpy = vi
       .spyOn(console, "debug")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     infoSpy = vi
       .spyOn(console, "info")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     warnSpy = vi
       .spyOn(console, "warn")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     errorSpy = vi
       .spyOn(console, "error")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     groupSpy = vi
       .spyOn(console, "group")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
     groupEndSpy = vi
       .spyOn(console, "groupEnd")
-      .mockImplementation((..._args: any[]) => {
+      .mockImplementation(() => {
         // do nothing
       });
   });
@@ -63,7 +65,12 @@ describe("ConsoleLoggerSubscriber", () => {
   describe("log", () => {
     describe("when the level is debug", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.debug);
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "debug",
+        });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -148,7 +155,12 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when the level is info", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.info);
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "info",
+        });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -210,7 +222,12 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is warn", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.warn);
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "warn",
+        });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -275,7 +292,12 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is error", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.error);
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "error",
+        });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {
@@ -340,7 +362,12 @@ describe("ConsoleLoggerSubscriber", () => {
 
     describe("when maxLevel is fatal", () => {
       beforeEach(() => {
-        ConsoleLogger = new ConsoleLoggerSubscriber(LOG_LEVELS.fatal);
+        config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          logLevel: "fatal",
+        });
+        ConsoleLogger = new ConsoleLoggerSubscriber(config);
       });
 
       it("should log", () => {

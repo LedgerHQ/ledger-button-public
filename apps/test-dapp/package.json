@@ -1,0 +1,20 @@
+{
+  "name": "@ledgerhq/test-dapp",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@headlessui/react": "catalog:",
+    "ethers": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19"
+  },
+  "devDependencies": {
+    "@ledgerhq/ledger-wallet-provider": "workspace:*"
+  },
+  "nx": {
+    "implicitDependencies": [
+      "!@ledgerhq/ledger-wallet-provider"
+    ]
+  }
+}

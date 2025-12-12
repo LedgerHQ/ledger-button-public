@@ -1,0 +1,30 @@
+---
+title: Ledger Wallet Provider Documentation
+---
+
+export function Card({ title, description, link, icon }) {
+  return (
+    <div className="card">
+      <div className="icon">{icon}</div>
+      <div className="title">{title}</div>
+      <p>{description}</p>
+      <a href={link} className="btn">
+        Explore
+      </a>
+    </div>
+  );
+}
+
+export function Hero() {
+  return (
+    <div className="hero">
+      <h1>Ledger Wallet Provider Documentation</h1>
+      <p>
+        Seamlessly connect Ledger's wallets into your dapp with our{" "}
+        <em>Ledger Wallet Provider</em>.
+      </p>
+    </div>
+  );
+}
+
+<Hero />

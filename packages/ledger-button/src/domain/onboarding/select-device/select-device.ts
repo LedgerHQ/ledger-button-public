@@ -1,18 +1,19 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../../components/index.js";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { type StatusType } from "../../../components/index.js";
+import type { ConnectionItemClickEventDetail } from "../../../components/molecule/connection-item/ledger-connection-item.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
+import { Destination, Destinations } from "../../../shared/routes.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import { SelectDeviceController } from "./select-device-controller.js";
 
 const styles = css`
@@ -46,9 +47,12 @@ export class SelectDeviceScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
+  @property({ type: Object })
+  navigateTo!: (destination: Destination) => Promise<void>;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
 
   @consume({ context: langContext })
   @property({ attribute: false })
@@ -61,34 +65,84 @@ export class SelectDeviceScreen extends LitElement {
     this.controller = new SelectDeviceController(
       this,
       this.coreContext,
-      this.navigation,
-      this.destinations,
+      this.languageContext,
     );
-    // @ts-expect-error - addEventListner is not typed
-    this.addEventListener("connection-item-click", (e) => {
-      this.controller.connectToDevice(e.detail);
-    });
+  }
+
+  handleConnectionItemClick = (
+    e: CustomEvent<ConnectionItemClickEventDetail>,
+  ) => {
+    this.controller.connectToDevice(e.detail);
+  };
+
+  handleAdItemClick = () => {
+    this.controller.clickAdItem();
+  };
+
+  private handleStatusAction = async (
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) => {
+    if (e.detail.action === "primary") {
+      await this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      await this.controller.errorData?.cta2?.action();
+    }
+  };
+
+  renderScreen() {
+    const lang = this.languageContext.currentTranslation;
+    return html`
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+        ${(["bluetooth", "usb"] as const).map((el) => {
+          return html`
+            <ledger-connection-item
+              title=${lang.common.button[el]}
+              hint=${lang.common.button[`${el}_hint`]}
+              connection-type=${el}
+              @connection-item-click=${this.handleConnectionItemClick}
+            ></ledger-connection-item>
+          `;
+        })}
+      </div>
+      <div
+        class="lb-flex lb-flex-col lb-gap-12 lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-p-24"
+      >
+        <ledger-ad-item
+          title=${lang.common.ad.buyALedger}
+          @ad-item-click=${this.handleAdItemClick}
+        ></ledger-ad-item>
+      </div>
+    `;
+  }
+
+  renderErrorScreen() {
+    if (!this.controller.errorData) {
+      return html``;
+    }
+
+    return html`
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData.title}
+          description=${this.controller.errorData.message}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusAction}
+        ></ledger-status>
+      </div>
+    `;
   }
 
   override render() {
-    const lang = this.languageContext.currentTranslation;
-
-    return html`
-      <div class="flex flex-col">
-        <div class="flex flex-col gap-12 p-24 pt-0">
-          <ledger-connection-item
-            title=${lang.common.button.connectBluetooth}
-            connection-type="bluetooth"
-          ></ledger-connection-item>
-          <ledger-connection-item
-            title=${lang.common.button.connectUSB}
-            connection-type="usb"
-          ></ledger-connection-item>
-        </div>
-        <div class="flex flex-col gap-12 border-t-1 border-muted-subtle p-24">
-          <ledger-ad-item title=${lang.common.ad.buyALedger}></ledger-ad-item>
-        </div>
-      </div>
-    `;
+    return html` <div class="lb-flex lb-flex-col">
+      ${this.controller.errorData
+        ? this.renderErrorScreen()
+        : this.renderScreen()}
+    </div>`;
   }
 }

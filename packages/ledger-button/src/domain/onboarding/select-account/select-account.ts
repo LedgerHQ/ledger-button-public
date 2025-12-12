@@ -1,22 +1,32 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../../components/index.js";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
+import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import { SelectAccountController } from "./select-account-controller.js";
 
 @customElement("select-account-screen")
+@tailwindElement()
 export class SelectAccountScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
+
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
 
   controller!: SelectAccountController;
 
@@ -29,20 +39,51 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  override render() {
-    // TODO: .token should be a Ticker
+  renderAccountItem = (account: Account) => {
+    const translations = this.languages.currentTranslation;
+
+    // NOTE: The label should be displayed only if the account has tokens
     return html`
-      <div>
-        ${this.controller.accounts.map(
-          (account) => html`
-            <ledger-account-item
-              .title=${account.name}
-              .address=${account.freshAddress}
-              .token=${account.currencyId}
-            ></ledger-account-item>
-          `,
-        )}
+      <ledger-account-item
+        .title=${account.name}
+        .address=${account.freshAddress}
+        .linkLabel=${translations.onboarding.selectAccount.showTokens}
+        .ledgerId=${account.id}
+        .ticker=${account.ticker}
+        .balance=${account.balance ?? "0"}
+        .tokens=${account.tokens.length}
+        .currencyId=${account.currencyId}
+        @account-item-click=${this.controller.handleAccountItemClick}
+        @account-item-show-tokens-click=${this.controller
+          .handleAccountItemShowTokensClick}
+      ></ledger-account-item>
+    `;
+  };
+
+  override render() {
+    return html`
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+        ${this.controller.accounts.map(this.renderAccountItem)}
       </div>
     `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "select-account-screen": SelectAccountScreen;
+  }
+
+  interface WindowEventMap {
+    "ledger-internal-account-selected": CustomEvent<
+      | {
+          account: Account;
+          status: "success";
+        }
+      | {
+          status: "error";
+          error: unknown;
+        }
+    >;
   }
 }

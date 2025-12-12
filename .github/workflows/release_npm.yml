@@ -1,0 +1,66 @@
+name: "[Release] Release to npm"
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FORCE_COLOR: "1"
+  NPM_REGISTRY: jfrog.ledgerlabs.net/artifactory/api/npm/lwp-npm-prod-public
+
+## TODO: PLUG JFROG
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-22.04
+    environment: Production
+    permissions:
+      contents: write
+      id-token: write # needed for provenance data generation
+      pull-requests: write
+      # Need to attest artifacts
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-action-composite
+      - name: build libraries
+        run: pnpm nx run-many -t build --projects=ledger-button,ledger-button-core
+
+      - name: Login to internal JFrog registry
+        id: jfrog-login
+        uses: LedgerHQ/actions-security/actions/jfrog-login@actions/jfrog-login-1
+
+      - name: Setup npm config for JFrog
+        env:
+          NPM_REGISTRY_TOKEN: ${{ steps.jfrog-login.outputs.oidc-token }}
+        run: |
+          cat << EOF | tee .npmrc
+          registry=https://${NPM_REGISTRY}/
+          //${NPM_REGISTRY}/:_authToken=${NPM_REGISTRY_TOKEN}
+          EOF
+
+      # See if we can rework this to crawl the monorepo and get the tarball for each package
+      - name: Create dist directory to store tarball
+        run: mkdir -p dist
+
+      - name: release to npm
+        run: pnpm release
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Get tarball for each package
+        run: |
+          find . -name "ledgerhq-*.tgz" -exec cp {} ./dist \;
+
+      - name: Attest tarball
+        uses: LedgerHQ/actions-security/actions/attest@actions/attest-1
+        with:
+          subject-path: ./dist
+
+      # The action currently doesn't support pushing the blob to the registry
+      - name: Sign tarball
+        uses: LedgerHQ/actions-security/actions/sign-blob@actions/sign-blob-1
+        with:
+          path: ./dist

@@ -1,10 +1,11 @@
 import "fake-indexeddb/auto";
 
-import { Jwt } from "jsonwebtoken";
-import { Maybe, Nothing, Right } from "purify-ts";
+import { Either, Just, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
-import { StorageIDBGetError } from "./model/errors.js";
+import { type IndexedDbService } from "./service/IndexedDbService.js";
+import { type Account } from "../account/service/AccountService.js";
+import { Config } from "../config/model/config.js";
 import { ConsoleLoggerSubscriber } from "../logger/service/ConsoleLoggerSubscriber.js";
 import { DefaultLoggerPublisher } from "../logger/service/DefaultLoggerPublisher.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
@@ -12,92 +13,112 @@ import { DefaultStorageService } from "./DefaultStorageService.js";
 vi.mock("../logger/service/DefaultLoggerPublisher.js");
 vi.mock("../logger/service/ConsoleLoggerSubscriber.js");
 
+let config: Config;
 let storageService: DefaultStorageService;
+let mockIndexedDbService: IndexedDbService;
+
 describe("DefaultStorageService", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     localStorage.clear();
+    config = new Config({
+      originToken: "test-token",
+      dAppIdentifier: "test-app",
+      logLevel: "info",
+    });
+
+    mockIndexedDbService = {
+      initIdb: vi.fn(),
+      storeKeyPair: vi.fn(),
+      getKeyPair: vi.fn(),
+      removeKeyPair: vi.fn(),
+      storeEncryptionKey: vi.fn(),
+      getEncryptionKey: vi.fn(),
+    } as unknown as IndexedDbService;
+
     storageService = new DefaultStorageService(
-      (tag) => new DefaultLoggerPublisher([new ConsoleLoggerSubscriber()], tag),
+      (tag) =>
+        new DefaultLoggerPublisher([new ConsoleLoggerSubscriber(config)], tag),
+      mockIndexedDbService,
     );
   });
 
   describe("LocalStorage methods", () => {
-    describe("setLedgerButtonItem", () => {
-      it("should be able to set an item", () => {
+    describe("saveItem", () => {
+      it("should be able to save an item", () => {
         const spy = vi.spyOn(Storage.prototype, "setItem");
-        storageService.setLedgerButtonItem("test", "test");
+        storageService.saveItem("test", "test");
         expect(spy).toHaveBeenCalledWith(
           `${STORAGE_KEYS.PREFIX}-test`,
           JSON.stringify("test"),
         );
       });
 
-      it("should be able to set an item with an object and sanitize it", () => {
+      it("should be able to save an item with an object and sanitize it", () => {
         const spy = vi.spyOn(JSON, "stringify");
 
-        storageService.setLedgerButtonItem("test", { test: "test" });
+        storageService.saveItem("test", { test: "test" });
         expect(spy).toHaveBeenCalledWith({ test: "test" });
       });
     });
 
-    describe("getLedgerButtonItem", () => {
+    describe("getItem", () => {
       it("should be able to get an item", () => {
         const spy = vi.spyOn(Storage.prototype, "getItem");
-        storageService.setLedgerButtonItem("test", "test");
-        const item = storageService.getLedgerButtonItem("test");
+        storageService.saveItem("test", "test");
+        const item = storageService.getItem("test");
         expect(item).toStrictEqual(Maybe.of("test"));
         expect(spy).toHaveBeenCalledWith(`${STORAGE_KEYS.PREFIX}-test`);
       });
 
       it("should be able to get an item with a Nothing if the key does not exist", () => {
         vi.spyOn(Storage.prototype, "getItem").mockReturnValue(null);
-        const item = storageService.getLedgerButtonItem("test");
+        const item = storageService.getItem("test");
         expect(item).toStrictEqual(Nothing);
       });
     });
 
-    describe("removeLedgerButtonItem", () => {
+    describe("removeItem", () => {
       it("should be able to remove an item", () => {
         const spy = vi.spyOn(Storage.prototype, "removeItem");
-        vi.spyOn(storageService, "hasLedgerButtonItem").mockReturnValue(true);
-        storageService.removeLedgerButtonItem("test");
+        vi.spyOn(storageService, "hasItem").mockReturnValue(true);
+        storageService.removeItem("test");
         expect(spy).toHaveBeenCalledWith(`${STORAGE_KEYS.PREFIX}-test`);
       });
 
       it("should not be able to remove an item if it does not exist", () => {
         const spy = vi.spyOn(Storage.prototype, "removeItem");
-        vi.spyOn(storageService, "hasLedgerButtonItem").mockReturnValue(false);
-        storageService.removeLedgerButtonItem("test");
+        vi.spyOn(storageService, "hasItem").mockReturnValue(false);
+        storageService.removeItem("test");
         expect(spy).not.toHaveBeenCalled();
       });
     });
 
-    describe("hasLedgerButtonItem", () => {
+    describe("hasItem", () => {
       it("should be able to check if an item exists (false)", () => {
-        const res = storageService.hasLedgerButtonItem("test");
+        const res = storageService.hasItem("test");
         expect(res).toBe(false);
       });
 
       it("should be able to check if an item exists (true)", () => {
-        storageService.setLedgerButtonItem("key", "value");
-        const res = storageService.hasLedgerButtonItem("key");
+        storageService.saveItem("key", "value");
+        const res = storageService.hasItem("key");
         expect(res).toBe(true);
       });
     });
 
-    describe("resetLedgerButtonStorage", () => {
+    describe("resetStorage", () => {
       it("should be able to reset the storage", () => {
-        storageService.setLedgerButtonItem("test", "test");
-        storageService.resetLedgerButtonStorage();
+        storageService.saveItem("test", "test");
+        storageService.resetStorage();
         expect(localStorage.length).toBe(0);
       });
 
       it("should be able to reset the storage and keep other keys", () => {
         localStorage.setItem("yolo", "yolo");
         expect(localStorage.getItem("yolo")).toBe("yolo");
-        storageService.setLedgerButtonItem("test", "test");
-        storageService.resetLedgerButtonStorage();
+        storageService.saveItem("test", "test");
+        storageService.resetStorage();
         expect(localStorage.getItem("ledger-button-test")).toBeNull();
       });
     });
@@ -109,105 +130,263 @@ describe("DefaultStorageService", () => {
   });
 
   describe("IndexedDB (KeyPair) methods", () => {
-    describe("initIdb", () => {
-      it("should be able to initialize the IDB", async () => {
-        const result = await storageService.initIdb();
-        expect(result.isRight()).toBe(true);
-        result.map((db) => {
-          expect(db).toBeInstanceOf(IDBDatabase);
-        });
-      });
-    });
-
-    describe("storeKeyPair", () => {
-      it("should be able to store a key pair", async () => {
-        const keyPair = {
-          publicKey: new Uint8Array([1, 2, 3]),
-          privateKey: new Uint8Array([4, 5, 6]),
-        };
-
-        const result = await storageService.storeKeyPair(keyPair);
-        expect(result).toStrictEqual(Right(true));
-      });
-    });
-
-    describe("getKeyPair", () => {
-      it("should be able to get a key pair", async () => {
-        const keyPair = {
-          publicKey: new Uint8Array([1, 2, 3]),
-          privateKey: new Uint8Array([4, 5, 6]),
-        };
-
-        await storageService.storeKeyPair(keyPair);
-        const result = await storageService.getKeyPair();
-        expect(result).toStrictEqual(Right(keyPair));
-      });
-    });
-
-    describe("getPublicKey", () => {
-      it("should be able to get a public key", async () => {
-        const keyPair = {
-          publicKey: new Uint8Array([1, 2, 3]),
-          privateKey: new Uint8Array([4, 5, 6]),
-        };
-
-        await storageService.storeKeyPair(keyPair);
-        const result = await storageService.getPublicKey();
-        expect(result).toStrictEqual(Right(keyPair.publicKey));
-      });
-    });
-
-    describe("getPrivateKey", () => {
-      it("should be able to get a private key", async () => {
-        const keyPair = {
-          publicKey: new Uint8Array([1, 2, 3]),
-          privateKey: new Uint8Array([4, 5, 6]),
-        };
-
-        await storageService.storeKeyPair(keyPair);
-        const result = await storageService.getPrivateKey();
-        expect(result).toStrictEqual(Right(keyPair.privateKey));
-      });
-    });
-
-    describe("removeKeyPair", () => {
-      it("should be able to remove a key pair", async () => {
-        await storageService.storeKeyPair({
-          publicKey: new Uint8Array([1, 2, 3]),
-          privateKey: new Uint8Array([4, 5, 6]),
+    describe.each([
+      {
+        methodName: "storeKeyPair",
+        indexedDbMethod: "storeKeyPair",
+        args: [new Uint8Array([1, 2, 3, 4, 5])],
+        mockReturn: Right(true),
+      },
+      {
+        methodName: "getKeyPair",
+        indexedDbMethod: "getKeyPair",
+        args: [],
+        mockReturn: Right(new Uint8Array([1, 2, 3, 4, 5])),
+      },
+      {
+        methodName: "removeKeyPair",
+        indexedDbMethod: "removeKeyPair",
+        args: [],
+        mockReturn: Right(true),
+      },
+    ])(
+      "$methodName delegates to IndexedDbService",
+      ({ methodName, indexedDbMethod, args, mockReturn }) => {
+        beforeEach(() => {
+          vi.mocked(
+            mockIndexedDbService[
+              indexedDbMethod as keyof IndexedDbService
+            ] as () => Promise<Either<unknown, unknown>>,
+          ).mockResolvedValue(mockReturn);
         });
 
-        const removed = await storageService.removeKeyPair();
-        expect(removed).toStrictEqual(Right(true));
-        const keyPair = await storageService.getKeyPair();
-        expect(keyPair.isLeft()).toBe(true);
-        keyPair.ifLeft((error) => {
-          expect(error).toBeInstanceOf(StorageIDBGetError);
+        it(`should call indexedDbService.${indexedDbMethod}`, async () => {
+          await (
+            storageService[methodName as keyof DefaultStorageService] as (
+              ...args: unknown[]
+            ) => Promise<unknown>
+          )(...args);
+
+          expect(
+            mockIndexedDbService[indexedDbMethod as keyof IndexedDbService],
+          ).toHaveBeenCalledWith(...args);
         });
+      },
+    );
+
+    describe("storeEncryptionKey", () => {
+      it("should call indexedDbService.storeEncryptionKey", async () => {
+        const mockEncryptionKey = await crypto.subtle.generateKey(
+          { name: "AES-GCM", length: 256 },
+          true,
+          ["encrypt", "decrypt"],
+        );
+
+        vi.mocked(mockIndexedDbService.storeEncryptionKey).mockResolvedValue();
+
+        await storageService.storeEncryptionKey(mockEncryptionKey);
+
+        expect(mockIndexedDbService.storeEncryptionKey).toHaveBeenCalledWith(
+          mockEncryptionKey,
+        );
+      });
+    });
+
+    describe("getEncryptionKey", () => {
+      it("should call indexedDbService.getEncryptionKey", async () => {
+        const mockEncryptionKey = await crypto.subtle.generateKey(
+          { name: "AES-GCM", length: 256 },
+          true,
+          ["encrypt", "decrypt"],
+        );
+
+        vi.mocked(mockIndexedDbService.getEncryptionKey).mockResolvedValue(
+          Just(mockEncryptionKey),
+        );
+
+        const result = await storageService.getEncryptionKey();
+
+        expect(mockIndexedDbService.getEncryptionKey).toHaveBeenCalled();
+        expect(result).toEqual(Just(mockEncryptionKey));
+      });
+
+      it("should return Nothing when indexedDbService returns Nothing", async () => {
+        vi.mocked(mockIndexedDbService.getEncryptionKey).mockResolvedValue(
+          Nothing,
+        );
+
+        const result = await storageService.getEncryptionKey();
+
+        expect(mockIndexedDbService.getEncryptionKey).toHaveBeenCalled();
+        expect(result).toEqual(Nothing);
       });
     });
   });
 
-  describe("JWT methods", () => {
-    let jwt: Jwt;
+  describe("Trust Chain ID methods", () => {
+    describe("saveTrustChainId", () => {
+      it("should be able to save and get a trust chain ID", () => {
+        storageService.saveTrustChainId("test-trust-chain-id");
+        expect(storageService.getTrustChainId()).toEqual(
+          Maybe.of("test-trust-chain-id"),
+        );
+      });
 
-    beforeEach(() => {
-      jwt = {
-        header: { alg: "HS256" },
-        payload: { sub: "test" },
-        signature: "signature",
-      };
+      it("should be able to remove a trust chain ID", () => {
+        storageService.saveTrustChainId("test-trust-chain-id");
+        storageService.removeTrustChainId();
+        expect(storageService.getTrustChainId()).toBe(Nothing);
+      });
+
+      it("should save trust chain validity timestamp", () => {
+        const beforeSave = Date.now();
+        storageService.saveTrustChainId("test-trust-chain-id");
+        const afterSave = Date.now();
+
+        const validity = storageService.getItem<number>(
+          STORAGE_KEYS.TRUST_CHAIN_VALIDITY,
+        );
+        expect(validity.isJust()).toBe(true);
+        validity.map((timestamp) => {
+          expect(timestamp).toBeGreaterThanOrEqual(beforeSave);
+          expect(timestamp).toBeLessThanOrEqual(afterSave);
+        });
+      });
     });
 
-    describe("saveJWT", () => {
-      it("should be able to save and get a JWT", () => {
-        storageService.saveJWT(jwt);
-        expect(storageService.getJWT()).toEqual(Maybe.of(jwt));
+    describe("isTrustChainValid", () => {
+      it("should return false when no trust chain validity is stored", () => {
+        const isValid = storageService.isTrustChainValid();
+        expect(isValid).toBe(false);
       });
-      it("should remove a JWT", () => {
-        storageService.saveJWT(jwt);
-        storageService.removeJWT();
-        expect(storageService.getJWT()).toBe(Nothing);
+
+      it("should return false when trust chain is expired", () => {
+        const oldTimestamp = new Date();
+        oldTimestamp.setDate(oldTimestamp.getDate() - 31);
+        storageService.saveItem(
+          STORAGE_KEYS.TRUST_CHAIN_VALIDITY,
+          oldTimestamp.getTime(),
+        );
+
+        const isValid = storageService.isTrustChainValid();
+        expect(isValid).toBe(false);
+      });
+
+      it("should return true when trust chain is still valid", () => {
+        const recentTimestamp = new Date();
+        recentTimestamp.setDate(recentTimestamp.getDate() - 15);
+        storageService.saveItem(
+          STORAGE_KEYS.TRUST_CHAIN_VALIDITY,
+          recentTimestamp.getTime(),
+        );
+
+        const isValid = storageService.isTrustChainValid();
+        expect(isValid).toBe(true);
+      });
+
+      it("should return false when trust chain is exactly 30 days old", () => {
+        const exactTimestamp = new Date();
+        exactTimestamp.setDate(exactTimestamp.getDate() - 30);
+        storageService.saveItem(
+          STORAGE_KEYS.TRUST_CHAIN_VALIDITY,
+          exactTimestamp.getTime(),
+        );
+
+        const isValid = storageService.isTrustChainValid();
+        expect(isValid).toBe(false);
+      });
+    });
+  });
+
+  describe("Selected Account methods", () => {
+    describe("saveSelectedAccount", () => {
+      it("should be able to save and get a selected account", () => {
+        const mockAccount = {
+          id: "test-account",
+          name: "Test Account",
+        } as Account;
+        storageService.saveSelectedAccount(mockAccount);
+        expect(storageService.getSelectedAccount()).toEqual(
+          Maybe.of({
+            id: "",
+            name: "",
+            currencyId: undefined,
+            freshAddress: undefined,
+            seedIdentifier: "",
+            derivationMode: undefined,
+            index: undefined,
+            ticker: "",
+            balance: "",
+            tokens: [],
+          }),
+        );
+      });
+
+      it("should be able to remove a selected account", () => {
+        const mockAccount = {
+          id: "test-account",
+          name: "Test Account",
+        } as Account;
+        storageService.saveSelectedAccount(mockAccount);
+        storageService.removeSelectedAccount();
+        expect(storageService.getSelectedAccount()).toBe(Nothing);
+      });
+
+      it("should handle complex account objects", () => {
+        const complexAccount = {
+          id: "complex-account",
+          name: "Complex Account",
+          currencyId: "BTC",
+          freshAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+          seedIdentifier: "seed123",
+          derivationMode: "44'/0'/0'",
+          index: 0,
+          ticker: "BTC",
+          balance: "0.0000",
+          tokens: [],
+        } as Account;
+
+        storageService.saveSelectedAccount(complexAccount);
+        const retrieved = storageService.getSelectedAccount();
+        expect(retrieved).toEqual(
+          Maybe.of({
+            id: "",
+            name: "",
+            index: 0,
+            balance: "",
+            tokens: [],
+            currencyId: "BTC",
+            freshAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+            seedIdentifier: "",
+            ticker: "",
+            derivationMode: "44'/0'/0'",
+          }),
+        );
+      });
+    });
+  });
+
+  describe("Error handling", () => {
+    describe("getItem with invalid JSON", () => {
+      it("should return Nothing when JSON parsing fails", () => {
+        const invalidKey = DefaultStorageService.formatKey("invalid-json");
+        localStorage.setItem(invalidKey, "invalid json content");
+
+        const result = storageService.getItem("invalid-json");
+        expect(result).toBe(Nothing);
+      });
+    });
+
+    describe("removeItem return values", () => {
+      it("should return true when item is successfully removed", () => {
+        storageService.saveItem("test-remove", "value");
+        const result = storageService.removeItem("test-remove");
+        expect(result).toBe(true);
+      });
+
+      it("should return false when item does not exist", () => {
+        const result = storageService.removeItem("non-existent");
+        expect(result).toBe(false);
       });
     });
   });

@@ -1,83 +1,219 @@
-import "@ledgerhq/ledger-button-ui";
-import "./shared/root-modal-component.js";
+import "./components/index.js";
+import "./shared/root-navigation.js";
+import "./context/language-context.js";
+import "./context/core-context.js";
+import "./shared/routes.js";
 
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
-import { consume } from "@lit/context";
+import {
+  Account,
+  isBroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
+  isSignedTransactionResult,
+  LedgerButtonCore,
+  SignedResults,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-import { langContext, LanguageContext } from "./context/language-context.js";
-import { RootModalComponent } from "./shared/root-modal-component.js";
+import { RootNavigationComponent } from "./shared/root-navigation.js";
+import { Destination } from "./shared/routes.js";
+import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
+import { tailwindElement } from "./tailwind-element.js";
 
 @customElement("ledger-button-app")
 @tailwindElement()
 export class LedgerButtonApp extends LitElement {
   @query("#navigation")
-  navigation!: RootModalComponent;
+  root!: RootNavigationComponent;
 
-  @consume({ context: langContext })
-  @property({ attribute: false })
-  public languages!: LanguageContext;
+  @property({ type: Object })
+  core!: LedgerButtonCore;
 
-  // renderRoute() {
-  //   const route = routes.find(
-  //     (r) => r.name === this.navigatorController.currentRoute,
-  //   );
+  controller!: LedgerButtonAppController;
 
-  //   if (route) {
-  //     return html`${route.component}`;
-  //   }
+  override connectedCallback() {
+    super.connectedCallback();
+    this.controller = new LedgerButtonAppController(this, this.core);
 
-  //   return html`<ledger-button-404 id="not-found"></ledger-button-404>`;
-  // }
+    window.addEventListener(
+      "ledger-internal-account-selected",
+      this.handleAccountSelected,
+    );
+    window.addEventListener(
+      "ledger-internal-button-disconnect",
+      this.handleLedgerButtonDisconnect,
+    );
+    window.addEventListener(
+      "ledger-internal-account-switch",
+      this.handleAccountSwitch,
+    );
+    window.addEventListener("ledger-internal-sign", this.handleSign);
+  }
 
-  // renderBackButton() {
-  //   const currentRoute = routes.find(
-  //     (r) => r.name === this.navigatorController.currentRoute,
-  //   );
+  get isModalOpen() {
+    return this.root.isModalOpen;
+  }
 
-  //   return this.navigatorController.canGoBack(currentRoute)
-  //     ? html`<button @click=${() => this.navigatorController.navigateBack()}>
-  //         Back
-  //       </button>`
-  //     : null;
-  // }
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener(
+      "ledger-internal-account-selected",
+      this.handleAccountSelected,
+    );
+    window.removeEventListener(
+      "ledger-internal-button-disconnect",
+      this.handleLedgerButtonDisconnect,
+    );
+    window.removeEventListener(
+      "ledger-internal-account-switch",
+      this.handleAccountSwitch,
+    );
+    window.removeEventListener("ledger-internal-sign", this.handleSign);
+  }
 
-  // navigateTo(route: string) {
-  //   if (route === this.navigatorController.currentRoute) {
-  //     return;
-  //   }
+  // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
+  // when passed to window.addEventListener
+  private handleAccountSelected = (
+    e: CustomEvent<
+      | { account: Account; status: "success" }
+      | { status: "error"; error: unknown }
+    >,
+  ) => {
+    if (e.detail.status === "error") {
+      window.dispatchEvent(
+        new CustomEvent<{ status: "error"; error: unknown }>(
+          "ledger-provider-account-selected",
+          {
+            bubbles: true,
+            composed: true,
+            detail: e.detail,
+          },
+        ),
+      );
+      return;
+    }
 
-  //   const currentRoute = this.navigatorController.currentRoute;
-  //   // @ts-expect-error - shadowRoot is not typed
-  //   const routeElement = this.shadowRoot?.querySelector(`#${currentRoute}`);
-  //   if (routeElement) {
-  //     routeElement.classList.add("remove");
-  //   }
+    if (e.detail.status === "success") {
+      window.dispatchEvent(
+        new CustomEvent<{ account: Account; status: "success" }>(
+          "ledger-provider-account-selected",
+          {
+            bubbles: true,
+            composed: true,
+            detail: { account: e.detail.account, status: "success" },
+          },
+        ),
+      );
+    }
+  };
 
-  //   setTimeout(() => {
-  //     this.navigatorController.navigateTo(route);
-  //   }, 250);
-  // }
+  private handleSign = (
+    e: CustomEvent<
+      | { status: "success"; data: SignedResults }
+      | { status: "error"; error: unknown }
+    >,
+  ) => {
+    if (e.detail.status === "error") {
+      window.dispatchEvent(
+        new CustomEvent<{ status: "error"; error: unknown }>(
+          "ledger-provider-sign",
+          {
+            bubbles: true,
+            composed: true,
+            detail: e.detail,
+          },
+        ),
+      );
+      return;
+    }
+
+    if (e.detail.status === "success") {
+      if (
+        isBroadcastedTransactionResult(e.detail.data) ||
+        isSignedTransactionResult(e.detail.data) ||
+        isSignedMessageOrTypedDataResult(e.detail.data)
+      ) {
+        window.dispatchEvent(
+          new CustomEvent<{
+            status: "success";
+            data: SignedResults;
+          }>("ledger-provider-sign", {
+            bubbles: true,
+            composed: true,
+            detail: {
+              status: "success",
+              data: e.detail.data,
+            },
+          }),
+        );
+      }
+    }
+  };
+
+  private handleLedgerButtonDisconnect = () => {
+    this.root.closeModal();
+  };
+
+  private handleAccountSwitch = () => {
+    this.root.rootNavigationController.navigation.navigateTo(
+      this.root.rootNavigationController.destinations.fetchAccounts,
+    );
+  };
+
+  public navigationIntent(intent: Destination["name"], params?: unknown) {
+    this.root.navigationIntent(intent, params);
+  }
+
+  public disconnect() {
+    window.dispatchEvent(
+      new CustomEvent("ledger-provider-disconnect", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
 
   openModal() {
-    this.navigation.openModal();
+    this.root.openModal();
   }
 
   override render() {
-    const translation = this.languages.currentTranslation;
-
     return html`
       <div class="dark">
-        <ledger-button
-          label=${translation.common.button.connect}
-          variant="secondary"
-          size="large"
-          icon
-          @ledger-button-click=${this.openModal}
-        ></ledger-button>
-        <root-modal-component id="navigation"></root-modal-component>
+        <core-provider .coreClass=${this.core}>
+          <language-provider>
+            <root-navigation-component
+              id="navigation"
+            ></root-navigation-component>
+          </language-provider>
+        </core-provider>
       </div>
     `;
+  }
+}
+
+// NOTE: Declare here all the custom events so that LedgerEIP1193Provider can have type safey
+// Make sure to prefix with "ledger-provider-" (or something else, to be discussed)
+declare global {
+  interface HTMLElementTagNameMap {
+    "ledger-button-app": LedgerButtonApp;
+  }
+
+  interface WindowEventMap {
+    "ledger-provider-account-selected": CustomEvent<
+      | { account: Account; status: "success" }
+      | { status: "error"; error: unknown }
+    >;
+    "ledger-provider-sign": CustomEvent<
+      | {
+          status: "success";
+          data: SignedResults;
+        }
+      | {
+          status: "error";
+          error: unknown;
+        }
+    >;
+    "ledger-provider-disconnect": CustomEvent;
   }
 }

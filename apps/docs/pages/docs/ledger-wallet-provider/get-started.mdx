@@ -1,0 +1,209 @@
+import { Callout, Steps } from 'nextra/components'
+
+# Get started with Ledger Wallet Provider
+
+This quick-start shows how to add the Ledger Wallet Provider to a web application and request accounts through the injected EIP-6963 provider.
+
+<Callout type="info">
+  **Partner Program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
+</Callout>
+
+## Install the SDK
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider
+```
+
+Optionally install with `yarn` or `pnpm` if that aligns with your tooling.
+
+## Initialize the provider
+
+```ts
+import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
+import '@ledgerhq/ledger-wallet-provider/styles.css'
+
+// Initialize the Ledger provider
+const cleanup = initializeLedgerProvider({
+  devConfig: {
+    stub: {
+      base: false,              // Enable base stub mode for development
+      account: false,           // Enable account stubbing
+      device: false,            // Enable device stubbing
+      web3Provider: false,      // Enable Web3 provider stubbing
+      dAppConfig: false,        // Enable dApp config stubbing
+    },
+  },
+  target: document.body,        // Optional: specify where to mount the UI
+  dAppIdentifier: 'my-dapp',   // Your dApp identifier
+  apiKey: 'your-api-key',      // Your Ledger API key
+  loggerLevel: 'info',         // Log level: 'debug', 'info', 'warn', 'error'
+  dmkConfig: undefined,        // Device Management Kit configuration (optional)
+})
+```
+
+See the [Configuration](/docs/ledger-wallet-provider/configuration) page for detailed information about all available options.
+
+## Discover the provider (EIP-6963)
+
+```ts
+window.dispatchEvent(new Event('eip6963:requestProvider'))
+```
+
+Listen for provider announcements:
+
+```ts
+window.addEventListener('eip6963:announceProvider', (event) => {
+  const detail = event as CustomEvent
+  console.log('Ledger provider discovered', detail.detail)
+})
+```
+
+## Request accounts
+
+```ts
+const accounts = await provider.request({
+  method: 'eth_requestAccounts',
+  params: [],
+})
+```
+
+Once users connect their device through the Ledger Wallet Provider flow, you will receive accounts and can start signing transactions or messages.
+
+## Complete React example
+
+Here's a full working example that demonstrates provider discovery, account connection, and transaction signing:
+
+```tsx
+import { useEffect, useState, useCallback } from 'react'
+import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-wallet-provider'
+
+function useProviders() {
+  const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([])
+  const [selectedProvider, setSelectedProvider] = useState<EIP6963ProviderDetail | null>(null)
+
+  const handleAnnounceProvider = useCallback((e: CustomEvent<EIP6963ProviderDetail>) => {
+    setProviders(prev => {
+      const found = prev.find(p => p.info.uuid === e.detail.info.uuid)
+      if (found) return prev
+      return [...prev, e.detail]
+    })
+  }, [])
+
+  useEffect(() => {
+    // Dynamic import is required because the library uses browser APIs
+    // and won't work with Server-Side Rendering (SSR)
+    const initializeProvider = async () => {
+      await import('@ledgerhq/ledger-wallet-provider/styles.css') // Import styles dynamically
+      const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider')
+
+      const cleanup = initializeLedgerProvider({
+        devConfig: {
+          stub: {
+            base: false,              // Set to true for development
+            account: false,           // Enable account stubbing
+            device: false,            // Enable device stubbing
+            web3Provider: false,      // Enable Web3 provider stubbing
+            dAppConfig: false,        // Enable dApp config stubbing
+          },
+        },
+        dAppIdentifier: 'my-dapp',
+        apiKey: 'your-api-key',
+        loggerLevel: 'info',         // Log level configuration
+        dmkConfig: undefined,       // Device Management Kit config (optional)
+      })
+
+      window.addEventListener('eip6963:announceProvider', handleAnnounceProvider)
+
+      return cleanup
+    }
+
+    let cleanup: (() => void) | undefined
+
+    initializeProvider().then(cleanupFn => {
+      cleanup = cleanupFn
+    })
+
+    return () => {
+      cleanup?.()
+      window.removeEventListener('eip6963:announceProvider', handleAnnounceProvider)
+    }
+  }, [handleAnnounceProvider])
+
+  return { providers, selectedProvider, setSelectedProvider }
+}
+
+function App() {
+  const { providers, selectedProvider, setSelectedProvider } = useProviders()
+  const [account, setAccount] = useState<string | null>(null)
+
+  const connectWallet = async () => {
+    if (!selectedProvider) return
+
+    try {
+      const accounts = await selectedProvider.provider.request({
+        method: 'eth_requestAccounts',
+        params: []
+      })
+      setAccount(accounts[0])
+    } catch (error) {
+      console.error('Failed to connect:', error)
+    }
+  }
+
+  const signTransaction = async (transaction: any) => {
+    if (!selectedProvider) return
+
+    try {
+      const result = await selectedProvider.provider.request({
+        method: 'eth_signTransaction',
+        params: [transaction]
+      })
+      return result
+    } catch (error) {
+      console.error('Failed to sign transaction:', error)
+    }
+  }
+
+  return (
+    <div>
+      {providers.map(provider => (
+        <button
+          key={provider.info.uuid}
+          onClick={() => setSelectedProvider(provider)}
+        >
+          Connect {provider.info.name}
+        </button>
+      ))}
+
+      {selectedProvider && (
+        <button onClick={connectWallet}>
+          Request Accounts
+        </button>
+      )}
+
+      {account && <p>Connected: {account}</p>}
+    </div>
+  )
+}
+```
+
+<Callout type="info">
+**Why dynamic imports are necessary:**
+- The library uses Web APIs (`window`, `document`, `CustomEvent`) that don't exist in Node.js
+- Direct imports will cause build errors in SSR frameworks (Next.js, Nuxt, SvelteKit, etc.)
+- Dynamic imports ensure the code only runs in the browser environment
+</Callout>
+
+## Next steps
+
+<Steps>
+
+### Customize your integration
+
+Explore [Configuration](/docs/ledger-wallet-provider/configuration) options to set up chain support, connection methods, and behavior.
+
+### Review the API
+
+Deep-dive into provider methods, events, and TypeScript types in the [API Reference](/docs/ledger-wallet-provider/api-reference).
+
+</Steps>

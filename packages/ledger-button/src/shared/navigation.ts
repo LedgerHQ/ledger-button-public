@@ -2,13 +2,19 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { Destination } from "./routes.js";
 
+export const ANIMATION_DELAY = 250;
+
 export class Navigation implements ReactiveController {
   host: ReactiveControllerHost;
 
   history: Destination[] = [];
   currentScreen: Destination | null = null;
+  private navigationTimeoutId: number | null = null;
 
-  constructor(host: ReactiveControllerHost) {
+  constructor(
+    host: ReactiveControllerHost,
+    private readonly modalContent: HTMLElement,
+  ) {
     this.host = host;
     this.host.addController(this);
   }
@@ -20,10 +26,30 @@ export class Navigation implements ReactiveController {
   }
 
   hostDisconnected() {
+    this.clearNavigationTimeout();
     this.resetNavigation();
   }
 
   navigateTo(destination: Destination) {
+    if (destination.name === this.currentScreen?.name) {
+      return;
+    }
+
+    if (this.modalContent && this.currentScreen) {
+      this.modalContent.classList.add("remove");
+      this.clearNavigationTimeout();
+      this.navigationTimeoutId = window.setTimeout(() => {
+        this.modalContent.classList.remove("remove");
+        this.history.push(destination);
+        this.currentScreen = destination;
+        this.host.requestUpdate();
+        this.navigationTimeoutId = null;
+        // NOTE: The 250ms delay here is to allow for animation to complete
+        // Could be a CONSTANT if required
+      }, ANIMATION_DELAY);
+      return;
+    }
+
     this.history.push(destination);
     this.currentScreen = destination;
     this.host.requestUpdate();
@@ -38,14 +64,22 @@ export class Navigation implements ReactiveController {
   }
 
   resetNavigation() {
+    this.clearNavigationTimeout();
     this.history = [];
     this.currentScreen = null;
     this.host.requestUpdate();
   }
 
+  private clearNavigationTimeout() {
+    if (this.navigationTimeoutId !== null) {
+      window.clearTimeout(this.navigationTimeoutId);
+      this.navigationTimeoutId = null;
+    }
+  }
+
   canGoBack(destination?: Destination) {
     return (
-      (destination?.canGoBack ?? true) &&
+      (destination?.canGoBack ?? false) &&
       this.history.length > 1 &&
       this.currentScreen !== null
     );

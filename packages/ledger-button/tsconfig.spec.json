@@ -9,6 +9,7 @@
       "node",
       "vitest"
     ],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "forceConsistentCasingInFileNames": true
   },
   "include": [
@@ -24,7 +25,8 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "src/**/*.png"
   ],
   "references": [
     {

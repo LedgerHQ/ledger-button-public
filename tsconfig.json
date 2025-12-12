@@ -4,9 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/ledger-button-ui"
-    },
-    {
       "path": "./packages/ledger-button"
     },
     {
@@ -17,6 +14,9 @@
     },
     {
       "path": "./pocs/ledger-button-webcomponent-poc/examples/react"
+    },
+    {
+      "path": "./apps/test-dapp"
     }
   ],
   "ts-node": {

@@ -1,0 +1,361 @@
+openapi: 3.0.3
+info:
+  title: Ledger Button API
+  description: API for Ledger Button service - dApp configuration, RPC broadcasting, and event tracking
+  version: 1.0.0
+  contact:
+    name: Ledger
+    url: https:/www.ledger.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://button.ledger.com
+    description: Ledger Button API server
+tags:
+  - name: DApp Configuration
+    description: dApp configuration endpoints
+  - name: RPC Broadcasting
+    description: RPC broadcasting endpoints
+  - name: Event Tracking
+    description: Event tracking endpoints
+paths:
+  /config:
+    get:
+      tags:
+        - DApp Configuration
+      summary: Get dApp Configuration
+      description: Retrieve configuration for a dApp
+      operationId: getDAppConfig
+      parameters:
+        - name: dapp_identifier
+          in: query
+          description: dApp identifier
+          required: true
+          schema:
+            type: string
+            example: "uuid-of-the-dapp"
+        - $ref: '#/components/parameters/X-Ledger-client-origin'
+        - $ref: '#/components/parameters/X-Ledger-domain'
+      responses:
+        '200':
+          description: Configuration corresponding to the dApp.
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/DAppConfiguration'
+                description: dApp configuration
+        '400':
+          description: Bad request - invalid request, missing required parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: dApp configuration not found for given dapp_identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /broadcast:
+    post:
+      tags:
+        - RPC Broadcasting
+      summary: Broadcast RPC Call to the blockchain nodes.
+      description: Broadcast an RPC call to the blockchain node.
+      operationId: broadcastRpc
+      parameters:
+        - $ref: '#/components/parameters/X-Ledger-client-origin'
+        - $ref: '#/components/parameters/X-Ledger-domain'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BroadcastRequest'
+            example:
+              blockchain:
+                name: ethereum
+                chain_id: "1"
+              rpc:
+                method: eth_getBalance
+                params:
+                  - "0x8D97689C9818892B700e27F316cc3E41e17fBeb9"
+                  - latest
+                id: 1
+                jsonrpc: "2.0"
+      responses:
+        '200':
+          description: RPC call answer. Return directly the answer from the blockchain node. Always answer HTTP code 200 .
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastResponse'
+
+  /event:
+    post:
+      tags:
+        - Event Tracking
+      summary: Track Event - TO BE COMPLETED
+      description: Track an event for analytics or error reporting. See [Data Tracking](https://ledgerhq.atlassian.net/wiki/spaces/BI/pages/5925863586/Ledger+Button+-+data#Invoicing-Events) for more details.
+      operationId: trackEvent
+      parameters:
+        - $ref: '#/components/parameters/X-Ledger-client-origin'
+        - $ref: '#/components/parameters/X-Ledger-domain'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+            examples:
+              invoicing:
+                value:
+                  type: invoicing
+                  data:
+                    event_id: "550e8400-e29b-41d4-a716-446655440000"
+                    event_type: transaction
+                    transaction_hash: "0x8D97689C9818892B700e27F316cc3E41e17fBeb9"
+                    ...: "to be completed" # TO BE COMPLETED
+              tracking:
+                value:
+                  type: tracking
+                  data:
+                    event_id: "550e8400-e29b-41d4-a716-446655440000"
+                    event_name: "user_connect_device"
+                    timestamp: "2021-01-01T00:00:00Z"
+                    ...: "to be completed" # TO BE COMPLETED
+              error:
+                value:
+                  type: error
+                  data:
+                    error_code: "err0360"
+                    error_message: "Transaction failed to be signed"
+                    timestamp: "2021-01-01T00:00:00Z"
+                    ...: "to be completed" # TO BE COMPLETED
+
+      responses:
+        '200':
+          description: Event tracked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          description: Bad request - invalid event data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    BroadcastRequest:
+      type: object
+      required:
+        - blockchain
+        - rpc
+      properties:
+        blockchain:
+          $ref: '#/components/schemas/Blockchain'
+        rpc:
+          $ref: '#/components/schemas/RpcCall'
+
+    Blockchain:
+      type: object
+      required:
+        - name
+        - chain_id
+      properties:
+        name:
+          type: string
+          description: Blockchain name
+          example: ethereum
+        chain_id:
+          type: string
+          description: Chain ID
+          example: "1"
+
+    DAppConfiguration:
+      type: object
+      properties:
+        supportedBlockchains:
+          type: array
+          items:
+            type: object
+            required:
+              - blockchain
+              - chain_ids
+            properties:
+              blockchain:
+                type: string
+                description: Name of the blockchain (e.g., ethereum)
+                example: ethereum
+              chain_ids:
+                type: array
+                items:
+                  type: string
+                description: List of supported network IDs
+                example: ["1", "4"]
+        referralUrl:
+          type: string
+          description: Referral URL
+          example: "https://shop.ledger.com?referral=uuid-of-the-dapp"
+        domainUrl:
+          type: string
+          description: Domain URL
+          example: "https://app.1inch.io"
+        appDependencies:
+          type: array
+          items:
+            type: object
+            required:
+              - blockchain
+              - appName
+              - dependencies
+            properties:
+              blockchain:
+                type: string
+                description: Name of the blockchain (e.g., ethereum)
+                example: ethereum
+              appName:
+                type: string
+                description: Name of the app to be opened on the Ledger device
+                example: 1Inch
+              dependencies:
+                type: array
+                items:
+                  type: string
+                description: List of dependencies to be installed on the Ledger device
+                example: ["1Inch", "Ethereum"]
+
+    RpcCall:
+      type: object
+      required:
+        - method
+        - params
+        - id
+        - jsonrpc
+      properties:
+        method:
+          type: string
+          description: RPC method name
+          example: eth_getBalance
+        params:
+          type: array
+          description: RPC method parameters
+          items:
+            oneOf:
+              - type: string
+              - type: number
+              - type: boolean
+              - type: object
+              - type: array
+          example:
+            - "0x8D97689C9818892B700e27F316cc3E41e17fBeb9"
+            - latest
+        id:
+          type: integer
+          description: RPC request ID
+          example: 1
+        jsonrpc:
+          type: string
+          description: JSON-RPC version
+          example: "2.0"
+
+    TrackEvent:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Event name
+          example: ""
+        type:
+          type: string
+          enum:
+            - invoicing
+            - tracking
+            - error
+          description: Event types - invoicing for invoicing events, tracking for product oriented tracking events, error for logging code errors
+        data:
+          type: object
+          description: Event data - which depends on the event type
+
+    EventRequest:
+      type: object
+      required:
+        - type
+        - data
+      properties:
+        type:
+          type: string
+          enum:
+            - invoicing
+            - tracking
+            - error
+          description: Event types - invoicing for invoicing events, tracking for product oriented tracking events, error for logging code errors
+        data:
+          type: object
+          description: Event data - which depends on the event type
+
+    BroadcastResponse:
+      type: object
+      properties:
+        result:
+          description: RPC response result
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: object
+            - type: array
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              description: Error code
+            message:
+              type: string
+              description: Error message
+        id:
+          type: integer
+          description: RPC request ID
+        jsonrpc:
+          type: string
+          description: JSON-RPC version
+
+    Error:
+      description: Error object - TO BE COMPLETED
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: integer
+          description: Error code
+  parameters:
+    X-Ledger-client-origin:
+      in: header
+      name: X-Ledger-client-origin
+      description: Client origin identifier for gating
+      required: true
+      schema:
+        type: string
+        example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    X-Ledger-domain:
+      name: X-Ledger-domain
+      in: header
+      description: Human readable dApp identifier using the domain name
+      required: true
+      schema:
+        type: string
+        example: "app.1inch.io"
+

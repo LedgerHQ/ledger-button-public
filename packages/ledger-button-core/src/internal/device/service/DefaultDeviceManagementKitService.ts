@@ -3,6 +3,8 @@ import {
   DeviceManagementKit,
   DeviceManagementKitBuilder,
   DiscoveredDevice,
+  LogLevel,
+  NoAccessibleDeviceError,
   TransportIdentifier,
 } from "@ledgerhq/device-management-kit";
 import {
@@ -20,7 +22,7 @@ import { type DeviceModuleOptions } from "../../diTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { Device, mapConnectedDeviceToDevice } from "../model/Device.js";
+import { Device } from "../model/Device.js";
 import { DeviceConnectionError } from "../model/errors.js";
 import { DeviceManagementKitService } from "./DeviceManagementKitService.js";
 
@@ -48,7 +50,7 @@ export class DefaultDeviceManagementKitService
 
     builder
       .addConfig(args)
-      .addLogger(new ConsoleLogger())
+      .addLogger(new ConsoleLogger(LogLevel.Error))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
 
@@ -80,22 +82,73 @@ export class DefaultDeviceManagementKitService
       await dmk.stopDiscovering();
     } catch (error) {
       this.logger.error(`Failed to start discovery`, { error });
-      throw new DeviceConnectionError(`Failed to start discovery`, { error });
-    }
+      if (error instanceof NoAccessibleDeviceError) {
+        throw new DeviceConnectionError(`No accessible device`, {
+          type: "no-accessible-device",
+          error,
+        });
+      }
 
-    try {
-      const sessionId = await dmk.connect({ device });
-      this._currentSessionId = sessionId;
-      this._connectedDevice = mapConnectedDeviceToDevice(
-        await dmk.getConnectedDevice({ sessionId }),
-      );
-      return sessionId;
-    } catch (error) {
-      this.logger.error(`Failed to connect to device`, { error });
-      throw new DeviceConnectionError(`Failed to connect to device`, {
+      throw new DeviceConnectionError(`Failed to start discovery`, {
+        type: "failed-to-start-discovery",
         error,
       });
     }
+
+    try {
+      const sessionId = await dmk.connect({
+        device,
+        sessionRefresherOptions: {
+          isRefresherDisabled: true,
+        },
+      });
+      this._currentSessionId = sessionId;
+      this._connectedDevice = new Device(
+        await dmk.getConnectedDevice({ sessionId }),
+      );
+      return this._connectedDevice;
+    } catch (error) {
+      this.logger.error(`Failed to connect to device`, { error });
+      throw new DeviceConnectionError(`Failed to connect to device`, {
+        type: "failed-to-connect",
+        error,
+      });
+    }
+  }
+
+  async listAvailableDevices() {
+    let counter = 0;
+    return new Promise<DiscoveredDevice[]>((resolve, reject) => {
+      const subscription = this.dmk.listenToAvailableDevices({}).subscribe({
+        next: (discoveredDevices) => {
+          counter++;
+
+          if (discoveredDevices.length) {
+            this.logger.debug(`Known devices`, { discoveredDevices });
+            resolve(discoveredDevices);
+            if (subscription) {
+              subscription.unsubscribe();
+            }
+            return;
+          }
+
+          if (counter > 5 && !discoveredDevices.length) {
+            resolve([]);
+            if (subscription) {
+              subscription.unsubscribe();
+            }
+            return;
+          }
+        },
+        error: (error) => {
+          this.logger.error(`Failed to list known devices`, { error });
+          reject(error);
+          if (subscription) {
+            subscription.unsubscribe();
+          }
+        },
+      });
+    });
   }
 
   async disconnectFromDevice() {
@@ -104,13 +157,12 @@ export class DefaultDeviceManagementKitService
     }
 
     try {
-      await this.dmk.disconnect({
-        sessionId: this._currentSessionId,
-      });
+      await this.dmk.close();
       this._currentSessionId = undefined;
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });
       throw new DeviceConnectionError(`Failed to disconnect from device`, {
+        type: "failed-to-disconnect",
         error,
       });
     }

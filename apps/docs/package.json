@@ -1,0 +1,35 @@
+{
+  "name": "@ledgerhq/ledger-wallet-provider-docs",
+  "version": "1.0.0",
+  "description": "Ledger Wallet Provider documentation",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "prettier": "prettier . --check",
+    "prettier:fix": "prettier . --write",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "next": "catalog:",
+    "nextra": "catalog:",
+    "nextra-theme-docs": "catalog:",
+    "react": "catalog:react18",
+    "react-dom": "catalog:react18",
+    "react-medium-image-zoom": "catalog:",
+    "tailwindcss": "catalog:",
+    "tailwind-merge": "catalog:"
+  },
+  "devDependencies": {
+    "autoprefixer": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react18",
+    "globals": "catalog:"
+  }
+}

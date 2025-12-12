@@ -1,0 +1,45 @@
+import { Callout } from 'nextra/components'
+
+# API Reference
+
+## `initializeLedgerProvider(options)`
+
+Initializes the Ledger Wallet Provider and injects the UI components into the DOM.
+
+See the [Configuration](/docs/ledger-wallet-provider/configuration) page for detailed parameter documentation.
+
+Returns a cleanup function to remove the provider and UI components.
+
+## `LedgerEIP1193Provider`
+
+The main provider class that implements the EIP-1193 standard.
+
+### Methods
+
+- `request({ method, params })` - Make JSON-RPC requests
+- `on(event, listener)` - Listen to provider events
+- `removeListener(event, listener)` - Remove event listeners
+- `isConnected()` - Check connection status
+- `disconnect()` - Disconnect from the provider
+
+### Supported Methods
+
+- `eth_requestAccounts` - Request user accounts
+- `eth_accounts` - Get current accounts
+- `eth_chainId` - Get current chain ID
+- `eth_sendTransaction` - Send and sign transactions
+- `eth_signTransaction` - Sign transactions
+- `eth_signRawTransaction` - Sign raw transactions
+- `eth_sign` - Sign messages
+- `personal_sign` - Sign personal messages
+- `eth_sendRawTransaction` - Send raw transactions
+- `eth_signTypedData` - Sign typed data (EIP-712)
+- `eth_signTypedData_v4` - Sign typed data v4 (EIP-712)
+- `eth_getBalance` - Get account balance (delegated to core)
+
+### Events
+
+- `accountsChanged` - Fired when accounts change
+- `chainChanged` - Fired when chain changes
+- `connect` - Fired when provider connects
+- `disconnect` - Fired when provider disconnects

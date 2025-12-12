@@ -1,0 +1,89 @@
+import { Callout } from 'nextra/components'
+
+# Configuration
+
+This page describes all available configuration options for `initializeLedgerProvider`.
+
+## Configuration options
+
+```typescript
+{
+  devConfig?: {
+    stub?: {
+      base?: boolean;            // Enable base stub mode for development (default: false)
+      account?: boolean;         // Enable account stubbing (default: false)
+      device?: boolean;          // Enable device stubbing (default: false)
+      web3Provider?: boolean;    // Enable Web3 provider stubbing (default: false)
+      dAppConfig?: boolean;      // Enable dApp config stubbing (default: false)
+    };
+  };
+  target?: HTMLElement;        // Target element to mount UI (default: document.body)
+  dAppIdentifier?: string;     // Your dApp identifier
+  apiKey?: string;             // Your Ledger API key
+  loggerLevel?: string;        // Log level: 'debug', 'info', 'warn', 'error' (default: 'info')
+  dmkConfig?: any;             // Device Management Kit configuration (optional)
+}
+```
+
+## Parameter details
+
+### `devConfig.stub`
+
+Toggles local stub modes so you can simulate accounts, devices, and Web3 flows during development.
+
+For development and testing, you can enable stub mode:
+
+```javascript
+const cleanup = initializeLedgerProvider({
+  devConfig: {
+    stub: {
+      base: true,              // Enable base stub mode
+      account: true,           // Mock account operations
+      device: true,            // Mock device interactions
+      web3Provider: true,      // Mock Web3 provider responses
+      dAppConfig: true,        // Mock dApp configuration
+    },
+  },
+  dAppIdentifier: 'my-dapp',
+  apiKey: 'your-api-key',
+})
+```
+
+### `target`
+
+Target element to mount UI. Default is `document.body`.
+
+Determines where the Ledger Wallet Provider UI mounts in your application.
+
+### `dAppIdentifier`
+
+Your dApp identifier. This lets Ledger validate the integration and enable remote services.
+
+### `apiKey`
+
+Your Ledger API key. Required for production use.
+
+### `loggerLevel`
+
+Log level: `'debug'`, `'info'`, `'warn'`, `'error'`. Default is `'info'`.
+
+Adjusts log verbosity.
+
+### `dmkConfig`
+
+Device Management Kit configuration (optional).
+
+Passes Device Management Kit options when you need custom device policies.
+
+## Return value
+
+The function returns a cleanup function to remove the provider and UI components.
+
+```typescript
+const cleanup = initializeLedgerProvider({ /* options */ })
+
+// Later, when unmounting:
+cleanup()
+```
+
+The cleanup function tears down the UI and event listeners if your app unmounts.

@@ -1,14 +1,18 @@
-import "@ledgerhq/ledger-button-ui";
+import "../../../components/index.js";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { tailwindElement } from "@ledgerhq/ledger-button-ui";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { coreContext } from "../../../context/core-context.js";
+import { StatusType } from "../../../components/organism/status/ledger-status.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 import { RetrievingAccountsController } from "./retrieving-accounts-controller.js";
 
 const styles = css`
@@ -25,9 +29,8 @@ const styles = css`
     height: 100%;
     background: linear-gradient(
       0deg,
-      rgba(0, 0, 0, 0) 29.8%,
-      rgba(0, 0, 0, 0.35) 51.02%,
-      var(--background-base) 93.25%
+      rgba(21, 21, 21, 0) 0%,
+      var(--background-canvas-sheet) 100%
     );
   }
 `;
@@ -42,7 +45,11 @@ export class RetrievingAccountsScreen extends LitElement {
 
   @consume({ context: coreContext })
   @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
+  public coreContext!: CoreContext;
+
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
 
   controller!: RetrievingAccountsController;
 
@@ -53,14 +60,48 @@ export class RetrievingAccountsScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
+      this.languages,
     );
   }
 
-  override render() {
+  private async handleStatusActionError(
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
+    if (e.detail.action === "primary") {
+      await this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      await this.controller.errorData?.cta2?.action();
+    }
+  }
+
+  renderErrorScreen() {
+    if (!this.controller.errorData) {
+      return html``;
+    }
+
     return html`
-      <div class="min-h-full">
+      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData.title}
+          description=${this.controller.errorData.message}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusActionError}
+        ></ledger-status>
+      </div>
+    `;
+  }
+
+  renderScreen() {
+    return html`
+      <div class="lb-min-h-full lb-overflow-hidden">
         <ledger-lottie
-          class="animation"
+          class="animation lb-overflow-hidden"
           animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}
@@ -68,5 +109,17 @@ export class RetrievingAccountsScreen extends LitElement {
         ></ledger-lottie>
       </div>
     `;
+  }
+
+  override render() {
+    return this.controller.errorData
+      ? this.renderErrorScreen()
+      : this.renderScreen();
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "retrieving-accounts-screen": RetrievingAccountsScreen;
   }
 }

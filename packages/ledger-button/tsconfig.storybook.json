@@ -1,12 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "out-tsc/storybook",
+    "tsBuildInfoFile": "out-tsc/storybook/tsconfig.storybook.tsbuildinfo",
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "experimentalDecorators": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "types": ["node", "vite/client"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
   "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
   "include": [
@@ -16,7 +20,8 @@
     "src/**/*.stories.tsx",
     "src/**/*.stories.mdx",
     ".storybook/*.js",
-    ".storybook/*.ts"
+    ".storybook/*.ts",
+    "src/**/*.png"
   ],
   "references": [
     {

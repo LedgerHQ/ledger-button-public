@@ -19,7 +19,14 @@
   },
   "neverConnectToCloud": true,
   "targetDefaults": {
+    "dev": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
     "build": {
+      "dependsOn": ["^build"]
+    },
+    "typecheck": {
       "dependsOn": ["^build"]
     },
     "test": {
@@ -117,9 +124,24 @@
     }
   ],
   "release": {
+    "projectsRelationship": "independent",
+    "groups": {
+      "libraries": {
+        "projects": ["ledger-button", "ledger-button-core"],
+        "projectsRelationship": "independent"
+      }
+    },
     "version": {
-      "preVersionCommand": "pnpm dlx nx run-many -t build",
-      "conventionalCommits": true
+      "git": {
+        "commit": true,
+        "commitMessage": "🔖 (version): New versions"
+      },
+      "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk",
+      "updateDependents": "always"
+    },
+    "changelog": {
+      "projectChangelogs": true
     },
     "conventionalCommits": {
       "types": {
@@ -346,6 +368,10 @@
           "semverBump": "none"
         }
       }
+    },
+    "releaseTag": {
+      "pattern": "{projectName}@{version}",
+      "strictPreid": true
     }
   },
   "generators": {

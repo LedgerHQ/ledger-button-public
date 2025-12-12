@@ -2,66 +2,21 @@ import "../domain/onboarding/select-device/select-device.js";
 import "../domain/onboarding/ledger-sync/ledger-sync.js";
 import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
 import "../domain/onboarding/select-account/select-account.js";
+import "../domain/sign-transaction/sign-transaction.js";
+import "../domain/home/ledger-home.js";
+import "../domain/device-switch/device-switch.js";
+import "../domain/device-connection-status/device-connection-status.js";
+import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
+import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
+import "../domain/signing-flow/signing-flow.js";
+import "../domain/account-tokens/account-tokens.js";
+import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
+import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 
-import { LedgerButtonCore } from "@ledgerhq/ledger-button-core";
-import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 
-import { coreContext } from "../context/core-context.js";
 import { Translation } from "../context/language-context.js";
-
-@customElement("lb-connect-device")
-export class LBConnectDevice extends LitElement {
-  static override styles = css`
-    :host(.remove) {
-      animation: outro 250ms ease-in-out;
-    }
-
-    h1 {
-      color: red;
-      animation: intro 250ms ease-in-out;
-      transform-origin: left bottom;
-    }
-
-    @keyframes intro {
-      from {
-        opacity: 0;
-        transform: scale(0.95) translateY(32px);
-      }
-
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-    }
-
-    @keyframes outro {
-      from {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
-
-      to {
-        opacity: 0;
-        transform: scale(0.95) translateY(32px);
-      }
-    }
-  `;
-
-  @consume({ context: coreContext })
-  @property({ attribute: false })
-  public coreContext!: LedgerButtonCore;
-
-  override connectedCallback() {
-    super.connectedCallback();
-    this.coreContext.fetchAccounts().then((acc) => console.log(acc));
-  }
-
-  override render() {
-    return html`<h1>Connect Device</h1>`;
-  }
-}
 
 @customElement("ledger-button-404")
 export class LedgerButton404 extends LitElement {
@@ -100,50 +55,108 @@ export class LedgerButton404 extends LitElement {
   }
 }
 
-export type Destinations = ReturnType<typeof makeDestinations>;
-export type Destination = Destinations[keyof Destinations];
+export type Destinations = Record<string, Destination>;
+export type Destination = {
+  name: string;
+  component: string;
+  canGoBack: boolean;
+  toolbar: {
+    title: string;
+    canClose: boolean;
+  };
+};
 
 // MOVE DESTINATIONS TO NAVIGATION
 export const makeDestinations = (translation: Translation) => {
   const destinations = {
     home: {
       name: "home",
-      component: "lb-home",
+      component: "ledger-home-screen",
       canGoBack: false,
       toolbar: {
-        title: "Home",
-        showClose: true,
-        showLogo: true,
+        title: "",
+        canClose: true,
+      },
+    },
+    deviceSwitch: {
+      name: "deviceSwitch",
+      component: "device-switch-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.deviceSwitch.title,
+        canClose: true,
+      },
+    },
+    deviceConnectionStatus: {
+      name: "deviceConnectionStatus",
+      component: "device-connection-status-screen",
+      canGoBack: true,
+      toolbar: {
+        title: "",
+        canClose: true,
+      },
+    },
+    onboardingFlow: {
+      name: "onboarding-flow",
+      component: "onboarding-flow",
+      canGoBack: false,
+      toolbar: {
+        title: translation.onboarding.selectDevice.title,
+        canClose: true,
       },
     },
     ledgerSync: {
-      name: "ledger-sync",
+      name: "ledgerSync",
       component: "ledger-sync-screen",
-      canGoBack: true,
+      canGoBack: false,
       toolbar: {
         title: translation.onboarding.ledgerSync.title,
-        showClose: true,
-        showLogo: true,
+        canClose: false,
+      },
+    },
+    turnOnSync: {
+      name: "turnOnSync",
+      component: "turn-on-sync-screen",
+      canGoBack: false,
+      toolbar: {
+        title: translation.onboarding.turnOnSync.title,
+        canClose: true,
+      },
+    },
+    turnOnSyncDesktop: {
+      name: "turnOnSyncDesktop",
+      component: "turn-on-sync-desktop-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.ledgerSync.activate,
+        canClose: true,
+      },
+    },
+    turnOnSyncMobile: {
+      name: "turnOnSyncMobile",
+      component: "turn-on-sync-mobile-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.ledgerSync.activate,
+        canClose: true,
       },
     },
     fetchAccounts: {
-      name: "retrieving-accounts",
+      name: "fetchAccounts",
       component: "retrieving-accounts-screen",
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.retrievingAccounts.title,
-        showClose: false,
-        showLogo: true,
+        canClose: false,
       },
     },
     selectAccount: {
-      name: "select-account",
+      name: "selectAccount",
       component: "select-account-screen",
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectAccount.title,
-        showClose: true,
-        showLogo: true,
+        canClose: true,
       },
     },
     onboarding: {
@@ -152,18 +165,43 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       toolbar: {
         title: translation.onboarding.selectDevice.title,
-        showClose: true,
-        showLogo: true,
+        canClose: true,
+      },
+    },
+    signTransaction: {
+      name: "signTransaction",
+      component: "sign-transaction-screen",
+      canGoBack: false,
+      toolbar: {
+        title: "",
+        canClose: true,
+      },
+    },
+    signingFlow: {
+      name: "signingFlow",
+      component: "signing-flow",
+      canGoBack: false,
+      toolbar: {
+        title: "",
+        canClose: true,
+      },
+    },
+    accountTokens: {
+      name: "accountTokens",
+      component: "account-tokens-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.accountTokens?.title || "Account Tokens",
+        canClose: true,
       },
     },
     notFound: {
-      name: "not-found",
+      name: "notFound",
       component: "ledger-button-404",
       canGoBack: false,
       toolbar: {
         title: "404",
-        showClose: true,
-        showLogo: true,
+        canClose: true,
       },
     },
   } as const;
