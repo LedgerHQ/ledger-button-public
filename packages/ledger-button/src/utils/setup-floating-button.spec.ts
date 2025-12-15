@@ -160,7 +160,6 @@ describe("setupFloatingButton", () => {
       expect(result.floatingButton).toBe(null);
       expect(mockApp.floatingButtonPosition).toBe(false);
     });
-
   });
 
   describe("button attributes and classes", () => {

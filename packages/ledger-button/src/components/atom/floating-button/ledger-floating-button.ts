@@ -21,13 +21,14 @@ export type FloatingButtonPosition =
 export type FloatingButtonVariant = "circular" | "compact";
 
 const floatingButtonVariants = cva(
-  "lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-bg-black lb-text-on-interactive lb-shadow-[0_4px_12px_rgba(0,0,0,0.3)] lb-transition-[transform,box-shadow] lb-duration-200 lb-ease-in-out hover:lb-scale-105 hover:lb-shadow-[0_6px_16px_rgba(0,0,0,0.4)] active:lb-scale-95",
+  "lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-bg-black lb-text-on-interactive lb-shadow-[0_4px_12px_rgba(0,0,0,0.3)] lb-transition-[transform,box-shadow] lb-duration-200 lb-ease-in-out hover:lb-shadow-[0_6px_16px_rgba(0,0,0,0.4)]",
   {
     variants: {
       variant: {
-        circular: "lb-fixed lb-z-[1000] lb-h-64 lb-w-64 lb-rounded-full",
+        circular:
+          "lb-fixed lb-z-[1000] lb-h-64 lb-w-64 lb-rounded-full hover:lb-scale-105 active:lb-scale-95",
         compact:
-          "lb-content-stretch lb-gap-8 lb-overflow-hidden lb-rounded-md lb-px-12 lb-py-8 hover:lb-scale-100 active:lb-scale-100",
+          "lb-content-stretch lb-gap-8 lb-overflow-hidden lb-rounded-md lb-px-12 lb-py-8",
       },
       position: {
         "bottom-right": "lb-bottom-24 lb-right-24",
