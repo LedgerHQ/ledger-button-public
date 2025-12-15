@@ -12,7 +12,7 @@
       "disconnect": "Disconnect"
     },
     "ad": {
-      "buyALedger": "Buy a Ledger device"
+      "getALedger": "Get a Ledger device"
     },
     "platform": {
       "onDesktop": "On desktop",
