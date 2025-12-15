@@ -30,6 +30,7 @@ const pack = async (packagesDir = "packages", distDir = "dist") => {
       -not -path "*/lib/*" \
       -not -path "*/dist/*" \
       -not -path "*/.turbo/*" \
+      -not -path "*/pocs/*" \
       -not -path "*/coverage/*"`;
 
     const files = result.stdout.trim().split("\n").filter(Boolean);

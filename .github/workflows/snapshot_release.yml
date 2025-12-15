@@ -52,7 +52,7 @@ jobs:
         run: pnpm nx run ldb-tools:canonicalize
 
       - name: Build libraries
-        run: pnpm build:libs
+        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core
 
       - name: Prepare dist directory
         run: pnpm nx run ldb-tools:pack

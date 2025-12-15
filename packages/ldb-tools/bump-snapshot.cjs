@@ -13,6 +13,8 @@ const GLOB = [
   "!**/dist/**",
   // Ignore Apps
   "!**/apps/**",
+  // Ignore POCs
+  "!**/pocs/**",
   // Ignore Configs
   "!**/packages/ldb-tools/**",
 ];
@@ -41,15 +43,12 @@ async function getPublicPackages() {
 }
 
 /**
- * Create a changeset file that includes all public packages and run changeset version
+ * Bump snapshot versions for all public packages using Nx release
  * @param {string} tag - The snapshot tag (e.g., "develop", "canary")
  * @param {string} bumpType - The version bump type (patch, minor, major)
  */
 async function bumpSnapshot(tag = "develop", bumpType = "patch") {
   try {
-    const PROJECT_ROOT = process.cwd();
-    const CHANGESET_DIR = path.join(PROJECT_ROOT, ".changeset");
-
     console.log(chalk.blue("📦 Finding all public packages..."));
     console.log("");
 
@@ -76,70 +75,29 @@ async function bumpSnapshot(tag = "develop", bumpType = "patch") {
       );
     }
 
-    console.log(chalk.blue("Creating changeset using changeset CLI..."));
-    console.log("");
+    // Map bump type to Nx prerelease specifier
+    // For snapshot releases, we use prepatch, preminor, or premajor
+    // which will bump the version and add the snapshot tag
+    const prereleaseSpecifier = `pre${bumpType}`;
 
-    // Create an empty changeset using the changeset CLI
-    // This will create a new changeset file with a random ID
-    await $`pnpm changeset add --empty`;
-
-    // Find the most recently created changeset file
-    const changesetFiles = await fs.readdir(CHANGESET_DIR);
-    const changesetMdFiles = changesetFiles.filter(
-      (f) => f.endsWith(".md") && f !== "README.md",
-    );
-
-    // Sort by modification time to get the most recent
-    const changesetPaths = await Promise.all(
-      changesetMdFiles.map(async (file) => {
-        const filePath = path.join(CHANGESET_DIR, file);
-        const stats = await fs.stat(filePath);
-        return { file, path: filePath, mtime: stats.mtimeMs };
-      }),
-    );
-
-    changesetPaths.sort((a, b) => b.mtime - a.mtime);
-
-    if (changesetPaths.length === 0) {
-      throw new Error("Failed to create changeset file");
-    }
-
-    const changesetPath = changesetPaths[0].path;
-    const changesetFile = changesetPaths[0].file;
-
-    console.log(chalk.blue(`Modifying changeset: ${changesetFile}`));
-    console.log("");
-
-    // Build changeset content
-    const changesetContent = `---
-${publicPackages.map((pkg) => `"${pkg.name}": ${bumpType}`).join("\n")}
----
-
-Snapshot release for ${tag} - automated bump
-`;
-
-    // Write the modified changeset content
-    await fs.writeFile(changesetPath, changesetContent, "utf-8");
-
-    console.log(chalk.green(`✅ Created changeset: ${changesetFile}`));
-    console.log(chalk.blue(`   Bump type: ${bumpType}`));
-    console.log(chalk.blue(`   Packages: ${publicPackages.length}`));
-    console.log("");
+    console.log(chalk.blue("Bumping snapshot versions using Nx release..."));
     console.log(
-      chalk.cyan(`Changeset file created at: .changeset/${changesetFile}`),
+      chalk.blue(`   Bump type: ${bumpType} (${prereleaseSpecifier})`),
     );
+    console.log(chalk.blue(`   Snapshot tag: ${tag}`));
     console.log("");
 
-    // Run changeset version to bump all package versions with snapshot tag
-    console.log(
-      chalk.blue(`Running changeset version with snapshot tag: ${tag}`),
-    );
-    console.log("");
-    await $`pnpm changeset version --snapshot ${tag}`;
+    // Run nx release version with prerelease specifier and snapshot tag
+    // Use the "libraries" release group configured in nx.json
+    // This will bump all public packages in the release group and apply the snapshot tag
+    // We disable git commit and tag to match the original behavior
+    await $`pnpm nx release version ${prereleaseSpecifier} --preid ${tag} --groups libraries --git-commit=false --git-tag=false`;
 
     console.log("");
     console.log(chalk.green(`✅ Snapshot versions bumped successfully`));
     console.log(chalk.blue(`   Snapshot tag: ${tag}`));
+    console.log(chalk.blue(`   Bump type: ${bumpType}`));
+    console.log(chalk.blue(`   Packages: ${publicPackages.length}`));
   } catch (error) {
     console.error(chalk.red("Failed to create snapshot versions"));
     throw error;
