@@ -2,6 +2,7 @@ export * from "./atom/balance/ledger-balance.js";
 export * from "./atom/button/ledger-button.js";
 export * from "./atom/chip/ledger-chip.js";
 export * from "./atom/crypto-icon/ledger-crypto-icon.js";
+export * from "./atom/floating-button/ledger-floating-button.js";
 export * from "./atom/icon/device-icon/device-icon.js";
 export * from "./atom/icon/ledger-icon.js";
 export * from "./atom/lottie/ledger-lottie.js";
