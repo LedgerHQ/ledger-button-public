@@ -48,6 +48,10 @@ export class LedgerButtonApp extends LitElement {
       this.handleAccountSwitch,
     );
     window.addEventListener("ledger-internal-sign", this.handleSign);
+    window.addEventListener(
+      "ledger-internal-floating-button-click",
+      this.handleFloatingButtonClick,
+    );
   }
 
   get isModalOpen() {
@@ -69,6 +73,10 @@ export class LedgerButtonApp extends LitElement {
       this.handleAccountSwitch,
     );
     window.removeEventListener("ledger-internal-sign", this.handleSign);
+    window.removeEventListener(
+      "ledger-internal-floating-button-click",
+      this.handleFloatingButtonClick,
+    );
   }
 
   // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
@@ -160,6 +168,10 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
+  private handleFloatingButtonClick = () => {
+    this.navigationIntent("selectAccount");
+  };
+
   public navigationIntent(intent: Destination["name"], params?: unknown) {
     this.root.navigationIntent(intent, params);
   }
@@ -185,6 +197,7 @@ export class LedgerButtonApp extends LitElement {
             <root-navigation-component
               id="navigation"
             ></root-navigation-component>
+            <ledger-floating-button></ledger-floating-button>
           </language-provider>
         </core-provider>
       </div>
