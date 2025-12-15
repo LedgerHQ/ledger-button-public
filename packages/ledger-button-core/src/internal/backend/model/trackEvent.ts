@@ -1,5 +1,6 @@
 export enum EventType {
   ConsentGiven = "consent_given",
+  FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
   LedgerSyncActivated = "ledger_sync_activated",
   Onboarding = "onboarding",
@@ -30,8 +31,6 @@ export type InvoicingTransactionSignedEventData = BaseEventData & {
 export type ConsentGivenEventData = BaseEventData & {
   event_type: "consent_given";
 };
-
-
 
 export type OpenSessionEventData = BaseEventData & {
   event_type: "open_session";
@@ -99,9 +98,15 @@ export type TypedMessageFlowCompletionEventData = BaseEventData & {
   typed_message_hash: string;
 };
 
+export type FloatingButtonClickEventData = BaseEventData & {
+  event_type: "floating_button_clicked";
+  session_id: string;
+};
+
 export type EventData =
   | InvoicingTransactionSignedEventData
   | ConsentGivenEventData
+  | FloatingButtonClickEventData
   | OpenSessionEventData
   | OpenLedgerSyncEventData
   | LedgerSyncActivatedEventData

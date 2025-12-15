@@ -6,6 +6,7 @@ import {
   type ConsentGivenEventData,
   type EventRequest,
   EventType,
+  type FloatingButtonClickEventData,
   type InvoicingTransactionSignedEventData,
   type LedgerSyncActivatedEventData,
   type OnboardingEventData,
@@ -128,6 +129,24 @@ export class EventTrackingUtils {
   }
 
 
+
+  static createFloatingButtonClickEvent(
+    params: SessionEventParams,
+  ): EventRequest {
+    const data: FloatingButtonClickEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.FloatingButtonClick,
+      session_id: params.sessionId,
+    };
+
+    return {
+      name: EventType.FloatingButtonClick,
+      type: EventType.FloatingButtonClick,
+      data,
+    };
+  }
 
   static createOnboardingEvent(
     params: SessionEventParams & {
