@@ -1,0 +1,24 @@
+{
+  "bin": {
+    "ldb-tools": "./cli.cjs"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "catalog:",
+    "semver": "catalog:",
+    "tsc-alias": "catalog:",
+    "zx": "catalog:"
+  },
+  "description": "A collection of scripts and utilities for Ledger Button monorepo",
+  "devDependencies": {
+    "esbuild": "catalog:",
+    "esbuild-node-externals": "catalog:"
+  },
+  "files": [
+    "*.cjs",
+    "!.prettierrc.cjs"
+  ],
+  "license": "Apache-2.0",
+  "name": "@ledgerhq/ldb-tools",
+  "private": true,
+  "version": "0.0.1"
+}

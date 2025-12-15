@@ -1,10 +1,10 @@
 name: "[Release] Prerelease to npm"
 
 on:
-  push:
-    tags:
-      - "**/v*.*.*-pre.*"
-      - "!**/v*.*.*"
+  # push:
+  #   tags:
+  #     - "**/v*.*.*-pre.*"  # Match prerelease tags
+  #     - "!**/v*.*.*"       # Exclude stable release tags
   workflow_dispatch:
     inputs:
       preid:
@@ -45,4 +45,3 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
           # NPM_CONFIG_PROVENANCE: true
-
