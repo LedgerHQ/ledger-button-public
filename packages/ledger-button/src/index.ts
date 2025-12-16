@@ -8,6 +8,8 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { v4 as uuidv4 } from "uuid";
 
+import { FloatingButtonPosition } from "./components/index.js";
+import { setupFloatingButton } from "./utils/setup-floating-button.js";
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
@@ -23,6 +25,8 @@ let core: LedgerButtonCore | null = null;
 
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
+  floatingButtonPosition?: FloatingButtonPosition;
+  floatingButtonTarget?: HTMLElement | string;
 };
 
 export function initializeLedgerProvider({
@@ -32,6 +36,8 @@ export function initializeLedgerProvider({
   target = document.body,
   loggerLevel = "info",
   environment,
+  floatingButtonPosition = "bottom-right",
+  floatingButtonTarget,
   devConfig = {
     stub: {
       base: false,
@@ -95,6 +101,12 @@ export function initializeLedgerProvider({
   app.core = core;
   app.classList.add("ledger-wallet-provider");
 
+  const { floatingButtonContainer, floatingButton } = setupFloatingButton(
+    app,
+    floatingButtonTarget,
+    floatingButtonPosition,
+  );
+
   if (target) {
     target.appendChild(app);
   } else {
@@ -126,6 +138,11 @@ export function initializeLedgerProvider({
     } else {
       document.body.removeChild(app);
     }
+
+    if (floatingButtonContainer && floatingButton) {
+      floatingButtonContainer.removeChild(floatingButton);
+    }
+
     window.removeEventListener(
       "eip6963:requestProvider",
       announceProviderListener,
