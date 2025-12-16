@@ -24,6 +24,8 @@ import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
+import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
+import { type ConsentService } from "../internal/consent/ConsentService.js";
 import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
 import { ContextService } from "../internal/context/ContextService.js";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
@@ -124,6 +126,18 @@ export class LedgerButtonCore {
       ? getChainIdFromCurrencyId(selectedAccount.currencyId)
       : 1;
 
+    const welcomeScreenCompleted = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .isWelcomeScreenCompleted();
+
+    const userConsent = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getUserConsent();
+
+    const hasTrackingConsent = userConsent.isJust()
+      ? userConsent.extract()!.consentGiven
+      : undefined;
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -132,6 +146,8 @@ export class LedgerButtonCore {
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
         chainId: chainId,
+        welcomeScreenCompleted,
+        hasTrackingConsent,
       },
     });
   }
@@ -330,6 +346,65 @@ export class LedgerButtonCore {
   clearPendingAccountId() {
     this._logger.debug("Clearing pending account id");
     this._pendingAccountId = undefined;
+  }
+
+  // Consent methods
+  hasConsent(): boolean {
+    this._logger.debug("Checking user consent");
+    return this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .hasConsent();
+  }
+
+  hasRespondedToConsent(): boolean {
+    this._logger.debug("Checking if user has responded to consent");
+    return this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .hasRespondedToConsent();
+  }
+
+  async giveConsent(): Promise<void> {
+    this._logger.debug("Giving user consent");
+    await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .giveConsent();
+    this._contextService.onEvent({
+      type: "tracking_consent_given",
+    });
+  }
+
+  async refuseConsent(): Promise<void> {
+    this._logger.debug("Refusing user consent");
+    await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .refuseConsent();
+    this._contextService.onEvent({
+      type: "tracking_consent_refused",
+    });
+  }
+
+  async removeConsent(): Promise<void> {
+    this._logger.debug("Removing user consent");
+    await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .removeConsent();
+    this._contextService.onEvent({
+      type: "tracking_consent_refused",
+    });
+  }
+
+  setWelcomeScreenCompleted(): void {
+    this._logger.debug("Setting welcome screen as completed");
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveWelcomeScreenCompleted();
+    this._contextService.onEvent({
+      type: "welcome_screen_completed",
+    });
+  }
+
+  isWelcomeScreenCompleted(): boolean {
+    return this._contextService.getContext().welcomeScreenCompleted;
   }
 
   getTransactionService(): TransactionService {

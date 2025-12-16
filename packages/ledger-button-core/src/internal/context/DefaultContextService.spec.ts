@@ -77,6 +77,8 @@ describe("DefaultContextService", () => {
         trustChainId: undefined,
         applicationPath: undefined,
         chainId: 1,
+        welcomeScreenCompleted: false,
+        hasTrackingConsent: undefined,
       });
     });
   });
@@ -105,6 +107,8 @@ describe("DefaultContextService", () => {
             trustChainId: mockTrustchain.trustChainId,
             applicationPath: mockTrustchain.applicationPath,
             chainId: 137,
+            welcomeScreenCompleted: false,
+            hasTrackingConsent: false,
           },
         },
         expectedContext: {
@@ -113,6 +117,8 @@ describe("DefaultContextService", () => {
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 137,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: false,
         },
       },
       {
@@ -124,6 +130,8 @@ describe("DefaultContextService", () => {
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: 42161,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: undefined,
         },
       },
       {
@@ -135,6 +143,8 @@ describe("DefaultContextService", () => {
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.polygon,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: undefined,
         },
       },
       {
@@ -146,6 +156,8 @@ describe("DefaultContextService", () => {
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: 1,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: undefined,
         },
       },
       {
@@ -167,6 +179,8 @@ describe("DefaultContextService", () => {
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.ethereum,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: undefined,
         },
       },
       {
@@ -181,6 +195,8 @@ describe("DefaultContextService", () => {
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 1,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: undefined,
         },
       },
       {
@@ -195,6 +211,8 @@ describe("DefaultContextService", () => {
               trustChainId: mockTrustchain.trustChainId,
               applicationPath: mockTrustchain.applicationPath,
               chainId: 137,
+              welcomeScreenCompleted: false,
+              hasTrackingConsent: false,
             },
           });
         },
@@ -204,6 +222,8 @@ describe("DefaultContextService", () => {
           connectedDevice: undefined,
           applicationPath: undefined,
           chainId: 137,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: false,
         },
       },
     ])("onEvent - $eventType", (event) => {
@@ -218,6 +238,47 @@ describe("DefaultContextService", () => {
       } as any);
 
       expect(service.getContext()).toEqual(event.expectedContext);
+    });
+
+    describe("welcome_screen_completed event", () => {
+      it("should set welcomeScreenCompleted to true", () => {
+        expect(service.getContext().welcomeScreenCompleted).toBe(false);
+
+        service.onEvent({ type: "welcome_screen_completed" });
+
+        expect(service.getContext().welcomeScreenCompleted).toBe(true);
+      });
+    });
+
+    describe("tracking_consent_given event", () => {
+      it("should set hasTrackingConsent to true", () => {
+        expect(service.getContext().hasTrackingConsent).toBe(undefined);
+
+        service.onEvent({ type: "tracking_consent_given" });
+
+        expect(service.getContext().hasTrackingConsent).toBe(true);
+      });
+    });
+
+    describe("tracking_consent_refused event", () => {
+      it("should set hasTrackingConsent to false", () => {
+        // Give consent
+        service.onEvent({ type: "tracking_consent_given" });
+        expect(service.getContext().hasTrackingConsent).toBe(true);
+
+        // Refuse consent
+        service.onEvent({ type: "tracking_consent_refused" });
+
+        expect(service.getContext().hasTrackingConsent).toBe(false);
+      });
+
+      it("should set hasTrackingConsent to false from undefined", () => {
+        expect(service.getContext().hasTrackingConsent).toBe(undefined);
+
+        service.onEvent({ type: "tracking_consent_refused" });
+
+        expect(service.getContext().hasTrackingConsent).toBe(false);
+      });
     });
   });
 });

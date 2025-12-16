@@ -13,6 +13,7 @@ export interface LedgerToolbarAttributes {
   deviceModelId?: DeviceModelId;
   canGoBack: boolean;
   canClose: boolean;
+  showSettings: boolean;
 }
 
 const styles = css`
@@ -35,6 +36,9 @@ export class LedgerToolbar extends LitElement {
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;
+
+  @property({ type: Boolean, reflect: true })
+  showSettings = false;
 
   private handleClose = () => {
     this.dispatchEvent(
@@ -61,6 +65,15 @@ export class LedgerToolbar extends LitElement {
         bubbles: true,
         composed: true,
         detail: e.detail,
+      }),
+    );
+  };
+
+  private handleSettingsClick = () => {
+    this.dispatchEvent(
+      new CustomEvent("ledger-toolbar-settings-click", {
+        bubbles: true,
+        composed: true,
       }),
     );
   };
@@ -101,20 +114,39 @@ export class LedgerToolbar extends LitElement {
             ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
             : nothing}
 
-        <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
-          ${this.canClose
+        <div class="lb-flex lb-items-center lb-gap-8">
+          ${this.showSettings
             ? html`
-                <ledger-button
-                  data-testid="close-button"
-                  .icon=${true}
-                  variant="noBackground"
-                  iconType="close"
-                  size="xs"
-                  @click=${this.handleClose}
+                <div
+                  class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center"
                 >
-                </ledger-button>
+                  <ledger-button
+                    data-testid="settings-button"
+                    .icon=${true}
+                    variant="noBackground"
+                    iconType="settings"
+                    size="xs"
+                    @click=${this.handleSettingsClick}
+                  >
+                  </ledger-button>
+                </div>
               `
             : nothing}
+          <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
+            ${this.canClose
+              ? html`
+                  <ledger-button
+                    data-testid="close-button"
+                    .icon=${true}
+                    variant="noBackground"
+                    iconType="close"
+                    size="xs"
+                    @click=${this.handleClose}
+                  >
+                  </ledger-button>
+                `
+              : nothing}
+          </div>
         </div>
       </div>
     `;
@@ -136,6 +168,8 @@ declare global {
     }>;
 
     "ledger-toolbar-go-back-click": CustomEvent<void>;
+
+    "ledger-toolbar-settings-click": CustomEvent<void>;
   }
 }
 

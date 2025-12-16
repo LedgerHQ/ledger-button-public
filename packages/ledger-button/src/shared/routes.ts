@@ -2,6 +2,8 @@ import "../domain/onboarding/select-device/select-device.js";
 import "../domain/onboarding/ledger-sync/ledger-sync.js";
 import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
 import "../domain/onboarding/select-account/select-account.js";
+import "../domain/onboarding/welcome/welcome-screen.js";
+import "../domain/onboarding/consent-prompt/consent-analytics-screen.js";
 import "../domain/sign-transaction/sign-transaction.js";
 import "../domain/home/ledger-home.js";
 import "../domain/device-switch/device-switch.js";
@@ -12,6 +14,7 @@ import "../domain/signing-flow/signing-flow.js";
 import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
+import "../domain/settings/settings-screen.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -159,6 +162,24 @@ export const makeDestinations = (translation: Translation) => {
         canClose: true,
       },
     },
+    welcome: {
+      name: "welcome",
+      component: "welcome-screen",
+      canGoBack: false,
+      toolbar: {
+        title: "",
+        canClose: true,
+      },
+    },
+    consentAnalytics: {
+      name: "consentAnalytics",
+      component: "consent-analytics-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.onboarding.consentPrompt?.consent?.title,
+        canClose: true,
+      },
+    },
     onboarding: {
       name: "onboarding",
       component: "select-device-screen",
@@ -191,7 +212,16 @@ export const makeDestinations = (translation: Translation) => {
       component: "account-tokens-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.accountTokens?.title || "Account Tokens",
+        title: translation.accountTokens?.title,
+        canClose: true,
+      },
+    },
+    settings: {
+      name: "settings",
+      component: "settings-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.settings?.title,
         canClose: true,
       },
     },

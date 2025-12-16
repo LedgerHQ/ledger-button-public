@@ -4,7 +4,7 @@ import { Subscription } from "rxjs";
 
 export class OnboardingFlowController implements ReactiveController {
   host: ReactiveControllerHost;
-  state: OnboardingFlowState = "select-device";
+  state: OnboardingFlowState = "welcome";
   contextSubscription: Subscription | undefined = undefined;
 
   constructor(
@@ -34,7 +34,13 @@ export class OnboardingFlowController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((context) => {
-        if (context.trustChainId && context.applicationPath) {
+        if (!context.welcomeScreenCompleted) {
+          this.state = "welcome";
+        }
+        else if (context.hasTrackingConsent === undefined) {
+          this.state = "consent-analytics";
+        }
+        else if (context.trustChainId && context.applicationPath) {
           this.state = "retrieving-accounts";
         } else if (
           (context.trustChainId && !context.applicationPath) ||
@@ -51,6 +57,8 @@ export class OnboardingFlowController implements ReactiveController {
 }
 
 type OnboardingFlowState =
+  | "welcome"
+  | "consent-analytics"
   | "select-device"
   | "ledger-sync"
   | "select-account"

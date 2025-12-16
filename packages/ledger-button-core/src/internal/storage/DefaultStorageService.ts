@@ -4,6 +4,7 @@ import { Either, Just, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
+import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
@@ -172,5 +173,35 @@ export class DefaultStorageService implements StorageService {
         return Nothing;
       }
     });
+  }
+
+  // Consent Management
+  saveUserConsent(consent: UserConsent): void {
+    this.saveItem(STORAGE_KEYS.USER_CONSENT, consent);
+    this.logger.debug("User consent saved", { consent });
+  }
+
+  getUserConsent(): Maybe<UserConsent> {
+    return this.getItem<UserConsent>(STORAGE_KEYS.USER_CONSENT);
+  }
+
+  removeUserConsent(): void {
+    this.removeItem(STORAGE_KEYS.USER_CONSENT);
+    this.logger.debug("User consent removed");
+  }
+
+  // Welcome Screen Management
+  saveWelcomeScreenCompleted(): void {
+    this.saveItem(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED, true);
+    this.logger.debug("Welcome screen completed saved");
+  }
+
+  isWelcomeScreenCompleted(): boolean {
+    return this.getItem<boolean>(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED).orDefault(false);
+  }
+
+  removeWelcomeScreenCompleted(): void {
+    this.removeItem(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED);
+    this.logger.debug("Welcome screen completed removed");
   }
 }

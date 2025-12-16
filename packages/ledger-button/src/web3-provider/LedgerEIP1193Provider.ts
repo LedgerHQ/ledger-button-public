@@ -201,6 +201,10 @@ export class LedgerEIP1193Provider
     }
   }
 
+  public navigationIntent(intent: string, params?: unknown): void {
+    this.app.navigationIntent(intent, params);
+  }
+
   public async disconnect(
     code = 1000, // NOTE: Code here must follow the [CloseEvent.code](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent#Status_codes) convention
     message = "Provider disconnected",

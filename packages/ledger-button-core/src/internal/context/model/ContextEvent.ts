@@ -29,4 +29,13 @@ export type ContextEvent =
     }
   | {
       type: "wallet_disconnected";
+    }
+  | {
+      type: "welcome_screen_completed";
+    }
+  | {
+      type: "tracking_consent_given";
+    }
+  | {
+      type: "tracking_consent_refused";
     };

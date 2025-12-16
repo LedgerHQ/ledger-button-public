@@ -5,6 +5,7 @@ import { backendModuleFactory } from "./backend/backendModule.js";
 import { balanceModuleFactory } from "./balance/balanceModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
+import { consentModuleFactory } from "./consent/consentModule.js";
 import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
 import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
@@ -48,6 +49,7 @@ export function createContainer({
     deviceModuleFactory({ stub: devConfig.stub.device, dmkConfig }),
     eventTrackingModuleFactory({ stub: devConfig.stub.base }),
     storageModuleFactory({ stub: devConfig.stub.base }),
+    consentModuleFactory(),
     networkModuleFactory({ stub: devConfig.stub.base }),
     transactionModuleFactory({ stub: devConfig.stub.base }),
     web3ProviderModuleFactory({ stub: devConfig.stub.web3Provider }),

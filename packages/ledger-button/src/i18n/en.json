@@ -88,11 +88,63 @@
       "title": "",
       "subtitle": "Turn on Ledger Sync to continue",
       "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+    },
+    "consentPrompt": {
+      "intro": {
+        "title": "Welcome to Ledger Wallet",
+        "subtitle": "Enjoy smooth and direct connection between your Ledger signer and your dApps. You’ve unlocked:",
+        "features": {
+          "directConnectivity": {
+            "title": "Direct Connectivity",
+            "description": "Connect via USB or Bluetooth."
+          },
+          "clearSigning": {
+            "title": "Clear Signing",
+            "description": "Clearly verify transactions before signing."
+          },
+          "transactionCheck": {
+            "title": "Transaction Check",
+            "description": "Receive warnings for any potential threats before signing."
+          }
+        },
+        "howItWorks": {
+          "title": "Learn how it works",
+          "description": "Your crypto accounts are securely retrieved via <strong class=\"lb-text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "alreadyActivated": {
+            "title": "Already activated Ledger Sync?",
+            "description": "You're ready to go!"
+          },
+          "firstTime": {
+            "title": "First time using Ledger Sync?",
+            "description": "You'll be guided through a one-time setup that takes just a few minutes."
+          }
+        },
+        "continueButton": "Continue",
+        "legalText": "By clicking Continue you consent and agree to our",
+        "termsAndConditions": "Terms and Conditions",
+        "and": "and",
+        "privacyPolicy": "Privacy Policy"
+      },
+      "consent": {
+        "title": "Help us improve",
+        "description": "With your consent, Ledger will collect product analytics data to help us find bugs, measure Ledger Wallet Direct Connectivity's performance and improve the service and your experience.",
+        "privacyNotice": "Learn more about how we manage your data and your rights in our",
+        "privacyPolicyLink": "Privacy Policy",
+        "acceptButton": "Accept all",
+        "rejectButton": "Refuse all"
+      }
     }
   },
   "accountTokens": {
     "title": "Account Tokens",
     "noTokens": "No tokens found for this account"
+  },
+  "settings": {
+    "title": "Settings",
+    "analytics": {
+      "title": "Analytics",
+      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+    }
   },
   "signTransaction": {
     "success": {

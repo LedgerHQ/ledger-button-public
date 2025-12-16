@@ -269,6 +269,20 @@ export default function Index() {
     setIsOpen(false);
   }, [selectedProvider, setSelectedProvider]);
 
+  const handleOpenHome = useCallback(() => {
+    if (!selectedProvider) return;
+    if (Provider && selectedProvider.provider instanceof Provider) {
+      selectedProvider.provider.navigationIntent("home");
+    }
+  }, [selectedProvider]);
+
+  const handleOpenSettings = useCallback(() => {
+    if (!selectedProvider) return;
+    if (Provider && selectedProvider.provider instanceof Provider) {
+      selectedProvider.provider.navigationIntent("settings");
+    }
+  }, [selectedProvider]);
+
   const handleSignRawTransaction = useCallback(async () => {
     if (!selectedProvider || !rawTxRef.current?.value) return;
     setResult(null);
@@ -354,6 +368,7 @@ export default function Index() {
           {selectedProvider && (
             <>
               <button onClick={handleRequestAccounts}>Request Accounts</button>
+              <button onClick={handleOpenSettings}>Open Settings</button>
               <button onClick={handleDisconnect}>Disconnect</button>
             </>
           )}
@@ -361,7 +376,7 @@ export default function Index() {
 
         {account && (
           <div className={styles.metadata}>
-            {/* <button onClick={handleGetBalance}>Get Balance</button> */}
+            <button onClick={handleOpenHome}>Open Home</button>
             <button onClick={startSignTransaction}>Sign Transaction</button>
             <button onClick={startSignRawTransaction}>
               Sign Raw Transaction

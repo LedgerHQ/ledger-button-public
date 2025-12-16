@@ -4,7 +4,6 @@ import { sha256 } from "ethers";
 import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
-  type ConsentRemovedEventData,
   type EventRequest,
   EventType,
   type InvoicingTransactionSignedEventData,
@@ -15,7 +14,7 @@ import {
   type SessionAuthenticationEventData,
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
-  TypedMessageFlowCompletionEventData,
+  type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
 } from "../backend/model/trackEvent.js";
 import { generateUUID } from "./utils.js";
@@ -128,20 +127,7 @@ export class EventTrackingUtils {
     };
   }
 
-  static createConsentRemovedEvent(params: SessionEventParams): EventRequest {
-    const data: ConsentRemovedEventData = {
-      event_id: generateUUID(),
-      transaction_dapp_id: params.dAppId,
-      timestamp_ms: Date.now(),
-      event_type: EventType.ConsentRemoved,
-    };
 
-    return {
-      name: EventType.ConsentRemoved,
-      type: EventType.ConsentRemoved,
-      data,
-    };
-  }
 
   static createOnboardingEvent(
     params: SessionEventParams & {
