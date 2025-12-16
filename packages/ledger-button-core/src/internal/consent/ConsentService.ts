@@ -1,10 +1,10 @@
 import { UserConsent } from "../storage/model/UserConsent.js";
 
 export interface ConsentService {
-  hasConsent(): boolean;
-  hasRespondedToConsent(): boolean;
+  hasConsent(): Promise<boolean>;
+  hasRespondedToConsent(): Promise<boolean>;
   giveConsent(): Promise<void>;
   refuseConsent(): Promise<void>;
   removeConsent(): Promise<void>;
-  getConsentDetails(): UserConsent | undefined;
+  getConsentDetails(): Promise<UserConsent | undefined>;
 }

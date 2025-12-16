@@ -34,9 +34,9 @@ export class SettingsScreen extends LitElement {
   @state()
   private analyticsEnabled = false;
 
-  override connectedCallback() {
+  override async connectedCallback() {
     super.connectedCallback();
-    this.analyticsEnabled = this.coreContext.hasConsent();
+    this.analyticsEnabled = await this.coreContext.hasConsent();
   }
 
   private async handleToggleChange(e: CustomEvent) {

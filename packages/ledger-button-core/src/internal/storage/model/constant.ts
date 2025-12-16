@@ -3,14 +3,14 @@ const INDEXED_DB_KEYS = {
   DB_STORE_NAME: "ledger-button-store",
   DB_STORE_KEYPAIR_KEY: "keyPair",
   ENCRYPTION_KEY: "encryptionKey",
+  USER_CONSENT: "userConsent",
+  WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
 } as const;
 
-export const INDEXED_DB_VERSION = 3;
+export const INDEXED_DB_VERSION = 4;
 
 const LOCAL_STORAGE_KEYS = {
   PREFIX: "ledger-button",
-  USER_CONSENT: "userConsent",
-  WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
   SELECTED_ACCOUNT: "selectedAccount",
   TRUST_CHAIN_ID: "trustChainId",
   TRUST_CHAIN_VALIDITY: "trustChainValidity",

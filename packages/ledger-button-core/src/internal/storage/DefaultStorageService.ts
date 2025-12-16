@@ -176,32 +176,80 @@ export class DefaultStorageService implements StorageService {
   }
 
   // Consent Management
-  saveUserConsent(consent: UserConsent): void {
-    this.saveItem(STORAGE_KEYS.USER_CONSENT, consent);
-    this.logger.debug("User consent saved", { consent });
+  async saveUserConsent(consent: UserConsent): Promise<void> {
+    const result = await this.indexedDbService.storeUserConsent(consent);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("User consent saved", { consent });
+      },
+      Left: (error) => {
+        this.logger.error("Error saving user consent", { error, consent });
+      },
+    });
   }
 
-  getUserConsent(): Maybe<UserConsent> {
-    return this.getItem<UserConsent>(STORAGE_KEYS.USER_CONSENT);
+  async getUserConsent(): Promise<Maybe<UserConsent>> {
+    const result = await this.indexedDbService.getUserConsent();
+    return result.caseOf({
+      Right: (maybeConsent) => maybeConsent,
+      Left: (error) => {
+        this.logger.error("Error getting user consent", { error });
+        return Nothing;
+      },
+    });
   }
 
-  removeUserConsent(): void {
-    this.removeItem(STORAGE_KEYS.USER_CONSENT);
-    this.logger.debug("User consent removed");
+  async removeUserConsent(): Promise<void> {
+    const consent: UserConsent = {
+      consentGiven: false,
+      consentDate: new Date().toISOString(),
+    };
+    const result = await this.indexedDbService.storeUserConsent(consent);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("User consent set to refused", { consent });
+      },
+      Left: (error) => {
+        this.logger.error("Error removing user consent", { error });
+      },
+    });
   }
 
   // Welcome Screen Management
-  saveWelcomeScreenCompleted(): void {
-    this.saveItem(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED, true);
-    this.logger.debug("Welcome screen completed saved");
+  async saveWelcomeScreenCompleted(): Promise<void> {
+    const result =
+      await this.indexedDbService.storeWelcomeScreenCompleted(true);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("Welcome screen completed saved");
+      },
+      Left: (error) => {
+        this.logger.error("Error saving welcome screen completed", { error });
+      },
+    });
   }
 
-  isWelcomeScreenCompleted(): boolean {
-    return this.getItem<boolean>(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED).orDefault(false);
+  async isWelcomeScreenCompleted(): Promise<boolean> {
+    const result = await this.indexedDbService.getWelcomeScreenCompleted();
+    return result.caseOf({
+      Right: (maybeCompleted) => maybeCompleted.orDefault(false),
+      Left: (error) => {
+        this.logger.error("Error getting welcome screen completed", { error });
+        return false;
+      },
+    });
   }
 
-  removeWelcomeScreenCompleted(): void {
-    this.removeItem(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED);
-    this.logger.debug("Welcome screen completed removed");
+  async removeWelcomeScreenCompleted(): Promise<void> {
+    const result =
+      await this.indexedDbService.storeWelcomeScreenCompleted(false);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("Welcome screen completed set to false");
+      },
+      Left: (error) => {
+        this.logger.error("Error removing welcome screen completed", { error });
+      },
+    });
   }
 }

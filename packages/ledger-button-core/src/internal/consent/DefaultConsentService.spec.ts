@@ -23,9 +23,9 @@ describe("DefaultConsentService", () => {
     vi.clearAllMocks();
 
     mockStorageService = {
-      getUserConsent: vi.fn(),
-      saveUserConsent: vi.fn(),
-      removeUserConsent: vi.fn(),
+      getUserConsent: vi.fn().mockResolvedValue(Nothing),
+      saveUserConsent: vi.fn().mockResolvedValue(undefined),
+      removeUserConsent: vi.fn().mockResolvedValue(undefined),
     };
 
     mockEventTrackingService = {
@@ -40,69 +40,77 @@ describe("DefaultConsentService", () => {
   });
 
   describe("hasConsent", () => {
-    it("should return true when user has given consent", () => {
+    it("should return true when user has given consent", async () => {
       const mockConsent: UserConsent = {
         consentGiven: true,
         consentDate: new Date().toISOString(),
       };
-      mockStorageService.getUserConsent.mockReturnValue(Maybe.of(mockConsent));
+      mockStorageService.getUserConsent.mockResolvedValue(
+        Maybe.of(mockConsent),
+      );
 
-      const result = consentService.hasConsent();
+      const result = await consentService.hasConsent();
 
       expect(result).toBe(true);
       expect(mockStorageService.getUserConsent).toHaveBeenCalled();
     });
 
-    it("should return false when user has refused consent", () => {
+    it("should return false when user has refused consent", async () => {
       const mockConsent: UserConsent = {
         consentGiven: false,
         consentDate: new Date().toISOString(),
       };
-      mockStorageService.getUserConsent.mockReturnValue(Maybe.of(mockConsent));
+      mockStorageService.getUserConsent.mockResolvedValue(
+        Maybe.of(mockConsent),
+      );
 
-      const result = consentService.hasConsent();
+      const result = await consentService.hasConsent();
 
       expect(result).toBe(false);
     });
 
-    it("should return false when no consent record exists", () => {
-      mockStorageService.getUserConsent.mockReturnValue(Nothing);
+    it("should return false when no consent record exists", async () => {
+      mockStorageService.getUserConsent.mockResolvedValue(Nothing);
 
-      const result = consentService.hasConsent();
+      const result = await consentService.hasConsent();
 
       expect(result).toBe(false);
     });
   });
 
   describe("hasRespondedToConsent", () => {
-    it("should return true when user has responded to consent (given)", () => {
+    it("should return true when user has responded to consent (given)", async () => {
       const mockConsent: UserConsent = {
         consentGiven: true,
         consentDate: new Date().toISOString(),
       };
-      mockStorageService.getUserConsent.mockReturnValue(Maybe.of(mockConsent));
+      mockStorageService.getUserConsent.mockResolvedValue(
+        Maybe.of(mockConsent),
+      );
 
-      const result = consentService.hasRespondedToConsent();
+      const result = await consentService.hasRespondedToConsent();
 
       expect(result).toBe(true);
     });
 
-    it("should return true when user has responded to consent (refused)", () => {
+    it("should return true when user has responded to consent (refused)", async () => {
       const mockConsent: UserConsent = {
         consentGiven: false,
         consentDate: new Date().toISOString(),
       };
-      mockStorageService.getUserConsent.mockReturnValue(Maybe.of(mockConsent));
+      mockStorageService.getUserConsent.mockResolvedValue(
+        Maybe.of(mockConsent),
+      );
 
-      const result = consentService.hasRespondedToConsent();
+      const result = await consentService.hasRespondedToConsent();
 
       expect(result).toBe(true);
     });
 
-    it("should return false when user has not responded to consent", () => {
-      mockStorageService.getUserConsent.mockReturnValue(Nothing);
+    it("should return false when user has not responded to consent", async () => {
+      mockStorageService.getUserConsent.mockResolvedValue(Nothing);
 
-      const result = consentService.hasRespondedToConsent();
+      const result = await consentService.hasRespondedToConsent();
 
       expect(result).toBe(false);
     });
@@ -182,22 +190,24 @@ describe("DefaultConsentService", () => {
   });
 
   describe("getConsentDetails", () => {
-    it("should return consent details when consent exists", () => {
+    it("should return consent details when consent exists", async () => {
       const mockConsent: UserConsent = {
         consentGiven: true,
         consentDate: "2024-01-01T00:00:00.000Z",
       };
-      mockStorageService.getUserConsent.mockReturnValue(Maybe.of(mockConsent));
+      mockStorageService.getUserConsent.mockResolvedValue(
+        Maybe.of(mockConsent),
+      );
 
-      const result = consentService.getConsentDetails();
+      const result = await consentService.getConsentDetails();
 
       expect(result).toEqual(mockConsent);
     });
 
-    it("should return undefined when no consent exists", () => {
-      mockStorageService.getUserConsent.mockReturnValue(Nothing);
+    it("should return undefined when no consent exists", async () => {
+      mockStorageService.getUserConsent.mockResolvedValue(Nothing);
 
-      const result = consentService.getConsentDetails();
+      const result = await consentService.getConsentDetails();
 
       expect(result).toBeUndefined();
     });

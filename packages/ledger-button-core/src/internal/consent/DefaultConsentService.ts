@@ -17,15 +17,13 @@ export class DefaultConsentService implements ConsentService {
     private readonly eventTrackingService: EventTrackingService,
   ) {}
 
-  hasConsent(): boolean {
-    const consent = this.storageService.getUserConsent();
-    return consent
-      .map((c) => c.consentGiven)
-      .orDefault(false);
+  async hasConsent(): Promise<boolean> {
+    const consent = await this.storageService.getUserConsent();
+    return consent.map((c) => c.consentGiven).orDefault(false);
   }
 
-  hasRespondedToConsent(): boolean {
-    const consent = this.storageService.getUserConsent();
+  async hasRespondedToConsent(): Promise<boolean> {
+    const consent = await this.storageService.getUserConsent();
     return consent.isJust();
   }
 
@@ -35,7 +33,7 @@ export class DefaultConsentService implements ConsentService {
       consentDate: new Date().toISOString(),
     };
 
-    this.storageService.saveUserConsent(consent);
+    await this.storageService.saveUserConsent(consent);
 
     await this.eventTrackingService.trackEvent({
       name: "Consent Given",
@@ -55,15 +53,15 @@ export class DefaultConsentService implements ConsentService {
       consentDate: new Date().toISOString(),
     };
 
-    this.storageService.saveUserConsent(consent);
+    await this.storageService.saveUserConsent(consent);
   }
 
   async removeConsent(): Promise<void> {
-    this.storageService.removeUserConsent();
+    await this.storageService.removeUserConsent();
   }
 
-  getConsentDetails(): UserConsent | undefined {
-    const consent = this.storageService.getUserConsent();
+  async getConsentDetails(): Promise<UserConsent | undefined> {
+    const consent = await this.storageService.getUserConsent();
     return consent.isJust() ? consent.extract() : undefined;
   }
 }

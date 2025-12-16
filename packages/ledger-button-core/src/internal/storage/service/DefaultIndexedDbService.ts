@@ -16,6 +16,7 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "../model/errors.js";
+import { type UserConsent } from "../model/UserConsent.js";
 import { type IndexedDbService } from "./IndexedDbService.js";
 
 @injectable()
@@ -380,6 +381,243 @@ export class DefaultIndexedDbService implements IndexedDbService {
           Left: (error) => {
             this.logger.error(
               "Error initializing IDB for DB version retrieval",
+              { error },
+            );
+            resolve(Left(error));
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
+    });
+  }
+
+  async storeUserConsent(
+    consent: UserConsent,
+  ): Promise<Either<StorageIDBErrors, void>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, void>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readwrite",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.put(consent, STORAGE_KEYS.USER_CONSENT);
+
+          request.onsuccess = () => {
+            this.logger.debug("User consent stored in IndexedDB", { consent });
+            resolve(Right(undefined));
+          };
+
+          request.onerror = (event) => {
+            this.logger.error("Error storing user consent in IndexedDB", {
+              event,
+              consent,
+            });
+            resolve(
+              Left(
+                new StorageIDBStoreError("Error storing user consent", {
+                  event,
+                  consent,
+                }),
+              ),
+            );
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for user consent storage",
+              { error },
+            );
+            resolve(Left(error));
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
+    });
+  }
+
+  async getUserConsent(): Promise<
+    Either<StorageIDBErrors, Maybe<UserConsent>>
+  > {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, Maybe<UserConsent>>>(
+      (resolve) => {
+        init
+          .map((db) => {
+            const transaction = db.transaction(
+              STORAGE_KEYS.DB_STORE_NAME,
+              "readonly",
+            );
+            const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+            const request = store.get(STORAGE_KEYS.USER_CONSENT);
+
+            request.onsuccess = (event) => {
+              const result = (event.target as IDBRequest)?.result;
+              if (result !== undefined) {
+                this.logger.debug("User consent retrieved from IndexedDB", {
+                  consent: result,
+                });
+                resolve(Right(Just(result)));
+              } else {
+                this.logger.debug("No user consent found in IndexedDB");
+                resolve(Right(Nothing));
+              }
+            };
+
+            request.onerror = (event) => {
+              this.logger.error(
+                "Error retrieving user consent from IndexedDB",
+                {
+                  event,
+                },
+              );
+              resolve(
+                Left(
+                  new StorageIDBGetError("Error retrieving user consent", {
+                    event,
+                  }),
+                ),
+              );
+            };
+          })
+          .caseOf({
+            Left: (error) => {
+              this.logger.error(
+                "Error initializing IDB for user consent retrieval",
+                { error },
+              );
+              resolve(Left(error));
+            },
+            Right: () => {
+              // Transaction handled in map callback
+            },
+          });
+      },
+    );
+  }
+
+  async storeWelcomeScreenCompleted(
+    completed: boolean,
+  ): Promise<Either<StorageIDBErrors, void>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, void>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readwrite",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.put(
+            completed,
+            STORAGE_KEYS.WELCOME_SCREEN_COMPLETED,
+          );
+
+          request.onsuccess = () => {
+            this.logger.debug("Welcome screen status stored in IndexedDB", {
+              completed,
+            });
+            resolve(Right(undefined));
+          };
+
+          request.onerror = (event) => {
+            this.logger.error(
+              "Error storing welcome screen status in IndexedDB",
+              {
+                event,
+                completed,
+              },
+            );
+            resolve(
+              Left(
+                new StorageIDBStoreError(
+                  "Error storing welcome screen status",
+                  {
+                    event,
+                    completed,
+                  },
+                ),
+              ),
+            );
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for welcome screen status storage",
+              { error },
+            );
+            resolve(Left(error));
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
+    });
+  }
+
+  async getWelcomeScreenCompleted(): Promise<
+    Either<StorageIDBErrors, Maybe<boolean>>
+  > {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, Maybe<boolean>>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readonly",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.get(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED);
+
+          request.onsuccess = (event) => {
+            const result = (event.target as IDBRequest)?.result;
+            if (result !== undefined && typeof result === "boolean") {
+              this.logger.debug(
+                "Welcome screen status retrieved from IndexedDB",
+                {
+                  completed: result,
+                },
+              );
+              resolve(Right(Just(result)));
+            } else {
+              this.logger.debug("No welcome screen status found in IndexedDB");
+              resolve(Right(Nothing));
+            }
+          };
+
+          request.onerror = (event) => {
+            this.logger.error(
+              "Error retrieving welcome screen status from IndexedDB",
+              {
+                event,
+              },
+            );
+            resolve(
+              Left(
+                new StorageIDBGetError(
+                  "Error retrieving welcome screen status",
+                  {
+                    event,
+                  },
+                ),
+              ),
+            );
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for welcome screen status retrieval",
               { error },
             );
             resolve(Left(error));
