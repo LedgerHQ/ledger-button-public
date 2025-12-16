@@ -11,7 +11,7 @@ const defaultHeader = (color) => {
 
 const help = (commands, danger = false, header = defaultHeader) => {
   const getColor = (command) => {
-    if (!!command?.internal) {
+    if (command?.internal) {
       return chalk.gray;
     }
 
