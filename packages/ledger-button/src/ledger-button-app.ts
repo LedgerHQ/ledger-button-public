@@ -12,7 +12,7 @@ import {
   LedgerButtonCore,
   SignedResults,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
 import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button.js";
@@ -197,7 +197,7 @@ export class LedgerButtonApp extends LitElement {
 
   private renderFloatingButton() {
     if (this.floatingButtonPosition === false) {
-      return null;
+      return nothing;
     }
 
     return html`<ledger-floating-button
