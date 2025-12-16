@@ -174,7 +174,8 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
-  private handleFloatingButtonClick = () => {
+  private handleFloatingButtonClick = async () => {
+    await this.core.trackFloatingButtonClick();
     this.navigationIntent("selectAccount");
   };
 

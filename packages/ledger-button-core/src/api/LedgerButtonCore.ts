@@ -42,6 +42,7 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
@@ -497,5 +498,13 @@ export class LedgerButtonCore {
 
   getChainId(): number {
     return this._contextService.getContext().chainId;
+  }
+
+  async trackFloatingButtonClick(): Promise<void> {
+    await this.container
+      .get<TrackFloatingButtonClick>(
+        eventTrackingModuleTypes.TrackFloatingButtonClick,
+      )
+      .execute();
   }
 }

@@ -38,7 +38,10 @@ export const ConsentGivenEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_given"),
 });
 
-
+export const FloatingButtonClickEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("floating_button_clicked"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+});
 
 export const OpenSessionEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("open_session"),
@@ -115,6 +118,7 @@ export const SessionAuthenticationEventSchema = BaseEventDataSchema.extend({
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
   ConsentGivenEventSchema,
+  FloatingButtonClickEventSchema,
   OpenSessionEventSchema,
   OpenLedgerSyncEventSchema,
   LedgerSyncActivatedEventSchema,
