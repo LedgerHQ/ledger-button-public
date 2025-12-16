@@ -70,7 +70,7 @@ const canonicalize = async (packagesDir = "packages", checkOnly = false) => {
 
     let modifiedCount = 0;
     let upToDateCount = 0;
-    let needsCanonicalizationFiles = [];
+    const needsCanonicalizationFiles = [];
 
     for (const pkgFile of files) {
       const pkgRelativePath = path.relative(PROJECT_ROOT, pkgFile);

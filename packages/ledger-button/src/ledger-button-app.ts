@@ -12,13 +12,16 @@ import {
   LedgerButtonCore,
   SignedResults,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
+import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
 import { tailwindElement } from "./tailwind-element.js";
+
+type FloatingButtonPosition = FloatingButtonPositionComponent | false;
 
 @customElement("ledger-button-app")
 @tailwindElement()
@@ -28,6 +31,9 @@ export class LedgerButtonApp extends LitElement {
 
   @property({ type: Object })
   core!: LedgerButtonCore;
+
+  @property({ attribute: false })
+  floatingButtonPosition: FloatingButtonPosition = "bottom-right";
 
   controller!: LedgerButtonAppController;
 
@@ -189,6 +195,16 @@ export class LedgerButtonApp extends LitElement {
     this.root.openModal();
   }
 
+  private renderFloatingButton() {
+    if (this.floatingButtonPosition === false) {
+      return nothing;
+    }
+
+    return html`<ledger-floating-button
+      .position=${this.floatingButtonPosition}
+    ></ledger-floating-button>`;
+  }
+
   override render() {
     return html`
       <div class="dark">
@@ -197,7 +213,7 @@ export class LedgerButtonApp extends LitElement {
             <root-navigation-component
               id="navigation"
             ></root-navigation-component>
-            <ledger-floating-button></ledger-floating-button>
+            ${this.renderFloatingButton()}
           </language-provider>
         </core-provider>
       </div>
