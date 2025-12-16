@@ -366,6 +366,74 @@ describe("DefaultStorageService", () => {
     });
   });
 
+  describe("User Consent methods", () => {
+    describe("saveUserConsent", () => {
+      it("should be able to save user consent", () => {
+        const consent = {
+          consentGiven: true,
+          consentDate: "2024-01-01T00:00:00.000Z",
+        };
+        storageService.saveUserConsent(consent);
+        expect(storageService.getUserConsent()).toEqual(Maybe.of(consent));
+      });
+    });
+
+    describe("getUserConsent", () => {
+      it("should return Nothing when no consent exists", () => {
+        expect(storageService.getUserConsent()).toBe(Nothing);
+      });
+
+      it("should return consent when it exists", () => {
+        const consent = {
+          consentGiven: false,
+          consentDate: "2024-01-01T00:00:00.000Z",
+        };
+        storageService.saveUserConsent(consent);
+        expect(storageService.getUserConsent()).toEqual(Maybe.of(consent));
+      });
+    });
+
+    describe("removeUserConsent", () => {
+      it("should remove user consent", () => {
+        const consent = {
+          consentGiven: true,
+          consentDate: "2024-01-01T00:00:00.000Z",
+        };
+        storageService.saveUserConsent(consent);
+        storageService.removeUserConsent();
+        expect(storageService.getUserConsent()).toBe(Nothing);
+      });
+    });
+  });
+
+  describe("Welcome Screen methods", () => {
+    describe("saveWelcomeScreenCompleted", () => {
+      it("should save welcome screen completed state", () => {
+        storageService.saveWelcomeScreenCompleted();
+        expect(storageService.isWelcomeScreenCompleted()).toBe(true);
+      });
+    });
+
+    describe("isWelcomeScreenCompleted", () => {
+      it("should return false when welcome screen has not been completed", () => {
+        expect(storageService.isWelcomeScreenCompleted()).toBe(false);
+      });
+
+      it("should return true when welcome screen has been completed", () => {
+        storageService.saveWelcomeScreenCompleted();
+        expect(storageService.isWelcomeScreenCompleted()).toBe(true);
+      });
+    });
+
+    describe("removeWelcomeScreenCompleted", () => {
+      it("should remove welcome screen completed state", () => {
+        storageService.saveWelcomeScreenCompleted();
+        storageService.removeWelcomeScreenCompleted();
+        expect(storageService.isWelcomeScreenCompleted()).toBe(false);
+      });
+    });
+  });
+
   describe("Error handling", () => {
     describe("getItem with invalid JSON", () => {
       it("should return Nothing when JSON parsing fails", () => {

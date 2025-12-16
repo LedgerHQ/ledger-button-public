@@ -43,8 +43,9 @@ const styles = css`
   .modal-container {
     width: min(calc(100% - 32px), 400px);
     height: auto;
-    max-height: min(calc(100vh - 64px), 550px);
+    max-height: min(calc(100vh - 64px), var(--modal-max-height, 550px));
     overflow: hidden;
+    transition: max-height 0.3s ease;
   }
 `;
 

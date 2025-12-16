@@ -61,7 +61,7 @@ export class RootNavigationController implements ReactiveController {
           break;
         }
 
-        this.navigation.navigateTo(this.destinations.onboardingFlow);
+        this.computeInitialState();
         break;
       }
 
@@ -131,6 +131,10 @@ export class RootNavigationController implements ReactiveController {
         this.navigation.navigateTo(this.destinations.onboardingFlow);
         break;
 
+      case "settings":
+        this.navigation.navigateTo(this.destinations.settings);
+        break;
+
       case "notFound":
       default:
         this.navigation.navigateTo(this.destinations.notFound);
@@ -153,6 +157,10 @@ export class RootNavigationController implements ReactiveController {
 
   async handleChipClick() {
     this.navigation.navigateTo(this.destinations.deviceSwitch);
+  }
+
+  navigateToSettings() {
+    this.navigation.navigateTo(this.destinations.settings);
   }
 
   selectAccount(account: Account) {

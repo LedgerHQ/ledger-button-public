@@ -93,6 +93,7 @@ export function initializeLedgerProvider({
 
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
   app.core = core;
+  app.classList.add("ledger-wallet-provider");
 
   if (target) {
     target.appendChild(app);

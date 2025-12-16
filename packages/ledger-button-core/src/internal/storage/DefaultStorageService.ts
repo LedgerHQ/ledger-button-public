@@ -4,6 +4,7 @@ import { Either, Just, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
+import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
@@ -28,13 +29,16 @@ export class DefaultStorageService implements StorageService {
     return `${STORAGE_KEYS.PREFIX}-${key}`;
   }
 
-  // Database Version
-  setDbVersion(version: number): void {
-    this.saveItem(STORAGE_KEYS.DB_VERSION, version);
+  async setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>> {
+    return this.indexedDbService.setDbVersion(version);
   }
 
-  getDbVersion(): number {
-    return this.getItem<number>(STORAGE_KEYS.DB_VERSION).orDefault(0);
+  async getDbVersion(): Promise<number> {
+    const version = await this.indexedDbService.getDbVersion();
+    return version.caseOf({
+      Right: (maybeVersion) => maybeVersion.orDefault(0),
+      Left: () => this.getItem<number>(STORAGE_KEYS.DB_VERSION).orDefault(0),
+    });
   }
 
   async storeKeyPair(
@@ -169,5 +173,35 @@ export class DefaultStorageService implements StorageService {
         return Nothing;
       }
     });
+  }
+
+  // Consent Management
+  saveUserConsent(consent: UserConsent): void {
+    this.saveItem(STORAGE_KEYS.USER_CONSENT, consent);
+    this.logger.debug("User consent saved", { consent });
+  }
+
+  getUserConsent(): Maybe<UserConsent> {
+    return this.getItem<UserConsent>(STORAGE_KEYS.USER_CONSENT);
+  }
+
+  removeUserConsent(): void {
+    this.removeItem(STORAGE_KEYS.USER_CONSENT);
+    this.logger.debug("User consent removed");
+  }
+
+  // Welcome Screen Management
+  saveWelcomeScreenCompleted(): void {
+    this.saveItem(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED, true);
+    this.logger.debug("Welcome screen completed saved");
+  }
+
+  isWelcomeScreenCompleted(): boolean {
+    return this.getItem<boolean>(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED).orDefault(false);
+  }
+
+  removeWelcomeScreenCompleted(): void {
+    this.removeItem(STORAGE_KEYS.WELCOME_SCREEN_COMPLETED);
+    this.logger.debug("Welcome screen completed removed");
   }
 }

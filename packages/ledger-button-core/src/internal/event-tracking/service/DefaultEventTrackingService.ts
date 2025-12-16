@@ -8,6 +8,8 @@ import {
 } from "../../backend/model/trackEvent.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import type { Config } from "../../config/model/config.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { generateUUID } from "../utils.js";
@@ -26,6 +28,8 @@ export class DefaultEventTrackingService implements EventTrackingService {
     private readonly config: Config,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("[Event Tracking]");
     this._sessionId = generateUUID();
@@ -37,29 +41,11 @@ export class DefaultEventTrackingService implements EventTrackingService {
 
   async trackEvent(event: EventRequest): Promise<void> {
     try {
+      if (!this.shouldTrackEvent(event)) {
+        return;
+      }
+
       this.logger.info("Tracking event", { event });
-      /*
-TODO: Uncomment this when we have a validation for the events in the backend.
-Check current state with formats in JSON schemas and update the validation.
-
-      const validationResult = EventTrackingUtils.validateEvent(event);
-
-      if (!validationResult.success) {
-        this.logger.error("Event validation failed", {
-          eventType: event.type,
-          errors: validationResult.errors,
-          event,
-        });
-        return;
-      }
-*/
-
-      if (!this.isEventActivated(event.type)) {
-        this.logger.debug("Event is not activated, skipping tracking", {
-          event,
-        });
-        return;
-      }
 
       //TODO: Uncomment this when we have a validation for the events in the backend.
       const result = await this.backendService.event(
@@ -78,6 +64,41 @@ Check current state with formats in JSON schemas and update the validation.
     } catch (error) {
       this.logger.error("Error tracking event", { error, event });
     }
+  }
+
+  private shouldTrackEvent(event: EventRequest): boolean {
+    const hasConsent = this.contextService.getContext().hasTrackingConsent;
+
+    if (!hasConsent) {
+      this.logger.debug("User has not given consent, skipping tracking", {
+        event,
+      });
+      return false;
+    }
+
+    /*
+TODO: Uncomment this when we have a validation for the events in the backend.
+Check current state with formats in JSON schemas and update the validation.
+
+    const validationResult = EventTrackingUtils.validateEvent(event);
+    if (!validationResult.success) {
+      this.logger.error("Event validation failed", {
+        eventType: event.type,
+        errors: validationResult.errors,
+        event,
+      });
+      return false;
+    }
+*/
+
+    if (!this.isEventActivated(event.type)) {
+      this.logger.debug("Event is not activated, skipping tracking", {
+        event,
+      });
+      return false;
+    }
+
+    return true;
   }
 
   private isEventActivated(type: EventType): boolean {

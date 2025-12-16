@@ -40,35 +40,8 @@ import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
-
-const EIP1193_SUPPORTED_METHODS = [
-  "eth_accounts",
-  "eth_requestAccounts",
-  "eth_chainId",
-  "eth_sendTransaction",
-  "eth_signTransaction",
-  "eth_signRawTransaction",
-  "eth_sign",
-  "personal_sign",
-  "eth_sendRawTransaction",
-  "eth_signTypedData",
-  "eth_signTypedData_v4",
-  "wallet_switchEthereumChain",
-];
-
-//TODO complete with Node JSON rpc methods that can be broadcasted and directly handled by nodes
-const SUPPORTED_CHAINS = [
-  "1",
-  "42161",
-  "43114",
-  "8453",
-  "56",
-  "59144",
-  "10",
-  "137",
-  "146",
-  "324",
-];
+import { isSupportedChainId } from "./supportedChains.js";
+import { isSupportedRpcMethod } from "./supportedRpcMethods.js";
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -226,6 +199,10 @@ export class LedgerEIP1193Provider
         }),
       );
     }
+  }
+
+  public navigationIntent(intent: string, params?: unknown): void {
+    this.app.navigationIntent(intent, params);
   }
 
   public async disconnect(
@@ -556,7 +533,7 @@ export class LedgerEIP1193Provider
       const chainId = (params[0] as { chainId: string }).chainId;
       const chainIdNumber = parseInt(chainId, 16);
 
-      if (!SUPPORTED_CHAINS.includes(chainIdNumber.toString())) {
+      if (!isSupportedChainId(chainIdNumber.toString())) {
         return reject(
           this.createError(
             CommonEIP1193ErrorCode.ChainDisconnected,
@@ -620,7 +597,7 @@ export class LedgerEIP1193Provider
       return res;
     }
 
-    if (EIP1193_SUPPORTED_METHODS.includes(method)) {
+    if (isSupportedRpcMethod(method)) {
       const res = await this.core.jsonRpcRequest({
         jsonrpc: "2.0",
         id: this._id++,

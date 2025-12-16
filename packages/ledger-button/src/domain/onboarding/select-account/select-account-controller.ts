@@ -30,7 +30,6 @@ export class SelectAccountController implements ReactiveController {
 
   selectAccount(account: Account) {
     if (this.navigation.host instanceof RootNavigationComponent) {
-      //this.core.selectAccount(address);
       this.navigation.host.selectAccount(account);
       this.host.requestUpdate();
     }

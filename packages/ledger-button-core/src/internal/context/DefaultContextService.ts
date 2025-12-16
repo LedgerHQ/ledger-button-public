@@ -16,6 +16,8 @@ export class DefaultContextService implements ContextService {
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
+    welcomeScreenCompleted: false,
+    hasTrackingConsent: undefined,
   };
 
   private readonly logger: LoggerPublisher;
@@ -67,6 +69,15 @@ export class DefaultContextService implements ContextService {
         this.context.trustChainId = undefined;
         this.context.connectedDevice = undefined;
         this.context.applicationPath = undefined;
+        break;
+      case "welcome_screen_completed":
+        this.context.welcomeScreenCompleted = true;
+        break;
+      case "tracking_consent_given":
+        this.context.hasTrackingConsent = true;
+        break;
+      case "tracking_consent_refused":
+        this.context.hasTrackingConsent = false;
         break;
     }
 

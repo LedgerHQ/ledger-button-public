@@ -1,11 +1,12 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
+import { UserConsent } from "./model/UserConsent.js";
 import { Account } from "../account/service/AccountService.js";
 
 export interface StorageService {
-  setDbVersion(version: number): void;
-  getDbVersion(): number;
+  setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>>;
+  getDbVersion(): Promise<number>;
   getItem<T>(key: string): Maybe<T>;
   saveItem<T>(key: string, value: T): void;
   removeItem(key: string): boolean;
@@ -27,4 +28,12 @@ export interface StorageService {
 
   storeEncryptionKey(encryptionKey: CryptoKey): Promise<void>;
   getEncryptionKey(): Promise<Maybe<CryptoKey>>;
+
+  saveUserConsent(consent: UserConsent): void;
+  getUserConsent(): Maybe<UserConsent>;
+  removeUserConsent(): void;
+
+  saveWelcomeScreenCompleted(): void;
+  isWelcomeScreenCompleted(): boolean;
+  removeWelcomeScreenCompleted(): void;
 }

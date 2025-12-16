@@ -9,7 +9,8 @@ export const mockKeyPairBuffer = new Uint8Array([1, 2, 3]);
 
 export const createMockStorageService = () => ({
   getDbVersion: vi.fn(),
-  setDbVersion: vi.fn(),
+  setDbVersion: vi.fn().mockResolvedValue(Right(undefined)),
+  removeItem: vi.fn(),
   getKeyPair: vi.fn().mockResolvedValue(Right(mockKeyPairBuffer)),
 });
 
@@ -38,4 +39,3 @@ export const createMigrateDbUseCase = (
     mockKeyPairMigrationService as unknown as KeyPairMigrationService,
   );
 };
-

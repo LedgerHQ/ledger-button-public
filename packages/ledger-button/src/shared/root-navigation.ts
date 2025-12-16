@@ -108,6 +108,10 @@ export class RootNavigationComponent extends LitElement {
     this.rootNavigationController.handleChipClick();
   }
 
+  private handleSettingsClick() {
+    this.rootNavigationController.navigateToSettings();
+  }
+
   private goBack() {
     this.rootNavigationController.navigateBack();
   }
@@ -150,6 +154,9 @@ export class RootNavigationComponent extends LitElement {
         ? connectedDevice.modelId
         : undefined;
 
+    const showSettings =
+      this.rootNavigationController.currentScreen?.name === "home";
+
     return html`
       <ledger-modal
         id="ledger-modal"
@@ -162,10 +169,12 @@ export class RootNavigationComponent extends LitElement {
             aria-label=${ifDefined(title)}
             .canGoBack=${canGoBack}
             .canClose=${canClose}
+            .showSettings=${showSettings}
             deviceModelId=${ifDefined(deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-go-back-click=${this.goBack}
             @ledger-toolbar-chip-click=${this.handleChipClick}
+            @ledger-toolbar-settings-click=${this.handleSettingsClick}
           >
           </ledger-toolbar>
         </div>

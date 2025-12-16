@@ -1,6 +1,5 @@
 export enum EventType {
   ConsentGiven = "consent_given",
-  ConsentRemoved = "consent_removed",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
   LedgerSyncActivated = "ledger_sync_activated",
   Onboarding = "onboarding",
@@ -32,9 +31,7 @@ export type ConsentGivenEventData = BaseEventData & {
   event_type: "consent_given";
 };
 
-export type ConsentRemovedEventData = BaseEventData & {
-  event_type: "consent_removed";
-};
+
 
 export type OpenSessionEventData = BaseEventData & {
   event_type: "open_session";
@@ -105,7 +102,6 @@ export type TypedMessageFlowCompletionEventData = BaseEventData & {
 export type EventData =
   | InvoicingTransactionSignedEventData
   | ConsentGivenEventData
-  | ConsentRemovedEventData
   | OpenSessionEventData
   | OpenLedgerSyncEventData
   | LedgerSyncActivatedEventData

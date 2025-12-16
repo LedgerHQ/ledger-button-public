@@ -9,6 +9,8 @@ export const INDEXED_DB_VERSION = 3;
 
 const LOCAL_STORAGE_KEYS = {
   PREFIX: "ledger-button",
+  USER_CONSENT: "userConsent",
+  WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
   SELECTED_ACCOUNT: "selectedAccount",
   TRUST_CHAIN_ID: "trustChainId",
   TRUST_CHAIN_VALIDITY: "trustChainValidity",

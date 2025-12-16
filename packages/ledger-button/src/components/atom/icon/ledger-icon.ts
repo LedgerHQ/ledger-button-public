@@ -9,13 +9,18 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  ClearSigningIcon,
   CloseIcon,
   DesktopIcon,
   DeviceIcon,
+  DirectConnectivityIcon,
   ErrorIcon,
   ExternalLinkIcon,
   LedgerLogoIcon,
   MobileIcon,
+  QuestionIcon,
+  SettingsIcon,
+  TransactionCheckIcon,
   UsbIcon,
 } from "./index";
 
@@ -34,7 +39,12 @@ export interface LedgerIconAttributes {
     | "mobile"
     | "desktop"
     | "cart"
-    | "externalLink";
+    | "externalLink"
+    | "directConnectivity"
+    | "clearSigning"
+    | "transactionCheck"
+    | "question"
+    | "settings";
   size: "small" | "medium" | "large";
   fillColor?: string;
 }
@@ -85,6 +95,11 @@ export class LedgerIcon extends LitElement {
       desktop: () => DesktopIcon,
       cart: () => CartIcon,
       externalLink: () => ExternalLinkIcon,
+      directConnectivity: () => DirectConnectivityIcon,
+      clearSigning: () => ClearSigningIcon,
+      transactionCheck: () => TransactionCheckIcon,
+      question: () => QuestionIcon,
+      settings: () => SettingsIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;

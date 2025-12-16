@@ -289,4 +289,105 @@ export class DefaultIndexedDbService implements IndexedDbService {
         });
     });
   }
+
+  async setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, void>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readwrite",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.put(version, STORAGE_KEYS.DB_VERSION);
+
+          request.onsuccess = () => {
+            this.logger.debug("DB version stored in IndexedDB", { version });
+            resolve(Right(undefined));
+          };
+
+          request.onerror = (event) => {
+            this.logger.error("Error storing DB version in IndexedDB", {
+              event,
+              version,
+            });
+            resolve(
+              Left(
+                new StorageIDBStoreError("Error storing DB version", {
+                  event,
+                  version,
+                }),
+              ),
+            );
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error("Error initializing IDB for DB version storage", {
+              error,
+            });
+            resolve(Left(error));
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
+    });
+  }
+
+  async getDbVersion(): Promise<Either<StorageIDBErrors, Maybe<number>>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, Maybe<number>>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readonly",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.get(STORAGE_KEYS.DB_VERSION);
+
+          request.onsuccess = (event) => {
+            const result = (event.target as IDBRequest)?.result;
+            if (result !== undefined && typeof result === "number") {
+              this.logger.debug("DB version retrieved from IndexedDB", {
+                version: result,
+              });
+              resolve(Right(Just(result)));
+            } else {
+              this.logger.debug("No DB version found in IndexedDB");
+              resolve(Right(Nothing));
+            }
+          };
+
+          request.onerror = (event) => {
+            this.logger.error("Error retrieving DB version from IndexedDB", {
+              event,
+            });
+            resolve(
+              Left(
+                new StorageIDBGetError("Error retrieving DB version", {
+                  event,
+                }),
+              ),
+            );
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for DB version retrieval",
+              { error },
+            );
+            resolve(Left(error));
+          },
+          Right: () => {
+            // Transaction handled in map callback
+          },
+        });
+    });
+  }
 }
