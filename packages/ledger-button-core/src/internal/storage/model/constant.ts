@@ -7,7 +7,7 @@ const INDEXED_DB_KEYS = {
   WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
 } as const;
 
-export const INDEXED_DB_VERSION = 4;
+export const INDEXED_DB_VERSION = 3;
 
 const LOCAL_STORAGE_KEYS = {
   PREFIX: "ledger-button",
