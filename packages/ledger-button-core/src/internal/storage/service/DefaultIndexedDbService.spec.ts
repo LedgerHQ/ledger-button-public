@@ -217,4 +217,120 @@ describe("DefaultIndexedDbService", () => {
       expect(result).toBe(Nothing);
     });
   });
+
+  describe("User Consent - storeUserConsent and getUserConsent", () => {
+    beforeEach(async () => {
+      await clearObjectStore();
+      indexedDbService = new DefaultIndexedDbService(() => mockLogger);
+    });
+
+    it("should store and retrieve user consent", async () => {
+      const consent = {
+        consentGiven: true,
+        consentDate: "2024-01-01T00:00:00.000Z",
+      };
+
+      const storeResult = await indexedDbService.storeUserConsent(consent);
+      expect(storeResult.isRight()).toBe(true);
+
+      const getResult = await indexedDbService.getUserConsent();
+      expect(getResult.isRight()).toBe(true);
+      getResult.map((maybeConsent) => {
+        expect(maybeConsent.isJust()).toBe(true);
+        maybeConsent.map((retrievedConsent) => {
+          expect(retrievedConsent).toEqual(consent);
+        });
+      });
+    });
+
+    it("should return Nothing when user consent does not exist", async () => {
+      const result = await indexedDbService.getUserConsent();
+      expect(result.isRight()).toBe(true);
+      result.map((maybeConsent) => {
+        expect(maybeConsent).toBe(Nothing);
+      });
+    });
+
+    it("should overwrite existing consent when storing new consent", async () => {
+      const firstConsent = {
+        consentGiven: true,
+        consentDate: "2024-01-01T00:00:00.000Z",
+      };
+      const secondConsent = {
+        consentGiven: false,
+        consentDate: "2024-01-02T00:00:00.000Z",
+      };
+
+      await indexedDbService.storeUserConsent(firstConsent);
+      await indexedDbService.storeUserConsent(secondConsent);
+
+      const result = await indexedDbService.getUserConsent();
+      expect(result.isRight()).toBe(true);
+      result.map((maybeConsent) => {
+        expect(maybeConsent.isJust()).toBe(true);
+        maybeConsent.map((retrievedConsent) => {
+          expect(retrievedConsent).toEqual(secondConsent);
+        });
+      });
+    });
+  });
+
+  describe("Welcome Screen - storeWelcomeScreenCompleted and getWelcomeScreenCompleted", () => {
+    beforeEach(async () => {
+      await clearObjectStore();
+      indexedDbService = new DefaultIndexedDbService(() => mockLogger);
+    });
+
+    it("should store and retrieve welcome screen completed status as true", async () => {
+      const storeResult =
+        await indexedDbService.storeWelcomeScreenCompleted(true);
+      expect(storeResult.isRight()).toBe(true);
+
+      const getResult = await indexedDbService.getWelcomeScreenCompleted();
+      expect(getResult.isRight()).toBe(true);
+      getResult.map((maybeCompleted) => {
+        expect(maybeCompleted.isJust()).toBe(true);
+        maybeCompleted.map((completed) => {
+          expect(completed).toBe(true);
+        });
+      });
+    });
+
+    it("should store and retrieve welcome screen completed status as false", async () => {
+      const storeResult =
+        await indexedDbService.storeWelcomeScreenCompleted(false);
+      expect(storeResult.isRight()).toBe(true);
+
+      const getResult = await indexedDbService.getWelcomeScreenCompleted();
+      expect(getResult.isRight()).toBe(true);
+      getResult.map((maybeCompleted) => {
+        expect(maybeCompleted.isJust()).toBe(true);
+        maybeCompleted.map((completed) => {
+          expect(completed).toBe(false);
+        });
+      });
+    });
+
+    it("should return Nothing when welcome screen status does not exist", async () => {
+      const result = await indexedDbService.getWelcomeScreenCompleted();
+      expect(result.isRight()).toBe(true);
+      result.map((maybeCompleted) => {
+        expect(maybeCompleted).toBe(Nothing);
+      });
+    });
+
+    it("should overwrite existing status when storing new status", async () => {
+      await indexedDbService.storeWelcomeScreenCompleted(true);
+      await indexedDbService.storeWelcomeScreenCompleted(false);
+
+      const result = await indexedDbService.getWelcomeScreenCompleted();
+      expect(result.isRight()).toBe(true);
+      result.map((maybeCompleted) => {
+        expect(maybeCompleted.isJust()).toBe(true);
+        maybeCompleted.map((completed) => {
+          expect(completed).toBe(false);
+        });
+      });
+    });
+  });
 });

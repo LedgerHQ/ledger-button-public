@@ -29,11 +29,11 @@ export interface StorageService {
   storeEncryptionKey(encryptionKey: CryptoKey): Promise<void>;
   getEncryptionKey(): Promise<Maybe<CryptoKey>>;
 
-  saveUserConsent(consent: UserConsent): void;
-  getUserConsent(): Maybe<UserConsent>;
-  removeUserConsent(): void;
+  saveUserConsent(consent: UserConsent): Promise<void>;
+  getUserConsent(): Promise<Maybe<UserConsent>>;
+  removeUserConsent(): Promise<void>;
 
-  saveWelcomeScreenCompleted(): void;
-  isWelcomeScreenCompleted(): boolean;
-  removeWelcomeScreenCompleted(): void;
+  saveWelcomeScreenCompleted(): Promise<void>;
+  isWelcomeScreenCompleted(): Promise<boolean>;
+  removeWelcomeScreenCompleted(): Promise<void>;
 }

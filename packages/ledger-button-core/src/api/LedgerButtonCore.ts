@@ -127,11 +127,11 @@ export class LedgerButtonCore {
       ? getChainIdFromCurrencyId(selectedAccount.currencyId)
       : 1;
 
-    const welcomeScreenCompleted = this.container
+    const welcomeScreenCompleted = await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .isWelcomeScreenCompleted();
 
-    const userConsent = this.container
+    const userConsent = await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .getUserConsent();
 
@@ -350,16 +350,16 @@ export class LedgerButtonCore {
   }
 
   // Consent methods
-  hasConsent(): boolean {
+  async hasConsent(): Promise<boolean> {
     this._logger.debug("Checking user consent");
-    return this.container
+    return await this.container
       .get<ConsentService>(consentModuleTypes.ConsentService)
       .hasConsent();
   }
 
-  hasRespondedToConsent(): boolean {
+  async hasRespondedToConsent(): Promise<boolean> {
     this._logger.debug("Checking if user has responded to consent");
-    return this.container
+    return await this.container
       .get<ConsentService>(consentModuleTypes.ConsentService)
       .hasRespondedToConsent();
   }
@@ -394,9 +394,9 @@ export class LedgerButtonCore {
     });
   }
 
-  setWelcomeScreenCompleted(): void {
+  async setWelcomeScreenCompleted(): Promise<void> {
     this._logger.debug("Setting welcome screen as completed");
-    this.container
+    await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .saveWelcomeScreenCompleted();
     this._contextService.onEvent({

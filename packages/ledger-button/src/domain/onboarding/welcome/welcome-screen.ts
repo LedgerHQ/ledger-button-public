@@ -60,8 +60,8 @@ export class WelcomeScreen extends LitElement {
     this.updateModalHeight();
   }
 
-  private handleContinue() {
-    this.coreContext.setWelcomeScreenCompleted();
+  private async handleContinue() {
+    await this.coreContext.setWelcomeScreenCompleted();
   }
 
   private renderFeatureItem(
@@ -71,12 +71,14 @@ export class WelcomeScreen extends LitElement {
   ) {
     return html`
       <div class="lb-flex lb-items-start lb-gap-16">
-        <div class="lb-flex lb-items-center lb-justify-center lb-w-24 lb-h-24 lb-flex-shrink-0">
+        <div
+          class="lb-flex lb-h-24 lb-w-24 lb-flex-shrink-0 lb-items-center lb-justify-center"
+        >
           <ledger-icon type=${iconType} size="medium"></ledger-icon>
         </div>
         <div class="lb-flex lb-flex-col lb-gap-4">
-          <span class="lb-body-1-semi-bold lb-text-base">${title}</span>
-          <span class="lb-body-2 lb-text-muted">${description}</span>
+          <span class="lb-text-base lb-body-1-semi-bold">${title}</span>
+          <span class="lb-text-muted lb-body-2">${description}</span>
         </div>
       </div>
     `;
@@ -84,11 +86,16 @@ export class WelcomeScreen extends LitElement {
 
   private renderHowItWorksCard(title: string, description: string) {
     return html`
-      <div class="lb-rounded-sm lb-p-16 lb-flex lb-items-start lb-gap-12" style="background: rgba(255, 255, 255, 0.05);">
-        <div class="lb-w-8 lb-h-8 lb-rounded-full lb-bg-accent lb-flex-shrink-0 lb-mt-4"></div>
+      <div
+        class="lb-flex lb-items-start lb-gap-12 lb-rounded-sm lb-p-16"
+        style="background: rgba(255, 255, 255, 0.05);"
+      >
+        <div
+          class="lb-mt-4 lb-h-8 lb-w-8 lb-flex-shrink-0 lb-rounded-full lb-bg-accent"
+        ></div>
         <div class="lb-flex lb-flex-col lb-gap-4">
-          <span class="lb-body-2-semi-bold lb-text-base">${title}</span>
-          <span class="lb-body-2 lb-text-muted">${description}</span>
+          <span class="lb-text-base lb-body-2-semi-bold">${title}</span>
+          <span class="lb-text-muted lb-body-2">${description}</span>
         </div>
       </div>
     `;
@@ -105,15 +112,13 @@ export class WelcomeScreen extends LitElement {
     return html`
       <div class="lb-flex lb-flex-col lb-gap-24 lb-p-24 lb-pt-8">
         <div class="lb-flex lb-flex-col lb-gap-8 lb-text-center">
-          <h2 class="lb-heading-4 lb-text-base">
-            ${intro.title}
-          </h2>
-          <p class="lb-body-2 lb-text-muted">
-            ${intro.subtitle}
-          </p>
+          <h2 class="lb-text-base lb-heading-4">${intro.title}</h2>
+          <p class="lb-text-muted lb-body-2">${intro.subtitle}</p>
         </div>
 
-        <div class="lb-bg-muted lb-rounded-lg lb-p-16 lb-flex lb-flex-col lb-gap-24">
+        <div
+          class="lb-flex lb-flex-col lb-gap-24 lb-rounded-lg lb-bg-muted lb-p-16"
+        >
           ${this.renderFeatureItem(
             "directConnectivity",
             intro.features.directConnectivity.title,
@@ -131,28 +136,40 @@ export class WelcomeScreen extends LitElement {
           )}
         </div>
 
-        <div class="lb-bg-muted lb-rounded-lg lb-overflow-hidden">
+        <div class="lb-overflow-hidden lb-rounded-lg lb-bg-muted">
           <button
-            class="lb-w-full lb-p-16 lb-flex lb-items-center lb-justify-between lb-cursor-pointer lb-bg-transparent lb-border-0"
+            class="lb-flex lb-w-full lb-cursor-pointer lb-items-center lb-justify-between lb-border-0 lb-bg-transparent lb-p-16"
             @click=${this.toggleHowItWorks}
             aria-expanded=${this.isHowItWorksExpanded}
           >
             <div class="lb-flex lb-items-center lb-gap-12">
-              <ledger-icon type="question" size="medium" fillColor="#9C9C9C"></ledger-icon>
-              <span class="lb-body-1-semi-bold lb-text-base">${intro.howItWorks.title}</span>
+              <ledger-icon
+                type="question"
+                size="medium"
+                fillColor="#9C9C9C"
+              ></ledger-icon>
+              <span class="lb-text-base lb-body-1-semi-bold"
+                >${intro.howItWorks.title}</span
+              >
             </div>
             <div
               class="lb-text-muted lb-transition-transform lb-duration-200"
-              style="transform: rotate(${this.isHowItWorksExpanded ? "180deg" : "0deg"})"
+              style="transform: rotate(${this.isHowItWorksExpanded
+                ? "180deg"
+                : "0deg"})"
             >
-              <ledger-icon type="chevronDown" size="medium" fillColor="#9C9C9C"></ledger-icon>
+              <ledger-icon
+                type="chevronDown"
+                size="medium"
+                fillColor="#9C9C9C"
+              ></ledger-icon>
             </div>
           </button>
 
           ${this.isHowItWorksExpanded
             ? html`
-                <div class="lb-px-16 lb-pb-16 lb-flex lb-flex-col lb-gap-12">
-                  <p class="lb-body-2 lb-text-muted">
+                <div class="lb-flex lb-flex-col lb-gap-12 lb-px-16 lb-pb-16">
+                  <p class="lb-text-muted lb-body-2">
                     ${unsafeHTML(intro.howItWorks.description)}
                   </p>
                   ${this.renderHowItWorksCard(
@@ -175,13 +192,23 @@ export class WelcomeScreen extends LitElement {
           @click=${this.handleContinue}
         ></ledger-button>
 
-        <p class="lb-body-2 lb-text-muted lb-text-center">
+        <p class="lb-text-center lb-text-muted lb-body-2">
           ${intro.legalText}
-          <a href="https://www.ledger.com/terms-of-use" target="_blank" rel="noopener noreferrer" class="lb-underline lb-text-base">
+          <a
+            href="https://www.ledger.com/terms-of-use"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="lb-text-base lb-underline"
+          >
             ${intro.termsAndConditions}
           </a>
           ${intro.and}
-          <a href="https://www.ledger.com/privacy-policy" target="_blank" rel="noopener noreferrer" class="lb-underline lb-text-base">
+          <a
+            href="https://www.ledger.com/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="lb-text-base lb-underline"
+          >
             ${intro.privacyPolicy}
           </a>
         </p>

@@ -3,6 +3,7 @@ import "fake-indexeddb/auto";
 import { Either, Just, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
+import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
 import { Config } from "../config/model/config.js";
@@ -18,9 +19,13 @@ let storageService: DefaultStorageService;
 let mockIndexedDbService: IndexedDbService;
 
 describe("DefaultStorageService", () => {
+  let mockStorage: { userConsent?: UserConsent; welcomeScreen?: boolean };
+
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorage.clear();
+    mockStorage = {};
+
     config = new Config({
       originToken: "test-token",
       dAppIdentifier: "test-app",
@@ -34,6 +39,30 @@ describe("DefaultStorageService", () => {
       removeKeyPair: vi.fn(),
       storeEncryptionKey: vi.fn(),
       getEncryptionKey: vi.fn(),
+      setDbVersion: vi.fn(),
+      getDbVersion: vi.fn(),
+      storeUserConsent: vi.fn().mockImplementation(async (consent) => {
+        mockStorage.userConsent = consent;
+        return Right(undefined);
+      }),
+      getUserConsent: vi.fn().mockImplementation(async () => {
+        return Right(
+          mockStorage.userConsent ? Just(mockStorage.userConsent) : Nothing,
+        );
+      }),
+      storeWelcomeScreenCompleted: vi
+        .fn()
+        .mockImplementation(async (completed) => {
+          mockStorage.welcomeScreen = completed;
+          return Right(undefined);
+        }),
+      getWelcomeScreenCompleted: vi.fn().mockImplementation(async () => {
+        return Right(
+          mockStorage.welcomeScreen !== undefined
+            ? Just(mockStorage.welcomeScreen)
+            : Nothing,
+        );
+      }),
     } as unknown as IndexedDbService;
 
     storageService = new DefaultStorageService(
@@ -368,68 +397,74 @@ describe("DefaultStorageService", () => {
 
   describe("User Consent methods", () => {
     describe("saveUserConsent", () => {
-      it("should be able to save user consent", () => {
+      it("should be able to save user consent", async () => {
         const consent = {
           consentGiven: true,
           consentDate: "2024-01-01T00:00:00.000Z",
         };
-        storageService.saveUserConsent(consent);
-        expect(storageService.getUserConsent()).toEqual(Maybe.of(consent));
+        await storageService.saveUserConsent(consent);
+        expect(await storageService.getUserConsent()).toEqual(
+          Maybe.of(consent),
+        );
       });
     });
 
     describe("getUserConsent", () => {
-      it("should return Nothing when no consent exists", () => {
-        expect(storageService.getUserConsent()).toBe(Nothing);
+      it("should return Nothing when no consent exists", async () => {
+        expect(await storageService.getUserConsent()).toBe(Nothing);
       });
 
-      it("should return consent when it exists", () => {
+      it("should return consent when it exists", async () => {
         const consent = {
           consentGiven: false,
           consentDate: "2024-01-01T00:00:00.000Z",
         };
-        storageService.saveUserConsent(consent);
-        expect(storageService.getUserConsent()).toEqual(Maybe.of(consent));
+        await storageService.saveUserConsent(consent);
+        expect(await storageService.getUserConsent()).toEqual(
+          Maybe.of(consent),
+        );
       });
     });
 
     describe("removeUserConsent", () => {
-      it("should remove user consent", () => {
+      it("should set consent to refused instead of removing", async () => {
         const consent = {
           consentGiven: true,
           consentDate: "2024-01-01T00:00:00.000Z",
         };
-        storageService.saveUserConsent(consent);
-        storageService.removeUserConsent();
-        expect(storageService.getUserConsent()).toBe(Nothing);
+        await storageService.saveUserConsent(consent);
+        await storageService.removeUserConsent();
+        const result = await storageService.getUserConsent();
+        expect(result.isJust()).toBe(true);
+        expect(result.extract()?.consentGiven).toBe(false);
       });
     });
   });
 
   describe("Welcome Screen methods", () => {
     describe("saveWelcomeScreenCompleted", () => {
-      it("should save welcome screen completed state", () => {
-        storageService.saveWelcomeScreenCompleted();
-        expect(storageService.isWelcomeScreenCompleted()).toBe(true);
+      it("should save welcome screen completed state", async () => {
+        await storageService.saveWelcomeScreenCompleted();
+        expect(await storageService.isWelcomeScreenCompleted()).toBe(true);
       });
     });
 
     describe("isWelcomeScreenCompleted", () => {
-      it("should return false when welcome screen has not been completed", () => {
-        expect(storageService.isWelcomeScreenCompleted()).toBe(false);
+      it("should return false when welcome screen has not been completed", async () => {
+        expect(await storageService.isWelcomeScreenCompleted()).toBe(false);
       });
 
-      it("should return true when welcome screen has been completed", () => {
-        storageService.saveWelcomeScreenCompleted();
-        expect(storageService.isWelcomeScreenCompleted()).toBe(true);
+      it("should return true when welcome screen has been completed", async () => {
+        await storageService.saveWelcomeScreenCompleted();
+        expect(await storageService.isWelcomeScreenCompleted()).toBe(true);
       });
     });
 
     describe("removeWelcomeScreenCompleted", () => {
-      it("should remove welcome screen completed state", () => {
-        storageService.saveWelcomeScreenCompleted();
-        storageService.removeWelcomeScreenCompleted();
-        expect(storageService.isWelcomeScreenCompleted()).toBe(false);
+      it("should set welcome screen to false instead of removing", async () => {
+        await storageService.saveWelcomeScreenCompleted();
+        await storageService.removeWelcomeScreenCompleted();
+        expect(await storageService.isWelcomeScreenCompleted()).toBe(false);
       });
     });
   });

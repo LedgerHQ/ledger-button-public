@@ -109,7 +109,7 @@ export class LedgerFloatingButton extends LitElement {
   };
 
   override render() {
-    if (this.variant === "circular" && !this.controller?.shouldShow) {
+    if (!this.controller?.shouldShow) {
       return nothing;
     }
 
