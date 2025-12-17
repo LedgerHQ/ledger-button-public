@@ -14,6 +14,11 @@ const createMockLedgerButtonCore = (): LedgerButtonCore =>
     setChainId: vi.fn(),
     disconnect: vi.fn(),
     jsonRpcRequest: vi.fn(),
+    observeContext: vi.fn(() => ({
+      subscribe: vi.fn(() => ({
+        unsubscribe: vi.fn(),
+      })),
+    })),
   }) as unknown as LedgerButtonCore;
 
 const createMockLedgerButtonApp = (): LedgerButtonApp =>

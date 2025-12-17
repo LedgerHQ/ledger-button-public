@@ -38,6 +38,7 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-wallet-provider-core";
+import { Subscription } from "rxjs";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
 import { isSupportedChainId } from "./supportedChains.js";
@@ -71,6 +72,8 @@ export class LedgerEIP1193Provider
 
   private _currentEvent: string | null = null;
 
+  private _contextSubscription?: Subscription;
+
   constructor(
     private readonly core: LedgerButtonCore,
     private readonly app: LedgerButtonApp,
@@ -95,6 +98,8 @@ export class LedgerEIP1193Provider
         );
       }
     });
+
+    this.subscribeToContextChanges();
 
     setInterval(() => {
       if (
@@ -227,6 +232,11 @@ export class LedgerEIP1193Provider
         this._pendingRequest = null;
       }
 
+      if (this._contextSubscription) {
+        this._contextSubscription.unsubscribe();
+        this._contextSubscription = undefined;
+      }
+
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
           bubbles: true,
@@ -235,6 +245,34 @@ export class LedgerEIP1193Provider
         }),
       );
     }
+  }
+
+  private subscribeToContextChanges() {
+    if (this._contextSubscription) {
+      this._contextSubscription.unsubscribe();
+    }
+
+    this._contextSubscription = this.core
+      .observeContext()
+      .subscribe((context) => {
+        if (context.selectedAccount) {
+          const newAddress = context.selectedAccount.freshAddress;
+          const newChainId = getChainIdFromCurrencyId(
+            context.selectedAccount.currencyId,
+          );
+
+          const hasAddressChanged = this._selectedAccount !== newAddress;
+          const hasChainIdChanged = this._selectedChainId !== newChainId;
+
+          if (hasAddressChanged) {
+            this.setSelectedAccount(context.selectedAccount);
+          }
+
+          if (hasChainIdChanged) {
+            this.setSelectedChainId(newChainId);
+          }
+        }
+      });
   }
 
   private setSelectedAccount(account: Account) {
