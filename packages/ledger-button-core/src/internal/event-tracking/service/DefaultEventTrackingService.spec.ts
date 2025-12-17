@@ -94,14 +94,15 @@ describe("DefaultEventTrackingService", () => {
   describe("getSessionId", () => {
     it("should return a session ID", () => {
       const sessionId = eventTrackingService.getSessionId();
-      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+      const uuidPattern =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
       expect(sessionId).toMatch(uuidPattern);
     });
   });
 
   describe("trackEvent", () => {
-    describe("consent check", () => {
-      it("should NOT track event when user has not given consent", async () => {
+    describe("billing events (InvoicingTransactionSigned)", () => {
+      it("should ALWAYS track InvoicingTransactionSigned even without consent", async () => {
         mockContextService.getContext.mockReturnValue(
           createMockContext({ hasTrackingConsent: false }),
         );
@@ -113,14 +114,17 @@ describe("DefaultEventTrackingService", () => {
 
         await eventTrackingService.trackEvent(event);
 
-        expect(mockBackendService.event).not.toHaveBeenCalled();
-        expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
+        expect(mockLogger.debug).not.toHaveBeenCalledWith(
           "User has not given consent, skipping tracking",
-          { event },
+          expect.anything(),
         );
       });
 
-      it("should track event when user has given consent", async () => {
+      it("should track InvoicingTransactionSigned with consent", async () => {
         mockContextService.getContext.mockReturnValue(
           createMockContext({ hasTrackingConsent: true }),
         );
@@ -139,25 +143,10 @@ describe("DefaultEventTrackingService", () => {
       });
     });
 
-    describe("event activation", () => {
-      it("should track InvoicingTransactionSigned events when consent is given", async () => {
+    describe("analytics events (consent-based)", () => {
+      it("should NOT track analytics events when user has not given consent", async () => {
         mockContextService.getContext.mockReturnValue(
-          createMockContext({ hasTrackingConsent: true }),
-        );
-
-        const event = createMockEvent(
-          EventType.InvoicingTransactionSigned,
-          "invoicing_transaction_signed",
-        );
-
-        await eventTrackingService.trackEvent(event);
-
-        expect(mockBackendService.event).toHaveBeenCalled();
-      });
-
-      it("should NOT track non-activated event types even with consent", async () => {
-        mockContextService.getContext.mockReturnValue(
-          createMockContext({ hasTrackingConsent: true }),
+          createMockContext({ hasTrackingConsent: false }),
         );
 
         const event = createMockEvent(EventType.ConsentGiven, "consent_given");
@@ -166,8 +155,59 @@ describe("DefaultEventTrackingService", () => {
 
         expect(mockBackendService.event).not.toHaveBeenCalled();
         expect(mockLogger.debug).toHaveBeenCalledWith(
-          "Event is not activated, skipping tracking",
+          "User has not given consent, skipping tracking",
           { event },
+        );
+      });
+
+      it("should track analytics events when user has given consent", async () => {
+        mockContextService.getContext.mockReturnValue(
+          createMockContext({ hasTrackingConsent: true }),
+        );
+
+        const event = createMockEvent(EventType.ConsentGiven, "consent_given");
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
+      });
+
+      it("should track TypedMessageFlowInitialization when consent is given", async () => {
+        mockContextService.getContext.mockReturnValue(
+          createMockContext({ hasTrackingConsent: true }),
+        );
+
+        const event = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
+      });
+
+      it("should track TransactionFlowInitialization when consent is given", async () => {
+        mockContextService.getContext.mockReturnValue(
+          createMockContext({ hasTrackingConsent: true }),
+        );
+
+        const event = createMockEvent(
+          EventType.TransactionFlowInitialization,
+          "transaction_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
         );
       });
     });
