@@ -45,6 +45,22 @@ export class DefaultEventTrackingService implements EventTrackingService {
         return;
       }
 
+      /*
+TODO: Uncomment this when we have a validation for the events in the backend.
+Check current state with formats in JSON schemas and update the validation.
+
+      const validationResult = EventTrackingUtils.validateEvent(event);
+
+      if (!validationResult.success) {
+        this.logger.error("Event validation failed", {
+          eventType: event.type,
+          errors: validationResult.errors,
+          event,
+        });
+        return;
+      }
+*/
+
       this.logger.info("Tracking event", { event });
 
       //TODO: Uncomment this when we have a validation for the events in the backend.

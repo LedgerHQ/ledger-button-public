@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 
+import { base64ToArrayBuffer } from "../../../api/utils/base64Utils.js";
 import { cloudSyncModuleTypes } from "../../cloudsync/cloudSyncModuleTypes.js";
 import type { CloudSyncService } from "../../cloudsync/service/CloudSyncService.js";
 import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js";
@@ -53,9 +54,4 @@ export class FetchAccountsUseCase {
     await this.accountService.setAccountsFromCloudSyncData(accounts);
     return this.accountService.getAccounts();
   }
-}
-
-//TODO move in utils
-function base64ToArrayBuffer(base64: string): Uint8Array {
-  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
 }
