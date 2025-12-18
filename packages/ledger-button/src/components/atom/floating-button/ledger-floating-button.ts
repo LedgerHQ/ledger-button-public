@@ -70,6 +70,9 @@ export class LedgerFloatingButton extends LitElement {
   @state()
   private coreContext!: CoreContext;
 
+  @property({ type: Object, attribute: false })
+  core?: CoreContext;
+
   @property({ type: String })
   position: FloatingButtonPosition = "bottom-right";
 
@@ -87,14 +90,16 @@ export class LedgerFloatingButton extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    if (this.coreContext) {
-      this.controller = new FloatingButtonController(this, this.coreContext);
+    const coreInstance = this.core || this.coreContext;
+    if (coreInstance) {
+      this.controller = new FloatingButtonController(this, coreInstance);
     }
   }
 
   override updated() {
-    if (!this.controller && this.coreContext) {
-      this.controller = new FloatingButtonController(this, this.coreContext);
+    const coreInstance = this.core || this.coreContext;
+    if (!this.controller && coreInstance) {
+      this.controller = new FloatingButtonController(this, coreInstance);
       this.requestUpdate();
     }
   }

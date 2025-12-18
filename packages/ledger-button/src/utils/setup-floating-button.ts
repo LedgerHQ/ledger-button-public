@@ -1,3 +1,5 @@
+import type { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
+
 import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
 import type { LedgerButtonApp } from "../ledger-button-app.js";
 
@@ -26,7 +28,7 @@ export function setupFloatingButton(
 
   disableAppFloatingButton(app);
 
-  const button = createCompactFloatingButton();
+  const button = createCompactFloatingButton(app.core);
   attachFloatingButtonClickHandler(button, app);
   targetElement.appendChild(button);
 
@@ -48,10 +50,11 @@ function resolveTargetElement(
   return target instanceof HTMLElement ? target : null;
 }
 
-function createCompactFloatingButton(): Element {
+function createCompactFloatingButton(core: LedgerButtonCore): Element {
   const button = document.createElement("ledger-floating-button");
   button.setAttribute("variant", "compact");
   button.classList.add("ledger-wallet-provider");
+  (button as any).core = core;
   return button;
 }
 
