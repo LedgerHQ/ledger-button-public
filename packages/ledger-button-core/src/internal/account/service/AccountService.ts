@@ -28,7 +28,10 @@ export type Token = {
 
 export interface AccountService {
   hydrateAccountsWithBalanceAndTokens(): Promise<void>;
-  getBalanceAndTokensForAccount(account: Account): Promise<Account>;
+  getBalanceAndTokensForAccount(
+    account: Account,
+    withTokens: boolean,
+  ): Promise<Account>;
   setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];
   selectAccount(account: Account): void;

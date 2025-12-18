@@ -76,6 +76,7 @@ export default function Index() {
 
     selectedProvider.provider.on("accountsChanged", handleAccountsChanged);
     selectedProvider.provider.on("chainChanged", handleChainChanged);
+    selectedProvider.provider.on("disconnect", handleDisconnect);
 
     return () => {
       selectedProvider.provider.removeListener(

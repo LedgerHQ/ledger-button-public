@@ -30,6 +30,7 @@ export class RetrievingAccountsController implements ReactiveController {
 
   hostConnected() {
     this.fetchAccounts();
+    this.host.requestUpdate();
   }
 
   async fetchAccounts() {
@@ -44,8 +45,8 @@ export class RetrievingAccountsController implements ReactiveController {
 
       this.navigation.navigateTo(this.destinations.selectAccount);
     } catch (error) {
+      console.error(error);
       this.mapError(error);
-      this.host.requestUpdate();
     }
   }
 

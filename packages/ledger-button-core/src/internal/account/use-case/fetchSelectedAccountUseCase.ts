@@ -41,11 +41,9 @@ export class FetchSelectedAccountUseCase {
     await lastValueFrom(this.ledgerSyncService.authenticate());
     //Get account details from ledger sync (Ticker, Name)
     const accounts = await this.fetchAccountsUseCase.execute();
-    this.logger.info("Accounts fetched", { accounts });
     const account = accounts.find(
       (a) => a.freshAddress === context.selectedAccount?.freshAddress,
     );
-    this.logger.info("Account from ledger sync", { account });
 
     //TODO handle this case when account is not found in Ledger Sync accounts
     if (!account) {

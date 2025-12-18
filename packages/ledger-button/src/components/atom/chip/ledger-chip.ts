@@ -19,7 +19,7 @@ const chipContainerVariants = cva([
   "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
 ]);
 
-const chipLabelVariants = cva(["lb-text-ellipsis text-base body-2"]);
+const chipLabelVariants = cva(["body-2 lb-text-ellipsis lb-text-base"]);
 
 const chipChevronVariants = cva(["lb-rotate-90"]);
 

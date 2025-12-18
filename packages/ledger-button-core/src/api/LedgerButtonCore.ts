@@ -19,7 +19,8 @@ import {
   Account,
   type AccountService,
 } from "../internal/account/service/AccountService.js";
-import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
+import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
+import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
@@ -248,7 +249,9 @@ export class LedgerButtonCore {
   async fetchAccounts() {
     this._logger.debug("Fetching accounts");
     return this.container
-      .get<FetchAccountsUseCase>(accountModuleTypes.FetchAccountsUseCase)
+      .get<FetchAccountsWithBalanceUseCase>(
+        accountModuleTypes.FetchAccountsWithBalanceUseCase,
+      )
       .execute();
   }
 
@@ -290,6 +293,26 @@ export class LedgerButtonCore {
       .extract();
   }
 
+  async getDetailedSelectedAccount() {
+    this._logger.debug("Getting detailed selected account");
+
+    const selectedAccount = this._contextService.getContext().selectedAccount;
+
+    //If selected account has a name, selected account is already hydrated
+    if (
+      selectedAccount &&
+      selectedAccount.name &&
+      selectedAccount.name.length > 0
+    ) {
+      return Promise.resolve(selectedAccount as Account);
+    }
+
+    return this.container
+      .get<FetchSelectedAccountUseCase>(
+        accountModuleTypes.FetchSelectedAccountUseCase,
+      )
+      .execute();
+  }
   // Device methods
   getConnectedDevice() {
     this._logger.debug("Getting connected device");
