@@ -136,7 +136,7 @@ export class LedgerButtonCore {
       .getUserConsent();
 
     const hasTrackingConsent = userConsent.isJust()
-      ? userConsent.extract()!.consentGiven
+      ? userConsent.extract().consentGiven
       : undefined;
 
     this._contextService.onEvent({

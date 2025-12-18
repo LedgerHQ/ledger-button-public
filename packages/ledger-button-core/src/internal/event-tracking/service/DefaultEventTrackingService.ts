@@ -67,44 +67,20 @@ export class DefaultEventTrackingService implements EventTrackingService {
   }
 
   private shouldTrackEvent(event: EventRequest): boolean {
-    const hasConsent = this.contextService.getContext().hasTrackingConsent;
-
-    if (!hasConsent) {
-      this.logger.debug("User has not given consent, skipping tracking", {
-        event,
-      });
-      return false;
-    }
-
-    /*
-TODO: Uncomment this when we have a validation for the events in the backend.
-Check current state with formats in JSON schemas and update the validation.
-
-    const validationResult = EventTrackingUtils.validateEvent(event);
-    if (!validationResult.success) {
-      this.logger.error("Event validation failed", {
-        eventType: event.type,
-        errors: validationResult.errors,
-        event,
-      });
-      return false;
-    }
-*/
-
-    if (!this.isEventActivated(event.type)) {
-      this.logger.debug("Event is not activated, skipping tracking", {
-        event,
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  private isEventActivated(type: EventType): boolean {
-    if (type === EventType.InvoicingTransactionSigned) {
+    // InvoicingTransactionSigned is always tracked for billing purposes
+    if (event.type === EventType.InvoicingTransactionSigned) {
       return true;
     }
+
+    // All other events require user consent
+    const hasConsent = this.contextService.getContext().hasTrackingConsent;
+    if (hasConsent) {
+      return true;
+    }
+
+    this.logger.debug("User has not given consent, skipping tracking", {
+      event,
+    });
 
     return false;
   }
