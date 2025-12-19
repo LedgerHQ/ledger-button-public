@@ -44,4 +44,4 @@ jobs:
         run: pnpm release --provenance --preid ${{ inputs.preid || 'pre' }} --tag ${{ inputs.preid || 'pre' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
-          # NPM_CONFIG_PROVENANCE: true
+          NPM_CONFIG_PROVENANCE: true
