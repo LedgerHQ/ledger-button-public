@@ -135,24 +135,24 @@ export class RootNavigationComponent extends LitElement {
   }
 
   override render() {
-    const connectedDevice = this.coreContext.getConnectedDevice();
+    //const connectedDevice = this.coreContext.getConnectedDevice();
     const canGoBack =
       this.rootNavigationController.currentScreen?.canGoBack ?? false;
 
     const canClose =
       this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;
 
-    const title =
-      connectedDevice &&
-      this.rootNavigationController.currentScreen?.name === "home-flow"
-        ? connectedDevice.name
-        : this.rootNavigationController.currentScreen?.toolbar.title;
+    const title = this.rootNavigationController.currentScreen?.toolbar.title;
+    //      connectedDevice &&
+    //    this.rootNavigationController.currentScreen?.name === "home-flow"
+    //    ? connectedDevice.name
+    //  : this.rootNavigationController.currentScreen?.toolbar.title ;
 
-    const deviceModelId =
-      connectedDevice &&
-      this.rootNavigationController.currentScreen?.name === "home-flow"
-        ? connectedDevice.modelId
-        : undefined;
+    const deviceModelId = undefined; //TODO: uncomment this once we have the switch device flow working properly
+    // connectedDevice &&
+    // this.rootNavigationController.currentScreen?.name === "home-flow"
+    //   ? connectedDevice.modelId
+    //   : undefined;
 
     const showSettings =
       this.rootNavigationController.currentScreen?.name === "home-flow";
