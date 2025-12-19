@@ -26,7 +26,7 @@ const floatingButtonVariants = cva(
     variants: {
       variant: {
         circular:
-          "lb-fixed lb-z-[1000] lb-h-64 lb-w-64 lb-rounded-full hover:lb-scale-105 active:lb-scale-95",
+          "lb-fixed lb-z-[1000] lb-h-64 lb-w-64 lb-rounded-full lb-border lb-border-muted-subtle hover:lb-scale-105 active:lb-scale-95",
         compact:
           "lb-content-stretch lb-gap-8 lb-overflow-hidden lb-rounded-md lb-px-12 lb-py-8",
       },
