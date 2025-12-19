@@ -41,7 +41,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPMJS_TOKEN }}
 
       - name: release to npm
-        run: pnpm release --preid ${{ inputs.preid || 'pre' }} --tag ${{ inputs.preid || 'pre' }}
+        run: pnpm release --provenance --preid ${{ inputs.preid || 'pre' }} --tag ${{ inputs.preid || 'pre' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
           # NPM_CONFIG_PROVENANCE: true
