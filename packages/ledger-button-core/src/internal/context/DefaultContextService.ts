@@ -50,12 +50,14 @@ export class DefaultContextService implements ContextService {
         break;
       case "chain_changed":
         this.context.chainId = event.chainId;
-        this.context.selectedAccount = {
-          ...(this.context.selectedAccount as Account),
-          currencyId:
-            getCurrencyIdFromChainId(event.chainId) ??
-            this.context.selectedAccount?.currencyId,
-        } as Account;
+        if (this.context.selectedAccount) {
+          this.context.selectedAccount = {
+            ...(this.context.selectedAccount as Account),
+            currencyId:
+              getCurrencyIdFromChainId(event.chainId) ??
+              this.context.selectedAccount?.currencyId,
+          } as Account;
+        }
         break;
       case "account_changed":
         this.context.selectedAccount = event.account;

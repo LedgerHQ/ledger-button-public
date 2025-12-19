@@ -72,7 +72,10 @@ describe("DefaultBalanceService", () => {
         "getBalanceForAddressAndCurrencyId",
       ).mockResolvedValue(Right(mockAlpacaBalances));
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
       expect(mockLogger.debug).toHaveBeenCalledWith(
@@ -80,6 +83,7 @@ describe("DefaultBalanceService", () => {
         {
           address: mockAccount.freshAddress,
           currencyId: mockAccount.currencyId,
+          withTokens: true,
         },
       );
 
@@ -130,7 +134,10 @@ describe("DefaultBalanceService", () => {
         .mockResolvedValueOnce(Right(mockTokenInfo1))
         .mockResolvedValueOnce(Right(mockTokenInfo2));
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
       expect(mockCalDataSource.getTokenInformation).toHaveBeenCalledTimes(2);
@@ -199,7 +206,10 @@ describe("DefaultBalanceService", () => {
         .mockResolvedValueOnce(Right(mockTokenInfo1))
         .mockResolvedValueOnce(Left(new Error("Token info fetch failed")));
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
 
@@ -235,7 +245,10 @@ describe("DefaultBalanceService", () => {
         Left(new Error("Token info fetch failed")),
       );
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
 
@@ -253,7 +266,10 @@ describe("DefaultBalanceService", () => {
         "getBalanceForAddressAndCurrencyId",
       ).mockResolvedValue(Left(new Error("Alpaca fetch failed")));
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isLeft()).toBe(true);
       result.mapLeft((error) => {
@@ -274,13 +290,14 @@ describe("DefaultBalanceService", () => {
         "getBalanceForAddressAndCurrencyId",
       ).mockResolvedValue(Right(mockAlpacaBalances));
 
-      await balanceService.getBalanceForAccount(mockAccount);
+      await balanceService.getBalanceForAccount(mockAccount, true);
 
       expect(mockLogger.debug).toHaveBeenCalledWith(
         "Getting balance for address",
         {
           address: "0x1234567890abcdef",
           currencyId: "ethereum",
+          withTokens: true,
         },
       );
     });
@@ -305,7 +322,10 @@ describe("DefaultBalanceService", () => {
         "getBalanceForAddressAndCurrencyId",
       ).mockResolvedValue(Right(mockAlpacaBalances));
 
-      const result = await balanceService.getBalanceForAccount(bitcoinAccount);
+      const result = await balanceService.getBalanceForAccount(
+        bitcoinAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
       expect(
@@ -333,7 +353,10 @@ describe("DefaultBalanceService", () => {
         "getBalanceForAddressAndCurrencyId",
       ).mockResolvedValue(Right(mockAlpacaBalances));
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
 
@@ -388,7 +411,10 @@ describe("DefaultBalanceService", () => {
         .mockResolvedValueOnce(Left(new Error("Failed for token 2")))
         .mockResolvedValueOnce(Right(mockTokenInfo3));
 
-      const result = await balanceService.getBalanceForAccount(mockAccount);
+      const result = await balanceService.getBalanceForAccount(
+        mockAccount,
+        true,
+      );
 
       expect(result.isRight()).toBe(true);
 
