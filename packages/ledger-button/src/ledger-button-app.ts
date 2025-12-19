@@ -165,6 +165,7 @@ export class LedgerButtonApp extends LitElement {
   };
 
   private handleLedgerButtonDisconnect = () => {
+    this.disconnect();
     this.root.closeModal();
   };
 

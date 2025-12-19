@@ -1,7 +1,7 @@
 import "../../components/index.js";
 
 import { consume } from "@lit/context";
-import { html, LitElement } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
@@ -15,17 +15,34 @@ import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
+const styles = css`
+  .animation {
+    position: relative;
+  }
+
+  .animation::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      0deg,
+      rgba(21, 21, 21, 0) 0%,
+      var(--background-canvas-sheet) 100%
+    );
+  }
+`;
+
 @customElement("ledger-home-screen")
-@tailwindElement()
+@tailwindElement(styles)
 export class LedgerHomeScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
   @property({ type: Object })
   destinations!: Destinations;
-
-  @property({ type: Boolean })
-  demoMode = false;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -44,7 +61,6 @@ export class LedgerHomeScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
-      this.demoMode,
     );
   }
 
@@ -67,19 +83,30 @@ export class LedgerHomeScreen extends LitElement {
         composed: true,
       }),
     );
-    await this.controller.handleDisconnectClick();
   };
 
   override render() {
-    const account = this.controller.getSelectedAccount();
+    if (this.controller.loading) {
+      return html`
+        <div class="lb-min-h-full lb-overflow-hidden">
+          <ledger-lottie
+            class="animation lb-overflow-hidden"
+            animationName="backgroundFlare"
+            .autoplay=${true}
+            .loop=${true}
+            size="full"
+          ></ledger-lottie>
+        </div>
+      `;
+    }
+    const account = this.controller.selectedAccount;
+
     if (!account) {
-      return html`<div>No account selected</div>`;
+      this.navigation.navigateTo(this.destinations.onboardingFlow);
+      return;
     }
 
     const lang = this.languages.currentTranslation;
-
-    // TODO: Fetch account balance
-    const balance = 1234.56;
 
     return html`
       <div
@@ -102,7 +129,7 @@ export class LedgerHomeScreen extends LitElement {
           <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
             <ledger-balance
               label=${lang.home.balance}
-              .balance=${balance}
+              .balance=${account.balance}
               .ticker=${account.ticker}
             ></ledger-balance>
           </div>

@@ -22,9 +22,9 @@
   "exports": {
     ".": {
       "@ledgerhq/ledger-button-workspace": "./src/index.ts",
-      "default": "./dist/index.js",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },

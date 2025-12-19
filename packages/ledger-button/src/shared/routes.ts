@@ -15,6 +15,7 @@ import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 import "../domain/settings/settings-screen.js";
+import "../domain/home-flow/home-flow.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -73,12 +74,13 @@ export type Destination = {
 export const makeDestinations = (translation: Translation) => {
   const destinations = {
     home: {
-      name: "home",
-      component: "ledger-home-screen",
+      name: "home-flow",
+      component: "home-flow",
       canGoBack: false,
       toolbar: {
-        title: "",
+        title: "Your Ledger Wallet",
         canClose: true,
+        showSettings: true,
       },
     },
     deviceSwitch: {

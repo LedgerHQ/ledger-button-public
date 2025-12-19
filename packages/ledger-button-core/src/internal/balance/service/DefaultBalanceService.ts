@@ -32,10 +32,12 @@ export class DefaultBalanceService implements BalanceService {
 
   async getBalanceForAccount(
     account: Account,
+    withTokens: boolean,
   ): Promise<Either<Error, AccountBalance>> {
     this.logger.debug("Getting balance for address", {
       address: account.freshAddress,
       currencyId: account.currencyId,
+      withTokens,
     });
 
     const balanceResult =
@@ -48,47 +50,58 @@ export class DefaultBalanceService implements BalanceService {
       const alpacaNativeBalance = alpacaBalances.find(
         (balance) => balance.type === "native",
       );
-      const tokenBalances: (TokenBalance | undefined)[] = await Promise.all(
-        alpacaBalances
-          .filter((balance) => balance.type !== "native")
-          .map(async (balance) => {
-            if (!balance.reference) {
-              return undefined;
-            }
-            const tokenInformationResult =
-              await this.calDataSource.getTokenInformation(
-                balance.reference,
-                account.currencyId,
-              );
 
-            if (tokenInformationResult.isRight()) {
-              return new TokenBalance(
-                tokenInformationResult.extract().decimals,
-                BigInt(balance.value),
-                tokenInformationResult.extract().name,
-                tokenInformationResult.extract().ticker,
-              );
-            } else {
-              return undefined;
-            }
-          }),
-      );
       if (!alpacaNativeBalance) {
         return Left(new Error("No native balance found"));
       }
 
-      //remove undefined from tokenBalances
-      const filteredTokenBalances: TokenBalance[] = tokenBalances.filter(
-        (tokenBalance) =>
-          tokenBalance !== undefined && tokenBalance.balance > 0,
-      ) as TokenBalance[];
+      if (withTokens) {
+        const tokenBalances: (TokenBalance | undefined)[] = await Promise.all(
+          alpacaBalances
+            .filter((balance) => balance.type !== "native")
+            .map(async (balance) => {
+              if (!balance.reference) {
+                return undefined;
+              }
+              const tokenInformationResult =
+                await this.calDataSource.getTokenInformation(
+                  balance.reference,
+                  account.currencyId,
+                );
 
-      return Right({
-        nativeBalance: {
-          balance: BigInt(alpacaNativeBalance.value),
-        } as NativeBalance,
-        tokenBalances: filteredTokenBalances,
-      });
+              if (tokenInformationResult.isRight()) {
+                return new TokenBalance(
+                  tokenInformationResult.extract().decimals,
+                  BigInt(balance.value),
+                  tokenInformationResult.extract().name,
+                  tokenInformationResult.extract().ticker,
+                );
+              } else {
+                return undefined;
+              }
+            }),
+        );
+
+        //remove undefined from tokenBalances
+        const filteredTokenBalances: TokenBalance[] = tokenBalances.filter(
+          (tokenBalance) =>
+            tokenBalance !== undefined && tokenBalance.balance > 0,
+        ) as TokenBalance[];
+
+        return Right({
+          nativeBalance: {
+            balance: BigInt(alpacaNativeBalance.value),
+          } as NativeBalance,
+          tokenBalances: filteredTokenBalances,
+        });
+      } else {
+        return Right({
+          nativeBalance: {
+            balance: BigInt(alpacaNativeBalance.value),
+          } as NativeBalance,
+          tokenBalances: [],
+        });
+      }
     } else {
       return Left(new Error("Failed to fetch balance from Alpaca"));
     }

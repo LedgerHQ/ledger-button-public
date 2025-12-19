@@ -271,6 +271,8 @@ export class LedgerEIP1193Provider
           if (hasChainIdChanged) {
             this.setSelectedChainId(newChainId);
           }
+        } else {
+          this.disconnect();
         }
       });
   }

@@ -55,7 +55,9 @@ export class LedgerAccountSwitch extends LitElement {
           <div
             class="lb-flex lb-min-w-0 lb-flex-1 lb-truncate lb-text-base lb-body-2-semi-bold"
           >
-            <span class="lb-truncate">${this.account.name}</span>
+            <span class="body-2-semi-bold lb-text-base"
+              >${this.account.name}</span
+            >
           </div>
           <ledger-icon
             class="lb-shrink-0"

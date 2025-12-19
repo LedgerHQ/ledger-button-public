@@ -144,18 +144,18 @@ export class RootNavigationComponent extends LitElement {
 
     const title =
       connectedDevice &&
-      this.rootNavigationController.currentScreen?.name === "home"
+      this.rootNavigationController.currentScreen?.name === "home-flow"
         ? connectedDevice.name
         : this.rootNavigationController.currentScreen?.toolbar.title;
 
     const deviceModelId =
       connectedDevice &&
-      this.rootNavigationController.currentScreen?.name === "home"
+      this.rootNavigationController.currentScreen?.name === "home-flow"
         ? connectedDevice.modelId
         : undefined;
 
     const showSettings =
-      this.rootNavigationController.currentScreen?.name === "home";
+      this.rootNavigationController.currentScreen?.name === "home-flow";
 
     return html`
       <ledger-modal

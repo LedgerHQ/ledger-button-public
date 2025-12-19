@@ -30,6 +30,7 @@ export class ConsentAnalyticsScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  //TODO put this in a controller
   private async handleAccept() {
     await this.coreContext.giveConsent();
   }
@@ -48,11 +49,11 @@ export class ConsentAnalyticsScreen extends LitElement {
 
     return html`
       <div class="lb-flex lb-flex-col lb-gap-24 lb-p-24 lb-pt-8">
-        <div class="lb-bg-muted lb-rounded-md lb-p-12">
-          <p class="lb-body-2 lb-text-muted lb-leading-relaxed">
+        <div class="lb-rounded-md lb-bg-muted lb-p-12">
+          <p class="lb-leading-relaxed lb-text-muted lb-body-2">
             ${consent.description}
           </p>
-          <p class="lb-body-2 lb-text-muted lb-leading-relaxed lb-mt-12">
+          <p class="lb-leading-relaxed lb-mt-12 lb-text-muted lb-body-2">
             ${consent.privacyNotice}
             <a
               href="https://www.ledger.com/privacy-policy"
