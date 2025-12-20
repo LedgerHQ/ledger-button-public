@@ -31,6 +31,7 @@ const styles = css`
     height: 100%;
     opacity: 0;
     display: none;
+    z-index: 7730;
     background: radial-gradient(
       50% 50% at 50% 50%,
       rgba(102, 102, 102, 0.6) 0%,
