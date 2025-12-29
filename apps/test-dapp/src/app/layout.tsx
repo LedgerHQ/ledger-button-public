@@ -1,4 +1,5 @@
 import "./global.css";
+// eslint-disable-next-line @nx/enforce-module-boundaries -- CSS must be loaded statically
 import "@ledgerhq/ledger-wallet-provider/styles.css";
 
 export const metadata = {
