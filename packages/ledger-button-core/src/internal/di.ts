@@ -10,6 +10,7 @@ import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
 import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
+import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
@@ -42,7 +43,10 @@ export function createContainer({
   container.loadSync(
     configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
     balanceModuleFactory({ stub: devConfig.stub.balance }),
-    loggerModuleFactory({ stub: devConfig.stub.base }),
+    loggerModuleFactory({
+      stub: devConfig.stub.base,
+      errorTrackingConfig: DEFAULT_ERROR_TRACKING_CONFIG,
+    }),
     accountModuleFactory({ stub: devConfig.stub.account }),
     backendModuleFactory({ stub: devConfig.stub.base }),
     dAppConfigModuleFactory({ stub: devConfig.stub.dAppConfig }),
