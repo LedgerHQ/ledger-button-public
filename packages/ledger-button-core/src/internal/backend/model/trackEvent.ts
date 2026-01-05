@@ -1,5 +1,6 @@
 export enum EventType {
   ConsentGiven = "consent_given",
+  ErrorOccurred = "error_occurred",
   FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
   LedgerSyncActivated = "ledger_sync_activated",
@@ -9,8 +10,8 @@ export enum EventType {
   SessionAuthentication = "session_authentication",
   TransactionFlowCompletion = "transaction_flow_completion",
   TransactionFlowInitialization = "transaction_flow_initialization",
-  TypedMessageFlowInitialization = "typed_message_flow_initialization",
   TypedMessageFlowCompletion = "typed_message_flow_completion",
+  TypedMessageFlowInitialization = "typed_message_flow_initialization",
 }
 
 type BaseEventData = {
@@ -98,24 +99,37 @@ export type TypedMessageFlowCompletionEventData = BaseEventData & {
   typed_message_hash: string;
 };
 
+export type ErrorOccurredEventData = BaseEventData & {
+  event_type: "error_occurred";
+  session_id: string;
+  error_type: string;
+  error_code: string | undefined;
+  error_message: string;
+  error_category: string;
+  error_data?: Record<string, unknown>;
+};
+
 export type FloatingButtonClickEventData = BaseEventData & {
   event_type: "floating_button_clicked";
   session_id: string;
 };
 
 export type EventData =
-  | InvoicingTransactionSignedEventData
   | ConsentGivenEventData
+  | ErrorOccurredEventData
+  | InvoicingTransactionSignedEventData
   | FloatingButtonClickEventData
   | OpenSessionEventData
   | OpenLedgerSyncEventData
   | LedgerSyncActivatedEventData
   | OnboardingEventData
-  | TransactionFlowInitializationEventData
-  | TransactionFlowCompletionEventData
+  | OpenLedgerSyncEventData
+  | OpenSessionEventData
   | SessionAuthenticationEventData
-  | TypedMessageFlowInitializationEventData
-  | TypedMessageFlowCompletionEventData;
+  | TransactionFlowCompletionEventData
+  | TransactionFlowInitializationEventData
+  | TypedMessageFlowCompletionEventData
+  | TypedMessageFlowInitializationEventData;
 
 export type EventRequest = {
   name: string;

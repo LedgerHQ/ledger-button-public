@@ -285,9 +285,7 @@ export class SignTypedData {
             );
           },
           error: (error: Error) => {
-            console.error("Failed to sign typed data in SignTypedData", {
-              error,
-            });
+            this.logger.error("Typed data signing failed", { error });
             resultObservable.next({ signType, status: "error", error: error });
           },
         });

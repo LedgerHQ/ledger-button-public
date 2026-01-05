@@ -347,6 +347,7 @@ export class SignRawTransaction {
             }
           },
           error: (error) => {
+            this.logger.error("Transaction signing failed", { error });
             resultObservable.next({
               signType,
               status: "error",

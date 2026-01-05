@@ -88,6 +88,11 @@ Check current state with formats in JSON schemas and update the validation.
       return true;
     }
 
+    // ErrorOccurred is always tracked for error tracking purposes
+    if (event.type === EventType.ErrorOccurred) {
+      return true;
+    }
+
     // All other events require user consent
     const hasConsent = this.contextService.getContext().hasTrackingConsent;
     if (hasConsent) {
