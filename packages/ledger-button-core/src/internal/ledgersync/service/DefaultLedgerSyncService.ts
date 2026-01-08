@@ -105,7 +105,9 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
 
   async decrypt(encryptedData: Uint8Array): Promise<Uint8Array> {
     if (!this.authContext?.encryptionKey) {
-      throw new LedgerSyncAuthContextMissingError("No encryption key");
+      const error = new LedgerSyncAuthContextMissingError("No encryption key");
+      this.logger.error("Missing encryption key for decrypt", { error });
+      throw error;
     }
 
     const compressedClearData = await this.lkrpAppKit.decryptData(
@@ -252,8 +254,11 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
             ?.requiredUserInteraction as UserInteractionNeeded,
         } satisfies UserInteractionNeededResponse;
 
-      default:
-        return new LedgerSyncAuthenticationError("Unknown error");
+      default: {
+        const error = new LedgerSyncAuthenticationError("Unknown error");
+        this.logger.error("Unknown authentication status", { error });
+        return error;
+      }
     }
   }
 }
