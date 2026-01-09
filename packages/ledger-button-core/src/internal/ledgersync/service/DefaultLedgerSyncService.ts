@@ -37,7 +37,10 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
-import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
+import {
+  LedgerKeyringProtocolError,
+  LedgerSyncAuthContextMissingError,
+} from "../model/errors.js";
 import { InternalAuthContext } from "../model/InternalAuthContext.js";
 import { LedgerSyncService } from "./LedgerSyncService.js";
 
@@ -102,7 +105,9 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
 
   async decrypt(encryptedData: Uint8Array): Promise<Uint8Array> {
     if (!this.authContext?.encryptionKey) {
-      throw new LedgerSyncAuthContextMissingError("No encryption key");
+      const error = new LedgerSyncAuthContextMissingError("No encryption key");
+      this.logger.error("Missing encryption key for decrypt", { error });
+      throw error;
     }
 
     const compressedClearData = await this.lkrpAppKit.decryptData(
@@ -228,9 +233,17 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
         } satisfies AuthContext;
       }
 
-      case DeviceActionStatus.Error:
-        this.logger.error(`Error: ${JSON.stringify(state.error)}`);
-        return new LedgerSyncAuthenticationError("An unknown error occurred"); //TODO map errors
+      case DeviceActionStatus.Error: {
+        const errorMessage =
+          (state.error as unknown as { message?: string })?.message ??
+          "An unknown error occurred";
+        const error = new LedgerKeyringProtocolError(errorMessage, {
+          errorType: state.error?.constructor?.name,
+          originalError: JSON.stringify(state.error),
+        });
+        this.logger.error("LKRP authentication failed", { error });
+        return error;
+      }
 
       // TODO https://ledgerhq.atlassian.net/browse/LBD-199
       //  Handle error when members has been removed from the trustchain => Remove the trustchainId from the storage and retry the authentication
@@ -241,8 +254,11 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
             ?.requiredUserInteraction as UserInteractionNeeded,
         } satisfies UserInteractionNeededResponse;
 
-      default:
-        return new LedgerSyncAuthenticationError("Unknown error");
+      default: {
+        const error = new LedgerSyncAuthenticationError("Unknown error");
+        this.logger.error("Unknown authentication status", { error });
+        return error;
+      }
     }
   }
 }

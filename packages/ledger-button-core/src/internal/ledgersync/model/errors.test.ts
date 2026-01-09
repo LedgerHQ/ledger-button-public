@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
 import {
+  LedgerKeyringProtocolError,
   LedgerSyncAuthContextMissingError,
   LedgerSyncConnectionFailedError,
   LedgerSyncError,
@@ -32,6 +33,12 @@ describe.each([
     "LedgerSyncConnectionFailedError",
     "Connection failed",
     { errorCode: 500, retries: 3, url: "https://api.ledger.com" },
+  ],
+  [
+    LedgerKeyringProtocolError,
+    "LedgerKeyringProtocolError",
+    "LKRP authentication failed",
+    { errorType: "AuthError", originalError: '{"message":"failed"}' },
   ],
 ])("%s", (ErrorClass, expectedName, message, context) => {
   it("should create error with message and context", () => {

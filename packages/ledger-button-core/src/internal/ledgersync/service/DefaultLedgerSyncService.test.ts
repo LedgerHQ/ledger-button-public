@@ -22,7 +22,10 @@ import type { Config } from "../../config/model/config.js";
 import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import type { StorageService } from "../../storage/StorageService.js";
-import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
+import {
+  LedgerKeyringProtocolError,
+  LedgerSyncAuthContextMissingError,
+} from "../model/errors.js";
 import { DefaultLedgerSyncService } from "./DefaultLedgerSyncService.js";
 
 vi.mock(
@@ -325,33 +328,6 @@ describe("DefaultLedgerSyncService", () => {
         });
       });
 
-      describe("on status Error", () => {
-        it("should return LedgerSyncAuthenticationError with message 'An unknown error occurred'", async () => {
-          const state: DeviceActionState<
-            AuthenticateDAOutput,
-            AuthenticateDAError,
-            AuthenticateDAIntermediateValue
-          > = {
-            status: DeviceActionStatus.Error,
-            error: {
-              type: "DeviceDisconnected",
-            } as unknown as AuthenticateDAError,
-          };
-
-          mockLkrpAppKit.authenticate.mockReturnValue({
-            observable: of(state),
-          });
-
-          const result$ = service.authenticate();
-          const result = await lastValueFrom(result$);
-
-          expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
-          expect((result as LedgerSyncAuthenticationError).message).toBe(
-            "An unknown error occurred",
-          );
-        });
-      });
-
       describe("on status Pending", () => {
         it("should return an intermediate state with requiredUserInteraction", async () => {
           const state: DeviceActionState<
@@ -378,28 +354,47 @@ describe("DefaultLedgerSyncService", () => {
         });
       });
 
-      describe("on unknown status", () => {
-        it("should return LedgerSyncAuthenticationError with message 'Unknown error'", async () => {
-          const state = {
+      describe("on error statuses", () => {
+        it.each([
+          {
+            scenario: "DeviceActionStatus.Error",
+            status: DeviceActionStatus.Error,
+            error: {
+              type: "DeviceDisconnected",
+            } as unknown as AuthenticateDAError,
+            expectedErrorClass: LedgerKeyringProtocolError,
+            expectedMessage: "An unknown error occurred",
+          },
+          {
+            scenario: "unknown status",
             status: "UnknownStatus" as DeviceActionStatus,
-          } as DeviceActionState<
-            AuthenticateDAOutput,
-            AuthenticateDAError,
-            AuthenticateDAIntermediateValue
-          >;
+            error: undefined,
+            expectedErrorClass: LedgerSyncAuthenticationError,
+            expectedMessage: "Unknown error",
+          },
+        ])(
+          "should return $expectedErrorClass.name with message '$expectedMessage' on $scenario",
+          async ({ status, error, expectedErrorClass, expectedMessage }) => {
+            const state = {
+              status,
+              error,
+            } as DeviceActionState<
+              AuthenticateDAOutput,
+              AuthenticateDAError,
+              AuthenticateDAIntermediateValue
+            >;
 
-          mockLkrpAppKit.authenticate.mockReturnValue({
-            observable: of(state),
-          });
+            mockLkrpAppKit.authenticate.mockReturnValue({
+              observable: of(state),
+            });
 
-          const result$ = service.authenticate();
-          const result = await lastValueFrom(result$);
+            const result$ = service.authenticate();
+            const result = await lastValueFrom(result$);
 
-          expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
-          expect((result as LedgerSyncAuthenticationError).message).toBe(
-            "Unknown error",
-          );
-        });
+            expect(result).toBeInstanceOf(expectedErrorClass);
+            expect((result as Error).message).toBe(expectedMessage);
+          },
+        );
       });
     });
   });

@@ -35,7 +35,13 @@ export class FetchAccountsUseCase {
 
   async execute(): Promise<Account[]> {
     if (!this.ledgerSyncService.authContext) {
-      throw new LedgerSyncAuthContextMissingError("No auth context available");
+      const error = new LedgerSyncAuthContextMissingError(
+        "No auth context available",
+      );
+      this.logger.error("Missing auth context for fetching accounts", {
+        error,
+      });
+      throw error;
     }
 
     //Re-fetch a new JWT not using device but using the keyPair (need for getting the right JWT for cloud sync)
