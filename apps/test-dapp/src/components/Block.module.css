@@ -1,0 +1,117 @@
+@import "./Block.module.css";
+
+.block {
+  background-color: var(--color-bg-block);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.block__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.block__header:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.block__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.block__icon {
+  font-size: 18px;
+}
+
+.block__toggle {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.block__badge {
+  padding: 2px 8px;
+  background-color: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+.block__content {
+  padding: 20px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-content);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.block__description {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0 0 16px 0;
+}
+
+.block__section {
+  margin-bottom: 20px;
+}
+
+.block__section:last-child {
+  margin-bottom: 0;
+}
+
+.block__subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.block__actions {
+  margin-bottom: 16px;
+}
+
+.block__empty-state {
+  text-align: center;
+  padding: 24px;
+  background-color: var(--color-bg-empty-state);
+  border-radius: 8px;
+  border: 1px dashed var(--color-border-input);
+}
+
+.block__empty-state p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+.block__hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.block__button-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.block__button-grid--wide {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}

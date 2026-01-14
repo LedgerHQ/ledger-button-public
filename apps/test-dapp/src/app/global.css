@@ -1,3 +1,41 @@
+:root {
+  /* bg */
+  --color-bg-page: #f0f2f5;
+  --color-bg-block: #f8f9fa;
+  --color-bg-content: #fff;
+  --color-bg-hover: #e9ecef;
+  --color-bg-input: #fff;
+  --color-bg-empty-state: #f8f9fa;
+
+  /* text */
+  --color-text-primary: #212529;
+  --color-text-secondary: #495057;
+  --color-text-muted: #6c757d;
+
+  /* border */
+  --color-border: #e9ecef;
+  --color-border-input: #dee2e6;
+  --color-border-hover: #adb5bd;
+
+  /* btn */
+  --color-btn-primary-bg: #000;
+  --color-btn-primary-bg-hover: #333;
+  --color-btn-primary-text: #fff;
+  --color-btn-secondary-bg: #6c757d;
+  --color-btn-secondary-bg-hover: #5a6268;
+  --color-btn-disabled-bg: #adb5bd;
+
+  /* status */
+  --color-success: #28a745;
+  --color-success-bg: #f0fff4;
+  --color-error: #dc3545;
+  --color-error-bg: #fff5f5;
+  --color-info: #007bff;
+  --color-info-bg: #f0f7ff;
+  --color-purple: #6f42c1;
+  --color-purple-bg: #f8f5ff;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   font-family:
@@ -26,6 +64,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
 }
 h1,
 h2,
