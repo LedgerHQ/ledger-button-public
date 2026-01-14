@@ -1,30 +1,13 @@
 import { css, html, LitElement } from "lit";
-import { customElement, query, state } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
 import { animate } from "motion";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 
+export type ModalMode = "center" | "panel";
+
 const styles = css`
-  /* :host {
-    display: none;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    overflow: hidden;
-    top: 0;
-    left: 0;
-    z-index: 7730;
-  }
-
-  :host([isOpen]) {
-    display: flex;
-  } */
-
-  /* .modal-overlay {
-    width: 100%;
-    opacity: 0;
-  } */
-
   .modal-backdrop {
     position: fixed;
     width: 100%;
@@ -48,11 +31,21 @@ const styles = css`
     overflow: hidden;
     transition: max-height 0.3s ease;
   }
+
+  .modal-container--panel {
+    width: 400px;
+    height: calc(100vh - 128px);
+    max-height: 100vh;
+    height: calc(100vh - 32px);
+  }
 `;
 
 @customElement("ledger-modal")
 @tailwindElement(styles)
 export class LedgerModal extends LitElement {
+  @property({ type: String })
+  mode: ModalMode = "center";
+
   @state()
   isClosing = false;
 
@@ -134,7 +127,8 @@ export class LedgerModal extends LitElement {
     }
   }
 
-  public openModal() {
+  public openModal(mode: ModalMode = "center") {
+    this.mode = mode;
     this.dispatchEvent(
       new CustomEvent("modal-opened", {
         bubbles: true,
@@ -152,6 +146,39 @@ export class LedgerModal extends LitElement {
     );
   }
 
+  private get containerClasses() {
+    const isPanel = this.mode === "panel";
+
+    const panelClasses = {
+      "lb-right-0": true,
+      "lb-top-0": true,
+      "lb-rounded-2xl": true,
+      "lb-m-16": true,
+      "modal-container--panel": true,
+    };
+
+    const defaultClasses = {
+      "modal-container": true,
+      "lb-fixed": true,
+      "lb-flex": true,
+      "lb-flex-col": true,
+      "lb-overflow-hidden": true,
+      "lb-bg-canvas-sheet": true,
+    };
+
+    const centerClasses = {
+      "lb-inset-0": true,
+      "lb-self-center": true,
+      "lb-justify-self-center": true,
+      "lb-rounded-2xl": true,
+    };
+
+    if (isPanel) {
+      return { ...defaultClasses, ...panelClasses };
+    }
+    return { ...defaultClasses, ...centerClasses };
+  }
+
   override render() {
     return html`
       <div
@@ -162,7 +189,7 @@ export class LedgerModal extends LitElement {
         data-testid="modal-backdrop"
       >
         <div
-          class="modal-container lb-fixed lb-inset-0 lb-flex lb-flex-col lb-self-center lb-justify-self-center lb-overflow-hidden lb-rounded-2xl lb-bg-canvas-sheet"
+          class=${classMap(this.containerClasses)}
           @click=${(e: Event) => e.stopPropagation()}
         >
           <slot name="toolbar">
