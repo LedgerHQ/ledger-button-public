@@ -16,6 +16,7 @@ import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
 import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button.js";
+import { ModalMode } from "./components/index.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
@@ -177,11 +178,15 @@ export class LedgerButtonApp extends LitElement {
 
   private handleFloatingButtonClick = () => {
     void this.core.trackFloatingButtonClick();
-    this.navigationIntent("selectAccount");
+    this.navigationIntent("selectAccount", undefined, "panel");
   };
 
-  public navigationIntent(intent: Destination["name"], params?: unknown) {
-    this.root.navigationIntent(intent, params);
+  public navigationIntent(
+    intent: Destination["name"],
+    params?: unknown,
+    mode?: ModalMode,
+  ) {
+    this.root.navigationIntent(intent, params, mode);
   }
 
   public disconnect() {

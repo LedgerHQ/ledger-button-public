@@ -5,7 +5,10 @@ import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import { LedgerModal } from "../components/atom/modal/ledger-modal.js";
+import {
+  LedgerModal,
+  ModalMode,
+} from "../components/atom/modal/ledger-modal.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { ANIMATION_DELAY } from "./navigation.js";
@@ -42,8 +45,8 @@ export class RootNavigationComponent extends LitElement {
   }
 
   // PUBLIC METHODS
-  public openModal() {
-    this.ledgerModal.openModal();
+  public openModal(mode: ModalMode = "center") {
+    this.ledgerModal.openModal(mode);
     this.isModalOpen = true;
   }
 
@@ -66,9 +69,13 @@ export class RootNavigationComponent extends LitElement {
     return this.rootNavigationController.selectedAccount;
   }
 
-  public navigationIntent(intent: Destination["name"], params?: unknown) {
+  public navigationIntent(
+    intent: Destination["name"],
+    params?: unknown,
+    mode?: ModalMode,
+  ) {
     this.rootNavigationController.navigationIntent(intent, params);
-    this.openModal();
+    this.openModal(mode ?? "center");
   }
 
   // PRIVATE METHODS
