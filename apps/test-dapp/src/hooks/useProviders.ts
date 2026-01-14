@@ -1,15 +1,33 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef,useState } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
 
 let LedgerButtonModule:
   | typeof import("@ledgerhq/ledger-wallet-provider")
   | null = null;
 
-export const useProviders = () => {
+export interface LedgerProviderConfig {
+  dAppIdentifier: string;
+  apiKey: string;
+  buttonPosition: string;
+  logLevel: string;
+  environment: string;
+}
+
+export const DEFAULT_CONFIG: LedgerProviderConfig = {
+  dAppIdentifier: "1inch",
+  apiKey: "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
+  buttonPosition: "bottom-right",
+  logLevel: "info",
+  environment: "production",
+};
+
+export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
   const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([]);
   const [selectedProvider, setSelectedProvider] =
     useState<EIP6963ProviderDetail | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const cleanupRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -34,8 +52,13 @@ export const useProviders = () => {
     [],
   );
 
-  useEffect(() => {
+  const initializeProvider = useCallback(() => {
     if (!isLoaded || !LedgerButtonModule) return;
+
+    if (cleanupRef.current) {
+      cleanupRef.current();
+      cleanupRef.current = null;
+    }
 
     const { initializeLedgerProvider } = LedgerButtonModule;
 
@@ -44,13 +67,11 @@ export const useProviders = () => {
 
     const cleanup = initializeLedgerProvider({
       target: document.body,
-      // floatingButtonPosition: "bottom-right",
       floatingButtonTarget: "#floating-button-container",
-      dAppIdentifier: "1inch",
-      apiKey:
-        "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
-      loggerLevel: "info",
-      environment: "production",
+      dAppIdentifier: config.dAppIdentifier,
+      apiKey: config.apiKey,
+      loggerLevel: config.logLevel as "debug" | "info" | "warn" | "error",
+      environment: config.environment as "production" | "staging",
       dmkConfig: undefined,
       devConfig: disableEventTracking
         ? {
@@ -60,6 +81,9 @@ export const useProviders = () => {
           }
         : undefined,
     });
+
+    cleanupRef.current = cleanup;
+    setIsInitialized(true);
 
     window.addEventListener(
       "eip6963:announceProvider",
@@ -73,11 +97,26 @@ export const useProviders = () => {
         handleAnnounceProvider as EventListener,
       );
     };
-  }, [isLoaded, handleAnnounceProvider]);
+  }, [isLoaded, config, handleAnnounceProvider]);
+
+  useEffect(() => {
+    const cleanup = initializeProvider();
+    return cleanup;
+  }, [initializeProvider]);
+
+  const reinitialize = useCallback(() => {
+    setProviders([]);
+    setSelectedProvider(null);
+    setIsInitialized(false);
+
+    initializeProvider();
+  }, [initializeProvider]);
 
   return {
     providers,
     selectedProvider,
     setSelectedProvider,
+    isInitialized,
+    reinitialize,
   };
 };
