@@ -73,6 +73,7 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
       loggerLevel: config.logLevel as "debug" | "info" | "warn" | "error",
       environment: config.environment as "production" | "staging",
       dmkConfig: undefined,
+      walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
       devConfig: disableEventTracking
         ? {
             stub: {

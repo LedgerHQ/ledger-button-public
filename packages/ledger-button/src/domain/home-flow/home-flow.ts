@@ -7,6 +7,7 @@ import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
+import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -23,6 +24,9 @@ export class HomeFlow extends LitElement {
 
   @property({ type: Object })
   destinations!: Destinations;
+
+  @property({ type: Array })
+  walletTransactionFeatures?: WalletTransactionFeature[];
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -50,6 +54,7 @@ export class HomeFlow extends LitElement {
         <${stateTag}
         .destinations=${this.destinations}
         .navigation=${this.navigation}
+        .walletTransactionFeatures=${this.walletTransactionFeatures}
         ></${stateTag}>
     `;
   }

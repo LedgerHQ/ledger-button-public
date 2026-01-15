@@ -48,6 +48,14 @@
   "home": {
     "balance": "Balance"
   },
+  "walletActions": {
+    "send": "Send",
+    "receive": "Receive",
+    "swap": "Swap",
+    "buy": "Buy",
+    "earn": "Earn",
+    "sell": "Sell"
+  },
   "deviceSwitch": {
     "title": "Your Ledgers",
     "noDevices": "No previously connected devices found",

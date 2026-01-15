@@ -5,6 +5,7 @@ import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
+import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -43,6 +44,9 @@ export class LedgerHomeScreen extends LitElement {
 
   @property({ type: Object })
   destinations!: Destinations;
+
+  @property({ type: Array })
+  walletTransactionFeatures?: WalletTransactionFeature[];
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -134,6 +138,9 @@ export class LedgerHomeScreen extends LitElement {
             ></ledger-balance>
           </div>
         </div>
+        <ledger-wallet-actions
+          .features=${this.walletTransactionFeatures}
+        ></ledger-wallet-actions>
         <ledger-button
           variant="secondary"
           size="full"

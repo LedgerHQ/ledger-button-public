@@ -5,6 +5,7 @@ import { tailwindElement } from "../../../tailwind-element.js";
 import {
   BackIcon,
   BluetoothIcon,
+  BuyIcon,
   CartIcon,
   CheckIcon,
   ChevronDownIcon,
@@ -14,12 +15,17 @@ import {
   DesktopIcon,
   DeviceIcon,
   DirectConnectivityIcon,
+  EarnIcon,
   ErrorIcon,
   ExternalLinkIcon,
   LedgerLogoIcon,
   MobileIcon,
   QuestionIcon,
+  ReceiveIcon,
+  SellIcon,
+  SendIcon,
   SettingsIcon,
+  SwapIcon,
   TransactionCheckIcon,
   UsbIcon,
 } from "./index";
@@ -44,7 +50,13 @@ export interface LedgerIconAttributes {
     | "clearSigning"
     | "transactionCheck"
     | "question"
-    | "settings";
+    | "settings"
+    | "send"
+    | "receive"
+    | "swap"
+    | "buy"
+    | "earn"
+    | "sell";
   size: "small" | "medium" | "large";
   fillColor?: string;
 }
@@ -100,6 +112,12 @@ export class LedgerIcon extends LitElement {
       transactionCheck: () => TransactionCheckIcon,
       question: () => QuestionIcon,
       settings: () => SettingsIcon,
+      send: () => SendIcon,
+      receive: () => ReceiveIcon,
+      swap: () => SwapIcon,
+      buy: () => BuyIcon,
+      earn: () => EarnIcon,
+      sell: () => SellIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
