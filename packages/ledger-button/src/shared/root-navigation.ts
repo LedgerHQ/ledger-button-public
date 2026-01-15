@@ -11,7 +11,6 @@ import {
 } from "../components/atom/modal/ledger-modal.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
-import { ANIMATION_DELAY } from "./navigation.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
@@ -103,12 +102,10 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+  }
 
-    setTimeout(() => {
-      this.rootNavigationController.handleModalClose();
-      // NOTE: The 250ms delay here is to allow for animation to complete
-      // Could be a CONSTANT if required
-    }, ANIMATION_DELAY);
+  private handleModalAnimationComplete() {
+    this.rootNavigationController.handleModalClose();
   }
 
   private handleChipClick(_e: CustomEvent) {
@@ -169,6 +166,7 @@ export class RootNavigationComponent extends LitElement {
         id="ledger-modal"
         @modal-opened=${this.handleModalOpen}
         @modal-closed=${this.handleModalClose}
+        @modal-animation-complete=${this.handleModalAnimationComplete}
       >
         <div slot="toolbar">
           <ledger-toolbar

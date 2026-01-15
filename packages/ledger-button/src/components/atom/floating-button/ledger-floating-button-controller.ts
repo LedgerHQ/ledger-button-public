@@ -7,7 +7,6 @@ export class FloatingButtonController implements ReactiveController {
   host: ReactiveControllerHost;
   contextSubscription: Subscription | undefined = undefined;
   isConnected = false;
-  isModalOpen = false;
 
   constructor(
     host: ReactiveControllerHost,
@@ -20,18 +19,12 @@ export class FloatingButtonController implements ReactiveController {
   hostConnected() {
     this.updateConnectionState();
     this.subscribeToContext();
-    this.subscribeToModalEvents();
   }
 
   hostDisconnected(): void {
     if (this.contextSubscription) {
       this.contextSubscription.unsubscribe();
     }
-    window.removeEventListener("ledger-core-modal-open", this.handleModalOpen);
-    window.removeEventListener(
-      "ledger-core-modal-close",
-      this.handleModalClose,
-    );
   }
 
   private subscribeToContext() {
@@ -51,22 +44,7 @@ export class FloatingButtonController implements ReactiveController {
       selectedAccount !== null && selectedAccount !== undefined;
   }
 
-  private subscribeToModalEvents() {
-    window.addEventListener("ledger-core-modal-open", this.handleModalOpen);
-    window.addEventListener("ledger-core-modal-close", this.handleModalClose);
-  }
-
-  private handleModalOpen = () => {
-    this.isModalOpen = true;
-    this.host.requestUpdate();
-  };
-
-  private handleModalClose = () => {
-    this.isModalOpen = false;
-    this.host.requestUpdate();
-  };
-
   get shouldShow(): boolean {
-    return this.isConnected && !this.isModalOpen;
+    return this.isConnected;
   }
 }
