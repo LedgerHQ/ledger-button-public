@@ -20,6 +20,9 @@ export type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 
 export { LedgerEIP1193Provider };
+export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
+
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 
 let core: LedgerButtonCore | null = null;
 
@@ -27,6 +30,7 @@ export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
   floatingButtonPosition?: FloatingButtonPosition;
   floatingButtonTarget?: HTMLElement | string;
+  walletTransactionFeatures?: WalletTransactionFeature[];
 };
 
 export function initializeLedgerProvider({
@@ -38,6 +42,7 @@ export function initializeLedgerProvider({
   environment,
   floatingButtonPosition = "bottom-right",
   floatingButtonTarget,
+  walletTransactionFeatures,
   devConfig = {
     stub: {
       base: false,
@@ -99,6 +104,7 @@ export function initializeLedgerProvider({
 
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
   app.core = core;
+  app.walletTransactionFeatures = walletTransactionFeatures;
   app.classList.add("ledger-wallet-provider");
 
   const { floatingButtonContainer, floatingButton } = setupFloatingButton(

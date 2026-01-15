@@ -9,6 +9,7 @@ import {
   LedgerModal,
   ModalMode,
 } from "../components/atom/modal/ledger-modal.js";
+import type { WalletTransactionFeature } from "../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { ANIMATION_DELAY } from "./navigation.js";
@@ -23,6 +24,9 @@ export class RootNavigationComponent extends LitElement {
   @consume({ context: langContext })
   @property({ attribute: false })
   public languageContext!: LanguageContext;
+
+  @property({ type: Array })
+  walletTransactionFeatures?: WalletTransactionFeature[];
 
   @query("#ledger-modal")
   private ledgerModal!: LedgerModal;
@@ -134,6 +138,7 @@ export class RootNavigationComponent extends LitElement {
           .destinations=${this.rootNavigationController.destinations}
           .navigation=${this.rootNavigationController.navigation}
           .params=${this.rootNavigationController.params}
+          .walletTransactionFeatures=${this.walletTransactionFeatures}
         ></${tag}>
       `;
     }

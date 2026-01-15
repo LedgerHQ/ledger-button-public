@@ -17,6 +17,7 @@ import { customElement, property, query } from "lit/decorators.js";
 
 import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button.js";
 import { ModalMode } from "./components/index.js";
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
@@ -35,6 +36,9 @@ export class LedgerButtonApp extends LitElement {
 
   @property({ attribute: false })
   floatingButtonPosition: FloatingButtonPosition = "bottom-right";
+
+  @property({ type: Array })
+  walletTransactionFeatures?: WalletTransactionFeature[];
 
   controller!: LedgerButtonAppController;
 
@@ -219,6 +223,7 @@ export class LedgerButtonApp extends LitElement {
           <language-provider>
             <root-navigation-component
               id="navigation"
+              .walletTransactionFeatures=${this.walletTransactionFeatures}
             ></root-navigation-component>
             ${this.renderFloatingButton()}
           </language-provider>

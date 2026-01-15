@@ -52,6 +52,7 @@ export const useProviders = () => {
       loggerLevel: "info",
       environment: "production",
       dmkConfig: undefined,
+      walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
       devConfig: disableEventTracking
         ? {
             stub: {
