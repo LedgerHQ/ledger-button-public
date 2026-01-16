@@ -213,7 +213,10 @@ export class LedgerModal extends LitElement {
 
   private renderContent() {
     return html`
-      <div id="modal-content" class="lb-overflow-y-auto lb-text-base">
+      <div
+        id="modal-content"
+        class="lb-relative lb-flex-1 lb-overflow-y-auto lb-text-base"
+      >
         <slot>hello</slot>
       </div>
     `;

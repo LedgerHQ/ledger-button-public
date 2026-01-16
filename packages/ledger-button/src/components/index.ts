@@ -21,4 +21,5 @@ export * from "./molecule/info-state/ledger-info-state.js";
 export * from "./molecule/platform-item/ledger-platform-item.js";
 export * from "./molecule/toolbar/ledger-toolbar.js";
 export * from "./molecule/wallet-actions/ledger-wallet-actions.js";
+export * from "./molecule/wallet-redirect-drawer/ledger-wallet-redirect-drawer.js";
 export * from "./organism/status/ledger-status.js";

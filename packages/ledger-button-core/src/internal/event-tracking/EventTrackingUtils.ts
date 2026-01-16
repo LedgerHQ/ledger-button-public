@@ -17,6 +17,10 @@ import {
   type TransactionFlowInitializationEventData,
   type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
+  type WalletActionClickedEventData,
+  type WalletActionType,
+  type WalletRedirectCancelledEventData,
+  type WalletRedirectConfirmedEventData,
 } from "../backend/model/trackEvent.js";
 import { generateUUID } from "./utils.js";
 
@@ -318,6 +322,63 @@ export class EventTrackingUtils {
     return {
       name: EventType.TypedMessageFlowCompletion,
       type: EventType.TypedMessageFlowCompletion,
+      data,
+    };
+  }
+
+  static createWalletActionClickedEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletActionClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletActionClicked,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletActionClicked,
+      type: EventType.WalletActionClicked,
+      data,
+    };
+  }
+
+  static createWalletRedirectConfirmedEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletRedirectConfirmedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletRedirectConfirmed,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletRedirectConfirmed,
+      type: EventType.WalletRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createWalletRedirectCancelledEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletRedirectCancelledEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletRedirectCancelled,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletRedirectCancelled,
+      type: EventType.WalletRedirectCancelled,
       data,
     };
   }

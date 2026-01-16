@@ -188,7 +188,7 @@ export class RootNavigationComponent extends LitElement {
           >
           </ledger-toolbar>
         </div>
-        <div id="modal-content">${this.renderScreen()}</div>
+        <div id="modal-content" style="height: 100%">${this.renderScreen()}</div>
       </ledger-modal>
     `;
   }
