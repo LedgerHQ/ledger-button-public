@@ -83,19 +83,19 @@ Check current state with formats in JSON schemas and update the validation.
   }
 
   private shouldTrackEvent(event: EventRequest): boolean {
-    // InvoicingTransactionSigned is always tracked for billing purposes
-    if (event.type === EventType.InvoicingTransactionSigned) {
-      return true;
-    }
+    // These events are always tracked regardless of consent
+    const alwaysTrackedEvents = [
+      EventType.InvoicingTransactionSigned,
+      EventType.ErrorOccurred,
+      EventType.ConsentGiven,
+    ];
 
-    // ErrorOccurred is always tracked for error tracking purposes
-    if (event.type === EventType.ErrorOccurred) {
+    if (alwaysTrackedEvents.includes(event.type)) {
       return true;
     }
 
     // All other events require user consent
-    const hasConsent = this.contextService.getContext().hasTrackingConsent;
-    if (hasConsent) {
+    if (this.contextService.getContext().hasTrackingConsent) {
       return true;
     }
 
