@@ -98,7 +98,7 @@ export class LedgerWalletRedirectDrawer extends LitElement {
           class="lb-flex lb-flex-col lb-items-center lb-gap-32 lb-text-center"
         >
           <div
-            class="lb-flex lb-h-64 lb-w-64 lb-items-center lb-justify-center lb-rounded-full lb-bg-muted"
+            class="lb-flex lb-h-64 lb-w-64 lb-items-center lb-justify-center lb-rounded-full lb-bg-muted-transparent"
           >
             <ledger-icon
               type="info"

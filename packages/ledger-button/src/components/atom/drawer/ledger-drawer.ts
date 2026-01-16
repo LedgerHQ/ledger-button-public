@@ -1,12 +1,25 @@
 import "../icon/ledger-icon.js";
 
-import { html, LitElement } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { animate } from "motion";
 
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import type { AnimationInstance } from "../modal/animation-types.js";
+
+const styles = css`
+  .drawer-container {
+    background: var(
+      --status-gradient-sheet-muted,
+      radial-gradient(
+        43.56% 33.06% at 50.47% 0.14%,
+        var(--background-muted-strong) 0%,
+        var(--background-muted-transparent) 100%
+      )
+    );
+  }
+`;
 
 export type DrawerCloseEventDetail = {
   timestamp: number;
@@ -31,7 +44,7 @@ export interface LedgerDrawerAttributes {
  * ```
  */
 @customElement("ledger-drawer")
-@tailwindElement()
+@tailwindElement(styles)
 export class LedgerDrawer extends LitElement {
   /**
    * Whether to show the close button in the top-right corner.
@@ -152,7 +165,7 @@ export class LedgerDrawer extends LitElement {
 
     return html`
       <button
-        class="lb-absolute lb-right-16 lb-top-16 lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-border-none lb-bg-transparent lb-p-8"
+        class="lb-absolute lb-right-16 lb-top-16 lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-rounded-full lb-border-none lb-bg-muted lb-p-8 hover:lb-bg-muted-hover active:lb-bg-muted-pressed"
         @click=${this.handleClose}
         aria-label="Close"
       >
@@ -164,7 +177,7 @@ export class LedgerDrawer extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-absolute lb-inset-0 lb-z-50"
+        class="lb-z-50 lb-absolute lb-inset-0"
         role="dialog"
         aria-modal="true"
       >
@@ -173,7 +186,7 @@ export class LedgerDrawer extends LitElement {
           @click=${this.handleClose}
         ></div>
         <div
-          class="drawer-container lb-absolute lb-bottom-0 lb-left-0 lb-right-0 lb-rounded-t-3xl lb-bg-canvas-sheet"
+          class="drawer-container lb-rounded-t-3xl lb-absolute lb-bottom-0 lb-left-0 lb-right-0 lb-rounded-t-xl lb-bg-canvas-sheet lb-pt-64"
           style="transform: translateY(100%)"
         >
           ${this.renderCloseButton()}
