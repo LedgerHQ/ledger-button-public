@@ -143,8 +143,8 @@ describe("DefaultEventTrackingService", () => {
       });
     });
 
-    describe("analytics events (consent-based)", () => {
-      it("should NOT track analytics events when user has not given consent", async () => {
+    describe("consent events (ConsentGiven)", () => {
+      it("should ALWAYS track ConsentGiven even without consent", async () => {
         mockContextService.getContext.mockReturnValue(
           createMockContext({ hasTrackingConsent: false }),
         );
@@ -153,14 +153,17 @@ describe("DefaultEventTrackingService", () => {
 
         await eventTrackingService.trackEvent(event);
 
-        expect(mockBackendService.event).not.toHaveBeenCalled();
-        expect(mockLogger.debug).toHaveBeenCalledWith(
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
+        expect(mockLogger.debug).not.toHaveBeenCalledWith(
           "User has not given consent, skipping tracking",
-          { event },
+          expect.anything(),
         );
       });
 
-      it("should track analytics events when user has given consent", async () => {
+      it("should track ConsentGiven with consent", async () => {
         mockContextService.getContext.mockReturnValue(
           createMockContext({ hasTrackingConsent: true }),
         );
@@ -172,6 +175,27 @@ describe("DefaultEventTrackingService", () => {
         expect(mockBackendService.event).toHaveBeenCalledWith(
           event,
           mockConfig.dAppIdentifier,
+        );
+      });
+    });
+
+    describe("analytics events (consent-based)", () => {
+      it("should NOT track analytics events when user has not given consent", async () => {
+        mockContextService.getContext.mockReturnValue(
+          createMockContext({ hasTrackingConsent: false }),
+        );
+
+        const event = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).not.toHaveBeenCalled();
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+          "User has not given consent, skipping tracking",
+          { event },
         );
       });
 
