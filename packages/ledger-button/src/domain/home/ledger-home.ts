@@ -2,8 +2,9 @@ import "../../components/index.js";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
+import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
 import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
@@ -56,6 +57,9 @@ export class LedgerHomeScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  @state()
+  private activeTab = "tokens";
+
   controller!: LedgerHomeController;
 
   override connectedCallback() {
@@ -87,6 +91,10 @@ export class LedgerHomeScreen extends LitElement {
         composed: true,
       }),
     );
+  };
+
+  private handleTabChange = (event: CustomEvent<TabChangeEventDetail>) => {
+    this.activeTab = event.detail.selectedId;
   };
 
   override render() {
@@ -141,6 +149,17 @@ export class LedgerHomeScreen extends LitElement {
         <ledger-wallet-actions
           .features=${this.walletTransactionFeatures}
         ></ledger-wallet-actions>
+        <ledger-tabs
+          .tabs=${[
+            { id: "tokens", label: "Tokens" },
+            { id: "transactions", label: "Transactions" },
+          ]}
+          .selectedId=${this.activeTab}
+          @tab-change=${this.handleTabChange}
+        ></ledger-tabs>
+        ${this.activeTab === "tokens"
+          ? html`<ledger-token-list></ledger-token-list>`
+          : html`<ledger-transaction-list></ledger-transaction-list>`}
         <ledger-button
           variant="secondary"
           size="full"
