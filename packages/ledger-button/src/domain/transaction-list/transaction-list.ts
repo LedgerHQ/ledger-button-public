@@ -1,11 +1,13 @@
+import "../../components/index.js";
+
 import { html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
+import { tailwindElement } from "../../tailwind-element.js";
 
-@customElement("ledger-transaction-list")
+@customElement("transaction-list-screen")
 @tailwindElement()
-export class LedgerTransactionList extends LitElement {
+export class TransactionListScreen extends LitElement {
   override render() {
     return html`
       <div
@@ -19,8 +21,6 @@ export class LedgerTransactionList extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "ledger-transaction-list": LedgerTransactionList;
+    "transaction-list-screen": TransactionListScreen;
   }
 }
-
-export default LedgerTransactionList;

@@ -1,4 +1,6 @@
 import "../../components/index.js";
+import "../token-list/token-list.js";
+import "../transaction-list/transaction-list.js";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -158,8 +160,8 @@ export class LedgerHomeScreen extends LitElement {
           @tab-change=${this.handleTabChange}
         ></ledger-tabs>
         ${this.activeTab === "tokens"
-          ? html`<ledger-token-list></ledger-token-list>`
-          : html`<ledger-transaction-list></ledger-transaction-list>`}
+          ? html`<token-list-screen></token-list-screen>`
+          : html`<transaction-list-screen></transaction-list-screen>`}
         <ledger-button
           variant="secondary"
           size="full"
