@@ -21,6 +21,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../context/language-context.js";
+import { WALLET_ACTION_DEEPLINKS } from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
@@ -50,15 +51,6 @@ const styles = css`
     );
   }
 `;
-
-const WALLET_ACTION_DEEPLINKS: Record<WalletTransactionFeature, string> = {
-  send: "ledgerwallet://send",
-  receive: "ledgerwallet://receive",
-  swap: "ledgerwallet://swap",
-  buy: "ledgerwallet://buy",
-  earn: "ledgerwallet://earn",
-  sell: "ledgerwallet://buy", // sell uses buy deeplink
-};
 
 @customElement("ledger-home-screen")
 @tailwindElement(styles)
