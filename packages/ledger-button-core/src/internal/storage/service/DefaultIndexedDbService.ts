@@ -16,6 +16,7 @@ import {
   StorageIDBRemoveError,
   StorageIDBStoreError,
 } from "../model/errors.js";
+import { type KnownDeviceDbModel } from "../model/knownDeviceDbModel.js";
 import { type UserConsent } from "../model/UserConsent.js";
 import { type IndexedDbService } from "./IndexedDbService.js";
 
@@ -627,5 +628,114 @@ export class DefaultIndexedDbService implements IndexedDbService {
           },
         });
     });
+  }
+
+  async storeKnownDevices(
+    devices: KnownDeviceDbModel[],
+  ): Promise<Either<StorageIDBErrors, void>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, void>>((resolve) => {
+      init
+        .map((db) => {
+          const transaction = db.transaction(
+            STORAGE_KEYS.DB_STORE_NAME,
+            "readwrite",
+          );
+          const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+          const request = store.put(devices, STORAGE_KEYS.KNOWN_DEVICES);
+
+          request.onsuccess = () => {
+            this.logger.debug("Known devices stored in IndexedDB", {
+              count: devices.length,
+            });
+            resolve(Right(undefined));
+          };
+
+          request.onerror = (event) => {
+            this.logger.error("Error storing known devices in IndexedDB", {
+              event,
+              count: devices.length,
+            });
+            resolve(
+              Left(
+                new StorageIDBStoreError("Error storing known devices", {
+                  event,
+                  count: devices.length,
+                }),
+              ),
+            );
+          };
+        })
+        .caseOf({
+          Left: (error) => {
+            this.logger.error(
+              "Error initializing IDB for known devices storage",
+              { error },
+            );
+            resolve(Left(error));
+          },
+          Right: () => {},
+        });
+    });
+  }
+
+  async getKnownDevices(): Promise<
+    Either<StorageIDBErrors, KnownDeviceDbModel[]>
+  > {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, KnownDeviceDbModel[]>>(
+      (resolve) => {
+        init
+          .map((db) => {
+            const transaction = db.transaction(
+              STORAGE_KEYS.DB_STORE_NAME,
+              "readonly",
+            );
+            const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+            const request = store.get(STORAGE_KEYS.KNOWN_DEVICES);
+
+            request.onsuccess = (event) => {
+              const result = (event.target as IDBRequest)?.result;
+              if (result !== undefined && Array.isArray(result)) {
+                this.logger.debug("Known devices retrieved from IndexedDB", {
+                  count: result.length,
+                });
+                resolve(Right(result as KnownDeviceDbModel[]));
+              } else {
+                this.logger.debug("No known devices found in IndexedDB");
+                resolve(Right([]));
+              }
+            };
+
+            request.onerror = (event) => {
+              this.logger.error(
+                "Error retrieving known devices from IndexedDB",
+                {
+                  event,
+                },
+              );
+              resolve(
+                Left(
+                  new StorageIDBGetError("Error retrieving known devices", {
+                    event,
+                  }),
+                ),
+              );
+            };
+          })
+          .caseOf({
+            Left: (error) => {
+              this.logger.error(
+                "Error initializing IDB for known devices retrieval",
+                { error },
+              );
+              resolve(Left(error));
+            },
+            Right: () => {},
+          });
+      },
+    );
   }
 }

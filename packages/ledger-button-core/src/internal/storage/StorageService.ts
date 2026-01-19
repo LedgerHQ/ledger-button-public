@@ -38,8 +38,8 @@ export interface StorageService {
   isWelcomeScreenCompleted(): Promise<boolean>;
   removeWelcomeScreenCompleted(): Promise<void>;
 
-  saveKnownDevice(device: KnownDeviceDbModel): void;
-  getKnownDevices(): KnownDeviceDbModel[];
-  removeKnownDevice(deviceId: string): void;
-  clearKnownDevices(): void;
+  saveKnownDevice(device: KnownDeviceDbModel): Promise<void>;
+  getKnownDevices(): Promise<KnownDeviceDbModel[]>;
+  removeKnownDevice(deviceId: string): Promise<void>;
+  clearKnownDevices(): Promise<void>;
 }

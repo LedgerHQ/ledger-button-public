@@ -5,6 +5,7 @@ const INDEXED_DB_KEYS = {
   ENCRYPTION_KEY: "encryptionKey",
   USER_CONSENT: "userConsent",
   WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
+  KNOWN_DEVICES: "knownDevices",
 } as const;
 
 export const INDEXED_DB_VERSION = 3;
@@ -15,7 +16,6 @@ const LOCAL_STORAGE_KEYS = {
   TRUST_CHAIN_ID: "trustChainId",
   TRUST_CHAIN_VALIDITY: "trustChainValidity",
   DB_VERSION: "dbVersion",
-  KNOWN_DEVICES: "knownDevices",
 } as const;
 
 export const STORAGE_KEYS = {

@@ -35,7 +35,7 @@ export class DeviceSwitchController {
 
   async loadDevices() {
     try {
-      const knownDevices = this.coreContext.getKnownDevices();
+      const knownDevices = await this.coreContext.getKnownDevices();
 
       let availableDevices: DiscoveredDevice[] = [];
 
@@ -116,7 +116,7 @@ export class DeviceSwitchController {
 
       // Save the connected device to known devices
       if (device) {
-        this.saveDeviceToKnownList(device);
+        await this.saveDeviceToKnownList(device);
       }
 
       // Navigate based on pending transaction or to home
@@ -133,7 +133,7 @@ export class DeviceSwitchController {
     }
   }
 
-  private saveDeviceToKnownList(device: {
+  private async saveDeviceToKnownList(device: {
     name: string;
     modelId: string;
     type: string;
@@ -144,7 +144,7 @@ export class DeviceSwitchController {
       type: device.type,
     });
 
-    this.coreContext.saveKnownDevice(knownDevice);
+    await this.coreContext.saveKnownDevice(knownDevice);
   }
 
   async addNewDevice() {

@@ -533,30 +533,30 @@ export class LedgerButtonCore {
   }
 
   // Known Devices methods
-  saveKnownDevice(device: KnownDeviceDbModel): void {
+  async saveKnownDevice(device: KnownDeviceDbModel): Promise<void> {
     this._logger.debug("Saving known device", { device: device.name });
-    this.container
+    await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .saveKnownDevice(device);
   }
 
-  getKnownDevices(): KnownDeviceDbModel[] {
+  async getKnownDevices(): Promise<KnownDeviceDbModel[]> {
     this._logger.debug("Getting known devices");
     return this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .getKnownDevices();
   }
 
-  removeKnownDevice(deviceId: string): void {
+  async removeKnownDevice(deviceId: string): Promise<void> {
     this._logger.debug("Removing known device", { deviceId });
-    this.container
+    await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .removeKnownDevice(deviceId);
   }
 
-  clearKnownDevices(): void {
+  async clearKnownDevices(): Promise<void> {
     this._logger.debug("Clearing all known devices");
-    this.container
+    await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .clearKnownDevices();
   }
