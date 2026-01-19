@@ -139,19 +139,20 @@ export function initializeLedgerProvider({
 
   // Cleanup function
   return () => {
-    if (target) {
-      target.removeChild(app);
-    } else {
-      document.body.removeChild(app);
+    if (app.parentNode) {
+      app.parentNode.removeChild(app);
     }
 
-    if (floatingButtonContainer && floatingButton) {
-      floatingButtonContainer.removeChild(floatingButton);
+    if (floatingButton && floatingButton.parentNode) {
+      floatingButton.parentNode.removeChild(floatingButton);
     }
 
     window.removeEventListener(
       "eip6963:requestProvider",
       announceProviderListener,
     );
+
+    // Reset core so new config can be applied on next initialization
+    core = null;
   };
 }
