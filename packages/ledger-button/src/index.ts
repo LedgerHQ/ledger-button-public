@@ -107,7 +107,7 @@ export function initializeLedgerProvider({
   app.walletTransactionFeatures = walletTransactionFeatures;
   app.classList.add("ledger-wallet-provider");
 
-  const { floatingButtonContainer, floatingButton } = setupFloatingButton(
+  const { floatingButton } = setupFloatingButton(
     app,
     floatingButtonTarget,
     floatingButtonPosition,
