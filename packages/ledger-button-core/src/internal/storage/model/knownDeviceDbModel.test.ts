@@ -1,4 +1,4 @@
-import { mapToKnownDeviceDbModel, type KnownDeviceDbModel } from "./knownDeviceDbModel.js";
+import { type KnownDeviceDbModel,mapToKnownDeviceDbModel } from "./knownDeviceDbModel.js";
 
 describe("knownDeviceDbModel", () => {
   describe("mapToKnownDeviceDbModel", () => {

@@ -675,7 +675,9 @@ export class DefaultIndexedDbService implements IndexedDbService {
             );
             resolve(Left(error));
           },
-          Right: () => {},
+          Right: () => {
+            // Transaction handled in map callback
+          },
         });
     });
   }
@@ -733,7 +735,9 @@ export class DefaultIndexedDbService implements IndexedDbService {
               );
               resolve(Left(error));
             },
-            Right: () => {},
+            Right: () => {
+              // Transaction handled in map callback
+            },
           });
       },
     );

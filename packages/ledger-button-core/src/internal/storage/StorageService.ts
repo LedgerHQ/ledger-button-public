@@ -1,7 +1,7 @@
 import { Either, Maybe } from "purify-ts";
 
-import { KnownDeviceDbModel } from "./model/knownDeviceDbModel.js";
 import { StorageIDBErrors } from "./model/errors.js";
+import { KnownDeviceDbModel } from "./model/knownDeviceDbModel.js";
 import { UserConsent } from "./model/UserConsent.js";
 import { Account } from "../account/service/AccountService.js";
 

@@ -1,6 +1,6 @@
-import type {
-  DiscoveredDevice,
-  KnownDeviceDbModel,
+import {
+  type DiscoveredDevice,
+  type KnownDeviceDbModel,
   mapToKnownDeviceDbModel,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { LitElement } from "lit";
