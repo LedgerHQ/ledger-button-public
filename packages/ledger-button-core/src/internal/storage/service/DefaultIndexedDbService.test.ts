@@ -5,6 +5,7 @@ import { Nothing } from "purify-ts";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant.js";
 import { StorageIDBGetError, StorageIDBOpenError } from "../model/errors.js";
+import { type KnownDeviceDbModel } from "../model/knownDeviceDbModel.js";
 import { DefaultIndexedDbService } from "./DefaultIndexedDbService.js";
 
 let indexedDbService: DefaultIndexedDbService;
@@ -331,6 +332,117 @@ describe("DefaultIndexedDbService", () => {
           expect(completed).toBe(false);
         });
       });
+    });
+  });
+
+  describe("Known Devices - storeKnownDevices and getKnownDevices", () => {
+    const mockDevice1: KnownDeviceDbModel = {
+      id: "device-1",
+      name: "My Ledger Flex",
+      modelId: "FLEX",
+      type: "ble",
+      firstConnectedAt: 1705320000000,
+      lastConnectedAt: 1705320000000,
+    };
+
+    const mockDevice2: KnownDeviceDbModel = {
+      id: "device-2",
+      name: "Ledger Nano X",
+      modelId: "NANO_X",
+      type: "usb",
+      firstConnectedAt: 1705330000000,
+      lastConnectedAt: 1705330000000,
+    };
+
+    beforeEach(async () => {
+      await clearObjectStore();
+      indexedDbService = new DefaultIndexedDbService(() => mockLogger);
+    });
+
+    it("should store and retrieve a single known device", async () => {
+      const storeResult = await indexedDbService.storeKnownDevices([
+        mockDevice1,
+      ]);
+      expect(storeResult.isRight()).toBe(true);
+
+      const getResult = await indexedDbService.getKnownDevices();
+      expect(getResult.isRight()).toBe(true);
+
+      const devices = getResult.unsafeCoerce();
+      expect(devices).toHaveLength(1);
+      expect(devices).toContainEqual(mockDevice1);
+    });
+
+    it("should store and retrieve multiple known devices", async () => {
+      const storeResult = await indexedDbService.storeKnownDevices([
+        mockDevice1,
+        mockDevice2,
+      ]);
+      expect(storeResult.isRight()).toBe(true);
+
+      const getResult = await indexedDbService.getKnownDevices();
+      expect(getResult.isRight()).toBe(true);
+
+      const devices = getResult.unsafeCoerce();
+      expect(devices).toHaveLength(2);
+      expect(devices).toEqual(
+        expect.arrayContaining([mockDevice1, mockDevice2]),
+      );
+    });
+
+    it("should return empty array when no known devices exist", async () => {
+      const result = await indexedDbService.getKnownDevices();
+      expect(result.isRight()).toBe(true);
+      expect(result.unsafeCoerce()).toEqual([]);
+    });
+
+    it("should overwrite existing devices when storing new list", async () => {
+      await indexedDbService.storeKnownDevices([mockDevice1]);
+      await indexedDbService.storeKnownDevices([mockDevice2]);
+
+      const result = await indexedDbService.getKnownDevices();
+      expect(result.isRight()).toBe(true);
+
+      const devices = result.unsafeCoerce();
+      expect(devices).toHaveLength(1);
+      expect(devices).toContainEqual(mockDevice2);
+    });
+
+    it("should clear devices when storing empty array", async () => {
+      await indexedDbService.storeKnownDevices([mockDevice1, mockDevice2]);
+      await indexedDbService.storeKnownDevices([]);
+
+      const result = await indexedDbService.getKnownDevices();
+      expect(result.isRight()).toBe(true);
+      expect(result.unsafeCoerce()).toEqual([]);
+    });
+
+    it("should preserve device properties after storage", async () => {
+      const deviceWithAllProps: KnownDeviceDbModel = {
+        id: "test-device-id",
+        name: "Test Device Name",
+        modelId: "STAX",
+        type: "ble",
+        firstConnectedAt: 1705320000000,
+        lastConnectedAt: 1705400000000,
+      };
+
+      await indexedDbService.storeKnownDevices([deviceWithAllProps]);
+
+      const result = await indexedDbService.getKnownDevices();
+      expect(result.isRight()).toBe(true);
+
+      const devices = result.unsafeCoerce();
+      expect(devices).toContainEqual(
+        expect.objectContaining({
+          id: "test-device-id",
+          name: "Test Device Name",
+          modelId: "STAX",
+          type: "ble",
+          firstConnectedAt: 1705320000000,
+          lastConnectedAt: 1705400000000,
+        }),
+      );
     });
   });
 });
