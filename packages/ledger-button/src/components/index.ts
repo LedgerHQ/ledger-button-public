@@ -8,6 +8,7 @@ export * from "./atom/icon/ledger-icon.js";
 export * from "./atom/lottie/ledger-lottie.js";
 export * from "./atom/modal/ledger-modal.js";
 export * from "./atom/modal/ledger-modal-story-wrapper.js";
+export * from "./atom/tabs/ledger-tabs.js";
 export * from "./atom/toggle/ledger-toggle.js";
 export * from "./molecule/account-item/ledger-account-item.js";
 export * from "./molecule/account-switch/ledger-account-switch.js";
