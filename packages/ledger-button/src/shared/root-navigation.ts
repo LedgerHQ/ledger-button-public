@@ -16,17 +16,11 @@ import { langContext, LanguageContext } from "../context/language-context.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
-/**
- * Maps DMK DeviceModelId enum values (e.g., "NANO_X", "STAX") to UI component
- * DeviceModelId string literals (e.g., "nanoX", "stax").
- */
 function mapDeviceModelId(dmkModelId?: string): DeviceModelId | undefined {
   if (!dmkModelId) {
     return undefined;
   }
 
-  // DMK uses uppercase with underscores (e.g., NANO_X, NANO_S, NANO_SP, STAX, FLEX, APEX)
-  // UI components expect camelCase (e.g., nanoX, nanoS, nanoSP, stax, flex, apexp)
   const modelMap: Record<string, DeviceModelId> = {
     NANO_X: "nanoX",
     NANO_S: "nanoS",
