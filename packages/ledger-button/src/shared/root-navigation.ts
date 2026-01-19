@@ -5,6 +5,7 @@ import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
+import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import {
   LedgerModal,
   ModalMode,
@@ -14,6 +15,29 @@ import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
+
+/**
+ * Maps DMK DeviceModelId enum values (e.g., "NANO_X", "STAX") to UI component
+ * DeviceModelId string literals (e.g., "nanoX", "stax").
+ */
+function mapDeviceModelId(dmkModelId?: string): DeviceModelId | undefined {
+  if (!dmkModelId) {
+    return undefined;
+  }
+
+  // DMK uses uppercase with underscores (e.g., NANO_X, NANO_S, NANO_SP, STAX, FLEX, APEX)
+  // UI components expect camelCase (e.g., nanoX, nanoS, nanoSP, stax, flex, apexp)
+  const modelMap: Record<string, DeviceModelId> = {
+    NANO_X: "nanoX",
+    NANO_S: "nanoS",
+    NANO_SP: "nanoSP",
+    STAX: "stax",
+    FLEX: "flex",
+    APEX: "apexp",
+  };
+
+  return modelMap[dmkModelId] ?? "flex";
+}
 
 @customElement("root-navigation-component")
 export class RootNavigationComponent extends LitElement {
@@ -144,24 +168,25 @@ export class RootNavigationComponent extends LitElement {
   }
 
   override render() {
-    //const connectedDevice = this.coreContext.getConnectedDevice();
+    const connectedDevice = this.coreContext.getConnectedDevice();
     const canGoBack =
       this.rootNavigationController.currentScreen?.canGoBack ?? false;
 
     const canClose =
       this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;
 
-    const title = this.rootNavigationController.currentScreen?.toolbar.title;
-    //      connectedDevice &&
-    //    this.rootNavigationController.currentScreen?.name === "home-flow"
-    //    ? connectedDevice.name
-    //  : this.rootNavigationController.currentScreen?.toolbar.title ;
+    const isHomeFlow =
+      this.rootNavigationController.currentScreen?.name === "home-flow";
 
-    const deviceModelId = undefined; //TODO: uncomment this once we have the switch device flow working properly
-    // connectedDevice &&
-    // this.rootNavigationController.currentScreen?.name === "home-flow"
-    //   ? connectedDevice.modelId
-    //   : undefined;
+    const title =
+      connectedDevice && isHomeFlow
+        ? connectedDevice.name
+        : this.rootNavigationController.currentScreen?.toolbar.title;
+
+    const deviceModelId =
+      connectedDevice && isHomeFlow
+        ? mapDeviceModelId(connectedDevice.modelId)
+        : undefined;
 
     const showSettings =
       this.rootNavigationController.currentScreen?.name === "home-flow";
