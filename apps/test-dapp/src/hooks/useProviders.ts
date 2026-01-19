@@ -57,7 +57,7 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
     [],
   );
 
-  const initializeProvider = useCallback(() => {
+  const initializeProviderWithConfig = useCallback((configToUse: LedgerProviderConfig) => {
     if (!isLoaded || !LedgerButtonModule) return;
 
     if (cleanupRef.current) {
@@ -66,18 +66,18 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
     }
 
     const { initializeLedgerProvider } = LedgerButtonModule;
-    const currentConfig = configRef.current;
+
 
     const disableEventTracking =
       process.env.NEXT_PUBLIC_DISABLE_EVENT_TRACKING === "true";
 
     const cleanup = initializeLedgerProvider({
       target: document.body,
-      floatingButtonPosition: currentConfig.buttonPosition,
-      dAppIdentifier: currentConfig.dAppIdentifier,
-      apiKey: currentConfig.apiKey,
-      loggerLevel: currentConfig.logLevel as "debug" | "info" | "warn" | "error",
-      environment: currentConfig.environment as "production" | "staging",
+      floatingButtonPosition: configToUse.buttonPosition as "bottom-right" | "bottom-left" | "top-right" | "top-left",
+      dAppIdentifier: configToUse.dAppIdentifier,
+      apiKey: configToUse.apiKey,
+      loggerLevel: configToUse.logLevel as "debug" | "info" | "warn" | "error",
+      environment: configToUse.environment as "production" | "staging",
       dmkConfig: undefined,
       walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
       devConfig: disableEventTracking
@@ -109,11 +109,13 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
   useEffect(() => {
     if (!isLoaded) return;
 
-    const cleanup = initializeProvider();
+    const cleanup = initializeProviderWithConfig(configRef.current);
     return cleanup;
-  }, [isLoaded, initializeProvider]);
+  }, [isLoaded, initializeProviderWithConfig]);
 
-  const reinitialize = useCallback(() => {
+  const reinitialize = useCallback((newConfig?: LedgerProviderConfig) => {
+    const configToUse = newConfig || configRef.current;
+
     if (cleanupRef.current) {
       cleanupRef.current();
       cleanupRef.current = null;
@@ -123,8 +125,8 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
     setSelectedProvider(null);
     setIsInitialized(false);
 
-    initializeProvider();
-  }, [initializeProvider]);
+    initializeProviderWithConfig(configToUse);
+  }, [initializeProviderWithConfig]);
 
   return {
     providers,

@@ -18,7 +18,7 @@ interface SettingsBlockProps {
   config: LedgerProviderConfig;
   onConfigChange: (config: LedgerProviderConfig) => void;
   isProviderInitialized: boolean;
-  onReinitialize: () => void;
+  onReinitialize: (newConfig?: LedgerProviderConfig) => void;
 }
 
 export function SettingsBlock({
@@ -45,7 +45,7 @@ export function SettingsBlock({
     onConfigChange(localConfig);
     setLastAppliedConfig(localConfig);
     if (isProviderInitialized) {
-      onReinitialize();
+      onReinitialize(localConfig);
     }
   }, [localConfig, onConfigChange, isProviderInitialized, onReinitialize]);
 
