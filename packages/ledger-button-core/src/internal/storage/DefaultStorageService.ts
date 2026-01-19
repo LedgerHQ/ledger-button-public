@@ -257,25 +257,24 @@ export class DefaultStorageService implements StorageService {
   // Known Devices Management
   async saveKnownDevice(device: KnownDeviceDbModel): Promise<void> {
     const existingDevices = await this.getKnownDevices();
-
-    const existingIndex = existingDevices.findIndex(
+    const existingDevice = existingDevices.find(
       (d) => d.name === device.name && d.type === device.type,
     );
 
-    if (existingIndex >= 0) {
-      existingDevices[existingIndex] = {
-        ...existingDevices[existingIndex],
-        lastConnectedAt: Date.now(),
-        modelId: device.modelId,
-      };
-      this.logger.debug("Updated known device", { device: device.name });
-    } else {
-      existingDevices.push(device);
-      this.logger.debug("Added new known device", { device: device.name });
-    }
+    const isUpdate = !!existingDevice;
+    const updatedDevices = isUpdate
+      ? existingDevices.map((d) =>
+          d.name === device.name && d.type === device.type
+            ? { ...d, lastConnectedAt: Date.now(), modelId: device.modelId }
+            : d,
+        )
+      : [...existingDevices, device];
 
-    const result =
-      await this.indexedDbService.storeKnownDevices(existingDevices);
+    this.logger.debug(isUpdate ? "Updated known device" : "Added new known device", {
+      device: device.name,
+    });
+
+    const result = await this.indexedDbService.storeKnownDevices(updatedDevices);
     result.caseOf({
       Right: () => {
         this.logger.debug("Known devices saved to IndexedDB");
