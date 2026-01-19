@@ -58,42 +58,33 @@ export class DeviceSwitchController {
     knownDevices: KnownDeviceDbModel[],
     availableDevices: DiscoveredDevice[],
   ): UnifiedDevice[] {
-    const merged: UnifiedDevice[] = [];
-    const seenNames = new Set<string>();
+    const availableDeviceNames = new Set(availableDevices.map((d) => d.name));
 
-    for (const device of availableDevices) {
-      merged.push({
+    const fromAvailable: UnifiedDevice[] = availableDevices.map((device) => ({
+      id: device.id,
+      name: device.name,
+      modelId: device.deviceModel?.model ?? "",
+      transport: device.transport,
+      isKnownDevice: knownDevices.some((k) => k.name === device.name),
+      isAvailable: true,
+    }));
+
+    const fromKnown: UnifiedDevice[] = knownDevices
+      .filter((device) => !availableDeviceNames.has(device.name))
+      .map((device) => ({
         id: device.id,
         name: device.name,
-        modelId: device.deviceModel?.model ?? "",
-        transport: device.transport,
-        isKnownDevice: knownDevices.some((k) => k.name === device.name),
-        isAvailable: true,
-      });
-      seenNames.add(device.name);
-    }
+        modelId: device.modelId,
+        transport: device.type,
+        isKnownDevice: true,
+        isAvailable: false,
+      }));
 
-    for (const device of knownDevices) {
-      if (!seenNames.has(device.name)) {
-        merged.push({
-          id: device.id,
-          name: device.name,
-          modelId: device.modelId,
-          transport: device.type,
-          isKnownDevice: true,
-          isAvailable: false,
-        });
-      }
-    }
-
-    merged.sort((a, b) => {
-      // Available devices first
+    return [...fromAvailable, ...fromKnown].sort((a, b) => {
       if (a.isAvailable && !b.isAvailable) return -1;
       if (!a.isAvailable && b.isAvailable) return 1;
       return 0;
     });
-
-    return merged;
   }
 
   getDevices(): UnifiedDevice[] {
