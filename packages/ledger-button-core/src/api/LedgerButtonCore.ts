@@ -55,6 +55,7 @@ import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
+import { type KnownDeviceDbModel } from "../internal/storage/model/knownDeviceDbModel.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
@@ -529,5 +530,34 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackFloatingButtonClick,
       )
       .execute();
+  }
+
+  // Known Devices methods
+  saveKnownDevice(device: KnownDeviceDbModel): void {
+    this._logger.debug("Saving known device", { device: device.name });
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveKnownDevice(device);
+  }
+
+  getKnownDevices(): KnownDeviceDbModel[] {
+    this._logger.debug("Getting known devices");
+    return this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getKnownDevices();
+  }
+
+  removeKnownDevice(deviceId: string): void {
+    this._logger.debug("Removing known device", { deviceId });
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .removeKnownDevice(deviceId);
+  }
+
+  clearKnownDevices(): void {
+    this._logger.debug("Clearing all known devices");
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .clearKnownDevices();
   }
 }

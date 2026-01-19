@@ -126,9 +126,7 @@ export class DeviceSwitchScreen extends LitElement {
           const isConnected =
             connectedDevice && connectedDevice.name === device.name;
           const status = isConnected ? "connected" : "available";
-          const deviceModelId = this.controller.mapDeviceModelId(
-            device.deviceModel?.model,
-          );
+          const deviceModelId = this.controller.mapDeviceModelId(device.modelId);
 
           const lang = this.languageContext.currentTranslation;
 

@@ -4,6 +4,7 @@ import { Either, Just, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
+import { type KnownDeviceDbModel } from "./model/knownDeviceDbModel.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
@@ -251,5 +252,45 @@ export class DefaultStorageService implements StorageService {
         this.logger.error("Error removing welcome screen completed", { error });
       },
     });
+  }
+
+  // Known Devices Management
+  saveKnownDevice(device: KnownDeviceDbModel): void {
+    const existingDevices = this.getKnownDevices();
+
+    const existingIndex = existingDevices.findIndex(
+      (d) => d.name === device.name && d.type === device.type,
+    );
+
+    if (existingIndex >= 0) {
+      existingDevices[existingIndex] = {
+        ...existingDevices[existingIndex],
+        lastConnectedAt: Date.now(),
+        modelId: device.modelId,
+      };
+      this.logger.debug("Updated known device", { device: device.name });
+    } else {
+      // Add new device
+      existingDevices.push(device);
+      this.logger.debug("Added new known device", { device: device.name });
+    }
+
+    this.saveItem(STORAGE_KEYS.KNOWN_DEVICES, existingDevices);
+  }
+
+  getKnownDevices(): KnownDeviceDbModel[] {
+    return this.getItem<KnownDeviceDbModel[]>(STORAGE_KEYS.KNOWN_DEVICES).orDefault([]);
+  }
+
+  removeKnownDevice(deviceId: string): void {
+    const existingDevices = this.getKnownDevices();
+    const filteredDevices = existingDevices.filter((d) => d.id !== deviceId);
+    this.saveItem(STORAGE_KEYS.KNOWN_DEVICES, filteredDevices);
+    this.logger.debug("Removed known device", { deviceId });
+  }
+
+  clearKnownDevices(): void {
+    this.removeItem(STORAGE_KEYS.KNOWN_DEVICES);
+    this.logger.debug("Cleared all known devices");
   }
 }

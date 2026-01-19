@@ -15,6 +15,7 @@ const LOCAL_STORAGE_KEYS = {
   TRUST_CHAIN_ID: "trustChainId",
   TRUST_CHAIN_VALIDITY: "trustChainValidity",
   DB_VERSION: "dbVersion",
+  KNOWN_DEVICES: "knownDevices",
 } as const;
 
 export const STORAGE_KEYS = {
