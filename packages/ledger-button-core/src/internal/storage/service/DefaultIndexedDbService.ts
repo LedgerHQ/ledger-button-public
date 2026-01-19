@@ -700,15 +700,13 @@ export class DefaultIndexedDbService implements IndexedDbService {
 
             request.onsuccess = (event) => {
               const result = (event.target as IDBRequest)?.result;
-              if (result !== undefined && Array.isArray(result)) {
-                this.logger.debug("Known devices retrieved from IndexedDB", {
-                  count: result.length,
-                });
-                resolve(Right(result as KnownDeviceDbModel[]));
-              } else {
-                this.logger.debug("No known devices found in IndexedDB");
-                resolve(Right([]));
-              }
+              const devices: KnownDeviceDbModel[] = Array.isArray(result)
+                ? result
+                : [];
+              this.logger.debug("Known devices retrieved from IndexedDB", {
+                count: devices.length,
+              });
+              resolve(Right(devices));
             };
 
             request.onerror = (event) => {
