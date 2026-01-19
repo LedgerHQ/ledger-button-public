@@ -18,6 +18,7 @@ import {
   EarnIcon,
   ErrorIcon,
   ExternalLinkIcon,
+  InfoIcon,
   LedgerLogoIcon,
   MobileIcon,
   QuestionIcon,
@@ -56,7 +57,8 @@ export interface LedgerIconAttributes {
     | "swap"
     | "buy"
     | "earn"
-    | "sell";
+    | "sell"
+    | "info";
   size: "small" | "medium" | "large";
   fillColor?: string;
 }
@@ -118,6 +120,7 @@ export class LedgerIcon extends LitElement {
       buy: () => BuyIcon,
       earn: () => EarnIcon,
       sell: () => SellIcon,
+      info: () => InfoIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;

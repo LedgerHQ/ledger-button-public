@@ -23,6 +23,7 @@ import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fe
 import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
+import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -47,6 +48,7 @@ import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/Tra
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -529,5 +531,27 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackFloatingButtonClick,
       )
       .execute();
+  }
+
+  async trackWalletActionClicked(walletAction: WalletActionType): Promise<void> {
+    await this.container
+      .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
+      .trackWalletActionClicked(walletAction);
+  }
+
+  async trackWalletRedirectConfirmed(
+    walletAction: WalletActionType,
+  ): Promise<void> {
+    await this.container
+      .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
+      .trackWalletRedirectConfirmed(walletAction);
+  }
+
+  async trackWalletRedirectCancelled(
+    walletAction: WalletActionType,
+  ): Promise<void> {
+    await this.container
+      .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
+      .trackWalletRedirectCancelled(walletAction);
   }
 }

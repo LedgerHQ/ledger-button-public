@@ -13,6 +13,7 @@ export { default as DirectConnectivityIcon } from "./directConnectivityIcon";
 export { default as EarnIcon } from "./earnIcon";
 export { default as ErrorIcon } from "./errorIcon";
 export { default as ExternalLinkIcon } from "./externalLinkIcon";
+export { default as InfoIcon } from "./infoIcon";
 export { default as LedgerLogoIcon } from "./ledgerLogoIcon";
 export { default as MobileIcon } from "./mobileIcon";
 export { default as QuestionIcon } from "./questionIcon";
