@@ -1,7 +1,10 @@
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  type KnownDeviceDbModel,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
@@ -55,6 +58,9 @@ export class RootNavigationComponent extends LitElement {
 
   isModalOpen = false;
 
+  @state()
+  private lastKnownDevice?: KnownDeviceDbModel;
+
   override connectedCallback() {
     super.connectedCallback();
     this.rootNavigationController = new RootNavigationController(
@@ -63,6 +69,7 @@ export class RootNavigationComponent extends LitElement {
       this.languageContext.currentTranslation,
       this.modalContent,
     );
+    this.loadLastKnownDevice();
   }
 
   // PUBLIC METHODS
@@ -100,7 +107,23 @@ export class RootNavigationComponent extends LitElement {
   }
 
   // PRIVATE METHODS
+  private async loadLastKnownDevice() {
+    try {
+      const knownDevices = await this.coreContext.getKnownDevices();
+
+      if (knownDevices.length > 0) {
+        const sorted = [...knownDevices].sort(
+          (a, b) => b.lastConnectedAt - a.lastConnectedAt,
+        );
+        this.lastKnownDevice = sorted[0];
+      }
+    } catch (error) {
+      console.debug("Failed to load known devices for toolbar chip", error);
+    }
+  }
+
   private handleModalOpen() {
+    this.loadLastKnownDevice();
     this.rootNavigationController.handleModalOpen();
     window.dispatchEvent(
       new CustomEvent("ledger-core-modal-open", {
@@ -172,14 +195,16 @@ export class RootNavigationComponent extends LitElement {
     const isHomeFlow =
       this.rootNavigationController.currentScreen?.name === "home-flow";
 
+    const displayDevice = connectedDevice ?? this.lastKnownDevice;
+
     const title =
-      connectedDevice && isHomeFlow
-        ? connectedDevice.name
+      displayDevice && isHomeFlow
+        ? displayDevice.name
         : this.rootNavigationController.currentScreen?.toolbar.title;
 
     const deviceModelId =
-      connectedDevice && isHomeFlow
-        ? mapDeviceModelId(connectedDevice.modelId)
+      displayDevice && isHomeFlow
+        ? mapDeviceModelId(displayDevice.modelId)
         : undefined;
 
     const showSettings =

@@ -114,7 +114,6 @@ export class DeviceSwitchController {
     try {
       const device = await this.coreContext.connectToDevice(connectionType);
 
-      // Save the connected device to known devices
       if (device) {
         await this.saveDeviceToKnownList(device);
       }
