@@ -18,7 +18,7 @@ interface SettingsBlockProps {
   config: LedgerProviderConfig;
   onConfigChange: (config: LedgerProviderConfig) => void;
   isProviderInitialized: boolean;
-  onReinitialize: () => void;
+  onReinitialize: (newConfig?: LedgerProviderConfig) => void;
 }
 
 export function SettingsBlock({
@@ -29,6 +29,7 @@ export function SettingsBlock({
 }: SettingsBlockProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [localConfig, setLocalConfig] = useState<LedgerProviderConfig>(config);
+  const [lastAppliedConfig, setLastAppliedConfig] = useState<LedgerProviderConfig>(config);
 
   const handleInputChange = useCallback(
     (field: keyof LedgerProviderConfig, value: string) => {
@@ -42,13 +43,14 @@ export function SettingsBlock({
 
   const handleApply = useCallback(() => {
     onConfigChange(localConfig);
+    setLastAppliedConfig(localConfig);
     if (isProviderInitialized) {
-      onReinitialize();
+      onReinitialize(localConfig);
     }
   }, [localConfig, onConfigChange, isProviderInitialized, onReinitialize]);
 
   const hasChanges =
-    JSON.stringify(localConfig) !== JSON.stringify(config);
+    JSON.stringify(localConfig) !== JSON.stringify(lastAppliedConfig);
 
   return (
     <div className={blockStyles.block}>

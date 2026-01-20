@@ -12,6 +12,9 @@ export enum EventType {
   TransactionFlowInitialization = "transaction_flow_initialization",
   TypedMessageFlowCompletion = "typed_message_flow_completion",
   TypedMessageFlowInitialization = "typed_message_flow_initialization",
+  WalletActionClicked = "wallet_action_clicked",
+  WalletRedirectConfirmed = "wallet_redirect_confirmed",
+  WalletRedirectCancelled = "wallet_redirect_cancelled",
 }
 
 type BaseEventData = {
@@ -114,6 +117,32 @@ export type FloatingButtonClickEventData = BaseEventData & {
   session_id: string;
 };
 
+export type WalletActionType =
+  | "send"
+  | "receive"
+  | "swap"
+  | "buy"
+  | "earn"
+  | "sell";
+
+export type WalletActionClickedEventData = BaseEventData & {
+  event_type: "wallet_action_clicked";
+  session_id: string;
+  wallet_action: WalletActionType;
+};
+
+export type WalletRedirectConfirmedEventData = BaseEventData & {
+  event_type: "wallet_redirect_confirmed";
+  session_id: string;
+  wallet_action: WalletActionType;
+};
+
+export type WalletRedirectCancelledEventData = BaseEventData & {
+  event_type: "wallet_redirect_cancelled";
+  session_id: string;
+  wallet_action: WalletActionType;
+};
+
 export type EventData =
   | ConsentGivenEventData
   | ErrorOccurredEventData
@@ -129,7 +158,10 @@ export type EventData =
   | TransactionFlowCompletionEventData
   | TransactionFlowInitializationEventData
   | TypedMessageFlowCompletionEventData
-  | TypedMessageFlowInitializationEventData;
+  | TypedMessageFlowInitializationEventData
+  | WalletActionClickedEventData
+  | WalletRedirectConfirmedEventData
+  | WalletRedirectCancelledEventData;
 
 export type EventRequest = {
   name: string;

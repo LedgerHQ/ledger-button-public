@@ -3,7 +3,7 @@ import "../onboarding/consent-prompt/consent-analytics-screen.js";
 import "../home/ledger-home.js";
 
 import { consume } from "@lit/context";
-import { LitElement } from "lit";
+import { css, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
@@ -19,6 +19,12 @@ import { HomeFlowController } from "./home-flow-controller.js";
 
 @customElement("home-flow")
 export class HomeFlow extends LitElement {
+  static override styles = css`
+    :host {
+      display: block;
+      height: 100%;
+    }
+  `;
   @property({ type: Object })
   navigation!: Navigation;
 

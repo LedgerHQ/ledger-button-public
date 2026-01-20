@@ -8,18 +8,31 @@ import { customElement, property, state } from "lit/decorators.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
-import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
+import type {
+  WalletActionClickEventDetail,
+  WalletTransactionFeature,
+} from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
+import type {
+  WalletRedirectCancelEventDetail,
+  WalletRedirectConfirmEventDetail,
+} from "../../components/molecule/wallet-redirect-drawer/ledger-wallet-redirect-drawer.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
 } from "../../context/language-context.js";
+import { WALLET_ACTION_DEEPLINKS } from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
 const styles = css`
+  :host {
+    display: block;
+    height: 100%;
+  }
+
   .animation {
     position: relative;
   }
@@ -62,6 +75,12 @@ export class LedgerHomeScreen extends LitElement {
   @state()
   private activeTab = "tokens";
 
+  @state()
+  private showRedirectDrawer = false;
+
+  @state()
+  private currentAction: WalletTransactionFeature | null = null;
+
   controller!: LedgerHomeController;
 
   override connectedCallback() {
@@ -99,6 +118,41 @@ export class LedgerHomeScreen extends LitElement {
     this.activeTab = event.detail.selectedId;
   };
 
+  private handleWalletActionClick = (
+    event: CustomEvent<WalletActionClickEventDetail>,
+  ) => {
+    const action = event.detail.action;
+    this.currentAction = action;
+    this.showRedirectDrawer = true;
+
+    void this.coreContext.trackWalletActionClicked(action);
+  };
+
+  private handleRedirectConfirm = (
+    event: CustomEvent<WalletRedirectConfirmEventDetail>,
+  ) => {
+    const action = event.detail.action;
+
+    void this.coreContext.trackWalletRedirectConfirmed(action);
+
+    const deeplink = WALLET_ACTION_DEEPLINKS[action];
+    window.open(deeplink, "_blank", "noopener,noreferrer");
+
+    this.showRedirectDrawer = false;
+    this.currentAction = null;
+  };
+
+  private handleRedirectCancel = (
+    event: CustomEvent<WalletRedirectCancelEventDetail>,
+  ) => {
+    const action = event.detail.action;
+
+    void this.coreContext.trackWalletRedirectCancelled(action);
+
+    this.showRedirectDrawer = false;
+    this.currentAction = null;
+  };
+
   override render() {
     if (this.controller.loading) {
       return html`
@@ -123,31 +177,44 @@ export class LedgerHomeScreen extends LitElement {
     const lang = this.languages.currentTranslation;
 
     return html`
-      <div
-        class="lb-flex lb-flex-col lb-items-stretch lb-gap-24 lb-p-24 lb-pt-0"
-      >
+      <div class="lb-relative lb-h-full">
         <div
-          class="lb-flex lb-flex-col lb-gap-32 lb-rounded-md lb-bg-muted lb-p-16"
+          class="lb-flex lb-flex-col lb-items-stretch lb-gap-24 lb-p-24 lb-pt-0"
         >
-          <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-            <ledger-account-switch
-              .account=${account}
-              @account-switch=${this.handleAccountItemClick}
-            ></ledger-account-switch>
-            <ledger-crypto-icon
-              .ledgerId=${account.currencyId}
-              size="small"
-              variant="square"
-            ></ledger-crypto-icon>
+          <div
+            class="lb-flex lb-flex-col lb-gap-32 lb-rounded-md lb-bg-muted lb-p-16"
+          >
+            <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
+              <ledger-account-switch
+                .account=${account}
+                @account-switch=${this.handleAccountItemClick}
+              ></ledger-account-switch>
+              <ledger-crypto-icon
+                .ledgerId=${account.currencyId}
+                size="small"
+                variant="square"
+              ></ledger-crypto-icon>
+            </div>
+            <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
+              <ledger-balance
+                label=${lang.home.balance}
+                .balance=${account.balance}
+                .ticker=${account.ticker}
+              ></ledger-balance>
+            </div>
           </div>
-          <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-            <ledger-balance
-              label=${lang.home.balance}
-              .balance=${account.balance}
-              .ticker=${account.ticker}
-            ></ledger-balance>
-          </div>
+          <ledger-wallet-actions
+            .features=${this.walletTransactionFeatures}
+            @wallet-action-click=${this.handleWalletActionClick}
+          ></ledger-wallet-actions>
+          <ledger-button
+            variant="secondary"
+            size="full"
+            label=${lang.common.button.disconnect}
+            @click=${this.handleDisconnectClick}
+          ></ledger-button>
         </div>
+        <<<<<<< HEAD
         <ledger-wallet-actions
           .features=${this.walletTransactionFeatures}
         ></ledger-wallet-actions>
@@ -168,6 +235,18 @@ export class LedgerHomeScreen extends LitElement {
           label=${lang.common.button.disconnect}
           @click=${this.handleDisconnectClick}
         ></ledger-button>
+        =======
+        ${this.showRedirectDrawer && this.currentAction
+          ? html`
+              <ledger-wallet-redirect-drawer
+                .action=${this.currentAction}
+                @wallet-redirect-confirm=${this.handleRedirectConfirm}
+                @wallet-redirect-cancel=${this.handleRedirectCancel}
+              ></ledger-wallet-redirect-drawer>
+            `
+          : ""}
+        >>>>>>> 86585e9 (✨ (ledger-button): Add wallet redirect drawer
+        component)
       </div>
     `;
   }

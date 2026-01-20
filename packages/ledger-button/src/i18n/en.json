@@ -56,6 +56,12 @@
     "earn": "Earn",
     "sell": "Sell"
   },
+  "walletRedirect": {
+    "title": "Continue in Ledger Wallet",
+    "description": "You need the Ledger Wallet desktop app to complete this action.",
+    "confirm": "Open Ledger Wallet",
+    "download": "Download Ledger Wallet"
+  },
   "deviceSwitch": {
     "title": "Your Ledgers",
     "noDevices": "No previously connected devices found",

@@ -13,6 +13,7 @@ export function setupFloatingButton(
   floatingButtonTarget: HTMLElement | string | undefined,
   floatingButtonPosition: FloatingButtonPosition | false,
 ): FloatingButtonConfig {
+
   if (!floatingButtonTarget) {
     setDefaultFloatingButtonPosition(app, floatingButtonPosition);
     return { floatingButtonContainer: null, floatingButton: null };
