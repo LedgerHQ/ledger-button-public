@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef,useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
 
 let LedgerButtonModule:
@@ -28,6 +28,11 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
   const cleanupRef = useRef<(() => void) | null>(null);
+  const configRef = useRef<LedgerProviderConfig>(config);
+
+  useEffect(() => {
+    configRef.current = config;
+  }, [config]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -52,7 +57,7 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
     [],
   );
 
-  const initializeProvider = useCallback(() => {
+  const initializeProviderWithConfig = useCallback((configToUse: LedgerProviderConfig) => {
     if (!isLoaded || !LedgerButtonModule) return;
 
     if (cleanupRef.current) {
@@ -62,16 +67,17 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
 
     const { initializeLedgerProvider } = LedgerButtonModule;
 
+
     const disableEventTracking =
       process.env.NEXT_PUBLIC_DISABLE_EVENT_TRACKING === "true";
 
     const cleanup = initializeLedgerProvider({
       target: document.body,
-      floatingButtonTarget: "#floating-button-container",
-      dAppIdentifier: config.dAppIdentifier,
-      apiKey: config.apiKey,
-      loggerLevel: config.logLevel as "debug" | "info" | "warn" | "error",
-      environment: config.environment as "production" | "staging",
+      floatingButtonPosition: configToUse.buttonPosition as "bottom-right" | "bottom-left" | "top-right" | "top-left",
+      dAppIdentifier: configToUse.dAppIdentifier,
+      apiKey: configToUse.apiKey,
+      loggerLevel: configToUse.logLevel as "debug" | "info" | "warn" | "error",
+      environment: configToUse.environment as "production" | "staging",
       dmkConfig: undefined,
       walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
       devConfig: disableEventTracking
@@ -98,20 +104,29 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
         handleAnnounceProvider as EventListener,
       );
     };
-  }, [isLoaded, config, handleAnnounceProvider]);
+  }, [isLoaded, handleAnnounceProvider]);
 
   useEffect(() => {
-    const cleanup = initializeProvider();
-    return cleanup;
-  }, [initializeProvider]);
+    if (!isLoaded) return;
 
-  const reinitialize = useCallback(() => {
+    const cleanup = initializeProviderWithConfig(configRef.current);
+    return cleanup;
+  }, [isLoaded, initializeProviderWithConfig]);
+
+  const reinitialize = useCallback((newConfig?: LedgerProviderConfig) => {
+    const configToUse = newConfig || configRef.current;
+
+    if (cleanupRef.current) {
+      cleanupRef.current();
+      cleanupRef.current = null;
+    }
+
     setProviders([]);
     setSelectedProvider(null);
     setIsInitialized(false);
 
-    initializeProvider();
-  }, [initializeProvider]);
+    initializeProviderWithConfig(configToUse);
+  }, [initializeProviderWithConfig]);
 
   return {
     providers,
