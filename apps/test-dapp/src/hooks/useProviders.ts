@@ -18,7 +18,7 @@ export const DEFAULT_CONFIG: LedgerProviderConfig = {
   apiKey: "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
   buttonPosition: "bottom-right",
   logLevel: "info",
-  environment: "production",
+  environment: "staging",
 };
 
 export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
