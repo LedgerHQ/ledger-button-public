@@ -9,7 +9,7 @@ import { tailwindElement } from "../../../tailwind-element.js";
 import type { AnimationInstance } from "../modal/animation-types.js";
 
 const styles = css`
-  .drawer-container {
+  .drawer-halo {
     background: var(
       --status-gradient-sheet-muted,
       radial-gradient(
@@ -186,12 +186,14 @@ export class LedgerDrawer extends LitElement {
           @click=${this.handleClose}
         ></div>
         <div
-          class="drawer-container lb-rounded-t-3xl lb-absolute lb-bottom-0 lb-left-0 lb-right-0 lb-rounded-t-xl lb-bg-canvas-sheet lb-pt-64"
+          class="drawer-container lb-absolute lb-bottom-0 lb-left-0 lb-right-0 lb-rounded-t-xl lb-bg-canvas-sheet"
           style="transform: translateY(100%)"
         >
-          ${this.renderCloseButton()}
-          <div class="lb-p-24 lb-pt-32">
-            <slot></slot>
+          <div class="drawer-halo lb-rounded-t-xl lb-pt-64">
+            ${this.renderCloseButton()}
+            <div class="lb-p-24 lb-pt-32">
+              <slot></slot>
+            </div>
           </div>
         </div>
       </div>
