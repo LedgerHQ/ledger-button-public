@@ -16,6 +16,11 @@ import { tailwindElement } from "../../../tailwind-element.js";
 import { RetrievingAccountsController } from "./retrieving-accounts-controller.js";
 
 const styles = css`
+  :host {
+    display: block;
+    height: 100%;
+  }
+
   .animation {
     position: relative;
   }
@@ -99,9 +104,9 @@ export class RetrievingAccountsScreen extends LitElement {
 
   renderScreen() {
     return html`
-      <div class="lb-min-h-full lb-overflow-hidden">
+      <div class="lb-h-full lb-min-h-full lb-overflow-hidden">
         <ledger-lottie
-          class="animation lb-overflow-hidden"
+          class="animation lb-h-full lb-overflow-hidden"
           animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}
