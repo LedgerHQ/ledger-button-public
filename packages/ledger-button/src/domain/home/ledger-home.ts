@@ -214,28 +214,6 @@ export class LedgerHomeScreen extends LitElement {
             @click=${this.handleDisconnectClick}
           ></ledger-button>
         </div>
-        <<<<<<< HEAD
-        <ledger-wallet-actions
-          .features=${this.walletTransactionFeatures}
-        ></ledger-wallet-actions>
-        <ledger-tabs
-          .tabs=${[
-            { id: "tokens", label: "Tokens" },
-            { id: "transactions", label: "Transactions" },
-          ]}
-          .selectedId=${this.activeTab}
-          @tab-change=${this.handleTabChange}
-        ></ledger-tabs>
-        ${this.activeTab === "tokens"
-          ? html`<token-list-screen></token-list-screen>`
-          : html`<transaction-list-screen></transaction-list-screen>`}
-        <ledger-button
-          variant="secondary"
-          size="full"
-          label=${lang.common.button.disconnect}
-          @click=${this.handleDisconnectClick}
-        ></ledger-button>
-        =======
         ${this.showRedirectDrawer && this.currentAction
           ? html`
               <ledger-wallet-redirect-drawer
@@ -245,8 +223,6 @@ export class LedgerHomeScreen extends LitElement {
               ></ledger-wallet-redirect-drawer>
             `
           : ""}
-        >>>>>>> 86585e9 (✨ (ledger-button): Add wallet redirect drawer
-        component)
       </div>
     `;
   }
