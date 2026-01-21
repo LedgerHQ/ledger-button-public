@@ -131,6 +131,9 @@ export class LedgerLottie extends LitElement {
       loop: this.loop,
       autoplay: this.autoplay && !this.paused,
       animationData: data,
+      rendererSettings: {
+        preserveAspectRatio: "xMidYMid slice",
+      },
     });
 
     this.animation.setSpeed(this.speed);

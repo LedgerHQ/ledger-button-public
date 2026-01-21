@@ -156,7 +156,7 @@ export class LedgerHomeScreen extends LitElement {
   override render() {
     if (this.controller.loading) {
       return html`
-        <div class="lb-min-h-full lb-overflow-hidden">
+        <div class="lb-h-full lb-min-h-full lb-overflow-hidden">
           <ledger-lottie
             class="animation lb-overflow-hidden"
             animationName="backgroundFlare"
