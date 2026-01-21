@@ -6,7 +6,10 @@ import { animate } from "motion";
 
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import type { AnimationInstance } from "../modal/animation-types.js";
+import {
+  type AnimationInstance,
+  SPRING_CONFIG,
+} from "../modal/animation-types.js";
 
 const styles = css`
   .drawer-halo {
@@ -92,7 +95,7 @@ export class LedgerDrawer extends LitElement {
     this.containerAnimation = animate(
       this.containerElement,
       { transform: ["translateY(100%)", "translateY(0)"] },
-      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
+      { ...SPRING_CONFIG, duration: ANIMATION_DELAY / 1000 },
     );
   }
 
@@ -121,8 +124,8 @@ export class LedgerDrawer extends LitElement {
           this.containerElement,
           { transform: ["translateY(0)", "translateY(100%)"] },
           {
+            ...SPRING_CONFIG,
             duration: ANIMATION_DELAY / 1000,
-            ease: "easeOut",
             onComplete: () => resolve(),
           },
         );
