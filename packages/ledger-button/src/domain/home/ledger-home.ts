@@ -21,7 +21,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../context/language-context.js";
-import { WALLET_ACTION_DEEPLINKS } from "../../shared/constants/deeplinks.js";
+import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
@@ -135,7 +135,9 @@ export class LedgerHomeScreen extends LitElement {
 
     void this.coreContext.trackWalletRedirectConfirmed(action);
 
-    const deeplink = WALLET_ACTION_DEEPLINKS[action];
+    const deeplink = buildWalletActionDeepLink(action, {
+      currency: this.controller.selectedAccount?.currencyId,
+    });
     window.open(deeplink, "_blank", "noopener,noreferrer");
 
     this.showRedirectDrawer = false;
