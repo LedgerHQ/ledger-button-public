@@ -22,6 +22,7 @@ pnpm nx run-many -t test
 ### 2. Gather Required Information
 
 Ask the user for:
+
 - **Ticket number**: `LBD-<number>`, `ISSUE-<number>`, or `NO-ISSUE`
 - **Scope**: The module/package impacted (e.g., `ledger-button`, `test-dapp`)
 - **Description**: Brief summary of the changes (starts with uppercase)
@@ -34,6 +35,7 @@ Ask the user for:
 ```
 
 **Examples:**
+
 - `✨ (ledger-button) [LBD-123]: Add account selection feature`
 - `🐛 (test-dapp) [ISSUE-456]: Fix wallet connection timeout`
 - `♻️ (docs) [NO-ISSUE]: Refactor API documentation structure`
@@ -54,7 +56,7 @@ Ask the user for:
 
 Generate a description with:
 
-```markdown
+````markdown
 ## Summary
 
 <!-- Write a full description of what your pull request is about and why it was needed -->
@@ -73,14 +75,6 @@ Generate a description with:
 
 <!-- Add if relevant, remove section if not applicable -->
 
-## Checklist
-
-- [ ] I have performed a self-review of my code
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] I have made corresponding changes to the documentation (if applicable)
-```
-
 ### 5. Create the PR
 
 ```bash
@@ -90,10 +84,12 @@ git push -u origin HEAD
 # Create PR using GitHub CLI
 gh pr create --title "<title>" --body "<body>" --base develop
 ```
+````
 
 ## User Input
 
 If the user provides context after the command (e.g., `/create-pull-request LBD-456 add account selection`), use it to:
+
 - Extract ticket number and description
 - Infer the type of change
 - Analyze commits with `git log --oneline develop..HEAD` to build the summary

@@ -12,6 +12,7 @@ Create a commit following the project's commit message conventions defined in [C
    - **Type of change**: To determine the appropriate emoji
 
 3. **Commit message format** follows [Conventional Commits](https://www.conventionalcommits.org/) with gitmoji:
+
    ```
    <emoji> (<scope>): <Description>
    ```
@@ -42,6 +43,7 @@ Create a commit following the project's commit message conventions defined in [C
 ## User Input
 
 If the user provides context after the command (e.g., `/commit fix login button not responding`), use it to:
+
 - Infer the type of change and appropriate emoji
 - Extract the description
 - Ask only for missing information (like scope if unclear from staged files)
@@ -49,6 +51,7 @@ If the user provides context after the command (e.g., `/commit fix login button 
 ## Validation
 
 Remind the user they can validate commit messages with:
+
 ```bash
 pnpm danger:local
 ```
