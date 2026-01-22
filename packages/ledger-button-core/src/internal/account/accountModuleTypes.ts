@@ -5,4 +5,7 @@ export const accountModuleTypes = {
     "FetchAccountsWithBalanceUseCase",
   ),
   FetchSelectedAccountUseCase: Symbol.for("FetchSelectedAccountUseCase"),
+  GetDetailedSelectedAccountUseCase: Symbol.for(
+    "GetDetailedSelectedAccountUseCase",
+  ),
 } as const;

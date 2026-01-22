@@ -20,7 +20,7 @@ import {
   type AccountService,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
-import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
+import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
@@ -297,21 +297,9 @@ export class LedgerButtonCore {
 
   async getDetailedSelectedAccount() {
     this._logger.debug("Getting detailed selected account");
-
-    const selectedAccount = this._contextService.getContext().selectedAccount;
-
-    //If selected account has a name, selected account is already hydrated
-    if (
-      selectedAccount &&
-      selectedAccount.name &&
-      selectedAccount.name.length > 0
-    ) {
-      return Promise.resolve(selectedAccount as Account);
-    }
-
     return this.container
-      .get<FetchSelectedAccountUseCase>(
-        accountModuleTypes.FetchSelectedAccountUseCase,
+      .get<GetDetailedSelectedAccountUseCase>(
+        accountModuleTypes.GetDetailedSelectedAccountUseCase,
       )
       .execute();
   }
