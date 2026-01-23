@@ -84,7 +84,11 @@ export class SelectAccountController implements ReactiveController {
 
   close = () => {
     if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.closeModal();
+      if (this.navigation.host.getModalMode() === "panel") {
+        this.navigation.host.navigateToHome();
+      } else {
+        this.navigation.host.closeModal();
+      }
       this.host.requestUpdate();
     }
   };
