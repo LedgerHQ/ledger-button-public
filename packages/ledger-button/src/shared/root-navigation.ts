@@ -7,6 +7,7 @@ import { html, LitElement } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
+import { Subscription } from "rxjs";
 
 import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import {
@@ -61,6 +62,11 @@ export class RootNavigationComponent extends LitElement {
   @state()
   private lastKnownDevice?: KnownDeviceDbModel;
 
+  @state()
+  private hasTrackingConsent?: boolean;
+
+  private contextSubscription?: Subscription;
+
   override connectedCallback() {
     super.connectedCallback();
     this.rootNavigationController = new RootNavigationController(
@@ -70,6 +76,20 @@ export class RootNavigationComponent extends LitElement {
       this.modalContent,
     );
     this.loadLastKnownDevice();
+    this.subscribeToContext();
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this.contextSubscription?.unsubscribe();
+  }
+
+  private subscribeToContext() {
+    this.contextSubscription = this.coreContext
+      .observeContext()
+      .subscribe((context) => {
+        this.hasTrackingConsent = context.hasTrackingConsent;
+      });
   }
 
   // PUBLIC METHODS
@@ -195,15 +215,20 @@ export class RootNavigationComponent extends LitElement {
     const isHomeFlow =
       this.rootNavigationController.currentScreen?.name === "home-flow";
 
+    const isOnConsentScreen =
+      isHomeFlow && this.hasTrackingConsent === undefined;
+
     const displayDevice = connectedDevice ?? this.lastKnownDevice;
 
+    const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
+
     const title =
-      displayDevice && isHomeFlow
+      displayDevice && shouldShowDeviceChip
         ? displayDevice.name
         : this.rootNavigationController.currentScreen?.toolbar.title;
 
     const deviceModelId =
-      displayDevice && isHomeFlow
+      displayDevice && shouldShowDeviceChip
         ? mapDeviceModelId(displayDevice.modelId)
         : undefined;
 
