@@ -72,6 +72,16 @@ export class RootNavigationComponent extends LitElement {
     return this.rootNavigationController.selectedAccount;
   }
 
+  public getModalMode(): ModalMode {
+    return this.ledgerModal.mode;
+  }
+
+  public navigateToHome() {
+    this.rootNavigationController.navigation.navigateTo(
+      this.rootNavigationController.destinations.home,
+    );
+  }
+
   public navigationIntent(
     intent: Destination["name"],
     params?: unknown,
@@ -188,7 +198,9 @@ export class RootNavigationComponent extends LitElement {
           >
           </ledger-toolbar>
         </div>
-        <div id="modal-content" style="height: 100%">${this.renderScreen()}</div>
+        <div id="modal-content" style="height: 100%">
+          ${this.renderScreen()}
+        </div>
       </ledger-modal>
     `;
   }
