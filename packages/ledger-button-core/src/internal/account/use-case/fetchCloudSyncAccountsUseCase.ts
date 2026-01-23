@@ -29,7 +29,7 @@ export class FetchCloudSyncAccountsUseCase {
 
   async execute(): Promise<CloudSyncData> {
     const authContext = this.getAuthContextOrThrow();
-    await this.reauthenticateWithKeyPair();
+    await this.authenticateWithKeyPair();
     const accounts = await this.fetchAndDecryptAccounts(authContext);
 
     this.logger.info("Accounts fetched from cloud sync", accounts);
@@ -50,7 +50,7 @@ export class FetchCloudSyncAccountsUseCase {
     return authContext;
   }
 
-  private async reauthenticateWithKeyPair(): Promise<void> {
+  private async authenticateWithKeyPair(): Promise<void> {
     await lastValueFrom(this.ledgerSyncService.authenticate());
   }
 
