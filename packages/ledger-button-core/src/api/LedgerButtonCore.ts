@@ -533,7 +533,9 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  async trackWalletActionClicked(walletAction: WalletActionType): Promise<void> {
+  async trackWalletActionClicked(
+    walletAction: WalletActionType,
+  ): Promise<void> {
     await this.container
       .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
       .trackWalletActionClicked(walletAction);
