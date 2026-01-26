@@ -114,12 +114,14 @@ describe("DefaultBalanceService", () => {
       ];
 
       const mockTokenInfo1 = {
+        id: "ethereum/erc20/test_token_1",
         decimals: 18,
         name: "Test Token 1",
         ticker: "TT1",
       };
 
       const mockTokenInfo2 = {
+        id: "ethereum/erc20/test_token_2",
         decimals: 6,
         name: "Test Token 2",
         ticker: "TT2",
@@ -191,6 +193,7 @@ describe("DefaultBalanceService", () => {
       ];
 
       const mockTokenInfo1 = {
+        id: "ethereum/erc20/test_token_1",
         decimals: 18,
         name: "Test Token 1",
         ticker: "TT1",
@@ -390,12 +393,14 @@ describe("DefaultBalanceService", () => {
       ];
 
       const mockTokenInfo1 = {
+        id: "ethereum/erc20/token_1",
         decimals: 6,
         name: "Token 1",
         ticker: "TK1",
       };
 
       const mockTokenInfo3 = {
+        id: "ethereum/erc20/token_3",
         decimals: 6,
         name: "Token 3",
         ticker: "TK3",
