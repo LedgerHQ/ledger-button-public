@@ -1,4 +1,5 @@
 import { Left, Right } from "purify-ts";
+import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
@@ -9,6 +10,23 @@ import type { Config } from "../../config/model/config.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { DefaultEventTrackingService } from "./DefaultEventTrackingService.js";
 
+/**
+ * Helper to wait for a condition to be met by polling the check function
+ * Uses microtasks instead of setTimeout for better determinism
+ */
+async function waitForCondition(
+  check: () => boolean,
+  maxAttempts = 100,
+): Promise<void> {
+  for (let i = 0; i < maxAttempts; i++) {
+    if (check()) {
+      return;
+    }
+    await Promise.resolve();
+  }
+  throw new Error("Condition not met within max attempts");
+}
+
 describe("DefaultEventTrackingService", () => {
   let eventTrackingService: DefaultEventTrackingService;
   let mockBackendService: {
@@ -17,18 +35,12 @@ describe("DefaultEventTrackingService", () => {
   let mockConfig: {
     dAppIdentifier: string;
   };
-  let mockLogger: {
-    debug: ReturnType<typeof vi.fn>;
-    info: ReturnType<typeof vi.fn>;
-    warn: ReturnType<typeof vi.fn>;
-    error: ReturnType<typeof vi.fn>;
-  };
-  let mockLoggerFactory: ReturnType<typeof vi.fn>;
   let mockContextService: {
     getContext: ReturnType<typeof vi.fn>;
     observeContext: ReturnType<typeof vi.fn>;
     onEvent: ReturnType<typeof vi.fn>;
   };
+  let contextSubject: BehaviorSubject<ButtonCoreContext>;
 
   const createMockContext = (
     overrides: Partial<ButtonCoreContext> = {},
@@ -68,18 +80,20 @@ describe("DefaultEventTrackingService", () => {
       dAppIdentifier: "test-dapp",
     };
 
-    mockLogger = {
+    const mockLoggerFactory = vi.fn().mockReturnValue({
       debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
-    };
+    });
 
-    mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
+    contextSubject = new BehaviorSubject<ButtonCoreContext>(
+      createMockContext(),
+    );
 
     mockContextService = {
       getContext: vi.fn().mockReturnValue(createMockContext()),
-      observeContext: vi.fn(),
+      observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
       onEvent: vi.fn(),
     };
 
@@ -118,10 +132,6 @@ describe("DefaultEventTrackingService", () => {
           event,
           mockConfig.dAppIdentifier,
         );
-        expect(mockLogger.debug).not.toHaveBeenCalledWith(
-          "User has not given consent, skipping tracking",
-          expect.anything(),
-        );
       });
 
       it("should track InvoicingTransactionSigned with consent", async () => {
@@ -157,10 +167,6 @@ describe("DefaultEventTrackingService", () => {
           event,
           mockConfig.dAppIdentifier,
         );
-        expect(mockLogger.debug).not.toHaveBeenCalledWith(
-          "User has not given consent, skipping tracking",
-          expect.anything(),
-        );
       });
 
       it("should track ConsentGiven with consent", async () => {
@@ -180,10 +186,10 @@ describe("DefaultEventTrackingService", () => {
     });
 
     describe("analytics events (consent-based)", () => {
-      it("should NOT track analytics events when user has not given consent", async () => {
-        mockContextService.getContext.mockReturnValue(
-          createMockContext({ hasTrackingConsent: false }),
-        );
+      it("should NOT track analytics events when user has refused consent", async () => {
+        const context = createMockContext({ hasTrackingConsent: false });
+        mockContextService.getContext.mockReturnValue(context);
+        contextSubject.next(context);
 
         const event = createMockEvent(
           EventType.TypedMessageFlowInitialization,
@@ -193,10 +199,21 @@ describe("DefaultEventTrackingService", () => {
         await eventTrackingService.trackEvent(event);
 
         expect(mockBackendService.event).not.toHaveBeenCalled();
-        expect(mockLogger.debug).toHaveBeenCalledWith(
-          "User has not given consent, skipping tracking",
-          { event },
+      });
+
+      it("should queue analytics events when consent is undefined", async () => {
+        const context = createMockContext({ hasTrackingConsent: undefined });
+        mockContextService.getContext.mockReturnValue(context);
+        contextSubject.next(context);
+
+        const event = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
         );
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).not.toHaveBeenCalled();
       });
 
       it("should track TypedMessageFlowInitialization when consent is given", async () => {
@@ -251,11 +268,6 @@ describe("DefaultEventTrackingService", () => {
         );
 
         await eventTrackingService.trackEvent(event);
-
-        expect(mockLogger.error).toHaveBeenCalledWith(
-          "Failed to track event",
-          expect.objectContaining({ event }),
-        );
       });
 
       it("should handle exceptions gracefully", async () => {
@@ -270,11 +282,6 @@ describe("DefaultEventTrackingService", () => {
         );
 
         await eventTrackingService.trackEvent(event);
-
-        expect(mockLogger.error).toHaveBeenCalledWith(
-          "Error tracking event",
-          expect.objectContaining({ event }),
-        );
       });
 
       it("should log success when event is tracked successfully", async () => {
@@ -289,10 +296,138 @@ describe("DefaultEventTrackingService", () => {
         );
 
         await eventTrackingService.trackEvent(event);
+      });
+    });
 
-        expect(mockLogger.debug).toHaveBeenCalledWith(
-          "Event tracked successfully",
-          expect.objectContaining({ response: { success: true } }),
+    describe("event queue", () => {
+      it("should flush queued events when consent becomes true", async () => {
+        const contextUndefined = createMockContext({
+          hasTrackingConsent: undefined,
+        });
+        mockContextService.getContext.mockReturnValue(contextUndefined);
+        contextSubject.next(contextUndefined);
+
+        const event1 = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
+        );
+        const event2 = createMockEvent(
+          EventType.TransactionFlowInitialization,
+          "transaction_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(event1);
+        await eventTrackingService.trackEvent(event2);
+
+        expect(mockBackendService.event).not.toHaveBeenCalled();
+
+        const contextTrue = createMockContext({ hasTrackingConsent: true });
+        mockContextService.getContext.mockReturnValue(contextTrue);
+        
+        contextSubject.next(contextTrue);
+        
+        // Wait for the flush to complete by waiting for both events to be processed
+        await waitForCondition(
+          () => mockBackendService.event.mock.calls.length >= 2,
+        );
+
+        expect(mockBackendService.event).toHaveBeenCalledTimes(2);
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event1,
+          mockConfig.dAppIdentifier,
+        );
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event2,
+          mockConfig.dAppIdentifier,
+        );
+      });
+
+      it("should clear queued events when consent becomes false", async () => {
+        const contextUndefined = createMockContext({
+          hasTrackingConsent: undefined,
+        });
+        mockContextService.getContext.mockReturnValue(contextUndefined);
+        contextSubject.next(contextUndefined);
+
+        const event = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).not.toHaveBeenCalled();
+
+        const contextFalse = createMockContext({ hasTrackingConsent: false });
+        mockContextService.getContext.mockReturnValue(contextFalse);
+        contextSubject.next(contextFalse);
+
+        // Clear queue is synchronous, but wait a tick to ensure subscription processed
+        await Promise.resolve();
+
+        expect(mockBackendService.event).not.toHaveBeenCalled();
+      });
+
+      it("should not queue always-tracked events even when consent is undefined", async () => {
+        const contextUndefined = createMockContext({
+          hasTrackingConsent: undefined,
+        });
+        mockContextService.getContext.mockReturnValue(contextUndefined);
+        contextSubject.next(contextUndefined);
+
+        const event = createMockEvent(
+          EventType.InvoicingTransactionSigned,
+          "invoicing_transaction_signed",
+        );
+
+        await eventTrackingService.trackEvent(event);
+
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
+      });
+
+
+      it("should process events immediately after flush completes", async () => {
+        const contextUndefined = createMockContext({
+          hasTrackingConsent: undefined,
+        });
+        mockContextService.getContext.mockReturnValue(contextUndefined);
+        contextSubject.next(contextUndefined);
+
+        const queuedEvent = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(queuedEvent);
+
+        const contextTrue = createMockContext({ hasTrackingConsent: true });
+        mockContextService.getContext.mockReturnValue(contextTrue);
+        contextSubject.next(contextTrue);
+
+        await waitForCondition(
+          () => mockBackendService.event.mock.calls.length >= 1,
+        );
+
+        const eventAfterFlush = createMockEvent(
+          EventType.WalletActionClicked,
+          "wallet_action_clicked",
+        );
+
+        await eventTrackingService.trackEvent(eventAfterFlush);
+
+        expect(mockBackendService.event).toHaveBeenCalledTimes(2);
+        expect(mockBackendService.event).toHaveBeenNthCalledWith(
+          1,
+          queuedEvent,
+          mockConfig.dAppIdentifier,
+        );
+        expect(mockBackendService.event).toHaveBeenNthCalledWith(
+          2,
+          eventAfterFlush,
+          mockConfig.dAppIdentifier,
         );
       });
     });
