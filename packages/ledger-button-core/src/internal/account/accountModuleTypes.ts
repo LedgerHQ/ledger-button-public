@@ -6,4 +6,7 @@ export const accountModuleTypes = {
   ),
   FetchCloudSyncAccountsUseCase: Symbol.for("FetchCloudSyncAccountsUseCase"),
   FetchSelectedAccountUseCase: Symbol.for("FetchSelectedAccountUseCase"),
+  GetDetailedSelectedAccountUseCase: Symbol.for(
+    "GetDetailedSelectedAccountUseCase",
+  ),
 } as const;
