@@ -2,6 +2,7 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type {
   ExplorerResponse,
   ExplorerTransaction,
@@ -65,16 +66,6 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("execute", () => {
-    it("should return Left with error when datasource fails", async () => {
-      const error = new Error("Network error");
-      mockDataSource.getTransactions.mockResolvedValue(Left(error));
-
-      const result = await useCase.execute(testBlockchain, testAddress);
-
-      expect(result.isLeft()).toBe(true);
-      expect(result.extract()).toBe(error);
-    });
-
     it("should call datasource with correct parameters", async () => {
       const response: ExplorerResponse = {
         truncated: false,
@@ -136,6 +127,19 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(result.isRight()).toBe(true);
       const data = result.extract();
       expect(data).toHaveProperty("nextPageToken", undefined);
+    });
+
+    it("should return Left with error when datasource fails", async () => {
+      const error = new TransactionHistoryError("Network error", {
+        address: testAddress,
+        blockchain: testBlockchain,
+      });
+      mockDataSource.getTransactions.mockResolvedValue(Left(error));
+
+      const result = await useCase.execute(testBlockchain, testAddress);
+
+      expect(result.isLeft()).toBe(true);
+      expect(result.extract()).toBe(error);
     });
   });
 
