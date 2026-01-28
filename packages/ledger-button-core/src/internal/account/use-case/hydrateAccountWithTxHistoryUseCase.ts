@@ -26,13 +26,14 @@ export class HydrateAccountWithTxHistoryUseCase {
   }
 
   async execute(account: Account): Promise<AccountWithTransactionHistory> {
+    const blockchain = account.ticker.toLowerCase();
     this.logger.debug("Fetching transaction history for account", {
-      currencyId: account.currencyId,
+      blockchain,
       address: account.freshAddress,
     });
 
     const result = await this.fetchTransactionHistoryUseCase.execute(
-      account.currencyId,
+      blockchain,
       account.freshAddress,
     );
 
@@ -40,7 +41,7 @@ export class HydrateAccountWithTxHistoryUseCase {
       Left: (error) => {
         this.logger.warn("Failed to fetch transaction history", {
           error: error.message,
-          currencyId: account.currencyId,
+          blockchain,
           address: account.freshAddress,
         });
         return {
@@ -50,7 +51,7 @@ export class HydrateAccountWithTxHistoryUseCase {
       },
       Right: (historyResult) => {
         this.logger.debug("Transaction history fetched successfully", {
-          currencyId: account.currencyId,
+          blockchain,
           transactionCount: historyResult.transactions.length,
         });
         return {
