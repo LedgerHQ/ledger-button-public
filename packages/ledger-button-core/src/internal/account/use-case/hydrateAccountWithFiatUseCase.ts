@@ -30,7 +30,13 @@ export class HydrateAccountWithFiatUseCase {
 
     const counterValues = result.unsafeCoerce();
     const rate = counterValues[0]?.rate ?? 0;
-    const fiatValue = parseFloat(account.balance) * rate;
+    const balance = parseFloat(account.balance);
+
+    if (Number.isNaN(balance)) {
+      return { ...account, fiatBalance: undefined };
+    }
+
+    const fiatValue = balance * rate;
 
     return {
       ...account,
