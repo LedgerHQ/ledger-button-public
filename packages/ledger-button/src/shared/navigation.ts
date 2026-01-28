@@ -1,6 +1,7 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { Destination } from "./routes.js";
+import { CoreContext } from "../context/core-context.js";
+import { Destination, resolveCanGoBack } from "./routes.js";
 
 export const ANIMATION_DELAY = 300;
 
@@ -94,11 +95,11 @@ export class Navigation implements ReactiveController {
     }
   }
 
-  canGoBack(destination?: Destination) {
-    return (
-      (destination?.canGoBack ?? false) &&
-      this.history.length > 1 &&
-      this.currentScreen !== null
-    );
+  canGoBack(destination?: Destination, core?: CoreContext): boolean {
+    if (!core) {
+      return false;
+    }
+    const canGoBack = resolveCanGoBack(destination?.canGoBack, core);
+    return canGoBack && this.history.length > 1 && this.currentScreen !== null;
   }
 }
