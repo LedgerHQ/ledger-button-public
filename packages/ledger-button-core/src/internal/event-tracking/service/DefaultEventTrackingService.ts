@@ -17,9 +17,17 @@ import type { EventTrackingService } from "./EventTrackingService.js";
 
 @injectable()
 export class DefaultEventTrackingService implements EventTrackingService {
+  private static readonly ALWAYS_TRACKED_EVENTS: EventType[] = [
+    EventType.InvoicingTransactionSigned,
+    EventType.ErrorOccurred,
+    EventType.ConsentGiven,
+  ];
+
   private readonly logger: LoggerPublisher;
 
   private _sessionId: string;
+  private eventQueue: EventRequest[] = [];
+  private isFlushing = false;
 
   constructor(
     @inject(backendModuleTypes.BackendService)
@@ -33,6 +41,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
   ) {
     this.logger = loggerFactory("[Event Tracking]");
     this._sessionId = generateUUID();
+    this.subscribeToContextChanges();
   }
 
   getSessionId(): string {
@@ -41,68 +50,130 @@ export class DefaultEventTrackingService implements EventTrackingService {
 
   async trackEvent(event: EventRequest): Promise<void> {
     try {
-      if (!this.shouldTrackEvent(event)) {
+      if (this.isAlwaysTrackedEvent(event)) {
+        await this.processEvent(event);
         return;
       }
-
-      /*
-TODO: Uncomment this when we have a validation for the events in the backend.
-Check current state with formats in JSON schemas and update the validation.
-
-      const validationResult = EventTrackingUtils.validateEvent(event);
-
-      if (!validationResult.success) {
-        this.logger.error("Event validation failed", {
-          eventType: event.type,
-          errors: validationResult.errors,
-          event,
-        });
+  
+      const consentStatus = this.getConsentStatus();
+  
+      if (this.isFlushing && consentStatus === true) {
+        this.eventQueue.push(event);
+        this.logger.debug("Event queued (queue flushing in progress)", { event });
         return;
       }
-*/
-
-      this.logger.info("Tracking event", { event });
-
-      //TODO: Uncomment this when we have a validation for the events in the backend.
-      const result = await this.backendService.event(
-        event,
-        this.config.dAppIdentifier,
-      );
-
-      result.caseOf({
-        Left: (error) => {
-          this.logger.error("Failed to track event", { error, event });
-        },
-        Right: (response) => {
-          this.logger.debug("Event tracked successfully", { response });
-        },
-      });
+  
+      if (consentStatus === true) {
+        await this.processEvent(event);
+        return;
+      }
+  
+      if (consentStatus === undefined) {
+        this.eventQueue.push(event);
+        this.logger.debug("Event queued (waiting for consent)", { event });
+        return;
+      }
+  
+      this.logger.debug("Event discarded (consent refused)", { event });
     } catch (error) {
       this.logger.error("Error tracking event", { error, event });
     }
   }
+  
 
-  private shouldTrackEvent(event: EventRequest): boolean {
-    // These events are always tracked regardless of consent
-    const alwaysTrackedEvents = [
-      EventType.InvoicingTransactionSigned,
-      EventType.ErrorOccurred,
-      EventType.ConsentGiven,
-    ];
+  private isAlwaysTrackedEvent(event: EventRequest): boolean {
+    return DefaultEventTrackingService.ALWAYS_TRACKED_EVENTS.includes(
+      event.type,
+    );
+  }
 
-    if (alwaysTrackedEvents.includes(event.type)) {
-      return true;
+  private getConsentStatus(): boolean | undefined {
+    return this.contextService.getContext().hasTrackingConsent;
+  }
+
+  private async processEvent(event: EventRequest): Promise<void> {
+    /*
+TODO: Uncomment this when we have a validation for the events in the backend.
+Check current state with formats in JSON schemas and update the validation.
+
+    const validationResult = EventTrackingUtils.validateEvent(event);
+
+    if (!validationResult.success) {
+      this.logger.error("Event validation failed", {
+        eventType: event.type,
+        errors: validationResult.errors,
+        event,
+      });
+      return;
     }
+*/
 
-    // All other events require user consent
-    if (this.contextService.getContext().hasTrackingConsent) {
-      return true;
-    }
+    this.logger.info("Tracking event", { event });
 
-    this.logger.debug("User has not given consent, skipping tracking", {
+    //TODO: Uncomment this when we have a validation for the events in the backend.
+    const result = await this.backendService.event(
       event,
-    });
+      this.config.dAppIdentifier,
+    );
 
-    return false;
+    result.caseOf({
+      Left: (error) => {
+        this.logger.error("Failed to track event", { error, event });
+      },
+      Right: (response) => {
+        this.logger.debug("Event tracked successfully", { response });
+      },
+    });
+  }
+
+  private subscribeToContextChanges(): void {
+    this.contextService.observeContext().subscribe((context) => {
+      if (context.hasTrackingConsent === true) {
+        this.flushQueue();
+      } else if (context.hasTrackingConsent === false) {
+        this.clearQueue();
+      }
+    });
+  }
+
+  private async flushQueue(): Promise<void> {
+    if (this.eventQueue.length === 0) {
+      return;
+    }
+
+    this.isFlushing = true;
+
+    try {
+      const eventsToProcess = [...this.eventQueue];
+      this.eventQueue = [];
+
+      this.logger.info(`Flushing ${eventsToProcess.length} queued events`);
+
+      for (const event of eventsToProcess) {
+        await this.processEvent(event);
+      }
+
+      if (this.eventQueue.length > 0) {
+        const eventsDuringFlush = [...this.eventQueue];
+        this.eventQueue = [];
+        this.logger.info(
+          `Processing ${eventsDuringFlush.length} events queued during flush`,
+        );
+
+        for (const event of eventsDuringFlush) {
+          await this.processEvent(event);
+        }
+      }
+    } finally {
+      this.isFlushing = false;
+    }
+  }
+
+  private clearQueue(): void {
+    const queueSize = this.eventQueue.length;
+    if (queueSize > 0) {
+      this.logger.debug(`Clearing ${queueSize} queued events (consent refused)`);
+      this.eventQueue = [];
+    }
   }
 }

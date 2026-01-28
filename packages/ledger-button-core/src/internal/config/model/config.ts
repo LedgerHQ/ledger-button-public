@@ -70,6 +70,14 @@ export class Config {
       : "https://ledgerb.aws.stg.ldg-tech.com";
   }
 
+  getCounterValueUrl(): string {
+    return "https://countervalues.live.ledger.com";
+  }
+
+  getExplorerUrl(): string {
+    return "https://explorers.api.live.ledger.com";
+  }
+
   setEnvironment(environment: Environment) {
     this.environment = environment;
     this.lkrp = {

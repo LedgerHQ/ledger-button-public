@@ -70,11 +70,13 @@ export class DefaultBalanceService implements BalanceService {
                 );
 
               if (tokenInformationResult.isRight()) {
+                const tokenInfo = tokenInformationResult.extract();
                 return new TokenBalance(
-                  tokenInformationResult.extract().decimals,
+                  tokenInfo.id,
+                  tokenInfo.decimals,
                   BigInt(balance.value),
-                  tokenInformationResult.extract().name,
-                  tokenInformationResult.extract().ticker,
+                  tokenInfo.name,
+                  tokenInfo.ticker,
                 );
               } else {
                 return undefined;

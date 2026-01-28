@@ -3,7 +3,9 @@ import { ContainerModule } from "inversify";
 import { DefaultAccountService } from "./service/DefaultAccountService.js";
 import { FetchAccountsUseCase } from "./use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "./use-case/fetchAccountsWithBalanceUseCase.js";
+import { FetchCloudSyncAccountsUseCase } from "./use-case/fetchCloudSyncAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./use-case/fetchSelectedAccountUseCase.js";
+import { GetDetailedSelectedAccountUseCase } from "./use-case/getDetailedSelectedAccountUseCase.js";
 import { type ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
 
@@ -21,8 +23,14 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     bind(accountModuleTypes.FetchAccountsWithBalanceUseCase).to(
       FetchAccountsWithBalanceUseCase,
     );
+    bind(accountModuleTypes.FetchCloudSyncAccountsUseCase).to(
+      FetchCloudSyncAccountsUseCase,
+    );
     bind(accountModuleTypes.FetchSelectedAccountUseCase).to(
       FetchSelectedAccountUseCase,
+    );
+    bind(accountModuleTypes.GetDetailedSelectedAccountUseCase).to(
+      GetDetailedSelectedAccountUseCase,
     );
   });
 }

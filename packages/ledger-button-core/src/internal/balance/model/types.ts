@@ -22,12 +22,20 @@ export type GasFeeEstimation = {
 };
 
 export class TokenBalance {
+  readonly ledgerId: string;
   readonly decimals: number;
   readonly balance: bigint;
   readonly name: string;
   readonly ticker: string;
 
-  constructor(decimals: number, balance: bigint, name: string, ticker: string) {
+  constructor(
+    ledgerId: string,
+    decimals: number,
+    balance: bigint,
+    name: string,
+    ticker: string,
+  ) {
+    this.ledgerId = ledgerId;
     this.decimals = decimals;
     this.balance = balance;
     this.name = name;
