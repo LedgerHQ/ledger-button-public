@@ -6,6 +6,7 @@ import { Config } from "../../config/model/config.js";
 import type { NetworkServiceOpts } from "../../network/model/types.js";
 import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../network/NetworkService.js";
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
   ExplorerResponse,
   TransactionHistoryOptions,
@@ -29,7 +30,7 @@ export class DefaultTransactionHistoryDataSource
     blockchain: string,
     address: string,
     options?: TransactionHistoryOptions,
-  ): Promise<Either<Error, ExplorerResponse>> {
+  ): Promise<Either<TransactionHistoryError, ExplorerResponse>> {
     const queryParams = this.buildQueryParams(options);
     const requestUrl = this.buildRequestUrl(blockchain, address, queryParams);
 
@@ -37,8 +38,9 @@ export class DefaultTransactionHistoryDataSource
 
     return result.mapLeft(
       (error) =>
-        new Error(
-          `Failed to fetch transaction history for ${address}: ${error.message}`,
+        new TransactionHistoryError(
+          `Failed to fetch transaction history for ${address}`,
+          { address, blockchain, originalError: error.message },
         ),
     );
   }

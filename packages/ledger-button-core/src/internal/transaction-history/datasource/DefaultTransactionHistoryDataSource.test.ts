@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "../../config/model/config.js";
 import type { NetworkService } from "../../network/NetworkService.js";
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type { ExplorerResponse } from "../model/transactionHistoryTypes.js";
 import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource.js";
 
@@ -145,10 +146,15 @@ describe("DefaultTransactionHistoryDataSource", () => {
       );
 
       expect(result.isLeft()).toBe(true);
-      const error = result.extract() as Error;
+      const error = result.extract() as TransactionHistoryError;
       expect(error.message).toBe(
-        `Failed to fetch transaction history for ${testAddress}: Network request failed`,
+        `Failed to fetch transaction history for ${testAddress}`,
       );
+      expect(error.context).toEqual({
+        address: testAddress,
+        blockchain: testBlockchain,
+        originalError: "Network request failed",
+      });
     });
 
     it("should handle different blockchain names correctly", async () => {

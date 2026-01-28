@@ -1,6 +1,6 @@
 /**
  * Raw API response types from Ledger Explorer API
- * GET https://explorers.api.live.ledger.com/blockchain/v4/{blockchain}/address/{address}
+ * GET https://explorers.api.live.ledger.com/blockchain/v4/{blockchain}/address/{address}/txs
  */
 
 export type ExplorerBlockInfo = {

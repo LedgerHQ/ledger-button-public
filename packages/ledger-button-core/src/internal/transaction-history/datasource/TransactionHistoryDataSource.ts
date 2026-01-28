@@ -1,5 +1,6 @@
 import { Either } from "purify-ts";
 
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
   ExplorerResponse,
   TransactionHistoryOptions,
@@ -10,5 +11,5 @@ export interface TransactionHistoryDataSource {
     blockchain: string,
     address: string,
     options?: TransactionHistoryOptions,
-  ): Promise<Either<Error, ExplorerResponse>>;
+  ): Promise<Either<TransactionHistoryError, ExplorerResponse>>;
 }

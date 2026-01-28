@@ -5,6 +5,7 @@ import { Either, Left, Right } from "purify-ts";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
   ExplorerResponse,
   ExplorerTransaction,
@@ -32,7 +33,7 @@ export class FetchTransactionHistoryUseCase {
     blockchain: string,
     address: string,
     options?: TransactionHistoryOptions,
-  ): Promise<Either<Error, TransactionHistoryResult>> {
+  ): Promise<Either<TransactionHistoryError, TransactionHistoryResult>> {
     this.logger.debug("Fetching transaction history", {
       blockchain,
       address,
@@ -45,24 +46,25 @@ export class FetchTransactionHistoryUseCase {
       options,
     );
 
-    if (result.isLeft()) {
-      const error = result.extract();
-      this.logger.error("Failed to fetch transaction history", { error });
-      return Left(error as Error);
-    }
+    return result.caseOf({
+      Left: (error) => {
+        this.logger.error("Failed to fetch transaction history", { error });
+        return Left(error);
+      },
+      Right: (explorerResponse) => {
+        const transformedResult = this.transformResponse(
+          explorerResponse,
+          address.toLowerCase(),
+        );
 
-    const explorerResponse = result.extract() as ExplorerResponse;
-    const transformedResult = this.transformResponse(
-      explorerResponse,
-      address.toLowerCase(),
-    );
+        this.logger.debug("Transaction history fetched successfully", {
+          transactionCount: transformedResult.transactions.length,
+          hasNextPage: !!transformedResult.nextPageToken,
+        });
 
-    this.logger.debug("Transaction history fetched successfully", {
-      transactionCount: transformedResult.transactions.length,
-      hasNextPage: !!transformedResult.nextPageToken,
+        return Right(transformedResult);
+      },
     });
-
-    return Right(transformedResult);
   }
 
   private transformResponse(
