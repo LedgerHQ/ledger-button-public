@@ -6,6 +6,7 @@ import { FetchAccountsWithBalanceUseCase } from "./use-case/fetchAccountsWithBal
 import { FetchCloudSyncAccountsUseCase } from "./use-case/fetchCloudSyncAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./use-case/fetchSelectedAccountUseCase.js";
 import { GetDetailedSelectedAccountUseCase } from "./use-case/getDetailedSelectedAccountUseCase.js";
+import { HydrateAccountWithTxHistoryUseCase } from "./use-case/hydrateAccountWithTxHistoryUseCase.js";
 import { type ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
 
@@ -31,6 +32,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     );
     bind(accountModuleTypes.GetDetailedSelectedAccountUseCase).to(
       GetDetailedSelectedAccountUseCase,
+    );
+    bind(accountModuleTypes.HydrateAccountWithTxHistoryUseCase).to(
+      HydrateAccountWithTxHistoryUseCase,
     );
   });
 }
