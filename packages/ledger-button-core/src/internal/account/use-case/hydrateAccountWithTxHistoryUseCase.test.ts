@@ -105,9 +105,9 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       });
     });
 
-    it("should call FetchTransactionHistoryUseCase with currencyId and address", async () => {
+    it("should call FetchTransactionHistoryUseCase with blockchain (ticker) and address", async () => {
       const account = createMockAccount({
-        currencyId: "ethereum",
+        ticker: "ETH",
         freshAddress: "0xtest123",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(
@@ -117,7 +117,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       await useCase.execute(account);
 
       expect(mockFetchTransactionHistoryUseCase.execute).toHaveBeenCalledWith(
-        "ethereum",
+        "eth",
         "0xtest123",
       );
     });
