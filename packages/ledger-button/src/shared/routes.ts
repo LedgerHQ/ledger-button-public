@@ -64,6 +64,7 @@ export type Destination = {
   name: string;
   component: string;
   canGoBack: boolean;
+  skipHistory?: boolean;
   toolbar: {
     title: string;
     canClose: boolean;
@@ -150,6 +151,7 @@ export const makeDestinations = (translation: Translation) => {
       name: "fetchAccounts",
       component: "retrieving-accounts-screen",
       canGoBack: false,
+      skipHistory: true,
       toolbar: {
         title: translation.onboarding.retrievingAccounts.title,
         canClose: false,
@@ -158,7 +160,7 @@ export const makeDestinations = (translation: Translation) => {
     selectAccount: {
       name: "selectAccount",
       component: "select-account-screen",
-      canGoBack: false,
+      canGoBack: true,
       toolbar: {
         title: translation.onboarding.selectAccount.title,
         canClose: true,
