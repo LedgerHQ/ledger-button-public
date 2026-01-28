@@ -20,6 +20,7 @@ import "../domain/home-flow/home-flow.js";
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
+import { CoreContext } from "../context/core-context.js";
 import { Translation } from "../context/language-context.js";
 
 @customElement("ledger-button-404")
@@ -60,16 +61,27 @@ export class LedgerButton404 extends LitElement {
 }
 
 export type Destinations = Record<string, Destination>;
+export type CanGoBackValue = boolean | ((core: CoreContext) => boolean);
 export type Destination = {
   name: string;
   component: string;
-  canGoBack: boolean;
+  canGoBack: CanGoBackValue;
   skipHistory?: boolean;
   toolbar: {
     title: string;
     canClose: boolean;
   };
 };
+
+export function resolveCanGoBack(
+  canGoBack: CanGoBackValue | undefined,
+  core: CoreContext,
+): boolean {
+  if (canGoBack === undefined) {
+    return false;
+  }
+  return typeof canGoBack === "function" ? canGoBack(core) : canGoBack;
+}
 
 // MOVE DESTINATIONS TO NAVIGATION
 export const makeDestinations = (translation: Translation) => {
@@ -160,7 +172,7 @@ export const makeDestinations = (translation: Translation) => {
     selectAccount: {
       name: "selectAccount",
       component: "select-account-screen",
-      canGoBack: true,
+      canGoBack: (core: CoreContext) => core.getSelectedAccount(),
       toolbar: {
         title: translation.onboarding.selectAccount.title,
         canClose: true,
