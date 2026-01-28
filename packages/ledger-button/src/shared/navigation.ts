@@ -55,7 +55,9 @@ export class Navigation implements ReactiveController {
       this.clearNavigationTimeout();
       this.navigationTimeoutId = window.setTimeout(() => {
         this.modalContent.classList.remove("remove");
-        this.history.push(destination);
+        if (!destination.skipHistory) {
+          this.history.push(destination);
+        }
         this.currentScreen = destination;
         this.host.requestUpdate();
         this.navigationTimeoutId = null;
@@ -63,7 +65,9 @@ export class Navigation implements ReactiveController {
       return;
     }
 
-    this.history.push(destination);
+    if (!destination.skipHistory) {
+      this.history.push(destination);
+    }
     this.currentScreen = destination;
     this.host.requestUpdate();
   }
