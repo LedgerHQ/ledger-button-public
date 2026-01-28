@@ -37,6 +37,7 @@ describe("DefaultCalDataSource", () => {
   describe("getTokenInformation", () => {
     const mockUSDTResponse: CalTokenResponse = [
       {
+        id: "ethereum/erc20/usd_tether__erc20_",
         decimals: 6,
         ticker: "USDT",
         name: "Tether USD",
@@ -53,7 +54,7 @@ describe("DefaultCalDataSource", () => {
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&chain_id=${testChainId}&output=name,decimals,ticker`,
+        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&chain_id=${testChainId}&output=id,name,decimals,ticker`,
       );
 
       expect(result.isRight()).toBe(true);

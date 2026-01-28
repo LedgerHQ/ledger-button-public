@@ -18,6 +18,7 @@ import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
+import { transactionHistoryModuleFactory } from "./transaction-history/transactionHistoryModule.js";
 import { web3ProviderModuleFactory } from "./web3-provider/web3ProviderModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
@@ -35,6 +36,7 @@ export function createContainer({
       web3Provider: false,
       balance: false,
       dAppConfig: false,
+      transactionHistory: false,
     },
   },
 }: ContainerOptions) {
@@ -56,6 +58,7 @@ export function createContainer({
     consentModuleFactory(),
     networkModuleFactory({ stub: devConfig.stub.base }),
     transactionModuleFactory({ stub: devConfig.stub.base }),
+    transactionHistoryModuleFactory({ stub: devConfig.stub.transactionHistory }),
     web3ProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),

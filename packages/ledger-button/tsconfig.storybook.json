@@ -9,10 +9,22 @@
     "jsx": "preserve",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
-    "types": ["node", "vite/client"],
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "skipLibCheck": true,
+    "emitDeclarationOnly": true
   },
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ],
   "include": [
     "src/**/*.stories.ts",
     "src/**/*.stories.js",
