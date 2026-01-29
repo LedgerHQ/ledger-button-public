@@ -31,11 +31,14 @@ export class TrackTypedMessageCompleted {
     const sessionId = this.eventTrackingService.getSessionId();
 
     const typedMessageHash = stringToSha256(JSON.stringify(typedData));
-    const chainId = this.contextService.getContext().chainId.toString();
+    const context = this.contextService.getContext();
+    const chainId = context.chainId.toString();
+    const trustChainId = context.trustChainId;
 
     const event = EventTrackingUtils.createTypedMessageFlowCompletionEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
+      trustChainId: trustChainId,
       typedMessageHash: typedMessageHash,
       chainId: chainId,
     });

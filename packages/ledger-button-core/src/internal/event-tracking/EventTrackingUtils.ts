@@ -34,6 +34,7 @@ interface BaseEventParams {
 
 interface SessionEventParams extends BaseEventParams {
   sessionId: string;
+  trustChainId?: string;
 }
 
 interface TransactionEventParams extends SessionEventParams {
@@ -108,6 +109,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.LedgerSyncActivated,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
     };
 
     return {
@@ -165,6 +167,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.Onboarding,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       account_currency: params.accountCurrency,
@@ -187,6 +190,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TransactionFlowInitialization,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       unsigned_transaction_hash: normalizeTransactionHash(
         params.unsignedTransactionHash,
@@ -210,6 +214,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TransactionFlowCompletion,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       transaction_hash: normalizeTransactionHash(params.transactionHash),
       unsigned_transaction_hash: normalizeTransactionHash(
@@ -234,6 +239,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.SessionAuthentication,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       unsigned_transaction_hash: normalizeTransactionHash(
         params.unsignedTransactionHash,
@@ -262,6 +268,7 @@ export class EventTrackingUtils {
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.InvoicingTransactionSigned,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       transaction_hash: normalizeTransactionHash(params.transactionHash),
@@ -281,6 +288,7 @@ export class EventTrackingUtils {
   static createTypedMessageFlowInitializationEvent(params: {
     dAppId: string;
     sessionId: string;
+    trustChainId?: string;
     typedMessageHash: string;
     chainId: string;
   }): EventRequest {
@@ -290,6 +298,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TypedMessageFlowInitialization,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
@@ -305,6 +314,7 @@ export class EventTrackingUtils {
   static createTypedMessageFlowCompletionEvent(params: {
     dAppId: string;
     sessionId: string;
+    trustChainId?: string;
     typedMessageHash: string;
     chainId: string;
   }): EventRequest {
@@ -314,6 +324,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TypedMessageFlowCompletion,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
