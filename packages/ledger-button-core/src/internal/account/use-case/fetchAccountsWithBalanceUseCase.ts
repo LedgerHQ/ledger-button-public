@@ -6,10 +6,11 @@ import { accountModuleTypes } from "../accountModuleTypes.js";
 import type { AccountService } from "../service/AccountService.js";
 import type { Account } from "../service/AccountService.js";
 import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
+import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
 @injectable()
 export class FetchAccountsWithBalanceUseCase {
-  private logger: LoggerPublisher;
+  private readonly logger: LoggerPublisher;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -18,16 +19,21 @@ export class FetchAccountsWithBalanceUseCase {
     private readonly fetchAccountsUseCase: FetchAccountsUseCase,
     @inject(accountModuleTypes.AccountService)
     private readonly accountService: AccountService,
+    @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
+    private readonly hydrateWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
-    this.logger = loggerFactory("FetchAccountsWithBalanceUseCase");
+    this.logger = loggerFactory("[FetchAccountsWithBalanceUseCase]");
   }
 
   async execute(): Promise<Account[]> {
     await this.fetchAccountsUseCase.execute();
-    await this.accountService.hydrateAccountsWithBalanceAndTokens();
-
     const accounts = this.accountService.getAccounts();
-    this.logger.info("Accounts with balance", { accounts });
-    return accounts;
+
+    const hydratedAccounts = await Promise.all(
+      accounts.map((acc) => this.hydrateWithBalanceUseCase.execute(acc)),
+    );
+
+    this.logger.info("Accounts with balance", { accounts: hydratedAccounts });
+    return hydratedAccounts;
   }
 }
