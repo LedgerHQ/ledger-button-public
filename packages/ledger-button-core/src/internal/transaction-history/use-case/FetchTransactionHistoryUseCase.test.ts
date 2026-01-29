@@ -38,12 +38,26 @@ function createMockTransaction(
 ): ExplorerTransaction {
   return {
     hash: "0xabc123",
-    received_at: "2024-01-15T10:30:00Z",
-    lock_time: 0,
-    fees: "21000000000000",
-    inputs: [],
-    outputs: [],
+    transaction_type: 2,
+    nonce: "0x1",
+    nonce_value: 1,
+    value: "0",
+    gas: "21000",
+    gas_price: "1000000000",
+    from: "0xsender",
+    to: "0xrecipient",
+    transfer_events: [],
+    erc721_transfer_events: [],
+    erc1155_transfer_events: [],
+    approval_events: [],
+    actions: [],
     confirmations: 10,
+    input: null,
+    gas_used: "21000",
+    cumulative_gas_used: null,
+    status: 1,
+    received_at: "2024-01-15T10:30:00Z",
+    txPoolStatus: null,
     ...overrides,
   };
 }
@@ -52,7 +66,7 @@ describe("FetchTransactionHistoryUseCase", () => {
   let useCase: FetchTransactionHistoryUseCase;
   let mockDataSource: ReturnType<typeof createMockDataSource>;
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
-  const testBlockchain = "eth";
+  const testBlockchain = "ethereum";
 
   beforeEach(() => {
     mockDataSource = createMockDataSource();
@@ -68,8 +82,8 @@ describe("FetchTransactionHistoryUseCase", () => {
   describe("execute", () => {
     it("should call datasource with correct parameters", async () => {
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [],
+        data: [],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -84,8 +98,8 @@ describe("FetchTransactionHistoryUseCase", () => {
 
     it("should return empty transactions array when no transactions", async () => {
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [],
+        data: [],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -99,10 +113,9 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
     });
 
-    it("should return nextPageToken when response is truncated", async () => {
+    it("should return nextPageToken when token is present", async () => {
       const response: ExplorerResponse = {
-        truncated: true,
-        txs: [],
+        data: [],
         token: "next-page-token",
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
@@ -114,11 +127,10 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(data).toHaveProperty("nextPageToken", "next-page-token");
     });
 
-    it("should not return nextPageToken when response is not truncated", async () => {
+    it("should not return nextPageToken when token is null", async () => {
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [],
-        token: "some-token",
+        data: [],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -144,32 +156,17 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("transaction type detection", () => {
-    it("should mark transaction as 'sent' when address is in inputs", async () => {
+    it("should mark transaction as 'sent' when address is the sender", async () => {
       const tx = createMockTransaction({
         hash: "0xsent",
-        inputs: [
-          {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: testAddress,
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "900000000000000000",
-            address: "0xrecipient",
-            script_hex: "0x",
-          },
-        ],
+        from: testAddress,
+        to: "0xrecipient",
+        value: "1000000000000000000",
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -183,32 +180,49 @@ describe("FetchTransactionHistoryUseCase", () => {
       ).toHaveProperty("type", "sent");
     });
 
-    it("should mark transaction as 'received' when address is not in inputs", async () => {
+    it("should mark transaction as 'received' when address is the recipient", async () => {
       const tx = createMockTransaction({
         hash: "0xreceived",
-        inputs: [
+        from: "0xsender",
+        to: testAddress,
+        value: "1000000000000000000",
+      });
+
+      const response: ExplorerResponse = {
+        data: [tx],
+        token: null,
+      };
+      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+
+      const result = await useCase.execute(testBlockchain, testAddress);
+
+      expect(result.isRight()).toBe(true);
+      const data = result.extract();
+      expect(data).toHaveProperty("transactions");
+      expect(
+        (data as { transactions: unknown[] }).transactions[0],
+      ).toHaveProperty("type", "received");
+    });
+
+    it("should mark as 'received' when address is recipient in transfer_events", async () => {
+      const tx = createMockTransaction({
+        hash: "0xtokenreceived",
+        from: "0xsender",
+        to: "0xcontract",
+        value: "0",
+        transfer_events: [
           {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: "0xsender",
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "900000000000000000",
-            address: testAddress,
-            script_hex: "0x",
+            contract: "0xcontract",
+            from: "0xsender",
+            to: testAddress,
+            count: "1000000",
           },
         ],
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -225,22 +239,14 @@ describe("FetchTransactionHistoryUseCase", () => {
     it("should handle case-insensitive address matching", async () => {
       const upperCaseAddress = testAddress.toUpperCase();
       const tx = createMockTransaction({
-        inputs: [
-          {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: upperCaseAddress,
-            sequence: 0,
-          },
-        ],
-        outputs: [],
+        from: upperCaseAddress,
+        to: "0xrecipient",
+        value: "1000000000000000000",
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -256,37 +262,16 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("value calculation", () => {
-    it("should calculate sent value excluding outputs to own address", async () => {
+    it("should use native value for direct transfers", async () => {
       const tx = createMockTransaction({
-        inputs: [
-          {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: testAddress,
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "800000000000000000",
-            address: "0xrecipient",
-            script_hex: "0x",
-          },
-          {
-            output_index: 1,
-            value: "100000000000000000",
-            address: testAddress, // Change back to sender
-            script_hex: "0x",
-          },
-        ],
+        from: "0xsender",
+        to: testAddress,
+        value: "1000000000000000000",
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -297,46 +282,27 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "800000000000000000");
+      ).toHaveProperty("value", "1000000000000000000");
     });
 
-    it("should calculate received value from outputs to own address", async () => {
+    it("should use token transfer count for ERC20 transfers", async () => {
       const tx = createMockTransaction({
-        inputs: [
+        from: "0xsender",
+        to: "0xcontract",
+        value: "0",
+        transfer_events: [
           {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: "0xsender",
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "500000000000000000",
-            address: testAddress,
-            script_hex: "0x",
-          },
-          {
-            output_index: 1,
-            value: "300000000000000000",
-            address: testAddress,
-            script_hex: "0x",
-          },
-          {
-            output_index: 2,
-            value: "100000000000000000",
-            address: "0xother",
-            script_hex: "0x",
+            contract: "0xcontract",
+            from: "0xsender",
+            to: testAddress,
+            count: "5000000",
           },
         ],
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -347,34 +313,29 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "800000000000000000");
+      ).toHaveProperty("value", "5000000");
     });
 
-    it("should return 0 when no relevant outputs", async () => {
+    it("should use actions value for native transfers with actions", async () => {
       const tx = createMockTransaction({
-        inputs: [
+        from: "0xsender",
+        to: testAddress,
+        value: "0",
+        actions: [
           {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: "0xsender",
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "900000000000000000",
-            address: "0xother",
-            script_hex: "0x",
+            from: "0xsender",
+            to: testAddress,
+            value: "2801780000000000",
+            gas: "21000",
+            gas_used: "21000",
+            error: null,
           },
         ],
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -385,7 +346,44 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "0");
+      ).toHaveProperty("value", "2801780000000000");
+    });
+
+    it("should sum multiple token transfers to the same address", async () => {
+      const tx = createMockTransaction({
+        from: "0xsender",
+        to: "0xcontract",
+        value: "0",
+        transfer_events: [
+          {
+            contract: "0xcontract1",
+            from: "0xsender",
+            to: testAddress,
+            count: "1000000",
+          },
+          {
+            contract: "0xcontract2",
+            from: "0xsender",
+            to: testAddress,
+            count: "2000000",
+          },
+        ],
+      });
+
+      const response: ExplorerResponse = {
+        data: [tx],
+        token: null,
+      };
+      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+
+      const result = await useCase.execute(testBlockchain, testAddress);
+
+      expect(result.isRight()).toBe(true);
+      const data = result.extract();
+      expect(data).toHaveProperty("transactions");
+      expect(
+        (data as { transactions: unknown[] }).transactions[0],
+      ).toHaveProperty("value", "3000000");
     });
   });
 
@@ -401,8 +399,8 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -423,8 +421,8 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [tx],
+        data: [tx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
@@ -443,53 +441,23 @@ describe("FetchTransactionHistoryUseCase", () => {
     it("should correctly transform multiple transactions", async () => {
       const sentTx = createMockTransaction({
         hash: "0xsent123",
+        from: testAddress,
+        to: "0xrecipient",
+        value: "500000000000000000",
         received_at: "2024-01-15T10:00:00Z",
-        inputs: [
-          {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: testAddress,
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "500000000000000000",
-            address: "0xrecipient",
-            script_hex: "0x",
-          },
-        ],
       });
 
       const receivedTx = createMockTransaction({
         hash: "0xreceived456",
+        from: "0xsender",
+        to: testAddress,
+        value: "1800000000000000000",
         received_at: "2024-01-15T11:00:00Z",
-        inputs: [
-          {
-            output_hash: "0x222",
-            output_index: 0,
-            input_index: 0,
-            value: "2000000000000000000",
-            address: "0xsender",
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "1800000000000000000",
-            address: testAddress,
-            script_hex: "0x",
-          },
-        ],
       });
 
       const response: ExplorerResponse = {
-        truncated: false,
-        txs: [sentTx, receivedTx],
+        data: [sentTx, receivedTx],
+        token: null,
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
