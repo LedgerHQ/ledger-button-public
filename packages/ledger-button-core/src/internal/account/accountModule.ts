@@ -6,6 +6,7 @@ import { FetchAccountsWithBalanceUseCase } from "./use-case/fetchAccountsWithBal
 import { FetchCloudSyncAccountsUseCase } from "./use-case/fetchCloudSyncAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./use-case/fetchSelectedAccountUseCase.js";
 import { GetDetailedSelectedAccountUseCase } from "./use-case/getDetailedSelectedAccountUseCase.js";
+import { HydrateAccountWithBalanceUseCase } from "./use-case/HydrateAccountWithBalanceUseCase.js";
 import { HydrateAccountWithFiatUseCase } from "./use-case/hydrateAccountWithFiatUseCase.js";
 import { HydrateAccountWithTxHistoryUseCase } from "./use-case/hydrateAccountWithTxHistoryUseCase.js";
 import { type ContainerOptions } from "../diTypes.js";
@@ -39,6 +40,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     );
     bind(accountModuleTypes.HydrateAccountWithFiatUseCase).to(
       HydrateAccountWithFiatUseCase,
+    );
+    bind(accountModuleTypes.HydrateAccountWithBalanceUseCase).to(
+      HydrateAccountWithBalanceUseCase,
     );
   });
 }
