@@ -13,4 +13,7 @@ export const accountModuleTypes = {
     "HydrateAccountWithTxHistoryUseCase",
   ),
   HydrateAccountWithFiatUseCase: Symbol.for("HydrateAccountWithFiatUseCase"),
+  HydrateAccountWithBalanceUseCase: Symbol.for(
+    "HydrateAccountWithBalanceUseCase",
+  ),
 } as const;
