@@ -172,7 +172,7 @@ export const makeDestinations = (translation: Translation) => {
     selectAccount: {
       name: "selectAccount",
       component: "select-account-screen",
-      canGoBack: (core: CoreContext) => core.getSelectedAccount(),
+      canGoBack: (core: CoreContext) => !!core.getSelectedAccount(),
       toolbar: {
         title: translation.onboarding.selectAccount.title,
         canClose: true,
