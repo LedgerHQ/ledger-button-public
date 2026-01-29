@@ -17,34 +17,32 @@ describe("DefaultTransactionHistoryDataSource", () => {
   const testBlockchain = "eth";
 
   const mockExplorerResponse: ExplorerResponse = {
-    truncated: false,
-    txs: [
+    data: [
       {
         hash: "0xabc123",
-        received_at: "2024-01-15T10:30:00Z",
-        lock_time: 0,
-        fees: "21000000000000",
-        inputs: [
-          {
-            output_hash: "0x111",
-            output_index: 0,
-            input_index: 0,
-            value: "1000000000000000000",
-            address: testAddress,
-            sequence: 0,
-          },
-        ],
-        outputs: [
-          {
-            output_index: 0,
-            value: "900000000000000000",
-            address: "0xrecipient",
-            script_hex: "0x",
-          },
-        ],
+        transaction_type: 2,
+        nonce: "0x1",
+        nonce_value: 1,
+        value: "1000000000000000000",
+        gas: "21000",
+        gas_price: "1000000000",
+        from: testAddress,
+        to: "0xrecipient",
+        transfer_events: [],
+        erc721_transfer_events: [],
+        erc1155_transfer_events: [],
+        approval_events: [],
+        actions: [],
         confirmations: 10,
+        input: null,
+        gas_used: "21000",
+        cumulative_gas_used: null,
+        status: 1,
+        received_at: "2024-01-15T10:30:00Z",
+        txPoolStatus: null,
       },
     ],
+    token: null,
   };
 
   beforeEach(() => {
@@ -169,10 +167,9 @@ describe("DefaultTransactionHistoryDataSource", () => {
       );
     });
 
-    it("should return response with truncated flag and token for pagination", async () => {
+    it("should return response with token for pagination", async () => {
       const paginatedResponse: ExplorerResponse = {
-        truncated: true,
-        txs: mockExplorerResponse.txs,
+        data: mockExplorerResponse.data,
         token: "pagination-token-abc",
       };
       vi.mocked(mockNetworkService.get).mockResolvedValue(
@@ -186,14 +183,13 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
       expect(result.isRight()).toBe(true);
       const response = result.extract() as ExplorerResponse;
-      expect(response.truncated).toBe(true);
       expect(response.token).toBe("pagination-token-abc");
     });
 
     it("should return empty transactions array when no transactions exist", async () => {
       const emptyResponse: ExplorerResponse = {
-        truncated: false,
-        txs: [],
+        data: [],
+        token: null,
       };
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right(emptyResponse));
 
@@ -204,7 +200,7 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
       expect(result.isRight()).toBe(true);
       const response = result.extract() as ExplorerResponse;
-      expect(response.txs).toHaveLength(0);
+      expect(response.data).toHaveLength(0);
     });
 
     it("should always include required query parameters", async () => {
