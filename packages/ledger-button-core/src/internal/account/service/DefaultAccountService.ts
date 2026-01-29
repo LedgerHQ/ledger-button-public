@@ -62,12 +62,7 @@ export class DefaultAccountService implements AccountService {
     return this.accounts;
   }
 
-  updateAccounts(accounts: Account[]): void {
-    this.accounts = accounts;
-    this.logger.debug("Accounts updated", { accountCount: accounts.length });
-  }
-
-  private setAccounts(accounts: Account[]) {
+  setAccounts(accounts: Account[]) {
     this.accounts = accounts;
     this.logger.debug("saving accounts", { accounts: this.accounts });
   }
