@@ -26,7 +26,7 @@ export class FetchTransactionHistoryUseCase {
     @inject(transactionHistoryModuleTypes.TransactionHistoryDataSource)
     private readonly dataSource: TransactionHistoryDataSource,
   ) {
-    this.logger = loggerFactory("FetchTransactionHistoryUseCase");
+    this.logger = loggerFactory("[FetchTransactionHistoryUseCase]");
   }
 
   async execute(
@@ -71,13 +71,13 @@ export class FetchTransactionHistoryUseCase {
     response: ExplorerResponse,
     normalizedAddress: string,
   ): TransactionHistoryResult {
-    const transactions = response.txs.map((tx) =>
+    const transactions = response.data.map((tx) =>
       this.transformTransaction(tx, normalizedAddress),
     );
 
     return {
       transactions,
-      nextPageToken: response.truncated ? response.token : undefined,
+      nextPageToken: response.token ?? undefined,
     };
   }
 
@@ -101,11 +101,19 @@ export class FetchTransactionHistoryUseCase {
     tx: ExplorerTransaction,
     normalizedAddress: string,
   ): TransactionType {
-    const isSender = tx.inputs.some(
-      (input) => input.address?.toLowerCase() === normalizedAddress,
+    const isSender = tx.from.toLowerCase() === normalizedAddress;
+
+    const isRecipientInTransfer = tx.transfer_events.some(
+      (event) => event.to.toLowerCase() === normalizedAddress,
     );
 
-    return isSender ? "sent" : "received";
+    if (isSender && !isRecipientInTransfer) {
+      return "sent";
+    }
+
+    return isRecipientInTransfer || tx.to.toLowerCase() === normalizedAddress
+      ? "received"
+      : "sent";
   }
 
   private calculateTransactionValue(
@@ -113,32 +121,76 @@ export class FetchTransactionHistoryUseCase {
     normalizedAddress: string,
     type: TransactionType,
   ): string {
-    if (type === "sent") {
-      return this.calculateSentValue(tx, normalizedAddress);
+    const tokenTransferValue = this.getTokenTransferValue(
+      tx,
+      normalizedAddress,
+      type,
+    );
+    if (tokenTransferValue !== "0") {
+      return tokenTransferValue;
     }
-    return this.calculateReceivedValue(tx, normalizedAddress);
+
+    return this.getNativeValue(tx, normalizedAddress, type);
   }
 
-  private calculateSentValue(
+  private getTokenTransferValue(
     tx: ExplorerTransaction,
     normalizedAddress: string,
+    type: TransactionType,
   ): string {
-    const totalOutputValue = tx.outputs
-      .filter((output) => output.address?.toLowerCase() !== normalizedAddress)
-      .reduce((sum, output) => sum + BigInt(output.value), BigInt(0));
+    const relevantTransfers = tx.transfer_events.filter((event) => {
+      if (type === "received") {
+        return event.to.toLowerCase() === normalizedAddress;
+      }
+      return event.from.toLowerCase() === normalizedAddress;
+    });
 
-    return totalOutputValue.toString();
+    if (relevantTransfers.length === 0) {
+      return "0";
+    }
+
+    // Sum up all relevant transfer values
+    const totalValue = relevantTransfers.reduce(
+      (sum, transfer) => sum + BigInt(transfer.count),
+      BigInt(0),
+    );
+
+    return totalValue.toString();
   }
 
-  private calculateReceivedValue(
+  private getNativeValue(
     tx: ExplorerTransaction,
     normalizedAddress: string,
+    type: TransactionType,
   ): string {
-    const receivedValue = tx.outputs
-      .filter((output) => output.address?.toLowerCase() === normalizedAddress)
-      .reduce((sum, output) => sum + BigInt(output.value), BigInt(0));
+    const relevantActions = tx.actions.filter((action) => {
+      if (type === "received") {
+        return action.to.toLowerCase() === normalizedAddress;
+      }
+      return action.from.toLowerCase() === normalizedAddress;
+    });
 
-    return receivedValue.toString();
+    if (relevantActions.length > 0) {
+      const totalValue = relevantActions.reduce(
+        (sum, action) => sum + BigInt(action.value),
+        BigInt(0),
+      );
+      return totalValue.toString();
+    }
+
+    if (
+      type === "received" &&
+      tx.to.toLowerCase() === normalizedAddress &&
+      tx.value !== "0"
+    ) {
+      return tx.value;
+    }
+
+    if (type === "sent" && tx.from.toLowerCase() === normalizedAddress) {
+      return tx.value;
+    }
+
+    return "0";
   }
 
   private extractTimestamp(tx: ExplorerTransaction): string {
