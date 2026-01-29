@@ -25,6 +25,7 @@ type BaseEventData = {
 
 export type InvoicingTransactionSignedEventData = BaseEventData & {
   event_type: "invoicing_transaction_signed";
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   transaction_hash: string;
@@ -49,11 +50,13 @@ export type OpenLedgerSyncEventData = BaseEventData & {
 export type LedgerSyncActivatedEventData = BaseEventData & {
   event_type: "ledger_sync_activated";
   session_id: string;
+  ledger_sync_user_id?: string;
 };
 
 export type OnboardingEventData = BaseEventData & {
   event_type: "onboarding";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   account_currency: string;
@@ -63,6 +66,7 @@ export type OnboardingEventData = BaseEventData & {
 export type TransactionFlowInitializationEventData = BaseEventData & {
   event_type: "transaction_flow_initialization";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   unsigned_transaction_hash: string;
@@ -71,6 +75,7 @@ export type TransactionFlowInitializationEventData = BaseEventData & {
 export type TransactionFlowCompletionEventData = BaseEventData & {
   event_type: "transaction_flow_completion";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   unsigned_transaction_hash: string;
@@ -80,6 +85,7 @@ export type TransactionFlowCompletionEventData = BaseEventData & {
 export type SessionAuthenticationEventData = BaseEventData & {
   event_type: "session_authentication";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   unsigned_transaction_hash: string;
   transaction_type: "authentication_tx";
@@ -89,6 +95,7 @@ export type SessionAuthenticationEventData = BaseEventData & {
 export type TypedMessageFlowInitializationEventData = BaseEventData & {
   event_type: "typed_message_flow_initialization";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   typed_message_hash: string;
@@ -97,6 +104,7 @@ export type TypedMessageFlowInitializationEventData = BaseEventData & {
 export type TypedMessageFlowCompletionEventData = BaseEventData & {
   event_type: "typed_message_flow_completion";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   typed_message_hash: string;
