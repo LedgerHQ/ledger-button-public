@@ -256,10 +256,9 @@ export class LedgerButtonCore {
       )
       .execute();
 
-    // API layer handles state management
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
-      .updateAccounts(accounts);
+      .setAccounts(accounts);
 
     return accounts;
   }

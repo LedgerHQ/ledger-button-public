@@ -38,7 +38,7 @@ export interface AccountService {
   ): Promise<Account>;
   setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];
-  updateAccounts(accounts: Account[]): void;
+  setAccounts(accounts: Account[]): void;
   selectAccount(account: Account): void;
   getSelectedAccount(): Account | null;
 }
