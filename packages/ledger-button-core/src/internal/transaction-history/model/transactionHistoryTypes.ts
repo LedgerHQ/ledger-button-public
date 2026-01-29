@@ -9,37 +9,52 @@ export type ExplorerBlockInfo = {
   time: string;
 };
 
-export type ExplorerTransactionInput = {
-  output_hash: string;
-  output_index: number;
-  input_index: number;
-  value: string;
-  address: string;
-  sequence: number;
+export type EvmTransferEvent = {
+  contract: string;
+  from: string;
+  to: string;
+  count: string;
 };
 
-export type ExplorerTransactionOutput = {
-  output_index: number;
+export type EvmAction = {
+  from: string;
+  to: string;
   value: string;
-  address: string;
-  script_hex: string;
+  gas: string;
+  gas_used: string;
+  error: string | null;
 };
 
 export type ExplorerTransaction = {
   hash: string;
-  received_at: string;
-  lock_time: number;
-  fees: string;
-  inputs: ExplorerTransactionInput[];
-  outputs: ExplorerTransactionOutput[];
-  block?: ExplorerBlockInfo;
+  transaction_type: number;
+  nonce: string;
+  nonce_value: number;
+  value: string;
+  gas: string;
+  gas_price: string;
+  max_fee_per_gas?: string;
+  max_priority_fee_per_gas?: string;
+  from: string;
+  to: string;
+  transfer_events: EvmTransferEvent[];
+  erc721_transfer_events: unknown[];
+  erc1155_transfer_events: unknown[];
+  approval_events: unknown[];
+  actions: EvmAction[];
   confirmations: number;
+  input: string | null;
+  gas_used: string;
+  cumulative_gas_used: string | null;
+  status: number;
+  received_at: string;
+  block?: ExplorerBlockInfo;
+  txPoolStatus: unknown | null;
 };
 
 export type ExplorerResponse = {
-  truncated: boolean;
-  txs: ExplorerTransaction[];
-  token?: string;
+  data: ExplorerTransaction[];
+  token: string | null;
 };
 
 /**
