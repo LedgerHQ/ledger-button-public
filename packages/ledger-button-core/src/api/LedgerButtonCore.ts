@@ -250,11 +250,18 @@ export class LedgerButtonCore {
   // Account methods
   async fetchAccounts() {
     this._logger.debug("Fetching accounts");
-    return this.container
+    const accounts = await this.container
       .get<FetchAccountsWithBalanceUseCase>(
         accountModuleTypes.FetchAccountsWithBalanceUseCase,
       )
       .execute();
+
+    // API layer handles state management
+    this.container
+      .get<AccountService>(accountModuleTypes.AccountService)
+      .updateAccounts(accounts);
+
+    return accounts;
   }
 
   getAccounts() {

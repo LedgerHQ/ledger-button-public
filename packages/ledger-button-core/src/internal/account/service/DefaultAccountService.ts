@@ -20,7 +20,6 @@ export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
   selectedAccount: Account | null = null;
-  private areAccountsHydrated = false;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -35,14 +34,9 @@ export class DefaultAccountService implements AccountService {
     this.logger = this.loggerFactory("[Account Service]");
   }
 
-  async hydrateAccountsWithBalanceAndTokens(): Promise<void> {
-    this.accounts = await this.getAccountsWithBalance(this.accounts);
-  }
-
   async setAccountsFromCloudSyncData(
     cloudsyncData: CloudSyncData,
   ): Promise<void> {
-    this.areAccountsHydrated = false;
     const mappedAccounts = await this.mapCloudSyncDataToAccounts(cloudsyncData);
 
     this.setAccounts(mappedAccounts);
@@ -66,6 +60,11 @@ export class DefaultAccountService implements AccountService {
 
   getAccounts(): Account[] {
     return this.accounts;
+  }
+
+  updateAccounts(accounts: Account[]): void {
+    this.accounts = accounts;
+    this.logger.debug("Accounts updated", { accountCount: accounts.length });
   }
 
   private setAccounts(accounts: Account[]) {
@@ -113,30 +112,6 @@ export class DefaultAccountService implements AccountService {
     }
 
     return accs;
-  }
-
-  private async getAccountsWithBalance(
-    accounts: Account[],
-  ): Promise<Account[]> {
-    if (this.areAccountsHydrated) {
-      return this.accounts;
-    }
-
-    const accountsWithBalanceAndTokens = await Promise.all(
-      accounts.map((account) =>
-        this.hydrateAccountWithBalanceUseCase.execute(account, true),
-      ),
-    );
-
-    this.logger.debug("All accounts with balance and tokens", {
-      accountCount: accountsWithBalanceAndTokens.length,
-      totalTokensAcrossAccounts: accountsWithBalanceAndTokens.reduce(
-        (sum, acc) => sum + acc.tokens.length,
-        0,
-      ),
-    });
-
-    return accountsWithBalanceAndTokens;
   }
 
   async getBalanceAndTokensForAccount(
