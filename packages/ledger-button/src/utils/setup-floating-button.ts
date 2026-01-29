@@ -13,7 +13,6 @@ export function setupFloatingButton(
   floatingButtonTarget: HTMLElement | string | undefined,
   floatingButtonPosition: FloatingButtonPosition | false,
 ): FloatingButtonConfig {
-
   if (!floatingButtonTarget) {
     setDefaultFloatingButtonPosition(app, floatingButtonPosition);
     return { floatingButtonContainer: null, floatingButton: null };
@@ -55,6 +54,7 @@ function createCompactFloatingButton(core: LedgerButtonCore): Element {
   const button = document.createElement("ledger-floating-button");
   button.setAttribute("variant", "compact");
   button.classList.add("ledger-wallet-provider");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (button as any).core = core;
   return button;
 }
