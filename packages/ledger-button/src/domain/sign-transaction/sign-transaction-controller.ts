@@ -8,7 +8,6 @@ import {
   isSignPersonalMessageParams,
   isSignRawTransactionParams,
   isSignTransactionParams,
-  isSignTypedMessageParams,
   type SignedResults,
   type SignFlowStatus,
   type SignPersonalMessageParams,
