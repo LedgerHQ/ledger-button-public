@@ -17,7 +17,7 @@ const meta: Meta<LedgerModal> = {
   render: () => html`
     <ledger-button
       @click=${() => {
-        const modal = document.querySelector("ledger-modal");
+        const modal = document.querySelector("ledger-modal") as LedgerModal | null;
         if (modal) {
           modal.openModal();
         }
@@ -32,7 +32,7 @@ const meta: Meta<LedgerModal> = {
           title="Ledger Modal Example"
           .canClose=${true}
           @ledger-toolbar-close=${() => {
-            const modal = document.querySelector("ledger-modal");
+            const modal = document.querySelector("ledger-modal") as LedgerModal | null;
             if (modal) {
               modal.closeModal();
             }
