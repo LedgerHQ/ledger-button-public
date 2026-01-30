@@ -143,7 +143,15 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
         id: "unique-id",
         name: "Test Account",
         balance: "5000000000000000000",
-        tokens: [{ ticker: "USDT", name: "Tether", balance: "100000000" }],
+        tokens: [
+          {
+            ledgerId: "ethereum/erc20/tether",
+            ticker: "USDT",
+            name: "Tether",
+            balance: "100000000",
+            fiatBalance: undefined,
+          },
+        ],
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(
         Right({ transactions: [], nextPageToken: undefined }),
