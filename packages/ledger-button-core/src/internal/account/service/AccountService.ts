@@ -26,6 +26,11 @@ export type Token = {
   balance: string;
 };
 
+export type FiatBalance = {
+  value: string;
+  currency: string;
+};
+
 export interface AccountService {
   hydrateAccountsWithBalanceAndTokens(): Promise<void>;
   getBalanceAndTokensForAccount(

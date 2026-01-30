@@ -41,13 +41,16 @@ export class TrackTransactionCompleted {
     const unsignedTransactionHash = normalizeTransactionHash(
       sha256(rawTransaction),
     );
-    const chainId = this.contextService.getContext().chainId.toString();
+    const context = this.contextService.getContext();
+    const chainId = context.chainId.toString();
+    const trustChainId = context.trustChainId;
     const tx = ethers.Transaction.from(rawTransaction);
     const recipientAddress = tx.to || "";
     const normalizedTransactionHash = normalizeTransactionHash(txResult.hash);
     const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
+      trustChainId: trustChainId,
       chainId: chainId,
       unsignedTransactionHash: unsignedTransactionHash,
       transactionHash: normalizedTransactionHash,
@@ -60,6 +63,7 @@ export class TrackTransactionCompleted {
       EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: this.config.dAppIdentifier,
         sessionId: sessionId,
+        trustChainId: trustChainId,
         transactionHash: normalizedTransactionHash,
         unsignedTransactionHash: unsignedTransactionHash,
         chainId: chainId,

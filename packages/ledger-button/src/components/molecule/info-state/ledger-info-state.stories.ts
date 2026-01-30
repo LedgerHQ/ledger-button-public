@@ -5,6 +5,9 @@ import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect } from "storybook/test";
 
+import type { LedgerModal } from "../../atom/modal/ledger-modal";
+import type { LedgerInfoState } from "./ledger-info-state";
+
 const meta: Meta = {
   title: "Component/Molecule/InfoState",
   tags: ["autodocs"],
@@ -253,7 +256,9 @@ export const TestNanoXRendering: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify device type is correctly set", async () => {
-      const infoState = canvasElement.querySelector("ledger-info-state");
+      const infoState = canvasElement.querySelector(
+        "ledger-info-state",
+      ) as LedgerInfoState | null;
       expect(infoState?.device).toBe("nanox");
     });
 
@@ -283,7 +288,7 @@ export const TestStaxRendering: Story = {
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify device type is correctly set", async () => {
-      const infoState = canvasElement.querySelector("ledger-info-state");
+      const infoState = canvasElement.querySelector("ledger-info-state") as LedgerInfoState | null;
       expect(infoState?.device).toBe("stax");
     });
 
@@ -351,7 +356,7 @@ export const InModalIntegration: Story = {
   `,
   play: async ({ canvasElement, step }) => {
     await step("Wait for modal to open", async () => {
-      const modal = canvasElement.querySelector("ledger-modal");
+      const modal = canvasElement.querySelector("ledger-modal") as LedgerModal | null;
       await modal?.openModal();
     });
 
@@ -368,7 +373,7 @@ export const InModalIntegration: Story = {
 
     await step("Verify InfoState content", async () => {
       const modal = canvasElement.querySelector("ledger-modal");
-      const infoState = modal?.querySelector("ledger-info-state");
+      const infoState = modal?.querySelector("ledger-info-state") as LedgerInfoState | null;
 
       expect(infoState?.device).toBe("flex");
       expect(infoState?.title).toBe("Continue on your Ledger Flex");
