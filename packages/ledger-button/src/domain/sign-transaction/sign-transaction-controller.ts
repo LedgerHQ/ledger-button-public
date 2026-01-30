@@ -165,22 +165,25 @@ export class SignTransactionController implements ReactiveController {
       : this.lang.currentTranslation.common.device.model.fallback;
   }
 
-  private isTransactionParameter(): boolean {
-    if (!this.currentTransaction) {
+  private isTransactionParameter(
+    transactionParams:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedMessageParams
+      | SignPersonalMessageParams
+      | undefined,
+  ): boolean {
+    if (!transactionParams) {
       return false;
     }
 
-    if (isSignTypedMessageParams(this.currentTransaction)) {
-      return true;
-    }
-
-    if (isSignPersonalMessageParams(this.currentTransaction)) {
+    if (isSignPersonalMessageParams(transactionParams)) {
       return false;
     }
 
     return (
-      isSignTransactionParams(this.currentTransaction) ||
-      isSignRawTransactionParams(this.currentTransaction)
+      isSignTransactionParams(transactionParams) ||
+      isSignRawTransactionParams(transactionParams)
     );
   }
 
@@ -346,7 +349,7 @@ export class SignTransactionController implements ReactiveController {
       }
       case error instanceof UserRejectedTransactionError: {
         const deviceName = this.getDeviceName();
-        const isTx = this.isTransactionParameter();
+        const isTx = this.isTransactionParameter(this.currentTransaction);
         this.state = {
           screen: "error",
           status: {
