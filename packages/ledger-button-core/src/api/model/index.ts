@@ -1,8 +1,14 @@
 // TODO: Move Account to api model folder
 export type {
   Account,
+  DetailedAccount,
+  FiatBalance,
   Token,
 } from "../../internal/account/service/AccountService.js";
+export type {
+  TransactionHistoryItem,
+  TransactionType,
+} from "../../internal/transaction-history/model/transactionHistoryTypes.js";
 export * from "./eip/EIPTypes.js";
 export * from "./errors.js";
 export * from "./LedgerSyncAuthenticateResponse.js";
