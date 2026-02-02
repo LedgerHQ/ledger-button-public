@@ -99,6 +99,7 @@ const meta: Meta = {
     <div class="min-w-352 dark">
       <transaction-list-screen
         .transactions=${args.transactions}
+        .ticker=${args.ticker}
       ></transaction-list-screen>
     </div>
   `,
@@ -111,9 +112,18 @@ const meta: Meta = {
         category: "Required",
       },
     },
+    ticker: {
+      control: "text",
+      description: "The currency ticker symbol",
+      table: {
+        type: { summary: "string" },
+        category: "Required",
+      },
+    },
   },
   args: {
     transactions: sampleTransactions,
+    ticker: "ETH",
   },
 };
 
@@ -123,24 +133,28 @@ type Story = StoryObj;
 export const Default: Story = {
   args: {
     transactions: sampleTransactions,
+    ticker: "ETH",
   },
 };
 
 export const EmptyState: Story = {
   args: {
     transactions: [],
+    ticker: "ETH",
   },
 };
 
 export const TodayOnly: Story = {
   args: {
     transactions: sampleTransactions.filter((t) => t.date === today),
+    ticker: "ETH",
   },
 };
 
 export const MultipleDays: Story = {
   args: {
     transactions: sampleTransactions,
+    ticker: "ETH",
   },
 };
 
@@ -170,6 +184,7 @@ export const Bitcoin: Story = {
         fiatCurrency: "$",
       },
     ],
+    ticker: "BTC",
   },
 };
 
@@ -210,5 +225,6 @@ export const MixedTokens: Story = {
         fiatCurrency: "$",
       },
     ],
+    ticker: "ETH",
   },
 };

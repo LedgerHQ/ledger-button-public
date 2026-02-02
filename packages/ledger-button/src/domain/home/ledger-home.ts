@@ -6,6 +6,8 @@ import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
+import type { TransactionListItem } from "../transaction-list/transaction-list.js";
+
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
 import type {
@@ -51,6 +53,79 @@ const styles = css`
     );
   }
 `;
+
+const mockTransactions: TransactionListItem[] = [
+  {
+    hash: "0x1234567890abcdef",
+    type: "received",
+    date: "2025-02-02",
+    time: "22:34",
+    amount: "1.30393",
+    title: "Ethereum",
+    fiatAmount: "3,259.83",
+    fiatCurrency: "$",
+  },
+  {
+    hash: "0x1234567890abcde1",
+    type: "sent",
+    date: "2025-02-02",
+    time: "22:34",
+    amount: "1.30393",
+    title: "Ethereum",
+    fiatAmount: "3,259.83",
+    fiatCurrency: "$",
+  },
+  {
+    hash: "0x1234567890abcde2",
+    type: "received",
+    date: "2025-02-02",
+    time: "22:34",
+    amount: "1.30393",
+    title: "Ethereum",
+    fiatAmount: "3,259.83",
+    fiatCurrency: "$",
+  },
+  {
+    hash: "0x1234567890abcde3",
+    type: "received",
+    date: "2025-02-02",
+    time: "22:34",
+    amount: "1.30393",
+    title: "Ethereum",
+    fiatAmount: "3,259.83",
+    fiatCurrency: "$",
+  },
+  {
+    hash: "0x1234567890abcde4",
+    type: "sent",
+    date: "2025-02-01",
+    time: "14:22",
+    amount: "0.5",
+    title: "Ethereum",
+    fiatAmount: "1,250.00",
+    fiatCurrency: "$",
+  },
+  {
+    hash: "0x1234567890abcde5",
+    type: "received",
+    date: "2025-02-01",
+    time: "10:15",
+    amount: "2.0",
+    title: "Ethereum",
+    fiatAmount: "5,000.00",
+    fiatCurrency: "$",
+  },
+  {
+    hash: "0x1234567890abcde6",
+    type: "sent",
+    date: "2025-01-26",
+    time: "18:45",
+    amount: "0.25",
+    title: "Ethereum",
+    fiatAmount: "625.00",
+    fiatCurrency: "$",
+  },
+];
 
 @customElement("ledger-home-screen")
 @tailwindElement(styles)
@@ -222,7 +297,10 @@ export class LedgerHomeScreen extends LitElement {
 
           ${this.activeTab === "tokens"
             ? html`<token-list-screen></token-list-screen>`
-            : html`<transaction-list-screen></transaction-list-screen>`}
+            : html`<transaction-list-screen
+                .transactions=${mockTransactions}
+                .ticker=${account.ticker}
+              ></transaction-list-screen>`}
 
           <ledger-button
             variant="secondary"
