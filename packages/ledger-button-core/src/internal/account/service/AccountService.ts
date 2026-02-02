@@ -32,13 +32,13 @@ export type FiatBalance = {
 };
 
 export interface AccountService {
-  hydrateAccountsWithBalanceAndTokens(): Promise<void>;
   getBalanceAndTokensForAccount(
     account: Account,
     withTokens: boolean,
   ): Promise<Account>;
   setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];
+  setAccounts(accounts: Account[]): void;
   selectAccount(account: Account): void;
   getSelectedAccount(): Account | null;
 }
