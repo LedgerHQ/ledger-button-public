@@ -31,6 +31,7 @@ export interface LedgerChainItemAttributes {
   subtitle: string;
   ticker: string;
   value: string;
+  fiatValue?: string;
   isClickable: boolean;
   type: ChainItemType;
 }
@@ -52,6 +53,9 @@ export class LedgerChainItem extends LitElement {
 
   @property({ type: String })
   value = "";
+
+  @property({ type: String })
+  fiatValue?: string;
 
   @property({ type: Boolean, attribute: "isClickable" })
   isClickable = false;
@@ -125,10 +129,13 @@ export class LedgerChainItem extends LitElement {
 
   private renderRightSection() {
     return html`
-      <div class="lb-flex lb-items-center lb-justify-end lb-text-right">
+      <div class="lb-flex lb-flex-col lb-items-end lb-justify-center lb-text-right">
         <span class="lb-text-base lb-body-2-semi-bold"
           >${this.value} ${this.ticker}</span
         >
+        ${this.fiatValue
+          ? html`<span class="lb-text-muted lb-body-3">${this.fiatValue}</span>`
+          : ""}
       </div>
     `;
   }

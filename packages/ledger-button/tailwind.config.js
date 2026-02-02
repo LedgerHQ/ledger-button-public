@@ -5,9 +5,13 @@ import { join } from "path";
 export default {
   presets: [ledgerLivePreset],
   content: [join(__dirname, "./src/**/*!(*.stories|*.spec).{ts,js,html}")],
-  prefix: 'lb-',
+  prefix: "lb-",
   theme: {
-    extend: {},
+    extend: {
+      backgroundColor: {
+        "muted-subtle": "#3C3C3C",
+      },
+    },
   },
   plugins: [],
   corePlugins: {
