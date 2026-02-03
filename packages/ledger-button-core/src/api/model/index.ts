@@ -1,6 +1,7 @@
 // TODO: Move Account to api model folder
 export type {
   Account,
+  AccountWithFiat,
   DetailedAccount,
   FiatBalance,
   Token,

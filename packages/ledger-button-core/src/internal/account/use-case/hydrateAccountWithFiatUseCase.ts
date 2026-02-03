@@ -6,9 +6,12 @@ import type { CounterValueDataSource } from "../../balance/datasource/counterval
 import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, FiatBalance, Token } from "../service/AccountService.js";
-
-type AccountWithFiat = Account & { fiatBalance: FiatBalance | undefined };
+import type {
+  Account,
+  AccountWithFiat,
+  FiatBalance,
+  Token,
+} from "../service/AccountService.js";
 
 @injectable()
 export class HydrateAccountWithFiatUseCase {

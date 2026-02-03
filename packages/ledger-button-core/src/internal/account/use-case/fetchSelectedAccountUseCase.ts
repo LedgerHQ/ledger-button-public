@@ -16,8 +16,8 @@ import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
 import type {
   Account,
+  AccountWithFiat,
   DetailedAccount,
-  FiatBalance,
 } from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
@@ -28,9 +28,6 @@ import type {
 } from "./hydrateAccountWithTxHistoryUseCase.js";
 
 export type AccountError = NoSelectedAccountError | AccountNotFoundError;
-export type AccountWithFiat = Account & {
-  fiatBalance: FiatBalance | undefined;
-};
 
 @injectable()
 export class FetchSelectedAccountUseCase {
@@ -138,7 +135,7 @@ export class FetchSelectedAccountUseCase {
   private emitAccountChangedEvent(account: DetailedAccount): void {
     this.contextService.onEvent({
       type: "account_changed",
-      account: account as Account,
+      account,
     });
   }
 }
