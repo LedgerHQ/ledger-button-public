@@ -1,4 +1,4 @@
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import { DetailedAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
@@ -7,7 +7,7 @@ import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 
 export class LedgerHomeController implements ReactiveController {
-  selectedAccount: Account | undefined = undefined;
+  selectedAccount: DetailedAccount | undefined = undefined;
   loading = false;
   contextSubscription: Subscription | undefined = undefined;
 
@@ -22,10 +22,19 @@ export class LedgerHomeController implements ReactiveController {
 
   async getSelectedAccount() {
     this.loading = true;
-    this.selectedAccount = await this.core.getDetailedSelectedAccount();
-    if (!this.selectedAccount) {
-      this.navigation.navigateTo(this.destinations.onboardingFlow);
-    }
+
+    const result = await this.core.getDetailedSelectedAccount();
+
+    result.caseOf({
+      Left: () => {
+        this.selectedAccount = undefined;
+        this.navigation.navigateTo(this.destinations.onboardingFlow);
+      },
+      Right: (account) => {
+        this.selectedAccount = account;
+      },
+    });
+
     this.loading = false;
     this.startListeningToContextChanges();
     this.host.requestUpdate();

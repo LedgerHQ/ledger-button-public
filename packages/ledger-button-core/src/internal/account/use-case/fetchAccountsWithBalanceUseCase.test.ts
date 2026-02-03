@@ -76,7 +76,15 @@ function createHydratedAccount(account: Account, balance: string): Account {
   return {
     ...account,
     balance,
-    tokens: [{ ticker: "USDC", name: "USD Coin", balance: "100.0" }],
+    tokens: [
+      {
+        ledgerId: "ethereum/erc20/usd_coin",
+        ticker: "USDC",
+        name: "USD Coin",
+        balance: "100.0",
+        fiatBalance: undefined,
+      },
+    ],
   };
 }
 
