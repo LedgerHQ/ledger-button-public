@@ -1,8 +1,10 @@
+import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { NoSelectedAccountError } from "../../../api/errors/LedgerSyncErrors.js";
 import type { ContextService } from "../../context/ContextService.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account } from "../service/AccountService.js";
+import type { Account, DetailedAccount } from "../service/AccountService.js";
 import type { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
 import { GetDetailedSelectedAccountUseCase } from "./getDetailedSelectedAccountUseCase.js";
 
@@ -22,7 +24,7 @@ describe("GetDetailedSelectedAccountUseCase", () => {
   };
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
 
-  const hydratedAccount: Account = {
+  const hydratedAccount: DetailedAccount = {
     id: "account-1",
     currencyId: "ethereum",
     freshAddress: "0x1234567890abcdef1234567890abcdef12345678",
@@ -33,6 +35,8 @@ describe("GetDetailedSelectedAccountUseCase", () => {
     ticker: "ETH",
     balance: "1000000000000000000",
     tokens: [],
+    fiatBalance: { value: "2000.00", currency: "USD" },
+    transactionHistory: [],
   };
 
   const nonHydratedAccount: Account = {
@@ -76,14 +80,17 @@ describe("GetDetailedSelectedAccountUseCase", () => {
 
   describe("execute", () => {
     describe("when selected account is already hydrated", () => {
-      it("should return the account directly without fetching", async () => {
+      it("should return Right with the account directly without fetching", async () => {
         mockContextService.getContext.mockReturnValue({
           selectedAccount: hydratedAccount,
         });
 
         const result = await useCase.execute();
 
-        expect(result).toEqual(hydratedAccount);
+        expect(result.isRight()).toBe(true);
+        result.map((account) => {
+          expect(account).toEqual(hydratedAccount);
+        });
         expect(mockFetchSelectedAccountUseCase.execute).not.toHaveBeenCalled();
         expect(mockLogger.debug).toHaveBeenCalledWith(
           "Selected account already hydrated",
@@ -93,35 +100,39 @@ describe("GetDetailedSelectedAccountUseCase", () => {
     });
 
     describe("when selected account is not hydrated", () => {
-      it.each([
-        {
-          scenario: "account has empty name",
+      it("should fetch account details when account has empty name", async () => {
+        mockContextService.getContext.mockReturnValue({
           selectedAccount: nonHydratedAccount,
-          expectedResult: hydratedAccount,
-        },
-        {
-          scenario: "account is undefined",
+        });
+        mockFetchSelectedAccountUseCase.execute.mockResolvedValue(
+          Right(hydratedAccount),
+        );
+
+        const result = await useCase.execute();
+
+        expect(result.isRight()).toBe(true);
+        result.map((account) => {
+          expect(account).toEqual(hydratedAccount);
+        });
+        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
+      });
+
+      it("should fetch account details when account is undefined", async () => {
+        mockContextService.getContext.mockReturnValue({
           selectedAccount: undefined,
-          expectedResult: undefined,
-        },
-      ])(
-        "should fetch account details when $scenario",
-        async ({ selectedAccount, expectedResult }) => {
-          mockContextService.getContext.mockReturnValue({
-            selectedAccount,
-          });
-          mockFetchSelectedAccountUseCase.execute.mockResolvedValue(
-            expectedResult,
-          );
+        });
+        mockFetchSelectedAccountUseCase.execute.mockResolvedValue(
+          Left(new NoSelectedAccountError()),
+        );
 
-          const result = await useCase.execute();
+        const result = await useCase.execute();
 
-          expect(result).toEqual(expectedResult);
-          expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(
-            1,
-          );
-        },
-      );
+        expect(result.isLeft()).toBe(true);
+        result.mapLeft((error) => {
+          expect(error).toBeInstanceOf(NoSelectedAccountError);
+        });
+        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });
