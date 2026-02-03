@@ -35,6 +35,10 @@ export type FiatBalance = {
   currency: string;
 };
 
+export type AccountWithFiat = Account & {
+  fiatBalance: FiatBalance | undefined;
+};
+
 export type DetailedAccount = Account & {
   fiatBalance: FiatBalance | undefined;
   transactionHistory: TransactionHistoryItem[] | undefined;
