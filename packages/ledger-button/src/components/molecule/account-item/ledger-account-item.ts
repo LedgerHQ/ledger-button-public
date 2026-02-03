@@ -1,5 +1,6 @@
 import "../../atom/crypto-icon/ledger-crypto-icon";
 import "../../atom/icon/ledger-icon";
+import "../../atom/skeleton/ledger-skeleton";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
@@ -31,6 +32,7 @@ export interface LedgerAccountItemMoleculeAttributes {
   ledgerId: string;
   balance: string;
   linkLabel: string;
+  isBalanceLoading?: boolean;
 }
 
 @customElement("ledger-account-item")
@@ -59,6 +61,9 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   @property({ type: String })
   currencyId = "";
+
+  @property({ type: Boolean, attribute: "is-balance-loading" })
+  isBalanceLoading = false;
 
   private get containerClasses() {
     return {
@@ -137,12 +142,54 @@ export class LedgerAccountItemMolecule extends LitElement {
   }
 
   private renderValueInfo() {
+    if (this.isBalanceLoading) {
+      return html`
+        <div class="lb-flex lb-items-center lb-justify-center">
+          <ledger-skeleton variant="text" width="80px"></ledger-skeleton>
+        </div>
+      `;
+    }
+
     return html`
       <div class="lb-flex lb-items-center lb-justify-center">
         <span class="lb-text-base lb-body-2-semi-bold"
           >${this.balance} ${this.ticker}</span
         >
       </div>
+    `;
+  }
+
+  private renderTokenRow() {
+    if (this.isBalanceLoading) {
+      return html`
+        <div
+          class="lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12"
+        >
+          <ledger-skeleton variant="text" width="120px"></ledger-skeleton>
+        </div>
+      `;
+    }
+
+    if (!this.linkLabel || this.tokens <= 0) {
+      return "";
+    }
+
+    return html`
+      <button
+        class="group lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12 lb-transition lb-duration-300 lb-ease-in-out hover:lb-bg-muted-hover"
+        @click=${this.handleShowTokens}
+      >
+        <div
+          class="lb-flex lb-h-20 lb-items-center lb-text-base lb-body-3-semi-bold"
+        >
+          ${this.linkLabel} (${this.tokens})
+        </div>
+        <div
+          class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
+        >
+          <ledger-icon type="chevronRight" size="small"></ledger-icon>
+        </div>
+      </button>
     `;
   }
 
@@ -161,25 +208,7 @@ export class LedgerAccountItemMolecule extends LitElement {
         >
           ${this.renderAccountInfo()} ${this.renderValueInfo()}
         </button>
-        ${this.linkLabel && this.tokens > 0
-          ? html`
-              <button
-                class="group lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12 lb-transition lb-duration-300 lb-ease-in-out hover:lb-bg-muted-hover"
-                @click=${this.handleShowTokens}
-              >
-                <div
-                  class="lb-flex lb-h-20 lb-items-center lb-text-base lb-body-3-semi-bold"
-                >
-                  ${this.linkLabel} (${this.tokens})
-                </div>
-                <div
-                  class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
-                >
-                  <ledger-icon type="chevronRight" size="small"></ledger-icon>
-                </div>
-              </button>
-            `
-          : ""}
+        ${this.renderTokenRow()}
       </div>
     `;
   }
