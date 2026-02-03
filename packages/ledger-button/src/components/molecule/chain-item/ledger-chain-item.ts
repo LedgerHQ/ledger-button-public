@@ -24,6 +24,7 @@ const clickableVariants = cva([], {
 });
 
 export type ChainItemType = "token" | "network";
+export type IconVariant = "rounded" | "square";
 
 export interface LedgerChainItemAttributes {
   ledgerId: string;
@@ -34,6 +35,7 @@ export interface LedgerChainItemAttributes {
   fiatValue?: string;
   isClickable: boolean;
   type: ChainItemType;
+  iconVariant?: IconVariant;
 }
 
 @customElement("ledger-chain-item")
@@ -62,6 +64,9 @@ export class LedgerChainItem extends LitElement {
 
   @property({ type: String })
   type: ChainItemType = "token";
+
+  @property({ type: String })
+  iconVariant?: IconVariant;
 
   private get containerClasses() {
     return {
@@ -100,7 +105,8 @@ export class LedgerChainItem extends LitElement {
   }
 
   private renderLeftSection() {
-    const iconVariant = this.type === "token" ? "rounded" : "square";
+    const iconVariant =
+      this.iconVariant ?? (this.type === "token" ? "rounded" : "square");
 
     return html`
       <div class="lb-flex lb-items-center lb-gap-12">
@@ -129,7 +135,9 @@ export class LedgerChainItem extends LitElement {
 
   private renderRightSection() {
     return html`
-      <div class="lb-flex lb-flex-col lb-items-end lb-justify-center lb-text-right">
+      <div
+        class="lb-flex lb-flex-col lb-items-end lb-justify-center lb-text-right"
+      >
         <span class="lb-text-base lb-body-2-semi-bold"
           >${this.value} ${this.ticker}</span
         >
