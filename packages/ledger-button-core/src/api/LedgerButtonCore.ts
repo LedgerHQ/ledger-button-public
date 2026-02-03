@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, tap } from "rxjs";
+import { lastValueFrom, Observable, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -250,15 +250,17 @@ export class LedgerButtonCore {
   // Account methods
   async fetchAccounts() {
     this._logger.debug("Fetching accounts");
-    const accounts = await this.container
+    const accounts = this.container
       .get<FetchAccountsWithBalanceUseCase>(
         accountModuleTypes.FetchAccountsWithBalanceUseCase,
       )
       .execute();
 
+    const accountsWithBalance: Account[] = await lastValueFrom(accounts);
+
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
-      .setAccounts(accounts);
+      .setAccounts(accountsWithBalance);
 
     return accounts;
   }
