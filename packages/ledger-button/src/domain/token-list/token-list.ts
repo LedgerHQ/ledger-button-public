@@ -1,20 +1,16 @@
 import "../../components/index.js";
 
-import type { Account, Token } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  DetailedAccount,
+  FiatBalance,
+  Token,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import { type CoreContext, coreContext } from "../../context/core-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
-
-type AccountWithFiat = Account & {
-  fiatBalance?: { value: string; currency: string };
-};
-
-type TokenWithFiat = Token & {
-  fiatValue?: string;
-};
 
 @customElement("token-list-screen")
 @tailwindElement()
@@ -24,7 +20,7 @@ export class TokenListScreen extends LitElement {
   public coreContext!: CoreContext;
 
   @state()
-  private account: AccountWithFiat | undefined = undefined;
+  private account: DetailedAccount | undefined = undefined;
 
   override async connectedCallback() {
     super.connectedCallback();
@@ -32,12 +28,14 @@ export class TokenListScreen extends LitElement {
   }
 
   private async getSelectedAccount() {
-    this.account =
-      (await this.coreContext.getDetailedSelectedAccount()) as AccountWithFiat;
+    const result = await this.coreContext.getDetailedSelectedAccount();
+    if (result.isRight()) {
+      this.account = result.extract();
+    }
   }
 
   private formatFiatValue(
-    fiatBalance: { value: string; currency: string } | undefined,
+    fiatBalance: FiatBalance | undefined,
   ): string | undefined {
     if (!fiatBalance) return undefined;
     const symbol = fiatBalance.currency === "USD" ? "$" : fiatBalance.currency;
@@ -56,6 +54,7 @@ export class TokenListScreen extends LitElement {
         .fiatValue=${this.formatFiatValue(this.account.fiatBalance)}
         .isClickable=${false}
         type="network"
+        iconVariant="rounded"
       ></ledger-chain-item>
     `;
   }
@@ -64,7 +63,7 @@ export class TokenListScreen extends LitElement {
     return html`<div class="lb-h-1 lb-bg-muted-subtle"></div>`;
   }
 
-  private renderTokenItem = (token: TokenWithFiat) => {
+  private renderTokenItem = (token: Token) => {
     return html`
       <ledger-chain-item
         ledger-id=${token.ticker}
@@ -72,9 +71,10 @@ export class TokenListScreen extends LitElement {
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
         .value=${token.balance}
-        .fiatValue=${"$0.00"}
+        .fiatValue=${this.formatFiatValue(token.fiatBalance)}
         .isClickable=${false}
         type="token"
+        iconVariant="rounded"
       ></ledger-chain-item>
     `;
   };
@@ -86,7 +86,7 @@ export class TokenListScreen extends LitElement {
 
     return html`
       <div class="lb-flex lb-flex-col">
-        ${(this.account.tokens as TokenWithFiat[]).map(this.renderTokenItem)}
+        ${this.account.tokens.map(this.renderTokenItem)}
       </div>
     `;
   }
