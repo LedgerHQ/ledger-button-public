@@ -36,53 +36,70 @@ export class FetchAccountsWithBalanceUseCase {
   execute(): Observable<Account[]> {
     return from(this.fetchAccountsUseCase.execute()).pipe(
       switchMap((accounts) => {
-        const initialAccounts = accounts.map((account) => ({
-          ...account,
-          balance: undefined,
-          tokens: [],
-        }));
+        const initialAccounts =
+          this.initializeAccountsWithEmptyBalances(accounts);
 
         if (initialAccounts.length === 0) {
           return of(initialAccounts);
         }
 
         const balanceObservables = initialAccounts.map((account) =>
-          from(
-            this.hydrateAccountWithBalanceUseCase.execute(account, true),
-          ).pipe(
-            catchError((error) => {
-              this.logger.warn(
-                "Failed to fetch balance for account, keeping original",
-                {
-                  accountId: account.id,
-                  error,
-                },
-              );
-              return of(account);
-            }),
-            map(
-              (updatedAccount): AccountUpdate => ({
-                accountId: account.id,
-                account: updatedAccount,
-              }),
-            ),
-          ),
+          this.createBalanceObservable(account),
         );
 
         return merge(...balanceObservables).pipe(
-          scan((acc: Account[], update: AccountUpdate) => {
-            const index = acc.findIndex((a) => a.id === update.accountId);
-            if (index !== -1) {
-              const updated = [...acc];
-              updated[index] = update.account;
-
-              return updated;
-            }
-            return acc;
-          }, initialAccounts),
+          scan(
+            (acc: Account[], update: AccountUpdate) =>
+              this.mergeAccountUpdate(acc, update),
+            initialAccounts,
+          ),
           startWith(initialAccounts),
         );
       }),
     );
+  }
+
+  private initializeAccountsWithEmptyBalances(accounts: Account[]): Account[] {
+    return accounts.map((account) => ({
+      ...account,
+      balance: undefined,
+      tokens: [],
+    }));
+  }
+
+  private createBalanceObservable(account: Account): Observable<AccountUpdate> {
+    return from(
+      this.hydrateAccountWithBalanceUseCase.execute(account, true),
+    ).pipe(
+      catchError((error) => {
+        this.logger.warn(
+          "Failed to fetch balance for account, keeping original",
+          {
+            accountId: account.id,
+            error,
+          },
+        );
+        return of(account);
+      }),
+      map(
+        (updatedAccount): AccountUpdate => ({
+          accountId: account.id,
+          account: updatedAccount,
+        }),
+      ),
+    );
+  }
+
+  private mergeAccountUpdate(
+    accounts: Account[],
+    update: AccountUpdate,
+  ): Account[] {
+    const index = accounts.findIndex((a) => a.id === update.accountId);
+    if (index !== -1) {
+      const updated = [...accounts];
+      updated[index] = update.account;
+      return updated;
+    }
+    return accounts;
   }
 }
