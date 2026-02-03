@@ -1,5 +1,5 @@
 import { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
-import { Account } from "../../account/service/AccountService.js";
+import type { Account, DetailedAccount } from "../../account/service/AccountService.js";
 import { Device } from "../../device/model/Device.js";
 
 export type ContextEvent =
@@ -13,7 +13,7 @@ export type ContextEvent =
     }
   | {
       type: "account_changed";
-      account: Account;
+      account: Account | DetailedAccount;
     }
   | {
       type: "device_connected";
