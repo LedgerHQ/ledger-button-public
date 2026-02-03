@@ -1,3 +1,5 @@
+import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
+
 export type CloudSyncAccount = {
   id: string;
   currencyId: string;
@@ -21,14 +23,25 @@ export type Account = CloudSyncAccount & {
 };
 
 export type Token = {
+  ledgerId: string;
   ticker: string;
   name: string;
   balance: string;
+  fiatBalance: FiatBalance | undefined;
 };
 
 export type FiatBalance = {
   value: string;
   currency: string;
+};
+
+export type AccountWithFiat = Account & {
+  fiatBalance: FiatBalance | undefined;
+};
+
+export type DetailedAccount = Account & {
+  fiatBalance: FiatBalance | undefined;
+  transactionHistory: TransactionHistoryItem[] | undefined;
 };
 
 export interface AccountService {
