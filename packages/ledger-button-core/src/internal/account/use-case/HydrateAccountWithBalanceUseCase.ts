@@ -118,9 +118,11 @@ export class HydrateAccountWithBalanceUseCase {
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {
     return tokenBalances.map((tokenBalance) => ({
+      ledgerId: tokenBalance.ledgerId,
       ticker: tokenBalance.ticker,
       name: tokenBalance.name,
       balance: tokenBalance.balanceFormatted,
+      fiatBalance: undefined,
     }));
   }
 }

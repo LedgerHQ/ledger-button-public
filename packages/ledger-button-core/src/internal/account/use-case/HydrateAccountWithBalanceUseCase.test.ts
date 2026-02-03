@@ -113,14 +113,18 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       expect(result.balance).toBe("1.5000");
       expect(result.tokens).toHaveLength(2);
       expect(result.tokens[0]).toEqual({
+        ledgerId: "ethereum/erc20/usdc",
         ticker: "USDC",
         name: "USD Coin",
         balance: "1000.0",
+        fiatBalance: undefined,
       });
       expect(result.tokens[1]).toEqual({
+        ledgerId: "ethereum/erc20/dai",
         ticker: "DAI",
         name: "Dai Stablecoin",
         balance: "500.0",
+        fiatBalance: undefined,
       });
       expect(mockBalanceService.getBalanceForAccount).toHaveBeenCalledWith(
         mockAccount,
