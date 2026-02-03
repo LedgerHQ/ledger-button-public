@@ -16,6 +16,7 @@ const meta: Meta = {
         .ledgerId=${args.ledgerId}
         .balance=${args.balance}
         .linkLabel=${args.linkLabel}
+        ?is-balance-loading=${args.isBalanceLoading}
         @account-item-click=${(e: CustomEvent) => {
           console.log("Account item clicked:", e.detail);
         }}
@@ -69,6 +70,14 @@ const meta: Meta = {
       table: {
         type: { summary: "string" },
         category: "Required",
+      },
+    },
+    isBalanceLoading: {
+      control: "boolean",
+      description: "Whether the balance is currently loading",
+      table: {
+        type: { summary: "boolean" },
+        category: "State",
       },
     },
   },
@@ -196,6 +205,73 @@ export const AlgorandTokenAccount: Story = {
       description: {
         story:
           "Account item showing a complex ledgerId format for Algorand ASA tokens.",
+      },
+    },
+  },
+};
+
+export const BalanceLoading: Story = {
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    ticker: "ETH",
+    ledgerId: "ethereum",
+    balance: "0.00",
+    linkLabel: "Show tokens",
+    isBalanceLoading: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item with balance in loading state, showing skeleton shimmer animation.",
+      },
+    },
+  },
+};
+
+export const LoadingStates: Story = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <h3
+          style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
+        >
+          Loading State
+        </h3>
+        <ledger-account-item
+          title="john.eth"
+          address="0x1234567890abcdef1234567890abcdef12345678"
+          ticker="ETH"
+          currency-id="ethereum"
+          balance="0.00"
+          link-label="Show tokens"
+          is-balance-loading
+        ></ledger-account-item>
+      </div>
+      <div>
+        <h3
+          style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
+        >
+          Loaded State
+        </h3>
+        <ledger-account-item
+          title="john.eth"
+          address="0x1234567890abcdef1234567890abcdef12345678"
+          ticker="ETH"
+          currency-id="ethereum"
+          balance="2.5432"
+          link-label="Show tokens"
+          tokens="5"
+        ></ledger-account-item>
+      </div>
+    </div>
+  `,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Comparison of loading and loaded states for the account item component.",
       },
     },
   },
