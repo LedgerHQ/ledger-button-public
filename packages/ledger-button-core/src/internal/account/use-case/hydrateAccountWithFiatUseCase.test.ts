@@ -6,6 +6,22 @@ import type { CounterValueResult } from "../../balance/datasource/countervalue/c
 import type { Account } from "../service/AccountService.js";
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
 
+function createMockLogger() {
+  return {
+    log: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    fatal: vi.fn(),
+    subscribers: [],
+  };
+}
+
+function createMockLoggerFactory() {
+  return vi.fn().mockReturnValue(createMockLogger());
+}
+
 describe("HydrateAccountWithFiatUseCase", () => {
   let useCase: HydrateAccountWithFiatUseCase;
   let mockCounterValueDataSource: {
@@ -36,6 +52,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
     };
 
     useCase = new HydrateAccountWithFiatUseCase(
+      createMockLoggerFactory(),
       mockCounterValueDataSource as unknown as CounterValueDataSource,
     );
 
@@ -76,7 +93,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
     });
 
     describe("when counter value fetch returns empty array", () => {
-      it("should return account with zero fiat value", async () => {
+      it("should return account with undefined fiat value when no rate available", async () => {
         mockCounterValueDataSource.getCounterValues.mockResolvedValue(
           Right([] as CounterValueResult[]),
         );
@@ -85,10 +102,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
 
         expect(result).toEqual({
           ...baseAccount,
-          fiatBalance: {
-            value: "0.00",
-            currency: "USD",
-          },
+          fiatBalance: undefined,
         });
       });
     });
