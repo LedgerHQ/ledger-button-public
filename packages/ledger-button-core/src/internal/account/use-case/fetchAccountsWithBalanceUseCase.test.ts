@@ -1,10 +1,10 @@
+import { lastValueFrom, toArray } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { AccountService } from "../service/AccountService.js";
 import type { Account } from "../service/AccountService.js";
-import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
+import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
-import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
+import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
 function createMockLogger() {
   return {
@@ -22,192 +22,207 @@ function createMockLoggerFactory() {
   return vi.fn().mockReturnValue(createMockLogger());
 }
 
-function createMockFetchAccountsUseCase(): {
-  execute: ReturnType<typeof vi.fn>;
-} {
-  return {
-    execute: vi.fn(),
-  };
-}
-
-function createMockAccountService(): {
-  getAccounts: ReturnType<typeof vi.fn>;
-  updateAccounts: ReturnType<typeof vi.fn>;
-  selectAccount: ReturnType<typeof vi.fn>;
-  getSelectedAccount: ReturnType<typeof vi.fn>;
-  setAccountsFromCloudSyncData: ReturnType<typeof vi.fn>;
-  getBalanceAndTokensForAccount: ReturnType<typeof vi.fn>;
-} {
-  return {
-    getAccounts: vi.fn(),
-    updateAccounts: vi.fn(),
-    selectAccount: vi.fn(),
-    getSelectedAccount: vi.fn(),
-    setAccountsFromCloudSyncData: vi.fn(),
-    getBalanceAndTokensForAccount: vi.fn(),
-  };
-}
-
-function createMockHydrateAccountWithBalanceUseCase(): {
-  execute: ReturnType<typeof vi.fn>;
-} {
-  return {
-    execute: vi.fn(),
-  };
-}
-
 function createMockAccount(overrides: Partial<Account> = {}): Account {
   return {
-    id: "account-1",
-    currencyId: "ethereum",
     freshAddress: "0x1234567890123456789012345678901234567890",
     seedIdentifier: "seed-1",
     derivationMode: "default",
     index: 0,
-    name: "My Ethereum Account",
+    name: "john.eth",
     ticker: "ETH",
     balance: undefined,
     tokens: [],
     ...overrides,
+    id: overrides.id ?? "account-1",
+    currencyId: overrides.currencyId ?? "ethereum",
   };
 }
 
-function createHydratedAccount(account: Account, balance: string): Account {
-  return {
-    ...account,
-    balance,
-    tokens: [
-      {
-        ledgerId: "ethereum/erc20/usd_coin",
-        ticker: "USDC",
-        name: "USD Coin",
-        balance: "100.0",
-        fiatBalance: undefined,
-      },
-    ],
-  };
+function createDeferredPromise<T>(): {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (error: Error) => void;
+} {
+  let resolve!: (value: T) => void;
+  let reject!: (error: Error) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
 }
 
+const mockEthAccountValue = {
+  id: "account-1",
+  name: "john.eth",
+  currencyId: "ethereum",
+};
+const mockUsdtAccountValue = {
+  id: "account-2",
+  name: "USDT",
+  currencyId: "tether",
+  ticker: "USDT",
+};
+
+const ETH_BALANCE = "3.23 ETH";
+const USDT_BALANCE = "1000.0 USDT";
+
+function createMockHydrateImplementation(
+  account1Balance: string,
+  account2Balance: string,
+): (account: Account) => Promise<Account> {
+  return async (account: Account) => {
+    if (account.id === mockEthAccountValue.id) {
+      return { ...account, balance: account1Balance };
+    }
+    return { ...account, balance: account2Balance };
+  };
+}
 describe("FetchAccountsWithBalanceUseCase", () => {
   let useCase: FetchAccountsWithBalanceUseCase;
-  let mockFetchAccountsUseCase: ReturnType<
-    typeof createMockFetchAccountsUseCase
-  >;
-  let mockAccountService: ReturnType<typeof createMockAccountService>;
-  let mockHydrateUseCase: ReturnType<
-    typeof createMockHydrateAccountWithBalanceUseCase
-  >;
+  let mockFetchAccountsUseCase: {
+    execute: ReturnType<typeof vi.fn>;
+  };
+  let mockHydrateAccountWithBalanceUseCase: {
+    execute: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
-    mockFetchAccountsUseCase = createMockFetchAccountsUseCase();
-    mockAccountService = createMockAccountService();
-    mockHydrateUseCase = createMockHydrateAccountWithBalanceUseCase();
+    mockFetchAccountsUseCase = {
+      execute: vi.fn(),
+    };
+    mockHydrateAccountWithBalanceUseCase = {
+      execute: vi.fn(),
+    };
 
     useCase = new FetchAccountsWithBalanceUseCase(
       createMockLoggerFactory(),
       mockFetchAccountsUseCase as unknown as FetchAccountsUseCase,
-      mockAccountService as unknown as AccountService,
-      mockHydrateUseCase as unknown as HydrateAccountWithBalanceUseCase,
+      mockHydrateAccountWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
     );
 
     vi.clearAllMocks();
   });
 
   describe("execute", () => {
-    it("should fetch accounts and hydrate each with balance", async () => {
-      const account1 = createMockAccount({ id: "acc-1", index: 0 });
-      const account2 = createMockAccount({ id: "acc-2", index: 1 });
+    it("should return Observable<Account[]>", () => {
+      const account1 = createMockAccount(mockEthAccountValue);
+      const account2 = createMockAccount(mockUsdtAccountValue);
 
-      mockFetchAccountsUseCase.execute.mockResolvedValue(undefined);
-      mockAccountService.getAccounts.mockReturnValue([account1, account2]);
-
-      const hydratedAccount1 = createHydratedAccount(account1, "1.5000");
-      const hydratedAccount2 = createHydratedAccount(account2, "2.5000");
-
-      mockHydrateUseCase.execute
-        .mockResolvedValueOnce(hydratedAccount1)
-        .mockResolvedValueOnce(hydratedAccount2);
-
-      const result = await useCase.execute();
-
-      expect(mockFetchAccountsUseCase.execute).toHaveBeenCalledOnce();
-      expect(mockAccountService.getAccounts).toHaveBeenCalledOnce();
-      expect(mockHydrateUseCase.execute).toHaveBeenCalledTimes(2);
-      expect(mockHydrateUseCase.execute).toHaveBeenNthCalledWith(1, account1);
-      expect(mockHydrateUseCase.execute).toHaveBeenNthCalledWith(2, account2);
-
-      expect(result).toHaveLength(2);
-      expect(result[0]).toEqual(hydratedAccount1);
-      expect(result[1]).toEqual(hydratedAccount2);
-    });
-
-    it("should not have side effects - does not update account service", async () => {
-      const account = createMockAccount();
-      const hydratedAccount = createHydratedAccount(account, "1.5000");
-
-      mockFetchAccountsUseCase.execute.mockResolvedValue(undefined);
-      mockAccountService.getAccounts.mockReturnValue([account]);
-      mockHydrateUseCase.execute.mockResolvedValue(hydratedAccount);
-
-      await useCase.execute();
-
-      // Use case should be pure - no side effects
-      expect(mockAccountService.updateAccounts).not.toHaveBeenCalled();
-    });
-
-    it("should return empty array when no accounts exist", async () => {
-      mockFetchAccountsUseCase.execute.mockResolvedValue(undefined);
-      mockAccountService.getAccounts.mockReturnValue([]);
-
-      const result = await useCase.execute();
-
-      expect(mockFetchAccountsUseCase.execute).toHaveBeenCalledOnce();
-      expect(mockAccountService.getAccounts).toHaveBeenCalledOnce();
-      expect(mockHydrateUseCase.execute).not.toHaveBeenCalled();
-      expect(result).toEqual([]);
-    });
-
-    it("should call fetchAccountsUseCase before getting accounts", async () => {
-      const callOrder: string[] = [];
-
-      mockFetchAccountsUseCase.execute.mockImplementation(async () => {
-        callOrder.push("fetchAccounts");
-      });
-      mockAccountService.getAccounts.mockImplementation(() => {
-        callOrder.push("getAccounts");
-        return [];
-      });
-
-      await useCase.execute();
-
-      expect(callOrder).toEqual(["fetchAccounts", "getAccounts"]);
-    });
-
-    it("should propagate error when fetchAccountsUseCase fails", async () => {
-      const error = new Error("Failed to fetch accounts");
-      mockFetchAccountsUseCase.execute.mockRejectedValue(error);
-
-      await expect(useCase.execute()).rejects.toThrow(
-        "Failed to fetch accounts",
+      mockFetchAccountsUseCase.execute.mockResolvedValue([account1, account2]);
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        createMockHydrateImplementation(ETH_BALANCE, USDT_BALANCE),
       );
-      expect(mockAccountService.getAccounts).not.toHaveBeenCalled();
-      expect(mockHydrateUseCase.execute).not.toHaveBeenCalled();
+
+      const result$ = useCase.execute();
+
+      expect(result$).toBeDefined();
+      expect(typeof result$.subscribe).toBe("function");
     });
 
-    it("should propagate error when hydration fails for any account", async () => {
-      const accounts = [
-        createMockAccount({ id: "acc-1" }),
-        createMockAccount({ id: "acc-2" }),
-      ];
+    it("should emit accounts without balances as first emission", async () => {
+      const account1 = createMockAccount(mockEthAccountValue);
+      const account2 = createMockAccount(mockUsdtAccountValue);
+      const accounts = [account1, account2];
+      mockFetchAccountsUseCase.execute.mockResolvedValue(accounts);
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        createMockHydrateImplementation(ETH_BALANCE, USDT_BALANCE),
+      );
 
-      mockFetchAccountsUseCase.execute.mockResolvedValue(undefined);
-      mockAccountService.getAccounts.mockReturnValue(accounts);
+      const emissions = await lastValueFrom(useCase.execute().pipe(toArray()));
 
-      mockHydrateUseCase.execute
-        .mockResolvedValueOnce(createHydratedAccount(accounts[0], "1.0000"))
-        .mockRejectedValueOnce(new Error("Hydration failed"));
+      expect(emissions.length).toBeGreaterThan(0);
 
-      await expect(useCase.execute()).rejects.toThrow("Hydration failed");
+      const firstEmission = emissions[0];
+      expect(firstEmission).toHaveLength(accounts.length);
+      accounts.forEach((account, index) => {
+        expect(firstEmission[index].balance).toBeUndefined();
+        expect(firstEmission[index].name).toBe(account.name);
+      });
+    });
+
+    it("should emit updated array as each balance arrives", async () => {
+      const account1 = createMockAccount(mockEthAccountValue);
+      const account2 = createMockAccount(mockUsdtAccountValue);
+
+      mockFetchAccountsUseCase.execute.mockResolvedValue([account1, account2]);
+
+      const account1WithBalance = { ...account1, balance: ETH_BALANCE };
+      const account2WithBalance = { ...account2, balance: USDT_BALANCE };
+
+      const ethDeferred = createDeferredPromise<Account>();
+      const usdtDeferred = createDeferredPromise<Account>();
+
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        async (account: Account) => {
+          if (account.id === account1.id) {
+            return ethDeferred.promise;
+          }
+          return usdtDeferred.promise;
+        },
+      );
+
+      const emissionsPromise = lastValueFrom(useCase.execute().pipe(toArray()));
+
+      const accounts = [account1, account2];
+      const accountsWithBalance = [account1WithBalance, account2WithBalance];
+
+      // Resolve ETH first to simulate faster loading
+      ethDeferred.resolve(account1WithBalance);
+      await Promise.resolve();
+
+      // Resolve USDT after
+      usdtDeferred.resolve(account2WithBalance);
+
+      const emissions = await emissionsPromise;
+
+      // First emission: no balances
+      accounts.forEach((account, index) => {
+        expect(emissions[0][index].name).toBe(account.name);
+        expect(emissions[0][index].balance).toBeUndefined();
+      });
+
+      // Find emission where ETH is loaded but USDT is not
+      const ethLoadedEmission = emissions.find(
+        (emission) =>
+          emission[0].balance === ETH_BALANCE &&
+          emission[1].balance === undefined,
+      );
+      expect(ethLoadedEmission).toBeDefined();
+      // Final emission: both balances loaded
+      const finalEmission = emissions[emissions.length - 1];
+      accountsWithBalance.forEach((accountWithBalance, index) => {
+        expect(finalEmission[index].name).toBe(accountWithBalance.name);
+        expect(finalEmission[index].balance).toBe(accountWithBalance.balance);
+      });
+    });
+
+    it("should not block other accounts when first account balance fetch fails", async () => {
+      const account1 = createMockAccount(mockEthAccountValue);
+      const account2 = createMockAccount(mockUsdtAccountValue);
+
+      mockFetchAccountsUseCase.execute.mockResolvedValue([account1, account2]);
+
+      const account2WithBalance = { ...account2, balance: USDT_BALANCE };
+
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        async (account: Account) => {
+          if (account.id === account1.id) {
+            throw new Error("Balance fetch failed");
+          }
+          return account2WithBalance;
+        },
+      );
+
+      const emissions = await lastValueFrom(useCase.execute().pipe(toArray()));
+
+      // Should still emit updates for account-2
+      const finalEmission = emissions[emissions.length - 1];
+      expect(finalEmission).toHaveLength(2);
+      // account-1 should remain with undefined balance (error handled)
+      expect(finalEmission[0].balance).toBeUndefined();
+      // account-2 should have balance loaded
+      expect(finalEmission[1].balance).toBe(USDT_BALANCE);
     });
   });
 });
