@@ -1,12 +1,17 @@
+import { ethers } from "ethers";
 import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
+  EvmTransferEvent,
   ExplorerResponse,
   ExplorerTransaction,
   TransactionHistoryItem,
@@ -16,15 +21,24 @@ import {
 } from "../model/transactionHistoryTypes.js";
 import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
 
+type AssetInfo = {
+  name: string;
+  ticker: string;
+  decimals: number;
+};
+
 @injectable()
 export class FetchTransactionHistoryUseCase {
   private readonly logger: LoggerPublisher;
+  private tokenInfoCache: Map<string, AssetInfo> = new Map();
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
     @inject(transactionHistoryModuleTypes.TransactionHistoryDataSource)
     private readonly dataSource: TransactionHistoryDataSource,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
   ) {
     this.logger = loggerFactory("[FetchTransactionHistoryUseCase]");
   }
@@ -32,47 +46,72 @@ export class FetchTransactionHistoryUseCase {
   async execute(
     blockchain: string,
     address: string,
+    currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryResult>> {
     this.logger.debug("Fetching transaction history", {
       blockchain,
       address,
+      currencyId,
       options,
     });
 
-    const result = await this.dataSource.getTransactions(
-      blockchain,
-      address,
-      options,
+    const [transactionResult, currencyInfoResult] = await Promise.all([
+      this.dataSource.getTransactions(blockchain, address, options),
+      this.calDataSource.getCurrencyInformation(currencyId),
+    ]);
+
+    if (transactionResult.isLeft()) {
+      this.logger.error("Failed to fetch transaction history", {
+        error: transactionResult.extract(),
+      });
+      return Left(transactionResult.extract() as TransactionHistoryError);
+    }
+
+    const nativeAssetInfo: AssetInfo = currencyInfoResult.caseOf({
+      Left: () => ({
+        name: currencyId,
+        ticker: currencyId.toUpperCase(),
+        decimals: 18,
+      }),
+      Right: (info) => ({
+        name: info.name,
+        ticker: info.ticker,
+        decimals: info.decimals,
+      }),
+    });
+
+    const explorerResponse = transactionResult.extract() as ExplorerResponse;
+    const transformedResult = await this.transformResponse(
+      explorerResponse,
+      address.toLowerCase(),
+      currencyId,
+      nativeAssetInfo,
     );
 
-    return result.caseOf({
-      Left: (error) => {
-        this.logger.error("Failed to fetch transaction history", { error });
-        return Left(error);
-      },
-      Right: (explorerResponse) => {
-        const transformedResult = this.transformResponse(
-          explorerResponse,
-          address.toLowerCase(),
-        );
-
-        this.logger.debug("Transaction history fetched successfully", {
-          transactionCount: transformedResult.transactions.length,
-          hasNextPage: !!transformedResult.nextPageToken,
-        });
-
-        return Right(transformedResult);
-      },
+    this.logger.debug("Transaction history fetched successfully", {
+      transactionCount: transformedResult.transactions.length,
+      hasNextPage: !!transformedResult.nextPageToken,
     });
+
+    return Right(transformedResult);
   }
 
-  private transformResponse(
+  private async transformResponse(
     response: ExplorerResponse,
     normalizedAddress: string,
-  ): TransactionHistoryResult {
-    const transactions = response.data.map((tx) =>
-      this.transformTransaction(tx, normalizedAddress),
+    currencyId: string,
+    nativeAssetInfo: AssetInfo,
+  ): Promise<TransactionHistoryResult> {
+    const transactions = await Promise.all(
+      response.data.map((tx) =>
+        this.transformTransaction(
+          tx,
+          normalizedAddress,
+          currencyId,
+          nativeAssetInfo,
+        ),
+      ),
     );
 
     return {
@@ -81,20 +120,114 @@ export class FetchTransactionHistoryUseCase {
     };
   }
 
-  private transformTransaction(
+  private async transformTransaction(
     tx: ExplorerTransaction,
     normalizedAddress: string,
-  ): TransactionHistoryItem {
+    currencyId: string,
+    nativeAssetInfo: AssetInfo,
+  ): Promise<TransactionHistoryItem> {
     const type = this.determineTransactionType(tx, normalizedAddress);
-    const value = this.calculateTransactionValue(tx, normalizedAddress, type);
+    const tokenTransfer = this.getRelevantTokenTransfer(
+      tx,
+      normalizedAddress,
+      type,
+    );
+
+    let value: string;
+    let assetInfo: AssetInfo;
+
+    if (tokenTransfer) {
+      value = tokenTransfer.count;
+      assetInfo = await this.getTokenAssetInfo(
+        tokenTransfer.contract,
+        currencyId,
+      );
+    } else {
+      value = this.getNativeValue(tx, normalizedAddress, type);
+      assetInfo = nativeAssetInfo;
+    }
+
+    const formattedValue = this.formatValue(value, assetInfo.decimals);
     const timestamp = this.extractTimestamp(tx);
 
     return {
       hash: tx.hash,
       type,
       value,
+      formattedValue,
+      currencyName: assetInfo.name,
+      ticker: assetInfo.ticker,
       timestamp,
     };
+  }
+
+  private getRelevantTokenTransfer(
+    tx: ExplorerTransaction,
+    normalizedAddress: string,
+    type: TransactionType,
+  ): EvmTransferEvent | null {
+    const relevantTransfers = tx.transfer_events.filter((event) => {
+      if (type === "received") {
+        return event.to.toLowerCase() === normalizedAddress;
+      }
+      return event.from.toLowerCase() === normalizedAddress;
+    });
+
+    if (relevantTransfers.length === 0) {
+      return null;
+    }
+
+    return relevantTransfers[0];
+  }
+
+  private async getTokenAssetInfo(
+    contractAddress: string,
+    currencyId: string,
+  ): Promise<AssetInfo> {
+    const cacheKey = `${currencyId}:${contractAddress.toLowerCase()}`;
+
+    const cachedInfo = this.tokenInfoCache.get(cacheKey);
+    if (cachedInfo) {
+      return cachedInfo;
+    }
+
+    const tokenInfoResult = await this.calDataSource.getTokenInformation(
+      contractAddress,
+      currencyId,
+    );
+
+    const assetInfo: AssetInfo = tokenInfoResult.caseOf({
+      Left: () => {
+        this.logger.warn("Failed to fetch token info, using defaults", {
+          contractAddress,
+          currencyId,
+        });
+        return {
+          name: "Unknown Token",
+          ticker: "???",
+          decimals: 18,
+        };
+      },
+      Right: (info: TokenInformation) => ({
+        name: info.name,
+        ticker: info.ticker,
+        decimals: info.decimals,
+      }),
+    });
+
+    this.tokenInfoCache.set(cacheKey, assetInfo);
+    return assetInfo;
+  }
+
+  private formatValue(rawValue: string, decimals: number): string {
+    if (rawValue === "0") {
+      return "0";
+    }
+
+    const formatted = ethers.formatUnits(rawValue, decimals);
+    // Remove trailing zeros after decimal point, but keep at least one digit
+    const trimmed = formatted.replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+    return trimmed || "0";
   }
 
   private determineTransactionType(
@@ -114,48 +247,6 @@ export class FetchTransactionHistoryUseCase {
     return isRecipientInTransfer || tx.to.toLowerCase() === normalizedAddress
       ? "received"
       : "sent";
-  }
-
-  private calculateTransactionValue(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-    type: TransactionType,
-  ): string {
-    const tokenTransferValue = this.getTokenTransferValue(
-      tx,
-      normalizedAddress,
-      type,
-    );
-    if (tokenTransferValue !== "0") {
-      return tokenTransferValue;
-    }
-
-    return this.getNativeValue(tx, normalizedAddress, type);
-  }
-
-  private getTokenTransferValue(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-    type: TransactionType,
-  ): string {
-    const relevantTransfers = tx.transfer_events.filter((event) => {
-      if (type === "received") {
-        return event.to.toLowerCase() === normalizedAddress;
-      }
-      return event.from.toLowerCase() === normalizedAddress;
-    });
-
-    if (relevantTransfers.length === 0) {
-      return "0";
-    }
-
-    // Sum up all relevant transfer values
-    const totalValue = relevantTransfers.reduce(
-      (sum, transfer) => sum + BigInt(transfer.count),
-      BigInt(0),
-    );
-
-    return totalValue.toString();
   }
 
   private getNativeValue(
