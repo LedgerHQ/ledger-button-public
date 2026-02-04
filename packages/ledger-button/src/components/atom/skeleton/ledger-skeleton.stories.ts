@@ -83,8 +83,7 @@ export const TextLinesShowcase: Story = {
 export const AccountItemExample: Story = {
   render: () => html`
     <div
-      class="lb-flex lb-items-center lb-gap-12 lb-rounded-lg lb-bg-muted lb-p-16"
-      style="max-width: 400px;"
+      class="lb-flex lb-max-w-[400px] lb-items-center lb-gap-12 lb-rounded-lg lb-bg-muted lb-p-16"
     >
       <ledger-skeleton
         width="40px"
