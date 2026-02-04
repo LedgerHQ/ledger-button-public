@@ -2,14 +2,14 @@ import { html } from "lit";
 
 export default html`
   <svg
-    width="10"
-    height="14"
-    viewBox="0 0 10 14"
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d="M4.9175 0.758334V12.425M0.75 4.925L4.9175 0.75L9.08417 4.91667"
+      d="M10 4.16666V15.8333M5.83252 8.33333L10 4.15833L14.1667 8.32499"
       stroke="currentColor"
       stroke-width="1.5"
       stroke-linecap="round"

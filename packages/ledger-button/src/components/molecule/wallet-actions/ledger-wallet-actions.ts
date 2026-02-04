@@ -78,7 +78,7 @@ export class LedgerWalletActions extends LitElement {
           ></ledger-icon>
         </div>
         <span
-          class="lb-overflow-hidden lb-text-ellipsis lb-text-center lb-text-base lb-body-3"
+          class="lb-overflow-hidden lb-text-ellipsis lb-text-center lb-text-base"
           >${this.getActionLabel(action)}</span
         >
       </button>
