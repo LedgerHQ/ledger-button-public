@@ -3,7 +3,20 @@ import "../../components/index.js";
 import { html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
+import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
 import { tailwindElement } from "../../tailwind-element.js";
+
+export type TransactionListItem = {
+  hash: string;
+  type: TransactionType;
+  date: string;
+  time: string;
+  amount: string;
+  ticker: string;
+  title: string;
+  fiatAmount: string;
+  fiatCurrency: string;
+};
 
 @customElement("transaction-list-screen")
 @tailwindElement()

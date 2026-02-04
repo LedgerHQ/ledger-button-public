@@ -1,7 +1,9 @@
 {
   "dependencies": {
+    "@ledgerhq/coin-framework": "catalog:",
     "@ledgerhq/context-module": "catalog:",
     "@ledgerhq/device-management-kit": "catalog:",
+    "bignumber.js": "catalog:",
     "@ledgerhq/device-signer-kit-ethereum": "catalog:",
     "@ledgerhq/device-transport-kit-web-ble": "catalog:",
     "@ledgerhq/device-transport-kit-web-hid": "catalog:",
