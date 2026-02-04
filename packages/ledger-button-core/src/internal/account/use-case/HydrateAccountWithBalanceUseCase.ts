@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
@@ -10,9 +9,12 @@ import {
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
 import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
+import { formatBalance } from "../../currency/formatCurrency.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { Account, Token } from "../service/AccountService.js";
+
+const NATIVE_CURRENCY_DECIMALS = 18;
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {
@@ -57,7 +59,11 @@ export class HydrateAccountWithBalanceUseCase {
     account: Account,
     balanceData: AccountBalance,
   ): Account {
-    const balance = this.formatBalance(balanceData.nativeBalance.balance);
+    const balance = formatBalance(
+      balanceData.nativeBalance.balance,
+      NATIVE_CURRENCY_DECIMALS,
+      account.ticker,
+    );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
 
     this.logger.debug("Successfully hydrated account with balance and tokens", {
@@ -102,18 +108,15 @@ export class HydrateAccountWithBalanceUseCase {
       const extract = balanceRpcResult.extract();
       if ("result" in extract) {
         const balanceHex = extract.result as string;
-        return this.formatBalance(balanceHex);
+        return formatBalance(
+          balanceHex,
+          NATIVE_CURRENCY_DECIMALS,
+          account.ticker,
+        );
       }
     }
 
-    return "0.0000";
-  }
-
-  private formatBalance(balanceValue: bigint | string): string {
-    const formatted = ethers.formatEther(balanceValue);
-    const [wholePart, decimalPart] = formatted.split(".");
-    const paddedDecimal = (decimalPart ?? "").padEnd(4, "0").slice(0, 4);
-    return `${wholePart}.${paddedDecimal}`;
+    return formatBalance(BigInt(0), NATIVE_CURRENCY_DECIMALS, account.ticker);
   }
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {

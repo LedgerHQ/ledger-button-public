@@ -2,6 +2,7 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
+import type { DetailedAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -17,11 +18,9 @@ import type {
   WalletRedirectConfirmEventDetail,
 } from "../../components/molecule/wallet-redirect-drawer/ledger-wallet-redirect-drawer.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
-import {
-  langContext,
-  LanguageContext,
-} from "../../context/language-context.js";
+import { langContext, LanguageContext } from "../../context/language-context.js";
 import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
+import { calculateTotalFiatValue } from "../../shared/fiat-utils.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
@@ -155,6 +154,13 @@ export class LedgerHomeScreen extends LitElement {
     this.currentAction = null;
   };
 
+  private renderFiatTotal(account: DetailedAccount) {
+    const totalFiat = calculateTotalFiatValue(account);
+    const value = totalFiat?.value ?? "0";
+
+    return html`<ledger-fiat-total .value=${value}></ledger-fiat-total>`;
+  }
+
   override render() {
     if (this.controller.loading) {
       return html`
@@ -199,13 +205,7 @@ export class LedgerHomeScreen extends LitElement {
               ></ledger-crypto-icon>
             </div>
 
-            <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-              <ledger-balance
-                label=${lang.home.balance}
-                .balance=${account.balance}
-                .ticker=${account.ticker}
-              ></ledger-balance>
-            </div>
+            ${this.renderFiatTotal(account)}
           </div>
 
           <ledger-wallet-actions
