@@ -22,10 +22,6 @@ import type {
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
-import type {
-  AccountWithTransactionHistory,
-  HydrateAccountWithTxHistoryUseCase,
-} from "./hydrateAccountWithTxHistoryUseCase.js";
 
 export type AccountError = NoSelectedAccountError | AccountNotFoundError;
 
@@ -46,8 +42,6 @@ export class FetchSelectedAccountUseCase {
     private readonly hydrateWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
     @inject(accountModuleTypes.HydrateAccountWithFiatUseCase)
     private readonly hydrateWithFiatUseCase: HydrateAccountWithFiatUseCase,
-    @inject(accountModuleTypes.HydrateAccountWithTxHistoryUseCase)
-    private readonly hydrateWithTxHistoryUseCase: HydrateAccountWithTxHistoryUseCase,
   ) {
     this.logger = loggerFactory("FetchSelectedAccountUseCase");
   }
@@ -111,24 +105,24 @@ export class FetchSelectedAccountUseCase {
   ): Promise<DetailedAccount> {
     const withBalance = await this.hydrateWithBalanceUseCase.execute(account);
 
-    const [withFiat, withTxHistory] = await Promise.all([
+    // Transaction history disabled for 1.1 release
+    const [withFiat /*, withTxHistory*/] = await Promise.all([
       this.hydrateWithFiatUseCase.execute(withBalance),
-      this.hydrateWithTxHistoryUseCase.execute(withBalance),
+      // this.hydrateWithTxHistoryUseCase.execute(withBalance),
     ]);
 
-    return this.mergeHydrations(withBalance, withFiat, withTxHistory);
+    return this.mergeHydrations(withBalance, withFiat);
   }
 
   private mergeHydrations(
     withBalance: Account,
     withFiat: AccountWithFiat,
-    withTxHistory: AccountWithTransactionHistory,
   ): DetailedAccount {
     return {
       ...withBalance,
       fiatBalance: withFiat.fiatBalance,
       tokens: withFiat.tokens,
-      transactionHistory: withTxHistory.transactionHistory,
+      transactionHistory: undefined, // Transaction history disabled
     };
   }
 
