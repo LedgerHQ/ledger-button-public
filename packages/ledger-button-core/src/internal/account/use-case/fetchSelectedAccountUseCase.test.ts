@@ -9,12 +9,11 @@ import {
 import type { ContextService } from "../../context/ContextService.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, DetailedAccount } from "../service/AccountService.js";
+import type { Account } from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
-import type { HydrateAccountWithTxHistoryUseCase } from "./hydrateAccountWithTxHistoryUseCase.js";
 
 function createMockLogger() {
   return {
@@ -46,9 +45,6 @@ describe("FetchSelectedAccountUseCase", () => {
   let mockHydrateWithFiatUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
-  let mockHydrateWithTxHistoryUseCase: {
-    execute: ReturnType<typeof vi.fn>;
-  };
   let mockLogger: ReturnType<typeof createMockLogger>;
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
 
@@ -63,20 +59,6 @@ describe("FetchSelectedAccountUseCase", () => {
     ticker: "ETH",
     balance: undefined,
     tokens: [],
-  };
-
-  const hydratedAccount: DetailedAccount = {
-    ...baseAccount,
-    balance: "2.5000",
-    fiatBalance: { value: "5000.00", currency: "USD" },
-    transactionHistory: [
-      {
-        hash: "0xabc123",
-        type: "received",
-        value: "1000000000000000000",
-        timestamp: "2024-01-15T10:00:00Z",
-      },
-    ],
   };
 
   beforeEach(() => {
@@ -104,10 +86,6 @@ describe("FetchSelectedAccountUseCase", () => {
       execute: vi.fn(),
     };
 
-    mockHydrateWithTxHistoryUseCase = {
-      execute: vi.fn(),
-    };
-
     useCase = new FetchSelectedAccountUseCase(
       mockLoggerFactory as unknown as () => LoggerPublisher,
       mockContextService as unknown as ContextService,
@@ -115,7 +93,6 @@ describe("FetchSelectedAccountUseCase", () => {
       mockFetchAccountsUseCase as unknown as FetchAccountsUseCase,
       mockHydrateWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
       mockHydrateWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
-      mockHydrateWithTxHistoryUseCase as unknown as HydrateAccountWithTxHistoryUseCase,
     );
 
     vi.clearAllMocks();
@@ -175,10 +152,6 @@ describe("FetchSelectedAccountUseCase", () => {
           ...baseAccount,
           fiatBalance: { value: "5000.00", currency: "USD" },
         });
-        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          transactionHistory: hydratedAccount.transactionHistory,
-        });
       });
 
       it("should return Right with DetailedAccount", async () => {
@@ -191,13 +164,12 @@ describe("FetchSelectedAccountUseCase", () => {
             value: "5000.00",
             currency: "USD",
           });
-          expect(account.transactionHistory).toEqual(
-            hydratedAccount.transactionHistory,
-          );
+          // Transaction history is disabled for 1.1 release
+          expect(account.transactionHistory).toBeUndefined();
         });
       });
 
-      it("should run balance first, then fiat and tx history with balance-hydrated account", async () => {
+      it("should run balance first, then fiat with balance-hydrated account", async () => {
         await useCase.execute();
 
         const accountWithBalance = { ...baseAccount, balance: "2.5000" };
@@ -206,11 +178,8 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(mockHydrateWithBalanceUseCase.execute).toHaveBeenCalledWith(
           baseAccount,
         );
-        // Fiat and tx history are called with the balance-hydrated account
+        // Fiat is called with the balance-hydrated account
         expect(mockHydrateWithFiatUseCase.execute).toHaveBeenCalledWith(
-          accountWithBalance,
-        );
-        expect(mockHydrateWithTxHistoryUseCase.execute).toHaveBeenCalledWith(
           accountWithBalance,
         );
       });
@@ -234,7 +203,7 @@ describe("FetchSelectedAccountUseCase", () => {
             address: baseAccount.freshAddress,
             hasBalance: true,
             hasFiat: true,
-            txCount: 1,
+            txCount: 0, // Transaction history disabled for 1.1 release
           }),
         );
       });
@@ -257,10 +226,6 @@ describe("FetchSelectedAccountUseCase", () => {
           ...baseAccount,
           fiatBalance: undefined,
         });
-        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          transactionHistory: [],
-        });
 
         const result = await useCase.execute();
 
@@ -268,35 +233,14 @@ describe("FetchSelectedAccountUseCase", () => {
         result.map((account) => {
           expect(account.balance).toBe("2.5000");
           expect(account.fiatBalance).toBeUndefined();
-          expect(account.transactionHistory).toEqual([]);
-        });
-      });
-
-      it("should handle undefined transactionHistory gracefully", async () => {
-        mockHydrateWithBalanceUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          balance: "2.5000",
-        });
-        mockHydrateWithFiatUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          fiatBalance: { value: "5000.00", currency: "USD" },
-        });
-        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          transactionHistory: undefined,
-        });
-
-        const result = await useCase.execute();
-
-        expect(result.isRight()).toBe(true);
-        result.map((account) => {
+          // Transaction history is disabled for 1.1 release
           expect(account.transactionHistory).toBeUndefined();
         });
       });
     });
 
     describe("execution flow verification", () => {
-      it("should call all hydration use cases for the same account address", async () => {
+      it("should call balance and fiat hydration use cases for the same account address", async () => {
         mockContextService.getContext.mockReturnValue({
           selectedAccount: baseAccount,
         });
@@ -306,22 +250,15 @@ describe("FetchSelectedAccountUseCase", () => {
           ...baseAccount,
           fiatBalance: undefined,
         });
-        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          transactionHistory: undefined,
-        });
 
         await useCase.execute();
 
         const balanceCall = mockHydrateWithBalanceUseCase.execute.mock.calls[0];
         const fiatCall = mockHydrateWithFiatUseCase.execute.mock.calls[0];
-        const txHistoryCall =
-          mockHydrateWithTxHistoryUseCase.execute.mock.calls[0];
 
         // All hydrations should be for the same account address
         expect(balanceCall[0].freshAddress).toBe(baseAccount.freshAddress);
         expect(fiatCall[0].freshAddress).toBe(baseAccount.freshAddress);
-        expect(txHistoryCall[0].freshAddress).toBe(baseAccount.freshAddress);
       });
     });
   });
