@@ -1,43 +1,22 @@
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { styleMap } from "lit/directives/style-map.js";
+import { css, html, LitElement } from "lit";
+import { customElement } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 
-export interface LedgerSkeletonAttributes {
-  width?: string;
-  height?: string;
-}
+const styles = css`
+  :host {
+    display: block;
+  }
+`;
 
 @customElement("ledger-skeleton")
-@tailwindElement()
+@tailwindElement(styles)
 export class LedgerSkeleton extends LitElement {
-  @property({ type: String })
-  width?: string;
-
-  @property({ type: String })
-  height?: string;
-
-  private get skeletonStyles() {
-    const styles: Record<string, string> = {};
-
-    if (this.width) {
-      styles.width = this.width;
-    }
-
-    if (this.height) {
-      styles.height = this.height;
-    }
-
-    return styles;
-  }
-
   override render() {
     return html`
       <div
         data-slot="skeleton"
-        class="lb-animate-pulse lb-rounded-md lb-bg-muted"
-        style=${styleMap(this.skeletonStyles)}
+        class="lb-h-full lb-w-full lb-animate-pulse lb-rounded-[inherit] lb-bg-muted"
         role="presentation"
         aria-hidden="true"
       ></div>
@@ -50,5 +29,3 @@ declare global {
     "ledger-skeleton": LedgerSkeleton;
   }
 }
-
-export default LedgerSkeleton;
