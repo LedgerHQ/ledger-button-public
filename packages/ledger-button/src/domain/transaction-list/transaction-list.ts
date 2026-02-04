@@ -30,9 +30,6 @@ export class TransactionListScreen extends LitElement {
   @property({ type: Array })
   transactions: TransactionListItem[] = [];
 
-  @property({ type: String })
-  ticker = "";
-
   private formatDisplayDate(dateString: string): string {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
@@ -74,7 +71,7 @@ export class TransactionListScreen extends LitElement {
         .title=${transaction.title}
         .timestamp=${transaction.time}
         .amount=${transaction.amount}
-        .ticker=${this.ticker}
+        .ticker=${transaction.ticker}
         .fiatAmount=${transaction.fiatAmount}
         .fiatCurrency=${transaction.fiatCurrency}
       ></ledger-transaction-item>

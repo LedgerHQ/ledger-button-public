@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as chainUtils from "../../../blockchain/evm/chainUtils.js";
 import type { Config } from "../../../config/model/config.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import type { CalTokenResponse } from "./calTypes.js";
+import type { CalCoinResponse, CalTokenResponse } from "./calTypes.js";
 import { DefaultCalDataSource } from "./DefaultCalDataSource.js";
 
 describe("DefaultCalDataSource", () => {
@@ -94,6 +94,89 @@ describe("DefaultCalDataSource", () => {
       if (result.isLeft()) {
         const error = result.extract() as Error;
         expect(error.message).toBe("No token information found in Cal");
+      }
+    });
+  });
+
+  describe("getCurrencyInformation", () => {
+    const mockEthereumResponse: CalCoinResponse = [
+      {
+        id: "ethereum",
+        name: "Ethereum",
+        ticker: "ETH",
+        units: [{ name: "ether", code: "ETH", magnitude: 18 }],
+      },
+    ];
+
+    it("should successfully call the CAL API to get currency information", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right(mockEthereumResponse),
+      );
+
+      const result = await dataSource.getCurrencyInformation(testCurrencyId);
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        `${mockCalUrl}/v1/coins?id=${testCurrencyId}&output=id,name,ticker,units`,
+      );
+
+      expect(result.isRight()).toBe(true);
+      if (result.isRight()) {
+        const currencyInfo = result.extract();
+        expect(currencyInfo).toEqual({
+          id: "ethereum",
+          name: "Ethereum",
+          ticker: "ETH",
+          decimals: 18,
+        });
+      }
+    });
+
+    it("should return Left when network service returns Left", async () => {
+      const networkError = new Error("Network request failed");
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Left(networkError));
+
+      const result = await dataSource.getCurrencyInformation(testCurrencyId);
+
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toBe(
+          "Failed to fetch currency information from Cal",
+        );
+      }
+    });
+
+    it("should return Left when response array is empty", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Right([]));
+
+      const result = await dataSource.getCurrencyInformation(testCurrencyId);
+
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toBe("No currency information found in Cal");
+      }
+    });
+
+    it("should default to 18 decimals when units array is empty", async () => {
+      const responseWithNoUnits: CalCoinResponse = [
+        {
+          id: "ethereum",
+          name: "Ethereum",
+          ticker: "ETH",
+          units: [],
+        },
+      ];
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right(responseWithNoUnits),
+      );
+
+      const result = await dataSource.getCurrencyInformation(testCurrencyId);
+
+      expect(result.isRight()).toBe(true);
+      if (result.isRight()) {
+        const currencyInfo = result.extract();
+        expect(currencyInfo.decimals).toBe(18);
       }
     });
   });

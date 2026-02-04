@@ -2,11 +2,10 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
+import type { TransactionHistoryItem } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-
-import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
@@ -27,6 +26,7 @@ import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
 const styles = css`
@@ -54,78 +54,28 @@ const styles = css`
   }
 `;
 
-const mockTransactions: TransactionListItem[] = [
-  {
-    hash: "0x1234567890abcdef",
-    type: "received",
-    date: "2025-02-02",
-    time: "22:34",
-    amount: "1.30393",
-    title: "Ethereum",
-    fiatAmount: "3,259.83",
-    fiatCurrency: "$",
-  },
-  {
-    hash: "0x1234567890abcde1",
-    type: "sent",
-    date: "2025-02-02",
-    time: "22:34",
-    amount: "1.30393",
-    title: "Ethereum",
-    fiatAmount: "3,259.83",
-    fiatCurrency: "$",
-  },
-  {
-    hash: "0x1234567890abcde2",
-    type: "received",
-    date: "2025-02-02",
-    time: "22:34",
-    amount: "1.30393",
-    title: "Ethereum",
-    fiatAmount: "3,259.83",
-    fiatCurrency: "$",
-  },
-  {
-    hash: "0x1234567890abcde3",
-    type: "received",
-    date: "2025-02-02",
-    time: "22:34",
-    amount: "1.30393",
-    title: "Ethereum",
-    fiatAmount: "3,259.83",
-    fiatCurrency: "$",
-  },
-  {
-    hash: "0x1234567890abcde4",
-    type: "sent",
-    date: "2025-02-01",
-    time: "14:22",
-    amount: "0.5",
-    title: "Ethereum",
-    fiatAmount: "1,250.00",
-    fiatCurrency: "$",
-  },
-  {
-    hash: "0x1234567890abcde5",
-    type: "received",
-    date: "2025-02-01",
-    time: "10:15",
-    amount: "2.0",
-    title: "Ethereum",
-    fiatAmount: "5,000.00",
-    fiatCurrency: "$",
-  },
-  {
-    hash: "0x1234567890abcde6",
-    type: "sent",
-    date: "2025-01-26",
-    time: "18:45",
-    amount: "0.25",
-    title: "Ethereum",
-    fiatAmount: "625.00",
-    fiatCurrency: "$",
-  },
-];
+function mapTransactionHistoryToListItem(
+  transaction: TransactionHistoryItem,
+): TransactionListItem {
+  const date = new Date(transaction.timestamp);
+  const dateString = date.toISOString().split("T")[0];
+  const timeString = date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return {
+    hash: transaction.hash,
+    type: transaction.type,
+    date: dateString,
+    time: timeString,
+    amount: transaction.formattedValue,
+    ticker: transaction.ticker,
+    title: transaction.currencyName,
+    fiatAmount: "",
+    fiatCurrency: "",
+  };
+}
 
 @customElement("ledger-home-screen")
 @tailwindElement(styles)
@@ -230,6 +180,17 @@ export class LedgerHomeScreen extends LitElement {
     this.currentAction = null;
   };
 
+  private getTransactionListItems(): TransactionListItem[] {
+    const account = this.controller.selectedAccount;
+    if (!account?.transactionHistory) {
+      return [];
+    }
+
+    return account.transactionHistory.map((tx) =>
+      mapTransactionHistoryToListItem(tx),
+    );
+  }
+
   override render() {
     if (this.controller.loading) {
       return html`
@@ -298,8 +259,7 @@ export class LedgerHomeScreen extends LitElement {
           ${this.activeTab === "tokens"
             ? html`<token-list-screen></token-list-screen>`
             : html`<transaction-list-screen
-                .transactions=${mockTransactions}
-                .ticker=${account.ticker}
+                .transactions=${this.getTransactionListItems()}
               ></transaction-list-screen>`}
 
           <ledger-button

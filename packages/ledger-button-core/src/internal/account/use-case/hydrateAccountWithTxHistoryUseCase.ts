@@ -30,11 +30,13 @@ export class HydrateAccountWithTxHistoryUseCase {
     this.logger.debug("Fetching transaction history for account", {
       blockchain,
       address: account.freshAddress,
+      currencyId: account.currencyId,
     });
 
     const result = await this.fetchTransactionHistoryUseCase.execute(
       blockchain,
       account.freshAddress,
+      account.currencyId,
     );
 
     return result.caseOf<AccountWithTransactionHistory>({

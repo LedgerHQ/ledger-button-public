@@ -74,6 +74,9 @@ export type TransactionHistoryItem = {
   hash: string;
   type: TransactionType;
   value: string;
+  formattedValue: string;
+  currencyName: string;
+  ticker: string;
   timestamp: string;
 };
 
