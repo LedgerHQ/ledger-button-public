@@ -96,7 +96,9 @@
     },
     "selectAccount": {
       "title": "Select an account",
-      "showTokens": "Show tokens"
+      "showTokens": "Show tokens",
+      "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
+      "refreshingAccountsHint": "Select an account at any time to continue."
     },
     "turnOnSync": {
       "title": "",

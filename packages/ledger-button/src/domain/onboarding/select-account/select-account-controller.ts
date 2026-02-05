@@ -10,6 +10,10 @@ import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 export class SelectAccountController implements ReactiveController {
   accounts: Account[] = [];
 
+  get isBalanceLoading(): boolean {
+    return this.accounts.some((account) => account.balance === undefined);
+  }
+
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
