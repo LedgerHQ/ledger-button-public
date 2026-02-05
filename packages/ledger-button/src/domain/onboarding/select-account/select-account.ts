@@ -53,6 +53,7 @@ export class SelectAccountScreen extends LitElement {
         .balance=${account.balance ?? "0"}
         .tokens=${account.tokens.length}
         .currencyId=${account.currencyId}
+        .isBalanceLoading=${account.balance === undefined}
         @account-item-click=${this.controller.handleAccountItemClick}
         @account-item-show-tokens-click=${this.controller
           .handleAccountItemShowTokensClick}
@@ -60,11 +61,28 @@ export class SelectAccountScreen extends LitElement {
     `;
   };
 
+  private renderBalanceLoadingFooter() {
+    const translations = this.languages.currentTranslation;
+
+    if (!this.controller.isBalanceLoading) {
+      return "";
+    }
+
+    return html`
+      <p class="lb-text-center lb-text-muted lb-body-3">
+        ${translations.onboarding.selectAccount.refreshingAccounts}
+        <br />
+        ${translations.onboarding.selectAccount.refreshingAccountsHint}
+      </p>
+    `;
+  }
+
   override render() {
     return html`
       <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         ${this.controller.accounts.map(this.renderAccountItem)}
       </div>
+      ${this.renderBalanceLoadingFooter()}
     `;
   }
 }
