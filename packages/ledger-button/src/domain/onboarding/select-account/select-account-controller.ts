@@ -32,34 +32,46 @@ export class SelectAccountController implements ReactiveController {
   hostDisconnected() {
     if (this.accountsSubscription) {
       this.accountsSubscription.unsubscribe();
+      this.accountsSubscription = undefined;
     }
   }
 
-  async getAccounts() {
+  getAccounts() {
+    if (this.accountsSubscription) {
+      this.accountsSubscription.unsubscribe();
+    }
+
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    try {
-      const accounts = await this.core.fetchAccounts();
-      this.accounts = accounts ?? [];
-      this.isAccountsLoading = false;
-      this.initializeBalanceLoadingStates();
-    } catch (error) {
-      this.isAccountsLoading = false;
-      this.host.requestUpdate();
-      throw error;
-    }
+    this.accountsSubscription = this.core.getAccountsWithBalance().subscribe({
+      next: (accounts) => {
+        this.accounts = accounts;
+        this.updateBalanceLoadingStates(accounts);
+        if (this.isAccountsLoading) {
+          this.isAccountsLoading = false;
+        }
+        this.host.requestUpdate();
+      },
+      error: (error) => {
+        this.isAccountsLoading = false;
+        console.error("Failed to fetch accounts with balance", error);
+        this.host.requestUpdate();
+      },
+    });
   }
 
-  private initializeBalanceLoadingStates() {
-    for (const account of this.accounts) {
+  private updateBalanceLoadingStates(accounts: Account[]) {
+    for (const account of accounts) {
       if (account.balance !== undefined) {
         this.balanceLoadingStates.set(account.id, "loaded");
       } else {
-        this.balanceLoadingStates.set(account.id, "loading");
+        const currentState = this.balanceLoadingStates.get(account.id);
+        if (currentState !== "error") {
+          this.balanceLoadingStates.set(account.id, "loading");
+        }
       }
     }
-    this.host.requestUpdate();
   }
 
   setBalanceLoadingState(accountId: string, state: BalanceLoadingState): void {
