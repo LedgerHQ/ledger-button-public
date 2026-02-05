@@ -9,7 +9,7 @@ export default html`
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d="M4.16675 10H15.8334"
+      d="M4.16669 10H15.8334"
       stroke="currentColor"
       stroke-width="1.5"
       stroke-linecap="round"
