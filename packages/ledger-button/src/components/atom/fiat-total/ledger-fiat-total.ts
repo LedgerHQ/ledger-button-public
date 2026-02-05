@@ -22,7 +22,7 @@ export class LedgerFiatTotal extends LitElement {
 
   override render() {
     return html`
-      <span class="lb-text-base lb-responsive-display-3">
+      <span class="lb-text-base lb-heading-1" style="font-size: 40px;">
         ${formatFiatValue(this.value)}
       </span>
     `;
