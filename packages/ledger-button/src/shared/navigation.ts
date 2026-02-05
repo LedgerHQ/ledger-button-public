@@ -1,6 +1,7 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { Destination } from "./routes.js";
+import { CoreContext } from "../context/core-context.js";
+import { Destination, resolveCanGoBack } from "./routes.js";
 
 export const ANIMATION_DELAY = 300;
 
@@ -55,7 +56,9 @@ export class Navigation implements ReactiveController {
       this.clearNavigationTimeout();
       this.navigationTimeoutId = window.setTimeout(() => {
         this.modalContent.classList.remove("remove");
-        this.history.push(destination);
+        if (!destination.skipHistory) {
+          this.history.push(destination);
+        }
         this.currentScreen = destination;
         this.host.requestUpdate();
         this.navigationTimeoutId = null;
@@ -63,7 +66,9 @@ export class Navigation implements ReactiveController {
       return;
     }
 
-    this.history.push(destination);
+    if (!destination.skipHistory) {
+      this.history.push(destination);
+    }
     this.currentScreen = destination;
     this.host.requestUpdate();
   }
@@ -90,11 +95,11 @@ export class Navigation implements ReactiveController {
     }
   }
 
-  canGoBack(destination?: Destination) {
-    return (
-      (destination?.canGoBack ?? false) &&
-      this.history.length > 1 &&
-      this.currentScreen !== null
-    );
+  canGoBack(destination?: Destination, core?: CoreContext): boolean {
+    if (!core) {
+      return false;
+    }
+    const canGoBack = resolveCanGoBack(destination?.canGoBack, core);
+    return canGoBack && this.history.length > 1 && this.currentScreen !== null;
   }
 }
