@@ -41,6 +41,10 @@ export class SelectAccountScreen extends LitElement {
 
   renderAccountItem = (account: Account) => {
     const translations = this.languages.currentTranslation;
+    const isBalanceLoading = this.controller.isAccountBalanceLoading(
+      account.id,
+    );
+    const isBalanceError = this.controller.hasAccountBalanceError(account.id);
 
     // NOTE: The label should be displayed only if the account has tokens
     return html`
@@ -53,6 +57,8 @@ export class SelectAccountScreen extends LitElement {
         .balance=${account.balance ?? "0"}
         .tokens=${account.tokens.length}
         .currencyId=${account.currencyId}
+        .isBalanceLoading=${isBalanceLoading}
+        .isBalanceError=${isBalanceError}
         @account-item-click=${this.controller.handleAccountItemClick}
         @account-item-show-tokens-click=${this.controller
           .handleAccountItemShowTokensClick}
