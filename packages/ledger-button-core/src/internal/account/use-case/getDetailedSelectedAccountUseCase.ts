@@ -42,6 +42,10 @@ export class GetDetailedSelectedAccountUseCase {
   }
 
   private isSelectedAccountHydrated(selectedAccount?: Account): boolean {
-    return !!selectedAccount?.name && selectedAccount.name.length > 0;
+    return (
+      !!selectedAccount?.name &&
+      selectedAccount.name.length > 0 &&
+      "fiatBalance" in selectedAccount
+    );
   }
 }
