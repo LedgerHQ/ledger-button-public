@@ -33,6 +33,7 @@ export interface LedgerAccountItemMoleculeAttributes {
   balance: string;
   linkLabel: string;
   isBalanceLoading?: boolean;
+  isBalanceError?: boolean;
 }
 
 @customElement("ledger-account-item")
@@ -64,6 +65,9 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   @property({ type: Boolean, attribute: "is-balance-loading" })
   isBalanceLoading = false;
+
+  @property({ type: Boolean, attribute: "is-balance-error" })
+  isBalanceError = false;
 
   private get containerClasses() {
     return {
@@ -150,6 +154,14 @@ export class LedgerAccountItemMolecule extends LitElement {
       `;
     }
 
+    if (this.isBalanceError) {
+      return html`
+        <div class="lb-flex lb-items-center lb-justify-center">
+          <span class="lb-text-base lb-body-2-semi-bold">--</span>
+        </div>
+      `;
+    }
+
     return html`
       <div class="lb-flex lb-items-center lb-justify-center">
         <span class="lb-text-base lb-body-2-semi-bold"
@@ -160,6 +172,10 @@ export class LedgerAccountItemMolecule extends LitElement {
   }
 
   private renderTokenRow() {
+    if (this.isBalanceError) {
+      return "";
+    }
+
     if (this.isBalanceLoading) {
       return html`
         <div

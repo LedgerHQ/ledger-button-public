@@ -17,6 +17,7 @@ const meta: Meta = {
         .balance=${args.balance}
         .linkLabel=${args.linkLabel}
         ?is-balance-loading=${args.isBalanceLoading}
+        ?is-balance-error=${args.isBalanceError}
         @account-item-click=${(e: CustomEvent) => {
           console.log("Account item clicked:", e.detail);
         }}
@@ -75,6 +76,14 @@ const meta: Meta = {
     isBalanceLoading: {
       control: "boolean",
       description: "Whether the balance is currently loading",
+      table: {
+        type: { summary: "boolean" },
+        category: "State",
+      },
+    },
+    isBalanceError: {
+      control: "boolean",
+      description: "Whether the balance fetch failed",
       table: {
         type: { summary: "boolean" },
         category: "State",
@@ -230,6 +239,26 @@ export const BalanceLoading: Story = {
   },
 };
 
+export const BalanceError: Story = {
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    ticker: "ETH",
+    ledgerId: "ethereum",
+    balance: "0.00",
+    linkLabel: "Show tokens",
+    isBalanceError: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item with balance error state, showing '--' for balance and hiding token row.",
+      },
+    },
+  },
+};
+
 export const LoadingStates: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -247,6 +276,22 @@ export const LoadingStates: Story = {
           balance="0.00"
           link-label="Show tokens"
           is-balance-loading
+        ></ledger-account-item>
+      </div>
+      <div>
+        <h3
+          style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
+        >
+          Error State
+        </h3>
+        <ledger-account-item
+          title="john.eth"
+          address="0x1234567890abcdef1234567890abcdef12345678"
+          ticker="ETH"
+          currency-id="ethereum"
+          balance="0.00"
+          link-label="Show tokens"
+          is-balance-error
         ></ledger-account-item>
       </div>
       <div>
@@ -271,7 +316,7 @@ export const LoadingStates: Story = {
     docs: {
       description: {
         story:
-          "Comparison of loading and loaded states for the account item component.",
+          "Comparison of loading, error, and loaded states for the account item component.",
       },
     },
   },
