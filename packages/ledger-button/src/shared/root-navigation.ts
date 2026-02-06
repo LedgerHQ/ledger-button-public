@@ -131,6 +131,7 @@ export class RootNavigationComponent extends LitElement {
 
   // PRIVATE METHODS
   private handleModalOpen() {
+    this.requestUpdate();
     this.rootNavigationController.handleModalOpen();
     window.dispatchEvent(
       new CustomEvent("ledger-core-modal-open", {
