@@ -27,5 +27,4 @@ export interface IndexedDbService {
   getWelcomeScreenCompleted(): Promise<
     Either<StorageIDBErrors, Maybe<boolean>>
   >;
-
 }

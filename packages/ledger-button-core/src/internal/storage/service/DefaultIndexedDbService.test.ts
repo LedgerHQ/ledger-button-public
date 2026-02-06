@@ -333,5 +333,4 @@ describe("DefaultIndexedDbService", () => {
       });
     });
   });
-
 });
