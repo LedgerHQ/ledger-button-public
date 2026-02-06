@@ -71,14 +71,10 @@ export class LedgerWalletActions extends LitElement {
         aria-label=${this.getActionLabel(action)}
       >
         <div class="lb-h-20 lb-w-20 lb-shrink-0">
-          <ledger-icon
-            fillColor="white"
-            type=${action}
-            size="medium"
-          ></ledger-icon>
+          <ledger-icon fillColor="white" type=${action} size="20"></ledger-icon>
         </div>
         <span
-          class="lb-overflow-hidden lb-text-ellipsis lb-text-center lb-text-base lb-body-3"
+          class="lb-overflow-hidden lb-text-ellipsis lb-text-center lb-body-3"
           >${this.getActionLabel(action)}</span
         >
       </button>

@@ -35,11 +35,14 @@ export class TrackTransactionStarted {
     const unsignedTransactionHash = normalizeTransactionHash(
       sha256(rawTransaction),
     );
-    const chainId = this.contextService.getContext().chainId.toString();
+    const context = this.contextService.getContext();
+    const chainId = context.chainId.toString();
+    const trustChainId = context.trustChainId;
 
     const event = EventTrackingUtils.createTransactionFlowInitializationEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
+      trustChainId: trustChainId,
       unsignedTransactionHash: unsignedTransactionHash,
       chainId: chainId,
     });
