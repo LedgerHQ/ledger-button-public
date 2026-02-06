@@ -1,16 +1,13 @@
 import "../../components/index.js";
 
-import type {
-  DetailedAccount,
-  FiatBalance,
-  Token,
-} from "@ledgerhq/ledger-wallet-provider-core";
+import type { Token } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 import { type CoreContext, coreContext } from "../../context/core-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import { TokenListController } from "./token-list-controller.js";
 
 @customElement("token-list-screen")
 @tailwindElement()
@@ -19,39 +16,24 @@ export class TokenListScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @state()
-  private account: DetailedAccount | undefined = undefined;
+  controller!: TokenListController;
 
-  override async connectedCallback() {
+  override connectedCallback() {
     super.connectedCallback();
-    await this.getSelectedAccount();
-  }
-
-  private async getSelectedAccount() {
-    const result = await this.coreContext.getDetailedSelectedAccount();
-    if (result.isRight()) {
-      this.account = result.extract();
-    }
-  }
-
-  private formatFiatValue(
-    fiatBalance: FiatBalance | undefined,
-  ): string | undefined {
-    if (!fiatBalance) return undefined;
-    const symbol = fiatBalance.currency === "USD" ? "$" : fiatBalance.currency;
-    return `${symbol}${fiatBalance.value}`;
+    this.controller = new TokenListController(this, this.coreContext);
   }
 
   private renderNativeCoin() {
-    if (!this.account) return "";
+    if (!this.controller?.account) return "";
+    const account = this.controller.account;
 
     return html`
       <ledger-chain-item
-        ledger-id=${this.account.currencyId}
-        .title=${this.account.ticker}
-        .ticker=${this.account.ticker}
-        .value=${this.account.balance ?? "0"}
-        .fiatValue=${this.formatFiatValue(this.account.fiatBalance)}
+        ledger-id=${account.currencyId}
+        .title=${account.ticker}
+        .ticker=${account.ticker}
+        .value=${account.balance ?? "0"}
+        .fiatValue=${this.controller.formatFiatValue(account.fiatBalance)}
         .isClickable=${false}
         type="network"
         iconVariant="rounded"
@@ -71,7 +53,7 @@ export class TokenListScreen extends LitElement {
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
         .value=${token.balance}
-        .fiatValue=${this.formatFiatValue(token.fiatBalance)}
+        .fiatValue=${this.controller.formatFiatValue(token.fiatBalance)}
         .isClickable=${false}
         type="token"
         iconVariant="rounded"
@@ -80,19 +62,22 @@ export class TokenListScreen extends LitElement {
   };
 
   private renderTokenList() {
-    if (!this.account || this.account.tokens.length === 0) {
+    if (
+      !this.controller?.account ||
+      this.controller.account.tokens.length === 0
+    ) {
       return "";
     }
 
     return html`
       <div class="lb-flex lb-flex-col">
-        ${this.account.tokens.map(this.renderTokenItem)}
+        ${this.controller.account.tokens.map(this.renderTokenItem)}
       </div>
     `;
   }
 
   override render() {
-    if (!this.account) {
+    if (!this.controller?.account) {
       return html`
         <div
           class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-32"
