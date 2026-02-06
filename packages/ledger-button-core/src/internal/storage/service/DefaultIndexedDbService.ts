@@ -628,5 +628,4 @@ export class DefaultIndexedDbService implements IndexedDbService {
         });
     });
   }
-
 }

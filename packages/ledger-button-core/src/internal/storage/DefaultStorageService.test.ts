@@ -19,10 +19,7 @@ let storageService: DefaultStorageService;
 let mockIndexedDbService: IndexedDbService;
 
 describe("DefaultStorageService", () => {
-  let mockStorage: {
-    userConsent?: UserConsent;
-    welcomeScreen?: boolean;
-  };
+  let mockStorage: { userConsent?: UserConsent; welcomeScreen?: boolean };
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -496,5 +493,4 @@ describe("DefaultStorageService", () => {
       });
     });
   });
-
 });
