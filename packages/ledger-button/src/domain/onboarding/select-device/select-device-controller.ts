@@ -2,7 +2,6 @@ import {
   DeviceConnectionError,
   DeviceDisconnectedError,
   DeviceNotSupportedError,
-  mapToKnownDeviceDbModel,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
@@ -126,28 +125,11 @@ export class SelectDeviceController implements ReactiveController {
     }
 
     try {
-      const device = await this.core.connectToDevice(detail.connectionType);
-
-      if (device) {
-        await this.saveDeviceToKnownList(device);
-      }
+      await this.core.connectToDevice(detail.connectionType);
     } catch (error) {
       console.error("Failed to connect to device", error);
       this.mapErrors(error);
     }
   }
 
-  private async saveDeviceToKnownList(device: {
-    name: string;
-    modelId: string;
-    type: string;
-  }) {
-    const knownDevice = mapToKnownDeviceDbModel({
-      name: device.name,
-      modelId: device.modelId,
-      type: device.type,
-    });
-
-    await this.core.saveKnownDevice(knownDevice);
-  }
 }
