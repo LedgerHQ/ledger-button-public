@@ -1,7 +1,6 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "../model/errors.js";
-import { type KnownDeviceDbModel } from "../model/knownDeviceDbModel.js";
 import { UserConsent } from "../model/UserConsent.js";
 
 export interface IndexedDbService {
@@ -29,10 +28,4 @@ export interface IndexedDbService {
     Either<StorageIDBErrors, Maybe<boolean>>
   >;
 
-  storeKnownDevices(
-    devices: KnownDeviceDbModel[],
-  ): Promise<Either<StorageIDBErrors, void>>;
-  getKnownDevices(): Promise<
-    Either<StorageIDBErrors, KnownDeviceDbModel[]>
-  >;
 }

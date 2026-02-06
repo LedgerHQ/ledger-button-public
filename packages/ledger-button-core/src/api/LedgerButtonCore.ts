@@ -56,7 +56,6 @@ import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
-import { type KnownDeviceDbModel } from "../internal/storage/model/knownDeviceDbModel.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
@@ -528,35 +527,6 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackFloatingButtonClick,
       )
       .execute();
-  }
-
-  // Known Devices methods
-  async saveKnownDevice(device: KnownDeviceDbModel): Promise<void> {
-    this._logger.debug("Saving known device", { device: device.name });
-    await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .saveKnownDevice(device);
-  }
-
-  async getKnownDevices(): Promise<KnownDeviceDbModel[]> {
-    this._logger.debug("Getting known devices");
-    return this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getKnownDevices();
-  }
-
-  async removeKnownDevice(deviceId: string): Promise<void> {
-    this._logger.debug("Removing known device", { deviceId });
-    await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .removeKnownDevice(deviceId);
-  }
-
-  async clearKnownDevices(): Promise<void> {
-    this._logger.debug("Clearing all known devices");
-    await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .clearKnownDevices();
   }
 
   async trackWalletActionClicked(
