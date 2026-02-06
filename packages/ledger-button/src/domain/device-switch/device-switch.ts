@@ -79,9 +79,6 @@ export class DeviceSwitchScreen extends LitElement {
       return "";
     }
 
-    const connectionType = this.controller.getConnectionTypeFromTransport(
-      connectedDevice.type,
-    );
     const deviceModelId = this.controller.mapDeviceModelId(
       connectedDevice.modelId,
     );
@@ -91,7 +88,6 @@ export class DeviceSwitchScreen extends LitElement {
       <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         <ledger-device-item
           title=${connectedDevice.name}
-          connection-type=${connectionType}
           device-model-id=${deviceModelId}
           status="connected"
           .clickable=${false}
