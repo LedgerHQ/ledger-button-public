@@ -12,6 +12,7 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import { formatAddress } from "../../utils/format-address.js";
 import { AccountTokenController } from "./account-token-controller.js";
 
 @customElement("account-tokens-screen")
@@ -38,13 +39,6 @@ export class AccountTokensScreen extends LitElement {
   @consume({ context: langContext })
   @property({ attribute: false })
   public languages!: LanguageContext;
-
-  private formatAddress(address: string): string {
-    if (!address || address.length <= 8) {
-      return address;
-    }
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  }
 
   private renderTokenItem = (token: Token) => {
     return html`
@@ -105,9 +99,7 @@ export class AccountTokensScreen extends LitElement {
                 >${this.controller.account.name}</span
               >
               <span class="lb-text-muted lb-body-3"
-                >${this.formatAddress(
-                  this.controller.account.freshAddress,
-                )}</span
+                >${formatAddress(this.controller.account.freshAddress)}</span
               >
             </div>
           </div>
