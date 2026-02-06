@@ -3,7 +3,6 @@ import "fake-indexeddb/auto";
 import { Either, Just, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
-import { type KnownDeviceDbModel } from "./model/knownDeviceDbModel.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
@@ -23,7 +22,6 @@ describe("DefaultStorageService", () => {
   let mockStorage: {
     userConsent?: UserConsent;
     welcomeScreen?: boolean;
-    knownDevices?: KnownDeviceDbModel[];
   };
 
   beforeEach(async () => {
@@ -67,13 +65,6 @@ describe("DefaultStorageService", () => {
             ? Just(mockStorage.welcomeScreen)
             : Nothing,
         );
-      }),
-      storeKnownDevices: vi.fn().mockImplementation(async (devices) => {
-        mockStorage.knownDevices = devices;
-        return Right(undefined);
-      }),
-      getKnownDevices: vi.fn().mockImplementation(async () => {
-        return Right(mockStorage.knownDevices ?? []);
       }),
     } as unknown as IndexedDbService;
 
@@ -506,140 +497,4 @@ describe("DefaultStorageService", () => {
     });
   });
 
-  describe("Known Devices methods", () => {
-    const mockDevice1: KnownDeviceDbModel = {
-      id: "device-1",
-      name: "My Ledger Flex",
-      modelId: "FLEX",
-      type: "ble",
-      firstConnectedAt: 1705320000000,
-      lastConnectedAt: 1705320000000,
-    };
-
-    const mockDevice2: KnownDeviceDbModel = {
-      id: "device-2",
-      name: "Ledger Nano X",
-      modelId: "NANO_X",
-      type: "usb",
-      firstConnectedAt: 1705330000000,
-      lastConnectedAt: 1705330000000,
-    };
-
-    describe("saveKnownDevice", () => {
-      it("should save a new device to known devices", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(1);
-        expect(devices[0].name).toBe("My Ledger Flex");
-      });
-
-      it("should add a second device to existing list", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-        await storageService.saveKnownDevice(mockDevice2);
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(2);
-      });
-
-      it("should update existing device instead of duplicating", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-
-        const updatedDevice: KnownDeviceDbModel = {
-          ...mockDevice1,
-          modelId: "STAX",
-          lastConnectedAt: 1705400000000,
-        };
-
-        await storageService.saveKnownDevice(updatedDevice);
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(1);
-        expect(devices[0].modelId).toBe("STAX");
-      });
-
-      it("should match devices by name and type for updates", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-
-        const differentTypeDevice: KnownDeviceDbModel = {
-          ...mockDevice1,
-          id: "device-1-usb",
-          type: "usb",
-        };
-
-        await storageService.saveKnownDevice(differentTypeDevice);
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(2);
-      });
-    });
-
-    describe("getKnownDevices", () => {
-      it("should return empty array when no devices exist", async () => {
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toEqual([]);
-      });
-
-      it("should return all saved devices", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-        await storageService.saveKnownDevice(mockDevice2);
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(2);
-        expect(devices.map((d) => d.name)).toContain("My Ledger Flex");
-        expect(devices.map((d) => d.name)).toContain("Ledger Nano X");
-      });
-    });
-
-    describe("removeKnownDevice", () => {
-      it("should remove a device by id", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-        await storageService.saveKnownDevice(mockDevice2);
-
-        await storageService.removeKnownDevice("device-1");
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(1);
-        expect(devices[0].id).toBe("device-2");
-      });
-
-      it("should not affect other devices when removing", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-        await storageService.saveKnownDevice(mockDevice2);
-
-        await storageService.removeKnownDevice("device-1");
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices[0]).toEqual(mockDevice2);
-      });
-
-      it("should handle removing non-existent device gracefully", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-
-        await storageService.removeKnownDevice("non-existent-id");
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toHaveLength(1);
-      });
-    });
-
-    describe("clearKnownDevices", () => {
-      it("should remove all known devices", async () => {
-        await storageService.saveKnownDevice(mockDevice1);
-        await storageService.saveKnownDevice(mockDevice2);
-
-        await storageService.clearKnownDevices();
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toEqual([]);
-      });
-
-      it("should work when no devices exist", async () => {
-        await storageService.clearKnownDevices();
-
-        const devices = await storageService.getKnownDevices();
-        expect(devices).toEqual([]);
-      });
-    });
-  });
 });
