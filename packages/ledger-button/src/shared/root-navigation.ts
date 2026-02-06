@@ -1,7 +1,4 @@
-import {
-  Account,
-  type KnownDeviceDbModel,
-} from "@ledgerhq/ledger-wallet-provider-core";
+import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
@@ -60,9 +57,6 @@ export class RootNavigationComponent extends LitElement {
   isModalOpen = false;
 
   @state()
-  private lastKnownDevice?: KnownDeviceDbModel;
-
-  @state()
   private hasTrackingConsent?: boolean;
 
   private contextSubscription?: Subscription;
@@ -75,7 +69,6 @@ export class RootNavigationComponent extends LitElement {
       this.languageContext.currentTranslation,
       this.modalContent,
     );
-    this.loadLastKnownDevice();
     this.subscribeToContext();
   }
 
@@ -137,23 +130,7 @@ export class RootNavigationComponent extends LitElement {
   }
 
   // PRIVATE METHODS
-  private async loadLastKnownDevice() {
-    try {
-      const knownDevices = await this.coreContext.getKnownDevices();
-
-      if (knownDevices.length > 0) {
-        const sorted = [...knownDevices].sort(
-          (a, b) => b.lastConnectedAt - a.lastConnectedAt,
-        );
-        this.lastKnownDevice = sorted[0];
-      }
-    } catch (error) {
-      console.debug("Failed to load known devices for toolbar chip", error);
-    }
-  }
-
   private handleModalOpen() {
-    this.loadLastKnownDevice();
     this.rootNavigationController.handleModalOpen();
     window.dispatchEvent(
       new CustomEvent("ledger-core-modal-open", {
@@ -230,18 +207,16 @@ export class RootNavigationComponent extends LitElement {
     const isOnConsentScreen =
       isHomeFlow && this.hasTrackingConsent === undefined;
 
-    const displayDevice = connectedDevice ?? this.lastKnownDevice;
-
     const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
 
     const title =
-      displayDevice && shouldShowDeviceChip
-        ? displayDevice.name
+      connectedDevice && shouldShowDeviceChip
+        ? connectedDevice.name
         : this.rootNavigationController.currentScreen?.toolbar.title;
 
     const deviceModelId =
-      displayDevice && shouldShowDeviceChip
-        ? mapDeviceModelId(displayDevice.modelId)
+      connectedDevice && shouldShowDeviceChip
+        ? mapDeviceModelId(connectedDevice.modelId)
         : undefined;
 
     const showSettings =
