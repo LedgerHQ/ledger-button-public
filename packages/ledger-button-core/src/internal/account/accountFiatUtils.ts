@@ -1,13 +1,8 @@
-import type { DetailedAccount } from "@ledgerhq/ledger-wallet-provider-core";
-
-export type TotalFiatBalance = {
-  value: string;
-  currency: string;
-};
+import type { AccountWithFiat, FiatBalance } from "./service/AccountService.js";
 
 export function calculateTotalFiatValue(
-  account: DetailedAccount,
-): TotalFiatBalance | undefined {
+  account: AccountWithFiat,
+): FiatBalance | undefined {
   const nativeFiatValue = account.fiatBalance?.value
     ? parseFloat(account.fiatBalance.value)
     : 0;

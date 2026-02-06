@@ -47,6 +47,7 @@ export type AccountWithFiat = Account & {
 export type DetailedAccount = Account & {
   fiatBalance: FiatBalance | undefined;
   transactionHistory: TransactionHistoryItem[] | undefined;
+  totalFiatValue?: FiatBalance;
 };
 
 export interface AccountService {
