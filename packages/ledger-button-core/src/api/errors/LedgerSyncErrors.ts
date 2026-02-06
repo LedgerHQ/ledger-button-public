@@ -22,3 +22,17 @@ export class FailedToFetchEncryptedAccountsError extends LedgerButtonError {
     super(message, "FailedToFetchEncryptedAccountsError", context);
   }
 }
+
+export class NoSelectedAccountError extends LedgerButtonError {
+  constructor(message = "No account selected in context") {
+    super(message, "NoSelectedAccountError");
+  }
+}
+
+export class AccountNotFoundError extends LedgerButtonError<{
+  address: string;
+}> {
+  constructor(message: string, context: { address: string }) {
+    super(message, "AccountNotFoundError", context);
+  }
+}

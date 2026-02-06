@@ -18,7 +18,7 @@ import type { WalletTransactionFeature } from "../components/molecule/wallet-act
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
-import { Destination } from "./routes.js";
+import { Destination, resolveCanGoBack } from "./routes.js";
 
 function mapDeviceModelId(dmkModelId?: string): DeviceModelId | undefined {
   if (!dmkModelId) {
@@ -216,8 +216,10 @@ export class RootNavigationComponent extends LitElement {
 
   override render() {
     const connectedDevice = this.coreContext.getConnectedDevice();
-    const canGoBack =
-      this.rootNavigationController.currentScreen?.canGoBack ?? false;
+    const canGoBack = resolveCanGoBack(
+      this.rootNavigationController.currentScreen?.canGoBack,
+      this.coreContext,
+    );
 
     const canClose =
       this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;

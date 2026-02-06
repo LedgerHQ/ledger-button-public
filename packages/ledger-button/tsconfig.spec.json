@@ -10,27 +10,31 @@
       "vitest"
     ],
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false
   },
   "include": [
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
     "vitest.config.mts",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.tsx",
-    "src/**/*.spec.tsx",
-    "src/**/*.test.js",
-    "src/**/*.spec.js",
-    "src/**/*.test.jsx",
-    "src/**/*.spec.jsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "src/**/*.d.ts",
-    "src/**/*.png"
+    "src/**/*.png",
+    "src/**/*.json"
+  ],
+  "exclude": [
+    "**/*.stories.ts",
+    "**/*.stories.js"
   ],
   "references": [
     {
-      "path": "./tsconfig.lib.json"
+      "path": "../ledger-button-core/tsconfig.lib.json"
     }
   ]
 }
