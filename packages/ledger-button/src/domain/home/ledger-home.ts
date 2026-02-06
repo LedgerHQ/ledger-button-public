@@ -181,10 +181,10 @@ export class LedgerHomeScreen extends LitElement {
     return html`
       <div class="lb-relative lb-h-full">
         <div
-          class="lb-flex lb-flex-col lb-items-stretch lb-gap-24 lb-p-24 lb-pt-0"
+          class="lb-flex lb-flex-col lb-items-stretch lb-gap-12 lb-p-24 lb-pt-0"
         >
           <div
-            class="lb-flex lb-flex-col lb-gap-32 lb-rounded-md lb-bg-muted lb-p-16"
+            class="lb-flex lb-flex-col lb-gap-24 lb-rounded-md lb-bg-muted lb-p-16"
           >
             <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
               <ledger-account-switch
@@ -213,14 +213,16 @@ export class LedgerHomeScreen extends LitElement {
             @wallet-action-click=${this.handleWalletActionClick}
           ></ledger-wallet-actions>
 
-          <ledger-tabs
-            .tabs=${[
-              { id: "tokens", label: "Tokens" },
-              { id: "transactions", label: "Transactions" },
-            ]}
-            .selectedId=${this.activeTab}
-            @tab-change=${this.handleTabChange}
-          ></ledger-tabs>
+          <div class="lb-mt-12">
+            <ledger-tabs
+              .tabs=${[
+                { id: "tokens", label: "Tokens" },
+                { id: "transactions", label: "Transactions" },
+              ]}
+              .selectedId=${this.activeTab}
+              @tab-change=${this.handleTabChange}
+            ></ledger-tabs>
+          </div>
 
           ${this.activeTab === "tokens"
             ? html`<token-list-screen></token-list-screen>`

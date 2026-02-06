@@ -17,6 +17,10 @@ export class SelectAccountController implements ReactiveController {
   balanceLoadingStates = new Map<string, BalanceLoadingState>();
   private accountsSubscription?: Subscription;
 
+  get isBalanceLoading(): boolean {
+    return this.accounts.some((account) => account.balance === undefined);
+  }
+
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,

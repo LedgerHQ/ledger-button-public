@@ -8,6 +8,7 @@ import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
+import { formatAddress } from "../../../utils/format-address.js";
 
 const accountItemVariants = cva([
   "lb-flex lb-min-w-full lb-cursor-pointer lb-justify-between lb-p-12",
@@ -120,20 +121,13 @@ export class LedgerAccountItemMolecule extends LitElement {
     );
   }
 
-  private formatAddress(address: string): string {
-    if (!address || address.length <= 8) {
-      return address;
-    }
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  }
-
   private renderAccountInfo() {
     return html`
       <div class="lb-flex lb-flex-col lb-gap-4 lb-text-left">
         <span class="lb-text-base lb-body-2-semi-bold">${this.title}</span>
         <div class="lb-flex lb-items-center lb-gap-4">
           <span class="lb-whitespace-nowrap lb-text-muted lb-body-3">
-            ${this.formatAddress(this.address)}
+            ${formatAddress(this.address)}
           </span>
           <ledger-crypto-icon
             ledger-id=${this.currencyId}
