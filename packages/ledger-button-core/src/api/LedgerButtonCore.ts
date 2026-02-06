@@ -265,15 +265,8 @@ export class LedgerButtonCore {
     return accountsWithBalance;
   }
 
-  getAccounts() {
-    this._logger.debug("Getting accounts");
-    return this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .getAccounts();
-  }
-
-  getAccountsWithBalance(): Observable<Account[]> {
-    this._logger.debug("Getting accounts observable");
+  getAccounts(): Observable<Account[]> {
+    this._logger.debug("Getting accounts with balance observable");
     return this.container
       .get<FetchAccountsWithBalanceUseCase>(
         accountModuleTypes.FetchAccountsWithBalanceUseCase,

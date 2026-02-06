@@ -37,6 +37,8 @@ export class SelectAccountController implements ReactiveController {
   }
 
   getAccounts() {
+    console.log("select-account-controller: getAccounts");
+
     if (this.accountsSubscription) {
       this.accountsSubscription.unsubscribe();
     }
@@ -44,7 +46,7 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccountsWithBalance().subscribe({
+    this.accountsSubscription = this.core.getAccounts().subscribe({
       next: (accounts) => {
         this.accounts = accounts;
         this.updateBalanceLoadingStates(accounts);
@@ -105,9 +107,9 @@ export class SelectAccountController implements ReactiveController {
   handleAccountItemClick = (
     event: CustomEvent<AccountItemClickEventDetail>,
   ) => {
-    const account = this.core
-      .getAccounts()
-      .find((acc) => acc.id === event.detail.ledgerId);
+    const account = this.accounts.find(
+      (acc: Account) => acc.id === event.detail.ledgerId,
+    );
 
     if (account) {
       this.selectAccount(account);
@@ -130,9 +132,9 @@ export class SelectAccountController implements ReactiveController {
   handleAccountItemShowTokensClick = (
     event: CustomEvent<AccountItemClickEventDetail>,
   ) => {
-    const account = this.core
-      .getAccounts()
-      .find((acc) => acc.id === event.detail.ledgerId);
+    const account = this.accounts.find(
+      (acc: Account) => acc.id === event.detail.ledgerId,
+    );
 
     if (account) {
       this.core.setPendingAccountId(account.id);
