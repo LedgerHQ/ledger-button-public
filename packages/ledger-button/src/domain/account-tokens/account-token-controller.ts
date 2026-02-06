@@ -44,11 +44,9 @@ export class AccountTokenController implements ReactiveController {
 
     this.accountsSubscription = this.core.getAccounts().subscribe({
       next: (accounts) => {
-        this.account = accounts.find(
-          (acc: Account) => acc.id === targetId,
-        ) as Account | null;
+        this.account =
+          accounts.find((acc: Account) => acc.id === targetId) ?? null;
 
-        // If the account is not found, navigate back to account list
         if (!this.account) {
           this.navigation.navigateBack();
         }

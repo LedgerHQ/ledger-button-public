@@ -143,7 +143,9 @@ export class LedgerAccountItemMolecule extends LitElement {
     if (this.isBalanceLoading) {
       return html`
         <div class="lb-flex lb-items-center lb-justify-center">
-          <ledger-skeleton class="lb-h-16 lb-w-80"></ledger-skeleton>
+          <ledger-skeleton
+            class="lb-h-16 lb-w-80 lb-rounded-full"
+          ></ledger-skeleton>
         </div>
       `;
     }
@@ -175,7 +177,9 @@ export class LedgerAccountItemMolecule extends LitElement {
         <div
           class="lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12"
         >
-          <ledger-skeleton class="lb-h-16 lb-w-112"></ledger-skeleton>
+          <ledger-skeleton
+            class="lb-h-16 lb-w-112 lb-rounded-full"
+          ></ledger-skeleton>
         </div>
       `;
     }
