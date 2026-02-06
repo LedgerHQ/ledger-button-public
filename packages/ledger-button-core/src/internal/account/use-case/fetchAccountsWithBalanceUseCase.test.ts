@@ -1,7 +1,7 @@
 import { lastValueFrom, toArray } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Account } from "../service/AccountService.js";
+import type { Account, AccountService } from "../service/AccountService.js";
 import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
@@ -80,6 +80,9 @@ function createMockHydrateImplementation(
 }
 describe("FetchAccountsWithBalanceUseCase", () => {
   let useCase: FetchAccountsWithBalanceUseCase;
+  let mockAccountService: {
+    getAccounts: ReturnType<typeof vi.fn>;
+  };
   let mockFetchAccountsUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
@@ -88,6 +91,9 @@ describe("FetchAccountsWithBalanceUseCase", () => {
   };
 
   beforeEach(() => {
+    mockAccountService = {
+      getAccounts: vi.fn().mockReturnValue([]),
+    };
     mockFetchAccountsUseCase = {
       execute: vi.fn(),
     };
@@ -97,11 +103,13 @@ describe("FetchAccountsWithBalanceUseCase", () => {
 
     useCase = new FetchAccountsWithBalanceUseCase(
       createMockLoggerFactory(),
+      mockAccountService as unknown as AccountService,
       mockFetchAccountsUseCase as unknown as FetchAccountsUseCase,
       mockHydrateAccountWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
     );
 
     vi.clearAllMocks();
+    mockAccountService.getAccounts.mockReturnValue([]);
   });
 
   describe("execute", () => {
@@ -222,6 +230,29 @@ describe("FetchAccountsWithBalanceUseCase", () => {
       // account-1 should remain with undefined balance (error handled)
       expect(finalEmission[0].balance).toBeUndefined();
       // account-2 should have balance loaded
+      expect(finalEmission[1].balance).toBe(USDT_BALANCE);
+    });
+
+    it("should use existing accounts from AccountService and stream balances without calling FetchAccountsUseCase", async () => {
+      const account1 = createMockAccount(mockEthAccountValue);
+      const account2 = createMockAccount(mockUsdtAccountValue);
+      const existingAccounts = [account1, account2];
+
+      mockAccountService.getAccounts.mockReturnValue(existingAccounts);
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        createMockHydrateImplementation(ETH_BALANCE, USDT_BALANCE),
+      );
+
+      const emissions = await lastValueFrom(useCase.execute().pipe(toArray()));
+
+      expect(mockFetchAccountsUseCase.execute).not.toHaveBeenCalled();
+      expect(emissions.length).toBeGreaterThan(0);
+      expect(emissions[0]).toHaveLength(2);
+      expect(emissions[0][0].balance).toBeUndefined();
+      expect(emissions[0][1].balance).toBeUndefined();
+
+      const finalEmission = emissions[emissions.length - 1];
+      expect(finalEmission[0].balance).toBe(ETH_BALANCE);
       expect(finalEmission[1].balance).toBe(USDT_BALANCE);
     });
   });
