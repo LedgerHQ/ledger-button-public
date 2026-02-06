@@ -1,7 +1,6 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
-import { KnownDeviceDbModel } from "./model/knownDeviceDbModel.js";
 import { UserConsent } from "./model/UserConsent.js";
 import { Account } from "../account/service/AccountService.js";
 
@@ -37,9 +36,4 @@ export interface StorageService {
   saveWelcomeScreenCompleted(): Promise<void>;
   isWelcomeScreenCompleted(): Promise<boolean>;
   removeWelcomeScreenCompleted(): Promise<void>;
-
-  saveKnownDevice(device: KnownDeviceDbModel): Promise<void>;
-  getKnownDevices(): Promise<KnownDeviceDbModel[]>;
-  removeKnownDevice(deviceId: string): Promise<void>;
-  clearKnownDevices(): Promise<void>;
 }

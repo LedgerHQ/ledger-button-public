@@ -4,7 +4,6 @@ import { Either, Just, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
-import { type KnownDeviceDbModel } from "./model/knownDeviceDbModel.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
@@ -254,74 +253,4 @@ export class DefaultStorageService implements StorageService {
     });
   }
 
-  // Known Devices Management
-  async saveKnownDevice(device: KnownDeviceDbModel): Promise<void> {
-    const existingDevices = await this.getKnownDevices();
-    const existingDevice = existingDevices.find(
-      (d) => d.name === device.name && d.type === device.type,
-    );
-
-    const isUpdate = !!existingDevice;
-    const updatedDevices = isUpdate
-      ? existingDevices.map((d) =>
-          d.name === device.name && d.type === device.type
-            ? { ...d, lastConnectedAt: Date.now(), modelId: device.modelId }
-            : d,
-        )
-      : [...existingDevices, device];
-
-    this.logger.debug(isUpdate ? "Updated known device" : "Added new known device", {
-      device: device.name,
-    });
-
-    const result = await this.indexedDbService.storeKnownDevices(updatedDevices);
-    result.caseOf({
-      Right: () => {
-        this.logger.debug("Known devices saved to IndexedDB");
-      },
-      Left: (error) => {
-        this.logger.error("Error saving known devices to IndexedDB", { error });
-      },
-    });
-  }
-
-  async getKnownDevices(): Promise<KnownDeviceDbModel[]> {
-    const result = await this.indexedDbService.getKnownDevices();
-    return result.caseOf({
-      Right: (devices) => devices,
-      Left: (error) => {
-        this.logger.error("Error getting known devices from IndexedDB", {
-          error,
-        });
-        return [];
-      },
-    });
-  }
-
-  async removeKnownDevice(deviceId: string): Promise<void> {
-    const existingDevices = await this.getKnownDevices();
-    const filteredDevices = existingDevices.filter((d) => d.id !== deviceId);
-    const result =
-      await this.indexedDbService.storeKnownDevices(filteredDevices);
-    result.caseOf({
-      Right: () => {
-        this.logger.debug("Removed known device", { deviceId });
-      },
-      Left: (error) => {
-        this.logger.error("Error removing known device", { error, deviceId });
-      },
-    });
-  }
-
-  async clearKnownDevices(): Promise<void> {
-    const result = await this.indexedDbService.storeKnownDevices([]);
-    result.caseOf({
-      Right: () => {
-        this.logger.debug("Cleared all known devices");
-      },
-      Left: (error) => {
-        this.logger.error("Error clearing known devices", { error });
-      },
-    });
-  }
 }

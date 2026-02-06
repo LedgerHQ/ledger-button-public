@@ -5,7 +5,6 @@ const INDEXED_DB_KEYS = {
   ENCRYPTION_KEY: "encryptionKey",
   USER_CONSENT: "userConsent",
   WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
-  KNOWN_DEVICES: "knownDevices",
 } as const;
 
 export const INDEXED_DB_VERSION = 3;
