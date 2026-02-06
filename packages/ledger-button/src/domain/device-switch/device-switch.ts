@@ -2,9 +2,8 @@ import "../../components/index.js";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
-import type { DeviceItemClickEventDetail } from "../../components/molecule/device-item/ledger-device-item.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -58,91 +57,47 @@ export class DeviceSwitchScreen extends LitElement {
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
-  @state()
-  private isLoading = true;
-
   controller!: DeviceSwitchController;
 
   override connectedCallback() {
     super.connectedCallback();
 
     this.controller = new DeviceSwitchController(
-      this,
-      this.coreContext,
       this.navigation,
       this.destinations,
     );
-
-    this.controller.hostConnected().finally(() => {
-      this.isLoading = false;
-      this.requestUpdate();
-    });
   }
-
-  handleDeviceItemClick = (e: CustomEvent<DeviceItemClickEventDetail>) => {
-    this.controller.connectToDevice({
-      title: e.detail.title,
-      connectionType: e.detail.connectionType,
-      timestamp: e.detail.timestamp,
-    });
-  };
 
   handleAddNewDevice = () => {
     this.controller.addNewDevice();
   };
 
-  private renderDeviceList() {
-    const devices = this.controller?.getDevices() || [];
+  private renderConnectedDevice() {
+    const connectedDevice = this.coreContext.getConnectedDevice();
 
-    if (this.isLoading) {
-      return html`
-        <div class="lb-flex lb-items-center lb-justify-center lb-p-24">
-          <div
-            class="lb-border-primary lb-h-32 lb-w-32 lb-animate-spin lb-rounded-full lb-border-b-2"
-          ></div>
-        </div>
-      `;
+    if (!connectedDevice) {
+      return "";
     }
 
-    if (devices.length === 0) {
-      return html`
-        <div
-          class="lb-flex lb-flex-col lb-items-center lb-gap-16 lb-p-24 lb-text-center"
-        >
-          <div class="lb-text-muted lb-body-2">
-            ${this.languageContext.currentTranslation.deviceSwitch.noDevices}
-          </div>
-        </div>
-      `;
-    }
+    const connectionType = this.controller.getConnectionTypeFromTransport(
+      connectedDevice.type,
+    );
+    const deviceModelId = this.controller.mapDeviceModelId(
+      connectedDevice.modelId,
+    );
+    const lang = this.languageContext.currentTranslation;
 
     return html`
       <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
-        ${devices.map((device) => {
-          const connectionType = this.controller.getConnectionTypeFromTransport(
-            device.transport,
-          );
-          const connectedDevice = this.coreContext.getConnectedDevice();
-          const isConnected =
-            connectedDevice && connectedDevice.name === device.name;
-          const status = isConnected ? "connected" : "available";
-          const deviceModelId = this.controller.mapDeviceModelId(device.modelId);
-
-          const lang = this.languageContext.currentTranslation;
-
-          return html`
-            <ledger-device-item
-              device-id=${device.id}
-              title=${device.name}
-              connection-type=${connectionType}
-              device-model-id=${deviceModelId}
-              status=${status}
-              connected-text=${lang.deviceSwitch.status.connected}
-              available-text=${lang.deviceSwitch.status.available}
-              @device-item-click=${this.handleDeviceItemClick}
-            ></ledger-device-item>
-          `;
-        })}
+        <ledger-device-item
+          title=${connectedDevice.name}
+          connection-type=${connectionType}
+          device-model-id=${deviceModelId}
+          status="connected"
+          .clickable=${false}
+          connected-text=${lang.deviceSwitch.status.connected}
+          available-text=${lang.deviceSwitch.status.available}
+        ></ledger-device-item>
       </div>
     `;
   }
@@ -161,17 +116,19 @@ export class DeviceSwitchScreen extends LitElement {
   }
 
   private renderAddNewDeviceSection() {
+    const lang = this.languageContext.currentTranslation;
+
     return html`
       <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24">
         <ledger-connection-item
-          title="${this.languageContext.currentTranslation.deviceSwitch
-            .connectBluetooth}"
+          title="${lang.deviceSwitch.connectBluetooth}"
+          hint="${lang.deviceSwitch.connectBluetoothHint}"
           connection-type="bluetooth"
           @connection-item-click=${this.handleAddNewDevice}
         ></ledger-connection-item>
         <ledger-connection-item
-          title="${this.languageContext.currentTranslation.deviceSwitch
-            .connectUsb}"
+          title="${lang.deviceSwitch.connectUsb}"
+          hint="${lang.deviceSwitch.connectUsbHint}"
           connection-type="usb"
           @connection-item-click=${this.handleAddNewDevice}
         ></ledger-connection-item>
@@ -182,7 +139,7 @@ export class DeviceSwitchScreen extends LitElement {
   override render() {
     return html`
       <div class="lb-flex lb-flex-col">
-        ${this.renderDeviceList()} ${this.renderSeparator()}
+        ${this.renderConnectedDevice()} ${this.renderSeparator()}
         ${this.renderAddNewDeviceSection()}
       </div>
     `;

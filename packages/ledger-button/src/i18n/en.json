@@ -67,7 +67,9 @@
     "noDevices": "No previously connected devices found",
     "connectAnother": "Or connect another Ledger",
     "connectBluetooth": "Connect a Bluetooth",
+    "connectBluetoothHint": "Power on and unlock your device",
     "connectUsb": "Connect with USB",
+    "connectUsbHint": "Plug in and unlock your device",
     "status": {
       "connected": "Connected",
       "available": "Available"
