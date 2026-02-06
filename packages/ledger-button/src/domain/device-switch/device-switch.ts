@@ -4,6 +4,7 @@ import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import type { ConnectionItemClickEventDetail } from "../../components/molecule/connection-item/ledger-connection-item.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -63,13 +64,20 @@ export class DeviceSwitchScreen extends LitElement {
     super.connectedCallback();
 
     this.controller = new DeviceSwitchController(
+      this.coreContext,
       this.navigation,
       this.destinations,
     );
   }
 
-  handleAddNewDevice = () => {
-    this.controller.addNewDevice();
+  handleConnectionItemClick = (
+    e: CustomEvent<ConnectionItemClickEventDetail>,
+  ) => {
+    const connectionType = e.detail.connectionType;
+
+    if (connectionType) {
+      this.controller.connectNewDevice(connectionType);
+    }
   };
 
   private renderConnectedDevice() {
@@ -120,13 +128,13 @@ export class DeviceSwitchScreen extends LitElement {
           title="${lang.deviceSwitch.connectBluetooth}"
           hint="${lang.deviceSwitch.connectBluetoothHint}"
           connection-type="bluetooth"
-          @connection-item-click=${this.handleAddNewDevice}
+          @connection-item-click=${this.handleConnectionItemClick}
         ></ledger-connection-item>
         <ledger-connection-item
           title="${lang.deviceSwitch.connectUsb}"
           hint="${lang.deviceSwitch.connectUsbHint}"
           connection-type="usb"
-          @connection-item-click=${this.handleAddNewDevice}
+          @connection-item-click=${this.handleConnectionItemClick}
         ></ledger-connection-item>
       </div>
     `;
