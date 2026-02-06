@@ -81,7 +81,7 @@ export class LedgerToolbar extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
+        class="lb-relative lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
       >
         <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
           <slot name="left-icon">
@@ -100,19 +100,25 @@ export class LedgerToolbar extends LitElement {
               : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
           </slot>
         </div>
-        ${this.deviceModelId
-          ? html`
-              <slot name="chip">
-                <ledger-chip
-                  label=${this.title}
-                  deviceModelId=${this.deviceModelId}
-                  @ledger-chip-click=${this.handleChipClick}
-                ></ledger-chip>
-              </slot>
-            `
-          : this.title
-            ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
-            : nothing}
+        <div
+          class="lb-pointer-events-none lb-absolute lb-left-0 lb-right-0 lb-flex lb-items-center lb-justify-center"
+        >
+          <div class="lb-pointer-events-auto">
+            ${this.deviceModelId
+              ? html`
+                  <slot name="chip">
+                    <ledger-chip
+                      label=${this.title}
+                      deviceModelId=${this.deviceModelId}
+                      @ledger-chip-click=${this.handleChipClick}
+                    ></ledger-chip>
+                  </slot>
+                `
+              : this.title
+                ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
+                : nothing}
+          </div>
+        </div>
 
         <div class="lb-flex lb-items-center lb-gap-8">
           ${this.showSettings
@@ -132,7 +138,9 @@ export class LedgerToolbar extends LitElement {
                 </div>
               `
             : nothing}
-          <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
+          <div
+            class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center"
+          >
             ${this.canClose
               ? html`
                   <ledger-button
