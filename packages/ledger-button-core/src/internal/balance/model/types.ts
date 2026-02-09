@@ -1,3 +1,5 @@
+import { formatBalance } from "../../currency/formatCurrency.js";
+
 export type AccountBalance = {
   nativeBalance: NativeBalance;
   tokenBalances: TokenBalance[];
@@ -43,23 +45,6 @@ export class TokenBalance {
   }
 
   get balanceFormatted(): string {
-    const divisor = BigInt(10 ** this.decimals);
-    const wholePart = this.balance / divisor;
-    const fractionalPart = this.balance % divisor;
-
-    if (fractionalPart === BigInt(0)) {
-      return wholePart.toString();
-    }
-
-    const fractionalStr = fractionalPart
-      .toString()
-      .padStart(this.decimals, "0");
-    const trimmedFractional = fractionalStr.replace(/0+$/, "");
-
-    if (trimmedFractional === "") {
-      return wholePart.toString();
-    }
-
-    return `${wholePart}.${trimmedFractional}`;
+    return formatBalance(this.balance, this.decimals, this.ticker);
   }
 }

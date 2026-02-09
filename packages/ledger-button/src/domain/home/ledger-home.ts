@@ -199,13 +199,9 @@ export class LedgerHomeScreen extends LitElement {
               ></ledger-crypto-icon>
             </div>
 
-            <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-              <ledger-balance
-                label=${lang.home.balance}
-                .balance=${account.balance}
-                .ticker=${account.ticker}
-              ></ledger-balance>
-            </div>
+            <ledger-fiat-total
+              .value=${account.totalFiatValue?.value ?? "0"}
+            ></ledger-fiat-total>
           </div>
 
           <ledger-wallet-actions

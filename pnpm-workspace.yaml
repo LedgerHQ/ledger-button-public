@@ -8,6 +8,8 @@ cleanupUnusedCatalogs: true
 overrides:
   purify-ts: 2.1.0
 catalog:
+  "@ledgerhq/coin-framework": ^5.0.0
+  bignumber.js: ^9.1.2
   "@angular/animations": ^17.0.0
   "@angular/common": ^17.0.0
   "@angular/compiler": ^17.0.0
