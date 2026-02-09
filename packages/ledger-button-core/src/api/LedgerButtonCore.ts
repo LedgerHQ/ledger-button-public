@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { lastValueFrom, Observable, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -19,6 +19,7 @@ import {
   Account,
   type AccountService,
 } from "../internal/account/service/AccountService.js";
+import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
 import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
@@ -247,29 +248,20 @@ export class LedgerButtonCore {
       .execute({ type });
   }
 
-  // Account methods
-  async fetchAccounts(): Promise<Account[]> {
-    this._logger.debug("Fetching accounts");
-    const accounts = this.container
+  async fetchAccountsFromCloudSync(): Promise<Account[]> {
+    this._logger.debug("Fetching accounts from CloudSync");
+    return this.container
+      .get<FetchAccountsUseCase>(accountModuleTypes.FetchAccountsUseCase)
+      .execute();
+  }
+
+  getAccounts(): Observable<Account[]> {
+    this._logger.debug("Getting accounts with balance observable");
+    return this.container
       .get<FetchAccountsWithBalanceUseCase>(
         accountModuleTypes.FetchAccountsWithBalanceUseCase,
       )
       .execute();
-
-    const accountsWithBalance: Account[] = await lastValueFrom(accounts);
-
-    this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .setAccounts(accountsWithBalance);
-
-    return accountsWithBalance;
-  }
-
-  getAccounts() {
-    this._logger.debug("Getting accounts");
-    return this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .getAccounts();
   }
 
   selectAccount(account: Account) {
