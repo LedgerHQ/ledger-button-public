@@ -1,13 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  Field,
-  Fieldset,
-  Input,
-  Label,
-  Select,
-} from "@headlessui/react";
+import { Field, Fieldset, Input, Label, Select } from "@headlessui/react";
 
 import type { LedgerProviderConfig } from "../hooks/useProviders";
 
@@ -29,7 +23,8 @@ export function SettingsBlock({
 }: SettingsBlockProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [localConfig, setLocalConfig] = useState<LedgerProviderConfig>(config);
-  const [lastAppliedConfig, setLastAppliedConfig] = useState<LedgerProviderConfig>(config);
+  const [lastAppliedConfig, setLastAppliedConfig] =
+    useState<LedgerProviderConfig>(config);
 
   const handleInputChange = useCallback(
     (field: keyof LedgerProviderConfig, value: string) => {
@@ -38,7 +33,7 @@ export function SettingsBlock({
         [field]: value,
       }));
     },
-    []
+    [],
   );
 
   const handleApply = useCallback(() => {
@@ -62,14 +57,18 @@ export function SettingsBlock({
           <span className={blockStyles["block__icon"]}>⚙️</span>
           Settings / Configuration
         </h3>
-        <span className={blockStyles["block__toggle"]}>{isExpanded ? "▼" : "▶"}</span>
+        <span className={blockStyles["block__toggle"]}>
+          {isExpanded ? "▼" : "▶"}
+        </span>
       </div>
 
       {isExpanded && (
         <div className={blockStyles["block__content"]}>
           <Fieldset className={styles["settings-block__fieldset"]}>
             <Field className={styles["settings-block__field"]}>
-              <Label className={styles["settings-block__label"]}>dApp Identifier</Label>
+              <Label className={styles["settings-block__label"]}>
+                dApp Identifier
+              </Label>
               <Input
                 className={styles["settings-block__input"]}
                 type="text"
@@ -93,7 +92,9 @@ export function SettingsBlock({
             </Field>
 
             <Field className={styles["settings-block__field"]}>
-              <Label className={styles["settings-block__label"]}>Button Position</Label>
+              <Label className={styles["settings-block__label"]}>
+                Button Position
+              </Label>
               <Select
                 className={styles["settings-block__select"]}
                 value={localConfig.buttonPosition}
@@ -105,17 +106,18 @@ export function SettingsBlock({
                 <option value="bottom-left">Bottom Left</option>
                 <option value="top-right">Top Right</option>
                 <option value="top-left">Top Left</option>
+                <option value="middle-right">Middle Right</option>
               </Select>
             </Field>
 
             <Field className={styles["settings-block__field"]}>
-              <Label className={styles["settings-block__label"]}>Log Level</Label>
+              <Label className={styles["settings-block__label"]}>
+                Log Level
+              </Label>
               <Select
                 className={styles["settings-block__select"]}
                 value={localConfig.logLevel}
-                onChange={(e) =>
-                  handleInputChange("logLevel", e.target.value)
-                }
+                onChange={(e) => handleInputChange("logLevel", e.target.value)}
               >
                 <option value="debug">Debug</option>
                 <option value="info">Info</option>
@@ -125,7 +127,9 @@ export function SettingsBlock({
             </Field>
 
             <Field className={styles["settings-block__field"]}>
-              <Label className={styles["settings-block__label"]}>Environment</Label>
+              <Label className={styles["settings-block__label"]}>
+                Environment
+              </Label>
               <Select
                 className={styles["settings-block__select"]}
                 value={localConfig.environment}
