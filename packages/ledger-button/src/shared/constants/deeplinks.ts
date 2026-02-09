@@ -8,17 +8,18 @@ export type DeepLinkContext = {
   address?: string;
 };
 
+const BASE_URL = "ledgerwallet://";
 /**
  * Base deep links for wallet actions.
  * Note: "sell" is not supported in Ledger Live Desktop, falls back to "buy".
  */
 const BASE_DEEPLINKS: Record<WalletTransactionFeature, string> = {
-  send: "ledgerwallet://send",
-  receive: "ledgerwallet://receive",
-  swap: "ledgerwallet://swap",
-  buy: "ledgerwallet://buy",
-  earn: "ledgerwallet://earn",
-  sell: "ledgerwallet://buy",
+  send: "send",
+  receive: "receive",
+  swap: "swap",
+  buy: "buy",
+  earn: "earn",
+  sell: "buy",
 };
 
 /**
@@ -31,30 +32,50 @@ const BASE_DEEPLINKS: Record<WalletTransactionFeature, string> = {
  * - buy: no params (params passed through to liveApp)
  * - earn: ?cryptoAssetId={currency} (pre-fills asset for deposit)
  * - sell: not supported in Desktop, falls back to buy
+ *
+ * When partner is provided, appends tracking query params: deeplinkType, deeplinkDestination,
+ * deeplinkChannel, deeplinkButtonPartner (for deeplink_clicked analytics).
  */
 export function buildWalletActionDeepLink(
   action: WalletTransactionFeature,
   context?: DeepLinkContext,
+  partner?: string,
 ): string {
-  const baseUrl = BASE_DEEPLINKS[action];
+  const route = BASE_DEEPLINKS[action];
+  const baseUrl = `${BASE_URL}${route}`;
 
+  let urlString: string;
   if (!context?.currency) {
-    return baseUrl;
+    urlString = baseUrl;
+  } else {
+    switch (action) {
+      case "send":
+      case "receive":
+        urlString = `${baseUrl}?currency=${context.currency}`;
+        break;
+      case "swap":
+        urlString = `${baseUrl}?fromToken=${context.currency}`;
+        break;
+      case "earn":
+        urlString = `${baseUrl}?cryptoAssetId=${context.currency}`;
+        break;
+      case "buy":
+      case "sell":
+      default:
+        urlString = baseUrl;
+    }
   }
 
-  switch (action) {
-    case "send":
-    case "receive":
-      return `${baseUrl}?currency=${context.currency}`;
-    case "swap":
-      return `${baseUrl}?fromToken=${context.currency}`;
-    case "earn":
-      return `${baseUrl}?cryptoAssetId=${context.currency}`;
-    case "buy":
-    case "sell":
-    default:
-      return baseUrl;
+  if (!partner) {
+    return urlString;
   }
+
+  const url = new URL(urlString);
+  url.searchParams.set("deeplinkType", "Internal");
+  url.searchParams.set("deeplinkDestination", route);
+  url.searchParams.set("deeplinkChannel", "Button");
+  url.searchParams.set("deeplinkButtonPartner", partner);
+  return url.toString();
 }
 
 /**

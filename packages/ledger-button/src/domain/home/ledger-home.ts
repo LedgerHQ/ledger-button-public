@@ -135,9 +135,13 @@ export class LedgerHomeScreen extends LitElement {
 
     void this.coreContext.trackWalletRedirectConfirmed(action);
 
-    const deeplink = buildWalletActionDeepLink(action, {
-      currency: this.controller.selectedAccount?.currencyId,
-    });
+    const deeplink = buildWalletActionDeepLink(
+      action,
+      {
+        currency: this.controller.selectedAccount?.currencyId,
+      },
+      this.coreContext.getConfig().dAppIdentifier,
+    );
     window.open(deeplink, "_blank", "noopener,noreferrer");
 
     this.showRedirectDrawer = false;
