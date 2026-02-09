@@ -16,7 +16,7 @@ export class LedgerSkeleton extends LitElement {
     return html`
       <div
         data-slot="skeleton"
-        class="lb-h-full lb-w-full lb-animate-pulse lb-rounded-[inherit] lb-bg-muted"
+        class="lb-h-full lb-w-full lb-animate-pulse lb-rounded-[inherit] lb-bg-muted-transparent"
         role="presentation"
         aria-hidden="true"
       ></div>

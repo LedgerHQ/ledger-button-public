@@ -35,7 +35,7 @@ export class RetrievingAccountsController implements ReactiveController {
 
   async fetchAccounts() {
     try {
-      const accounts = await this.core.fetchAccounts();
+      const accounts = await this.core.fetchAccountsFromCloudSync();
       this.host.requestUpdate();
 
       if (!accounts || accounts.length === 0) {

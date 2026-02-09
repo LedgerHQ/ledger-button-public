@@ -14,7 +14,11 @@ import {
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
-import type { Account, AccountUpdate } from "../service/AccountService.js";
+import type {
+  Account,
+  AccountService,
+  AccountUpdate,
+} from "../service/AccountService.js";
 import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
@@ -25,6 +29,8 @@ export class FetchAccountsWithBalanceUseCase {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
+    @inject(accountModuleTypes.AccountService)
+    private readonly accountService: AccountService,
     @inject(accountModuleTypes.FetchAccountsUseCase)
     private readonly fetchAccountsUseCase: FetchAccountsUseCase,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
@@ -34,7 +40,13 @@ export class FetchAccountsWithBalanceUseCase {
   }
 
   execute(): Observable<Account[]> {
-    return from(this.fetchAccountsUseCase.execute()).pipe(
+    const existingAccounts = this.accountService.getAccounts();
+    const accountsSource =
+      existingAccounts.length > 0
+        ? of(existingAccounts)
+        : from(this.fetchAccountsUseCase.execute());
+
+    return accountsSource.pipe(
       switchMap((accounts) => {
         const initialAccounts =
           this.initializeAccountsWithEmptyBalances(accounts);
