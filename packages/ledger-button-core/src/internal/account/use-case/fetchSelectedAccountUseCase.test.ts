@@ -191,6 +191,10 @@ describe("FetchSelectedAccountUseCase", () => {
             value: "5000.00",
             currency: "USD",
           });
+          expect(account.totalFiatValue).toEqual({
+            value: "5000.00",
+            currency: "USD",
+          });
           expect(account.transactionHistory).toEqual(
             hydratedAccount.transactionHistory,
           );

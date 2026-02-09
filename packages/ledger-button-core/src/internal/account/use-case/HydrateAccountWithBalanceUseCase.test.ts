@@ -110,7 +110,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("1.5000");
+      expect(result.balance).toBe("1.5");
       expect(result.tokens).toHaveLength(2);
       expect(result.tokens[0]).toEqual({
         ledgerId: "ethereum/erc20/usdc",
@@ -147,15 +147,15 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("0.0000");
+      expect(result.balance).toBe("0");
       expect(result.tokens).toHaveLength(0);
     });
 
-    it("should format balance to 4 decimal places", async () => {
+    it("should format balance with smart truncation", async () => {
       const mockAccount = createMockAccount();
       const mockBalanceData: AccountBalance = {
         nativeBalance: {
-          balance: BigInt("1234567890123456789"), // ~1.2345... ETH
+          balance: BigInt("1234567890123456789"), // ~1.23456... ETH
         },
         tokenBalances: [],
       };
@@ -166,7 +166,8 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("1.2345");
+      // formatCurrencyUnit applies smart truncation (no trailing zeros, rounded to significant digits)
+      expect(result.balance).toBe("1.23456");
     });
 
     it("should pass withTokens parameter to balance service", async () => {
@@ -203,7 +204,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("1.0000");
+      expect(result.balance).toBe("1");
       expect(result.tokens).toHaveLength(0);
       expect(mockBackendService.broadcast).toHaveBeenCalledWith({
         blockchain: { name: "ethereum", chainId: "1" },
@@ -228,7 +229,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("0.0000");
+      expect(result.balance).toBe("0");
       expect(result.tokens).toHaveLength(0);
     });
 

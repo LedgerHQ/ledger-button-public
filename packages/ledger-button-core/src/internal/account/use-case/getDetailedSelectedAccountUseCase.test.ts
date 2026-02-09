@@ -52,6 +52,19 @@ describe("GetDetailedSelectedAccountUseCase", () => {
     tokens: [],
   };
 
+  const accountWithNameButNoFiat: Account = {
+    id: "account-3",
+    currencyId: "ethereum",
+    freshAddress: "0x9876543210fedcba9876543210fedcba98765432",
+    seedIdentifier: "seed-1",
+    derivationMode: "default",
+    index: 2,
+    name: "My Account From Ledger Sync",
+    ticker: "ETH",
+    balance: "500000000000000000",
+    tokens: [],
+  };
+
   beforeEach(() => {
     mockLogger = {
       debug: vi.fn(),
@@ -130,6 +143,23 @@ describe("GetDetailedSelectedAccountUseCase", () => {
         expect(result.isLeft()).toBe(true);
         result.mapLeft((error) => {
           expect(error).toBeInstanceOf(NoSelectedAccountError);
+        });
+        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
+      });
+
+      it("should fetch account details when account has name but no fiatBalance property", async () => {
+        mockContextService.getContext.mockReturnValue({
+          selectedAccount: accountWithNameButNoFiat,
+        });
+        mockFetchSelectedAccountUseCase.execute.mockResolvedValue(
+          Right(hydratedAccount),
+        );
+
+        const result = await useCase.execute();
+
+        expect(result.isRight()).toBe(true);
+        result.map((account) => {
+          expect(account).toEqual(hydratedAccount);
         });
         expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
       });

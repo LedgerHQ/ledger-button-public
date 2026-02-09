@@ -1,7 +1,7 @@
 import "../../atom/crypto-icon/ledger-crypto-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -24,6 +24,7 @@ const clickableVariants = cva([], {
 });
 
 export type ChainItemType = "token" | "network";
+export type IconVariant = "rounded" | "square";
 
 export interface LedgerChainItemAttributes {
   ledgerId: string;
@@ -31,8 +32,10 @@ export interface LedgerChainItemAttributes {
   subtitle: string;
   ticker: string;
   value: string;
+  fiatValue?: string;
   isClickable: boolean;
   type: ChainItemType;
+  iconVariant?: IconVariant;
 }
 
 @customElement("ledger-chain-item")
@@ -53,11 +56,17 @@ export class LedgerChainItem extends LitElement {
   @property({ type: String })
   value = "";
 
+  @property({ type: String })
+  fiatValue?: string;
+
   @property({ type: Boolean, attribute: "isClickable" })
   isClickable = false;
 
   @property({ type: String })
   type: ChainItemType = "token";
+
+  @property({ type: String })
+  iconVariant?: IconVariant;
 
   private get containerClasses() {
     return {
@@ -96,7 +105,8 @@ export class LedgerChainItem extends LitElement {
   }
 
   private renderLeftSection() {
-    const iconVariant = this.type === "token" ? "rounded" : "square";
+    const iconVariant =
+      this.iconVariant ?? (this.type === "token" ? "rounded" : "square");
 
     return html`
       <div class="lb-flex lb-items-center lb-gap-12">
@@ -112,12 +122,12 @@ export class LedgerChainItem extends LitElement {
             ? html`<span class="lb-text-base lb-body-2-semi-bold"
                 >${this.title}</span
               >`
-            : ""}
+            : nothing}
           ${this.subtitle
             ? html`<span class="lb-text-muted lb-body-3"
                 >${this.subtitle}</span
               >`
-            : ""}
+            : nothing}
         </div>
       </div>
     `;
@@ -125,8 +135,15 @@ export class LedgerChainItem extends LitElement {
 
   private renderRightSection() {
     return html`
-      <div class="lb-flex lb-items-center lb-justify-end lb-text-right">
-        <span class="lb-text-base lb-body-2-semi-bold"
+      <div
+        class="lb-flex lb-flex-col lb-items-end lb-justify-center lb-text-right"
+      >
+        ${this.fiatValue
+          ? html`<span class="lb-text-base lb-body-2-semi-bold"
+              >${this.fiatValue}</span
+            >`
+          : nothing}
+        <span class="lb-text-muted lb-body-3"
           >${this.value} ${this.ticker}</span
         >
       </div>
