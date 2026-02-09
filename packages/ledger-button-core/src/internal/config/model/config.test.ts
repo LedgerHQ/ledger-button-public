@@ -9,7 +9,7 @@ describe("Config", () => {
       });
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
+        "https://cloud-sync-backend.api.ledger.com",
       );
     });
 
@@ -33,7 +33,7 @@ describe("Config", () => {
       });
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
+        "https://cloud-sync-backend.api.ledger.com",
       );
     });
 
@@ -50,7 +50,7 @@ describe("Config", () => {
       config.setEnvironment("production");
       expect(config.environment).toBe("production");
       expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
+        "https://cloud-sync-backend.api.ledger.com",
       );
     });
 
