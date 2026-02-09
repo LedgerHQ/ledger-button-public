@@ -32,6 +32,7 @@ const PROVIDER_METHODS = [
   "eth_getTransactionCount",
   "eth_maxPriorityFeePerGas",
   "wallet_switchEthereumChain",
+  "wallet_getCapabilities", //Not supported by Ledger Button, test for EIP error result
 ] as const;
 
 interface ProviderRequestModalProps {
