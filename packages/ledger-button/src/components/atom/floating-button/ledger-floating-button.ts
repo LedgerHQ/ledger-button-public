@@ -16,7 +16,8 @@ export type FloatingButtonPosition =
   | "bottom-center"
   | "top-right"
   | "top-left"
-  | "top-center";
+  | "top-center"
+  | "middle-right";
 
 export type FloatingButtonVariant = "circular" | "compact";
 
@@ -37,6 +38,7 @@ const floatingButtonVariants = cva(
         "top-right": "lb-right-24 lb-top-24",
         "top-left": "lb-left-24 lb-top-24",
         "top-center": "lb-left-1/2 lb-top-24 lb--translate-x-1/2",
+        "middle-right": "lb-right-24 lb-top-1/2 lb--translate-y-1/2",
         none: "",
       },
     },
