@@ -72,6 +72,7 @@ function mapTransactionHistoryToListItem(
     amount: transaction.formattedValue,
     ticker: transaction.ticker,
     title: transaction.currencyName,
+    // TODO [LBD-287]: Wire up fiat conversion for transaction history items
     fiatAmount: "",
     fiatCurrency: "",
   };
