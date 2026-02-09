@@ -28,6 +28,7 @@ const PROVIDER_METHODS = [
   "eth_getBalance",
   "eth_getBlockByNumber",
   "eth_estimateGas",
+  "eth_call",
   "eth_getTransactionCount",
   "eth_maxPriorityFeePerGas",
   "wallet_switchEthereumChain",
