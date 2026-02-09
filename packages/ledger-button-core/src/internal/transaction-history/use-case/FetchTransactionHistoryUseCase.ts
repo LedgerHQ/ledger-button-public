@@ -61,40 +61,40 @@ export class FetchTransactionHistoryUseCase {
       this.calDataSource.getCurrencyInformation(currencyId),
     ]);
 
-    if (transactionResult.isLeft()) {
-      this.logger.error("Failed to fetch transaction history", {
-        error: transactionResult.extract(),
-      });
-      return Left(transactionResult.extract() as TransactionHistoryError);
-    }
+    return await transactionResult.caseOf({
+      Left: async (error) => {
+        this.logger.error("Failed to fetch transaction history", { error });
+        return Left(error);
+      },
+      Right: async (explorerResponse) => {
+        const nativeAssetInfo: AssetInfo = currencyInfoResult.caseOf({
+          Left: () => ({
+            name: currencyId,
+            ticker: currencyId.toUpperCase(),
+            decimals: 18,
+          }),
+          Right: (info) => ({
+            name: info.name,
+            ticker: info.ticker,
+            decimals: info.decimals,
+          }),
+        });
 
-    const nativeAssetInfo: AssetInfo = currencyInfoResult.caseOf({
-      Left: () => ({
-        name: currencyId,
-        ticker: currencyId.toUpperCase(),
-        decimals: 18,
-      }),
-      Right: (info) => ({
-        name: info.name,
-        ticker: info.ticker,
-        decimals: info.decimals,
-      }),
+        const transformedResult = await this.transformResponse(
+          explorerResponse,
+          address.toLowerCase(),
+          currencyId,
+          nativeAssetInfo,
+        );
+
+        this.logger.debug("Transaction history fetched successfully", {
+          transactionCount: transformedResult.transactions.length,
+          hasNextPage: !!transformedResult.nextPageToken,
+        });
+
+        return Right(transformedResult);
+      },
     });
-
-    const explorerResponse = transactionResult.extract() as ExplorerResponse;
-    const transformedResult = await this.transformResponse(
-      explorerResponse,
-      address.toLowerCase(),
-      currencyId,
-      nativeAssetInfo,
-    );
-
-    this.logger.debug("Transaction history fetched successfully", {
-      transactionCount: transformedResult.transactions.length,
-      hasNextPage: !!transformedResult.nextPageToken,
-    });
-
-    return Right(transformedResult);
   }
 
   private async transformResponse(
