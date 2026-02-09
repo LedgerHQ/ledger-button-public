@@ -8,7 +8,12 @@ import { type NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import { type CalDataSource } from "./CalDataSource.js";
-import { type CalTokenResponse, TokenInformation } from "./calTypes.js";
+import {
+  type CalCoinResponse,
+  type CalTokenResponse,
+  type CurrencyInformation,
+  type TokenInformation,
+} from "./calTypes.js";
 
 @injectable()
 export class DefaultCalDataSource implements CalDataSource {
@@ -39,5 +44,36 @@ export class DefaultCalDataSource implements CalDataSource {
     }
 
     return Right(tokenInformation[0]);
+  }
+
+  async getCurrencyInformation(
+    currencyId: string,
+  ): Promise<Either<Error, CurrencyInformation>> {
+    const requestUrl = `${this.config.getCalUrl()}/v1/coins?id=${currencyId}&output=id,name,ticker,units`;
+    const getCurrencyInformationResult: Either<Error, CalCoinResponse> =
+      await this.networkService.get(requestUrl);
+
+    if (getCurrencyInformationResult.isLeft()) {
+      return Left(new Error("Failed to fetch currency information from Cal"));
+    }
+
+    const currencyData = getCurrencyInformationResult.extract();
+    if (!Array.isArray(currencyData) || currencyData.length === 0) {
+      return Left(new Error("No currency information found in Cal"));
+    }
+
+    const coin = currencyData[0];
+
+    const decimals =
+      coin.units && coin.units.length > 0
+        ? Math.max(...coin.units.map((u) => u.magnitude))
+        : 18;
+
+    return Right({
+      id: coin.id,
+      name: coin.name,
+      ticker: coin.ticker,
+      decimals,
+    });
   }
 }

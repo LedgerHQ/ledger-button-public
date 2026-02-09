@@ -127,7 +127,9 @@ describe("GetDetailedSelectedAccountUseCase", () => {
         result.map((account) => {
           expect(account).toEqual(hydratedAccount);
         });
-        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
+        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(
+          1,
+        );
       });
 
       it("should fetch account details when account is undefined", async () => {
@@ -144,7 +146,9 @@ describe("GetDetailedSelectedAccountUseCase", () => {
         result.mapLeft((error) => {
           expect(error).toBeInstanceOf(NoSelectedAccountError);
         });
-        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
+        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(
+          1,
+        );
       });
 
       it("should fetch account details when account has name but no fiatBalance property", async () => {
