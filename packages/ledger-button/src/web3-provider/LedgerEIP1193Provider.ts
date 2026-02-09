@@ -42,7 +42,10 @@ import { Subscription } from "rxjs";
 
 import { LedgerButtonApp } from "../ledger-button-app.js";
 import { isSupportedChainId } from "./supportedChains.js";
-import { isSupportedRpcMethod } from "./supportedRpcMethods.js";
+import {
+  isBlockingRequestMethod,
+  isSupportedRpcMethod,
+} from "./supportedRpcMethods.js";
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -50,7 +53,7 @@ export class LedgerEIP1193Provider
 {
   private _isConnected = false;
   private _selectedAccount: string | null = null;
-  private _selectedChainId = -1;
+  private _selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
 
   private _id = 0;
 
@@ -133,24 +136,29 @@ export class LedgerEIP1193Provider
   }
 
   public async request({ method, params }: RequestArguments) {
-    console.log("request in LedgerEIP1193Provider", { method, params });
+    console.log("[LedgerEIP1193Provider] request()", { method, params });
 
-    if (this._pendingPromise) {
-      return this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Ledger Provider is busy",
-      );
+    if (isBlockingRequestMethod(method)) {
+      if (this._pendingPromise) {
+        return this.createError(
+          CommonEIP1193ErrorCode.InternalError,
+          "Ledger Provider is busy",
+        );
+      }
+
+      if (this.app.isModalOpen) {
+        this._pendingRequest = { method, params };
+        return new Promise<unknown>((resolve, reject) => {
+          this._pendingPromise = { resolve, reject };
+        });
+      }
+
+      // If modal is not open, execute the request immediately
+      return this.executeRequest({ method, params });
+    } else {
+      //Should be a JSON RPC request that can be broadcasted to Node RPC
+      return this.executeRequest({ method, params });
     }
-
-    if (this.app.isModalOpen) {
-      this._pendingRequest = { method, params };
-      return new Promise<unknown>((resolve, reject) => {
-        this._pendingPromise = { resolve, reject };
-      });
-    }
-
-    // If modal is not open, execute the request immediately
-    return this.executeRequest({ method, params });
   }
 
   public on<TEvent extends keyof ProviderEvent>(
@@ -194,6 +202,7 @@ export class LedgerEIP1193Provider
     // TODO: Logic to check if we are connected to a chain
     if (!this._isConnected) {
       this._isConnected = true;
+
       this.dispatchEvent(
         new CustomEvent<ProviderConnectInfo>("connect", {
           bubbles: true,
@@ -222,7 +231,7 @@ export class LedgerEIP1193Provider
       this.core.disconnect();
       this._isConnected = false;
       this._selectedAccount = null;
-      this._selectedChainId = -1;
+      this._selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
       this._currentEvent = null;
 
       // Clean up pending request on disconnect
@@ -261,6 +270,7 @@ export class LedgerEIP1193Provider
             context.selectedAccount.currencyId,
           );
 
+          const hasSelectedAccountChanged = this._selectedAccount !== null;
           const hasAddressChanged = this._selectedAccount !== newAddress;
           const hasChainIdChanged = this._selectedChainId !== newChainId;
 
@@ -268,7 +278,7 @@ export class LedgerEIP1193Provider
             this.setSelectedAccount(context.selectedAccount);
           }
 
-          if (hasChainIdChanged) {
+          if (hasChainIdChanged || !hasSelectedAccountChanged) {
             this.setSelectedChainId(newChainId);
           }
         } else {
@@ -391,6 +401,12 @@ export class LedgerEIP1193Provider
     broadcast = false,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!this._isConnected) {
+        return reject(
+          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
+        );
+      }
+
       if (!this._selectedAccount) {
         return reject(
           this.createError(
@@ -446,6 +462,12 @@ export class LedgerEIP1193Provider
     method: RpcMethods,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!this._isConnected) {
+        return reject(
+          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
+        );
+      }
+
       if (!this._selectedAccount) {
         return reject(
           this.createError(
@@ -515,6 +537,12 @@ export class LedgerEIP1193Provider
     method: RpcMethods,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
+      if (!this._isConnected) {
+        return reject(
+          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
+        );
+      }
+
       if (!this._selectedAccount) {
         return reject(
           this.createError(
@@ -629,12 +657,21 @@ export class LedgerEIP1193Provider
   // Private method to execute request logic
   private async executeRequest({ method, params }: RequestArguments) {
     if (method in this.handlers) {
-      const res = await this.handlers[method as keyof typeof this.handlers](
+      if (method !== "eth_requestAccounts" && !this._isConnected) {
+        return new Promise((_, reject) => {
+          reject(
+            this.createError(
+              CommonEIP1193ErrorCode.Unauthorized,
+              "Unauthorized",
+            ),
+          );
+        });
+      }
+
+      return this.handlers[method as keyof typeof this.handlers](
         params as unknown[],
         method,
       );
-
-      return res;
     }
 
     if (isSupportedRpcMethod(method)) {
@@ -644,13 +681,18 @@ export class LedgerEIP1193Provider
         method,
         params,
       });
+
       return res;
     }
 
-    return this.createError(
-      CommonEIP1193ErrorCode.UnsupportedMethod,
-      `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
-    );
+    return new Promise((_, reject) => {
+      reject(
+        this.createError(
+          CommonEIP1193ErrorCode.UnsupportedMethod,
+          `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
+        ),
+      );
+    });
   }
 
   private createError(

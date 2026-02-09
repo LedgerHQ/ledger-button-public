@@ -31,6 +31,7 @@ const PROVIDER_METHODS = [
   "eth_getTransactionCount",
   "eth_maxPriorityFeePerGas",
   "wallet_switchEthereumChain",
+  "wallet_getCapabilities", //Not supported by Ledger Button, test for EIP error result
 ] as const;
 
 interface ProviderRequestModalProps {
@@ -38,7 +39,10 @@ interface ProviderRequestModalProps {
   onClose: () => void;
 }
 
-export function ProviderRequestModal({ onSubmit, onClose }: ProviderRequestModalProps) {
+export function ProviderRequestModal({
+  onSubmit,
+  onClose,
+}: ProviderRequestModalProps) {
   const methodRef = useRef<HTMLSelectElement>(null);
   const paramsRef = useRef<HTMLTextAreaElement>(null);
 
@@ -68,7 +72,9 @@ export function ProviderRequestModal({ onSubmit, onClose }: ProviderRequestModal
           </Select>
         </Field>
         <Field className={styles["transactions__field"]}>
-          <Label className={styles["transactions__label"]}>Params (JSON array)</Label>
+          <Label className={styles["transactions__label"]}>
+            Params (JSON array)
+          </Label>
           <Textarea
             ref={paramsRef}
             className={styles["transactions__textarea"]}

@@ -193,6 +193,7 @@ describe("LedgerEIP1193Provider", () => {
     });
 
     it("should queue request when modal is open", async () => {
+      await provider.connect();
       (mockApp as any).isModalOpen = true;
 
       const requestPromise = provider.request({
@@ -213,6 +214,7 @@ describe("LedgerEIP1193Provider", () => {
     });
 
     it("should execute request immediately when modal is not open", async () => {
+      await provider.connect();
       mockCore.getSelectedAccount = vi.fn().mockReturnValue(null);
 
       const result = await provider.request({
@@ -225,15 +227,61 @@ describe("LedgerEIP1193Provider", () => {
     });
 
     it("should handle unsupported method", async () => {
-      const result = await provider.request({
-        method: "unsupported_method" as any,
-        params: [],
-      });
-
-      expect(result).toHaveProperty(
+      await expect(
+        provider.request({
+          method: "unsupported_method" as any,
+          params: [],
+        }),
+      ).rejects.toHaveProperty(
         "code",
         CommonEIP1193ErrorCode.UnsupportedMethod,
       );
+    });
+
+    it("should allow non-blocking methods when provider is busy", async () => {
+      await provider.connect();
+      provider["_pendingPromise"] = {
+        resolve: vi.fn(),
+        reject: vi.fn(),
+      };
+
+      mockCore.jsonRpcRequest = vi.fn().mockResolvedValue("0x123");
+
+      const result = await provider.request({
+        method: "eth_call",
+        params: [],
+      });
+
+      expect(result).toBe("0x123");
+      expect(mockCore.jsonRpcRequest).toHaveBeenCalled();
+    });
+
+    it("should allow non-blocking methods when modal is open", async () => {
+      await provider.connect();
+      (mockApp as any).isModalOpen = true;
+
+      mockCore.jsonRpcRequest = vi.fn().mockResolvedValue("0x456");
+
+      const result = await provider.request({
+        method: "eth_getBalance",
+        params: [],
+      });
+
+      expect(result).toBe("0x456");
+      expect(mockCore.jsonRpcRequest).toHaveBeenCalled();
+      expect(provider["_pendingRequest"]).toBeNull();
+    });
+
+    it("should allow non-blocking methods when disconnected", async () => {
+      mockCore.jsonRpcRequest = vi.fn().mockResolvedValue("0x789");
+
+      const result = await provider.request({
+        method: "eth_call",
+        params: [],
+      });
+
+      expect(result).toBe("0x789");
+      expect(mockCore.jsonRpcRequest).toHaveBeenCalled();
     });
   });
 
