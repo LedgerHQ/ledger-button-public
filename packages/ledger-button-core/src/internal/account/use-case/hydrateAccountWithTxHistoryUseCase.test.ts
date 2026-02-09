@@ -57,6 +57,9 @@ function createMockTransaction(
     hash: "0xabc123",
     type: "sent",
     value: "500000000000000000",
+    formattedValue: "0.5",
+    currencyName: "Ethereum",
+    ticker: "ETH",
     timestamp: "2024-01-15T10:30:00Z",
     ...overrides,
   };
@@ -105,10 +108,11 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       });
     });
 
-    it("should call FetchTransactionHistoryUseCase with blockchain (ticker) and address", async () => {
+    it("should call FetchTransactionHistoryUseCase with blockchain (ticker), address and currencyId", async () => {
       const account = createMockAccount({
         ticker: "ETH",
         freshAddress: "0xtest123",
+        currencyId: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(
         Right({ transactions: [], nextPageToken: undefined }),
@@ -119,6 +123,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       expect(mockFetchTransactionHistoryUseCase.execute).toHaveBeenCalledWith(
         "eth",
         "0xtest123",
+        "ethereum",
       );
     });
 

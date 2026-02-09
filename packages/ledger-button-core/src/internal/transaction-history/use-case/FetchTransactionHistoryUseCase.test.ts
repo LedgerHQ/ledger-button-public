@@ -1,6 +1,7 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type {
@@ -30,6 +31,30 @@ function createMockDataSource(): {
 } {
   return {
     getTransactions: vi.fn(),
+  };
+}
+
+function createMockCalDataSource(): {
+  getTokenInformation: ReturnType<typeof vi.fn>;
+  getCurrencyInformation: ReturnType<typeof vi.fn>;
+} {
+  return {
+    getTokenInformation: vi.fn().mockResolvedValue(
+      Right({
+        id: "ethereum/erc20/usdc",
+        name: "USD Coin",
+        ticker: "USDC",
+        decimals: 6,
+      }),
+    ),
+    getCurrencyInformation: vi.fn().mockResolvedValue(
+      Right({
+        id: "ethereum",
+        name: "Ethereum",
+        ticker: "ETH",
+        decimals: 18,
+      }),
+    ),
   };
 }
 
@@ -65,15 +90,19 @@ function createMockTransaction(
 describe("FetchTransactionHistoryUseCase", () => {
   let useCase: FetchTransactionHistoryUseCase;
   let mockDataSource: ReturnType<typeof createMockDataSource>;
+  let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
   const testBlockchain = "ethereum";
+  const testCurrencyId = "ethereum";
 
   beforeEach(() => {
     mockDataSource = createMockDataSource();
+    mockCalDataSource = createMockCalDataSource();
 
     useCase = new FetchTransactionHistoryUseCase(
       createMockLoggerFactory(),
       mockDataSource as unknown as TransactionHistoryDataSource,
+      mockCalDataSource as unknown as CalDataSource,
     );
 
     vi.clearAllMocks();
@@ -87,7 +116,9 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      await useCase.execute(testBlockchain, testAddress, { batchSize: 50 });
+      await useCase.execute(testBlockchain, testAddress, testCurrencyId, {
+        batchSize: 50,
+      });
 
       expect(mockDataSource.getTransactions).toHaveBeenCalledWith(
         testBlockchain,
@@ -103,7 +134,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -120,7 +151,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -134,7 +165,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -148,7 +179,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
       mockDataSource.getTransactions.mockResolvedValue(Left(error));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isLeft()).toBe(true);
       expect(result.extract()).toBe(error);
@@ -170,7 +201,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -194,7 +225,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -226,7 +257,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -250,7 +281,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -275,7 +306,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -306,7 +337,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -339,7 +370,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -349,7 +380,9 @@ describe("FetchTransactionHistoryUseCase", () => {
       ).toHaveProperty("value", "2801780000000000");
     });
 
-    it("should sum multiple token transfers to the same address", async () => {
+    it("should use first relevant token transfer when multiple transfers exist", async () => {
+      // Note: Multiple transfers with different contracts are different tokens
+      // We take the first relevant one and get its token info from CAL
       const tx = createMockTransaction({
         from: "0xsender",
         to: "0xcontract",
@@ -376,14 +409,19 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
       expect(data).toHaveProperty("transactions");
+      // Uses first transfer's value
       expect(
         (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "3000000");
+      ).toHaveProperty("value", "1000000");
+      // Uses token info from CAL (USDC mock)
+      expect(
+        (data as { transactions: unknown[] }).transactions[0],
+      ).toHaveProperty("ticker", "USDC");
     });
   });
 
@@ -404,7 +442,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -426,7 +464,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -461,7 +499,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress);
+      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -472,12 +510,18 @@ describe("FetchTransactionHistoryUseCase", () => {
         hash: "0xsent123",
         type: "sent",
         value: "500000000000000000",
+        formattedValue: "0.5",
+        currencyName: "Ethereum",
+        ticker: "ETH",
         timestamp: "2024-01-15T10:00:00Z",
       });
       expect(transactions[1]).toEqual({
         hash: "0xreceived456",
         type: "received",
         value: "1800000000000000000",
+        formattedValue: "1.8",
+        currencyName: "Ethereum",
+        ticker: "ETH",
         timestamp: "2024-01-15T11:00:00Z",
       });
     });
