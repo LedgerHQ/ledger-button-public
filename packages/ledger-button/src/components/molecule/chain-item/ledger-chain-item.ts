@@ -1,7 +1,7 @@
 import "../../atom/crypto-icon/ledger-crypto-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -122,12 +122,12 @@ export class LedgerChainItem extends LitElement {
             ? html`<span class="lb-text-base lb-body-2-semi-bold"
                 >${this.title}</span
               >`
-            : ""}
+            : nothing}
           ${this.subtitle
             ? html`<span class="lb-text-muted lb-body-3"
                 >${this.subtitle}</span
               >`
-            : ""}
+            : nothing}
         </div>
       </div>
     `;
@@ -138,12 +138,14 @@ export class LedgerChainItem extends LitElement {
       <div
         class="lb-flex lb-flex-col lb-items-end lb-justify-center lb-text-right"
       >
-        <span class="lb-text-base lb-body-2-semi-bold"
+        ${this.fiatValue
+          ? html`<span class="lb-text-base lb-body-2-semi-bold"
+              >${this.fiatValue}</span
+            >`
+          : nothing}
+        <span class="lb-text-muted lb-body-3"
           >${this.value} ${this.ticker}</span
         >
-        ${this.fiatValue
-          ? html`<span class="lb-text-muted lb-body-3">${this.fiatValue}</span>`
-          : ""}
       </div>
     `;
   }
