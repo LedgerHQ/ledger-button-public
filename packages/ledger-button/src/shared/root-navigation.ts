@@ -1,10 +1,12 @@
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
+import { Subscription } from "rxjs";
 
+import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import {
   LedgerModal,
   ModalMode,
@@ -14,6 +16,23 @@ import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination, resolveCanGoBack } from "./routes.js";
+
+function mapDeviceModelId(dmkModelId?: string): DeviceModelId | undefined {
+  if (!dmkModelId) {
+    return undefined;
+  }
+
+  const modelMap: Record<string, DeviceModelId> = {
+    NANO_X: "nanoX",
+    NANO_S: "nanoS",
+    NANO_SP: "nanoSP",
+    STAX: "stax",
+    FLEX: "flex",
+    APEX: "apexp",
+  };
+
+  return modelMap[dmkModelId] ?? "flex";
+}
 
 @customElement("root-navigation-component")
 export class RootNavigationComponent extends LitElement {
@@ -37,6 +56,11 @@ export class RootNavigationComponent extends LitElement {
 
   isModalOpen = false;
 
+  @state()
+  private hasTrackingConsent?: boolean;
+
+  private contextSubscription?: Subscription;
+
   override connectedCallback() {
     super.connectedCallback();
     this.rootNavigationController = new RootNavigationController(
@@ -45,6 +69,20 @@ export class RootNavigationComponent extends LitElement {
       this.languageContext.currentTranslation,
       this.modalContent,
     );
+    this.subscribeToContext();
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this.contextSubscription?.unsubscribe();
+  }
+
+  private subscribeToContext() {
+    this.contextSubscription = this.coreContext
+      .observeContext()
+      .subscribe((context) => {
+        this.hasTrackingConsent = context.hasTrackingConsent;
+      });
   }
 
   // PUBLIC METHODS
@@ -93,6 +131,7 @@ export class RootNavigationComponent extends LitElement {
 
   // PRIVATE METHODS
   private handleModalOpen() {
+    this.requestUpdate();
     this.rootNavigationController.handleModalOpen();
     window.dispatchEvent(
       new CustomEvent("ledger-core-modal-open", {
@@ -154,7 +193,7 @@ export class RootNavigationComponent extends LitElement {
   }
 
   override render() {
-    //const connectedDevice = this.coreContext.getConnectedDevice();
+    const connectedDevice = this.coreContext.getConnectedDevice();
     const canGoBack = resolveCanGoBack(
       this.rootNavigationController.currentScreen?.canGoBack,
       this.coreContext,
@@ -163,17 +202,23 @@ export class RootNavigationComponent extends LitElement {
     const canClose =
       this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;
 
-    const title = this.rootNavigationController.currentScreen?.toolbar.title;
-    //      connectedDevice &&
-    //    this.rootNavigationController.currentScreen?.name === "home-flow"
-    //    ? connectedDevice.name
-    //  : this.rootNavigationController.currentScreen?.toolbar.title ;
+    const isHomeFlow =
+      this.rootNavigationController.currentScreen?.name === "home-flow";
 
-    const deviceModelId = undefined; //TODO: uncomment this once we have the switch device flow working properly
-    // connectedDevice &&
-    // this.rootNavigationController.currentScreen?.name === "home-flow"
-    //   ? connectedDevice.modelId
-    //   : undefined;
+    const isOnConsentScreen =
+      isHomeFlow && this.hasTrackingConsent === undefined;
+
+    const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
+
+    const title =
+      connectedDevice && shouldShowDeviceChip
+        ? connectedDevice.name
+        : this.rootNavigationController.currentScreen?.toolbar.title;
+
+    const deviceModelId =
+      connectedDevice && shouldShowDeviceChip
+        ? mapDeviceModelId(connectedDevice.modelId)
+        : undefined;
 
     const showSettings =
       this.rootNavigationController.currentScreen?.name === "home-flow";
