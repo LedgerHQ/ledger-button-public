@@ -83,22 +83,24 @@ export class LedgerToolbar extends LitElement {
       <div
         class="lb-relative lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
       >
-        <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
-          <slot name="left-icon">
-            ${this.canGoBack
-              ? html`
-                  <ledger-button
-                    data-testid="close-button"
-                    .icon=${true}
-                    variant="noBackground"
-                    iconType="back"
-                    size="xs"
-                    @click=${this.handleGoBackClick}
-                  >
-                  </ledger-button>
-                `
-              : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
-          </slot>
+        <div class="lb-flex lb-w-72 lb-items-center lb-justify-start">
+          <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
+            <slot name="left-icon">
+              ${this.canGoBack
+                ? html`
+                    <ledger-button
+                      data-testid="close-button"
+                      .icon=${true}
+                      variant="noBackground"
+                      iconType="back"
+                      size="xs"
+                      @click=${this.handleGoBackClick}
+                    >
+                    </ledger-button>
+                  `
+                : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
+            </slot>
+          </div>
         </div>
         <div
           class="lb-pointer-events-none lb-absolute lb-left-0 lb-right-0 lb-flex lb-items-center lb-justify-center"
@@ -120,7 +122,7 @@ export class LedgerToolbar extends LitElement {
           </div>
         </div>
 
-        <div class="lb-flex lb-items-center lb-gap-8">
+        <div class="lb-flex lb-w-72 lb-items-center lb-justify-end lb-gap-8">
           ${this.showSettings
             ? html`
                 <div
