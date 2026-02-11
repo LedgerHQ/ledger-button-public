@@ -11,7 +11,7 @@ const meta: Meta<LedgerSearchInputAttributes> = {
   render: (args) => html`
     <div style="max-width: 400px;">
       <ledger-search-input
-        .placeholder=${args.placeholder || "Search accounts..."}
+        .placeholder=${args.placeholder || "Search account"}
         .value=${args.value || ""}
         ?disabled=${args.disabled}
         @search-input-change=${(e: CustomEvent) => {
@@ -44,7 +44,7 @@ type Story = StoryObj<LedgerSearchInputAttributes>;
 
 export const Empty: Story = {
   args: {
-    placeholder: "Search accounts...",
+    placeholder: "Search account",
     value: "",
     disabled: false,
   },
@@ -52,7 +52,7 @@ export const Empty: Story = {
 
 export const WithValue: Story = {
   args: {
-    placeholder: "Search accounts...",
+    placeholder: "Search account",
     value: "john",
     disabled: false,
   },
@@ -68,7 +68,7 @@ export const CustomPlaceholder: Story = {
 
 export const Disabled: Story = {
   args: {
-    placeholder: "Search accounts...",
+    placeholder: "Search account",
     value: "",
     disabled: true,
   },
@@ -76,7 +76,7 @@ export const Disabled: Story = {
 
 export const DisabledWithValue: Story = {
   args: {
-    placeholder: "Search accounts...",
+    placeholder: "Search account",
     value: "john",
     disabled: true,
   },
@@ -92,7 +92,7 @@ export const AllStates: Story = {
           Empty State
         </h3>
         <ledger-search-input
-          placeholder="Search accounts..."
+          placeholder="Search account"
         ></ledger-search-input>
       </div>
       <div>
@@ -100,7 +100,7 @@ export const AllStates: Story = {
           With Value
         </h3>
         <ledger-search-input
-          placeholder="Search accounts..."
+          placeholder="Search account"
           value="john"
         ></ledger-search-input>
       </div>
@@ -117,7 +117,7 @@ export const AllStates: Story = {
           Disabled
         </h3>
         <ledger-search-input
-          placeholder="Search accounts..."
+          placeholder="Search account"
           disabled
         ></ledger-search-input>
       </div>
@@ -126,7 +126,7 @@ export const AllStates: Story = {
           Disabled With Value
         </h3>
         <ledger-search-input
-          placeholder="Search accounts..."
+          placeholder="Search account"
           value="john"
           disabled
         ></ledger-search-input>
@@ -137,7 +137,7 @@ export const AllStates: Story = {
 
 export const TestSearchInputInteractions: Story = {
   args: {
-    placeholder: "Search accounts...",
+    placeholder: "Search account",
     value: "",
     disabled: false,
   },
@@ -207,7 +207,7 @@ export const TestSearchInputInteractions: Story = {
     await step("Verify accessibility attributes", async () => {
       const searchInput = canvasElement.querySelector("ledger-search-input");
       const input = searchInput?.shadowRoot?.querySelector("input");
-      expect(input).toHaveAttribute("aria-label", "Search accounts...");
+      expect(input).toHaveAttribute("aria-label", "Search account");
     });
   },
 };
