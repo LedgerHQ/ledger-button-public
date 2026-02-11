@@ -47,6 +47,7 @@ export class RetrievingAccountsController implements ReactiveController {
     } catch (error) {
       console.error(error);
       this.mapError(error);
+      this.host.requestUpdate();
     }
   }
 
@@ -120,7 +121,9 @@ export class RetrievingAccountsController implements ReactiveController {
           cta1: {
             label: this.lang.currentTranslation.error.generic.account.cta1,
             action: () => {
-              this.navigation.navigateTo(this.destinations.onboardingFlow);
+              this.errorData = undefined;
+              this.host.requestUpdate();
+              this.fetchAccounts();
             },
           },
         };
