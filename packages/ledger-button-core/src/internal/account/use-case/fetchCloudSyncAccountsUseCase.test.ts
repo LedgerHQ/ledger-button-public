@@ -64,6 +64,7 @@ describe("FetchCloudSyncAccountsUseCase", () => {
   describe("execute", () => {
     it("should throw LedgerSyncAuthContextMissingError when auth context is missing", async () => {
       mockLedgerSyncService.authContext = undefined;
+      mockLedgerSyncService.authenticate.mockReturnValue(of({}));
 
       await expect(fetchCloudSyncAccountsUseCase.execute()).rejects.toThrow(
         LedgerSyncAuthContextMissingError,
