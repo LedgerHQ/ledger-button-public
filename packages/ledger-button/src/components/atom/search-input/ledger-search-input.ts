@@ -33,7 +33,7 @@ const styles = css`
 @tailwindElement(styles)
 export class LedgerSearchInput extends LitElement {
   @property({ type: String })
-  placeholder = "Search accounts...";
+  placeholder = "Search account";
 
   @property({ type: String })
   value = "";
@@ -111,7 +111,7 @@ export class LedgerSearchInput extends LitElement {
 
   override render() {
     const containerClasses = {
-      "lb-flex lb-items-center lb-gap-8 lb-rounded-full lb-px-16 lb-py-12 lb-bg-muted lb-text-base lb-body-2-semi-bold lb-transition-colors lb-duration-200":
+      "lb-flex lb-h-48 lb-items-center lb-gap-8 lb-self-stretch lb-rounded-sm lb-px-16 lb-bg-muted lb-text-muted lb-body-1":
         true,
       "lb-opacity-50 lb-cursor-not-allowed": this.disabled,
     };
@@ -126,7 +126,7 @@ export class LedgerSearchInput extends LitElement {
         ></ledger-icon>
         <input
           type="text"
-          class="lb-text-base lb-body-2-semi-bold"
+          class="lb-text-base lb-body-1"
           .value=${this.value}
           placeholder=${this.placeholder}
           ?disabled=${this.disabled}
