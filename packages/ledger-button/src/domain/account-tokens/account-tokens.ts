@@ -107,18 +107,31 @@ export class AccountTokensScreen extends LitElement {
 
         <div class="lb-h-full lb-overflow-y-auto lb-p-24">
           <div class="lb-flex lb-flex-col lb-gap-12">
-            ${this.controller.account.tokens.length > 0
-              ? this.controller.account.tokens.map(this.renderTokenItem)
-              : html`
+            ${this.controller.loading
+              ? html`
                   <div
-                    class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
+                    class="lb-flex lb-items-center lb-justify-center lb-py-48"
                   >
-                    <span class="lb-text-muted lb-body-2">
-                      ${translations.accountTokens?.noTokens ||
-                      "No tokens found for this account"}
-                    </span>
+                    <ledger-lottie
+                      animationName="loadingSpinner"
+                      .autoplay=${true}
+                      .loop=${true}
+                      size="medium"
+                    ></ledger-lottie>
                   </div>
-                `}
+                `
+              : this.controller.account.tokens.length > 0
+                ? this.controller.account.tokens.map(this.renderTokenItem)
+                : html`
+                    <div
+                      class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
+                    >
+                      <span class="lb-text-muted lb-body-2">
+                        ${translations.accountTokens?.noTokens ||
+                        "No tokens found for this account"}
+                      </span>
+                    </div>
+                  `}
           </div>
         </div>
 
