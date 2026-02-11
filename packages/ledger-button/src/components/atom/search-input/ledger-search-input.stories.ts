@@ -1,8 +1,10 @@
-import "./ledger-search-input";
 import "../icon/ledger-icon";
+import "./ledger-search-input";
+
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
+
 import type { LedgerSearchInputAttributes } from "./ledger-search-input";
 
 const meta: Meta<LedgerSearchInputAttributes> = {
