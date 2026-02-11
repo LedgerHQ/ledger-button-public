@@ -18,6 +18,7 @@ export { default as LedgerLogoIcon } from "./ledgerLogoIcon";
 export { default as MobileIcon } from "./mobileIcon";
 export { default as QuestionIcon } from "./questionIcon";
 export { default as ReceiveIcon } from "./receiveIcon";
+export { default as SearchIcon } from "./searchIcon";
 export { default as SellIcon } from "./sellIcon";
 export { default as SendIcon } from "./sendIcon";
 export { default as SettingsIcon } from "./settingsIcon";
