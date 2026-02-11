@@ -84,7 +84,7 @@ export class LedgerSearchInput extends LitElement {
     }
   }
 
-  public focus() {
+  public override focus() {
     this.inputElement?.focus();
   }
 
