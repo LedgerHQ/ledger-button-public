@@ -46,7 +46,7 @@ export class Config {
 
   private getCloudSyncUrl(): string {
     return this.environment === "production"
-      ? "https://cloud-sync-backend.api.ledger.com"
+      ? "https://cloud-sync-backend.api.aws.prd.ldg-tech.com"
       : "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
   }
 

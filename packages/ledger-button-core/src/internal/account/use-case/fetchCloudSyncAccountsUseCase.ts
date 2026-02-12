@@ -28,8 +28,8 @@ export class FetchCloudSyncAccountsUseCase {
   }
 
   async execute(): Promise<CloudSyncData> {
-    const authContext = this.getAuthContextOrThrow();
     await this.authenticateWithKeyPair();
+    const authContext = this.getAuthContextOrThrow();
     const accounts = await this.fetchAndDecryptAccounts(authContext);
 
     this.logger.info("Accounts fetched from cloud sync", accounts);

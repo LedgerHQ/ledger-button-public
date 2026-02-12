@@ -88,7 +88,9 @@ export class FetchSelectedAccountUseCase {
 
     const accounts = await this.fetchAccountsUseCase.execute();
     const account = accounts.find(
-      (a) => a.freshAddress === context.selectedAccount?.freshAddress,
+      (a) =>
+        a.freshAddress === context.selectedAccount?.freshAddress &&
+        a.currencyId === context.selectedAccount?.currencyId,
     );
 
     if (!account) {
