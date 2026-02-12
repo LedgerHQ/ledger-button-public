@@ -80,7 +80,7 @@ jobs:
     name: Publish Snapshot to JFrog
     needs: public-runner
     # JFrog is accessible only from a ledger private runner
-    runs-on: ledgerhq-device-sdk
+    runs-on: public-ledgerhq-shared-medium
     steps:
       - uses: actions/checkout@v6
         with:
