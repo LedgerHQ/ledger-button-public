@@ -55,7 +55,7 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get displayType(): string {
-    return this.type === "received" ? "Receive" : "Sent";
+    return this.type === "received" ? "Received" : "Sent";
   }
 
   private get iconType(): "send" | "receive" {
