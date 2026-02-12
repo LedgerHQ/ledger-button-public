@@ -8,7 +8,9 @@ import { RootNavigationComponent } from "../../shared/root-navigation";
 
 export class AccountTokenController implements ReactiveController {
   account: Account | null = null;
+  loading = true;
   private accountsSubscription?: Subscription;
+  private isFirstEmission = true;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -42,6 +44,9 @@ export class AccountTokenController implements ReactiveController {
       this.accountsSubscription.unsubscribe();
     }
 
+    this.loading = true;
+    this.isFirstEmission = true;
+
     this.accountsSubscription = this.core.getAccounts().subscribe({
       next: (accounts) => {
         this.account =
@@ -51,10 +56,17 @@ export class AccountTokenController implements ReactiveController {
           this.navigation.navigateBack();
         }
 
+        if (this.isFirstEmission) {
+          this.isFirstEmission = false;
+        } else {
+          this.loading = false;
+        }
+
         this.host.requestUpdate();
       },
       error: (error) => {
         console.error("Failed to fetch accounts", error);
+        this.loading = false;
         this.navigation.navigateBack();
         this.host.requestUpdate();
       },
