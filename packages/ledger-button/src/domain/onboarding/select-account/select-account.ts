@@ -74,11 +74,13 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <p class="lb-text-center lb-text-muted lb-body-3">
-        ${translations.onboarding.selectAccount.refreshingAccounts}
-        <br />
-        ${translations.onboarding.selectAccount.refreshingAccountsHint}
-      </p>
+      <div class="lb-sticky lb-bottom-0 lb-bg-canvas-sheet lb-pb-16 lb-pt-8">
+        <p class="lb-text-center lb-text-muted lb-body-3">
+          ${translations.onboarding.selectAccount.refreshingAccounts}
+          <br />
+          ${translations.onboarding.selectAccount.refreshingAccountsHint}
+        </p>
+      </div>
     `;
   }
 
