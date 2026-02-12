@@ -54,6 +54,43 @@ export class AccountTokensScreen extends LitElement {
     `;
   };
 
+  private renderLoadingSkeleton() {
+    return html`
+      <div class="lb-flex lb-flex-col lb-gap-12">
+        <ledger-skeleton
+          class="lb-h-48 lb-w-full lb-rounded-xl"
+        ></ledger-skeleton>
+      </div>
+    `;
+  }
+
+  private renderEmptyState() {
+    const translations = this.languages.currentTranslation;
+
+    return html`
+      <div
+        class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
+      >
+        <span class="lb-text-muted lb-body-2">
+          ${translations.accountTokens?.noTokens ||
+          "No tokens found for this account"}
+        </span>
+      </div>
+    `;
+  }
+
+  private renderTokenList(account: Account) {
+    if (this.controller.loading) {
+      return this.renderLoadingSkeleton();
+    }
+
+    if (account.tokens.length > 0) {
+      return account.tokens.map(this.renderTokenItem);
+    }
+
+    return this.renderEmptyState();
+  }
+
   private renderConnectButton() {
     const translations = this.languages.currentTranslation;
 
@@ -72,8 +109,6 @@ export class AccountTokensScreen extends LitElement {
   }
 
   override render() {
-    const translations = this.languages.currentTranslation;
-
     if (!this.controller.account) {
       return html`
         <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
@@ -107,18 +142,7 @@ export class AccountTokensScreen extends LitElement {
 
         <div class="lb-h-full lb-overflow-y-auto lb-p-24">
           <div class="lb-flex lb-flex-col lb-gap-12">
-            ${this.controller.account.tokens.length > 0
-              ? this.controller.account.tokens.map(this.renderTokenItem)
-              : html`
-                  <div
-                    class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
-                  >
-                    <span class="lb-text-muted lb-body-2">
-                      ${translations.accountTokens?.noTokens ||
-                      "No tokens found for this account"}
-                    </span>
-                  </div>
-                `}
+            ${this.renderTokenList(this.controller.account)}
           </div>
         </div>
 
