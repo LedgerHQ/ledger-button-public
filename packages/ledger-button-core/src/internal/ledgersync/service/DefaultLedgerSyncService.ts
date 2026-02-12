@@ -37,10 +37,7 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
-import {
-  LedgerKeyringProtocolError,
-  LedgerSyncAuthContextMissingError,
-} from "../model/errors.js";
+import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
 import { InternalAuthContext } from "../model/InternalAuthContext.js";
 import { LedgerSyncService } from "./LedgerSyncService.js";
 
@@ -237,7 +234,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
         const errorMessage =
           (state.error as unknown as { message?: string })?.message ??
           "An unknown error occurred";
-        const error = new LedgerKeyringProtocolError(errorMessage, {
+        const error = new LedgerSyncAuthenticationError(errorMessage, {
           errorType: state.error?.constructor?.name,
           originalError: JSON.stringify(state.error),
         });

@@ -22,10 +22,7 @@ import type { Config } from "../../config/model/config.js";
 import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import type { StorageService } from "../../storage/StorageService.js";
-import {
-  LedgerKeyringProtocolError,
-  LedgerSyncAuthContextMissingError,
-} from "../model/errors.js";
+import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
 import { DefaultLedgerSyncService } from "./DefaultLedgerSyncService.js";
 
 vi.mock(
@@ -362,7 +359,7 @@ describe("DefaultLedgerSyncService", () => {
             error: {
               type: "DeviceDisconnected",
             } as unknown as AuthenticateDAError,
-            expectedErrorClass: LedgerKeyringProtocolError,
+            expectedErrorClass: LedgerSyncAuthenticationError,
             expectedMessage: "An unknown error occurred",
           },
           {
