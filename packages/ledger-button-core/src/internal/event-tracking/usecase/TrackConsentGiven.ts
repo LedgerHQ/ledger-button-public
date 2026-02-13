@@ -1,11 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { Account } from "../../account/service/AccountService.js";
-import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { type Config } from "../../config/model/config.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
@@ -13,7 +9,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
 
 @injectable()
-export class TrackOnboarding {
+export class TrackConsentGiven {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -22,27 +18,19 @@ export class TrackOnboarding {
     private readonly eventTrackingService: EventTrackingService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackOnboarding UseCase]");
+    this.logger = loggerFactory("[TrackConsentGiven UseCase]");
   }
 
-  async execute(selectedAccount: Account): Promise<void> {
+  async execute(): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
-    const trustChainId = this.contextService.getContext().trustChainId;
 
-    const { currencyId } = selectedAccount;
-    const chainId = getChainIdFromCurrencyId(currencyId).toString();
-
-    const event = EventTrackingUtils.createOnboardingEvent({
+    const event = EventTrackingUtils.createConsentGivenEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
-      trustChainId: trustChainId,
-      chainId: chainId,
     });
 
-    this.logger.debug("Tracking ledger sync activated event", { event });
+    this.logger.debug("Tracking consent given event", { event });
 
     await this.eventTrackingService.trackEvent(event);
   }

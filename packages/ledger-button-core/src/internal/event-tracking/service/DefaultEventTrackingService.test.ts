@@ -389,6 +389,54 @@ describe("DefaultEventTrackingService", () => {
       });
 
 
+      it("should flush queued events before sending consent_given event", async () => {
+        const contextUndefined = createMockContext({
+          hasTrackingConsent: undefined,
+        });
+        mockContextService.getContext.mockReturnValue(contextUndefined);
+        contextSubject.next(contextUndefined);
+
+        const queuedEvent1 = createMockEvent(
+          EventType.TypedMessageFlowInitialization,
+          "typed_message_flow_initialization",
+        );
+        const queuedEvent2 = createMockEvent(
+          EventType.TransactionFlowInitialization,
+          "transaction_flow_initialization",
+        );
+
+        await eventTrackingService.trackEvent(queuedEvent1);
+        await eventTrackingService.trackEvent(queuedEvent2);
+
+        expect(mockBackendService.event).not.toHaveBeenCalled();
+
+        // Simulate the consent flow: track ConsentGiven
+        const consentEvent = createMockEvent(
+          EventType.ConsentGiven,
+          "consent_given",
+        );
+
+        await eventTrackingService.trackEvent(consentEvent);
+
+        // Queued events should be flushed first, then consent_given sent last
+        expect(mockBackendService.event).toHaveBeenCalledTimes(3);
+        expect(mockBackendService.event).toHaveBeenNthCalledWith(
+          1,
+          queuedEvent1,
+          mockConfig.dAppIdentifier,
+        );
+        expect(mockBackendService.event).toHaveBeenNthCalledWith(
+          2,
+          queuedEvent2,
+          mockConfig.dAppIdentifier,
+        );
+        expect(mockBackendService.event).toHaveBeenNthCalledWith(
+          3,
+          consentEvent,
+          mockConfig.dAppIdentifier,
+        );
+      });
+
       it("should process events immediately after flush completes", async () => {
         const contextUndefined = createMockContext({
           hasTrackingConsent: undefined,
