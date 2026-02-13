@@ -81,6 +81,7 @@ export class DeviceSwitchScreen extends LitElement {
   };
 
   private renderConnectedDevice() {
+    // TODO move this logic to the controller
     const connectedDevice = this.coreContext.getConnectedDevice();
 
     if (!connectedDevice) {
