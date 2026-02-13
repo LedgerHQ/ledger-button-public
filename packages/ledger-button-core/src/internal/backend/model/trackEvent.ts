@@ -59,8 +59,6 @@ export type OnboardingEventData = BaseEventData & {
   ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-  account_currency: string;
-  account_balance: string;
 };
 
 export type TransactionFlowInitializationEventData = BaseEventData & {

@@ -32,17 +32,13 @@ export class TrackOnboarding {
     const sessionId = this.eventTrackingService.getSessionId();
     const trustChainId = this.contextService.getContext().trustChainId;
 
-    const { currencyId, balance } = selectedAccount;
-
-    const currency = currencyId;
+    const { currencyId } = selectedAccount;
     const chainId = getChainIdFromCurrencyId(currencyId).toString();
 
     const event = EventTrackingUtils.createOnboardingEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
       trustChainId: trustChainId,
-      accountCurrency: currency,
-      accountBalance: balance ?? "", // Should always be defined when use here.
       chainId: chainId,
     });
 

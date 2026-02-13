@@ -134,8 +134,6 @@ export class EventTrackingUtils {
     };
   }
 
-
-
   static createFloatingButtonClickEvent(
     params: SessionEventParams,
   ): EventRequest {
@@ -156,8 +154,6 @@ export class EventTrackingUtils {
 
   static createOnboardingEvent(
     params: SessionEventParams & {
-      accountCurrency: string;
-      accountBalance: string;
       chainId: string | null;
     },
   ): EventRequest {
@@ -170,8 +166,6 @@ export class EventTrackingUtils {
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
-      account_currency: params.accountCurrency,
-      account_balance: params.accountBalance,
     };
 
     return {
