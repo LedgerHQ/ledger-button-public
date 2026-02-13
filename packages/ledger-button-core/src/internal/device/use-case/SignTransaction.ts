@@ -134,8 +134,8 @@ export class SignTransaction {
     }
 
     if (
-      !completedTransaction.gas &&
-      !completedTransaction.maxFeePerGas &&
+      !completedTransaction.gas ||
+      !completedTransaction.maxFeePerGas ||
       !completedTransaction.maxPriorityFeePerGas
     ) {
       this.logger.debug(

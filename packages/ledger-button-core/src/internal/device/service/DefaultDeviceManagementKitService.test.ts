@@ -26,6 +26,7 @@ vi.mock("@ledgerhq/device-management-kit", async () => {
         startDiscovering: vi.fn(),
         stopDiscovering: vi.fn(),
         connect: vi.fn(),
+        disconnect: vi.fn(),
         getConnectedDevice: vi.fn(),
         close: vi.fn(),
         listenToAvailableDevices: vi.fn(),
@@ -234,17 +235,16 @@ describe("DefaultDeviceManagementKitService", () => {
       });
 
       it("should disconnect successfully when session exists", async () => {
-        vi.mocked(mockDmk.close).mockResolvedValue(undefined);
+        vi.mocked(mockDmk.disconnect).mockResolvedValue(undefined);
 
         await service.disconnectFromDevice();
 
-        expect(mockDmk.close).toHaveBeenCalled();
+        expect(mockDmk.disconnect).toHaveBeenCalled();
         expect(service.sessionId).toBeUndefined();
       });
 
       it("should include error type in DeviceConnectionError when disconnect fails", async () => {
-        const error = new Error("Disconnect failed");
-        vi.mocked(mockDmk.close).mockRejectedValue(error);
+        vi.mocked(mockDmk.disconnect).mockRejectedValue({ sessionId: "213" });
 
         try {
           await service.disconnectFromDevice();
@@ -254,7 +254,9 @@ describe("DefaultDeviceManagementKitService", () => {
           expect((e as DeviceConnectionError).context?.type).toBe(
             "failed-to-disconnect",
           );
-          expect((e as DeviceConnectionError).context?.error).toBe(error);
+          expect((e as DeviceConnectionError).context?.error).toStrictEqual({
+            sessionId: "213",
+          });
         }
       });
     });

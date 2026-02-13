@@ -25,7 +25,6 @@ type BaseEventData = {
 
 export type InvoicingTransactionSignedEventData = BaseEventData & {
   event_type: "invoicing_transaction_signed";
-  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   transaction_hash: string;
@@ -67,7 +66,6 @@ export type TransactionFlowInitializationEventData = BaseEventData & {
   ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-  unsigned_transaction_hash: string;
 };
 
 export type TransactionFlowCompletionEventData = BaseEventData & {
@@ -76,8 +74,6 @@ export type TransactionFlowCompletionEventData = BaseEventData & {
   ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-  unsigned_transaction_hash: string;
-  transaction_hash: string;
 };
 
 export type SessionAuthenticationEventData = BaseEventData & {
@@ -85,7 +81,6 @@ export type SessionAuthenticationEventData = BaseEventData & {
   session_id: string;
   ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
-  unsigned_transaction_hash: string;
   transaction_type: "authentication_tx";
   transaction_hash: string;
 };
