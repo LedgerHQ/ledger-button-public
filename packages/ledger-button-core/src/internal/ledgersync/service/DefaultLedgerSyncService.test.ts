@@ -219,7 +219,7 @@ describe("DefaultLedgerSyncService", () => {
 
         expect(mockGetOrCreateKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
-          keypair: mockKeyPair,
+          keyPair: mockKeyPair,
           clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: existingTrustchainId,
@@ -250,7 +250,7 @@ describe("DefaultLedgerSyncService", () => {
 
         expect(mockGetOrCreateKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
-          keypair: mockKeyPair,
+          keyPair: mockKeyPair,
           clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: undefined,

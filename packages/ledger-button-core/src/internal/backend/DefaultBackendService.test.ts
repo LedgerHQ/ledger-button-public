@@ -177,9 +177,7 @@ describe("DefaultBackendService", () => {
           timestamp_ms: Date.now(),
           session_id: "session-123",
           blockchain_network_selected: "ethereum",
-          unsigned_transaction_hash: "abc123def456",
           chain_id: "1",
-          transaction_hash: "123abc456def",
         },
       };
 
