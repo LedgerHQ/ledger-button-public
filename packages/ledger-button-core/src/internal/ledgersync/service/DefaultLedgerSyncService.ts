@@ -16,7 +16,16 @@ import {
 import { AuthenticateUsecaseInput } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol/internal/use-cases/authentication/AuthenticateUseCase.js";
 import { type Factory, inject, injectable } from "inversify";
 import pako from "pako";
-import { from, map, Observable, switchMap } from "rxjs";
+import {
+  catchError,
+  from,
+  map,
+  Observable,
+  of,
+  retry,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
 import {
@@ -97,6 +106,21 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
           return this.mapAuthenticateResponse(response);
         },
       ),
+      tap((response) => {
+        if (this.isRetryableAuthenticationError(response)) {
+          this.logger.warn(
+            "Body stream already read error detected, will retry authentication",
+          );
+          throw response;
+        }
+      }),
+      retry({ count: 3, delay: 1000 }),
+      catchError((error) => {
+        if (error instanceof LedgerSyncAuthenticationError) {
+          return of(error as LedgerSyncAuthenticateResponse);
+        }
+        throw error;
+      }),
     );
   }
 
@@ -200,6 +224,15 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     >
   > {
     return this.lkrpAppKit.authenticate(input).observable;
+  }
+
+  private isRetryableAuthenticationError(
+    response: LedgerSyncAuthenticateResponse,
+  ): response is LedgerSyncAuthenticationError {
+    return (
+      response instanceof LedgerSyncAuthenticationError &&
+      response.message.includes("body stream already read")
+    );
   }
 
   private mapAuthenticateResponse(
