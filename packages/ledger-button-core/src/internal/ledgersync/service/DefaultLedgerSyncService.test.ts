@@ -13,7 +13,7 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import pako from "pako";
 import { lastValueFrom, of } from "rxjs";
-import { beforeEach, describe, expect, it, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
 
 import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
 import type { AuthContext } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
@@ -392,6 +392,98 @@ describe("DefaultLedgerSyncService", () => {
             expect((result as Error).message).toBe(expectedMessage);
           },
         );
+      });
+    });
+
+    describe("retry on body stream already read error", () => {
+      const bodyStreamErrorState = {
+        status: DeviceActionStatus.Error,
+        error: {
+          message:
+            "Error: Failed to execute 'text' on 'Response': body stream already read",
+          constructor: { name: "SomeInternalError" },
+        },
+      } as DeviceActionState<
+        AuthenticateDAOutput,
+        AuthenticateDAError,
+        AuthenticateDAIntermediateValue
+      >;
+
+      const completedState: DeviceActionState<
+        AuthenticateDAOutput,
+        AuthenticateDAError,
+        AuthenticateDAIntermediateValue
+      > = {
+        status: DeviceActionStatus.Completed,
+        output: mockAuthOutput,
+      };
+
+      beforeEach(() => {
+        vi.useFakeTimers();
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it("should retry and succeed when body stream already read error occurs then succeeds", async () => {
+        mockLkrpAppKit.authenticate
+          .mockReturnValueOnce({ observable: of(bodyStreamErrorState) })
+          .mockReturnValueOnce({ observable: of(completedState) });
+
+        const resultPromise = lastValueFrom(service.authenticate());
+        await vi.advanceTimersByTimeAsync(1000);
+        const result = await resultPromise;
+
+        expect(result).toEqual({
+          trustChainId: mockAuthOutput.trustchainId,
+          applicationPath: mockAuthOutput.applicationPath,
+        } satisfies AuthContext);
+        expect(mockLkrpAppKit.authenticate).toHaveBeenCalledTimes(2);
+      });
+
+      it("should return the error as a next value after all retries are exhausted", async () => {
+        mockLkrpAppKit.authenticate.mockReturnValue({
+          observable: of(bodyStreamErrorState),
+        });
+
+        const resultPromise = lastValueFrom(service.authenticate());
+        await vi.advanceTimersByTimeAsync(3000);
+        const result = await resultPromise;
+
+        expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
+        expect((result as LedgerSyncAuthenticationError).message).toContain(
+          "body stream already read",
+        );
+        // 1 initial + 3 retries = 4 total calls
+        expect(mockLkrpAppKit.authenticate).toHaveBeenCalledTimes(4);
+      });
+
+      it("should not retry on other authentication errors", async () => {
+        const otherErrorState = {
+          status: DeviceActionStatus.Error,
+          error: {
+            message: "Device disconnected",
+            constructor: { name: "DeviceDisconnectedError" },
+          },
+        } as DeviceActionState<
+          AuthenticateDAOutput,
+          AuthenticateDAError,
+          AuthenticateDAIntermediateValue
+        >;
+
+        mockLkrpAppKit.authenticate.mockReturnValue({
+          observable: of(otherErrorState),
+        });
+
+        const result$ = service.authenticate();
+        const result = await lastValueFrom(result$);
+
+        expect(result).toBeInstanceOf(LedgerSyncAuthenticationError);
+        expect((result as LedgerSyncAuthenticationError).message).toBe(
+          "Device disconnected",
+        );
+        expect(mockLkrpAppKit.authenticate).toHaveBeenCalledTimes(1);
       });
     });
   });
