@@ -28,6 +28,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
   private _sessionId: string;
   private eventQueue: EventRequest[] = [];
   private isFlushing = false;
+  private processingPromise: Promise<void> = Promise.resolve();
 
   constructor(
     @inject(backendModuleTypes.BackendService)
@@ -50,41 +51,59 @@ export class DefaultEventTrackingService implements EventTrackingService {
 
   async trackEvent(event: EventRequest): Promise<void> {
     try {
-      if (this.isAlwaysTrackedEvent(event)) {
-        await this.processEvent(event);
+      if (this.isConsentGivenEvent(event)) {
+        await this.enqueueProcessing(async () => {
+          await this.flushQueue();
+          await this.processEvent(event);
+        });
         return;
       }
-  
+
+      if (this.isAlwaysTrackedEvent(event)) {
+        await this.enqueueProcessing(() => this.processEvent(event));
+        return;
+      }
+
       const consentStatus = this.getConsentStatus();
-  
+
       if (this.isFlushing && consentStatus === true) {
         this.eventQueue.push(event);
-        this.logger.debug("Event queued (queue flushing in progress)", { event });
+        this.logger.debug("Event queued (queue flushing in progress)", {
+          event,
+        });
         return;
       }
-  
+
       if (consentStatus === true) {
-        await this.processEvent(event);
+        await this.enqueueProcessing(() => this.processEvent(event));
         return;
       }
-  
+
       if (consentStatus === undefined) {
         this.eventQueue.push(event);
         this.logger.debug("Event queued (waiting for consent)", { event });
         return;
       }
-  
+
       this.logger.debug("Event discarded (consent refused)", { event });
     } catch (error) {
       this.logger.error("Error tracking event", { error, event });
     }
   }
-  
+
+  private isConsentGivenEvent(event: EventRequest): boolean {
+    return event.type === EventType.ConsentGiven;
+  }
 
   private isAlwaysTrackedEvent(event: EventRequest): boolean {
     return DefaultEventTrackingService.ALWAYS_TRACKED_EVENTS.includes(
       event.type,
     );
+  }
+
+  private enqueueProcessing(fn: () => Promise<void>): Promise<void> {
+    this.processingPromise = this.processingPromise.then(fn, fn);
+    return this.processingPromise;
   }
 
   private getConsentStatus(): boolean | undefined {
@@ -129,7 +148,7 @@ Check current state with formats in JSON schemas and update the validation.
   private subscribeToContextChanges(): void {
     this.contextService.observeContext().subscribe((context) => {
       if (context.hasTrackingConsent === true) {
-        this.flushQueue();
+        this.enqueueProcessing(() => this.flushQueue());
       } else if (context.hasTrackingConsent === false) {
         this.clearQueue();
       }
