@@ -182,7 +182,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   }
 
   private createDeviceAuthenticateInput(
-    keypair: KeyPair,
+    keyPair: KeyPair,
   ): AuthenticateUsecaseInput {
     this.logger.info("Try to authenticate with a Ledger Device");
 
@@ -191,7 +191,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     }
 
     return {
-      keypair: keypair,
+      keyPair,
       clientName: this.getClientName(),
       permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
       sessionId: this.deviceManagementKitService.sessionId,
@@ -200,13 +200,13 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   }
 
   private createKeypairAuthenticateInput(
-    keypair: KeyPair,
+    keyPair: KeyPair,
     trustChainId: string,
   ): AuthenticateUsecaseInput {
     this.logger.info("Try to authenticate with keypair");
 
     return {
-      keypair: keypair,
+      keyPair,
       clientName: this.getClientName(),
       permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
       trustchainId: trustChainId,
