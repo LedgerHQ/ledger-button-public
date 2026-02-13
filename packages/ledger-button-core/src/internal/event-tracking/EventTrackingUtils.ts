@@ -200,7 +200,7 @@ export class EventTrackingUtils {
   }
 
   static createTransactionFlowCompletionEvent(
-    params: TransactionEventParams & { transactionHash: string },
+    params: TransactionEventParams,
   ): EventRequest {
     const data: TransactionFlowCompletionEventData = {
       event_id: generateUUID(),
