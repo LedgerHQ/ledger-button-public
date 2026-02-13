@@ -1,12 +1,10 @@
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, query, state } from "lit/decorators.js";
+import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
-import { Subscription } from "rxjs";
 
-import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import {
   LedgerModal,
   ModalMode,
@@ -15,24 +13,7 @@ import type { WalletTransactionFeature } from "../components/molecule/wallet-act
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
-import { Destination, resolveCanGoBack } from "./routes.js";
-
-function mapDeviceModelId(dmkModelId?: string): DeviceModelId | undefined {
-  if (!dmkModelId) {
-    return undefined;
-  }
-
-  const modelMap: Record<string, DeviceModelId> = {
-    NANO_X: "nanoX",
-    NANO_S: "nanoS",
-    NANO_SP: "nanoSP",
-    STAX: "stax",
-    FLEX: "flex",
-    APEX: "apexp",
-  };
-
-  return modelMap[dmkModelId] ?? "flex";
-}
+import { Destination } from "./routes.js";
 
 @customElement("root-navigation-component")
 export class RootNavigationComponent extends LitElement {
@@ -56,11 +37,6 @@ export class RootNavigationComponent extends LitElement {
 
   isModalOpen = false;
 
-  @state()
-  private hasTrackingConsent?: boolean;
-
-  private contextSubscription?: Subscription;
-
   override connectedCallback() {
     super.connectedCallback();
     this.rootNavigationController = new RootNavigationController(
@@ -69,38 +45,9 @@ export class RootNavigationComponent extends LitElement {
       this.languageContext.currentTranslation,
       this.modalContent,
     );
-    this.subscribeToContext();
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    this.contextSubscription?.unsubscribe();
-  }
-
-  private subscribeToContext() {
-    this.contextSubscription = this.coreContext
-      .observeContext()
-      .subscribe((context) => {
-        this.hasTrackingConsent = context.hasTrackingConsent;
-      });
   }
 
   // PUBLIC METHODS
-  public openModal(mode: ModalMode = "center") {
-    this.ledgerModal.openModal(mode);
-    this.isModalOpen = true;
-  }
-
-  public closeModal() {
-    this.ledgerModal.closeModal();
-    window.dispatchEvent(
-      new CustomEvent("ledger-provider-close", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
-    this.isModalOpen = false;
-  }
 
   public selectAccount(account: Account) {
     this.rootNavigationController.selectAccount(account);
@@ -126,7 +73,17 @@ export class RootNavigationComponent extends LitElement {
     mode?: ModalMode,
   ) {
     this.rootNavigationController.navigationIntent(intent, params);
-    this.openModal(mode ?? "center");
+    this.openModal(mode);
+  }
+
+  public openModal(mode?: ModalMode) {
+    this.handleModalOpen();
+    this.ledgerModal.openModal(mode);
+  }
+
+  public closeModal() {
+    this.handleModalClose();
+    this.ledgerModal.closeModal();
   }
 
   // PRIVATE METHODS
@@ -139,6 +96,7 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+    this.isModalOpen = true;
   }
 
   private handleModalClose() {
@@ -155,6 +113,7 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+    this.isModalOpen = false;
   }
 
   private handleModalAnimationComplete() {
@@ -193,35 +152,7 @@ export class RootNavigationComponent extends LitElement {
   }
 
   override render() {
-    const connectedDevice = this.coreContext.getConnectedDevice();
-    const canGoBack = resolveCanGoBack(
-      this.rootNavigationController.currentScreen?.canGoBack,
-      this.coreContext,
-    );
-
-    const canClose =
-      this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;
-
-    const isHomeFlow =
-      this.rootNavigationController.currentScreen?.name === "home-flow";
-
-    const isOnConsentScreen =
-      isHomeFlow && this.hasTrackingConsent === undefined;
-
-    const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
-
-    const title =
-      connectedDevice && shouldShowDeviceChip
-        ? connectedDevice.name
-        : this.rootNavigationController.currentScreen?.toolbar.title;
-
-    const deviceModelId =
-      connectedDevice && shouldShowDeviceChip
-        ? mapDeviceModelId(connectedDevice.modelId)
-        : undefined;
-
-    const showSettings =
-      this.rootNavigationController.currentScreen?.name === "home-flow";
+    const uiModel = this.rootNavigationController.rootNavigationUiModel;
 
     return html`
       <ledger-modal
@@ -232,12 +163,12 @@ export class RootNavigationComponent extends LitElement {
       >
         <div slot="toolbar">
           <ledger-toolbar
-            title=${ifDefined(title)}
-            aria-label=${ifDefined(title)}
-            .canGoBack=${canGoBack}
-            .canClose=${canClose}
-            .showSettings=${showSettings}
-            deviceModelId=${ifDefined(deviceModelId)}
+            title=${ifDefined(uiModel.title)}
+            aria-label=${ifDefined(uiModel.title)}
+            .canGoBack=${uiModel.canGoBack}
+            .canClose=${uiModel.canClose}
+            .showSettings=${uiModel.showSettings}
+            deviceModelId=${ifDefined(uiModel.deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-go-back-click=${this.goBack}
             @ledger-toolbar-chip-click=${this.handleChipClick}

@@ -52,8 +52,6 @@ export class TrackTransactionCompleted {
       sessionId: sessionId,
       trustChainId: trustChainId,
       chainId: chainId,
-      unsignedTransactionHash: unsignedTransactionHash,
-      transactionHash: normalizedTransactionHash,
     });
 
     await this.eventTrackingService.trackEvent(event);
@@ -63,7 +61,6 @@ export class TrackTransactionCompleted {
       EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: this.config.dAppIdentifier,
         sessionId: sessionId,
-        trustChainId: trustChainId,
         transactionHash: normalizedTransactionHash,
         unsignedTransactionHash: unsignedTransactionHash,
         chainId: chainId,

@@ -38,7 +38,6 @@ interface SessionEventParams extends BaseEventParams {
 }
 
 interface TransactionEventParams extends SessionEventParams {
-  unsignedTransactionHash: string;
   chainId: string | null;
 }
 
@@ -186,9 +185,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       chain_id: params.chainId,
     };
 
@@ -200,7 +196,7 @@ export class EventTrackingUtils {
   }
 
   static createTransactionFlowCompletionEvent(
-    params: TransactionEventParams & { transactionHash: string },
+    params: TransactionEventParams,
   ): EventRequest {
     const data: TransactionFlowCompletionEventData = {
       event_id: generateUUID(),
@@ -210,10 +206,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       chain_id: params.chainId,
     };
 
@@ -235,9 +227,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       transaction_type: "authentication_tx",
       transaction_hash: normalizeTransactionHash(params.transactionHash),
     };
@@ -262,7 +251,6 @@ export class EventTrackingUtils {
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.InvoicingTransactionSigned,
-      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       transaction_hash: normalizeTransactionHash(params.transactionHash),

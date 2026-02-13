@@ -167,7 +167,7 @@ export class SignRawTransaction {
 
       const derivationPath = getDerivationPath(selectedAccount);
 
-      this.trackTransactionStarted.execute(transaction);
+      this.trackTransactionStarted.execute();
 
       initObservable
         .pipe(
