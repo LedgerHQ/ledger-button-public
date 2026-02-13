@@ -140,10 +140,14 @@ export class LedgerEIP1193Provider
 
     if (isBlockingRequestMethod(method)) {
       if (this._pendingPromise) {
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Ledger Provider is busy",
-        );
+        return new Promise((_, reject) => {
+          reject(
+            this.createError(
+              CommonEIP1193ErrorCode.InternalError,
+              "Ledger Provider is busy",
+            ),
+          );
+        });
       }
 
       if (this.app.isModalOpen) {
