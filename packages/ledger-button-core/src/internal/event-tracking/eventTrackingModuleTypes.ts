@@ -1,5 +1,6 @@
 export const eventTrackingModuleTypes = {
   EventTrackingService: Symbol.for("EventTrackingService"),
+  TrackConsentGiven: Symbol.for("TrackConsentGiven"),
   TrackFloatingButtonClick: Symbol.for("TrackFloatingButtonClick"),
   TrackOpenSession: Symbol.for("TrackOpenSession"),
   TrackLedgerSyncOpened: Symbol.for("TrackLedgerSyncOpened"),
