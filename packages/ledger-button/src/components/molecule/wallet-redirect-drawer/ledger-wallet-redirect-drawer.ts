@@ -42,7 +42,10 @@ export class LedgerWalletRedirectDrawer extends LitElement {
   @query("ledger-drawer")
   private drawerElement!: LedgerDrawer;
 
+  private isConfirming = false;
+
   private async handleConfirm() {
+    this.isConfirming = true;
     await this.drawerElement.close();
 
     this.dispatchEvent(
@@ -61,6 +64,11 @@ export class LedgerWalletRedirectDrawer extends LitElement {
   }
 
   private handleDrawerClose() {
+    if (this.isConfirming) {
+      this.isConfirming = false;
+      return;
+    }
+
     this.dispatchEvent(
       new CustomEvent<WalletRedirectCancelEventDetail>(
         "wallet-redirect-cancel",
