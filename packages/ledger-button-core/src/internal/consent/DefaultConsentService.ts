@@ -1,8 +1,7 @@
 import { inject, injectable } from "inversify";
 
-import { EventType } from "../backend/model/trackEvent.js";
 import { eventTrackingModuleTypes } from "../event-tracking/eventTrackingModuleTypes.js";
-import type { EventTrackingService } from "../event-tracking/service/EventTrackingService.js";
+import type { TrackConsentGiven } from "../event-tracking/usecase/TrackConsentGiven.js";
 import type { UserConsent } from "../storage/model/UserConsent.js";
 import { storageModuleTypes } from "../storage/storageModuleTypes.js";
 import type { StorageService } from "../storage/StorageService.js";
@@ -13,8 +12,8 @@ export class DefaultConsentService implements ConsentService {
   constructor(
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(eventTrackingModuleTypes.EventTrackingService)
-    private readonly eventTrackingService: EventTrackingService,
+    @inject(eventTrackingModuleTypes.TrackConsentGiven)
+    private readonly trackConsentGiven: TrackConsentGiven,
   ) {}
 
   async hasConsent(): Promise<boolean> {
@@ -35,16 +34,7 @@ export class DefaultConsentService implements ConsentService {
 
     await this.storageService.saveUserConsent(consent);
 
-    await this.eventTrackingService.trackEvent({
-      name: "Consent Given",
-      type: EventType.ConsentGiven,
-      data: {
-        event_type: "consent_given",
-        event_id: crypto.randomUUID(),
-        transaction_dapp_id: "",
-        timestamp_ms: Date.now(),
-      },
-    });
+    await this.trackConsentGiven.execute();
   }
 
   async refuseConsent(): Promise<void> {
