@@ -18,8 +18,14 @@ const expectSuccessfulResult = (
   expected: CounterValueResult[],
 ) => {
   expect(result.isRight()).toBe(true);
-  expect(result.extract()).toEqual(expected);
+  if (result.isRight()) {
+    expect(result.extract()).toEqual(expected);
+  }
 };
+
+const MOCK_ETH_USD_RATE = 3200.5;
+const MOCK_ETH_EUR_RATE = 2900.0;
+const MOCK_ETH_ERC20_RATE = 1.0;
 
 describe("DefaultCounterValueDataSource", () => {
   let dataSource: DefaultCounterValueDataSource;
@@ -55,7 +61,7 @@ describe("DefaultCounterValueDataSource", () => {
 
     it("should successfully fetch counter values for single ledgerId", async () => {
       const mockResponse = createMockResponse({
-        ethereum: 3200.5,
+        ethereum: MOCK_ETH_USD_RATE,
       });
 
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right(mockResponse));
@@ -66,13 +72,15 @@ describe("DefaultCounterValueDataSource", () => {
         `${mockCounterValueUrl}/v3/spot/simple?froms=ethereum&to=usd`,
       );
 
-      expectSuccessfulResult(result, [{ ledgerId: "ethereum", rate: 3200.5 }]);
+      expectSuccessfulResult(result, [
+        { ledgerId: "ethereum", rate: MOCK_ETH_USD_RATE },
+      ]);
     });
 
     it("should successfully fetch counter values for multiple ledgerIds", async () => {
       const mockResponse = createMockResponse({
-        ethereum: 3200.5,
-        "ethereum/erc20/usd_tether__erc20_": 1.0,
+        ethereum: MOCK_ETH_USD_RATE,
+        "ethereum/erc20/usd_tether__erc20_": MOCK_ETH_ERC20_RATE,
       });
 
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right(mockResponse));
@@ -87,14 +95,17 @@ describe("DefaultCounterValueDataSource", () => {
       );
 
       expectSuccessfulResult(result, [
-        { ledgerId: "ethereum", rate: 3200.5 },
-        { ledgerId: "ethereum/erc20/usd_tether__erc20_", rate: 1.0 },
+        { ledgerId: "ethereum", rate: MOCK_ETH_USD_RATE },
+        {
+          ledgerId: "ethereum/erc20/usd_tether__erc20_",
+          rate: MOCK_ETH_ERC20_RATE,
+        },
       ]);
     });
 
     it("should return rate 0 for ledgerIds not found in response", async () => {
       const mockResponse = createMockResponse({
-        ethereum: 3200.5,
+        ethereum: MOCK_ETH_ERC20_RATE,
       });
 
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right(mockResponse));
@@ -105,7 +116,7 @@ describe("DefaultCounterValueDataSource", () => {
       );
 
       expectSuccessfulResult(result, [
-        { ledgerId: "ethereum", rate: 3200.5 },
+        { ledgerId: "ethereum", rate: MOCK_ETH_ERC20_RATE },
         { ledgerId: "unknown-token", rate: 0 },
       ]);
     });
@@ -135,7 +146,7 @@ describe("DefaultCounterValueDataSource", () => {
 
     it("should use different target currencies", async () => {
       const mockResponse = createMockResponse({
-        ethereum: 2900.0,
+        ethereum: MOCK_ETH_EUR_RATE,
       });
 
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right(mockResponse));
@@ -146,7 +157,64 @@ describe("DefaultCounterValueDataSource", () => {
         `${mockCounterValueUrl}/v3/spot/simple?froms=ethereum&to=eur`,
       );
 
-      expectSuccessfulResult(result, [{ ledgerId: "ethereum", rate: 2900.0 }]);
+      expectSuccessfulResult(result, [
+        { ledgerId: "ethereum", rate: MOCK_ETH_EUR_RATE },
+      ]);
+    });
+  });
+
+  describe("getHistoricalRates", () => {
+    it("should return empty object when startDate is after endDate", async () => {
+      const result = await dataSource.getHistoricalRates(
+        "ethereum",
+        "usd",
+        "2024-01-15",
+        "2024-01-10",
+      );
+
+      expect(result.isRight()).toBe(true);
+      expect(result.extract()).toEqual({});
+      expect(mockNetworkService.get).not.toHaveBeenCalled();
+    });
+
+    it("should successfully fetch historical rates for date range", async () => {
+      const mockResponse: Record<string, number> = {
+        "2024-01-10": 2500,
+        "2024-01-11": 2550,
+        "2024-01-12": 2600,
+      };
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Right(mockResponse));
+
+      const result = await dataSource.getHistoricalRates(
+        "ethereum",
+        "usd",
+        "2024-01-10",
+        "2024-01-12",
+      );
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        `${mockCounterValueUrl}/v3/historical/daily/simple?from=ethereum&to=usd&start=2024-01-10&end=2024-01-12`,
+      );
+      expect(result.isRight()).toBe(true);
+      expect(result.extract()).toEqual(mockResponse);
+    });
+
+    it("should return Left when network service returns Left", async () => {
+      const networkError = new Error("Network request failed");
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Left(networkError));
+
+      const result = await dataSource.getHistoricalRates(
+        "ethereum",
+        "usd",
+        "2024-01-10",
+        "2024-01-12",
+      );
+
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toBe("Failed to fetch historical counter values");
+      }
     });
   });
 });

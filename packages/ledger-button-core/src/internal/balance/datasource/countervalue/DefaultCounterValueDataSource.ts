@@ -11,7 +11,6 @@ import type {
   CounterValuedResponse,
   CounterValueResult,
 } from "./counterValueTypes.js";
-
 @injectable()
 export class DefaultCounterValueDataSource implements CounterValueDataSource {
   constructor(
@@ -46,5 +45,28 @@ export class DefaultCounterValueDataSource implements CounterValueDataSource {
     }));
 
     return Right(results);
+  }
+
+  async getHistoricalRates(
+    ledgerId: string,
+    targetCurrency: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<Either<Error, Record<string, number>>> {
+    if (startDate > endDate) {
+      return Right({});
+    }
+
+    const requestUrl = `${this.config.getCounterValueUrl()}/v3/historical/daily/simple?from=${encodeURIComponent(ledgerId)}&to=${targetCurrency}&start=${startDate}&end=${endDate}`;
+
+    const response =
+      await this.networkService.get<Record<string, number>>(requestUrl);
+
+    if (response.isLeft()) {
+      return Left(new Error("Failed to fetch historical counter values"));
+    }
+
+    const data = response.extract() as Record<string, number>;
+    return Right(data);
   }
 }
