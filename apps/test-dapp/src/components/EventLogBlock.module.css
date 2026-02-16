@@ -1,0 +1,92 @@
+@import "./Block.module.css";
+
+.event-log__clear-button {
+  padding: 8px 16px;
+  background-color: var(--color-btn-secondary-bg);
+  color: var(--color-btn-primary-text);
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.event-log__clear-button:hover {
+  background-color: var(--color-btn-secondary-bg-hover);
+}
+
+.event-log__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.event-log__card {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: var(--color-bg-block);
+  border-left: 3px solid var(--color-border-input);
+}
+
+.event-log__card--accounts-changed {
+  border-left-color: var(--color-info);
+  background-color: var(--color-info-bg);
+}
+
+.event-log__card--chain-changed {
+  border-left-color: var(--color-purple);
+  background-color: var(--color-purple-bg);
+}
+
+.event-log__card--disconnect {
+  border-left-color: var(--color-error);
+  background-color: var(--color-error-bg);
+}
+
+.event-log__card--connect {
+  border-left-color: var(--color-success);
+  background-color: var(--color-success-bg);
+}
+
+.event-log__card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.event-log__card-icon {
+  font-size: 14px;
+}
+
+.event-log__card-type {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.event-log__card-time {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-family: monospace;
+  margin-left: auto;
+}
+
+.event-log__card-data {
+  font-size: 12px;
+}
+
+.event-log__card-data code {
+  font-family: monospace;
+  color: var(--color-text-secondary);
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+[data-theme="dark"] .event-log__card-data code {
+  background-color: rgba(255, 255, 255, 0.1);
+}

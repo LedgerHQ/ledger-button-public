@@ -12,7 +12,7 @@ env:
 ## TODO: PLUG JFROG
 
 jobs:
-  build-and-publish:
+  build-and-attest:
     runs-on: ubuntu-22.04
     environment: Production
     permissions:
@@ -64,3 +64,43 @@ jobs:
         uses: LedgerHQ/actions-security/actions/sign-blob@actions/sign-blob-1
         with:
           path: ./dist
+
+      - name: Upload packages to GitHub Artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: npm-snapshot-packages
+          path: dist/*.tgz
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Publish to Github Release
+        uses: LedgerHQ/actions-security/actions/create-github-release@create-github-release
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  ledger-runner:
+    name: Publish NPM packages to JFrog
+    needs: build-and-attest
+    # JFrog is accessible only from a ledger private runner
+    runs-on: ledgerhq-device-sdk
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.REF }}
+
+      - uses: ./.github/actions/setup-action-composite
+        with:
+          playwright: false
+
+      - name: Download packages from GitHub Artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: npm-release-packages
+          path: dist
+
+      - name: Publish snapshot packages to JFrog
+        uses: ./.github/actions/publish-to-jfrog-composite
+        with:
+          npm-registry: ${{ env.NPM_REGISTRY }}
+          dist-path: dist
+          npm-tag: ${{ env.TAG }}

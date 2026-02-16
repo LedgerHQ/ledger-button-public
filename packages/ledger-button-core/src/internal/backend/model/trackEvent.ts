@@ -1,6 +1,8 @@
 export enum EventType {
   ConsentGiven = "consent_given",
   ConsentRemoved = "consent_removed",
+  ErrorOccurred = "error_occurred",
+  FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
   LedgerSyncActivated = "ledger_sync_activated",
   Onboarding = "onboarding",
@@ -9,8 +11,11 @@ export enum EventType {
   SessionAuthentication = "session_authentication",
   TransactionFlowCompletion = "transaction_flow_completion",
   TransactionFlowInitialization = "transaction_flow_initialization",
-  TypedMessageFlowInitialization = "typed_message_flow_initialization",
   TypedMessageFlowCompletion = "typed_message_flow_completion",
+  TypedMessageFlowInitialization = "typed_message_flow_initialization",
+  WalletActionClicked = "wallet_action_clicked",
+  WalletRedirectConfirmed = "wallet_redirect_confirmed",
+  WalletRedirectCancelled = "wallet_redirect_cancelled",
 }
 
 type BaseEventData = {
@@ -34,6 +39,7 @@ export type ConsentGivenEventData = BaseEventData & {
 
 export type ConsentRemovedEventData = BaseEventData & {
   event_type: "consent_removed";
+  ledger_sync_user_id?: string;
 };
 
 export type OpenSessionEventData = BaseEventData & {
@@ -49,39 +55,38 @@ export type OpenLedgerSyncEventData = BaseEventData & {
 export type LedgerSyncActivatedEventData = BaseEventData & {
   event_type: "ledger_sync_activated";
   session_id: string;
+  ledger_sync_user_id?: string;
 };
 
 export type OnboardingEventData = BaseEventData & {
   event_type: "onboarding";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-  account_currency: string;
-  account_balance: string;
 };
 
 export type TransactionFlowInitializationEventData = BaseEventData & {
   event_type: "transaction_flow_initialization";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-  unsigned_transaction_hash: string;
 };
 
 export type TransactionFlowCompletionEventData = BaseEventData & {
   event_type: "transaction_flow_completion";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-  unsigned_transaction_hash: string;
-  transaction_hash: string;
 };
 
 export type SessionAuthenticationEventData = BaseEventData & {
   event_type: "session_authentication";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
-  unsigned_transaction_hash: string;
   transaction_type: "authentication_tx";
   transaction_hash: string;
 };
@@ -89,6 +94,7 @@ export type SessionAuthenticationEventData = BaseEventData & {
 export type TypedMessageFlowInitializationEventData = BaseEventData & {
   event_type: "typed_message_flow_initialization";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   typed_message_hash: string;
@@ -97,24 +103,73 @@ export type TypedMessageFlowInitializationEventData = BaseEventData & {
 export type TypedMessageFlowCompletionEventData = BaseEventData & {
   event_type: "typed_message_flow_completion";
   session_id: string;
+  ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
   typed_message_hash: string;
 };
 
+export type ErrorOccurredEventData = BaseEventData & {
+  event_type: "error_occurred";
+  session_id: string;
+  error_type: string;
+  error_code: string | undefined;
+  error_message: string;
+  error_category: string;
+  error_data?: Record<string, unknown>;
+};
+
+export type FloatingButtonClickEventData = BaseEventData & {
+  event_type: "floating_button_clicked";
+  session_id: string;
+};
+
+export type WalletActionType =
+  | "send"
+  | "receive"
+  | "swap"
+  | "buy"
+  | "earn"
+  | "sell";
+
+export type WalletActionClickedEventData = BaseEventData & {
+  event_type: "wallet_action_clicked";
+  session_id: string;
+  wallet_action: WalletActionType;
+};
+
+export type WalletRedirectConfirmedEventData = BaseEventData & {
+  event_type: "wallet_redirect_confirmed";
+  session_id: string;
+  wallet_action: WalletActionType;
+};
+
+export type WalletRedirectCancelledEventData = BaseEventData & {
+  event_type: "wallet_redirect_cancelled";
+  session_id: string;
+  wallet_action: WalletActionType;
+};
+
 export type EventData =
-  | InvoicingTransactionSignedEventData
   | ConsentGivenEventData
   | ConsentRemovedEventData
+  | ErrorOccurredEventData
+  | InvoicingTransactionSignedEventData
+  | FloatingButtonClickEventData
   | OpenSessionEventData
   | OpenLedgerSyncEventData
   | LedgerSyncActivatedEventData
   | OnboardingEventData
-  | TransactionFlowInitializationEventData
-  | TransactionFlowCompletionEventData
+  | OpenLedgerSyncEventData
+  | OpenSessionEventData
   | SessionAuthenticationEventData
+  | TransactionFlowCompletionEventData
+  | TransactionFlowInitializationEventData
+  | TypedMessageFlowCompletionEventData
   | TypedMessageFlowInitializationEventData
-  | TypedMessageFlowCompletionEventData;
+  | WalletActionClickedEventData
+  | WalletRedirectConfirmedEventData
+  | WalletRedirectCancelledEventData;
 
 export type EventRequest = {
   name: string;

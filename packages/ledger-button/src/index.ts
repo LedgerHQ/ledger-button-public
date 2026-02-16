@@ -8,6 +8,8 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { v4 as uuidv4 } from "uuid";
 
+import { FloatingButtonPosition } from "./components/index.js";
+import { setupFloatingButton } from "./utils/setup-floating-button.js";
 import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
@@ -18,11 +20,17 @@ export type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 
 export { LedgerEIP1193Provider };
+export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
+
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 
 let core: LedgerButtonCore | null = null;
 
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
+  floatingButtonPosition?: FloatingButtonPosition;
+  floatingButtonTarget?: HTMLElement | string;
+  walletTransactionFeatures?: WalletTransactionFeature[];
 };
 
 export function initializeLedgerProvider({
@@ -32,6 +40,9 @@ export function initializeLedgerProvider({
   target = document.body,
   loggerLevel = "info",
   environment,
+  floatingButtonPosition = "bottom-right",
+  floatingButtonTarget,
+  walletTransactionFeatures,
   devConfig = {
     stub: {
       base: false,
@@ -93,6 +104,14 @@ export function initializeLedgerProvider({
 
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
   app.core = core;
+  app.walletTransactionFeatures = walletTransactionFeatures;
+  app.classList.add("ledger-wallet-provider");
+
+  const { floatingButton } = setupFloatingButton(
+    app,
+    floatingButtonTarget,
+    floatingButtonPosition,
+  );
 
   if (target) {
     target.appendChild(app);
@@ -120,14 +139,20 @@ export function initializeLedgerProvider({
 
   // Cleanup function
   return () => {
-    if (target) {
-      target.removeChild(app);
-    } else {
-      document.body.removeChild(app);
+    if (app.parentNode) {
+      app.parentNode.removeChild(app);
     }
+
+    if (floatingButton && floatingButton.parentNode) {
+      floatingButton.parentNode.removeChild(floatingButton);
+    }
+
     window.removeEventListener(
       "eip6963:requestProvider",
       announceProviderListener,
     );
+
+    // Reset core so new config can be applied on next initialization
+    core = null;
   };
 }

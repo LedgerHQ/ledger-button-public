@@ -1,3 +1,5 @@
+import "../welcome/welcome-screen.js";
+import "../consent-prompt/consent-analytics-screen.js";
 import "../select-device/select-device.js";
 import "../ledger-sync/ledger-sync.js";
 import "../retrieving-accounts/retrieving-accounts.js";

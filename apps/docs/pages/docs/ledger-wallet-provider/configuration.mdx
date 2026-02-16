@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components'
+import { Callout } from "nextra/components";
 
 # Configuration
 
@@ -22,6 +22,7 @@ This page describes all available configuration options for `initializeLedgerPro
   apiKey?: string;             // Your Ledger API key
   loggerLevel?: string;        // Log level: 'debug', 'info', 'warn', 'error' (default: 'info')
   dmkConfig?: any;             // Device Management Kit configuration (optional)
+  walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
 }
 ```
 
@@ -37,16 +38,16 @@ For development and testing, you can enable stub mode:
 const cleanup = initializeLedgerProvider({
   devConfig: {
     stub: {
-      base: true,              // Enable base stub mode
-      account: true,           // Mock account operations
-      device: true,            // Mock device interactions
-      web3Provider: true,      // Mock Web3 provider responses
-      dAppConfig: true,        // Mock dApp configuration
+      base: true, // Enable base stub mode
+      account: true, // Mock account operations
+      device: true, // Mock device interactions
+      web3Provider: true, // Mock Web3 provider responses
+      dAppConfig: true, // Mock dApp configuration
     },
   },
-  dAppIdentifier: 'my-dapp',
-  apiKey: 'your-api-key',
-})
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+});
 ```
 
 ### `target`
@@ -74,6 +75,21 @@ Adjusts log verbosity.
 Device Management Kit configuration (optional).
 
 Passes Device Management Kit options when you need custom device policies.
+
+### `walletTransactionFeatures`
+
+An optional array of wallet transaction features to display as action buttons in the side panel.
+
+Available features:
+
+- `'send'` - Send crypto
+- `'receive'` - Receive crypto
+- `'swap'` - Swap tokens
+- `'buy'` - Buy crypto
+- `'earn'` - Earn rewards
+- `'sell'` - Sell crypto
+
+If no features are specified, the action buttons section will not be displayed.
 
 ## Return value
 

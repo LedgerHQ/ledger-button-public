@@ -58,8 +58,6 @@ export class EncryptKeyPairUseCase {
     result.set(iv, 0);
     result.set(new Uint8Array(ciphertext), iv.length);
 
-    console.log("ciphertext", bufferToHexaString(new Uint8Array(ciphertext)));
-
     this.logger.info("KeyPair encrypted", {
       encryptedKeyPair: bufferToHexaString(result),
     });

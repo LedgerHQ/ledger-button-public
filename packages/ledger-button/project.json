@@ -8,7 +8,7 @@
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          "vite build && tailwindcss -i ./src/styles.css -o ./dist/styles.css"
+          "vite build && pnpm exec tailwindcss -i ./src/styles.css -o ./dist/styles.css && pnpm exec ts-node --esm ./scope-css-variables.js ./dist/styles.css"
         ],
         "cwd": "packages/ledger-button"
       }

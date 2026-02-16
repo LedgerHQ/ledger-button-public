@@ -1,6 +1,7 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
+import { UserConsent } from "./model/UserConsent.js";
 import { Account } from "../account/service/AccountService.js";
 
 export interface StorageService {
@@ -27,4 +28,12 @@ export interface StorageService {
 
   storeEncryptionKey(encryptionKey: CryptoKey): Promise<void>;
   getEncryptionKey(): Promise<Maybe<CryptoKey>>;
+
+  saveUserConsent(consent: UserConsent): Promise<void>;
+  getUserConsent(): Promise<Maybe<UserConsent>>;
+  removeUserConsent(): Promise<void>;
+
+  saveWelcomeScreenCompleted(): Promise<void>;
+  isWelcomeScreenCompleted(): Promise<boolean>;
+  removeWelcomeScreenCompleted(): Promise<void>;
 }

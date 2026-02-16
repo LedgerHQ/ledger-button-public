@@ -7,6 +7,7 @@ import {
   type ConsentRemovedEventData,
   type EventRequest,
   EventType,
+  type FloatingButtonClickEventData,
   type InvoicingTransactionSignedEventData,
   type LedgerSyncActivatedEventData,
   type OnboardingEventData,
@@ -15,8 +16,12 @@ import {
   type SessionAuthenticationEventData,
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
-  TypedMessageFlowCompletionEventData,
+  type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
+  type WalletActionClickedEventData,
+  type WalletActionType,
+  type WalletRedirectCancelledEventData,
+  type WalletRedirectConfirmedEventData,
 } from "../backend/model/trackEvent.js";
 import { generateUUID } from "./utils.js";
 
@@ -30,10 +35,10 @@ interface BaseEventParams {
 
 interface SessionEventParams extends BaseEventParams {
   sessionId: string;
+  trustChainId?: string;
 }
 
 interface TransactionEventParams extends SessionEventParams {
-  unsignedTransactionHash: string;
   chainId: string | null;
 }
 
@@ -104,6 +109,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.LedgerSyncActivated,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
     };
 
     return {
@@ -128,12 +134,13 @@ export class EventTrackingUtils {
     };
   }
 
-  static createConsentRemovedEvent(params: SessionEventParams): EventRequest {
+  static createConsentRemovedEvent(params: BaseEventParams & { trustChainId?: string }): EventRequest {
     const data: ConsentRemovedEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.ConsentRemoved,
+      ledger_sync_user_id: params.trustChainId,
     };
 
     return {
@@ -143,10 +150,26 @@ export class EventTrackingUtils {
     };
   }
 
+  static createFloatingButtonClickEvent(
+    params: SessionEventParams,
+  ): EventRequest {
+    const data: FloatingButtonClickEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.FloatingButtonClick,
+      session_id: params.sessionId,
+    };
+
+    return {
+      name: EventType.FloatingButtonClick,
+      type: EventType.FloatingButtonClick,
+      data,
+    };
+  }
+
   static createOnboardingEvent(
     params: SessionEventParams & {
-      accountCurrency: string;
-      accountBalance: string;
       chainId: string | null;
     },
   ): EventRequest {
@@ -156,10 +179,9 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.Onboarding,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
-      account_currency: params.accountCurrency,
-      account_balance: params.accountBalance,
     };
 
     return {
@@ -178,10 +200,8 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TransactionFlowInitialization,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       chain_id: params.chainId,
     };
 
@@ -193,7 +213,7 @@ export class EventTrackingUtils {
   }
 
   static createTransactionFlowCompletionEvent(
-    params: TransactionEventParams & { transactionHash: string },
+    params: TransactionEventParams,
   ): EventRequest {
     const data: TransactionFlowCompletionEventData = {
       event_id: generateUUID(),
@@ -201,11 +221,8 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TransactionFlowCompletion,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       chain_id: params.chainId,
     };
 
@@ -225,10 +242,8 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.SessionAuthentication,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       transaction_type: "authentication_tx",
       transaction_hash: normalizeTransactionHash(params.transactionHash),
     };
@@ -272,6 +287,7 @@ export class EventTrackingUtils {
   static createTypedMessageFlowInitializationEvent(params: {
     dAppId: string;
     sessionId: string;
+    trustChainId?: string;
     typedMessageHash: string;
     chainId: string;
   }): EventRequest {
@@ -281,6 +297,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TypedMessageFlowInitialization,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
@@ -296,6 +313,7 @@ export class EventTrackingUtils {
   static createTypedMessageFlowCompletionEvent(params: {
     dAppId: string;
     sessionId: string;
+    trustChainId?: string;
     typedMessageHash: string;
     chainId: string;
   }): EventRequest {
@@ -305,6 +323,7 @@ export class EventTrackingUtils {
       timestamp_ms: Date.now(),
       event_type: EventType.TypedMessageFlowCompletion,
       session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
@@ -313,6 +332,63 @@ export class EventTrackingUtils {
     return {
       name: EventType.TypedMessageFlowCompletion,
       type: EventType.TypedMessageFlowCompletion,
+      data,
+    };
+  }
+
+  static createWalletActionClickedEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletActionClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletActionClicked,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletActionClicked,
+      type: EventType.WalletActionClicked,
+      data,
+    };
+  }
+
+  static createWalletRedirectConfirmedEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletRedirectConfirmedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletRedirectConfirmed,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletRedirectConfirmed,
+      type: EventType.WalletRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createWalletRedirectCancelledEvent(
+    params: SessionEventParams & { walletAction: WalletActionType },
+  ): EventRequest {
+    const data: WalletRedirectCancelledEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.WalletRedirectCancelled,
+      session_id: params.sessionId,
+      wallet_action: params.walletAction,
+    };
+
+    return {
+      name: EventType.WalletRedirectCancelled,
+      type: EventType.WalletRedirectCancelled,
       data,
     };
   }

@@ -4,6 +4,7 @@ import { Either, Just, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
+import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
@@ -171,6 +172,84 @@ export class DefaultStorageService implements StorageService {
         this.logger.error("Error parsing item", { error, key });
         return Nothing;
       }
+    });
+  }
+
+  // Consent Management
+  async saveUserConsent(consent: UserConsent): Promise<void> {
+    const result = await this.indexedDbService.storeUserConsent(consent);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("User consent saved", { consent });
+      },
+      Left: (error) => {
+        this.logger.error("Error saving user consent", { error, consent });
+      },
+    });
+  }
+
+  async getUserConsent(): Promise<Maybe<UserConsent>> {
+    const result = await this.indexedDbService.getUserConsent();
+    return result.caseOf({
+      Right: (maybeConsent) => maybeConsent,
+      Left: (error) => {
+        this.logger.error("Error getting user consent", { error });
+        return Nothing;
+      },
+    });
+  }
+
+  async removeUserConsent(): Promise<void> {
+    const consent: UserConsent = {
+      consentGiven: false,
+      consentDate: new Date().toISOString(),
+    };
+    const result = await this.indexedDbService.storeUserConsent(consent);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("User consent set to refused", { consent });
+      },
+      Left: (error) => {
+        this.logger.error("Error removing user consent", { error });
+      },
+    });
+  }
+
+  // Welcome Screen Management
+  async saveWelcomeScreenCompleted(): Promise<void> {
+    const result =
+      await this.indexedDbService.storeWelcomeScreenCompleted(true);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("Welcome screen completed saved");
+      },
+      Left: (error) => {
+        this.logger.error("Error saving welcome screen completed", { error });
+      },
+    });
+  }
+
+  async isWelcomeScreenCompleted(): Promise<boolean> {
+    const result = await this.indexedDbService.getWelcomeScreenCompleted();
+    return result.caseOf({
+      Right: (maybeCompleted) => maybeCompleted.orDefault(false),
+      Left: (error) => {
+        this.logger.error("Error getting welcome screen completed", { error });
+        return false;
+      },
+    });
+  }
+
+  async removeWelcomeScreenCompleted(): Promise<void> {
+    const result =
+      await this.indexedDbService.storeWelcomeScreenCompleted(false);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("Welcome screen completed set to false");
+      },
+      Left: (error) => {
+        this.logger.error("Error removing welcome screen completed", { error });
+      },
     });
   }
 }

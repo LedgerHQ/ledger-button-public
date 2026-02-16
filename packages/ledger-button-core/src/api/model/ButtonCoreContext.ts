@@ -7,4 +7,6 @@ export type ButtonCoreContext = {
   trustChainId: string | undefined;
   applicationPath: string | undefined;
   chainId: number;
+  welcomeScreenCompleted: boolean;
+  hasTrackingConsent: boolean | undefined;
 };

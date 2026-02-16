@@ -30,11 +30,12 @@ export class RetrievingAccountsController implements ReactiveController {
 
   hostConnected() {
     this.fetchAccounts();
+    this.host.requestUpdate();
   }
 
   async fetchAccounts() {
     try {
-      const accounts = await this.core.fetchAccounts();
+      const accounts = await this.core.fetchAccountsFromCloudSync();
       this.host.requestUpdate();
 
       if (!accounts || accounts.length === 0) {
@@ -44,6 +45,7 @@ export class RetrievingAccountsController implements ReactiveController {
 
       this.navigation.navigateTo(this.destinations.selectAccount);
     } catch (error) {
+      console.error(error);
       this.mapError(error);
       this.host.requestUpdate();
     }
@@ -119,7 +121,9 @@ export class RetrievingAccountsController implements ReactiveController {
           cta1: {
             label: this.lang.currentTranslation.error.generic.account.cta1,
             action: () => {
-              this.navigation.navigateTo(this.destinations.onboardingFlow);
+              this.errorData = undefined;
+              this.host.requestUpdate();
+              this.fetchAccounts();
             },
           },
         };

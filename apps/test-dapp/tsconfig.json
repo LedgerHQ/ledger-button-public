@@ -43,5 +43,9 @@
     "eslint.config.cjs",
     "eslint.config.mjs"
   ],
-  "references": []
+  "references": [
+    {
+      "path": "../../packages/ledger-button"
+    }
+  ]
 }

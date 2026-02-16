@@ -17,6 +17,9 @@
     },
     {
       "path": "./apps/test-dapp"
+    },
+    {
+      "path": "./apps/test-extension"
     }
   ],
   "ts-node": {

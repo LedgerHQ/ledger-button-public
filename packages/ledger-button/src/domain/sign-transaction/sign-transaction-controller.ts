@@ -5,6 +5,9 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
+  isSignPersonalMessageParams,
+  isSignRawTransactionParams,
+  isSignTransactionParams,
   type SignedResults,
   type SignFlowStatus,
   type SignPersonalMessageParams,
@@ -159,6 +162,28 @@ export class SignTransactionController implements ReactiveController {
     return device?.name || device?.modelId
       ? this.lang.currentTranslation.common.device.model[device.modelId]
       : this.lang.currentTranslation.common.device.model.fallback;
+  }
+
+  private isTransactionParameter(
+    transactionParams:
+      | SignTransactionParams
+      | SignRawTransactionParams
+      | SignTypedMessageParams
+      | SignPersonalMessageParams
+      | undefined,
+  ): boolean {
+    if (!transactionParams) {
+      return false;
+    }
+
+    if (isSignPersonalMessageParams(transactionParams)) {
+      return false;
+    }
+
+    return (
+      isSignTransactionParams(transactionParams) ||
+      isSignRawTransactionParams(transactionParams)
+    );
   }
 
   private mapSuccessToState(data: SignedResults): ScreenState {
@@ -323,7 +348,7 @@ export class SignTransactionController implements ReactiveController {
       }
       case error instanceof UserRejectedTransactionError: {
         const deviceName = this.getDeviceName();
-        const isTx = isSignedTransactionResult(this.currentTransaction);
+        const isTx = this.isTransactionParameter(this.currentTransaction);
         this.state = {
           screen: "error",
           status: {

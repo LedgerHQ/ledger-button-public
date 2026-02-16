@@ -1,5 +1,6 @@
 import "../../atom/crypto-icon/ledger-crypto-icon";
 import "../../atom/icon/ledger-icon";
+import "../../atom/skeleton/ledger-skeleton";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
@@ -7,6 +8,7 @@ import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
+import { formatAddress } from "../../../utils/format-address.js";
 
 const accountItemVariants = cva([
   "lb-flex lb-min-w-full lb-cursor-pointer lb-justify-between lb-p-12",
@@ -31,6 +33,8 @@ export interface LedgerAccountItemMoleculeAttributes {
   ledgerId: string;
   balance: string;
   linkLabel: string;
+  isBalanceLoading?: boolean;
+  isBalanceError?: boolean;
 }
 
 @customElement("ledger-account-item")
@@ -59,6 +63,12 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   @property({ type: String })
   currencyId = "";
+
+  @property({ type: Boolean, attribute: "is-balance-loading" })
+  isBalanceLoading = false;
+
+  @property({ type: Boolean, attribute: "is-balance-error" })
+  isBalanceError = false;
 
   private get containerClasses() {
     return {
@@ -111,20 +121,13 @@ export class LedgerAccountItemMolecule extends LitElement {
     );
   }
 
-  private formatAddress(address: string): string {
-    if (!address || address.length <= 8) {
-      return address;
-    }
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  }
-
   private renderAccountInfo() {
     return html`
       <div class="lb-flex lb-flex-col lb-gap-4 lb-text-left">
         <span class="lb-text-base lb-body-2-semi-bold">${this.title}</span>
         <div class="lb-flex lb-items-center lb-gap-4">
           <span class="lb-whitespace-nowrap lb-text-muted lb-body-3">
-            ${this.formatAddress(this.address)}
+            ${formatAddress(this.address)}
           </span>
           <ledger-crypto-icon
             ledger-id=${this.currencyId}
@@ -137,12 +140,70 @@ export class LedgerAccountItemMolecule extends LitElement {
   }
 
   private renderValueInfo() {
+    if (this.isBalanceLoading) {
+      return html`
+        <div class="lb-flex lb-items-center lb-justify-center">
+          <ledger-skeleton
+            class="lb-h-16 lb-w-80 lb-rounded-full"
+          ></ledger-skeleton>
+        </div>
+      `;
+    }
+
+    if (this.isBalanceError) {
+      return html`
+        <div class="lb-flex lb-items-center lb-justify-center">
+          <span class="lb-text-base lb-body-2-semi-bold">--</span>
+        </div>
+      `;
+    }
+
     return html`
       <div class="lb-flex lb-items-center lb-justify-center">
         <span class="lb-text-base lb-body-2-semi-bold"
           >${this.balance} ${this.ticker}</span
         >
       </div>
+    `;
+  }
+
+  private renderTokenRow() {
+    if (this.isBalanceError) {
+      return "";
+    }
+
+    if (this.isBalanceLoading) {
+      return html`
+        <div
+          class="lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12"
+        >
+          <ledger-skeleton
+            class="lb-h-16 lb-w-112 lb-rounded-full"
+          ></ledger-skeleton>
+        </div>
+      `;
+    }
+
+    if (!this.linkLabel || this.tokens <= 0) {
+      return "";
+    }
+
+    return html`
+      <button
+        class="group lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12 lb-transition lb-duration-300 lb-ease-in-out hover:lb-bg-muted-hover"
+        @click=${this.handleShowTokens}
+      >
+        <div
+          class="lb-flex lb-h-20 lb-items-center lb-text-base lb-body-3-semi-bold"
+        >
+          ${this.linkLabel} (${this.tokens})
+        </div>
+        <div
+          class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
+        >
+          <ledger-icon type="chevronRight" size="small"></ledger-icon>
+        </div>
+      </button>
     `;
   }
 
@@ -161,25 +222,7 @@ export class LedgerAccountItemMolecule extends LitElement {
         >
           ${this.renderAccountInfo()} ${this.renderValueInfo()}
         </button>
-        ${this.linkLabel && this.tokens > 0
-          ? html`
-              <button
-                class="group lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12 lb-transition lb-duration-300 lb-ease-in-out hover:lb-bg-muted-hover"
-                @click=${this.handleShowTokens}
-              >
-                <div
-                  class="lb-flex lb-h-20 lb-items-center lb-text-base lb-body-3-semi-bold"
-                >
-                  ${this.linkLabel} (${this.tokens})
-                </div>
-                <div
-                  class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
-                >
-                  <ledger-icon type="chevronRight" size="small"></ledger-icon>
-                </div>
-              </button>
-            `
-          : ""}
+        ${this.renderTokenRow()}
       </div>
     `;
   }

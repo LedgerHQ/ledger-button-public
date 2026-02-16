@@ -1,138 +1,115 @@
 import { css, html, LitElement } from "lit";
-import { customElement, query, state } from "lit/decorators.js";
-import { animate } from "motion";
+import { customElement, property, query, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
+import {
+  ModalAnimationController,
+  type ModalMode,
+} from "./modal-animation-controller.js";
+import { ModalFocusController } from "./modal-focus-controller.js";
+import { ModalScrollLockController } from "./modal-scroll-lock-controller.js";
+
+export type { ModalMode };
 
 const styles = css`
-  /* :host {
+  .modal-wrapper {
     display: none;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    overflow: hidden;
-    top: 0;
-    left: 0;
-    z-index: 7730;
   }
 
-  :host([isOpen]) {
-    display: flex;
-  } */
-
-  /* .modal-overlay {
-    width: 100%;
-    opacity: 0;
-  } */
+  .modal-wrapper--open {
+    display: block;
+  }
 
   .modal-backdrop {
     position: fixed;
+    left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     opacity: 0;
-    display: none;
+    z-index: 7730;
     background: radial-gradient(
       50% 50% at 50% 50%,
       rgba(102, 102, 102, 0.6) 0%,
       rgba(0, 0, 0, 0.6) 100%
     );
-    /* blur/backdrop blur */
     backdrop-filter: blur(calc(var(--blur-md, 12px) / 2));
   }
 
   .modal-container {
-    width: min(calc(100% - 32px), 400px);
-    height: auto;
-    max-height: min(calc(100vh - 64px), 550px);
+    z-index: 7731;
     overflow: hidden;
   }
+
+  .modal-container--center {
+    width: min(calc(100% - 32px), 400px);
+    height: auto;
+    max-height: min(calc(100vh - 64px), var(--modal-max-height, 550px));
+    opacity: 0;
+    transition: max-height 0.3s ease;
+  }
+
+  .modal-container--panel {
+    width: 400px;
+    height: calc(100vh - 32px);
+    max-height: 100vh;
+    transform: translateX(100%);
+  }
 `;
+
+const centerContainerClasses = {
+  "modal-container": true,
+  "modal-container--center": true,
+  "lb-fixed": true,
+  "lb-inset-0": true,
+  "lb-flex": true,
+  "lb-flex-col": true,
+  "lb-self-center": true,
+  "lb-justify-self-center": true,
+  "lb-overflow-hidden": true,
+  "lb-bg-canvas-sheet": true,
+  "lb-rounded-2xl": true,
+};
+
+const panelContainerClasses = {
+  "modal-container": true,
+  "modal-container--panel": true,
+  "lb-fixed": true,
+  "lb-right-0": true,
+  "lb-top-0": true,
+  "lb-flex": true,
+  "lb-flex-col": true,
+  "lb-overflow-hidden": true,
+  "lb-bg-canvas-sheet": true,
+  "lb-rounded-2xl": true,
+  "lb-m-16": true,
+};
 
 @customElement("ledger-modal")
 @tailwindElement(styles)
 export class LedgerModal extends LitElement {
-  @state()
-  isClosing = false;
+  @property({ type: String })
+  mode: ModalMode = "center";
 
-  @query("ledger-toolbar")
-  private toolbarElement!: HTMLElement;
+  @state()
+  private isClosing = false;
+
+  @query(".modal-wrapper")
+  private wrapperElement!: HTMLElement;
 
   @query(".modal-backdrop")
   private backdropElement!: HTMLElement;
 
-  private focusableElements: HTMLElement[] = [];
-  private previousBodyOverflow = "";
+  @query(".modal-container")
+  private containerElement!: HTMLElement;
 
-  override connectedCallback() {
-    super.connectedCallback();
-    document.addEventListener("keydown", this.handleKeydown);
-    this.addEventListener("modal-opened", this.handleOpen);
-    this.addEventListener("modal-closed", this.handleClose);
-  }
+  private animationController = new ModalAnimationController(this);
+  private focusController = new ModalFocusController(this);
+  private scrollLockController = new ModalScrollLockController(this);
 
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    document.removeEventListener("keydown", this.handleKeydown);
-    this.removeEventListener("modal-opened", this.handleOpen);
-    this.removeEventListener("modal-closed", this.handleClose);
-  }
-
-  private handleKeydown = (event: KeyboardEvent) => {
-    if (this.isClosing) {
-      return;
-    }
-
-    if (event.key === "Escape") {
-      event.preventDefault();
-      this.closeModal();
-    }
-  };
-
-  private focusFirstElement() {
-    if (this.toolbarElement) {
-      this.toolbarElement.focus();
-      return;
-    }
-
-    const [firstFocusableElement] = this.focusableElements;
-
-    if (firstFocusableElement) {
-      firstFocusableElement.focus();
-    }
-  }
-
-  private handleOpen() {
-    this.focusFirstElement();
-
-    this.previousBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    if (this.backdropElement) {
-      this.backdropElement.style.display = "block";
-      animate(this.backdropElement, { opacity: 1 }, { duration: 0.2 });
-    }
-  }
-
-  private handleClose() {
-    this.isClosing = true;
-
-    if (this.backdropElement) {
-      animate(
-        this.backdropElement,
-        { opacity: 0 },
-        {
-          duration: 0.2,
-          onComplete: () => {
-            document.body.style.overflow = this.previousBodyOverflow;
-            this.backdropElement.style.display = "none";
-            this.isClosing = false;
-          },
-        },
-      );
-    }
-  }
-
-  public openModal() {
+  public openModal(mode: ModalMode = "center"): void {
+    this.mode = mode;
     this.dispatchEvent(
       new CustomEvent("modal-opened", {
         bubbles: true,
@@ -141,7 +118,11 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  public closeModal() {
+  public closeModal(): void {
+    if (this.isClosing) {
+      return;
+    }
+
     this.dispatchEvent(
       new CustomEvent("modal-closed", {
         bubbles: true,
@@ -150,31 +131,132 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  override render() {
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener("modal-opened", this.handleOpen);
+    this.addEventListener("modal-closed", this.handleClose);
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener("modal-opened", this.handleOpen);
+    this.removeEventListener("modal-closed", this.handleClose);
+  }
+
+  private handleOpen = async (): Promise<void> => {
+    this.scrollLockController.lock();
+
+    await this.updateComplete;
+
+    this.animationController.animateOpen(
+      {
+        backdrop: this.backdropElement,
+        container: this.containerElement,
+        wrapper: this.wrapperElement,
+      },
+      this.mode,
+    );
+
+    this.focusController.activate(this.containerElement, () =>
+      this.closeModal(),
+    );
+  };
+
+  private handleClose = async (): Promise<void> => {
+    this.isClosing = true;
+    this.focusController.deactivate();
+
+    await this.animationController.animateClose(
+      {
+        backdrop: this.backdropElement,
+        container: this.containerElement,
+        wrapper: this.wrapperElement,
+      },
+      this.mode,
+    );
+
+    this.scrollLockController.unlock();
+    this.isClosing = false;
+    this.dispatchAnimationComplete();
+  };
+
+  private dispatchAnimationComplete(): void {
+    this.dispatchEvent(
+      new CustomEvent("modal-animation-complete", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private renderBackdrop() {
     return html`
       <div
-        class="modal-backdrop lb-fixed lb-left-0 lb-top-0 lb-flex lb-h-full lb-min-h-screen lb-w-full lb-content-center lb-items-center lb-justify-center lb-bg-canvas-overlay"
+        class="modal-backdrop"
+        data-testid="modal-backdrop"
+        @click=${this.closeModal}
+      ></div>
+    `;
+  }
+
+  private renderToolbar() {
+    return html`
+      <slot name="toolbar">
+        <ledger-toolbar
+          title="Ledger Button"
+          aria-label="Ledger Button"
+          @ledger-toolbar-close=${this.closeModal}
+        ></ledger-toolbar>
+      </slot>
+    `;
+  }
+
+  private renderContent() {
+    return html`
+      <div
+        id="modal-content"
+        class="lb-relative lb-flex-1 lb-overflow-y-auto lb-text-base"
+      >
+        <slot>hello</slot>
+      </div>
+    `;
+  }
+
+  private renderCenterContainer() {
+    return html`
+      <div
+        class=${classMap(centerContainerClasses)}
         role="dialog"
         aria-modal="true"
         aria-describedby="modal-content"
-        data-testid="modal-backdrop"
+        @click=${(e: Event) => e.stopPropagation()}
       >
-        <div
-          class="modal-container lb-fixed lb-inset-0 lb-flex lb-flex-col lb-self-center lb-justify-self-center lb-overflow-hidden lb-rounded-2xl lb-bg-canvas-sheet"
-          @click=${(e: Event) => e.stopPropagation()}
-        >
-          <slot name="toolbar">
-            <!-- DEFAULT TOOLBAR -->
-            <ledger-toolbar
-              title="Ledger Button"
-              aria-label="Ledger Button"
-              @ledger-toolbar-close=${this.closeModal}
-            ></ledger-toolbar>
-          </slot>
-          <div id="modal-content" class="lb-overflow-y-auto lb-text-base">
-            <slot>hello</slot>
-          </div>
-        </div>
+        ${this.renderToolbar()} ${this.renderContent()}
+      </div>
+    `;
+  }
+
+  private renderPanelContainer() {
+    return html`
+      <div
+        class=${classMap(panelContainerClasses)}
+        role="dialog"
+        aria-modal="true"
+        aria-describedby="modal-content"
+        @click=${(e: Event) => e.stopPropagation()}
+      >
+        ${this.renderToolbar()} ${this.renderContent()}
+      </div>
+    `;
+  }
+
+  override render() {
+    return html`
+      <div class="modal-wrapper">
+        ${this.renderBackdrop()}
+        ${this.mode === "panel"
+          ? this.renderPanelContainer()
+          : this.renderCenterContainer()}
       </div>
     `;
   }
@@ -188,5 +270,6 @@ declare global {
   interface WindowEventMap {
     "modal-opened": CustomEvent<void>;
     "modal-closed": CustomEvent<void>;
+    "modal-animation-complete": CustomEvent<void>;
   }
 }

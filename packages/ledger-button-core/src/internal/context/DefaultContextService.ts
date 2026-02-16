@@ -3,7 +3,11 @@ import { BehaviorSubject, Observable } from "rxjs";
 
 import { type ContextEvent } from "./model/ContextEvent.js";
 import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
-import { getChainIdFromCurrencyId } from "../blockchain/evm/chainUtils.js";
+import { Account } from "../account/service/AccountService.js";
+import {
+  getChainIdFromCurrencyId,
+  getCurrencyIdFromChainId,
+} from "../blockchain/evm/chainUtils.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type ContextService } from "./ContextService.js";
@@ -16,6 +20,8 @@ export class DefaultContextService implements ContextService {
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
+    welcomeScreenCompleted: false,
+    hasTrackingConsent: undefined,
   };
 
   private readonly logger: LoggerPublisher;
@@ -44,6 +50,14 @@ export class DefaultContextService implements ContextService {
         break;
       case "chain_changed":
         this.context.chainId = event.chainId;
+        if (this.context.selectedAccount) {
+          this.context.selectedAccount = {
+            ...(this.context.selectedAccount as Account),
+            currencyId:
+              getCurrencyIdFromChainId(event.chainId) ??
+              this.context.selectedAccount?.currencyId,
+          } as Account;
+        }
         break;
       case "account_changed":
         this.context.selectedAccount = event.account;
@@ -67,6 +81,15 @@ export class DefaultContextService implements ContextService {
         this.context.trustChainId = undefined;
         this.context.connectedDevice = undefined;
         this.context.applicationPath = undefined;
+        break;
+      case "welcome_screen_completed":
+        this.context.welcomeScreenCompleted = true;
+        break;
+      case "tracking_consent_given":
+        this.context.hasTrackingConsent = true;
+        break;
+      case "tracking_consent_refused":
+        this.context.hasTrackingConsent = false;
         break;
     }
 

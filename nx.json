@@ -127,7 +127,10 @@
     "projectsRelationship": "independent",
     "groups": {
       "libraries": {
-        "projects": ["ledger-button", "ledger-button-core"],
+        "projects": [
+          "@ledgerhq/ledger-wallet-provider",
+          "@ledgerhq/ledger-wallet-provider-core"
+        ],
         "projectsRelationship": "independent"
       }
     },

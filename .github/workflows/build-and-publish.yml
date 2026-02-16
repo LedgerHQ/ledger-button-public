@@ -1,0 +1,50 @@
+name: Build and Publish to JFrog
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Only run on the public repository
+    if: github.repository == 'LedgerHQ/ledger-button-public'
+    runs-on: ubuntu-latest
+    steps:
+      # Samples
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm nx run-many --target=build --all
+
+      - name: Configure JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ secrets.JFROG_URL }}
+          JF_ACCESS_TOKEN: ${{ secrets.JFROG_ACCESS_TOKEN }}
+
+      - name: Configure npm for JFrog
+        run: |
+          jf npmc --repo-resolve npm-remote --repo-deploy npm-local
+
+      - name: Publish to JFrog
+        run: |
+          # Publish packages (adjust paths as needed)
+          cd packages/ledger-button && jf npm publish
+          cd ../ledger-button-core && jf npm publish

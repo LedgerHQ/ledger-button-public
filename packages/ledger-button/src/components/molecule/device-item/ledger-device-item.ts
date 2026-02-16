@@ -145,10 +145,29 @@ export class LedgerDeviceItem extends LitElement {
 
   private renderDeviceIcon() {
     return html`
+      <div class="lb-relative">
+        <div
+          class="lb-rounded-full lb-bg-muted-transparent lb-p-8 lb-drop-shadow-md"
+        >
+          <device-icon .modelId=${this.deviceModelId}></device-icon>
+        </div>
+        ${this.renderConnectionBadge()}
+      </div>
+    `;
+  }
+
+  private renderConnectionBadge() {
+    if (!this.connectionType) return "";
+
+    return html`
       <div
-        class="lb-rounded-full lb-bg-muted-transparent lb-p-8 lb-drop-shadow-md"
+        class="lb-absolute -lb-bottom-2 -lb-right-2 lb-flex lb-h-20 lb-w-20 lb-items-center lb-justify-center lb-rounded-full lb-bg-base lb-shadow-sm"
       >
-        <device-icon .modelId=${this.deviceModelId}></device-icon>
+        <ledger-icon
+          type=${this.connectionType}
+          size="small"
+          fillColor="var(--color-foreground)"
+        ></ledger-icon>
       </div>
     `;
   }

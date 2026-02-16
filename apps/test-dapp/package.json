@@ -11,10 +11,5 @@
   },
   "devDependencies": {
     "@ledgerhq/ledger-wallet-provider": "workspace:*"
-  },
-  "nx": {
-    "implicitDependencies": [
-      "!@ledgerhq/ledger-wallet-provider"
-    ]
   }
 }

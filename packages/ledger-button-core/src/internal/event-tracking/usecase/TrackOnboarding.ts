@@ -4,6 +4,8 @@ import type { Account } from "../../account/service/AccountService.js";
 import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { type Config } from "../../config/model/config.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
@@ -20,23 +22,23 @@ export class TrackOnboarding {
     private readonly eventTrackingService: EventTrackingService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("[TrackOnboarding UseCase]");
   }
 
   async execute(selectedAccount: Account): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
+    const trustChainId = this.contextService.getContext().trustChainId;
 
-    const { currencyId, balance } = selectedAccount;
-
-    const currency = currencyId;
+    const { currencyId } = selectedAccount;
     const chainId = getChainIdFromCurrencyId(currencyId).toString();
 
     const event = EventTrackingUtils.createOnboardingEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
-      accountCurrency: currency,
-      accountBalance: balance ?? "", // Should always be defined when use here.
+      trustChainId: trustChainId,
       chainId: chainId,
     });
 

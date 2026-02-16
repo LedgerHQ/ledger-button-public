@@ -13,6 +13,7 @@ export interface LedgerToolbarAttributes {
   deviceModelId?: DeviceModelId;
   canGoBack: boolean;
   canClose: boolean;
+  showSettings: boolean;
 }
 
 const styles = css`
@@ -35,6 +36,9 @@ export class LedgerToolbar extends LitElement {
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;
+
+  @property({ type: Boolean, reflect: true })
+  showSettings = false;
 
   private handleClose = () => {
     this.dispatchEvent(
@@ -65,56 +69,94 @@ export class LedgerToolbar extends LitElement {
     );
   };
 
+  private handleSettingsClick = () => {
+    this.dispatchEvent(
+      new CustomEvent("ledger-toolbar-settings-click", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  };
+
   override render() {
     return html`
       <div
-        class="lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
+        class="lb-relative lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
       >
-        <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
-          <slot name="left-icon">
-            ${this.canGoBack
+        <div class="lb-flex lb-w-72 lb-items-center lb-justify-start">
+          <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
+            <slot name="left-icon">
+              ${this.canGoBack
+                ? html`
+                    <ledger-button
+                      data-testid="close-button"
+                      .icon=${true}
+                      variant="noBackground"
+                      iconType="back"
+                      size="xs"
+                      @click=${this.handleGoBackClick}
+                    >
+                    </ledger-button>
+                  `
+                : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
+            </slot>
+          </div>
+        </div>
+        <div
+          class="lb-pointer-events-none lb-absolute lb-left-0 lb-right-0 lb-flex lb-items-center lb-justify-center"
+        >
+          <div class="lb-pointer-events-auto">
+            ${this.deviceModelId
+              ? html`
+                  <slot name="chip">
+                    <ledger-chip
+                      label=${this.title}
+                      deviceModelId=${this.deviceModelId}
+                      @ledger-chip-click=${this.handleChipClick}
+                    ></ledger-chip>
+                  </slot>
+                `
+              : this.title
+                ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
+                : nothing}
+          </div>
+        </div>
+
+        <div class="lb-flex lb-w-72 lb-items-center lb-justify-end lb-gap-8">
+          ${this.showSettings
+            ? html`
+                <div
+                  class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center"
+                >
+                  <ledger-button
+                    data-testid="settings-button"
+                    .icon=${true}
+                    variant="noBackground"
+                    iconType="settings"
+                    size="xs"
+                    @click=${this.handleSettingsClick}
+                  >
+                  </ledger-button>
+                </div>
+              `
+            : nothing}
+          <div
+            class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center"
+          >
+            ${this.canClose
               ? html`
                   <ledger-button
                     data-testid="close-button"
                     .icon=${true}
                     variant="noBackground"
-                    iconType="back"
+                    iconType="close"
                     size="xs"
-                    @click=${this.handleGoBackClick}
+                    @click=${this.handleClose}
                   >
                   </ledger-button>
                 `
-              : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
-          </slot>
-        </div>
-        ${this.deviceModelId
-          ? html`
-              <slot name="chip">
-                <ledger-chip
-                  label=${this.title}
-                  deviceModelId=${this.deviceModelId}
-                  @ledger-chip-click=${this.handleChipClick}
-                ></ledger-chip>
-              </slot>
-            `
-          : this.title
-            ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
-            : nothing}
-
-        <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
-          ${this.canClose
-            ? html`
-                <ledger-button
-                  data-testid="close-button"
-                  .icon=${true}
-                  variant="noBackground"
-                  iconType="close"
-                  size="xs"
-                  @click=${this.handleClose}
-                >
-                </ledger-button>
-              `
-            : nothing}
+              : nothing}
+          </div>
         </div>
       </div>
     `;
@@ -136,6 +178,8 @@ declare global {
     }>;
 
     "ledger-toolbar-go-back-click": CustomEvent<void>;
+
+    "ledger-toolbar-settings-click": CustomEvent<void>;
   }
 }
 
