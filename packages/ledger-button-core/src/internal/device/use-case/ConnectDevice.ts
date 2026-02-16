@@ -31,9 +31,11 @@ export class ConnectDevice {
 
     if (device.modelId === DeviceModelId.NANO_S) {
       await this.deviceManagementKitService.disconnectFromDevice();
-      throw new DeviceNotSupportedError("Device not supported", {
+      const error = new DeviceNotSupportedError("Device not supported", {
         modelId: device.modelId,
       });
+      this.logger.error("Device not supported", { error });
+      throw error;
     }
 
     return device;

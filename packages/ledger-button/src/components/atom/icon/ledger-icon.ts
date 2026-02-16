@@ -5,17 +5,29 @@ import { tailwindElement } from "../../../tailwind-element.js";
 import {
   BackIcon,
   BluetoothIcon,
+  BuyIcon,
   CartIcon,
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  ClearSigningIcon,
   CloseIcon,
   DesktopIcon,
   DeviceIcon,
+  DirectConnectivityIcon,
+  EarnIcon,
   ErrorIcon,
   ExternalLinkIcon,
+  InfoIcon,
   LedgerLogoIcon,
   MobileIcon,
+  QuestionIcon,
+  ReceiveIcon,
+  SellIcon,
+  SendIcon,
+  SettingsIcon,
+  SwapIcon,
+  TransactionCheckIcon,
   UsbIcon,
 } from "./index";
 
@@ -34,7 +46,19 @@ export interface LedgerIconAttributes {
     | "mobile"
     | "desktop"
     | "cart"
-    | "externalLink";
+    | "externalLink"
+    | "directConnectivity"
+    | "clearSigning"
+    | "transactionCheck"
+    | "question"
+    | "settings"
+    | "send"
+    | "receive"
+    | "swap"
+    | "buy"
+    | "earn"
+    | "sell"
+    | "info";
   size: "small" | "medium" | "large";
   fillColor?: string;
 }
@@ -62,6 +86,7 @@ export class LedgerIcon extends LitElement {
   private get iconClasses(): string {
     const sizeClasses: { [key: string]: string } = {
       small: "lb-w-16 lb-h-16",
+      20: "lb-w-20 lb-h-20",
       medium: "lb-w-24 lb-h-24",
       large: "lb-w-32 lb-h-32",
     };
@@ -85,6 +110,18 @@ export class LedgerIcon extends LitElement {
       desktop: () => DesktopIcon,
       cart: () => CartIcon,
       externalLink: () => ExternalLinkIcon,
+      directConnectivity: () => DirectConnectivityIcon,
+      clearSigning: () => ClearSigningIcon,
+      transactionCheck: () => TransactionCheckIcon,
+      question: () => QuestionIcon,
+      settings: () => SettingsIcon,
+      send: () => SendIcon,
+      receive: () => ReceiveIcon,
+      swap: () => SwapIcon,
+      buy: () => BuyIcon,
+      earn: () => EarnIcon,
+      sell: () => SellIcon,
+      info: () => InfoIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;

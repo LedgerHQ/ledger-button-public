@@ -5,10 +5,13 @@ import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import { LedgerModal } from "../components/atom/modal/ledger-modal.js";
+import {
+  LedgerModal,
+  ModalMode,
+} from "../components/atom/modal/ledger-modal.js";
+import type { WalletTransactionFeature } from "../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
-import { ANIMATION_DELAY } from "./navigation.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
@@ -20,6 +23,9 @@ export class RootNavigationComponent extends LitElement {
   @consume({ context: langContext })
   @property({ attribute: false })
   public languageContext!: LanguageContext;
+
+  @property({ type: Array })
+  walletTransactionFeatures?: WalletTransactionFeature[];
 
   @query("#ledger-modal")
   private ledgerModal!: LedgerModal;
@@ -42,21 +48,6 @@ export class RootNavigationComponent extends LitElement {
   }
 
   // PUBLIC METHODS
-  public openModal() {
-    this.ledgerModal.openModal();
-    this.isModalOpen = true;
-  }
-
-  public closeModal() {
-    this.ledgerModal.closeModal();
-    window.dispatchEvent(
-      new CustomEvent("ledger-provider-close", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
-    this.isModalOpen = false;
-  }
 
   public selectAccount(account: Account) {
     this.rootNavigationController.selectAccount(account);
@@ -66,13 +57,38 @@ export class RootNavigationComponent extends LitElement {
     return this.rootNavigationController.selectedAccount;
   }
 
-  public navigationIntent(intent: Destination["name"], params?: unknown) {
+  public getModalMode(): ModalMode {
+    return this.ledgerModal.mode;
+  }
+
+  public navigateToHome() {
+    this.rootNavigationController.navigation.navigateTo(
+      this.rootNavigationController.destinations.home,
+    );
+  }
+
+  public navigationIntent(
+    intent: Destination["name"],
+    params?: unknown,
+    mode?: ModalMode,
+  ) {
     this.rootNavigationController.navigationIntent(intent, params);
-    this.openModal();
+    this.openModal(mode);
+  }
+
+  public openModal(mode?: ModalMode) {
+    this.handleModalOpen();
+    this.ledgerModal.openModal(mode);
+  }
+
+  public closeModal() {
+    this.handleModalClose();
+    this.ledgerModal.closeModal();
   }
 
   // PRIVATE METHODS
   private handleModalOpen() {
+    this.requestUpdate();
     this.rootNavigationController.handleModalOpen();
     window.dispatchEvent(
       new CustomEvent("ledger-core-modal-open", {
@@ -80,6 +96,7 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+    this.isModalOpen = true;
   }
 
   private handleModalClose() {
@@ -96,16 +113,19 @@ export class RootNavigationComponent extends LitElement {
         composed: true,
       }),
     );
+    this.isModalOpen = false;
+  }
 
-    setTimeout(() => {
-      this.rootNavigationController.handleModalClose();
-      // NOTE: The 250ms delay here is to allow for animation to complete
-      // Could be a CONSTANT if required
-    }, ANIMATION_DELAY);
+  private handleModalAnimationComplete() {
+    this.rootNavigationController.handleModalClose();
   }
 
   private handleChipClick(_e: CustomEvent) {
     this.rootNavigationController.handleChipClick();
+  }
+
+  private handleSettingsClick() {
+    this.rootNavigationController.navigateToSettings();
   }
 
   private goBack() {
@@ -123,6 +143,7 @@ export class RootNavigationComponent extends LitElement {
           .destinations=${this.rootNavigationController.destinations}
           .navigation=${this.rootNavigationController.navigation}
           .params=${this.rootNavigationController.params}
+          .walletTransactionFeatures=${this.walletTransactionFeatures}
         ></${tag}>
       `;
     }
@@ -131,45 +152,33 @@ export class RootNavigationComponent extends LitElement {
   }
 
   override render() {
-    const connectedDevice = this.coreContext.getConnectedDevice();
-    const canGoBack =
-      this.rootNavigationController.currentScreen?.canGoBack ?? false;
-
-    const canClose =
-      this.rootNavigationController.currentScreen?.toolbar.canClose ?? true;
-
-    const title =
-      connectedDevice &&
-      this.rootNavigationController.currentScreen?.name === "home"
-        ? connectedDevice.name
-        : this.rootNavigationController.currentScreen?.toolbar.title;
-
-    const deviceModelId =
-      connectedDevice &&
-      this.rootNavigationController.currentScreen?.name === "home"
-        ? connectedDevice.modelId
-        : undefined;
+    const uiModel = this.rootNavigationController.rootNavigationUiModel;
 
     return html`
       <ledger-modal
         id="ledger-modal"
         @modal-opened=${this.handleModalOpen}
         @modal-closed=${this.handleModalClose}
+        @modal-animation-complete=${this.handleModalAnimationComplete}
       >
         <div slot="toolbar">
           <ledger-toolbar
-            title=${ifDefined(title)}
-            aria-label=${ifDefined(title)}
-            .canGoBack=${canGoBack}
-            .canClose=${canClose}
-            deviceModelId=${ifDefined(deviceModelId)}
+            title=${ifDefined(uiModel.title)}
+            aria-label=${ifDefined(uiModel.title)}
+            .canGoBack=${uiModel.canGoBack}
+            .canClose=${uiModel.canClose}
+            .showSettings=${uiModel.showSettings}
+            deviceModelId=${ifDefined(uiModel.deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-go-back-click=${this.goBack}
             @ledger-toolbar-chip-click=${this.handleChipClick}
+            @ledger-toolbar-settings-click=${this.handleSettingsClick}
           >
           </ledger-toolbar>
         </div>
-        <div id="modal-content">${this.renderScreen()}</div>
+        <div id="modal-content" style="height: 100%">
+          ${this.renderScreen()}
+        </div>
       </ledger-modal>
     `;
   }

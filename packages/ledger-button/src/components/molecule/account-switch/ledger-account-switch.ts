@@ -4,6 +4,7 @@ import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
+import { formatAddress } from "../../../utils/format-address.js";
 
 const styles = css`
   :host {
@@ -37,10 +38,6 @@ export class LedgerAccountSwitch extends LitElement {
     );
   };
 
-  private formatAddress(address: string) {
-    return address.slice(0, 6) + "..." + address.slice(-4);
-  }
-
   override render() {
     if (!this.account) {
       return;
@@ -55,7 +52,9 @@ export class LedgerAccountSwitch extends LitElement {
           <div
             class="lb-flex lb-min-w-0 lb-flex-1 lb-truncate lb-text-base lb-body-2-semi-bold"
           >
-            <span class="lb-truncate">${this.account.name}</span>
+            <span class="body-2-semi-bold lb-text-base"
+              >${this.account.name}</span
+            >
           </div>
           <ledger-icon
             class="lb-shrink-0"
@@ -66,7 +65,7 @@ export class LedgerAccountSwitch extends LitElement {
         <span
           class="lb-grow lb-basis-80 lb-overflow-hidden lb-text-ellipsis lb-text-nowrap lb-text-muted lb-body-3"
         >
-          ${this.formatAddress(this.account.freshAddress)}
+          ${formatAddress(this.account.freshAddress)}
         </span>
       </button>
     `;

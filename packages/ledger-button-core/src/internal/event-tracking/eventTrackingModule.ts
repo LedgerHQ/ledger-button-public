@@ -3,6 +3,9 @@ import { ContainerModule } from "inversify";
 import { DefaultEventTrackingService } from "./service/DefaultEventTrackingService.js";
 import { EventTrackingService } from "./service/EventTrackingService.js";
 import { StubEventTrackingService } from "./service/StubEventTrackingService.js";
+import { TrackConsentGiven } from "./usecase/TrackConsentGiven.js";
+import { TrackConsentRemoved } from "./usecase/TrackConsentRemoved.js";
+import { TrackFloatingButtonClick } from "./usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "./usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "./usecase/TrackLedgerSyncOpened.js";
 import { TrackOnboarding } from "./usecase/TrackOnboarding.js";
@@ -11,6 +14,7 @@ import { TrackTransactionCompleted } from "./usecase/TrackTransactionCompleted.j
 import { TrackTransactionStarted } from "./usecase/TrackTransactionStarted.js";
 import { TrackTypedMessageCompleted } from "./usecase/TrackTypedMessageCompleted.js";
 import { TrackTypedMessageStarted } from "./usecase/TrackTypedMessageStarted.js";
+import { TrackWalletAction } from "./usecase/TrackWalletAction.js";
 import { eventTrackingModuleTypes } from "./eventTrackingModuleTypes.js";
 
 interface EventTrackingModuleFactoryOptions {
@@ -32,6 +36,18 @@ export const eventTrackingModuleFactory = ({
     bind<EventTrackingService>(eventTrackingModuleTypes.EventTrackingService)
       .to(DefaultEventTrackingService)
       .inSingletonScope();
+
+    bind<TrackConsentGiven>(
+      eventTrackingModuleTypes.TrackConsentGiven,
+    ).to(TrackConsentGiven);
+
+    bind<TrackConsentRemoved>(
+      eventTrackingModuleTypes.TrackConsentRemoved,
+    ).to(TrackConsentRemoved);
+
+    bind<TrackFloatingButtonClick>(
+      eventTrackingModuleTypes.TrackFloatingButtonClick,
+    ).to(TrackFloatingButtonClick);
 
     bind<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding).to(
       TrackOnboarding,
@@ -64,5 +80,9 @@ export const eventTrackingModuleFactory = ({
     bind<TrackTypedMessageCompleted>(
       eventTrackingModuleTypes.TrackTypedMessageCompleted,
     ).to(TrackTypedMessageCompleted);
+
+    bind<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction).to(
+      TrackWalletAction,
+    );
   });
 };

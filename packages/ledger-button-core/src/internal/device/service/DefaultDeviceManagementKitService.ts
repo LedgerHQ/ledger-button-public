@@ -157,7 +157,7 @@ export class DefaultDeviceManagementKitService
     }
 
     try {
-      await this.dmk.close();
+      await this.dmk.disconnect({ sessionId: this._currentSessionId });
       this._currentSessionId = undefined;
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });

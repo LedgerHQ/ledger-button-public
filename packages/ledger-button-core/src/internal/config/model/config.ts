@@ -66,8 +66,16 @@ export class Config {
 
   getBackendUrl(): string {
     return this.environment === "production"
-      ? "https://ledgerb.aws.prd.ldg-tech.com"
+      ? "https://ledgerb.api.ledger.com"
       : "https://ledgerb.aws.stg.ldg-tech.com";
+  }
+
+  getCounterValueUrl(): string {
+    return "https://countervalues.live.ledger.com";
+  }
+
+  getExplorerUrl(): string {
+    return "https://explorers.api.live.ledger.com";
   }
 
   setEnvironment(environment: Environment) {

@@ -1,8 +1,9 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { Destination } from "./routes.js";
+import { CoreContext } from "../context/core-context.js";
+import { Destination, resolveCanGoBack } from "./routes.js";
 
-export const ANIMATION_DELAY = 250;
+export const ANIMATION_DELAY = 300;
 
 export class Navigation implements ReactiveController {
   host: ReactiveControllerHost;
@@ -30,8 +31,23 @@ export class Navigation implements ReactiveController {
     this.resetNavigation();
   }
 
+  updateCurrentScreen(updates: Partial<Destination>) {
+    if (this.currentScreen) {
+      this.currentScreen = {
+        ...this.currentScreen,
+        ...updates,
+        toolbar: {
+          ...this.currentScreen.toolbar,
+          ...(updates.toolbar ?? {}),
+        },
+      };
+      this.host.requestUpdate();
+    }
+  }
+
   navigateTo(destination: Destination) {
     if (destination.name === this.currentScreen?.name) {
+      this.updateCurrentScreen(destination);
       return;
     }
 
@@ -40,17 +56,19 @@ export class Navigation implements ReactiveController {
       this.clearNavigationTimeout();
       this.navigationTimeoutId = window.setTimeout(() => {
         this.modalContent.classList.remove("remove");
-        this.history.push(destination);
+        if (!destination.skipHistory) {
+          this.history.push(destination);
+        }
         this.currentScreen = destination;
         this.host.requestUpdate();
         this.navigationTimeoutId = null;
-        // NOTE: The 250ms delay here is to allow for animation to complete
-        // Could be a CONSTANT if required
       }, ANIMATION_DELAY);
       return;
     }
 
-    this.history.push(destination);
+    if (!destination.skipHistory) {
+      this.history.push(destination);
+    }
     this.currentScreen = destination;
     this.host.requestUpdate();
   }
@@ -77,11 +95,11 @@ export class Navigation implements ReactiveController {
     }
   }
 
-  canGoBack(destination?: Destination) {
-    return (
-      (destination?.canGoBack ?? false) &&
-      this.history.length > 1 &&
-      this.currentScreen !== null
-    );
+  canGoBack(destination?: Destination, core?: CoreContext): boolean {
+    if (!core) {
+      return false;
+    }
+    const canGoBack = resolveCanGoBack(destination?.canGoBack, core);
+    return canGoBack && this.history.length > 1 && this.currentScreen !== null;
   }
 }

@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -20,10 +20,15 @@ import {
   type AccountService,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
+import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
+import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
+import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
+import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
+import { type ConsentService } from "../internal/consent/ConsentService.js";
 import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
 import { ContextService } from "../internal/context/ContextService.js";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
@@ -40,9 +45,11 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -69,6 +76,9 @@ export class LedgerButtonCore {
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
   private readonly _contextService: ContextService;
+
+  // Subscription to device connection state in order to handle device disconnection
+  private deviceConnectionSubscription?: Subscription;
 
   constructor(private readonly opts: LedgerButtonCoreOptions) {
     this.container = createContainer(this.opts);
@@ -124,6 +134,18 @@ export class LedgerButtonCore {
       ? getChainIdFromCurrencyId(selectedAccount.currencyId)
       : 1;
 
+    const welcomeScreenCompleted = await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .isWelcomeScreenCompleted();
+
+    const userConsent = await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getUserConsent();
+
+    const hasTrackingConsent = userConsent.isJust()
+      ? userConsent.extract().consentGiven
+      : undefined;
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -132,6 +154,8 @@ export class LedgerButtonCore {
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
         chainId: chainId,
+        welcomeScreenCompleted,
+        hasTrackingConsent,
       },
     });
   }
@@ -147,7 +171,11 @@ export class LedgerButtonCore {
       return;
     }
 
-    dmk
+    if (this.deviceConnectionSubscription) {
+      this.deviceConnectionSubscription.unsubscribe();
+    }
+
+    this.deviceConnectionSubscription = dmk
       .getDeviceSessionState({
         sessionId: sessionId as string,
       })
@@ -186,6 +214,14 @@ export class LedgerButtonCore {
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
+
+    //Implicitly disconnect from device if already connected to one
+    if (this._contextService.getContext().connectedDevice !== undefined) {
+      this.deviceConnectionSubscription?.unsubscribe();
+      await this.container
+        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+        .execute();
+    }
 
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
@@ -227,19 +263,20 @@ export class LedgerButtonCore {
       .execute({ type });
   }
 
-  // Account methods
-  async fetchAccounts() {
-    this._logger.debug("Fetching accounts");
+  async fetchAccountsFromCloudSync(): Promise<Account[]> {
+    this._logger.debug("Fetching accounts from CloudSync");
     return this.container
       .get<FetchAccountsUseCase>(accountModuleTypes.FetchAccountsUseCase)
       .execute();
   }
 
-  getAccounts() {
-    this._logger.debug("Getting accounts");
+  getAccounts(): Observable<Account[]> {
+    this._logger.debug("Getting accounts with balance observable");
     return this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .getAccounts();
+      .get<FetchAccountsWithBalanceUseCase>(
+        accountModuleTypes.FetchAccountsWithBalanceUseCase,
+      )
+      .execute();
   }
 
   selectAccount(account: Account) {
@@ -273,6 +310,14 @@ export class LedgerButtonCore {
       .extract();
   }
 
+  async getDetailedSelectedAccount() {
+    this._logger.debug("Getting detailed selected account");
+    return this.container
+      .get<GetDetailedSelectedAccountUseCase>(
+        accountModuleTypes.GetDetailedSelectedAccountUseCase,
+      )
+      .execute();
+  }
   // Device methods
   getConnectedDevice() {
     this._logger.debug("Getting connected device");
@@ -330,6 +375,65 @@ export class LedgerButtonCore {
   clearPendingAccountId() {
     this._logger.debug("Clearing pending account id");
     this._pendingAccountId = undefined;
+  }
+
+  // Consent methods
+  async hasConsent(): Promise<boolean> {
+    this._logger.debug("Checking user consent");
+    return await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .hasConsent();
+  }
+
+  async hasRespondedToConsent(): Promise<boolean> {
+    this._logger.debug("Checking if user has responded to consent");
+    return await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .hasRespondedToConsent();
+  }
+
+  async giveConsent(): Promise<void> {
+    this._logger.debug("Giving user consent");
+    await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .giveConsent();
+    this._contextService.onEvent({
+      type: "tracking_consent_given",
+    });
+  }
+
+  async refuseConsent(): Promise<void> {
+    this._logger.debug("Refusing user consent");
+    await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .refuseConsent();
+    this._contextService.onEvent({
+      type: "tracking_consent_refused",
+    });
+  }
+
+  async removeConsent(): Promise<void> {
+    this._logger.debug("Removing user consent");
+    await this.container
+      .get<ConsentService>(consentModuleTypes.ConsentService)
+      .removeConsent();
+    this._contextService.onEvent({
+      type: "tracking_consent_refused",
+    });
+  }
+
+  async setWelcomeScreenCompleted(): Promise<void> {
+    this._logger.debug("Setting welcome screen as completed");
+    await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveWelcomeScreenCompleted();
+    this._contextService.onEvent({
+      type: "welcome_screen_completed",
+    });
+  }
+
+  isWelcomeScreenCompleted(): boolean {
+    return this._contextService.getContext().welcomeScreenCompleted;
   }
 
   getTransactionService(): TransactionService {
@@ -422,5 +526,37 @@ export class LedgerButtonCore {
 
   getChainId(): number {
     return this._contextService.getContext().chainId;
+  }
+
+  async trackFloatingButtonClick(): Promise<void> {
+    await this.container
+      .get<TrackFloatingButtonClick>(
+        eventTrackingModuleTypes.TrackFloatingButtonClick,
+      )
+      .execute();
+  }
+
+  async trackWalletActionClicked(
+    walletAction: WalletActionType,
+  ): Promise<void> {
+    await this.container
+      .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
+      .trackWalletActionClicked(walletAction);
+  }
+
+  async trackWalletRedirectConfirmed(
+    walletAction: WalletActionType,
+  ): Promise<void> {
+    await this.container
+      .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
+      .trackWalletRedirectConfirmed(walletAction);
+  }
+
+  async trackWalletRedirectCancelled(
+    walletAction: WalletActionType,
+  ): Promise<void> {
+    await this.container
+      .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
+      .trackWalletRedirectCancelled(walletAction);
   }
 }

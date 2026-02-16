@@ -24,8 +24,15 @@ export class LedgerSyncConnectionFailedError extends LedgerButtonError {
   }
 }
 
+export class LedgerKeyringProtocolError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "LedgerKeyringProtocolError", context);
+  }
+}
+
 export type LedgerSyncErrors =
   | LedgerSyncError
   | LedgerSyncAuthContextMissingError
   | LedgerSyncNoSessionIdError
-  | LedgerSyncConnectionFailedError;
+  | LedgerSyncConnectionFailedError
+  | LedgerKeyringProtocolError;

@@ -1,0 +1,99 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "ldb-tools",
+  "sourceRoot": "packages/ldb-tools",
+  "projectType": "library",
+  "targets": {
+    "run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs {args}",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Run ldb-tools CLI commands. Usage: nx run ldb-tools:run -- <command> [--<flag>=<value>]"
+      }
+    },
+    "enter-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs enter-release",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Toggle private on packages.json to be released"
+      }
+    },
+    "exit-release": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs exit-release",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Toggle private on packages.json to exit release mode"
+      }
+    },
+    "create-release-pr": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs create-release-pr",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Create a release pull request"
+      }
+    },
+    "bump": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs bump",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Bump package versions using changesets"
+      }
+    },
+    "bump-snapshot": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs bump-snapshot",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Create a changeset for all public packages and bump versions for snapshot release"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs pack",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Pack all public packages to dist directory"
+      }
+    },
+    "canonicalize": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs canonicalize",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Canonicalize (sort keys) all package.json files"
+      }
+    },
+    "help": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs help",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Show available commands"
+      }
+    }
+  }
+}
+

@@ -1,3 +1,87 @@
+:root {
+  /* bg */
+  --color-bg-page: #f0f2f5;
+  --color-bg-block: #f8f9fa;
+  --color-bg-content: #fff;
+  --color-bg-hover: #e9ecef;
+  --color-bg-input: #fff;
+  --color-bg-empty-state: #f8f9fa;
+
+  /* text */
+  --color-text-primary: #212529;
+  --color-text-secondary: #495057;
+  --color-text-muted: #6c757d;
+
+  /* border */
+  --color-border: #e9ecef;
+  --color-border-input: #dee2e6;
+  --color-border-hover: #adb5bd;
+
+  /* btn */
+  --color-btn-primary-bg: #000;
+  --color-btn-primary-bg-hover: #333;
+  --color-btn-primary-text: #fff;
+  --color-btn-secondary-bg: #6c757d;
+  --color-btn-secondary-bg-hover: #5a6268;
+  --color-btn-disabled-bg: #adb5bd;
+
+  /* status */
+  --color-success: #28a745;
+  --color-success-bg: #f0fff4;
+  --color-error: #dc3545;
+  --color-error-bg: #fff5f5;
+  --color-info: #007bff;
+  --color-info-bg: #f0f7ff;
+  --color-purple: #6f42c1;
+  --color-purple-bg: #f8f5ff;
+
+  /* toolbar */
+  --color-toolbar-bg: blue;
+  --color-toolbar-text: #fff;
+}
+
+[data-theme="dark"] {
+  /* bg */
+  --color-bg-page: #0f0f1a;
+  --color-bg-block: #1a1a2e;
+  --color-bg-content: #16213e;
+  --color-bg-hover: #0f3460;
+  --color-bg-input: #1a1a2e;
+  --color-bg-empty-state: #1a1a2e;
+
+  /* text */
+  --color-text-primary: #e4e4e7;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  /* border */
+  --color-border: #3f3f46;
+  --color-border-input: #52525b;
+  --color-border-hover: #71717a;
+
+  /* btn */
+  --color-btn-primary-bg: #e4e4e7;
+  --color-btn-primary-bg-hover: #d4d4d8;
+  --color-btn-primary-text: #18181b;
+  --color-btn-secondary-bg: #52525b;
+  --color-btn-secondary-bg-hover: #71717a;
+  --color-btn-disabled-bg: #3f3f46;
+
+  /* status */
+  --color-success: #4ade80;
+  --color-success-bg: rgba(74, 222, 128, 0.1);
+  --color-error: #f87171;
+  --color-error-bg: rgba(248, 113, 113, 0.1);
+  --color-info: #60a5fa;
+  --color-info-bg: rgba(96, 165, 250, 0.1);
+  --color-purple: #a78bfa;
+  --color-purple-bg: rgba(167, 139, 250, 0.1);
+
+  /* toolbar */
+  --color-toolbar-bg: #0f3460;
+  --color-toolbar-text: #e4e4e7;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   font-family:
@@ -26,6 +110,9 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 h1,
 h2,
@@ -506,8 +593,8 @@ summary svg {
   justify-content: space-between;
   align-items: center;
   padding: 12px 24px;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--color-toolbar-bg);
+  color: var(--color-toolbar-text);
 }
 
 .footer {
@@ -531,4 +618,3 @@ summary svg {
   display: flex;
   justify-content: center;
 }
-

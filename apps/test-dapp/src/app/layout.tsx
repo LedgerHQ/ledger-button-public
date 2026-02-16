@@ -1,4 +1,7 @@
+import { ThemeToggle } from "../components";
+
 import "./global.css";
+// eslint-disable-next-line @nx/enforce-module-boundaries -- CSS must be loaded statically
 import "@ledgerhq/ledger-wallet-provider/styles.css";
 
 export const metadata = {
@@ -17,6 +20,10 @@ export default function RootLayout({
         <div className="wrapper">
           <div className="toolbar">
             <p>Ledger Test Dapp for Ledger Button (EIP-1193/EIP-6963)</p>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <ThemeToggle />
+              <div id="floating-button-container"></div>
+            </div>
           </div>
           <main className="content">{children}</main>
         </div>

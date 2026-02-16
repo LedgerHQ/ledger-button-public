@@ -1,4 +1,3 @@
-import { sha256 } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
 import { configModuleTypes } from "../../config/configModuleTypes.js";
@@ -8,10 +7,7 @@ import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
-import {
-  EventTrackingUtils,
-  normalizeTransactionHash,
-} from "../EventTrackingUtils.js";
+import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
 
 @injectable()
@@ -30,17 +26,16 @@ export class TrackTransactionStarted {
     this.logger = loggerFactory("[TrackTransactionStarted UseCase]");
   }
 
-  async execute(rawTransaction: string): Promise<void> {
+  async execute(): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
-    const unsignedTransactionHash = normalizeTransactionHash(
-      sha256(rawTransaction),
-    );
-    const chainId = this.contextService.getContext().chainId.toString();
+    const context = this.contextService.getContext();
+    const chainId = context.chainId.toString();
+    const trustChainId = context.trustChainId;
 
     const event = EventTrackingUtils.createTransactionFlowInitializationEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
-      unsignedTransactionHash: unsignedTransactionHash,
+      trustChainId: trustChainId,
       chainId: chainId,
     });
 

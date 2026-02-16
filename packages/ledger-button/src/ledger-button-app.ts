@@ -12,13 +12,18 @@ import {
   LedgerButtonCore,
   SignedResults,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
+import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button.js";
+import { ModalMode } from "./components/index.js";
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
 import { tailwindElement } from "./tailwind-element.js";
+
+type FloatingButtonPosition = FloatingButtonPositionComponent | false;
 
 @customElement("ledger-button-app")
 @tailwindElement()
@@ -28,6 +33,12 @@ export class LedgerButtonApp extends LitElement {
 
   @property({ type: Object })
   core!: LedgerButtonCore;
+
+  @property({ attribute: false })
+  floatingButtonPosition: FloatingButtonPosition = "bottom-right";
+
+  @property({ type: Array })
+  walletTransactionFeatures?: WalletTransactionFeature[];
 
   controller!: LedgerButtonAppController;
 
@@ -48,6 +59,10 @@ export class LedgerButtonApp extends LitElement {
       this.handleAccountSwitch,
     );
     window.addEventListener("ledger-internal-sign", this.handleSign);
+    window.addEventListener(
+      "ledger-internal-floating-button-click",
+      this.handleFloatingButtonClick,
+    );
   }
 
   get isModalOpen() {
@@ -69,6 +84,10 @@ export class LedgerButtonApp extends LitElement {
       this.handleAccountSwitch,
     );
     window.removeEventListener("ledger-internal-sign", this.handleSign);
+    window.removeEventListener(
+      "ledger-internal-floating-button-click",
+      this.handleFloatingButtonClick,
+    );
   }
 
   // NOTE: Handlers should be defined as arrow functions to avoid losing "this" context
@@ -151,6 +170,7 @@ export class LedgerButtonApp extends LitElement {
   };
 
   private handleLedgerButtonDisconnect = () => {
+    this.disconnect();
     this.root.closeModal();
   };
 
@@ -160,8 +180,17 @@ export class LedgerButtonApp extends LitElement {
     );
   };
 
-  public navigationIntent(intent: Destination["name"], params?: unknown) {
-    this.root.navigationIntent(intent, params);
+  private handleFloatingButtonClick = () => {
+    void this.core.trackFloatingButtonClick();
+    this.navigationIntent("selectAccount", undefined, "panel");
+  };
+
+  public navigationIntent(
+    intent: Destination["name"],
+    params?: unknown,
+    mode?: ModalMode,
+  ) {
+    this.root.navigationIntent(intent, params, mode);
   }
 
   public disconnect() {
@@ -177,6 +206,16 @@ export class LedgerButtonApp extends LitElement {
     this.root.openModal();
   }
 
+  private renderFloatingButton() {
+    if (this.floatingButtonPosition === false) {
+      return nothing;
+    }
+
+    return html`<ledger-floating-button
+      .position=${this.floatingButtonPosition}
+    ></ledger-floating-button>`;
+  }
+
   override render() {
     return html`
       <div class="dark">
@@ -184,7 +223,9 @@ export class LedgerButtonApp extends LitElement {
           <language-provider>
             <root-navigation-component
               id="navigation"
+              .walletTransactionFeatures=${this.walletTransactionFeatures}
             ></root-navigation-component>
+            ${this.renderFloatingButton()}
           </language-provider>
         </core-provider>
       </div>

@@ -46,3 +46,17 @@ export function isSupportedRpcMethod(method: string): boolean {
     method as (typeof SUPPORTED_RPC_METHODS)[number],
   );
 }
+
+export function isBlockingRequestMethod(method: string): boolean {
+  return [
+    "eth_requestAccounts",
+    "eth_accounts",
+    "eth_signTypedData_v4",
+    "personal_sign",
+    "eth_sign",
+    "eth_signTransaction",
+    "eth_signRawTransaction",
+    "eth_sendTransaction",
+    "eth_sendRawTransaction",
+  ].includes(method);
+}

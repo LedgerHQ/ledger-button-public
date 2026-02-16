@@ -1,25 +1,4 @@
 {
-  "name": "@ledgerhq/ledger-wallet-provider",
-  "version": "1.0.0-rc.11",
-  "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./styles.css": "./dist/styles.css"
-  },
-  "files": [
-    "dist"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "@ledgerhq/ldls-design-core": "catalog:",
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
@@ -37,5 +16,30 @@
   },
   "devDependencies": {
     "vitest": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./styles.css": "./dist/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "name": "@ledgerhq/ledger-wallet-provider",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "1.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LedgerHQ/ledger-button-public.git"
   }
 }

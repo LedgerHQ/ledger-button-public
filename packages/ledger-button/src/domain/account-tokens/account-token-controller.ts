@@ -1,5 +1,6 @@
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
+import { Subscription } from "rxjs";
 
 import { CoreContext } from "../../context/core-context";
 import { Navigation } from "../../shared/navigation";
@@ -7,6 +8,9 @@ import { RootNavigationComponent } from "../../shared/root-navigation";
 
 export class AccountTokenController implements ReactiveController {
   account: Account | null = null;
+  loading = true;
+  private accountsSubscription?: Subscription;
+  private isFirstEmission = true;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -22,22 +26,51 @@ export class AccountTokenController implements ReactiveController {
     this.getAccount();
   }
 
+  hostDisconnected() {
+    if (this.accountsSubscription) {
+      this.accountsSubscription.unsubscribe();
+      this.accountsSubscription = undefined;
+    }
+  }
+
   getAccount() {
     const targetId = this.core.getPendingAccountId();
     if (!targetId) {
       this.navigation.navigateBack();
       return;
     }
-    this.account = this.core
-      .getAccounts()
-      .find((acc) => acc.id === targetId) as Account | null;
 
-    // If the account is not found, navigate back to account list
-    if (!this.account) {
-      this.navigation.navigateBack();
+    if (this.accountsSubscription) {
+      this.accountsSubscription.unsubscribe();
     }
 
-    this.host.requestUpdate();
+    this.loading = true;
+    this.isFirstEmission = true;
+
+    this.accountsSubscription = this.core.getAccounts().subscribe({
+      next: (accounts) => {
+        this.account =
+          accounts.find((acc: Account) => acc.id === targetId) ?? null;
+
+        if (!this.account) {
+          this.navigation.navigateBack();
+        }
+
+        if (this.isFirstEmission) {
+          this.isFirstEmission = false;
+        } else {
+          this.loading = false;
+        }
+
+        this.host.requestUpdate();
+      },
+      error: (error) => {
+        console.error("Failed to fetch accounts", error);
+        this.loading = false;
+        this.navigation.navigateBack();
+        this.host.requestUpdate();
+      },
+    });
   }
 
   handleConnect = () => {

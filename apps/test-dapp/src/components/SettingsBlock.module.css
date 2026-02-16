@@ -1,0 +1,73 @@
+@import "./Block.module.css";
+
+.settings-block__fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-block__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-block__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.settings-block__input,
+.settings-block__select {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-input);
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-block__input:focus,
+.settings-block__select:focus {
+  outline: none;
+  border-color: var(--color-btn-primary-bg);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.settings-block__actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-block__apply-button {
+  padding: 12px 24px;
+  background-color: var(--color-btn-primary-bg);
+  color: var(--color-btn-primary-text);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.settings-block__apply-button:hover:not(:disabled) {
+  background-color: var(--color-btn-primary-bg-hover);
+}
+
+.settings-block__apply-button--disabled,
+.settings-block__apply-button:disabled {
+  background-color: var(--color-btn-disabled-bg);
+  cursor: not-allowed;
+}
+
+.settings-block__hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0;
+  text-align: center;
+}

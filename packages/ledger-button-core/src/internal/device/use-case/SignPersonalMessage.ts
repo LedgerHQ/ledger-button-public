@@ -279,6 +279,7 @@ export class SignPersonalMessage {
             );
           },
           error: (error: Error) => {
+            this.logger.error("Personal message signing failed", { error });
             resultObservable.next({ signType, status: "error", error: error });
           },
         });
