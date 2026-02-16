@@ -54,6 +54,13 @@ const styles = css`
   }
 `;
 
+function formatFiatCurrencyForDisplay(currencyCode: string): string {
+  if (currencyCode.toUpperCase() === "USD") {
+    return "$";
+  }
+  return currencyCode;
+}
+
 function mapTransactionHistoryToListItem(
   transaction: TransactionHistoryItem,
 ): TransactionListItem {
@@ -72,9 +79,10 @@ function mapTransactionHistoryToListItem(
     amount: transaction.formattedValue,
     ticker: transaction.ticker,
     title: transaction.currencyName,
-    // TODO [LBD-287]: Wire up fiat conversion for transaction history items
-    fiatAmount: "",
-    fiatCurrency: "",
+    fiatAmount: transaction.fiatValue ?? "",
+    fiatCurrency: transaction.fiatCurrency
+      ? formatFiatCurrencyForDisplay(transaction.fiatCurrency)
+      : "",
   };
 }
 

@@ -7,4 +7,11 @@ export interface CounterValueDataSource {
     ledgerIds: string[],
     targetCurrency: string,
   ): Promise<Either<Error, CounterValueResult[]>>;
+
+  getHistoricalRates(
+    ledgerId: string,
+    targetCurrency: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<Either<Error, Record<string, number>>>;
 }
