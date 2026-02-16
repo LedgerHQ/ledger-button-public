@@ -1,5 +1,6 @@
 export enum EventType {
   ConsentGiven = "consent_given",
+  ConsentRemoved = "consent_removed",
   ErrorOccurred = "error_occurred",
   FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
@@ -34,6 +35,11 @@ export type InvoicingTransactionSignedEventData = BaseEventData & {
 
 export type ConsentGivenEventData = BaseEventData & {
   event_type: "consent_given";
+};
+
+export type ConsentRemovedEventData = BaseEventData & {
+  event_type: "consent_removed";
+  ledger_sync_user_id?: string;
 };
 
 export type OpenSessionEventData = BaseEventData & {
@@ -146,6 +152,7 @@ export type WalletRedirectCancelledEventData = BaseEventData & {
 
 export type EventData =
   | ConsentGivenEventData
+  | ConsentRemovedEventData
   | ErrorOccurredEventData
   | InvoicingTransactionSignedEventData
   | FloatingButtonClickEventData

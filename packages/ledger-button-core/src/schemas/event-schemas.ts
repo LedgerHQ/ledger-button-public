@@ -39,6 +39,11 @@ export const ConsentGivenEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_given"),
 });
 
+export const ConsentRemovedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("consent_removed"),
+  ledger_sync_user_id: z.string().optional(),
+});
+
 export const FloatingButtonClickEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("floating_button_clicked"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -124,6 +129,7 @@ export const SessionAuthenticationEventSchema = BaseEventDataSchema.extend({
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
   ConsentGivenEventSchema,
+  ConsentRemovedEventSchema,
   FloatingButtonClickEventSchema,
   OpenSessionEventSchema,
   OpenLedgerSyncEventSchema,
@@ -138,6 +144,7 @@ export type InvoicingTransactionSignedEvent = z.infer<
   typeof InvoicingTransactionSignedEventSchema
 >;
 export type ConsentGivenEvent = z.infer<typeof ConsentGivenEventSchema>;
+export type ConsentRemovedEvent = z.infer<typeof ConsentRemovedEventSchema>;
 export type OpenSessionEvent = z.infer<typeof OpenSessionEventSchema>;
 export type OpenLedgerSyncEvent = z.infer<typeof OpenLedgerSyncEventSchema>;
 export type LedgerSyncActivatedEvent = z.infer<
