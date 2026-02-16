@@ -7,7 +7,7 @@ on:
 
 env:
   FORCE_COLOR: "1"
-  NPM_REGISTRY: jfrog.ledgerlabs.net/artifactory/api/npm/lwp-npm-prod-public
+  NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
 
 ## TODO: PLUG JFROG
 
@@ -66,11 +66,11 @@ jobs:
           path: ./dist
 
       - name: Upload packages to GitHub Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: npm-snapshot-packages
           path: dist/*.tgz
-          retention-days: 7
+          retention-days: 1
           if-no-files-found: error
 
       - name: Publish to Github Release
@@ -81,8 +81,7 @@ jobs:
   ledger-runner:
     name: Publish NPM packages to JFrog
     needs: build-and-attest
-    # JFrog is accessible only from a ledger private runner
-    runs-on: ledgerhq-device-sdk
+    runs-on: public-ledgerhq-shared-medium
     steps:
       - uses: actions/checkout@v6
         with:
@@ -103,4 +102,3 @@ jobs:
         with:
           npm-registry: ${{ env.NPM_REGISTRY }}
           dist-path: dist
-          npm-tag: ${{ env.TAG }}
