@@ -61,6 +61,8 @@ jobs:
     name: Publish NPM packages to JFrog
     needs: build-and-attest
     runs-on: public-ledgerhq-shared-medium
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v6
         with:
