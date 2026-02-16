@@ -42,6 +42,20 @@ const cleanup = initializeLedgerProvider({
   target: document.body,        // Optional: specify where to mount the UI
   dAppIdentifier: 'my-dapp',   // Your dApp identifier
   apiKey: 'your-api-key',      // Your Ledger API key
+  floatingButtonPosition:
+          | "bottom-right"
+          | "bottom-left"
+          | "top-right"
+          | "top-left"
+          | "middle-right", // Position of floating button
+  walletTransactionFeatures: [
+          "send",
+          "receive",
+          "buy",
+          "earn",
+          "sell",
+          "swap",
+        ], // Quick action to make available
   loggerLevel: 'info',         // Log level: 'debug', 'info', 'warn', 'error'
   dmkConfig: undefined,        // Device Management Kit configuration (optional)
 });
@@ -73,7 +87,7 @@ function useProviders() {
     // and won't work with Server-Side Rendering (SSR)
     const initializeProvider = async () => {
       const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider');
-      
+
       const cleanup = initializeLedgerProvider({
         devConfig: {
           stub: {
@@ -91,16 +105,16 @@ function useProviders() {
       });
 
       window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
-      
+
       return cleanup;
     };
 
     let cleanup: (() => void) | undefined;
-    
+
     initializeProvider().then(cleanupFn => {
       cleanup = cleanupFn;
     });
-    
+
     return () => {
       cleanup?.();
       window.removeEventListener('eip6963:announceProvider', handleAnnounceProvider);
@@ -116,7 +130,7 @@ function App() {
 
   const connectWallet = async () => {
     if (!selectedProvider) return;
-    
+
     try {
       const accounts = await selectedProvider.provider.request({
         method: 'eth_requestAccounts',
@@ -130,7 +144,7 @@ function App() {
 
   const signTransaction = async (transaction: any) => {
     if (!selectedProvider) return;
-    
+
     try {
       const result = await selectedProvider.provider.request({
         method: 'eth_signTransaction',
@@ -145,20 +159,20 @@ function App() {
   return (
     <div>
       {providers.map(provider => (
-        <button 
+        <button
           key={provider.info.uuid}
           onClick={() => setSelectedProvider(provider)}
         >
           Connect {provider.info.name}
         </button>
       ))}
-      
+
       {selectedProvider && (
         <button onClick={connectWallet}>
           Request Accounts
         </button>
       )}
-      
+
       {account && <p>Connected: {account}</p>}
     </div>
   );
@@ -236,20 +250,25 @@ The library uses browser-specific APIs and requires dynamic imports in SSR envir
 
 ```javascript
 // ❌ Don't do this in SSR environments
-import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider';
+import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
 
 // ✅ Use dynamic imports instead
 useEffect(() => {
   const initializeProvider = async () => {
-    const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider');
-    return initializeLedgerProvider({ /* options */ });
+    const { initializeLedgerProvider } = await import(
+      "@ledgerhq/ledger-wallet-provider"
+    );
+    return initializeLedgerProvider({
+      /* options */
+    });
   };
-  
+
   initializeProvider();
 }, []);
 ```
 
 **Why dynamic imports are necessary:**
+
 - The library uses Web APIs (`window`, `document`, `CustomEvent`) that don't exist in Node.js
 - Direct imports will cause build errors in SSR frameworks (Next.js, Nuxt, SvelteKit, etc.)
 - Dynamic imports ensure the code only runs in the browser environment
@@ -259,7 +278,7 @@ useEffect(() => {
 Import the CSS file to get the default styling:
 
 ```javascript
-import '@ledgerhq/ledger-wallet-provider/styles.css';
+import "@ledgerhq/ledger-wallet-provider/styles.css";
 ```
 
 ## Development Mode
@@ -270,15 +289,15 @@ For development and testing, you can enable stub mode:
 const cleanup = initializeLedgerProvider({
   devConfig: {
     stub: {
-      base: true,              // Enable base stub mode
-      account: true,           // Mock account operations
-      device: true,            // Mock device interactions
-      web3Provider: true,      // Mock Web3 provider responses
-      dAppConfig: true,        // Mock dApp configuration
+      base: true, // Enable base stub mode
+      account: true, // Mock account operations
+      device: true, // Mock device interactions
+      web3Provider: true, // Mock Web3 provider responses
+      dAppConfig: true, // Mock dApp configuration
     },
   },
-  dAppIdentifier: 'my-dapp',
-  apiKey: 'your-api-key',
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
 });
 ```
 
