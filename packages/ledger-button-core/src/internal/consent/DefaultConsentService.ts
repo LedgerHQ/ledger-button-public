@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 
 import { eventTrackingModuleTypes } from "../event-tracking/eventTrackingModuleTypes.js";
 import type { TrackConsentGiven } from "../event-tracking/usecase/TrackConsentGiven.js";
+import type { TrackConsentRemoved } from "../event-tracking/usecase/TrackConsentRemoved.js";
 import type { UserConsent } from "../storage/model/UserConsent.js";
 import { storageModuleTypes } from "../storage/storageModuleTypes.js";
 import type { StorageService } from "../storage/StorageService.js";
@@ -14,6 +15,8 @@ export class DefaultConsentService implements ConsentService {
     private readonly storageService: StorageService,
     @inject(eventTrackingModuleTypes.TrackConsentGiven)
     private readonly trackConsentGiven: TrackConsentGiven,
+    @inject(eventTrackingModuleTypes.TrackConsentRemoved)
+    private readonly trackConsentRemoved: TrackConsentRemoved,
   ) {}
 
   async hasConsent(): Promise<boolean> {
@@ -47,6 +50,8 @@ export class DefaultConsentService implements ConsentService {
   }
 
   async removeConsent(): Promise<void> {
+    await this.trackConsentRemoved.execute();
+
     await this.storageService.removeUserConsent();
   }
 
