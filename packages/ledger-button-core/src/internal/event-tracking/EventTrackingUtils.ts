@@ -4,6 +4,7 @@ import { sha256 } from "ethers";
 import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
+  type ConsentRemovedEventData,
   type EventRequest,
   EventType,
   type FloatingButtonClickEventData,
@@ -129,6 +130,22 @@ export class EventTrackingUtils {
     return {
       name: EventType.ConsentGiven,
       type: EventType.ConsentGiven,
+      data,
+    };
+  }
+
+  static createConsentRemovedEvent(params: BaseEventParams & { trustChainId?: string }): EventRequest {
+    const data: ConsentRemovedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ConsentRemoved,
+      ledger_sync_user_id: params.trustChainId,
+    };
+
+    return {
+      name: EventType.ConsentRemoved,
+      type: EventType.ConsentRemoved,
       data,
     };
   }
