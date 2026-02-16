@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-attest:
-    runs-on: public-ledgerhq-shared-medium
+    runs-on: ubuntu-22.04
     environment: Production
     permissions:
       contents: write
@@ -24,38 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-action-composite
-      - name: build libraries
-        run: pnpm nx run-many -t build --projects=ledger-button,ledger-button-core
+      - name: Canonicalize package.json
+        run: pnpm nx run ldb-tools:canonicalize
 
-      - name: Login to internal JFrog registry
-        id: jfrog-login
-        uses: LedgerHQ/actions-security/actions/jfrog-login@actions/jfrog-login-1
+      - name: Build libraries
+        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core
 
-      - name: Setup npm config for JFrog
-        env:
-          NPM_REGISTRY_TOKEN: ${{ steps.jfrog-login.outputs.oidc-token }}
-        run: |
-          cat << EOF | tee .npmrc
-          registry=https://${NPM_REGISTRY}/
-          //${NPM_REGISTRY}/:_authToken=${NPM_REGISTRY_TOKEN}
-          EOF
+      - name: Prepare dist directory
+        run: pnpm nx run ldb-tools:pack
 
-      # See if we can rework this to crawl the monorepo and get the tarball for each package
-      - name: Create dist directory to store tarball
-        run: mkdir -p dist
-
-      - name: release to npm
-        run: pnpm release
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Get tarball for each package
-        run: |
-          find . -name "ledgerhq-*.tgz" -exec cp {} ./dist \;
-
-      - name: Attest tarball
-        uses: LedgerHQ/actions-security/actions/attest@actions/attest-1
+      - name: Attest for npmjs.com
+        uses: LedgerHQ/actions-security/actions/attest-for-npmsjs-com@attest-npm-dir-support
         with:
           subject-path: ./dist
 
