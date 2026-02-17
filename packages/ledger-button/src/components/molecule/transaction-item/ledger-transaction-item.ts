@@ -5,8 +5,8 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { formatFiatValue } from "../../../utils/format-fiat.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import { formatFiatValue } from "../../../utils/format-fiat.js";
 
 const transactionItemVariants = cva([
   "lb-flex lb-min-w-full lb-items-center lb-justify-between lb-p-8",
