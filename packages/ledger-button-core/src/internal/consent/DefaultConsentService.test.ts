@@ -1,8 +1,8 @@
 import { Maybe, Nothing } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { EventType } from "../backend/model/trackEvent.js";
-import type { EventTrackingService } from "../event-tracking/service/EventTrackingService.js";
+import type { TrackConsentGiven } from "../event-tracking/usecase/TrackConsentGiven.js";
+import type { TrackConsentRemoved } from "../event-tracking/usecase/TrackConsentRemoved.js";
 import type { UserConsent } from "../storage/model/UserConsent.js";
 import type { StorageService } from "../storage/StorageService.js";
 import { DefaultConsentService } from "./DefaultConsentService.js";
@@ -14,9 +14,11 @@ describe("DefaultConsentService", () => {
     saveUserConsent: ReturnType<typeof vi.fn>;
     removeUserConsent: ReturnType<typeof vi.fn>;
   };
-  let mockEventTrackingService: {
-    trackEvent: ReturnType<typeof vi.fn>;
-    getSessionId: ReturnType<typeof vi.fn>;
+  let mockTrackConsentGiven: {
+    execute: ReturnType<typeof vi.fn>;
+  };
+  let mockTrackConsentRemoved: {
+    execute: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(() => {
@@ -28,14 +30,18 @@ describe("DefaultConsentService", () => {
       removeUserConsent: vi.fn().mockResolvedValue(undefined),
     };
 
-    mockEventTrackingService = {
-      trackEvent: vi.fn().mockResolvedValue(undefined),
-      getSessionId: vi.fn().mockReturnValue("test-session-id"),
+    mockTrackConsentGiven = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
+
+    mockTrackConsentRemoved = {
+      execute: vi.fn().mockResolvedValue(undefined),
     };
 
     consentService = new DefaultConsentService(
       mockStorageService as unknown as StorageService,
-      mockEventTrackingService as unknown as EventTrackingService,
+      mockTrackConsentGiven as unknown as TrackConsentGiven,
+      mockTrackConsentRemoved as unknown as TrackConsentRemoved,
     );
   });
 
@@ -131,18 +137,7 @@ describe("DefaultConsentService", () => {
     it("should track consent given event", async () => {
       await consentService.giveConsent();
 
-      expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: "Consent Given",
-          type: EventType.ConsentGiven,
-          data: expect.objectContaining({
-            event_type: "consent_given",
-            event_id: expect.any(String),
-            transaction_dapp_id: "",
-            timestamp_ms: expect.any(Number),
-          }),
-        }),
-      );
+      expect(mockTrackConsentGiven.execute).toHaveBeenCalledOnce();
     });
 
     it("should save consent date in ISO format", async () => {
@@ -171,7 +166,7 @@ describe("DefaultConsentService", () => {
     it("should NOT track any event when refusing consent", async () => {
       await consentService.refuseConsent();
 
-      expect(mockEventTrackingService.trackEvent).not.toHaveBeenCalled();
+      expect(mockTrackConsentGiven.execute).not.toHaveBeenCalled();
     });
   });
 
@@ -182,10 +177,30 @@ describe("DefaultConsentService", () => {
       expect(mockStorageService.removeUserConsent).toHaveBeenCalled();
     });
 
-    it("should NOT track any event when removing consent", async () => {
+    it("should track consent removed event", async () => {
       await consentService.removeConsent();
 
-      expect(mockEventTrackingService.trackEvent).not.toHaveBeenCalled();
+      expect(mockTrackConsentRemoved.execute).toHaveBeenCalledOnce();
+    });
+
+    it("should track consent removed event before removing from storage", async () => {
+      const callOrder: string[] = [];
+      mockTrackConsentRemoved.execute.mockImplementation(async () => {
+        callOrder.push("trackConsentRemoved");
+      });
+      mockStorageService.removeUserConsent.mockImplementation(async () => {
+        callOrder.push("removeUserConsent");
+      });
+
+      await consentService.removeConsent();
+
+      expect(callOrder).toEqual(["trackConsentRemoved", "removeUserConsent"]);
+    });
+
+    it("should NOT track consent given event when removing consent", async () => {
+      await consentService.removeConsent();
+
+      expect(mockTrackConsentGiven.execute).not.toHaveBeenCalled();
     });
   });
 

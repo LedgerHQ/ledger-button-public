@@ -11,13 +11,11 @@ export class DeviceSwitchController {
   ) {}
 
   async connectNewDevice(connectionType: "bluetooth" | "usb") {
-    await this.coreContext.disconnectFromDevice();
-
     try {
       await this.coreContext.connectToDevice(connectionType);
-      this.navigation.navigateTo(this.destinations.onboardingFlow);
+      this.navigation.navigateTo(this.destinations.home);
     } catch {
-      this.navigation.navigateTo(this.destinations.onboardingFlow);
+      this.navigation.navigateBack();
     }
   }
 

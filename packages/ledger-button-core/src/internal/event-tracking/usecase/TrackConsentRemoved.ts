@@ -1,7 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { Account } from "../../account/service/AccountService.js";
-import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { type Config } from "../../config/model/config.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -13,7 +11,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
 
 @injectable()
-export class TrackOnboarding {
+export class TrackConsentRemoved {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -25,24 +23,18 @@ export class TrackOnboarding {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackOnboarding UseCase]");
+    this.logger = loggerFactory("[TrackConsentRemoved UseCase]");
   }
 
-  async execute(selectedAccount: Account): Promise<void> {
-    const sessionId = this.eventTrackingService.getSessionId();
+  async execute(): Promise<void> {
     const trustChainId = this.contextService.getContext().trustChainId;
 
-    const { currencyId } = selectedAccount;
-    const chainId = getChainIdFromCurrencyId(currencyId).toString();
-
-    const event = EventTrackingUtils.createOnboardingEvent({
+    const event = EventTrackingUtils.createConsentRemovedEvent({
       dAppId: this.config.dAppIdentifier,
-      sessionId: sessionId,
-      trustChainId: trustChainId,
-      chainId: chainId,
+      trustChainId,
     });
 
-    this.logger.debug("Tracking ledger sync activated event", { event });
+    this.logger.debug("Tracking consent removed event", { event });
 
     await this.eventTrackingService.trackEvent(event);
   }
