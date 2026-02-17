@@ -1,14 +1,30 @@
 import {
   Account,
+  Device,
   SignRawTransactionParams,
   SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
+import { Subscription } from "rxjs";
 
+import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import { CoreContext } from "../context/core-context.js";
 import { Translation } from "../context/language-context.js";
 import { Navigation } from "./navigation.js";
-import { Destination, Destinations, makeDestinations } from "./routes.js";
+import {
+  Destination,
+  Destinations,
+  makeDestinations,
+  resolveCanGoBack,
+} from "./routes.js";
+
+export type RootNavigationUiModel = {
+  title: string | undefined;
+  canGoBack: boolean;
+  canClose: boolean;
+  showSettings: boolean;
+  deviceModelId: DeviceModelId | undefined;
+};
 
 export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
@@ -16,6 +32,10 @@ export class RootNavigationController implements ReactiveController {
   destinations: Destinations;
   pendingTransactionParams?: SignRawTransactionParams | SignTransactionParams;
   params?: unknown;
+
+  private hasTrackingConsent?: boolean;
+  private contextSubscription?: Subscription;
+  connectedDevice: Device | undefined;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -31,10 +51,60 @@ export class RootNavigationController implements ReactiveController {
 
   hostConnected() {
     this.computeInitialState();
+    this.contextSubscription = this.core
+      .observeContext()
+      .subscribe((context) => {
+        this.hasTrackingConsent = context.hasTrackingConsent;
+        this.connectedDevice = context.connectedDevice;
+        this.host.requestUpdate();
+      });
+  }
+
+  hostDisconnected() {
+    this.contextSubscription?.unsubscribe();
   }
 
   get currentScreen() {
     return this.navigation.currentScreen;
+  }
+
+  get rootNavigationUiModel(): RootNavigationUiModel {
+    const connectedDevice = this.connectedDevice;
+    const canGoBack = resolveCanGoBack(
+      this.currentScreen?.canGoBack,
+      this.core,
+    );
+
+    const canClose = this.currentScreen?.toolbar.canClose ?? true;
+
+    const isHomeFlow = this.currentScreen?.name === "home-flow";
+
+    const isOnConsentScreen =
+      isHomeFlow && this.hasTrackingConsent === undefined;
+
+    const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
+
+    const title =
+      connectedDevice && shouldShowDeviceChip
+        ? connectedDevice.name
+        : this.currentScreen?.toolbar.title;
+
+    const deviceModelId =
+      connectedDevice && shouldShowDeviceChip
+        ? connectedDevice.modelId
+        : undefined;
+
+    const showSettings = this.currentScreen?.name === "home-flow";
+
+    const uiModel: RootNavigationUiModel = {
+      title,
+      canGoBack,
+      canClose,
+      showSettings,
+      deviceModelId,
+    };
+
+    return uiModel;
   }
 
   async computeInitialState() {

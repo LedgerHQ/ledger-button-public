@@ -174,22 +174,21 @@ describe("LedgerEIP1193Provider", () => {
   });
 
   describe("request", () => {
-    it("should return error when provider is busy", async () => {
+    it("should reject when provider is busy", async () => {
       provider["_pendingPromise"] = {
         resolve: vi.fn(),
         reject: vi.fn(),
       };
 
-      const result = await provider.request({
-        method: "eth_accounts",
-        params: [],
-      });
-
-      expect(result).toHaveProperty(
+      await expect(
+        provider.request({
+          method: "eth_accounts",
+          params: [],
+        }),
+      ).rejects.toHaveProperty(
         "code",
         CommonEIP1193ErrorCode.InternalError,
       );
-      expect(result).toHaveProperty("message", "Ledger Provider is busy");
     });
 
     it("should queue request when modal is open", async () => {

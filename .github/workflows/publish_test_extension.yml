@@ -2,7 +2,7 @@ name: "[CI] Publish Test Extension"
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, "release/*"]
 
 env:
   FORCE_COLOR: "1"
@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
+    env:
+      RELEASE_TAG: ${{ github.ref_name == 'develop' && 'develop-latest' || format('{0}-latest', github.ref_name) }}
+      RELEASE_TITLE: ${{ github.ref_name == 'develop' && 'Test Extension (develop)' || format('Test Extension ({0})', github.ref_name) }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-action-composite
@@ -20,16 +23,16 @@ jobs:
         run: pnpm nx run @ledgerhq/test-extension:buildZip
 
       - name: Delete existing release
-        run: gh release delete develop-latest --yes || true
+        run: gh release delete "${{ env.RELEASE_TAG }}" --yes || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create release with extension zip
         run: |
-          gh release create develop-latest \
+          gh release create "${{ env.RELEASE_TAG }}" \
             apps/test-extension/test-extension.zip \
-            --title "Test Extension (develop)" \
-            --notes "Latest test extension build from develop branch.
+            --title "${{ env.RELEASE_TITLE }}" \
+            --notes "Latest test extension build from ${{ github.ref_name }} branch.
 
           **Commit:** ${{ github.sha }}
           **Updated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" \

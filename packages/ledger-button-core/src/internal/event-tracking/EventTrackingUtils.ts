@@ -4,6 +4,7 @@ import { sha256 } from "ethers";
 import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
+  type ConsentRemovedEventData,
   type EventRequest,
   EventType,
   type FloatingButtonClickEventData,
@@ -38,7 +39,6 @@ interface SessionEventParams extends BaseEventParams {
 }
 
 interface TransactionEventParams extends SessionEventParams {
-  unsignedTransactionHash: string;
   chainId: string | null;
 }
 
@@ -134,7 +134,21 @@ export class EventTrackingUtils {
     };
   }
 
+  static createConsentRemovedEvent(params: BaseEventParams & { trustChainId?: string }): EventRequest {
+    const data: ConsentRemovedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ConsentRemoved,
+      ledger_sync_user_id: params.trustChainId,
+    };
 
+    return {
+      name: EventType.ConsentRemoved,
+      type: EventType.ConsentRemoved,
+      data,
+    };
+  }
 
   static createFloatingButtonClickEvent(
     params: SessionEventParams,
@@ -156,8 +170,6 @@ export class EventTrackingUtils {
 
   static createOnboardingEvent(
     params: SessionEventParams & {
-      accountCurrency: string;
-      accountBalance: string;
       chainId: string | null;
     },
   ): EventRequest {
@@ -170,8 +182,6 @@ export class EventTrackingUtils {
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
-      account_currency: params.accountCurrency,
-      account_balance: params.accountBalance,
     };
 
     return {
@@ -192,9 +202,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       chain_id: params.chainId,
     };
 
@@ -206,7 +213,7 @@ export class EventTrackingUtils {
   }
 
   static createTransactionFlowCompletionEvent(
-    params: TransactionEventParams & { transactionHash: string },
+    params: TransactionEventParams,
   ): EventRequest {
     const data: TransactionFlowCompletionEventData = {
       event_id: generateUUID(),
@@ -216,10 +223,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       chain_id: params.chainId,
     };
 
@@ -241,9 +244,6 @@ export class EventTrackingUtils {
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
-      unsigned_transaction_hash: normalizeTransactionHash(
-        params.unsignedTransactionHash,
-      ),
       transaction_type: "authentication_tx",
       transaction_hash: normalizeTransactionHash(params.transactionHash),
     };
@@ -268,7 +268,6 @@ export class EventTrackingUtils {
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.InvoicingTransactionSigned,
-      ledger_sync_user_id: params.trustChainId,
       blockchain_network_selected: "ethereum",
       chain_id: params.chainId,
       transaction_hash: normalizeTransactionHash(params.transactionHash),

@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -76,6 +76,9 @@ export class LedgerButtonCore {
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
   private readonly _contextService: ContextService;
+
+  // Subscription to device connection state in order to handle device disconnection
+  private deviceConnectionSubscription?: Subscription;
 
   constructor(private readonly opts: LedgerButtonCoreOptions) {
     this.container = createContainer(this.opts);
@@ -168,7 +171,11 @@ export class LedgerButtonCore {
       return;
     }
 
-    dmk
+    if (this.deviceConnectionSubscription) {
+      this.deviceConnectionSubscription.unsubscribe();
+    }
+
+    this.deviceConnectionSubscription = dmk
       .getDeviceSessionState({
         sessionId: sessionId as string,
       })
@@ -207,6 +214,14 @@ export class LedgerButtonCore {
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
+
+    //Implicitly disconnect from device if already connected to one
+    if (this._contextService.getContext().connectedDevice !== undefined) {
+      this.deviceConnectionSubscription?.unsubscribe();
+      await this.container
+        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+        .execute();
+    }
 
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)

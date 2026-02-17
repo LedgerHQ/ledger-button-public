@@ -3,6 +3,8 @@ import { ContainerModule } from "inversify";
 import { DefaultEventTrackingService } from "./service/DefaultEventTrackingService.js";
 import { EventTrackingService } from "./service/EventTrackingService.js";
 import { StubEventTrackingService } from "./service/StubEventTrackingService.js";
+import { TrackConsentGiven } from "./usecase/TrackConsentGiven.js";
+import { TrackConsentRemoved } from "./usecase/TrackConsentRemoved.js";
 import { TrackFloatingButtonClick } from "./usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "./usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "./usecase/TrackLedgerSyncOpened.js";
@@ -34,6 +36,14 @@ export const eventTrackingModuleFactory = ({
     bind<EventTrackingService>(eventTrackingModuleTypes.EventTrackingService)
       .to(DefaultEventTrackingService)
       .inSingletonScope();
+
+    bind<TrackConsentGiven>(
+      eventTrackingModuleTypes.TrackConsentGiven,
+    ).to(TrackConsentGiven);
+
+    bind<TrackConsentRemoved>(
+      eventTrackingModuleTypes.TrackConsentRemoved,
+    ).to(TrackConsentRemoved);
 
     bind<TrackFloatingButtonClick>(
       eventTrackingModuleTypes.TrackFloatingButtonClick,
