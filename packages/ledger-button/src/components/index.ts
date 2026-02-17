@@ -10,6 +10,7 @@ export * from "./atom/icon/ledger-icon.js";
 export * from "./atom/lottie/ledger-lottie.js";
 export * from "./atom/modal/ledger-modal.js";
 export * from "./atom/modal/ledger-modal-story-wrapper.js";
+export * from "./atom/search-input/ledger-search-input.js";
 export * from "./atom/skeleton/ledger-skeleton.js";
 export * from "./atom/tabs/ledger-tabs.js";
 export * from "./atom/toggle/ledger-toggle.js";

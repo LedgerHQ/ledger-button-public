@@ -23,6 +23,7 @@ import {
   MobileIcon,
   QuestionIcon,
   ReceiveIcon,
+  SearchIcon,
   SellIcon,
   SendIcon,
   SettingsIcon,
@@ -58,6 +59,7 @@ export interface LedgerIconAttributes {
     | "buy"
     | "earn"
     | "sell"
+    | "search"
     | "info";
   size: "small" | "medium" | "large";
   fillColor?: string;
@@ -121,6 +123,7 @@ export class LedgerIcon extends LitElement {
       buy: () => BuyIcon,
       earn: () => EarnIcon,
       sell: () => SellIcon,
+      search: () => SearchIcon,
       info: () => InfoIcon,
     };
     const renderIcon =
