@@ -5,6 +5,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
+import { formatFiatValue } from "../../../utils/format-fiat.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 const transactionItemVariants = cva([
@@ -71,10 +72,11 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get displayFiatAmount(): string {
-    if (!this.fiatAmount) {
+    if (!this.fiatAmount || !this.fiatCurrency) {
       return "";
     }
-    return `${this.sign}${this.fiatCurrency}${this.fiatAmount}`;
+    const formatted = formatFiatValue(this.fiatAmount, this.fiatCurrency);
+    return `${this.sign}${formatted}`;
   }
 
   private renderLeftSection() {

@@ -54,7 +54,11 @@ export class DefaultCounterValueDataSource implements CounterValueDataSource {
     endDate: string,
   ): Promise<Either<Error, Record<string, number>>> {
     if (startDate > endDate) {
-      return Right({});
+      return Left(
+        new Error(
+          `Invalid date range: startDate (${startDate}) must not be after endDate (${endDate})`,
+        ),
+      );
     }
 
     const requestUrl = `${this.config.getCounterValueUrl()}/v3/historical/daily/simple?from=${encodeURIComponent(ledgerId)}&to=${targetCurrency}&start=${startDate}&end=${endDate}`;
