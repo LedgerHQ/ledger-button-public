@@ -54,13 +54,6 @@ const styles = css`
   }
 `;
 
-function formatFiatCurrencyForDisplay(currencyCode: string): string {
-  if (currencyCode.toUpperCase() === "USD") {
-    return "$";
-  }
-  return currencyCode;
-}
-
 function mapTransactionHistoryToListItem(
   transaction: TransactionHistoryItem,
 ): TransactionListItem {
@@ -80,9 +73,7 @@ function mapTransactionHistoryToListItem(
     ticker: transaction.ticker,
     title: transaction.currencyName,
     fiatAmount: transaction.fiatValue ?? "",
-    fiatCurrency: transaction.fiatCurrency
-      ? formatFiatCurrencyForDisplay(transaction.fiatCurrency)
-      : "",
+    fiatCurrency: transaction.fiatCurrency ?? "",
   };
 }
 

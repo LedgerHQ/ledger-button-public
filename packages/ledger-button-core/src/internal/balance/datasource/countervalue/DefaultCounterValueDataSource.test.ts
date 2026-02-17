@@ -164,7 +164,7 @@ describe("DefaultCounterValueDataSource", () => {
   });
 
   describe("getHistoricalRates", () => {
-    it("should return empty object when startDate is after endDate", async () => {
+    it("should return Left when startDate is after endDate", async () => {
       const result = await dataSource.getHistoricalRates(
         "ethereum",
         "usd",
@@ -172,8 +172,13 @@ describe("DefaultCounterValueDataSource", () => {
         "2024-01-10",
       );
 
-      expect(result.isRight()).toBe(true);
-      expect(result.extract()).toEqual({});
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toContain("Invalid date range");
+        expect(error.message).toContain("2024-01-15");
+        expect(error.message).toContain("2024-01-10");
+      }
       expect(mockNetworkService.get).not.toHaveBeenCalled();
     });
 
