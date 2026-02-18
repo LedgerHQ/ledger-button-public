@@ -514,6 +514,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         currencyName: "Ethereum",
         ticker: "ETH",
         timestamp: "2024-01-15T10:00:00Z",
+        ledgerId: "ethereum",
       });
       expect(transactions[1]).toEqual({
         hash: "0xreceived456",
@@ -523,6 +524,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         currencyName: "Ethereum",
         ticker: "ETH",
         timestamp: "2024-01-15T11:00:00Z",
+        ledgerId: "ethereum",
       });
     });
   });

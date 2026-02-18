@@ -2,17 +2,7 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-
-function formatFiatValue(value: string): string {
-  const numericValue = parseFloat(value);
-
-  const formattedNumber = numericValue.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-
-  return `$${formattedNumber}`;
-}
+import { formatFiatValue } from "../../../utils/format-fiat.js";
 
 @customElement("ledger-fiat-total")
 @tailwindElement()
