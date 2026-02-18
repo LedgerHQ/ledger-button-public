@@ -15,7 +15,20 @@ export class SelectAccountController implements ReactiveController {
   accounts: Account[] = [];
   isAccountsLoading = false;
   balanceLoadingStates = new Map<string, BalanceLoadingState>();
+  searchQuery = "";
   private accountsSubscription?: Subscription;
+
+  get filteredAccounts(): Account[] {
+    const query = this.searchQuery.toLowerCase().trim();
+    if (!query) {
+      return this.accounts;
+    }
+    return this.accounts.filter(
+      (account) =>
+        account.name.toLowerCase().includes(query) ||
+        account.freshAddress.toLowerCase().includes(query),
+    );
+  }
 
   get isBalanceLoading(): boolean {
     return this.accounts.some((account) => account.balance === undefined);
@@ -153,6 +166,18 @@ export class SelectAccountController implements ReactiveController {
         },
       });
     }
+  };
+
+  handleSearchInput = (
+    event: CustomEvent<{ value: string }>,
+  ) => {
+    this.searchQuery = event.detail.value;
+    this.host.requestUpdate();
+  };
+
+  handleSearchClear = () => {
+    this.searchQuery = "";
+    this.host.requestUpdate();
   };
 
   close = () => {

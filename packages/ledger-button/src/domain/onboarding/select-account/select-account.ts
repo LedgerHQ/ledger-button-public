@@ -2,7 +2,7 @@ import "../../../components/index.js";
 
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
@@ -84,10 +84,36 @@ export class SelectAccountScreen extends LitElement {
     `;
   }
 
+  private renderNoResults() {
+    const translations = this.languages.currentTranslation;
+
+    if (
+      this.controller.filteredAccounts.length > 0 ||
+      !this.controller.searchQuery
+    ) {
+      return nothing;
+    }
+
+    return html`
+      <p class="lb-text-center lb-text-muted lb-body-2 lb-py-24">
+        ${translations.onboarding.selectAccount.noResults}
+      </p>
+    `;
+  }
+
   override render() {
+    const translations = this.languages.currentTranslation;
+
     return html`
       <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
-        ${this.controller.accounts.map(this.renderAccountItem)}
+        <ledger-search-input
+          .placeholder=${translations.onboarding.selectAccount.searchPlaceholder}
+          .value=${this.controller.searchQuery}
+          @search-input-change=${this.controller.handleSearchInput}
+          @search-input-clear=${this.controller.handleSearchClear}
+        ></ledger-search-input>
+        ${this.controller.filteredAccounts.map(this.renderAccountItem)}
+        ${this.renderNoResults()}
       </div>
       ${this.renderBalanceLoadingFooter()}
     `;
