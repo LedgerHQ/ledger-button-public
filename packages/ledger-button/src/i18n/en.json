@@ -99,6 +99,8 @@
     "selectAccount": {
       "title": "Select an account",
       "showTokens": "Show tokens",
+      "searchPlaceholder": "Search account",
+      "noResults": "No accounts match your search",
       "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
       "refreshingAccountsHint": "Select an account at any time to continue."
     },
