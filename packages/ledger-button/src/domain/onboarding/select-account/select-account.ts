@@ -59,9 +59,8 @@ export class SelectAccountScreen extends LitElement {
         .currencyId=${account.currencyId}
         .isBalanceLoading=${isBalanceLoading}
         .isBalanceError=${isBalanceError}
-        @account-item-click=${this.controller.handleAccountItemClick}
-        @account-item-show-tokens-click=${this.controller
-          .handleAccountItemShowTokensClick}
+        @account-item-click=${(e: CustomEvent) => this.controller.handleAccountItemClick(e)}
+        @account-item-show-tokens-click=${(e: CustomEvent) => this.controller.handleAccountItemShowTokensClick(e)}
       ></ledger-account-item>
     `;
   };
@@ -109,8 +108,8 @@ export class SelectAccountScreen extends LitElement {
         <ledger-search-input
           .placeholder=${translations.onboarding.selectAccount.searchPlaceholder}
           .value=${this.controller.searchQuery}
-          @search-input-change=${this.controller.handleSearchInput}
-          @search-input-clear=${this.controller.handleSearchClear}
+          @search-input-change=${(e: CustomEvent) => this.controller.handleSearchInput(e)}
+          @search-input-clear=${() => this.controller.handleSearchClear()}
         ></ledger-search-input>
         ${this.controller.filteredAccounts.map(this.renderAccountItem)}
         ${this.renderNoResults()}

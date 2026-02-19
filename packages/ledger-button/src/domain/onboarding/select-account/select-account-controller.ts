@@ -121,9 +121,9 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  handleAccountItemClick = (
+  handleAccountItemClick(
     event: CustomEvent<AccountItemClickEventDetail>,
-  ) => {
+  ) {
     const account = this.accounts.find(
       (acc: Account) => acc.id === event.detail.ledgerId,
     );
@@ -144,11 +144,11 @@ export class SelectAccountController implements ReactiveController {
       ),
     );
     this.close();
-  };
+  }
 
-  handleAccountItemShowTokensClick = (
+  handleAccountItemShowTokensClick(
     event: CustomEvent<AccountItemClickEventDetail>,
-  ) => {
+  ) {
     const account = this.accounts.find(
       (acc: Account) => acc.id === event.detail.ledgerId,
     );
@@ -166,21 +166,19 @@ export class SelectAccountController implements ReactiveController {
         },
       });
     }
-  };
+  }
 
-  handleSearchInput = (
-    event: CustomEvent<{ value: string }>,
-  ) => {
+  handleSearchInput(event: CustomEvent<{ value: string }>) {
     this.searchQuery = event.detail.value;
     this.host.requestUpdate();
-  };
+  }
 
-  handleSearchClear = () => {
+  handleSearchClear() {
     this.searchQuery = "";
     this.host.requestUpdate();
-  };
+  }
 
-  close = () => {
+  close() {
     if (this.navigation.host instanceof RootNavigationComponent) {
       if (this.navigation.host.getModalMode() === "panel") {
         this.navigation.host.navigateToHome();
@@ -189,5 +187,5 @@ export class SelectAccountController implements ReactiveController {
       }
       this.host.requestUpdate();
     }
-  };
+  }
 }
