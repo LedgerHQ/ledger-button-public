@@ -11,6 +11,7 @@ import {
   Tag,
   TextInput,
 } from "@ledgerhq/lumen-ui-react";
+import { ChevronDown, ChevronRight, Settings } from "@ledgerhq/lumen-ui-react/symbols";
 
 import {
   ALL_WALLET_FEATURES,
@@ -129,14 +130,14 @@ export function SettingsBlock({
       >
         <div className="flex items-center gap-10">
           <h3 className="flex items-center gap-10 body-2-semi-bold text-muted">
-            <span>⚙️</span>
+            <Settings size={20} />
             Provider Configuration
           </h3>
           {hasChanges && (
             <Tag appearance="warning" size="sm" label="Unsaved" />
           )}
         </div>
-        <span className="body-2 text-muted">{isExpanded ? "▼" : "▶"}</span>
+        <span className="text-muted">{isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
       </div>
 
       {isExpanded && (
