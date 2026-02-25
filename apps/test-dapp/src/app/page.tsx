@@ -9,7 +9,6 @@ import {
   ConnectionStatus,
   type EIPEvent,
   ProviderSelectionBlock,
-  QuickActionsBlock,
   SettingsBlock,
   TransactionsBlock,
 } from "../components";
@@ -197,22 +196,6 @@ export default function Index() {
     setError(null);
   }, [selectedProvider, setSelectedProvider, addInfoEntry]);
 
-  const handleOpenHome = useCallback(() => {
-    if (!selectedProvider) return;
-    if (Provider && selectedProvider.provider instanceof Provider) {
-      selectedProvider.provider.navigationIntent("home");
-      addInfoEntry("Navigation: Home");
-    }
-  }, [selectedProvider, addInfoEntry]);
-
-  const handleOpenSettings = useCallback(() => {
-    if (!selectedProvider) return;
-    if (Provider && selectedProvider.provider instanceof Provider) {
-      selectedProvider.provider.navigationIntent("settings");
-      addInfoEntry("Navigation: Settings");
-    }
-  }, [selectedProvider, addInfoEntry]);
-
   const clearResult = useCallback(() => {
     setResult(null);
     setError(null);
@@ -370,6 +353,13 @@ export default function Index() {
           </header>
 
           <div className="flex flex-col gap-20">
+            <SettingsBlock
+              config={config}
+              onConfigChange={setConfig}
+              isProviderInitialized={isInitialized}
+              onReinitialize={reinitialize}
+            />
+
             <ProviderSelectionBlock
               providers={providers}
               selectedProvider={selectedProvider}
@@ -377,14 +367,6 @@ export default function Index() {
               onRequestProviders={dispatchRequestProvider}
               onDisconnect={handleDisconnect}
               account={account}
-            />
-
-            <QuickActionsBlock
-              isConnected={selectedProvider !== null}
-              hasAccount={account !== null}
-              onOpenHome={handleOpenHome}
-              onOpenSettings={handleOpenSettings}
-              onRequestAccounts={handleRequestAccounts}
             />
 
             <TransactionsBlock
@@ -400,13 +382,6 @@ export default function Index() {
               result={result}
               error={error}
               onClearResult={clearResult}
-            />
-
-            <SettingsBlock
-              config={config}
-              onConfigChange={setConfig}
-              isProviderInitialized={isInitialized}
-              onReinitialize={reinitialize}
             />
           </div>
         </div>
