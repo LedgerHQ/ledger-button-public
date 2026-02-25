@@ -7,6 +7,7 @@ import { customElement, property } from "lit/decorators.js";
 
 import { type CoreContext, coreContext } from "../../context/core-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import { formatFiatBalance } from "../../utils/format-fiat.js";
 import { TokenListController } from "./token-list-controller.js";
 
 @customElement("token-list-screen")
@@ -33,7 +34,7 @@ export class TokenListScreen extends LitElement {
         .title=${account.ticker}
         .ticker=${account.ticker}
         .value=${account.balance ?? "0"}
-        .fiatValue=${this.controller.formatFiatValue(account.fiatBalance)}
+        .fiatValue=${formatFiatBalance(account.fiatBalance)}
         .isClickable=${false}
         type="network"
         iconVariant="rounded"
@@ -53,7 +54,7 @@ export class TokenListScreen extends LitElement {
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
         .value=${token.balance}
-        .fiatValue=${this.controller.formatFiatValue(token.fiatBalance)}
+        .fiatValue=${formatFiatBalance(token.fiatBalance)}
         .isClickable=${false}
         type="token"
         iconVariant="rounded"

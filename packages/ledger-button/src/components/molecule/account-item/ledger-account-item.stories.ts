@@ -16,10 +16,18 @@ const meta: Meta = {
         .ledgerId=${args.ledgerId}
         .balance=${args.balance}
         .linkLabel=${args.linkLabel}
+        .tokens=${args.tokens}
+        .currencyId=${args.currencyId}
+        .fiatBalance=${args.fiatBalance}
         ?is-balance-loading=${args.isBalanceLoading}
         ?is-balance-error=${args.isBalanceError}
+        ?is-fiat-loading=${args.isFiatLoading}
+        ?is-fiat-error=${args.isFiatError}
         @account-item-click=${(e: CustomEvent) => {
           console.log("Account item clicked:", e.detail);
+        }}
+        @account-item-show-tokens-click=${(e: CustomEvent) => {
+          console.log("Show tokens clicked:", e.detail);
         }}
       ></ledger-account-item>
     </div>
@@ -57,7 +65,7 @@ const meta: Meta = {
         category: "Required",
       },
     },
-    value: {
+    balance: {
       control: "text",
       description: "The account formatted balance",
       table: {
@@ -71,6 +79,30 @@ const meta: Meta = {
       table: {
         type: { summary: "string" },
         category: "Required",
+      },
+    },
+    tokens: {
+      control: "number",
+      description: "Number of tokens (shows link when > 0 and linkLabel is set)",
+      table: {
+        type: { summary: "number" },
+        category: "Optional",
+      },
+    },
+    currencyId: {
+      control: "text",
+      description: "Currency ID for the crypto icon",
+      table: {
+        type: { summary: "string" },
+        category: "Optional",
+      },
+    },
+    fiatBalance: {
+      control: "object",
+      description: "Fiat balance to display (value and currency)",
+      table: {
+        type: { summary: "FiatBalance" },
+        category: "Optional",
       },
     },
     isBalanceLoading: {
@@ -89,6 +121,22 @@ const meta: Meta = {
         category: "State",
       },
     },
+    isFiatLoading: {
+      control: "boolean",
+      description: "Whether the fiat value is loading",
+      table: {
+        type: { summary: "boolean" },
+        category: "State",
+      },
+    },
+    isFiatError: {
+      control: "boolean",
+      description: "Whether the fiat value fetch failed",
+      table: {
+        type: { summary: "boolean" },
+        category: "State",
+      },
+    },
   },
   args: {
     title: "My Ethereum Account",
@@ -97,6 +145,8 @@ const meta: Meta = {
     ledgerId: "ethereum",
     balance: "2.5432",
     linkLabel: "Show tokens",
+    tokens: 0,
+    currencyId: "ethereum",
   },
 };
 
@@ -167,7 +217,8 @@ export const HighValueAccount: Story = {
     ledgerId: "ethereum",
     balance: "1234.5678",
     linkLabel: "Show tokens",
-    hasTokens: true,
+    tokens: 5,
+    currencyId: "ethereum",
   },
   parameters: {
     docs: {
@@ -187,7 +238,8 @@ export const NoLinkLabel: Story = {
     ledgerId: "ethereum",
     balance: "0.001",
     linkLabel: "",
-    hasTokens: false,
+    tokens: 0,
+    currencyId: "ethereum",
   },
   parameters: {
     docs: {
@@ -207,7 +259,8 @@ export const AlgorandTokenAccount: Story = {
     ledgerId: "algorand/asa/312769",
     balance: "150.25",
     linkLabel: "View on explorer",
-    hasTokens: true,
+    tokens: 3,
+    currencyId: "algorand/asa/312769",
   },
   parameters: {
     docs: {
@@ -248,12 +301,77 @@ export const BalanceError: Story = {
     balance: "0.00",
     linkLabel: "Show tokens",
     isBalanceError: true,
+    currencyId: "ethereum",
   },
   parameters: {
     docs: {
       description: {
         story:
           "Account item with balance error state, showing '--' for balance and hiding token row.",
+      },
+    },
+  },
+};
+
+export const WithFiatBalance: Story = {
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    ticker: "ETH",
+    ledgerId: "ethereum",
+    balance: "2.5432",
+    linkLabel: "Show tokens",
+    tokens: 5,
+    currencyId: "ethereum",
+    fiatBalance: { value: "6250.00", currency: "USD" },
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item with fiat balance displayed below the crypto balance.",
+      },
+    },
+  },
+};
+
+export const FiatLoading: Story = {
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    ticker: "ETH",
+    ledgerId: "ethereum",
+    balance: "2.5432",
+    linkLabel: "Show tokens",
+    currencyId: "ethereum",
+    isFiatLoading: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item with fiat value in loading state, showing skeleton shimmer.",
+      },
+    },
+  },
+};
+
+export const FiatError: Story = {
+  args: {
+    title: "My Ethereum Account",
+    address: "0x1234567890abcdef1234567890abcdef12345678",
+    ticker: "ETH",
+    ledgerId: "ethereum",
+    balance: "2.5432",
+    linkLabel: "Show tokens",
+    currencyId: "ethereum",
+    isFiatError: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Account item with fiat value fetch failed, hiding fiat display.",
       },
     },
   },
@@ -266,48 +384,69 @@ export const LoadingStates: Story = {
         <h3
           style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
         >
-          Loading State
+          Balance Loading
         </h3>
         <ledger-account-item
-          title="john.eth"
-          address="0x1234567890abcdef1234567890abcdef12345678"
-          ticker="ETH"
-          currency-id="ethereum"
-          balance="0.00"
-          link-label="Show tokens"
-          is-balance-loading
+          .title=${"john.eth"}
+          .address=${"0x1234567890abcdef1234567890abcdef12345678"}
+          .ticker=${"ETH"}
+          .ledgerId=${"ethereum"}
+          .currencyId=${"ethereum"}
+          .balance=${"0.00"}
+          .linkLabel=${"Show tokens"}
+          ?is-balance-loading=${true}
         ></ledger-account-item>
       </div>
       <div>
         <h3
           style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
         >
-          Error State
+          Balance Error
         </h3>
         <ledger-account-item
-          title="john.eth"
-          address="0x1234567890abcdef1234567890abcdef12345678"
-          ticker="ETH"
-          currency-id="ethereum"
-          balance="0.00"
-          link-label="Show tokens"
-          is-balance-error
+          .title=${"john.eth"}
+          .address=${"0x1234567890abcdef1234567890abcdef12345678"}
+          .ticker=${"ETH"}
+          .ledgerId=${"ethereum"}
+          .currencyId=${"ethereum"}
+          .balance=${"0.00"}
+          .linkLabel=${"Show tokens"}
+          ?is-balance-error=${true}
         ></ledger-account-item>
       </div>
       <div>
         <h3
           style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
         >
-          Loaded State
+          Fiat Loading
         </h3>
         <ledger-account-item
-          title="john.eth"
-          address="0x1234567890abcdef1234567890abcdef12345678"
-          ticker="ETH"
-          currency-id="ethereum"
-          balance="2.5432"
-          link-label="Show tokens"
-          tokens="5"
+          .title=${"john.eth"}
+          .address=${"0x1234567890abcdef1234567890abcdef12345678"}
+          .ticker=${"ETH"}
+          .ledgerId=${"ethereum"}
+          .currencyId=${"ethereum"}
+          .balance=${"2.5432"}
+          .linkLabel=${"Show tokens"}
+          ?is-fiat-loading=${true}
+        ></ledger-account-item>
+      </div>
+      <div>
+        <h3
+          style="margin-bottom: 8px; font-size: 14px; font-weight: 600; color: #9ca3af;"
+        >
+          Loaded with Fiat
+        </h3>
+        <ledger-account-item
+          .title=${"john.eth"}
+          .address=${"0x1234567890abcdef1234567890abcdef12345678"}
+          .ticker=${"ETH"}
+          .ledgerId=${"ethereum"}
+          .currencyId=${"ethereum"}
+          .balance=${"2.5432"}
+          .linkLabel=${"Show tokens"}
+          .tokens=${5}
+          .fiatBalance=${{ value: "6250.00", currency: "USD" }}
         ></ledger-account-item>
       </div>
     </div>
@@ -316,7 +455,7 @@ export const LoadingStates: Story = {
     docs: {
       description: {
         story:
-          "Comparison of loading, error, and loaded states for the account item component.",
+          "Comparison of balance loading, balance error, fiat loading, and loaded states for the account item component.",
       },
     },
   },
@@ -333,36 +472,40 @@ export const AllVariations: Story = {
         </h3>
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <ledger-account-item
-            title="My Ethereum Account"
-            address="0x1234567890abcdef1234567890abcdef12345678"
-            ticker="ETH"
-            ledger-id="ethereum"
-            balance="2.5432"
-            link-label="Show tokens"
+            .title=${"My Ethereum Account"}
+            .address=${"0x1234567890abcdef1234567890abcdef12345678"}
+            .ticker=${"ETH"}
+            .ledgerId=${"ethereum"}
+            .currencyId=${"ethereum"}
+            .balance=${"2.5432"}
+            .linkLabel=${"Show tokens"}
           ></ledger-account-item>
           <ledger-account-item
-            title="Bitcoin Wallet"
-            address="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"
-            ticker="BTC"
-            ledger-id="bitcoin"
-            balance="0.12345"
-            link-label="Show tokens"
+            .title=${"Bitcoin Wallet"}
+            .address=${"bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh"}
+            .ticker=${"BTC"}
+            .ledgerId=${"bitcoin"}
+            .currencyId=${"bitcoin"}
+            .balance=${"0.12345"}
+            .linkLabel=${"Show tokens"}
           ></ledger-account-item>
           <ledger-account-item
-            title="Polygon Account"
-            address="0xabcdef1234567890abcdef1234567890abcdef12"
-            ticker="MATIC"
-            ledger-id="polygon"
-            balance="156.789"
-            link-label="Show tokens"
+            .title=${"Polygon Account"}
+            .address=${"0xabcdef1234567890abcdef1234567890abcdef12"}
+            .ticker=${"MATIC"}
+            .ledgerId=${"polygon"}
+            .currencyId=${"polygon"}
+            .balance=${"156.789"}
+            .linkLabel=${"Show tokens"}
           ></ledger-account-item>
           <ledger-account-item
-            title="Simple Account"
-            address="0x1111222233334444555566667777888899990000"
-            ticker="ETH"
-            ledger-id="ethereum"
-            balance="0.001"
-            link-label=""
+            .title=${"Simple Account"}
+            .address=${"0x1111222233334444555566667777888899990000"}
+            .ticker=${"ETH"}
+            .ledgerId=${"ethereum"}
+            .currencyId=${"ethereum"}
+            .balance=${"0.001"}
+            .linkLabel=${""}
           ></ledger-account-item>
         </div>
       </div>
@@ -386,7 +529,8 @@ export const TestInteractions: Story = {
     ledgerId: "ethereum",
     balance: "1.234",
     linkLabel: "Show tokens",
-    hasTokens: true,
+    tokens: 5,
+    currencyId: "ethereum",
   },
   play: async ({ canvasElement, step }) => {
     await step("Verify component renders correctly", async () => {

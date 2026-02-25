@@ -6,6 +6,7 @@ import type { CounterValueDataSource } from "../../balance/datasource/counterval
 import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { enrichWithLoadingStates } from "../accountFiatUtils.js";
 import type {
   Account,
   AccountWithFiat,
@@ -32,9 +33,15 @@ export class HydrateAccountWithFiatUseCase {
   ): Promise<AccountWithFiat> {
     this.logHydrationStart(account);
 
-    const balance = account.balance;
-    if (!balance) {
-      return this.skipHydration(account, "No balance found");
+    const balance = account.balance ?? "0";
+    const balanceNum = parseFloat(balance);
+    if (Number.isNaN(balanceNum) || balanceNum === 0) {
+      const currency = targetCurrency.toUpperCase();
+      return enrichWithLoadingStates({
+        ...account,
+        fiatBalance: { value: "0.00", currency },
+        fiatError: false,
+      });
     }
 
     const counterValuesResult = await this.fetchCounterValues(
@@ -42,10 +49,14 @@ export class HydrateAccountWithFiatUseCase {
       targetCurrency,
     );
 
-    return counterValuesResult.caseOf({
+    return counterValuesResult.caseOf<AccountWithFiat>({
       Left: (error) => {
         this.logger.warn("Failed to fetch counter values", { error });
-        return { ...account, fiatBalance: undefined };
+        return enrichWithLoadingStates({
+          ...account,
+          fiatBalance: undefined,
+          fiatError: true,
+        });
       },
       Right: (counterValues) => {
         const currency = targetCurrency.toUpperCase();
@@ -64,11 +75,12 @@ export class HydrateAccountWithFiatUseCase {
 
         this.logHydrationSuccess(accountFiatBalance, tokensWithFiat, currency);
 
-        return {
+        return enrichWithLoadingStates({
           ...account,
           fiatBalance: accountFiatBalance,
+          fiatError: false,
           tokens: tokensWithFiat,
-        };
+        });
       },
     });
   }
@@ -79,11 +91,6 @@ export class HydrateAccountWithFiatUseCase {
       currencyId: account.currencyId,
       tokenCount: account.tokens.length,
     });
-  }
-
-  private skipHydration(account: Account, reason: string): AccountWithFiat {
-    this.logger.debug(`${reason}, skipping fiat hydration`);
-    return { ...account, fiatBalance: undefined };
   }
 
   private async fetchCounterValues(
