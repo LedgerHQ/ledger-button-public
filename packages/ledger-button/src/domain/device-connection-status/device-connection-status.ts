@@ -84,8 +84,8 @@ export class DeviceConnectionStatusScreen extends LitElement {
       ];
 
     return html`
-      <div class="lb-flex lb-h-full lb-flex-col">
-        <div class="lb-flex lb-flex-1 lb-items-center lb-justify-center">
+      <div class="flex h-full flex-col">
+        <div class="flex flex-1 items-center justify-center">
           <ledger-info-state
             device=${device?.iconType}
             title="${lang.common.device.deviceActions.continueOnLedger

@@ -103,10 +103,10 @@ export class LedgerWalletRedirectDrawer extends LitElement {
     return html`
       <ledger-drawer @drawer-close=${this.handleDrawerClose}>
         <div
-          class="lb-flex lb-flex-col lb-items-center lb-gap-32 lb-text-center"
+          class="flex flex-col items-center gap-32 text-center"
         >
           <div
-            class="lb-flex lb-h-64 lb-w-64 lb-items-center lb-justify-center lb-rounded-full lb-bg-muted-transparent"
+            class="flex h-64 w-64 items-center justify-center rounded-full bg-muted-transparent"
           >
             <ledger-icon
               type="info"
@@ -115,12 +115,12 @@ export class LedgerWalletRedirectDrawer extends LitElement {
             ></ledger-icon>
           </div>
 
-          <div class="lb-flex lb-flex-col lb-gap-12">
-            <h3 class="lb-font-semibold lb-text-base lb-heading-4">${title}</h3>
-            <p class="lb-text-muted lb-opacity-60 lb-body-1">${description}</p>
+          <div class="flex flex-col gap-12">
+            <h3 class="font-semibold text-base heading-4">${title}</h3>
+            <p class="text-muted opacity-60 body-1">${description}</p>
           </div>
 
-          <div class="lb-flex lb-w-full lb-flex-col lb-gap-12">
+          <div class="flex w-full flex-col gap-12">
             <ledger-button
               variant="primary"
               size="full"

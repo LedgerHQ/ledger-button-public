@@ -61,29 +61,29 @@ const styles = css`
 const centerContainerClasses = {
   "modal-container": true,
   "modal-container--center": true,
-  "lb-fixed": true,
-  "lb-inset-0": true,
-  "lb-flex": true,
-  "lb-flex-col": true,
-  "lb-self-center": true,
-  "lb-justify-self-center": true,
-  "lb-overflow-hidden": true,
-  "lb-bg-canvas-sheet": true,
-  "lb-rounded-2xl": true,
+  "fixed": true,
+  "inset-0": true,
+  "flex": true,
+  "flex-col": true,
+  "self-center": true,
+  "justify-self-center": true,
+  "overflow-hidden": true,
+  "bg-canvas-sheet": true,
+  "rounded-2xl": true,
 };
 
 const panelContainerClasses = {
   "modal-container": true,
   "modal-container--panel": true,
-  "lb-fixed": true,
-  "lb-right-0": true,
-  "lb-top-0": true,
-  "lb-flex": true,
-  "lb-flex-col": true,
-  "lb-overflow-hidden": true,
-  "lb-bg-canvas-sheet": true,
-  "lb-rounded-2xl": true,
-  "lb-m-16": true,
+  "fixed": true,
+  "right-0": true,
+  "top-0": true,
+  "flex": true,
+  "flex-col": true,
+  "overflow-hidden": true,
+  "bg-canvas-sheet": true,
+  "rounded-2xl": true,
+  "m-16": true,
 };
 
 @customElement("ledger-modal")
@@ -215,7 +215,7 @@ export class LedgerModal extends LitElement {
     return html`
       <div
         id="modal-content"
-        class="lb-relative lb-flex-1 lb-overflow-y-auto lb-text-base"
+        class="relative flex-1 overflow-y-auto text-base"
       >
         <slot>hello</slot>
       </div>

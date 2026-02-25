@@ -48,24 +48,24 @@ export class ConsentAnalyticsScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-24 lb-p-24 lb-pt-8">
-        <div class="lb-rounded-md lb-bg-muted lb-p-12">
-          <p class="lb-leading-relaxed lb-text-muted lb-body-2">
+      <div class="flex flex-col gap-24 p-24 pt-8">
+        <div class="rounded-md bg-muted p-12">
+          <p class="leading-relaxed text-muted body-2">
             ${consent.description}
           </p>
-          <p class="lb-leading-relaxed lb-mt-12 lb-text-muted lb-body-2">
+          <p class="leading-relaxed mt-12 text-muted body-2">
             ${consent.privacyNotice}
             <a
               href="https://www.ledger.com/privacy-policy"
               target="_blank"
               rel="noopener noreferrer"
-              class="lb-underline"
+              class="underline"
               >${consent.privacyPolicyLink}</a
             >.
           </p>
         </div>
 
-        <div class="lb-grid lb-gap-12" style="grid-template-columns: 1fr 1fr;">
+        <div class="grid gap-12" style="grid-template-columns: 1fr 1fr;">
           <ledger-button
             variant="secondary"
             size="full"

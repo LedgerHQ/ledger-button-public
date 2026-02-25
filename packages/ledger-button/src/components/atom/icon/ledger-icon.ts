@@ -87,10 +87,10 @@ export class LedgerIcon extends LitElement {
 
   private get iconClasses(): string {
     const sizeClasses: { [key: string]: string } = {
-      small: "lb-w-16 lb-h-16",
-      20: "lb-w-20 lb-h-20",
-      medium: "lb-w-24 lb-h-24",
-      large: "lb-w-32 lb-h-32",
+      small: "w-16 h-16",
+      20: "w-20 h-20",
+      medium: "w-24 h-24",
+      large: "w-32 h-32",
     };
 
     return sizeClasses[this.size];
@@ -134,7 +134,7 @@ export class LedgerIcon extends LitElement {
       role="img"
       style="fill: ${this.fillColor ?? "black"}; color: ${this.fillColor ??
       "black"};"
-      class="${this.iconClasses} lb-flex lb-items-center lb-justify-center"
+      class="${this.iconClasses} flex items-center justify-center"
     >
       ${renderIcon()}
     </div> `;

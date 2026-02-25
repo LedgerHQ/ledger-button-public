@@ -136,16 +136,16 @@ describe("scopeCssSelectors", () => {
       expect(output).toContain(".ledger-wallet-provider input {");
     });
 
-    test("should scope multiple element selectors", () => {
+    test("should scope all element selectors in comma-separated rules", () => {
       const input = `h1, h2, h3 {
   font-weight: bold;
 }`;
 
       const output = scopeCssSelectors(input);
 
-      // Note: Current implementation only scopes the first element in multi-selector rules
       expect(output).toContain(".ledger-wallet-provider h1");
-      expect(output).toContain("h2, h3");
+      expect(output).toContain(".ledger-wallet-provider h2");
+      expect(output).toContain(".ledger-wallet-provider h3");
     });
   });
 
@@ -211,7 +211,7 @@ describe("scopeCssSelectors", () => {
   });
 
   describe("placeholder selector scoping", () => {
-    test("should scope input and textarea placeholder selectors", () => {
+    test("should scope all placeholder selectors in comma-separated list", () => {
       const input = `input::placeholder, textarea::placeholder {
   opacity: 1;
 }`;
@@ -219,8 +219,9 @@ describe("scopeCssSelectors", () => {
       const output = scopeCssSelectors(input);
 
       expect(output).toContain(".ledger-wallet-provider input::placeholder");
-      // Note: Current implementation only scopes the first selector in comma-separated lists
-      expect(output).toContain("textarea::placeholder");
+      expect(output).toContain(
+        ".ledger-wallet-provider textarea::placeholder",
+      );
     });
   });
 
@@ -271,8 +272,7 @@ button, input {
       expect(output).toMatch(/\.ledger-wallet-provider\s*{/);
       expect(output).toContain(".ledger-wallet-provider body {");
       expect(output).toContain(".ledger-wallet-provider button");
-      // Note: Current implementation only scopes the first element in multi-selector rules
-      expect(output).toContain("input");
+      expect(output).toContain(".ledger-wallet-provider input");
       expect(output).not.toContain(":root");
       expect(output).not.toContain("html {");
     });
@@ -288,8 +288,87 @@ button, input {
 
       const output = scopeCssSelectors(input);
 
-      expect(output).toContain(".ledger-wallet-provider .some-class");
-      expect(output).toContain(".some-other-class");
+      expect(output).toContain(".ledger-wallet-provider .some-class {");
+      expect(output).not.toContain(
+        ".ledger-wallet-provider .ledger-wallet-provider .some-class",
+      );
+      expect(output).toContain(
+        ".ledger-wallet-provider .some-other-class {",
+      );
+    });
+  });
+
+  describe("utility class scoping", () => {
+    test("should scope simple utility classes", () => {
+      const input = `  .flex {
+    display: flex;
+  }
+  .hidden {
+    display: none;
+  }`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider .flex {");
+      expect(output).toContain(".ledger-wallet-provider .hidden {");
+    });
+
+    test("should scope escaped utility classes", () => {
+      const input = `  .hover\\:bg-accent-hover {
+    &:hover {
+      background-color: var(--background-accent-hover);
+    }
+  }`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(
+        ".ledger-wallet-provider .hover\\:bg-accent-hover {",
+      );
+      expect(output).not.toMatch(/\.ledger-wallet-provider\s+&:hover/);
+    });
+
+    test("should scope utility classes inside @layer", () => {
+      const input = `@layer utilities {
+  .flex {
+    display: flex;
+  }
+  .bg-active {
+    background-color: var(--background-active);
+  }
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider .flex {");
+      expect(output).toContain(".ledger-wallet-provider .bg-active {");
+    });
+
+    test("should not scope & nesting selectors", () => {
+      const input = `  .group-hover\\:translate-x-1 {
+    &:is(:where(.group):hover *) {
+      translate: 0.25rem;
+    }
+  }`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(
+        ".ledger-wallet-provider .group-hover\\:translate-x-1 {",
+      );
+      expect(output).toContain("&:is(:where(.group):hover *) {");
+    });
+
+    test("should not double-scope .ledger-wallet-provider selectors", () => {
+      const input = `.ledger-wallet-provider .some-class {
+  color: blue;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).not.toContain(
+        ".ledger-wallet-provider .ledger-wallet-provider",
+      );
     });
   });
 
@@ -299,7 +378,7 @@ button, input {
       expect(output).toBe("");
     });
 
-    test("should handle CSS without global selectors", () => {
+    test("should scope class selectors but not ID selectors", () => {
       const input = `.my-class {
   color: red;
 }
@@ -310,7 +389,9 @@ button, input {
 
       const output = scopeCssSelectors(input);
 
-      expect(output).toBe(input);
+      expect(output).toContain(".ledger-wallet-provider .my-class {");
+      expect(output).toContain("#my-id {");
+      expect(output).not.toContain(".ledger-wallet-provider #my-id");
     });
 
     test("should handle CSS with comments", () => {
@@ -324,6 +405,210 @@ button, input {
       expect(output).toContain("/* Comment */");
       expect(output).toContain(".ledger-wallet-provider {");
       expect(output).not.toContain(":root");
+    });
+  });
+
+  describe("Tailwind v4 specific patterns", () => {
+    test("should scope :root, :host selector", () => {
+      const input = `:root, :host {
+  --default-font-family: "Inter", sans-serif;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider, :host {");
+      expect(output).not.toContain(":root");
+    });
+
+    test("should scope *, ::after, ::before, ::backdrop, ::file-selector-button", () => {
+      const input = `*, ::after, ::before, ::backdrop, ::file-selector-button {
+  box-sizing: border-box;
+  margin: 0;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider *");
+      expect(output).toContain(".ledger-wallet-provider ::after");
+      expect(output).toContain(".ledger-wallet-provider ::before");
+      expect(output).toContain(".ledger-wallet-provider::backdrop");
+      expect(output).toContain(
+        ".ledger-wallet-provider ::file-selector-button",
+      );
+      expect(output).not.toMatch(/^\*,/m);
+    });
+
+    test("should scope html, :host selector", () => {
+      const input = `html, :host {
+  line-height: 1.5;
+  font-family: var(--default-font-family);
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider, :host {");
+      expect(output).not.toContain("html,");
+      expect(output).not.toContain("html {");
+    });
+
+    test("should scope complex comma-separated selectors with :where()", () => {
+      const input = `button, input:where([type='button'], [type='reset'], [type='submit']), ::file-selector-button {
+  appearance: button;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider button");
+      expect(output).toContain(
+        ".ledger-wallet-provider input:where([type='button'], [type='reset'], [type='submit'])",
+      );
+      expect(output).toContain(
+        ".ledger-wallet-provider ::file-selector-button",
+      );
+    });
+
+    test("should pass through @property blocks unchanged", () => {
+      const input = `@property --tw-translate-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
+@property --tw-shadow {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0 0 #0000;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain("@property --tw-translate-x {");
+      expect(output).toContain('syntax: "*";');
+      expect(output).toContain("inherits: false;");
+      expect(output).toContain("initial-value: 0;");
+      expect(output).toContain("@property --tw-shadow {");
+      expect(output).not.toContain(".ledger-wallet-provider");
+    });
+
+    test("should scope selectors inside @layer base", () => {
+      const input = `@layer base {
+  :root {
+    --color-grey-100: #fafafa;
+    --color-grey-200: #f1f1f1;
+  }
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain("@layer base {");
+      expect(output).toContain(".ledger-wallet-provider {");
+      expect(output).not.toContain(":root");
+      expect(output).toContain("--color-grey-100: #fafafa;");
+    });
+
+    test("should scope selectors inside @supports blocks", () => {
+      const input = `@supports (not (-webkit-appearance: -apple-pay-button)) {
+  ::placeholder {
+    color: currentcolor;
+  }
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain("@supports");
+      expect(output).toContain(
+        ".ledger-wallet-provider ::placeholder {",
+      );
+    });
+
+    test("should scope selectors inside @layer properties @supports fallback", () => {
+      const input = `@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-translate-x: 0;
+    }
+  }
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain("@layer properties {");
+      expect(output).toContain("@supports");
+      expect(output).toContain(".ledger-wallet-provider *");
+      expect(output).toContain(".ledger-wallet-provider ::before");
+      expect(output).toContain(".ledger-wallet-provider ::after");
+      expect(output).toContain(".ledger-wallet-provider::backdrop");
+    });
+
+    test("should handle CSS nesting with & for hover variants", () => {
+      const input = `.hover\\:bg-accent-hover {
+  &:hover {
+    @media (hover: hover) {
+      background-color: var(--background-accent-hover);
+    }
+  }
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(
+        ".ledger-wallet-provider .hover\\:bg-accent-hover {",
+      );
+      expect(output).toContain("&:hover {");
+      expect(output).toContain("@media (hover: hover) {");
+    });
+
+    test("should pass through @layer declarations", () => {
+      const input = `@layer properties;
+:root, :host {
+  --font: "Inter";
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain("@layer properties;");
+      expect(output).toContain(".ledger-wallet-provider, :host {");
+    });
+
+    test("should scope [hidden]:where(:not([hidden='until-found'])) selector", () => {
+      const input = `[hidden]:where(:not([hidden='until-found'])) {
+  display: none !important;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(
+        ".ledger-wallet-provider [hidden]:where(:not([hidden='until-found'])) {",
+      );
+    });
+
+    test("should scope :where() selectors with nested structure", () => {
+      const input = `:where(select:is([multiple], [size])) optgroup {
+  font-weight: bolder;
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(
+        ".ledger-wallet-provider :where(select:is([multiple], [size])) optgroup {",
+      );
+    });
+
+    test("should scope container class with nested @media", () => {
+      const input = `.container {
+  width: 100%;
+  @media (width >= 360px) {
+    max-width: 360px;
+  }
+  @media (width >= 640px) {
+    max-width: 640px;
+  }
+}`;
+
+      const output = scopeCssSelectors(input);
+
+      expect(output).toContain(".ledger-wallet-provider .container {");
+      expect(output).toContain("@media (width >= 360px) {");
+      expect(output).toContain("max-width: 360px;");
     });
   });
 });

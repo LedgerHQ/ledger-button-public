@@ -198,9 +198,9 @@ export class LedgerHomeScreen extends LitElement {
   override render() {
     if (this.controller.loading) {
       return html`
-        <div class="lb-h-full lb-min-h-full lb-overflow-hidden">
+        <div class="h-full min-h-full overflow-hidden">
           <ledger-lottie
-            class="animation lb-overflow-hidden"
+            class="animation overflow-hidden"
             animationName="backgroundFlare"
             .autoplay=${true}
             .loop=${true}
@@ -219,14 +219,14 @@ export class LedgerHomeScreen extends LitElement {
     const lang = this.languages.currentTranslation;
 
     return html`
-      <div class="lb-relative lb-h-full">
+      <div class="relative h-full">
         <div
-          class="lb-flex lb-flex-col lb-items-stretch lb-gap-12 lb-p-24 lb-pt-0"
+          class="flex flex-col items-stretch gap-12 p-24 pt-0"
         >
           <div
-            class="lb-flex lb-flex-col lb-gap-24 lb-rounded-md lb-bg-muted lb-p-16"
+            class="flex flex-col gap-24 rounded-md bg-muted p-16"
           >
-            <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
+            <div class="flex flex-row items-center justify-between">
               <ledger-account-switch
                 .account=${account}
                 @account-switch=${this.handleAccountItemClick}
@@ -249,7 +249,7 @@ export class LedgerHomeScreen extends LitElement {
             @wallet-action-click=${this.handleWalletActionClick}
           ></ledger-wallet-actions>
 
-          <div class="lb-mt-12">
+          <div class="mt-12">
             <ledger-tabs
               .tabs=${[
                 { id: "tokens", label: "Tokens" },

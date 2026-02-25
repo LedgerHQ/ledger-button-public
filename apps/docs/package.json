@@ -27,7 +27,7 @@
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {
-    "autoprefixer": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:react18",
     "globals": "catalog:"
