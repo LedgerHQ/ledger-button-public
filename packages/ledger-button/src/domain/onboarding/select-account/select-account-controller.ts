@@ -1,6 +1,9 @@
 import "../../../shared/root-navigation.js";
 
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  Account,
+  AccountWithFiat,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
@@ -9,16 +12,13 @@ import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
-type BalanceLoadingState = "loading" | "loaded" | "error";
-
 export class SelectAccountController implements ReactiveController {
-  accounts: Account[] = [];
+  accounts: AccountWithFiat[] = [];
   isAccountsLoading = false;
-  balanceLoadingStates = new Map<string, BalanceLoadingState>();
   searchQuery = "";
   private accountsSubscription?: Subscription;
 
-  get filteredAccounts(): Account[] {
+  get filteredAccounts(): AccountWithFiat[] {
     const query = this.searchQuery.toLowerCase().trim();
     if (!query) {
       return this.accounts;
@@ -54,8 +54,6 @@ export class SelectAccountController implements ReactiveController {
   }
 
   getAccounts() {
-    console.log("select-account-controller: getAccounts");
-
     if (this.accountsSubscription) {
       this.accountsSubscription.unsubscribe();
     }
@@ -63,55 +61,45 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts().subscribe({
+    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
       next: (accounts) => {
         this.accounts = accounts;
-        this.updateBalanceLoadingStates(accounts);
-        if (this.isAccountsLoading) {
-          this.isAccountsLoading = false;
-        }
+        this.isAccountsLoading = false;
         this.host.requestUpdate();
       },
       error: (error) => {
         this.isAccountsLoading = false;
-        console.error("Failed to fetch accounts with balance", error);
+        console.error("Failed to fetch accounts", error);
+        this.host.requestUpdate();
+      },
+      complete: () => {
         this.host.requestUpdate();
       },
     });
   }
 
-  private updateBalanceLoadingStates(accounts: Account[]) {
-    for (const account of accounts) {
-      if (account.balance !== undefined) {
-        this.balanceLoadingStates.set(account.id, "loaded");
-      } else {
-        const currentState = this.balanceLoadingStates.get(account.id);
-        if (currentState !== "error") {
-          this.balanceLoadingStates.set(account.id, "loading");
-        }
-      }
-    }
-  }
-
-  setBalanceLoadingState(accountId: string, state: BalanceLoadingState): void {
-    this.balanceLoadingStates.set(accountId, state);
-    this.host.requestUpdate();
-  }
-
-  getBalanceLoadingState(accountId: string): BalanceLoadingState | undefined {
-    return this.balanceLoadingStates.get(accountId);
-  }
-
   isAccountBalanceLoading(accountId: string): boolean {
-    return this.balanceLoadingStates.get(accountId) === "loading";
-  }
-
-  isAccountBalanceLoaded(accountId: string): boolean {
-    return this.balanceLoadingStates.get(accountId) === "loaded";
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.balanceLoadingState === "loading";
   }
 
   hasAccountBalanceError(accountId: string): boolean {
-    return this.balanceLoadingStates.get(accountId) === "error";
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.balanceLoadingState === "error";
+  }
+
+  isAccountFiatLoading(accountId: string): boolean {
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.fiatLoadingState === "loading";
+  }
+
+  hasAccountFiatError(accountId: string): boolean {
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.fiatLoadingState === "error";
+  }
+
+  getAccountFiatValue(accountId: string) {
+    return this.accounts.find((acc) => acc.id === accountId)?.fiatBalance;
   }
 
   selectAccount(account: Account) {
@@ -121,9 +109,7 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  handleAccountItemClick(
-    event: CustomEvent<AccountItemClickEventDetail>,
-  ) {
+  handleAccountItemClick(event: CustomEvent<AccountItemClickEventDetail>) {
     const account = this.accounts.find(
       (acc: Account) => acc.id === event.detail.ledgerId,
     );

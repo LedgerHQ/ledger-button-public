@@ -61,12 +61,36 @@ describe("HydrateAccountWithFiatUseCase", () => {
 
   describe("execute", () => {
     describe("when account has no balance", () => {
-      it("should return account with undefined fiatBalance", async () => {
+      it("should return account with $0.00 fiatBalance and no error", async () => {
         const result = await useCase.execute(accountWithoutBalance);
 
         expect(result).toEqual({
           ...accountWithoutBalance,
-          fiatBalance: undefined,
+          fiatBalance: { value: "0.00", currency: "USD" },
+          fiatError: false,
+          balanceLoadingState: "loading",
+          fiatLoadingState: "loaded",
+        });
+        expect(
+          mockCounterValueDataSource.getCounterValues,
+        ).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when account has zero balance", () => {
+      it("should return account with $0.00 fiatBalance and no error", async () => {
+        const accountWithZeroBalance: Account = {
+          ...baseAccount,
+          balance: "0",
+        };
+        const result = await useCase.execute(accountWithZeroBalance);
+
+        expect(result).toEqual({
+          ...accountWithZeroBalance,
+          fiatBalance: { value: "0.00", currency: "USD" },
+          fiatError: false,
+          balanceLoadingState: "loaded",
+          fiatLoadingState: "loaded",
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
@@ -75,7 +99,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
     });
 
     describe("when counter value fetch fails", () => {
-      it("should return account with undefined fiatBalance", async () => {
+      it("should return account with undefined fiatBalance and fiatError true", async () => {
         mockCounterValueDataSource.getCounterValues.mockResolvedValue(
           Left(new Error("Network error")),
         );
@@ -85,6 +109,9 @@ describe("HydrateAccountWithFiatUseCase", () => {
         expect(result).toEqual({
           ...baseAccount,
           fiatBalance: undefined,
+          fiatError: true,
+          balanceLoadingState: "loaded",
+          fiatLoadingState: "error",
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
@@ -103,6 +130,9 @@ describe("HydrateAccountWithFiatUseCase", () => {
         expect(result).toEqual({
           ...baseAccount,
           fiatBalance: undefined,
+          fiatError: false,
+          balanceLoadingState: "loaded",
+          fiatLoadingState: "loading",
         });
       });
     });
@@ -124,6 +154,9 @@ describe("HydrateAccountWithFiatUseCase", () => {
             value: "6251.25",
             currency: "USD",
           },
+          fiatError: false,
+          balanceLoadingState: "loaded",
+          fiatLoadingState: "loaded",
         });
         expect(
           mockCounterValueDataSource.getCounterValues,

@@ -1,4 +1,7 @@
-export { type EIPEvent, EventLogBlock } from "./EventLogBlock";
+export { type ActivityEntry, ActivityLog } from "./ActivityLog";
+export { ConnectionStatus } from "./ConnectionStatus";
+export { type EIPEvent } from "./EventLogBlock";
+export { Providers } from "./Providers";
 export { ProviderSelectionBlock } from "./ProviderSelectionBlock";
 export { QuickActionsBlock } from "./QuickActionsBlock";
 export { SettingsBlock } from "./SettingsBlock";

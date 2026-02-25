@@ -40,8 +40,13 @@ export type AccountUpdate = {
   account: Account;
 };
 
+export type LoadingState = "loading" | "loaded" | "error";
+
 export type AccountWithFiat = Account & {
   fiatBalance: FiatBalance | undefined;
+  fiatError: boolean;
+  balanceLoadingState: LoadingState;
+  fiatLoadingState: LoadingState;
 };
 
 export type DetailedAccount = Account & {
