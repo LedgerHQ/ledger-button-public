@@ -63,11 +63,13 @@ export function SettingsBlock({
   const [lastAppliedConfig, setLastAppliedConfig] =
     useState<LedgerProviderConfig>(config);
   const [customDappId, setCustomDappId] = useState("");
-
-  const isPresetDapp = DAPP_IDENTIFIERS.some(
-    (d) => d.value !== "custom" && d.value === localConfig.dAppIdentifier,
+  const [isCustomDapp, setIsCustomDapp] = useState(() =>
+    !DAPP_IDENTIFIERS.some(
+      (d) => d.value !== "custom" && d.value === config.dAppIdentifier,
+    ),
   );
-  const dappSelectValue = isPresetDapp ? localConfig.dAppIdentifier : "custom";
+
+  const dappSelectValue = isCustomDapp ? "custom" : localConfig.dAppIdentifier;
 
   const handleInputChange = useCallback(
     (field: keyof LedgerProviderConfig, value: string) => {
@@ -82,8 +84,10 @@ export function SettingsBlock({
   const handleDappSelectChange = useCallback(
     (value: string) => {
       if (value === "custom") {
+        setIsCustomDapp(true);
         setCustomDappId(localConfig.dAppIdentifier);
       } else {
+        setIsCustomDapp(false);
         handleInputChange("dAppIdentifier", value);
       }
     },
