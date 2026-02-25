@@ -21,6 +21,12 @@ interface SettingsBlockProps {
   onReinitialize: (newConfig?: LedgerProviderConfig) => void;
 }
 
+const DAPP_IDENTIFIERS = [
+  { value: "ledger", label: "Ledger" },
+  { value: "1inch", label: "1inch" },
+  { value: "custom", label: "Custom…" },
+];
+
 const BUTTON_POSITIONS = [
   { value: "bottom-right", label: "Bottom Right" },
   { value: "bottom-left", label: "Bottom Left" },
@@ -51,6 +57,12 @@ export function SettingsBlock({
   const [localConfig, setLocalConfig] = useState<LedgerProviderConfig>(config);
   const [lastAppliedConfig, setLastAppliedConfig] =
     useState<LedgerProviderConfig>(config);
+  const [customDappId, setCustomDappId] = useState("");
+
+  const isPresetDapp = DAPP_IDENTIFIERS.some(
+    (d) => d.value !== "custom" && d.value === localConfig.dAppIdentifier,
+  );
+  const dappSelectValue = isPresetDapp ? localConfig.dAppIdentifier : "custom";
 
   const handleInputChange = useCallback(
     (field: keyof LedgerProviderConfig, value: string) => {
@@ -60,6 +72,25 @@ export function SettingsBlock({
       }));
     },
     [],
+  );
+
+  const handleDappSelectChange = useCallback(
+    (value: string) => {
+      if (value === "custom") {
+        setCustomDappId(localConfig.dAppIdentifier);
+      } else {
+        handleInputChange("dAppIdentifier", value);
+      }
+    },
+    [localConfig.dAppIdentifier, handleInputChange],
+  );
+
+  const handleCustomDappChange = useCallback(
+    (value: string) => {
+      setCustomDappId(value);
+      handleInputChange("dAppIdentifier", value);
+    },
+    [handleInputChange],
   );
 
   const handleApply = useCallback(() => {
@@ -94,15 +125,30 @@ export function SettingsBlock({
       {isExpanded && (
         <div className="p-24 border-t border-dashed border-muted bg-canvas space-y-16">
           <div className="grid grid-cols-2 gap-14">
-            <TextInput
-              label="dApp Identifier"
-              type="text"
-              value={localConfig.dAppIdentifier}
-              onChange={(e) =>
-                handleInputChange("dAppIdentifier", e.target.value)
-              }
-              placeholder="e.g., 1inch"
-            />
+            <div className="flex flex-col gap-10">
+              <Select
+                value={dappSelectValue}
+                onValueChange={handleDappSelectChange}
+              >
+                <SelectTrigger label="dApp identifier" />
+                <SelectContent>
+                  {DAPP_IDENTIFIERS.map((dapp) => (
+                    <SelectItem key={dapp.value} value={dapp.value}>
+                      <SelectItemText>{dapp.label}</SelectItemText>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {dappSelectValue === "custom" && (
+                <TextInput
+                  label="Custom identifier"
+                  type="text"
+                  value={customDappId}
+                  onChange={(e) => handleCustomDappChange(e.target.value)}
+                  placeholder="Enter custom dApp identifier"
+                />
+              )}
+            </div>
 
             <TextInput
               label="API Key"
