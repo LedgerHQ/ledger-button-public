@@ -95,7 +95,7 @@ export class LedgerSearchInput extends LitElement {
 
     return html`
       <button
-        class="lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-rounded-full lb-border-none lb-bg-transparent lb-p-4 hover:lb-bg-muted-hover active:lb-bg-muted-pressed"
+        class="flex cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-4 hover:bg-muted-hover active:bg-muted-pressed"
         @click=${this.handleClear}
         aria-label="Clear search"
         tabindex="-1"
@@ -111,9 +111,9 @@ export class LedgerSearchInput extends LitElement {
 
   override render() {
     const containerClasses = {
-      "lb-flex lb-h-48 lb-items-center lb-gap-8 lb-self-stretch lb-rounded-sm lb-px-16 lb-bg-muted lb-text-muted lb-body-1":
+      "flex h-48 items-center gap-8 self-stretch rounded-sm px-16 bg-muted text-muted body-1":
         true,
-      "lb-opacity-50 lb-cursor-not-allowed": this.disabled,
+      "opacity-50 cursor-not-allowed": this.disabled,
     };
 
     return html`
@@ -122,11 +122,11 @@ export class LedgerSearchInput extends LitElement {
           type="search"
           size="small"
           fillColor="white"
-          class="lb-flex-shrink-0"
+          class="flex-shrink-0"
         ></ledger-icon>
         <input
           type="text"
-          class="lb-text-base lb-body-1"
+          class="text-base body-1"
           .value=${this.value}
           placeholder=${this.placeholder}
           ?disabled=${this.disabled}

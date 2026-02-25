@@ -12,14 +12,14 @@ import StaxDeviceIcon from "./stax-device-icon.js";
 export type DeviceType = "nanox" | "stax" | "flex" | "apexp";
 
 const infoStateVariants = cva(
-  "lb-flex lb-flex-col lb-items-center lb-justify-center lb-text-center lb-text-base",
+  "flex flex-col items-center justify-center text-center text-base",
   {
     variants: {
       device: {
-        flex: "lb-p-24 lb-pt-0",
-        apexp: "lb-p-24 lb-pt-0",
-        nanox: "lb-p-20 lb-pt-0",
-        stax: "lb-p-28 lb-pt-0",
+        flex: "p-24 pt-0",
+        apexp: "p-24 pt-0",
+        nanox: "p-20 pt-0",
+        stax: "p-28 pt-0",
       },
     },
     defaultVariants: {
@@ -33,8 +33,8 @@ const deviceIconVariants = cva("", {
     device: {
       flex: "",
       apexp: "",
-      nanox: "lb-opacity-80",
-      stax: "lb-opacity-90",
+      nanox: "opacity-80",
+      stax: "opacity-90",
     },
   },
   defaultVariants: {
@@ -75,7 +75,7 @@ export class LedgerInfoState extends LitElement {
     return html`
       <div class="${infoStateVariants({ device: this.device })}">
         <div
-          class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-gap-32"
+          class="flex flex-col items-center justify-center gap-32"
         >
           <div
             class="${deviceIconVariants({ device: this.device })}"
@@ -84,10 +84,10 @@ export class LedgerInfoState extends LitElement {
             ${this.renderDeviceIcon()}
           </div>
           <div
-            class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-gap-16"
+            class="flex flex-col items-center justify-center gap-16"
           >
             <h4
-              class="lb-font-semibold lb-leading-tight lb-font-inter lb-text-base lb-heading-4"
+              class="font-semibold leading-tight font-inter text-base heading-4"
               data-testid="title"
             >
               ${this.title}
@@ -96,7 +96,7 @@ export class LedgerInfoState extends LitElement {
             ${this.subtitle
               ? html`
                   <p
-                    class="lb-font-normal lb-leading-relaxed lb-max-w-300 lb-font-inter lb-text-base lb-opacity-60 lb-body-1"
+                    class="font-normal leading-relaxed max-w-300 font-inter text-base opacity-60 body-1"
                     data-testid="subtitle"
                   >
                     ${this.subtitle}

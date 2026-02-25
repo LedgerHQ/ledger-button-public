@@ -424,7 +424,7 @@ export const TestNonClickableRendering: Story = {
       const chainItem = canvasElement.querySelector("ledger-chain-item");
       const button = chainItem?.shadowRoot?.querySelector("button");
       const div = chainItem?.shadowRoot?.querySelector(
-        "div.lb-flex.lb-min-w-full",
+        "div.flex.min-w-full",
       );
 
       expect(button).not.toBeInTheDocument();

@@ -8,17 +8,17 @@ import { classMap } from "lit/directives/class-map.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 const chainItemVariants = cva([
-  "lb-flex lb-min-w-full lb-items-center lb-justify-between lb-p-8",
-  "lb-bg-base-transparent lb-transition lb-duration-150 lb-ease-in-out",
+  "flex min-w-full items-center justify-between p-8",
+  "bg-base-transparent transition duration-150 ease-in-out",
 ]);
 
 const clickableVariants = cva([], {
   variants: {
     clickable: {
       true: [
-        "lb-cursor-pointer lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-base-transparent-hover",
+        "cursor-pointer transition duration-150 ease-in-out hover:bg-base-transparent-hover",
       ],
-      false: ["lb-cursor-default"],
+      false: ["cursor-default"],
     },
   },
 });
@@ -109,7 +109,7 @@ export class LedgerChainItem extends LitElement {
       this.iconVariant ?? (this.type === "token" ? "rounded" : "square");
 
     return html`
-      <div class="lb-flex lb-items-center lb-gap-12">
+      <div class="flex items-center gap-12">
         <ledger-crypto-icon
           ledger-id=${this.ledgerId}
           variant=${iconVariant}
@@ -117,14 +117,14 @@ export class LedgerChainItem extends LitElement {
           ticker=${this.ticker}
           alt=${this.title.substring(0, 1)}
         ></ledger-crypto-icon>
-        <div class="lb-flex lb-flex-col lb-gap-4 lb-text-left">
+        <div class="flex flex-col gap-4 text-left">
           ${this.title
-            ? html`<span class="lb-text-base lb-body-2-semi-bold"
+            ? html`<span class="text-base body-2-semi-bold"
                 >${this.title}</span
               >`
             : nothing}
           ${this.subtitle
-            ? html`<span class="lb-text-muted lb-body-3"
+            ? html`<span class="text-muted body-3"
                 >${this.subtitle}</span
               >`
             : nothing}
@@ -136,14 +136,14 @@ export class LedgerChainItem extends LitElement {
   private renderRightSection() {
     return html`
       <div
-        class="lb-flex lb-flex-col lb-items-end lb-justify-center lb-text-right"
+        class="flex flex-col items-end justify-center text-right"
       >
         ${this.fiatValue
-          ? html`<span class="lb-text-base lb-body-2-semi-bold"
+          ? html`<span class="text-base body-2-semi-bold"
               >${this.fiatValue}</span
             >`
           : nothing}
-        <span class="lb-text-muted lb-body-3"
+        <span class="text-muted body-3"
           >${this.value} ${this.ticker}</span
         >
       </div>
@@ -153,7 +153,7 @@ export class LedgerChainItem extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-flex lb-min-w-full lb-flex-col lb-overflow-hidden lb-rounded-md"
+        class="flex min-w-full flex-col overflow-hidden rounded-md"
       >
         ${this.isClickable
           ? html`

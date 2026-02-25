@@ -18,7 +18,7 @@ export type DeviceModelId =
   | "apexp";
 
 const iconContainerVariants = cva([
-  "lb-flex lb-h-24 lb-w-24 lb-items-center lb-justify-center lb-rounded-full",
+  "flex h-24 w-24 items-center justify-center rounded-full",
   "bg-muted-transparent",
 ]);
 

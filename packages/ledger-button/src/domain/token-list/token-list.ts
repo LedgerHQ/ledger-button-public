@@ -43,7 +43,7 @@ export class TokenListScreen extends LitElement {
   }
 
   private renderDivider() {
-    return html`<div class="lb-h-1 lb-bg-muted-subtle"></div>`;
+    return html`<div class="h-1 bg-muted-subtle"></div>`;
   }
 
   private renderTokenItem = (token: Token) => {
@@ -71,7 +71,7 @@ export class TokenListScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-flex-col">
+      <div class="flex flex-col">
         ${this.controller.account.tokens.map(this.renderTokenItem)}
       </div>
     `;
@@ -81,15 +81,15 @@ export class TokenListScreen extends LitElement {
     if (!this.controller?.account) {
       return html`
         <div
-          class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-32"
+          class="flex flex-col items-center justify-center py-32"
         >
-          <span class="lb-text-muted lb-body-2">Loading...</span>
+          <span class="text-muted body-2">Loading...</span>
         </div>
       `;
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12">
+      <div class="flex flex-col gap-12">
         ${this.renderNativeCoin()} ${this.renderDivider()}
         ${this.renderTokenList()}
       </div>

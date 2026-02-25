@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@ledgerhq/ldls-design-core": "catalog:",
+    "@ledgerhq/lumen-design-core": "catalog:",
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
     "@lit/context": "catalog:",
     "@storybook/web-components": "catalog:",
@@ -15,6 +15,9 @@
     "uuid": "catalog:"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "tailwindcss": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {

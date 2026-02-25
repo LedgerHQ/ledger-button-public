@@ -60,10 +60,10 @@ export class SettingsScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-p-24 lb-pt-8">
-        <div class="lb-rounded-md lb-bg-muted lb-p-16">
-          <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-            <h3 class="lb-text-base lb-body-3-semi-bold">
+      <div class="flex flex-col p-24 pt-8">
+        <div class="rounded-md bg-muted p-16">
+          <div class="flex flex-row items-center justify-between">
+            <h3 class="text-base body-3-semi-bold">
               ${settings.analytics.title}
             </h3>
             <ledger-toggle
@@ -72,7 +72,7 @@ export class SettingsScreen extends LitElement {
             ></ledger-toggle>
           </div>
 
-          <p class="lb-leading-relaxed lb-mt-16 lb-text-muted lb-body-3">
+          <p class="leading-relaxed mt-16 text-muted body-3">
             ${settings.analytics.description}
           </p>
         </div>
