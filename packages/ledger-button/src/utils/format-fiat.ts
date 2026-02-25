@@ -1,3 +1,5 @@
+import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
+
 /**
  * Formats a numeric value as a fiat currency string using the user's browser locale.
  *
@@ -20,4 +22,14 @@ export function formatFiatValue(
     currency: currencyCode,
     currencyDisplay: "narrowSymbol",
   }).format(Number(value));
+}
+
+/**
+ * Formats a FiatBalance as a currency string. Returns empty string when undefined.
+ */
+export function formatFiatBalance(
+  fiatBalance: FiatBalance | undefined,
+): string {
+  if (!fiatBalance) return "";
+  return formatFiatValue(fiatBalance.value, fiatBalance.currency);
 }

@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, Subscription, tap } from "rxjs";
+import { Observable, Subscription, switchMap, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -15,12 +15,14 @@ import { SignTransactionParams } from "./model/signing/SignTransactionParams.js"
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
+import type { AccountWithFiat } from "../internal/account/service/AccountService.js";
 import {
   Account,
   type AccountService,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
+import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
 import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
@@ -270,13 +272,25 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  getAccounts(): Observable<Account[]> {
-    this._logger.debug("Getting accounts with balance observable");
+  getAccounts(targetCurrency = "usd"): Observable<AccountWithFiat[]> {
+    this._logger.debug("Getting accounts with fiat observable", {
+      targetCurrency,
+    });
+
     return this.container
       .get<FetchAccountsWithBalanceUseCase>(
         accountModuleTypes.FetchAccountsWithBalanceUseCase,
       )
-      .execute();
+      .execute()
+      .pipe(
+        switchMap((accounts) =>
+          this.container
+            .get<FetchAccountsWithFiatUseCase>(
+              accountModuleTypes.FetchAccountsWithFiatUseCase,
+            )
+            .execute(accounts, targetCurrency),
+        ),
+      );
   }
 
   selectAccount(account: Account) {

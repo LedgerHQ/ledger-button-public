@@ -45,6 +45,9 @@ export class SelectAccountScreen extends LitElement {
       account.id,
     );
     const isBalanceError = this.controller.hasAccountBalanceError(account.id);
+    const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
+    const isFiatError = this.controller.hasAccountFiatError(account.id);
+    const fiatBalance = this.controller.getAccountFiatValue(account.id);
 
     // NOTE: The label should be displayed only if the account has tokens
     return html`
@@ -59,8 +62,13 @@ export class SelectAccountScreen extends LitElement {
         .currencyId=${account.currencyId}
         .isBalanceLoading=${isBalanceLoading}
         .isBalanceError=${isBalanceError}
-        @account-item-click=${(e: CustomEvent) => this.controller.handleAccountItemClick(e)}
-        @account-item-show-tokens-click=${(e: CustomEvent) => this.controller.handleAccountItemShowTokensClick(e)}
+        .fiatBalance=${fiatBalance}
+        .isFiatLoading=${isFiatLoading}
+        .isFiatError=${isFiatError}
+        @account-item-click=${(e: CustomEvent) =>
+          this.controller.handleAccountItemClick(e)}
+        @account-item-show-tokens-click=${(e: CustomEvent) =>
+          this.controller.handleAccountItemShowTokensClick(e)}
       ></ledger-account-item>
     `;
   };
@@ -94,7 +102,7 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <p class="lb-text-center lb-text-muted lb-body-2 lb-py-24">
+      <p class="lb-py-24 lb-text-center lb-text-muted lb-body-2">
         ${translations.onboarding.selectAccount.noResults}
       </p>
     `;
@@ -106,9 +114,11 @@ export class SelectAccountScreen extends LitElement {
     return html`
       <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
         <ledger-search-input
-          .placeholder=${translations.onboarding.selectAccount.searchPlaceholder}
+          .placeholder=${translations.onboarding.selectAccount
+            .searchPlaceholder}
           .value=${this.controller.searchQuery}
-          @search-input-change=${(e: CustomEvent) => this.controller.handleSearchInput(e)}
+          @search-input-change=${(e: CustomEvent) =>
+            this.controller.handleSearchInput(e)}
           @search-input-clear=${() => this.controller.handleSearchClear()}
         ></ledger-search-input>
         ${this.controller.filteredAccounts.map(this.renderAccountItem)}

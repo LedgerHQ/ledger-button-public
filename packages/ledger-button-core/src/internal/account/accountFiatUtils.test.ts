@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { AccountWithFiat } from "./service/AccountService.js";
-import { calculateTotalFiatValue } from "./accountFiatUtils.js";
+import {
+  calculateTotalFiatValue,
+  enrichWithLoadingStates,
+} from "./accountFiatUtils.js";
 
 function createAccountWithFiat(
   overrides: Partial<AccountWithFiat> = {},
@@ -18,6 +21,9 @@ function createAccountWithFiat(
     balance: "1000000000000000000",
     tokens: [],
     fiatBalance: undefined,
+    fiatError: false,
+    balanceLoadingState: "loaded",
+    fiatLoadingState: "loading",
     ...overrides,
   };
 }
@@ -112,5 +118,46 @@ describe("calculateTotalFiatValue", () => {
       value: "100.00",
       currency: "USD",
     });
+  });
+});
+
+describe("enrichWithLoadingStates", () => {
+  it("should set balanceLoadingState to loaded when balance is defined", () => {
+    const account = enrichWithLoadingStates({
+      ...createAccountWithFiat(),
+      balance: "100",
+      fiatBalance: undefined,
+      fiatError: false,
+    });
+    expect(account.balanceLoadingState).toBe("loaded");
+    expect(account.fiatLoadingState).toBe("loading");
+  });
+
+  it("should set balanceLoadingState to loading when balance is undefined", () => {
+    const account = enrichWithLoadingStates({
+      ...createAccountWithFiat(),
+      balance: undefined,
+      fiatBalance: undefined,
+      fiatError: false,
+    });
+    expect(account.balanceLoadingState).toBe("loading");
+  });
+
+  it("should set fiatLoadingState to loaded when fiatBalance is defined", () => {
+    const account = enrichWithLoadingStates({
+      ...createAccountWithFiat(),
+      fiatBalance: { value: "100", currency: "USD" },
+      fiatError: false,
+    });
+    expect(account.fiatLoadingState).toBe("loaded");
+  });
+
+  it("should set fiatLoadingState to error when fiatError is true", () => {
+    const account = enrichWithLoadingStates({
+      ...createAccountWithFiat(),
+      fiatBalance: undefined,
+      fiatError: true,
+    });
+    expect(account.fiatLoadingState).toBe("error");
   });
 });

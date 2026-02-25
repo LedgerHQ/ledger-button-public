@@ -1,7 +1,4 @@
-import type {
-  DetailedAccount,
-  FiatBalance,
-} from "@ledgerhq/ledger-wallet-provider-core";
+import type { DetailedAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
@@ -38,25 +35,21 @@ export class TokenListController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  formatFiatValue(fiatBalance: FiatBalance | undefined): string | undefined {
-    if (!fiatBalance) return undefined;
-    const symbol = fiatBalance.currency === "USD" ? "$" : fiatBalance.currency;
-    return `${symbol}${fiatBalance.value}`;
-  }
-
   private startListeningToContextChanges() {
     if (this.contextSubscription) {
       this.contextSubscription.unsubscribe();
     }
 
-    this.contextSubscription = this.core.observeContext().subscribe((_context) => {
-      if (
-        _context.selectedAccount?.name !== this.account?.name ||
-        _context.selectedAccount?.currencyId !== this.account?.currencyId
-      ) {
-        this.getSelectedAccount();
-      }
-    });
+    this.contextSubscription = this.core
+      .observeContext()
+      .subscribe((_context) => {
+        if (
+          _context.selectedAccount?.name !== this.account?.name ||
+          _context.selectedAccount?.currencyId !== this.account?.currencyId
+        ) {
+          this.getSelectedAccount();
+        }
+      });
   }
 
   hostConnected() {
