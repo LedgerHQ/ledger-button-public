@@ -12,7 +12,11 @@ import {
   TextInput,
 } from "@ledgerhq/lumen-ui-react";
 
-import type { LedgerProviderConfig } from "../hooks/useProviders";
+import {
+  ALL_WALLET_FEATURES,
+  type LedgerProviderConfig,
+  type WalletTransactionFeature,
+} from "../hooks/useProviders";
 
 interface SettingsBlockProps {
   config: LedgerProviderConfig;
@@ -91,6 +95,19 @@ export function SettingsBlock({
       handleInputChange("dAppIdentifier", value);
     },
     [handleInputChange],
+  );
+
+  const handleToggleFeature = useCallback(
+    (feature: WalletTransactionFeature) => {
+      setLocalConfig((prev) => {
+        const features = prev.walletTransactionFeatures;
+        const next = features.includes(feature)
+          ? features.filter((f) => f !== feature)
+          : [...features, feature];
+        return { ...prev, walletTransactionFeatures: next };
+      });
+    },
+    [],
   );
 
   const handleApply = useCallback(() => {
@@ -205,6 +222,32 @@ export function SettingsBlock({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-10">
+            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+              Wallet Actions
+            </h4>
+            <div className="flex flex-wrap gap-8">
+              {ALL_WALLET_FEATURES.map((feature) => {
+                const isActive =
+                  localConfig.walletTransactionFeatures.includes(feature);
+                return (
+                  <button
+                    key={feature}
+                    type="button"
+                    onClick={() => handleToggleFeature(feature)}
+                    className={`px-14 py-8 rounded-lg body-2-semi-bold capitalize cursor-pointer transition-colors border ${
+                      isActive
+                        ? "border-active bg-muted-transparent text-base"
+                        : "border-muted bg-canvas text-muted"
+                    }`}
+                  >
+                    {feature}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <Button

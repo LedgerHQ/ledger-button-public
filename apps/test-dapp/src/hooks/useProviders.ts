@@ -5,12 +5,30 @@ let LedgerButtonModule:
   | typeof import("@ledgerhq/ledger-wallet-provider")
   | null = null;
 
+export type WalletTransactionFeature =
+  | "send"
+  | "receive"
+  | "swap"
+  | "buy"
+  | "earn"
+  | "sell";
+
+export const ALL_WALLET_FEATURES: WalletTransactionFeature[] = [
+  "send",
+  "receive",
+  "swap",
+  "buy",
+  "earn",
+  "sell",
+];
+
 export interface LedgerProviderConfig {
   dAppIdentifier: string;
   apiKey: string;
   buttonPosition: string;
   logLevel: string;
   environment: string;
+  walletTransactionFeatures: WalletTransactionFeature[];
 }
 
 export const DEFAULT_CONFIG: LedgerProviderConfig = {
@@ -19,6 +37,7 @@ export const DEFAULT_CONFIG: LedgerProviderConfig = {
   buttonPosition: "bottom-right",
   logLevel: "info",
   environment: "production",
+  walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
 };
 
 export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
@@ -88,14 +107,7 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
           | "error",
         environment: configToUse.environment as "production" | "staging",
         dmkConfig: undefined,
-        walletTransactionFeatures: [
-          "send",
-          "receive",
-          "swap",
-          "buy",
-          "earn",
-          "sell",
-        ],
+        walletTransactionFeatures: configToUse.walletTransactionFeatures,
         devConfig: disableEventTracking
           ? {
               stub: {
