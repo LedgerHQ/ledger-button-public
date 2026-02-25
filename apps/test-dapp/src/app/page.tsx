@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ethers } from "ethers";
 import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
+import { ethers } from "ethers";
 
 import {
   type ActivityEntry,
@@ -161,25 +161,6 @@ export default function Index() {
     addInfoEntry("Discovering providers…");
     window.dispatchEvent(new Event("eip6963:requestProvider"));
   }, [addInfoEntry]);
-
-  const handleRequestAccounts = useCallback(async () => {
-    if (!selectedProvider) return;
-
-    setError(null);
-    addInfoEntry("Requesting accounts…");
-    try {
-      const accounts = (await selectedProvider.provider.request({
-        method: "eth_requestAccounts",
-        params: [],
-      })) as string[];
-      if (accounts[0] !== account) {
-        setAccount(accounts[0]);
-      }
-    } catch (err) {
-      console.error(err);
-      setError((err as Error)?.message ?? "Unknown error");
-    }
-  }, [selectedProvider, account, addInfoEntry]);
 
   const handleDisconnect = useCallback(() => {
     if (!selectedProvider) return;
