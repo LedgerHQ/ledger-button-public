@@ -3,13 +3,21 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@headlessui/react": "catalog:",
+    "@ledgerhq/lumen-design-core": "^0.0.36",
+    "@ledgerhq/lumen-ui-react": "^0.0.58",
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "catalog:",
+    "clsx": "^2.1.0",
     "ethers": "catalog:",
     "next": "catalog:",
     "react": "catalog:react19",
-    "react-dom": "catalog:react19"
+    "react-dom": "catalog:react19",
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
-    "@ledgerhq/ledger-wallet-provider": "workspace:*"
+    "@ledgerhq/ledger-wallet-provider": "workspace:*",
+    "autoprefixer": "catalog:",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:"
   }
 }

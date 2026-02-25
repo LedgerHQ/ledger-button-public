@@ -4,6 +4,7 @@ export type {
   AccountWithFiat,
   DetailedAccount,
   FiatBalance,
+  LoadingState,
   Token,
 } from "../../internal/account/service/AccountService.js";
 export type {

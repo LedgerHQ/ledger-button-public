@@ -2,7 +2,13 @@
 
 import type { ReactNode } from "react";
 import { useCallback, useMemo, useState } from "react";
-import { Dialog } from "@headlessui/react";
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
+} from "@ledgerhq/lumen-ui-react";
 
 import {
   ProviderRequestModal,
@@ -12,9 +18,6 @@ import {
   SignTransactionModal,
   SignTypedDataModal,
 } from "./modals";
-
-import blockStyles from "./Block.module.css";
-import styles from "./TransactionsBlock.module.css";
 
 type ModalType =
   | "sign-tx"
@@ -40,6 +43,36 @@ interface TransactionsBlockProps {
   onClearResult: () => void;
 }
 
+const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
+  "sign-tx": "Sign Transaction",
+  "send-tx": "Send Transaction",
+  "sign-raw-tx": "Sign Raw Transaction",
+  "sign-typed-data": "Sign Typed Data (EIP-712)",
+  "sign-personal-message": "Sign Personal Message",
+  "provider-request": "Provider Request",
+};
+
+interface ActionButton {
+  type: NonNullable<ModalType>;
+  icon: string;
+  label: string;
+  group: "tx" | "msg";
+}
+
+const ACTIONS: ActionButton[] = [
+  { type: "sign-tx", icon: "✍️", label: "Sign TX", group: "tx" },
+  { type: "send-tx", icon: "📤", label: "Send TX", group: "tx" },
+  { type: "sign-raw-tx", icon: "📝", label: "Sign Raw TX", group: "tx" },
+  { type: "sign-typed-data", icon: "📋", label: "Typed Data", group: "msg" },
+  {
+    type: "sign-personal-message",
+    icon: "💬",
+    label: "Personal Msg",
+    group: "msg",
+  },
+  { type: "provider-request", icon: "🔧", label: "RPC Request", group: "msg" },
+];
+
 export function TransactionsBlock({
   isConnected,
   hasAccount,
@@ -53,7 +86,6 @@ export function TransactionsBlock({
   error,
   onClearResult,
 }: TransactionsBlockProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [modalType, setModalType] = useState<ModalType>(null);
 
   const isModalOpen = modalType !== null;
@@ -63,15 +95,11 @@ export function TransactionsBlock({
       onClearResult();
       setModalType(type);
     },
-    [onClearResult]
+    [onClearResult],
   );
 
   const closeModal = useCallback(() => {
     setModalType(null);
-  }, []);
-
-  const toggleExpanded = useCallback(() => {
-    setIsExpanded((prev) => !prev);
   }, []);
 
   const modalContent = useMemo(() => {
@@ -83,13 +111,19 @@ export function TransactionsBlock({
         <SendTransactionModal onSubmit={onSendTransaction} onClose={closeModal} />
       ),
       "sign-raw-tx": (
-        <SignRawTransactionModal onSubmit={onSignRawTransaction} onClose={closeModal} />
+        <SignRawTransactionModal
+          onSubmit={onSignRawTransaction}
+          onClose={closeModal}
+        />
       ),
       "sign-typed-data": (
         <SignTypedDataModal onSubmit={onSignTypedData} onClose={closeModal} />
       ),
       "sign-personal-message": (
-        <SignPersonalMessageModal onSubmit={onSignPersonalMessage} onClose={closeModal} />
+        <SignPersonalMessageModal
+          onSubmit={onSignPersonalMessage}
+          onClose={closeModal}
+        />
       ),
       "provider-request": (
         <ProviderRequestModal onSubmit={onProviderRequest} onClose={closeModal} />
@@ -108,129 +142,122 @@ export function TransactionsBlock({
     onProviderRequest,
   ]);
 
+  const txActions = ACTIONS.filter((a) => a.group === "tx");
+  const msgActions = ACTIONS.filter((a) => a.group === "msg");
+
   const renderContent = () => {
     if (!isConnected) {
       return (
-        <div className={blockStyles["block__empty-state"]}>
-          <p>Connect to a provider first.</p>
+        <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
+            <p className="body-2 text-muted">
+              Connect to a provider to access transaction features.
+            </p>
         </div>
       );
     }
 
     if (!hasAccount) {
       return (
-        <div className={blockStyles["block__empty-state"]}>
-          <p>Request an account to access transaction features.</p>
+        <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
+            <p className="body-2 text-muted">
+              Request an account to access transaction features.
+            </p>
         </div>
       );
     }
 
     return (
-      <>
-        <div className={blockStyles["block__section"]}>
-          <h4 className={blockStyles["block__subtitle"]}>Transactions</h4>
-          <div className={blockStyles["block__button-grid"]}>
-            <button
-              className={styles["transactions__button"]}
-              onClick={() => openModal("sign-tx")}
-            >
-              <span className={styles["transactions__button-icon"]}>✍️</span>
-              <span className={styles["transactions__button-label"]}>Sign Transaction</span>
-            </button>
-            <button
-              className={styles["transactions__button"]}
-              onClick={() => openModal("send-tx")}
-            >
-              <span className={styles["transactions__button-icon"]}>📤</span>
-              <span className={styles["transactions__button-label"]}>Send Transaction</span>
-            </button>
-            <button
-              className={styles["transactions__button"]}
-              onClick={() => openModal("sign-raw-tx")}
-            >
-              <span className={styles["transactions__button-icon"]}>📝</span>
-              <span className={styles["transactions__button-label"]}>Sign Raw TX</span>
-            </button>
+      <div className="space-y-20">
+        <div className="space-y-10">
+          <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+            Transactions
+          </h4>
+          <div className="grid grid-cols-3 gap-10">
+            {txActions.map((action) => (
+              <button
+                key={action.type}
+                className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px"
+                onClick={() => openModal(action.type)}
+              >
+                <span className="text-[22px] mb-6">{action.icon}</span>
+                <span className="body-2-semi-bold text-base text-center leading-tight">
+                  {action.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className={blockStyles["block__section"]}>
-          <h4 className={blockStyles["block__subtitle"]}>Messages & Data</h4>
-          <div className={blockStyles["block__button-grid"]}>
-            <button
-              className={styles["transactions__button"]}
-              onClick={() => openModal("sign-typed-data")}
-            >
-              <span className={styles["transactions__button-icon"]}>📋</span>
-              <span className={styles["transactions__button-label"]}>Sign Typed Data</span>
-            </button>
-            <button
-              className={styles["transactions__button"]}
-              onClick={() => openModal("sign-personal-message")}
-            >
-              <span className={styles["transactions__button-icon"]}>💬</span>
-              <span className={styles["transactions__button-label"]}>Personal Message</span>
-            </button>
-            <button
-              className={styles["transactions__button"]}
-              onClick={() => openModal("provider-request")}
-            >
-              <span className={styles["transactions__button-icon"]}>🔧</span>
-              <span className={styles["transactions__button-label"]}>Provider Request</span>
-            </button>
+        <div className="space-y-10">
+          <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+            Messages & Data
+          </h4>
+          <div className="grid grid-cols-3 gap-10">
+            {msgActions.map((action) => (
+              <button
+                key={action.type}
+                className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px"
+                onClick={() => openModal(action.type)}
+              >
+                <span className="text-[22px] mb-6">{action.icon}</span>
+                <span className="body-2-semi-bold text-base text-center leading-tight">
+                  {action.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 
         {(result || error) && (
-          <div className={styles["transactions__result-section"]}>
-            <div className={styles["transactions__result-header"]}>
-              <h4 className={blockStyles["block__subtitle"]}>Result</h4>
-              <button
-                className={styles["transactions__clear-button"]}
-                onClick={onClearResult}
-              >
+          <div className="pt-16 border-t border-muted space-y-10">
+            <div className="flex justify-between items-center">
+              <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+                Last Result
+              </h4>
+              <Button appearance="gray" size="sm" onClick={onClearResult}>
                 Clear
-              </button>
+              </Button>
             </div>
             {result && (
-              <div className={styles["transactions__result"]}>
-                <code>{result}</code>
+              <div className="p-12 bg-success-transparent border border-success rounded-lg break-all">
+                <code className="body-4 font-mono text-base">
+                  {result}
+                </code>
               </div>
             )}
             {error && (
-              <div className={styles["transactions__error"]}>
-                <code>{error}</code>
+              <div className="p-12 bg-error-transparent border border-error rounded-lg break-all">
+                <code className="body-4 font-mono text-error">
+                  {error}
+                </code>
               </div>
             )}
           </div>
         )}
-      </>
+      </div>
     );
   };
 
   return (
-    <div className={blockStyles.block}>
-      <div className={blockStyles["block__header"]} onClick={toggleExpanded}>
-        <h3 className={blockStyles["block__title"]}>
-          <span className={blockStyles["block__icon"]}>💳</span>
+    <div className="border border-muted rounded-lg overflow-hidden">
+      <div className="px-24 py-16 bg-muted">
+        <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
+          <span>💳</span>
           Transactions & Signing
         </h3>
-        <span className={blockStyles["block__toggle"]}>{isExpanded ? "▼" : "▶"}</span>
       </div>
 
-      {isExpanded && (
-        <div className={blockStyles["block__content"]}>{renderContent()}</div>
-      )}
+      <div className="p-24 bg-canvas">{renderContent()}</div>
 
-      <Dialog
-        open={isModalOpen}
-        as="div"
-        className={styles["transactions__dialog"]}
-        onClose={closeModal}
-      >
-        <div className={styles["transactions__dialog-wrapper"]}>
-          <div className={styles["transactions__dialog-content"]}>{modalContent}</div>
-        </div>
+      <Dialog open={isModalOpen} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent>
+          <DialogHeader
+            appearance="compact"
+            title={modalType ? MODAL_TITLES[modalType] : ""}
+            onClose={closeModal}
+          />
+          <DialogBody>{modalContent}</DialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   );
