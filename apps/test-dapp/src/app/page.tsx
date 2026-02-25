@@ -155,6 +155,27 @@ export default function Index() {
     };
   }, [selectedProvider, addEvent]);
 
+  const accountRef = useRef(account);
+  accountRef.current = account;
+
+  useEffect(() => {
+    if (!selectedProvider || accountRef.current) return;
+
+    addInfoEntry("Requesting accounts…");
+    selectedProvider.provider
+      .request({ method: "eth_requestAccounts", params: [] })
+      .then((accounts) => {
+        const accs = accounts as string[];
+        if (accs[0]) {
+          setAccount(accs[0]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError((err as Error)?.message ?? "Unknown error");
+      });
+  }, [selectedProvider, addInfoEntry]);
+
   // Request providers (EIP-6963)
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
