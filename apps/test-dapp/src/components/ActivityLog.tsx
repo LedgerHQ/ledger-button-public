@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 import {
   Bolt,
@@ -86,8 +86,16 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+const MAX_DISPLAY_ENTRIES = 200;
+
 export function ActivityLog({ entries, onClear }: ActivityLogProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const hiddenCount = Math.max(0, entries.length - MAX_DISPLAY_ENTRIES);
+  const visibleEntries = useMemo(
+    () => entries.slice(-MAX_DISPLAY_ENTRIES),
+    [entries],
+  );
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -126,7 +134,15 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
             </p>
           </div>
         ) : (
-          entries.map((entry) => {
+          <>
+          {hiddenCount > 0 && (
+            <div className="text-center py-8">
+              <span className="body-4 text-muted">
+                {hiddenCount} older {hiddenCount === 1 ? "entry" : "entries"} hidden
+              </span>
+            </div>
+          )}
+          {visibleEntries.map((entry) => {
             const style = KIND_STYLES[entry.kind];
             return (
               <div
@@ -158,7 +174,8 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
                 )}
               </div>
             );
-          })
+          })}
+          </>
         )}
       </div>
     </div>
