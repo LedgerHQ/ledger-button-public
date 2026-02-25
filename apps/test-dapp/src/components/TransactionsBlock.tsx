@@ -9,6 +9,15 @@ import {
   DialogContent,
   DialogHeader,
 } from "@ledgerhq/lumen-ui-react";
+import {
+  ArrowUpRight,
+  Clip,
+  CreditCard,
+  DocumentCode,
+  MessageChat,
+  Signature,
+  Tools,
+} from "@ledgerhq/lumen-ui-react/symbols";
 
 import {
   ProviderRequestModal,
@@ -54,23 +63,23 @@ const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
 
 interface ActionButton {
   type: NonNullable<ModalType>;
-  icon: string;
+  icon: ReactNode;
   label: string;
   group: "tx" | "msg";
 }
 
 const ACTIONS: ActionButton[] = [
-  { type: "sign-tx", icon: "✍️", label: "Sign TX", group: "tx" },
-  { type: "send-tx", icon: "📤", label: "Send TX", group: "tx" },
-  { type: "sign-raw-tx", icon: "📝", label: "Sign Raw TX", group: "tx" },
-  { type: "sign-typed-data", icon: "📋", label: "Typed Data", group: "msg" },
+  { type: "sign-tx", icon: <Signature size={24} />, label: "Sign TX", group: "tx" },
+  { type: "send-tx", icon: <ArrowUpRight size={24} />, label: "Send TX", group: "tx" },
+  { type: "sign-raw-tx", icon: <DocumentCode size={24} />, label: "Sign Raw TX", group: "tx" },
+  { type: "sign-typed-data", icon: <Clip size={24} />, label: "Typed Data", group: "msg" },
   {
     type: "sign-personal-message",
-    icon: "💬",
+    icon: <MessageChat size={24} />,
     label: "Personal Msg",
     group: "msg",
   },
-  { type: "provider-request", icon: "🔧", label: "RPC Request", group: "msg" },
+  { type: "provider-request", icon: <Tools size={24} />, label: "RPC Request", group: "msg" },
 ];
 
 export function TransactionsBlock({
@@ -179,7 +188,7 @@ export function TransactionsBlock({
                 className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px"
                 onClick={() => openModal(action.type)}
               >
-                <span className="text-[22px] mb-6">{action.icon}</span>
+                <span className="mb-6 text-muted">{action.icon}</span>
                 <span className="body-2-semi-bold text-base text-center leading-tight">
                   {action.label}
                 </span>
@@ -199,7 +208,7 @@ export function TransactionsBlock({
                 className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px"
                 onClick={() => openModal(action.type)}
               >
-                <span className="text-[22px] mb-6">{action.icon}</span>
+                <span className="mb-6 text-muted">{action.icon}</span>
                 <span className="body-2-semi-bold text-base text-center leading-tight">
                   {action.label}
                 </span>
@@ -242,7 +251,7 @@ export function TransactionsBlock({
     <div className="border border-muted rounded-lg overflow-hidden">
       <div className="px-24 py-16 bg-muted">
         <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
-          <span>💳</span>
+          <CreditCard size={20} />
           Transactions & Signing
         </h3>
       </div>

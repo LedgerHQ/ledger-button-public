@@ -1,7 +1,15 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
+import {
+  Bolt,
+  CheckmarkCircleFill,
+  DeleteCircleFill,
+  InformationFill,
+  Note,
+} from "@ledgerhq/lumen-ui-react/symbols";
 
 import { cn } from "../lib/utils";
 
@@ -20,27 +28,27 @@ interface ActivityLogProps {
 
 const KIND_STYLES: Record<
   ActivityEntry["kind"],
-  { tag: "accent" | "success" | "error" | "gray"; border: string; icon: string }
+  { tag: "accent" | "success" | "error" | "gray"; border: string; icon: ReactNode }
 > = {
   event: {
     tag: "accent",
     border: "border-l-accent",
-    icon: "📡",
+    icon: <Bolt size={16} className="text-accent" />,
   },
   result: {
     tag: "success",
     border: "border-l-success",
-    icon: "✅",
+    icon: <CheckmarkCircleFill size={16} className="text-success" />,
   },
   error: {
     tag: "error",
     border: "border-l-error",
-    icon: "❌",
+    icon: <DeleteCircleFill size={16} className="text-error" />,
   },
   info: {
     tag: "gray",
     border: "border-l-muted",
-    icon: "ℹ️",
+    icon: <InformationFill size={16} className="text-muted" />,
   },
 };
 
@@ -110,7 +118,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
       >
         {entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-20">
-            <span className="text-[32px] mb-12 opacity-40">📋</span>
+            <span className="mb-12 opacity-40"><Note size={40} /></span>
             <p className="body-2 text-muted">No activity yet.</p>
             <p className="body-2 text-muted mt-6">
               Events, results, and errors will appear here as you interact with
@@ -129,7 +137,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
                 )}
               >
                 <div className="flex items-center gap-8 mb-6">
-                  <span className="text-[14px]">{style.icon}</span>
+                  {style.icon}
                   <Tag appearance={style.tag} size="sm" label={entry.label} />
                   <span className="body-4 text-muted font-mono ml-auto">
                     {formatTime(entry.timestamp)}

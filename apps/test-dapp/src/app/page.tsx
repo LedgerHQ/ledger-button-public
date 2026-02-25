@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
+import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
 
 import {
   type ActivityEntry,
@@ -405,13 +406,13 @@ export default function Index() {
         <details className="group">
           <summary className="flex items-center justify-between px-20 py-14 border border-muted rounded-lg cursor-pointer select-none bg-muted">
             <span className="body-2-semi-bold text-base">
-              📋 Activity Log
+              Activity Log
               {activity.length > 0 && (
                 <span className="ml-8 text-muted">({activity.length})</span>
               )}
             </span>
-            <span className="body-2 text-muted group-open:rotate-180 transition-transform">
-              ▼
+            <span className="text-muted group-open:rotate-180 transition-transform">
+              <ChevronDownIcon size={16} />
             </span>
           </summary>
           <div className="mt-8 h-[400px]">

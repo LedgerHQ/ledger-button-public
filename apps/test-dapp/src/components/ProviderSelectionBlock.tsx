@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
+import { Link, Search } from "@ledgerhq/lumen-ui-react/symbols";
 
 import { cn } from "../lib/utils";
 
@@ -34,7 +35,7 @@ export function ProviderSelectionBlock({
     <div className="border border-muted rounded-lg overflow-hidden">
       <div className="px-24 py-16 bg-muted">
         <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
-          <span>🔌</span>
+          <Link size={20} />
           EIP-6963 Provider Selection
         </h3>
       </div>
@@ -46,7 +47,7 @@ export function ProviderSelectionBlock({
             size="md"
             onClick={onRequestProviders}
           >
-            🔍 Discover Providers
+            <Search size={16} /> Discover Providers
           </Button>
           {selectedProvider && (
             <Button
