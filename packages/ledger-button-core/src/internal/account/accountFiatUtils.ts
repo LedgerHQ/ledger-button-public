@@ -1,4 +1,29 @@
-import type { AccountWithFiat, FiatBalance } from "./service/AccountService.js";
+import type {
+  Account,
+  AccountWithFiat,
+  FiatBalance,
+  LoadingState,
+} from "./service/AccountService.js";
+
+export function enrichWithLoadingStates(
+  account: Account & { fiatBalance?: FiatBalance; fiatError?: boolean },
+): AccountWithFiat {
+  const balanceLoadingState: LoadingState =
+    account.balance !== undefined ? "loaded" : "loading";
+  const fiatLoadingState: LoadingState = account.fiatError
+    ? "error"
+    : account.fiatBalance !== undefined
+      ? "loaded"
+      : "loading";
+
+  return {
+    ...account,
+    fiatBalance: account.fiatBalance,
+    fiatError: account.fiatError ?? false,
+    balanceLoadingState,
+    fiatLoadingState,
+  };
+}
 
 export function calculateTotalFiatValue(
   account: AccountWithFiat,

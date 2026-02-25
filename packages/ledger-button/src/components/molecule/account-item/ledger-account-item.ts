@@ -2,13 +2,15 @@ import "../../atom/crypto-icon/ledger-crypto-icon";
 import "../../atom/icon/ledger-icon";
 import "../../atom/skeleton/ledger-skeleton";
 
+import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 import { cva } from "class-variance-authority";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatAddress } from "../../../utils/format-address.js";
+import { formatFiatBalance } from "../../../utils/format-fiat.js";
 
 const accountItemVariants = cva([
   "lb-flex lb-min-w-full lb-cursor-pointer lb-justify-between lb-p-12",
@@ -69,6 +71,15 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   @property({ type: Boolean, attribute: "is-balance-error" })
   isBalanceError = false;
+
+  @property({ type: Object, attribute: false })
+  fiatBalance?: FiatBalance;
+
+  @property({ type: Boolean, attribute: "is-fiat-loading" })
+  isFiatLoading = false;
+
+  @property({ type: Boolean, attribute: "is-fiat-error" })
+  isFiatError = false;
 
   private get containerClasses() {
     return {
@@ -142,7 +153,7 @@ export class LedgerAccountItemMolecule extends LitElement {
   private renderValueInfo() {
     if (this.isBalanceLoading) {
       return html`
-        <div class="lb-flex lb-items-center lb-justify-center">
+        <div class="lb-flex lb-flex-col lb-items-end lb-gap-4">
           <ledger-skeleton
             class="lb-h-16 lb-w-80 lb-rounded-full"
           ></ledger-skeleton>
@@ -152,18 +163,37 @@ export class LedgerAccountItemMolecule extends LitElement {
 
     if (this.isBalanceError) {
       return html`
-        <div class="lb-flex lb-items-center lb-justify-center">
+        <div class="lb-flex lb-flex-col lb-items-end lb-gap-4">
           <span class="lb-text-base lb-body-2-semi-bold">--</span>
         </div>
       `;
     }
 
+    const fiatValue = formatFiatBalance(this.fiatBalance);
+
     return html`
-      <div class="lb-flex lb-items-center lb-justify-center">
-        <span class="lb-text-base lb-body-2-semi-bold"
+      <div class="lb-flex lb-flex-col lb-items-end lb-gap-4">
+        ${this.renderFiatValue(fiatValue)}
+        <span class="lb-text-muted lb-body-3"
           >${this.balance} ${this.ticker}</span
         >
       </div>
+    `;
+  }
+
+  private renderFiatValue(fiatValue: string) {
+    if (this.isFiatLoading) {
+      return html`<ledger-skeleton
+        class="lb-w-60 lb-h-14 lb-rounded-full"
+      ></ledger-skeleton>`;
+    }
+
+    if (this.isFiatError || !fiatValue) {
+      return nothing;
+    }
+
+    return html`
+      <span class="lb-text-base lb-body-2-semi-bold">${fiatValue}</span>
     `;
   }
 
