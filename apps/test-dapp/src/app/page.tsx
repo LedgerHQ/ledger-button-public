@@ -390,7 +390,7 @@ export default function Index() {
         </div>
 
         <aside className="hidden lg:block w-[400px] shrink-0">
-          <div className="sticky top-24 flex flex-col gap-20 max-h-[calc(100vh-48px)]">
+          <div className="sticky top-24 flex flex-col gap-20 max-h-[calc(100vh-48px)] overflow-hidden">
             <ConnectionStatus
               selectedProvider={selectedProvider}
               account={account}
