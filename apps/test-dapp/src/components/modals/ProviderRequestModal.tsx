@@ -8,6 +8,7 @@ import {
   SelectItem,
   SelectItemText,
   SelectTrigger,
+  TextInput,
 } from "@ledgerhq/lumen-ui-react";
 
 const PROVIDER_METHODS = [
@@ -37,33 +38,56 @@ interface ProviderRequestModalProps {
   onClose: () => void;
 }
 
+const CUSTOM_METHOD_VALUE = "__custom__";
+
 export function ProviderRequestModal({
   onSubmit,
   onClose,
 }: ProviderRequestModalProps) {
-  const [method, setMethod] = useState<string>(PROVIDER_METHODS[0]);
+  const [selectValue, setSelectValue] = useState<string>(PROVIDER_METHODS[0]);
+  const [customMethod, setCustomMethod] = useState("");
   const paramsRef = useRef<HTMLTextAreaElement>(null);
 
+  const isCustom = selectValue === CUSTOM_METHOD_VALUE;
+  const resolvedMethod = isCustom ? customMethod : selectValue;
+
   const handleSubmit = useCallback(async () => {
-    if (!method) {
+    if (!resolvedMethod) {
       return;
     }
     onClose();
-    await onSubmit(method, paramsRef.current?.value || "[]");
-  }, [onSubmit, onClose, method]);
+    await onSubmit(resolvedMethod, paramsRef.current?.value || "[]");
+  }, [onSubmit, onClose, resolvedMethod]);
 
   return (
     <div className="space-y-16">
-      <Select value={method} onValueChange={(value) => setMethod(value)}>
-        <SelectTrigger label="Method" />
-        <SelectContent>
-          {PROVIDER_METHODS.map((m) => (
-            <SelectItem key={m} value={m}>
-              <SelectItemText>{m}</SelectItemText>
+      <div className="space-y-10">
+        <Select
+          value={selectValue}
+          onValueChange={(value) => setSelectValue(value)}
+        >
+          <SelectTrigger label="Method" />
+          <SelectContent>
+            {PROVIDER_METHODS.map((m) => (
+              <SelectItem key={m} value={m}>
+                <SelectItemText>{m}</SelectItemText>
+              </SelectItem>
+            ))}
+            <SelectItem value={CUSTOM_METHOD_VALUE}>
+              <SelectItemText>Custom…</SelectItemText>
             </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+          </SelectContent>
+        </Select>
+        {isCustom && (
+          <TextInput
+            label="Custom method"
+            type="text"
+            value={customMethod}
+            onChange={(e) => setCustomMethod(e.target.value)}
+            placeholder="e.g., eth_getStorageAt"
+          />
+        )}
+      </div>
 
       <div>
         <label className="block body-4-semi-bold text-muted mb-6">
