@@ -1,7 +1,41 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
 import { Tag } from "@ledgerhq/lumen-ui-react";
+import { Copy } from "@ledgerhq/lumen-ui-react/symbols";
+
+function CopyableValue({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [value]);
+
+  return (
+    <div className="pt-14 border-t border-muted">
+      <span className="body-2 text-muted block mb-4">{label}</span>
+      <div className="flex items-start justify-between gap-8">
+        <span className="body-2-semi-bold text-base font-mono break-all">
+          {value}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="text-muted hover:text-base transition-colors cursor-pointer shrink-0 mt-2"
+          title={`Copy ${label.toLowerCase()}`}
+        >
+          {copied ? (
+            <span className="body-4 text-success">Copied!</span>
+          ) : (
+            <Copy size={16} />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 interface ConnectionStatusProps {
   selectedProvider: EIP6963ProviderDetail | null;
@@ -83,23 +117,9 @@ export function ConnectionStatus({
         </div>
       </div>
 
-      {account && (
-        <div className="pt-14 border-t border-muted">
-          <span className="body-2 text-muted block mb-4">Account</span>
-          <span className="body-2-semi-bold text-base font-mono break-all">
-            {account.slice(0, 6)}…{account.slice(-4)}
-          </span>
-        </div>
-      )}
+      {account && <CopyableValue label="Account" value={account} />}
 
-      {chainId && (
-        <div className="pt-14 border-t border-muted">
-          <span className="body-2 text-muted block mb-4">Chain ID</span>
-          <span className="body-2-semi-bold text-base font-mono">
-            {chainId}
-          </span>
-        </div>
-      )}
+      {chainId && <CopyableValue label="Chain ID" value={chainId} />}
     </div>
   );
 }
