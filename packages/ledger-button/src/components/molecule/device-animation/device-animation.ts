@@ -105,7 +105,7 @@ export class LedgerDeviceAnimation extends LitElement {
 
     if (!animationData) {
       return html`
-        <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
+        <div class="flex h-full items-center justify-center">
           <ledger-lottie
             animationName="loadingSpinner"
             .autoplay=${this.autoplay}
@@ -117,7 +117,7 @@ export class LedgerDeviceAnimation extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
+      <div class="flex h-full items-center justify-center">
         <ledger-lottie
           .animationData=${animationData}
           .autoplay=${this.autoplay}

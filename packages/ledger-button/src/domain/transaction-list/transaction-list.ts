@@ -81,18 +81,18 @@ export class TransactionListScreen extends LitElement {
   private renderDateHeader(displayDate: string) {
     return html`
       <div
-        class="lb-flex lb-items-center lb-justify-start lb-gap-8 lb-rounded-sm lb-bg-muted-transparent lb-px-8 lb-py-4"
+        class="flex items-center justify-start gap-8 rounded-sm bg-muted-transparent px-8 py-4"
       >
-        <span class="lb-text-white lb-body-4">${displayDate}</span>
+        <span class="text-white body-4">${displayDate}</span>
       </div>
     `;
   }
 
   private renderTransactionGroup(group: GroupedTransactions) {
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-4">
+      <div class="flex flex-col gap-4">
         ${this.renderDateHeader(group.displayDate)}
-        <div class="lb-flex lb-flex-col">
+        <div class="flex flex-col">
           ${group.transactions.map(this.renderTransactionItem)}
         </div>
       </div>
@@ -102,9 +102,9 @@ export class TransactionListScreen extends LitElement {
   private renderEmptyState() {
     return html`
       <div
-        class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
+        class="flex flex-col items-center justify-center py-48 text-center"
       >
-        <span class="lb-text-muted lb-body-2">No transactions found</span>
+        <span class="text-muted body-2">No transactions found</span>
       </div>
     `;
   }
@@ -117,7 +117,7 @@ export class TransactionListScreen extends LitElement {
     const groupedTransactions = this.groupTransactionsByDate();
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-16">
+      <div class="flex flex-col gap-16">
         ${groupedTransactions.map((group) =>
           this.renderTransactionGroup(group),
         )}

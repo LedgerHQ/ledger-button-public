@@ -94,7 +94,7 @@ export class DeviceSwitchScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+      <div class="flex flex-col gap-12 p-24 pt-0">
         <ledger-device-item
           title=${connectedDevice.name}
           device-model-id=${deviceModelId}
@@ -109,13 +109,13 @@ export class DeviceSwitchScreen extends LitElement {
 
   private renderSeparator() {
     return html`
-      <div class="lb-relative lb-flex lb-items-center lb-gap-8 lb-px-24">
-        <div class="lb-h-1 lb-flex-1 lb-bg-muted-pressed"></div>
-        <span class="lb-px-4 lb-text-muted lb-body-3"
+      <div class="relative flex items-center gap-8 px-24">
+        <div class="h-1 flex-1 bg-muted-pressed"></div>
+        <span class="px-4 text-muted body-3"
           >${this.languageContext.currentTranslation.deviceSwitch
             .connectAnother}</span
         >
-        <div class="lb-h-1 lb-flex-1 lb-bg-muted-pressed"></div>
+        <div class="h-1 flex-1 bg-muted-pressed"></div>
       </div>
     `;
   }
@@ -124,7 +124,7 @@ export class DeviceSwitchScreen extends LitElement {
     const lang = this.languageContext.currentTranslation;
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24">
+      <div class="flex flex-col gap-12 p-24">
         <ledger-connection-item
           title="${lang.deviceSwitch.connectBluetooth}"
           hint="${lang.deviceSwitch.connectBluetoothHint}"
@@ -143,7 +143,7 @@ export class DeviceSwitchScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="lb-flex lb-flex-col">
+      <div class="flex flex-col">
         ${this.renderConnectedDevice()} ${this.renderSeparator()}
         ${this.renderAddNewDeviceSection()}
       </div>
