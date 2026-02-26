@@ -105,7 +105,7 @@ export function ActivityLog({ entries, onClear }: ActivityLogProps) {
   }, [entries.length]);
 
   return (
-    <div className="flex flex-col border border-muted rounded-lg overflow-hidden bg-canvas h-full">
+    <div className="flex flex-col border border-muted rounded-lg overflow-clip bg-canvas min-h-0 h-full">
       <div className="flex items-center justify-between px-20 py-14 border-b border-muted bg-muted shrink-0">
         <div className="flex items-center gap-10">
           <span className="body-2-semi-bold text-base">Activity Log</span>
