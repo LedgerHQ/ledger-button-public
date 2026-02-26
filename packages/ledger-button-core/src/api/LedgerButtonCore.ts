@@ -212,6 +212,7 @@ export class LedgerButtonCore {
     } finally {
       this._logger.debug("Recreating container");
       this.container = createContainer(this.opts);
+      this.initializeContext();
     }
   }
 
