@@ -390,14 +390,16 @@ export default function Index() {
         </div>
 
         <aside className="hidden lg:block w-[400px] shrink-0">
-          <div className="sticky top-24 flex flex-col gap-20 max-h-[calc(100vh-48px)] overflow-hidden">
-            <ConnectionStatus
-              selectedProvider={selectedProvider}
-              account={account}
-              chainId={chainId}
-              isInitialized={isInitialized}
-            />
-            <div className="flex-1 min-h-0">
+          <div className="sticky top-24 flex flex-col gap-20 max-h-[calc(100vh-48px)]">
+            <div className="shrink-0">
+              <ConnectionStatus
+                selectedProvider={selectedProvider}
+                account={account}
+                chainId={chainId}
+                isInitialized={isInitialized}
+              />
+            </div>
+            <div className="flex-1 min-h-0 flex flex-col">
               <ActivityLog entries={activity} onClear={clearActivity} />
             </div>
           </div>
