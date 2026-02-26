@@ -15,6 +15,7 @@ const meta: Meta = {
         .subtitle=${args.subtitle}
         .ticker=${args.ticker}
         .value=${args.value}
+        .fiatValue=${args.fiatValue}
         .isClickable=${args.isClickable}
         .type=${args.type}
         @chain-item-click=${(e: CustomEvent) => {
@@ -72,6 +73,14 @@ const meta: Meta = {
         category: "Optional",
       },
     },
+    fiatValue: {
+      control: "text",
+      description: "The formatted fiat value to display",
+      table: {
+        type: { summary: "string" },
+        category: "Optional",
+      },
+    },
     type: {
       control: { type: "select" },
       options: ["token", "network"],
@@ -103,6 +112,7 @@ export const EthereumToken: Story = {
     subtitle: "ETH",
     ticker: "ETH",
     value: "2.5432",
+    fiatValue: "$6,250.00",
     isClickable: true,
     type: "token",
   },
@@ -110,7 +120,7 @@ export const EthereumToken: Story = {
     docs: {
       description: {
         story:
-          "Chain item displaying Ethereum token with rounded icon, title, ticker, and value.",
+          "Chain item displaying Ethereum token with rounded icon, title, ticker, fiat value, and crypto balance.",
       },
     },
   },
@@ -123,6 +133,7 @@ export const BitcoinToken: Story = {
     subtitle: "BTC",
     ticker: "BTC",
     value: "0.12345",
+    fiatValue: "$12,345.67",
     isClickable: true,
     type: "token",
   },
@@ -130,7 +141,7 @@ export const BitcoinToken: Story = {
     docs: {
       description: {
         story:
-          "Chain item displaying Bitcoin token with rounded icon and clickable interaction.",
+          "Chain item displaying Bitcoin token with rounded icon, fiat value, and clickable interaction.",
       },
     },
   },
@@ -143,6 +154,7 @@ export const PolygonNetwork: Story = {
     subtitle: "MATIC",
     ticker: "MATIC",
     value: "156.789",
+    fiatValue: "$89.50",
     isClickable: true,
     type: "network",
   },
@@ -150,7 +162,7 @@ export const PolygonNetwork: Story = {
     docs: {
       description: {
         story:
-          "Chain item displaying Polygon network with square icon and title section.",
+          "Chain item displaying Polygon network with square icon, fiat value, and title section.",
       },
     },
   },
@@ -182,6 +194,7 @@ export const NonClickableToken: Story = {
     subtitle: "ADA",
     ticker: "ADA",
     value: "1,234.56",
+    fiatValue: "$456.78",
     isClickable: false,
     type: "token",
   },
@@ -195,6 +208,26 @@ export const NonClickableToken: Story = {
   },
 };
 
+export const WithoutFiatValue: Story = {
+  args: {
+    ledgerId: "ethereum",
+    title: "Ethereum",
+    subtitle: "ETH",
+    ticker: "ETH",
+    value: "2.5432",
+    isClickable: false,
+    type: "token",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Chain item without fiat value, showing only the crypto balance.",
+      },
+    },
+  },
+};
+
 export const HighValueToken: Story = {
   args: {
     ledgerId: "solana",
@@ -202,6 +235,7 @@ export const HighValueToken: Story = {
     subtitle: "SOL",
     ticker: "SOL",
     value: "10,234.5678",
+    fiatValue: "$1,534,567.89",
     isClickable: true,
     type: "token",
   },
@@ -209,7 +243,7 @@ export const HighValueToken: Story = {
     docs: {
       description: {
         story:
-          "Chain item with high value amount demonstrating number formatting.",
+          "Chain item with high value amount demonstrating number formatting with fiat value.",
       },
     },
   },
@@ -231,6 +265,7 @@ export const AllVariations: Story = {
             subtitle="ETH"
             ticker="ETH"
             value="2.5432"
+            .fiatValue=${"$6,250.00"}
             is-clickable="true"
             type="token"
           ></ledger-chain-item>
@@ -240,6 +275,7 @@ export const AllVariations: Story = {
             subtitle="BTC"
             ticker="BTC"
             value="0.12345"
+            .fiatValue=${"$12,345.67"}
             is-clickable="true"
             type="token"
           ></ledger-chain-item>
@@ -249,6 +285,7 @@ export const AllVariations: Story = {
             subtitle="ADA"
             ticker="ADA"
             value="1,234.56"
+            .fiatValue=${"$456.78"}
             is-clickable="false"
             type="token"
           ></ledger-chain-item>
@@ -268,6 +305,7 @@ export const AllVariations: Story = {
             subtitle="MATIC"
             ticker="MATIC"
             value="156.789"
+            .fiatValue=${"$89.50"}
             is-clickable="true"
             type="network"
           ></ledger-chain-item>
@@ -277,6 +315,7 @@ export const AllVariations: Story = {
             subtitle="ARB"
             ticker="ARB"
             value="45.67"
+            .fiatValue=${"$52.30"}
             is-clickable="true"
             type="network"
           ></ledger-chain-item>
@@ -286,6 +325,7 @@ export const AllVariations: Story = {
             subtitle="OP"
             ticker="OP"
             value="12.34"
+            .fiatValue=${"$23.45"}
             is-clickable="false"
             type="network"
           ></ledger-chain-item>

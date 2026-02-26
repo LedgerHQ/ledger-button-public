@@ -13,6 +13,7 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { formatAddress } from "../../utils/format-address.js";
+import { formatFiatBalance } from "../../utils/format-fiat.js";
 import { AccountTokenController } from "./account-token-controller.js";
 
 @customElement("account-tokens-screen")
@@ -48,8 +49,10 @@ export class AccountTokensScreen extends LitElement {
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
         .value=${token.balance}
+        .fiatValue=${formatFiatBalance(token.fiatBalance)}
         .isClickable=${false}
         type="token"
+        iconVariant="rounded"
       ></ledger-chain-item>
     `;
   };
