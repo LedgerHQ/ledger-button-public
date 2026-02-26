@@ -167,7 +167,6 @@ export function SettingsBlock({
                   type="text"
                   value={customDappId}
                   onChange={(e) => handleCustomDappChange(e.target.value)}
-                  placeholder="Enter custom dApp identifier"
                 />
               )}
             </div>
