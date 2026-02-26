@@ -84,7 +84,6 @@ export function ProviderRequestModal({
             type="text"
             value={customMethod}
             onChange={(e) => setCustomMethod(e.target.value)}
-            placeholder="e.g., eth_getStorageAt"
           />
         )}
       </div>
