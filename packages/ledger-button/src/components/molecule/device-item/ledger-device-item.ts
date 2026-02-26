@@ -11,18 +11,18 @@ import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
 
 const deviceItemVariants = cva(
   [
-    "group lb-group lb-flex lb-items-center lb-justify-between lb-rounded-md",
-    "lb-min-w-full",
-    "lb-bg-muted lb-p-12 lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover",
+    "group group flex items-center justify-between rounded-md",
+    "min-w-full",
+    "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
   ],
   {
     variants: {
       clickable: {
-        true: ["lb-cursor-pointer"],
-        false: ["lb-cursor-default"],
+        true: ["cursor-pointer"],
+        false: ["cursor-default"],
       },
       disabled: {
-        true: ["lb-pointer-events-none lb-cursor-not-allowed lb-opacity-50"],
+        true: ["pointer-events-none cursor-not-allowed opacity-50"],
         false: [],
       },
     },
@@ -34,12 +34,12 @@ const deviceItemVariants = cva(
 );
 
 const statusIndicatorVariants = cva(
-  ["lb-rounded-xs lb-px-8 lb-py-4 lb-body-4"],
+  ["rounded-xs px-8 py-4 body-4"],
   {
     variants: {
       status: {
-        connected: ["lb-text-success-foreground lb-bg-success"],
-        available: ["lb-bg-muted lb-text-muted"],
+        connected: ["text-success-foreground bg-success"],
+        available: ["bg-muted text-muted"],
       },
     },
     defaultVariants: {
@@ -145,9 +145,9 @@ export class LedgerDeviceItem extends LitElement {
 
   private renderDeviceIcon() {
     return html`
-      <div class="lb-relative">
+      <div class="relative">
         <div
-          class="lb-rounded-full lb-bg-muted-transparent lb-p-8 lb-drop-shadow-md"
+          class="rounded-full bg-muted-transparent p-8 drop-shadow-md"
         >
           <device-icon .modelId=${this.deviceModelId}></device-icon>
         </div>
@@ -161,7 +161,7 @@ export class LedgerDeviceItem extends LitElement {
 
     return html`
       <div
-        class="lb-absolute -lb-bottom-2 -lb-right-2 lb-flex lb-h-20 lb-w-20 lb-items-center lb-justify-center lb-rounded-full lb-bg-base lb-shadow-sm"
+        class="absolute -lb-bottom-2 -lb-right-2 flex h-20 w-20 items-center justify-center rounded-full bg-base shadow-sm"
       >
         <ledger-icon
           type=${this.connectionType}
@@ -175,7 +175,7 @@ export class LedgerDeviceItem extends LitElement {
   private renderTitle() {
     return html`
       ${this.title
-        ? html`<span class="lb-py-8 lb-text-base lb-body-2"
+        ? html`<span class="py-8 text-base body-2"
             >${this.title}</span
           >`
         : ""}
@@ -202,13 +202,13 @@ export class LedgerDeviceItem extends LitElement {
         tabindex=${this.disabled ? "-1" : "0"}
         aria-label=${this.title || ""}
       >
-        <div class="lb-flex lb-items-center lb-gap-12">
+        <div class="flex items-center gap-12">
           ${this.renderDeviceIcon()}
-          <div class="lb-flex lb-flex-col lb-items-start lb-gap-4">
+          <div class="flex flex-col items-start gap-4">
             ${this.renderTitle()}
           </div>
         </div>
-        <div class="lb-flex lb-items-center lb-gap-12">
+        <div class="flex items-center gap-12">
           ${this.renderStatus()}
         </div>
       </button>

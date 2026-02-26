@@ -1,20 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import "tailwindcss/theme.css";
+@import "tailwindcss/preflight.css";
+@import "tailwindcss/utilities.css";
+@config "../tailwind.config.js";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  --*: initial;
+  --default-font-family: var(--font-family-font), sans-serif;
+  --default-mono-font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 
 img.token-icon[alt]:after {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #1F1F1F;
-    padding-top: 7px;
-    text-align: center;
-    font-size: x-large;
-    color: #FFFFFF;
-    content: attr(alt);
-  }
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #1f1f1f;
+  padding-top: 7px;
+  text-align: center;
+  font-size: x-large;
+  color: #ffffff;
+  content: attr(alt);
+}

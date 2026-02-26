@@ -66,15 +66,15 @@ export class LedgerWalletActions extends LitElement {
   private renderActionButton(action: WalletTransactionFeature) {
     return html`
       <button
-        class="lb-flex lb-h-[59px] lb-shrink-0 lb-grow lb-basis-0 lb-flex-col lb-items-center lb-justify-center lb-gap-4 lb-rounded-md lb-bg-muted lb-px-8 lb-py-0 lb-text-white lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover active:lb-bg-muted-pressed"
+        class="flex h-[59px] shrink-0 grow basis-0 flex-col items-center justify-center gap-4 rounded-md bg-muted px-8 py-0 text-white transition duration-150 ease-in-out hover:bg-muted-hover active:bg-muted-pressed"
         @click=${() => this.handleActionClick(action)}
         aria-label=${this.getActionLabel(action)}
       >
-        <div class="lb-h-20 lb-w-20 lb-shrink-0">
+        <div class="h-20 w-20 shrink-0">
           <ledger-icon fillColor="white" type=${action} size="20"></ledger-icon>
         </div>
         <span
-          class="lb-overflow-hidden lb-text-ellipsis lb-text-center lb-body-3"
+          class="overflow-hidden text-ellipsis text-center body-3"
           >${this.getActionLabel(action)}</span
         >
       </button>
@@ -83,7 +83,7 @@ export class LedgerWalletActions extends LitElement {
 
   private renderRow(actions: WalletTransactionFeature[]) {
     return html`
-      <div class="lb-flex lb-flex-row lb-items-start lb-gap-12">
+      <div class="flex flex-row items-start gap-12">
         ${actions.map((action) => this.renderActionButton(action))}
       </div>
     `;
@@ -99,7 +99,7 @@ export class LedgerWalletActions extends LitElement {
       const firstRow = this.features.slice(0, 3);
       const secondRow = this.features.slice(3, 6);
       return html`
-        <div class="lb-flex lb-flex-col lb-gap-12">
+        <div class="flex flex-col gap-12">
           ${this.renderRow(firstRow)} ${this.renderRow(secondRow)}
         </div>
       `;

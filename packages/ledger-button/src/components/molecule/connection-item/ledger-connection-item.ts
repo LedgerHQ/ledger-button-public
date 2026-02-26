@@ -9,18 +9,18 @@ import { tailwindElement } from "../../../tailwind-element.js";
 
 const connectionItemVariants = cva(
   [
-    "lb-flex lb-items-center lb-justify-between lb-rounded-md lb-group",
-    "lb-min-w-full",
-    "lb-bg-muted lb-p-12 lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover",
+    "flex items-center justify-between rounded-md group",
+    "min-w-full",
+    "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
   ],
   {
     variants: {
       clickable: {
-        true: ["lb-cursor-pointer"],
-        false: ["lb-cursor-default"],
+        true: ["cursor-pointer"],
+        false: ["cursor-default"],
       },
       disabled: {
-        true: ["lb-pointer-events-none lb-cursor-not-allowed lb-opacity-50"],
+        true: ["pointer-events-none cursor-not-allowed opacity-50"],
         false: [],
       },
     },
@@ -99,7 +99,7 @@ export class LedgerConnectionItem extends LitElement {
     if (this.connectionType) {
       return html`
         <div
-          class="lb-rounded-full lb-p-8 lb-drop-shadow-md lb-bg-muted-transparent"
+          class="rounded-full p-8 drop-shadow-md bg-muted-transparent"
         >
           <ledger-icon type=${this.connectionType} size="medium"></ledger-icon>
         </div>
@@ -111,7 +111,7 @@ export class LedgerConnectionItem extends LitElement {
   private renderChevron() {
     return html`
       <div
-        class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
+        class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
       >
         <ledger-icon type="chevronRight" size="small"></ledger-icon>
       </div>
@@ -121,7 +121,7 @@ export class LedgerConnectionItem extends LitElement {
   private renderTitle() {
     return html`
       ${this.title
-        ? html`<span class="lb-py-2 lb-text-base lb-body-2"
+        ? html`<span class="py-2 text-base body-2"
             >${this.title}</span
           >`
         : ""}
@@ -129,7 +129,7 @@ export class LedgerConnectionItem extends LitElement {
   }
 
   private renderHint() {
-    return html`<span class="lb-text-muted lb-body-3">${this.hint}</span>`;
+    return html`<span class="text-muted body-3">${this.hint}</span>`;
   }
 
   override render() {
@@ -143,9 +143,9 @@ export class LedgerConnectionItem extends LitElement {
         tabindex=${this.disabled ? "-1" : "0"}
         aria-label=${this.title || ""}
       >
-        <div class="lb-flex lb-items-center lb-gap-12">
+        <div class="flex items-center gap-12">
           ${this.renderIcon()}
-          <div class="lb-flex lb-flex-col lb-items-start lb-gap-2">
+          <div class="flex flex-col items-start gap-2">
             ${this.renderTitle()} ${this.renderHint()}
           </div>
         </div>

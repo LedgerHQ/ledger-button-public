@@ -21,19 +21,19 @@ export interface LedgerTabsAttributes {
 }
 
 const containerVariants = cva([
-  "lb-flex lb-w-full lb-gap-4 lb-rounded-md lb-border lb-border-muted-subtle lb-p-4",
+  "flex w-full gap-4 rounded-md border border-muted-subtle p-4",
 ]);
 
 const tabVariants = cva(
   [
-    "body-2-semi-bold lb-align-self-stretch lb-flex lb-h-40 lb-flex-1 lb-flex-shrink-0 lb-cursor-pointer lb-items-center lb-justify-center lb-rounded-sm lb-px-4 lb-py-8 lb-transition-all lb-duration-200 lb-ease-in-out lb-body-2-semi-bold",
+    "body-2-semi-bold align-self-stretch flex h-40 flex-1 flex-shrink-0 cursor-pointer items-center justify-center rounded-sm px-4 py-8 transition-all duration-200 ease-in-out body-2-semi-bold",
   ],
   {
     variants: {
       selected: {
-        true: ["lb-bg-muted lb-text-base"],
+        true: ["bg-muted text-base"],
         false: [
-          "lb-bg-transparent lb-text-muted hover:lb-bg-muted-transparent-hover",
+          "bg-transparent text-muted hover:bg-muted-transparent-hover",
         ],
       },
     },

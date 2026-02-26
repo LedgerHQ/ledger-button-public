@@ -56,9 +56,9 @@ export class AccountTokensScreen extends LitElement {
 
   private renderLoadingSkeleton() {
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12">
+      <div class="flex flex-col gap-12">
         <ledger-skeleton
-          class="lb-h-48 lb-w-full lb-rounded-xl"
+          class="h-48 w-full rounded-xl"
         ></ledger-skeleton>
       </div>
     `;
@@ -69,9 +69,9 @@ export class AccountTokensScreen extends LitElement {
 
     return html`
       <div
-        class="lb-flex lb-flex-col lb-items-center lb-justify-center lb-py-48 lb-text-center"
+        class="flex flex-col items-center justify-center py-48 text-center"
       >
-        <span class="lb-text-muted lb-body-2">
+        <span class="text-muted body-2">
           ${translations.accountTokens?.noTokens ||
           "No tokens found for this account"}
         </span>
@@ -96,7 +96,7 @@ export class AccountTokensScreen extends LitElement {
 
     return html`
       <div
-        class="lb-sticky lb-bottom-0 lb-rounded-2xl lb-bg-canvas-sheet lb-p-24 lb-pt-0"
+        class="sticky bottom-0 rounded-2xl bg-canvas-sheet p-24 pt-0"
       >
         <ledger-button
           variant="primary"
@@ -111,37 +111,37 @@ export class AccountTokensScreen extends LitElement {
   override render() {
     if (!this.controller.account) {
       return html`
-        <div class="lb-flex lb-h-full lb-items-center lb-justify-center">
-          <span class="lb-text-muted lb-body-2">Account not found</span>
+        <div class="flex h-full items-center justify-center">
+          <span class="text-muted body-2">Account not found</span>
         </div>
       `;
     }
 
     return html`
-      <div class="lb-relative lb-flex lb-h-full lb-flex-col">
+      <div class="relative flex h-full flex-col">
         <div
-          class="lb-sticky lb-top-0 lb-flex lb-flex-col lb-gap-4 lb-border-b lb-border-muted-subtle lb-bg-canvas-sheet lb-p-12"
+          class="sticky top-0 flex flex-col gap-4 border-b border-muted-subtle bg-canvas-sheet p-12"
           style="z-index: 100;"
         >
-          <div class="lb-flex lb-items-center lb-gap-12">
+          <div class="flex items-center gap-12">
             <ledger-crypto-icon
               ledger-id=${this.controller.account.currencyId}
               variant="square"
               size="large"
             ></ledger-crypto-icon>
-            <div class="lb-flex lb-flex-col lb-gap-4">
-              <span class="lb-text-lg lb-body-1-semi-bold"
+            <div class="flex flex-col gap-4">
+              <span class="text-lg body-1-semi-bold"
                 >${this.controller.account.name}</span
               >
-              <span class="lb-text-muted lb-body-3"
+              <span class="text-muted body-3"
                 >${formatAddress(this.controller.account.freshAddress)}</span
               >
             </div>
           </div>
         </div>
 
-        <div class="lb-h-full lb-overflow-y-auto lb-p-24">
-          <div class="lb-flex lb-flex-col lb-gap-12">
+        <div class="h-full overflow-y-auto p-24">
+          <div class="flex flex-col gap-12">
             ${this.renderTokenList(this.controller.account)}
           </div>
         </div>
