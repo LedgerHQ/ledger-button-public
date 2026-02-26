@@ -77,7 +77,12 @@ export class LedgerButtonCore {
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
-  private readonly _contextService: ContextService;
+
+  private get _contextService(): ContextService {
+    return this.container.get<ContextService>(
+      contextModuleTypes.ContextService,
+    );
+  }
 
   // Subscription to device connection state in order to handle device disconnection
   private deviceConnectionSubscription?: Subscription;
@@ -90,9 +95,6 @@ export class LedgerButtonCore {
     this._logger = loggerFactory("[Ledger Button Core]");
     this._modalService = this.container.get<ModalService>(
       modalModuleTypes.ModalService,
-    );
-    this._contextService = this.container.get<ContextService>(
-      contextModuleTypes.ContextService,
     );
     this.initializeContext();
   }
