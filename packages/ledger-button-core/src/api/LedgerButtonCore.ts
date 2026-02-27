@@ -205,13 +205,17 @@ export class LedgerButtonCore {
       type: "wallet_disconnected",
     });
 
+    const currentContextService = this._contextService;
+
     try {
       await this.container.unbindAll();
     } catch (error) {
       this._logger.error("Error unbinding container", { error });
     } finally {
-      this._logger.debug("Recreating container");
       this.container = createContainer(this.opts);
+      (
+        await this.container.rebind(contextModuleTypes.ContextService)
+      ).toConstantValue(currentContextService);
       this.initializeContext();
     }
   }
