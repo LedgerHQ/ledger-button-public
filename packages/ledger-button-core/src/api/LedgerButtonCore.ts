@@ -196,28 +196,30 @@ export class LedgerButtonCore {
 
   async disconnect() {
     this._logger.debug("Disconnecting from device");
-    await this.disconnectFromDevice();
+
+    const currentContextService = this._contextService;
+
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
-
-    this._contextService.onEvent({
-      type: "wallet_disconnected",
-    });
-
-    const currentContextService = this._contextService;
 
     try {
       await this.container.unbindAll();
     } catch (error) {
       this._logger.error("Error unbinding container", { error });
-    } finally {
-      this.container = createContainer(this.opts);
-      (
-        await this.container.rebind(contextModuleTypes.ContextService)
-      ).toConstantValue(currentContextService);
-      this.initializeContext();
     }
+
+    this.container = createContainer(this.opts);
+    this.container
+      .rebindSync(contextModuleTypes.ContextService)
+      .toConstantValue(currentContextService);
+
+    currentContextService.onEvent({
+      type: "wallet_disconnected",
+    });
+
+    await this.disconnectFromDevice();
+    this.initializeContext();
   }
 
   // Device methods
