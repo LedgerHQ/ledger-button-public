@@ -164,6 +164,13 @@
     "analytics": {
       "title": "Analytics",
       "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+    },
+    "securityConfidentiality": "Security & confidentiality",
+    "helpSupport": "Help & Support",
+    "support": {
+      "title": "Help & Support",
+      "support": "Support",
+      "contactUs": "Contact us"
     }
   },
   "signTransaction": {
