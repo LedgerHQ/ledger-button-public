@@ -37,6 +37,7 @@ describe("GetDetailedSelectedAccountUseCase", () => {
     tokens: [],
     fiatBalance: { value: "2000.00", currency: "USD" },
     transactionHistory: [],
+    networks: [{ id: "1", name: "ethereum" }],
   };
 
   const nonHydratedAccount: Account = {

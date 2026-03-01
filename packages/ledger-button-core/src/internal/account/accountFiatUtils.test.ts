@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { AccountWithFiat } from "./service/AccountService.js";
 import {
   calculateTotalFiatValue,
+  computeNetworks,
   enrichWithLoadingStates,
 } from "./accountFiatUtils.js";
 
@@ -27,6 +28,93 @@ function createAccountWithFiat(
     ...overrides,
   };
 }
+
+describe("computeNetworks", () => {
+  it("should return single network from account currencyId", () => {
+    const account = createAccountWithFiat({
+      currencyId: "ethereum",
+      fiatBalance: { value: "1000.00", currency: "USD" },
+      tokens: [],
+    });
+    expect(computeNetworks(account)).toEqual([{ id: "1", name: "ethereum" }]);
+  });
+
+  it("should include token fiat in the network total", () => {
+    const account = createAccountWithFiat({
+      currencyId: "ethereum",
+      fiatBalance: { value: "500.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/usd_tether__erc20_",
+          ticker: "USDT",
+          name: "Tether USD",
+          balance: "300",
+          fiatBalance: { value: "300.00", currency: "USD" },
+        },
+      ],
+    });
+    const networks = computeNetworks(account);
+    expect(networks).toHaveLength(1);
+    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+  });
+
+  it("should sort networks by fiat balance descending", () => {
+    const account = createAccountWithFiat({
+      currencyId: "ethereum",
+      fiatBalance: { value: "100.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "polygon/erc20/usdt",
+          ticker: "USDT",
+          name: "Tether USD",
+          balance: "5000",
+          fiatBalance: { value: "5000.00", currency: "USD" },
+        },
+      ],
+    });
+    const networks = computeNetworks(account);
+    expect(networks[0]).toEqual({ id: "137", name: "polygon" });
+    expect(networks[1]).toEqual({ id: "1", name: "ethereum" });
+  });
+
+  it("should treat tokens without fiatBalance as zero contribution", () => {
+    const account = createAccountWithFiat({
+      currencyId: "ethereum",
+      fiatBalance: { value: "200.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/dai",
+          ticker: "DAI",
+          name: "Dai",
+          balance: "100",
+          fiatBalance: undefined,
+        },
+      ],
+    });
+    const networks = computeNetworks(account);
+    expect(networks).toHaveLength(1);
+    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+  });
+
+  it("should fall back to account currencyId for tokens without chain prefix", () => {
+    const account = createAccountWithFiat({
+      currencyId: "ethereum",
+      fiatBalance: { value: "100.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "some-opaque-id",
+          ticker: "TKN",
+          name: "Token",
+          balance: "50",
+          fiatBalance: { value: "50.00", currency: "USD" },
+        },
+      ],
+    });
+    const networks = computeNetworks(account);
+    expect(networks).toHaveLength(1);
+    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+  });
+});
 
 describe("calculateTotalFiatValue", () => {
   it("should return undefined when total is 0 and account has no fiatBalance", () => {
