@@ -1,9 +1,45 @@
+import { getChainIdFromCurrencyId } from "../blockchain/evm/chainUtils.js";
 import type {
   Account,
   AccountWithFiat,
   FiatBalance,
   LoadingState,
+  Network,
 } from "./service/AccountService.js";
+
+export function computeNetworks(account: AccountWithFiat): Network[] {
+  const nativeFiat = account.fiatBalance?.value
+    ? parseFloat(account.fiatBalance.value)
+    : 0;
+
+  const allEntries: [string, number][] = [
+    [account.currencyId, nativeFiat],
+    ...account.tokens.map((token): [string, number] => {
+      const chainCurrencyId = token.ledgerId.includes("/")
+        ? token.ledgerId.split("/")[0]!
+        : account.currencyId;
+      const tokenFiat = token.fiatBalance?.value
+        ? parseFloat(token.fiatBalance.value)
+        : 0;
+      return [chainCurrencyId, tokenFiat];
+    }),
+  ];
+
+  const networkFiatMap = allEntries.reduce<
+    Map<string, { name: string; totalFiat: number }>
+  >((acc, [currencyId, fiatValue]) => {
+    const chainId = String(getChainIdFromCurrencyId(currencyId));
+    const existing = acc.get(chainId);
+    return acc.set(chainId, {
+      name: currencyId,
+      totalFiat: (existing?.totalFiat ?? 0) + fiatValue,
+    });
+  }, new Map());
+
+  return Array.from(networkFiatMap.entries())
+    .sort((a, b) => b[1].totalFiat - a[1].totalFiat)
+    .map(([id, { name }]) => ({ id, name }));
+}
 
 export function enrichWithLoadingStates(
   account: Account & { fiatBalance?: FiatBalance; fiatError?: boolean },
