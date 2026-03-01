@@ -4,7 +4,7 @@ import type {
   Network,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-import { Subscription } from "rxjs";
+import { lastValueFrom } from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
@@ -48,7 +48,7 @@ function aggregateNetworksFromAccounts(accounts: AccountWithFiat[]): Network[] {
 export class AvailableNetworksController implements ReactiveController {
   networks: Network[] = [];
   loading = true;
-  private accountsSubscription?: Subscription;
+  private disconnected = false;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -59,33 +59,37 @@ export class AvailableNetworksController implements ReactiveController {
   }
 
   hostConnected() {
+    this.disconnected = false;
     this.fetchNetworks();
   }
 
   hostDisconnected() {
-    this.accountsSubscription?.unsubscribe();
+    this.disconnected = true;
   }
 
-  private fetchNetworks() {
+  private async fetchNetworks() {
     this.loading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
-      next: (accounts) => {
-        if (accounts.length === 0) {
-          this.navigation.navigateBack();
-          return;
-        }
+    try {
+      const accounts = await lastValueFrom(this.core.getAccounts("usd"));
 
-        this.networks = aggregateNetworksFromAccounts(accounts);
-        this.loading = false;
-        this.host.requestUpdate();
-      },
-      error: () => {
-        this.loading = false;
+      if (this.disconnected) return;
+
+      if (!accounts.length) {
         this.navigation.navigateBack();
+        return;
+      }
+
+      this.networks = aggregateNetworksFromAccounts(accounts);
+    } catch {
+      if (this.disconnected) return;
+      this.navigation.navigateBack();
+    } finally {
+      if (!this.disconnected) {
+        this.loading = false;
         this.host.requestUpdate();
-      },
-    });
+      }
+    }
   }
 }
