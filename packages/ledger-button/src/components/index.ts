@@ -18,6 +18,7 @@ export * from "./molecule/account-item/ledger-account-item.js";
 export * from "./molecule/account-switch/ledger-account-switch.js";
 export * from "./molecule/ad-item/ledger-ad-item.js";
 export * from "./molecule/chain-item/ledger-chain-item.js";
+export * from "./molecule/networks/ledger-networks.js";
 export * from "./molecule/connection-item/ledger-connection-item.js";
 export * from "./molecule/device-animation/device-animation.js";
 export * from "./molecule/device-item/ledger-device-item.js";
