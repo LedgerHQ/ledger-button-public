@@ -168,7 +168,7 @@ export class LedgerDrawer extends LitElement {
 
     return html`
       <button
-        class="lb-absolute lb-right-16 lb-top-16 lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-rounded-full lb-border-none lb-bg-muted lb-p-8 hover:lb-bg-muted-hover active:lb-bg-muted-pressed"
+        class="absolute right-16 top-16 flex cursor-pointer items-center justify-center rounded-full border-none bg-muted p-8 hover:bg-muted-hover active:bg-muted-pressed"
         @click=${this.handleClose}
         aria-label="Close"
       >
@@ -180,21 +180,21 @@ export class LedgerDrawer extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-z-50 lb-absolute lb-inset-0"
+        class="z-50 absolute inset-0"
         role="dialog"
         aria-modal="true"
       >
         <div
-          class="drawer-backdrop lb-absolute lb-inset-0 lb-bg-canvas-overlay lb-opacity-60"
+          class="drawer-backdrop absolute inset-0 bg-canvas-overlay opacity-60"
           @click=${this.handleClose}
         ></div>
         <div
-          class="drawer-container lb-absolute lb-bottom-0 lb-left-0 lb-right-0 lb-rounded-t-xl lb-bg-canvas-sheet"
+          class="drawer-container absolute bottom-0 left-0 right-0 rounded-t-xl bg-canvas-sheet"
           style="transform: translateY(100%)"
         >
-          <div class="drawer-halo lb-rounded-t-xl lb-pt-64">
+          <div class="drawer-halo rounded-t-xl pt-64">
             ${this.renderCloseButton()}
-            <div class="lb-p-24 lb-pt-32">
+            <div class="p-24 pt-32">
               <slot></slot>
             </div>
           </div>

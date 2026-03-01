@@ -22,30 +22,30 @@ export type FloatingButtonPosition =
 export type FloatingButtonVariant = "circular" | "compact";
 
 const floatingButtonVariants = cva(
-  "lb-flex lb-cursor-pointer lb-items-center lb-justify-center lb-bg-black lb-text-on-interactive lb-shadow-[0_4px_12px_rgba(0,0,0,0.3)] lb-transition-[transform,box-shadow] lb-duration-200 lb-ease-in-out hover:lb-shadow-[0_6px_16px_rgba(0,0,0,0.4)]",
+  "flex cursor-pointer items-center justify-center bg-black text-on-interactive shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-[transform,box-shadow] duration-200 ease-in-out hover:shadow-[0_6px_16px_rgba(0,0,0,0.4)]",
   {
     variants: {
       variant: {
         circular:
-          "lb-fixed lb-z-[1000] lb-h-64 lb-w-64 lb-rounded-full lb-border lb-border-muted-subtle hover:lb-scale-105 active:lb-scale-95",
+          "fixed z-[1000] h-64 w-64 rounded-full border border-muted-subtle hover:scale-105 active:scale-95",
         compact:
-          "lb-content-stretch lb-gap-8 lb-overflow-hidden lb-rounded-md lb-px-12 lb-py-8",
+          "content-stretch gap-8 overflow-hidden rounded-md px-12 py-8",
       },
       position: {
-        "bottom-right": "lb-bottom-24 lb-right-24",
-        "bottom-left": "lb-bottom-24 lb-left-24",
-        "bottom-center": "lb-bottom-24 lb-left-1/2 lb--translate-x-1/2",
-        "top-right": "lb-right-24 lb-top-24",
-        "top-left": "lb-left-24 lb-top-24",
-        "top-center": "lb-left-1/2 lb-top-24 lb--translate-x-1/2",
-        "middle-right": "lb-right-24 lb-top-1/2 lb--translate-y-1/2",
+        "bottom-right": "bottom-24 right-24",
+        "bottom-left": "bottom-24 left-24",
+        "bottom-center": "bottom-24 left-1/2 -translate-x-1/2",
+        "top-right": "right-24 top-24",
+        "top-left": "left-24 top-24",
+        "top-center": "left-1/2 top-24 -translate-x-1/2",
+        "middle-right": "right-24 top-1/2 -translate-y-1/2",
         none: "",
       },
     },
     compoundVariants: [
       {
         variant: "circular",
-        class: "lb-fixed lb-z-[1000]",
+        class: "fixed z-[1000]",
       },
     ],
     defaultVariants: {
@@ -135,7 +135,7 @@ export class LedgerFloatingButton extends LitElement {
         ></ledger-icon>
         ${this.variant === "compact"
           ? html`<span
-              class="lb-font-medium lb-leading-normal lb-shrink-0 lb-not-italic lb-text-white"
+              class="font-medium leading-normal shrink-0 not-italic text-white"
               >Ledger</span
             >`
           : nothing}

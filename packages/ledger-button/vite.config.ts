@@ -1,6 +1,7 @@
 /// <reference types='vitest' />
+import tailwindcss from "@tailwindcss/vite";
 import * as path from "path";
-import { defineConfig } from "vite";
+import { defineConfig, type PluginOption } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig(() => ({
@@ -8,14 +9,12 @@ export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/packages/ledger-button",
   plugins: [
+    tailwindcss(),
     dts({
       entryRoot: "src",
       tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
     }),
-  ],
-  css: {
-    postcss: "./postcss.config.js",
-  },
+  ] as PluginOption[],
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

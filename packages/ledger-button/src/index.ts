@@ -102,6 +102,15 @@ export function initializeLedgerProvider({
     rdns: "com.ledger.wallet.provider",
   };
 
+  const fontHref =
+    "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap";
+  if (!document.querySelector(`link[href="${fontHref}"]`)) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = fontHref;
+    document.head.appendChild(link);
+  }
+
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
   app.core = core;
   app.walletTransactionFeatures = walletTransactionFeatures;
