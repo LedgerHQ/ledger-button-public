@@ -1,4 +1,3 @@
-import { getChainIdFromCurrencyId } from "../blockchain/evm/chainUtils.js";
 import type {
   Account,
   AccountWithFiat,
@@ -6,6 +5,7 @@ import type {
   LoadingState,
   Network,
 } from "./service/AccountService.js";
+import { getChainIdFromCurrencyId } from "../blockchain/evm/chainUtils.js";
 
 export function computeNetworks(account: AccountWithFiat): Network[] {
   const nativeFiat = account.fiatBalance?.value
@@ -16,7 +16,7 @@ export function computeNetworks(account: AccountWithFiat): Network[] {
     [account.currencyId, nativeFiat],
     ...account.tokens.map((token): [string, number] => {
       const chainCurrencyId = token.ledgerId.includes("/")
-        ? token.ledgerId.split("/")[0]!
+        ? (token.ledgerId.split("/")[0] ?? account.currencyId)
         : account.currencyId;
       const tokenFiat = token.fiatBalance?.value
         ? parseFloat(token.fiatBalance.value)
