@@ -13,6 +13,7 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { formatFiatBalance } from "../../utils/format-fiat.js";
+import { formatNetworkName } from "../../utils/format-network-name.js";
 import { AvailableNetworksController } from "./available-networks-controller.js";
 
 @customElement("available-networks-screen")
@@ -44,7 +45,7 @@ export class AvailableNetworksScreen extends LitElement {
     return html`
       <ledger-chain-item
         ledger-id=${network.name}
-        .title=${network.name}
+        .title=${formatNetworkName(network.name)}
         .value=${formatFiatBalance(network.fiatBalance)}
         .isClickable=${false}
         type="network"
