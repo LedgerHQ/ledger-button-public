@@ -52,6 +52,7 @@ export type AccountWithFiat = Account & {
 export type Network = {
   id: string; // EVM Chain ID
   name: string;
+  fiatBalance?: FiatBalance;
 };
 
 export type DetailedAccount = Account & {
