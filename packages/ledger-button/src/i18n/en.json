@@ -159,6 +159,9 @@
     "title": "Account Tokens",
     "noTokens": "No tokens found for this account"
   },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
   "settings": {
     "title": "Settings",
     "analytics": {
