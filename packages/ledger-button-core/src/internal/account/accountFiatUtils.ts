@@ -8,6 +8,7 @@ import type {
 import { EVM_MAPPING_TABLE } from "../blockchain/evm/chainUtils.js";
 
 export function computeNetworks(account: AccountWithFiat): Network[] {
+  const currency = account.fiatBalance?.currency ?? "USD";
   const nativeFiat = account.fiatBalance?.value
     ? parseFloat(account.fiatBalance.value)
     : 0;
@@ -45,7 +46,12 @@ export function computeNetworks(account: AccountWithFiat): Network[] {
 
   return Array.from(networkFiatMap.entries())
     .sort((a, b) => b[1].totalFiat - a[1].totalFiat)
-    .map(([id, { name }]) => ({ id, name }));
+    .map(([id, { name, totalFiat }]) => ({
+      id,
+      name,
+      fiatBalance:
+        totalFiat > 0 ? { value: totalFiat.toFixed(2), currency } : undefined,
+    }));
 }
 
 export function enrichWithLoadingStates(
