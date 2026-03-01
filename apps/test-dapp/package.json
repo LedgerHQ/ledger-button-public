@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@ledgerhq/ledger-wallet-provider": "workspace:*",
-    "autoprefixer": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:"
   }
