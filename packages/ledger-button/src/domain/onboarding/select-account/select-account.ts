@@ -81,8 +81,8 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-sticky lb-bottom-0 lb-bg-canvas-sheet lb-pb-16 lb-pt-8">
-        <p class="lb-text-center lb-text-muted lb-body-3">
+      <div class="sticky bottom-0 bg-canvas-sheet pb-16 pt-8">
+        <p class="text-center text-muted body-3">
           ${translations.onboarding.selectAccount.refreshingAccounts}
           <br />
           ${translations.onboarding.selectAccount.refreshingAccountsHint}
@@ -102,7 +102,7 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <p class="lb-py-24 lb-text-center lb-text-muted lb-body-2">
+      <p class="py-24 text-center text-muted body-2">
         ${translations.onboarding.selectAccount.noResults}
       </p>
     `;
@@ -112,7 +112,7 @@ export class SelectAccountScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+      <div class="flex flex-col gap-12 p-24 pt-0">
         <ledger-search-input
           .placeholder=${translations.onboarding.selectAccount
             .searchPlaceholder}

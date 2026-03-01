@@ -19,7 +19,7 @@ export interface LedgerStatusAttributes {
   showSecondaryButton?: boolean;
 }
 
-const statusVariants = cva(["lb-max-w-sm"], {
+const statusVariants = cva(["max-w-sm"], {
   variants: {
     type: {
       success: "",
@@ -33,13 +33,13 @@ const statusVariants = cva(["lb-max-w-sm"], {
 
 const statusIconVariants = cva(
   [
-    "lb-flex lb-h-64 lb-w-64 lb-items-center lb-justify-center lb-rounded-full lb-p-12",
+    "flex h-64 w-64 items-center justify-center rounded-full p-12",
   ],
   {
     variants: {
       type: {
-        success: "lb-bg-success",
-        error: "lb-bg-error",
+        success: "bg-success",
+        error: "bg-error",
       },
     },
     defaultVariants: {
@@ -125,9 +125,9 @@ export class LedgerStatus extends LitElement {
   override render() {
     return html`
       <div class=${classMap(this.containerClasses)}>
-        <div class="lb-flex lb-flex-col lb-items-center lb-gap-32">
-          <div class="lb-flex lb-flex-col lb-items-center lb-gap-24">
-            <div class="lb-flex lb-justify-center">
+        <div class="flex flex-col items-center gap-32">
+          <div class="flex flex-col items-center gap-24">
+            <div class="flex justify-center">
               <div
                 class=${classMap(this.statusIconClasses)}
                 role="img"
@@ -137,13 +137,13 @@ export class LedgerStatus extends LitElement {
               </div>
             </div>
             <div
-              class="lb-flex lb-flex-col lb-items-center lb-gap-8 lb-text-center"
+              class="flex flex-col items-center gap-8 text-center"
             >
               ${this.title
                 ? html`
                     <h2
                       id="status-title"
-                      class="lb-text-base lb-heading-4-semi-bold"
+                      class="text-base heading-4-semi-bold"
                     >
                       ${this.title}
                     </h2>
@@ -151,14 +151,14 @@ export class LedgerStatus extends LitElement {
                 : ""}
               ${this.description
                 ? html`
-                    <p id="status-description" class="lb-text-muted lb-body-2">
+                    <p id="status-description" class="text-muted body-2">
                       ${this.description}
                     </p>
                   `
                 : ""}
             </div>
           </div>
-          <div class="lb-flex lb-flex-col lb-gap-16 lb-self-stretch">
+          <div class="flex flex-col gap-16 self-stretch">
             ${this.secondaryButtonLabel
               ? html`
                   <ledger-button

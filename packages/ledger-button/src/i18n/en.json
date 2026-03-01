@@ -129,7 +129,7 @@
         },
         "howItWorks": {
           "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"lb-text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
           "alreadyActivated": {
             "title": "Already activated Ledger Sync?",
             "description": "You're ready to go!"

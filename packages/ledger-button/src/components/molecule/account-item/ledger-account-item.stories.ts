@@ -329,7 +329,7 @@ export const WithFiatBalance: Story = {
     docs: {
       description: {
         story:
-          "Account item with fiat balance displayed below the crypto balance.",
+          "Account item with fiat balance as primary value and crypto balance as secondary.",
       },
     },
   },

@@ -70,15 +70,15 @@ export class WelcomeScreen extends LitElement {
     description: string,
   ) {
     return html`
-      <div class="lb-flex lb-items-start lb-gap-16">
+      <div class="flex items-start gap-16">
         <div
-          class="lb-flex lb-h-24 lb-w-24 lb-flex-shrink-0 lb-items-center lb-justify-center"
+          class="flex h-24 w-24 flex-shrink-0 items-center justify-center"
         >
           <ledger-icon type=${iconType} size="medium"></ledger-icon>
         </div>
-        <div class="lb-flex lb-flex-col lb-gap-4">
-          <span class="lb-text-base lb-body-1-semi-bold">${title}</span>
-          <span class="lb-text-muted lb-body-2">${description}</span>
+        <div class="flex flex-col gap-4">
+          <span class="text-base body-1-semi-bold">${title}</span>
+          <span class="text-muted body-2">${description}</span>
         </div>
       </div>
     `;
@@ -87,15 +87,15 @@ export class WelcomeScreen extends LitElement {
   private renderHowItWorksCard(title: string, description: string) {
     return html`
       <div
-        class="lb-flex lb-items-start lb-gap-12 lb-rounded-sm lb-p-16"
+        class="flex items-start gap-12 rounded-sm p-16"
         style="background: rgba(255, 255, 255, 0.05);"
       >
         <div
-          class="lb-mt-4 lb-h-8 lb-w-8 lb-flex-shrink-0 lb-rounded-full lb-bg-accent"
+          class="mt-4 h-8 w-8 flex-shrink-0 rounded-full bg-accent"
         ></div>
-        <div class="lb-flex lb-flex-col lb-gap-4">
-          <span class="lb-text-base lb-body-2-semi-bold">${title}</span>
-          <span class="lb-text-muted lb-body-2">${description}</span>
+        <div class="flex flex-col gap-4">
+          <span class="text-base body-2-semi-bold">${title}</span>
+          <span class="text-muted body-2">${description}</span>
         </div>
       </div>
     `;
@@ -110,14 +110,14 @@ export class WelcomeScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-24 lb-p-24 lb-pt-8">
-        <div class="lb-flex lb-flex-col lb-gap-8 lb-text-center">
-          <h2 class="lb-text-base lb-heading-4">${intro.title}</h2>
-          <p class="lb-text-muted lb-body-2">${intro.subtitle}</p>
+      <div class="flex flex-col gap-24 p-24 pt-8">
+        <div class="flex flex-col gap-8 text-center">
+          <h2 class="text-base heading-4">${intro.title}</h2>
+          <p class="text-muted body-2">${intro.subtitle}</p>
         </div>
 
         <div
-          class="lb-flex lb-flex-col lb-gap-24 lb-rounded-lg lb-bg-muted lb-p-16"
+          class="flex flex-col gap-24 rounded-lg bg-muted p-16"
         >
           ${this.renderFeatureItem(
             "directConnectivity",
@@ -136,24 +136,24 @@ export class WelcomeScreen extends LitElement {
           )}
         </div>
 
-        <div class="lb-overflow-hidden lb-rounded-lg lb-bg-muted">
+        <div class="overflow-hidden rounded-lg bg-muted">
           <button
-            class="lb-flex lb-w-full lb-cursor-pointer lb-items-center lb-justify-between lb-border-0 lb-bg-transparent lb-p-16"
+            class="flex w-full cursor-pointer items-center justify-between border-0 bg-transparent p-16"
             @click=${this.toggleHowItWorks}
             aria-expanded=${this.isHowItWorksExpanded}
           >
-            <div class="lb-flex lb-items-center lb-gap-12">
+            <div class="flex items-center gap-12">
               <ledger-icon
                 type="question"
                 size="medium"
                 fillColor="#9C9C9C"
               ></ledger-icon>
-              <span class="lb-text-base lb-body-1-semi-bold"
+              <span class="text-base body-1-semi-bold"
                 >${intro.howItWorks.title}</span
               >
             </div>
             <div
-              class="lb-text-muted lb-transition-transform lb-duration-200"
+              class="text-muted transition-transform duration-200"
               style="transform: rotate(${this.isHowItWorksExpanded
                 ? "180deg"
                 : "0deg"})"
@@ -168,8 +168,8 @@ export class WelcomeScreen extends LitElement {
 
           ${this.isHowItWorksExpanded
             ? html`
-                <div class="lb-flex lb-flex-col lb-gap-12 lb-px-16 lb-pb-16">
-                  <p class="lb-text-muted lb-body-2">
+                <div class="flex flex-col gap-12 px-16 pb-16">
+                  <p class="text-muted body-2">
                     ${unsafeHTML(intro.howItWorks.description)}
                   </p>
                   ${this.renderHowItWorksCard(
@@ -192,13 +192,13 @@ export class WelcomeScreen extends LitElement {
           @click=${this.handleContinue}
         ></ledger-button>
 
-        <p class="lb-text-center lb-text-muted lb-body-2">
+        <p class="text-center text-muted body-2">
           ${intro.legalText}
           <a
             href="https://www.ledger.com/terms-of-use"
             target="_blank"
             rel="noopener noreferrer"
-            class="lb-text-base lb-underline"
+            class="text-base underline"
           >
             ${intro.termsAndConditions}
           </a>
@@ -207,7 +207,7 @@ export class WelcomeScreen extends LitElement {
             href="https://www.ledger.com/privacy-policy"
             target="_blank"
             rel="noopener noreferrer"
-            class="lb-text-base lb-underline"
+            class="text-base underline"
           >
             ${intro.privacyPolicy}
           </a>

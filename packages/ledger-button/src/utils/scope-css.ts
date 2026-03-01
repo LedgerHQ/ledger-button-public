@@ -1,175 +1,132 @@
+const SCOPE = ".ledger-wallet-provider";
+
+/**
+ * Splits a comma-separated selector string while respecting nested
+ * parentheses and brackets (e.g. :where([type='button'], [type='reset']))
+ */
+function splitSelectors(selectorStr: string): string[] {
+  const selectors: string[] = [];
+  let current = "";
+  let depth = 0;
+
+  for (const char of selectorStr) {
+    if (char === "(" || char === "[") {
+      depth++;
+      current += char;
+    } else if (char === ")" || char === "]") {
+      depth--;
+      current += char;
+    } else if (char === "," && depth === 0) {
+      selectors.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  const last = current.trim();
+  if (last) {
+    selectors.push(last);
+  }
+
+  return selectors;
+}
+
+/**
+ * Scopes an individual CSS selector under .ledger-wallet-provider.
+ * Handles :root, :host, html, *, pseudo-elements, element selectors,
+ * class selectors, attribute selectors, and vendor-prefixed selectors.
+ */
+function scopeSelector(selector: string): string {
+  const trimmed = selector.trim();
+  if (!trimmed) return trimmed;
+
+  if (trimmed.includes(SCOPE)) return trimmed;
+  if (trimmed.startsWith("&")) return trimmed;
+  if (trimmed === ":root") return SCOPE;
+  if (trimmed.startsWith(":host")) return trimmed;
+  if (trimmed === "html") return SCOPE;
+  if (trimmed === "*") return `${SCOPE} *`;
+  if (trimmed === "::backdrop") return `${SCOPE}::backdrop`;
+  if (trimmed.startsWith("::")) return `${SCOPE} ${trimmed}`;
+  if (trimmed.startsWith(":-")) return `${SCOPE} ${trimmed}`;
+  if (trimmed.startsWith("[")) return `${SCOPE} ${trimmed}`;
+  if (trimmed.startsWith(".")) return `${SCOPE} ${trimmed}`;
+  if (trimmed.startsWith("#")) return trimmed;
+  if (trimmed.startsWith(":")) return `${SCOPE} ${trimmed}`;
+  if (/^[a-zA-Z]/.test(trimmed)) return `${SCOPE} ${trimmed}`;
+
+  return `${SCOPE} ${trimmed}`;
+}
+
 /**
  * Scopes CSS selectors to .ledger-wallet-provider
- * This prevents CSS variables and global styles from leaking into host applications
+ * This prevents CSS variables and global styles from leaking into host applications.
+ *
+ * Processes line-by-line:
+ * - Selector lines (ending with {) get each selector scoped
+ * - @property blocks pass through unchanged (globally scoped by CSS spec)
+ * - @layer / @media / @supports at-rules pass through (selectors inside are scoped)
+ * - Nested selectors starting with & pass through (relative to parent)
  */
 export function scopeCssSelectors(css: string): string {
-  // First, replace :root with .ledger-wallet-provider
-  css = css.replace(/:root/g, ".ledger-wallet-provider");
+  const lines = css.split("\n");
+  const result: string[] = [];
+  let insideProperty = false;
+  let propertyBraceDepth = 0;
 
-  // Scope ::backdrop pseudo-element (before other replacements to avoid double scoping)
-  css = css.replace(
-    /^(\s*)::backdrop\s*{/gm,
-    "$1.ledger-wallet-provider::backdrop {",
-  );
+  for (const line of lines) {
+    if (/^\s*@property\s/.test(line)) {
+      insideProperty = true;
+      propertyBraceDepth = 0;
+    }
 
-  // Scope universal selector * and pseudo-elements when they appear at the start
-  // Match: *, ::before, ::after { or *,::before,::after {
-  css = css.replace(
-    /^(\s*)\*\s*,\s*::before\s*,\s*::after\s*{/gm,
-    "$1.ledger-wallet-provider *, .ledger-wallet-provider ::before, .ledger-wallet-provider ::after {",
-  );
-  css = css.replace(/^(\s*)\*\s*{/gm, "$1.ledger-wallet-provider * {");
+    if (insideProperty) {
+      result.push(line);
+      for (const ch of line) {
+        if (ch === "{") propertyBraceDepth++;
+        if (ch === "}") propertyBraceDepth--;
+      }
+      if (propertyBraceDepth <= 0 && line.includes("}")) {
+        insideProperty = false;
+      }
+      continue;
+    }
 
-  // Fix any remaining unscoped ::before or ::after in comma-separated lists
-  css = css.replace(
-    /\.ledger-wallet-provider\s*\*,\s*::before\s*,\s*::after/g,
-    ".ledger-wallet-provider *, .ledger-wallet-provider ::before, .ledger-wallet-provider ::after",
-  );
+    if (/^\s*@/.test(line)) {
+      result.push(line);
+      continue;
+    }
 
-  // Scope standalone ::before and ::after
-  css = css.replace(
-    /^(\s*)::before\s*,\s*::after\s*{/gm,
-    "$1.ledger-wallet-provider ::before, .ledger-wallet-provider ::after {",
-  );
-  css = css.replace(
-    /^(\s*)::before\s*{/gm,
-    "$1.ledger-wallet-provider ::before {",
-  );
-  css = css.replace(
-    /^(\s*)::after\s*{/gm,
-    "$1.ledger-wallet-provider ::after {",
-  );
+    if (/^\s*\}/.test(line)) {
+      result.push(line);
+      continue;
+    }
 
-  // Scope html selector (but preserve :host when it appears with html)
-  // Match html at start of selector, but not when already scoped or with :host
-  css = css.replace(
-    /^(\s*)(?<!\.ledger-wallet-provider\s*)html\s*(?![,\s]*:host)/gm,
-    "$1.ledger-wallet-provider",
-  );
-  // Handle :host,html case - scope html but keep :host
-  css = css.replace(/:host\s*,\s*html/g, ":host, .ledger-wallet-provider");
+    if (line.trimEnd().endsWith("{")) {
+      const braceIndex = line.lastIndexOf("{");
+      const selectorPart = line.substring(0, braceIndex);
+      const indent = line.match(/^(\s*)/)?.[1] ?? "";
 
-  // Clean up any double scoping that might have occurred
-  css = css.replace(
-    /\.ledger-wallet-provider\.ledger-wallet-provider/g,
-    ".ledger-wallet-provider",
-  );
+      if (selectorPart.trim().startsWith("&")) {
+        result.push(line);
+        continue;
+      }
 
-  // Scope body selector
-  css = css.replace(/^(\s*)body\s*{/gm, "$1.ledger-wallet-provider body {");
+      const selectors = splitSelectors(selectorPart);
+      const scopedSelectors = selectors.map(scopeSelector);
 
-  // Scope all other global element selectors at the start of rules
-  const globalElements = [
-    "hr",
-    "abbr",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "a",
-    "b",
-    "strong",
-    "code",
-    "kbd",
-    "samp",
-    "pre",
-    "small",
-    "sub",
-    "sup",
-    "table",
-    "button",
-    "input",
-    "optgroup",
-    "select",
-    "textarea",
-    "progress",
-    "summary",
-    "blockquote",
-    "dl",
-    "dd",
-    "figure",
-    "p",
-    "fieldset",
-    "legend",
-    "ol",
-    "ul",
-    "menu",
-    "dialog",
-    "img",
-    "svg",
-    "video",
-    "canvas",
-    "audio",
-    "iframe",
-    "embed",
-    "object",
-  ];
+      result.push(`${indent}${scopedSelectors.join(", ")} {`);
+      continue;
+    }
 
-  // Scope element selectors that appear at the start of CSS rules
-  globalElements.forEach((element) => {
-    // Match element at start of line or after comma, followed by pseudo-class or {
-    const regex = new RegExp(
-      `(^|\\n)(\\s*)${element}(?=\\s*[:{\\[]|\\s*,\\s*[a-z-]|\\s*{)`,
-      "gm",
-    );
-    css = css.replace(regex, `$1$2.ledger-wallet-provider ${element}`);
-  });
+    result.push(line);
+  }
 
-  // Scope pseudo-class selectors
-  css = css.replace(
-    /^(\s*):disabled\s*{/gm,
-    "$1.ledger-wallet-provider :disabled {",
-  );
+  let output = result.join("\n");
 
-  // Scope attribute selectors
-  css = css.replace(
-    /^(\s*)\[hidden\](?::where\([^)]+\))?\s*{/gm,
-    "$1.ledger-wallet-provider [hidden]$2 {",
-  );
-  css = css.replace(
-    /^(\s*)\[type=search\]\s*{/gm,
-    "$1.ledger-wallet-provider [type=search] {",
-  );
+  const escaped = SCOPE.replace(/\./g, "\\.");
+  output = output.replace(new RegExp(`${escaped}\\s*${escaped}`, "g"), SCOPE);
 
-  // Scope vendor-prefixed selectors
-  css = css.replace(
-    /^(\s*):-moz-focusring\s*{/gm,
-    "$1.ledger-wallet-provider :-moz-focusring {",
-  );
-  css = css.replace(
-    /^(\s*):-moz-ui-invalid\s*{/gm,
-    "$1.ledger-wallet-provider :-moz-ui-invalid {",
-  );
-  css = css.replace(
-    /^(\s*)::-webkit-inner-spin-button\s*,(\s*)::-webkit-outer-spin-button\s*{/gm,
-    "$1.ledger-wallet-provider ::-webkit-inner-spin-button,$2.ledger-wallet-provider ::-webkit-outer-spin-button {",
-  );
-  css = css.replace(
-    /^(\s*)::-webkit-search-decoration\s*{/gm,
-    "$1.ledger-wallet-provider ::-webkit-search-decoration {",
-  );
-  css = css.replace(
-    /^(\s*)::-webkit-file-upload-button\s*{/gm,
-    "$1.ledger-wallet-provider ::-webkit-file-upload-button {",
-  );
-
-  // Scope placeholder selectors
-  css = css.replace(
-    /^(\s*)input::-moz-placeholder\s*,(\s*)textarea::-moz-placeholder\s*{/gm,
-    "$1.ledger-wallet-provider input::-moz-placeholder,$2.ledger-wallet-provider textarea::-moz-placeholder {",
-  );
-  css = css.replace(
-    /^(\s*)input::placeholder\s*,(\s*)textarea::placeholder\s*{/gm,
-    "$1.ledger-wallet-provider input::placeholder,$2.ledger-wallet-provider textarea::placeholder {",
-  );
-
-  // Scope role selector
-  css = css.replace(
-    /^(\s*)\[role=button\]\s*{/gm,
-    "$1.ledger-wallet-provider [role=button] {",
-  );
-
-  return css;
+  return output;
 }
