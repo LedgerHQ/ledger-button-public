@@ -5,7 +5,7 @@ import type {
   LoadingState,
   Network,
 } from "./service/AccountService.js";
-import { getChainIdFromCurrencyId } from "../blockchain/evm/chainUtils.js";
+import { EVM_MAPPING_TABLE } from "../blockchain/evm/chainUtils.js";
 
 export function computeNetworks(account: AccountWithFiat): Network[] {
   const nativeFiat = account.fiatBalance?.value
@@ -28,9 +28,16 @@ export function computeNetworks(account: AccountWithFiat): Network[] {
   const networkFiatMap = allEntries.reduce<
     Map<string, { name: string; totalFiat: number }>
   >((acc, [currencyId, fiatValue]) => {
-    const chainId = String(getChainIdFromCurrencyId(currencyId));
-    const existing = acc.get(chainId);
-    return acc.set(chainId, {
+    const chainId = EVM_MAPPING_TABLE[currencyId];
+
+    if (chainId === undefined) {
+      return acc;
+    }
+
+    const chainIdStr = String(chainId);
+    const existing = acc.get(chainIdStr);
+
+    return acc.set(chainIdStr, {
       name: currencyId,
       totalFiat: (existing?.totalFiat ?? 0) + fiatValue,
     });
