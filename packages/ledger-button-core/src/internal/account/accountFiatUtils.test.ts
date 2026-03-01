@@ -114,6 +114,25 @@ describe("computeNetworks", () => {
     expect(networks).toHaveLength(1);
     expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
   });
+
+  it("should skip tokens whose chain prefix is not a known EVM currency", () => {
+    const account = createAccountWithFiat({
+      currencyId: "ethereum",
+      fiatBalance: { value: "100.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "bitcoin/some-token",
+          ticker: "TKN",
+          name: "Token",
+          balance: "50",
+          fiatBalance: { value: "50.00", currency: "USD" },
+        },
+      ],
+    });
+    const networks = computeNetworks(account);
+    expect(networks).toHaveLength(1);
+    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+  });
 });
 
 describe("calculateTotalFiatValue", () => {
