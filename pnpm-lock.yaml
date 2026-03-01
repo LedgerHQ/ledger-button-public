@@ -757,9 +757,9 @@ importers:
       '@ledgerhq/ledger-wallet-provider':
         specifier: workspace:*
         version: link:../../packages/ledger-button
-      autoprefixer:
+      '@tailwindcss/postcss':
         specifier: 'catalog:'
-        version: 10.4.17(postcss@8.4.38)
+        version: 4.2.1
       postcss:
         specifier: 'catalog:'
         version: 8.4.38
