@@ -9,6 +9,7 @@ import { customElement, property, state } from "lit/decorators.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
+import type { NetworksClickEventDetail } from "../../components/molecule/networks/ledger-networks.js";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
@@ -130,6 +131,18 @@ export class LedgerHomeScreen extends LitElement {
     );
   };
 
+  private handleNetworksClick = (
+    event: CustomEvent<NetworksClickEventDetail>,
+  ) => {
+    this.dispatchEvent(
+      new CustomEvent("ledger-internal-networks-click", {
+        bubbles: true,
+        composed: true,
+        detail: event.detail,
+      }),
+    );
+  };
+
   private handleDisconnectClick = async () => {
     this.dispatchEvent(
       new CustomEvent("ledger-internal-button-disconnect", {
@@ -232,11 +245,10 @@ export class LedgerHomeScreen extends LitElement {
                 @account-switch=${this.handleAccountItemClick}
               ></ledger-account-switch>
 
-              <ledger-crypto-icon
-                .ledgerId=${account.currencyId}
-                size="small"
-                variant="square"
-              ></ledger-crypto-icon>
+              <ledger-networks
+                .networks=${account.networks}
+                @networks-click=${this.handleNetworksClick}
+              ></ledger-networks>
             </div>
 
             <ledger-fiat-total
@@ -296,5 +308,6 @@ declare global {
   interface WindowEventMap {
     "ledger-internal-button-disconnect": CustomEvent<void>;
     "ledger-internal-account-switch": CustomEvent<AccountItemClickEventDetail>;
+    "ledger-internal-networks-click": CustomEvent<NetworksClickEventDetail>;
   }
 }
