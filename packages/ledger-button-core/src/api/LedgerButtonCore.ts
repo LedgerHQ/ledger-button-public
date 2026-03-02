@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { filter, map, merge, Observable, share, Subscription, switchMap, take, tap } from "rxjs";
+import { Observable, Subscription, switchMap, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -15,7 +15,6 @@ import { SignTransactionParams } from "./model/signing/SignTransactionParams.js"
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import { enrichWithLoadingStates } from "../internal/account/accountFiatUtils.js";
 import type { AccountWithFiat } from "../internal/account/service/AccountService.js";
 import {
   Account,
@@ -278,38 +277,20 @@ export class LedgerButtonCore {
       targetCurrency,
     });
 
-    const balance$ = this.container
+    return this.container
       .get<FetchAccountsWithBalanceUseCase>(
         accountModuleTypes.FetchAccountsWithBalanceUseCase,
       )
       .execute()
-      .pipe(share());
-
-    const loadingStates$ = balance$.pipe(
-      map((accounts) =>
-        accounts.map((account) =>
-          enrichWithLoadingStates({
-            ...account,
-            fiatBalance: undefined,
-            fiatError: false,
-          }),
+      .pipe(
+        switchMap((accounts) =>
+          this.container
+            .get<FetchAccountsWithFiatUseCase>(
+              accountModuleTypes.FetchAccountsWithFiatUseCase,
+            )
+            .execute(accounts, targetCurrency),
         ),
-      ),
-    );
-
-    const withFiat$ = balance$.pipe(
-      filter((accounts) => accounts.every((a) => a.balance !== undefined)),
-      take(1),
-      switchMap((accounts) =>
-        this.container
-          .get<FetchAccountsWithFiatUseCase>(
-            accountModuleTypes.FetchAccountsWithFiatUseCase,
-          )
-          .execute(accounts, targetCurrency),
-      ),
-    );
-
-    return merge(loadingStates$, withFiat$);
+      );
   }
 
   selectAccount(account: Account) {
