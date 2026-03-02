@@ -13,15 +13,13 @@ import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import {
-  calculateTotalFiatValue,
-  computeNetworks,
-} from "../accountFiatUtils.js";
+import { calculateTotalFiatValue } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
 import type {
   Account,
   AccountWithFiat,
   DetailedAccount,
+  Network,
 } from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
@@ -57,14 +55,17 @@ export class FetchSelectedAccountUseCase {
   }
 
   async execute(): Promise<Either<AccountError, DetailedAccount>> {
-    const accountResult = await this.getSelectedAccountFromContext();
+    const result = await this.getSelectedAccountFromContext();
 
-    if (accountResult.isLeft()) {
-      return accountResult;
+    if (result.isLeft()) {
+      return result;
     }
 
-    const account = accountResult.unsafeCoerce();
-    const detailedAccount = await this.hydrateDetailedAccount(account);
+    const { selected, allAccounts } = result.unsafeCoerce();
+    const detailedAccount = await this.hydrateDetailedAccount(
+      selected,
+      allAccounts,
+    );
 
     this.emitAccountChangedEvent(detailedAccount);
 
@@ -79,7 +80,7 @@ export class FetchSelectedAccountUseCase {
   }
 
   private async getSelectedAccountFromContext(): Promise<
-    Either<AccountError, Account>
+    Either<AccountError, { selected: Account; allAccounts: Account[] }>
   > {
     const context = this.contextService.getContext();
 
@@ -109,11 +110,12 @@ export class FetchSelectedAccountUseCase {
       );
     }
 
-    return Right(account);
+    return Right({ selected: account, allAccounts: accounts });
   }
 
   private async hydrateDetailedAccount(
     account: Account,
+    allAccounts: Account[],
   ): Promise<DetailedAccount> {
     const withBalance = await this.hydrateWithBalanceUseCase.execute(account);
 
@@ -122,16 +124,30 @@ export class FetchSelectedAccountUseCase {
       this.hydrateWithTxHistoryUseCase.execute(withBalance),
     ]);
 
-    return this.mergeHydrations(withBalance, withFiat, withTxHistory);
+    const networks = this.computeNetworksFromAllAccounts(allAccounts);
+    return this.mergeHydrations(withBalance, withFiat, withTxHistory, networks);
+  }
+
+  private computeNetworksFromAllAccounts(accounts: Account[]): Network[] {
+    const seen = new Map<string, string>();
+    for (const account of accounts) {
+      if (!seen.has(account.currencyId)) {
+        seen.set(account.currencyId, account.currencyId);
+      }
+    }
+    return Array.from(seen.entries()).map(([currencyId]) => ({
+      id: currencyId,
+      name: currencyId,
+    }));
   }
 
   private mergeHydrations(
     withBalance: Account,
     withFiat: AccountWithFiat,
     withTxHistory: AccountWithTransactionHistory,
+    networks: Network[],
   ): DetailedAccount {
     const totalFiatValue = calculateTotalFiatValue(withFiat);
-    const networks = computeNetworks(withFiat);
     return {
       ...withBalance,
       fiatBalance: withFiat.fiatBalance,
