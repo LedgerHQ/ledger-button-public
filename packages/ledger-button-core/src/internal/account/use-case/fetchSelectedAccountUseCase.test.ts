@@ -203,7 +203,7 @@ describe("FetchSelectedAccountUseCase", () => {
             hydratedAccount.transactionHistory,
           );
           expect(account.networks).toEqual([
-            { id: "1", name: "ethereum", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "ethereum", name: "ethereum" },
           ]);
         });
       });
