@@ -56,6 +56,28 @@ const styles = css`
     max-height: 100vh;
     transform: translateX(100%);
   }
+
+  #modal-content {
+    scrollbar-color: var(--color-muted, #4a4a4a) var(--background-muted, rgba(0, 0, 0, 0.2));
+    scrollbar-width: thin;
+  }
+
+  #modal-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #modal-content::-webkit-scrollbar-track {
+    background: var(--background-muted-transparent, transparent);
+  }
+
+  #modal-content::-webkit-scrollbar-thumb {
+    background: var(--color-muted, #4a4a4a);
+    border-radius: 3px;
+  }
+
+  #modal-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted-hover, #5a5a5a);
+  }
 `;
 
 const centerContainerClasses = {
