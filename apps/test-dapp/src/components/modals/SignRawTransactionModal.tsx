@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { DialogPanel, DialogTitle, Field, Textarea } from "@headlessui/react";
-
-import styles from "../TransactionsBlock.module.css";
+import { Button } from "@ledgerhq/lumen-ui-react";
 
 interface SignRawTransactionModalProps {
   onSubmit: (rawTx: string) => Promise<void>;
   onClose: () => void;
 }
 
-export function SignRawTransactionModal({ onSubmit, onClose }: SignRawTransactionModalProps) {
+export function SignRawTransactionModal({
+  onSubmit,
+  onClose,
+}: SignRawTransactionModalProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = useCallback(async () => {
@@ -23,24 +24,18 @@ export function SignRawTransactionModal({ onSubmit, onClose }: SignRawTransactio
   }, [onSubmit, onClose]);
 
   return (
-    <DialogPanel transition className={styles["transactions__dialog-panel"]}>
-      <DialogTitle as="h3" className={styles["transactions__dialog-title"]}>
-        Sign Raw Transaction
-      </DialogTitle>
-      <Field>
-        <Textarea
+    <div className="space-y-16">
+      <div>
+        <textarea
           ref={textareaRef}
-          className={styles["transactions__textarea"]}
+          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base placeholder:text-muted font-mono focus:outline-none focus:border-active"
           rows={5}
           placeholder="0x..."
         />
-      </Field>
-      <button
-        className={styles["transactions__submit-button"]}
-        onClick={handleSubmit}
-      >
+      </div>
+      <Button appearance="accent" size="md" isFull onClick={handleSubmit}>
         Sign Raw TX
-      </button>
-    </DialogPanel>
+      </Button>
+    </div>
   );
 }

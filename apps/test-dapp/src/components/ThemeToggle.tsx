@@ -1,37 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
-import styles from "./ThemeToggle.module.css";
-
-type Theme = "light" | "dark";
+import { Button } from "@ledgerhq/lumen-ui-react";
+import { useTheme } from "@ledgerhq/lumen-ui-react";
+import { Moon, Sun } from "@ledgerhq/lumen-ui-react/symbols";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const { mode, toggleMode } = useTheme();
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-    const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
-    setTheme(initialTheme);
-    document.documentElement.setAttribute("data-theme", initialTheme);
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-  }, [theme]);
+  const isDark = mode === "dark";
 
   return (
-    <button
-      className={styles["theme-toggle"]}
-      onClick={toggleTheme}
-      aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+    <Button
+      appearance="no-background"
+      size="sm"
+      onClick={toggleMode}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
-      {theme === "light" ? "🌙" : "☀️"}
-    </button>
+      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+    </Button>
   );
 }
