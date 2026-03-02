@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
+import { Button, Tag } from "@ledgerhq/lumen-ui-react";
+import { Link, Search } from "@ledgerhq/lumen-ui-react/symbols";
 
-import blockStyles from "./Block.module.css";
-import styles from "./ProviderSelectionBlock.module.css";
+import { cn } from "../lib/utils";
 
 interface ProviderSelectionBlockProps {
   providers: EIP6963ProviderDetail[];
@@ -23,135 +24,103 @@ export function ProviderSelectionBlock({
   onDisconnect,
   account,
 }: ProviderSelectionBlockProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
-
   const handleProviderClick = useCallback(
     (provider: EIP6963ProviderDetail) => {
       onSelectProvider(provider);
     },
-    [onSelectProvider]
+    [onSelectProvider],
   );
 
   return (
-    <div className={blockStyles.block}>
-      <div
-        className={blockStyles["block__header"]}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <h3 className={blockStyles["block__title"]}>
-          <span className={blockStyles["block__icon"]}>🔌</span>
+    <div className="border border-muted rounded-lg overflow-hidden">
+      <div className="px-24 py-16 bg-muted">
+        <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
+          <Link size={20} />
           EIP-6963 Provider Selection
         </h3>
-        <span className={blockStyles["block__toggle"]}>{isExpanded ? "▼" : "▶"}</span>
       </div>
 
-      {isExpanded && (
-        <div className={blockStyles["block__content"]}>
-          <p className={blockStyles["block__description"]}>
-            Select a wallet provider using the EIP-6963 Multi Injected Provider Discovery standard.
-          </p>
-
-          <div className={blockStyles["block__actions"]}>
-            <button
-              className={styles["provider-selection__discover-button"]}
-              onClick={onRequestProviders}
+      <div className="p-24 bg-canvas space-y-20">
+        <div className="flex items-center gap-12">
+          <Button
+            appearance="accent"
+            size="md"
+            onClick={onRequestProviders}
+          >
+            <Search size={16} /> Discover Providers
+          </Button>
+          {selectedProvider && (
+            <Button
+              appearance="red"
+              size="sm"
+              onClick={onDisconnect}
             >
-              🔍 Discover Providers
-            </button>
-          </div>
+              Disconnect
+            </Button>
+          )}
+        </div>
 
-          {providers.length > 0 && (
-            <div className={styles["provider-selection__list"]}>
-              <h4 className={styles["provider-selection__subtitle"]}>
-                Available Providers ({providers.length})
-              </h4>
+        {providers.length > 0 ? (
+          <div className="space-y-12">
+            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+              Available Providers ({providers.length})
+            </h4>
+            <div className="space-y-10">
               {providers.map((provider) => {
-                const isSelected = selectedProvider?.info.uuid === provider.info.uuid;
+                const isSelected =
+                  selectedProvider?.info.uuid === provider.info.uuid;
                 const isConnected = isSelected && account !== null;
 
                 return (
                   <div
                     key={provider.info.uuid}
-                    className={`${styles["provider-selection__card"]} ${isSelected ? styles["provider-selection__card--selected"] : ""}`}
+                    className={cn(
+                      "flex justify-between items-center px-16 py-14 border rounded-lg cursor-pointer transition-colors",
+                      isSelected
+                        ? "border-active bg-muted-transparent"
+                        : "border-muted hover:border-base hover:bg-muted-transparent",
+                    )}
                     onClick={() => handleProviderClick(provider)}
                   >
-                    <div className={styles["provider-selection__card-info"]}>
+                    <div className="flex items-center gap-12">
                       {/* eslint-disable-next-line @next/next/no-img-element -- provider icons are base64 data URLs */}
                       <img
                         src={provider.info.icon}
                         alt={provider.info.name}
-                        className={styles["provider-selection__card-icon"]}
+                        className="size-36 rounded-lg"
                       />
-                      <div className={styles["provider-selection__card-details"]}>
-                        <span className={styles["provider-selection__card-name"]}>
+                      <div className="flex flex-col gap-2">
+                        <span className="body-2-semi-bold text-base">
                           {provider.info.name}
                         </span>
-                        <span className={styles["provider-selection__card-rdns"]}>
-                          {provider.info.rdns || provider.info.uuid.slice(0, 8)}
+                        <span className="body-4 text-muted font-mono">
+                          {provider.info.rdns ||
+                            provider.info.uuid.slice(0, 8)}
                         </span>
                       </div>
                     </div>
-                    <div className={styles["provider-selection__card-status"]}>
+                    <div className="flex items-center">
                       {isConnected && (
-                        <span className={styles["provider-selection__connected-badge"]}>
-                          Connected
-                        </span>
+                        <Tag appearance="success" size="sm" label="Connected" />
                       )}
                       {isSelected && !isConnected && (
-                        <span className={styles["provider-selection__selected-badge"]}>
-                          Selected
-                        </span>
+                        <Tag appearance="gray" size="sm" label="Selected" />
                       )}
                     </div>
                   </div>
                 );
               })}
             </div>
-          )}
-
-          {providers.length === 0 && (
-            <div className={blockStyles["block__empty-state"]}>
-              <p>No providers discovered yet.</p>
-              <p className={blockStyles["block__hint"]}>
-                Click &quot;Discover Providers&quot; to find available wallet extensions.
-              </p>
-            </div>
-          )}
-
-          {selectedProvider && (
-            <div className={styles["provider-selection__selected-info"]}>
-              <h4 className={styles["provider-selection__subtitle"]}>Selected Provider</h4>
-              <div className={styles["provider-selection__selected-card"]}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- provider icons are base64 data URLs */}
-                <img
-                  src={selectedProvider.info.icon}
-                  alt={selectedProvider.info.name}
-                  className={styles["provider-selection__selected-icon"]}
-                />
-                <div className={styles["provider-selection__selected-details"]}>
-                  <span className={styles["provider-selection__selected-name"]}>
-                    {selectedProvider.info.name}
-                  </span>
-                  {account && (
-                    <span className={styles["provider-selection__account-address"]}>
-                      {account.slice(0, 6)}...{account.slice(-4)}
-                    </span>
-                  )}
-                </div>
-                <button
-                  className={styles["provider-selection__disconnect-button"]}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDisconnect();
-                  }}
-                >
-                  Disconnect
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
+            <p className="body-2 text-muted">
+              No providers discovered yet. Click &quot;Discover Providers&quot;
+              to find available wallet extensions.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
