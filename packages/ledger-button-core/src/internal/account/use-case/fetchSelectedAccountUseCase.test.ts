@@ -9,7 +9,7 @@ import {
 import type { ContextService } from "../../context/ContextService.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, AccountService, DetailedAccount } from "../service/AccountService.js";
+import type { Account, DetailedAccount } from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
@@ -48,9 +48,6 @@ describe("FetchSelectedAccountUseCase", () => {
   };
   let mockHydrateWithTxHistoryUseCase: {
     execute: ReturnType<typeof vi.fn>;
-  };
-  let mockAccountService: {
-    getAccounts: ReturnType<typeof vi.fn>;
   };
   let mockLogger: ReturnType<typeof createMockLogger>;
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
@@ -115,15 +112,10 @@ describe("FetchSelectedAccountUseCase", () => {
       execute: vi.fn(),
     };
 
-    mockAccountService = {
-      getAccounts: vi.fn().mockReturnValue([]),
-    };
-
     useCase = new FetchSelectedAccountUseCase(
       mockLoggerFactory as unknown as () => LoggerPublisher,
       mockContextService as unknown as ContextService,
       mockLedgerSyncService as unknown as LedgerSyncService,
-      mockAccountService as unknown as AccountService,
       mockFetchAccountsUseCase as unknown as FetchAccountsUseCase,
       mockHydrateWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
       mockHydrateWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
@@ -146,33 +138,6 @@ describe("FetchSelectedAccountUseCase", () => {
         result.mapLeft((error) => {
           expect(error).toBeInstanceOf(NoSelectedAccountError);
         });
-        expect(mockLedgerSyncService.authenticate).not.toHaveBeenCalled();
-        expect(mockFetchAccountsUseCase.execute).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("when account is found in local cache", () => {
-      it("should skip LedgerSync auth and use the cached account", async () => {
-        mockContextService.getContext.mockReturnValue({
-          selectedAccount: baseAccount,
-        });
-        mockAccountService.getAccounts.mockReturnValue([baseAccount]);
-        mockHydrateWithBalanceUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          balance: "2.5000",
-        });
-        mockHydrateWithFiatUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          fiatBalance: { value: "5000.00", currency: "USD" },
-        });
-        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          transactionHistory: [],
-        });
-
-        const result = await useCase.execute();
-
-        expect(result.isRight()).toBe(true);
         expect(mockLedgerSyncService.authenticate).not.toHaveBeenCalled();
         expect(mockFetchAccountsUseCase.execute).not.toHaveBeenCalled();
       });

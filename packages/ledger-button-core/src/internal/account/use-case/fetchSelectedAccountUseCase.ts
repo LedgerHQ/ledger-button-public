@@ -20,7 +20,6 @@ import {
 import { accountModuleTypes } from "../accountModuleTypes.js";
 import type {
   Account,
-  AccountService,
   AccountWithFiat,
   DetailedAccount,
 } from "../service/AccountService.js";
@@ -45,8 +44,6 @@ export class FetchSelectedAccountUseCase {
     private readonly contextService: ContextService,
     @inject(ledgerSyncModuleTypes.LedgerSyncService)
     private readonly ledgerSyncService: LedgerSyncService,
-    @inject(accountModuleTypes.AccountService)
-    private readonly accountService: AccountService,
     @inject(accountModuleTypes.FetchAccountsUseCase)
     private readonly fetchAccountsUseCase: FetchAccountsUseCase,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
@@ -88,22 +85,6 @@ export class FetchSelectedAccountUseCase {
 
     if (!context.selectedAccount) {
       return Left(new NoSelectedAccountError());
-    }
-
-    const cachedAccounts = this.accountService.getAccounts();
-
-    if (cachedAccounts.length > 0) {
-      const cachedAccount = cachedAccounts.find(
-        (a) =>
-          a.freshAddress === context.selectedAccount?.freshAddress &&
-          a.currencyId === context.selectedAccount?.currencyId,
-      );
-      if (cachedAccount) {
-        this.logger.debug("Account found in local cache, skipping LedgerSync auth", {
-          address: cachedAccount.freshAddress,
-        });
-        return Right(cachedAccount);
-      }
     }
 
     await lastValueFrom(this.ledgerSyncService.authenticate());
