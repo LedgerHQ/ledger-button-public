@@ -3,7 +3,50 @@ import type {
   AccountWithFiat,
   FiatBalance,
   LoadingState,
+  Network,
 } from "./service/AccountService.js";
+import { EVM_MAPPING_TABLE } from "../blockchain/evm/chainUtils.js";
+
+export function computeNetworks(account: AccountWithFiat): Network[] {
+  const nativeFiat = account.fiatBalance?.value
+    ? parseFloat(account.fiatBalance.value)
+    : 0;
+
+  const allEntries: [string, number][] = [
+    [account.currencyId, nativeFiat],
+    ...account.tokens.map((token): [string, number] => {
+      const chainCurrencyId = token.ledgerId.includes("/")
+        ? (token.ledgerId.split("/")[0] ?? account.currencyId)
+        : account.currencyId;
+      const tokenFiat = token.fiatBalance?.value
+        ? parseFloat(token.fiatBalance.value)
+        : 0;
+      return [chainCurrencyId, tokenFiat];
+    }),
+  ];
+
+  const networkFiatMap = allEntries.reduce<
+    Map<string, { name: string; totalFiat: number }>
+  >((acc, [currencyId, fiatValue]) => {
+    const chainId = EVM_MAPPING_TABLE[currencyId];
+
+    if (chainId === undefined) {
+      return acc;
+    }
+
+    const chainIdStr = String(chainId);
+    const existing = acc.get(chainIdStr);
+
+    return acc.set(chainIdStr, {
+      name: currencyId,
+      totalFiat: (existing?.totalFiat ?? 0) + fiatValue,
+    });
+  }, new Map());
+
+  return Array.from(networkFiatMap.entries())
+    .sort((a, b) => b[1].totalFiat - a[1].totalFiat)
+    .map(([id, { name }]) => ({ id, name }));
+}
 
 export function enrichWithLoadingStates(
   account: Account & { fiatBalance?: FiatBalance; fiatError?: boolean },

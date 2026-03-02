@@ -49,10 +49,16 @@ export type AccountWithFiat = Account & {
   fiatLoadingState: LoadingState;
 };
 
+export type Network = {
+  id: string; // EVM Chain ID
+  name: string;
+};
+
 export type DetailedAccount = Account & {
   fiatBalance: FiatBalance | undefined;
   transactionHistory: TransactionHistoryItem[] | undefined;
   totalFiatValue?: FiatBalance;
+  networks: Network[];
 };
 
 export interface AccountService {

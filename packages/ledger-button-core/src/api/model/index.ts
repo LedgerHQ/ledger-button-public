@@ -5,6 +5,7 @@ export type {
   DetailedAccount,
   FiatBalance,
   LoadingState,
+  Network,
   Token,
 } from "../../internal/account/service/AccountService.js";
 export type {
