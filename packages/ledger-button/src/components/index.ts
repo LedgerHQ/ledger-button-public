@@ -22,6 +22,7 @@ export * from "./molecule/connection-item/ledger-connection-item.js";
 export * from "./molecule/device-animation/device-animation.js";
 export * from "./molecule/device-item/ledger-device-item.js";
 export * from "./molecule/info-state/ledger-info-state.js";
+export * from "./molecule/networks/ledger-networks.js";
 export * from "./molecule/platform-item/ledger-platform-item.js";
 export * from "./molecule/toolbar/ledger-toolbar.js";
 export * from "./molecule/transaction-item/ledger-transaction-item.js";
