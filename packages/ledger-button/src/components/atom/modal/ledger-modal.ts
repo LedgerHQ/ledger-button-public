@@ -58,7 +58,7 @@ const styles = css`
   }
 
   #modal-content {
-    scrollbar-color: var(--color-muted, #4a4a4a) var(--background-muted, rgba(0, 0, 0, 0.2));
+    scrollbar-color: var(--background-muted-strong) var(--background-muted-transparent, transparent);
     scrollbar-width: thin;
   }
 
@@ -71,12 +71,12 @@ const styles = css`
   }
 
   #modal-content::-webkit-scrollbar-thumb {
-    background: var(--color-muted, #4a4a4a);
+    background: var(--background-muted-strong);
     border-radius: 3px;
   }
 
   #modal-content::-webkit-scrollbar-thumb:hover {
-    background: var(--color-muted-hover, #5a5a5a);
+    background: var(--background-muted-strong-hover);
   }
 `;
 
