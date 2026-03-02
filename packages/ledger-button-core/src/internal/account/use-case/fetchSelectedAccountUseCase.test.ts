@@ -80,6 +80,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
+    networks: [{ id: "1", name: "ethereum" }],
   };
 
   beforeEach(() => {
@@ -201,6 +202,7 @@ describe("FetchSelectedAccountUseCase", () => {
           expect(account.transactionHistory).toEqual(
             hydratedAccount.transactionHistory,
           );
+          expect(account.networks).toEqual([{ id: "1", name: "ethereum" }]);
         });
       });
 
