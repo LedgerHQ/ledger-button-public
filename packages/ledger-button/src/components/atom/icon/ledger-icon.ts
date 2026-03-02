@@ -16,8 +16,10 @@ import {
   DeviceIcon,
   DirectConnectivityIcon,
   EarnIcon,
+  EnvelopeIcon,
   ErrorIcon,
   ExternalLinkIcon,
+  HeadphoneIcon,
   InfoIcon,
   LedgerLogoIcon,
   MobileIcon,
@@ -27,6 +29,7 @@ import {
   SellIcon,
   SendIcon,
   SettingsIcon,
+  ShieldIcon,
   SwapIcon,
   TransactionCheckIcon,
   UsbIcon,
@@ -60,7 +63,10 @@ export interface LedgerIconAttributes {
     | "earn"
     | "sell"
     | "search"
-    | "info";
+    | "info"
+    | "headphone"
+    | "envelope"
+    | "shield";
   size: "small" | "medium" | "large";
   fillColor?: string;
 }
@@ -125,6 +131,9 @@ export class LedgerIcon extends LitElement {
       sell: () => SellIcon,
       search: () => SearchIcon,
       info: () => InfoIcon,
+      headphone: () => HeadphoneIcon,
+      envelope: () => EnvelopeIcon,
+      shield: () => ShieldIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;
