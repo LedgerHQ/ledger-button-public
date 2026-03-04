@@ -24,10 +24,10 @@ import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccounts
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
 import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
-import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
+import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
