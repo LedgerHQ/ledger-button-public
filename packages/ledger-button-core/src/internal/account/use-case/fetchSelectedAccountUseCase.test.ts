@@ -84,7 +84,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
-    networks: [{ id: "ethereum", name: "Ethereum" }],
+    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM" }],
   };
 
   beforeEach(() => {
@@ -214,7 +214,7 @@ describe("FetchSelectedAccountUseCase", () => {
             hydratedAccount.transactionHistory,
           );
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum" },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM" },
           ]);
         });
       });
@@ -358,8 +358,8 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(result.isRight()).toBe(true);
         result.map((account) => {
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum" },
-            { id: "polygon", name: "Polygon" },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM" },
+            { id: "polygon", name: "Polygon", ticker: "POLYGON" },
           ]);
           // bsc account has different address
           expect(account.networks).not.toContainEqual(

@@ -543,14 +543,20 @@ export class LedgerButtonCore {
     return this._contextService.getContext().chainId;
   }
 
-  async getCurrencyName(currencyId: string): Promise<string> {
+  async getCurrencyInfo(
+    currencyId: string,
+  ): Promise<{ name: string; ticker: string }> {
     const result = await this.container
       .get<import("../internal/balance/datasource/cal/CalDataSource.js").CalDataSource>(
         balanceModuleTypes.CalDataSource,
       )
       .getCurrencyInformation(currencyId);
 
-    return result.isRight() ? result.extract().name : currencyId;
+    if (result.isRight()) {
+      const { name, ticker } = result.extract();
+      return { name, ticker };
+    }
+    return { name: currencyId, ticker: currencyId.toUpperCase() };
   }
 
   async trackFloatingButtonClick(): Promise<void> {

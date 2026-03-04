@@ -44,6 +44,7 @@ export class AvailableNetworksScreen extends LitElement {
     return html`
       <ledger-chain-item
         ledger-id=${network.id}
+        ticker=${network.ticker ?? ""}
         .title=${network.name}
         .value=${formatFiatBalance(network.fiatBalance)}
         .isClickable=${false}
