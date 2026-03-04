@@ -33,10 +33,11 @@ async function aggregateNetworksFromAccounts(
     matching.map(async (account): Promise<Network> => {
       const totalFiat = computeAccountTotalFiat(account);
       const currency = account.fiatBalance?.currency ?? "USD";
-      const name = await core.getCurrencyName(account.currencyId);
+      const { name, ticker } = await core.getCurrencyInfo(account.currencyId);
       return {
         id: account.currencyId,
         name,
+        ticker,
         fiatBalance:
           totalFiat > 0
             ? ({ value: totalFiat.toFixed(2), currency } as FiatBalance)

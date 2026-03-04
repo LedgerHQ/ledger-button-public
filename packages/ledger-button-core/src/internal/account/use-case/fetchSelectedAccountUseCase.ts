@@ -148,8 +148,12 @@ export class FetchSelectedAccountUseCase {
         const result = await this.calDataSource.getCurrencyInformation(
           a.currencyId,
         );
-        const name = result.isRight() ? result.extract().name : a.currencyId;
-        return { id: a.currencyId, name };
+        const info = result.isRight() ? result.extract() : undefined;
+        return {
+          id: a.currencyId,
+          name: info?.name ?? a.currencyId,
+          ticker: info?.ticker ?? a.ticker,
+        };
       }),
     );
 
