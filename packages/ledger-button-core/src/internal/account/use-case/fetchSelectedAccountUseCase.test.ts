@@ -6,6 +6,7 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { ContextService } from "../../context/ContextService.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -49,6 +50,9 @@ describe("FetchSelectedAccountUseCase", () => {
   let mockHydrateWithTxHistoryUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
+  let mockCalDataSource: {
+    getCurrencyInformation: ReturnType<typeof vi.fn>;
+  };
   let mockLogger: ReturnType<typeof createMockLogger>;
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
 
@@ -80,7 +84,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
-    networks: [{ id: "1", name: "ethereum" }],
+    networks: [{ id: "ethereum", name: "Ethereum" }],
   };
 
   beforeEach(() => {
@@ -112,6 +116,12 @@ describe("FetchSelectedAccountUseCase", () => {
       execute: vi.fn(),
     };
 
+    mockCalDataSource = {
+      getCurrencyInformation: vi.fn().mockImplementation((currencyId: string) =>
+        Promise.resolve(Right({ id: currencyId, name: currencyId.charAt(0).toUpperCase() + currencyId.slice(1), ticker: currencyId.toUpperCase(), decimals: 18 })),
+      ),
+    };
+
     useCase = new FetchSelectedAccountUseCase(
       mockLoggerFactory as unknown as () => LoggerPublisher,
       mockContextService as unknown as ContextService,
@@ -120,6 +130,7 @@ describe("FetchSelectedAccountUseCase", () => {
       mockHydrateWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
       mockHydrateWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
       mockHydrateWithTxHistoryUseCase as unknown as HydrateAccountWithTxHistoryUseCase,
+      mockCalDataSource as unknown as CalDataSource,
     );
 
     vi.clearAllMocks();
@@ -203,7 +214,7 @@ describe("FetchSelectedAccountUseCase", () => {
             hydratedAccount.transactionHistory,
           );
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "ethereum" },
+            { id: "ethereum", name: "Ethereum" },
           ]);
         });
       });
@@ -347,8 +358,8 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(result.isRight()).toBe(true);
         result.map((account) => {
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "ethereum" },
-            { id: "polygon", name: "polygon" },
+            { id: "ethereum", name: "Ethereum" },
+            { id: "polygon", name: "Polygon" },
           ]);
           // bsc account has different address
           expect(account.networks).not.toContainEqual(

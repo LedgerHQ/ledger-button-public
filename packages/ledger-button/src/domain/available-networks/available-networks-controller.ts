@@ -20,32 +20,36 @@ function computeAccountTotalFiat(account: AccountWithFiat): number {
   );
 }
 
-function aggregateNetworksFromAccounts(
+async function aggregateNetworksFromAccounts(
   accounts: AccountWithFiat[],
   selectedAddress: string,
-): Network[] {
+  core: CoreContext,
+): Promise<Network[]> {
   const matching = accounts.filter(
     (a) => a.freshAddress === selectedAddress,
   );
 
-  return matching
-    .map((account): Network => {
+  const networks = await Promise.all(
+    matching.map(async (account): Promise<Network> => {
       const totalFiat = computeAccountTotalFiat(account);
       const currency = account.fiatBalance?.currency ?? "USD";
+      const name = await core.getCurrencyName(account.currencyId);
       return {
         id: account.currencyId,
-        name: account.currencyId,
+        name,
         fiatBalance:
           totalFiat > 0
             ? ({ value: totalFiat.toFixed(2), currency } as FiatBalance)
             : undefined,
       };
-    })
-    .sort((a, b) => {
-      const aVal = a.fiatBalance?.value ? parseFloat(a.fiatBalance.value) : 0;
-      const bVal = b.fiatBalance?.value ? parseFloat(b.fiatBalance.value) : 0;
-      return bVal - aVal;
-    });
+    }),
+  );
+
+  return networks.sort((a, b) => {
+    const aVal = a.fiatBalance?.value ? parseFloat(a.fiatBalance.value) : 0;
+    const bVal = b.fiatBalance?.value ? parseFloat(b.fiatBalance.value) : 0;
+    return bVal - aVal;
+  });
 }
 
 export class AvailableNetworksController implements ReactiveController {
@@ -92,7 +96,11 @@ export class AvailableNetworksController implements ReactiveController {
         return;
       }
 
-      this.networks = aggregateNetworksFromAccounts(accounts, selectedAddress);
+      this.networks = await aggregateNetworksFromAccounts(
+        accounts,
+        selectedAddress,
+        this.core,
+      );
     } catch {
       if (this.disconnected) return;
       this.navigation.navigateBack();
