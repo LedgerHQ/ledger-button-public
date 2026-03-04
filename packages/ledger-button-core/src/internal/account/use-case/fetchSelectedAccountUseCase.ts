@@ -7,6 +7,8 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js";
@@ -50,6 +52,8 @@ export class FetchSelectedAccountUseCase {
     private readonly hydrateWithFiatUseCase: HydrateAccountWithFiatUseCase,
     @inject(accountModuleTypes.HydrateAccountWithTxHistoryUseCase)
     private readonly hydrateWithTxHistoryUseCase: HydrateAccountWithTxHistoryUseCase,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
   ) {
     this.logger = loggerFactory("FetchSelectedAccountUseCase");
   }
@@ -124,20 +128,32 @@ export class FetchSelectedAccountUseCase {
       this.hydrateWithTxHistoryUseCase.execute(withBalance),
     ]);
 
-    const networks = this.computeNetworksFromAllAccounts(
+    const networks = await this.computeNetworksFromAllAccounts(
       account,
       allAccounts,
     );
     return this.mergeHydrations(withBalance, withFiat, withTxHistory, networks);
   }
 
-  private computeNetworksFromAllAccounts(
+  private async computeNetworksFromAllAccounts(
     selectedAccount: Account,
     allAccounts: Account[],
-  ): Network[] {
-    return allAccounts
-      .filter((a) => a.freshAddress === selectedAccount.freshAddress)
-      .map((a) => ({ id: a.currencyId, name: a.currencyId }));
+  ): Promise<Network[]> {
+    const matching = allAccounts.filter(
+      (a) => a.freshAddress === selectedAccount.freshAddress,
+    );
+
+    const networks = await Promise.all(
+      matching.map(async (a) => {
+        const result = await this.calDataSource.getCurrencyInformation(
+          a.currencyId,
+        );
+        const name = result.isRight() ? result.extract().name : a.currencyId;
+        return { id: a.currencyId, name };
+      }),
+    );
+
+    return networks;
   }
 
   private mergeHydrations(

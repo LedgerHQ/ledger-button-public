@@ -24,6 +24,7 @@ import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccounts
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
 import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
+import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
@@ -540,6 +541,16 @@ export class LedgerButtonCore {
 
   getChainId(): number {
     return this._contextService.getContext().chainId;
+  }
+
+  async getCurrencyName(currencyId: string): Promise<string> {
+    const result = await this.container
+      .get<import("../internal/balance/datasource/cal/CalDataSource.js").CalDataSource>(
+        balanceModuleTypes.CalDataSource,
+      )
+      .getCurrencyInformation(currencyId);
+
+    return result.isRight() ? result.extract().name : currencyId;
   }
 
   async trackFloatingButtonClick(): Promise<void> {
