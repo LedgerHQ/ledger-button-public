@@ -124,21 +124,20 @@ export class FetchSelectedAccountUseCase {
       this.hydrateWithTxHistoryUseCase.execute(withBalance),
     ]);
 
-    const networks = this.computeNetworksFromAllAccounts(allAccounts);
+    const networks = this.computeNetworksFromAllAccounts(
+      account,
+      allAccounts,
+    );
     return this.mergeHydrations(withBalance, withFiat, withTxHistory, networks);
   }
 
-  private computeNetworksFromAllAccounts(accounts: Account[]): Network[] {
-    const seen = new Map<string, string>();
-    for (const account of accounts) {
-      if (!seen.has(account.currencyId)) {
-        seen.set(account.currencyId, account.currencyId);
-      }
-    }
-    return Array.from(seen.entries()).map(([currencyId]) => ({
-      id: currencyId,
-      name: currencyId,
-    }));
+  private computeNetworksFromAllAccounts(
+    selectedAccount: Account,
+    allAccounts: Account[],
+  ): Network[] {
+    return allAccounts
+      .filter((a) => a.freshAddress === selectedAccount.freshAddress)
+      .map((a) => ({ id: a.currencyId, name: a.currencyId }));
   }
 
   private mergeHydrations(
