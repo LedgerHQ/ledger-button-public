@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { DialogPanel, DialogTitle, Field, Textarea } from "@headlessui/react";
-
-import styles from "../TransactionsBlock.module.css";
+import { Button } from "@ledgerhq/lumen-ui-react";
 
 interface SendTransactionModalProps {
   onSubmit: (tx: string) => Promise<void>;
   onClose: () => void;
 }
 
-export function SendTransactionModal({ onSubmit, onClose }: SendTransactionModalProps) {
+export function SendTransactionModal({
+  onSubmit,
+  onClose,
+}: SendTransactionModalProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = useCallback(async () => {
@@ -23,24 +24,21 @@ export function SendTransactionModal({ onSubmit, onClose }: SendTransactionModal
   }, [onSubmit, onClose]);
 
   return (
-    <DialogPanel transition className={styles["transactions__dialog-panel"]}>
-      <DialogTitle as="h3" className={styles["transactions__dialog-title"]}>
-        Send Transaction
-      </DialogTitle>
-      <Field>
-        <Textarea
+    <div className="space-y-16">
+      <div>
+        <label className="block body-4-semi-bold text-muted mb-6">
+          Transaction JSON
+        </label>
+        <textarea
           ref={textareaRef}
-          className={styles["transactions__textarea"]}
+          className="w-full px-12 py-8 border border-muted rounded-lg body-4 font-mono bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active"
           rows={5}
           placeholder='{"to": "0x...", "value": "0x0", "data": "0x..."}'
         />
-      </Field>
-      <button
-        className={styles["transactions__submit-button"]}
-        onClick={handleSubmit}
-      >
+      </div>
+      <Button appearance="accent" size="md" isFull onClick={handleSubmit}>
         Send Transaction
-      </button>
-    </DialogPanel>
+      </Button>
+    </div>
   );
 }

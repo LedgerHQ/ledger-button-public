@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { DialogPanel, DialogTitle, Field, Textarea } from "@headlessui/react";
-
-import styles from "../TransactionsBlock.module.css";
+import { Button } from "@ledgerhq/lumen-ui-react";
 
 interface SignPersonalMessageModalProps {
   onSubmit: (message: string) => Promise<void>;
   onClose: () => void;
 }
 
-export function SignPersonalMessageModal({ onSubmit, onClose }: SignPersonalMessageModalProps) {
+export function SignPersonalMessageModal({
+  onSubmit,
+  onClose,
+}: SignPersonalMessageModalProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = useCallback(async () => {
@@ -23,24 +24,21 @@ export function SignPersonalMessageModal({ onSubmit, onClose }: SignPersonalMess
   }, [onSubmit, onClose]);
 
   return (
-    <DialogPanel transition className={styles["transactions__dialog-panel"]}>
-      <DialogTitle as="h3" className={styles["transactions__dialog-title"]}>
-        Sign Personal Message
-      </DialogTitle>
-      <Field>
-        <Textarea
+    <div className="space-y-16">
+      <div>
+        <label className="block body-4-semi-bold text-muted mb-6">
+          Message
+        </label>
+        <textarea
           ref={textareaRef}
-          className={styles["transactions__textarea"]}
+          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base font-mono placeholder:text-muted-subtle focus:outline-none focus:border-active resize-y"
           rows={3}
           placeholder="Enter your message..."
         />
-      </Field>
-      <button
-        className={styles["transactions__submit-button"]}
-        onClick={handleSubmit}
-      >
+      </div>
+      <Button appearance="accent" size="md" isFull onClick={handleSubmit}>
         Sign Message
-      </button>
-    </DialogPanel>
+      </Button>
+    </div>
   );
 }
