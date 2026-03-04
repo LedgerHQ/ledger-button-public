@@ -306,6 +306,58 @@ describe("FetchSelectedAccountUseCase", () => {
       });
     });
 
+    describe("network computation from accounts with same address", () => {
+      it("should only include networks from accounts sharing the selected address", async () => {
+        const polygonAccount: Account = {
+          ...baseAccount,
+          id: "account-2",
+          currencyId: "polygon",
+          // same freshAddress
+        };
+        const otherAccount: Account = {
+          ...baseAccount,
+          id: "account-3",
+          currencyId: "bsc",
+          freshAddress: "0xdifferentaddress",
+        };
+
+        mockContextService.getContext.mockReturnValue({
+          selectedAccount: baseAccount,
+        });
+        mockFetchAccountsUseCase.execute.mockResolvedValue([
+          baseAccount,
+          polygonAccount,
+          otherAccount,
+        ]);
+        mockHydrateWithBalanceUseCase.execute.mockResolvedValue({
+          ...baseAccount,
+          balance: "2.5000",
+        });
+        mockHydrateWithFiatUseCase.execute.mockResolvedValue({
+          ...baseAccount,
+          fiatBalance: { value: "5000.00", currency: "USD" },
+        });
+        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
+          ...baseAccount,
+          transactionHistory: [],
+        });
+
+        const result = await useCase.execute();
+
+        expect(result.isRight()).toBe(true);
+        result.map((account) => {
+          expect(account.networks).toEqual([
+            { id: "ethereum", name: "ethereum" },
+            { id: "polygon", name: "polygon" },
+          ]);
+          // bsc account has different address
+          expect(account.networks).not.toContainEqual(
+            expect.objectContaining({ id: "bsc" }),
+          );
+        });
+      });
+    });
+
     describe("execution flow verification", () => {
       it("should call all hydration use cases for the same account address", async () => {
         mockContextService.getContext.mockReturnValue({

@@ -4,7 +4,7 @@ import type {
   Network,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-import { lastValueFrom } from "rxjs";
+import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
@@ -20,29 +20,32 @@ function computeAccountTotalFiat(account: AccountWithFiat): number {
   );
 }
 
-function aggregateNetworksFromAccounts(accounts: AccountWithFiat[]): Network[] {
-  const networkMap = accounts.reduce<
-    Map<string, { totalFiat: number; currency: string }>
-  >((acc, account) => {
-    const existing = acc.get(account.currencyId);
-    const accountFiat = computeAccountTotalFiat(account);
-    const currency = account.fiatBalance?.currency ?? "USD";
-    return acc.set(account.currencyId, {
-      totalFiat: (existing?.totalFiat ?? 0) + accountFiat,
-      currency: existing?.currency ?? currency,
-    });
-  }, new Map());
+function aggregateNetworksFromAccounts(
+  accounts: AccountWithFiat[],
+  selectedAddress: string,
+): Network[] {
+  const matching = accounts.filter(
+    (a) => a.freshAddress === selectedAddress,
+  );
 
-  return Array.from(networkMap.entries())
-    .sort((a, b) => b[1].totalFiat - a[1].totalFiat)
-    .map(([currencyId, { totalFiat, currency }]): Network => ({
-      id: currencyId,
-      name: currencyId,
-      fiatBalance:
-        totalFiat > 0
-          ? ({ value: totalFiat.toFixed(2), currency } as FiatBalance)
-          : undefined,
-    }));
+  return matching
+    .map((account): Network => {
+      const totalFiat = computeAccountTotalFiat(account);
+      const currency = account.fiatBalance?.currency ?? "USD";
+      return {
+        id: account.currencyId,
+        name: account.currencyId,
+        fiatBalance:
+          totalFiat > 0
+            ? ({ value: totalFiat.toFixed(2), currency } as FiatBalance)
+            : undefined,
+      };
+    })
+    .sort((a, b) => {
+      const aVal = a.fiatBalance?.value ? parseFloat(a.fiatBalance.value) : 0;
+      const bVal = b.fiatBalance?.value ? parseFloat(b.fiatBalance.value) : 0;
+      return bVal - aVal;
+    });
 }
 
 export class AvailableNetworksController implements ReactiveController {
@@ -72,6 +75,14 @@ export class AvailableNetworksController implements ReactiveController {
     this.host.requestUpdate();
 
     try {
+      const currentContext = await firstValueFrom(this.core.observeContext());
+      const selectedAddress = currentContext.selectedAccount?.freshAddress;
+
+      if (!selectedAddress) {
+        this.navigation.navigateBack();
+        return;
+      }
+
       const accounts = await lastValueFrom(this.core.getAccounts("usd"));
 
       if (this.disconnected) return;
@@ -81,7 +92,7 @@ export class AvailableNetworksController implements ReactiveController {
         return;
       }
 
-      this.networks = aggregateNetworksFromAccounts(accounts);
+      this.networks = aggregateNetworksFromAccounts(accounts, selectedAddress);
     } catch {
       if (this.disconnected) return;
       this.navigation.navigateBack();
