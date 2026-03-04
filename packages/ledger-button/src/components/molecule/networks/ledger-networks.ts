@@ -44,7 +44,8 @@ export class LedgerNetworks extends LitElement {
     return visible.map(
       (network) => html`
         <ledger-crypto-icon
-          .ledgerId=${network.name}
+          .ledgerId=${network.id}
+          .ticker=${network.ticker ?? ""}
           size="small"
           variant="square"
         ></ledger-crypto-icon>
