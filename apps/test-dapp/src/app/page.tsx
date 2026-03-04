@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
 import { ethers } from "ethers";
 
 import {
+  type ActivityEntry,
+  ActivityLog,
+  ConnectionStatus,
   type EIPEvent,
-  EventLogBlock,
   ProviderSelectionBlock,
-  QuickActionsBlock,
   SettingsBlock,
   TransactionsBlock,
 } from "../components";
@@ -17,11 +19,15 @@ import {
   useProviders,
 } from "../hooks/useProviders";
 
-import styles from "./page.module.css";
-
 let Provider:
   | typeof import("@ledgerhq/ledger-wallet-provider").LedgerEIP1193Provider
   | null = null;
+
+let activityCounter = 0;
+function nextActivityId(): string {
+  activityCounter += 1;
+  return `${Date.now()}-${activityCounter}`;
+}
 
 export default function Index() {
   const [config, setConfig] = useState<LedgerProviderConfig>(DEFAULT_CONFIG);
@@ -34,9 +40,13 @@ export default function Index() {
   } = useProviders(config);
 
   const [account, setAccount] = useState<string | null>(null);
-  const [events, setEvents] = useState<EIPEvent[]>([]);
+  const [chainId, setChainId] = useState<string | null>(null);
+  const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const prevResultRef = useRef<string | null>(null);
+  const prevErrorRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -46,18 +56,66 @@ export default function Index() {
     });
   }, []);
 
+  useEffect(() => {
+    if (result && result !== prevResultRef.current) {
+      setActivity((prev) => [
+        ...prev,
+        {
+          id: nextActivityId(),
+          kind: "result",
+          label: "Result",
+          timestamp: new Date(),
+          data: result,
+        },
+      ]);
+    }
+    prevResultRef.current = result;
+  }, [result]);
+
+  useEffect(() => {
+    if (error && error !== prevErrorRef.current) {
+      setActivity((prev) => [
+        ...prev,
+        {
+          id: nextActivityId(),
+          kind: "error",
+          label: "Error",
+          timestamp: new Date(),
+          data: error,
+        },
+      ]);
+    }
+    prevErrorRef.current = error;
+  }, [error]);
+
   const addEvent = useCallback((type: EIPEvent["type"], data: unknown) => {
-    const event: EIPEvent = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      type,
-      timestamp: new Date(),
-      data,
-    };
-    setEvents((prev) => [...prev, event]);
+    setActivity((prev) => [
+      ...prev,
+      {
+        id: nextActivityId(),
+        kind: "event",
+        label: type,
+        timestamp: new Date(),
+        data,
+      },
+    ]);
   }, []);
 
-  const clearEvents = useCallback(() => {
-    setEvents([]);
+  const addInfoEntry = useCallback((label: string, data?: unknown) => {
+    setActivity((prev) => [
+      ...prev,
+      {
+        id: nextActivityId(),
+        kind: "info",
+        label,
+        timestamp: new Date(),
+        data,
+      },
+    ]);
+  }, []);
+
+  const clearActivity = useCallback(() => {
+    setActivity([]);
   }, []);
 
   useEffect(() => {
@@ -69,9 +127,10 @@ export default function Index() {
       setAccount(accounts[0] || null);
     };
 
-    const handleChainChanged = (chainId: string) => {
-      console.log("chainChanged received", chainId);
-      addEvent("chainChanged", chainId);
+    const handleChainChanged = (newChainId: string) => {
+      console.log("chainChanged received", newChainId);
+      addEvent("chainChanged", newChainId);
+      setChainId(newChainId);
     };
 
     const handleDisconnect = () => {
@@ -96,29 +155,33 @@ export default function Index() {
     };
   }, [selectedProvider, addEvent]);
 
+  const accountRef = useRef(account);
+  accountRef.current = account;
+
+  useEffect(() => {
+    if (!selectedProvider || accountRef.current) return;
+
+    addInfoEntry("Requesting accounts…");
+    selectedProvider.provider
+      .request({ method: "eth_requestAccounts", params: [] })
+      .then((accounts) => {
+        const accs = accounts as string[];
+        if (accs[0]) {
+          setAccount(accs[0]);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError((err as Error)?.message ?? "Unknown error");
+      });
+  }, [selectedProvider, addInfoEntry]);
+
   // Request providers (EIP-6963)
   const dispatchRequestProvider = useCallback(() => {
     if (typeof window === "undefined") return;
+    addInfoEntry("Discovering providers…");
     window.dispatchEvent(new Event("eip6963:requestProvider"));
-  }, []);
-
-  const handleRequestAccounts = useCallback(async () => {
-    if (!selectedProvider) return;
-
-    setError(null);
-    try {
-      const accounts = (await selectedProvider.provider.request({
-        method: "eth_requestAccounts",
-        params: [],
-      })) as string[];
-      if (accounts[0] !== account) {
-        setAccount(accounts[0]);
-      }
-    } catch (err) {
-      console.error(err);
-      setError((err as Error)?.message ?? "Unknown error");
-    }
-  }, [selectedProvider, account]);
+  }, [addInfoEntry]);
 
   const handleDisconnect = useCallback(() => {
     if (!selectedProvider) return;
@@ -128,25 +191,13 @@ export default function Index() {
       selectedProvider.provider.disconnect();
     }
 
+    addInfoEntry("Disconnected");
     setSelectedProvider(null);
     setAccount(null);
+    setChainId(null);
     setResult(null);
     setError(null);
-  }, [selectedProvider, setSelectedProvider]);
-
-  const handleOpenHome = useCallback(() => {
-    if (!selectedProvider) return;
-    if (Provider && selectedProvider.provider instanceof Provider) {
-      selectedProvider.provider.navigationIntent("home");
-    }
-  }, [selectedProvider]);
-
-  const handleOpenSettings = useCallback(() => {
-    if (!selectedProvider) return;
-    if (Provider && selectedProvider.provider instanceof Provider) {
-      selectedProvider.provider.navigationIntent("settings");
-    }
-  }, [selectedProvider]);
+  }, [selectedProvider, setSelectedProvider, addInfoEntry]);
 
   const clearResult = useCallback(() => {
     setResult(null);
@@ -161,19 +212,18 @@ export default function Index() {
 
       try {
         const tx = JSON.parse(txJson);
-        console.log("JSON RPC eth_signTransaction TX ", tx);
+        addInfoEntry("eth_signTransaction", tx);
         const res = (await selectedProvider.provider.request({
           method: "eth_signTransaction",
           params: [tx],
         })) as string;
         setResult(res);
-        console.log({ result: res });
       } catch (err) {
         console.error(err);
         setError((err as Error)?.message ?? String(err));
       }
     },
-    [selectedProvider],
+    [selectedProvider, addInfoEntry],
   );
 
   const handleSendTransaction = useCallback(
@@ -184,19 +234,18 @@ export default function Index() {
 
       try {
         const tx = JSON.parse(txJson);
-        console.log("JSON RPC eth_sendTransaction TX ", tx);
+        addInfoEntry("eth_sendTransaction", tx);
         const res = (await selectedProvider.provider.request({
           method: "eth_sendTransaction",
           params: [tx],
         })) as string;
         setResult(res);
-        console.log({ result: res });
       } catch (err) {
         console.error(err);
         setError((err as Error)?.message ?? String(err));
       }
     },
-    [selectedProvider],
+    [selectedProvider, addInfoEntry],
   );
 
   const handleSignRawTransaction = useCallback(
@@ -206,7 +255,7 @@ export default function Index() {
       setError(null);
 
       try {
-        console.log("JSON RPC eth_signRawTransaction TX ", rawTx);
+        addInfoEntry("eth_signRawTransaction", rawTx);
         const transx = ethers.Transaction.from(rawTx);
         console.log("JSON RPC eth_signRawTransaction Ethers Transaction", {
           transx,
@@ -217,13 +266,12 @@ export default function Index() {
           params: [rawTx],
         })) as string;
         setResult(res);
-        console.log({ transaction: res });
       } catch (err) {
         console.error(err);
         setError((err as Error)?.message ?? String(err));
       }
     },
-    [selectedProvider],
+    [selectedProvider, addInfoEntry],
   );
 
   const handleSignTypedData = useCallback(
@@ -234,18 +282,18 @@ export default function Index() {
 
       try {
         const typedData = JSON.parse(typedDataJson);
+        addInfoEntry("eth_signTypedData_v4", typedData);
         const res = (await selectedProvider.provider.request({
           method: "eth_signTypedData_v4",
           params: [account, typedData],
         })) as string;
-        console.log({ result: res });
         setResult(res);
       } catch (err) {
         console.error(err);
         setError((err as Error)?.message ?? String(err));
       }
     },
-    [selectedProvider, account],
+    [selectedProvider, account, addInfoEntry],
   );
 
   const handleSignPersonalMessage = useCallback(
@@ -255,6 +303,7 @@ export default function Index() {
       setError(null);
 
       try {
+        addInfoEntry("eth_sign (personal)", message);
         const res = (await selectedProvider.provider.request({
           method: "eth_sign",
           params: [account, message],
@@ -265,7 +314,7 @@ export default function Index() {
         setError((err as Error)?.message ?? String(err));
       }
     },
-    [selectedProvider, account],
+    [selectedProvider, account, addInfoEntry],
   );
 
   const handleProviderRequest = useCallback(
@@ -276,7 +325,7 @@ export default function Index() {
 
       try {
         const params = JSON.parse(paramsJson);
-        console.log("handleProviderRequest", { method, params });
+        addInfoEntry(`RPC: ${method}`, params);
 
         const res = await selectedProvider.provider.request({
           // @ts-expect-error - Supress RpcMethods error
@@ -284,68 +333,96 @@ export default function Index() {
           params,
         });
 
-        console.log("handleProviderRequest result", { result: res });
         setResult(JSON.stringify(res));
       } catch (err) {
         console.error(err);
         setError((err as Error)?.message ?? String(err));
       }
     },
-    [selectedProvider],
+    [selectedProvider, addInfoEntry],
   );
 
   return (
-    <div className={styles.page}>
-      <div className={styles["page__container"]}>
-        <header className={styles["page__header"]}>
-          <h1 className={styles["page__title"]}>Ledger Button Test dApp</h1>
-          <p className={styles["page__subtitle"]}>
-            Test EIP-1193 / EIP-6963 provider integration
-          </p>
-        </header>
+    <div className="min-h-full p-24 bg-canvas">
+      <div className="max-w-[1440px] mx-auto flex gap-24">
+        <div className="flex-1 min-w-0 max-w-[720px]">
+          <header className="mb-24">
+            <h1 className="heading-3 text-base mb-6">
+              Ledger Button Test dApp
+            </h1>
+            <p className="body-2 text-muted">
+              Test EIP-1193 / EIP-6963 provider integration
+            </p>
+          </header>
 
-        <div className={styles["page__blocks"]}>
-          <SettingsBlock
-            config={config}
-            onConfigChange={setConfig}
-            isProviderInitialized={isInitialized}
-            onReinitialize={reinitialize}
-          />
+          <div className="flex flex-col gap-20">
+            <SettingsBlock
+              config={config}
+              onConfigChange={setConfig}
+              isProviderInitialized={isInitialized}
+              onReinitialize={reinitialize}
+            />
 
-          <ProviderSelectionBlock
-            providers={providers}
-            selectedProvider={selectedProvider}
-            onSelectProvider={setSelectedProvider}
-            onRequestProviders={dispatchRequestProvider}
-            onDisconnect={handleDisconnect}
-            account={account}
-          />
+            <ProviderSelectionBlock
+              providers={providers}
+              selectedProvider={selectedProvider}
+              onSelectProvider={setSelectedProvider}
+              onRequestProviders={dispatchRequestProvider}
+              onDisconnect={handleDisconnect}
+              account={account}
+            />
 
-          <QuickActionsBlock
-            isConnected={selectedProvider !== null}
-            hasAccount={account !== null}
-            onOpenHome={handleOpenHome}
-            onOpenSettings={handleOpenSettings}
-            onRequestAccounts={handleRequestAccounts}
-          />
-
-          <TransactionsBlock
-            isConnected={selectedProvider !== null}
-            hasAccount={account !== null}
-            account={account}
-            onSignTransaction={handleSignTransaction}
-            onSendTransaction={handleSendTransaction}
-            onSignRawTransaction={handleSignRawTransaction}
-            onSignTypedData={handleSignTypedData}
-            onSignPersonalMessage={handleSignPersonalMessage}
-            onProviderRequest={handleProviderRequest}
-            result={result}
-            error={error}
-            onClearResult={clearResult}
-          />
-
-          <EventLogBlock events={events} onClearEvents={clearEvents} />
+            <TransactionsBlock
+              isConnected={selectedProvider !== null}
+              hasAccount={account !== null}
+              account={account}
+              onSignTransaction={handleSignTransaction}
+              onSendTransaction={handleSendTransaction}
+              onSignRawTransaction={handleSignRawTransaction}
+              onSignTypedData={handleSignTypedData}
+              onSignPersonalMessage={handleSignPersonalMessage}
+              onProviderRequest={handleProviderRequest}
+              result={result}
+              error={error}
+              onClearResult={clearResult}
+            />
+          </div>
         </div>
+
+        <aside className="hidden lg:block w-[400px] shrink-0">
+          <div className="sticky top-24 flex flex-col gap-20 max-h-[calc(100vh-48px)]">
+            <div className="shrink-0">
+              <ConnectionStatus
+                selectedProvider={selectedProvider}
+                account={account}
+                chainId={chainId}
+                isInitialized={isInitialized}
+              />
+            </div>
+            <div className="flex-1 min-h-0 flex flex-col">
+              <ActivityLog entries={activity} onClear={clearActivity} />
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div className="lg:hidden mt-16 max-w-[680px] mx-auto">
+        <details className="group">
+          <summary className="flex items-center justify-between px-20 py-14 border border-muted rounded-lg cursor-pointer select-none bg-muted">
+            <span className="body-2-semi-bold text-base">
+              Activity Log
+              {activity.length > 0 && (
+                <span className="ml-8 text-muted">({activity.length})</span>
+              )}
+            </span>
+            <span className="text-muted group-open:rotate-180 transition-transform">
+              <ChevronDownIcon size={16} />
+            </span>
+          </summary>
+          <div className="mt-8 h-[400px]">
+            <ActivityLog entries={activity} onClear={clearActivity} />
+          </div>
+        </details>
       </div>
     </div>
   );
