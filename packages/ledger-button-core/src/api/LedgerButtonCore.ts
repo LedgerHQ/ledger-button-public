@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, Subscription, switchMap, tap } from "rxjs";
+import { lastValueFrom, Observable, Subscription, switchMap, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -14,11 +14,15 @@ import { SignRawTransactionParams } from "./model/signing/SignRawTransactionPara
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
+import {
+  calculateTotalFiatValue,
+} from "../internal/account/accountFiatUtils.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import type { AccountWithFiat } from "../internal/account/service/AccountService.js";
 import {
   Account,
   type AccountService,
+  type AccountWithFiat,
+  type Network,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
@@ -292,6 +296,34 @@ export class LedgerButtonCore {
             .execute(accounts, targetCurrency),
         ),
       );
+  }
+
+  async getNetworksForAddress(
+    address: string,
+    targetCurrency = "usd",
+  ): Promise<Network[]> {
+    this._logger.debug("Getting networks for address", {
+      address,
+      targetCurrency,
+    });
+
+    const accounts = await lastValueFrom(this.getAccounts(targetCurrency));
+    const matching = accounts.filter((a) => a.freshAddress === address);
+
+    return Promise.all(
+      matching.map(async (account): Promise<Network> => {
+        const totalFiatValue = calculateTotalFiatValue(account);
+        const { name, ticker } = await this.getCurrencyInfo(
+          account.currencyId,
+        );
+        return {
+          id: account.currencyId,
+          name,
+          ticker,
+          fiatBalance: totalFiatValue,
+        };
+      }),
+    );
   }
 
   selectAccount(account: Account) {
