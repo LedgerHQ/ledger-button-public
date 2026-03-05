@@ -67,8 +67,8 @@ catalogs:
       specifier: 0.4.1
       version: 0.4.1
     '@ledgerhq/lumen-design-core':
-      specifier: ^0.0.55
-      version: 0.0.55
+      specifier: ^0.1.2
+      version: 0.1.2
     '@lit/context':
       specifier: 1.1.6
       version: 1.1.6
@@ -771,7 +771,7 @@ importers:
     dependencies:
       '@ledgerhq/lumen-design-core':
         specifier: 'catalog:'
-        version: 0.0.55
+        version: 0.1.2
       '@ledgerhq/lumen-ui-react':
         specifier: ^0.0.58
         version: 0.0.58(@radix-ui/react-checkbox@1.3.3(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@radix-ui/react-dropdown-menu@2.1.16(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@radix-ui/react-select@2.2.6(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@radix-ui/react-slot@1.2.4(@types/react@19.0.0)(react@19.0.0))(@radix-ui/react-switch@1.2.6(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(class-variance-authority@0.7.1)(clsx@2.1.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(tailwind-merge@2.6.0)
@@ -836,7 +836,7 @@ importers:
         version: link:../ledger-button-core
       '@ledgerhq/lumen-design-core':
         specifier: 'catalog:'
-        version: 0.0.55
+        version: 0.1.2
       '@lit/context':
         specifier: 'catalog:'
         version: 1.1.6
@@ -2860,11 +2860,11 @@ packages:
   '@ledgerhq/logs@6.14.0':
     resolution: {integrity: sha512-kJFu1+asWQmU9XlfR1RM3lYR76wuEoPyZvkI/CNjpft78BQr3+MMf3Nu77ABzcKFnhIcmAkOLlDQ6B8L6hDXHA==}
 
-  '@ledgerhq/lumen-design-core@0.0.55':
-    resolution: {integrity: sha512-2IDbyM9wpWHJiPB5xv3cbbkdhhIgoMfx6ndW7mJmY0YAgakfd7ywHdcB/Ti9Z8vB/xSsCu3Mo5rzB/v/obUf3g==}
-
   '@ledgerhq/lumen-design-core@0.1.1':
     resolution: {integrity: sha512-gaxr12vo7zXfWzb4jqh9v+A1wq/juGe6XVdEDYCJnIyxM4ghotGonMEvimap6YRmjn8zsyBGVgwbdXO5DdPybA==}
+
+  '@ledgerhq/lumen-design-core@0.1.2':
+    resolution: {integrity: sha512-qRDrbA9aZdB4pIdI3G+GUzE7so7azhioKqcBQ02sWtulNELOlVS/KHu/KPXAAi6FqNluU7FgRNmZitPFtZFEog==}
 
   '@ledgerhq/lumen-ui-react@0.0.58':
     resolution: {integrity: sha512-PvJM8LiPHGfkUejEUotrvYl5TzFeQumRRXqrEn+ugfNrFjzAmBR2xdaMSMk5zWEUO7IQpYXK6w2Ik94wjfM5Ww==}
@@ -16038,12 +16038,12 @@ snapshots:
 
   '@ledgerhq/logs@6.14.0': {}
 
-  '@ledgerhq/lumen-design-core@0.0.55':
+  '@ledgerhq/lumen-design-core@0.1.1':
     dependencies:
       tailwindcss: 4.2.1
       tslib: 2.8.1
 
-  '@ledgerhq/lumen-design-core@0.1.1':
+  '@ledgerhq/lumen-design-core@0.1.2':
     dependencies:
       tailwindcss: 4.2.1
       tslib: 2.8.1
