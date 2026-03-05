@@ -56,28 +56,6 @@ const styles = css`
     max-height: 100vh;
     transform: translateX(100%);
   }
-
-  #modal-content {
-    scrollbar-color: var(--background-muted-strong) var(--background-muted-transparent, transparent);
-    scrollbar-width: thin;
-  }
-
-  #modal-content::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  #modal-content::-webkit-scrollbar-track {
-    background: var(--background-muted-transparent, transparent);
-  }
-
-  #modal-content::-webkit-scrollbar-thumb {
-    background: var(--background-muted-strong);
-    border-radius: 3px;
-  }
-
-  #modal-content::-webkit-scrollbar-thumb:hover {
-    background: var(--background-muted-strong-hover);
-  }
 `;
 
 const centerContainerClasses = {
@@ -237,7 +215,7 @@ export class LedgerModal extends LitElement {
     return html`
       <div
         id="modal-content"
-        class="relative flex-1 overflow-y-auto text-base"
+        class="relative flex-1 overflow-y-auto text-base scrollbar-custom"
       >
         <slot>hello</slot>
       </div>
