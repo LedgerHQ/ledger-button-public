@@ -330,7 +330,7 @@ Run `nx storybook ledger-wallet-provider` to start the Storybook development ser
 
 ## Version
 
-Current version: **1.0.0-rc.5**
+Current version: **1.1.0**
 
 This is a release candidate version. The API is stable but may have minor changes before the final 1.0.0 release.
 
