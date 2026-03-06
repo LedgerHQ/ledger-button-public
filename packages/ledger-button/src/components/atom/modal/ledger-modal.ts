@@ -215,7 +215,7 @@ export class LedgerModal extends LitElement {
     return html`
       <div
         id="modal-content"
-        class="relative flex-1 overflow-y-auto text-base"
+        class="relative flex-1 overflow-y-auto text-base scrollbar-custom"
       >
         <slot>hello</slot>
       </div>
