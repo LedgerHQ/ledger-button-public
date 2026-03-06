@@ -273,7 +273,9 @@ export class LedgerHomeScreen extends LitElement {
           </div>
 
           ${this.activeTab === "tokens"
-            ? html`<token-list-screen></token-list-screen>`
+            ? html`<token-list-screen
+                .account=${account}
+              ></token-list-screen>`
             : html`<transaction-list-screen
                 .transactions=${this.getTransactionListItems()}
               ></transaction-list-screen>`}

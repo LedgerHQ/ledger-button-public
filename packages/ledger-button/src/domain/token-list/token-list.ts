@@ -1,40 +1,28 @@
 import "../../components/index.js";
 
-import type { Token } from "@ledgerhq/ledger-wallet-provider-core";
-import { consume } from "@lit/context";
+import type { DetailedAccount, Token } from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { type CoreContext, coreContext } from "../../context/core-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { formatFiatBalance } from "../../utils/format-fiat.js";
-import { TokenListController } from "./token-list-controller.js";
 
 @customElement("token-list-screen")
 @tailwindElement()
 export class TokenListScreen extends LitElement {
-  @consume({ context: coreContext })
-  @property({ attribute: false })
-  public coreContext!: CoreContext;
-
-  controller!: TokenListController;
-
-  override connectedCallback() {
-    super.connectedCallback();
-    this.controller = new TokenListController(this, this.coreContext);
-  }
+  @property({ type: Object })
+  account?: DetailedAccount;
 
   private renderNativeCoin() {
-    if (!this.controller?.account) return "";
-    const account = this.controller.account;
+    if (!this.account) return "";
 
     return html`
       <ledger-chain-item
-        ledger-id=${account.currencyId}
-        .title=${account.ticker}
-        .ticker=${account.ticker}
-        .value=${account.balance ?? "0"}
-        .fiatValue=${formatFiatBalance(account.fiatBalance)}
+        ledger-id=${this.account.currencyId}
+        .title=${this.account.ticker}
+        .ticker=${this.account.ticker}
+        .value=${this.account.balance ?? "0"}
+        .fiatValue=${formatFiatBalance(this.account.fiatBalance)}
         .isClickable=${false}
         type="network"
         iconVariant="rounded"
@@ -63,26 +51,21 @@ export class TokenListScreen extends LitElement {
   };
 
   private renderTokenList() {
-    if (
-      !this.controller?.account ||
-      this.controller.account.tokens.length === 0
-    ) {
+    if (!this.account || this.account.tokens.length === 0) {
       return "";
     }
 
     return html`
       <div class="flex flex-col">
-        ${this.controller.account.tokens.map(this.renderTokenItem)}
+        ${this.account.tokens.map(this.renderTokenItem)}
       </div>
     `;
   }
 
   override render() {
-    if (!this.controller?.account) {
+    if (!this.account) {
       return html`
-        <div
-          class="flex flex-col items-center justify-center py-32"
-        >
+        <div class="flex flex-col items-center justify-center py-32">
           <span class="text-muted body-2">Loading...</span>
         </div>
       `;

@@ -66,8 +66,6 @@ export class FetchSelectedAccountUseCase {
     const account = accountResult.unsafeCoerce();
     const detailedAccount = await this.hydrateDetailedAccount(account);
 
-    this.emitAccountChangedEvent(detailedAccount);
-
     this.logger.info("Selected account fetched with details", {
       address: detailedAccount.freshAddress,
       hasBalance: !!detailedAccount.balance,
@@ -142,10 +140,4 @@ export class FetchSelectedAccountUseCase {
     };
   }
 
-  private emitAccountChangedEvent(account: DetailedAccount): void {
-    this.contextService.onEvent({
-      type: "account_changed",
-      account,
-    });
-  }
 }
