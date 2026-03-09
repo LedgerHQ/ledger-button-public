@@ -1,9 +1,14 @@
 import "../../components/index.js";
 
+import { consume } from "@lit/context";
 import { html, LitElement, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../context/language-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
 
 export type TransactionListItem = {
@@ -27,6 +32,10 @@ type GroupedTransactions = {
 @customElement("transaction-list-screen")
 @tailwindElement()
 export class TransactionListScreen extends LitElement {
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
   @property({ type: Array })
   transactions: TransactionListItem[] = [];
 
@@ -100,11 +109,13 @@ export class TransactionListScreen extends LitElement {
   }
 
   private renderEmptyState() {
+    const translations = this.languages.currentTranslation;
+
     return html`
       <div
         class="flex flex-col items-center justify-center py-48 text-center"
       >
-        <span class="text-muted body-2">No transactions found</span>
+        <span class="text-muted body-2">${translations.transactionList?.noTransactions}</span>
       </div>
     `;
   }
