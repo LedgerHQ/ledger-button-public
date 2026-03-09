@@ -18,7 +18,7 @@ import {
   isSignTypedMessageParams,
   type SignTypedMessageParams,
 } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { SignPersonalMessage } from "../../../internal/device/use-case/SignPersonalMessage.js";
+import { SignPersonalMessageUseCase } from "../../../internal/device/use-case/SignPersonalMessageUseCase.js";
 import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { SignTransaction } from "../../device/use-case/SignTransaction.js";
@@ -39,7 +39,7 @@ export class DefaultTransactionService implements TransactionService {
     @inject(deviceModuleTypes.SignTypedDataUseCase)
     private readonly signTypedDataUseCase: SignTypedData,
     @inject(deviceModuleTypes.SignPersonalMessageUseCase)
-    private readonly signPersonalMessageUseCase: SignPersonalMessage,
+    private readonly signPersonalMessageUseCase: SignPersonalMessageUseCase,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {

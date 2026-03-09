@@ -16,6 +16,7 @@
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:",
     "vitest": "catalog:",
+    "xstate": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
