@@ -48,7 +48,7 @@ export class SecurityScreen extends LitElement {
     const settings = translations.settings;
 
     if (!settings) {
-      return html`<div>Loading...</div>`;
+      return html`<div>${translations.common?.loading}</div>`;
     }
 
     return html`

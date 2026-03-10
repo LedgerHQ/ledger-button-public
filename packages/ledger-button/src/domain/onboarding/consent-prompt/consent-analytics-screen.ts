@@ -44,7 +44,7 @@ export class ConsentAnalyticsScreen extends LitElement {
     const consent = translations.onboarding.consentPrompt?.consent;
 
     if (!consent) {
-      return html`<div>Loading...</div>`;
+      return html`<div>${translations.common?.loading}</div>`;
     }
 
     return html`
