@@ -1,7 +1,12 @@
+import { consume } from "@lit/context";
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 export interface LedgerSearchInputAttributes {
@@ -32,8 +37,12 @@ const styles = css`
 @customElement("ledger-search-input")
 @tailwindElement(styles)
 export class LedgerSearchInput extends LitElement {
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
   @property({ type: String })
-  placeholder = "Search account";
+  placeholder = "";
 
   @property({ type: String })
   value = "";
@@ -88,31 +97,36 @@ export class LedgerSearchInput extends LitElement {
     this.inputElement?.focus();
   }
 
+  private get resolvedPlaceholder(): string {
+    return (
+      this.placeholder ||
+      this.languages?.currentTranslation?.common?.search?.placeholder
+    );
+  }
+
   private renderClearButton() {
     if (!this.value) {
       return nothing;
     }
 
+    const clearAriaLabel =
+      this.languages?.currentTranslation?.common?.search?.clearAriaLabel;
+
     return html`
       <button
-        class="flex cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-4 hover:bg-muted-hover active:bg-muted-pressed"
+        class="hover:bg-muted-hover active:bg-muted-pressed flex cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-4"
         @click=${this.handleClear}
-        aria-label="Clear search"
+        aria-label=${clearAriaLabel}
         tabindex="-1"
       >
-        <ledger-icon
-          type="close"
-          size="small"
-          fillColor="white"
-        ></ledger-icon>
+        <ledger-icon type="close" size="small" fillColor="white"></ledger-icon>
       </button>
     `;
   }
 
   override render() {
     const containerClasses = {
-      "flex h-48 items-center gap-8 self-stretch rounded-sm px-16 bg-muted text-muted body-1":
-        true,
+      "flex h-48 items-center gap-8 self-stretch rounded-sm px-16 bg-muted text-muted body-1": true,
       "opacity-50 cursor-not-allowed": this.disabled,
     };
 
@@ -126,11 +140,11 @@ export class LedgerSearchInput extends LitElement {
         ></ledger-icon>
         <input
           type="text"
-          class="text-base body-1"
+          class="body-1 text-base"
           .value=${this.value}
-          placeholder=${this.placeholder}
+          placeholder=${this.resolvedPlaceholder}
           ?disabled=${this.disabled}
-          aria-label=${this.placeholder}
+          aria-label=${this.resolvedPlaceholder}
           @input=${this.handleInput}
           @keydown=${this.handleKeyDown}
         />
