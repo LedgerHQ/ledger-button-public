@@ -19,6 +19,8 @@ function createAccount(
     ticker: "ETH",
     balance: "1000000000000000000",
     tokens: [],
+    fiatBalance: undefined,
+    fiatError: false,
     balanceLoadingState: "loaded",
     fiatLoadingState: "loaded",
     ...overrides,
