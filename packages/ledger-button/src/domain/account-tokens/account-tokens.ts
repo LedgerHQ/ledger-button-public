@@ -112,10 +112,12 @@ export class AccountTokensScreen extends LitElement {
   }
 
   override render() {
+    const translations = this.languages.currentTranslation;
+
     if (!this.controller.account) {
       return html`
         <div class="flex h-full items-center justify-center">
-          <span class="text-muted body-2">Account not found</span>
+          <span class="text-muted body-2">${translations.accountTokens?.notFound}</span>
         </div>
       `;
     }

@@ -1,7 +1,12 @@
+import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import {
   ModalAnimationController,
@@ -61,9 +66,9 @@ const styles = css`
 const centerContainerClasses = {
   "modal-container": true,
   "modal-container--center": true,
-  "fixed": true,
+  fixed: true,
   "inset-0": true,
-  "flex": true,
+  flex: true,
   "flex-col": true,
   "self-center": true,
   "justify-self-center": true,
@@ -75,10 +80,10 @@ const centerContainerClasses = {
 const panelContainerClasses = {
   "modal-container": true,
   "modal-container--panel": true,
-  "fixed": true,
+  fixed: true,
   "right-0": true,
   "top-0": true,
-  "flex": true,
+  flex: true,
   "flex-col": true,
   "overflow-hidden": true,
   "bg-canvas-sheet": true,
@@ -89,6 +94,10 @@ const panelContainerClasses = {
 @customElement("ledger-modal")
 @tailwindElement(styles)
 export class LedgerModal extends LitElement {
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
   @property({ type: String })
   mode: ModalMode = "center";
 
@@ -200,11 +209,13 @@ export class LedgerModal extends LitElement {
   }
 
   private renderToolbar() {
+    const appTitle = this.languages?.currentTranslation?.common?.appTitle;
+
     return html`
       <slot name="toolbar">
         <ledger-toolbar
-          title="Ledger Button"
-          aria-label="Ledger Button"
+          title=${appTitle}
+          aria-label=${appTitle}
           @ledger-toolbar-close=${this.closeModal}
         ></ledger-toolbar>
       </slot>
@@ -215,9 +226,9 @@ export class LedgerModal extends LitElement {
     return html`
       <div
         id="modal-content"
-        class="relative flex-1 overflow-y-auto text-base"
+        class="scrollbar-custom relative flex-1 overflow-y-auto text-base"
       >
-        <slot>hello</slot>
+        <slot></slot>
       </div>
     `;
   }

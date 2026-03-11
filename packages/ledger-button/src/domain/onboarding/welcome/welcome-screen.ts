@@ -106,7 +106,7 @@ export class WelcomeScreen extends LitElement {
     const intro = translations.onboarding.consentPrompt?.intro;
 
     if (!intro) {
-      return html`<div>Loading...</div>`;
+      return html`<div>${translations.common?.loading}</div>`;
     }
 
     return html`
