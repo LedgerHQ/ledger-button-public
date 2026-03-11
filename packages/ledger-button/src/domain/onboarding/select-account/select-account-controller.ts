@@ -28,19 +28,23 @@ export class SelectAccountController implements ReactiveController {
         )
       : [...this.accounts];
 
-    return accounts.sort((a, b) => {
-      const aHydrated = a.fiatBalance !== undefined;
-      const bHydrated = b.fiatBalance !== undefined;
-
-      if (aHydrated && !bHydrated) return -1;
-      if (!aHydrated && bHydrated) return 1;
-      if (!aHydrated && !bHydrated) return 0;
-
-      return (
-        parseFloat(b.fiatBalance?.value ?? "0") -
-        parseFloat(a.fiatBalance?.value ?? "0")
-      );
+    const accountsWithFiat = accounts.map((account) => {
+      const hydrated = account.fiatBalance !== undefined;
+      const fiatNum = hydrated
+        ? parseFloat(account.fiatBalance?.value ?? "0")
+        : 0;
+      return { account, hydrated, fiatNum };
     });
+
+    accountsWithFiat.sort((a, b) => {
+      if (a.hydrated && !b.hydrated) return -1;
+      if (!a.hydrated && b.hydrated) return 1;
+      if (!a.hydrated && !b.hydrated) return 0;
+
+      return b.fiatNum - a.fiatNum;
+    });
+
+    return accountsWithFiat.map(({ account }) => account);
   }
 
   get isBalanceLoading(): boolean {
