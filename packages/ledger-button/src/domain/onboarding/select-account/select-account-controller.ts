@@ -26,7 +26,13 @@ export class SelectAccountController implements ReactiveController {
     return this.accounts.filter(
       (account) =>
         account.name.toLowerCase().includes(query) ||
-        account.freshAddress.toLowerCase().includes(query),
+        account.freshAddress.toLowerCase().includes(query) ||
+        account.ticker.toLowerCase().includes(query) ||
+        account.tokens.some(
+          (token) =>
+            token.ticker.toLowerCase().includes(query) ||
+            token.name.toLowerCase().includes(query),
+        ),
     );
   }
 
