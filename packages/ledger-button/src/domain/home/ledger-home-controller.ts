@@ -10,6 +10,7 @@ export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
   loading = false;
   contextSubscription: Subscription | undefined = undefined;
+  private isConnected = false;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -22,8 +23,11 @@ export class LedgerHomeController implements ReactiveController {
 
   async getSelectedAccount() {
     this.loading = true;
+    this.host.requestUpdate();
 
     const result = await this.core.getDetailedSelectedAccount();
+
+    if (!this.isConnected) return;
 
     result.caseOf({
       Left: () => {
@@ -36,11 +40,12 @@ export class LedgerHomeController implements ReactiveController {
     });
 
     this.loading = false;
-    this.startListeningToContextChanges();
     this.host.requestUpdate();
   }
 
-  startListeningToContextChanges() {
+  private startListeningToContextChanges() {
+    if (!this.isConnected) return;
+
     if (this.contextSubscription) {
       this.contextSubscription.unsubscribe();
     }
@@ -49,7 +54,8 @@ export class LedgerHomeController implements ReactiveController {
       .observeContext()
       .subscribe((_context) => {
         if (
-          _context.selectedAccount?.name !== this.selectedAccount?.name ||
+          _context.selectedAccount?.freshAddress !==
+            this.selectedAccount?.freshAddress ||
           _context.selectedAccount?.currencyId !==
             this.selectedAccount?.currencyId
         ) {
@@ -59,11 +65,12 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   hostConnected() {
-    this.getSelectedAccount();
-    this.host.requestUpdate();
+    this.isConnected = true;
+    this.startListeningToContextChanges();
   }
 
   hostDisconnected() {
+    this.isConnected = false;
     if (this.contextSubscription) {
       this.contextSubscription.unsubscribe();
     }

@@ -94,7 +94,7 @@ export const makeDestinations = (translation: Translation) => {
       component: "home-flow",
       canGoBack: false,
       toolbar: {
-        title: "Your Ledger Wallet",
+        title: translation.home.title,
         canClose: true,
         showSettings: true,
       },
