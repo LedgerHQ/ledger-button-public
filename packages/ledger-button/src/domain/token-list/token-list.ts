@@ -1,6 +1,9 @@
 import "../../components/index.js";
 
-import type { DetailedAccount, Token } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  DetailedAccount,
+  Token,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -31,7 +34,7 @@ export class TokenListScreen extends LitElement {
   }
 
   private renderDivider() {
-    return html`<div class="h-1 bg-muted-subtle"></div>`;
+    return html`<div class="border-muted-subtle h-1 w-full border-t"></div>`;
   }
 
   private renderTokenItem = (token: Token) => {
