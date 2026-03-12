@@ -24,6 +24,7 @@ import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccounts
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
 import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
+import { SortAccountsByFiatUseCase } from "../internal/account/use-case/sortAccountsByFiatUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
@@ -287,18 +288,24 @@ export class LedgerButtonCore {
     });
 
     return this.container
-      .get<FetchAccountsWithBalanceUseCase>(
-        accountModuleTypes.FetchAccountsWithBalanceUseCase,
+      .get<SortAccountsByFiatUseCase>(
+        accountModuleTypes.SortAccountsByFiatUseCase,
       )
-      .execute()
-      .pipe(
-        switchMap((accounts) =>
-          this.container
-            .get<FetchAccountsWithFiatUseCase>(
-              accountModuleTypes.FetchAccountsWithFiatUseCase,
-            )
-            .execute(accounts, targetCurrency),
-        ),
+      .execute(
+        this.container
+          .get<FetchAccountsWithBalanceUseCase>(
+            accountModuleTypes.FetchAccountsWithBalanceUseCase,
+          )
+          .execute()
+          .pipe(
+            switchMap((accounts) =>
+              this.container
+                .get<FetchAccountsWithFiatUseCase>(
+                  accountModuleTypes.FetchAccountsWithFiatUseCase,
+                )
+                .execute(accounts, targetCurrency),
+            ),
+          ),
       );
   }
 

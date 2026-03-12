@@ -10,6 +10,7 @@ import { GetDetailedSelectedAccountUseCase } from "./use-case/getDetailedSelecte
 import { HydrateAccountWithBalanceUseCase } from "./use-case/HydrateAccountWithBalanceUseCase.js";
 import { HydrateAccountWithFiatUseCase } from "./use-case/hydrateAccountWithFiatUseCase.js";
 import { HydrateAccountWithTxHistoryUseCase } from "./use-case/hydrateAccountWithTxHistoryUseCase.js";
+import { SortAccountsByFiatUseCase } from "./use-case/sortAccountsByFiatUseCase.js";
 import { type ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
 
@@ -47,6 +48,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     );
     bind(accountModuleTypes.FetchAccountsWithFiatUseCase).to(
       FetchAccountsWithFiatUseCase,
+    );
+    bind(accountModuleTypes.SortAccountsByFiatUseCase).to(
+      SortAccountsByFiatUseCase,
     );
   });
 }
