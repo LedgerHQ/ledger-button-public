@@ -14,10 +14,7 @@ export interface NetworksClickEventDetail {
   networks: Network[];
 }
 
-const containerVariants = cva([
-  "flex cursor-pointer items-center gap-4 rounded-full px-8 py-4",
-  "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
-]);
+const containerVariants = cva(["flex items-center gap-4 px-8 py-4"]);
 
 const overflowVariants = cva(["caption text-muted"]);
 
@@ -67,35 +64,9 @@ export class LedgerNetworks extends LitElement {
       return nothing;
     }
 
-    return html`
-      <button
-        class=${classMap(this.containerClasses)}
-        aria-label="Networks"
-        @click=${this.handleClick}
-        @keydown=${this.handleKeydown}
-      >
-        ${this.renderNetworkIcons()} ${this.renderOverflow()}
-      </button>
-    `;
-  }
-
-  private handleClick() {
-    this.dispatchEvent(
-      new CustomEvent<NetworksClickEventDetail>("networks-click", {
-        bubbles: true,
-        composed: true,
-        detail: {
-          networks: this.networks,
-        },
-      }),
-    );
-  }
-
-  private handleKeydown(event: KeyboardEvent) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      this.handleClick();
-    }
+    return html`<div class=${classMap(this.containerClasses)}>
+      ${this.renderNetworkIcons()} ${this.renderOverflow()}
+    </div>`;
   }
 }
 
