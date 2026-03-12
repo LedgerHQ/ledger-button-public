@@ -69,38 +69,16 @@ describe("SelectAccountController.filteredAccounts", () => {
     controller.accounts = [ethAccount, btcAccount];
   });
 
-  it("returns all accounts when query is empty", () => {
-    controller.searchQuery = "";
-    expect(controller.filteredAccounts).toEqual([ethAccount, btcAccount]);
-  });
-
-  it("filters by account name", () => {
-    controller.searchQuery = "Bitcoin";
-    expect(controller.filteredAccounts).toEqual([btcAccount]);
-  });
-
-  it("filters by account address", () => {
-    controller.searchQuery = "0xabc123";
-    expect(controller.filteredAccounts).toEqual([ethAccount]);
-  });
-
-  it("filters by account ticker", () => {
-    controller.searchQuery = "eth";
-    expect(controller.filteredAccounts).toEqual([ethAccount]);
-  });
-
-  it("filters by token ticker", () => {
-    controller.searchQuery = "usdt";
-    expect(controller.filteredAccounts).toEqual([ethAccount]);
-  });
-
-  it("filters by token name", () => {
-    controller.searchQuery = "Tether";
-    expect(controller.filteredAccounts).toEqual([ethAccount]);
-  });
-
-  it("returns empty array when no match", () => {
-    controller.searchQuery = "DOGE";
-    expect(controller.filteredAccounts).toEqual([]);
+  it.each([
+    { description: "returns all accounts when query is empty", query: "", expected: () => [ethAccount, btcAccount] },
+    { description: "filters by account name", query: "Bitcoin", expected: () => [btcAccount] },
+    { description: "filters by account address", query: "0xabc123", expected: () => [ethAccount] },
+    { description: "filters by account ticker", query: "eth", expected: () => [ethAccount] },
+    { description: "filters by token ticker", query: "usdt", expected: () => [ethAccount] },
+    { description: "filters by token name", query: "Tether", expected: () => [ethAccount] },
+    { description: "returns empty array when no match", query: "DOGE", expected: () => [] },
+  ])("$description", ({ query, expected }) => {
+    controller.searchQuery = query;
+    expect(controller.filteredAccounts).toEqual(expected());
   });
 });
