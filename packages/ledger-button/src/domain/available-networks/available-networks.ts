@@ -1,6 +1,5 @@
 import "../../components/index.js";
 
-import type { Network } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -12,8 +11,10 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
-import { formatFiatBalance } from "../../utils/format-fiat.js";
-import { AvailableNetworksController } from "./available-networks-controller.js";
+import {
+  AvailableNetworksController,
+  type NetworkWithBalance,
+} from "./available-networks-controller.js";
 
 @customElement("available-networks-screen")
 @tailwindElement()
@@ -40,16 +41,21 @@ export class AvailableNetworksScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  private renderNetworkItem(network: Network) {
+  private handleNetworkClick(network: NetworkWithBalance) {
+    this.controller.selectNetwork(network.id);
+  }
+
+  private renderNetworkItem(network: NetworkWithBalance) {
     return html`
       <ledger-chain-item
         ledger-id=${network.id}
         ticker=${network.ticker ?? ""}
         .title=${network.name}
-        .value=${formatFiatBalance(network.fiatBalance)}
-        .isClickable=${false}
+        .value=${network.balance ?? ""}
+        .isClickable=${true}
         type="network"
         iconVariant="square"
+        @chain-item-click=${() => this.handleNetworkClick(network)}
       ></ledger-chain-item>
     `;
   }
