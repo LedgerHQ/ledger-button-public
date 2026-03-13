@@ -1,14 +1,29 @@
-import type { Network } from "@ledgerhq/ledger-wallet-provider-core";
+import "../../shared/root-navigation.js";
+
+import type {
+  Account,
+  AccountWithFiat,
+  Network,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subscription } from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
+import { RootNavigationComponent } from "../../shared/root-navigation.js";
+
+export interface NetworkWithBalance extends Network {
+  balance?: string;
+}
 
 export class AvailableNetworksController implements ReactiveController {
-  networks: Network[] = [];
+  networks: NetworkWithBalance[] = [];
   loading = true;
+  balanceLoading = true;
   private disconnected = false;
+  private accountsSubscription?: Subscription;
+  private accountsByNetwork = new Map<string, Account>();
+  private selectedAddress?: string;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -20,48 +35,97 @@ export class AvailableNetworksController implements ReactiveController {
 
   hostConnected() {
     this.disconnected = false;
-    this.fetchNetworks();
+    this.loadNetworks();
   }
 
   hostDisconnected() {
     this.disconnected = true;
+    this.accountsSubscription?.unsubscribe();
+    this.accountsSubscription = undefined;
   }
 
-  private async fetchNetworks() {
+  private async loadNetworks() {
     this.loading = true;
+    this.balanceLoading = true;
     this.host.requestUpdate();
 
     try {
       const currentContext = await firstValueFrom(this.core.observeContext());
-      const selectedAddress = currentContext.selectedAccount?.freshAddress;
+      this.selectedAddress = currentContext.selectedAccount?.freshAddress;
 
-      if (!selectedAddress) {
+      if (!this.selectedAddress) {
         this.navigation.navigateBack();
         return;
       }
 
-      const networks = await this.core.getNetworksForAddress(selectedAddress);
+      this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+        next: (accounts) => {
+          if (this.disconnected) return;
 
-      if (this.disconnected) return;
+          const matching = accounts.filter(
+            (a) => a.freshAddress === this.selectedAddress,
+          );
 
-      if (!networks.length) {
-        this.navigation.navigateBack();
-        return;
-      }
+          if (!matching.length) return;
 
-      this.networks = this.sortByFiatValue(networks);
+          this.updateNetworksFromAccounts(matching);
+        },
+        error: () => {
+          if (this.disconnected) return;
+          this.balanceLoading = false;
+          this.loading = false;
+          this.host.requestUpdate();
+        },
+        complete: () => {
+          if (this.disconnected) return;
+          this.balanceLoading = false;
+          this.host.requestUpdate();
+        },
+      });
     } catch {
       if (this.disconnected) return;
       this.navigation.navigateBack();
-    } finally {
-      if (!this.disconnected) {
-        this.loading = false;
-        this.host.requestUpdate();
-      }
     }
   }
 
-  private sortByFiatValue(networks: Network[]): Network[] {
+  private async updateNetworksFromAccounts(accounts: AccountWithFiat[]) {
+    const networks = await Promise.all(
+      accounts.map(async (account): Promise<NetworkWithBalance> => {
+        this.accountsByNetwork.set(account.currencyId, account);
+
+        const { name, ticker } = await this.core.getCurrencyInfo(
+          account.currencyId,
+        );
+
+        return {
+          id: account.currencyId,
+          name,
+          ticker,
+          balance: account.balance,
+          fiatBalance: account.fiatBalance,
+        };
+      }),
+    );
+
+    if (this.disconnected) return;
+
+    this.networks = this.sortByFiatValue(networks);
+    this.loading = false;
+    this.host.requestUpdate();
+  }
+
+  selectNetwork(networkId: string) {
+    const account = this.accountsByNetwork.get(networkId);
+    if (!account) return;
+
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.selectAccount(account);
+      this.navigation.host.navigateToHome();
+      this.host.requestUpdate();
+    }
+  }
+
+  private sortByFiatValue(networks: NetworkWithBalance[]): NetworkWithBalance[] {
     return [...networks].sort((a, b) => {
       const aVal = a.fiatBalance?.value ? parseFloat(a.fiatBalance.value) : 0;
       const bVal = b.fiatBalance?.value ? parseFloat(b.fiatBalance.value) : 0;
