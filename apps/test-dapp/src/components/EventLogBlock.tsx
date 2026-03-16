@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 
-import blockStyles from "./Block.module.css";
-import styles from "./EventLogBlock.module.css";
+import { cn } from "../lib/utils";
 
 export interface EIPEvent {
   id: string;
-  type: "accountsChanged" | "chainChanged" | "disconnect" | "connect" | "message";
+  type:
+    | "accountsChanged"
+    | "chainChanged"
+    | "disconnect"
+    | "connect"
+    | "message";
   timestamp: Date;
   data: unknown;
 }
@@ -25,11 +30,22 @@ const EVENT_ICONS: Record<EIPEvent["type"], string> = {
   message: "💬",
 };
 
-const EVENT_CARD_MODIFIERS: Partial<Record<EIPEvent["type"], string>> = {
-  accountsChanged: styles["event-log__card--accounts-changed"],
-  chainChanged: styles["event-log__card--chain-changed"],
-  disconnect: styles["event-log__card--disconnect"],
-  connect: styles["event-log__card--connect"],
+const EVENT_TAG_APPEARANCE: Record<
+  EIPEvent["type"],
+  "accent" | "success" | "error" | "warning" | "gray"
+> = {
+  accountsChanged: "accent",
+  chainChanged: "accent",
+  disconnect: "error",
+  connect: "success",
+  message: "gray",
+};
+
+const EVENT_CARD_STYLES: Partial<Record<EIPEvent["type"], string>> = {
+  accountsChanged: "border-l-accent bg-accent-transparent",
+  chainChanged: "border-l-accent bg-accent-transparent",
+  disconnect: "border-l-error bg-error-transparent",
+  connect: "border-l-success bg-success-transparent",
 };
 
 export function EventLogBlock({ events, onClearEvents }: EventLogBlockProps) {
@@ -66,40 +82,43 @@ export function EventLogBlock({ events, onClearEvents }: EventLogBlockProps) {
   };
 
   return (
-    <div className={blockStyles.block}>
+    <div className="border border-muted rounded-lg overflow-hidden">
       <div
-        className={blockStyles["block__header"]}
+        className="flex justify-between items-center px-20 py-16 cursor-pointer select-none hover:bg-muted-transparent transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <h3 className={blockStyles["block__title"]}>
-          <span className={blockStyles["block__icon"]}>📡</span>
+        <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
+          <span>📡</span>
           EIP-1193 Event Log
           {events.length > 0 && (
-            <span className={blockStyles["block__badge"]}>{events.length}</span>
+            <Tag appearance="accent" size="sm" label={String(events.length)} />
           )}
         </h3>
-        <span className={blockStyles["block__toggle"]}>{isExpanded ? "▼" : "▶"}</span>
+        <span className="body-4 text-muted">
+          {isExpanded ? "▼" : "▶"}
+        </span>
       </div>
 
       {isExpanded && (
-        <div className={blockStyles["block__content"]}>
-          <p className={blockStyles["block__description"]}>
-            Real-time log of provider events: accountsChanged, chainChanged, disconnect.
+        <div className="p-20 border-t border-muted bg-canvas space-y-16">
+          <p className="body-2 text-muted">
+            Real-time log of provider events: accountsChanged, chainChanged,
+            disconnect.
           </p>
 
           {events.length > 0 && (
-            <div className={blockStyles["block__actions"]}>
-              <button className={styles["event-log__clear-button"]} onClick={onClearEvents}>
+            <div>
+              <Button appearance="gray" size="sm" onClick={onClearEvents}>
                 Clear Log
-              </button>
+              </Button>
             </div>
           )}
 
-          <div className={styles["event-log__list"]}>
+          <div className="flex flex-col gap-8 max-h-[300px] overflow-y-auto">
             {events.length === 0 ? (
-              <div className={blockStyles["block__empty-state"]}>
-                <p>No events yet.</p>
-                <p className={blockStyles["block__hint"]}>
+              <div className="text-center p-24 bg-muted rounded-lg border border-dashed border-muted">
+                <p className="body-2 text-muted">No events yet.</p>
+                <p className="body-4 text-muted mt-8">
                   Events will appear here when the provider emits them.
                 </p>
               </div>
@@ -110,19 +129,31 @@ export function EventLogBlock({ events, onClearEvents }: EventLogBlockProps) {
                 .map((event) => (
                   <div
                     key={event.id}
-                    className={`${styles["event-log__card"]} ${EVENT_CARD_MODIFIERS[event.type] ?? ""}`}
+                    className={cn(
+                      "px-16 py-12 rounded-lg bg-muted border-l-[3px] border-l-muted",
+                      EVENT_CARD_STYLES[event.type],
+                    )}
                   >
-                    <div className={styles["event-log__card-header"]}>
-                      <span className={styles["event-log__card-icon"]}>
+                    <div className="flex items-center gap-8 mb-6">
+                      <span className="text-[14px]">
                         {EVENT_ICONS[event.type]}
                       </span>
-                      <span className={styles["event-log__card-type"]}>{event.type}</span>
-                      <span className={styles["event-log__card-time"]}>
+                      <span className="body-4-semi-bold text-base">
+                        {event.type}
+                      </span>
+                      <Tag
+                        appearance={EVENT_TAG_APPEARANCE[event.type]}
+                        size="sm"
+                        label={event.type}
+                      />
+                      <span className="body-4 text-muted font-mono ml-auto">
                         {formatTime(event.timestamp)}
                       </span>
                     </div>
-                    <div className={styles["event-log__card-data"]}>
-                      <code>{formatData(event.data)}</code>
+                    <div>
+                      <code className="body-4 font-mono text-muted bg-muted-transparent px-6 py-2 rounded">
+                        {formatData(event.data)}
+                      </code>
                     </div>
                   </div>
                 ))

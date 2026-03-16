@@ -2,17 +2,19 @@ import "../../atom/crypto-icon/ledger-crypto-icon";
 import "../../atom/icon/ledger-icon";
 import "../../atom/skeleton/ledger-skeleton";
 
+import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 import { cva } from "class-variance-authority";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatAddress } from "../../../utils/format-address.js";
+import { formatFiatBalance } from "../../../utils/format-fiat.js";
 
 const accountItemVariants = cva([
-  "lb-flex lb-min-w-full lb-cursor-pointer lb-justify-between lb-p-12",
-  "lb-bg-muted lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover",
+  "flex min-w-full cursor-pointer justify-between p-12",
+  "bg-muted transition duration-150 ease-in-out hover:bg-muted-hover",
 ]);
 
 export type AccountItemClickEventDetail = {
@@ -70,6 +72,15 @@ export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: Boolean, attribute: "is-balance-error" })
   isBalanceError = false;
 
+  @property({ type: Object, attribute: false })
+  fiatBalance?: FiatBalance;
+
+  @property({ type: Boolean, attribute: "is-fiat-loading" })
+  isFiatLoading = false;
+
+  @property({ type: Boolean, attribute: "is-fiat-error" })
+  isFiatError = false;
+
   private get containerClasses() {
     return {
       [accountItemVariants()]: true,
@@ -123,10 +134,10 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   private renderAccountInfo() {
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-4 lb-text-left">
-        <span class="lb-text-base lb-body-2-semi-bold">${this.title}</span>
-        <div class="lb-flex lb-items-center lb-gap-4">
-          <span class="lb-whitespace-nowrap lb-text-muted lb-body-3">
+      <div class="flex flex-col gap-4 text-left">
+        <span class="text-base body-2-semi-bold">${this.title}</span>
+        <div class="flex items-center gap-4">
+          <span class="whitespace-nowrap text-muted body-3">
             ${formatAddress(this.address)}
           </span>
           <ledger-crypto-icon
@@ -142,9 +153,9 @@ export class LedgerAccountItemMolecule extends LitElement {
   private renderValueInfo() {
     if (this.isBalanceLoading) {
       return html`
-        <div class="lb-flex lb-items-center lb-justify-center">
+        <div class="flex flex-col items-end gap-4">
           <ledger-skeleton
-            class="lb-h-16 lb-w-80 lb-rounded-full"
+            class="h-16 w-80 rounded-full"
           ></ledger-skeleton>
         </div>
       `;
@@ -152,18 +163,37 @@ export class LedgerAccountItemMolecule extends LitElement {
 
     if (this.isBalanceError) {
       return html`
-        <div class="lb-flex lb-items-center lb-justify-center">
-          <span class="lb-text-base lb-body-2-semi-bold">--</span>
+        <div class="flex flex-col items-end gap-4">
+          <span class="text-base body-2-semi-bold">--</span>
         </div>
       `;
     }
 
+    const fiatValue = formatFiatBalance(this.fiatBalance);
+
     return html`
-      <div class="lb-flex lb-items-center lb-justify-center">
-        <span class="lb-text-base lb-body-2-semi-bold"
+      <div class="flex flex-col items-end gap-4">
+        ${this.renderFiatValue(fiatValue)}
+        <span class="text-muted body-3"
           >${this.balance} ${this.ticker}</span
         >
       </div>
+    `;
+  }
+
+  private renderFiatValue(fiatValue: string) {
+    if (this.isFiatLoading) {
+      return html`<ledger-skeleton
+        class="w-60 h-14 rounded-full"
+      ></ledger-skeleton>`;
+    }
+
+    if (this.isFiatError || !fiatValue) {
+      return nothing;
+    }
+
+    return html`
+      <span class="text-base body-2-semi-bold">${fiatValue}</span>
     `;
   }
 
@@ -175,10 +205,10 @@ export class LedgerAccountItemMolecule extends LitElement {
     if (this.isBalanceLoading) {
       return html`
         <div
-          class="lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12"
+          class="flex items-center justify-between border border-b-0 border-l-0 border-r-0 border-muted-subtle bg-muted p-12"
         >
           <ledger-skeleton
-            class="lb-h-16 lb-w-112 lb-rounded-full"
+            class="h-16 w-112 rounded-full"
           ></ledger-skeleton>
         </div>
       `;
@@ -190,16 +220,16 @@ export class LedgerAccountItemMolecule extends LitElement {
 
     return html`
       <button
-        class="group lb-flex lb-items-center lb-justify-between lb-border lb-border-b-0 lb-border-l-0 lb-border-r-0 lb-border-muted-subtle lb-bg-muted lb-p-12 lb-transition lb-duration-300 lb-ease-in-out hover:lb-bg-muted-hover"
+        class="group flex items-center justify-between border border-b-0 border-l-0 border-r-0 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
         @click=${this.handleShowTokens}
       >
         <div
-          class="lb-flex lb-h-20 lb-items-center lb-text-base lb-body-3-semi-bold"
+          class="flex h-20 items-center text-base body-3-semi-bold"
         >
           ${this.linkLabel} (${this.tokens})
         </div>
         <div
-          class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
+          class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
         >
           <ledger-icon type="chevronRight" size="small"></ledger-icon>
         </div>
@@ -210,7 +240,7 @@ export class LedgerAccountItemMolecule extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-flex lb-min-w-full lb-flex-col lb-overflow-hidden lb-rounded-md"
+        class="flex min-w-full flex-col overflow-hidden rounded-md"
       >
         <button
           class=${classMap(this.containerClasses)}

@@ -80,6 +80,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
+    networks: [{ id: "1", name: "ethereum" }],
   };
 
   beforeEach(() => {
@@ -201,6 +202,7 @@ describe("FetchSelectedAccountUseCase", () => {
           expect(account.transactionHistory).toEqual(
             hydratedAccount.transactionHistory,
           );
+          expect(account.networks).toEqual([{ id: "1", name: "ethereum" }]);
         });
       });
 
@@ -222,14 +224,10 @@ describe("FetchSelectedAccountUseCase", () => {
         );
       });
 
-      it("should emit account_changed event with the detailed account", async () => {
+      it("should not emit account_changed event to avoid cascading context updates", async () => {
         await useCase.execute();
 
-        expect(mockContextService.onEvent).toHaveBeenCalledWith(
-          expect.objectContaining({
-            type: "account_changed",
-          }),
-        );
+        expect(mockContextService.onEvent).not.toHaveBeenCalled();
       });
 
       it("should log successful fetch with details", async () => {

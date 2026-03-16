@@ -18,6 +18,8 @@ This page describes all available configuration options for `initializeLedgerPro
     };
   };
   target?: HTMLElement;        // Target element to mount UI (default: document.body)
+  floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
+  floatingButtonTarget?: HTMLElement | string;  // Element or CSS selector to anchor the floating button to
   dAppIdentifier?: string;     // Your dApp identifier
   apiKey?: string;             // Your Ledger API key
   loggerLevel?: string;        // Log level: 'debug', 'info', 'warn', 'error' (default: 'info')
@@ -55,6 +57,44 @@ const cleanup = initializeLedgerProvider({
 Target element to mount UI. Default is `document.body`.
 
 Determines where the Ledger Wallet Provider UI mounts in your application.
+
+### `floatingButtonPosition`
+
+Controls where the floating Ledger button appears on screen. Default is `'bottom-right'`.
+
+Available positions: `'bottom-right'`, `'bottom-left'`, `'bottom-center'`, `'top-right'`, `'top-left'`, `'top-center'`, `'middle-right'`.
+
+```javascript
+initializeLedgerProvider({
+  floatingButtonPosition: "bottom-left",
+  // ...
+});
+```
+
+### `floatingButtonTarget`
+
+An `HTMLElement` or CSS selector string. When provided, the floating button is rendered as a compact button inside the target element instead of being positioned on screen.
+
+Use this to integrate the Ledger button into your own navigation bar, wallet panel, or sidebar.
+
+```javascript
+// CSS selector
+initializeLedgerProvider({
+  floatingButtonTarget: "#my-wallet-button-slot",
+  // ...
+});
+
+// HTMLElement reference
+initializeLedgerProvider({
+  floatingButtonTarget: document.querySelector("#my-wallet-button-slot"),
+  // ...
+});
+```
+
+<Callout type="info">
+  When `floatingButtonTarget` is set, `floatingButtonPosition` has no effect —
+  the button is placed inside your target element instead.
+</Callout>
 
 ### `dAppIdentifier`
 

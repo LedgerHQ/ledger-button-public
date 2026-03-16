@@ -7,18 +7,18 @@ import { tailwindElement } from "../../../tailwind-element.js";
 
 const platformItemVariants = cva(
   [
-    "group lb-flex lb-items-center lb-justify-between lb-rounded-md",
-    "lb-min-w-full",
-    "lb-bg-muted lb-p-12 lb-transition lb-duration-150 lb-ease-in-out hover:lb-bg-muted-hover",
+    "group flex items-center justify-between rounded-md",
+    "min-w-full",
+    "bg-muted p-12 transition duration-150 ease-in-out hover:bg-muted-hover",
   ],
   {
     variants: {
       clickable: {
-        true: ["lb-cursor-pointer"],
-        false: ["lb-cursor-default"],
+        true: ["cursor-pointer"],
+        false: ["cursor-default"],
       },
       disabled: {
-        true: ["lb-pointer-events-none lb-cursor-not-allowed lb-opacity-50"],
+        true: ["pointer-events-none cursor-not-allowed opacity-50"],
         false: [],
       },
     },
@@ -86,7 +86,7 @@ export class LedgerPlatformItem extends LitElement {
   private renderPlatformIcon() {
     return html`
       <div
-        class="lb-rounded-full lb-bg-muted-transparent lb-p-8 lb-drop-shadow-md"
+        class="rounded-full bg-muted-transparent p-8 drop-shadow-md"
       >
         <ledger-icon
           type=${this.platformType}
@@ -100,7 +100,7 @@ export class LedgerPlatformItem extends LitElement {
   private renderTitle() {
     return html`
       ${this.title
-        ? html`<span class="lb-py-8 lb-text-base lb-body-2"
+        ? html`<span class="py-8 text-base body-2"
             >${this.title}</span
           >`
         : ""}
@@ -110,7 +110,7 @@ export class LedgerPlatformItem extends LitElement {
   private renderChevron() {
     return html`
       <div
-        class="lb-pr-2 lb-transition-transform lb-duration-150 lb-ease-in-out group-hover:lb-translate-x-1"
+        class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
       >
         <ledger-icon type="chevronRight" size="small"></ledger-icon>
       </div>
@@ -128,9 +128,9 @@ export class LedgerPlatformItem extends LitElement {
         tabindex=${this.disabled ? "-1" : "0"}
         aria-label=${this.title || ""}
       >
-        <div class="lb-flex lb-items-center lb-gap-12">
+        <div class="flex items-center gap-12">
           ${this.renderPlatformIcon()}
-          <div class="lb-flex lb-flex-col lb-items-start lb-gap-4">
+          <div class="flex flex-col items-start gap-4">
             ${this.renderTitle()}
           </div>
         </div>

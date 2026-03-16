@@ -81,10 +81,10 @@ export class LedgerToolbar extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-relative lb-flex lb-w-full lb-min-w-full lb-items-center lb-justify-between lb-px-24 lb-py-16"
+        class="relative flex w-full min-w-full items-center justify-between px-24 py-16"
       >
-        <div class="lb-flex lb-w-72 lb-items-center lb-justify-start">
-          <div class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center">
+        <div class="flex w-72 items-center justify-start">
+          <div class="flex h-32 w-32 items-center justify-center">
             <slot name="left-icon">
               ${this.canGoBack
                 ? html`
@@ -103,9 +103,9 @@ export class LedgerToolbar extends LitElement {
           </div>
         </div>
         <div
-          class="lb-pointer-events-none lb-absolute lb-left-0 lb-right-0 lb-flex lb-items-center lb-justify-center"
+          class="pointer-events-none absolute left-0 right-0 flex items-center justify-center"
         >
-          <div class="lb-pointer-events-auto">
+          <div class="pointer-events-auto">
             ${this.deviceModelId
               ? html`
                   <slot name="chip">
@@ -117,16 +117,16 @@ export class LedgerToolbar extends LitElement {
                   </slot>
                 `
               : this.title
-                ? html`<h2 class="lb-text-base lb-body-2">${this.title}</h2>`
+                ? html`<h2 class="text-base body-2">${this.title}</h2>`
                 : nothing}
           </div>
         </div>
 
-        <div class="lb-flex lb-w-72 lb-items-center lb-justify-end lb-gap-8">
+        <div class="flex w-72 items-center justify-end gap-8">
           ${this.showSettings
             ? html`
                 <div
-                  class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center"
+                  class="flex h-32 w-32 items-center justify-center"
                 >
                   <ledger-button
                     data-testid="settings-button"
@@ -141,7 +141,7 @@ export class LedgerToolbar extends LitElement {
               `
             : nothing}
           <div
-            class="lb-flex lb-h-32 lb-w-32 lb-items-center lb-justify-center"
+            class="flex h-32 w-32 items-center justify-center"
           >
             ${this.canClose
               ? html`

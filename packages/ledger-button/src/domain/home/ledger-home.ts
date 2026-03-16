@@ -9,6 +9,7 @@ import { customElement, property, state } from "lit/decorators.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
+import type { NetworksClickEventDetail } from "../../components/molecule/networks/ledger-networks.js";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
@@ -72,9 +73,8 @@ function mapTransactionHistoryToListItem(
     amount: transaction.formattedValue,
     ticker: transaction.ticker,
     title: transaction.currencyName,
-    // TODO [LBD-287]: Wire up fiat conversion for transaction history items
-    fiatAmount: "",
-    fiatCurrency: "",
+    fiatAmount: transaction.fiatValue ?? "",
+    fiatCurrency: transaction.fiatCurrency ?? "",
   };
 }
 
@@ -124,6 +124,18 @@ export class LedgerHomeScreen extends LitElement {
   ) => {
     this.dispatchEvent(
       new CustomEvent("ledger-internal-account-switch", {
+        bubbles: true,
+        composed: true,
+        detail: event.detail,
+      }),
+    );
+  };
+
+  private handleNetworksClick = (
+    event: CustomEvent<NetworksClickEventDetail>,
+  ) => {
+    this.dispatchEvent(
+      new CustomEvent("ledger-internal-networks-click", {
         bubbles: true,
         composed: true,
         detail: event.detail,
@@ -199,9 +211,9 @@ export class LedgerHomeScreen extends LitElement {
   override render() {
     if (this.controller.loading) {
       return html`
-        <div class="lb-h-full lb-min-h-full lb-overflow-hidden">
+        <div class="h-full min-h-full overflow-hidden">
           <ledger-lottie
-            class="animation lb-overflow-hidden"
+            class="animation overflow-hidden"
             animationName="backgroundFlare"
             .autoplay=${true}
             .loop=${true}
@@ -220,53 +232,54 @@ export class LedgerHomeScreen extends LitElement {
     const lang = this.languages.currentTranslation;
 
     return html`
-      <div class="lb-relative lb-h-full">
-        <div
-          class="lb-flex lb-flex-col lb-items-stretch lb-gap-12 lb-p-24 lb-pt-0"
-        >
-          <div
-            class="lb-flex lb-flex-col lb-gap-24 lb-rounded-md lb-bg-muted lb-p-16"
-          >
-            <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-              <ledger-account-switch
-                .account=${account}
-                @account-switch=${this.handleAccountItemClick}
-              ></ledger-account-switch>
+      <div class="relative flex h-full flex-col">
+        <div class="scrollbar-custom min-h-0 flex-1 overflow-y-auto">
+          <div class="flex flex-col items-stretch gap-12 p-24 pt-0">
+            <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
+              <div class="flex flex-row items-center justify-between">
+                <ledger-account-switch
+                  .account=${account}
+                  @account-switch=${this.handleAccountItemClick}
+                ></ledger-account-switch>
 
-              <ledger-crypto-icon
-                .ledgerId=${account.currencyId}
-                size="small"
-                variant="square"
-              ></ledger-crypto-icon>
+                <ledger-networks
+                  .networks=${account.networks}
+                  @networks-click=${this.handleNetworksClick}
+                ></ledger-networks>
+              </div>
+
+              <ledger-fiat-total
+                .value=${account.totalFiatValue?.value ?? "0"}
+              ></ledger-fiat-total>
             </div>
 
-            <ledger-fiat-total
-              .value=${account.totalFiatValue?.value ?? "0"}
-            ></ledger-fiat-total>
+            <ledger-wallet-actions
+              .features=${this.walletTransactionFeatures}
+              @wallet-action-click=${this.handleWalletActionClick}
+            ></ledger-wallet-actions>
+
+            <div class="mt-12">
+              <ledger-tabs
+                .tabs=${[
+                  { id: "tokens", label: "Tokens" },
+                  { id: "transactions", label: "Transactions" },
+                ]}
+                .selectedId=${this.activeTab}
+                @tab-change=${this.handleTabChange}
+              ></ledger-tabs>
+            </div>
+
+            ${this.activeTab === "tokens"
+              ? html`<token-list-screen
+                  .account=${account}
+                ></token-list-screen>`
+              : html`<transaction-list-screen
+                  .transactions=${this.getTransactionListItems()}
+                ></transaction-list-screen>`}
           </div>
+        </div>
 
-          <ledger-wallet-actions
-            .features=${this.walletTransactionFeatures}
-            @wallet-action-click=${this.handleWalletActionClick}
-          ></ledger-wallet-actions>
-
-          <div class="lb-mt-12">
-            <ledger-tabs
-              .tabs=${[
-                { id: "tokens", label: "Tokens" },
-                { id: "transactions", label: "Transactions" },
-              ]}
-              .selectedId=${this.activeTab}
-              @tab-change=${this.handleTabChange}
-            ></ledger-tabs>
-          </div>
-
-          ${this.activeTab === "tokens"
-            ? html`<token-list-screen></token-list-screen>`
-            : html`<transaction-list-screen
-                .transactions=${this.getTransactionListItems()}
-              ></transaction-list-screen>`}
-
+        <div class="p-24 pt-12">
           <ledger-button
             variant="secondary"
             size="full"
@@ -297,5 +310,6 @@ declare global {
   interface WindowEventMap {
     "ledger-internal-button-disconnect": CustomEvent<void>;
     "ledger-internal-account-switch": CustomEvent<AccountItemClickEventDetail>;
+    "ledger-internal-networks-click": CustomEvent<NetworksClickEventDetail>;
   }
 }

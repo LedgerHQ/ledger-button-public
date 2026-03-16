@@ -15,6 +15,8 @@ import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 import "../domain/settings/settings-screen.js";
+import "../domain/settings/security-screen.js";
+import "../domain/support/support-screen.js";
 import "../domain/home-flow/home-flow.js";
 
 import { css, html, LitElement } from "lit";
@@ -91,7 +93,7 @@ export const makeDestinations = (translation: Translation) => {
       component: "home-flow",
       canGoBack: false,
       toolbar: {
-        title: "Your Ledger Wallet",
+        title: translation.home.title,
         canClose: true,
         showSettings: true,
       },
@@ -238,6 +240,26 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.settings?.title,
+        canClose: true,
+      },
+    },
+    security: {
+      name: "security",
+      component: "security-screen",
+      canGoBack: true,
+      toolbar: {
+        title:
+          translation.settings?.securityConfidentiality ??
+          "Security & confidentiality",
+        canClose: true,
+      },
+    },
+    support: {
+      name: "support",
+      component: "support-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.settings?.support?.title ?? "Help & Support",
         canClose: true,
       },
     },

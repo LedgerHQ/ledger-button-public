@@ -18,7 +18,7 @@ export class LedgerModalStoryWrapper extends LitElement {
   override render() {
     return html`
       <div
-        class="lb-z-10 lb-fixed lb-inset-0 lb-flex lb-flex-col lb-self-center lb-justify-self-center lb-overflow-y-auto lb-rounded-xl lb-bg-black"
+        class="z-10 fixed inset-0 flex flex-col self-center justify-self-center overflow-y-auto rounded-xl bg-black"
         @click=${(e: Event) => e.stopPropagation()}
         style="width: min(calc(100% - 32px), 400px); max-height: 550px"
       >
@@ -29,7 +29,7 @@ export class LedgerModalStoryWrapper extends LitElement {
             aria-label=${this.title}
           ></ledger-toolbar>
         </slot>
-        <div class="lb-text-base">
+        <div class="text-base">
           <slot></slot>
         </div>
       </div>

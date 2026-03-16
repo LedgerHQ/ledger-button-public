@@ -205,6 +205,14 @@ export class RootNavigationController implements ReactiveController {
         this.navigation.navigateTo(this.destinations.settings);
         break;
 
+      case "security":
+        this.navigation.navigateTo(this.destinations.security);
+        break;
+
+      case "support":
+        this.navigation.navigateTo(this.destinations.support);
+        break;
+
       case "notFound":
       default:
         this.navigation.navigateTo(this.destinations.notFound);

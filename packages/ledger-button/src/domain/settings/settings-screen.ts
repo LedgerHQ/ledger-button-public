@@ -1,9 +1,8 @@
 import "../../components/index.js";
-import "../../components/atom/toggle/ledger-toggle.js";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
@@ -31,24 +30,55 @@ export class SettingsScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  @state()
-  private analyticsEnabled = false;
-
-  override async connectedCallback() {
-    super.connectedCallback();
-    this.analyticsEnabled = await this.coreContext.hasConsent();
+  private handleSecurityClick() {
+    this.navigation.navigateTo(this.destinations.security);
   }
 
-  private async handleToggleChange(e: CustomEvent) {
-    const { checked } = e.detail;
+  private handleHelpSupportClick() {
+    this.navigation.navigateTo(this.destinations.support);
+  }
 
-    if (checked) {
-      await this.coreContext.giveConsent();
-    } else {
-      await this.coreContext.removeConsent();
+  private renderMenuItem(
+    icon: "shield" | "question",
+    label: string,
+    onClick?: () => void,
+  ) {
+    const content = html`
+      <div class="flex items-center gap-12">
+        <ledger-icon
+          type=${icon}
+          size="medium"
+          fillColor="currentColor"
+        ></ledger-icon>
+
+        <span class="body-2-semi-bold text-base">${label}</span>
+      </div>
+      <ledger-icon
+        type="chevronRight"
+        size="small"
+        fillColor="currentColor"
+        class="text-muted"
+      ></ledger-icon>
+    `;
+
+    if (onClick) {
+      return html`
+        <button
+          class="bg-base-transparent hover:bg-base-transparent-hover flex min-w-full cursor-pointer items-center justify-between rounded-md p-12 transition duration-150 ease-in-out"
+          @click=${onClick}
+        >
+          ${content}
+        </button>
+      `;
     }
 
-    this.analyticsEnabled = checked;
+    return html`
+      <div
+        class="bg-base-transparent flex min-w-full cursor-default items-center justify-between rounded-md p-12 opacity-60"
+      >
+        ${content}
+      </div>
+    `;
   }
 
   override render() {
@@ -56,26 +86,21 @@ export class SettingsScreen extends LitElement {
     const settings = translations.settings;
 
     if (!settings) {
-      return html`<div>Loading...</div>`;
+      return html`<div>${translations.common?.loading}</div>`;
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-p-24 lb-pt-8">
-        <div class="lb-rounded-md lb-bg-muted lb-p-16">
-          <div class="lb-flex lb-flex-row lb-items-center lb-justify-between">
-            <h3 class="lb-text-base lb-body-3-semi-bold">
-              ${settings.analytics.title}
-            </h3>
-            <ledger-toggle
-              .checked=${this.analyticsEnabled}
-              @ledger-toggle-change=${this.handleToggleChange}
-            ></ledger-toggle>
-          </div>
-
-          <p class="lb-leading-relaxed lb-mt-16 lb-text-muted lb-body-3">
-            ${settings.analytics.description}
-          </p>
-        </div>
+      <div class="flex flex-col gap-4 p-24 pt-8">
+        ${this.renderMenuItem(
+          "shield",
+          settings.securityConfidentiality ?? "Security & confidentiality",
+          this.handleSecurityClick,
+        )}
+        ${this.renderMenuItem(
+          "question",
+          settings.helpSupport ?? "Help & Support",
+          this.handleHelpSupportClick,
+        )}
       </div>
     `;
   }
