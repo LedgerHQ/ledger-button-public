@@ -40,14 +40,25 @@ export type AccountUpdate = {
   account: Account;
 };
 
+export type LoadingState = "loading" | "loaded" | "error";
+
 export type AccountWithFiat = Account & {
   fiatBalance: FiatBalance | undefined;
+  fiatError: boolean;
+  balanceLoadingState: LoadingState;
+  fiatLoadingState: LoadingState;
+};
+
+export type Network = {
+  id: string; // EVM Chain ID
+  name: string;
 };
 
 export type DetailedAccount = Account & {
   fiatBalance: FiatBalance | undefined;
   transactionHistory: TransactionHistoryItem[] | undefined;
   totalFiatValue?: FiatBalance;
+  networks: Network[];
 };
 
 export interface AccountService {

@@ -2,7 +2,7 @@ import "../../../components/index.js";
 
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
-import { html, LitElement } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
@@ -45,6 +45,9 @@ export class SelectAccountScreen extends LitElement {
       account.id,
     );
     const isBalanceError = this.controller.hasAccountBalanceError(account.id);
+    const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
+    const isFiatError = this.controller.hasAccountFiatError(account.id);
+    const fiatBalance = this.controller.getAccountFiatValue(account.id);
 
     // NOTE: The label should be displayed only if the account has tokens
     return html`
@@ -59,9 +62,13 @@ export class SelectAccountScreen extends LitElement {
         .currencyId=${account.currencyId}
         .isBalanceLoading=${isBalanceLoading}
         .isBalanceError=${isBalanceError}
-        @account-item-click=${this.controller.handleAccountItemClick}
-        @account-item-show-tokens-click=${this.controller
-          .handleAccountItemShowTokensClick}
+        .fiatBalance=${fiatBalance}
+        .isFiatLoading=${isFiatLoading}
+        .isFiatError=${isFiatError}
+        @account-item-click=${(e: CustomEvent) =>
+          this.controller.handleAccountItemClick(e)}
+        @account-item-show-tokens-click=${(e: CustomEvent) =>
+          this.controller.handleAccountItemShowTokensClick(e)}
       ></ledger-account-item>
     `;
   };
@@ -74,8 +81,8 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-sticky lb-bottom-0 lb-bg-canvas-sheet lb-pb-16 lb-pt-8">
-        <p class="lb-text-center lb-text-muted lb-body-3">
+      <div class="sticky bottom-0 bg-canvas-sheet pb-16 pt-8">
+        <p class="text-center text-muted body-3">
           ${translations.onboarding.selectAccount.refreshingAccounts}
           <br />
           ${translations.onboarding.selectAccount.refreshingAccountsHint}
@@ -84,10 +91,38 @@ export class SelectAccountScreen extends LitElement {
     `;
   }
 
-  override render() {
+  private renderNoResults() {
+    const translations = this.languages.currentTranslation;
+
+    if (
+      this.controller.filteredAccounts.length > 0 ||
+      !this.controller.searchQuery
+    ) {
+      return nothing;
+    }
+
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
-        ${this.controller.accounts.map(this.renderAccountItem)}
+      <p class="py-24 text-center text-muted body-2">
+        ${translations.onboarding.selectAccount.noResults}
+      </p>
+    `;
+  }
+
+  override render() {
+    const translations = this.languages.currentTranslation;
+
+    return html`
+      <div class="flex flex-col gap-12 p-24 pt-0">
+        <ledger-search-input
+          .placeholder=${translations.onboarding.selectAccount
+            .searchPlaceholder}
+          .value=${this.controller.searchQuery}
+          @search-input-change=${(e: CustomEvent) =>
+            this.controller.handleSearchInput(e)}
+          @search-input-clear=${() => this.controller.handleSearchClear()}
+        ></ledger-search-input>
+        ${this.controller.filteredAccounts.map(this.renderAccountItem)}
+        ${this.renderNoResults()}
       </div>
       ${this.renderBalanceLoadingFooter()}
     `;

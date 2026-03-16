@@ -1,7 +1,12 @@
+import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import {
   ModalAnimationController,
@@ -61,34 +66,38 @@ const styles = css`
 const centerContainerClasses = {
   "modal-container": true,
   "modal-container--center": true,
-  "lb-fixed": true,
-  "lb-inset-0": true,
-  "lb-flex": true,
-  "lb-flex-col": true,
-  "lb-self-center": true,
-  "lb-justify-self-center": true,
-  "lb-overflow-hidden": true,
-  "lb-bg-canvas-sheet": true,
-  "lb-rounded-2xl": true,
+  fixed: true,
+  "inset-0": true,
+  flex: true,
+  "flex-col": true,
+  "self-center": true,
+  "justify-self-center": true,
+  "overflow-hidden": true,
+  "bg-canvas-sheet": true,
+  "rounded-2xl": true,
 };
 
 const panelContainerClasses = {
   "modal-container": true,
   "modal-container--panel": true,
-  "lb-fixed": true,
-  "lb-right-0": true,
-  "lb-top-0": true,
-  "lb-flex": true,
-  "lb-flex-col": true,
-  "lb-overflow-hidden": true,
-  "lb-bg-canvas-sheet": true,
-  "lb-rounded-2xl": true,
-  "lb-m-16": true,
+  fixed: true,
+  "right-0": true,
+  "top-0": true,
+  flex: true,
+  "flex-col": true,
+  "overflow-hidden": true,
+  "bg-canvas-sheet": true,
+  "rounded-2xl": true,
+  "m-16": true,
 };
 
 @customElement("ledger-modal")
 @tailwindElement(styles)
 export class LedgerModal extends LitElement {
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
   @property({ type: String })
   mode: ModalMode = "center";
 
@@ -200,11 +209,13 @@ export class LedgerModal extends LitElement {
   }
 
   private renderToolbar() {
+    const appTitle = this.languages?.currentTranslation?.common?.appTitle;
+
     return html`
       <slot name="toolbar">
         <ledger-toolbar
-          title="Ledger Button"
-          aria-label="Ledger Button"
+          title=${appTitle}
+          aria-label=${appTitle}
           @ledger-toolbar-close=${this.closeModal}
         ></ledger-toolbar>
       </slot>
@@ -215,9 +226,9 @@ export class LedgerModal extends LitElement {
     return html`
       <div
         id="modal-content"
-        class="lb-relative lb-flex-1 lb-overflow-y-auto lb-text-base"
+        class="scrollbar-custom relative flex-1 overflow-y-auto text-base"
       >
-        <slot>hello</slot>
+        <slot></slot>
       </div>
     `;
   }

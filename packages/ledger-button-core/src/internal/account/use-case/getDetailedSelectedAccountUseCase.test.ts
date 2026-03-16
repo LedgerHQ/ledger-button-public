@@ -37,6 +37,7 @@ describe("GetDetailedSelectedAccountUseCase", () => {
     tokens: [],
     fiatBalance: { value: "2000.00", currency: "USD" },
     transactionHistory: [],
+    networks: [{ id: "1", name: "ethereum" }],
   };
 
   const nonHydratedAccount: Account = {
@@ -149,6 +150,27 @@ describe("GetDetailedSelectedAccountUseCase", () => {
         expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(
           1,
         );
+      });
+
+      it("should fetch account details when account has fiatBalance but no networks property", async () => {
+        const accountWithFiatButNoNetworks = {
+          ...accountWithNameButNoFiat,
+          fiatBalance: { value: "100.00", currency: "USD" },
+        };
+        mockContextService.getContext.mockReturnValue({
+          selectedAccount: accountWithFiatButNoNetworks,
+        });
+        mockFetchSelectedAccountUseCase.execute.mockResolvedValue(
+          Right(hydratedAccount),
+        );
+
+        const result = await useCase.execute();
+
+        expect(result.isRight()).toBe(true);
+        result.map((account) => {
+          expect(account).toEqual(hydratedAccount);
+        });
+        expect(mockFetchSelectedAccountUseCase.execute).toHaveBeenCalledTimes(1);
       });
 
       it("should fetch account details when account has name but no fiatBalance property", async () => {

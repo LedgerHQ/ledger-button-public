@@ -1,17 +1,15 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
-  DialogPanel,
-  DialogTitle,
-  Field,
-  Fieldset,
-  Label,
+  Button,
   Select,
-  Textarea,
-} from "@headlessui/react";
-
-import styles from "../TransactionsBlock.module.css";
+  SelectContent,
+  SelectItem,
+  SelectItemText,
+  SelectTrigger,
+  TextInput,
+} from "@ledgerhq/lumen-ui-react";
 
 const PROVIDER_METHODS = [
   "eth_accounts",
@@ -40,56 +38,71 @@ interface ProviderRequestModalProps {
   onClose: () => void;
 }
 
+const CUSTOM_METHOD_VALUE = "__custom__";
+
 export function ProviderRequestModal({
   onSubmit,
   onClose,
 }: ProviderRequestModalProps) {
-  const methodRef = useRef<HTMLSelectElement>(null);
+  const [selectValue, setSelectValue] = useState<string>(PROVIDER_METHODS[0]);
+  const [customMethod, setCustomMethod] = useState("");
   const paramsRef = useRef<HTMLTextAreaElement>(null);
 
+  const isCustom = selectValue === CUSTOM_METHOD_VALUE;
+  const resolvedMethod = isCustom ? customMethod : selectValue;
+
   const handleSubmit = useCallback(async () => {
-    const method = methodRef.current?.value;
-    if (!method) {
+    if (!resolvedMethod) {
       return;
     }
     onClose();
-    await onSubmit(method, paramsRef.current?.value || "[]");
-  }, [onSubmit, onClose]);
+    await onSubmit(resolvedMethod, paramsRef.current?.value || "[]");
+  }, [onSubmit, onClose, resolvedMethod]);
 
   return (
-    <DialogPanel transition className={styles["transactions__dialog-panel"]}>
-      <DialogTitle as="h3" className={styles["transactions__dialog-title"]}>
-        Provider Request
-      </DialogTitle>
-      <Fieldset>
-        <Field className={styles["transactions__field"]}>
-          <Label className={styles["transactions__label"]}>Method</Label>
-          <Select ref={methodRef} className={styles["transactions__select"]}>
-            {PROVIDER_METHODS.map((method) => (
-              <option key={method} value={method}>
-                {method}
-              </option>
+    <div className="space-y-16">
+      <div className="space-y-10">
+        <Select
+          value={selectValue}
+          onValueChange={(value) => setSelectValue(value)}
+        >
+          <SelectTrigger label="Method" />
+          <SelectContent>
+            {PROVIDER_METHODS.map((m) => (
+              <SelectItem key={m} value={m}>
+                <SelectItemText>{m}</SelectItemText>
+              </SelectItem>
             ))}
-          </Select>
-        </Field>
-        <Field className={styles["transactions__field"]}>
-          <Label className={styles["transactions__label"]}>
-            Params (JSON array)
-          </Label>
-          <Textarea
-            ref={paramsRef}
-            className={styles["transactions__textarea"]}
-            rows={3}
-            placeholder="[]"
+            <SelectItem value={CUSTOM_METHOD_VALUE}>
+              <SelectItemText>Custom…</SelectItemText>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        {isCustom && (
+          <TextInput
+            label="Custom method"
+            type="text"
+            value={customMethod}
+            onChange={(e) => setCustomMethod(e.target.value)}
           />
-        </Field>
-      </Fieldset>
-      <button
-        className={styles["transactions__submit-button"]}
-        onClick={handleSubmit}
-      >
+        )}
+      </div>
+
+      <div>
+        <label className="block body-4-semi-bold text-muted mb-6">
+          Params (JSON array)
+        </label>
+        <textarea
+          ref={paramsRef}
+          className="w-full px-12 py-8 border border-muted rounded-lg body-4 font-mono bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active resize-y"
+          rows={3}
+          placeholder="[]"
+        />
+      </div>
+
+      <Button appearance="accent" size="md" isFull onClick={handleSubmit}>
         Call provider.request()
-      </button>
-    </DialogPanel>
+      </Button>
+    </div>
   );
 }

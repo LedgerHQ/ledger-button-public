@@ -1,6 +1,16 @@
 {
   "common": {
     "connect": "Connect",
+    "loading": "Loading...",
+    "appTitle": "Ledger Wallet",
+    "floatingButton": {
+      "ariaLabel": "Open Ledger account menu",
+      "label": "Ledger"
+    },
+    "search": {
+      "placeholder": "Search account",
+      "clearAriaLabel": "Clear search"
+    },
     "button": {
       "connect": "Connect your Ledger device",
       "usb": "Connect with USB",
@@ -46,6 +56,7 @@
     }
   },
   "home": {
+    "title": "Your Ledger Wallet",
     "balance": "Balance"
   },
   "walletActions": {
@@ -99,6 +110,8 @@
     "selectAccount": {
       "title": "Select an account",
       "showTokens": "Show tokens",
+      "searchPlaceholder": "Search account",
+      "noResults": "No accounts match your search",
       "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
       "refreshingAccountsHint": "Select an account at any time to continue."
     },
@@ -127,7 +140,7 @@
         },
         "howItWorks": {
           "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"lb-text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
           "alreadyActivated": {
             "title": "Already activated Ledger Sync?",
             "description": "You're ready to go!"
@@ -155,13 +168,24 @@
   },
   "accountTokens": {
     "title": "Account Tokens",
+    "notFound": "Account not found",
     "noTokens": "No tokens found for this account"
+  },
+  "transactionList": {
+    "noTransactions": "No transactions found"
   },
   "settings": {
     "title": "Settings",
     "analytics": {
       "title": "Analytics",
       "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+    },
+    "securityConfidentiality": "Security & confidentiality",
+    "helpSupport": "Help & Support",
+    "support": {
+      "title": "Help & Support",
+      "support": "Support",
+      "contactUs": "Contact us"
     }
   },
   "signTransaction": {

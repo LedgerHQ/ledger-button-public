@@ -1,4 +1,7 @@
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  AccountWithFiat,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
@@ -7,7 +10,7 @@ import { Navigation } from "../../shared/navigation";
 import { RootNavigationComponent } from "../../shared/root-navigation";
 
 export class AccountTokenController implements ReactiveController {
-  account: Account | null = null;
+  account: AccountWithFiat | null = null;
   loading = true;
   private accountsSubscription?: Subscription;
   private isFirstEmission = true;
@@ -47,10 +50,10 @@ export class AccountTokenController implements ReactiveController {
     this.loading = true;
     this.isFirstEmission = true;
 
-    this.accountsSubscription = this.core.getAccounts().subscribe({
+    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
       next: (accounts) => {
         this.account =
-          accounts.find((acc: Account) => acc.id === targetId) ?? null;
+          accounts.find((acc: AccountWithFiat) => acc.id === targetId) ?? null;
 
         if (!this.account) {
           this.navigation.navigateBack();

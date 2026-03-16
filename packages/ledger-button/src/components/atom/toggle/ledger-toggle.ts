@@ -63,15 +63,15 @@ export class LedgerToggle extends LitElement {
 
   override render() {
     const trackClasses = {
-      "toggle-track lb-rounded-full lb-relative lb-cursor-pointer lb-transition-colors lb-duration-200 lb-ease-in-out":
+      "toggle-track rounded-full relative cursor-pointer transition-colors duration-200 ease-in-out":
         true,
-      "lb-bg-accent": this.checked,
-      "lb-bg-muted-pressed": !this.checked,
-      "lb-opacity-50 lb-cursor-not-allowed": this.disabled,
+      "bg-accent": this.checked,
+      "bg-muted-pressed": !this.checked,
+      "opacity-50 cursor-not-allowed": this.disabled,
     };
 
     const thumbClasses = {
-      "toggle-thumb lb-rounded-full lb-bg-white lb-absolute lb-transition-transform lb-duration-200 lb-ease-in-out":
+      "toggle-thumb rounded-full bg-white absolute transition-transform duration-200 ease-in-out":
         true,
       checked: this.checked,
     };

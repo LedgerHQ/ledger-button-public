@@ -86,19 +86,19 @@ export class LedgerSyncScreen extends LitElement {
 
     return html`
       <div
-        class="lb-min-h-200 lb-flex lb-flex-col lb-items-center lb-justify-center lb-gap-24 lb-self-stretch lb-px-24 lb-pb-48"
+        class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
       >
-        <div class="lb-w-208">
+        <div class="w-208">
           <ledger-device-animation
             modelId=${deviceModel ?? "flex"}
             animation=${animation as AnimationKey}
           ></ledger-device-animation>
         </div>
         <div
-          class="lb-flex lb-flex-col lb-items-center lb-gap-8 lb-self-stretch"
+          class="flex flex-col items-center gap-8 self-stretch"
         >
-          <p class="lb-text-center lb-heading-4-semi-bold">${deviceTitle}</p>
-          <p class="lb-text-center lb-text-muted lb-body-2">
+          <p class="text-center heading-4-semi-bold">${deviceTitle}</p>
+          <p class="text-center text-muted body-2">
             ${deviceDescription}
           </p>
         </div>
@@ -112,7 +112,7 @@ export class LedgerSyncScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+      <div class="flex flex-col gap-12 p-24 pt-0">
         <ledger-status
           type="error"
           title=${this.controller.errorData?.title}
@@ -127,7 +127,7 @@ export class LedgerSyncScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="lb-flex lb-flex-col">
+      <div class="flex flex-col">
         ${this.controller.errorData
           ? this.renderErrorScreen()
           : this.renderNormalScreen()}

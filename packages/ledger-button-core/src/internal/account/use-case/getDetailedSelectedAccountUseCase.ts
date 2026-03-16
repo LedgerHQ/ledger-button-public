@@ -45,7 +45,8 @@ export class GetDetailedSelectedAccountUseCase {
     return (
       !!selectedAccount?.name &&
       selectedAccount.name.length > 0 &&
-      "fiatBalance" in selectedAccount
+      "fiatBalance" in selectedAccount &&
+      "networks" in selectedAccount
     );
   }
 }

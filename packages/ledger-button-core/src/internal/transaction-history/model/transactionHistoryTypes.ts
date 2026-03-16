@@ -78,6 +78,9 @@ export type TransactionHistoryItem = {
   currencyName: string;
   ticker: string;
   timestamp: string;
+  ledgerId?: string;
+  fiatValue?: string;
+  fiatCurrency?: string;
 };
 
 /**

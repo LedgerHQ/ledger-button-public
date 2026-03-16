@@ -6,6 +6,7 @@ import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
 import { transactionHistoryModuleTypes } from "../../transaction-history/transactionHistoryModuleTypes.js";
 import type { FetchTransactionHistoryUseCase } from "../../transaction-history/use-case/FetchTransactionHistoryUseCase.js";
+import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/use-case/HydrateTransactionsWithFiatUseCase.js";
 import type { Account } from "../service/AccountService.js";
 
 export type AccountWithTransactionHistory = Account & {
@@ -21,6 +22,8 @@ export class HydrateAccountWithTxHistoryUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(transactionHistoryModuleTypes.FetchTransactionHistoryUseCase)
     private readonly fetchTransactionHistoryUseCase: FetchTransactionHistoryUseCase,
+    @inject(transactionHistoryModuleTypes.HydrateTransactionsWithFiatUseCase)
+    private readonly hydrateTransactionsWithFiatUseCase: HydrateTransactionsWithFiatUseCase,
   ) {
     this.logger = loggerFactory("HydrateAccountWithTxHistoryUseCase");
   }
@@ -39,26 +42,31 @@ export class HydrateAccountWithTxHistoryUseCase {
       account.currencyId,
     );
 
-    return result.caseOf<AccountWithTransactionHistory>({
+    return await result.caseOf<Promise<AccountWithTransactionHistory>>({
       Left: (error) => {
         this.logger.warn("Failed to fetch transaction history", {
           error: error.message,
           blockchain,
           address: account.freshAddress,
         });
-        return {
+        return Promise.resolve({
           ...account,
           transactionHistory: undefined,
-        };
+        });
       },
-      Right: (historyResult) => {
+      Right: async (historyResult) => {
         this.logger.debug("Transaction history fetched successfully", {
           blockchain,
           transactionCount: historyResult.transactions.length,
         });
+        const hydratedTransactions =
+          await this.hydrateTransactionsWithFiatUseCase.execute(
+            historyResult.transactions,
+            "usd",
+          );
         return {
           ...account,
-          transactionHistory: historyResult.transactions,
+          transactionHistory: hydratedTransactions,
         };
       },
     });

@@ -41,9 +41,9 @@ jobs:
           ls -la button/apps/docs/public
       - name: Copy files
         run: |
-          mkdir -p portal/pages/docs/ledger-wallet-provider
+          mkdir -p portal/pages/docs/ledger-wallet-provider/build
           mkdir -p portal/public/wallet-provider
-          cp -r button/apps/docs/pages/docs/ledger-wallet-provider/* portal/pages/docs/ledger-wallet-provider
+          cp -r button/apps/docs/pages/docs/ledger-wallet-provider/* portal/pages/docs/ledger-wallet-provider/build
           cp -r button/apps/docs/public/wallet-provider/* portal/public/wallet-provider
 
       - name: Set branch name in outputs
@@ -57,7 +57,7 @@ jobs:
           cd portal
           # add timestamp to commit message
           git checkout -b ${{ steps.branch-name.outputs.BRANCH_NAME }}
-          git add pages/docs/ledger-wallet-provider
+          git add pages/docs/ledger-wallet-provider/build
           git add public/wallet-provider
           git commit -m "doc: add new changes from device management kit to portal"
 

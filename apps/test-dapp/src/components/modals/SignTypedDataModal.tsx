@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useRef } from "react";
-import { DialogPanel, DialogTitle, Field, Textarea } from "@headlessui/react";
-
-import styles from "../TransactionsBlock.module.css";
+import { Button } from "@ledgerhq/lumen-ui-react";
 
 interface SignTypedDataModalProps {
   onSubmit: (typedData: string) => Promise<void>;
   onClose: () => void;
 }
 
-export function SignTypedDataModal({ onSubmit, onClose }: SignTypedDataModalProps) {
+export function SignTypedDataModal({
+  onSubmit,
+  onClose,
+}: SignTypedDataModalProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = useCallback(async () => {
@@ -23,24 +24,21 @@ export function SignTypedDataModal({ onSubmit, onClose }: SignTypedDataModalProp
   }, [onSubmit, onClose]);
 
   return (
-    <DialogPanel transition className={styles["transactions__dialog-panel"]}>
-      <DialogTitle as="h3" className={styles["transactions__dialog-title"]}>
-        Sign Typed Data (EIP-712)
-      </DialogTitle>
-      <Field>
-        <Textarea
+    <div className="space-y-16">
+      <div>
+        <label className="block body-4-semi-bold text-muted mb-6">
+          Typed Data (EIP-712 JSON)
+        </label>
+        <textarea
           ref={textareaRef}
-          className={styles["transactions__textarea"]}
+          className="w-full px-12 py-8 border border-muted rounded-lg body-2 font-mono bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active transition-colors"
           rows={5}
           placeholder='{"types": {...}, "primaryType": "...", "domain": {...}, "message": {...}}'
         />
-      </Field>
-      <button
-        className={styles["transactions__submit-button"]}
-        onClick={handleSubmit}
-      >
+      </div>
+      <Button appearance="accent" size="md" isFull onClick={handleSubmit}>
         Sign Typed Data
-      </button>
-    </DialogPanel>
+      </Button>
+    </div>
   );
 }

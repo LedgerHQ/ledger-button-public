@@ -7,6 +7,7 @@ import type {
   TransactionHistoryResult,
 } from "../../transaction-history/model/transactionHistoryTypes.js";
 import type { FetchTransactionHistoryUseCase } from "../../transaction-history/use-case/FetchTransactionHistoryUseCase.js";
+import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/use-case/HydrateTransactionsWithFiatUseCase.js";
 import type { Account } from "../service/AccountService.js";
 import { HydrateAccountWithTxHistoryUseCase } from "./hydrateAccountWithTxHistoryUseCase.js";
 
@@ -31,6 +32,16 @@ function createMockFetchTransactionHistoryUseCase(): {
 } {
   return {
     execute: vi.fn(),
+  };
+}
+
+function createMockHydrateTransactionsWithFiatUseCase(): {
+  execute: ReturnType<typeof vi.fn>;
+} {
+  return {
+    execute: vi.fn((transactions: TransactionHistoryItem[]) =>
+      Promise.resolve(transactions),
+    ),
   };
 }
 
@@ -70,23 +81,29 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
   let mockFetchTransactionHistoryUseCase: ReturnType<
     typeof createMockFetchTransactionHistoryUseCase
   >;
+  let mockHydrateTransactionsWithFiatUseCase: ReturnType<
+    typeof createMockHydrateTransactionsWithFiatUseCase
+  >;
   let mockLoggerFactory: ReturnType<typeof createMockLoggerFactory>;
 
   beforeEach(() => {
     mockFetchTransactionHistoryUseCase =
       createMockFetchTransactionHistoryUseCase();
+    mockHydrateTransactionsWithFiatUseCase =
+      createMockHydrateTransactionsWithFiatUseCase();
     mockLoggerFactory = createMockLoggerFactory();
 
     useCase = new HydrateAccountWithTxHistoryUseCase(
       mockLoggerFactory,
       mockFetchTransactionHistoryUseCase as unknown as FetchTransactionHistoryUseCase,
+      mockHydrateTransactionsWithFiatUseCase as unknown as HydrateTransactionsWithFiatUseCase,
     );
 
     vi.clearAllMocks();
   });
 
   describe("execute", () => {
-    it("should fetch transaction history and return account with transactions", async () => {
+    it("should fetch transaction history and return account with fiat-hydrated transactions", async () => {
       const account = createMockAccount();
       const transactions = [
         createMockTransaction({ hash: "0x111", type: "sent" }),
@@ -99,9 +116,16 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(
         Right(historyResult),
       );
+      mockHydrateTransactionsWithFiatUseCase.execute.mockImplementation(
+        (txs) => Promise.resolve(txs),
+      );
 
       const result = await useCase.execute(account);
 
+      expect(mockHydrateTransactionsWithFiatUseCase.execute).toHaveBeenCalledWith(
+        transactions,
+        "usd",
+      );
       expect(result).toEqual({
         ...account,
         transactionHistory: transactions,
@@ -125,6 +149,34 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
         "0xtest123",
         "ethereum",
       );
+      expect(mockHydrateTransactionsWithFiatUseCase.execute).toHaveBeenCalledWith(
+        [],
+        "usd",
+      );
+    });
+
+    it("should use transactions returned by HydrateTransactionsWithFiatUseCase", async () => {
+      const account = createMockAccount();
+      const transactions = [
+        createMockTransaction({ hash: "0x111", formattedValue: "1" }),
+      ];
+      const hydratedTransactions = [
+        {
+          ...transactions[0],
+          fiatValue: "2500.00",
+          fiatCurrency: "USD",
+        },
+      ];
+      mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(
+        Right({ transactions, nextPageToken: undefined }),
+      );
+      mockHydrateTransactionsWithFiatUseCase.execute.mockResolvedValue(
+        hydratedTransactions as TransactionHistoryItem[],
+      );
+
+      const result = await useCase.execute(account);
+
+      expect(result.transactionHistory).toEqual(hydratedTransactions);
     });
 
     it("should return undefined transactionHistory when fetch fails", async () => {
@@ -214,6 +266,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       new HydrateAccountWithTxHistoryUseCase(
         loggerFactory,
         mockFetchTransactionHistoryUseCase as unknown as FetchTransactionHistoryUseCase,
+        mockHydrateTransactionsWithFiatUseCase as unknown as HydrateTransactionsWithFiatUseCase,
       );
 
       expect(loggerFactory).toHaveBeenCalledWith(

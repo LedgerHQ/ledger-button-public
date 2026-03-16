@@ -13,7 +13,10 @@ import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { calculateTotalFiatValue } from "../accountFiatUtils.js";
+import {
+  calculateTotalFiatValue,
+  computeNetworks,
+} from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
 import type {
   Account,
@@ -62,8 +65,6 @@ export class FetchSelectedAccountUseCase {
 
     const account = accountResult.unsafeCoerce();
     const detailedAccount = await this.hydrateDetailedAccount(account);
-
-    this.emitAccountChangedEvent(detailedAccount);
 
     this.logger.info("Selected account fetched with details", {
       address: detailedAccount.freshAddress,
@@ -128,19 +129,15 @@ export class FetchSelectedAccountUseCase {
     withTxHistory: AccountWithTransactionHistory,
   ): DetailedAccount {
     const totalFiatValue = calculateTotalFiatValue(withFiat);
+    const networks = computeNetworks(withFiat);
     return {
       ...withBalance,
       fiatBalance: withFiat.fiatBalance,
       tokens: withFiat.tokens,
       transactionHistory: withTxHistory.transactionHistory,
       totalFiatValue,
+      networks,
     };
   }
 
-  private emitAccountChangedEvent(account: DetailedAccount): void {
-    this.contextService.onEvent({
-      type: "account_changed",
-      account,
-    });
-  }
 }

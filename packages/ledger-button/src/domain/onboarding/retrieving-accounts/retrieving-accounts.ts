@@ -89,7 +89,7 @@ export class RetrievingAccountsScreen extends LitElement {
     }
 
     return html`
-      <div class="lb-flex lb-flex-col lb-gap-12 lb-p-24 lb-pt-0">
+      <div class="flex flex-col gap-12 p-24 pt-0">
         <ledger-status
           type="error"
           title=${this.controller.errorData.title}
@@ -104,9 +104,9 @@ export class RetrievingAccountsScreen extends LitElement {
 
   renderScreen() {
     return html`
-      <div class="lb-h-full lb-min-h-full lb-overflow-hidden">
+      <div class="h-full min-h-full overflow-hidden">
         <ledger-lottie
-          class="animation lb-h-full lb-overflow-hidden"
+          class="animation h-full overflow-hidden"
           animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}

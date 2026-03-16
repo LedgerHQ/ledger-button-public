@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
@@ -6,6 +5,7 @@ import { Either, Left, Right } from "purify-ts";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
+import { formatBalance } from "../../currency/formatCurrency.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
@@ -22,6 +22,7 @@ import {
 import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
 
 type AssetInfo = {
+  ledgerId: string;
   name: string;
   ticker: string;
   decimals: number;
@@ -69,11 +70,13 @@ export class FetchTransactionHistoryUseCase {
       Right: async (explorerResponse) => {
         const nativeAssetInfo: AssetInfo = currencyInfoResult.caseOf({
           Left: () => ({
+            ledgerId: currencyId,
             name: currencyId,
             ticker: currencyId.toUpperCase(),
             decimals: 18,
           }),
           Right: (info) => ({
+            ledgerId: info.id,
             name: info.name,
             ticker: info.ticker,
             decimals: info.decimals,
@@ -147,7 +150,11 @@ export class FetchTransactionHistoryUseCase {
       assetInfo = nativeAssetInfo;
     }
 
-    const formattedValue = this.formatValue(value, assetInfo.decimals);
+    const formattedValue = formatBalance(
+      value,
+      assetInfo.decimals,
+      assetInfo.ticker,
+    );
     const timestamp = this.extractTimestamp(tx);
 
     return {
@@ -158,6 +165,7 @@ export class FetchTransactionHistoryUseCase {
       currencyName: assetInfo.name,
       ticker: assetInfo.ticker,
       timestamp,
+      ledgerId: assetInfo.ledgerId,
     };
   }
 
@@ -203,12 +211,14 @@ export class FetchTransactionHistoryUseCase {
           currencyId,
         });
         return {
+          ledgerId: `${currencyId}/erc20/unknown`,
           name: "Unknown Token",
           ticker: "???",
           decimals: 18,
         };
       },
       Right: (info: TokenInformation) => ({
+        ledgerId: info.id,
         name: info.name,
         ticker: info.ticker,
         decimals: info.decimals,
@@ -217,17 +227,6 @@ export class FetchTransactionHistoryUseCase {
 
     this.tokenInfoCache.set(cacheKey, assetInfo);
     return assetInfo;
-  }
-
-  private formatValue(rawValue: string, decimals: number): string {
-    if (rawValue === "0") {
-      return "0";
-    }
-
-    const formatted = ethers.formatUnits(rawValue, decimals);
-    // Remove trailing zeros after decimal point, but keep at least one digit
-    const trimmed = formatted.replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
-    return trimmed || "0";
   }
 
   private determineTransactionType(
