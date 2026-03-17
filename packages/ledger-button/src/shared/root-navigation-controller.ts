@@ -30,7 +30,7 @@ export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
-  pendingTransactionParams?: SignRawTransactionParams | SignTransactionParams;
+  craftedTransactionParams?: SignRawTransactionParams | SignTransactionParams;
   params?: unknown;
 
   private hasTrackingConsent?: boolean;
@@ -46,7 +46,7 @@ export class RootNavigationController implements ReactiveController {
     this.host.addController(this);
     this.navigation = new Navigation(host, this.modalContent);
     this.destinations = makeDestinations(translation);
-    this.pendingTransactionParams = core.getPendingTransactionParams();
+    this.craftedTransactionParams = core.getCraftedTransactionParams();
   }
 
   hostConnected() {
@@ -155,7 +155,7 @@ export class RootNavigationController implements ReactiveController {
           break;
         }
 
-        this.core.setPendingTransactionParams(params as SignTransactionParams);
+        this.core.setCraftedTransactionParams(params as SignTransactionParams);
         this.navigation.navigateTo(this.destinations.signingFlow);
         break;
       }

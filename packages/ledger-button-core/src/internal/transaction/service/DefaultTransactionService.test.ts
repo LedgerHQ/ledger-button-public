@@ -170,8 +170,8 @@ describe("DefaultTransactionService", () => {
         expect(useCase.execute).toHaveBeenCalledTimes(1);
       });
 
-      it("should set pending params", () => {
-        expect(service.getPendingTransaction()).toEqual(params);
+      it("should set crafted params", () => {
+        expect(service.getCraftedTransaction()).toEqual(params);
       });
       it("should return observable from signTransactionUseCase", async () => {
         const result$ = service.sign(params);
@@ -182,24 +182,24 @@ describe("DefaultTransactionService", () => {
     });
   });
 
-  describe("getPendingTransaction", () => {
+  describe("getCraftedTransaction", () => {
     it("should return undefined initially", () => {
-      expect(service.getPendingTransaction()).toBeUndefined();
+      expect(service.getCraftedTransaction()).toBeUndefined();
     });
 
-    it("should return the most recent pending params", () => {
-      service.setPendingTransaction(mockSignTransactionParams);
-      expect(service.getPendingTransaction()).toEqual(
+    it("should return the most recent crafted params", () => {
+      service.setCraftedTransaction(mockSignTransactionParams);
+      expect(service.getCraftedTransaction()).toEqual(
         mockSignTransactionParams,
       );
     });
   });
 
-  describe("setPendingTransaction", () => {
-    it("should set pending params", () => {
-      service.setPendingTransaction(mockSignTransactionParams);
+  describe("setCraftedTransaction", () => {
+    it("should set crafted params", () => {
+      service.setCraftedTransaction(mockSignTransactionParams);
 
-      expect(service.getPendingTransaction()).toEqual(
+      expect(service.getCraftedTransaction()).toEqual(
         mockSignTransactionParams,
       );
     });
@@ -207,11 +207,11 @@ describe("DefaultTransactionService", () => {
 
   describe("reset", () => {
     beforeEach(() => {
-      service.setPendingTransaction(mockSignTransactionParams);
+      service.setCraftedTransaction(mockSignTransactionParams);
     });
-    it("should clear pending params", () => {
+    it("should clear crafted params", () => {
       service.reset();
-      expect(service.getPendingTransaction()).toBeUndefined();
+      expect(service.getCraftedTransaction()).toBeUndefined();
     });
   });
 });

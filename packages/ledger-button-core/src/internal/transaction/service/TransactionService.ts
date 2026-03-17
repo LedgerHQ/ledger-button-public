@@ -34,14 +34,14 @@ export interface TransactionService {
       | SignPersonalMessageParams,
   ): Observable<SignFlowStatus>;
 
-  getPendingTransaction():
+  getCraftedTransaction():
     | SignTransactionParams
     | SignRawTransactionParams
     | SignTypedMessageParams
     | SignPersonalMessageParams
     | undefined;
 
-  setPendingTransaction(
+  setCraftedTransaction(
     params:
       | SignTransactionParams
       | SignRawTransactionParams

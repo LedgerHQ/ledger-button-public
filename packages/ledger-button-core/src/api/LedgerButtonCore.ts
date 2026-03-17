@@ -71,7 +71,7 @@ import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderM
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
   private container!: Container;
-  private _pendingTransactionParams?:
+  private _craftedTransactionParams?:
     | SignRawTransactionParams
     | SignTransactionParams;
   private _pendingAccountId?: string;
@@ -377,19 +377,19 @@ export class LedgerButtonCore {
       .sign(params);
   }
 
-  setPendingTransactionParams(
+  setCraftedTransactionParams(
     params: SignRawTransactionParams | SignTransactionParams | undefined,
   ) {
-    this._logger.debug("Setting pending transaction params", { params });
-    this._pendingTransactionParams = params;
+    this._logger.debug("Setting crafted transaction params", { params });
+    this._craftedTransactionParams = params;
   }
 
-  getPendingTransactionParams():
+  getCraftedTransactionParams():
     | SignRawTransactionParams
     | SignTransactionParams
     | undefined {
-    this._logger.debug("Getting pending transaction params");
-    return this._pendingTransactionParams;
+    this._logger.debug("Getting crafted transaction params");
+    return this._craftedTransactionParams;
   }
 
   setPendingAccountId(id: string | undefined) {

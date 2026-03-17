@@ -99,7 +99,7 @@ export class SignTransactionScreen extends LitElement {
     const transactionParams =
       (this.params as Params) ??
       this.transactionParams ??
-      this.coreContext.getPendingTransactionParams();
+      this.coreContext.getCraftedTransactionParams();
 
     if (!transactionParams) {
       this.controller.state.screen = "error";

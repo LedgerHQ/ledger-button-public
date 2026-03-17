@@ -29,7 +29,7 @@ import { TransactionService } from "./TransactionService.js";
 
 @injectable()
 export class DefaultTransactionService implements TransactionService {
-  private _pendingParams?:
+  private _craftedParams?:
     | SignTransactionParams
     | SignRawTransactionParams
     | SignTypedMessageParams
@@ -58,7 +58,7 @@ export class DefaultTransactionService implements TransactionService {
       | SignTransactionParams
       | SignPersonalMessageParams,
   ): Observable<SignFlowStatus> {
-    this._pendingParams = params;
+    this._craftedParams = params;
 
     this.logger.debug("[Sign] Signing intent received", { params });
 
@@ -86,26 +86,26 @@ export class DefaultTransactionService implements TransactionService {
     return useCase;
   }
 
-  getPendingTransaction():
+  getCraftedTransaction():
     | SignTransactionParams
     | SignRawTransactionParams
     | SignTypedMessageParams
     | SignPersonalMessageParams
     | undefined {
-    return this._pendingParams;
+    return this._craftedParams;
   }
 
-  setPendingTransaction(
+  setCraftedTransaction(
     params?:
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedMessageParams
       | SignPersonalMessageParams,
   ): void {
-    this._pendingParams = params;
+    this._craftedParams = params;
   }
 
   reset(): void {
-    this._pendingParams = undefined;
+    this._craftedParams = undefined;
   }
 }
