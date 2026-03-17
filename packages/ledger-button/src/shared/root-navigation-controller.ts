@@ -1,7 +1,6 @@
 import {
   Account,
   Device,
-  SignRawTransactionParams,
   SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
@@ -30,7 +29,6 @@ export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
-  craftedTransactionParams?: SignRawTransactionParams | SignTransactionParams;
   params?: unknown;
 
   private hasTrackingConsent?: boolean;
@@ -46,7 +44,6 @@ export class RootNavigationController implements ReactiveController {
     this.host.addController(this);
     this.navigation = new Navigation(host, this.modalContent);
     this.destinations = makeDestinations(translation);
-    this.craftedTransactionParams = core.getCraftedTransactionParams();
   }
 
   hostConnected() {
