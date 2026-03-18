@@ -1,0 +1,93 @@
+import { type Factory, inject, injectable } from "inversify";
+
+import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
+import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
+import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
+import {
+  isSignTransactionParams,
+  type SignTransactionParams,
+} from "../../../api/model/signing/SignTransactionParams.js";
+import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
+import { formatBalance } from "../../currency/formatCurrency.js";
+import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
+import { type PendingTransaction } from "../model/PendingTransaction.js";
+import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
+import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
+
+type SignParams =
+  | SignTransactionParams
+  | SignRawTransactionParams
+  | SignTypedMessageParams
+  | SignPersonalMessageParams;
+
+@injectable()
+export class TrackBroadcastedTransactionUseCase {
+  private readonly logger: LoggerPublisher;
+
+  constructor(
+    @inject(pendingTransactionModuleTypes.PendingTransactionStorageService)
+    private readonly storageService: PendingTransactionStorageService,
+    @inject(pendingTransactionModuleTypes.PendingTransactionController)
+    private readonly controller: PendingTransactionController,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
+    @inject(loggerModuleTypes.LoggerPublisher)
+    loggerFactory: Factory<LoggerPublisher>,
+  ) {
+    this.logger = loggerFactory("[TrackBroadcastedTransactionUseCase]");
+  }
+
+  async execute(status: SignFlowStatus, params: SignParams): Promise<void> {
+    if (status.status !== "success") return;
+    if (!isBroadcastedTransactionResult(status.data)) return;
+
+    const context = this.contextService.getContext();
+    if (!context.selectedAccount) return;
+
+    const currencyId = context.selectedAccount.currencyId;
+    const rawValue = isSignTransactionParams(params)
+      ? params.transaction.value
+      : "0";
+
+    const currencyInfo =
+      await this.calDataSource.getCurrencyInformation(currencyId);
+    const { ticker, name, decimals } = currencyInfo.caseOf({
+      Left: () => ({
+        ticker: currencyId.toUpperCase(),
+        name: currencyId,
+        decimals: 18,
+      }),
+      Right: (info) => ({
+        ticker: info.ticker,
+        name: info.name,
+        decimals: info.decimals,
+      }),
+    });
+
+    const tx: PendingTransaction = {
+      hash: status.data.hash,
+      chainId: context.chainId,
+      address: context.selectedAccount.freshAddress,
+      timestamp: new Date().toISOString(),
+      type: "sent",
+      value: rawValue,
+      formattedValue: formatBalance(rawValue, decimals, ticker),
+      ticker,
+      currencyName: name,
+      ledgerId: currencyId,
+    };
+
+    this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
+    this.storageService.add(tx);
+    this.controller.track(tx);
+  }
+}
