@@ -466,13 +466,6 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
-  getTransactionService(): TransactionService {
-    this._logger.debug("Getting transaction service");
-    return this.container.get<TransactionService>(
-      transactionModuleTypes.TransactionService,
-    );
-  }
-
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container

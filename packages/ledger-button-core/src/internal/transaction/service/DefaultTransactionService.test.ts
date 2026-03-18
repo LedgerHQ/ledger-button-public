@@ -170,9 +170,6 @@ describe("DefaultTransactionService", () => {
         expect(useCase.execute).toHaveBeenCalledTimes(1);
       });
 
-      it("should set crafted params", () => {
-        expect(service.getCraftedTransaction()).toEqual(params);
-      });
       it("should return observable from signTransactionUseCase", async () => {
         const result$ = service.sign(params);
 
@@ -182,36 +179,9 @@ describe("DefaultTransactionService", () => {
     });
   });
 
-  describe("getCraftedTransaction", () => {
-    it("should return undefined initially", () => {
-      expect(service.getCraftedTransaction()).toBeUndefined();
-    });
-
-    it("should return the most recent crafted params", () => {
-      service.setCraftedTransaction(mockSignTransactionParams);
-      expect(service.getCraftedTransaction()).toEqual(
-        mockSignTransactionParams,
-      );
-    });
-  });
-
-  describe("setCraftedTransaction", () => {
-    it("should set crafted params", () => {
-      service.setCraftedTransaction(mockSignTransactionParams);
-
-      expect(service.getCraftedTransaction()).toEqual(
-        mockSignTransactionParams,
-      );
-    });
-  });
-
   describe("reset", () => {
-    beforeEach(() => {
-      service.setCraftedTransaction(mockSignTransactionParams);
-    });
-    it("should clear crafted params", () => {
-      service.reset();
-      expect(service.getCraftedTransaction()).toBeUndefined();
+    it("should not throw", () => {
+      expect(() => service.reset()).not.toThrow();
     });
   });
 });
