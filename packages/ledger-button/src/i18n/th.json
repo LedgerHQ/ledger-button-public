@@ -12,45 +12,45 @@
       "clearAriaLabel": "Clear search"
     },
     "button": {
-      "connect": "Connect your Ledger device",
-      "usb": "Connect with USB",
-      "bluetooth": "Connect with Bluetooth",
-      "usb_hint": "Plug in and unlock your device",
-      "bluetooth_hint": "Power on and unlock your device",
+      "connect": "เชื่อมต่อกับอุปกรณ์ Ledger ของคุณ",
+      "usb": "เชื่อมต่อกับ USB",
+      "bluetooth": "เชื่อมต่อกับบลูทูธ",
+      "usb_hint": "เสียบช่อง USB และปลดล็อกอุปกรณ์ของคุณ",
+      "bluetooth_hint": "เปิดเครื่องและปลดล็อกอุปกรณ์ของคุณ",
       "close": "ปิด",
       "tryAgain": "ลองอีกครั้ง",
       "disconnect": "ยกเลิกการเชื่อมต่อ"
     },
     "ad": {
-      "getALedger": "Get a Ledger device"
+      "getALedger": "ซื้ออุปกรณ์ Ledger"
     },
     "platform": {
-      "onDesktop": "On desktop",
-      "onMobile": "On mobile"
+      "onDesktop": "บนเดสก์ท็อป",
+      "onMobile": "บนมือถือ"
     },
     "learnMore": "เรียนรู้เพิ่มเติม",
     "device": {
       "model": {
         "nanoS": "Ledger Nano S",
-        "nanoSP": "Ledger Nano SP",
+        "nanoSP": "Ledger Nano S Plus",
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
-        "apexp": "Ledger Nano Gen 5",
-        "fallback": "Ledger device"
+        "apexp": "Ledger Nano Gen5",
+        "fallback": "อุปกรณ์ Ledger"
       },
       "deviceActions": {
         "continueOnLedger": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "ดำเนินการต่อบน {device} ของคุณ",
+          "description": "ปฏิบัติตามคำแนะนำที่ปรากฏบนหน้าจอรักษาความปลอดภัยของคุณ"
         },
         "pin": {
-          "title": "Unlock your {device}",
-          "description": "Enter your PIN to unlock your Ledger device."
+          "title": "ปลดล็อก {device} ของคุณ",
+          "description": "ป้อนรหัส PIN ของคุณเพื่อปลดล็อกอุปกรณ์ Ledger"
         },
         "signTransaction": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "ดำเนินการต่อบน {device} ของคุณ",
+          "description": "ปฏิบัติตามคำแนะนำที่ปรากฏบนหน้าจอรักษาความปลอดภัยของคุณ"
         }
       }
     }
@@ -68,98 +68,98 @@
     "sell": "ขาย"
   },
   "walletRedirect": {
-    "title": "Continue in Ledger Wallet",
-    "description": "You need the Ledger Wallet desktop app to complete this action.",
+    "title": "ดำเนินการต่อในแอป Ledger Wallet",
+    "description": "คุณต้องมีแอป Ledger Wallet Desktop เพื่อทำขั้นตอนนี้",
     "confirm": "เปิดแอป Ledger Wallet",
-    "download": "Download Ledger Wallet"
+    "download": "ดาวน์โหลดแอป Ledger Wallet™"
   },
   "deviceSwitch": {
-    "title": "Your Ledgers",
-    "noDevices": "No previously connected devices found",
-    "connectAnother": "Or connect another Ledger",
-    "connectBluetooth": "Connect a Bluetooth",
-    "connectBluetoothHint": "Power on and unlock your device",
-    "connectUsb": "Connect with USB",
-    "connectUsbHint": "Plug in and unlock your device",
+    "title": "Ledger ของคุณ",
+    "noDevices": "ไม่พบอุปกรณ์ที่เชื่อมต่อไว้ก่อนหน้านี้",
+    "connectAnother": "หรือเชื่อมต่อกับ Ledger เครื่องอื่น",
+    "connectBluetooth": "เชื่อมต่อกับบลูทูธ",
+    "connectBluetoothHint": "เปิดเครื่องและปลดล็อกอุปกรณ์ของคุณ",
+    "connectUsb": "เชื่อมต่อกับ USB",
+    "connectUsbHint": "เสียบช่อง USB และปลดล็อกอุปกรณ์ของคุณ",
     "status": {
-      "connected": "Connected",
+      "connected": "เชื่อมต่อแล้ว",
       "available": "ใช้ได้"
     }
   },
   "ledgerSync": {
-    "turnOnLedgerSyncTitle": "Activate Ledger Sync to continue",
-    "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
-    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "turnOnLedgerSyncTitle": "เปิดฟีเจอร์ Ledger Sync เพื่อดำเนินการต่อ",
+    "turnOnLedgerSyncSubtitle": "การดำเนินการนี้จำเป็นเพื่อกู้คืนบัญชีคริปโตของคุณ",
+    "activateSelectPlatform": "เลือกวิธีที่คุณต้องการเปิดใช้งานฟีเจอร์ Ledger Sync",
     "activate": "เปิด Ledger Sync",
-    "activateStep1Desktop": "Select the button below to activate Ledger Sync",
-    "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
-    "activateStep1Mobile": "To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
-    "activateStep2": "Once activated, select \"Continue\" below.",
-    "activated": "Ledger Sync is activated, continue"
+    "activateStep1Desktop": "เลือกปุ่มด้านล่างเพื่อเปิดใช้งานฟีเจอร์ Ledger Sync",
+    "activateStep1DesktopLLInstalled": "ตรวจสอบให้แน่ใจว่าคุณได้ติดตั้งแอป Ledger Wallet บนคอมพิวเตอร์ของคุณแล้ว",
+    "activateStep1Mobile": "เพื่อเปิดใช้งานฟีเจอร์ Ledger Sync ให้สแกน QR Code และทำตามขั้นตอนที่ปรากฏบนหน้าจอ",
+    "activateStep2": "เมื่อเปิดใช้งานแล้ว ให้เลือก \"Continue\" (ดำเนินการต่อ) ด้านล่าง",
+    "activated": "ฟีเจอร์ Ledger Sync เปิดใช้งานแล้ว โปรดดำเนินการต่อ"
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connect a Ledger"
+      "title": "เชื่อมต่อกับ Ledger"
     },
     "ledgerSync": {
       "title": ""
     },
     "retrievingAccounts": {
-      "title": "Retrieving accounts"
+      "title": "กำลังดึงข้อมูลบัญชี"
     },
     "selectAccount": {
       "title": "เลือกบัญชี",
-      "showTokens": "Show tokens",
-      "searchPlaceholder": "Search account",
-      "noResults": "No accounts match your search",
-      "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
-      "refreshingAccountsHint": "Select an account at any time to continue."
+      "showTokens": "แสดงโทเคน",
+      "searchPlaceholder": "ค้นหาบัญชี",
+      "noResults": "ไม่มีบัญชีที่ตรงกับการค้นหาของคุณ",
+      "refreshingAccounts": "แอป Ledger Wallet กำลังอัปเดตข้อมูลบัญชีของคุณ",
+      "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ"
     },
     "turnOnSync": {
       "title": "",
-      "subtitle": "Turn on Ledger Sync to continue",
-      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+      "subtitle": "เปิดฟีเจอร์ Ledger Sync เพื่อดำเนินการต่อ",
+      "text": "ฟีเจอร์นี้จำเป็นเพื่อให้สามารถดึงบัญชีของคุณได้อย่างปลอดภัย เมื่อคุณคลิกเพื่อเปิดฟีเจอร์ Ledger Sync ระบบจะนำคุณไปยังแอป Ledger Wallet เพื่อเปิดใช้งานฟีเจอร์ Ledger Sync"
     },
     "consentPrompt": {
       "intro": {
-        "title": "Welcome to Ledger Wallet",
-        "subtitle": "Enjoy smooth and direct connection between your Ledger signer and your dApps. You’ve unlocked:",
+        "title": "ยินดีต้อนรับสู่แอป Ledger Wallet",
+        "subtitle": "เพลิดเพลินกับการเชื่อมต่อที่ราบรื่นโดยตรงระหว่างอุปกรณ์ลงนาม Ledger กับ dApps ของคุณ ตอนนี้คุณสามารถ:",
         "features": {
           "directConnectivity": {
-            "title": "Direct Connectivity",
-            "description": "Connect via USB or Bluetooth."
+            "title": "เชื่อมต่อโดยตรง",
+            "description": "เชื่อมต่อผ่าน USB หรือ บลูทูธ"
           },
           "clearSigning": {
             "title": "Clear Signing",
-            "description": "Clearly verify transactions before signing."
+            "description": "ตรวจสอบธุรกรรมอย่างชัดเจนก่อนลงนาม"
           },
           "transactionCheck": {
-            "title": "Transaction Check",
-            "description": "Receive warnings for any potential threats before signing."
+            "title": "ฟีเจอร์ Transaction Check",
+            "description": "รับคำเตือนเกี่ยวกับภัยคุกคามที่อาจเกิดขึ้นก่อนลงนาม"
           }
         },
         "howItWorks": {
-          "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "title": "เรียนรู้วิธีการทำงาน",
+          "description": "บัญชีคริปโตของคุณจะได้รับการเรียกคืนอย่างปลอดภัยผ่าน <strong class=\"text-base\">ฟีเจอร์ Ledger Sync</strong> โดยฟีเจอร์ Ledger Sync จะสามารถใช้ซิงค์และสำรองข้อมูลบัญชีคริปโตของคุณในแอป Ledger Wallet บนอุปกรณ์ทั้งหมดของคุณพร้อม ๆ กันได้",
           "alreadyActivated": {
-            "title": "Already activated Ledger Sync?",
-            "description": "You're ready to go!"
+            "title": "เปิดใช้งานฟีเจอร์ Ledger Sync แล้วหรือยัง?",
+            "description": "พร้อมใช้งานแล้ว!"
           },
           "firstTime": {
-            "title": "First time using Ledger Sync?",
-            "description": "You'll be guided through a one-time setup that takes just a few minutes."
+            "title": "ใช้ฟีเจอร์ Ledger Sync เป็นครั้งแรก?",
+            "description": "จะมีการแนะนำคุณให้ทำการตั้งค่าครั้งเดียวที่ใช้เวลาเพียงไม่กี่นาที"
           }
         },
         "continueButton": "ดำเนินการต่อ",
-        "legalText": "By clicking Continue you consent and agree to our",
+        "legalText": "โดยการคลิก \"ดำเนินการต่อ\" คุณยินยอมและตกลงว่าจะ",
         "termsAndConditions": "ข้อกำหนดและเงื่อนไข",
         "and": "และ",
         "privacyPolicy": "นโยบายความเป็นส่วนตัว"
       },
       "consent": {
-        "title": "Help us improve",
-        "description": "With your consent, Ledger will collect product analytics data to help us find bugs, measure Ledger Wallet Direct Connectivity's performance and improve the service and your experience.",
-        "privacyNotice": "Learn more about how we manage your data and your rights in our",
+        "title": "ช่วยเราปรับปรุง",
+        "description": "ด้วยความยินยอมของคุณ Ledger จะรวบรวมข้อมูลการวิเคราะห์ผลิตภัณฑ์เพื่อช่วยเราค้นหาบั๊ก, วัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงบริการและประสบการณ์ของคุณ",
+        "privacyNotice": "เรียนรู้เพิ่มเติมเกี่ยวกับวิธีที่เราจัดการข้อมูลและสิทธิของคุณ",
         "privacyPolicyLink": "นโยบายความเป็นส่วนตัว",
         "acceptButton": "ยอมรับทั้งหมด",
         "rejectButton": "ปฏิเสธทั้งหมด"
@@ -167,9 +167,9 @@
     }
   },
   "accountTokens": {
-    "title": "Account Tokens",
+    "title": "โทเคนบัญชี",
     "notFound": "Account not found",
-    "noTokens": "No tokens found for this account"
+    "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้"
   },
   "transactionList": {
     "noTransactions": "No transactions found"
@@ -178,9 +178,9 @@
     "title": "การตั้งค่า",
     "analytics": {
       "title": "การวิเคราะห์",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
     },
-    "securityConfidentiality": "Security & confidentiality",
+    "securityConfidentiality": "ความปลอดภัยและการรักษาความลับ",
     "helpSupport": "ความช่วยเหลือและการสนับสนุน",
     "support": {
       "title": "ความช่วยเหลือและการสนับสนุน",
@@ -191,35 +191,35 @@
   "signTransaction": {
     "success": {
       "title": "ลงนามธุรกรรมสำเร็จแล้ว",
-      "description": "You transaction will be processed soon.",
-      "viewTransaction": "View transaction details"
+      "description": "ธุรกรรมของคุณจะได้รับการประมวลผลในไม่ช้า",
+      "viewTransaction": "ดูรายละเอียดธุรกรรม"
     },
     "error": {
-      "title": "Transaction failed",
-      "description": "There was an error signing your transaction. Please try again."
+      "title": "ธุรกรรมล้มเหลว",
+      "description": "เกิดข้อผิดพลาดในการลงนามในธุรกรรมของคุณ โปรดลองอีกครั้ง"
     }
   },
   "signMessage": {
     "success": {
-      "title": "Message successfully signed.",
-      "description": "Your message has been signed successfully."
+      "title": "ลงนามในข้อความเรียบร้อยแล้ว",
+      "description": "ลงนามในข้อความของคุณเรียบร้อยแล้ว"
     },
     "error": {
-      "title": "Message signing failed",
-      "description": "There was an error signing your message. Please try again."
+      "title": "การลงนามข้อความไม่สำเร็จ",
+      "description": "เกิดข้อผิดพลาดระหว่างการลงนามข้อความของคุณ โปรดลองอีกครั้ง"
     }
   },
   "error": {
     "generic": {
       "account": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "title": "เกิดข้อผิดพลาด",
+        "description": "เกิดข้อผิดพลาดที่ไม่คาดคิดขณะดึงข้อมูลบัญชีของคุณ โปรดลองอีกครั้ง",
         "cta1": "ลองอีกครั้ง",
         "cta2": "ปิด"
       },
       "sign": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "title": "เกิดข้อผิดพลาด",
+        "description": "เกิดข้อผิดพลาดที่ไม่คาดคิดขณะลงนามในธุรกรรมของคุณ โปรดลองอีกครั้ง",
         "cta1": "ลองอีกครั้ง",
         "cta2": "ปิด"
       }
@@ -227,66 +227,66 @@
     "device": {
       "DeviceNotSupported": {
         "title": "ไม่รองรับ {device}",
-        "description": "Here’s a list of compatible Ledger devices: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
-        "cta1": "Connect another device",
-        "cta2": "Buy a new Ledger device"
+        "description": "อุปกรณ์ Ledger ที่สามารถใช้ได้มีดังนี้: Ledger Nano X™, Ledger Nano S Plus™, Ledger Flex™ และ Ledger Stax™",
+        "cta1": "เชื่อมต่อกับอุปกรณ์อื่น",
+        "cta2": "ซื้ออุปกรณ์ Ledger ใหม่"
       },
       "IncorrectSeed": {
-        "title": "Incompatibility between Ledger device and crypto account",
-        "description": "To continue, connect the Ledger device that manages this crypto account, or choose a different account.",
-        "cta1": "Use another Ledger device",
+        "title": "พบความไม่เข้ากันระหว่างอุปกรณ์ Ledger กับบัญชีคริปโต",
+        "description": "เพื่อดำเนินการต่อ โปรดเชื่อมต่ออุปกรณ์ Ledger ที่ใช้จัดการบัญชีคริปโตนี้ หรือเลือกบัญชีอื่น",
+        "cta1": "ใช้อุปกรณ์ Ledger เครื่องอื่น",
         "cta2": "ปิด"
       },
       "BlindSigningDisabled": {
-        "title": "Blind signing disabled",
-        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "title": "ฟีเจอร์ Blind Signing ถูกปิดใช้งาน",
+        "description": "ธุรกรรมนี้ไม่สามารถทำ Clear Sign ได้ โปรดเปิดใช้งานฟีเจอร์ Blind Signing ในหน้าการตั้งค่าแอปพลิเคชัน",
         "cta1": "ลองใหม่",
         "cta2": "ปิด"
       },
       "UserRejectedTransaction": {
-        "title": "Transaction rejected",
-        "description": "You rejected the transaction on your {device}",
+        "title": "ธุรกรรมถูกปฏิเสธ",
+        "description": "คุณได้ปฏิเสธธุรกรรมบน {device} ของคุณ",
         "cta1": "ปิด",
-        "cta2": "Retry transaction"
+        "cta2": "ลองทำธุรกรรมอีกครั้ง"
       },
       "UserRejectedMessage": {
-        "title": "Message rejected",
-        "description": "You rejected the message signing on your {device}",
+        "title": "ข้อความถูกปฏิเสธ",
+        "description": "คุณปฏิเสธการลงนามข้อความบน {device} ของคุณ",
         "cta1": "ปิด",
-        "cta2": "Retry message signing"
+        "cta2": "ลองลงนามในข้อความอีกครั้ง"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
-        "title": "Unable to activate Ledger Sync",
-        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
-        "cta1": "Close this tab",
-        "cta2": "What is Ledger Sync?"
+        "title": "ไม่สามารถเปิดฟีเจอร์ Ledger Sync ได้",
+        "description": "การเชื่อมต่อกับแอป Ledger Wallet เพื่อเปิดใช้งานฟีเจอร์ Ledger Sync ล้มเหลว โปรดปิดแท็บนี้, ทำการเปิดแอป Ledger Wallet (เดสก์ท็อปหรือมือถือ) , เปิดใช้งานฟีเจอร์ Ledger Sync และเปิดแท็บอีกครั้ง",
+        "cta1": "ปิดแท็บนี้",
+        "cta2": "ฟีเจอร์ Ledger Sync คืออะไร?"
       },
       "NoCompatibleAccounts": {
-        "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
-        "cta1": "Create a new account on Ledger Live",
-        "cta2": "Use another Ledger device"
+        "title": "ไม่พบบัญชีที่รองรับ",
+        "description": "แอป Dapp นี้รองรับเครือข่าย {networks} เหล่านี้ที่คุณยังไม่มีบัญชี โปรดสร้างบัญชีใหม่ในแอป Ledger Wallet",
+        "cta1": "สร้างบัญชีใหม่ในแอป Ledger Wallet",
+        "cta2": "ใช้อุปกรณ์ Ledger เครื่องอื่น"
       },
       "NoAccountInSync": {
-        "title": "No accounts in sync",
-        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "title": "ไม่มีบัญชีที่ซิงค์",
+        "description": "ฟีเจอร์ Ledger Sync เปิดใช้งานแล้ว แต่ยังไม่มีบัญชีที่ทำการซิงค์อยู่ โปรดเปิดใช้งานฟีเจอร์ Ledger Sync บนแอป Ledger Wallet และเพิ่มบัญชีอย่างน้อยหนึ่งบัญชี",
         "cta1": "ปิด"
       }
     },
     "network": {
       "BroadcastTransactionError": {
-        "title": "Transaction failed",
-        "description": "Your transaction was broadcasted to the network but failed to execute.",
-        "cta1": "Retry transaction"
+        "title": "ธุรกรรมล้มเหลว",
+        "description": "ธุรกรรมของคุณได้รับการเผยแพร่ไปยังเครือข่าย แต่ไม่สามารถทำรายการได้",
+        "cta1": "ลองทำธุรกรรมอีกครั้ง"
       }
     },
     "connection": {
       "DeviceDisconnected": {
-        "title": "Your Ledger device is disconnected",
-        "description": "If you’re using USB, plug in and unlock your Ledger device. If you’re using Bluetooth, unlock it and keep it nearby.",
-        "cta1": "Reconnect Ledger device"
+        "title": "อุปกรณ์ Ledger ของคุณถูกตัดการเชื่อมต่อแล้ว",
+        "description": "หากคุณใช้ USB ให้เสียบและปลดล็อกอุปกรณ์ Ledger ของคุณ หากคุณใช้บลูทูธ ให้ปลดล็อกอุปกรณ์ และวางไว้ใกล้ ๆ",
+        "cta1": "เชื่อมต่อกับอุปกรณ์ Ledger อีกครั้ง"
       }
     }
   }
