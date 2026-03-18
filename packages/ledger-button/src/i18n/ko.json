@@ -12,45 +12,45 @@
       "clearAriaLabel": "Clear search"
     },
     "button": {
-      "connect": "Connect your Ledger device",
-      "usb": "Connect with USB",
-      "bluetooth": "Connect with Bluetooth",
-      "usb_hint": "Plug in and unlock your device",
-      "bluetooth_hint": "Power on and unlock your device",
+      "connect": "Ledger 장치 연결하기",
+      "usb": "USB로 연결",
+      "bluetooth": "블루투스로 연결",
+      "usb_hint": "전원을 연결하고 장치 잠금을 해제하세요",
+      "bluetooth_hint": "장치 전원을 켜고 잠금을 해제하세요",
       "close": "닫기",
       "tryAgain": "다시 시도하세요",
       "disconnect": "연결 해제"
     },
     "ad": {
-      "getALedger": "Get a Ledger device"
+      "getALedger": "Ledger 장치 구매하기"
     },
     "platform": {
-      "onDesktop": "On desktop",
-      "onMobile": "On mobile"
+      "onDesktop": "데스크톱",
+      "onMobile": "모바일"
     },
     "learnMore": "자세히 알아보기",
     "device": {
       "model": {
         "nanoS": "Ledger Nano S",
-        "nanoSP": "Ledger Nano SP",
+        "nanoSP": "Ledger Nano S Plus",
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
         "apexp": "Ledger Nano Gen 5",
-        "fallback": "Ledger device"
+        "fallback": "Ledger 장치"
       },
       "deviceActions": {
         "continueOnLedger": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "{device}에서 계속하기",
+          "description": "보안 스크린에 표시된 안내를 따라주세요."
         },
         "pin": {
-          "title": "Unlock your {device}",
-          "description": "Enter your PIN to unlock your Ledger device."
+          "title": "{device} 잠금 해제",
+          "description": "PIN을 입력하여 Ledger 장치 잠금을 해제하세요."
         },
         "signTransaction": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "{device}에서 계속하기",
+          "description": "보안 스크린에 표시된 안내를 따라주세요."
         }
       }
     }
@@ -68,98 +68,98 @@
     "sell": "매도"
   },
   "walletRedirect": {
-    "title": "Continue in Ledger Wallet",
-    "description": "You need the Ledger Wallet desktop app to complete this action.",
+    "title": "Ledger Wallet에서 계속하기",
+    "description": "이 동작을 완료하려면 Ledger Wallet 데스크탑 앱이 필요합니다.",
     "confirm": "Ledger Wallet을 실행합니다.",
-    "download": "Download Ledger Wallet"
+    "download": "Ledger Wallet 다운로드"
   },
   "deviceSwitch": {
-    "title": "Your Ledgers",
-    "noDevices": "No previously connected devices found",
-    "connectAnother": "Or connect another Ledger",
-    "connectBluetooth": "Connect a Bluetooth",
-    "connectBluetoothHint": "Power on and unlock your device",
-    "connectUsb": "Connect with USB",
-    "connectUsbHint": "Plug in and unlock your device",
+    "title": "내 Ledger 장치",
+    "noDevices": "이전에 연결된 장치가 없습니다",
+    "connectAnother": "또는 다른 Ledger 장치 연결하기",
+    "connectBluetooth": "블루투스로 연결",
+    "connectBluetoothHint": "장치 전원을 켜고 잠금을 해제하세요",
+    "connectUsb": "USB로 연결",
+    "connectUsbHint": "전원을 연결하고 장치 잠금을 해제하세요",
     "status": {
       "connected": "연결됨",
       "available": "이용 가능"
     }
   },
   "ledgerSync": {
-    "turnOnLedgerSyncTitle": "Activate Ledger Sync to continue",
-    "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
-    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "turnOnLedgerSyncTitle": "계속하려면 Ledger Sync를 활성화하세요",
+    "turnOnLedgerSyncSubtitle": "계정 정보를 안전하게 불러오기 위해 필요한 단계입니다.",
+    "activateSelectPlatform": "Ledger Sync 활성화 방법을 선택하세요",
     "activate": "Ledger 동기화 활성화",
-    "activateStep1Desktop": "Select the button below to activate Ledger Sync",
-    "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
-    "activateStep1Mobile": "To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
-    "activateStep2": "Once activated, select \"Continue\" below.",
-    "activated": "Ledger Sync is activated, continue"
+    "activateStep1Desktop": "Ledger Sync를 활성화하려면 아래 버튼을 선택하세요",
+    "activateStep1DesktopLLInstalled": "컴퓨터에 Ledger Wallet 앱이 설치되었는지 확인하세요.",
+    "activateStep1Mobile": "Ledger Sync를 활성화하려면 QR 코드를 스캔하고 화면의 안내를 따라주세요.",
+    "activateStep2": "활성화되면 아래 '계속' 버튼을 선택하세요.",
+    "activated": "Ledger Sync가 활성화되었습니다. 계속하기"
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connect a Ledger"
+      "title": "Ledger 장치 연결"
     },
     "ledgerSync": {
       "title": ""
     },
     "retrievingAccounts": {
-      "title": "Retrieving accounts"
+      "title": "계정 불러오기 중"
     },
     "selectAccount": {
       "title": "계정 선택",
-      "showTokens": "Show tokens",
-      "searchPlaceholder": "Search account",
-      "noResults": "No accounts match your search",
-      "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
-      "refreshingAccountsHint": "Select an account at any time to continue."
+      "showTokens": "토큰 보기",
+      "searchPlaceholder": "계정 검색",
+      "noResults": "검색하신 조건에 맞는 계정을 찾을 수 없습니다",
+      "refreshingAccounts": "Ledger Wallet이 계정 정보를 업데이트하고 있습니다.",
+      "refreshingAccountsHint": "언제든 계정을 선택해 계속 진행하세요."
     },
     "turnOnSync": {
       "title": "",
-      "subtitle": "Turn on Ledger Sync to continue",
-      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+      "subtitle": "계속하려면 Ledger Sync를 활성화하세요",
+      "text": "계정 정보를 안전하게 불러오기 위해 필요한 단계입니다. Ledger Sync 활성화를 클릭하면 해당 기능 활성화를 위해 Ledger Wallet으로 리디렉션됩니다."
     },
     "consentPrompt": {
       "intro": {
-        "title": "Welcome to Ledger Wallet",
-        "subtitle": "Enjoy smooth and direct connection between your Ledger signer and your dApps. You’ve unlocked:",
+        "title": "Ledger Wallet 시작하기",
+        "subtitle": "Ledger 사이너와 dApps 간의 원활하고 직접적인 연결을 경험하세요. 사용 가능한 혜택:",
         "features": {
           "directConnectivity": {
             "title": "Direct Connectivity",
-            "description": "Connect via USB or Bluetooth."
+            "description": "USB 또는 블루투스로 연결."
           },
           "clearSigning": {
             "title": "클리어 서명",
-            "description": "Clearly verify transactions before signing."
+            "description": "서명에 앞서 트랜잭션 상세 정보를 명확히 확인하세요."
           },
           "transactionCheck": {
-            "title": "Transaction Check",
-            "description": "Receive warnings for any potential threats before signing."
+            "title": "Transaction Check(트랜잭션 점검)",
+            "description": "서명하기 전, 잠재적인 위협 요소에 대한 경고를 받아볼 수 있습니다."
           }
         },
         "howItWorks": {
-          "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "title": "작동 방식 알아보기",
+          "description": "<strong class=\"text-base\">Ledger Sync</strong>를 통해 암호화폐 계정을 안전하게 불러왔습니다. Ledger Sync를 사용하면 사용 중인 모든 기기의 Ledger Wallet 앱에서 암호화폐 계정을 동기화하고 백업할 수 있습니다.",
           "alreadyActivated": {
-            "title": "Already activated Ledger Sync?",
-            "description": "You're ready to go!"
+            "title": "이미 Ledger Sync를 활성화하셨나요?",
+            "description": "모든 준비가 완료되었습니다!"
           },
           "firstTime": {
-            "title": "First time using Ledger Sync?",
-            "description": "You'll be guided through a one-time setup that takes just a few minutes."
+            "title": "Ledger Sync를 처음 사용하시나요?",
+            "description": "단 몇 분 만에 완료되는 설정 방법을 알려드립니다. 이후 다시 설정할 필요가 없습니다."
           }
         },
         "continueButton": "계속",
-        "legalText": "By clicking Continue you consent and agree to our",
+        "legalText": "‘계속’을 클릭하면 다음 사항에 동의하게 됩니다.",
         "termsAndConditions": "이용약관",
         "and": "및",
         "privacyPolicy": "개인 정보 보호 정책"
       },
       "consent": {
-        "title": "Help us improve",
-        "description": "With your consent, Ledger will collect product analytics data to help us find bugs, measure Ledger Wallet Direct Connectivity's performance and improve the service and your experience.",
-        "privacyNotice": "Learn more about how we manage your data and your rights in our",
+        "title": "서비스 개선에 참여하기",
+        "description": "사용자가 동의할 경우, Ledger는 버그를 찾고 Ledger Wallet Direct Connectivity의 성능을 측정하며 서비스 및 사용자 경험을 개선하기 위해 제품 분석 데이터를 수집합니다.",
+        "privacyNotice": "당사가 사용자 데이터를 관리하는 방법과 사용자의 권리에 대한 자세한 내용은 당사의 다음 문서를 참조하세요:",
         "privacyPolicyLink": "개인 정보 보호 정책",
         "acceptButton": "모두 수락",
         "rejectButton": "모두 거부"
@@ -167,9 +167,9 @@
     }
   },
   "accountTokens": {
-    "title": "Account Tokens",
+    "title": "계정 토큰",
     "notFound": "Account not found",
-    "noTokens": "No tokens found for this account"
+    "noTokens": "이 계정에서 토큰을 찾을 수 없습니다"
   },
   "transactionList": {
     "noTransactions": "No transactions found"
@@ -178,9 +178,9 @@
     "title": "설정",
     "analytics": {
       "title": "애널리틱스",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      "description": "Ledger Wallet Direct Connectivity의 성능을 측정하고 앱과 사용자 경험을 모두 향상할 수 있도록 Ledger의 앱 사용 데이터 수집을 허용해 주세요."
     },
-    "securityConfidentiality": "Security & confidentiality",
+    "securityConfidentiality": "보안 및 기밀성",
     "helpSupport": "도움말 및 지원",
     "support": {
       "title": "도움말 및 지원",
@@ -191,35 +191,35 @@
   "signTransaction": {
     "success": {
       "title": "트랜잭션 서명 완료",
-      "description": "You transaction will be processed soon.",
-      "viewTransaction": "View transaction details"
+      "description": "트랜잭션이 곧 처리됩니다.",
+      "viewTransaction": "트랜잭션 상세 정보 보기"
     },
     "error": {
-      "title": "Transaction failed",
-      "description": "There was an error signing your transaction. Please try again."
+      "title": "트랜잭션 실패",
+      "description": "트랜잭션 서명 중 오류가 발생했습니다. 다시 시도해 주세요."
     }
   },
   "signMessage": {
     "success": {
-      "title": "Message successfully signed.",
-      "description": "Your message has been signed successfully."
+      "title": "메시지 서명 완료",
+      "description": "메시지에 성공적으로 서명했습니다."
     },
     "error": {
-      "title": "Message signing failed",
-      "description": "There was an error signing your message. Please try again."
+      "title": "메시지 서명 실패",
+      "description": "메시지 서명 중 오류가 발생했습니다. 다시 시도해 주세요."
     }
   },
   "error": {
     "generic": {
       "account": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "title": "오류 발생",
+        "description": "계정 가져오기 중 예상하지 못한 오류가 발생했습니다. 다시 시도해 주세요",
         "cta1": "다시 시도하세요",
         "cta2": "닫기"
       },
       "sign": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "title": "오류 발생",
+        "description": "트랜잭션 서명 중 예기치 못한 오류가 발생했습니다. 다시 시도해 주세요",
         "cta1": "다시 시도하세요",
         "cta2": "닫기"
       }
@@ -227,66 +227,66 @@
     "device": {
       "DeviceNotSupported": {
         "title": "{device}(은)는 지원되지 않습니다",
-        "description": "Here’s a list of compatible Ledger devices: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
-        "cta1": "Connect another device",
-        "cta2": "Buy a new Ledger device"
+        "description": "호환되는 Ledger 장치: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
+        "cta1": "다른 장치 연결",
+        "cta2": "새 Ledger 장치 구매"
       },
       "IncorrectSeed": {
-        "title": "Incompatibility between Ledger device and crypto account",
-        "description": "To continue, connect the Ledger device that manages this crypto account, or choose a different account.",
-        "cta1": "Use another Ledger device",
+        "title": "Ledger 장치와 암호화폐 계정 호환 오류",
+        "description": "계속하려면 이 암호화폐 계정을 관리하는 Ledger 장치를 연결하거나 다른 계정을 선택하세요.",
+        "cta1": "다른 Ledger 장치 사용",
         "cta2": "닫기"
       },
       "BlindSigningDisabled": {
-        "title": "Blind signing disabled",
-        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "title": "블라인드 서명 비활성화",
+        "description": "이 트랜잭션은 클리어 서명이 지원되지 않습니다. 앱 설정에서 블라인드 서명을 활성화하세요.",
         "cta1": "다시 시도",
         "cta2": "닫기"
       },
       "UserRejectedTransaction": {
-        "title": "Transaction rejected",
-        "description": "You rejected the transaction on your {device}",
+        "title": "트랜잭션이 거부되었습니다",
+        "description": "{device}에서 트랜잭션을 거부했습니다",
         "cta1": "닫기",
-        "cta2": "Retry transaction"
+        "cta2": "트랜잭션 재시도"
       },
       "UserRejectedMessage": {
-        "title": "Message rejected",
-        "description": "You rejected the message signing on your {device}",
+        "title": "메시지가 거부되었습니다",
+        "description": "{device}에서 메시지 서명을 거부했습니다",
         "cta1": "닫기",
-        "cta2": "Retry message signing"
+        "cta2": "메시지 서명 재시도"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
-        "title": "Unable to activate Ledger Sync",
-        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
-        "cta1": "Close this tab",
-        "cta2": "What is Ledger Sync?"
+        "title": "Ledger Sync 활성화 실패",
+        "description": "Ledger Wallet과의 연결 문제로 Ledger Sync를 활성화에 실패했습니다. 이 탭을 닫고 Ledger Wallet 앱(데스크탑 또는 모바일)을 실행한 다음, Ledger Sync를 활성화하고 탭을 다시 열어주세요.",
+        "cta1": "이 탭 닫기",
+        "cta2": "Ledger Sync가 무엇인가요?"
       },
       "NoCompatibleAccounts": {
-        "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
-        "cta1": "Create a new account on Ledger Live",
-        "cta2": "Use another Ledger device"
+        "title": "호환되는 계정을 찾을 수 없습니다",
+        "description": "이 디앱(DApp)은 다음 {networks} 네트워크를 지원하지만, 현재 해당 네트워크 계정이 없습니다. Ledger Wallet에서 새 계정을 생성하세요.",
+        "cta1": "Ledger Wallet에서 새 계정 생성하기",
+        "cta2": "다른 Ledger 장치 사용"
       },
       "NoAccountInSync": {
-        "title": "No accounts in sync",
-        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "title": "동기화된 계정 없음",
+        "description": "Ledger Sync가 활성화되었지만 동기화된 계정이 없습니다. Ledger Wallet에서 Ledger Sync를 활성화하고 하나 이상의 계정을 추가하세요.",
         "cta1": "닫기"
       }
     },
     "network": {
       "BroadcastTransactionError": {
-        "title": "Transaction failed",
-        "description": "Your transaction was broadcasted to the network but failed to execute.",
-        "cta1": "Retry transaction"
+        "title": "트랜잭션 실패",
+        "description": "트랜잭션이 네트워크에 브로드캐스팅되었으나 실행에 실패했습니다.",
+        "cta1": "트랜잭션 재시도"
       }
     },
     "connection": {
       "DeviceDisconnected": {
-        "title": "Your Ledger device is disconnected",
-        "description": "If you’re using USB, plug in and unlock your Ledger device. If you’re using Bluetooth, unlock it and keep it nearby.",
-        "cta1": "Reconnect Ledger device"
+        "title": "Ledger 장치 연결이 끊어졌습니다",
+        "description": "USB를 사용하는 경우 Ledger 장치를 연결하고 잠금을 해제하세요. 블루투스를 사용하는 경우 잠금을 해제하고 가까운 곳에 놓아주세요.",
+        "cta1": "Ledger 장치 재연결"
       }
     }
   }
