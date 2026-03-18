@@ -12,45 +12,45 @@
       "clearAriaLabel": "Clear search"
     },
     "button": {
-      "connect": "Connect your Ledger device",
-      "usb": "Connect with USB",
-      "bluetooth": "Connect with Bluetooth",
-      "usb_hint": "Plug in and unlock your device",
-      "bluetooth_hint": "Power on and unlock your device",
+      "connect": "Ledger cihazınızı bağlayın",
+      "usb": "USB ile bağlanın",
+      "bluetooth": "Bluetooth ile bağlanın",
+      "usb_hint": "Cihazınızı takın ve kilidini açın",
+      "bluetooth_hint": "Cihazınızı açın ve kilidini açın",
       "close": "Kapat",
       "tryAgain": "Tekrar dene",
       "disconnect": "Bağlantıyı Kes"
     },
     "ad": {
-      "getALedger": "Get a Ledger device"
+      "getALedger": "Bir Ledger cihazı edinin"
     },
     "platform": {
-      "onDesktop": "On desktop",
-      "onMobile": "On mobile"
+      "onDesktop": "Masaüstü",
+      "onMobile": "Mobil"
     },
     "learnMore": "Daha fazla bilgi",
     "device": {
       "model": {
         "nanoS": "Ledger Nano S",
-        "nanoSP": "Ledger Nano SP",
+        "nanoSP": "Ledger Nano S Plus",
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
-        "apexp": "Ledger Nano Gen 5",
-        "fallback": "Ledger device"
+        "apexp": "Ledger Nano Gen5",
+        "fallback": "Ledger cihazı"
       },
       "deviceActions": {
         "continueOnLedger": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "{device} üzerinde devam edin",
+          "description": "Güvenli Ekranınızda gösterilen yönergeleri izleyin."
         },
         "pin": {
-          "title": "Unlock your {device}",
-          "description": "Enter your PIN to unlock your Ledger device."
+          "title": "{device} kilidini açın",
+          "description": "Ledger cihazınızın kilidini açmak için PIN kodunuzu girin."
         },
         "signTransaction": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "{device} üzerinde devam edin",
+          "description": "Güvenli Ekranınızda gösterilen yönergeleri izleyin."
         }
       }
     }
@@ -68,98 +68,98 @@
     "sell": "Sat"
   },
   "walletRedirect": {
-    "title": "Continue in Ledger Wallet",
-    "description": "You need the Ledger Wallet desktop app to complete this action.",
+    "title": "Ledger Wallet'ta devam edin",
+    "description": "Bu eylemi tamamlamak için Ledger Wallet masaüstü uygulamasına ihtiyacınız var.",
     "confirm": "Ledger Wallet’ı açın",
-    "download": "Download Ledger Wallet"
+    "download": "Ledger Wallet'ı indirin"
   },
   "deviceSwitch": {
-    "title": "Your Ledgers",
-    "noDevices": "No previously connected devices found",
-    "connectAnother": "Or connect another Ledger",
-    "connectBluetooth": "Connect a Bluetooth",
-    "connectBluetoothHint": "Power on and unlock your device",
-    "connectUsb": "Connect with USB",
-    "connectUsbHint": "Plug in and unlock your device",
+    "title": "Ledger cihazlarınız",
+    "noDevices": "Daha önce bağlanmış cihaz bulunamadı",
+    "connectAnother": "Ya da başka bir Ledger bağlayın",
+    "connectBluetooth": "Bluetooth ile bağlanın",
+    "connectBluetoothHint": "Cihazınızı açın ve kilidini açın",
+    "connectUsb": "USB ile bağlanın",
+    "connectUsbHint": "Cihazınızı takın ve kilidini açın",
     "status": {
       "connected": "Bağlandı",
       "available": "Mevcut"
     }
   },
   "ledgerSync": {
-    "turnOnLedgerSyncTitle": "Activate Ledger Sync to continue",
-    "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
-    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "turnOnLedgerSyncTitle": "Devam etmek için Ledger Sync'i etkinleştirin",
+    "turnOnLedgerSyncSubtitle": "Bu, kripto hesaplarınıza erişmek için gereklidir.",
+    "activateSelectPlatform": "Ledger Sync'i nasıl etkinleştirmek istediğinizi seçin",
     "activate": "Ledger Sync'i etkinleştirin",
-    "activateStep1Desktop": "Select the button below to activate Ledger Sync",
-    "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
-    "activateStep1Mobile": "To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
-    "activateStep2": "Once activated, select \"Continue\" below.",
-    "activated": "Ledger Sync is activated, continue"
+    "activateStep1Desktop": "Ledger Sync'i etkinleştirmek için aşağıdaki düğmeyi seçin",
+    "activateStep1DesktopLLInstalled": "Ledger Wallet uygulamasının bilgisayarınızda yüklü olduğundan emin olun.",
+    "activateStep1Mobile": "Ledger Sync'i etkinleştirmek için karekodu tarayın ve ekrandaki adımları uygulayın.",
+    "activateStep2": "Etkinleştirdikten sonra aşağıdaki \"Devam et\" butonuna tıklayın.",
+    "activated": "Ledger Sync etkinleştirildi, devam edin"
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connect a Ledger"
+      "title": "Ledger cihazını bağlayın"
     },
     "ledgerSync": {
       "title": ""
     },
     "retrievingAccounts": {
-      "title": "Retrieving accounts"
+      "title": "Hesaplar alınıyor"
     },
     "selectAccount": {
       "title": "Bir hesap seçin",
-      "showTokens": "Show tokens",
-      "searchPlaceholder": "Search account",
-      "noResults": "No accounts match your search",
-      "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
-      "refreshingAccountsHint": "Select an account at any time to continue."
+      "showTokens": "Token'ları göster",
+      "searchPlaceholder": "Hesap ara",
+      "noResults": "Aramanızla eşleşen hesap yok",
+      "refreshingAccounts": "Ledger Wallet hesaplarınızı yeniliyor.",
+      "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin."
     },
     "turnOnSync": {
       "title": "",
-      "subtitle": "Turn on Ledger Sync to continue",
-      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+      "subtitle": "Devam etmek için Ledger Sync'i açın",
+      "text": "Bu, hesaplarınızı güvenli bir şekilde çekebilmek için gereklidir. \"Ledger Sync'i aç\" seçeneğine tıkladığınızda, bu özelliği etkinleştirmek için Ledger Wallet'a yönlendirileceksiniz."
     },
     "consentPrompt": {
       "intro": {
-        "title": "Welcome to Ledger Wallet",
-        "subtitle": "Enjoy smooth and direct connection between your Ledger signer and your dApps. You’ve unlocked:",
+        "title": "Ledger Wallet’a Hoş Geldiniz",
+        "subtitle": "Ledger imzalayıcınız ile dApp'leriniz arasında akıcı ve doğrudan bağlantının tadını çıkarın. Bunların kilidi açıldı:",
         "features": {
           "directConnectivity": {
             "title": "Direct Connectivity",
-            "description": "Connect via USB or Bluetooth."
+            "description": "USB veya Bluetooth ile bağlanın."
           },
           "clearSigning": {
             "title": "Şeffaf imzalama",
-            "description": "Clearly verify transactions before signing."
+            "description": "İmzalamadan önce işlemleri dikkatlice doğrulayın."
           },
           "transactionCheck": {
-            "title": "Transaction Check",
-            "description": "Receive warnings for any potential threats before signing."
+            "title": "Transaction Check (İşlem Denetimi)",
+            "description": "İmzalamadan önce olası tehditlere karşı uyarılar alın."
           }
         },
         "howItWorks": {
-          "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "title": "Nasıl çalıştığını öğrenin",
+          "description": "<strong class=\"text-base\">Ledger Sync</strong> ile kripto hesaplarınıza güvenli bir şekilde erişilir. Ledger Sync, tüm cihazlarınızdaki Ledger Wallet uygulamaları genelinde kripto hesaplarını senkronize etmek ve yedeklemek için kullanılır.",
           "alreadyActivated": {
-            "title": "Already activated Ledger Sync?",
-            "description": "You're ready to go!"
+            "title": "Ledger Sync'i zaten etkinleştirdiniz mi?",
+            "description": "Hazırsınız!"
           },
           "firstTime": {
-            "title": "First time using Ledger Sync?",
-            "description": "You'll be guided through a one-time setup that takes just a few minutes."
+            "title": "Ledger Sync'i ilk kez mi kullanıyorsunuz?",
+            "description": "Yalnızca birkaç dakika süren tek seferlik bir kurulum süreci boyunca size rehberlik edilecek."
           }
         },
         "continueButton": "Devam",
-        "legalText": "By clicking Continue you consent and agree to our",
+        "legalText": "“Devam et” butonuna tıklayarak bunlara izin vermiş ve kabul etmiş olursunuz:",
         "termsAndConditions": "Hüküm ve Koşullar",
         "and": "ve",
         "privacyPolicy": "Gizlilik Politikası"
       },
       "consent": {
-        "title": "Help us improve",
-        "description": "With your consent, Ledger will collect product analytics data to help us find bugs, measure Ledger Wallet Direct Connectivity's performance and improve the service and your experience.",
-        "privacyNotice": "Learn more about how we manage your data and your rights in our",
+        "title": "Geliştirmemize yardım edin",
+        "description": "Sizin onayınızla Ledger; hataları bulmamıza yardımcı olmak, Ledger Wallet Direct Connectivity performansını ölçmek, hizmeti ve sizin deneyiminizi geliştirmek amacıyla ürün analitiği verilerini toplayacaktır.",
+        "privacyNotice": "Verilerinizi nasıl yönettiğimiz ve haklarınız hakkında daha fazla bilgi edinin.",
         "privacyPolicyLink": "Gizlilik Politikası",
         "acceptButton": "Tümünü kabul et",
         "rejectButton": "Tümünü reddet"
@@ -167,9 +167,9 @@
     }
   },
   "accountTokens": {
-    "title": "Account Tokens",
+    "title": "Hesap Token'ları",
     "notFound": "Account not found",
-    "noTokens": "No tokens found for this account"
+    "noTokens": "Bu hesap için hiçbir token bulunamadı."
   },
   "transactionList": {
     "noTransactions": "No transactions found"
@@ -178,9 +178,9 @@
     "title": "Ayarlar",
     "analytics": {
       "title": "Analiz",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      "description": "Ledger Wallet Direct Connectivity'nin performansının ölçülebilmesi ve hem uygulamanın hem de deneyiminizin geliştirilebilmesi için uygulama kullanım verilerini Ledger'ın toplamasına izin verin."
     },
-    "securityConfidentiality": "Security & confidentiality",
+    "securityConfidentiality": "Güvenlik ve gizlilik",
     "helpSupport": "Yardım ve Destek",
     "support": {
       "title": "Yardım ve Destek",
@@ -191,35 +191,35 @@
   "signTransaction": {
     "success": {
       "title": "İşlem imzalandı",
-      "description": "You transaction will be processed soon.",
-      "viewTransaction": "View transaction details"
+      "description": "İşleminiz kısa sürede işlenecektir.",
+      "viewTransaction": "İşlem bilgilerini görüntüle"
     },
     "error": {
-      "title": "Transaction failed",
-      "description": "There was an error signing your transaction. Please try again."
+      "title": "İşlem başarısız",
+      "description": "İşleminiz imzalanırken bir hata oluştu. Lütfen tekrar deneyin."
     }
   },
   "signMessage": {
     "success": {
-      "title": "Message successfully signed.",
-      "description": "Your message has been signed successfully."
+      "title": "Mesaj başarıyla imzalandı.",
+      "description": "Mesajınız başarıyla imzalandı."
     },
     "error": {
-      "title": "Message signing failed",
-      "description": "There was an error signing your message. Please try again."
+      "title": "Mesaj imzalama başarısız oldu",
+      "description": "Mesajınız imzalanırken bir hata oluştu. Lütfen tekrar deneyin."
     }
   },
   "error": {
     "generic": {
       "account": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "title": "Bir hata oluştu",
+        "description": "Hesaplarınıza erişirken beklenmedik bir hata oluştu. Lütfen tekrar deneyin.",
         "cta1": "Tekrar dene",
         "cta2": "Kapat"
       },
       "sign": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "title": "Bir hata oluştu",
+        "description": "İşleminizi imzalarken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
         "cta1": "Tekrar dene",
         "cta2": "Kapat"
       }
@@ -227,66 +227,66 @@
     "device": {
       "DeviceNotSupported": {
         "title": "{device} desteklenmiyor",
-        "description": "Here’s a list of compatible Ledger devices: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
-        "cta1": "Connect another device",
-        "cta2": "Buy a new Ledger device"
+        "description": "Uyumlu Ledger cihazlarının listesi şunlardır: Ledger Nano X, Ledger Nano S Plus, Ledger Flex veya Ledger Stax.",
+        "cta1": "Başka bir cihaz bağlayın",
+        "cta2": "Yeni bir Ledger cihazı satın alın"
       },
       "IncorrectSeed": {
-        "title": "Incompatibility between Ledger device and crypto account",
-        "description": "To continue, connect the Ledger device that manages this crypto account, or choose a different account.",
-        "cta1": "Use another Ledger device",
+        "title": "Ledger cihazı ile kripto hesabı arasında uyumsuzluk",
+        "description": "Devam etmek için bu kripto hesabını yöneten Ledger cihazını bağlayın veya farklı bir hesap seçin.",
+        "cta1": "Başka bir Ledger cihazı kullanın",
         "cta2": "Kapat"
       },
       "BlindSigningDisabled": {
-        "title": "Blind signing disabled",
-        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "title": "Kör imzalama devre dışı bırakıldı",
+        "description": "Bu işlem şeffaf bir şekilde imzalanamaz, uygulama ayarlarından kör imzalamayı etkinleştirin.",
         "cta1": "Tekrar dene",
         "cta2": "Kapat"
       },
       "UserRejectedTransaction": {
-        "title": "Transaction rejected",
-        "description": "You rejected the transaction on your {device}",
+        "title": "İşlem reddedildi",
+        "description": "İşlemi {device} üzerinde reddettiniz",
         "cta1": "Kapat",
-        "cta2": "Retry transaction"
+        "cta2": "İşlemi tekrar dene"
       },
       "UserRejectedMessage": {
-        "title": "Message rejected",
-        "description": "You rejected the message signing on your {device}",
+        "title": "Mesaj reddedildi",
+        "description": "{device} cihazınızda mesajı imzalamayı reddettiniz",
         "cta1": "Kapat",
-        "cta2": "Retry message signing"
+        "cta2": "Mesaj imzalamayı yeniden dene"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
-        "title": "Unable to activate Ledger Sync",
-        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
-        "cta1": "Close this tab",
-        "cta2": "What is Ledger Sync?"
+        "title": "Ledger Sync etkinleştirilemiyor",
+        "description": "Ledger Sync'i etkinleştirmek için Ledger Wallet bağlantısı kurulamıyor. Lütfen bu sekmeyi kapatın, Ledger Wallet uygulamasını açın (Masaüstü veya Mobil), Ledger Sync’i etkinleştirin ve sekmeyi yeniden açın",
+        "cta1": "Bu sekmeyi kapat",
+        "cta2": "Ledger Sync nedir?"
       },
       "NoCompatibleAccounts": {
-        "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
-        "cta1": "Create a new account on Ledger Live",
-        "cta2": "Use another Ledger device"
+        "title": "Uyumlu hesap bulunamadı",
+        "description": "Bu dApp, {networks} ağlarını destekliyor ve sizin bu ağlar için herhangi bir hesabınız bulunmuyor. Lütfen Ledger Wallet'ta yeni bir hesap oluşturun.",
+        "cta1": "Ledger Wallet'ta yeni bir hesap oluşturun",
+        "cta2": "Başka bir Ledger cihazı kullanın"
       },
       "NoAccountInSync": {
-        "title": "No accounts in sync",
-        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "title": "Senkronize edilmiş hesap yok",
+        "description": "Ledger Sync etkinleştirildi ancak senkronize bir hesap bulunmuyor. Lütfen Ledger Wallet'ta Ledger Sync'i etkinleştirin ve bir veya daha fazla hesap ekleyin.",
         "cta1": "Kapat"
       }
     },
     "network": {
       "BroadcastTransactionError": {
-        "title": "Transaction failed",
-        "description": "Your transaction was broadcasted to the network but failed to execute.",
-        "cta1": "Retry transaction"
+        "title": "İşlem başarısız",
+        "description": "İşleminiz ağa yayımlandı ancak gerçekleştirilemedi.",
+        "cta1": "İşlemi tekrar dene"
       }
     },
     "connection": {
       "DeviceDisconnected": {
-        "title": "Your Ledger device is disconnected",
-        "description": "If you’re using USB, plug in and unlock your Ledger device. If you’re using Bluetooth, unlock it and keep it nearby.",
-        "cta1": "Reconnect Ledger device"
+        "title": "Ledger cihazınızın bağlantısı kesildi",
+        "description": "USB kullanıyorsanız Ledger cihazınızı bağlayın ve kilidini açın. Bluetooth kullanıyorsanız kilidini açın ve yakınınızda tutun.",
+        "cta1": "Ledger cihazınızı yeniden bağlayın"
       }
     }
   }
