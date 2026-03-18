@@ -29,11 +29,6 @@ import { TransactionService } from "./TransactionService.js";
 
 @injectable()
 export class DefaultTransactionService implements TransactionService {
-  private _craftedParams?:
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams;
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -58,8 +53,6 @@ export class DefaultTransactionService implements TransactionService {
       | SignTransactionParams
       | SignPersonalMessageParams,
   ): Observable<SignFlowStatus> {
-    this._craftedParams = params;
-
     this.logger.debug("[Sign] Signing intent received", { params });
 
     let useCase: Observable<SignFlowStatus>;
@@ -86,26 +79,7 @@ export class DefaultTransactionService implements TransactionService {
     return useCase;
   }
 
-  getCraftedTransaction():
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams
-    | undefined {
-    return this._craftedParams;
-  }
-
-  setCraftedTransaction(
-    params?:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams,
-  ): void {
-    this._craftedParams = params;
-  }
-
   reset(): void {
-    this._craftedParams = undefined;
+    // no-op
   }
 }
