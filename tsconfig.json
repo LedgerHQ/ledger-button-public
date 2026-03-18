@@ -10,12 +10,6 @@
       "path": "./packages/ledger-button-core"
     },
     {
-      "path": "./pocs/ledger-button-webcomponent-poc"
-    },
-    {
-      "path": "./pocs/ledger-button-webcomponent-poc/examples/react"
-    },
-    {
       "path": "./apps/test-dapp"
     },
     {
