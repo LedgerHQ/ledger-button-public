@@ -15,7 +15,7 @@ jobs:
       - uses: ./.github/actions/setup-action-composite
       - name: Health checks
         run: |
-          pnpm nx run-many -t lint,typecheck,test --skip-nx-cache --exclude="@ledgerhq/ledger-button-webcomponent-poc,*-poc"
+          pnpm nx run-many -t lint,typecheck,test --skip-nx-cache
       - name: Storybook test
         run: |
           pnpm storybook:test
