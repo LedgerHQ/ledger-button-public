@@ -33,38 +33,13 @@ export class LedgerNetworks extends LitElement {
     };
   }
 
-  private renderNetworkIcons() {
-    const visible = this.networks.slice(0, MAX_VISIBLE_NETWORKS);
-    return visible.map(
-      (network) => html`
-        <ledger-crypto-icon
-          .ledgerId=${network.id}
-          .ticker=${network.ticker ?? ""}
-          size="small"
-          variant="square"
-        ></ledger-crypto-icon>
-      `,
-    );
-  }
-
-  private renderOverflow() {
-    const overflowCount = this.networks.length - MAX_VISIBLE_NETWORKS;
-    if (overflowCount <= 0) {
-      return nothing;
-    }
-    return html`<span class="${overflowVariants()} ml-4"
-      >+${overflowCount}</span
-    >`;
-  }
-
   override render() {
-    const networks = this.testNetworks;
-    if (networks.length === 0) {
+    if (this.networks.length === 0) {
       return nothing;
     }
 
-    const visible = networks.slice(0, MAX_VISIBLE_NETWORKS);
-    const overflowCount = networks.length - MAX_VISIBLE_NETWORKS;
+    const visible = this.networks.slice(0, MAX_VISIBLE_NETWORKS);
+    const overflowCount = this.networks.length - MAX_VISIBLE_NETWORKS;
 
     return html`
       <button
