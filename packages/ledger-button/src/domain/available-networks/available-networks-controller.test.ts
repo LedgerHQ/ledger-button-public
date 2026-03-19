@@ -1,6 +1,6 @@
 import type { AccountWithFiat } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
@@ -139,6 +139,27 @@ describe("AvailableNetworksController", () => {
 
     expect(mockHost.selectAccount).toHaveBeenCalledWith(polygonAccount);
     expect(mockHost.navigateToHome).toHaveBeenCalled();
+  });
+
+  it("should stay loading until subscription completes", async () => {
+    const subject = new Subject<AccountWithFiat[]>();
+    (core.getAccounts as ReturnType<typeof vi.fn>).mockReturnValue(subject);
+
+    controller.hostConnected();
+    await vi.waitFor(() =>
+      expect(core.getAccounts).toHaveBeenCalled(),
+    );
+
+    subject.next([ethAccount, polygonAccount]);
+    expect(controller.loading).toBe(true);
+
+    subject.next([ethAccount, polygonAccount]);
+    expect(controller.loading).toBe(true);
+
+    subject.complete();
+    await vi.waitFor(() => expect(controller.loading).toBe(false));
+
+    expect(controller.networks).toHaveLength(2);
   });
 
   it("should not select when network id is unknown", async () => {

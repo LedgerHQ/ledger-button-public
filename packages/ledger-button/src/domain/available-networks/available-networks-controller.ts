@@ -24,6 +24,7 @@ export class AvailableNetworksController implements ReactiveController {
   private accountsSubscription?: Subscription;
   private accountsByNetwork = new Map<string, Account>();
   private selectedAddress?: string;
+  private latestMatchingAccounts: AccountWithFiat[] = [];
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -66,9 +67,12 @@ export class AvailableNetworksController implements ReactiveController {
             (a) => a.freshAddress === this.selectedAddress,
           );
 
-          if (!matching.length) return;
-
-          this.updateNetworksFromAccounts(matching);
+          if (matching.length) {
+            this.latestMatchingAccounts = matching;
+            matching.forEach((a) =>
+              this.accountsByNetwork.set(a.currencyId, a),
+            );
+          }
         },
         error: () => {
           if (this.disconnected) return;
@@ -78,8 +82,7 @@ export class AvailableNetworksController implements ReactiveController {
         },
         complete: () => {
           if (this.disconnected) return;
-          this.balanceLoading = false;
-          this.host.requestUpdate();
+          void this.finalizeNetworks();
         },
       });
     } catch {
@@ -88,11 +91,16 @@ export class AvailableNetworksController implements ReactiveController {
     }
   }
 
+  private async finalizeNetworks() {
+    await this.updateNetworksFromAccounts(this.latestMatchingAccounts);
+    this.balanceLoading = false;
+    this.loading = false;
+    this.host.requestUpdate();
+  }
+
   private async updateNetworksFromAccounts(accounts: AccountWithFiat[]) {
     const networks = await Promise.all(
       accounts.map(async (account): Promise<NetworkWithBalance> => {
-        this.accountsByNetwork.set(account.currencyId, account);
-
         const { name, ticker } = await this.core.getCurrencyInfo(
           account.currencyId,
         );
@@ -110,8 +118,6 @@ export class AvailableNetworksController implements ReactiveController {
     if (this.disconnected) return;
 
     this.networks = this.sortByFiatValue(networks);
-    this.loading = false;
-    this.host.requestUpdate();
   }
 
   selectNetwork(networkId: string) {
