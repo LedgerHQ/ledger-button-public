@@ -15,7 +15,7 @@ export interface NetworksClickEventDetail {
 }
 
 const containerVariants = cva([
-  "flex cursor-pointer items-center rounded-lg px-8 py-4",
+  "flex cursor-pointer items-center gap-4 rounded-sm p-4",
   "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
 ]);
 
@@ -36,17 +36,13 @@ export class LedgerNetworks extends LitElement {
   private renderNetworkIcons() {
     const visible = this.networks.slice(0, MAX_VISIBLE_NETWORKS);
     return visible.map(
-      (network, index) => html`
-        <div
-          class="${index > 0 ? "-ml-6" : ""} relative rounded-xs ring-2 ring-[var(--color-background-muted)]"
-        >
-          <ledger-crypto-icon
-            .ledgerId=${network.id}
-            .ticker=${network.ticker ?? ""}
-            size="small"
-            variant="square"
-          ></ledger-crypto-icon>
-        </div>
+      (network) => html`
+        <ledger-crypto-icon
+          .ledgerId=${network.id}
+          .ticker=${network.ticker ?? ""}
+          size="small"
+          variant="square"
+        ></ledger-crypto-icon>
       `,
     );
   }
