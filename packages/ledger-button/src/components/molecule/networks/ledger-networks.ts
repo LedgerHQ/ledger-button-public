@@ -15,7 +15,7 @@ export interface NetworksClickEventDetail {
 }
 
 const containerVariants = cva([
-  "flex cursor-pointer items-center gap-4 rounded-sm p-4",
+  "flex cursor-pointer items-center rounded-sm p-4",
   "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
 ]);
 
@@ -58,9 +58,13 @@ export class LedgerNetworks extends LitElement {
   }
 
   override render() {
-    if (this.networks.length === 0) {
+    const networks = this.testNetworks;
+    if (networks.length === 0) {
       return nothing;
     }
+
+    const visible = networks.slice(0, MAX_VISIBLE_NETWORKS);
+    const overflowCount = networks.length - MAX_VISIBLE_NETWORKS;
 
     return html`
       <button
@@ -69,7 +73,26 @@ export class LedgerNetworks extends LitElement {
         @click=${this.handleClick}
         @keydown=${this.handleKeydown}
       >
-        ${this.renderNetworkIcons()} ${this.renderOverflow()}
+        ${visible.map(
+          (network, index) => html`
+            <div
+              class="${index > 0 ? "-ml-4 border-l-2 border-(--color-background-muted-transparent) rounded-sm" : ""} relative"
+              style="z-index: ${index}"
+            >
+              <ledger-crypto-icon
+                .ledgerId=${network.id}
+                .ticker=${network.ticker ?? ""}
+                size="small"
+                variant="square"
+              ></ledger-crypto-icon>
+            </div>
+          `,
+        )}
+        ${overflowCount > 0
+          ? html`<span class="${overflowVariants()} ml-4"
+              >+${overflowCount}</span
+            >`
+          : nothing}
       </button>
     `;
   }
