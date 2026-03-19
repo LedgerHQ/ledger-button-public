@@ -12,45 +12,45 @@
       "clearAriaLabel": "Clear search"
     },
     "button": {
-      "connect": "Connect your Ledger device",
-      "usb": "Connect with USB",
-      "bluetooth": "Connect with Bluetooth",
-      "usb_hint": "Plug in and unlock your device",
-      "bluetooth_hint": "Power on and unlock your device",
+      "connect": "连接您的 Ledger 设备",
+      "usb": "通过 USB 连接",
+      "bluetooth": "通过蓝牙连接",
+      "usb_hint": "插入并解锁您的设备",
+      "bluetooth_hint": "开启并解锁您的设备",
       "close": "关闭",
       "tryAgain": "请重试",
       "disconnect": "断开连接"
     },
     "ad": {
-      "getALedger": "Get a Ledger device"
+      "getALedger": "获取一个 Ledger 设备"
     },
     "platform": {
-      "onDesktop": "On desktop",
-      "onMobile": "On mobile"
+      "onDesktop": "桌面版",
+      "onMobile": "移动版"
     },
     "learnMore": "了解更多",
     "device": {
       "model": {
         "nanoS": "Ledger Nano S",
-        "nanoSP": "Ledger Nano SP",
+        "nanoSP": "Ledger Nano S Plus",
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
         "apexp": "Ledger Nano Gen 5",
-        "fallback": "Ledger device"
+        "fallback": "Ledger 设备"
       },
       "deviceActions": {
         "continueOnLedger": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "继续在您的 {device} 上操作",
+          "description": "按照安全屏幕上的说明进行操作。"
         },
         "pin": {
-          "title": "Unlock your {device}",
-          "description": "Enter your PIN to unlock your Ledger device."
+          "title": "解锁您的 {device}",
+          "description": "输入您的 PIN 识别码以解锁 Ledger 设备。"
         },
         "signTransaction": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "继续在您的 {device} 上操作",
+          "description": "按照安全屏幕上的说明进行操作。"
         }
       }
     }
@@ -68,98 +68,98 @@
     "sell": "卖出"
   },
   "walletRedirect": {
-    "title": "Continue in Ledger Wallet",
-    "description": "You need the Ledger Wallet desktop app to complete this action.",
+    "title": "在 Ledger 钱包中继续",
+    "description": "您需要 Ledger Wallet 桌面版应用程序来完成此操作。",
     "confirm": "打开 Ledger Wallet ",
-    "download": "Download Ledger Wallet"
+    "download": "下载 Ledger Wallet"
   },
   "deviceSwitch": {
-    "title": "Your Ledgers",
-    "noDevices": "No previously connected devices found",
-    "connectAnother": "Or connect another Ledger",
-    "connectBluetooth": "Connect a Bluetooth",
-    "connectBluetoothHint": "Power on and unlock your device",
-    "connectUsb": "Connect with USB",
-    "connectUsbHint": "Plug in and unlock your device",
+    "title": "您的 Ledger 设备",
+    "noDevices": "未找到以前连接过的设备",
+    "connectAnother": "或者连接另一个 Ledger 设备",
+    "connectBluetooth": "连接蓝牙",
+    "connectBluetoothHint": "开启并解锁您的设备",
+    "connectUsb": "通过 USB 连接",
+    "connectUsbHint": "插入并解锁您的设备",
     "status": {
       "connected": "已连接",
       "available": "可用"
     }
   },
   "ledgerSync": {
-    "turnOnLedgerSyncTitle": "Activate Ledger Sync to continue",
-    "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
-    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "turnOnLedgerSyncTitle": "激活 Ledger Sync 以继续",
+    "turnOnLedgerSyncSubtitle": "这是找回您的加密货币账户所必需的。",
+    "activateSelectPlatform": "选择您希望如何激活 Ledger Sync 账户同步功能",
     "activate": "激活 Ledger Sync",
-    "activateStep1Desktop": "Select the button below to activate Ledger Sync",
-    "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
-    "activateStep1Mobile": "To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
-    "activateStep2": "Once activated, select \"Continue\" below.",
-    "activated": "Ledger Sync is activated, continue"
+    "activateStep1Desktop": "选择下面的按钮来激活 Ledger Sync 账户同步功能",
+    "activateStep1DesktopLLInstalled": "确保您的计算机上已安装 Ledger Wallet 应用程序。",
+    "activateStep1Mobile": "要激活 Ledger Sync 账户同步功能，请扫描二维码并按照屏幕上的步骤操作。",
+    "activateStep2": "激活后，选择下面的“继续”。",
+    "activated": "Ledger Sync 账户同步功能已激活，请继续"
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connect a Ledger"
+      "title": "连接 Ledger 设备"
     },
     "ledgerSync": {
       "title": ""
     },
     "retrievingAccounts": {
-      "title": "Retrieving accounts"
+      "title": "正在检索账户"
     },
     "selectAccount": {
       "title": "选择账户",
-      "showTokens": "Show tokens",
-      "searchPlaceholder": "Search account",
-      "noResults": "No accounts match your search",
-      "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
-      "refreshingAccountsHint": "Select an account at any time to continue."
+      "showTokens": "显示代币",
+      "searchPlaceholder": "搜索账户",
+      "noResults": "没有与您的搜索相符的账户。",
+      "refreshingAccounts": "Ledger Wallet 正在刷新您的账户。",
+      "refreshingAccountsHint": "您可以随时选择一个账户以继续。"
     },
     "turnOnSync": {
       "title": "",
-      "subtitle": "Turn on Ledger Sync to continue",
-      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+      "subtitle": "开启 Ledger Sync 以继续",
+      "text": "这是安全提取您账户所必需的。点击开启 Ledger Sync 账户同步功能，您将被重定向至 Ledger Wallet 以激活该功能。"
     },
     "consentPrompt": {
       "intro": {
-        "title": "Welcome to Ledger Wallet",
-        "subtitle": "Enjoy smooth and direct connection between your Ledger signer and your dApps. You’ve unlocked:",
+        "title": "欢迎使用 Ledger Wallet",
+        "subtitle": "享受您的 Ledger 签署设备与去中心化应用程序之间顺畅且直接的连接。您已经解锁：",
         "features": {
           "directConnectivity": {
-            "title": "Direct Connectivity",
-            "description": "Connect via USB or Bluetooth."
+            "title": "Direct Connectivity 直连工具",
+            "description": "通过 USB 或蓝牙连接。"
           },
           "clearSigning": {
             "title": "透明签名",
-            "description": "Clearly verify transactions before signing."
+            "description": "签署交易前，请仔细验证交易。"
           },
           "transactionCheck": {
-            "title": "Transaction Check",
-            "description": "Receive warnings for any potential threats before signing."
+            "title": "交易检查",
+            "description": "在签署之前，请接收潜在威胁警告。"
           }
         },
         "howItWorks": {
-          "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "title": "了解它是如何运作的",
+          "description": "通过 <strong class=\"text-base\">Ledger Sync</strong> 账户同步功能安全地检索您的加密货币账户。Ledger Sync 账户同步功能用于在您所有设备上的 Ledger Wallet 钱包应用程序上同步和备份加密货币账户。",
           "alreadyActivated": {
-            "title": "Already activated Ledger Sync?",
-            "description": "You're ready to go!"
+            "title": "已经激活 Ledger Sync 了吗？",
+            "description": "您已准备就绪！"
           },
           "firstTime": {
-            "title": "First time using Ledger Sync?",
-            "description": "You'll be guided through a one-time setup that takes just a few minutes."
+            "title": "首次使用 Ledger Sync 账户同步功能？",
+            "description": "系统将指导您完成只需几分钟的一次性设置。"
           }
         },
         "continueButton": "继续",
-        "legalText": "By clicking Continue you consent and agree to our",
+        "legalText": "点击“继续”即表示您应允并同意我们的",
         "termsAndConditions": "条款与条件",
         "and": "和",
         "privacyPolicy": "隐私政策"
       },
       "consent": {
-        "title": "Help us improve",
-        "description": "With your consent, Ledger will collect product analytics data to help us find bugs, measure Ledger Wallet Direct Connectivity's performance and improve the service and your experience.",
-        "privacyNotice": "Learn more about how we manage your data and your rights in our",
+        "title": "帮助我们改进",
+        "description": "获得您的同意后，Ledger 将收集产品分析数据，以帮助我们发现漏洞、衡量 Ledger Wallet Direct Connectivity 直连工具的性能，改善服务并提升您的体验。",
+        "privacyNotice": "详细了解我们如何管理您的数据和您的权利，在我们的",
         "privacyPolicyLink": "隐私政策",
         "acceptButton": "全部接受",
         "rejectButton": "全部拒绝"
@@ -167,9 +167,9 @@
     }
   },
   "accountTokens": {
-    "title": "Account Tokens",
+    "title": "账户代币",
     "notFound": "Account not found",
-    "noTokens": "No tokens found for this account"
+    "noTokens": "未找到此账户的代币"
   },
   "transactionList": {
     "noTransactions": "No transactions found"
@@ -178,9 +178,9 @@
     "title": "设置",
     "analytics": {
       "title": "数据分析",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      "description": "允许 Ledger 收集应用程序使用数据，以便我们衡量 Ledger Wallet Direct Connectivity 直连工具的性能，优化应用程序并提升您的体验。"
     },
-    "securityConfidentiality": "Security & confidentiality",
+    "securityConfidentiality": "安全性与机密性",
     "helpSupport": "帮助和支持",
     "support": {
       "title": "帮助和支持",
@@ -191,35 +191,35 @@
   "signTransaction": {
     "success": {
       "title": "交易已签署",
-      "description": "You transaction will be processed soon.",
-      "viewTransaction": "View transaction details"
+      "description": "您的交易将很快被处理。",
+      "viewTransaction": "查看交易详情"
     },
     "error": {
-      "title": "Transaction failed",
-      "description": "There was an error signing your transaction. Please try again."
+      "title": "交易失败。",
+      "description": "签署交易时出错。请重试。"
     }
   },
   "signMessage": {
     "success": {
-      "title": "Message successfully signed.",
-      "description": "Your message has been signed successfully."
+      "title": "消息已成功签署。",
+      "description": "您的消息已成功签署。"
     },
     "error": {
-      "title": "Message signing failed",
-      "description": "There was an error signing your message. Please try again."
+      "title": "消息签署失败",
+      "description": "签署您的消息时出错。请重试。"
     }
   },
   "error": {
     "generic": {
       "account": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "title": "发生了错误",
+        "description": "提取您的账户时发生意外错误。请重试",
         "cta1": "请重试",
         "cta2": "关闭"
       },
       "sign": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "title": "发生了错误",
+        "description": "签署您的交易时发生了意外错误。请重试",
         "cta1": "请重试",
         "cta2": "关闭"
       }
@@ -227,66 +227,66 @@
     "device": {
       "DeviceNotSupported": {
         "title": "不支持 {device}",
-        "description": "Here’s a list of compatible Ledger devices: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
-        "cta1": "Connect another device",
-        "cta2": "Buy a new Ledger device"
+        "description": "以下是兼容的 Ledger 设备列表：Ledger Nano X、Ledger Nano S Plus、Ledger Flex、Ledger Stax。",
+        "cta1": "连接其他设备",
+        "cta2": "购买全新 Ledger 设备"
       },
       "IncorrectSeed": {
-        "title": "Incompatibility between Ledger device and crypto account",
-        "description": "To continue, connect the Ledger device that manages this crypto account, or choose a different account.",
-        "cta1": "Use another Ledger device",
+        "title": "Ledger 设备和加密货币账户不兼容",
+        "description": "要继续，请连接管理此加密货币账户的 Ledger 设备，或者选择其他账户。",
+        "cta1": "使用另一台 Ledger 设备",
         "cta2": "关闭"
       },
       "BlindSigningDisabled": {
-        "title": "Blind signing disabled",
-        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "title": "盲签名已禁用",
+        "description": "此交易无法透明签名，请在应用程序设置中启用盲签名。",
         "cta1": "重试",
         "cta2": "关闭"
       },
       "UserRejectedTransaction": {
-        "title": "Transaction rejected",
-        "description": "You rejected the transaction on your {device}",
+        "title": "交易被拒绝",
+        "description": "您在 {device} 上拒绝了该交易",
         "cta1": "关闭",
-        "cta2": "Retry transaction"
+        "cta2": "重试交易。"
       },
       "UserRejectedMessage": {
-        "title": "Message rejected",
-        "description": "You rejected the message signing on your {device}",
+        "title": "消息被拒绝",
+        "description": "您在 {device} 上拒绝了签署消息。",
         "cta1": "关闭",
-        "cta2": "Retry message signing"
+        "cta2": "重试消息签署"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
-        "title": "Unable to activate Ledger Sync",
-        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
-        "cta1": "Close this tab",
-        "cta2": "What is Ledger Sync?"
+        "title": "无法激活 Ledger Sync",
+        "description": "用于激活 Ledger Sync 账户同步功能的 Ledger Wallet 连接失败。请关闭此选项卡，打开 Ledger Wallet（桌面版或移动版）钱包应用程序，激活 Ledger Sync 账户同步功能并重新打开该选项卡。",
+        "cta1": "关闭此选项卡。",
+        "cta2": "什么是 Ledger Sync？"
       },
       "NoCompatibleAccounts": {
-        "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
-        "cta1": "Create a new account on Ledger Live",
-        "cta2": "Use another Ledger device"
+        "title": "未找到兼容的账户",
+        "description": "此去中心化应用程序支持以下网络 {networks}，但您没有该网络的任何账户。请在 Ledger Wallet 上创建一个新账户",
+        "cta1": "在 Ledger Wallet 上创建新账户",
+        "cta2": "使用其他 Ledger 设备"
       },
       "NoAccountInSync": {
-        "title": "No accounts in sync",
-        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "title": "没有同步的账户",
+        "description": "Ledger Sync 账户同步功能已激活，但没有处于同步状态的账户。请在 Ledger Wallet 上激活 Ledger Sync 账户同步功能并添加一个或多个账户。",
         "cta1": "关闭"
       }
     },
     "network": {
       "BroadcastTransactionError": {
-        "title": "Transaction failed",
-        "description": "Your transaction was broadcasted to the network but failed to execute.",
-        "cta1": "Retry transaction"
+        "title": "交易失败",
+        "description": "您的交易已广播到网络但未能执行。",
+        "cta1": "重试交易"
       }
     },
     "connection": {
       "DeviceDisconnected": {
-        "title": "Your Ledger device is disconnected",
-        "description": "If you’re using USB, plug in and unlock your Ledger device. If you’re using Bluetooth, unlock it and keep it nearby.",
-        "cta1": "Reconnect Ledger device"
+        "title": "您的 Ledger 设备已断开",
+        "description": "如果您使用的是 USB，请插入并解锁您的 Ledger 设备。如果您使用的是蓝牙，请将设备解锁，并放置在附近。",
+        "cta1": "重新连接 Ledger 设备"
       }
     }
   }
