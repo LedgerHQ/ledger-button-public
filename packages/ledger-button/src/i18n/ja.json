@@ -12,21 +12,21 @@
       "clearAriaLabel": "Clear search"
     },
     "button": {
-      "connect": "Connect your Ledger device",
-      "usb": "Connect with USB",
-      "bluetooth": "Connect with Bluetooth",
-      "usb_hint": "Plug in and unlock your device",
-      "bluetooth_hint": "Power on and unlock your device",
+      "connect": "Ledgerデバイスを接続",
+      "usb": "USBで接続",
+      "bluetooth": "Bluetoothで接続",
+      "usb_hint": "デバイスを接続し、ロックを解除してください。",
+      "bluetooth_hint": "デバイスの電源を入れてロックを解除する",
       "close": "閉じる",
       "tryAgain": "再試行",
       "disconnect": "接続を切断"
     },
     "ad": {
-      "getALedger": "Get a Ledger device"
+      "getALedger": "Ledgerデバイスを入手"
     },
     "platform": {
-      "onDesktop": "On desktop",
-      "onMobile": "On mobile"
+      "onDesktop": "デスクトップ",
+      "onMobile": "モバイル"
     },
     "learnMore": "詳細はこちら",
     "device": {
@@ -36,21 +36,21 @@
         "nanoX": "Ledger Nano X",
         "stax": "Ledger Stax",
         "flex": "Ledger Flex",
-        "apexp": "Ledger Nano Gen 5",
-        "fallback": "Ledger device"
+        "apexp": "Ledger Nano Gen5",
+        "fallback": "Ledgerデバイス"
       },
       "deviceActions": {
         "continueOnLedger": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "{device}で続ける",
+          "description": "セキュアタッチスクリーンに表示される指示に従ってください。"
         },
         "pin": {
-          "title": "Unlock your {device}",
-          "description": "Enter your PIN to unlock your Ledger device."
+          "title": "{device}のロックを解除",
+          "description": "PINコードを入力して、Ledgerデバイスのロックを解除してください。"
         },
         "signTransaction": {
-          "title": "Continue on your {device}",
-          "description": "Follow the instructions displayed on the Secure Screen."
+          "title": "あなたの{device}で続ける",
+          "description": "セキュアタッチスクリーンに表示される指示に従ってください。"
         }
       }
     }
@@ -68,98 +68,98 @@
     "sell": "売却"
   },
   "walletRedirect": {
-    "title": "Continue in Ledger Wallet",
-    "description": "You need the Ledger Wallet desktop app to complete this action.",
+    "title": "Ledger Walletで続行",
+    "description": "この操作を完了するには、Ledger Walletデスクトップアプリが必要です。",
     "confirm": "Ledger Walletを開く",
-    "download": "Download Ledger Wallet"
+    "download": "Ledger Walletをダウンロードする"
   },
   "deviceSwitch": {
-    "title": "Your Ledgers",
-    "noDevices": "No previously connected devices found",
-    "connectAnother": "Or connect another Ledger",
-    "connectBluetooth": "Connect a Bluetooth",
-    "connectBluetoothHint": "Power on and unlock your device",
-    "connectUsb": "Connect with USB",
-    "connectUsbHint": "Plug in and unlock your device",
+    "title": "あなたのLedger",
+    "noDevices": "以前接続されたデバイスが見つかりません",
+    "connectAnother": "または別のLedgerを接続する",
+    "connectBluetooth": "Bluetoothを接続する",
+    "connectBluetoothHint": "デバイスの電源を入れてロックを解除する",
+    "connectUsb": "USBで接続",
+    "connectUsbHint": "デバイスを接続してロックを解除してください",
     "status": {
       "connected": "接続済み",
       "available": "利用可能"
     }
   },
   "ledgerSync": {
-    "turnOnLedgerSyncTitle": "Activate Ledger Sync to continue",
-    "turnOnLedgerSyncSubtitle": "This is required to retrieve your crypto accounts.",
-    "activateSelectPlatform": "Select how you want to activate Ledger Sync",
+    "turnOnLedgerSyncTitle": "Ledger Syncを有効にして続行する",
+    "turnOnLedgerSyncSubtitle": "これは、暗号資産アカウントを取得するのに必要です。",
+    "activateSelectPlatform": "Ledger Syncの有効化方法を選択してください",
     "activate": "Ledger Syncを有効化する",
-    "activateStep1Desktop": "Select the button below to activate Ledger Sync",
-    "activateStep1DesktopLLInstalled": "Make sure Ledger Wallet app is installed on your computer.",
-    "activateStep1Mobile": "To activate Ledger Sync, scan the QR code and follow the on-screen steps.",
-    "activateStep2": "Once activated, select \"Continue\" below.",
-    "activated": "Ledger Sync is activated, continue"
+    "activateStep1Desktop": "以下のボタンを選択して、Ledger Syncを有効化",
+    "activateStep1DesktopLLInstalled": "Ledger Walletアプリがコンピューターにインストールされていることを確認する。",
+    "activateStep1Mobile": "Ledger Syncを有効にするには、QRコードをスキャンし、画面の手順に従ってください。",
+    "activateStep2": "有効化されたら、以下の「続行」を選択する。",
+    "activated": "Ledger Syncが有効化されています、続行"
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connect a Ledger"
+      "title": "Ledgerを接続する"
     },
     "ledgerSync": {
       "title": ""
     },
     "retrievingAccounts": {
-      "title": "Retrieving accounts"
+      "title": "アカウントの取得"
     },
     "selectAccount": {
       "title": "アカウントを選択",
-      "showTokens": "Show tokens",
-      "searchPlaceholder": "Search account",
-      "noResults": "No accounts match your search",
-      "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
-      "refreshingAccountsHint": "Select an account at any time to continue."
+      "showTokens": "トークンを表示",
+      "searchPlaceholder": "アカウントを検索",
+      "noResults": "検索条件に一致するアカウントがありません。",
+      "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
+      "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。"
     },
     "turnOnSync": {
       "title": "",
-      "subtitle": "Turn on Ledger Sync to continue",
-      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+      "subtitle": "Ledger Syncをオンにして続行する",
+      "text": "これは、アカウントを安全にフェッチするために必要です。「Ledger Syncをオンにする」をクリックすると、Ledger Liveにリダイレクトされ、この機能を有効化できます。"
     },
     "consentPrompt": {
       "intro": {
-        "title": "Welcome to Ledger Wallet",
-        "subtitle": "Enjoy smooth and direct connection between your Ledger signer and your dApps. You’ve unlocked:",
+        "title": "Ledger Wallet™へようこそ",
+        "subtitle": "Ledger署名者とdAppsのスムーズで直接的な接続をお楽しみください。ロックを解除しました：",
         "features": {
           "directConnectivity": {
-            "title": "Direct Connectivity",
-            "description": "Connect via USB or Bluetooth."
+            "title": "ダイレクト接続",
+            "description": "USBまたはBluetoothで接続。"
           },
           "clearSigning": {
             "title": "クリア署名",
-            "description": "Clearly verify transactions before signing."
+            "description": "署名する前に、トランザクションを明確に認証してください。"
           },
           "transactionCheck": {
-            "title": "Transaction Check",
-            "description": "Receive warnings for any potential threats before signing."
+            "title": "トランザクションチェック",
+            "description": "署名する前に、潜在的な脅威に対する警告を受け取る。"
           }
         },
         "howItWorks": {
-          "title": "Learn how it works",
-          "description": "Your crypto accounts are securely retrieved via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync is used to sync and back up your crypto accounts across your Ledger Wallet apps on all your devices.",
+          "title": "仕組みを学ぼう",
+          "description": "お客様の暗号資産アカウントは、<strong class=\"text-base\">Ledger Sync</strong>によって安全に取得されます。Ledger Syncは、すべてのデバイス上のLedger Walletアプリ間で暗号資産アカウントを同期し、バックアップするために使用されます。",
           "alreadyActivated": {
-            "title": "Already activated Ledger Sync?",
-            "description": "You're ready to go!"
+            "title": "すでにLedger Syncを有効化しましたか？",
+            "description": "準備完了です！"
           },
           "firstTime": {
-            "title": "First time using Ledger Sync?",
-            "description": "You'll be guided through a one-time setup that takes just a few minutes."
+            "title": "Ledger Syncを初めてご利用ですか？",
+            "description": "1回限りの設定を案内します。数分で完了します。"
           }
         },
         "continueButton": "続行",
-        "legalText": "By clicking Continue you consent and agree to our",
+        "legalText": "「続行」をクリックすることで、お客様が同意したことになります",
         "termsAndConditions": "利用規約",
         "and": "そして",
         "privacyPolicy": "プライバシーポリシー"
       },
       "consent": {
-        "title": "Help us improve",
-        "description": "With your consent, Ledger will collect product analytics data to help us find bugs, measure Ledger Wallet Direct Connectivity's performance and improve the service and your experience.",
-        "privacyNotice": "Learn more about how we manage your data and your rights in our",
+        "title": "改善にご協力をお願いします",
+        "description": "お客様の同意のもと、Ledgerは製品分析データを収集し、バグを発見し、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、サービスとお客様の体験を向上させるために役立てます。",
+        "privacyNotice": "当社のデータの管理方法とお客様の権利について、詳しくはこちらをご覧ください",
         "privacyPolicyLink": "プライバシーポリシー",
         "acceptButton": "すべて受け入れる",
         "rejectButton": "すべて拒否する"
@@ -167,9 +167,9 @@
     }
   },
   "accountTokens": {
-    "title": "Account Tokens",
+    "title": "アカウント・トークン",
     "notFound": "Account not found",
-    "noTokens": "No tokens found for this account"
+    "noTokens": "このアカウントのトークンが見つかりませんでした"
   },
   "transactionList": {
     "noTransactions": "No transactions found"
@@ -178,9 +178,9 @@
     "title": "設定",
     "analytics": {
       "title": "アナリティクス",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      "description": "Ledgerがアプリの使用状況データを収集できるようにし、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、アプリと体験の両方を向上させます。"
     },
-    "securityConfidentiality": "Security & confidentiality",
+    "securityConfidentiality": "セキュリティと機密性",
     "helpSupport": "ヘルプとサポート",
     "support": {
       "title": "ヘルプとサポート",
@@ -191,35 +191,35 @@
   "signTransaction": {
     "success": {
       "title": "取引に署名済み",
-      "description": "You transaction will be processed soon.",
-      "viewTransaction": "View transaction details"
+      "description": "トランザクションはすぐに処理されます。",
+      "viewTransaction": "トランザクションの詳細を表示"
     },
     "error": {
-      "title": "Transaction failed",
-      "description": "There was an error signing your transaction. Please try again."
+      "title": "トランザクションが失敗しました。",
+      "description": "トランザクションの署名中にエラーが発生しました。もう一度お試しください。"
     }
   },
   "signMessage": {
     "success": {
-      "title": "Message successfully signed.",
-      "description": "Your message has been signed successfully."
+      "title": "メッセージが正常に署名されました。",
+      "description": "メッセージは正常に署名されました。"
     },
     "error": {
-      "title": "Message signing failed",
-      "description": "There was an error signing your message. Please try again."
+      "title": "メッセージの署名に失敗しました",
+      "description": "メッセージの署名中にエラーが発生しました。もう一度お試しください。"
     }
   },
   "error": {
     "generic": {
       "account": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while fetching your accounts. Please try again",
+        "title": "エラーが発生しました。",
+        "description": "アカウントの取得中に予期しないエラーが発生しました。接続をご確認の上、もう一度お試しください。",
         "cta1": "再試行",
         "cta2": "閉じる"
       },
       "sign": {
-        "title": "An error occurred",
-        "description": "An unexpected error occurred while signing your transaction. Please try again",
+        "title": "エラーが発生しました。",
+        "description": "トランザクションの署名中に予期しないエラーが発生しました。接続をご確認の上、もう一度お試しください。",
         "cta1": "再試行",
         "cta2": "閉じる"
       }
@@ -227,66 +227,66 @@
     "device": {
       "DeviceNotSupported": {
         "title": "{device} には対応していません。",
-        "description": "Here’s a list of compatible Ledger devices: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
-        "cta1": "Connect another device",
-        "cta2": "Buy a new Ledger device"
+        "description": "対応するLedgerデバイスのリストは次のとおりです：Ledger Nano X、Ledger Nano S Plus、Ledger Flex、Ledger Stax。",
+        "cta1": "別のデバイスを接続",
+        "cta2": "新しいLedgerデバイスを購入する"
       },
       "IncorrectSeed": {
-        "title": "Incompatibility between Ledger device and crypto account",
-        "description": "To continue, connect the Ledger device that manages this crypto account, or choose a different account.",
-        "cta1": "Use another Ledger device",
+        "title": "Ledgerデバイスと暗号資産アカウント間の不適合。",
+        "description": "続行するには、この暗号資産アカウントを管理しているLedgerデバイスを接続するか、別のアカウントを選択してください。",
+        "cta1": "別のLedgerデバイスを使用",
         "cta2": "閉じる"
       },
       "BlindSigningDisabled": {
-        "title": "Blind signing disabled",
-        "description": "This transaction can not be clear signed, enable blind signing in the application settings",
+        "title": "ブラインド署名が無効になっています",
+        "description": "このトランザクションは明示的な署名ができません。アプリケーションの設定でブラインド署名を有効にしてください。",
         "cta1": "再試行",
         "cta2": "閉じる"
       },
       "UserRejectedTransaction": {
-        "title": "Transaction rejected",
-        "description": "You rejected the transaction on your {device}",
+        "title": "トランザクションが拒否されました",
+        "description": "{device}でトランザクションを拒否しました。",
         "cta1": "閉じる",
-        "cta2": "Retry transaction"
+        "cta2": "トランザクションを再試行"
       },
       "UserRejectedMessage": {
-        "title": "Message rejected",
-        "description": "You rejected the message signing on your {device}",
+        "title": "メッセージが拒否されました",
+        "description": "{device}でメッセージの署名を拒否しました。",
         "cta1": "閉じる",
-        "cta2": "Retry message signing"
+        "cta2": "メッセージの署名を再試行"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
-        "title": "Unable to activate Ledger Sync",
-        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
-        "cta1": "Close this tab",
-        "cta2": "What is Ledger Sync?"
+        "title": "Ledger Syncを有効化できません",
+        "description": "Ledger Syncを有効にするためのLedger Walletへの接続に失敗しています。このタブを閉じて、Ledger Walletアプリ（デスクトップまたはモバイル）を開き、Ledger Syncを有効にしてから、タブを再度開いてください。",
+        "cta1": "このタブを閉じる",
+        "cta2": "Ledger Syncとは？"
       },
       "NoCompatibleAccounts": {
-        "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
-        "cta1": "Create a new account on Ledger Live",
-        "cta2": "Use another Ledger device"
+        "title": "互換性のあるアカウントが見つかりません",
+        "description": "このDappは次のネットワーク{networks}をサポートしていますが、アカウントを持っていません。Ledger Walletで新しいアカウントを作成してください。",
+        "cta1": "Ledger Walletで新しいアカウントを作成する。",
+        "cta2": "別のLedgerデバイスを使用"
       },
       "NoAccountInSync": {
-        "title": "No accounts in sync",
-        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "title": "同期するアカウントがありません",
+        "description": "Ledger Syncが有効になっていますが、同期しているアカウントはありません。Ledger WalletでLedger Syncを有効にし、1つ以上のアカウントを追加してください。",
         "cta1": "閉じる"
       }
     },
     "network": {
       "BroadcastTransactionError": {
-        "title": "Transaction failed",
-        "description": "Your transaction was broadcasted to the network but failed to execute.",
-        "cta1": "Retry transaction"
+        "title": "トランザクションが失敗しました。",
+        "description": "トランザクションがネットワークにブロードキャストされましたが、実行に失敗しました。",
+        "cta1": "トランザクションを再試行"
       }
     },
     "connection": {
       "DeviceDisconnected": {
-        "title": "Your Ledger device is disconnected",
-        "description": "If you’re using USB, plug in and unlock your Ledger device. If you’re using Bluetooth, unlock it and keep it nearby.",
-        "cta1": "Reconnect Ledger device"
+        "title": "Ledgerデバイスが切断されています",
+        "description": "USBを使用している場合は、Ledgerデバイスを接続してロックを解除してください。Bluetoothを使用している場合は、ロック解除して近くに置いてください。",
+        "cta1": "Ledgerデバイスを再接続する"
       }
     }
   }
