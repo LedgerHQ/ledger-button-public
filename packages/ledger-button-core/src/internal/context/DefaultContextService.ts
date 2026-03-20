@@ -96,4 +96,11 @@ export class DefaultContextService implements ContextService {
 
     this.contextSubject.next(this.context);
   }
+
+  hydrateSelectedAccount(
+    account: ButtonCoreContext["selectedAccount"],
+  ): void {
+    this.context.selectedAccount = account;
+    this.contextSubject.next(this.context);
+  }
 }

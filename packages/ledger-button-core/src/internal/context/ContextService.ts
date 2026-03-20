@@ -7,4 +7,5 @@ export interface ContextService {
   observeContext(): Observable<ButtonCoreContext>;
   getContext(): ButtonCoreContext;
   onEvent(event: ContextEvent): void;
+  hydrateSelectedAccount(account: ButtonCoreContext["selectedAccount"]): void;
 }

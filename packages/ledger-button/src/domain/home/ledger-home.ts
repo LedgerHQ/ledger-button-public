@@ -2,10 +2,14 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
-import type { TransactionHistoryItem } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  PendingTransaction,
+  TransactionHistoryItem,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import type { Subscription } from "rxjs";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
@@ -77,6 +81,28 @@ function mapTransactionHistoryToListItem(
   };
 }
 
+function mapPendingTransactionToListItem(
+  tx: PendingTransaction,
+): TransactionListItem {
+  const date = new Date(tx.timestamp);
+  const timeString = date.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return {
+    hash: tx.hash,
+    type: tx.type,
+    date: date.toISOString().split("T")[0],
+    time: timeString,
+    amount: tx.formattedValue,
+    ticker: tx.ticker,
+    title: tx.currencyName,
+    fiatAmount: "",
+    fiatCurrency: "",
+  };
+}
+
 @customElement("ledger-home-screen")
 @tailwindElement(styles)
 export class LedgerHomeScreen extends LitElement {
@@ -106,7 +132,11 @@ export class LedgerHomeScreen extends LitElement {
   @state()
   private currentAction: WalletTransactionFeature | null = null;
 
+  @state()
+  private pendingTransactions: PendingTransaction[] = [];
+
   controller!: LedgerHomeController;
+  private pendingTxSubscription?: Subscription;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -116,6 +146,16 @@ export class LedgerHomeScreen extends LitElement {
       this.navigation,
       this.destinations,
     );
+    this.pendingTxSubscription = this.coreContext
+      .observePendingTransactions()
+      .subscribe((txs) => {
+        this.pendingTransactions = txs;
+      });
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this.pendingTxSubscription?.unsubscribe();
   }
 
   private handleAccountItemClick = (
@@ -199,6 +239,10 @@ export class LedgerHomeScreen extends LitElement {
     );
   }
 
+  private getPendingTransactionListItems(): TransactionListItem[] {
+    return this.pendingTransactions.map(mapPendingTransactionToListItem);
+  }
+
   override render() {
     if (this.controller.loading) {
       return html`
@@ -256,7 +300,11 @@ export class LedgerHomeScreen extends LitElement {
             <ledger-tabs
               .tabs=${[
                 { id: "tokens", label: "Tokens" },
-                { id: "transactions", label: "Transactions" },
+                {
+                  id: "transactions",
+                  label: "Transactions",
+                  badge: this.pendingTransactions.length || undefined,
+                },
               ]}
               .selectedId=${this.activeTab}
               @tab-change=${this.handleTabChange}
@@ -269,6 +317,7 @@ export class LedgerHomeScreen extends LitElement {
               ></token-list-screen>`
             : html`<transaction-list-screen
                 .transactions=${this.getTransactionListItems()}
+                .pendingTransactions=${this.getPendingTransactionListItems()}
               ></transaction-list-screen>`}
 
           <ledger-button

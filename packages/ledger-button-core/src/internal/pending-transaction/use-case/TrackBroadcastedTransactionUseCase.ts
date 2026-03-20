@@ -9,6 +9,7 @@ import {
   type SignTransactionParams,
 } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import { type Account } from "../../account/service/AccountService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -53,14 +54,52 @@ export class TrackBroadcastedTransactionUseCase {
     const context = this.contextService.getContext();
     if (!context.selectedAccount) return;
 
-    const currencyId = context.selectedAccount.currencyId;
+    const tx = await this.buildPendingTransaction(
+      status.data.hash,
+      context.selectedAccount,
+      context.chainId,
+      params,
+    );
+
+    this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
+    this.storageService.add(tx);
+    this.controller.track(tx);
+  }
+
+  private async buildPendingTransaction(
+    hash: string,
+    account: Account,
+    chainId: number,
+    params: SignParams,
+  ): Promise<PendingTransaction> {
+    const { ticker, name, decimals } = await this.resolveCurrencyMetadata(
+      account.currencyId,
+    );
     const rawValue = isSignTransactionParams(params)
       ? params.transaction.value
       : "0";
 
+    return {
+      hash,
+      chainId,
+      address: account.freshAddress,
+      timestamp: new Date().toISOString(),
+      type: "sent",
+      value: rawValue,
+      formattedValue: formatBalance(rawValue, decimals, ticker),
+      ticker,
+      currencyName: name,
+      ledgerId: account.currencyId,
+    };
+  }
+
+  private async resolveCurrencyMetadata(
+    currencyId: string,
+  ): Promise<{ ticker: string; name: string; decimals: number }> {
     const currencyInfo =
       await this.calDataSource.getCurrencyInformation(currencyId);
-    const { ticker, name, decimals } = currencyInfo.caseOf({
+
+    return currencyInfo.caseOf({
       Left: () => ({
         ticker: currencyId.toUpperCase(),
         name: currencyId,
@@ -72,22 +111,5 @@ export class TrackBroadcastedTransactionUseCase {
         decimals: info.decimals,
       }),
     });
-
-    const tx: PendingTransaction = {
-      hash: status.data.hash,
-      chainId: context.chainId,
-      address: context.selectedAccount.freshAddress,
-      timestamp: new Date().toISOString(),
-      type: "sent",
-      value: rawValue,
-      formattedValue: formatBalance(rawValue, decimals, ticker),
-      ticker,
-      currencyName: name,
-      ledgerId: currencyId,
-    };
-
-    this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
-    this.storageService.add(tx);
-    this.controller.track(tx);
   }
 }

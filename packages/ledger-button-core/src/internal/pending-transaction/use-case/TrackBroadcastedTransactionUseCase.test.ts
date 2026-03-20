@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
+import { ContextService } from "../../context/ContextService.js";
 import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
 import type { PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
 import { TrackBroadcastedTransactionUseCase } from "./TrackBroadcastedTransactionUseCase.js";
@@ -104,7 +105,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     useCase = new TrackBroadcastedTransactionUseCase(
       mockStorageService,
       mockController,
-      mockContextService,
+      mockContextService as unknown as ContextService,
       mockCalDataSource,
       createMockLoggerFactory(),
     );
