@@ -14,6 +14,13 @@ export interface NetworksClickEventDetail {
   networks: Network[];
 }
 
+const BORDER_COLOR_DEFAULT =
+  "color-mix(in srgb, white 10%, var(--color-background-muted))";
+const BORDER_COLOR_HOVER =
+  "color-mix(in srgb, white 20%, var(--color-background-muted))";
+const BORDER_COLOR_ACTIVE =
+  "color-mix(in srgb, white 30%, var(--color-background-muted))";
+
 const containerVariants = cva([
   "flex cursor-pointer items-center rounded-sm p-4",
   "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
@@ -42,8 +49,19 @@ export class LedgerNetworks extends LitElement {
     const overflowCount = this.networks.length - MAX_VISIBLE_NETWORKS;
 
     return html`
+      <style>
+        .networks-btn {
+          --stacked-border-color: ${BORDER_COLOR_DEFAULT};
+        }
+        .networks-btn:hover {
+          --stacked-border-color: ${BORDER_COLOR_HOVER};
+        }
+        .networks-btn:active {
+          --stacked-border-color: ${BORDER_COLOR_ACTIVE};
+        }
+      </style>
       <button
-        class=${classMap(this.containerClasses)}
+        class="networks-btn ${classMap(this.containerClasses)}"
         aria-label="Networks"
         @click=${this.handleClick}
         @keydown=${this.handleKeydown}

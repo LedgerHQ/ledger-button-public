@@ -85,7 +85,7 @@ export class LedgerCryptoIcon extends LitElement {
 
   private get stackedStyles() {
     return this.stacked
-      ? "border-left: 2px solid color-mix(in srgb, white 10%, var(--color-background-muted));"
+      ? "border-left: 2px solid var(--stacked-border-color, color-mix(in srgb, white 10%, var(--color-background-muted)));"
       : "";
   }
 
