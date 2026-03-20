@@ -13,6 +13,7 @@ export interface LedgerCryptoIconAttributes {
   ticker: string;
   size?: CryptoIconSize;
   variant?: CryptoIconVariant;
+  stacked?: boolean;
 }
 
 const cryptoIconVariants = cva(
@@ -75,8 +76,17 @@ export class LedgerCryptoIcon extends LitElement {
   @property({ type: String })
   variant: CryptoIconVariant = "rounded";
 
+  @property({ type: Boolean })
+  stacked = false;
+
   private get iconClasses() {
     return cryptoIconVariants({ size: this.size, variant: this.variant });
+  }
+
+  private get stackedClasses() {
+    return this.stacked
+      ? "border-l-2 border-[var(--color-background-muted)]"
+      : "";
   }
 
   private getCryptoIconUrl(ledgerId: string): string | null {
@@ -92,13 +102,18 @@ export class LedgerCryptoIcon extends LitElement {
 
   private renderFallback() {
     return html`
-      <div class="${this.iconClasses} bg-grey-500">${this.alt}</div>
+      <div class="${this.iconClasses} ${this.stackedClasses} bg-grey-500">
+        ${this.alt}
+      </div>
     `;
   }
 
   private renderCryptoIcon(iconUrl: string) {
     return html`
-      <div class="${this.iconClasses}" style="position: relative;">
+      <div
+        class="${this.iconClasses} ${this.stackedClasses}"
+        style="position: relative;"
+      >
         <img
           class="token-icon block h-full w-full bg-active object-cover"
           src=${iconUrl}

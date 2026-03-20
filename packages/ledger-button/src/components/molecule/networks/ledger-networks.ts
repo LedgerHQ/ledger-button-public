@@ -51,7 +51,7 @@ export class LedgerNetworks extends LitElement {
         ${visible.map(
           (network, index) => html`
             <div
-              class="${index > 0 ? "-ml-4 border-l-2 border-(--color-background-muted-transparent) rounded-sm" : ""} relative"
+              class="${index > 0 ? "-ml-4" : ""} relative"
               style="z-index: ${index}"
             >
               <ledger-crypto-icon
@@ -59,6 +59,7 @@ export class LedgerNetworks extends LitElement {
                 .ticker=${network.ticker ?? ""}
                 size="small"
                 variant="square"
+                ?stacked=${index > 0}
               ></ledger-crypto-icon>
             </div>
           `,
