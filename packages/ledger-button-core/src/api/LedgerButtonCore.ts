@@ -177,6 +177,10 @@ export class LedgerButtonCore {
         isMobilePlatform,
       },
     });
+
+    this.container.get<PendingTransactionController>(
+      pendingTransactionModuleTypes.PendingTransactionController,
+    );
   }
 
   private listenDevice() {

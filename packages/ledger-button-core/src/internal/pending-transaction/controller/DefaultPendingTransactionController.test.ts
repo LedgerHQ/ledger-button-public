@@ -1,7 +1,8 @@
 import { Left, Right } from "purify-ts";
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { ContextService } from "../../context/ContextService.js";
 import type { PendingTransaction } from "../model/PendingTransaction.js";
 import type { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
 import { DefaultPendingTransactionController } from "./DefaultPendingTransactionController.js";
@@ -41,17 +42,34 @@ function createMockConfirmUseCase() {
   };
 }
 
-function createMockContextService() {
+const hydratedContext = {
+  chainId: 1,
+  selectedAccount: {
+    freshAddress: "0x1234",
+    currencyId: "ethereum",
+    ticker: "ETH",
+  },
+};
+
+const skeletonContext = {
+  chainId: 1,
+  selectedAccount: {
+    freshAddress: "0x1234",
+    currencyId: "ethereum",
+    ticker: "",
+  },
+};
+
+function createMockContextService(
+  initialContext: Record<string, unknown> = hydratedContext,
+) {
+  const contextSubject = new BehaviorSubject(initialContext);
   return {
-    observeContext: vi.fn(),
-    getContext: vi.fn().mockReturnValue({
-      chainId: 1,
-      selectedAccount: {
-        freshAddress: "0x1234",
-        currencyId: "ethereum",
-      },
-    }),
+    observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
+    getContext: vi.fn().mockReturnValue(initialContext),
     onEvent: vi.fn(),
+    hydrateSelectedAccount: vi.fn(),
+    _contextSubject: contextSubject,
   };
 }
 
@@ -184,7 +202,7 @@ describe("DefaultPendingTransactionController", () => {
   });
 
   describe("page refresh recovery", () => {
-    it("should restore from storage and start polling on construction", async () => {
+    it("should emit stored pending transactions immediately on construction", async () => {
       const tx = createPendingTx({ hash: "0x111" });
       const storageWithData = createMockStorageService();
       storageWithData._store.push(tx);
@@ -200,6 +218,61 @@ describe("DefaultPendingTransactionController", () => {
         restoredController.observePendingTransactions(),
       );
       expect(value).toEqual([tx]);
+    });
+
+    it("should not start polling with skeleton account (empty ticker)", async () => {
+      const tx = createPendingTx({ hash: "0x111" });
+      const storageWithData = createMockStorageService();
+      storageWithData._store.push(tx);
+
+      const skeletonCtx = createMockContextService(skeletonContext);
+
+      new DefaultPendingTransactionController(
+        createMockLoggerFactory(),
+        storageWithData,
+        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        skeletonCtx,
+      );
+
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+    });
+
+    it("should start polling once context is hydrated with full account", async () => {
+      const tx = createPendingTx({ hash: "0x111" });
+      const storageWithData = createMockStorageService();
+      storageWithData._store.push(tx);
+
+      const skeletonCtx = createMockContextService(skeletonContext);
+
+      new DefaultPendingTransactionController(
+        createMockLoggerFactory(),
+        storageWithData,
+        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        skeletonCtx as unknown as ContextService,
+      );
+
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+
+      skeletonCtx.getContext.mockReturnValue(hydratedContext);
+      skeletonCtx._contextSubject.next(hydratedContext);
+
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(mockConfirmUseCase.execute).toHaveBeenCalled();
+    });
+
+    it("should start polling on construction when account is already available", async () => {
+      const tx = createPendingTx({ hash: "0x111" });
+      const storageWithData = createMockStorageService();
+      storageWithData._store.push(tx);
+
+      new DefaultPendingTransactionController(
+        createMockLoggerFactory(),
+        storageWithData,
+        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        mockContextService,
+      );
 
       await vi.advanceTimersByTimeAsync(10_000);
       expect(mockConfirmUseCase.execute).toHaveBeenCalled();

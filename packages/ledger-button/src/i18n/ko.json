@@ -175,7 +175,8 @@
     "title": "Available networks"
   },
   "transactionList": {
-    "noTransactions": "No transactions found"
+    "noTransactions": "No transactions found",
+    "pendingTransactions": "Pending transactions"
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet에서 계속하기",

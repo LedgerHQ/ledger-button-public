@@ -7,6 +7,7 @@ import { tailwindElement } from "../../../tailwind-element.js";
 export type TabItem = {
   id: string;
   label: string;
+  badge?: number;
 };
 
 export type TabChangeEventDetail = {
@@ -21,20 +22,18 @@ export interface LedgerTabsAttributes {
 }
 
 const containerVariants = cva([
-  "flex w-full gap-4 rounded-md border border-muted-subtle p-4",
+  "border-muted-subtle flex w-full gap-4 rounded-md border p-4",
 ]);
 
 const tabVariants = cva(
   [
-    "body-2-semi-bold align-self-stretch flex h-40 flex-1 flex-shrink-0 cursor-pointer items-center justify-center rounded-sm px-4 py-8 transition-all duration-200 ease-in-out body-2-semi-bold",
+    "body-2-semi-bold align-self-stretch flex h-40 flex-1 shrink-0 cursor-pointer items-center justify-center gap-8 rounded-sm px-4 py-8 transition-all duration-200 ease-in-out",
   ],
   {
     variants: {
       selected: {
         true: ["bg-muted text-base"],
-        false: [
-          "bg-transparent text-muted hover:bg-muted-transparent-hover",
-        ],
+        false: ["text-muted hover:bg-muted-transparent-hover bg-transparent"],
       },
     },
     defaultVariants: {
@@ -83,6 +82,16 @@ export class LedgerTabs extends LitElement {
     }
   }
 
+  private renderBadge(count: number) {
+    return html`
+      <span
+        class="bg-error-strong flex h-16 w-16 items-center justify-center rounded-full px-4 text-white"
+      >
+        <span class="body-3">${count}</span>
+      </span>
+    `;
+  }
+
   private renderTab(tab: TabItem) {
     const isSelected = tab.id === this.selectedId;
 
@@ -95,7 +104,7 @@ export class LedgerTabs extends LitElement {
         @click=${() => this.handleTabClick(tab)}
         @keydown=${(e: KeyboardEvent) => this.handleKeydown(e, tab)}
       >
-        ${tab.label}
+        ${tab.label}${tab.badge ? this.renderBadge(tab.badge) : ""}
       </button>
     `;
   }

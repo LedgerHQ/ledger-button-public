@@ -71,6 +71,8 @@ export class FetchSelectedAccountUseCase {
       allAccounts,
     );
 
+    this.contextService.hydrateSelectedAccount(detailedAccount);
+
     this.logger.info("Selected account fetched with details", {
       address: detailedAccount.freshAddress,
       hasBalance: !!detailedAccount.balance,

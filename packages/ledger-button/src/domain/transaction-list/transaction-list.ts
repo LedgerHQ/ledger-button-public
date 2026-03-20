@@ -39,6 +39,9 @@ export class TransactionListScreen extends LitElement {
   @property({ type: Array })
   transactions: TransactionListItem[] = [];
 
+  @property({ type: Array })
+  pendingTransactions: TransactionListItem[] = [];
+
   private formatDisplayDate(dateString: string): string {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, "0");
@@ -108,6 +111,21 @@ export class TransactionListScreen extends LitElement {
     `;
   }
 
+  private renderPendingSection() {
+    if (this.pendingTransactions.length === 0) return "";
+
+    const translations = this.languages.currentTranslation;
+
+    return html`
+      <div class="flex flex-col gap-4">
+        ${this.renderDateHeader(translations.transactionList?.pendingTransactions ?? "Pending transactions")}
+        <div class="flex flex-col">
+          ${this.pendingTransactions.map(this.renderTransactionItem)}
+        </div>
+      </div>
+    `;
+  }
+
   private renderEmptyState() {
     const translations = this.languages.currentTranslation;
 
@@ -121,7 +139,10 @@ export class TransactionListScreen extends LitElement {
   }
 
   override render(): TemplateResult {
-    if (this.transactions.length === 0) {
+    const hasPending = this.pendingTransactions.length > 0;
+    const hasConfirmed = this.transactions.length > 0;
+
+    if (!hasPending && !hasConfirmed) {
       return this.renderEmptyState();
     }
 
@@ -129,6 +150,7 @@ export class TransactionListScreen extends LitElement {
 
     return html`
       <div class="flex flex-col gap-16">
+        ${this.renderPendingSection()}
         ${groupedTransactions.map((group) =>
           this.renderTransactionGroup(group),
         )}

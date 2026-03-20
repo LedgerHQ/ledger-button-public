@@ -35,7 +35,7 @@ export class DefaultPendingTransactionController
     this.pendingTxSubject = new BehaviorSubject<PendingTransaction[]>(
       this.storageService.getAll(),
     );
-    this.restoreFromStorage();
+    this.startPollingWhenAccountAvailable();
   }
 
   track(_tx: PendingTransaction): void {
@@ -47,12 +47,14 @@ export class DefaultPendingTransactionController
     return this.pendingTxSubject.asObservable();
   }
 
-  private restoreFromStorage(): void {
-    const stored = this.storageService.getAll();
-    if (stored.length > 0) {
-      this.pendingTxSubject.next(stored);
-      this.startPolling();
-    }
+  private startPollingWhenAccountAvailable(): void {
+    this.contextService.observeContext().subscribe((context) => {
+      const account = context.selectedAccount;
+      const isHydrated = account && account.ticker && account.ticker.length > 0;
+      if (isHydrated && this.storageService.getAll().length > 0) {
+        this.startPolling();
+      }
+    });
   }
 
   private startPolling(): void {
@@ -85,7 +87,7 @@ export class DefaultPendingTransactionController
     const pendingHashes = pending.map((tx) => tx.hash);
 
     const result = await this.confirmUseCase.execute(
-      account.currencyId,
+      account.ticker.toLowerCase(),
       account.freshAddress,
       pendingHashes,
     );
