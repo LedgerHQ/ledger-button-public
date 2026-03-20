@@ -83,9 +83,9 @@ export class LedgerCryptoIcon extends LitElement {
     return cryptoIconVariants({ size: this.size, variant: this.variant });
   }
 
-  private get stackedClasses() {
+  private get stackedStyles() {
     return this.stacked
-      ? "border-l-2 border-[var(--color-background-muted)]"
+      ? "border-left: 2px solid color-mix(in srgb, white 10%, var(--color-background-muted));"
       : "";
   }
 
@@ -102,7 +102,7 @@ export class LedgerCryptoIcon extends LitElement {
 
   private renderFallback() {
     return html`
-      <div class="${this.iconClasses} ${this.stackedClasses} bg-grey-500">
+      <div class="${this.iconClasses} bg-grey-500" style="${this.stackedStyles}">
         ${this.alt}
       </div>
     `;
@@ -111,8 +111,8 @@ export class LedgerCryptoIcon extends LitElement {
   private renderCryptoIcon(iconUrl: string) {
     return html`
       <div
-        class="${this.iconClasses} ${this.stackedClasses}"
-        style="position: relative;"
+        class="${this.iconClasses}"
+        style="position: relative; ${this.stackedStyles}"
       >
         <img
           class="token-icon block h-full w-full bg-active object-cover"
