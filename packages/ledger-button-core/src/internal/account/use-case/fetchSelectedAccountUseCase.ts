@@ -121,15 +121,12 @@ export class FetchSelectedAccountUseCase {
   ): Promise<DetailedAccount> {
     const withBalance = await this.hydrateWithBalanceUseCase.execute(account);
 
-    const [withFiat, withTxHistory] = await Promise.all([
+    const [withFiat, withTxHistory, networks] = await Promise.all([
       this.hydrateWithFiatUseCase.execute(withBalance),
       this.hydrateWithTxHistoryUseCase.execute(withBalance),
+      this.computeNetworksFromAllAccounts(account, allAccounts),
     ]);
 
-    const networks = await this.computeNetworksFromAllAccounts(
-      account,
-      allAccounts,
-    );
     return this.mergeHydrations(withBalance, withFiat, withTxHistory, networks);
   }
 
@@ -143,14 +140,16 @@ export class FetchSelectedAccountUseCase {
 
     const networks = await Promise.all(
       matching.map(async (a) => {
-        const result = await this.calDataSource.getCurrencyInformation(
-          a.currencyId,
-        );
-        const info = result.isRight() ? result.extract() : undefined;
+        const [calResult, withFiat] = await Promise.all([
+          this.calDataSource.getCurrencyInformation(a.currencyId),
+          this.hydrateWithFiatUseCase.execute(a),
+        ]);
+        const info = calResult.isRight() ? calResult.extract() : undefined;
         return {
           id: a.currencyId,
           name: info?.name ?? a.currencyId,
           ticker: info?.ticker ?? a.ticker,
+          fiatBalance: withFiat.fiatBalance,
         };
       }),
     );
