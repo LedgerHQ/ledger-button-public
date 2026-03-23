@@ -17,9 +17,7 @@ export interface LedgerCryptoIconAttributes {
 }
 
 const cryptoIconVariants = cva(
-  [
-    "position-relative flex items-center justify-center overflow-hidden",
-  ],
+  ["relative flex items-center justify-center overflow-hidden"],
   {
     variants: {
       size: {
@@ -83,12 +81,6 @@ export class LedgerCryptoIcon extends LitElement {
     return cryptoIconVariants({ size: this.size, variant: this.variant });
   }
 
-  private get stackedStyles() {
-    return this.stacked
-      ? "border-left: 2px solid var(--stacked-border-color, color-mix(in srgb, white 10%, var(--color-background-muted)));"
-      : "";
-  }
-
   private getCryptoIconUrl(ledgerId: string): string | null {
     if (ledgerId in cryptoIconMap) {
       const cryptoData = cryptoIconMap[ledgerId as keyof typeof cryptoIconMap];
@@ -102,20 +94,15 @@ export class LedgerCryptoIcon extends LitElement {
 
   private renderFallback() {
     return html`
-      <div class="${this.iconClasses} bg-grey-500" style="${this.stackedStyles}">
-        ${this.alt}
-      </div>
+      <div class="${this.iconClasses} bg-grey-500">${this.alt}</div>
     `;
   }
 
   private renderCryptoIcon(iconUrl: string) {
     return html`
-      <div
-        class="${this.iconClasses}"
-        style="position: relative; ${this.stackedStyles}"
-      >
+      <div class="${this.iconClasses}">
         <img
-          class="token-icon block h-full w-full bg-active object-cover"
+          class="token-icon bg-active block h-full w-full object-cover"
           src=${iconUrl}
           alt=${this.alt}
         />
