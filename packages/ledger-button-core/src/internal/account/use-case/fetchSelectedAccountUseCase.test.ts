@@ -84,7 +84,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
-    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM" }],
+    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } }],
   };
 
   beforeEach(() => {
@@ -214,7 +214,7 @@ describe("FetchSelectedAccountUseCase", () => {
             hydratedAccount.transactionHistory,
           );
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM" },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
           ]);
         });
       });
@@ -319,7 +319,6 @@ describe("FetchSelectedAccountUseCase", () => {
           ...baseAccount,
           id: "account-2",
           currencyId: "polygon",
-          // same freshAddress
         };
         const otherAccount: Account = {
           ...baseAccount,
@@ -340,10 +339,16 @@ describe("FetchSelectedAccountUseCase", () => {
           ...baseAccount,
           balance: "2.5000",
         });
-        mockHydrateWithFiatUseCase.execute.mockResolvedValue({
-          ...baseAccount,
-          fiatBalance: { value: "5000.00", currency: "USD" },
-        });
+        mockHydrateWithFiatUseCase.execute.mockImplementation(
+          (account: Account) =>
+            Promise.resolve({
+              ...account,
+              fiatBalance: { value: "5000.00", currency: "USD" },
+              fiatError: false,
+              balanceLoadingState: "loaded",
+              fiatLoadingState: "loaded",
+            }),
+        );
         mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
           ...baseAccount,
           transactionHistory: [],
@@ -354,10 +359,9 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(result.isRight()).toBe(true);
         result.map((account) => {
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM" },
-            { id: "polygon", name: "Polygon", ticker: "POLYGON" },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "polygon", name: "Polygon", ticker: "POLYGON", fiatBalance: { value: "5000.00", currency: "USD" } },
           ]);
-          // bsc account has different address
           expect(account.networks).not.toContainEqual(
             expect.objectContaining({ id: "bsc" }),
           );

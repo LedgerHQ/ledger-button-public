@@ -29,6 +29,7 @@ import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -563,9 +564,7 @@ export class LedgerButtonCore {
     currencyId: string,
   ): Promise<{ name: string; ticker: string }> {
     const result = await this.container
-      .get<import("../internal/balance/datasource/cal/CalDataSource.js").CalDataSource>(
-        balanceModuleTypes.CalDataSource,
-      )
+      .get<CalDataSource>(balanceModuleTypes.CalDataSource)
       .getCurrencyInformation(currencyId);
 
     if (result.isRight()) {

@@ -13,7 +13,6 @@ export interface LedgerCryptoIconAttributes {
   ticker: string;
   size?: CryptoIconSize;
   variant?: CryptoIconVariant;
-  stacked?: boolean;
 }
 
 const cryptoIconVariants = cva(
@@ -73,9 +72,6 @@ export class LedgerCryptoIcon extends LitElement {
 
   @property({ type: String })
   variant: CryptoIconVariant = "rounded";
-
-  @property({ type: Boolean })
-  stacked = false;
 
   private get iconClasses() {
     return cryptoIconVariants({ size: this.size, variant: this.variant });
