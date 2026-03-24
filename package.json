@@ -4,7 +4,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "changelog": "pnpm nx release plan",
     "commit": "gitmoji -c",
+    "commitcl": "pnpm changelog && git add .nx/version-plans && pnpm commit",
     "danger:local": "pnpm danger local --dangerfile tools/danger/danger-local.ts --base origin/develop",
     "danger:local:fork": "pnpm danger local --dangerfile tools/danger/danger-local-fork.ts --base origin/develop",
     "danger:ci": "pnpm danger ci --dangerfile tools/danger/danger-ci.ts --failOnErrors",
@@ -13,7 +15,6 @@
     "doc": "pnpm --filter @ledgerhq/ledger-wallet-provider-docs",
     "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm provider exec nx build-storybook --quiet && pnpm provider exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm provider exec nx test-storybook\"",
     "test:coverage": "pnpm nx run-many -t test -- --coverage --coverage.reporter=html --coverage.reporter=text",
-    "plan": "pnpm nx release plan",
     "plan:check": "pnpm nx release plan:check",
     "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core",
     "release": "pnpm nx release"
