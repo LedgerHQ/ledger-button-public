@@ -63,7 +63,7 @@ export class LedgerButton404 extends LitElement {
   }
 }
 
-export type Destinations = Record;
+export type Destinations = Record<string, Destination>;
 export type CanGoBackValue = boolean | ((core: CoreContext) => boolean);
 export type Destination = {
   name: string;
