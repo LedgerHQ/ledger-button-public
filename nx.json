@@ -130,7 +130,8 @@
         "**/*.spec.ts",
         "**/*.test.ts",
         "**/*.stories.tsx",
-        "**/*.stories.ts"
+        "**/*.stories.ts",
+        "**/.storybook/**"
       ]
     },
     "groups": {
