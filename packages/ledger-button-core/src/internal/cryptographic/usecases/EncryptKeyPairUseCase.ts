@@ -16,7 +16,7 @@ export class EncryptKeyPairUseCase {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Encrypt KeyPair Use Case]");
+    this.logger = this.loggerFactory("Encrypt KeyPair Use Case");
   }
 
   async execute(

@@ -18,7 +18,7 @@ export class JSONRPCCallUseCase {
     @inject(web3ProviderModuleTypes.LedgerRemoteDatasource)
     private readonly datasource: LedgerRemoteDatasource,
   ) {
-    this.logger = loggerFactory("[JSONRPCCallUseCase UseCase]");
+    this.logger = loggerFactory("JSONRPCCallUseCase UseCase");
   }
 
   async execute(args: JSONRPCRequest) {

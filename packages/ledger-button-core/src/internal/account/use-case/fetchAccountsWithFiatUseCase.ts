@@ -31,7 +31,7 @@ export class FetchAccountsWithFiatUseCase {
     @inject(accountModuleTypes.HydrateAccountWithFiatUseCase)
     private readonly hydrateAccountWithFiatUseCase: HydrateAccountWithFiatUseCase,
   ) {
-    this.logger = loggerFactory("[FetchAccountsWithFiatUseCase]");
+    this.logger = loggerFactory("FetchAccountsWithFiatUseCase");
   }
 
   execute(

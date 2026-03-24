@@ -12,7 +12,7 @@ export class DecryptKeyPairUseCase {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Decrypt KeyPair Use Case]");
+    this.logger = this.loggerFactory("Decrypt KeyPair Use Case");
   }
 
   async execute(

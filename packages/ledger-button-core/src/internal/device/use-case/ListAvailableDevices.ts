@@ -15,7 +15,7 @@ export class ListAvailableDevices {
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
-    this.logger = loggerFactory("[ListAvailableDevices UseCase]");
+    this.logger = loggerFactory("ListAvailableDevices UseCase");
   }
 
   async execute(): Promise<DiscoveredDevice[]> {

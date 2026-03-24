@@ -24,7 +24,7 @@ export class TrackTypedMessageStarted {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackTypedMessageStarted UseCase]");
+    this.logger = loggerFactory("TrackTypedMessageStarted UseCase");
   }
 
   async execute(typedData: TypedData): Promise<void> {

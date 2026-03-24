@@ -17,7 +17,7 @@ export class SwitchDevice {
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
-    this.logger = loggerFactory("[SwitchDevice UseCase]");
+    this.logger = loggerFactory("SwitchDevice UseCase");
   }
 
   async execute({ type }: { type: ConnectionType }): Promise<void> {

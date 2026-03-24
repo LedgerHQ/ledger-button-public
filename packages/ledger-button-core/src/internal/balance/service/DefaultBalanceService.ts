@@ -27,7 +27,7 @@ export class DefaultBalanceService implements BalanceService {
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
   ) {
-    this.logger = this.loggerFactory("[Alpaca Service]");
+    this.logger = this.loggerFactory("Alpaca Service");
   }
 
   async getBalanceForAccount(
