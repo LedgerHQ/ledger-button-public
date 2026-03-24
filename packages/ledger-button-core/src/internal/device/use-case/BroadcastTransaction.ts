@@ -38,7 +38,7 @@ export class BroadcastTransaction {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[SendTransaction]");
+    this.logger = loggerFactory("SendTransaction");
   }
 
   async execute(params: BroadcastTransactionParams): Promise<SignedResults> {

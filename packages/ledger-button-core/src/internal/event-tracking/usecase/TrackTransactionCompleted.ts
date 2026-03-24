@@ -28,7 +28,7 @@ export class TrackTransactionCompleted {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackTransactionCompleted UseCase]");
+    this.logger = loggerFactory("TrackTransactionCompleted UseCase");
   }
 
   async execute(

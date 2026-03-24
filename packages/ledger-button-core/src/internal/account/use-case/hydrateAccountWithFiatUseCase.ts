@@ -24,7 +24,7 @@ export class HydrateAccountWithFiatUseCase {
     @inject(balanceModuleTypes.CounterValueDataSource)
     private readonly counterValueDataSource: CounterValueDataSource,
   ) {
-    this.logger = loggerFactory("[HydrateAccountWithFiatUseCase]");
+    this.logger = loggerFactory("HydrateAccountWithFiatUseCase");
   }
 
   async execute(

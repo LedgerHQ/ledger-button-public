@@ -84,7 +84,7 @@ export class SignTypedData {
     @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
     private readonly trackTypedMessageCompleted: TrackTypedMessageCompleted,
   ) {
-    this.logger = loggerFactory("[SignTypedData]");
+    this.logger = loggerFactory("SignTypedData");
   }
 
   execute(params: SignTypedMessageParams): Observable<SignFlowStatus> {
