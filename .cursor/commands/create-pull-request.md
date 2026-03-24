@@ -97,20 +97,27 @@ Skip this phase if the working tree is clean and staging area is empty.
 
 ## Phase 2.5 — Version Plan (conditional: only if releasable packages are touched)
 
-Skip this phase if the changes do **not** touch `packages/ledger-button/` or `packages/ledger-button-core/` (the two releasable packages: `@ledgerhq/ledger-wallet-provider` and `@ledgerhq/ledger-wallet-provider-core`).
+Skip this phase **only** if the changes do **not** touch `packages/ledger-button/` or `packages/ledger-button-core/` (the two releasable packages: `@ledgerhq/ledger-wallet-provider` and `@ledgerhq/ledger-wallet-provider-core`).
+
+Also skip if **all** changed files in those packages match the ignore patterns (`*.spec.ts`, `*.test.ts`, `*.stories.tsx`, `*.stories.ts`) — these are excluded from `plan:check` in CI.
+
+Otherwise, a version plan **must** be created — CI will reject the PR without one.
 
 1. Determine which releasable packages are affected by inspecting changed files:
    ```bash
    git diff --name-only develop..HEAD
    ```
 
-2. Create a version plan file in `.nx/version-plans/` with the affected packages and the appropriate semver bump (`patch`, `minor`, or `major`). Use the type of change from Step 1 to determine the bump:
+2. Create a version plan file in `.nx/version-plans/` with the affected packages and the appropriate semver bump. Use the type of change from Step 1 to determine the bump:
 
    | Type | Bump |
    |------|------|
-   | Feature, Breaking change | `minor` (or `major` for breaking) |
+   | Breaking change | `major` |
+   | Feature | `minor` |
    | Bug fix, Performance, Dependencies, Types | `patch` |
-   | Refactor, Documentation, Tests, Style/format, CI, Lint fixes, Chore/config, Remove code | `none` — skip version plan |
+   | Refactor, Chore/config, Remove code, Style/format, Documentation, CI, Lint fixes | `none` |
+
+   The `none` bump acknowledges the change for changelog purposes without incrementing the version.
 
    Write the file directly (filename: `version-plan-<timestamp>.md`):
    ```markdown
