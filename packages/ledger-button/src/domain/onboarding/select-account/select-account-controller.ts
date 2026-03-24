@@ -9,6 +9,7 @@ import { Subscription } from "rxjs";
 
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext } from "../../../context/core-context.js";
+import { DEFAULT_FIAT_CURRENCY } from "../../../shared/constants/index.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
@@ -72,7 +73,7 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+    this.accountsSubscription = this.core.getAccounts(DEFAULT_FIAT_CURRENCY).subscribe({
       next: (accounts) => {
         this.accounts = accounts;
         this.isAccountsLoading = false;

@@ -6,6 +6,7 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
 import { CoreContext } from "../../context/core-context";
+import { DEFAULT_FIAT_CURRENCY } from "../../shared/constants";
 import { Navigation } from "../../shared/navigation";
 import { RootNavigationComponent } from "../../shared/root-navigation";
 
@@ -50,7 +51,7 @@ export class AccountTokenController implements ReactiveController {
     this.loading = true;
     this.isFirstEmission = true;
 
-    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+    this.accountsSubscription = this.core.getAccounts(DEFAULT_FIAT_CURRENCY).subscribe({
       next: (accounts) => {
         this.account =
           accounts.find((acc: AccountWithFiat) => acc.id === targetId) ?? null;
