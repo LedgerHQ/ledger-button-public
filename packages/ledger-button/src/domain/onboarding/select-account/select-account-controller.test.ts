@@ -35,6 +35,7 @@ describe("SelectAccountController.filteredAccounts", () => {
     name: "My Ethereum",
     freshAddress: "0xabc123def456",
     ticker: "ETH",
+    fiatBalance: { value: "2500.00", currency: "USD" },
     tokens: [
       {
         ledgerId: "ethereum/erc20/tether_usd",
@@ -51,6 +52,7 @@ describe("SelectAccountController.filteredAccounts", () => {
     name: "My Bitcoin",
     freshAddress: "bc1qxyz789",
     ticker: "BTC",
+    fiatBalance: { value: "50000.00", currency: "USD" },
     tokens: [],
   });
 
@@ -70,7 +72,7 @@ describe("SelectAccountController.filteredAccounts", () => {
   });
 
   it.each([
-    { description: "returns all accounts when query is empty", query: "", expected: () => [ethAccount, btcAccount] },
+    { description: "returns all accounts sorted by fiat value descending when query is empty", query: "", expected: () => [btcAccount, ethAccount] },
     { description: "filters by account name", query: "Bitcoin", expected: () => [btcAccount] },
     { description: "filters by account address", query: "0xabc123", expected: () => [ethAccount] },
     { description: "filters by account ticker", query: "eth", expected: () => [ethAccount] },
@@ -80,5 +82,91 @@ describe("SelectAccountController.filteredAccounts", () => {
   ])("$description", ({ query, expected }) => {
     controller.searchQuery = query;
     expect(controller.filteredAccounts).toEqual(expected());
+  });
+});
+
+describe("SelectAccountController.filteredAccounts sorting", () => {
+  let controller: SelectAccountController;
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      {} as Navigation,
+    );
+  });
+
+  it("sorts accounts by fiat balance descending", () => {
+    const lowValue = createAccount({
+      id: "low",
+      name: "Low",
+      fiatBalance: { value: "100.00", currency: "USD" },
+    });
+    const highValue = createAccount({
+      id: "high",
+      name: "High",
+      fiatBalance: { value: "5000.00", currency: "USD" },
+    });
+    const midValue = createAccount({
+      id: "mid",
+      name: "Mid",
+      fiatBalance: { value: "1000.00", currency: "USD" },
+    });
+
+    controller.accounts = [lowValue, highValue, midValue];
+    const result = controller.filteredAccounts;
+
+    expect(result.map((a) => a.id)).toEqual(["high", "mid", "low"]);
+  });
+
+  it("places accounts with no fiat balance at the end", () => {
+    const withFiat = createAccount({
+      id: "with-fiat",
+      name: "With Fiat",
+      fiatBalance: { value: "500.00", currency: "USD" },
+    });
+    const withoutFiat = createAccount({
+      id: "without-fiat",
+      name: "Without Fiat",
+      fiatBalance: undefined,
+    });
+
+    controller.accounts = [withoutFiat, withFiat];
+    const result = controller.filteredAccounts;
+
+    expect(result.map((a) => a.id)).toEqual(["with-fiat", "without-fiat"]);
+  });
+
+  it("preserves sorting after filtering", () => {
+    const ethLow = createAccount({
+      id: "eth-low",
+      name: "Ethereum Low",
+      ticker: "ETH",
+      fiatBalance: { value: "100.00", currency: "USD" },
+    });
+    const ethHigh = createAccount({
+      id: "eth-high",
+      name: "Ethereum High",
+      ticker: "ETH",
+      fiatBalance: { value: "9000.00", currency: "USD" },
+    });
+    const btc = createAccount({
+      id: "btc",
+      name: "Bitcoin",
+      ticker: "BTC",
+      fiatBalance: { value: "50000.00", currency: "USD" },
+    });
+
+    controller.accounts = [ethLow, ethHigh, btc];
+    controller.searchQuery = "ETH";
+    const result = controller.filteredAccounts;
+
+    expect(result.map((a) => a.id)).toEqual(["eth-high", "eth-low"]);
   });
 });
