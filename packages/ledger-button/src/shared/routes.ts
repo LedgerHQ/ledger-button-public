@@ -14,6 +14,7 @@ import "../domain/signing-flow/signing-flow.js";
 import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
+import "../domain/account-request/account-request-screen.js";
 import "../domain/settings/settings-screen.js";
 import "../domain/settings/security-screen.js";
 import "../domain/support/support-screen.js";
@@ -62,7 +63,7 @@ export class LedgerButton404 extends LitElement {
   }
 }
 
-export type Destinations = Record<string, Destination>;
+export type Destinations = Record;
 export type CanGoBackValue = boolean | ((core: CoreContext) => boolean);
 export type Destination = {
   name: string;
@@ -260,6 +261,15 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.settings?.support?.title ?? "Help & Support",
+        canClose: true,
+      },
+    },
+    accountRequest: {
+      name: "accountRequest",
+      component: "account-request-screen",
+      canGoBack: false,
+      toolbar: {
+        title: translation.accountRequest?.title,
         canClose: true,
       },
     },
