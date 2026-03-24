@@ -7,11 +7,13 @@ import { Callout, Steps } from 'nextra/components'
 
 # Get started with Ledger Wallet Provider
 
-This quick-start shows how to add the Ledger Wallet Provider to a web application and request accounts through the injected EIP-6963 provider.
+This guide shows you how to add Ledger Wallet Provider to a web application and request accounts through the EIP-6963 provider discovery protocol.
 
 <Callout type="info">
-  **Partner Program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
+  **Partner program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
 </Callout>
+
+Before you start, check the [Requirements](./requirements) to confirm your target browsers support Web HID and Web Bluetooth.
 
 ## Install the SDK
 
@@ -19,7 +21,7 @@ This quick-start shows how to add the Ledger Wallet Provider to a web applicatio
 npm install @ledgerhq/ledger-wallet-provider
 ```
 
-Optionally install with `yarn` or `pnpm` if that aligns with your tooling.
+You can also install with `yarn` or `pnpm`.
 
 ## Initialize the provider
 
@@ -27,40 +29,40 @@ Optionally install with `yarn` or `pnpm` if that aligns with your tooling.
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
-// Initialize the Ledger provider
 const cleanup = initializeLedgerProvider({
+  dAppIdentifier: 'my-dapp',        // Your dApp identifier
+  apiKey: 'your-api-key',           // Your Ledger API key
+  loggerLevel: 'info',              // Log level: 'fatal', 'error', 'warn', 'info', 'debug'
+  target: document.body,            // Where to mount the UI (default: document.body)
+  dmkConfig: undefined,             // Device Management Kit configuration (optional)
   devConfig: {
     stub: {
-      base: false,              // Enable base stub mode for development
-      account: false,           // Enable account stubbing
-      device: false,            // Enable device stubbing
-      web3Provider: false,      // Enable Web3 provider stubbing
-      dAppConfig: false,        // Enable dApp config stubbing
+      base: false,          // Set to true to enable base stub mode
+      account: false,       // Set to true to stub account operations
+      device: false,        // Set to true to stub signer interactions
+      web3Provider: false,  // Set to true to stub Web3 provider responses
+      dAppConfig: false,    // Set to true to stub dApp configuration
     },
   },
-  target: document.body,        // Optional: specify where to mount the UI
-  dAppIdentifier: 'my-dapp',   // Your dApp identifier
-  apiKey: 'your-api-key',      // Your Ledger API key
-  loggerLevel: 'info',         // Log level: 'debug', 'info', 'warn', 'error'
-  dmkConfig: undefined,        // Device Management Kit configuration (optional)
 })
 ```
 
-See the [Configuration](/docs/ledger-wallet-provider/configuration) page for detailed information about all available options.
+`initializeLedgerProvider` mounts the Ledger UI and registers the provider with the EIP-6963 discovery protocol. It returns a cleanup function — call it when your application unmounts to remove the UI and deregister event listeners.
+
+See [Configuration](./configuration) for the full list of available options.
 
 ## Discover the provider (EIP-6963)
 
-```ts
-window.dispatchEvent(new Event('eip6963:requestProvider'))
-```
-
-Listen for provider announcements:
+Listen for provider announcements before dispatching the request event:
 
 ```ts
 window.addEventListener('eip6963:announceProvider', (event) => {
-  const detail = event as CustomEvent
-  console.log('Ledger provider discovered', detail.detail)
+  const { provider, info } = (event as CustomEvent).detail
+  console.log('Ledger provider discovered', info.name)
+  // Store provider for later use
 })
+
+window.dispatchEvent(new Event('eip6963:requestProvider'))
 ```
 
 ## Request accounts
@@ -72,7 +74,7 @@ const accounts = await provider.request({
 })
 ```
 
-Once users connect their device through the Ledger Wallet Provider flow, you will receive accounts and can start signing transactions or messages.
+Once users connect their signer through the Ledger Wallet Provider flow, you receive accounts and can start signing transactions or messages.
 
 ## Complete React example
 
@@ -98,23 +100,13 @@ function useProviders() {
     // Dynamic import is required because the library uses browser APIs
     // and won't work with Server-Side Rendering (SSR)
     const initializeProvider = async () => {
-      await import('@ledgerhq/ledger-wallet-provider/styles.css') // Import styles dynamically
+      await import('@ledgerhq/ledger-wallet-provider/styles.css')
       const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider')
 
       const cleanup = initializeLedgerProvider({
-        devConfig: {
-          stub: {
-            base: false,              // Set to true for development
-            account: false,           // Enable account stubbing
-            device: false,            // Enable device stubbing
-            web3Provider: false,      // Enable Web3 provider stubbing
-            dAppConfig: false,        // Enable dApp config stubbing
-          },
-        },
         dAppIdentifier: 'my-dapp',
         apiKey: 'your-api-key',
-        loggerLevel: 'info',         // Log level configuration
-        dmkConfig: undefined,       // Device Management Kit config (optional)
+        loggerLevel: 'info',
       })
 
       window.addEventListener('eip6963:announceProvider', handleAnnounceProvider)
@@ -182,7 +174,7 @@ function App() {
 
       {selectedProvider && (
         <button onClick={connectWallet}>
-          Request Accounts
+          Request accounts
         </button>
       )}
 
@@ -194,10 +186,21 @@ function App() {
 
 <Callout type="info">
 **Why dynamic imports are necessary:**
-- The library uses Web APIs (`window`, `document`, `CustomEvent`) that don't exist in Node.js
-- Direct imports will cause build errors in SSR frameworks (Next.js, Nuxt, SvelteKit, etc.)
+- The library uses Web APIs (`window`, `document`, `CustomEvent`) that do not exist in Node.js
+- Direct imports cause build errors in SSR frameworks (Next.js, Nuxt, SvelteKit, etc.)
 - Dynamic imports ensure the code only runs in the browser environment
 </Callout>
+
+## Troubleshooting
+
+**The `eip6963:announceProvider` event never fires.**
+Make sure `initializeLedgerProvider` has been called before dispatching `eip6963:requestProvider`. The provider announces itself immediately on initialization and again in response to any subsequent `eip6963:requestProvider` event. If the browser does not support Web HID or Web Bluetooth, the provider is not registered and no announcement is dispatched. Check the [Requirements](./requirements) page and confirm the browser console shows no errors from the SDK.
+
+**`request()` rejects with error code `-32603` and message "Ledger Provider is busy".**
+A blocking request (signing or account selection) is already in progress. The provider processes one blocking request at a time. Wait for the current request to complete or be rejected before sending another.
+
+**`request()` rejects with error code `4100` ("Unauthorized").**
+`eth_requestAccounts` has not been called yet, or the user disconnected. Call `eth_requestAccounts` first to prompt the user to select an account.
 
 ## Next steps
 
@@ -205,10 +208,10 @@ function App() {
 
 ### Customize your integration
 
-Explore [Configuration](/docs/ledger-wallet-provider/configuration) options to set up chain support, connection methods, and behavior.
+Explore [Configuration](./configuration) options to set up chain support, floating button position, and wallet action buttons.
 
 ### Review the API
 
-Deep-dive into provider methods, events, and TypeScript types in the [API Reference](/docs/ledger-wallet-provider/api-reference).
+Read the full list of provider methods, events, and error codes in the [API reference](./api-reference).
 
 </Steps>
