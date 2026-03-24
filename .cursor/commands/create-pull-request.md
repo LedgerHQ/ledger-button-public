@@ -18,9 +18,9 @@ Use the output to determine which phases to execute:
 
 | Current branch | Uncommitted changes? | Commits ahead of develop? | Phases to run |
 |---|---|---|---|
-| `develop` | yes | — | 1 → 2 → 3 → 4 |
-| feature branch | yes | — | 2 → 3 → 4 |
-| feature branch | no | yes | 3 → 4 |
+| `develop` | yes | — | 1 → 2 → 2.5 → 3 → 4 |
+| feature branch | yes | — | 2 → 2.5 → 3 → 4 |
+| feature branch | no | yes | 2.5 → 3 → 4 |
 | feature branch | no | no | Nothing to do — inform the user |
 
 ## Step 1. Gather Shared Information
@@ -95,6 +95,47 @@ Skip this phase if the working tree is clean and staging area is empty.
 
 4. If there are multiple logical changes, create atomic commits for each.
 
+## Phase 2.5 — Version Plan (conditional: only if releasable packages are touched)
+
+Skip this phase **only** if the changes do **not** touch `packages/ledger-button/` or `packages/ledger-button-core/` (the two releasable packages: `@ledgerhq/ledger-wallet-provider` and `@ledgerhq/ledger-wallet-provider-core`).
+
+Also skip if **all** changed files in those packages match the ignore patterns (`*.spec.ts`, `*.test.ts`, `*.stories.tsx`, `*.stories.ts`) — these are excluded from `plan:check` in CI.
+
+Otherwise, a version plan **must** be created — CI will reject the PR without one.
+
+1. Determine which releasable packages are affected by inspecting changed files:
+   ```bash
+   git diff --name-only develop..HEAD
+   ```
+
+2. Create a version plan file in `.nx/version-plans/` with the affected packages and the appropriate semver bump. Use the type of change from Step 1 to determine the bump:
+
+   | Type | Bump |
+   |------|------|
+   | Breaking change | `major` |
+   | Feature | `minor` |
+   | Bug fix, Performance, Dependencies, Types | `patch` |
+   | Refactor, Chore/config, Remove code, Style/format, Documentation, CI, Lint fixes | `none` |
+
+   The `none` bump acknowledges the change for changelog purposes without incrementing the version.
+
+   Write the file directly (filename: `version-plan-<timestamp>.md`):
+   ```markdown
+   ---
+   "@ledgerhq/ledger-wallet-provider-core": minor
+   ---
+
+   <Description from Step 1>
+   ```
+
+   If multiple releasable packages are affected, list them all in the same file.
+
+3. Stage and commit the version plan:
+   ```bash
+   git add .nx/version-plans/
+   git commit -m "🔖 (version): Add version plan"
+   ```
+
 ## Phase 3 — Pre-flight Checks
 
 Run before creating the PR:
@@ -158,3 +199,4 @@ gh pr create --title "<title>" --body "<body>" --base develop
 - Squash/cleanup tiny commits before creating PR
 - PR must pass required CI actions
 - Validate commit messages with `pnpm danger:local` if in doubt
+- PRs touching releasable packages **must** include a version plan file in `.nx/version-plans/` (CI enforces this via `nx release plan:check`)
