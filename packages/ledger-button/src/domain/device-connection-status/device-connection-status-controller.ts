@@ -37,10 +37,10 @@ export class DeviceConnectionStatusController {
   }
 
   private async handleSuccessfulConnection() {
-    const pendingTransactionParams =
-      this.coreContext.getPendingTransactionParams();
+    const craftedTransactionParams =
+      this.coreContext.getCraftedTransactionParams();
 
-    if (pendingTransactionParams) {
+    if (craftedTransactionParams) {
       this.navigation.navigateTo(this.destinations.signTransaction);
     } else {
       this.navigation.navigateTo(this.destinations.ledgerSync);
