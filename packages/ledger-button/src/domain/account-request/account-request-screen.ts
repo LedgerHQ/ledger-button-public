@@ -1,6 +1,5 @@
 import "../../components/index.js";
 
-import type { AccountWithFiat } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -39,25 +38,6 @@ export class AccountRequestScreen extends LitElement {
     this.controller = new AccountRequestController(this, this.coreContext);
   }
 
-  private renderAccountItem(account: AccountWithFiat) {
-    return html`
-      <ledger-account-item
-        .title=${account.name}
-        .address=${account.freshAddress}
-        .ledgerId=${account.id}
-        .ticker=${account.ticker}
-        .balance=${account.balance ?? "0"}
-        .tokens=${0}
-        .currencyId=${account.currencyId}
-        .isBalanceLoading=${this.controller.isAccountBalanceLoading(account.id)}
-        .isBalanceError=${this.controller.hasAccountBalanceError(account.id)}
-        .fiatBalance=${this.controller.getAccountFiatValue(account.id)}
-        .isFiatLoading=${this.controller.isAccountFiatLoading(account.id)}
-        .isFiatError=${this.controller.hasAccountFiatError(account.id)}
-      ></ledger-account-item>
-    `;
-  }
-
   override render() {
     const translations = this.languages.currentTranslation;
     const accountRequest = translations.accountRequest;
@@ -67,33 +47,43 @@ export class AccountRequestScreen extends LitElement {
     }
 
     return html`
-      <div class="flex min-h-0 flex-col gap-24 p-24 pt-8">
-        <p class="text-muted body-2">${accountRequest.description}</p>
+      <ledger-drawer @drawer-close=${() => this.controller.handleReject()}>
+        <div class="flex flex-col items-center gap-32 text-center">
+          <div
+            class="flex h-64 w-64 items-center justify-center rounded-full bg-muted-transparent"
+          >
+            <ledger-icon
+              type="info"
+              size="large"
+              fillColor="white"
+            ></ledger-icon>
+          </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto">
-          <div class="flex flex-col gap-8">
-            ${this.controller.sortedAccounts.map((account) =>
-              this.renderAccountItem(account),
-            )}
+          <div class="flex flex-col gap-12">
+            <h3 class="font-semibold text-base heading-4">
+              ${accountRequest.title}
+            </h3>
+            <p class="text-muted opacity-60 body-1">
+              ${accountRequest.description}
+            </p>
+          </div>
+
+          <div class="flex w-full flex-col gap-12">
+            <ledger-button
+              variant="primary"
+              size="full"
+              label=${accountRequest.allowButton}
+              @click=${() => this.controller.handleAllow()}
+            ></ledger-button>
+            <ledger-button
+              variant="secondary"
+              size="full"
+              label=${accountRequest.rejectButton}
+              @click=${() => this.controller.handleReject()}
+            ></ledger-button>
           </div>
         </div>
-
-        <div class="grid gap-12" style="grid-template-columns: 1fr 1fr;">
-          <ledger-button
-            variant="secondary"
-            size="full"
-            .label=${accountRequest.rejectButton}
-            @click=${() => this.controller.handleReject()}
-          ></ledger-button>
-
-          <ledger-button
-            variant="primary"
-            size="full"
-            .label=${accountRequest.allowButton}
-            @click=${() => this.controller.handleAllow()}
-          ></ledger-button>
-        </div>
-      </div>
+      </ledger-drawer>
     `;
   }
 }
