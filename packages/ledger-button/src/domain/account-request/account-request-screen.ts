@@ -4,7 +4,6 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
@@ -23,10 +22,6 @@ export class AccountRequestScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
-  @consume({ context: coreContext })
-  @property({ attribute: false })
-  public coreContext!: CoreContext;
-
   @consume({ context: langContext })
   @property({ attribute: false })
   public languages!: LanguageContext;
@@ -35,7 +30,7 @@ export class AccountRequestScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new AccountRequestController(this, this.coreContext);
+    this.controller = new AccountRequestController(this);
   }
 
   override render() {

@@ -9,15 +9,6 @@ import { Subscription } from "rxjs";
 
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext } from "../../../context/core-context.js";
-import {
-  getAccountFiatValue,
-  hasAccountBalanceError,
-  hasAccountFiatError,
-  isAccountBalanceLoading,
-  isAccountFiatLoading,
-  sortAccountsByFiatBalance,
-} from "../../../shared/account-helpers.js";
-import { DEFAULT_FIAT_CURRENCY } from "../../../shared/constants/index.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
@@ -43,7 +34,11 @@ export class SelectAccountController implements ReactiveController {
         )
       : [...this.accounts];
 
-    return sortAccountsByFiatBalance(accounts);
+    return accounts.sort((a, b) => {
+      const aValue = a.fiatBalance ? parseFloat(a.fiatBalance.value) : 0;
+      const bValue = b.fiatBalance ? parseFloat(b.fiatBalance.value) : 0;
+      return bValue - aValue;
+    });
   }
 
   get isBalanceLoading(): boolean {
@@ -77,43 +72,45 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core
-      .getAccounts(DEFAULT_FIAT_CURRENCY)
-      .subscribe({
-        next: (accounts) => {
-          this.accounts = accounts;
-          this.isAccountsLoading = false;
-          this.host.requestUpdate();
-        },
-        error: (error) => {
-          this.isAccountsLoading = false;
-          console.error("Failed to fetch accounts", error);
-          this.host.requestUpdate();
-        },
-        complete: () => {
-          this.host.requestUpdate();
-        },
-      });
+    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+      next: (accounts) => {
+        this.accounts = accounts;
+        this.isAccountsLoading = false;
+        this.host.requestUpdate();
+      },
+      error: (error) => {
+        this.isAccountsLoading = false;
+        console.error("Failed to fetch accounts", error);
+        this.host.requestUpdate();
+      },
+      complete: () => {
+        this.host.requestUpdate();
+      },
+    });
   }
 
   isAccountBalanceLoading(accountId: string): boolean {
-    return isAccountBalanceLoading(this.accounts, accountId);
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.balanceLoadingState === "loading";
   }
 
   hasAccountBalanceError(accountId: string): boolean {
-    return hasAccountBalanceError(this.accounts, accountId);
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.balanceLoadingState === "error";
   }
 
   isAccountFiatLoading(accountId: string): boolean {
-    return isAccountFiatLoading(this.accounts, accountId);
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.fiatLoadingState === "loading";
   }
 
   hasAccountFiatError(accountId: string): boolean {
-    return hasAccountFiatError(this.accounts, accountId);
+    const account = this.accounts.find((acc) => acc.id === accountId);
+    return account?.fiatLoadingState === "error";
   }
 
   getAccountFiatValue(accountId: string) {
-    return getAccountFiatValue(this.accounts, accountId);
+    return this.accounts.find((acc) => acc.id === accountId)?.fiatBalance;
   }
 
   selectAccount(account: Account) {
