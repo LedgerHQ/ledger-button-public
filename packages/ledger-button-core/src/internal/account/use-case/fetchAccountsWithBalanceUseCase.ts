@@ -36,7 +36,7 @@ export class FetchAccountsWithBalanceUseCase {
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
-    this.logger = loggerFactory("[FetchAccountsWithBalanceUseCase]");
+    this.logger = loggerFactory("FetchAccountsWithBalanceUseCase");
   }
 
   execute(): Observable<Account[]> {

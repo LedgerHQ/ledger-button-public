@@ -21,7 +21,7 @@ export class TrackWalletAction {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[TrackWalletAction UseCase]");
+    this.logger = loggerFactory("TrackWalletAction UseCase");
   }
 
   async trackWalletActionClicked(walletAction: WalletActionType): Promise<void> {

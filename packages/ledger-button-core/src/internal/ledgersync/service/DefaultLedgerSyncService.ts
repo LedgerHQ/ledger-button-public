@@ -72,7 +72,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = this.loggerFactory("[Ledger Sync Service]");
+    this.logger = this.loggerFactory("Ledger Sync Service");
 
     const dmk: DeviceManagementKit = this.deviceManagementKitService.dmk;
     this.lkrpAppKit = new LedgerKeyringProtocolBuilder({

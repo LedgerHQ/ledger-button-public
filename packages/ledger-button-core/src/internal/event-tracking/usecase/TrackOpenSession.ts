@@ -19,7 +19,7 @@ export class TrackOpenSession {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[TrackOpenSession UseCase]");
+    this.logger = loggerFactory("TrackOpenSession UseCase");
   }
 
   async execute(): Promise<void> {

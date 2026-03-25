@@ -43,7 +43,7 @@ export class DefaultTransactionService implements TransactionService {
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
-    this.logger = loggerFactory("[DefaultTransactionService]");
+    this.logger = loggerFactory("DefaultTransactionService");
   }
 
   sign(

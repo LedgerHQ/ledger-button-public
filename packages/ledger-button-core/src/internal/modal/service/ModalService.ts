@@ -18,7 +18,7 @@ export class ModalService {
     @inject(eventTrackingModuleTypes.TrackOpenSession)
     private readonly trackOpenSession: TrackOpenSession,
   ) {
-    this.logger = loggerFactory("[ModalService]");
+    this.logger = loggerFactory("ModalService");
     if (window) {
       window.addEventListener("ledger-core-modal-open", this.openModal);
       window.addEventListener("ledger-core-modal-close", this.closeModal);

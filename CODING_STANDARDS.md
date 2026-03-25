@@ -113,7 +113,7 @@ export class MigrateDbUseCase {
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
   ) {
-    this.logger = this.loggerFactory("[MigrateDatabase Use Case]");
+    this.logger = this.loggerFactory("MigrateDatabase Use Case");
   }
 
   // 2. Public methods - Simple, composed of well-named private functions

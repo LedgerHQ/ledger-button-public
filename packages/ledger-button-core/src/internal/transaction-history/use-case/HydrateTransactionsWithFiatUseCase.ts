@@ -23,7 +23,7 @@ export class HydrateTransactionsWithFiatUseCase {
     @inject(balanceModuleTypes.CounterValueDataSource)
     private readonly counterValueDataSource: CounterValueDataSource,
   ) {
-    this.logger = loggerFactory("[HydrateTransactionsWithFiatUseCase]");
+    this.logger = loggerFactory("HydrateTransactionsWithFiatUseCase");
   }
 
   /**

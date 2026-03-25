@@ -40,7 +40,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[Event Tracking]");
+    this.logger = loggerFactory("Event Tracking");
     this._sessionId = generateUUID();
     this.subscribeToContextChanges();
   }
