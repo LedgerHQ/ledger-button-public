@@ -5,8 +5,10 @@ export class AccountRequestController implements ReactiveController {
     this.host.addController(this);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   hostConnected() {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   hostDisconnected() {}
 
   handleAllow() {
