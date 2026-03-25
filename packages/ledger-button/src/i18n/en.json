@@ -175,10 +175,10 @@
     "noTransactions": "No transactions found"
   },
   "accountRequest": {
-    "title": "Account access request",
-    "description": "This application is requesting access to your accounts. Review the accounts below and approve or reject the request.",
-    "allowButton": "Allow",
-    "rejectButton": "Reject"
+    "title": "Continue in Ledger Wallet",
+    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "allowButton": "Open Ledger Wallet",
+    "rejectButton": "Download Ledger Wallet"
   },
   "settings": {
     "title": "Settings",
