@@ -19,7 +19,7 @@ export class TrackLedgerSyncOpened {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[TrackLedgerSyncOpened UseCase]");
+    this.logger = loggerFactory("TrackLedgerSyncOpened UseCase");
   }
 
   async execute(): Promise<void> {

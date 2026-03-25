@@ -14,7 +14,7 @@ export class GetEncryptionKeyUseCase {
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
   ) {
-    this.logger = this.loggerFactory("[Get Encryption Key Use Case]");
+    this.logger = this.loggerFactory("Get Encryption Key Use Case");
   }
 
   async execute(): Promise<CryptoKey> {

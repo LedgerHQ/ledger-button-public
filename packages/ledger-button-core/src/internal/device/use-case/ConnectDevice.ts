@@ -20,7 +20,7 @@ export class ConnectDevice {
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
-    this.logger = loggerFactory("[ConnectDevice UseCase]");
+    this.logger = loggerFactory("ConnectDevice UseCase");
   }
 
   async execute({ type }: { type: ConnectionType }): Promise<Device> {

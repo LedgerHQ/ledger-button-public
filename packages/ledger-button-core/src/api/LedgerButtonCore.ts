@@ -93,7 +93,7 @@ export class LedgerButtonCore {
     const loggerFactory = this.container.get<Factory<LoggerPublisher>>(
       loggerModuleTypes.LoggerPublisher,
     );
-    this._logger = loggerFactory("[Ledger Button Core]");
+    this._logger = loggerFactory("Ledger Button Core");
     this._modalService = this.container.get<ModalService>(
       modalModuleTypes.ModalService,
     );

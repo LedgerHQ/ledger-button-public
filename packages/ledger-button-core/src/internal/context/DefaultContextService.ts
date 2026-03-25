@@ -32,7 +32,7 @@ export class DefaultContextService implements ContextService {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Context Service]");
+    this.logger = this.loggerFactory("Context Service");
   }
 
   observeContext(): Observable<ButtonCoreContext> {

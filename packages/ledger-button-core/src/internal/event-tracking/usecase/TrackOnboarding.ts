@@ -25,7 +25,7 @@ export class TrackOnboarding {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackOnboarding UseCase]");
+    this.logger = loggerFactory("TrackOnboarding UseCase");
   }
 
   async execute(selectedAccount: Account): Promise<void> {

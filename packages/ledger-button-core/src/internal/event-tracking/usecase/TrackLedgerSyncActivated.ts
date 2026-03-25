@@ -23,7 +23,7 @@ export class TrackLedgerSyncActivated {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackLedgerSyncActivated UseCase]");
+    this.logger = loggerFactory("TrackLedgerSyncActivated UseCase");
   }
 
   async execute(): Promise<void> {
