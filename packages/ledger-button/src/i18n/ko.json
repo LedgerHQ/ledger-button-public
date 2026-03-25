@@ -5,7 +5,9 @@
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "Open Ledger account menu",
-      "label": "Ledger"
+      "label": "Ledger",
+      "pendingTransactionsHover": "대기 중인 거래가 {count}건 있습니다",
+      "newTransactionPending": "새로운 대기 중인 거래"
     },
     "search": {
       "placeholder": "계정 검색",

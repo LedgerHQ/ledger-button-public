@@ -5,7 +5,9 @@
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "Ledgerアカウントメニューを開く",
-      "label": "Ledger"
+      "label": "Ledger",
+      "pendingTransactionsHover": "保留中のトランザクションが{count}件あります",
+      "newTransactionPending": "新しい保留中のトランザクション"
     },
     "search": {
       "placeholder": "アカウントを検索",

@@ -5,7 +5,9 @@
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "افتح قائمة حساب Ledger",
-      "label": "Ledger"
+      "label": "Ledger",
+      "pendingTransactionsHover": "لديك {count} معاملات قيد الانتظار",
+      "newTransactionPending": "معاملة جديدة قيد الانتظار"
     },
     "search": {
       "placeholder": "ابحث في الحساب",
