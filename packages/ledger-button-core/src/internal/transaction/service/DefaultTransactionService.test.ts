@@ -170,9 +170,6 @@ describe("DefaultTransactionService", () => {
         expect(useCase.execute).toHaveBeenCalledTimes(1);
       });
 
-      it("should set pending params", () => {
-        expect(service.getPendingTransaction()).toEqual(params);
-      });
       it("should return observable from signTransactionUseCase", async () => {
         const result$ = service.sign(params);
 
@@ -182,36 +179,9 @@ describe("DefaultTransactionService", () => {
     });
   });
 
-  describe("getPendingTransaction", () => {
-    it("should return undefined initially", () => {
-      expect(service.getPendingTransaction()).toBeUndefined();
-    });
-
-    it("should return the most recent pending params", () => {
-      service.setPendingTransaction(mockSignTransactionParams);
-      expect(service.getPendingTransaction()).toEqual(
-        mockSignTransactionParams,
-      );
-    });
-  });
-
-  describe("setPendingTransaction", () => {
-    it("should set pending params", () => {
-      service.setPendingTransaction(mockSignTransactionParams);
-
-      expect(service.getPendingTransaction()).toEqual(
-        mockSignTransactionParams,
-      );
-    });
-  });
-
   describe("reset", () => {
-    beforeEach(() => {
-      service.setPendingTransaction(mockSignTransactionParams);
-    });
-    it("should clear pending params", () => {
-      service.reset();
-      expect(service.getPendingTransaction()).toBeUndefined();
+    it("should not throw", () => {
+      expect(() => service.reset()).not.toThrow();
     });
   });
 });
