@@ -9,4 +9,6 @@ export type PendingTransaction = {
   ticker: string;
   currencyName: string;
   ledgerId: string;
+  fiatValue?: string;
+  fiatCurrency?: string;
 };
