@@ -2,14 +2,9 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
-import type {
-  PendingTransaction,
-  TransactionHistoryItem,
-} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import type { Subscription } from "rxjs";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
@@ -30,7 +25,6 @@ import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
-import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
 const styles = css`
@@ -57,51 +51,6 @@ const styles = css`
     );
   }
 `;
-
-function mapTransactionHistoryToListItem(
-  transaction: TransactionHistoryItem,
-): TransactionListItem {
-  const date = new Date(transaction.timestamp);
-  const dateString = date.toISOString().split("T")[0];
-  const timeString = date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return {
-    hash: transaction.hash,
-    type: transaction.type,
-    date: dateString,
-    time: timeString,
-    amount: transaction.formattedValue,
-    ticker: transaction.ticker,
-    title: transaction.currencyName,
-    fiatAmount: transaction.fiatValue ?? "",
-    fiatCurrency: transaction.fiatCurrency ?? "",
-  };
-}
-
-function mapPendingTransactionToListItem(
-  tx: PendingTransaction,
-): TransactionListItem {
-  const date = new Date(tx.timestamp);
-  const timeString = date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return {
-    hash: tx.hash,
-    type: tx.type,
-    date: date.toISOString().split("T")[0],
-    time: timeString,
-    amount: tx.formattedValue,
-    ticker: tx.ticker,
-    title: tx.currencyName,
-    fiatAmount: "",
-    fiatCurrency: "",
-  };
-}
 
 @customElement("ledger-home-screen")
 @tailwindElement(styles)
@@ -132,11 +81,7 @@ export class LedgerHomeScreen extends LitElement {
   @state()
   private currentAction: WalletTransactionFeature | null = null;
 
-  @state()
-  private pendingTransactions: PendingTransaction[] = [];
-
   controller!: LedgerHomeController;
-  private pendingTxSubscription?: Subscription;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -146,16 +91,6 @@ export class LedgerHomeScreen extends LitElement {
       this.navigation,
       this.destinations,
     );
-    this.pendingTxSubscription = this.coreContext
-      .observePendingTransactions()
-      .subscribe((txs) => {
-        this.pendingTransactions = txs;
-      });
-  }
-
-  override disconnectedCallback() {
-    super.disconnectedCallback();
-    this.pendingTxSubscription?.unsubscribe();
   }
 
   private handleAccountItemClick = (
@@ -228,21 +163,6 @@ export class LedgerHomeScreen extends LitElement {
     this.currentAction = null;
   };
 
-  private getTransactionListItems(): TransactionListItem[] {
-    const account = this.controller.selectedAccount;
-    if (!account?.transactionHistory) {
-      return [];
-    }
-
-    return account.transactionHistory.map((tx) =>
-      mapTransactionHistoryToListItem(tx),
-    );
-  }
-
-  private getPendingTransactionListItems(): TransactionListItem[] {
-    return this.pendingTransactions.map(mapPendingTransactionToListItem);
-  }
-
   override render() {
     if (this.controller.loading) {
       return html`
@@ -303,7 +223,7 @@ export class LedgerHomeScreen extends LitElement {
                 {
                   id: "transactions",
                   label: "Transactions",
-                  badge: this.pendingTransactions.length || undefined,
+                  badge: this.controller.pendingTransactionListItems.length || undefined,
                 },
               ]}
               .selectedId=${this.activeTab}
@@ -316,8 +236,8 @@ export class LedgerHomeScreen extends LitElement {
                 .account=${account}
               ></token-list-screen>`
             : html`<transaction-list-screen
-                .transactions=${this.getTransactionListItems()}
-                .pendingTransactions=${this.getPendingTransactionListItems()}
+                .transactions=${this.controller.transactionListItems}
+                .pendingTransactions=${this.controller.pendingTransactionListItems}
               ></transaction-list-screen>`}
 
           <ledger-button
