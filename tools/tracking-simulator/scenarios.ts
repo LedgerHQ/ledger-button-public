@@ -1,12 +1,3 @@
-/**
- * Tracking event scenarios that simulate real user flows.
- *
- * Each scenario is a named sequence of event factories.
- * Reusable by the test dapp (LBD-363) and this CLI runner.
- */
-
-// ── Helpers ──────────────────────────────────────────────────────────
-
 function uuid(): string {
   return crypto.randomUUID();
 }
@@ -17,8 +8,6 @@ function hexHash(length = 64): string {
     chars.charAt(Math.floor(Math.random() * chars.length)),
   ).join("");
 }
-
-// ── Types ────────────────────────────────────────────────────────────
 
 export type Environment = "staging" | "production";
 
@@ -40,8 +29,6 @@ export interface Scenario {
   description: string;
   buildEvents: (ctx: ScenarioContext) => EventRequest[];
 }
-
-// ── Event factories ──────────────────────────────────────────────────
 
 function baseData(ctx: ScenarioContext) {
   return {
@@ -268,12 +255,10 @@ function errorOccurred(ctx: ScenarioContext): EventRequest {
   };
 }
 
-// ── Scenarios ────────────────────────────────────────────────────────
-
 export const scenarios: Scenario[] = [
   {
     name: "onboarding",
-    description: "Full onboarding flow: consent → session → ledger sync → onboarding",
+    description: "Onboarding: consent > session > ledger sync > onboarding",
     buildEvents: (ctx) => [
       consentGiven(ctx),
       openSession(ctx),
@@ -284,7 +269,7 @@ export const scenarios: Scenario[] = [
   },
   {
     name: "transaction",
-    description: "Transaction signing: button click → tx init → auth → tx completion",
+    description: "Transaction signing: button click > tx init > auth > tx completion",
     buildEvents: (ctx) => [
       floatingButtonClicked(ctx),
       transactionFlowInitialization(ctx),
@@ -294,7 +279,7 @@ export const scenarios: Scenario[] = [
   },
   {
     name: "message-signing",
-    description: "Typed message signing: init → completion",
+    description: "Typed message signing: init > completion",
     buildEvents: (ctx) => [
       typedMessageFlowInitialization(ctx),
       typedMessageFlowCompletion(ctx),
@@ -302,12 +287,12 @@ export const scenarios: Scenario[] = [
   },
   {
     name: "invoicing",
-    description: "Invoicing transaction signed (always tracked, no consent needed)",
+    description: "Invoicing transaction signed",
     buildEvents: (ctx) => [invoicingTransactionSigned(ctx)],
   },
   {
     name: "wallet-action",
-    description: "Wallet action: click → redirect confirmed",
+    description: "Wallet action: click > redirect confirmed",
     buildEvents: (ctx) => [
       walletActionClicked(ctx),
       walletRedirectConfirmed(ctx),
@@ -315,12 +300,12 @@ export const scenarios: Scenario[] = [
   },
   {
     name: "error",
-    description: "Simulated error event (always tracked)",
+    description: "Error event",
     buildEvents: (ctx) => [errorOccurred(ctx)],
   },
   {
     name: "full-session",
-    description: "Complete user session: onboarding → transaction → message signing → wallet action",
+    description: "Full flow: onboarding > transaction > message signing > wallet action",
     buildEvents: (ctx) => [
       consentGiven(ctx),
       openSession(ctx),
