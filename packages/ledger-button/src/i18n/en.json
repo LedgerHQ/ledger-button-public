@@ -174,7 +174,7 @@
   "transactionList": {
     "noTransactions": "No transactions found"
   },
-  "accountRequest": {
+  "mobileOnboarding": {
     "title": "Continue in Ledger Wallet",
     "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
     "allowButton": "Open Ledger Wallet",
