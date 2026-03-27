@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { Button, Tag } from "@ledgerhq/lumen-ui-react";
-import { Chart1, CheckmarkCircle, Clock, DeleteCircle } from "@ledgerhq/lumen-ui-react/symbols";
+import { Button, Spinner, Tag } from "@ledgerhq/lumen-ui-react";
+import { Chart1, CheckmarkCircle, DeleteCircle } from "@ledgerhq/lumen-ui-react/symbols";
 
 function uuid(): string {
   return crypto.randomUUID();
@@ -437,16 +437,9 @@ export function EventSimulatorBlock({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
-          <Chart1 size={20} />
+          {isRunning ? <Spinner size={16} /> : <Chart1 size={20} />}
           Event Simulator
           <Tag appearance="accent" size="sm" label={environment} />
-          {activeScenario && (
-            <Tag
-              appearance={isRunning ? "accent" : "gray"}
-              size="sm"
-              label={activeScenario}
-            />
-          )}
         </h3>
         <span className="body-4 text-muted">{isExpanded ? "▼" : "▶"}</span>
       </div>
@@ -471,11 +464,16 @@ export function EventSimulatorBlock({
           </div>
 
           {results.length > 0 && (
-            <div className="space-y-8">
+            <div className="space-y-10">
               <div className="flex justify-between items-center">
-                <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
-                  Results
-                </h4>
+                <div className="flex items-center gap-8">
+                  <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+                    {activeScenario}
+                  </h4>
+                  <span className="body-4 text-muted">
+                    {results.filter((r) => r.status !== "pending").length}/{results.length}
+                  </span>
+                </div>
                 <div className="flex gap-8">
                   {isRunning && (
                     <Button appearance="gray" size="sm" onClick={handleStop}>
@@ -488,6 +486,15 @@ export function EventSimulatorBlock({
                     </Button>
                   )}
                 </div>
+              </div>
+
+              <div className="h-[3px] rounded-full bg-muted overflow-clip">
+                <div
+                  className="h-full rounded-full transition-all duration-300 bg-accent"
+                  style={{
+                    width: `${(results.filter((r) => r.status !== "pending").length / results.length) * 100}%`,
+                  }}
+                />
               </div>
 
               <div className="flex flex-col gap-4 max-h-[300px] overflow-y-auto">
@@ -510,7 +517,7 @@ export function EventSimulatorBlock({
                           : "text-muted"
                     }>
                       {r.status === "pending"
-                        ? <Clock size={16} />
+                        ? <Spinner size={16} />
                         : r.status === "success"
                           ? <CheckmarkCircle size={16} />
                           : <DeleteCircle size={16} />}
