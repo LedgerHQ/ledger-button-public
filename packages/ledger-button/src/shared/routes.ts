@@ -14,6 +14,7 @@ import "../domain/signing-flow/signing-flow.js";
 import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
+import "../domain/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
 import "../domain/settings/security-screen.js";
 import "../domain/support/support-screen.js";
@@ -260,6 +261,15 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.settings?.support?.title ?? "Help & Support",
+        canClose: true,
+      },
+    },
+    mobileOnboarding: {
+      name: "mobileOnboarding",
+      component: "mobile-onboarding-screen",
+      canGoBack: false,
+      toolbar: {
+        title: translation.mobileOnboarding?.title,
         canClose: true,
       },
     },
