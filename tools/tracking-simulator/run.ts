@@ -1,15 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Tracking Simulator — fire tracking events against staging or production.
- *
- * Usage:
- *   pnpm tracking:test --env staging --scenario onboarding
- *   pnpm tracking:test --env production --scenario full-session --dapp-id my-dapp
- *   pnpm tracking:test --list
- *   pnpm tracking:test --dry-run --scenario transaction
- */
-
 import { parseArgs } from "node:util";
 
 import chalk from "chalk";
@@ -118,8 +108,6 @@ const opts = {
   list: args.list!,
 };
 
-// ── Event sender ─────────────────────────────────────────────────────
-
 async function sendEvent(
   baseUrl: string,
   dAppId: string,
@@ -142,8 +130,6 @@ async function sendEvent(
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-// ── Main ─────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
   if (opts.list) {

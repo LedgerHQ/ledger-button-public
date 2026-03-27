@@ -17,7 +17,8 @@
     "test:coverage": "pnpm nx run-many -t test -- --coverage --coverage.reporter=html --coverage.reporter=text",
     "plan:check": "pnpm nx release plan:check",
     "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core",
-    "release": "pnpm nx release"
+    "release": "pnpm nx release",
+    "tracking:test": "jiti tools/tracking-simulator/run.ts"
   },
   "private": true,
   "devDependencies": {
