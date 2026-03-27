@@ -11,11 +11,11 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
-import { AccountRequestController } from "./account-request-controller.js";
+import { MobileOnboardingController } from "./mobile-onboarding-controller.js";
 
-@customElement("account-request-screen")
+@customElement("mobile-onboarding-screen")
 @tailwindElement()
-export class AccountRequestScreen extends LitElement {
+export class MobileOnboardingScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
@@ -26,18 +26,18 @@ export class AccountRequestScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  controller!: AccountRequestController;
+  controller!: MobileOnboardingController;
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new AccountRequestController(this);
+    this.controller = new MobileOnboardingController(this);
   }
 
   override render() {
     const translations = this.languages.currentTranslation;
-    const accountRequest = translations.accountRequest;
+    const mobileOnboarding = translations.mobileOnboarding;
 
-    if (!accountRequest) {
+    if (!mobileOnboarding) {
       return html`<div>${translations.common?.loading}</div>`;
     }
 
@@ -56,10 +56,10 @@ export class AccountRequestScreen extends LitElement {
 
           <div class="flex flex-col gap-12">
             <h3 class="font-semibold text-base heading-4">
-              ${accountRequest.title}
+              ${mobileOnboarding.title}
             </h3>
             <p class="text-muted opacity-60 body-1">
-              ${accountRequest.description}
+              ${mobileOnboarding.description}
             </p>
           </div>
 
@@ -67,13 +67,13 @@ export class AccountRequestScreen extends LitElement {
             <ledger-button
               variant="primary"
               size="full"
-              label=${accountRequest.allowButton}
+              label=${mobileOnboarding.allowButton}
               @click=${() => this.controller.handleAllow()}
             ></ledger-button>
             <ledger-button
               variant="secondary"
               size="full"
-              label=${accountRequest.rejectButton}
+              label=${mobileOnboarding.rejectButton}
               @click=${() => this.controller.handleReject()}
             ></ledger-button>
           </div>
@@ -85,6 +85,6 @@ export class AccountRequestScreen extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "account-request-screen": AccountRequestScreen;
+    "mobile-onboarding-screen": MobileOnboardingScreen;
   }
 }

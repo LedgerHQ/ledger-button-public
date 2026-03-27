@@ -1,11 +1,11 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-export class AccountRequestController implements ReactiveController {
+export class MobileOnboardingController implements ReactiveController {
   constructor(private readonly host: ReactiveControllerHost) {
     this.host.addController(this);
   }
 
-  // TODO: wire up account request logic
+  // TODO: wire up mobile onboarding logic
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   hostConnected() {}
 
@@ -13,10 +13,10 @@ export class AccountRequestController implements ReactiveController {
   hostDisconnected() {}
 
   handleAllow() {
-    console.log("Account request approved");
+    console.log("Mobile onboarding approved");
   }
 
   handleReject() {
-    console.log("Account request rejected");
+    console.log("Mobile onboarding rejected");
   }
 }
