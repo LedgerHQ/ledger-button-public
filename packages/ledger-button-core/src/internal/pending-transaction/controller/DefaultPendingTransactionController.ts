@@ -1,5 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, from, Observable, of, switchMap } from "rxjs";
 
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
@@ -9,6 +9,7 @@ import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
 import { type ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
+import { type HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";
 import { type PendingTransactionController } from "./PendingTransactionController.js";
 
 const POLLING_INTERVAL_MS = 10_000;
@@ -30,6 +31,10 @@ export class DefaultPendingTransactionController
     private readonly confirmUseCase: ConfirmPendingTransactionsUseCase,
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
+    @inject(
+      pendingTransactionModuleTypes.HydratePendingTransactionsWithFiatUseCase,
+    )
+    private readonly hydrateUseCase: HydratePendingTransactionsWithFiatUseCase,
   ) {
     this.logger = loggerFactory("[PendingTransactionController]");
     this.pendingTxSubject = new BehaviorSubject<PendingTransaction[]>(
@@ -44,7 +49,13 @@ export class DefaultPendingTransactionController
   }
 
   observePendingTransactions(): Observable<PendingTransaction[]> {
-    return this.pendingTxSubject.asObservable();
+    return this.pendingTxSubject.pipe(
+      switchMap((txs) =>
+        txs.length === 0
+          ? of([])
+          : from(this.hydrateUseCase.execute(txs, "usd")),
+      ),
+    );
   }
 
   private startPollingWhenAccountAvailable(): void {

@@ -9,4 +9,7 @@ export const pendingTransactionModuleTypes = {
   ConfirmPendingTransactionsUseCase: Symbol.for(
     "ConfirmPendingTransactionsUseCase",
   ),
+  HydratePendingTransactionsWithFiatUseCase: Symbol.for(
+    "HydratePendingTransactionsWithFiatUseCase",
+  ),
 } as const;
