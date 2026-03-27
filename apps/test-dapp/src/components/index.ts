@@ -1,6 +1,7 @@
 export { type ActivityEntry, ActivityLog } from "./ActivityLog";
 export { ConnectionStatus } from "./ConnectionStatus";
 export { type EIPEvent } from "./EventLogBlock";
+export { EventSimulatorBlock } from "./EventSimulatorBlock";
 export { Providers } from "./Providers";
 export { ProviderSelectionBlock } from "./ProviderSelectionBlock";
 export { SettingsBlock } from "./SettingsBlock";

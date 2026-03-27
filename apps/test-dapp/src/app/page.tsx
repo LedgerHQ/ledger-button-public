@@ -9,6 +9,7 @@ import {
   ActivityLog,
   ConnectionStatus,
   type EIPEvent,
+  EventSimulatorBlock,
   ProviderSelectionBlock,
   SettingsBlock,
   TransactionsBlock,
@@ -385,6 +386,12 @@ export default function Index() {
               result={result}
               error={error}
               onClearResult={clearResult}
+            />
+
+            <EventSimulatorBlock
+              environment={config.environment}
+              dAppIdentifier={config.dAppIdentifier}
+              apiKey={config.apiKey}
             />
           </div>
         </div>
