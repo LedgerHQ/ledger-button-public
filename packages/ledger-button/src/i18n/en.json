@@ -171,6 +171,9 @@
     "notFound": "Account not found",
     "noTokens": "No tokens found for this account"
   },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
   "transactionList": {
     "noTransactions": "No transactions found"
   },

@@ -202,6 +202,10 @@ export class RootNavigationController implements ReactiveController {
         this.navigation.navigateTo(this.destinations.settings);
         break;
 
+      case "availableNetworks":
+        this.navigation.navigateTo(this.destinations.availableNetworks);
+        break;
+
       case "security":
         this.navigation.navigateTo(this.destinations.security);
         break;

@@ -15,10 +15,10 @@ import { SignTransactionParams } from "./model/signing/SignTransactionParams.js"
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import type { AccountWithFiat } from "../internal/account/service/AccountService.js";
 import {
   Account,
   type AccountService,
+  type AccountWithFiat,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
@@ -28,6 +28,8 @@ import { SortAccountsByFiatUseCase } from "../internal/account/use-case/sortAcco
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
+import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -549,6 +551,20 @@ export class LedgerButtonCore {
 
   getChainId(): number {
     return this._contextService.getContext().chainId;
+  }
+
+  async getCurrencyInfo(
+    currencyId: string,
+  ): Promise<{ name: string; ticker: string }> {
+    const result = await this.container
+      .get<CalDataSource>(balanceModuleTypes.CalDataSource)
+      .getCurrencyInformation(currencyId);
+
+    if (result.isRight()) {
+      const { name, ticker } = result.extract();
+      return { name, ticker };
+    }
+    return { name: currencyId, ticker: currencyId.toUpperCase() };
   }
 
   async trackFloatingButtonClick(): Promise<void> {

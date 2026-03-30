@@ -36,7 +36,9 @@ describe("computeNetworks", () => {
       fiatBalance: { value: "1000.00", currency: "USD" },
       tokens: [],
     });
-    expect(computeNetworks(account)).toEqual([{ id: "1", name: "ethereum" }]);
+    expect(computeNetworks(account)).toEqual([
+      { id: "1", name: "ethereum", fiatBalance: { value: "1000.00", currency: "USD" } },
+    ]);
   });
 
   it("should include token fiat in the network total", () => {
@@ -55,7 +57,11 @@ describe("computeNetworks", () => {
     });
     const networks = computeNetworks(account);
     expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+    expect(networks[0]).toEqual({
+      id: "1",
+      name: "ethereum",
+      fiatBalance: { value: "800.00", currency: "USD" },
+    });
   });
 
   it("should sort networks by fiat balance descending", () => {
@@ -73,8 +79,16 @@ describe("computeNetworks", () => {
       ],
     });
     const networks = computeNetworks(account);
-    expect(networks[0]).toEqual({ id: "137", name: "polygon" });
-    expect(networks[1]).toEqual({ id: "1", name: "ethereum" });
+    expect(networks[0]).toEqual({
+      id: "137",
+      name: "polygon",
+      fiatBalance: { value: "5000.00", currency: "USD" },
+    });
+    expect(networks[1]).toEqual({
+      id: "1",
+      name: "ethereum",
+      fiatBalance: { value: "100.00", currency: "USD" },
+    });
   });
 
   it("should treat tokens without fiatBalance as zero contribution", () => {
@@ -93,7 +107,11 @@ describe("computeNetworks", () => {
     });
     const networks = computeNetworks(account);
     expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+    expect(networks[0]).toEqual({
+      id: "1",
+      name: "ethereum",
+      fiatBalance: { value: "200.00", currency: "USD" },
+    });
   });
 
   it("should fall back to account currencyId for tokens without chain prefix", () => {
@@ -112,7 +130,11 @@ describe("computeNetworks", () => {
     });
     const networks = computeNetworks(account);
     expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+    expect(networks[0]).toEqual({
+      id: "1",
+      name: "ethereum",
+      fiatBalance: { value: "150.00", currency: "USD" },
+    });
   });
 
   it("should skip tokens whose chain prefix is not a known EVM currency", () => {
@@ -131,7 +153,11 @@ describe("computeNetworks", () => {
     });
     const networks = computeNetworks(account);
     expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({ id: "1", name: "ethereum" });
+    expect(networks[0]).toEqual({
+      id: "1",
+      name: "ethereum",
+      fiatBalance: { value: "100.00", currency: "USD" },
+    });
   });
 });
 
