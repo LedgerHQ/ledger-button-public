@@ -1,15 +1,15 @@
 {
   "common": {
     "connect": "Подключить",
-    "loading": "Loading...",
+    "loading": "Загружаем...",
     "appTitle": "Ledger Wallet",
     "floatingButton": {
-      "ariaLabel": "Open Ledger account menu",
+      "ariaLabel": "Открыть меню счёта Ledger",
       "label": "Ledger"
     },
     "search": {
-      "placeholder": "Search account",
-      "clearAriaLabel": "Clear search"
+      "placeholder": "Поиск счёта",
+      "clearAriaLabel": "Очистить поиск"
     },
     "button": {
       "connect": "Подключите устройство Ledger",
@@ -56,7 +56,7 @@
     }
   },
   "home": {
-    "title": "Your Ledger Wallet",
+    "title": "Ваше приложение Ledger Wallet",
     "balance": "Баланс"
   },
   "walletActions": {
@@ -168,11 +168,20 @@
   },
   "accountTokens": {
     "title": "Токены счёта",
-    "notFound": "Account not found",
+    "notFound": "Не нашли такой счёт",
     "noTokens": "Не нашли токенов для этого счёта"
   },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
   "transactionList": {
-    "noTransactions": "No transactions found"
+    "noTransactions": "Не нашли транзакции"
+  },
+  "mobileOnboarding": {
+    "title": "Продолжите в Ledger Wallet",
+    "description": "Для более плавного взаимодействия это децентрализованное приложение откроется непосредственно в приложении Ledger Wallet",
+    "allowButton": "Открыть Ledger Wallet",
+    "rejectButton": "Загрузите Ledger Wallet"
   },
   "settings": {
     "title": "Настройки",
