@@ -7,61 +7,63 @@ import { Callout } from "nextra/components";
 
 # Configuration
 
-This page describes all available configuration options for `initializeLedgerProvider`.
+This page describes all available configuration options for `initializeLedgerProvider`. See [Get started](./get-started) for usage and [API reference](./api-reference) for the function signature.
 
 ## Configuration options
 
 ```typescript
 {
+  // Core options
+  apiKey?: string;                                    // Your Ledger API key
+  dAppIdentifier?: string;                            // Your dApp identifier
+  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // Log verbosity (default: 'info')
+  environment?: 'staging' | 'production';             // Target Ledger backend environment
+  dmkConfig?: DeviceModuleOptions;                    // Device Management Kit configuration (optional)
+
+  // UI options
+  target?: HTMLElement;                               // Where to mount the UI (default: document.body)
+  floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
+  floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
+  walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
+
+  // Development options
   devConfig?: {
     stub?: {
-      base?: boolean;            // Enable base stub mode for development (default: false)
-      account?: boolean;         // Enable account stubbing (default: false)
-      device?: boolean;          // Enable device stubbing (default: false)
-      web3Provider?: boolean;    // Enable Web3 provider stubbing (default: false)
-      dAppConfig?: boolean;      // Enable dApp config stubbing (default: false)
+      base?: boolean;              // Enable base stub mode (default: false)
+      account?: boolean;           // Stub account operations (default: false)
+      balance?: boolean;           // Stub account balances (default: false)
+      device?: boolean;            // Stub signer interactions (default: false)
+      web3Provider?: boolean;      // Stub Web3 provider responses (default: false)
+      dAppConfig?: boolean;        // Stub dApp configuration (default: false)
+      transactionHistory?: boolean; // Stub transaction history (default: false)
     };
   };
-  target?: HTMLElement;        // Target element to mount UI (default: document.body)
-  floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
-  floatingButtonTarget?: HTMLElement | string;  // Element or CSS selector to anchor the floating button to
-  dAppIdentifier?: string;     // Your dApp identifier
-  apiKey?: string;             // Your Ledger API key
-  loggerLevel?: string;        // Log level: 'debug', 'info', 'warn', 'error' (default: 'info')
-  dmkConfig?: any;             // Device Management Kit configuration (optional)
-  walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
 }
 ```
 
+All options are optional.
+
 ## Parameter details
 
-### `devConfig.stub`
+### `apiKey`
 
-Toggles local stub modes so you can simulate accounts, devices, and Web3 flows during development.
+Your Ledger API key. Required for production use.
 
-For development and testing, you can enable stub mode:
+### `dAppIdentifier`
 
-```javascript
-const cleanup = initializeLedgerProvider({
-  devConfig: {
-    stub: {
-      base: true, // Enable base stub mode
-      account: true, // Mock account operations
-      device: true, // Mock device interactions
-      web3Provider: true, // Mock Web3 provider responses
-      dAppConfig: true, // Mock dApp configuration
-    },
-  },
-  dAppIdentifier: "my-dapp",
-  apiKey: "your-api-key",
-});
-```
+Your dApp identifier. This lets Ledger validate the integration and enable remote services.
+
+### `loggerLevel`
+
+Log verbosity. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`. Default is `'info'`.
+
+### `environment`
+
+Target Ledger backend environment. Accepted values: `'staging'`, `'production'`.
 
 ### `target`
 
-Target element to mount UI. Default is `document.body`.
-
-Determines where the Ledger Wallet Provider UI mounts in your application.
+Target element to mount the Ledger Wallet Provider UI. Defaults to `document.body`.
 
 ### `floatingButtonPosition`
 
@@ -78,7 +80,7 @@ initializeLedgerProvider({
 
 ### `floatingButtonTarget`
 
-An `HTMLElement` or CSS selector string. When provided, the floating button is rendered as a compact button inside the target element instead of being positioned on screen.
+An `HTMLElement` or CSS selector string. When provided, the floating button renders as a compact button inside the target element instead of being positioned on screen.
 
 Use this to integrate the Ledger button into your own navigation bar, wallet panel, or sidebar.
 
@@ -97,29 +99,9 @@ initializeLedgerProvider({
 ```
 
 <Callout type="info">
-  When `floatingButtonTarget` is set, `floatingButtonPosition` has no effect —
-  the button is placed inside your target element instead.
+  When `floatingButtonTarget` is set, `floatingButtonPosition` has no effect.
+  The button is placed inside your target element instead.
 </Callout>
-
-### `dAppIdentifier`
-
-Your dApp identifier. This lets Ledger validate the integration and enable remote services.
-
-### `apiKey`
-
-Your Ledger API key. Required for production use.
-
-### `loggerLevel`
-
-Log level: `'debug'`, `'info'`, `'warn'`, `'error'`. Default is `'info'`.
-
-Adjusts log verbosity.
-
-### `dmkConfig`
-
-Device Management Kit configuration (optional).
-
-Passes Device Management Kit options when you need custom device policies.
 
 ### `walletTransactionFeatures`
 
@@ -127,18 +109,53 @@ An optional array of wallet transaction features to display as action buttons in
 
 Available features:
 
-- `'send'` - Send crypto
-- `'receive'` - Receive crypto
-- `'swap'` - Swap tokens
-- `'buy'` - Buy crypto
-- `'earn'` - Earn rewards
-- `'sell'` - Sell crypto
+- `'send'` — Send crypto
+- `'receive'` — Receive crypto
+- `'swap'` — Swap tokens
+- `'buy'` — Buy crypto
+- `'earn'` — Earn rewards
+- `'sell'` — Sell crypto
 
-If no features are specified, the action buttons section will not be displayed.
+If not specified, the action buttons section is not displayed.
+
+### `dmkConfig`
+
+Device Management Kit configuration (optional). Passes custom device policies to the underlying Device Management Kit.
+
+### `devConfig.stub`
+
+Toggles local stub modes so you can simulate accounts, balances, devices, and Web3 flows during development without a physical signer.
+
+| Field | Default | Stubs |
+|-------|---------|-------|
+| `base` | `false` | Base stub mode |
+| `account` | `false` | Account operations |
+| `balance` | `false` | Account balances |
+| `device` | `false` | Signer interactions |
+| `web3Provider` | `false` | Web3 provider responses |
+| `dAppConfig` | `false` | dApp configuration |
+| `transactionHistory` | `false` | Transaction history |
+
+```javascript
+const cleanup = initializeLedgerProvider({
+  devConfig: {
+    stub: {
+      base: true,
+      account: true,
+      balance: true,
+      device: true,
+      web3Provider: true,
+      dAppConfig: true,
+    },
+  },
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+});
+```
 
 ## Return value
 
-The function returns a cleanup function to remove the provider and UI components.
+`initializeLedgerProvider` returns a cleanup function. Call it to remove the provider and UI components from the DOM.
 
 ```typescript
 const cleanup = initializeLedgerProvider({ /* options */ })
@@ -147,4 +164,10 @@ const cleanup = initializeLedgerProvider({ /* options */ })
 cleanup()
 ```
 
-The cleanup function tears down the UI and event listeners if your app unmounts.
+The cleanup function removes the UI, deregisters the `eip6963:requestProvider` listener, and resets the internal provider state so a new configuration can be applied on the next call.
+
+## See also
+
+- [Get started](./get-started) — install the SDK and run your first integration
+- [API reference](./api-reference) — `initializeLedgerProvider` function signature and `LedgerEIP1193Provider` methods
+- [Requirements](./requirements) — browser and platform requirements
