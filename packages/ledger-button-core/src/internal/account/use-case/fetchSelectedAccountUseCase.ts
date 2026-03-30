@@ -7,21 +7,21 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import {
-  calculateTotalFiatValue,
-  computeNetworks,
-} from "../accountFiatUtils.js";
+import { calculateTotalFiatValue } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
 import type {
   Account,
   AccountWithFiat,
   DetailedAccount,
+  Network,
 } from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
@@ -52,19 +52,24 @@ export class FetchSelectedAccountUseCase {
     private readonly hydrateWithFiatUseCase: HydrateAccountWithFiatUseCase,
     @inject(accountModuleTypes.HydrateAccountWithTxHistoryUseCase)
     private readonly hydrateWithTxHistoryUseCase: HydrateAccountWithTxHistoryUseCase,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
   ) {
     this.logger = loggerFactory("FetchSelectedAccountUseCase");
   }
 
   async execute(): Promise<Either<AccountError, DetailedAccount>> {
-    const accountResult = await this.getSelectedAccountFromContext();
+    const result = await this.getSelectedAccountFromContext();
 
-    if (accountResult.isLeft()) {
-      return accountResult;
+    if (result.isLeft()) {
+      return result;
     }
 
-    const account = accountResult.unsafeCoerce();
-    const detailedAccount = await this.hydrateDetailedAccount(account);
+    const { selected, allAccounts } = result.unsafeCoerce();
+    const detailedAccount = await this.hydrateDetailedAccount(
+      selected,
+      allAccounts,
+    );
 
     this.logger.info("Selected account fetched with details", {
       address: detailedAccount.freshAddress,
@@ -77,7 +82,7 @@ export class FetchSelectedAccountUseCase {
   }
 
   private async getSelectedAccountFromContext(): Promise<
-    Either<AccountError, Account>
+    Either<AccountError, { selected: Account; allAccounts: Account[] }>
   > {
     const context = this.contextService.getContext();
 
@@ -107,29 +112,58 @@ export class FetchSelectedAccountUseCase {
       );
     }
 
-    return Right(account);
+    return Right({ selected: account, allAccounts: accounts });
   }
 
   private async hydrateDetailedAccount(
     account: Account,
+    allAccounts: Account[],
   ): Promise<DetailedAccount> {
     const withBalance = await this.hydrateWithBalanceUseCase.execute(account);
 
-    const [withFiat, withTxHistory] = await Promise.all([
+    const [withFiat, withTxHistory, networks] = await Promise.all([
       this.hydrateWithFiatUseCase.execute(withBalance),
       this.hydrateWithTxHistoryUseCase.execute(withBalance),
+      this.computeNetworksFromAllAccounts(account, allAccounts),
     ]);
 
-    return this.mergeHydrations(withBalance, withFiat, withTxHistory);
+    return this.mergeHydrations(withBalance, withFiat, withTxHistory, networks);
+  }
+
+  private async computeNetworksFromAllAccounts(
+    selectedAccount: Account,
+    allAccounts: Account[],
+  ): Promise<Network[]> {
+    const matching = allAccounts.filter(
+      (a) => a.freshAddress === selectedAccount.freshAddress,
+    );
+
+    const networks = await Promise.all(
+      matching.map(async (a) => {
+        const [calResult, withFiat] = await Promise.all([
+          this.calDataSource.getCurrencyInformation(a.currencyId),
+          this.hydrateWithFiatUseCase.execute(a),
+        ]);
+        const info = calResult.isRight() ? calResult.extract() : undefined;
+        return {
+          id: a.currencyId,
+          name: info?.name ?? a.currencyId,
+          ticker: info?.ticker ?? a.ticker,
+          fiatBalance: withFiat.fiatBalance,
+        };
+      }),
+    );
+
+    return networks;
   }
 
   private mergeHydrations(
     withBalance: Account,
     withFiat: AccountWithFiat,
     withTxHistory: AccountWithTransactionHistory,
+    networks: Network[],
   ): DetailedAccount {
     const totalFiatValue = calculateTotalFiatValue(withFiat);
-    const networks = computeNetworks(withFiat);
     return {
       ...withBalance,
       fiatBalance: withFiat.fiatBalance,

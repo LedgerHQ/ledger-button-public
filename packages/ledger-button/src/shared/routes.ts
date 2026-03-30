@@ -19,6 +19,7 @@ import "../domain/settings/settings-screen.js";
 import "../domain/settings/security-screen.js";
 import "../domain/support/support-screen.js";
 import "../domain/home-flow/home-flow.js";
+import "../domain/available-networks/available-networks.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -241,6 +242,15 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.settings?.title,
+        canClose: true,
+      },
+    },
+    availableNetworks: {
+      name: "availableNetworks",
+      component: "available-networks-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.availableNetworks?.title,
         canClose: true,
       },
     },
