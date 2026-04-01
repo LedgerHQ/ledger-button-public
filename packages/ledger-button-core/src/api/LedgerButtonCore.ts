@@ -542,6 +542,12 @@ export class LedgerButtonCore {
     this.container.get<Config>(configModuleTypes.Config).setLogLevel(logLevel);
   }
 
+  isMobile() {
+    return this.container
+      .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
+      .execute();
+  }
+
   isSupportedPlatform() {
     return this.container
       .get<IsSupportedPlatformUseCase>(
