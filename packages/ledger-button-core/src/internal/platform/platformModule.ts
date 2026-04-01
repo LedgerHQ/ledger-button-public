@@ -1,0 +1,18 @@
+import { ContainerModule } from "inversify";
+
+import { platformModuleTypes } from "./platformModuleTypes.js";
+import { IsLedgerLiveMobileUseCase } from "./use-case/IsLedgerLiveMobileUseCase.js";
+import { IsMobileUseCase } from "./use-case/IsMobileUseCase.js";
+import { IsSupportedPlatformUseCase } from "./use-case/IsSupportedPlatformUseCase.js";
+
+export function platformModuleFactory() {
+  return new ContainerModule(({ bind }) => {
+    bind(platformModuleTypes.IsMobileUseCase).to(IsMobileUseCase);
+    bind(platformModuleTypes.IsLedgerLiveMobileUseCase).to(
+      IsLedgerLiveMobileUseCase,
+    );
+    bind(platformModuleTypes.IsSupportedPlatformUseCase).to(
+      IsSupportedPlatformUseCase,
+    );
+  });
+}

@@ -14,6 +14,7 @@ import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrac
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
+import { platformModuleFactory } from "./platform/platformModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
@@ -63,6 +64,7 @@ export function createContainer({
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
+    platformModuleFactory(),
     modalModuleFactory(),
     contextModuleFactory(),
   );
