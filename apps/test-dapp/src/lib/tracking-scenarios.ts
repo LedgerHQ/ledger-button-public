@@ -187,7 +187,6 @@ export const SCENARIOS: Scenario[] = [
       onboarding(ctx),
       floatingButtonClicked(ctx),
       transactionFlowInitialization(ctx),
-      sessionAuthentication(ctx),
       transactionFlowCompletion(ctx),
       invoicingTransactionSigned(ctx),
       typedMessageFlowInitialization(ctx),
