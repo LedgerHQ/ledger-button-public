@@ -4,6 +4,7 @@ import "../select-device/select-device.js";
 import "../ledger-sync/ledger-sync.js";
 import "../retrieving-accounts/retrieving-accounts.js";
 import "../select-account/select-account.js";
+import "../mobile-onboarding/mobile-onboarding-screen.js";
 
 import { consume } from "@lit/context";
 import { LitElement } from "lit";
