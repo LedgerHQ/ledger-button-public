@@ -14,9 +14,9 @@ import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrac
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
-import { platformModuleFactory } from "./platform/platformModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
+import { platformModuleFactory } from "./platform/platformModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/transactionHistoryModule.js";
