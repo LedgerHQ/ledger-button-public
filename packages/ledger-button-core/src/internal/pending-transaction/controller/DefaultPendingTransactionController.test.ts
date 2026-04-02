@@ -77,7 +77,6 @@ function createMockContextService(
     observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
     getContext: vi.fn().mockReturnValue(initialContext),
     onEvent: vi.fn(),
-    hydrateSelectedAccount: vi.fn(),
     _contextSubject: contextSubject,
   };
 }

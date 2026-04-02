@@ -34,7 +34,6 @@ describe("FetchSelectedAccountUseCase", () => {
   let mockContextService: {
     getContext: ReturnType<typeof vi.fn>;
     onEvent: ReturnType<typeof vi.fn>;
-    hydrateSelectedAccount: ReturnType<typeof vi.fn>;
   };
   let mockLedgerSyncService: {
     authenticate: ReturnType<typeof vi.fn>;
@@ -95,7 +94,6 @@ describe("FetchSelectedAccountUseCase", () => {
     mockContextService = {
       getContext: vi.fn(),
       onEvent: vi.fn(),
-      hydrateSelectedAccount: vi.fn(),
     };
 
     mockLedgerSyncService = {
@@ -242,10 +240,10 @@ describe("FetchSelectedAccountUseCase", () => {
       it("should hydrate context with detailed account", async () => {
         const result = await useCase.execute();
 
-        expect(mockContextService.hydrateSelectedAccount).toHaveBeenCalledWith(
-          result.unsafeCoerce(),
-        );
-        expect(mockContextService.onEvent).not.toHaveBeenCalled();
+        expect(mockContextService.onEvent).toHaveBeenCalledWith({
+          type: "hydrated_account",
+          account: result.unsafeCoerce(),
+        });
       });
 
       it("should log successful fetch with details", async () => {
