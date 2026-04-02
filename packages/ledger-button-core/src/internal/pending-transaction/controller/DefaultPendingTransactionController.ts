@@ -1,5 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
-import { BehaviorSubject, from, Observable, of, switchMap } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
@@ -34,7 +34,7 @@ export class DefaultPendingTransactionController
     @inject(
       pendingTransactionModuleTypes.HydratePendingTransactionsWithFiatUseCase,
     )
-    private readonly hydrateUseCase: HydratePendingTransactionsWithFiatUseCase,
+    private readonly hydratePendingTransactionsWithFiatUseCase: HydratePendingTransactionsWithFiatUseCase,
   ) {
     this.logger = loggerFactory("[PendingTransactionController]");
     this.pendingTxSubject = new BehaviorSubject<PendingTransaction[]>(
@@ -49,13 +49,7 @@ export class DefaultPendingTransactionController
   }
 
   observePendingTransactions(): Observable<PendingTransaction[]> {
-    return this.pendingTxSubject.pipe(
-      switchMap((txs) =>
-        txs.length === 0
-          ? of([])
-          : from(this.hydrateUseCase.execute(txs, "usd")),
-      ),
-    );
+    return this.pendingTxSubject;
   }
 
   private startPollingWhenAccountAvailable(): void {
@@ -123,7 +117,11 @@ export class DefaultPendingTransactionController
     }
   }
 
-  private emitCurrentState(): void {
-    this.pendingTxSubject.next(this.storageService.getAll());
+  private async emitCurrentState(): Promise<void> {
+    const hydratedTxs = this.hydratePendingTransactionsWithFiatUseCase.execute(
+      this.storageService.getAll(),
+      "usd",
+    );
+    this.pendingTxSubject.next(await hydratedTxs);
   }
 }
