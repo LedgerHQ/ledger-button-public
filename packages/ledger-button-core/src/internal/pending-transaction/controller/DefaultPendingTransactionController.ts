@@ -28,7 +28,7 @@ export class DefaultPendingTransactionController
     @inject(pendingTransactionModuleTypes.PendingTransactionStorageService)
     private readonly storageService: PendingTransactionStorageService,
     @inject(pendingTransactionModuleTypes.ConfirmPendingTransactionsUseCase)
-    private readonly confirmUseCase: ConfirmPendingTransactionsUseCase,
+    private readonly checkPendingStatus: ConfirmPendingTransactionsUseCase,
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
     @inject(
@@ -91,7 +91,7 @@ export class DefaultPendingTransactionController
 
     const pendingHashes = pending.map((tx) => tx.hash);
 
-    const result = await this.confirmUseCase.execute(
+    const result = await this.checkPendingStatus.execute(
       account.ticker.toLowerCase(),
       account.freshAddress,
       pendingHashes,

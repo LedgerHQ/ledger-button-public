@@ -37,7 +37,7 @@ function createMockStorageService() {
   };
 }
 
-function createMockConfirmUseCase() {
+function createMockCheckPendingStatus() {
   return {
     execute: vi.fn().mockResolvedValue(Right([])),
   };
@@ -103,21 +103,21 @@ function createPendingTx(
 describe("DefaultPendingTransactionController", () => {
   let controller: DefaultPendingTransactionController;
   let mockStorageService: ReturnType<typeof createMockStorageService>;
-  let mockConfirmUseCase: ReturnType<typeof createMockConfirmUseCase>;
+  let mockCheckPendingStatus: ReturnType<typeof createMockCheckPendingStatus>;
   let mockHydrateUseCase: ReturnType<typeof createMockHydrateUseCase>;
   let mockContextService: ReturnType<typeof createMockContextService>;
 
   beforeEach(() => {
     vi.useFakeTimers();
     mockStorageService = createMockStorageService();
-    mockConfirmUseCase = createMockConfirmUseCase();
+    mockCheckPendingStatus = createMockCheckPendingStatus();
     mockHydrateUseCase = createMockHydrateUseCase();
     mockContextService = createMockContextService();
 
     controller = new DefaultPendingTransactionController(
       createMockLoggerFactory(),
       mockStorageService,
-      mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+      mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
       mockContextService,
       mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
     );
@@ -159,58 +159,58 @@ describe("DefaultPendingTransactionController", () => {
       controller.track();
       vi.advanceTimersByTime(10_000);
 
-      expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(1);
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(1);
     });
 
     it("should stop polling when all transactions are confirmed", async () => {
       const tx = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx);
 
-      mockConfirmUseCase.execute.mockResolvedValue(Right(["0x111"]));
+      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
       expect(mockStorageService.remove).toHaveBeenCalledWith("0x111");
 
-      mockConfirmUseCase.execute.mockClear();
+      mockCheckPendingStatus.execute.mockClear();
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
     });
 
     it("should continue polling when transactions remain pending", async () => {
       const tx = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx);
 
-      mockConfirmUseCase.execute.mockResolvedValue(Right([]));
+      mockCheckPendingStatus.execute.mockResolvedValue(Right([]));
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(1);
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(1);
 
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(2);
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(2);
     });
 
     it("should restart polling on new track after shutdown", async () => {
       const tx1 = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx1);
-      mockConfirmUseCase.execute.mockResolvedValue(Right(["0x111"]));
+      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
-      mockConfirmUseCase.execute.mockClear();
+      mockCheckPendingStatus.execute.mockClear();
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
 
       const tx2 = createPendingTx({ hash: "0x222" });
       mockStorageService._store.push(tx2);
-      mockConfirmUseCase.execute.mockResolvedValue(Right([]));
+      mockCheckPendingStatus.execute.mockResolvedValue(Right([]));
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(1);
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -223,7 +223,7 @@ describe("DefaultPendingTransactionController", () => {
       const restoredController = new DefaultPendingTransactionController(
         createMockLoggerFactory(),
         storageWithData,
-        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         mockContextService,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
@@ -244,13 +244,13 @@ describe("DefaultPendingTransactionController", () => {
       new DefaultPendingTransactionController(
         createMockLoggerFactory(),
         storageWithData,
-        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         skeletonCtx,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
     });
 
     it("should start polling once context is hydrated with full account", async () => {
@@ -263,19 +263,19 @@ describe("DefaultPendingTransactionController", () => {
       new DefaultPendingTransactionController(
         createMockLoggerFactory(),
         storageWithData,
-        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         skeletonCtx as unknown as ContextService,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
 
       skeletonCtx.getContext.mockReturnValue(hydratedContext);
       skeletonCtx._contextSubject.next(hydratedContext);
 
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalled();
     });
 
     it("should start polling on construction when account is already available", async () => {
@@ -286,13 +286,13 @@ describe("DefaultPendingTransactionController", () => {
       new DefaultPendingTransactionController(
         createMockLoggerFactory(),
         storageWithData,
-        mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         mockContextService,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalled();
     });
   });
 
@@ -301,7 +301,7 @@ describe("DefaultPendingTransactionController", () => {
       const tx = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx);
 
-      mockConfirmUseCase.execute.mockResolvedValue(
+      mockCheckPendingStatus.execute.mockResolvedValue(
         Left(new Error("Network error")),
       );
 
@@ -311,7 +311,7 @@ describe("DefaultPendingTransactionController", () => {
       expect(mockStorageService.remove).not.toHaveBeenCalled();
 
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(2);
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(2);
     });
 
     it("should skip tick when no selected account", async () => {
@@ -326,7 +326,7 @@ describe("DefaultPendingTransactionController", () => {
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
-      expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
     });
   });
 });
