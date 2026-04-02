@@ -62,6 +62,9 @@ import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
+import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
+import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
+import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
@@ -153,6 +156,10 @@ export class LedgerButtonCore {
       ? userConsent.extract().consentGiven
       : undefined;
 
+    const isMobilePlatform = this.container
+      .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
+      .execute();
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -163,6 +170,7 @@ export class LedgerButtonCore {
         chainId: chainId,
         welcomeScreenCompleted,
         hasTrackingConsent,
+        isMobilePlatform,
       },
     });
   }
@@ -534,12 +542,18 @@ export class LedgerButtonCore {
     this.container.get<Config>(configModuleTypes.Config).setLogLevel(logLevel);
   }
 
-  isSupported() {
+  isMobile() {
     return this.container
-      .get<DeviceManagementKitService>(
-        deviceModuleTypes.DeviceManagementKitService,
+      .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
+      .execute();
+  }
+
+  isSupportedPlatform() {
+    return this.container
+      .get<IsSupportedPlatformUseCase>(
+        platformModuleTypes.IsSupportedPlatformUseCase,
       )
-      .dmk.isEnvironmentSupported();
+      .execute();
   }
 
   setChainId(chainId: number) {

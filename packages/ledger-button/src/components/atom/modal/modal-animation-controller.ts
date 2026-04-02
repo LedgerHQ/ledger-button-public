@@ -6,7 +6,7 @@ import { type AnimationInstance } from "./animation-types.js";
 import { CenterAnimation } from "./center-animation.js";
 import { PanelAnimation } from "./panel-animation.js";
 
-export type ModalMode = "center" | "panel";
+export type ModalMode = "center" | "panel" | "bottom";
 
 type AnimationElements = {
   backdrop: HTMLElement;

@@ -22,6 +22,7 @@ export class DefaultContextService implements ContextService {
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
+    isMobilePlatform: false,
   };
 
   private readonly logger: LoggerPublisher;

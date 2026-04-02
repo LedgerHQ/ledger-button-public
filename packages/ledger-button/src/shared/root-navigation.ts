@@ -73,7 +73,9 @@ export class RootNavigationComponent extends LitElement {
     mode?: ModalMode,
   ) {
     this.rootNavigationController.navigationIntent(intent, params);
-    this.openModal(mode);
+    const mobileMode =
+      mode ?? (this.coreContext.isMobile() ? "bottom" : "center");
+    this.openModal(mobileMode);
   }
 
   public openModal(mode?: ModalMode) {
