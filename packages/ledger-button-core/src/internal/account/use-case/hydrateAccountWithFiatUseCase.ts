@@ -34,7 +34,7 @@ export class HydrateAccountWithFiatUseCase {
     this.logHydrationStart(account);
 
     const balance = account.balance ?? "0";
-    const balanceNum = parseFloat(balance);
+    const balanceNum = this.parseBalance(balance);
     if (Number.isNaN(balanceNum) || balanceNum === 0) {
       const currency = targetCurrency.toUpperCase();
       return enrichWithLoadingStates({
@@ -129,7 +129,7 @@ export class HydrateAccountWithFiatUseCase {
     rate: number | undefined,
     currency: string,
   ): FiatBalance | undefined {
-    const balanceNum = parseFloat(balance);
+    const balanceNum = this.parseBalance(balance);
     if (Number.isNaN(balanceNum) || rate === undefined) {
       return undefined;
     }
@@ -147,7 +147,7 @@ export class HydrateAccountWithFiatUseCase {
   ): Token[] {
     return tokens.map((token, index) => {
       const rate = counterValues[index]?.rate;
-      const balanceNum = parseFloat(token.balance);
+      const balanceNum = this.parseBalance(token.balance);
 
       if (Number.isNaN(balanceNum) || rate === undefined || rate === 0) {
         return token;
@@ -162,5 +162,9 @@ export class HydrateAccountWithFiatUseCase {
         },
       };
     });
+  }
+
+  private parseBalance(balance: string): number {
+    return parseFloat(balance.replace(/,/g, ""));
   }
 }
