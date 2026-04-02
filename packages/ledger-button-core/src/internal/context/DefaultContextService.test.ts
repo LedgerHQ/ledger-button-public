@@ -79,6 +79,7 @@ describe("DefaultContextService", () => {
         chainId: 1,
         welcomeScreenCompleted: false,
         hasTrackingConsent: undefined,
+        isMobilePlatform: false,
       });
     });
   });
@@ -109,6 +110,7 @@ describe("DefaultContextService", () => {
             chainId: 137,
             welcomeScreenCompleted: false,
             hasTrackingConsent: false,
+            isMobilePlatform: false,
           },
         },
         expectedContext: {
@@ -119,6 +121,7 @@ describe("DefaultContextService", () => {
           chainId: 137,
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
+          isMobilePlatform: false,
         },
       },
       {
@@ -132,6 +135,7 @@ describe("DefaultContextService", () => {
           chainId: 42161,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          isMobilePlatform: false,
         },
       },
       {
@@ -145,6 +149,7 @@ describe("DefaultContextService", () => {
           chainId: chainIdMap.polygon,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          isMobilePlatform: false,
         },
       },
       {
@@ -158,6 +163,7 @@ describe("DefaultContextService", () => {
           chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          isMobilePlatform: false,
         },
       },
       {
@@ -181,6 +187,7 @@ describe("DefaultContextService", () => {
           chainId: chainIdMap.ethereum,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          isMobilePlatform: false,
         },
       },
       {
@@ -197,6 +204,7 @@ describe("DefaultContextService", () => {
           chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          isMobilePlatform: false,
         },
       },
       {
@@ -213,6 +221,7 @@ describe("DefaultContextService", () => {
               chainId: 137,
               welcomeScreenCompleted: false,
               hasTrackingConsent: false,
+              isMobilePlatform: false,
             },
           });
         },
@@ -224,6 +233,7 @@ describe("DefaultContextService", () => {
           chainId: 137,
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
+          isMobilePlatform: false,
         },
       },
     ])("onEvent - $eventType", (event) => {
