@@ -12,6 +12,7 @@ export type {
   TransactionHistoryItem,
   TransactionType,
 } from "../../internal/transaction-history/model/transactionHistoryTypes.js";
+export * from "./ButtonCoreContext.js";
 export * from "./eip/EIPTypes.js";
 export * from "./errors.js";
 export * from "./LedgerSyncAuthenticateResponse.js";

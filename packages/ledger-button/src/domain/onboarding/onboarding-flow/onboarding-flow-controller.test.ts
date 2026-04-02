@@ -1,15 +1,17 @@
-import type { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  ButtonCoreContext,
+  Device,
+  LedgerButtonCore,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OnboardingFlowController } from "./onboarding-flow-controller.js";
 
-type Context = Parameters<
-  Parameters<ReturnType<LedgerButtonCore["observeContext"]>["subscribe"]>[0]
->[0];
-
-function createMockContext(overrides: Partial<Context> = {}): Context {
+function createMockContext(
+  overrides: Partial<ButtonCoreContext> = {},
+): ButtonCoreContext {
   return {
     connectedDevice: undefined,
     selectedAccount: undefined,
@@ -26,7 +28,7 @@ function createMockContext(overrides: Partial<Context> = {}): Context {
 describe("OnboardingFlowController", () => {
   let controller: OnboardingFlowController;
   let host: ReactiveControllerHost;
-  let contextSubject: BehaviorSubject<Context>;
+  let contextSubject: BehaviorSubject<ButtonCoreContext>;
   let mockCore: { observeContext: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
@@ -37,7 +39,9 @@ describe("OnboardingFlowController", () => {
       updateComplete: Promise.resolve(true),
     };
 
-    contextSubject = new BehaviorSubject<Context>(createMockContext());
+    contextSubject = new BehaviorSubject<ButtonCoreContext>(
+      createMockContext(),
+    );
     mockCore = {
       observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
     };
@@ -102,9 +106,7 @@ describe("OnboardingFlowController", () => {
   describe("desktop flow states", () => {
     it("should enter welcome when welcomeScreenCompleted is false", () => {
       controller.computeCurrentState();
-      contextSubject.next(
-        createMockContext({ welcomeScreenCompleted: false }),
-      );
+      contextSubject.next(createMockContext({ welcomeScreenCompleted: false }));
 
       expect(controller.state).toBe("welcome");
     });
@@ -155,7 +157,9 @@ describe("OnboardingFlowController", () => {
         createMockContext({
           welcomeScreenCompleted: true,
           hasTrackingConsent: true,
-          connectedDevice: { id: "device-1" } as Context["connectedDevice"],
+          connectedDevice: {
+            id: "device-1",
+          } as unknown as Device,
         }),
       );
 
