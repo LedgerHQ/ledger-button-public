@@ -142,6 +142,7 @@ describe("DefaultPendingTransactionController", () => {
       mockStorageService._store.push(tx);
 
       controller.track();
+      await Promise.resolve();
 
       const value = await firstValueFrom(
         controller.observePendingTransactions(),
