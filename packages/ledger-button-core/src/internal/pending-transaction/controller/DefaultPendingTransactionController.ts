@@ -43,7 +43,7 @@ export class DefaultPendingTransactionController
     this.startPollingWhenAccountAvailable();
   }
 
-  track(_tx: PendingTransaction): void {
+  track(): void {
     this.emitCurrentState();
     this.startPolling();
   }

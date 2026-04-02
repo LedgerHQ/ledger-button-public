@@ -63,7 +63,7 @@ export class TrackBroadcastedTransactionUseCase {
 
     this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
     this.storageService.add(tx);
-    this.controller.track(tx);
+    this.controller.track();
   }
 
   private async buildPendingTransaction(

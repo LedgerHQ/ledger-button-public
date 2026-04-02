@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ContextService } from "../../context/ContextService.js";
 import type { PendingTransaction } from "../model/PendingTransaction.js";
 import type { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
+import type { HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";
 import { DefaultPendingTransactionController } from "./DefaultPendingTransactionController.js";
 
 function createMockLogger() {
@@ -39,6 +40,14 @@ function createMockStorageService() {
 function createMockConfirmUseCase() {
   return {
     execute: vi.fn().mockResolvedValue(Right([])),
+  };
+}
+
+function createMockHydrateUseCase() {
+  return {
+    execute: vi
+      .fn()
+      .mockImplementation(async (txs: PendingTransaction[]) => txs),
   };
 }
 
@@ -95,12 +104,14 @@ describe("DefaultPendingTransactionController", () => {
   let controller: DefaultPendingTransactionController;
   let mockStorageService: ReturnType<typeof createMockStorageService>;
   let mockConfirmUseCase: ReturnType<typeof createMockConfirmUseCase>;
+  let mockHydrateUseCase: ReturnType<typeof createMockHydrateUseCase>;
   let mockContextService: ReturnType<typeof createMockContextService>;
 
   beforeEach(() => {
     vi.useFakeTimers();
     mockStorageService = createMockStorageService();
     mockConfirmUseCase = createMockConfirmUseCase();
+    mockHydrateUseCase = createMockHydrateUseCase();
     mockContextService = createMockContextService();
 
     controller = new DefaultPendingTransactionController(
@@ -108,6 +119,7 @@ describe("DefaultPendingTransactionController", () => {
       mockStorageService,
       mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
       mockContextService,
+      mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
     );
   });
 
@@ -129,7 +141,7 @@ describe("DefaultPendingTransactionController", () => {
       const tx = createPendingTx();
       mockStorageService._store.push(tx);
 
-      controller.track(tx);
+      controller.track();
 
       const value = await firstValueFrom(
         controller.observePendingTransactions(),
@@ -143,7 +155,7 @@ describe("DefaultPendingTransactionController", () => {
       const tx = createPendingTx();
       mockStorageService._store.push(tx);
 
-      controller.track(tx);
+      controller.track();
       vi.advanceTimersByTime(10_000);
 
       expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(1);
@@ -155,7 +167,7 @@ describe("DefaultPendingTransactionController", () => {
 
       mockConfirmUseCase.execute.mockResolvedValue(Right(["0x111"]));
 
-      controller.track(tx);
+      controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
       expect(mockStorageService.remove).toHaveBeenCalledWith("0x111");
@@ -171,7 +183,7 @@ describe("DefaultPendingTransactionController", () => {
 
       mockConfirmUseCase.execute.mockResolvedValue(Right([]));
 
-      controller.track(tx);
+      controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
       expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(1);
 
@@ -184,7 +196,7 @@ describe("DefaultPendingTransactionController", () => {
       mockStorageService._store.push(tx1);
       mockConfirmUseCase.execute.mockResolvedValue(Right(["0x111"]));
 
-      controller.track(tx1);
+      controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
       mockConfirmUseCase.execute.mockClear();
@@ -195,7 +207,7 @@ describe("DefaultPendingTransactionController", () => {
       mockStorageService._store.push(tx2);
       mockConfirmUseCase.execute.mockResolvedValue(Right([]));
 
-      controller.track(tx2);
+      controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
       expect(mockConfirmUseCase.execute).toHaveBeenCalledTimes(1);
     });
@@ -212,6 +224,7 @@ describe("DefaultPendingTransactionController", () => {
         storageWithData,
         mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
         mockContextService,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       const value = await firstValueFrom(
@@ -232,6 +245,7 @@ describe("DefaultPendingTransactionController", () => {
         storageWithData,
         mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
         skeletonCtx,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
@@ -250,6 +264,7 @@ describe("DefaultPendingTransactionController", () => {
         storageWithData,
         mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
         skeletonCtx as unknown as ContextService,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
@@ -272,6 +287,7 @@ describe("DefaultPendingTransactionController", () => {
         storageWithData,
         mockConfirmUseCase as unknown as ConfirmPendingTransactionsUseCase,
         mockContextService,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
@@ -288,7 +304,7 @@ describe("DefaultPendingTransactionController", () => {
         Left(new Error("Network error")),
       );
 
-      controller.track(tx);
+      controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
       expect(mockStorageService.remove).not.toHaveBeenCalled();
@@ -306,7 +322,7 @@ describe("DefaultPendingTransactionController", () => {
         selectedAccount: undefined,
       });
 
-      controller.track(tx);
+      controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
       expect(mockConfirmUseCase.execute).not.toHaveBeenCalled();
