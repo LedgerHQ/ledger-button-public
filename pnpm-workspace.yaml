@@ -10,12 +10,12 @@ catalog:
   '@eslint/js': ^9.8.0
   '@inquirer/prompts': ^5.0.0
   '@ledgerhq/coin-framework': ^5.0.0
-  '@ledgerhq/context-module': 1.14.1
-  '@ledgerhq/device-management-kit': 1.1.0
-  '@ledgerhq/device-signer-kit-ethereum': 1.11.1
+  '@ledgerhq/context-module': 1.15.0
+  '@ledgerhq/device-management-kit': 1.2.0
+  '@ledgerhq/device-signer-kit-ethereum': 1.13.0
   '@ledgerhq/device-transport-kit-web-ble': 1.3.2
   '@ledgerhq/device-transport-kit-web-hid': 1.2.3
-  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol': 0.4.1
+  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol': 0.5.0
   '@ledgerhq/lumen-design-core': ^0.1.2
   '@lit/context': 1.1.6
   '@next/eslint-plugin-next': ^15.2.4
@@ -114,6 +114,7 @@ catalog:
   vite-plugin-elm: ^3.0.1
   vitest: ^3.0.0
   wait-on: ^8.0.3
+  xstate: 5.19.2
   zod: ^4.1.5
   zx: ^8.1.7
 
