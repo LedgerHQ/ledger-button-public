@@ -16,6 +16,10 @@ export type ContextEvent =
       account: Account | DetailedAccount;
     }
   | {
+      type: "hydrated_account";
+      account: Account | DetailedAccount;
+    }
+  | {
       type: "device_connected";
       device: Device;
     }
