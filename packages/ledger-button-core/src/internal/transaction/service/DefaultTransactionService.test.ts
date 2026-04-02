@@ -6,7 +6,7 @@ import type { SignPersonalMessageParams } from "../../../api/model/signing/SignP
 import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import type { SignPersonalMessage } from "../../device/use-case/SignPersonalMessage.js";
+import type { SignPersonalMessageUseCase } from "../../device/use-case/SignPersonalMessageUseCase.js";
 import type { SignRawTransaction } from "../../device/use-case/SignRawTransaction.js";
 import type { SignTransaction } from "../../device/use-case/SignTransaction.js";
 import type { SignTypedData } from "../../device/use-case/SignTypedData.js";
@@ -129,7 +129,7 @@ describe("DefaultTransactionService", () => {
       mockSignTransactionUseCase as unknown as SignTransaction,
       mockSignRawTransactionUseCase as unknown as SignRawTransaction,
       mockSignTypedDataUseCase as unknown as SignTypedData,
-      mockSignPersonalMessageUseCase as unknown as SignPersonalMessage,
+      mockSignPersonalMessageUseCase as unknown as SignPersonalMessageUseCase,
       mockLoggerFactory,
     );
   });
