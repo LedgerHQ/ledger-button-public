@@ -19,7 +19,7 @@ export class MigrateDbUseCase {
     @inject(storageModuleTypes.KeyPairMigrationService)
     private readonly keyPairMigrationService: KeyPairMigrationService,
   ) {
-    this.logger = this.loggerFactory("[MigrateDatabase Use Case]");
+    this.logger = this.loggerFactory("MigrateDatabase Use Case");
   }
 
   async execute(): Promise<void> {

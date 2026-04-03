@@ -1,0 +1,302 @@
+{
+  "common": {
+    "connect": "Подключить",
+    "loading": "Загружаем...",
+    "appTitle": "Ledger Wallet",
+    "floatingButton": {
+      "ariaLabel": "Открыть меню счёта Ledger",
+      "label": "Ledger"
+    },
+    "search": {
+      "placeholder": "Поиск счёта",
+      "clearAriaLabel": "Очистить поиск"
+    },
+    "button": {
+      "connect": "Подключите устройство Ledger",
+      "usb": "Через USB",
+      "bluetooth": "По Bluetooth",
+      "usb_hint": "Подключите и разблокируйте устройство",
+      "bluetooth_hint": "Включите и разблокируйте устройство",
+      "close": "Закрыть",
+      "tryAgain": "Повторить",
+      "disconnect": "Отключить"
+    },
+    "ad": {
+      "getALedger": "Приобрести устройство Ledger"
+    },
+    "platform": {
+      "onDesktop": "На ПК",
+      "onMobile": "На смартфоне"
+    },
+    "learnMore": "Подробнее...",
+    "device": {
+      "model": {
+        "nanoS": "Ledger Nano S",
+        "nanoSP": "Ledger Nano S Plus",
+        "nanoX": "Ledger Nano X",
+        "stax": "Ledger Stax",
+        "flex": "Ledger Flex",
+        "apexp": "Ledger Nano Gen5",
+        "fallback": "Устройство Ledger"
+      },
+      "deviceActions": {
+        "continueOnLedger": {
+          "title": "Продолжите на {device}",
+          "description": "Следуйте инструкции на Защищённом экране."
+        },
+        "pin": {
+          "title": "Разблокируйте {device}",
+          "description": "Введите ПИН для разблокировки устройства Ledger."
+        },
+        "signTransaction": {
+          "title": "Продолжите на {device}",
+          "description": "Следуйте инструкции на Защищённом экране."
+        }
+      }
+    }
+  },
+  "home": {
+    "title": "Ваше приложение Ledger Wallet",
+    "balance": "Баланс"
+  },
+  "walletActions": {
+    "send": "Отправить",
+    "receive": "Получить",
+    "swap": "Обмен",
+    "buy": "Купить",
+    "earn": "Приумножить",
+    "sell": "Продать"
+  },
+  "walletRedirect": {
+    "title": "Продолжите в Ledger Wallet",
+    "description": "Для этого действия требуется Ledger Wallet для ПК.",
+    "confirm": "Открыть Ledger Wallet",
+    "download": "Загрузите Ledger Wallet"
+  },
+  "deviceSwitch": {
+    "title": "Ваши устройства Ledger",
+    "noDevices": "Не нашли ранее подключенные устройства",
+    "connectAnother": "Или новое устройство Ledger",
+    "connectBluetooth": "По Bluetooth",
+    "connectBluetoothHint": "Включите и разблокируйте устройство",
+    "connectUsb": "Через USB",
+    "connectUsbHint": "Подключите и разблокируйте устройство",
+    "status": {
+      "connected": "Подключено",
+      "available": "Доступно"
+    }
+  },
+  "ledgerSync": {
+    "turnOnLedgerSyncTitle": "Активируйте Ledger Sync, чтобы продолжить",
+    "turnOnLedgerSyncSubtitle": "Это нужно для получения ваших криптосчетов.",
+    "activateSelectPlatform": "Выберите способ активации Ledger Sync",
+    "activate": "Активируйте Ledger Sync",
+    "activateStep1Desktop": "Нажмите кнопку ниже, чтобы активировать Ledger Sync",
+    "activateStep1DesktopLLInstalled": "Убедитесь, что на вашем ПК установлено приложение Ledger Wallet.",
+    "activateStep1Mobile": "Для активации Ledger Sync отсканируйте QR-код и следуйте инструкциям на экране.",
+    "activateStep2": "После активации нажмите «Продолжить».",
+    "activated": "Ledger Sync активирована, продолжайте"
+  },
+  "onboarding": {
+    "selectDevice": {
+      "title": "Подключите устройство Ledger"
+    },
+    "ledgerSync": {
+      "title": ""
+    },
+    "retrievingAccounts": {
+      "title": "Получаем счета..."
+    },
+    "selectAccount": {
+      "title": "Выберите счёт",
+      "showTokens": "Показать токены",
+      "searchPlaceholder": "Поиск счёта",
+      "noResults": "Не нашли счетов по вашему запросу",
+      "refreshingAccounts": "Ledger Wallet обновляет ваши счёта.",
+      "refreshingAccountsHint": "Вы можете в любой момент выбрать счёт, чтобы продолжить."
+    },
+    "turnOnSync": {
+      "title": "",
+      "subtitle": "Включите Ledger Sync, чтобы продолжить",
+      "text": "Это нужно, чтобы безопасно получить ваши счета. После нажатия на «Включить Ledger Sync», вы будете перенаправлены в приложение Ledger Wallet для активации функции."
+    },
+    "consentPrompt": {
+      "intro": {
+        "title": "Добро пожаловать в Ledger Wallet",
+        "subtitle": "Наслаждайтесь плавным прямым подключением вашего устройства подписи Ledger к dApp-приложениями. Вы разблокировали:",
+        "features": {
+          "directConnectivity": {
+            "title": "Прямое подключение",
+            "description": "Подключитесь через USB или Bluetooth."
+          },
+          "clearSigning": {
+            "title": "Прозрачная подпись",
+            "description": "Проверяйте транзакции перед подписанием."
+          },
+          "transactionCheck": {
+            "title": "Проверка транзакций",
+            "description": "Получайте предупреждения о любых потенциальных угрозах до подписания."
+          }
+        },
+        "howItWorks": {
+          "title": "Узнайте, как это работает",
+          "description": "Ваши криптосчета надёжно подгружаются с помощью <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync используется для синхронизации и резервного копирования криптосчетов через приложения Ledger Wallet на всех ваших устройствах.",
+          "alreadyActivated": {
+            "title": "Уже активировали Ledger Sync?",
+            "description": "Вы готовы!"
+          },
+          "firstTime": {
+            "title": "Впервые подключаете Ledger Sync?",
+            "description": "Нужно пройти единовременную настройку, которая займёт всего несколько минут."
+          }
+        },
+        "continueButton": "Продолжить",
+        "legalText": "Нажимая «Продолжить», вы соглашаетесь с нашими",
+        "termsAndConditions": "Условия использования",
+        "and": "и",
+        "privacyPolicy": "Политика конфиденциальности"
+      },
+      "consent": {
+        "title": "Помогите нам стать лучше",
+        "description": "С вашего согласия Ledger будет собирать аналитические данные о продуктах. Это поможет нам искать баги, оценивать производительность Прямого подключения Ledger Wallet и совершенствовать сервис и ваш опыт взаимодействия.",
+        "privacyNotice": "Подробнее о том, как мы управляем вашими данными и вашими правами в нашем",
+        "privacyPolicyLink": "Политика конфиденциальности",
+        "acceptButton": "Принять",
+        "rejectButton": "Отклонить всё"
+      }
+    }
+  },
+  "accountTokens": {
+    "title": "Токены счёта",
+    "notFound": "Не нашли такой счёт",
+    "noTokens": "Не нашли токенов для этого счёта"
+  },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
+  "transactionList": {
+    "noTransactions": "Не нашли транзакции"
+  },
+  "mobileOnboarding": {
+    "title": "Продолжите в Ledger Wallet",
+    "description": "Для более плавного взаимодействия это децентрализованное приложение откроется непосредственно в приложении Ledger Wallet",
+    "allowButton": "Открыть Ledger Wallet",
+    "rejectButton": "Загрузите Ledger Wallet"
+  },
+  "settings": {
+    "title": "Настройки",
+    "analytics": {
+      "title": "Аналитика",
+      "description": "Позволяет Ledger собирать данные об использовании приложения для оценки производительности функции Прямого подключения Ledger Wallet, а также для улучшения приложения и вашего опыта взаимодействия."
+    },
+    "securityConfidentiality": "Безопасность и конфиденциальность",
+    "helpSupport": "Поддержка",
+    "support": {
+      "title": "Поддержка",
+      "support": "Поддержка",
+      "contactUs": "Связаться с нами"
+    }
+  },
+  "signTransaction": {
+    "success": {
+      "title": "Транзакция подписана",
+      "description": "Ваша транзакция скоро будет обработана.",
+      "viewTransaction": "Просмотреть детали транзакции"
+    },
+    "error": {
+      "title": "Сбой транзакции",
+      "description": "При подписании вашей транзакции возникла ошибка. Повторите попытку."
+    }
+  },
+  "signMessage": {
+    "success": {
+      "title": "Сообщение успешно подписано.",
+      "description": "Ваше сообщение успешно подписано."
+    },
+    "error": {
+      "title": "Не удалось подписать сообщение",
+      "description": "При подписании сообщения произошла ошибка. Повторите попытку."
+    }
+  },
+  "error": {
+    "generic": {
+      "account": {
+        "title": "Произошла ошибка",
+        "description": "При извлечении счетов возникла непредвиденная ошибка. Повторите попытку",
+        "cta1": "Попробовать ещё раз",
+        "cta2": "Закрыть"
+      },
+      "sign": {
+        "title": "Произошла ошибка",
+        "description": "При подписании транзакции произошла непредвиденная ошибка. Повторите попытку",
+        "cta1": "Попробовать ещё раз",
+        "cta2": "Закрыть"
+      }
+    },
+    "device": {
+      "DeviceNotSupported": {
+        "title": "{device} не поддерживается",
+        "description": "Вот список совместимых устройств Ledger: Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
+        "cta1": "Подключить другое устройство",
+        "cta2": "Купите новое устройство Ledger"
+      },
+      "IncorrectSeed": {
+        "title": "Несовместимость между устройством Ledger и криптосчётом",
+        "description": "Для продолжения подключите устройство Ledger, которое связано с этим криптосчётом, или выберите другой счёт.",
+        "cta1": "Использовать другое устройство Ledger",
+        "cta2": "Закрыть"
+      },
+      "BlindSigningDisabled": {
+        "title": "Слепая подпись отключена",
+        "description": "Эту транзакцию нельзя подписать прозрачной подписью. Включите слепую подпись в настройках приложения",
+        "cta1": "Повторить",
+        "cta2": "Закрыть"
+      },
+      "UserRejectedTransaction": {
+        "title": "Транзакция отклонена",
+        "description": "Вы отклонили транзакцию на устройстве {device}",
+        "cta1": "Закрыть",
+        "cta2": "Повторить транзакцию"
+      },
+      "UserRejectedMessage": {
+        "title": "Сообщение отклонено",
+        "description": "Вы отклонили подписание сообщения на устройстве {device}",
+        "cta1": "Закрыть",
+        "cta2": "Повторить подписание сообщения"
+      }
+    },
+    "ledgerSync": {
+      "ConnectionFailed": {
+        "title": "Не удалось активировать Ledger Sync",
+        "description": "Не удаётся подключиться к Ledger Wallet для активации Ledger Sync. Закройте вкладку, откройте приложение Ledger Wallet (на ПК или смартфоне), активируйте Ledger Sync и откройте вкладку заново.",
+        "cta1": "Закрыть вкладку",
+        "cta2": "Что такое Ledger Sync?"
+      },
+      "NoCompatibleAccounts": {
+        "title": "Не нашли совместимый счёт",
+        "description": "Это dApp-приложение поддерживает сети {networks}, для которых у вас ещё нет счетов. Пожалуйста, создайте новый счёт в Ledger Wallet",
+        "cta1": "Создать счёт в Ledger Wallet",
+        "cta2": "Использовать другое устройство Ledger"
+      },
+      "NoAccountInSync": {
+        "title": "Нет синхронизированных счетов",
+        "description": "Ledger Sync активирована, но синхронизированных счетов нет. Пожалуйста, активируйте Ledger Sync в Ledger Wallet и добавьте один или несколько счетов.",
+        "cta1": "Закрыть"
+      }
+    },
+    "network": {
+      "BroadcastTransactionError": {
+        "title": "Сбой транзакции",
+        "description": "Ваша транзакция транслирована в сеть, но не была обработана.",
+        "cta1": "Повторить транзакцию"
+      }
+    },
+    "connection": {
+      "DeviceDisconnected": {
+        "title": "Ваше устройство Ledger отключено",
+        "description": "Если вы используете USB, подключите и разблокируйте устройство Ledger. Если вы используете Bluetooth, разблокируйте устройство и держите его рядом.",
+        "cta1": "Переподключить устройство Ledger"
+      }
+    }
+  }
+}

@@ -20,14 +20,25 @@ export class SelectAccountController implements ReactiveController {
 
   get filteredAccounts(): AccountWithFiat[] {
     const query = this.searchQuery.toLowerCase().trim();
-    if (!query) {
-      return this.accounts;
-    }
-    return this.accounts.filter(
-      (account) =>
-        account.name.toLowerCase().includes(query) ||
-        account.freshAddress.toLowerCase().includes(query),
-    );
+    const accounts = query
+      ? this.accounts.filter(
+          (account) =>
+            account.name.toLowerCase().includes(query) ||
+            account.freshAddress.toLowerCase().includes(query) ||
+            account.ticker.toLowerCase().includes(query) ||
+            account.tokens.some(
+              (token) =>
+                token.ticker.toLowerCase().includes(query) ||
+                token.name.toLowerCase().includes(query),
+            ),
+        )
+      : [...this.accounts];
+
+    return accounts.sort((a, b) => {
+      const aValue = a.fiatBalance ? parseFloat(a.fiatBalance.value) : 0;
+      const bValue = b.fiatBalance ? parseFloat(b.fiatBalance.value) : 0;
+      return bValue - aValue;
+    });
   }
 
   get isBalanceLoading(): boolean {

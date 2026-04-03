@@ -18,7 +18,7 @@ import {
   isSignTypedMessageParams,
   type SignTypedMessageParams,
 } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { SignPersonalMessage } from "../../../internal/device/use-case/SignPersonalMessage.js";
+import { SignPersonalMessageUseCase } from "../../../internal/device/use-case/SignPersonalMessageUseCase.js";
 import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { SignTransaction } from "../../device/use-case/SignTransaction.js";
@@ -29,11 +29,6 @@ import { TransactionService } from "./TransactionService.js";
 
 @injectable()
 export class DefaultTransactionService implements TransactionService {
-  private _pendingParams?:
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams;
   private readonly logger: LoggerPublisher;
 
   constructor(
@@ -44,11 +39,11 @@ export class DefaultTransactionService implements TransactionService {
     @inject(deviceModuleTypes.SignTypedDataUseCase)
     private readonly signTypedDataUseCase: SignTypedData,
     @inject(deviceModuleTypes.SignPersonalMessageUseCase)
-    private readonly signPersonalMessageUseCase: SignPersonalMessage,
+    private readonly signPersonalMessageUseCase: SignPersonalMessageUseCase,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: (prefix: string) => LoggerPublisher,
   ) {
-    this.logger = loggerFactory("[DefaultTransactionService]");
+    this.logger = loggerFactory("DefaultTransactionService");
   }
 
   sign(
@@ -58,8 +53,6 @@ export class DefaultTransactionService implements TransactionService {
       | SignTransactionParams
       | SignPersonalMessageParams,
   ): Observable<SignFlowStatus> {
-    this._pendingParams = params;
-
     this.logger.debug("[Sign] Signing intent received", { params });
 
     let useCase: Observable<SignFlowStatus>;
@@ -86,26 +79,7 @@ export class DefaultTransactionService implements TransactionService {
     return useCase;
   }
 
-  getPendingTransaction():
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams
-    | undefined {
-    return this._pendingParams;
-  }
-
-  setPendingTransaction(
-    params?:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams,
-  ): void {
-    this._pendingParams = params;
-  }
-
   reset(): void {
-    this._pendingParams = undefined;
+    // no-op
   }
 }

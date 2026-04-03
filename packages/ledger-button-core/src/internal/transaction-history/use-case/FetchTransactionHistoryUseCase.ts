@@ -41,7 +41,7 @@ export class FetchTransactionHistoryUseCase {
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
   ) {
-    this.logger = loggerFactory("[FetchTransactionHistoryUseCase]");
+    this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
 
   async execute(

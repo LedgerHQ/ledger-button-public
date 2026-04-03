@@ -5,8 +5,10 @@ import { CoreContext } from "../../../context/core-context.js";
 
 export class FloatingButtonController implements ReactiveController {
   host: ReactiveControllerHost;
-  contextSubscription: Subscription | undefined = undefined;
+  private contextSubscription: Subscription | undefined = undefined;
+  private pendingTxSubscription: Subscription | undefined = undefined;
   isConnected = false;
+  pendingTransactionCount = 0;
 
   constructor(
     host: ReactiveControllerHost,
@@ -19,12 +21,12 @@ export class FloatingButtonController implements ReactiveController {
   hostConnected() {
     this.updateConnectionState();
     this.subscribeToContext();
+    this.subscribeToPendingTransactions();
   }
 
   hostDisconnected(): void {
-    if (this.contextSubscription) {
-      this.contextSubscription.unsubscribe();
-    }
+    this.contextSubscription?.unsubscribe();
+    this.pendingTxSubscription?.unsubscribe();
   }
 
   private subscribeToContext() {
@@ -36,6 +38,19 @@ export class FloatingButtonController implements ReactiveController {
       this.updateConnectionState();
       this.host.requestUpdate();
     });
+  }
+
+  private subscribeToPendingTransactions() {
+    if (this.pendingTxSubscription) {
+      this.pendingTxSubscription.unsubscribe();
+    }
+
+    this.pendingTxSubscription = this.core
+      .observePendingTransactions()
+      .subscribe((txs) => {
+        this.pendingTransactionCount = txs.length;
+        this.host.requestUpdate();
+      });
   }
 
   private updateConnectionState() {

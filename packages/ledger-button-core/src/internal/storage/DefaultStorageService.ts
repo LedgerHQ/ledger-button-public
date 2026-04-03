@@ -22,7 +22,7 @@ export class DefaultStorageService implements StorageService {
     @inject(storageModuleTypes.IndexedDbService)
     private readonly indexedDbService: IndexedDbService,
   ) {
-    this.logger = this.loggerFactory("[Storage Service]");
+    this.logger = this.loggerFactory("Storage Service");
   }
 
   static formatKey(key: string) {

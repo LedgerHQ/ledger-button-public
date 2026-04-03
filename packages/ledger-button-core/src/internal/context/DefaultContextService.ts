@@ -3,7 +3,10 @@ import { BehaviorSubject, Observable } from "rxjs";
 
 import { type ContextEvent } from "./model/ContextEvent.js";
 import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
-import { Account } from "../account/service/AccountService.js";
+import {
+  type Account,
+  type DetailedAccount,
+} from "../account/service/AccountService.js";
 import {
   getChainIdFromCurrencyId,
   getCurrencyIdFromChainId,
@@ -22,6 +25,7 @@ export class DefaultContextService implements ContextService {
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
+    isMobilePlatform: false,
   };
 
   private readonly logger: LoggerPublisher;
@@ -32,7 +36,7 @@ export class DefaultContextService implements ContextService {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[Context Service]");
+    this.logger = this.loggerFactory("Context Service");
   }
 
   observeContext(): Observable<ButtonCoreContext> {
@@ -60,10 +64,8 @@ export class DefaultContextService implements ContextService {
         }
         break;
       case "account_changed":
-        this.context.selectedAccount = event.account;
-        this.context.chainId = getChainIdFromCurrencyId(
-          event.account.currencyId,
-        );
+      case "hydrated_account":
+        this.applySelectedAccount(event.account);
         break;
       case "device_connected":
         this.context.connectedDevice = event.device;
@@ -94,5 +96,10 @@ export class DefaultContextService implements ContextService {
     }
 
     this.contextSubject.next(this.context);
+  }
+
+  private applySelectedAccount(account: Account | DetailedAccount): void {
+    this.context.selectedAccount = account;
+    this.context.chainId = getChainIdFromCurrencyId(account.currencyId);
   }
 }

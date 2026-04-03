@@ -1,0 +1,302 @@
+{
+  "common": {
+    "connect": "接続",
+    "loading": "読み込み中...",
+    "appTitle": "Ledger Wallet",
+    "floatingButton": {
+      "ariaLabel": "Ledgerアカウントメニューを開く",
+      "label": "Ledger"
+    },
+    "search": {
+      "placeholder": "アカウントを検索",
+      "clearAriaLabel": "検索をクリア"
+    },
+    "button": {
+      "connect": "Ledgerデバイスを接続",
+      "usb": "USBで接続",
+      "bluetooth": "Bluetoothで接続",
+      "usb_hint": "デバイスを接続し、ロックを解除してください。",
+      "bluetooth_hint": "デバイスの電源を入れてロックを解除する",
+      "close": "閉じる",
+      "tryAgain": "再試行",
+      "disconnect": "接続を切断"
+    },
+    "ad": {
+      "getALedger": "Ledgerデバイスを入手"
+    },
+    "platform": {
+      "onDesktop": "デスクトップ",
+      "onMobile": "モバイル"
+    },
+    "learnMore": "詳細はこちら",
+    "device": {
+      "model": {
+        "nanoS": "Ledger Nano S",
+        "nanoSP": "Ledger Nano SP",
+        "nanoX": "Ledger Nano X",
+        "stax": "Ledger Stax",
+        "flex": "Ledger Flex",
+        "apexp": "Ledger Nano Gen5",
+        "fallback": "Ledgerデバイス"
+      },
+      "deviceActions": {
+        "continueOnLedger": {
+          "title": "{device}で続ける",
+          "description": "セキュアタッチスクリーンに表示される指示に従ってください。"
+        },
+        "pin": {
+          "title": "{device}のロックを解除",
+          "description": "PINコードを入力して、Ledgerデバイスのロックを解除してください。"
+        },
+        "signTransaction": {
+          "title": "あなたの{device}で続ける",
+          "description": "セキュアタッチスクリーンに表示される指示に従ってください。"
+        }
+      }
+    }
+  },
+  "home": {
+    "title": "あなたのLedger Wallet",
+    "balance": "残高"
+  },
+  "walletActions": {
+    "send": "送付",
+    "receive": "受け取る",
+    "swap": "スワップ",
+    "buy": "購入",
+    "earn": "報酬獲得",
+    "sell": "売却"
+  },
+  "walletRedirect": {
+    "title": "Ledger Walletで続行",
+    "description": "この操作を完了するには、Ledger Walletデスクトップアプリが必要です。",
+    "confirm": "Ledger Walletを開く",
+    "download": "Ledger Walletをダウンロードする"
+  },
+  "deviceSwitch": {
+    "title": "あなたのLedger",
+    "noDevices": "以前接続されたデバイスが見つかりません",
+    "connectAnother": "または別のLedgerを接続する",
+    "connectBluetooth": "Bluetoothを接続する",
+    "connectBluetoothHint": "デバイスの電源を入れてロックを解除する",
+    "connectUsb": "USBで接続",
+    "connectUsbHint": "デバイスを接続してロックを解除してください",
+    "status": {
+      "connected": "接続済み",
+      "available": "利用可能"
+    }
+  },
+  "ledgerSync": {
+    "turnOnLedgerSyncTitle": "Ledger Syncを有効にして続行する",
+    "turnOnLedgerSyncSubtitle": "これは、暗号資産アカウントを取得するのに必要です。",
+    "activateSelectPlatform": "Ledger Syncの有効化方法を選択してください",
+    "activate": "Ledger Syncを有効化する",
+    "activateStep1Desktop": "以下のボタンを選択して、Ledger Syncを有効化",
+    "activateStep1DesktopLLInstalled": "Ledger Walletアプリがコンピューターにインストールされていることを確認する。",
+    "activateStep1Mobile": "Ledger Syncを有効にするには、QRコードをスキャンし、画面の手順に従ってください。",
+    "activateStep2": "有効化されたら、以下の「続行」を選択する。",
+    "activated": "Ledger Syncが有効化されています、続行"
+  },
+  "onboarding": {
+    "selectDevice": {
+      "title": "Ledgerを接続する"
+    },
+    "ledgerSync": {
+      "title": ""
+    },
+    "retrievingAccounts": {
+      "title": "アカウントの取得"
+    },
+    "selectAccount": {
+      "title": "アカウントを選択",
+      "showTokens": "トークンを表示",
+      "searchPlaceholder": "アカウントを検索",
+      "noResults": "検索条件に一致するアカウントがありません。",
+      "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
+      "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。"
+    },
+    "turnOnSync": {
+      "title": "",
+      "subtitle": "Ledger Syncをオンにして続行する",
+      "text": "これは、アカウントを安全にフェッチするために必要です。「Ledger Syncをオンにする」をクリックすると、Ledger Liveにリダイレクトされ、この機能を有効化できます。"
+    },
+    "consentPrompt": {
+      "intro": {
+        "title": "Ledger Wallet™へようこそ",
+        "subtitle": "Ledger署名者とdAppsのスムーズで直接的な接続をお楽しみください。ロックを解除しました：",
+        "features": {
+          "directConnectivity": {
+            "title": "ダイレクト接続",
+            "description": "USBまたはBluetoothで接続。"
+          },
+          "clearSigning": {
+            "title": "クリア署名",
+            "description": "署名する前に、トランザクションを明確に認証してください。"
+          },
+          "transactionCheck": {
+            "title": "トランザクションチェック",
+            "description": "署名する前に、潜在的な脅威に対する警告を受け取る。"
+          }
+        },
+        "howItWorks": {
+          "title": "仕組みを学ぼう",
+          "description": "お客様の暗号資産アカウントは、<strong class=\"text-base\">Ledger Sync</strong>によって安全に取得されます。Ledger Syncは、すべてのデバイス上のLedger Walletアプリ間で暗号資産アカウントを同期し、バックアップするために使用されます。",
+          "alreadyActivated": {
+            "title": "すでにLedger Syncを有効化しましたか？",
+            "description": "準備完了です！"
+          },
+          "firstTime": {
+            "title": "Ledger Syncを初めてご利用ですか？",
+            "description": "1回限りの設定を案内します。数分で完了します。"
+          }
+        },
+        "continueButton": "続行",
+        "legalText": "「続行」をクリックすることで、お客様が同意したことになります",
+        "termsAndConditions": "利用規約",
+        "and": "そして",
+        "privacyPolicy": "プライバシーポリシー"
+      },
+      "consent": {
+        "title": "改善にご協力をお願いします",
+        "description": "お客様の同意のもと、Ledgerは製品分析データを収集し、バグを発見し、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、サービスとお客様の体験を向上させるために役立てます。",
+        "privacyNotice": "当社のデータの管理方法とお客様の権利について、詳しくはこちらをご覧ください",
+        "privacyPolicyLink": "プライバシーポリシー",
+        "acceptButton": "すべて受け入れる",
+        "rejectButton": "すべて拒否する"
+      }
+    }
+  },
+  "accountTokens": {
+    "title": "アカウント・トークン",
+    "notFound": "アカウントが見つかりません",
+    "noTokens": "このアカウントのトークンが見つかりませんでした"
+  },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
+  "transactionList": {
+    "noTransactions": "トランザクションが見つかりません"
+  },
+  "mobileOnboarding": {
+    "title": "Ledger Walletで続行",
+    "description": "よりスムーズな体験のために、このdAppはLedger Walletアプリで直接開きます。",
+    "allowButton": "Ledger Walletを開く",
+    "rejectButton": "Ledger Walletをダウンロードする"
+  },
+  "settings": {
+    "title": "設定",
+    "analytics": {
+      "title": "アナリティクス",
+      "description": "Ledgerがアプリの使用状況データを収集できるようにし、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、アプリと体験の両方を向上させます。"
+    },
+    "securityConfidentiality": "セキュリティと機密性",
+    "helpSupport": "ヘルプとサポート",
+    "support": {
+      "title": "ヘルプとサポート",
+      "support": "サポート",
+      "contactUs": "お問い合わせ"
+    }
+  },
+  "signTransaction": {
+    "success": {
+      "title": "取引に署名済み",
+      "description": "トランザクションはすぐに処理されます。",
+      "viewTransaction": "トランザクションの詳細を表示"
+    },
+    "error": {
+      "title": "トランザクションが失敗しました。",
+      "description": "トランザクションの署名中にエラーが発生しました。もう一度お試しください。"
+    }
+  },
+  "signMessage": {
+    "success": {
+      "title": "メッセージが正常に署名されました。",
+      "description": "メッセージは正常に署名されました。"
+    },
+    "error": {
+      "title": "メッセージの署名に失敗しました",
+      "description": "メッセージの署名中にエラーが発生しました。もう一度お試しください。"
+    }
+  },
+  "error": {
+    "generic": {
+      "account": {
+        "title": "エラーが発生しました。",
+        "description": "アカウントの取得中に予期しないエラーが発生しました。接続をご確認の上、もう一度お試しください。",
+        "cta1": "再試行",
+        "cta2": "閉じる"
+      },
+      "sign": {
+        "title": "エラーが発生しました。",
+        "description": "トランザクションの署名中に予期しないエラーが発生しました。接続をご確認の上、もう一度お試しください。",
+        "cta1": "再試行",
+        "cta2": "閉じる"
+      }
+    },
+    "device": {
+      "DeviceNotSupported": {
+        "title": "{device} には対応していません。",
+        "description": "対応するLedgerデバイスのリストは次のとおりです：Ledger Nano X、Ledger Nano S Plus、Ledger Flex、Ledger Stax。",
+        "cta1": "別のデバイスを接続",
+        "cta2": "新しいLedgerデバイスを購入する"
+      },
+      "IncorrectSeed": {
+        "title": "Ledgerデバイスと暗号資産アカウント間の不適合。",
+        "description": "続行するには、この暗号資産アカウントを管理しているLedgerデバイスを接続するか、別のアカウントを選択してください。",
+        "cta1": "別のLedgerデバイスを使用",
+        "cta2": "閉じる"
+      },
+      "BlindSigningDisabled": {
+        "title": "ブラインド署名が無効になっています",
+        "description": "このトランザクションは明示的な署名ができません。アプリケーションの設定でブラインド署名を有効にしてください。",
+        "cta1": "再試行",
+        "cta2": "閉じる"
+      },
+      "UserRejectedTransaction": {
+        "title": "トランザクションが拒否されました",
+        "description": "{device}でトランザクションを拒否しました。",
+        "cta1": "閉じる",
+        "cta2": "トランザクションを再試行"
+      },
+      "UserRejectedMessage": {
+        "title": "メッセージが拒否されました",
+        "description": "{device}でメッセージの署名を拒否しました。",
+        "cta1": "閉じる",
+        "cta2": "メッセージの署名を再試行"
+      }
+    },
+    "ledgerSync": {
+      "ConnectionFailed": {
+        "title": "Ledger Syncを有効化できません",
+        "description": "Ledger Syncを有効にするためのLedger Walletへの接続に失敗しています。このタブを閉じて、Ledger Walletアプリ（デスクトップまたはモバイル）を開き、Ledger Syncを有効にしてから、タブを再度開いてください。",
+        "cta1": "このタブを閉じる",
+        "cta2": "Ledger Syncとは？"
+      },
+      "NoCompatibleAccounts": {
+        "title": "互換性のあるアカウントが見つかりません",
+        "description": "このDappは次のネットワーク{networks}をサポートしていますが、アカウントを持っていません。Ledger Walletで新しいアカウントを作成してください。",
+        "cta1": "Ledger Walletで新しいアカウントを作成する。",
+        "cta2": "別のLedgerデバイスを使用"
+      },
+      "NoAccountInSync": {
+        "title": "同期するアカウントがありません",
+        "description": "Ledger Syncが有効になっていますが、同期しているアカウントはありません。Ledger WalletでLedger Syncを有効にし、1つ以上のアカウントを追加してください。",
+        "cta1": "閉じる"
+      }
+    },
+    "network": {
+      "BroadcastTransactionError": {
+        "title": "トランザクションが失敗しました。",
+        "description": "トランザクションがネットワークにブロードキャストされましたが、実行に失敗しました。",
+        "cta1": "トランザクションを再試行"
+      }
+    },
+    "connection": {
+      "DeviceDisconnected": {
+        "title": "Ledgerデバイスが切断されています",
+        "description": "USBを使用している場合は、Ledgerデバイスを接続してロックを解除してください。Bluetoothを使用している場合は、ロック解除して近くに置いてください。",
+        "cta1": "Ledgerデバイスを再接続する"
+      }
+    }
+  }
+}

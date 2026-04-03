@@ -171,8 +171,18 @@
     "notFound": "Account not found",
     "noTokens": "No tokens found for this account"
   },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
   "transactionList": {
-    "noTransactions": "No transactions found"
+    "noTransactions": "No transactions found",
+    "pendingTransactions": "Pending transactions"
+  },
+  "mobileOnboarding": {
+    "title": "Continue in Ledger Wallet",
+    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "allowButton": "Open Ledger Wallet",
+    "rejectButton": "Download Ledger Wallet"
   },
   "settings": {
     "title": "Settings",

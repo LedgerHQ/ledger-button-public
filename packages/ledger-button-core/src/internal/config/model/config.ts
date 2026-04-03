@@ -1,5 +1,6 @@
 import { injectable } from "inversify";
 
+import PACKAGE from "../../../../package.json" with { type: "json" };
 import {
   LOG_LEVELS,
   type LogLevel,
@@ -28,6 +29,7 @@ export class Config {
   logLevel: LogLevel;
   environment: Environment;
   lkrp: LKRPConfig;
+  version: string;
 
   constructor({
     originToken,
@@ -42,6 +44,7 @@ export class Config {
     this.lkrp = {
       cloudSyncUrl: this.getCloudSyncUrl(),
     };
+    this.version = PACKAGE.version;
   }
 
   private getCloudSyncUrl(): string {

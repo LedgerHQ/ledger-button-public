@@ -34,13 +34,13 @@ export class OnboardingFlowController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((context) => {
-        if (!context.welcomeScreenCompleted) {
+        if (context.isMobilePlatform) {
+          this.state = "mobile-onboarding";
+        } else if (!context.welcomeScreenCompleted) {
           this.state = "welcome";
-        }
-        else if (context.hasTrackingConsent === undefined) {
+        } else if (context.hasTrackingConsent === undefined) {
           this.state = "consent-analytics";
-        }
-        else if (context.trustChainId && context.applicationPath) {
+        } else if (context.trustChainId && context.applicationPath) {
           this.state = "retrieving-accounts";
         } else if (
           (context.trustChainId && !context.applicationPath) ||
@@ -62,4 +62,5 @@ type OnboardingFlowState =
   | "select-device"
   | "ledger-sync"
   | "select-account"
-  | "retrieving-accounts";
+  | "retrieving-accounts"
+  | "mobile-onboarding";

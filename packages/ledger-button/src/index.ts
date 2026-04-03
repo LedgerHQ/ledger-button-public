@@ -71,9 +71,9 @@ export function initializeLedgerProvider({
     });
   }
 
-  const isSupported = core.isSupported();
+  const isSupportedPlatform = core.isSupportedPlatform();
 
-  if (!isSupported) {
+  if (!isSupportedPlatform) {
     // NOTE: If the environment is not supported, we don't need to do anything
     // and we can just return a noop function
     return () => {
