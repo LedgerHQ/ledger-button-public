@@ -153,6 +153,20 @@ describe("DefaultContextService", () => {
         },
       },
       {
+        eventType: "hydrated_account",
+        eventArgs: { account: mockAccountPolygon },
+        expectedContext: {
+          connectedDevice: undefined,
+          selectedAccount: mockAccountPolygon,
+          trustChainId: undefined,
+          applicationPath: undefined,
+          chainId: chainIdMap.polygon,
+          welcomeScreenCompleted: false,
+          hasTrackingConsent: undefined,
+          isMobilePlatform: false,
+        },
+      },
+      {
         eventType: "device_connected",
         eventArgs: { device: mockDevice },
         expectedContext: {

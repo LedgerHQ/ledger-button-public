@@ -237,10 +237,13 @@ describe("FetchSelectedAccountUseCase", () => {
         );
       });
 
-      it("should not emit account_changed event to avoid cascading context updates", async () => {
-        await useCase.execute();
+      it("should hydrate context with detailed account", async () => {
+        const result = await useCase.execute();
 
-        expect(mockContextService.onEvent).not.toHaveBeenCalled();
+        expect(mockContextService.onEvent).toHaveBeenCalledWith({
+          type: "hydrated_account",
+          account: result.unsafeCoerce(),
+        });
       });
 
       it("should log successful fetch with details", async () => {

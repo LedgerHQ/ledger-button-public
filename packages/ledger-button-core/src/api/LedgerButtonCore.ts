@@ -62,6 +62,10 @@ import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
+import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
+import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
+import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
+import { type TrackBroadcastedTransactionUseCase } from "../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
 import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
@@ -173,6 +177,10 @@ export class LedgerButtonCore {
         isMobilePlatform,
       },
     });
+
+    this.container.get<PendingTransactionController>(
+      pendingTransactionModuleTypes.PendingTransactionController,
+    );
   }
 
   private listenDevice() {
@@ -384,7 +392,16 @@ export class LedgerButtonCore {
     this._logger.debug("Signing transaction", { params });
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)
-      .sign(params);
+      .sign(params)
+      .pipe(
+        tap((status) => {
+          this.container
+            .get<TrackBroadcastedTransactionUseCase>(
+              pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase,
+            )
+            .execute(status, params);
+        }),
+      );
   }
 
   setCraftedTransactionParams(
@@ -531,6 +548,14 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._contextService.observeContext();
+  }
+
+  observePendingTransactions(): Observable<PendingTransaction[]> {
+    return this.container
+      .get<PendingTransactionController>(
+        pendingTransactionModuleTypes.PendingTransactionController,
+      )
+      .observePendingTransactions();
   }
 
   // Config methods
