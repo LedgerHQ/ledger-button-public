@@ -71,6 +71,11 @@ export class FetchSelectedAccountUseCase {
       allAccounts,
     );
 
+    this.contextService.onEvent({
+      type: "hydrated_account",
+      account: detailedAccount,
+    });
+
     this.logger.info("Selected account fetched with details", {
       address: detailedAccount.freshAddress,
       hasBalance: !!detailedAccount.balance,
@@ -173,5 +178,4 @@ export class FetchSelectedAccountUseCase {
       networks,
     };
   }
-
 }

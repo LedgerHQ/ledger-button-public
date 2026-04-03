@@ -175,7 +175,8 @@
     "title": "Available networks"
   },
   "transactionList": {
-    "noTransactions": "No transactions found"
+    "noTransactions": "No transactions found",
+    "pendingTransactions": "Pending transactions"
   },
   "mobileOnboarding": {
     "title": "ดำเนินการต่อในแอป Ledger Wallet",
