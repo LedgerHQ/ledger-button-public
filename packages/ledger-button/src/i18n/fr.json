@@ -1,15 +1,15 @@
 {
   "common": {
     "connect": "Connecter",
-    "loading": "Loading...",
+    "loading": "Chargement...",
     "appTitle": "Ledger Wallet",
     "floatingButton": {
-      "ariaLabel": "Open Ledger account menu",
+      "ariaLabel": "Ouvrir le menu Comptes Ledger",
       "label": "Ledger"
     },
     "search": {
-      "placeholder": "Search account",
-      "clearAriaLabel": "Clear search"
+      "placeholder": "Rechercher un compte",
+      "clearAriaLabel": "Effacer la recherche"
     },
     "button": {
       "connect": "Connectez votre appareil Ledger",
@@ -56,7 +56,7 @@
     }
   },
   "home": {
-    "title": "Your Ledger Wallet",
+    "title": "Ledger Wallet",
     "balance": "Solde"
   },
   "walletActions": {
@@ -168,11 +168,20 @@
   },
   "accountTokens": {
     "title": "Tokens de compte",
-    "notFound": "Account not found",
+    "notFound": "Compte non trouvé",
     "noTokens": "Aucun token trouvé pour ce compte"
   },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
   "transactionList": {
-    "noTransactions": "No transactions found"
+    "noTransactions": "Aucune transaction trouvée"
+  },
+  "mobileOnboarding": {
+    "title": "Continuez sur Ledger Wallet",
+    "description": "Pour une expérience plus fluide, cette dApp s’ouvrira directement dans l’application Ledger Wallet.",
+    "allowButton": "Ouvrir Ledger Wallet",
+    "rejectButton": "Télécharger Ledger Wallet"
   },
   "settings": {
     "title": "Paramètres",

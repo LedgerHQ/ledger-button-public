@@ -1,14 +1,14 @@
 {
   "common": {
     "connect": "เชื่อมต่อ",
-    "loading": "Loading...",
+    "loading": "กำลังโหลด...",
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "Open Ledger account menu",
       "label": "Ledger"
     },
     "search": {
-      "placeholder": "Search account",
+      "placeholder": "ค้นหาบัญชี",
       "clearAriaLabel": "Clear search"
     },
     "button": {
@@ -171,8 +171,17 @@
     "notFound": "Account not found",
     "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้"
   },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
   "transactionList": {
     "noTransactions": "No transactions found"
+  },
+  "mobileOnboarding": {
+    "title": "ดำเนินการต่อในแอป Ledger Wallet",
+    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "allowButton": "เปิดแอป Ledger Wallet",
+    "rejectButton": "ดาวน์โหลดแอป Ledger Wallet™"
   },
   "settings": {
     "title": "การตั้งค่า",
