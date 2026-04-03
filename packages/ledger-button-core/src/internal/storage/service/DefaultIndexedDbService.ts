@@ -31,7 +31,7 @@ export class DefaultIndexedDbService implements IndexedDbService {
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this.logger = this.loggerFactory("[IndexedDB Service]");
+    this.logger = this.loggerFactory("IndexedDB Service");
   }
 
   async initIdb(): Promise<Either<StorageIDBErrors, IDBDatabase>> {

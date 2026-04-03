@@ -6,6 +6,7 @@ export default {
   overview: "Overview",
   "get-started": "Get Started",
   configuration: "Configuration",
+  "package-attestation": "Package Attestation",
   requirements: "Requirements",
   "api-reference": "API Reference",
 };

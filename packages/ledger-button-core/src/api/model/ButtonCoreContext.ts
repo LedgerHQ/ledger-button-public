@@ -9,4 +9,5 @@ export type ButtonCoreContext = {
   chainId: number;
   welcomeScreenCompleted: boolean;
   hasTrackingConsent: boolean | undefined;
+  isMobilePlatform: boolean;
 };

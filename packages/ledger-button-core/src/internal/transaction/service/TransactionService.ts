@@ -34,21 +34,5 @@ export interface TransactionService {
       | SignPersonalMessageParams,
   ): Observable<SignFlowStatus>;
 
-  getPendingTransaction():
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams
-    | undefined;
-
-  setPendingTransaction(
-    params:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams
-      | undefined,
-  ): void;
-
   reset(): void;
 }

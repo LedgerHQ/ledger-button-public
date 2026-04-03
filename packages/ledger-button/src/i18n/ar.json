@@ -1,0 +1,302 @@
+{
+  "common": {
+    "connect": "اتصال",
+    "loading": "جاري التحميل...",
+    "appTitle": "Ledger Wallet",
+    "floatingButton": {
+      "ariaLabel": "افتح قائمة حساب Ledger",
+      "label": "Ledger"
+    },
+    "search": {
+      "placeholder": "ابحث في الحساب",
+      "clearAriaLabel": "مسح البحث"
+    },
+    "button": {
+      "connect": "توصيل جهازك Ledger",
+      "usb": "اتصل عن طريق USB",
+      "bluetooth": "اتصل عن طريق بلوتوث",
+      "usb_hint": "قم بتوصيل وإلغاء قفل جهازك",
+      "bluetooth_hint": "قم بتشغيل جهازك وقم بإلغاء قفله",
+      "close": "إغلاق",
+      "tryAgain": "إعادة المحاولة",
+      "disconnect": "قطع الاتصال"
+    },
+    "ad": {
+      "getALedger": "احصل على جهاز Ledger"
+    },
+    "platform": {
+      "onDesktop": "على سطح المكتب",
+      "onMobile": "على الجوّال"
+    },
+    "learnMore": "تعرّف على المزيد",
+    "device": {
+      "model": {
+        "nanoS": "Ledger Nano S",
+        "nanoSP": "Ledger Nano SP",
+        "nanoX": "Ledger Nano X",
+        "stax": "Ledger Stax",
+        "flex": "Ledger Flex",
+        "apexp": "Ledger Nano Gen 5",
+        "fallback": "جهاز Ledger"
+      },
+      "deviceActions": {
+        "continueOnLedger": {
+          "title": "المتابعة على جهازك {device}",
+          "description": "اتبع التعليمات المعروضة على الشاشة الآمنة."
+        },
+        "pin": {
+          "title": "إلغاء قفل جهازك {device}",
+          "description": "أدخل كود PIN الخاص بك لإلغاء قفل جهازك Ledger."
+        },
+        "signTransaction": {
+          "title": "المتابعة على جهازك {device}",
+          "description": "اتبع التعليمات المعروضة على الشاشة الآمنة."
+        }
+      }
+    }
+  },
+  "home": {
+    "title": "Ledger Wallet لديك",
+    "balance": "الرصيد"
+  },
+  "walletActions": {
+    "send": "إرسال",
+    "receive": "تلقي",
+    "swap": "مبادلة",
+    "buy": "شراء",
+    "earn": "اكسب",
+    "sell": "بيع"
+  },
+  "walletRedirect": {
+    "title": "المتابعة في Ledger Wallet",
+    "description": "تحتاج إلى تطبيق Ledger Wallet لسطح المكتب لإتمام هذا الإجراء.",
+    "confirm": "افتح Ledger Wallet",
+    "download": "تنزيل Ledger Wallet"
+  },
+  "deviceSwitch": {
+    "title": "أجهزة Ledger الخاصة بك",
+    "noDevices": "لم يتم العثور على أجهزة متصلة مسبقاً",
+    "connectAnother": "أو قم بتوصيل جهاز Ledger آخر",
+    "connectBluetooth": "توصيل بلوتوث",
+    "connectBluetoothHint": "قم بتشغيل وإلغاء قفل جهازك Ledger",
+    "connectUsb": "اتصل عن طريق USB",
+    "connectUsbHint": "قم بتوصيل وإلغاء قفل جهازك",
+    "status": {
+      "connected": "متصل",
+      "available": "متاح"
+    }
+  },
+  "ledgerSync": {
+    "turnOnLedgerSyncTitle": "تنشيط مزامنة Ledger Sync للمتابعة",
+    "turnOnLedgerSyncSubtitle": "هذا مطلوب لاسترداد حسابات الأصول المشفرة الخاصة بك.",
+    "activateSelectPlatform": "اختر كيف تريد تفعيل مزامنة Ledger Sync",
+    "activate": "تنشيط مزامنة Ledger Sync",
+    "activateStep1Desktop": "اختر الزر أدناه لتفعيل مزامنة Ledger Sync",
+    "activateStep1DesktopLLInstalled": "تأكد من أن تطبيق Ledger Wallet مُثبت على الكمبيوتر الخاص بك.",
+    "activateStep1Mobile": "لتفعيل مزامنة Ledger Sync، قم بمسح كود QR واتبع الخطوات الظاهرة على الشاشة.",
+    "activateStep2": "بمجرد التفعيل، اختر \"Continue (متابعة)\" أدناه.",
+    "activated": "تم تفعيل مزامنة Ledger، تابع"
+  },
+  "onboarding": {
+    "selectDevice": {
+      "title": "توصيل جهاز Ledger"
+    },
+    "ledgerSync": {
+      "title": ""
+    },
+    "retrievingAccounts": {
+      "title": "جارٍ استرداد الحسابات"
+    },
+    "selectAccount": {
+      "title": "اختر حساب",
+      "showTokens": "عرض رموز التوكن",
+      "searchPlaceholder": "ابحث في الحساب",
+      "noResults": "لا توجد حسابات تطابق بحثك",
+      "refreshingAccounts": "Ledger Wallet يقوم بتحديث حساباتك.",
+      "refreshingAccountsHint": "اختر حساباً في أي وقت للمتابعة."
+    },
+    "turnOnSync": {
+      "title": "",
+      "subtitle": "قم بتشغيل مزامنة Ledger Sync للمتابعة",
+      "text": "هذا مطلوب لتتمكن من جلب حساباتك بأمان. بالنقر على Turn on Ledger Sync (تشغيل مزامنة Ledger Sync) سيتم إعادة توجيهك إلى Ledger Wallet لتفعيل الميزة."
+    },
+    "consentPrompt": {
+      "intro": {
+        "title": "مرحباً بك في Ledger Wallet",
+        "subtitle": "استمتع باتصال سلس ومباشر بين جهاز توقيع Ledger الخاص بك والتطبيقات اللامركزية (dApp). لقد قمت بفتح:",
+        "features": {
+          "directConnectivity": {
+            "title": "اتصال مباشر",
+            "description": "الاتصال عبر USB أو بلوتوث."
+          },
+          "clearSigning": {
+            "title": "التوقيع بوضوح",
+            "description": "تحقق من المعاملات بوضوح قبل التوقيع."
+          },
+          "transactionCheck": {
+            "title": "Transaction Check (التحقق من المعاملة)",
+            "description": "تلقى تحذيرات لأي تهديدات محتملة قبل التوقيع."
+          }
+        },
+        "howItWorks": {
+          "title": "تعرّف على كيف يعمل",
+          "description": "يتم استرداد حسابات الأصول المشفرة الخاصة بك بأمان عبر <strong class=\"text-base\">مزامنة Ledger Sync</strong>. تُستخدم مزامنة Ledger Sync لمزامنة وعمل نسخ احتياطي لحسابات الأصول المشفرة الخاصة بك عبر تطبيقات Ledger Wallet لديك على جميع أجهزتك.",
+          "alreadyActivated": {
+            "title": "قمت بالفعل بتنشيط مزامنة Ledger Sync؟",
+            "description": "أنت الآن مستعد!"
+          },
+          "firstTime": {
+            "title": "أول مرة تستخدم مزامنة Ledger Sync؟",
+            "description": "سيتم إرشادك خلال إعداد لمرة واحدة يستغرق بضع دقائق فقط."
+          }
+        },
+        "continueButton": "متابعة",
+        "legalText": "بالنقر على Continue (متابعة) أنت توافق على وتقبل",
+        "termsAndConditions": "الشروط والأحكام",
+        "and": "و",
+        "privacyPolicy": "سياسة الخصوصية"
+      },
+      "consent": {
+        "title": "ساعدنا على التحسن",
+        "description": "بموافقتك، ستقوم Ledger ستجمع بيانات تحليلات المنتج لمساعدتنا في اكتشاف الخلل، وقياس أداء الاتصال المباشر في Ledger Wallet وتحسين الخدمة وتجربتك.",
+        "privacyNotice": "اعرف المزيد عن كيف ندير بياناتك وحقوقك في",
+        "privacyPolicyLink": "سياسة الخصوصية",
+        "acceptButton": "قبول الكل",
+        "rejectButton": "رفض الكل"
+      }
+    }
+  },
+  "accountTokens": {
+    "title": "رموز الحساب",
+    "notFound": "لم يتم العثور على الحساب",
+    "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب"
+  },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
+  "transactionList": {
+    "noTransactions": "لم يتم العثور على معاملات"
+  },
+  "mobileOnboarding": {
+    "title": "المتابعة في Ledger Wallet",
+    "description": "لتجربة أكثر سلاسة، سيتم فتح هذا التطبيق اللامركزي (dApp) مباشرةً في تطبيق Ledger Wallet",
+    "allowButton": "افتح Ledger Wallet",
+    "rejectButton": "قم بتنزيل Ledger Wallet"
+  },
+  "settings": {
+    "title": "إعدادات",
+    "analytics": {
+      "title": "التحليلات",
+      "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+    },
+    "securityConfidentiality": "الأمان والسرية",
+    "helpSupport": "المساعدة والدعم",
+    "support": {
+      "title": "المساعدة والدعم",
+      "support": "الدعم",
+      "contactUs": "تواصل معنا"
+    }
+  },
+  "signTransaction": {
+    "success": {
+      "title": "تم توقيع المعاملة",
+      "description": "سيتم معالجة معاملتك قريباً.",
+      "viewTransaction": "عرض تفاصيل المعاملة"
+    },
+    "error": {
+      "title": "فشلت المعاملة",
+      "description": "حدث خطأ أثناء توقيع معاملتك. يُرجى إعادة المحاولة."
+    }
+  },
+  "signMessage": {
+    "success": {
+      "title": "تم توقيع الرسالة بنجاح.",
+      "description": "رسالتك تم توقيعها بنجاح."
+    },
+    "error": {
+      "title": "فشل توقيع الرسالة",
+      "description": "حدث خطأ أثناء توقيع رسالتك. يُرجى إعادة المحاولة."
+    }
+  },
+  "error": {
+    "generic": {
+      "account": {
+        "title": "حدث خطأ",
+        "description": "حدث خطأ غير متوقع أثناء جلب حساباتك. يرجى إعادة المحاولة",
+        "cta1": "يرجى إعادة المحاولة",
+        "cta2": "إغلاق"
+      },
+      "sign": {
+        "title": "حدث خطأ",
+        "description": "حدث خطأ غير متوقع أثناء توقيع معاملتك. يرجى إعادة المحاولة",
+        "cta1": "يرجى إعادة المحاولة",
+        "cta2": "إغلاق"
+      }
+    },
+    "device": {
+      "DeviceNotSupported": {
+        "title": "{device} غير مدعومة",
+        "description": "إليك قائمة بأجهزة Ledger المتوافقة: Ledger Nano X، Ledger Nano S Plus، Ledger Flex، Ledger Stax.",
+        "cta1": "توصيل جهاز آخر",
+        "cta2": "اشترِ جهاز Ledger جديد"
+      },
+      "IncorrectSeed": {
+        "title": "عدم التوافق بين جهاز Ledger وحساب الأصل المشفر",
+        "description": "للمتابعة، قم بتوصيل جهاز Ledger الذي يدير حساب الأصل المشفر هذا، أو اختر حساباً آخر.",
+        "cta1": "استخدم جهاز Ledger آخر",
+        "cta2": "إغلاق"
+      },
+      "BlindSigningDisabled": {
+        "title": "تم تعطيل التوقيع بدون اطلاع",
+        "description": "هذه المعاملة لا يمكن توقيعها بوضوح، قم بتمكين التوقيع بدون اطلاع في Settings (الإعدادات) في التطبيق.",
+        "cta1": "إعادة المحاولة",
+        "cta2": "إغلاق"
+      },
+      "UserRejectedTransaction": {
+        "title": "تم رفض المعاملة",
+        "description": "لقد قمت برفض المعاملة على جهازك {device}",
+        "cta1": "إغلاق",
+        "cta2": "أعد المحاولة للمعاملة"
+      },
+      "UserRejectedMessage": {
+        "title": "تم رفض الرسالة",
+        "description": "لقد قمت برفض توقيع الرسالة على جهازك {device}",
+        "cta1": "إغلاق",
+        "cta2": "أعد محاولة توقيع الرسالة"
+      }
+    },
+    "ledgerSync": {
+      "ConnectionFailed": {
+        "title": "تعذر تنشيط مزامنة Ledger Sync",
+        "description": "فشل الاتصال بـ Ledger Wallet لتفعيل مزامنة Ledger Sync. يُرجى إغلاق علامة التبويب هذه، افتح تطبيق Ledger Wallet (لسطح المكتب أو الجوّال)، وتفعيل مزامنة Ledger Sync وإعادة فتح علامة التبويب.",
+        "cta1": "أغلق علامة التبويب هذه",
+        "cta2": "ما هي مزامنة Ledger Sync؟"
+      },
+      "NoCompatibleAccounts": {
+        "title": "لم يتم العثور على حساب متوافق",
+        "description": "هذا التطبيق اللامركزي (dApp) يدعم الشبكات التالية {networks}، والتي ليس لديك أي حسابات عليها. يرجى إنشاء حساب جديد على Ledger Wallet",
+        "cta1": "إنشاء حساب جديد على Ledger Wallet",
+        "cta2": "استخدم جهاز Ledger آخر"
+      },
+      "NoAccountInSync": {
+        "title": "لا توجد حسابات متزامنة",
+        "description": "تم تفعيل مزامنة Ledger Sync ولكن لا توجد حسابات متزامنة. يُرجى تفعيل مزامنة Ledger Sync على Ledger Wallet وإضافة حساب أو أكثر.",
+        "cta1": "إغلاق"
+      }
+    },
+    "network": {
+      "BroadcastTransactionError": {
+        "title": "فشلت المعاملة",
+        "description": "تم بث معاملتك إلى الشبكة ولكن فشل تنفيذها.",
+        "cta1": "أعد المحاولة للمعاملة"
+      }
+    },
+    "connection": {
+      "DeviceDisconnected": {
+        "title": "جهازك Ledger غير متصل",
+        "description": "إذا كنت تستخدم USB، قم بتوصيل جهازك Ledger وإلغاء قفله. إذا كنت تستخدم البلوتوث، قم بإلغاء قفله واحتفظ به بالقرب منك.",
+        "cta1": "أعد توصيل جهاز Ledger"
+      }
+    }
+  }
+}

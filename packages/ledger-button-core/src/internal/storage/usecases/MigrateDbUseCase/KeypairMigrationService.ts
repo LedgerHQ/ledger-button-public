@@ -29,7 +29,7 @@ export class KeyPairMigrationService {
     @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)
     private readonly getOrCreateKeyPairUseCase: GetOrCreateKeyPairUseCase,
   ) {
-    this.logger = this.loggerFactory("[KeyPair Migration Service]");
+    this.logger = this.loggerFactory("KeyPair Migration Service");
   }
 
   async migrateKeyPairToEncrypted(

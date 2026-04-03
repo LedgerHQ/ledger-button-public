@@ -19,7 +19,7 @@ export class TrackFloatingButtonClick {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[TrackFloatingButtonClick UseCase]");
+    this.logger = loggerFactory("TrackFloatingButtonClick UseCase");
   }
 
   async execute(): Promise<void> {

@@ -25,7 +25,7 @@ export class GetDetailedSelectedAccountUseCase {
     @inject(accountModuleTypes.FetchSelectedAccountUseCase)
     private readonly fetchSelectedAccountUseCase: FetchSelectedAccountUseCase,
   ) {
-    this.logger = loggerFactory("[GetDetailedSelectedAccountUseCase]");
+    this.logger = loggerFactory("GetDetailedSelectedAccountUseCase");
   }
 
   async execute(): Promise<Either<AccountError, DetailedAccount>> {

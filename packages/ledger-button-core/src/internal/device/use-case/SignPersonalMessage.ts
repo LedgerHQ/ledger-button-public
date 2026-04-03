@@ -84,7 +84,7 @@ export class SignPersonalMessage {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[SignPersonalMessage]");
+    this.logger = loggerFactory("SignPersonalMessage");
   }
 
   execute(params: SignPersonalMessageParams): Observable<SignFlowStatus> {

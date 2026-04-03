@@ -14,7 +14,7 @@ export class DisconnectDevice {
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
   ) {
-    this.logger = loggerFactory("[DisconnectDevice UseCase]");
+    this.logger = loggerFactory("DisconnectDevice UseCase");
   }
 
   async execute(): Promise<void> {

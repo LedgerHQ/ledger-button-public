@@ -2,14 +2,12 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
-import type { TransactionHistoryItem } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
 import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
-import type { NetworksClickEventDetail } from "../../components/molecule/networks/ledger-networks.js";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
@@ -27,7 +25,6 @@ import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
-import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
 const styles = css`
@@ -54,29 +51,6 @@ const styles = css`
     );
   }
 `;
-
-function mapTransactionHistoryToListItem(
-  transaction: TransactionHistoryItem,
-): TransactionListItem {
-  const date = new Date(transaction.timestamp);
-  const dateString = date.toISOString().split("T")[0];
-  const timeString = date.toLocaleTimeString("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  return {
-    hash: transaction.hash,
-    type: transaction.type,
-    date: dateString,
-    time: timeString,
-    amount: transaction.formattedValue,
-    ticker: transaction.ticker,
-    title: transaction.currencyName,
-    fiatAmount: transaction.fiatValue ?? "",
-    fiatCurrency: transaction.fiatCurrency ?? "",
-  };
-}
 
 @customElement("ledger-home-screen")
 @tailwindElement(styles)
@@ -131,16 +105,8 @@ export class LedgerHomeScreen extends LitElement {
     );
   };
 
-  private handleNetworksClick = (
-    event: CustomEvent<NetworksClickEventDetail>,
-  ) => {
-    this.dispatchEvent(
-      new CustomEvent("ledger-internal-networks-click", {
-        bubbles: true,
-        composed: true,
-        detail: event.detail,
-      }),
-    );
+  private handleNetworksClick = () => {
+    this.navigation.navigateTo(this.destinations.availableNetworks);
   };
 
   private handleDisconnectClick = async () => {
@@ -197,17 +163,6 @@ export class LedgerHomeScreen extends LitElement {
     this.currentAction = null;
   };
 
-  private getTransactionListItems(): TransactionListItem[] {
-    const account = this.controller.selectedAccount;
-    if (!account?.transactionHistory) {
-      return [];
-    }
-
-    return account.transactionHistory.map((tx) =>
-      mapTransactionHistoryToListItem(tx),
-    );
-  }
-
   override render() {
     if (this.controller.loading) {
       return html`
@@ -262,7 +217,11 @@ export class LedgerHomeScreen extends LitElement {
               <ledger-tabs
                 .tabs=${[
                   { id: "tokens", label: "Tokens" },
-                  { id: "transactions", label: "Transactions" },
+                  {
+                    id: "transactions",
+                    label: "Transactions",
+                    badge: this.controller.pendingTransactionListItems.length || undefined,
+                  },
                 ]}
                 .selectedId=${this.activeTab}
                 @tab-change=${this.handleTabChange}
@@ -274,18 +233,17 @@ export class LedgerHomeScreen extends LitElement {
                   .account=${account}
                 ></token-list-screen>`
               : html`<transaction-list-screen
-                  .transactions=${this.getTransactionListItems()}
+                  .transactions=${this.controller.transactionListItems}
+                  .pendingTransactions=${this.controller.pendingTransactionListItems}
                 ></transaction-list-screen>`}
-          </div>
-        </div>
 
-        <div class="p-24 pt-12">
-          <ledger-button
-            variant="secondary"
-            size="full"
-            label=${lang.common.button.disconnect}
-            @click=${this.handleDisconnectClick}
-          ></ledger-button>
+            <ledger-button
+              variant="secondary"
+              size="full"
+              label=${lang.common.button.disconnect}
+              @click=${this.handleDisconnectClick}
+            ></ledger-button>
+          </div>
         </div>
 
         ${this.showRedirectDrawer && this.currentAction
@@ -310,6 +268,5 @@ declare global {
   interface WindowEventMap {
     "ledger-internal-button-disconnect": CustomEvent<void>;
     "ledger-internal-account-switch": CustomEvent<AccountItemClickEventDetail>;
-    "ledger-internal-networks-click": CustomEvent<NetworksClickEventDetail>;
   }
 }

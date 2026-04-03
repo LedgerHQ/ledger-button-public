@@ -6,6 +6,7 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { ContextService } from "../../context/ContextService.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -49,6 +50,9 @@ describe("FetchSelectedAccountUseCase", () => {
   let mockHydrateWithTxHistoryUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
+  let mockCalDataSource: {
+    getCurrencyInformation: ReturnType<typeof vi.fn>;
+  };
   let mockLogger: ReturnType<typeof createMockLogger>;
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
 
@@ -80,7 +84,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
-    networks: [{ id: "1", name: "ethereum" }],
+    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } }],
   };
 
   beforeEach(() => {
@@ -112,6 +116,12 @@ describe("FetchSelectedAccountUseCase", () => {
       execute: vi.fn(),
     };
 
+    mockCalDataSource = {
+      getCurrencyInformation: vi.fn().mockImplementation((currencyId: string) =>
+        Promise.resolve(Right({ id: currencyId, name: currencyId.charAt(0).toUpperCase() + currencyId.slice(1), ticker: currencyId.toUpperCase(), decimals: 18 })),
+      ),
+    };
+
     useCase = new FetchSelectedAccountUseCase(
       mockLoggerFactory as unknown as () => LoggerPublisher,
       mockContextService as unknown as ContextService,
@@ -120,6 +130,7 @@ describe("FetchSelectedAccountUseCase", () => {
       mockHydrateWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
       mockHydrateWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
       mockHydrateWithTxHistoryUseCase as unknown as HydrateAccountWithTxHistoryUseCase,
+      mockCalDataSource as unknown as CalDataSource,
     );
 
     vi.clearAllMocks();
@@ -202,7 +213,9 @@ describe("FetchSelectedAccountUseCase", () => {
           expect(account.transactionHistory).toEqual(
             hydratedAccount.transactionHistory,
           );
-          expect(account.networks).toEqual([{ id: "1", name: "ethereum" }]);
+          expect(account.networks).toEqual([
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
+          ]);
         });
       });
 
@@ -224,10 +237,13 @@ describe("FetchSelectedAccountUseCase", () => {
         );
       });
 
-      it("should not emit account_changed event to avoid cascading context updates", async () => {
-        await useCase.execute();
+      it("should hydrate context with detailed account", async () => {
+        const result = await useCase.execute();
 
-        expect(mockContextService.onEvent).not.toHaveBeenCalled();
+        expect(mockContextService.onEvent).toHaveBeenCalledWith({
+          type: "hydrated_account",
+          account: result.unsafeCoerce(),
+        });
       });
 
       it("should log successful fetch with details", async () => {
@@ -296,6 +312,62 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(result.isRight()).toBe(true);
         result.map((account) => {
           expect(account.transactionHistory).toBeUndefined();
+        });
+      });
+    });
+
+    describe("network computation from accounts with same address", () => {
+      it("should only include networks from accounts sharing the selected address", async () => {
+        const polygonAccount: Account = {
+          ...baseAccount,
+          id: "account-2",
+          currencyId: "polygon",
+        };
+        const otherAccount: Account = {
+          ...baseAccount,
+          id: "account-3",
+          currencyId: "bsc",
+          freshAddress: "0xdifferentaddress",
+        };
+
+        mockContextService.getContext.mockReturnValue({
+          selectedAccount: baseAccount,
+        });
+        mockFetchAccountsUseCase.execute.mockResolvedValue([
+          baseAccount,
+          polygonAccount,
+          otherAccount,
+        ]);
+        mockHydrateWithBalanceUseCase.execute.mockResolvedValue({
+          ...baseAccount,
+          balance: "2.5000",
+        });
+        mockHydrateWithFiatUseCase.execute.mockImplementation(
+          (account: Account) =>
+            Promise.resolve({
+              ...account,
+              fiatBalance: { value: "5000.00", currency: "USD" },
+              fiatError: false,
+              balanceLoadingState: "loaded",
+              fiatLoadingState: "loaded",
+            }),
+        );
+        mockHydrateWithTxHistoryUseCase.execute.mockResolvedValue({
+          ...baseAccount,
+          transactionHistory: [],
+        });
+
+        const result = await useCase.execute();
+
+        expect(result.isRight()).toBe(true);
+        result.map((account) => {
+          expect(account.networks).toEqual([
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "polygon", name: "Polygon", ticker: "POLYGON", fiatBalance: { value: "5000.00", currency: "USD" } },
+          ]);
+          expect(account.networks).not.toContainEqual(
+            expect.objectContaining({ id: "bsc" }),
+          );
         });
       });
     });

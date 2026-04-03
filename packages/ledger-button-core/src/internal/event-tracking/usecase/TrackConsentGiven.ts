@@ -19,7 +19,7 @@ export class TrackConsentGiven {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[TrackConsentGiven UseCase]");
+    this.logger = loggerFactory("TrackConsentGiven UseCase");
   }
 
   async execute(): Promise<void> {

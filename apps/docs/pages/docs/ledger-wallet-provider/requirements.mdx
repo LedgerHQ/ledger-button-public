@@ -1,6 +1,13 @@
+---
+title: Requirements
+category: reference
+---
+
 import { Callout } from 'nextra/components'
 
 # Requirements
+
+This page lists the environment requirements for `@ledgerhq/ledger-wallet-provider`. The SDK communicates directly with Ledger hardware signers over USB (Web HID API) and Bluetooth (Web Bluetooth API), so it requires a browser environment where those APIs are available. It cannot run in Node.js or any server-side environment.
 
 ## Platform requirements
 
@@ -11,10 +18,15 @@ import { Callout } from 'nextra/components'
 - Web Bluetooth API support (for Bluetooth connections)
 
 <Callout type="info">
-**Note**: Mobile browsers are not supported due to Web HID/BLE API not being implemented.
+Mobile browsers are not supported because Web HID and Web Bluetooth APIs are not available on iOS or Android.
 </Callout>
 
 ## Browser support
 
 - **Desktop**: Chrome 89+, Firefox 89+, Safari 14.1+, Edge 89+
-- **Mobile**: Not supported (Web HID/BLE APIs not available)
+- **Mobile**: Not supported (Web HID and Web Bluetooth APIs are not available)
+
+## See also
+
+- [Get started](./get-started) — install the SDK and initialize the provider
+- [Configuration](./configuration) — full list of initialization options

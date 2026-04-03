@@ -1,0 +1,302 @@
+{
+  "common": {
+    "connect": "Connecter",
+    "loading": "Chargement...",
+    "appTitle": "Ledger Wallet",
+    "floatingButton": {
+      "ariaLabel": "Ouvrir le menu Comptes Ledger",
+      "label": "Ledger"
+    },
+    "search": {
+      "placeholder": "Rechercher un compte",
+      "clearAriaLabel": "Effacer la recherche"
+    },
+    "button": {
+      "connect": "Connectez votre appareil Ledger",
+      "usb": "Connecter via USB",
+      "bluetooth": "Connecter via Bluetooth",
+      "usb_hint": "Connectez et déverrouillez votre appareil",
+      "bluetooth_hint": "Allumez et déverrouillez votre appareil",
+      "close": "Fermer",
+      "tryAgain": "Réessayer",
+      "disconnect": "Déconnecter"
+    },
+    "ad": {
+      "getALedger": "Achetez un appareil Ledger"
+    },
+    "platform": {
+      "onDesktop": "Sur ordinateur",
+      "onMobile": "Sur mobile"
+    },
+    "learnMore": "En savoir plus",
+    "device": {
+      "model": {
+        "nanoS": "Ledger Nano S",
+        "nanoSP": "Ledger Nano S Plus",
+        "nanoX": "Ledger Nano X",
+        "stax": "Ledger Stax",
+        "flex": "Ledger Flex",
+        "apexp": "Ledger Nano Gen5",
+        "fallback": "Appareil Ledger"
+      },
+      "deviceActions": {
+        "continueOnLedger": {
+          "title": "Continuez sur votre {device}",
+          "description": "Consultez les instructions sur son écran sécurisé."
+        },
+        "pin": {
+          "title": "Déverrouillez votre {device}",
+          "description": "Saisissez votre code PIN pour déverrouiller votre appareil Ledger."
+        },
+        "signTransaction": {
+          "title": "Continuez sur votre {device}",
+          "description": "Consultez les instructions sur son écran sécurisé."
+        }
+      }
+    }
+  },
+  "home": {
+    "title": "Ledger Wallet",
+    "balance": "Solde"
+  },
+  "walletActions": {
+    "send": "Envoyer",
+    "receive": "Recevoir",
+    "swap": "Échanger",
+    "buy": "Acheter",
+    "earn": "Gagner",
+    "sell": "Vendre"
+  },
+  "walletRedirect": {
+    "title": "Continuez sur Ledger Wallet",
+    "description": "Vous avez besoin de l’application Ledger Wallet pour ordinateur pour poursuivre.",
+    "confirm": "Ouvrir Ledger Wallet",
+    "download": "Télécharger Ledger Wallet"
+  },
+  "deviceSwitch": {
+    "title": "Vos appareils Ledger",
+    "noDevices": "Aucun appareil connecté précédemment n’a été trouvé",
+    "connectAnother": "Ou connectez un autre appareil Ledger",
+    "connectBluetooth": "Connecter via Bluetooth",
+    "connectBluetoothHint": "Allumez et déverrouillez votre appareil",
+    "connectUsb": "Connecter via USB",
+    "connectUsbHint": "Connectez et déverrouillez votre appareil",
+    "status": {
+      "connected": "Connecté",
+      "available": "Disponible"
+    }
+  },
+  "ledgerSync": {
+    "turnOnLedgerSyncTitle": "Activez Ledger Sync pour continuer",
+    "turnOnLedgerSyncSubtitle": "Cette étape est nécessaire pour synchroniser vos comptes crypto.",
+    "activateSelectPlatform": "Choisissez comment activer Ledger Sync",
+    "activate": "Activer Ledger Sync",
+    "activateStep1Desktop": "Sélectionnez le bouton ci-dessous pour activer Ledger Sync",
+    "activateStep1DesktopLLInstalled": "Assurez-vous que l’application Ledger Wallet est installée sur votre ordinateur.",
+    "activateStep1Mobile": "Pour activer Ledger Sync, scannez le code QR et laissez-vous guider.",
+    "activateStep2": "Une fois activé, sélectionnez Continuer ci-dessous.",
+    "activated": "Ledger Sync est activé, continuer"
+  },
+  "onboarding": {
+    "selectDevice": {
+      "title": "Connexion"
+    },
+    "ledgerSync": {
+      "title": ""
+    },
+    "retrievingAccounts": {
+      "title": "Synchronisation des comptes"
+    },
+    "selectAccount": {
+      "title": "Sélectionner un compte",
+      "showTokens": "Afficher les tokens",
+      "searchPlaceholder": "Rechercher un compte",
+      "noResults": "Aucun compte ne correspond à votre recherche.",
+      "refreshingAccounts": "Ledger Wallet actualise vos comptes.",
+      "refreshingAccountsHint": "Sélectionnez un compte à tout moment pour continuer."
+    },
+    "turnOnSync": {
+      "title": "",
+      "subtitle": "Activez Ledger Sync pour continuer.",
+      "text": "Cette étape est nécessaire pour synchroniser vos comptes en toute sécurité. En cliquant sur Ledger Sync, vous serez redirigé(e) vers Ledger Wallet pour activer la fonctionnalité."
+    },
+    "consentPrompt": {
+      "intro": {
+        "title": "Bienvenue sur Ledger Wallet™",
+        "subtitle": "Profitez d’une connexion fluide et directe entre votre appareil Ledger et vos dApps. Vous avez accès à :",
+        "features": {
+          "directConnectivity": {
+            "title": "Connectivité directe",
+            "description": "Connectez-vous via USB ou Bluetooth."
+          },
+          "clearSigning": {
+            "title": "Signature en clair",
+            "description": "Vérifiez vos transactions en clair avant de les signer."
+          },
+          "transactionCheck": {
+            "title": "Transaction Check",
+            "description": "Recevez des avertissements pour toute menace potentielle avant de signer une transaction."
+          }
+        },
+        "howItWorks": {
+          "title": "Fonctionnement",
+          "description": "Vos comptes crypto sont synchronisés en toute sécurité via <strong class=\"text-base\">Ledger Sync</strong>. Ledger Sync vous permet de synchroniser et sauvegarder vos comptes crypto sur toutes vos applications Ledger Wallet et tous vos appareils.",
+          "alreadyActivated": {
+            "title": "Vous avez déjà activé Ledger Sync ?",
+            "description": "Tout est prêt !"
+          },
+          "firstTime": {
+            "title": "C’est la première fois que vous utilisez Ledger Sync ?",
+            "description": "Laissez-vous guider. La configuration ne prendra que quelques minutes."
+          }
+        },
+        "continueButton": "Continuer",
+        "legalText": "En cliquant sur Continuer, vous acceptez nos",
+        "termsAndConditions": "Conditions générales",
+        "and": "et",
+        "privacyPolicy": "Politique de confidentialité"
+      },
+      "consent": {
+        "title": "Aidez-nous à nous améliorer",
+        "description": "Avec votre accord, Ledger collectera des données analytiques sur les produits pour nous aider à trouver des bugs, à mesurer la performance de la fonctionnalité Connectivité directe de Ledger Wallet, et à améliorer le service ainsi que votre expérience.",
+        "privacyNotice": "Plus d’informations sur la gestion de vos droits et de vos données dans notre",
+        "privacyPolicyLink": "Politique de confidentialité",
+        "acceptButton": "Tout accepter",
+        "rejectButton": "Tout refuser"
+      }
+    }
+  },
+  "accountTokens": {
+    "title": "Tokens de compte",
+    "notFound": "Compte non trouvé",
+    "noTokens": "Aucun token trouvé pour ce compte"
+  },
+  "availableNetworks": {
+    "title": "Available networks"
+  },
+  "transactionList": {
+    "noTransactions": "Aucune transaction trouvée"
+  },
+  "mobileOnboarding": {
+    "title": "Continuez sur Ledger Wallet",
+    "description": "Pour une expérience plus fluide, cette dApp s’ouvrira directement dans l’application Ledger Wallet.",
+    "allowButton": "Ouvrir Ledger Wallet",
+    "rejectButton": "Télécharger Ledger Wallet"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "analytics": {
+      "title": "Statistiques",
+      "description": "Autorisez Ledger à collecter les données d’utilisation pour nous aider à mesurer la performance de la fonctionnalité Connectivité directe de Ledger Wallet, et à améliorer l’application ainsi que votre expérience."
+    },
+    "securityConfidentiality": "Sécurité et vie privée",
+    "helpSupport": "Aide",
+    "support": {
+      "title": "Aide",
+      "support": "Assistance",
+      "contactUs": "Nous contacter"
+    }
+  },
+  "signTransaction": {
+    "success": {
+      "title": "Transaction signée",
+      "description": "Votre transaction va être rapidement traitée.",
+      "viewTransaction": "Voir les détails de la transaction"
+    },
+    "error": {
+      "title": "Échec de la transaction",
+      "description": "Une erreur est survenue lors de la signature de la transaction. Veuillez réessayer."
+    }
+  },
+  "signMessage": {
+    "success": {
+      "title": "Message signé",
+      "description": "Vous avez bien signé votre message/"
+    },
+    "error": {
+      "title": "Échec de la signature du message",
+      "description": "Une erreur est survenue lors de la signature du message. Veuillez réessayer."
+    }
+  },
+  "error": {
+    "generic": {
+      "account": {
+        "title": "Une erreur est survenue",
+        "description": "Une erreur est survenue lors de la synchronisation de vos comptes. Veuillez réessayer.",
+        "cta1": "Réessayer",
+        "cta2": "Fermer"
+      },
+      "sign": {
+        "title": "Une erreur est survenue",
+        "description": "Une erreur est survenue lors de la signature de la transaction. Veuillez réessayer.",
+        "cta1": "Réessayer",
+        "cta2": "Fermer"
+      }
+    },
+    "device": {
+      "DeviceNotSupported": {
+        "title": "{device} non pris en charge",
+        "description": "Liste des appareils Ledger compatibles : Ledger Nano X, Ledger Nano S Plus, Ledger Flex, Ledger Stax.",
+        "cta1": "Connecter un autre appareil",
+        "cta2": "Acheter un appareil Ledger"
+      },
+      "IncorrectSeed": {
+        "title": "Incompatibilité entre l’appareil Ledger et le compte crypto",
+        "description": "Pour continuer, connectez l’appareil Ledger qui gère ce compte crypto, ou choisissez un autre compte.",
+        "cta1": "Utiliser un autre appareil Ledger",
+        "cta2": "Fermer"
+      },
+      "BlindSigningDisabled": {
+        "title": "Signature aveugle désactivée",
+        "description": "Cette transaction ne peut pas être signée en clair. Activez la signature aveugle (\"Blind Signing\") dans les réglages de l’app sur votre appareil Ledger.",
+        "cta1": "Réessayer",
+        "cta2": "Fermer"
+      },
+      "UserRejectedTransaction": {
+        "title": "Transaction rejetée",
+        "description": "Vous avez rejeté la transaction sur votre {device}.",
+        "cta1": "Fermer",
+        "cta2": "Réessayer la transaction"
+      },
+      "UserRejectedMessage": {
+        "title": "Message rejeté",
+        "description": "Vous avez refusé de signer le message sur votre {device}.",
+        "cta1": "Fermer",
+        "cta2": "Réessayer de signer le message"
+      }
+    },
+    "ledgerSync": {
+      "ConnectionFailed": {
+        "title": "Échec de l’activation de Ledger Sync",
+        "description": "La connexion à Ledger Wallet, requise pour activer Ledger Sync, a échoué. Veuillez fermer cet onglet, ouvrir l’application Ledger Wallet (sur ordinateur ou mobile), activer Ledger Sync , puis rouvrir l’onglet.",
+        "cta1": "Fermer cet onglet",
+        "cta2": "Qu’est-ce que Ledger Sync ?"
+      },
+      "NoCompatibleAccounts": {
+        "title": "Aucun compte compatible trouvé",
+        "description": "Cette dApp prend en charge les réseaux suivants {networks}, sur lesquels vous n’avez aucun compte. Veuillez créer un nouveau compte via Ledger Wallet.",
+        "cta1": "Créer un compte via Ledger Wallet",
+        "cta2": "Utiliser un autre appareil Ledger"
+      },
+      "NoAccountInSync": {
+        "title": "Aucun compte synchronisé",
+        "description": "Ledger Sync est activé mais aucun compte n’est synchronisé. Veuillez activer Ledger Sync sur Ledger Wallet et ajouter un ou plusieurs comptes.",
+        "cta1": "Fermer"
+      }
+    },
+    "network": {
+      "BroadcastTransactionError": {
+        "title": "Échec de la transaction",
+        "description": "Votre transaction a été diffusée vers le réseau, mais n’a pas pu être exécutée.",
+        "cta1": "Réessayer la transaction"
+      }
+    },
+    "connection": {
+      "DeviceDisconnected": {
+        "title": "Appareil Ledger déconnecté",
+        "description": "Via USB, branchez et déverrouillez votre appareil Ledger. Via Bluetooth, déverrouillez-le et gardez-le à portée de main.",
+        "cta1": "Reconnecter mon appareil Ledger"
+      }
+    }
+  }
+}
