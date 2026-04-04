@@ -187,65 +187,63 @@ export class LedgerHomeScreen extends LitElement {
     const lang = this.languages.currentTranslation;
 
     return html`
-      <div class="relative h-full">
-        <div
-          class="flex flex-col items-stretch gap-12 p-24 pt-0"
-        >
-          <div
-            class="flex flex-col gap-24 rounded-md bg-muted p-16"
-          >
-            <div class="flex flex-row items-center justify-between">
-              <ledger-account-switch
-                .account=${account}
-                @account-switch=${this.handleAccountItemClick}
-              ></ledger-account-switch>
+      <div class="relative flex h-full flex-col">
+        <div class="scrollbar-custom min-h-0 flex-1 overflow-y-auto">
+          <div class="flex flex-col items-stretch gap-12 p-24 pt-0">
+            <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
+              <div class="flex flex-row items-center justify-between">
+                <ledger-account-switch
+                  .account=${account}
+                  @account-switch=${this.handleAccountItemClick}
+                ></ledger-account-switch>
 
-              <ledger-networks
-                .networks=${account.networks}
-                @networks-click=${this.handleNetworksClick}
-              ></ledger-networks>
+                <ledger-networks
+                  .networks=${account.networks}
+                  @networks-click=${this.handleNetworksClick}
+                ></ledger-networks>
+              </div>
+
+              <ledger-fiat-total
+                .value=${account.totalFiatValue?.value ?? "0"}
+              ></ledger-fiat-total>
             </div>
 
-            <ledger-fiat-total
-              .value=${account.totalFiatValue?.value ?? "0"}
-            ></ledger-fiat-total>
+            <ledger-wallet-actions
+              .features=${this.walletTransactionFeatures}
+              @wallet-action-click=${this.handleWalletActionClick}
+            ></ledger-wallet-actions>
+
+            <div class="mt-12">
+              <ledger-tabs
+                .tabs=${[
+                  { id: "tokens", label: "Tokens" },
+                  {
+                    id: "transactions",
+                    label: "Transactions",
+                    badge: this.controller.pendingTransactionListItems.length || undefined,
+                  },
+                ]}
+                .selectedId=${this.activeTab}
+                @tab-change=${this.handleTabChange}
+              ></ledger-tabs>
+            </div>
+
+            ${this.activeTab === "tokens"
+              ? html`<token-list-screen
+                  .account=${account}
+                ></token-list-screen>`
+              : html`<transaction-list-screen
+                  .transactions=${this.controller.transactionListItems}
+                  .pendingTransactions=${this.controller.pendingTransactionListItems}
+                ></transaction-list-screen>`}
+
+            <ledger-button
+              variant="secondary"
+              size="full"
+              label=${lang.common.button.disconnect}
+              @click=${this.handleDisconnectClick}
+            ></ledger-button>
           </div>
-
-          <ledger-wallet-actions
-            .features=${this.walletTransactionFeatures}
-            @wallet-action-click=${this.handleWalletActionClick}
-          ></ledger-wallet-actions>
-
-          <div class="mt-12">
-            <ledger-tabs
-              .tabs=${[
-                { id: "tokens", label: "Tokens" },
-                {
-                  id: "transactions",
-                  label: "Transactions",
-                  badge: this.controller.pendingTransactionListItems.length || undefined,
-                },
-              ]}
-              .selectedId=${this.activeTab}
-              @tab-change=${this.handleTabChange}
-            ></ledger-tabs>
-          </div>
-
-          ${this.activeTab === "tokens"
-            ? html`<token-list-screen
-                .account=${account}
-              ></token-list-screen>`
-            : html`<transaction-list-screen
-                .transactions=${this.controller.transactionListItems}
-                .pendingTransactions=${this.controller.pendingTransactionListItems}
-              ></transaction-list-screen>`}
-
-          <ledger-button
-            variant="secondary"
-            size="full"
-            label=${lang.common.button.disconnect}
-            @click=${this.handleDisconnectClick}
-          ></ledger-button>
         </div>
 
         ${this.showRedirectDrawer && this.currentAction

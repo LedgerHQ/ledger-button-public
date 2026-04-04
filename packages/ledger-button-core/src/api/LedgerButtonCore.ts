@@ -222,6 +222,14 @@ export class LedgerButtonCore {
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
 
+    // Clean up device connection subscription
+    this.deviceConnectionSubscription?.unsubscribe();
+    this.deviceConnectionSubscription = undefined;
+    const deviceService = this.container.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    );
+    deviceService.dmk.close();
+
     try {
       await this.container.unbindAll();
     } catch (error) {
@@ -233,11 +241,6 @@ export class LedgerButtonCore {
       .rebindSync(contextModuleTypes.ContextService)
       .toConstantValue(currentContextService);
 
-    currentContextService.onEvent({
-      type: "wallet_disconnected",
-    });
-
-    await this.disconnectFromDevice();
     this.initializeContext();
   }
 
