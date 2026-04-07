@@ -1,5 +1,7 @@
+import "../../atom/crypto-icon/ledger-crypto-icon.js";
 import "../../atom/icon/ledger-icon.js";
 
+import { cva } from "class-variance-authority";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -42,19 +44,16 @@ export class LedgerAccountSwitch extends LitElement {
     if (!this.account) {
       return;
     }
+    const buttonClass = cva([
+      "flex max-w-full cursor-pointer flex-col rounded-sm p-4 text-left",
+      "hover:bg-muted-hover active:bg-muted-pressed",
+    ]);
 
     return html`
-      <button
-        class="flex h-48 max-w-full cursor-pointer flex-col rounded-sm p-4 text-left hover:bg-muted-hover active:bg-muted-pressed"
-        @click=${this.handleClick}
-      >
+      <button class=${buttonClass()} @click=${this.handleClick}>
         <div class="flex items-center gap-4">
-          <div
-            class="flex min-w-0 flex-1 truncate text-base body-2-semi-bold"
-          >
-            <span class="body-2-semi-bold text-base"
-              >${this.account.name}</span
-            >
+          <div class="body-2-semi-bold flex min-w-0 flex-1 truncate text-base">
+            <span class="body-2-semi-bold text-base">${this.account.name}</span>
           </div>
           <ledger-icon
             class="shrink-0"
@@ -62,11 +61,18 @@ export class LedgerAccountSwitch extends LitElement {
             size="medium"
           ></ledger-icon>
         </div>
-        <span
-          class="grow basis-80 overflow-hidden text-ellipsis text-nowrap text-muted body-3"
-        >
-          ${formatAddress(this.account.freshAddress)}
-        </span>
+        <div class="flex items-center gap-4">
+          <span
+            class="text-muted body-3 overflow-hidden text-nowrap text-ellipsis"
+          >
+            ${formatAddress(this.account.freshAddress)}
+          </span>
+          <ledger-crypto-icon
+            .ledgerId=${this.account.currencyId}
+            size="small"
+            variant="square"
+          ></ledger-crypto-icon>
+        </div>
       </button>
     `;
   }

@@ -1,10 +1,16 @@
+import type { DmkError } from "@ledgerhq/device-management-kit";
+
 /**
  * Base error class for all Ledger Button Core errors.
  * Provides error name, context, timestamp, and serialization support.
+ * Implements DmkError so instances can be used as Device Action errors.
  */
 export class LedgerButtonError<
-  T extends Record<string, unknown> = Record<string, unknown>,
-> extends Error {
+    T extends Record<string, unknown> = Record<string, unknown>,
+  >
+  extends Error
+  implements DmkError
+{
   /** Optional context or metadata for debugging */
   public readonly context?: T;
   /** Timestamp when the error was created */
@@ -25,6 +31,10 @@ export class LedgerButtonError<
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
+  }
+
+  get _tag(): string {
+    return this.name;
   }
 
   /**

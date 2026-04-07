@@ -1,15 +1,33 @@
-import { DetailedAccount } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  DetailedAccount,
+  PendingTransaction,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
+import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
+import type { TransactionListItem } from "../transaction-list/transaction-list.js";
+
+type MappableTransaction = {
+  hash: string;
+  type: TransactionType;
+  timestamp: string;
+  formattedValue: string;
+  ticker: string;
+  currencyName: string;
+  fiatValue?: string;
+  fiatCurrency?: string;
+};
 
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
   loading = false;
-  contextSubscription: Subscription | undefined = undefined;
+  private pendingTransactions: PendingTransaction[] = [];
+  private contextSubscription: Subscription | undefined = undefined;
+  private pendingTxSubscription: Subscription | undefined = undefined;
   private isConnected = false;
 
   constructor(
@@ -19,6 +37,21 @@ export class LedgerHomeController implements ReactiveController {
     private readonly destinations: Destinations,
   ) {
     this.host.addController(this);
+  }
+
+  get transactionListItems(): TransactionListItem[] {
+    if (!this.selectedAccount?.transactionHistory) {
+      return [];
+    }
+    return this.selectedAccount.transactionHistory.map((tx) =>
+      this.mapToTransactionListItem(tx),
+    );
+  }
+
+  get pendingTransactionListItems(): TransactionListItem[] {
+    return this.pendingTransactions.map((tx) =>
+      this.mapToTransactionListItem(tx),
+    );
   }
 
   async getSelectedAccount() {
@@ -43,6 +76,38 @@ export class LedgerHomeController implements ReactiveController {
     this.host.requestUpdate();
   }
 
+  hostConnected() {
+    this.isConnected = true;
+    this.startListeningToContextChanges();
+    this.startListeningToPendingTransactions();
+  }
+
+  hostDisconnected() {
+    this.isConnected = false;
+    this.contextSubscription?.unsubscribe();
+    this.pendingTxSubscription?.unsubscribe();
+  }
+
+  private mapToTransactionListItem(
+    tx: MappableTransaction,
+  ): TransactionListItem {
+    const date = new Date(tx.timestamp);
+    return {
+      hash: tx.hash,
+      type: tx.type,
+      date: date.toISOString().split("T")[0],
+      time: date.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      amount: tx.formattedValue,
+      ticker: tx.ticker,
+      title: tx.currencyName,
+      fiatAmount: tx.fiatValue ?? "",
+      fiatCurrency: tx.fiatCurrency ?? "",
+    };
+  }
+
   private startListeningToContextChanges() {
     if (!this.isConnected) return;
 
@@ -64,15 +129,16 @@ export class LedgerHomeController implements ReactiveController {
       });
   }
 
-  hostConnected() {
-    this.isConnected = true;
-    this.startListeningToContextChanges();
-  }
-
-  hostDisconnected() {
-    this.isConnected = false;
-    if (this.contextSubscription) {
-      this.contextSubscription.unsubscribe();
+  private startListeningToPendingTransactions() {
+    if (this.pendingTxSubscription) {
+      this.pendingTxSubscription.unsubscribe();
     }
+
+    this.pendingTxSubscription = this.core
+      .observePendingTransactions()
+      .subscribe((txs) => {
+        this.pendingTransactions = txs;
+        this.host.requestUpdate();
+      });
   }
 }
