@@ -89,12 +89,6 @@ const transactionFlowInitialization = (ctx: ScenarioContext) =>
 const transactionFlowCompletion = (ctx: ScenarioContext) =>
   chainEvent(ctx, "transaction_flow_completion");
 
-const sessionAuthentication = (ctx: ScenarioContext) =>
-  chainEvent(ctx, "session_authentication", {
-    transaction_type: "authentication_tx",
-    transaction_hash: hexHash(),
-  });
-
 const invoicingTransactionSigned = (ctx: ScenarioContext): EventRequest => ({
   name: "invoicing_transaction_signed",
   type: "invoicing_transaction_signed",
@@ -146,7 +140,6 @@ export const SCENARIOS: Scenario[] = [
     buildEvents: (ctx) => [
       floatingButtonClicked(ctx),
       transactionFlowInitialization(ctx),
-      sessionAuthentication(ctx),
       transactionFlowCompletion(ctx),
     ],
   },
