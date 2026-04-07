@@ -12,12 +12,10 @@ export interface TrackingEntry {
   httpStatus?: number;
 }
 
-let trackingCounter = 0;
-
-function nextId(): string {
-  trackingCounter += 1;
-  return `tracking-${Date.now()}-${trackingCounter}`;
-}
+const nextId = (() => {
+  let counter = 0;
+  return () => `tracking-${Date.now()}-${++counter}`;
+})();
 
 const EVENT_PATH = "/event";
 
