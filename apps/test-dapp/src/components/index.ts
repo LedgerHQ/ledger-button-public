@@ -6,4 +6,5 @@ export { Providers } from "./Providers";
 export { ProviderSelectionBlock } from "./ProviderSelectionBlock";
 export { SettingsBlock } from "./SettingsBlock";
 export { ThemeToggle } from "./ThemeToggle";
+export { TrackingPanel } from "./TrackingPanel";
 export { TransactionsBlock } from "./TransactionsBlock";
