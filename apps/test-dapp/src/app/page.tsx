@@ -136,6 +136,11 @@ export default function Index() {
 
     const handleDisconnect = () => {
       console.log("disconnect received");
+      setSelectedProvider(null);
+      setAccount(null);
+      setChainId(null);
+      setResult(null);
+      setError(null);
       addEvent("disconnect", null);
     };
 
@@ -344,11 +349,11 @@ export default function Index() {
   );
 
   return (
-    <div className="min-h-full p-24 bg-canvas">
-      <div className="max-w-[1440px] mx-auto flex gap-24">
-        <div className="flex-1 min-w-0 max-w-[720px]">
+    <div className="bg-canvas min-h-full p-24">
+      <div className="mx-auto flex max-w-[1440px] gap-24">
+        <div className="max-w-[720px] min-w-0 flex-1">
           <header className="mb-24">
-            <h1 className="heading-3 text-base mb-6">
+            <h1 className="heading-3 mb-6 text-base">
               Ledger Button Test dApp
             </h1>
             <p className="body-2 text-muted">
@@ -396,8 +401,8 @@ export default function Index() {
           </div>
         </div>
 
-        <aside className="hidden lg:block w-[400px] shrink-0">
-          <div className="sticky top-24 flex flex-col gap-20 max-h-[calc(100vh-48px)]">
+        <aside className="hidden w-[400px] shrink-0 lg:block">
+          <div className="sticky top-24 flex max-h-[calc(100vh-48px)] flex-col gap-20">
             <div className="shrink-0">
               <ConnectionStatus
                 selectedProvider={selectedProvider}
@@ -406,23 +411,23 @@ export default function Index() {
                 isInitialized={isInitialized}
               />
             </div>
-            <div className="flex-1 min-h-0 flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col">
               <ActivityLog entries={activity} onClear={clearActivity} />
             </div>
           </div>
         </aside>
       </div>
 
-      <div className="lg:hidden mt-16 max-w-[680px] mx-auto">
+      <div className="mx-auto mt-16 max-w-[680px] lg:hidden">
         <details className="group">
-          <summary className="flex items-center justify-between px-20 py-14 border border-muted rounded-lg cursor-pointer select-none bg-muted">
+          <summary className="border-muted bg-muted flex cursor-pointer items-center justify-between rounded-lg border px-20 py-14 select-none">
             <span className="body-2-semi-bold text-base">
               Activity Log
               {activity.length > 0 && (
-                <span className="ml-8 text-muted">({activity.length})</span>
+                <span className="text-muted ml-8">({activity.length})</span>
               )}
             </span>
-            <span className="text-muted group-open:rotate-180 transition-transform">
+            <span className="text-muted transition-transform group-open:rotate-180">
               <ChevronDownIcon size={16} />
             </span>
           </summary>

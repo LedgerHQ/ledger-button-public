@@ -12,7 +12,7 @@ export class LedgerFiatTotal extends LitElement {
 
   override render() {
     return html`
-      <span class="heading-1 text-base"> ${formatFiatValue(this.value)} </span>
+      <span class="heading-2 text-base"> ${formatFiatValue(this.value)} </span>
     `;
   }
 }

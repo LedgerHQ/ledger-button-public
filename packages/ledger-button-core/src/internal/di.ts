@@ -16,6 +16,8 @@ import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
+import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTransactionModule.js";
+import { platformModuleFactory } from "./platform/platformModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/transactionHistoryModule.js";
@@ -58,13 +60,17 @@ export function createContainer({
     consentModuleFactory(),
     networkModuleFactory({ stub: devConfig.stub.base }),
     transactionModuleFactory({ stub: devConfig.stub.base }),
-    transactionHistoryModuleFactory({ stub: devConfig.stub.transactionHistory }),
+    transactionHistoryModuleFactory({
+      stub: devConfig.stub.transactionHistory,
+    }),
     web3ProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
+    platformModuleFactory(),
     modalModuleFactory(),
     contextModuleFactory(),
+    pendingTransactionModuleFactory(),
   );
 
   return container;

@@ -52,6 +52,7 @@ describe("DefaultEventTrackingService", () => {
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: false,
+    isMobilePlatform: false,
     ...overrides,
   });
 
