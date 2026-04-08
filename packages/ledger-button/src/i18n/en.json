@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connect a Ledger"
+      "title": "Connect a Ledger device"
     },
     "ledgerSync": {
       "title": ""
