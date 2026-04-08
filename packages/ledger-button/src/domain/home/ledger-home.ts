@@ -236,14 +236,16 @@ export class LedgerHomeScreen extends LitElement {
                   .transactions=${this.controller.transactionListItems}
                   .pendingTransactions=${this.controller.pendingTransactionListItems}
                 ></transaction-list-screen>`}
-
-            <ledger-button
-              variant="secondary"
-              size="full"
-              label=${lang.common.button.disconnect}
-              @click=${this.handleDisconnectClick}
-            ></ledger-button>
           </div>
+        </div>
+
+        <div class="shrink-0 p-24 pt-12">
+          <ledger-button
+            variant="secondary"
+            size="full"
+            label=${lang.common.button.disconnect}
+            @click=${this.handleDisconnectClick}
+          ></ledger-button>
         </div>
 
         ${this.showRedirectDrawer && this.currentAction
