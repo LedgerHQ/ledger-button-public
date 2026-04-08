@@ -74,6 +74,7 @@ export type Destination = {
   toolbar: {
     title: string;
     canClose: boolean;
+    showLogo?: boolean;
   };
 };
 
@@ -279,8 +280,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "mobile-onboarding-screen",
       canGoBack: false,
       toolbar: {
-        title: translation.mobileOnboarding?.title,
+        title: "",
         canClose: true,
+        showLogo: false,
       },
     },
     notFound: {
