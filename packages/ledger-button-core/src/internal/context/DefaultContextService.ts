@@ -72,7 +72,6 @@ export class DefaultContextService implements ContextService {
         break;
       case "device_disconnected":
         this.context.connectedDevice = undefined;
-        this.context.selectedAccount = undefined;
         break;
       case "trustchain_connected":
         this.context.trustChainId = event.trustChainId;
