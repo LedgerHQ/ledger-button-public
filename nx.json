@@ -124,7 +124,7 @@
     }
   ],
   "release": {
-    "projectsRelationship": "independent",
+    "projectsRelationship": "fixed",
     "versionPlans": {
       "ignorePatternsForPlanCheck": [
         "**/*.spec.ts",
@@ -140,22 +140,24 @@
           "@ledgerhq/ledger-wallet-provider",
           "@ledgerhq/ledger-wallet-provider-core"
         ],
-        "projectsRelationship": "independent"
+        "projectsRelationship": "fixed"
       }
     },
+    "git": {
+      "commit": true,
+      "commitMessage": "🔖 (release): Changelog for v{version}",
+      "tag": true
+    },
     "version": {
-      "git": {
-        "commit": true,
-        "commitMessage": "🔖 (version): New versions"
-      },
       "fallbackCurrentVersionResolver": "disk",
       "updateDependents": "always"
     },
     "changelog": {
+      "workspaceChangelog": false,
       "projectChangelogs": true
     },
     "releaseTag": {
-      "pattern": "{projectName}@{version}",
+      "pattern": "v{version}",
       "strictPreid": true
     }
   },
