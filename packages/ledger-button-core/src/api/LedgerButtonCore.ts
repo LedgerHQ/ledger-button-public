@@ -369,6 +369,7 @@ export class LedgerButtonCore {
       )
       .execute();
   }
+
   // Device methods
   getConnectedDevice() {
     this._logger.debug("Getting connected device");

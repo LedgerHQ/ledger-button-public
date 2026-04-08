@@ -1,6 +1,8 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, Observable } from "rxjs";
 
+import { accountModuleTypes } from "../../account/accountModuleTypes.js";
+import { type FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -35,6 +37,8 @@ export class DefaultPendingTransactionController
       pendingTransactionModuleTypes.HydratePendingTransactionsWithFiatUseCase,
     )
     private readonly hydratePendingTransactionsWithFiatUseCase: HydratePendingTransactionsWithFiatUseCase,
+    @inject(accountModuleTypes.FetchSelectedAccountUseCase)
+    private readonly fetchSelectedAccountUseCase: FetchSelectedAccountUseCase,
   ) {
     this.logger = loggerFactory("[PendingTransactionController]");
     this.pendingTxSubject = new BehaviorSubject<PendingTransaction[]>(
@@ -112,8 +116,22 @@ export class DefaultPendingTransactionController
 
     this.emitCurrentState();
 
+    if (confirmedHashes.length > 0) {
+      this.refreshSelectedAccount();
+    }
+
     if (this.storageService.getAll().length === 0) {
       this.stopPolling();
+    }
+  }
+
+  private async refreshSelectedAccount(): Promise<void> {
+    this.logger.debug("Refreshing transaction history after confirmation");
+    const result = await this.fetchSelectedAccountUseCase.execute();
+    if (result.isLeft()) {
+      this.logger.warn("Failed to refresh transaction history", {
+        error: result.extract(),
+      });
     }
   }
 
