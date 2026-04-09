@@ -14,14 +14,13 @@ export class MobileOnboardingController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  redirectToLedgerWallet() {
-    const redirectUrl =
+  get ledgerWalletUrl(): string {
+    return (
       "ledgerlive://discover/" +
       this.core.getConfig().dAppIdentifier +
       "?referrer=LedgerButton_v" +
-      this.core.getConfig().version;
-
-    window.open(redirectUrl, "_blank", "noopener,noreferrer");
+      this.core.getConfig().version
+    );
   }
 
   downloadLedgerWallet() {

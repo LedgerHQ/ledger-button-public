@@ -20,6 +20,8 @@ export interface LedgerButtonAttributes {
   icon?: boolean;
   iconPosition?: IconPosition;
   type?: "button" | "submit" | "reset";
+  href?: string;
+  target?: string;
 }
 
 const buttonVariants = cva(
@@ -74,6 +76,11 @@ const styles = css`
   :host([disabled]) {
     pointer-events: none;
   }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 
 @customElement("ledger-button")
@@ -102,6 +109,12 @@ export class LedgerButton extends LitElement {
 
   @property({ type: String })
   type: "button" | "submit" | "reset" = "button";
+
+  @property({ type: String })
+  href?: string;
+
+  @property({ type: String })
+  target?: string;
 
   private get buttonClasses() {
     return {
@@ -136,7 +149,32 @@ export class LedgerButton extends LitElement {
     return html`${this.label}`;
   }
 
+  private renderContent() {
+    if (this.iconPosition === "left" && this.icon) {
+      return html`${this.renderIcon()}${this.renderLabel()}`;
+    }
+    if (this.iconPosition === "right" && this.icon) {
+      return html`${this.renderLabel()}${this.renderIcon()}`;
+    }
+    return this.renderLabel();
+  }
+
   override render() {
+    if (this.href) {
+      return html`
+        <a
+          href=${this.href}
+          target=${this.target ?? nothing}
+          rel=${this.target === "_blank" ? "noopener noreferrer" : nothing}
+          class=${classMap(this.buttonClasses)}
+          aria-label="${this.label}"
+          @click=${this.handleClick}
+        >
+          ${this.renderContent()}
+        </a>
+      `;
+    }
+
     return html`
       <button
         type="${this.type}"
@@ -145,13 +183,7 @@ export class LedgerButton extends LitElement {
         aria-label="${this.label}"
         @click=${this.handleClick}
       >
-        ${this.iconPosition === "left" && this.icon
-          ? html`${this.renderIcon()}${this.renderLabel()}`
-          : ""}
-        ${this.iconPosition === "right" && this.icon
-          ? html`${this.renderLabel()}${this.renderIcon()}`
-          : ""}
-        ${!this.icon ? this.renderLabel() : nothing}
+        ${this.renderContent()}
       </button>
     `;
   }
