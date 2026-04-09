@@ -153,8 +153,8 @@ describe("setupFloatingButton", () => {
       expect(consoleWarnSpy).not.toHaveBeenCalled();
     });
 
-    test("should disable floating button when position is undefined", () => {
-      const result = setupFloatingButton(mockApp, undefined, undefined);
+    test("should handle false as floatingButtonPosition", () => {
+      const result = setupFloatingButton(mockApp, undefined, false);
 
       expect(result.floatingButtonContainer).toBe(null);
       expect(result.floatingButton).toBe(null);

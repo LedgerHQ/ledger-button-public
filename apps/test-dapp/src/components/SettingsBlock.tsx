@@ -187,7 +187,7 @@ export function SettingsBlock({
                 onValueChange={(value) =>
                   handleInputChange("buttonPosition", value)
                 }
-                disabled={!localConfig.showFloatingButton}
+                disabled={localConfig.hideButton}
               >
                 <SelectTrigger label="Button Position" />
                 <SelectContent>
@@ -203,16 +203,16 @@ export function SettingsBlock({
                 onClick={() =>
                   setLocalConfig((prev) => ({
                     ...prev,
-                    showFloatingButton: !prev.showFloatingButton,
+                    hideButton: !prev.hideButton,
                   }))
                 }
                 className={`px-14 py-8 rounded-lg body-2-semi-bold cursor-pointer transition-colors border ${
-                  localConfig.showFloatingButton
+                  !localConfig.hideButton
                     ? "border-active bg-muted-transparent text-base"
                     : "border-muted bg-canvas text-muted"
                 }`}
               >
-                {localConfig.showFloatingButton ? "Floating Button: On" : "Floating Button: Off"}
+                {localConfig.hideButton ? "Floating Button: Off" : "Floating Button: On"}
               </button>
             </div>
 
