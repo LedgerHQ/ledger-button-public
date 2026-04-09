@@ -11,10 +11,11 @@ export type FloatingButtonConfig = {
 export function setupFloatingButton(
   app: LedgerButtonApp,
   floatingButtonTarget: HTMLElement | string | undefined,
-  floatingButtonPosition: FloatingButtonPosition | false,
+  floatingButtonPosition: FloatingButtonPosition | undefined,
 ): FloatingButtonConfig {
   if (!floatingButtonTarget) {
-    setDefaultFloatingButtonPosition(app, floatingButtonPosition);
+    const position = floatingButtonPosition ?? false;
+    setDefaultFloatingButtonPosition(app, position);
     return { floatingButtonContainer: null, floatingButton: null };
   }
 
@@ -22,7 +23,7 @@ export function setupFloatingButton(
 
   if (!targetElement) {
     logTargetNotFoundWarning();
-    setDefaultFloatingButtonPosition(app, floatingButtonPosition);
+    setDefaultFloatingButtonPosition(app, floatingButtonPosition ?? false);
     return { floatingButtonContainer: null, floatingButton: null };
   }
 

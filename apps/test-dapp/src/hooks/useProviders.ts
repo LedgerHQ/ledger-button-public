@@ -26,6 +26,7 @@ export interface LedgerProviderConfig {
   dAppIdentifier: string;
   apiKey: string;
   buttonPosition: string;
+  showFloatingButton: boolean;
   logLevel: string;
   environment: string;
   walletTransactionFeatures: WalletTransactionFeature[];
@@ -35,6 +36,7 @@ export const DEFAULT_CONFIG: LedgerProviderConfig = {
   dAppIdentifier: "ledger",
   apiKey: "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
   buttonPosition: "bottom-right",
+  showFloatingButton: true,
   logLevel: "info",
   environment: "production",
   walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
@@ -92,12 +94,14 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
 
       const cleanup = initializeLedgerProvider({
         target: document.body,
-        floatingButtonPosition: configToUse.buttonPosition as
-          | "bottom-right"
-          | "bottom-left"
-          | "top-right"
-          | "top-left"
-          | "middle-right",
+        floatingButtonPosition: configToUse.showFloatingButton
+          ? (configToUse.buttonPosition as
+              | "bottom-right"
+              | "bottom-left"
+              | "top-right"
+              | "top-left"
+              | "middle-right")
+          : undefined,
         dAppIdentifier: configToUse.dAppIdentifier,
         apiKey: configToUse.apiKey,
         loggerLevel: configToUse.logLevel as

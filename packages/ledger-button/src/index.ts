@@ -40,7 +40,7 @@ export function initializeLedgerProvider({
   target = document.body,
   loggerLevel = "info",
   environment,
-  floatingButtonPosition = "bottom-right",
+  floatingButtonPosition,
   floatingButtonTarget,
   walletTransactionFeatures,
   devConfig = {
