@@ -27,7 +27,7 @@ export class DefaultCloudSyncService implements CloudSyncService {
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
-    this.logger = loggerFactory("[Cloud Sync Service]");
+    this.logger = loggerFactory("Cloud Sync Service");
   }
 
   async fetchEncryptedAccounts(

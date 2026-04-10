@@ -45,6 +45,12 @@ export function getRawTransactionFromEipTransaction(transaction: Transaction) {
   }
 }
 
-export function getHexaStringFromSignature(signature: DeviceSignature) {
-  return ethers.Signature.from(signature).serialized;
+export function getHexaStringFromSignature(signature: DeviceSignature): string {
+  try {
+    return ethers.Signature.from(signature).serialized;
+  } catch (error) {
+    throw new Error(
+      `Failed to serialize signature: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
 }

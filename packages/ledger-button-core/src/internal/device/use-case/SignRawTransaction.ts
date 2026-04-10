@@ -99,7 +99,7 @@ export class SignRawTransaction {
     @inject(modalModuleTypes.ModalService)
     private readonly modalService: ModalService,
   ) {
-    this.logger = loggerFactory("[SignRawTransaction]");
+    this.logger = loggerFactory("SignRawTransaction");
   }
 
   execute(params: SignRawTransactionParams): Observable<SignFlowStatus> {

@@ -33,6 +33,18 @@ jobs:
         run: |
           pnpm danger:ci
 
+  version-plan:
+    name: "Version plan check"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: nrwl/nx-set-shas@v4
+      - uses: ./.github/actions/setup-action-composite
+      - name: Check version plans
+        run: pnpm nx release plan:check
+
   checks:
     name: "Health checks"
     # needs: [danger]
@@ -49,7 +61,7 @@ jobs:
       - uses: ./.github/actions/setup-action-composite
       - name: Health checks
         run: |
-          pnpm nx affected -t lint,typecheck,test --base=develop --skip-nx-cache --exclude="@ledgerhq/ledger-button-webcomponent-poc,*-poc"
+          pnpm nx affected -t lint,typecheck,test --base=develop --skip-nx-cache
       - name: Storybook test
         run: |
           pnpm storybook:test

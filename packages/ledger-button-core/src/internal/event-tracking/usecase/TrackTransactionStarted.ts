@@ -23,7 +23,7 @@ export class TrackTransactionStarted {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackTransactionStarted UseCase]");
+    this.logger = loggerFactory("TrackTransactionStarted UseCase");
   }
 
   async execute(): Promise<void> {

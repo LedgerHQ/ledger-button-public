@@ -1,0 +1,182 @@
+---
+title: NPM package attestation verification
+category: how-to
+---
+
+import { Callout, Tabs, Steps } from 'nextra/components'
+import KeyTakeaway from '/components/features/key-takeaway';
+
+# NPM package attestation verification
+
+<KeyTakeaway>
+ ☞   Publish Attestation is enabled for our `ledger-button` package. It links the published package to its source and build instructions, improving supply-chain transparency.
+</KeyTakeaway>
+
+## Understanding provenance and attestation
+
+### What is npm provenance?
+npm can show two attestations:
+
+| Provenance Attestation | Publish Attestation |
+|------------------------|---------------------|
+| <ul><li>• Links a package to its repo and build process</li><li>• Indicates where/how it was built</li><li>• Lets you verify origin pre-install</li></ul> | <ul><li>• Created by the registry at publish time by an authorized user</li><li>• Signed via Sigstore</li><li>• Recorded in a public transparency log</li></ul>
+
+Both are public and help verify origin.  
+
+### About Sigstore
+npm’s publish attestation is implemented via Sigstore. When Ledger enables publish attestation for `ledger-button`, the registry:
+- Issues a short‑lived certificate that binds the publisher’s identity to the specific release
+- Records the attestation in a public transparency log for tamper‑evidence
+
+This proves who published the package and when, and links the artifact to its source/build instructions. It does not review or audit the package’s code.
+
+<Callout type="warning" emoji="⚠️">
+  Provenance does not guarantee code safety. It only proves origin and build details so you can decide whether to trust the package.
+</Callout>
+
+### npm vs pnpm: When verification happens and how trust is enforced
+
+| pnpm (recommended) | npm |
+|--------------------|-----|
+| enforces trust **during** install and can block untrusted direct or transitive deps | Verifies **after** install via a separate command |
+
+## Configure verification and trust policy
+
+<Tabs items={['pnpm (recommended)', 'npm']}>
+    <Tabs.Tab>
+        <Steps>
+            {<h3>Trust policy configuration</h3>}  
+            With pnpm, verification is part of installation. If a package violates trust policy, install is blocked, thanks to the following setting:
+
+            ```yaml filename="pnpm-workspace.yamls"
+            # Block installation if trust level decreases
+            trustPolicy: no-downgrade
+
+            # Optional exceptions (use sparingly)
+            # trustPolicyExclude:
+            #   - some-legacy-package
+            ```
+
+            pnpm compares trust before extraction. If a newer publish has less evidence than earlier publishes in the same release channel, it blocks the install.
+
+            {<h3>Trust policy exceptions</h3>}   
+            Add safe, verified packages to exclusions if needed:
+            
+            ```yaml filename="pnpm-workspace.yamls"
+            # Block installation if trust level decreases
+            trustPolicy: no-downgrade
+
+            # Optional exceptions (use sparingly)
+            trustPolicyExclude:
+                - some-legacy-package
+            ```
+
+            <Callout type="warning" emoji="⚠️">
+                Only exclude packages you have verified are safe; exclusions bypass trust checks for that package.
+            </Callout>
+
+            {<h3>Installation</h3>}   
+
+            ```bash
+            pnpm install
+            ```
+        </Steps>
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ### Post-Installation Verification
+
+        With npm, attestation verification is a separate step after installation.
+        ```bash
+        npm install ledger-button
+        npm audit signatures  # ← Runs AFTER the package is already installed
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+
+
+## Verification outcomes
+
+<Tabs items={['pnpm', 'npm']}>
+    <Tabs.Tab>
+        ### What to expect from pnpm 
+        - Enforces trust policy during install
+        - Based on publish date, not semver
+        - Applies to transitive dependencies
+        - Blocks the entire install if any dependency fails
+
+        ### Example error
+
+        ```bash
+        ERR_PNPM_TRUST_DOWNGRADE  High-risk trust downgrade for "package-name@version"
+        (possible package takeover)
+
+        Trust checks are based on publish date. If any earlier-published version had stronger trust,
+        this version is blocked.
+        ```
+
+        ### Transitive dependency protection example
+
+        In this example, pnpm blocked a downgrade in a transitive dep (undici-types) while installing `@ledgerhq/context-module`:
+
+        ```bash
+        ERR_PNPM_TRUST_DOWNGRADE  High-risk trust downgrade for "undici-types@6.19.8"
+        (possible package takeover)
+
+        This error happened while installing the dependencies of `@ledgerhq/context-module`
+            at ethers@6.14.1
+            at @types/node@22.7.5
+        ```
+
+        Dependency chain: `context-module` → `ethers` → `@types/node` → `undici-types`
+
+        ### How pnpm compares prerelease and stable versions
+
+        pnpm evaluates trust within the same release channel:
+        - Prerelease versions (0.0.0-*, 1.0.0-beta.1) compared against other prereleases
+        - Stable versions (1.0.0, 2.3.4) compared against other stable versions
+
+        <Callout type="warning" emoji="⚠️">
+          Prereleases are not compared to stables. Trust can only downgrade within the same channel.
+        </Callout>
+
+        #### Example
+        
+        - 0.0.0-develop-20251126 (prerelease) has attestation → sets prerelease baseline
+        - 0.0.0-develop-20251128 (prerelease) lacks attestation → BLOCKED (trust downgrade in prerelease)
+        - 1.11.0 (stable) lacks attestation → NOT blocked (no prior stable had attestation)
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ### What to expect from npm 
+        - Run npm audit signatures after install
+
+        ### Example error
+
+        ```bash
+        audited 1267 packages in 6s
+        1267 packages have verified registry signatures
+        74 packages have verified attestations
+        ```
+        <Callout type="warning" emoji="⚠️">
+            Verification is reactive; install and any postinstall scripts have already run.
+        </Callout>
+    </Tabs.Tab>
+</Tabs>
+
+
+## pnpm vs npm: at a glance
+
+| Aspect | pnpm (recommended) | npm |
+|--------|---------------------|-----|
+| When verification happens | During install (pre‑install block) | After install (reactive check) |
+| Blocks untrusted packages | Yes (automatic) | No (manual check) |
+| Requires separate command | No | Yes (npm audit signatures) |
+| Policy enforcement | trustPolicy: no-downgrade | None |
+| Checks transitive deps | Yes (blocks before install) | Yes (after install only) |
+| Comparison basis | Publish date and trust signals | N/A |
+
+## Reference URLs
+
+- [npm Generating Provenance Statements](https://docs.npmjs.com/generating-provenance-statements)
+- [Mitigating Supply Chain Attacks with pnpm](https://pnpm.io/supply-chain-security)  
+- [pnpm Trust Policy Settings](https://pnpm.io/settings#trustpolicy)

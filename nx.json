@@ -124,256 +124,40 @@
     }
   ],
   "release": {
-    "projectsRelationship": "independent",
+    "projectsRelationship": "fixed",
+    "versionPlans": {
+      "ignorePatternsForPlanCheck": [
+        "**/*.spec.ts",
+        "**/*.test.ts",
+        "**/*.stories.tsx",
+        "**/*.stories.ts",
+        "**/.storybook/**"
+      ]
+    },
     "groups": {
       "libraries": {
         "projects": [
           "@ledgerhq/ledger-wallet-provider",
           "@ledgerhq/ledger-wallet-provider-core"
         ],
-        "projectsRelationship": "independent"
+        "projectsRelationship": "fixed"
       }
     },
+    "git": {
+      "commit": true,
+      "commitMessage": "🔖 (release): Changelog for v{version}",
+      "tag": true
+    },
     "version": {
-      "git": {
-        "commit": true,
-        "commitMessage": "🔖 (version): New versions"
-      },
-      "conventionalCommits": true,
       "fallbackCurrentVersionResolver": "disk",
       "updateDependents": "always"
     },
     "changelog": {
+      "workspaceChangelog": false,
       "projectChangelogs": true
     },
-    "conventionalCommits": {
-      "types": {
-        "🎨": {
-          "semverBump": "none"
-        },
-        "⚡️": {
-          "semverBump": "patch"
-        },
-        "🔥": {
-          "semverBump": "none"
-        },
-        "🐛": {
-          "semverBump": "patch"
-        },
-        "🚑️": {
-          "semverBump": "patch"
-        },
-        "✨": {
-          "semverBump": "minor"
-        },
-        "📝": {
-          "semverBump": "none"
-        },
-        "🚀": {
-          "semverBump": "none"
-        },
-        "💄": {
-          "semverBump": "patch"
-        },
-        "🎉": {
-          "semverBump": "none"
-        },
-        "✅": {
-          "semverBump": "none"
-        },
-        "🔒️": {
-          "semverBump": "patch"
-        },
-        "🔐": {
-          "semverBump": "none"
-        },
-        "🔖": {
-          "semverBump": "none"
-        },
-        "🚨": {
-          "semverBump": "none"
-        },
-        "🚧": {
-          "semverBump": "none"
-        },
-        "💚": {
-          "semverBump": "none"
-        },
-        "⬇️": {
-          "semverBump": "patch"
-        },
-        "⬆️": {
-          "semverBump": "patch"
-        },
-        "📌": {
-          "semverBump": "patch"
-        },
-        "👷": {
-          "semverBump": "none"
-        },
-        "📈": {
-          "semverBump": "patch"
-        },
-        "♻️": {
-          "semverBump": "none"
-        },
-        "➕": {
-          "semverBump": "patch"
-        },
-        "➖": {
-          "semverBump": "patch"
-        },
-        "🔧": {
-          "semverBump": "patch"
-        },
-        "🔨": {
-          "semverBump": "none"
-        },
-        "🌐": {
-          "semverBump": "patch"
-        },
-        "✏️": {
-          "semverBump": "patch"
-        },
-        "💩": {
-          "semverBump": "none"
-        },
-        "⏪️": {
-          "semverBump": "patch"
-        },
-        "🔀": {
-          "semverBump": "none"
-        },
-        "📦️": {
-          "semverBump": "patch"
-        },
-        "👽️": {
-          "semverBump": "patch"
-        },
-        "🚚": {
-          "semverBump": "none"
-        },
-        "📄": {
-          "semverBump": "none"
-        },
-        "💥": {
-          "semverBump": "major"
-        },
-        "🍱": {
-          "semverBump": "patch"
-        },
-        "♿️": {
-          "semverBump": "patch"
-        },
-        "💡": {
-          "semverBump": "none"
-        },
-        "🍻": {
-          "semverBump": "none"
-        },
-        "💬": {
-          "semverBump": "patch"
-        },
-        "🗃️": {
-          "semverBump": "patch"
-        },
-        "🔊": {
-          "semverBump": "none"
-        },
-        "🔇": {
-          "semverBump": "none"
-        },
-        "👥": {
-          "semverBump": "none"
-        },
-        "🚸": {
-          "semverBump": "patch"
-        },
-        "🏗️": {
-          "semverBump": "none"
-        },
-        "📱": {
-          "semverBump": "patch"
-        },
-        "🤡": {
-          "semverBump": "none"
-        },
-        "🥚": {
-          "semverBump": "patch"
-        },
-        "🙈": {
-          "semverBump": "none"
-        },
-        "📸": {
-          "semverBump": "none"
-        },
-        "⚗️": {
-          "semverBump": "patch"
-        },
-        "🔍️": {
-          "semverBump": "patch"
-        },
-        "🏷️": {
-          "semverBump": "patch"
-        },
-        "🌱": {
-          "semverBump": "none"
-        },
-        "🚩": {
-          "semverBump": "patch"
-        },
-        "🥅": {
-          "semverBump": "patch"
-        },
-        "💫": {
-          "semverBump": "patch"
-        },
-        "🗑️": {
-          "semverBump": "patch"
-        },
-        "🛂": {
-          "semverBump": "patch"
-        },
-        "🩹": {
-          "semverBump": "patch"
-        },
-        "🧐": {
-          "semverBump": "none"
-        },
-        "⚰️": {
-          "semverBump": "none"
-        },
-        "🧪": {
-          "semverBump": "none"
-        },
-        "👔": {
-          "semverBump": "patch"
-        },
-        "🩺": {
-          "semverBump": "none"
-        },
-        "🧱": {
-          "semverBump": "none"
-        },
-        "🧑‍💻": {
-          "semverBump": "none"
-        },
-        "💸": {
-          "semverBump": "none"
-        },
-        "🧵": {
-          "semverBump": "none"
-        },
-        "🦺": {
-          "semverBump": "none"
-        },
-        "✈️": {
-          "semverBump": "none"
-        }
-      }
-    },
     "releaseTag": {
-      "pattern": "{projectName}@{version}",
+      "pattern": "v{version}",
       "strictPreid": true
     }
   },

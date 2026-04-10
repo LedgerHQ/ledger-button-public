@@ -33,7 +33,7 @@ export class SignTransaction {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[SignTransaction]");
+    this.logger = loggerFactory("SignTransaction");
   }
 
   execute(params: SignTransactionParams): Observable<SignFlowStatus> {

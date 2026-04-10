@@ -28,6 +28,7 @@ let core: LedgerButtonCore | null = null;
 
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
+  hideButton?: boolean;
   floatingButtonPosition?: FloatingButtonPosition;
   floatingButtonTarget?: HTMLElement | string;
   walletTransactionFeatures?: WalletTransactionFeature[];
@@ -40,6 +41,7 @@ export function initializeLedgerProvider({
   target = document.body,
   loggerLevel = "info",
   environment,
+  hideButton = false,
   floatingButtonPosition = "bottom-right",
   floatingButtonTarget,
   walletTransactionFeatures,
@@ -71,9 +73,9 @@ export function initializeLedgerProvider({
     });
   }
 
-  const isSupported = core.isSupported();
+  const isSupportedPlatform = core.isSupportedPlatform();
 
-  if (!isSupported) {
+  if (!isSupportedPlatform) {
     // NOTE: If the environment is not supported, we don't need to do anything
     // and we can just return a noop function
     return () => {
@@ -119,7 +121,7 @@ export function initializeLedgerProvider({
   const { floatingButton } = setupFloatingButton(
     app,
     floatingButtonTarget,
-    floatingButtonPosition,
+    hideButton ? false : floatingButtonPosition,
   );
 
   if (target) {

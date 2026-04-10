@@ -28,7 +28,7 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     @inject(balanceModuleTypes.AlpacaDataSource)
     private readonly alpacaDataSource: AlpacaDataSource,
   ) {
-    this.logger = this.loggerFactory("[DefaultGasFeeEstimationService]");
+    this.logger = this.loggerFactory("DefaultGasFeeEstimationService");
   }
 
 

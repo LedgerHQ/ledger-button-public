@@ -73,7 +73,9 @@ export class RootNavigationComponent extends LitElement {
     mode?: ModalMode,
   ) {
     this.rootNavigationController.navigationIntent(intent, params);
-    this.openModal(mode);
+    const mobileMode =
+      mode ?? (this.coreContext.isMobile() ? "bottom" : "center");
+    this.openModal(mobileMode);
   }
 
   public openModal(mode?: ModalMode) {
@@ -168,6 +170,7 @@ export class RootNavigationComponent extends LitElement {
             .canGoBack=${uiModel.canGoBack}
             .canClose=${uiModel.canClose}
             .showSettings=${uiModel.showSettings}
+            .showLogo=${uiModel.showLogo}
             deviceModelId=${ifDefined(uiModel.deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-go-back-click=${this.goBack}

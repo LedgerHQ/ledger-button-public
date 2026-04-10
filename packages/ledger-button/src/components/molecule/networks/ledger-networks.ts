@@ -1,4 +1,4 @@
-import "../../../components/atom/crypto-icon/ledger-crypto-icon.js";
+import "../../../components/atom/crypto-icon-group/ledger-crypto-icon-group.js";
 
 import type { Network } from "@ledgerhq/ledger-wallet-provider-core";
 import { cva } from "class-variance-authority";
@@ -14,9 +14,10 @@ export interface NetworksClickEventDetail {
   networks: Network[];
 }
 
-const containerVariants = cva(["flex items-center gap-4 px-8 py-4"]);
-
-const overflowVariants = cva(["caption text-muted"]);
+const containerVariants = cva([
+  "flex cursor-pointer items-center rounded-sm p-4",
+  "bg-muted-transparent hover:bg-muted-transparent-hover active:bg-muted-transparent-pressed",
+]);
 
 @customElement("ledger-networks")
 @tailwindElement()
@@ -30,43 +31,43 @@ export class LedgerNetworks extends LitElement {
     };
   }
 
-  private get overflowClasses() {
-    return {
-      [overflowVariants()]: true,
-    };
-  }
-
-  private renderNetworkIcons() {
-    const visible = this.networks.slice(0, MAX_VISIBLE_NETWORKS);
-    return visible.map(
-      (network) => html`
-        <ledger-crypto-icon
-          .ledgerId=${network.name}
-          size="small"
-          variant="square"
-        ></ledger-crypto-icon>
-      `,
-    );
-  }
-
-  private renderOverflow() {
-    const overflowCount = this.networks.length - MAX_VISIBLE_NETWORKS;
-    if (overflowCount <= 0) {
-      return nothing;
-    }
-    return html`<span class=${classMap(this.overflowClasses)}
-      >+${overflowCount}</span
-    >`;
-  }
-
   override render() {
     if (this.networks.length === 0) {
       return nothing;
     }
 
-    return html`<div class=${classMap(this.containerClasses)}>
-      ${this.renderNetworkIcons()} ${this.renderOverflow()}
-    </div>`;
+    return html`
+      <button
+        class="${classMap(this.containerClasses)}"
+        aria-label="Networks"
+        @click=${this.handleClick}
+        @keydown=${this.handleKeydown}
+      >
+        <ledger-crypto-icon-group
+          .items=${this.networks}
+          max-visible=${MAX_VISIBLE_NETWORKS}
+        ></ledger-crypto-icon-group>
+      </button>
+    `;
+  }
+
+  private handleClick() {
+    this.dispatchEvent(
+      new CustomEvent<NetworksClickEventDetail>("networks-click", {
+        bubbles: true,
+        composed: true,
+        detail: {
+          networks: this.networks,
+        },
+      }),
+    );
+  }
+
+  private handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      this.handleClick();
+    }
   }
 }
 

@@ -181,21 +181,40 @@ export function SettingsBlock({
           </div>
 
           <div className="grid grid-cols-3 gap-14">
-            <Select
-              value={localConfig.buttonPosition}
-              onValueChange={(value) =>
-                handleInputChange("buttonPosition", value)
-              }
-            >
-              <SelectTrigger label="Button Position" />
-              <SelectContent>
-                {BUTTON_POSITIONS.map((pos) => (
-                  <SelectItem key={pos.value} value={pos.value}>
-                    <SelectItemText>{pos.label}</SelectItemText>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-10">
+              <Select
+                value={localConfig.buttonPosition}
+                onValueChange={(value) =>
+                  handleInputChange("buttonPosition", value)
+                }
+                disabled={localConfig.hideButton}
+              >
+                <SelectTrigger label="Button Position" />
+                <SelectContent>
+                  {BUTTON_POSITIONS.map((pos) => (
+                    <SelectItem key={pos.value} value={pos.value}>
+                      <SelectItemText>{pos.label}</SelectItemText>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <button
+                type="button"
+                onClick={() =>
+                  setLocalConfig((prev) => ({
+                    ...prev,
+                    hideButton: !prev.hideButton,
+                  }))
+                }
+                className={`px-14 py-8 rounded-lg body-2-semi-bold cursor-pointer transition-colors border ${
+                  !localConfig.hideButton
+                    ? "border-active bg-muted-transparent text-base"
+                    : "border-muted bg-canvas text-muted"
+                }`}
+              >
+                {localConfig.hideButton ? "Floating Button: Off" : "Floating Button: On"}
+              </button>
+            </div>
 
             <Select
               value={localConfig.logLevel}
