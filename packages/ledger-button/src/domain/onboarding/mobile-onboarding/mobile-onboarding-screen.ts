@@ -70,6 +70,7 @@ export class MobileOnboardingScreen extends LitElement {
             label=${mobileOnboarding.allowButton}
             href=${this.controller.ledgerWalletUrl}
             target="_blank"
+            @ledger-button-click=${() => this.controller.trackRedirectToLedgerWallet()}
           ></ledger-button>
           <ledger-button
             variant="secondary"
