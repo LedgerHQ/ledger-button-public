@@ -126,6 +126,11 @@ export const SessionAuthenticationEventSchema = BaseEventDataSchema.extend({
     ),
 });
 
+export const MobileRedirectLedgerWalletEventSchema =
+  BaseEventDataSchema.extend({
+    event_type: z.literal("mobile_redirect_ledger_wallet"),
+  });
+
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
   ConsentGivenEventSchema,
@@ -138,6 +143,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   TransactionFlowInitializationEventSchema,
   TransactionFlowCompletionEventSchema,
   SessionAuthenticationEventSchema,
+  MobileRedirectLedgerWalletEventSchema,
 ]);
 
 export type InvoicingTransactionSignedEvent = z.infer<
