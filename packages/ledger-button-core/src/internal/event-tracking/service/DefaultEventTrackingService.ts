@@ -21,6 +21,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
     EventType.InvoicingTransactionSigned,
     EventType.ErrorOccurred,
     EventType.ConsentGiven,
+    EventType.RedirectToLedgerWallet,
   ];
 
   private readonly logger: LoggerPublisher;
