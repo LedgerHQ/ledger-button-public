@@ -24,7 +24,7 @@ export class LedgerRemoteDatasource {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = this.loggerFactory("[LedgerRemoteDatasource]");
+    this.logger = this.loggerFactory("LedgerRemoteDatasource");
   }
 
   async JSONRPCRequest(

@@ -77,6 +77,19 @@ const centerContainerClasses = {
   "rounded-2xl": true,
 };
 
+const bottomContainerClasses = {
+  "modal-container": true,
+  "modal-container--bottom": true,
+  fixed: true,
+  "bottom-0": true,
+  "left-0": true,
+  "right-0": true,
+  "overflow-hidden": true,
+  "bg-canvas-sheet": true,
+  "rounded-t-2xl": true,
+  "rounded-b-none": true,
+};
+
 const panelContainerClasses = {
   "modal-container": true,
   "modal-container--panel": true,
@@ -247,6 +260,19 @@ export class LedgerModal extends LitElement {
     `;
   }
 
+  private renderBottomContainer() {
+    return html`
+      <div
+        class=${classMap(bottomContainerClasses)}
+        role="dialog"
+        aria-modal="true"
+        aria-describedby="modal-content"
+      >
+        ${this.renderToolbar()} ${this.renderContent()}
+      </div>
+    `;
+  }
+
   private renderPanelContainer() {
     return html`
       <div
@@ -265,9 +291,17 @@ export class LedgerModal extends LitElement {
     return html`
       <div class="modal-wrapper">
         ${this.renderBackdrop()}
-        ${this.mode === "panel"
-          ? this.renderPanelContainer()
-          : this.renderCenterContainer()}
+        ${(() => {
+          switch (this.mode) {
+            case "panel":
+              return this.renderPanelContainer();
+            case "bottom":
+              return this.renderBottomContainer();
+            case "center":
+            default:
+              return this.renderCenterContainer();
+          }
+        })()}
       </div>
     `;
   }

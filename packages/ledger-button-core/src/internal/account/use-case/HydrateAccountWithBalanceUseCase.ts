@@ -28,7 +28,7 @@ export class HydrateAccountWithBalanceUseCase {
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
   ) {
-    this.logger = loggerFactory("[HydrateAccountWithBalanceUseCase]");
+    this.logger = loggerFactory("HydrateAccountWithBalanceUseCase");
   }
 
   async execute(account: Account, withTokens = true): Promise<Account> {

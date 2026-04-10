@@ -16,6 +16,7 @@ export enum EventType {
   WalletActionClicked = "wallet_action_clicked",
   WalletRedirectConfirmed = "wallet_redirect_confirmed",
   WalletRedirectCancelled = "wallet_redirect_cancelled",
+  RedirectToLedgerWallet = "mobile_redirect_ledger_wallet",
 }
 
 type BaseEventData = {
@@ -150,6 +151,10 @@ export type WalletRedirectCancelledEventData = BaseEventData & {
   wallet_action: WalletActionType;
 };
 
+export type MobileRedirectLedgerWalletEventData = BaseEventData & {
+  event_type: "mobile_redirect_ledger_wallet";
+};
+
 export type EventData =
   | ConsentGivenEventData
   | ConsentRemovedEventData
@@ -169,7 +174,8 @@ export type EventData =
   | TypedMessageFlowInitializationEventData
   | WalletActionClickedEventData
   | WalletRedirectConfirmedEventData
-  | WalletRedirectCancelledEventData;
+  | WalletRedirectCancelledEventData
+  | MobileRedirectLedgerWalletEventData;
 
 export type EventRequest = {
   name: string;

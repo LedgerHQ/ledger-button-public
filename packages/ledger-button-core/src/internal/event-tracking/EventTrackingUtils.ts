@@ -10,6 +10,7 @@ import {
   type FloatingButtonClickEventData,
   type InvoicingTransactionSignedEventData,
   type LedgerSyncActivatedEventData,
+  type MobileRedirectLedgerWalletEventData,
   type OnboardingEventData,
   type OpenLedgerSyncEventData,
   type OpenSessionEventData,
@@ -370,6 +371,23 @@ export class EventTrackingUtils {
     return {
       name: EventType.WalletRedirectConfirmed,
       type: EventType.WalletRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createMobileRedirectLedgerWalletEvent(
+    params: BaseEventParams,
+  ): EventRequest {
+    const data: MobileRedirectLedgerWalletEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.RedirectToLedgerWallet,
+    };
+
+    return {
+      name: "Mobile Redirect Ledger Wallet",
+      type: EventType.RedirectToLedgerWallet,
       data,
     };
   }

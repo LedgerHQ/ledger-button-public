@@ -14,6 +14,7 @@ export interface LedgerToolbarAttributes {
   canGoBack: boolean;
   canClose: boolean;
   showSettings: boolean;
+  showLogo: boolean;
 }
 
 const styles = css`
@@ -36,6 +37,9 @@ export class LedgerToolbar extends LitElement {
 
   @property({ type: String })
   deviceModelId?: DeviceModelId;
+
+  @property({ type: Boolean, reflect: true })
+  showLogo = true;
 
   @property({ type: Boolean, reflect: true })
   showSettings = false;
@@ -98,7 +102,9 @@ export class LedgerToolbar extends LitElement {
                     >
                     </ledger-button>
                   `
-                : html` <ledger-icon type="ledger" size="medium"></ledger-icon> `}
+                : this.showLogo
+                  ? html` <ledger-icon type="ledger" size="medium"></ledger-icon> `
+                  : nothing}
             </slot>
           </div>
         </div>

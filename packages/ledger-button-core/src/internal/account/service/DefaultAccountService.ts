@@ -31,7 +31,7 @@ export class DefaultAccountService implements AccountService {
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
-    this.logger = this.loggerFactory("[Account Service]");
+    this.logger = this.loggerFactory("Account Service");
   }
 
   async setAccountsFromCloudSyncData(

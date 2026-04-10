@@ -1,7 +1,6 @@
 import {
   Account,
   Device,
-  SignRawTransactionParams,
   SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
@@ -23,6 +22,7 @@ export type RootNavigationUiModel = {
   canGoBack: boolean;
   canClose: boolean;
   showSettings: boolean;
+  showLogo: boolean;
   deviceModelId: DeviceModelId | undefined;
 };
 
@@ -30,10 +30,10 @@ export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
-  pendingTransactionParams?: SignRawTransactionParams | SignTransactionParams;
   params?: unknown;
 
   private hasTrackingConsent?: boolean;
+  private welcomeScreenCompleted = false;
   private contextSubscription?: Subscription;
   connectedDevice: Device | undefined;
 
@@ -46,7 +46,6 @@ export class RootNavigationController implements ReactiveController {
     this.host.addController(this);
     this.navigation = new Navigation(host, this.modalContent);
     this.destinations = makeDestinations(translation);
-    this.pendingTransactionParams = core.getPendingTransactionParams();
   }
 
   hostConnected() {
@@ -55,6 +54,7 @@ export class RootNavigationController implements ReactiveController {
       .observeContext()
       .subscribe((context) => {
         this.hasTrackingConsent = context.hasTrackingConsent;
+        this.welcomeScreenCompleted = context.welcomeScreenCompleted;
         this.connectedDevice = context.connectedDevice;
         this.host.requestUpdate();
       });
@@ -78,16 +78,23 @@ export class RootNavigationController implements ReactiveController {
     const canClose = this.currentScreen?.toolbar.canClose ?? true;
 
     const isHomeFlow = this.currentScreen?.name === "home-flow";
+    const isOnboardingFlow = this.currentScreen?.name === "onboarding-flow";
 
     const isOnConsentScreen =
-      isHomeFlow && this.hasTrackingConsent === undefined;
+      (isHomeFlow || isOnboardingFlow) &&
+      this.welcomeScreenCompleted &&
+      this.hasTrackingConsent === undefined;
 
     const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
 
     const title =
       connectedDevice && shouldShowDeviceChip
         ? connectedDevice.name
-        : this.currentScreen?.toolbar.title;
+        : isOnConsentScreen
+          ? this.destinations.consentAnalytics.toolbar.title
+          : isOnboardingFlow && !this.welcomeScreenCompleted
+            ? ""
+            : this.currentScreen?.toolbar.title;
 
     const deviceModelId =
       connectedDevice && shouldShowDeviceChip
@@ -95,12 +102,14 @@ export class RootNavigationController implements ReactiveController {
         : undefined;
 
     const showSettings = this.currentScreen?.name === "home-flow";
+    const showLogo = this.currentScreen?.toolbar.showLogo !== false;
 
     const uiModel: RootNavigationUiModel = {
       title,
       canGoBack,
       canClose,
       showSettings,
+      showLogo,
       deviceModelId,
     };
 
@@ -111,12 +120,18 @@ export class RootNavigationController implements ReactiveController {
     const selectedAccount = await this.core.getSelectedAccount();
 
     if (!selectedAccount) {
-      this.navigation.navigateTo(this.destinations.onboardingFlow);
+      this.navigation.navigateTo(this.onboardingDestination);
       return;
     } else {
       this.navigation.navigateTo(this.destinations.home);
       return;
     }
+  }
+
+  private get onboardingDestination(): Destination {
+    return this.core.isMobile()
+      ? this.destinations.mobileOnboarding
+      : this.destinations.onboardingFlow;
   }
 
   // NOTE: First Draft of navigationIntent
@@ -137,7 +152,7 @@ export class RootNavigationController implements ReactiveController {
 
       case "home": {
         if (!this.core.getSelectedAccount()) {
-          this.navigation.navigateTo(this.destinations.onboardingFlow);
+          this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
@@ -151,18 +166,18 @@ export class RootNavigationController implements ReactiveController {
 
       case "signTransaction": {
         if (!this.core.getSelectedAccount()) {
-          this.navigation.navigateTo(this.destinations.onboardingFlow);
+          this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
-        this.core.setPendingTransactionParams(params as SignTransactionParams);
+        this.core.setCraftedTransactionParams(params as SignTransactionParams);
         this.navigation.navigateTo(this.destinations.signingFlow);
         break;
       }
 
       case "deviceSwitch": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboardingFlow);
+          this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
@@ -171,7 +186,7 @@ export class RootNavigationController implements ReactiveController {
       }
       case "fetchAccounts": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboardingFlow);
+          this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
@@ -180,7 +195,7 @@ export class RootNavigationController implements ReactiveController {
       }
       case "deviceConnectionStatus": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboardingFlow);
+          this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
@@ -189,7 +204,7 @@ export class RootNavigationController implements ReactiveController {
       }
       case "ledgerSync": {
         if (!this.core.getConnectedDevice()) {
-          this.navigation.navigateTo(this.destinations.onboardingFlow);
+          this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
@@ -198,11 +213,15 @@ export class RootNavigationController implements ReactiveController {
       }
 
       case "onboarding":
-        this.navigation.navigateTo(this.destinations.onboardingFlow);
+        this.navigation.navigateTo(this.onboardingDestination);
         break;
 
       case "settings":
         this.navigation.navigateTo(this.destinations.settings);
+        break;
+
+      case "availableNetworks":
+        this.navigation.navigateTo(this.destinations.availableNetworks);
         break;
 
       case "security":

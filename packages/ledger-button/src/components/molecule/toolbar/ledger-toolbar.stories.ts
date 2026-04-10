@@ -62,7 +62,7 @@ type Story = StoryObj<LedgerToolbarAttributes>;
 
 export const Default: Story = {
   args: {
-    title: "Connect a Ledger",
+    title: "Connect a Ledger device",
     canGoBack: true,
   },
   parameters: {
@@ -91,7 +91,7 @@ export const AllVariations: Story = {
             With Title and no close button
           </h3>
           <ledger-toolbar
-            title="Connect a Ledger"
+            title="Connect a Ledger device"
             .showCloseButton=${false}
           ></ledger-toolbar>
         </div>

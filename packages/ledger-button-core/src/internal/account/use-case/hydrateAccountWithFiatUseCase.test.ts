@@ -41,6 +41,19 @@ describe("HydrateAccountWithFiatUseCase", () => {
     tokens: [],
   };
 
+  const accountWithToken: Account = {
+    ...baseAccount,
+    tokens: [
+      {
+        ledgerId: "ethereum/erc20/usdc",
+        ticker: "USDC",
+        name: "USD Coin",
+        balance: "43,000.0",
+        fiatBalance: undefined,
+      },
+    ],
+  };
+
   const accountWithoutBalance: Account = {
     ...baseAccount,
     balance: undefined,
@@ -200,6 +213,29 @@ describe("HydrateAccountWithFiatUseCase", () => {
           value: "3000.00",
           currency: "USD",
         });
+      });
+      it("should hydrate tokens with fiat values", async () => {
+        const counterValueResult: CounterValueResult[] = [
+          { ledgerId: "ethereum", rate: 2500 },
+          { ledgerId: "ethereum/erc20/usdc", rate: 0.99 },
+        ];
+        mockCounterValueDataSource.getCounterValues.mockResolvedValue(
+          Right(counterValueResult),
+        );
+
+        const result = await useCase.execute(accountWithToken);
+
+        expect(result.fiatBalance).toEqual({
+          value: "6250.00",
+          currency: "USD",
+        });
+        expect(result.tokens[0].fiatBalance).toEqual({
+          value: "42570.00",
+          currency: "USD",
+        });
+        expect(
+          mockCounterValueDataSource.getCounterValues,
+        ).toHaveBeenCalledWith(["ethereum", "ethereum/erc20/usdc"], "usd");
       });
     });
   });

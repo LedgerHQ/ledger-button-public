@@ -45,7 +45,7 @@ export class DefaultDeviceManagementKitService
     @inject(deviceModuleTypes.DmkConfig)
     args: DeviceModuleOptions,
   ) {
-    this.logger = loggerFactory("[DeviceManagementKit Service]");
+    this.logger = loggerFactory("DeviceManagementKit Service");
     const builder = new DeviceManagementKitBuilder();
 
     builder

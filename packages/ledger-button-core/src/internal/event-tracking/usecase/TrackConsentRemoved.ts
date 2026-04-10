@@ -23,7 +23,7 @@ export class TrackConsentRemoved {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[TrackConsentRemoved UseCase]");
+    this.logger = loggerFactory("TrackConsentRemoved UseCase");
   }
 
   async execute(): Promise<void> {

@@ -4,26 +4,23 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "changelog": "pnpm nx release plan",
     "commit": "gitmoji -c",
+    "commitcl": "pnpm changelog && git add .nx/version-plans && pnpm commit",
     "danger:local": "pnpm danger local --dangerfile tools/danger/danger-local.ts --base origin/develop",
     "danger:local:fork": "pnpm danger local --dangerfile tools/danger/danger-local-fork.ts --base origin/develop",
     "danger:ci": "pnpm danger ci --dangerfile tools/danger/danger-ci.ts --failOnErrors",
     "provider": "pnpm --filter @ledgerhq/ledger-wallet-provider",
     "provider-core": "pnpm --filter @ledgerhq/ledger-wallet-provider-core",
     "doc": "pnpm --filter @ledgerhq/ledger-wallet-provider-docs",
-    "pocs-webcomponent": "pnpm --filter @ledgerhq/ledger-button-webcomponent-poc",
     "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm provider exec nx build-storybook --quiet && pnpm provider exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm provider exec nx test-storybook\"",
     "test:coverage": "pnpm nx run-many -t test -- --coverage --coverage.reporter=html --coverage.reporter=text",
+    "plan:check": "pnpm nx release plan:check",
     "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core",
-    "release": "pnpm nx release publish",
-    "version:minor": "pnpm nx release version minor --git-tag",
-    "version:major": "pnpm nx release version major --git-tag",
-    "version:patch": "pnpm nx release version patch --git-tag",
-    "version:prerelease": "pnpm nx release version prerelease --preid pre"
+    "release": "pnpm nx release"
   },
   "private": true,
   "devDependencies": {
-    "@angular/compiler-cli": "catalog:",
     "@babel/core": "catalog:",
     "@babel/preset-react": "catalog:",
     "@eslint/compat": "catalog:",
@@ -42,7 +39,6 @@
     "@nx/storybook": "catalog:",
     "@nx/vite": "catalog:",
     "@nx/web": "catalog:",
-    "@open-wc/testing": "catalog:",
     "@playwright/test": "catalog:",
     "@storybook/addon-coverage": "catalog:",
     "@storybook/addon-docs": "catalog:",
@@ -105,12 +101,6 @@
     "wait-on": "catalog:"
   },
   "dependencies": {
-    "@angular/animations": "catalog:",
-    "@angular/common": "catalog:",
-    "@angular/compiler": "catalog:",
-    "@angular/core": "catalog:",
-    "@angular/platform-browser": "catalog:",
-    "@angular/platform-browser-dynamic": "catalog:",
     "chalk": "catalog:",
     "lottie-web": "catalog:",
     "motion": "catalog:",
@@ -118,8 +108,7 @@
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "rxjs": "catalog:",
-    "tslib": "catalog:",
-    "zone.js": "catalog:"
+    "tslib": "catalog:"
   },
   "nx": {
     "includedScripts": [],

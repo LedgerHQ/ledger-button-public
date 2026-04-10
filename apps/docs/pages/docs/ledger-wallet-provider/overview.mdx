@@ -1,17 +1,22 @@
+---
+title: Ledger Wallet Provider
+category: explanation
+---
+
 import { Callout } from 'nextra/components'
 import Link from 'next/link'
 
 # Ledger Wallet Provider
 
 <div className="text-lg text-gray-600 dark:text-gray-400 mt-4 mb-8">
-  Give your users a first-party Ledger experience inside your application with secure device pairing, Clear Signing, and Transaction Check built in.
+  Give your users a first-party Ledger experience inside your application with secure signer pairing, Clear Signing, and Transaction Check built in.
 </div>
 
 ## What is Ledger Wallet Provider
 
-Ledger Wallet Provider is a web component SDK that embeds Ledger's official connect flow directly inside your application, enabling direct device connections and ensuring full access to Ledger's security features like Clear Signing and Transaction Check.
+Ledger Wallet Provider is a web component SDK that embeds Ledger's official connect flow directly inside your application, enabling direct signer connections and ensuring full access to Ledger's security features like Clear Signing and Transaction Check.
 
-The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and provides a standards-based EIP-1193 provider that works with any JavaScript framework.
+The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and provides a standards-based [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider that works with any JavaScript framework. It announces itself via the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) multi-wallet discovery protocol, so it integrates with any dApp that supports that standard.
 
 <div className="my-12 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-12">
   <img
@@ -32,43 +37,57 @@ The SDK handles USB and Bluetooth connections, automatically enables Clear Signi
   <div className="flex items-start gap-3">
     <span className="text-emerald-500 mt-1">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Built-in Security</div>
+      <div className="text-gray-200 font-semibold">Built-in security</div>
       <div className="text-sm text-gray-400 mt-1">Clear Signing and Transaction Check enabled automatically</div>
     </div>
   </div>
   <div className="flex items-start gap-3">
     <span className="text-emerald-500 mt-1">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Complete User Flow</div>
-      <div className="text-sm text-gray-400 mt-1">Handles device pairing, account selection, and connection state</div>
+      <div className="text-gray-200 font-semibold">Complete user flow</div>
+      <div className="text-sm text-gray-400 mt-1">Handles signer pairing, account selection, and connection state</div>
     </div>
   </div>
   <div className="flex items-start gap-3">
     <span className="text-emerald-500 mt-1">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Standard Integration</div>
+      <div className="text-gray-200 font-semibold">Standard integration</div>
       <div className="text-sm text-gray-400 mt-1">EIP-1193 provider works with any JavaScript framework</div>
     </div>
   </div>
   <div className="flex items-start gap-3">
     <span className="text-emerald-500 mt-1">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Managed Transports</div>
+      <div className="text-gray-200 font-semibold">Managed transports</div>
       <div className="text-sm text-gray-400 mt-1">Ledger maintains USB and Bluetooth connection layers</div>
     </div>
   </div>
 </div>
 
+## Limitations
+
+The SDK runs entirely in the browser. It does not support server-side rendering (SSR): use dynamic imports to load it only in a browser context. Mobile browsers are not supported because Web HID and Web Bluetooth APIs are not available on iOS or Android. For full environment requirements, see [Requirements](./requirements).
+
 ## Where to go next
 
 <div className="grid md:grid-cols-2 gap-4 mt-8">
+  <Link href="./requirements" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+    <div className="font-semibold mb-2">Requirements →</div>
+    <div className="text-sm text-gray-400">Check browser and platform requirements before you start</div>
+  </Link>
+
   <Link href="./get-started" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
-    <div className="font-semibold mb-2">Get Started →</div>
+    <div className="font-semibold mb-2">Get started →</div>
     <div className="text-sm text-gray-400">Install the SDK and integrate Ledger Wallet Provider into your application</div>
   </Link>
 
+  <Link href="./configuration" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+    <div className="font-semibold mb-2">Configuration →</div>
+    <div className="text-sm text-gray-400">Explore all initialization options</div>
+  </Link>
+
   <Link href="./api-reference" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
-    <div className="font-semibold mb-2">API Reference →</div>
+    <div className="font-semibold mb-2">API reference →</div>
     <div className="text-sm text-gray-400">Explore events, methods, and provider capabilities</div>
   </Link>
 </div>

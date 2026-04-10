@@ -16,9 +16,7 @@ export interface LedgerCryptoIconAttributes {
 }
 
 const cryptoIconVariants = cva(
-  [
-    "position-relative flex items-center justify-center overflow-hidden",
-  ],
+  ["relative flex items-center justify-center overflow-hidden"],
   {
     variants: {
       size: {
@@ -98,9 +96,9 @@ export class LedgerCryptoIcon extends LitElement {
 
   private renderCryptoIcon(iconUrl: string) {
     return html`
-      <div class="${this.iconClasses}" style="position: relative;">
+      <div class="${this.iconClasses}">
         <img
-          class="token-icon block h-full w-full bg-active object-cover"
+          class="token-icon bg-active block h-full w-full object-cover"
           src=${iconUrl}
           alt=${this.alt}
         />

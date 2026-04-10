@@ -21,6 +21,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
     EventType.InvoicingTransactionSigned,
     EventType.ErrorOccurred,
     EventType.ConsentGiven,
+    EventType.RedirectToLedgerWallet,
   ];
 
   private readonly logger: LoggerPublisher;
@@ -40,7 +41,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("[Event Tracking]");
+    this.logger = loggerFactory("Event Tracking");
     this._sessionId = generateUUID();
     this.subscribeToContextChanges();
   }

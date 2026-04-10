@@ -14,10 +14,12 @@ import "../domain/signing-flow/signing-flow.js";
 import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
+import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
 import "../domain/settings/security-screen.js";
 import "../domain/support/support-screen.js";
 import "../domain/home-flow/home-flow.js";
+import "../domain/available-networks/available-networks.js";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -72,6 +74,7 @@ export type Destination = {
   toolbar: {
     title: string;
     canClose: boolean;
+    showLogo?: boolean;
   };
 };
 
@@ -243,6 +246,15 @@ export const makeDestinations = (translation: Translation) => {
         canClose: true,
       },
     },
+    availableNetworks: {
+      name: "availableNetworks",
+      component: "available-networks-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.availableNetworks?.title,
+        canClose: true,
+      },
+    },
     security: {
       name: "security",
       component: "security-screen",
@@ -261,6 +273,16 @@ export const makeDestinations = (translation: Translation) => {
       toolbar: {
         title: translation.settings?.support?.title ?? "Help & Support",
         canClose: true,
+      },
+    },
+    mobileOnboarding: {
+      name: "mobileOnboarding",
+      component: "mobile-onboarding-screen",
+      canGoBack: false,
+      toolbar: {
+        title: "",
+        canClose: true,
+        showLogo: false,
       },
     },
     notFound: {

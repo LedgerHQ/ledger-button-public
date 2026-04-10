@@ -64,6 +64,7 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get sign(): string {
+    if (parseFloat(this.amount) === 0) return "";
     return this.type === "received" ? "+" : "-";
   }
 

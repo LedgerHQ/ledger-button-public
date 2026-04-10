@@ -15,18 +15,21 @@ import { SignTransactionParams } from "./model/signing/SignTransactionParams.js"
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import type { AccountWithFiat } from "../internal/account/service/AccountService.js";
 import {
   Account,
   type AccountService,
+  type AccountWithFiat,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
 import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
+import { SortAccountsByFiatUseCase } from "../internal/account/use-case/sortAccountsByFiatUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
+import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -50,6 +53,7 @@ import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTracki
 import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
+import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
@@ -59,6 +63,13 @@ import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
+import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
+import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
+import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
+import { type TrackBroadcastedTransactionUseCase } from "../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
+import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
+import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
@@ -70,7 +81,7 @@ import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderM
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
   private container!: Container;
-  private _pendingTransactionParams?:
+  private _craftedTransactionParams?:
     | SignRawTransactionParams
     | SignTransactionParams;
   private _pendingAccountId?: string;
@@ -92,7 +103,7 @@ export class LedgerButtonCore {
     const loggerFactory = this.container.get<Factory<LoggerPublisher>>(
       loggerModuleTypes.LoggerPublisher,
     );
-    this._logger = loggerFactory("[Ledger Button Core]");
+    this._logger = loggerFactory("Ledger Button Core");
     this._modalService = this.container.get<ModalService>(
       modalModuleTypes.ModalService,
     );
@@ -150,6 +161,10 @@ export class LedgerButtonCore {
       ? userConsent.extract().consentGiven
       : undefined;
 
+    const isMobilePlatform = this.container
+      .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
+      .execute();
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -160,8 +175,13 @@ export class LedgerButtonCore {
         chainId: chainId,
         welcomeScreenCompleted,
         hasTrackingConsent,
+        isMobilePlatform,
       },
     });
+
+    this.container.get<PendingTransactionController>(
+      pendingTransactionModuleTypes.PendingTransactionController,
+    );
   }
 
   private listenDevice() {
@@ -290,18 +310,24 @@ export class LedgerButtonCore {
     });
 
     return this.container
-      .get<FetchAccountsWithBalanceUseCase>(
-        accountModuleTypes.FetchAccountsWithBalanceUseCase,
+      .get<SortAccountsByFiatUseCase>(
+        accountModuleTypes.SortAccountsByFiatUseCase,
       )
-      .execute()
-      .pipe(
-        switchMap((accounts) =>
-          this.container
-            .get<FetchAccountsWithFiatUseCase>(
-              accountModuleTypes.FetchAccountsWithFiatUseCase,
-            )
-            .execute(accounts, targetCurrency),
-        ),
+      .execute(
+        this.container
+          .get<FetchAccountsWithBalanceUseCase>(
+            accountModuleTypes.FetchAccountsWithBalanceUseCase,
+          )
+          .execute()
+          .pipe(
+            switchMap((accounts) =>
+              this.container
+                .get<FetchAccountsWithFiatUseCase>(
+                  accountModuleTypes.FetchAccountsWithFiatUseCase,
+                )
+                .execute(accounts, targetCurrency),
+            ),
+          ),
       );
   }
 
@@ -344,6 +370,7 @@ export class LedgerButtonCore {
       )
       .execute();
   }
+
   // Device methods
   getConnectedDevice() {
     this._logger.debug("Getting connected device");
@@ -370,22 +397,31 @@ export class LedgerButtonCore {
     this._logger.debug("Signing transaction", { params });
     return this.container
       ?.get<TransactionService>(transactionModuleTypes.TransactionService)
-      .sign(params);
+      .sign(params)
+      .pipe(
+        tap((status) => {
+          this.container
+            .get<TrackBroadcastedTransactionUseCase>(
+              pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase,
+            )
+            .execute(status, params);
+        }),
+      );
   }
 
-  setPendingTransactionParams(
+  setCraftedTransactionParams(
     params: SignRawTransactionParams | SignTransactionParams | undefined,
   ) {
-    this._logger.debug("Setting pending transaction params", { params });
-    this._pendingTransactionParams = params;
+    this._logger.debug("Setting crafted transaction params", { params });
+    this._craftedTransactionParams = params;
   }
 
-  getPendingTransactionParams():
+  getCraftedTransactionParams():
     | SignRawTransactionParams
     | SignTransactionParams
     | undefined {
-    this._logger.debug("Getting pending transaction params");
-    return this._pendingTransactionParams;
+    this._logger.debug("Getting crafted transaction params");
+    return this._craftedTransactionParams;
   }
 
   setPendingAccountId(id: string | undefined) {
@@ -462,13 +498,6 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
-  getTransactionService(): TransactionService {
-    this._logger.debug("Getting transaction service");
-    return this.container.get<TransactionService>(
-      transactionModuleTypes.TransactionService,
-    );
-  }
-
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container
@@ -526,6 +555,14 @@ export class LedgerButtonCore {
     return this._contextService.observeContext();
   }
 
+  observePendingTransactions(): Observable<PendingTransaction[]> {
+    return this.container
+      .get<PendingTransactionController>(
+        pendingTransactionModuleTypes.PendingTransactionController,
+      )
+      .observePendingTransactions();
+  }
+
   // Config methods
   getConfig(): Config {
     return this.container.get<Config>(configModuleTypes.Config);
@@ -535,12 +572,18 @@ export class LedgerButtonCore {
     this.container.get<Config>(configModuleTypes.Config).setLogLevel(logLevel);
   }
 
-  isSupported() {
+  isMobile() {
     return this.container
-      .get<DeviceManagementKitService>(
-        deviceModuleTypes.DeviceManagementKitService,
+      .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
+      .execute();
+  }
+
+  isSupportedPlatform() {
+    return this.container
+      .get<IsSupportedPlatformUseCase>(
+        platformModuleTypes.IsSupportedPlatformUseCase,
       )
-      .dmk.isEnvironmentSupported();
+      .execute();
   }
 
   setChainId(chainId: number) {
@@ -552,6 +595,28 @@ export class LedgerButtonCore {
 
   getChainId(): number {
     return this._contextService.getContext().chainId;
+  }
+
+  async getCurrencyInfo(
+    currencyId: string,
+  ): Promise<{ name: string; ticker: string }> {
+    const result = await this.container
+      .get<CalDataSource>(balanceModuleTypes.CalDataSource)
+      .getCurrencyInformation(currencyId);
+
+    if (result.isRight()) {
+      const { name, ticker } = result.extract();
+      return { name, ticker };
+    }
+    return { name: currencyId, ticker: currencyId.toUpperCase() };
+  }
+
+  async trackMobileRedirectLedgerWallet(): Promise<void> {
+    await this.container
+      .get<TrackMobileRedirectLedgerWallet>(
+        eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
+      )
+      .execute();
   }
 
   async trackFloatingButtonClick(): Promise<void> {
