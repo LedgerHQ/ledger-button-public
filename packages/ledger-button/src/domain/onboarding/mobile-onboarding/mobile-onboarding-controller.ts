@@ -23,6 +23,10 @@ export class MobileOnboardingController implements ReactiveController {
     );
   }
 
+  trackRedirectToLedgerWallet() {
+    void this.core.trackMobileRedirectLedgerWallet();
+  }
+
   downloadLedgerWallet() {
     window.open(
       "https://shop.ledger.com/pages/ledger-wallet#download-ledger-wallet",
