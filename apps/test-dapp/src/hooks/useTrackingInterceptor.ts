@@ -23,9 +23,9 @@ export function useTrackingInterceptor() {
   const [entries, setEntries] = useState<TrackingEntry[]>([]);
 
   useEffect(() => {
-    const originalFetch = window.fetch;
+    const originalFetch = globalThis.fetch;
 
-    window.fetch = async (
+    globalThis.fetch = async (
       input: RequestInfo | URL,
       init?: RequestInit,
     ): Promise<Response> => {
@@ -95,7 +95,7 @@ export function useTrackingInterceptor() {
     };
 
     return () => {
-      window.fetch = originalFetch;
+      globalThis.fetch = originalFetch;
     };
   }, []);
 
