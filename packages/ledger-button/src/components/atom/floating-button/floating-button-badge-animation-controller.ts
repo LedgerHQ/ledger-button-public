@@ -16,6 +16,7 @@ export class BadgeAnimationController implements ReactiveController {
   animatedVariant: BadgeVariant | null = null;
   delayTooltipOpen = false;
   badgeAppearing = false;
+  frozenCount: number | null = null;
 
   private _isAnimating = false;
   private _hasPending = false;
@@ -71,6 +72,7 @@ export class BadgeAnimationController implements ReactiveController {
     hasPending: boolean,
     postCloseTooltip: boolean,
     modalIsOpen: boolean,
+    pendingCount: number,
   ): void {
     this._celebration = celebration;
     this._hasPending = hasPending;
@@ -86,6 +88,7 @@ export class BadgeAnimationController implements ReactiveController {
 
     if (celebrationChanged) {
       if (celebration) {
+        this.frozenCount = pendingCount;
         this._pendingAction = "transition-validated";
       } else if (hasPending) {
         this._pendingAction = "transition-pending";
@@ -185,6 +188,7 @@ export class BadgeAnimationController implements ReactiveController {
     const shrinkEl = this.queryBadge();
     if (shrinkEl) await this.animation.shrinkOut(shrinkEl);
 
+    this.frozenCount = null;
     this.animatedVariant = to;
     this.host.requestUpdate();
     await this.host.updateComplete;

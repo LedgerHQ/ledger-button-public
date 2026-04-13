@@ -7,6 +7,7 @@ const MODAL_OPEN_EVENT = "ledger-core-modal-open";
 const MODAL_CLOSE_EVENT = "ledger-core-modal-close";
 
 const TOOLTIP_DISMISS_DELAY_MS = 300;
+const POST_CLOSE_APPEARANCE_DELAY_MS = 500;
 
 export class FloatingButtonController implements ReactiveController {
   host: ReactiveControllerHost;
@@ -23,6 +24,7 @@ export class FloatingButtonController implements ReactiveController {
   private _pendingIncreasedWhileModalOpen = false;
   private _previousPendingCount: number | undefined;
   private _dismissTimer: ReturnType<typeof setTimeout> | null = null;
+  private _postCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     host: ReactiveControllerHost,
@@ -48,6 +50,7 @@ export class FloatingButtonController implements ReactiveController {
     this.validatedCelebrationOpen = false;
     this.validatedCount = 0;
     this.clearDismissTimer();
+    this.clearPostCloseTimer();
   }
 
   get hasPending(): boolean {
@@ -99,20 +102,34 @@ export class FloatingButtonController implements ReactiveController {
     }
   }
 
+  private clearPostCloseTimer(): void {
+    if (this._postCloseTimer) {
+      clearTimeout(this._postCloseTimer);
+      this._postCloseTimer = null;
+    }
+  }
+
   private handleModalOpen = (): void => {
     this._modalIsOpen = true;
   };
 
   private handleModalClose = (): void => {
     this._modalIsOpen = false;
-    if (
+    const shouldShowPostClose =
       this._pendingIncreasedWhileModalOpen &&
-      this.pendingTransactionCount > 0
-    ) {
-      this.postClosePendingTooltipOpen = true;
-    }
+      this.pendingTransactionCount > 0;
     this._pendingIncreasedWhileModalOpen = false;
-    this.host.requestUpdate();
+
+    if (shouldShowPostClose) {
+      this.clearPostCloseTimer();
+      this._postCloseTimer = setTimeout(() => {
+        this._postCloseTimer = null;
+        this.postClosePendingTooltipOpen = true;
+        this.host.requestUpdate();
+      }, POST_CLOSE_APPEARANCE_DELAY_MS);
+    } else {
+      this.host.requestUpdate();
+    }
   };
 
   private subscribeToContext() {

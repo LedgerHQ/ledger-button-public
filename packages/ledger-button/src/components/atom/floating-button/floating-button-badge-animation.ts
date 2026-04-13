@@ -1,17 +1,12 @@
-import { animate } from "motion";
+import { animate, type AnimationOptions } from "motion";
 
 import { type AnimationInstance } from "../modal/animation-types.js";
 
 const ELASTIC_SPRING = {
   type: "spring" as const,
-  stiffness: 300,
-  damping: 20,
-};
-
-const SWING_SPRING = {
-  type: "spring" as const,
-  stiffness: 200,
-  damping: 25,
+  stiffness: 400,
+  damping: 18,
+  mass: 1,
 };
 
 export class FloatingButtonBadgeAnimation {
@@ -21,12 +16,14 @@ export class FloatingButtonBadgeAnimation {
     this.cancel();
 
     await new Promise<void>((resolve) => {
+      // Cast the target object to 'any' to bypass the translate/string incompatibility
       this.animation = animate(
         el,
-        { scale: [1, 0] },
+        { scale: [1, 1.15, 0] },
         {
-          ...SWING_SPRING,
-          duration: 0.8,
+          duration: 0.4,
+          times: [0, 0.2, 1],
+          ease: ["easeOut", "easeIn"],
           onComplete: () => resolve(),
         },
       );
@@ -41,12 +38,12 @@ export class FloatingButtonBadgeAnimation {
     await new Promise<void>((resolve) => {
       this.animation = animate(
         el,
-        { scale: [0, 1] },
+        { scale: 1 },
         {
           ...ELASTIC_SPRING,
-          duration: 1,
+          from: 0,
           onComplete: () => resolve(),
-        },
+        } as AnimationOptions, // Cast options to help with overload matching
       );
     });
 
