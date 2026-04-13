@@ -7,7 +7,7 @@
       "ariaLabel": "Ledger hesap menüsünü aç",
       "label": "Ledger",
       "pendingTransactionsHover": "{count} bekleyen işleminiz var",
-      "newTransactionPending": "Yeni işlem beklemede"
+      "newTransactionPending": "Yeni işlem beklemede",
       "transactionsValidatedOne": "1 işlem doğrulandı",
       "transactionsValidatedOther": "{count} işlem doğrulandı"
     },

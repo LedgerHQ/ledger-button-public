@@ -18,6 +18,7 @@ export class FloatingButtonController implements ReactiveController {
   postClosePendingTooltipOpen = false;
   validatedCelebrationOpen = false;
   validatedCount = 0;
+  frozenBadgeCount: number | null = null;
   dismissingTooltipContent: string | null = null;
 
   private _modalIsOpen = false;
@@ -92,6 +93,7 @@ export class FloatingButtonController implements ReactiveController {
   clearValidatedCelebration(): void {
     this.validatedCelebrationOpen = false;
     this.validatedCount = 0;
+    this.frozenBadgeCount = null;
     this.host.requestUpdate();
   }
 
@@ -161,6 +163,7 @@ export class FloatingButtonController implements ReactiveController {
           previousCount > 0 &&
           nextCount < previousCount
         ) {
+          this.frozenBadgeCount = previousCount;
           this.validatedCelebrationOpen = true;
           this.validatedCount = previousCount - nextCount;
           this.postClosePendingTooltipOpen = false;
