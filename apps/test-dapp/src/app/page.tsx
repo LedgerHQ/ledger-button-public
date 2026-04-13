@@ -12,6 +12,7 @@ import {
   EventSimulatorBlock,
   ProviderSelectionBlock,
   SettingsBlock,
+  TrackingPanel,
   TransactionsBlock,
 } from "../components";
 import {
@@ -19,6 +20,7 @@ import {
   type LedgerProviderConfig,
   useProviders,
 } from "../hooks/useProviders";
+import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
 let Provider:
   | typeof import("@ledgerhq/ledger-wallet-provider").LedgerEIP1193Provider
@@ -39,6 +41,9 @@ export default function Index() {
     isInitialized,
     reinitialize,
   } = useProviders(config);
+
+  const { entries: trackingEntries, clearEntries: clearTracking } =
+    useTrackingInterceptor();
 
   const [account, setAccount] = useState<string | null>(null);
   const [chainId, setChainId] = useState<string | null>(null);
@@ -414,11 +419,17 @@ export default function Index() {
             <div className="flex min-h-0 flex-1 flex-col">
               <ActivityLog entries={activity} onClear={clearActivity} />
             </div>
+            <div className="flex min-h-0 flex-1 flex-col">
+              <TrackingPanel
+                entries={trackingEntries}
+                onClear={clearTracking}
+              />
+            </div>
           </div>
         </aside>
       </div>
 
-      <div className="mx-auto mt-16 max-w-[680px] lg:hidden">
+      <div className="mx-auto mt-16 max-w-[680px] space-y-8 lg:hidden">
         <details className="group">
           <summary className="border-muted bg-muted flex cursor-pointer items-center justify-between rounded-lg border px-20 py-14 select-none">
             <span className="body-2-semi-bold text-base">
@@ -433,6 +444,28 @@ export default function Index() {
           </summary>
           <div className="mt-8 h-[400px]">
             <ActivityLog entries={activity} onClear={clearActivity} />
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="border-muted bg-muted flex cursor-pointer items-center justify-between rounded-lg border px-20 py-14 select-none">
+            <span className="body-2-semi-bold text-base">
+              Tracking Events
+              {trackingEntries.length > 0 && (
+                <span className="text-muted ml-8">
+                  ({trackingEntries.length})
+                </span>
+              )}
+            </span>
+            <span className="text-muted transition-transform group-open:rotate-180">
+              <ChevronDownIcon size={16} />
+            </span>
+          </summary>
+          <div className="mt-8 h-[400px]">
+            <TrackingPanel
+              entries={trackingEntries}
+              onClear={clearTracking}
+            />
           </div>
         </details>
       </div>
