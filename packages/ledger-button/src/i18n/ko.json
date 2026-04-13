@@ -8,6 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "대기 중인 트랜잭션이 {count}건 있습니다.",
       "newTransactionPending": "새 트랜잭션 보류 중"
+      "transactionsValidatedOne": "1건의 거래가 검증되었습니다",
+      "transactionsValidatedOther": "{count}건의 거래가 검증되었습니다"
     },
     "search": {
       "placeholder": "계정 검색",

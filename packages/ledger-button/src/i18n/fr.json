@@ -7,7 +7,9 @@
       "ariaLabel": "Ouvrir le menu Comptes Ledger",
       "label": "Ledger",
       "pendingTransactionsHover": "Vous avez {count} transactions en attente",
-      "newTransactionPending": "Nouvelle transaction en attente"
+      "newTransactionPending": "Nouvelle transaction en attente",
+      "transactionsValidatedOne": "1 transaction a été validée",
+      "transactionsValidatedOther": "{count} transactions ont été validées"
     },
     "search": {
       "placeholder": "Rechercher un compte",

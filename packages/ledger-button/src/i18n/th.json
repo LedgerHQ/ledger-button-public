@@ -8,6 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "คุณมี {count} ธุรกรรมที่ค้างอยู่",
       "newTransactionPending": "ธุรกรรมใหม่กำลังรอดำเนินการ"
+      "transactionsValidatedOne": "ยืนยัน 1 ธุรกรรมแล้ว",
+      "transactionsValidatedOther": "ยืนยัน {count} ธุรกรรมแล้ว"
     },
     "search": {
       "placeholder": "ค้นหาบัญชี",

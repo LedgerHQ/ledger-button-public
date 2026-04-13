@@ -8,6 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "У вас есть неподтверждённые транзакции ({count})",
       "newTransactionPending": "Новая транзакция ожидает подтверждения"
+      "transactionsValidatedOne": "1 транзакция подтверждена",
+      "transactionsValidatedOther": "Подтверждено транзакций: {count}"
     },
     "search": {
       "placeholder": "Поиск счёта",

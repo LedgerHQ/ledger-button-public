@@ -7,7 +7,9 @@
       "ariaLabel": "Abrir el menú de la cuenta de Ledger",
       "label": "Ledger",
       "pendingTransactionsHover": "Tienes {count} transacciones pendientes",
-      "newTransactionPending": "Nueva transacción pendiente"
+      "newTransactionPending": "Nueva transacción pendiente",
+      "transactionsValidatedOne": "Se ha validado 1 transacción",
+      "transactionsValidatedOther": "Se han validado {count} transacciones"
     },
     "search": {
       "placeholder": "Buscar cuenta",
