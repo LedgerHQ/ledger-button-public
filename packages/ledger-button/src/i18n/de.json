@@ -5,7 +5,9 @@
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "Ledger-Kontomenü öffnen",
-      "label": "Ledger"
+      "label": "Ledger",
+      "pendingTransactionsHover": "Sie haben {count} ausstehende Transaktionen",
+      "newTransactionPending": "Neue ausstehende Transaktion"
     },
     "search": {
       "placeholder": "Konto suchen",

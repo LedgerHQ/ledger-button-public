@@ -8,6 +8,7 @@ import { TrackConsentRemoved } from "./usecase/TrackConsentRemoved.js";
 import { TrackFloatingButtonClick } from "./usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "./usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "./usecase/TrackLedgerSyncOpened.js";
+import { TrackMobileRedirectLedgerWallet } from "./usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "./usecase/TrackOnboarding.js";
 import { TrackOpenSession } from "./usecase/TrackOpenSession.js";
 import { TrackTransactionCompleted } from "./usecase/TrackTransactionCompleted.js";
@@ -84,5 +85,9 @@ export const eventTrackingModuleFactory = ({
     bind<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction).to(
       TrackWalletAction,
     );
+
+    bind<TrackMobileRedirectLedgerWallet>(
+      eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
+    ).to(TrackMobileRedirectLedgerWallet);
   });
 };

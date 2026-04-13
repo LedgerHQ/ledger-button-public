@@ -2,6 +2,7 @@ import { Left, Right } from "purify-ts";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
 import type { ContextService } from "../../context/ContextService.js";
 import type { PendingTransaction } from "../model/PendingTransaction.js";
 import type { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
@@ -48,6 +49,12 @@ function createMockHydrateUseCase() {
     execute: vi
       .fn()
       .mockImplementation(async (txs: PendingTransaction[]) => txs),
+  };
+}
+
+function createMockFetchSelectedAccountUseCase() {
+  return {
+    execute: vi.fn().mockResolvedValue(Right({})),
   };
 }
 
@@ -105,6 +112,9 @@ describe("DefaultPendingTransactionController", () => {
   let mockCheckPendingStatus: ReturnType<typeof createMockCheckPendingStatus>;
   let mockHydrateUseCase: ReturnType<typeof createMockHydrateUseCase>;
   let mockContextService: ReturnType<typeof createMockContextService>;
+  let mockFetchSelectedAccount: ReturnType<
+    typeof createMockFetchSelectedAccountUseCase
+  >;
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -112,6 +122,7 @@ describe("DefaultPendingTransactionController", () => {
     mockCheckPendingStatus = createMockCheckPendingStatus();
     mockHydrateUseCase = createMockHydrateUseCase();
     mockContextService = createMockContextService();
+    mockFetchSelectedAccount = createMockFetchSelectedAccountUseCase();
 
     controller = new DefaultPendingTransactionController(
       createMockLoggerFactory(),
@@ -119,6 +130,7 @@ describe("DefaultPendingTransactionController", () => {
       mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
       mockContextService,
       mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+      mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
     );
   });
 
@@ -225,6 +237,7 @@ describe("DefaultPendingTransactionController", () => {
         mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         mockContextService,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
       );
 
       const value = await firstValueFrom(
@@ -246,6 +259,7 @@ describe("DefaultPendingTransactionController", () => {
         mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         skeletonCtx,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
@@ -265,6 +279,7 @@ describe("DefaultPendingTransactionController", () => {
         mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         skeletonCtx as unknown as ContextService,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
@@ -288,10 +303,58 @@ describe("DefaultPendingTransactionController", () => {
         mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
         mockContextService,
         mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
       );
 
       await vi.advanceTimersByTimeAsync(10_000);
       expect(mockCheckPendingStatus.execute).toHaveBeenCalled();
+    });
+  });
+
+  describe("transaction history refresh", () => {
+    it("should refresh transaction history when transactions are confirmed", async () => {
+      const tx = createPendingTx({ hash: "0x111" });
+      mockStorageService._store.push(tx);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
+
+      controller.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockFetchSelectedAccount.execute).toHaveBeenCalledTimes(1);
+    });
+
+    it("should not refresh transaction history when no transactions are confirmed", async () => {
+      const tx = createPendingTx({ hash: "0x111" });
+      mockStorageService._store.push(tx);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(Right([]));
+
+      controller.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockFetchSelectedAccount.execute).not.toHaveBeenCalled();
+    });
+
+    it("should continue polling even if transaction history refresh fails", async () => {
+      const tx1 = createPendingTx({ hash: "0x111" });
+      const tx2 = createPendingTx({ hash: "0x222" });
+      mockStorageService._store.push(tx1, tx2);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
+      mockFetchSelectedAccount.execute.mockResolvedValue(
+        Left(new Error("Refresh failed")),
+      );
+
+      controller.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockFetchSelectedAccount.execute).toHaveBeenCalledTimes(1);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(Right([]));
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(2);
     });
   });
 

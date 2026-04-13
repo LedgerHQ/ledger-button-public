@@ -195,7 +195,7 @@ describe("DefaultContextService", () => {
         },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: undefined,
+          selectedAccount: mockAccount,
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.ethereum,

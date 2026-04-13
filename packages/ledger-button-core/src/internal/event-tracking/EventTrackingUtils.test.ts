@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import type { InvoicingTransactionSignedEventData } from "../backend/model/trackEvent.js";
+import type {
+  InvoicingTransactionSignedEventData,
+  MobileRedirectLedgerWalletEventData,
+} from "../backend/model/trackEvent.js";
+import { EventType } from "../backend/model/trackEvent.js";
 import { EventTrackingUtils } from "./EventTrackingUtils.js";
 
 describe("EventTrackingUtils", () => {
@@ -15,6 +19,18 @@ describe("EventTrackingUtils", () => {
         chainId: "1",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
       });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+    });
+
+    it("should validate a correctly formatted mobile redirect event", () => {
+      const event =
+        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+          dAppId: "test-dapp",
+        });
 
       const result = EventTrackingUtils.validateEvent(event);
 
@@ -80,6 +96,43 @@ describe("EventTrackingUtils", () => {
       expect(data.recipient_address).toBe(
         "0x111111125421ca6dc452d289314280a0f8842a65",
       );
+    });
+  });
+
+  describe("createMobileRedirectLedgerWalletEvent", () => {
+    it("should create event with correct name and type", () => {
+      const event =
+        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+          dAppId: "test-dapp",
+        });
+
+      expect(event.name).toBe("Mobile Redirect Ledger Wallet");
+      expect(event.type).toBe(EventType.RedirectToLedgerWallet);
+    });
+
+    it("should populate base event data fields", () => {
+      const event =
+        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+          dAppId: "my-dapp",
+        });
+
+      const data = event.data as MobileRedirectLedgerWalletEventData;
+      expect(data.event_type).toBe("mobile_redirect_ledger_wallet");
+      expect(data.transaction_dapp_id).toBe("my-dapp");
+      expect(data.event_id).toBeDefined();
+      expect(data.timestamp_ms).toBeGreaterThan(0);
+    });
+
+    it("should generate a valid UUID for event_id", () => {
+      const event =
+        EventTrackingUtils.createMobileRedirectLedgerWalletEvent({
+          dAppId: "test-dapp",
+        });
+
+      const data = event.data as MobileRedirectLedgerWalletEventData;
+      const uuidPattern =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+      expect(data.event_id).toMatch(uuidPattern);
     });
   });
 });

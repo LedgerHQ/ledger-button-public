@@ -66,7 +66,7 @@ export class AvailableNetworksScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col gap-12">
+      <div class="flex flex-col">
         ${this.controller.networks.map((n) => this.renderNetworkItem(n))}
       </div>
     `;
@@ -84,9 +84,7 @@ export class AvailableNetworksScreen extends LitElement {
     }
 
     return html`
-      <div class="h-full overflow-y-auto p-24">
-        ${this.renderNetworkList()}
-      </div>
+      <div class="h-full overflow-y-auto p-24">${this.renderNetworkList()}</div>
     `;
   }
 }
