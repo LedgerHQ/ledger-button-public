@@ -53,6 +53,7 @@ import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTracki
 import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
+import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
@@ -369,6 +370,7 @@ export class LedgerButtonCore {
       )
       .execute();
   }
+
   // Device methods
   getConnectedDevice() {
     this._logger.debug("Getting connected device");
@@ -607,6 +609,14 @@ export class LedgerButtonCore {
       return { name, ticker };
     }
     return { name: currencyId, ticker: currencyId.toUpperCase() };
+  }
+
+  async trackMobileRedirectLedgerWallet(): Promise<void> {
+    await this.container
+      .get<TrackMobileRedirectLedgerWallet>(
+        eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
+      )
+      .execute();
   }
 
   async trackFloatingButtonClick(): Promise<void> {

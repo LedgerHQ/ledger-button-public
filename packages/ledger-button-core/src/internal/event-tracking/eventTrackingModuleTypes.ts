@@ -12,4 +12,5 @@ export const eventTrackingModuleTypes = {
   TrackTypedMessageStarted: Symbol.for("TrackTypedMessageStarted"),
   TrackTypedMessageCompleted: Symbol.for("TrackTypedMessageCompleted"),
   TrackWalletAction: Symbol.for("TrackWalletAction"),
+  TrackMobileRedirectLedgerWallet: Symbol.for("TrackMobileRedirectLedgerWallet"),
 };

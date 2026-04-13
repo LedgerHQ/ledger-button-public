@@ -5,7 +5,9 @@
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "Open Ledger account menu",
-      "label": "Ledger"
+      "label": "Ledger",
+      "pendingTransactionsHover": "คุณมีธุรกรรมที่รอดำเนินการ {count} รายการ",
+      "newTransactionPending": "ธุรกรรมใหม่รอดำเนินการ"
     },
     "search": {
       "placeholder": "ค้นหาบัญชี",

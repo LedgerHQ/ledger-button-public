@@ -170,6 +170,7 @@ export class RootNavigationComponent extends LitElement {
             .canGoBack=${uiModel.canGoBack}
             .canClose=${uiModel.canClose}
             .showSettings=${uiModel.showSettings}
+            .showLogo=${uiModel.showLogo}
             deviceModelId=${ifDefined(uiModel.deviceModelId)}
             @ledger-toolbar-close=${this.closeModal}
             @ledger-toolbar-go-back-click=${this.goBack}

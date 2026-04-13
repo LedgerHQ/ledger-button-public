@@ -118,15 +118,33 @@ export class LedgerHomeController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((_context) => {
-        if (
-          _context.selectedAccount?.freshAddress !==
-            this.selectedAccount?.freshAddress ||
-          _context.selectedAccount?.currencyId !==
-            this.selectedAccount?.currencyId
-        ) {
+        const contextAccount = _context.selectedAccount;
+        if (this.isAccountChanged(contextAccount)) {
           this.getSelectedAccount();
+        } else if (this.isDetailedAccount(contextAccount)) {
+          this.selectedAccount = contextAccount;
+          this.host.requestUpdate();
         }
       });
+  }
+
+  private isAccountChanged(
+    contextAccount?: { freshAddress?: string; currencyId?: string },
+  ): boolean {
+    return (
+      contextAccount?.freshAddress !== this.selectedAccount?.freshAddress ||
+      contextAccount?.currencyId !== this.selectedAccount?.currencyId
+    );
+  }
+
+  private isDetailedAccount(
+    account: unknown,
+  ): account is DetailedAccount {
+    return (
+      !!account &&
+      typeof account === "object" &&
+      "transactionHistory" in account
+    );
   }
 
   private startListeningToPendingTransactions() {

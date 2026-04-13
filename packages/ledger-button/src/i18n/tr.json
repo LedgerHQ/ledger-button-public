@@ -5,7 +5,9 @@
     "appTitle": "Ledger Wallet",
     "floatingButton": {
       "ariaLabel": "Ledger hesap menüsünü aç",
-      "label": "Ledger"
+      "label": "Ledger",
+      "pendingTransactionsHover": "{count} bekleyen işleminiz var",
+      "newTransactionPending": "Yeni bekleyen işlem"
     },
     "search": {
       "placeholder": "Hesap ara",

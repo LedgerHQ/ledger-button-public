@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   InvoicingTransactionSignedEventSchema,
+  MobileRedirectLedgerWalletEventSchema,
   SessionAuthenticationEventSchema,
   TransactionFlowCompletionEventSchema,
 } from "./event-schemas.js";
@@ -146,6 +147,47 @@ describe("Event Schema Validation", () => {
 
       const result = SessionAuthenticationEventSchema.safeParse(validEvent);
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe("MobileRedirectLedgerWalletEventSchema", () => {
+    it("should validate a correct mobile redirect event", () => {
+      const validEvent = {
+        event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+        transaction_dapp_id: "1Inch",
+        timestamp_ms: 1770980790515,
+        event_type: "mobile_redirect_ledger_wallet",
+      };
+
+      const result =
+        MobileRedirectLedgerWalletEventSchema.safeParse(validEvent);
+      expect(result.success).toBe(true);
+    });
+
+    it("should reject an invalid event_id format", () => {
+      const invalidEvent = {
+        event_id: "not-a-uuid",
+        transaction_dapp_id: "1Inch",
+        timestamp_ms: 1770980790515,
+        event_type: "mobile_redirect_ledger_wallet",
+      };
+
+      const result =
+        MobileRedirectLedgerWalletEventSchema.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject a wrong event_type", () => {
+      const invalidEvent = {
+        event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+        transaction_dapp_id: "1Inch",
+        timestamp_ms: 1770980790515,
+        event_type: "wrong_event_type",
+      };
+
+      const result =
+        MobileRedirectLedgerWalletEventSchema.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
     });
   });
 });

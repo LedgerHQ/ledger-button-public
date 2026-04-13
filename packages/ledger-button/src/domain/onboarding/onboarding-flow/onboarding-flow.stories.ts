@@ -25,7 +25,7 @@ export const InContext: Story = {
   render: () => html`
     <core-provider>
       <language-provider>
-        <ledger-modal-story-wrapper title="Connect a Ledger">
+        <ledger-modal-story-wrapper title="Connect a Ledger device">
           <onboarding-flow></onboarding-flow>
         </ledger-modal-story-wrapper>
       </language-provider>
