@@ -6,6 +6,7 @@ export * from "./atom/crypto-icon-group/ledger-crypto-icon-group.js";
 export * from "./atom/drawer/ledger-drawer.js";
 export * from "./atom/fiat-total/ledger-fiat-total.js";
 export * from "./atom/floating-button/ledger-floating-button.js";
+export * from "./atom/floating-button/ledger-floating-button-badge.js";
 export * from "./atom/icon/device-icon/device-icon.js";
 export * from "./atom/icon/ledger-icon.js";
 export * from "./atom/lottie/ledger-lottie.js";

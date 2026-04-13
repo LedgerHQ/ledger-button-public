@@ -7,7 +7,9 @@
       "ariaLabel": "Open Ledger account menu",
       "label": "Ledger",
       "pendingTransactionsHover": "You have {count} pending transactions",
-      "newTransactionPending": "New transaction pending"
+      "newTransactionPending": "New transaction pending",
+      "transactionsValidatedOne": "1 transaction has been validated",
+      "transactionsValidatedOther": "{count} transactions have been validated"
     },
     "search": {
       "placeholder": "Search account",
