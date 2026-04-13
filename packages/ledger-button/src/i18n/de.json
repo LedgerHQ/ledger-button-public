@@ -7,7 +7,7 @@
       "ariaLabel": "Ledger-Kontomenü öffnen",
       "label": "Ledger",
       "pendingTransactionsHover": "Du hast {count} ausstehende Transaktionen",
-      "newTransactionPending": "Neue Transaktion ausstehend"
+      "newTransactionPending": "Neue Transaktion ausstehend",
       "transactionsValidatedOne": "1 Transaktion wurde bestätigt",
       "transactionsValidatedOther": "{count} Transaktionen wurden bestätigt"
     },

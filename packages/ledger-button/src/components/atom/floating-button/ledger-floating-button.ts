@@ -135,7 +135,6 @@ export class LedgerFloatingButton extends LitElement {
         this.controller.hasPending,
         this.controller.postClosePendingTooltipOpen,
         this.controller.modalIsOpen,
-        this.controller.pendingTransactionCount,
       );
     }
   }
@@ -225,7 +224,7 @@ export class LedgerFloatingButton extends LitElement {
                 ${mainContent}
                 <ledger-floating-button-badge
                   variant=${this.badgeAnimCtrl.resolvedBadgeVariant}
-                  .count=${this.badgeAnimCtrl.frozenCount ?? this.controller.pendingTransactionCount}
+                  .count=${this.controller.frozenBadgeCount ?? this.controller.pendingTransactionCount}
                 ></ledger-floating-button-badge>
               </div>
             `
