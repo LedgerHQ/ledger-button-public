@@ -12,25 +12,27 @@ import {
 } from "@ledgerhq/lumen-ui-react";
 
 const PROVIDER_METHODS = [
+  // Locally handled
   "eth_accounts",
   "eth_requestAccounts",
   "eth_chainId",
-  "eth_signTransaction",
-  "eth_sendTransaction",
-  "eth_signRawTransaction",
-  "eth_sendRawTransaction",
   "eth_sign",
   "personal_sign",
   "eth_signTypedData",
   "eth_signTypedData_v4",
+  "eth_sendTransaction",
+  "eth_signTransaction",
+  "eth_signRawTransaction",
+  "eth_sendRawTransaction",
+  "wallet_switchEthereumChain",
+  // Broadcasted to node
+  "eth_blockNumber",
   "eth_getBalance",
-  "eth_getBlockByNumber",
+  "eth_getCode",
   "eth_estimateGas",
   "eth_call",
-  "eth_getTransactionCount",
-  "eth_maxPriorityFeePerGas",
-  "wallet_switchEthereumChain",
-  "wallet_getCapabilities", //Not supported by Ledger Button, test for EIP error result
+  // Not supported by Ledger Button, triggers EIP error result
+  "wallet_getCapabilities",
 ] as const;
 
 interface ProviderRequestModalProps {
