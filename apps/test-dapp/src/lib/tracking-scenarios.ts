@@ -119,9 +119,6 @@ const walletActionClicked = (ctx: ScenarioContext) =>
 const walletRedirectConfirmed = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "wallet_redirect_confirmed");
 
-const walletRedirectCancelled = (ctx: ScenarioContext) =>
-  sessionEvent(ctx, "wallet_redirect_cancelled");
-
 const errorOccurred = (ctx: ScenarioContext): EventRequest =>
   sessionEvent(ctx, "error_occurred");
 
