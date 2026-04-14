@@ -8,7 +8,6 @@ export enum EventType {
   Onboarding = "onboarding",
   OpenLedgerSync = "open_ledger_sync",
   OpenSession = "open_session",
-  SessionAuthentication = "session_authentication",
   TransactionFlowCompletion = "transaction_flow_completion",
   TransactionFlowInitialization = "transaction_flow_initialization",
   TypedMessageFlowCompletion = "typed_message_flow_completion",
@@ -16,7 +15,7 @@ export enum EventType {
   WalletActionClicked = "wallet_action_clicked",
   WalletRedirectConfirmed = "wallet_redirect_confirmed",
   WalletRedirectCancelled = "wallet_redirect_cancelled",
-  RedirectToLedgerWallet = "mobile_redirect_ledger_wallet",
+  MobileRedirectLedgerWallet = "mobile_redirect_ledger_wallet",
 }
 
 type BaseEventData = {
@@ -81,15 +80,6 @@ export type TransactionFlowCompletionEventData = BaseEventData & {
   ledger_sync_user_id?: string;
   blockchain_network_selected: "ethereum";
   chain_id: string | null;
-};
-
-export type SessionAuthenticationEventData = BaseEventData & {
-  event_type: "session_authentication";
-  session_id: string;
-  ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
-  transaction_type: "authentication_tx";
-  transaction_hash: string;
 };
 
 export type TypedMessageFlowInitializationEventData = BaseEventData & {
@@ -167,7 +157,6 @@ export type EventData =
   | OnboardingEventData
   | OpenLedgerSyncEventData
   | OpenSessionEventData
-  | SessionAuthenticationEventData
   | TransactionFlowCompletionEventData
   | TransactionFlowInitializationEventData
   | TypedMessageFlowCompletionEventData

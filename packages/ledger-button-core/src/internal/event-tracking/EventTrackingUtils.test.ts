@@ -107,7 +107,7 @@ describe("EventTrackingUtils", () => {
         });
 
       expect(event.name).toBe("Mobile Redirect Ledger Wallet");
-      expect(event.type).toBe(EventType.RedirectToLedgerWallet);
+      expect(event.type).toBe(EventType.MobileRedirectLedgerWallet);
     });
 
     it("should populate base event data fields", () => {

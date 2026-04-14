@@ -106,26 +106,6 @@ export const TransactionFlowCompletionEventSchema = BaseEventDataSchema.extend({
     ),
 });
 
-export const SessionAuthenticationEventSchema = BaseEventDataSchema.extend({
-  event_type: z.literal("session_authentication"),
-  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string().optional(),
-  blockchain_network_selected: z.enum(["ethereum"]),
-  unsigned_transaction_hash: z
-    .string()
-    .regex(
-      hexPattern,
-      "Unsigned transaction hash must be lowercase hex without 0x prefix",
-    ),
-  transaction_type: z.literal("authentication_tx"),
-  transaction_hash: z
-    .string()
-    .regex(
-      hexPattern,
-      "Transaction hash must be lowercase hex without 0x prefix",
-    ),
-});
-
 export const MobileRedirectLedgerWalletEventSchema =
   BaseEventDataSchema.extend({
     event_type: z.literal("mobile_redirect_ledger_wallet"),
@@ -142,7 +122,6 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   OnboardingEventSchema,
   TransactionFlowInitializationEventSchema,
   TransactionFlowCompletionEventSchema,
-  SessionAuthenticationEventSchema,
   MobileRedirectLedgerWalletEventSchema,
 ]);
 
@@ -162,8 +141,5 @@ export type TransactionFlowInitializationEvent = z.infer<
 >;
 export type TransactionFlowCompletionEvent = z.infer<
   typeof TransactionFlowCompletionEventSchema
->;
-export type SessionAuthenticationEvent = z.infer<
-  typeof SessionAuthenticationEventSchema
 >;
 export type EventData = z.infer<typeof EventDataSchema>;
