@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   InvoicingTransactionSignedEventSchema,
   MobileRedirectLedgerWalletEventSchema,
-  SessionAuthenticationEventSchema,
   TransactionFlowCompletionEventSchema,
 } from "./event-schemas.js";
 
@@ -127,26 +126,6 @@ describe("Event Schema Validation", () => {
           ),
         ).toBe(true);
       }
-    });
-  });
-
-  describe("SessionAuthenticationEventSchema", () => {
-    it("should validate a correct session authentication event", () => {
-      const validEvent = {
-        event_id: "5301b8e6-4e06-4ce0-83a0-15ef70f6c514",
-        transaction_dapp_id: "1inch",
-        timestamp_ms: 1759918628839,
-        event_type: "session_authentication",
-        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
-        blockchain_network_selected: "ethereum",
-        unsigned_transaction_hash: "02f90552017a8427e021408427e021408304c04c",
-        transaction_type: "authentication_tx",
-        transaction_hash:
-          "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
-      };
-
-      const result = SessionAuthenticationEventSchema.safeParse(validEvent);
-      expect(result.success).toBe(true);
     });
   });
 
