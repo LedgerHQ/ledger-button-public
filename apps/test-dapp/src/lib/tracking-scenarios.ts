@@ -119,8 +119,17 @@ const walletActionClicked = (ctx: ScenarioContext) =>
 const walletRedirectConfirmed = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "wallet_redirect_confirmed");
 
+const walletRedirectCancelled = (ctx: ScenarioContext) =>
+  sessionEvent(ctx, "wallet_redirect_cancelled");
+
 const errorOccurred = (ctx: ScenarioContext): EventRequest =>
   sessionEvent(ctx, "error_occurred");
+
+const mobileRedirectLedgerWallet = (ctx: ScenarioContext): EventRequest => ({
+  name: "mobile_redirect_ledger_wallet",
+  type: "mobile_redirect_ledger_wallet",
+  data: { ...baseData(ctx), event_type: "mobile_redirect_ledger_wallet" },
+});
 
 export const SCENARIOS: Scenario[] = [
   {
@@ -165,6 +174,11 @@ export const SCENARIOS: Scenario[] = [
     ],
   },
   {
+    name: "mobile-redirect",
+    description: "Mobile redirect to Ledger Wallet app",
+    buildEvents: (ctx) => [mobileRedirectLedgerWallet(ctx)],
+  },
+  {
     name: "error",
     description: "Simulated error event",
     buildEvents: (ctx) => [errorOccurred(ctx)],
@@ -186,6 +200,7 @@ export const SCENARIOS: Scenario[] = [
       typedMessageFlowCompletion(ctx),
       walletActionClicked(ctx),
       walletRedirectConfirmed(ctx),
+      mobileRedirectLedgerWallet(ctx),
     ],
   },
 ];
