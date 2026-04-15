@@ -192,6 +192,8 @@
     "title": "Ayarlar",
     "preferences": {
       "title": "Tercihler",
+      "language": { "title": "Language" },
+      "currency": { "title": "Currency" },
       "description": "Tercih seçenekleri burada görünecektir."
     },
     "securityConfidentiality": {

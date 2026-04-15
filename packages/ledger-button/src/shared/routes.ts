@@ -16,9 +16,11 @@ import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
-import "../domain/settings/screens/preference-screen.js";
-import "../domain/settings/screens/security-screen.js";
-import "../domain/settings/screens/support-screen.js";
+import "../domain/settings/preferences/preferences-screen.js";
+import "../domain/settings/preferences/preference-language-screen.js";
+import "../domain/settings/preferences/preference-currency-screen.js";
+import "../domain/settings/security/security-screen.js";
+import "../domain/settings/support/support-screen.js";
 import "../domain/home-flow/home-flow.js";
 import "../domain/available-networks/available-networks.js";
 
@@ -258,10 +260,28 @@ export const makeDestinations = (translation: Translation) => {
     },
     preferences: {
       name: "preferences",
-      component: "preference-screen",
+      component: "preferences-screen",
       canGoBack: true,
       toolbar: {
         title: translation.settings?.preferences?.title ?? "Preferences",
+        canClose: true,
+      },
+    },
+    preferenceLanguage: {
+      name: "preferenceLanguage",
+      component: "preference-language-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.settings?.preferences?.language?.title ?? "Language",
+        canClose: true,
+      },
+    },
+    preferenceCurrency: {
+      name: "preferenceCurrency",
+      component: "preference-currency-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.settings?.preferences?.currency?.title ?? "Currency",
         canClose: true,
       },
     },

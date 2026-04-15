@@ -19,7 +19,7 @@ function createMockDestinations() {
   return {
     preferences: {
       name: "preferences",
-      component: "preference-screen",
+      component: "preferences-screen",
       canGoBack: true,
       toolbar: { title: "Preferences", canClose: true },
     } as Destination,
@@ -224,7 +224,7 @@ describe("SettingsScreen", () => {
 
       const calledWith = mockNav.navigateTo.mock.calls[0][0] as Destination;
       expect(calledWith.name).toBe("preferences");
-      expect(calledWith.component).toBe("preference-screen");
+      expect(calledWith.component).toBe("preferences-screen");
     });
 
     test("should navigate to correct security destination object", () => {
