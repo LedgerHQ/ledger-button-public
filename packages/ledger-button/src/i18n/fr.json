@@ -190,12 +190,13 @@
   },
   "settings": {
     "title": "Paramètres",
-    "analytics": {
-      "title": "Statistiques",
-      "description": "Autorisez Ledger à collecter les données d’utilisation pour nous aider à mesurer la performance de la fonctionnalité Connectivité directe de Ledger Wallet, et à améliorer l’application ainsi que votre expérience."
+    "securityConfidentiality": {
+      "title": "Sécurité et vie privée",
+      "analytics": {
+        "title": "Statistiques",
+        "description": "Autorisez Ledger à collecter les données d’utilisation pour nous aider à mesurer la performance de la fonctionnalité Connectivité directe de Ledger Wallet, et à améliorer l’application ainsi que votre expérience."
+      }
     },
-    "securityConfidentiality": "Sécurité et vie privée",
-    "helpSupport": "Aide",
     "support": {
       "title": "Aide",
       "support": "Assistance",

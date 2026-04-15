@@ -93,12 +93,13 @@ export class SettingsScreen extends LitElement {
       <div class="flex flex-col gap-4 p-24 pt-8">
         ${this.renderMenuItem(
           "shield",
-          settings.securityConfidentiality ?? "Security & confidentiality",
+          settings.securityConfidentiality?.title ??
+            "Security & confidentiality",
           this.handleSecurityClick,
         )}
         ${this.renderMenuItem(
           "question",
-          settings.helpSupport ?? "Help & Support",
+          settings.support?.title ?? "Help & Support",
           this.handleHelpSupportClick,
         )}
       </div>

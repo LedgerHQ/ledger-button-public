@@ -190,12 +190,13 @@
   },
   "settings": {
     "title": "การตั้งค่า",
-    "analytics": {
-      "title": "การวิเคราะห์",
-      "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
+    "securityConfidentiality": {
+      "title": "ความปลอดภัยและการรักษาความลับ",
+      "analytics": {
+        "title": "การวิเคราะห์",
+        "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
+      }
     },
-    "securityConfidentiality": "ความปลอดภัยและการรักษาความลับ",
-    "helpSupport": "ความช่วยเหลือและการสนับสนุน",
     "support": {
       "title": "ความช่วยเหลือและการสนับสนุน",
       "support": "การสนับสนุน",

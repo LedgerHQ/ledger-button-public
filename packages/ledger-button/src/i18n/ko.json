@@ -190,12 +190,13 @@
   },
   "settings": {
     "title": "설정",
-    "analytics": {
-      "title": "애널리틱스",
-      "description": "Ledger Wallet Direct Connectivity의 성능을 측정하고 앱과 사용자 경험을 모두 향상할 수 있도록 Ledger의 앱 사용 데이터 수집을 허용해 주세요."
+    "securityConfidentiality": {
+      "title": "보안 및 기밀성",
+      "analytics": {
+        "title": "애널리틱스",
+        "description": "Ledger Wallet Direct Connectivity의 성능을 측정하고 앱과 사용자 경험을 모두 향상할 수 있도록 Ledger의 앱 사용 데이터 수집을 허용해 주세요."
+      }
     },
-    "securityConfidentiality": "보안 및 기밀성",
-    "helpSupport": "도움말 및 지원",
     "support": {
       "title": "도움말 및 지원",
       "support": "지원",

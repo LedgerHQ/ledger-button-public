@@ -37,11 +37,12 @@ function createMockLanguages(overrides?: { settings?: unknown }) {
     currentTranslation: {
       settings: overrides?.settings ?? {
         title: "Settings",
-        securityConfidentiality: "Security & confidentiality",
-        helpSupport: "Help & Support",
-        analytics: {
-          title: "Analytics",
-          description: "Enable Ledger to collect app usage data.",
+        securityConfidentiality: {
+          title: "Security & confidentiality",
+          analytics: {
+            title: "Analytics",
+            description: "Enable Ledger to collect app usage data.",
+          },
         },
         support: {
           title: "Help & Support",
@@ -96,7 +97,7 @@ describe("SettingsScreen", () => {
           currentTranslation: {
             settings: {
               securityConfidentiality: undefined,
-              helpSupport: undefined,
+              support: undefined,
             },
           },
         },
