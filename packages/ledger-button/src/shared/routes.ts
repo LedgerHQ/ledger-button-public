@@ -16,6 +16,7 @@ import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
+import "../domain/settings/screens/preference-screen.js";
 import "../domain/settings/screens/security-screen.js";
 import "../domain/settings/screens/support-screen.js";
 import "../domain/home-flow/home-flow.js";

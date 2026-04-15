@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "Настройки",
+    "preferences": {
+      "title": "Предпочтения",
+      "description": "Дополнительные настройки появятся здесь."
+    },
     "securityConfidentiality": {
       "title": "Безопасность и конфиденциальность",
       "analytics": {

@@ -30,6 +30,10 @@ export class SettingsScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  private handlePreferencesClick() {
+    this.navigation.navigateTo(this.destinations.preferences);
+  }
+
   private handleSecurityClick() {
     this.navigation.navigateTo(this.destinations.security);
   }
@@ -39,7 +43,7 @@ export class SettingsScreen extends LitElement {
   }
 
   private renderMenuItem(
-    icon: "shield" | "question",
+    icon: "settings" | "shield" | "question",
     label: string,
     onClick?: () => void,
   ) {
@@ -91,6 +95,11 @@ export class SettingsScreen extends LitElement {
 
     return html`
       <div class="flex flex-col gap-4 p-24 pt-8">
+        ${this.renderMenuItem(
+          "settings",
+          settings.preferences?.title ?? "Preferences",
+          this.handlePreferencesClick,
+        )}
         ${this.renderMenuItem(
           "shield",
           settings.securityConfidentiality?.title ??
