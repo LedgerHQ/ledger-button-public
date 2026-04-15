@@ -190,12 +190,13 @@
   },
   "settings": {
     "title": "Ayarlar",
-    "analytics": {
-      "title": "Analiz",
-      "description": "Ledger Wallet Direct Connectivity'nin performansının ölçülebilmesi ve hem uygulamanın hem de deneyiminizin geliştirilebilmesi için uygulama kullanım verilerini Ledger'ın toplamasına izin verin."
+    "securityConfidentiality": {
+      "title": "Güvenlik ve gizlilik",
+      "analytics": {
+        "title": "Analiz",
+        "description": "Ledger Wallet Direct Connectivity'nin performansının ölçülebilmesi ve hem uygulamanın hem de deneyiminizin geliştirilebilmesi için uygulama kullanım verilerini Ledger'ın toplamasına izin verin."
+      }
     },
-    "securityConfidentiality": "Güvenlik ve gizlilik",
-    "helpSupport": "Yardım ve Destek",
     "support": {
       "title": "Yardım ve Destek",
       "support": "Destek",

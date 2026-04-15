@@ -4,8 +4,8 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../components/index.js", () => ({}));
-vi.mock("../../components/atom/toggle/ledger-toggle.js", () => ({}));
+vi.mock("../../../components/index.js", () => ({}));
+vi.mock("../../../components/atom/toggle/ledger-toggle.js", () => ({}));
 
 import { SecurityScreen } from "./security-screen.js";
 
@@ -24,13 +24,14 @@ function createMockLanguages(overrides?: { settings?: unknown }) {
     currentTranslation: {
       settings: overrides?.settings ?? {
         title: "Settings",
-        analytics: {
-          title: "Analytics",
-          description:
-            "Enable Ledger to collect app usage data to help measure performance.",
+        securityConfidentiality: {
+          title: "Security & confidentiality",
+          analytics: {
+            title: "Analytics",
+            description:
+              "Enable Ledger to collect app usage data to help measure performance.",
+          },
         },
-        securityConfidentiality: "Security & confidentiality",
-        helpSupport: "Help & Support",
       },
     },
   };

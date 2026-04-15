@@ -189,12 +189,13 @@
   },
   "settings": {
     "title": "إعدادات",
-    "analytics": {
-      "title": "التحليلات",
-      "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+    "securityConfidentiality": {
+      "title": "الأمان والسرية",
+      "analytics": {
+        "title": "التحليلات",
+        "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+      }
     },
-    "securityConfidentiality": "الأمان والسرية",
-    "helpSupport": "المساعدة والدعم",
     "support": {
       "title": "المساعدة والدعم",
       "support": "الدعم",

@@ -1,16 +1,16 @@
-import "../../components/index.js";
-import "../../components/atom/toggle/ledger-toggle.js";
+import "../../../components/index.js";
+import "../../../components/atom/toggle/ledger-toggle.js";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { tailwindElement } from "../../tailwind-element.js";
+} from "../../../context/language-context.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 @customElement("security-screen")
 @tailwindElement()
@@ -51,12 +51,17 @@ export class SecurityScreen extends LitElement {
       return html`<div>${translations.common?.loading}</div>`;
     }
 
+    const analytics = settings.securityConfidentiality?.analytics;
+    if (!analytics) {
+      return html`<div>${translations.common?.loading}</div>`;
+    }
+
     return html`
       <div class="flex flex-col p-24 pt-8">
         <div class="rounded-md bg-muted p-16">
           <div class="flex flex-row items-center justify-between">
             <h3 class="text-base body-3-semi-bold">
-              ${settings.analytics.title}
+              ${analytics.title}
             </h3>
             <ledger-toggle
               .checked=${this.analyticsEnabled}
@@ -65,7 +70,7 @@ export class SecurityScreen extends LitElement {
           </div>
 
           <p class="leading-relaxed mt-16 text-muted body-3">
-            ${settings.analytics.description}
+            ${analytics.description}
           </p>
         </div>
       </div>

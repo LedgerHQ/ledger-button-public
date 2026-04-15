@@ -190,12 +190,13 @@
   },
   "settings": {
     "title": "Configurações",
-    "analytics": {
-      "title": "Métricas",
-      "description": "Permitir que a Ledger colete dados de uso do aplicativo para ajudar a medir o desempenho da Ledger Wallet Direct Connectivity e aprimorar tanto o aplicativo quanto a sua experiência."
+    "securityConfidentiality": {
+      "title": "Segurança e confidencialidade",
+      "analytics": {
+        "title": "Métricas",
+        "description": "Permitir que a Ledger colete dados de uso do aplicativo para ajudar a medir o desempenho da Ledger Wallet Direct Connectivity e aprimorar tanto o aplicativo quanto a sua experiência."
+      }
     },
-    "securityConfidentiality": "Segurança e confidencialidade",
-    "helpSupport": "Ajuda e suporte",
     "support": {
       "title": "Ajuda e suporte",
       "support": "Suporte",

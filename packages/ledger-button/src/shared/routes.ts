@@ -261,7 +261,7 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title:
-          translation.settings?.securityConfidentiality ??
+          translation.settings?.securityConfidentiality?.title ??
           "Security & confidentiality",
         canClose: true,
       },
