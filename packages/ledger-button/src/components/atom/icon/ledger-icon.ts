@@ -29,6 +29,7 @@ import {
   SearchIcon,
   SellIcon,
   SendIcon,
+  SettingsAlt2Icon,
   SettingsIcon,
   ShieldIcon,
   SwapIcon,
@@ -58,6 +59,7 @@ export interface LedgerIconAttributes {
     | "transactionCheck"
     | "question"
     | "settings"
+    | "settingsAlt2"
     | "send"
     | "receive"
     | "swap"
@@ -126,6 +128,7 @@ export class LedgerIcon extends LitElement {
       transactionCheck: () => TransactionCheckIcon,
       question: () => QuestionIcon,
       settings: () => SettingsIcon,
+      settingsAlt2: () => SettingsAlt2Icon,
       send: () => SendIcon,
       receive: () => ReceiveIcon,
       swap: () => SwapIcon,

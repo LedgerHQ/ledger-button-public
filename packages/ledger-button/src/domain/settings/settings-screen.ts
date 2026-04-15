@@ -43,7 +43,7 @@ export class SettingsScreen extends LitElement {
   }
 
   private renderMenuItem(
-    icon: "settings" | "shield" | "question",
+    icon: "settingsAlt2" | "shield" | "question",
     label: string,
     onClick?: () => void,
   ) {
@@ -96,7 +96,7 @@ export class SettingsScreen extends LitElement {
     return html`
       <div class="flex flex-col gap-4 p-24 pt-8">
         ${this.renderMenuItem(
-          "settings",
+          "settingsAlt2",
           settings.preferences?.title ?? "Preferences",
           this.handlePreferencesClick,
         )}

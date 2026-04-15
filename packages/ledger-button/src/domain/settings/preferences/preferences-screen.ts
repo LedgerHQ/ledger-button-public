@@ -39,7 +39,7 @@ export class PreferencesScreen extends LitElement {
   }
 
   private renderMenuItem(
-    icon: "swap" | "info",
+    icon: "dollar" | "language",
     label: string,
     onClick: () => void,
   ) {
@@ -86,12 +86,12 @@ export class PreferencesScreen extends LitElement {
     return html`
       <div class="flex flex-col gap-4 p-24 pt-8">
         ${this.renderMenuItem(
-          "info",
+          "language",
           languageLabel,
           this.handleLanguageClick,
         )}
         ${this.renderMenuItem(
-          "swap",
+          "dollar",
           currencyLabel,
           this.handleCurrencyClick,
         )}

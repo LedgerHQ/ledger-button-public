@@ -24,6 +24,7 @@ export { default as ReceiveIcon } from "./receiveIcon";
 export { default as SearchIcon } from "./searchIcon";
 export { default as SellIcon } from "./sellIcon";
 export { default as SendIcon } from "./sendIcon";
+export { default as SettingsAlt2Icon } from "./settingsAlt2Icon";
 export { default as SettingsIcon } from "./settingsIcon";
 export { default as ShieldIcon } from "./shieldIcon";
 export { default as SwapIcon } from "./swapIcon";
