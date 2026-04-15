@@ -189,6 +189,10 @@
   },
   "settings": {
     "title": "إعدادات",
+    "preferences": {
+      "title": "التفضيلات",
+      "description": "ستظهر خيارات التفضيلات هنا."
+    },
     "securityConfidentiality": {
       "title": "الأمان والسرية",
       "analytics": {

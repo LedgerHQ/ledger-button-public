@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "Configurações",
+    "preferences": {
+      "title": "Preferências",
+      "description": "As opções de preferências aparecerão aqui."
+    },
     "securityConfidentiality": {
       "title": "Segurança e confidencialidade",
       "analytics": {

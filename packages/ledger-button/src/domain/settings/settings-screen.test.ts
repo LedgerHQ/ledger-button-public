@@ -17,6 +17,12 @@ function createMockNavigation() {
 
 function createMockDestinations() {
   return {
+    preferences: {
+      name: "preferences",
+      component: "preference-screen",
+      canGoBack: true,
+      toolbar: { title: "Preferences", canClose: true },
+    } as Destination,
     security: {
       name: "security",
       component: "security-screen",
@@ -37,6 +43,9 @@ function createMockLanguages(overrides?: { settings?: unknown }) {
     currentTranslation: {
       settings: overrides?.settings ?? {
         title: "Settings",
+        preferences: {
+          title: "Preferences",
+        },
         securityConfidentiality: {
           title: "Security & confidentiality",
           analytics: {
@@ -87,6 +96,7 @@ describe("SettingsScreen", () => {
       const rendered = el.render();
       const renderedString = JSON.stringify(rendered);
 
+      expect(renderedString).toContain("Preferences");
       expect(renderedString).toContain("Security & confidentiality");
       expect(renderedString).toContain("Help & Support");
     });
@@ -149,9 +159,33 @@ describe("SettingsScreen", () => {
 
       expect(result).toBeDefined();
     });
+
+    test("should accept settings icon type", () => {
+      const el = createSettingsScreen();
+      const result = (el as any).renderMenuItem(
+        "settings",
+        "Preferences",
+        vi.fn(),
+      );
+
+      expect(result).toBeDefined();
+    });
   });
 
   describe("navigation", () => {
+    test("handlePreferencesClick should navigate to preferences destination", () => {
+      const mockNav = createMockNavigation();
+      const mockDest = createMockDestinations();
+      const el = createSettingsScreen({
+        navigation: mockNav,
+        destinations: mockDest,
+      });
+
+      (el as any).handlePreferencesClick();
+
+      expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.preferences);
+    });
+
     test("handleSecurityClick should navigate to security destination", () => {
       const mockNav = createMockNavigation();
       const mockDest = createMockDestinations();
@@ -176,6 +210,21 @@ describe("SettingsScreen", () => {
       (el as any).handleHelpSupportClick();
 
       expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.support);
+    });
+
+    test("should navigate to correct preferences destination object", () => {
+      const mockNav = createMockNavigation();
+      const mockDest = createMockDestinations();
+      const el = createSettingsScreen({
+        navigation: mockNav,
+        destinations: mockDest,
+      });
+
+      (el as any).handlePreferencesClick();
+
+      const calledWith = mockNav.navigateTo.mock.calls[0][0] as Destination;
+      expect(calledWith.name).toBe("preferences");
+      expect(calledWith.component).toBe("preference-screen");
     });
 
     test("should navigate to correct security destination object", () => {

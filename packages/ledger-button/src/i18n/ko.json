@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "설정",
+    "preferences": {
+      "title": "환경설정",
+      "description": "환경설정 항목이 여기에 표시됩니다."
+    },
     "securityConfidentiality": {
       "title": "보안 및 기밀성",
       "analytics": {

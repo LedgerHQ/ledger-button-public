@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "การตั้งค่า",
+    "preferences": {
+      "title": "การตั้งค่าการใช้งาน",
+      "description": "ตัวเลือกการตั้งค่าการใช้งานจะปรากฏที่นี่"
+    },
     "securityConfidentiality": {
       "title": "ความปลอดภัยและการรักษาความลับ",
       "analytics": {

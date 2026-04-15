@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "设置",
+    "preferences": {
+      "title": "偏好设置",
+      "description": "偏好设置选项将显示在此处。"
+    },
     "securityConfidentiality": {
       "title": "安全性与机密性",
       "analytics": {

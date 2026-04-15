@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "Ayarlar",
+    "preferences": {
+      "title": "Tercihler",
+      "description": "Tercih seçenekleri burada görünecektir."
+    },
     "securityConfidentiality": {
       "title": "Güvenlik ve gizlilik",
       "analytics": {

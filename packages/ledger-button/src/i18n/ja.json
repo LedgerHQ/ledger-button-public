@@ -190,6 +190,10 @@
   },
   "settings": {
     "title": "設定",
+    "preferences": {
+      "title": "環境設定",
+      "description": "環境設定の項目はここに表示されます。"
+    },
     "securityConfidentiality": {
       "title": "セキュリティと機密性",
       "analytics": {
