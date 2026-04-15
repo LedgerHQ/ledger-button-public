@@ -16,8 +16,8 @@ import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
-import "../domain/settings/security-screen.js";
-import "../domain/support/support-screen.js";
+import "../domain/settings/screens/security-screen.js";
+import "../domain/settings/screens/support-screen.js";
 import "../domain/home-flow/home-flow.js";
 import "../domain/available-networks/available-networks.js";
 
@@ -252,6 +252,15 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: true,
       toolbar: {
         title: translation.availableNetworks?.title,
+        canClose: true,
+      },
+    },
+    preferences: {
+      name: "preferences",
+      component: "preference-screen",
+      canGoBack: true,
+      toolbar: {
+        title: translation.settings?.preferences?.title ?? "Preferences",
         canClose: true,
       },
     },
