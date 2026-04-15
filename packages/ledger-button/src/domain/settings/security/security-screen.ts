@@ -58,18 +58,16 @@ export class SecurityScreen extends LitElement {
 
     return html`
       <div class="flex flex-col p-24 pt-8">
-        <div class="rounded-md bg-muted p-16">
+        <div class="bg-muted rounded-md p-16">
           <div class="flex flex-row items-center justify-between">
-            <h3 class="text-base body-3-semi-bold">
-              ${analytics.title}
-            </h3>
+            <h3 class="body-3-semi-bold text-base">${analytics.title}</h3>
             <ledger-toggle
               .checked=${this.analyticsEnabled}
               @ledger-toggle-change=${this.handleToggleChange}
             ></ledger-toggle>
           </div>
 
-          <p class="leading-relaxed mt-16 text-muted body-3">
+          <p class="text-muted body-3 mt-16 leading-relaxed">
             ${analytics.description}
           </p>
         </div>
@@ -80,6 +78,6 @@ export class SecurityScreen extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "security-screen": SecurityScreen;
+    "security-view": SecurityScreen;
   }
 }

@@ -192,6 +192,12 @@
     "title": "การตั้งค่า",
     "preferences": {
       "title": "การตั้งค่าการใช้งาน",
+      "language": {
+        "title": "Language"
+      },
+      "currency": {
+        "title": "Currency"
+      },
       "description": "ตัวเลือกการตั้งค่าการใช้งานจะปรากฏที่นี่"
     },
     "securityConfidentiality": {

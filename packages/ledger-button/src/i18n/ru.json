@@ -192,6 +192,8 @@
     "title": "Настройки",
     "preferences": {
       "title": "Предпочтения",
+      "language": { "title": "Language" },
+      "currency": { "title": "Currency" },
       "description": "Дополнительные настройки появятся здесь."
     },
     "securityConfidentiality": {

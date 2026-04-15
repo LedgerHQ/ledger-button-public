@@ -2,7 +2,14 @@
  * @vitest-environment jsdom
  */
 
-import { beforeEach, describe, expect, type MockInstance, test, vi } from "vitest";
+import {
+  beforeEach,
+  describe,
+  expect,
+  type MockInstance,
+  test,
+  vi,
+} from "vitest";
 
 vi.mock("../../../components/index.js", () => ({}));
 
@@ -117,7 +124,6 @@ describe("SupportScreen", () => {
         "noopener,noreferrer",
       );
     });
-
   });
 
   describe("handleContactUsClick", () => {

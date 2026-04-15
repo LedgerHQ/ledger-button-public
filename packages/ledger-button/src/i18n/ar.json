@@ -191,6 +191,8 @@
     "title": "إعدادات",
     "preferences": {
       "title": "التفضيلات",
+      "language": { "title": "Language" },
+      "currency": { "title": "Currency" },
       "description": "ستظهر خيارات التفضيلات هنا."
     },
     "securityConfidentiality": {

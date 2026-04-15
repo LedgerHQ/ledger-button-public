@@ -9,9 +9,7 @@ vi.mock("../../../components/atom/toggle/ledger-toggle.js", () => ({}));
 
 import { SecurityScreen } from "./security-screen.js";
 
-function createMockCoreContext(
-  overrides: { hasConsent?: boolean } = {},
-) {
+function createMockCoreContext(overrides: { hasConsent?: boolean } = {}) {
   return {
     hasConsent: vi.fn().mockResolvedValue(overrides.hasConsent ?? false),
     giveConsent: vi.fn().mockResolvedValue(undefined),
