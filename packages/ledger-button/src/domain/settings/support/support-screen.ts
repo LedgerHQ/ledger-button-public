@@ -97,6 +97,6 @@ export class SupportScreen extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "support-view": SupportScreen;
+    "support-screen": SupportScreen;
   }
 }

@@ -78,6 +78,6 @@ export class SecurityScreen extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "security-view": SecurityScreen;
+    "security-screen": SecurityScreen;
   }
 }
