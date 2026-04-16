@@ -2,22 +2,17 @@ import { createContext, provide } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import en from "../i18n/en.json" with { type: "json" };
-
-export const languages = {
-  en,
-} as const;
-
-export type Languages = typeof languages;
-export type LangKey = keyof Languages;
-export type Translation = Languages[keyof Languages];
+import {
+  getTranslation,
+  type LangKey,
+  type Languages,
+  type Translation,
+} from "../i18n";
 
 export class LanguageContext {
-  private _currentLanguage: keyof Languages = "en";
+  private _currentLanguage: LangKey = "en";
 
-  constructor(private readonly _languages: Languages = languages) {}
-
-  setCurrentLanguage(lang: keyof Languages) {
+  setCurrentLanguage(lang: LangKey) {
     this._currentLanguage = lang;
   }
 
@@ -25,8 +20,8 @@ export class LanguageContext {
     return this._currentLanguage;
   }
 
-  get currentTranslation(): Translation {
-    return this._languages[this._currentLanguage];
+  get currentTranslation() {
+    return getTranslation(this._currentLanguage);
   }
 }
 
@@ -43,3 +38,5 @@ export class LanguageProvider extends LitElement {
     return html`<slot></slot>`;
   }
 }
+
+export type { LangKey, Languages, Translation };
