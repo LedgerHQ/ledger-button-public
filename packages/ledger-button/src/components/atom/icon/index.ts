@@ -4,6 +4,7 @@ export { default as BuyIcon } from "./buyIcon";
 export { default as CartIcon } from "./cartIcon";
 export { default as CheckIcon } from "./checkIcon";
 export { default as CheckMarkCircleFillIcon } from "./checkMarkCircleFillIcon";
+export { default as CheckmarkCircleIcon } from "./checkmarkCircleIcon";
 export { default as ChevronDownIcon } from "./chevronDownIcon";
 export { default as ChevronRightIcon } from "./chevronRightIcon.js";
 export { default as ClearSigningIcon } from "./clearSigningIcon";
