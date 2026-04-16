@@ -2,12 +2,7 @@ import { createContext, provide } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import {
-  getTranslation,
-  type LangKey,
-  type Languages,
-  type Translation,
-} from "../i18n";
+import { getTranslation, type LangKey } from "../i18n";
 
 export class LanguageContext {
   private _currentLanguage: LangKey = "en";
@@ -39,4 +34,4 @@ export class LanguageProvider extends LitElement {
   }
 }
 
-export type { LangKey, Languages, Translation };
+export type { LangKey, Languages, Translation } from "../i18n";
