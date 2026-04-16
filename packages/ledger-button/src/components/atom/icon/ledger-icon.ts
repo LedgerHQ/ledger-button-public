@@ -9,6 +9,7 @@ import {
   CartIcon,
   CheckIcon,
   CheckMarkCircleFillIcon,
+  CheckmarkCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   ClearSigningIcon,
@@ -50,6 +51,7 @@ export interface LedgerIconAttributes {
     | "chevronDown"
     | "check"
     | "checkMarkCircleFill"
+    | "checkmarkCircle"
     | "error"
     | "device"
     | "mobile"
@@ -121,6 +123,7 @@ export class LedgerIcon extends LitElement {
       chevronDown: () => ChevronDownIcon,
       check: () => CheckIcon,
       checkMarkCircleFill: () => CheckMarkCircleFillIcon,
+      checkmarkCircle: () => CheckmarkCircleIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
       mobile: () => MobileIcon,
