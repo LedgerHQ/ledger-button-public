@@ -109,5 +109,5 @@ export const getTranslation = (langKey: LangKey): Translation => {
   const { translation } =
     languages.find((language) => language.key === langKey) || {};
 
-  return translation ? translation : getTranslation(DEFAULT_LANGUAGE);
+  return translation ?? getTranslation(DEFAULT_LANGUAGE);
 };
