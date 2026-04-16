@@ -45,23 +45,23 @@ export class PreferencesScreen extends LitElement {
   ) {
     return html`
       <button
-        class="bg-base-transparent hover:bg-base-transparent-hover flex min-w-full cursor-pointer items-center justify-between rounded-md p-12 transition duration-150 ease-in-out"
+        class="bg-base-transparent hover:bg-base-transparent-hover flex h-64 min-w-full cursor-pointer items-center gap-16 rounded-md px-8 py-0 transition duration-150 ease-in-out"
         @click=${onClick}
       >
-        <div class="flex items-center gap-12">
+        <div class="flex min-w-0 flex-1 items-center gap-12">
           <ledger-icon
             type=${icon}
             size="medium"
             fillColor="currentColor"
           ></ledger-icon>
 
-          <span class="body-2-semi-bold text-base">${label}</span>
+          <span class="body-2-semi-bold min-w-0 truncate text-base">${label}</span>
         </div>
         <ledger-icon
           type="chevronRight"
           size="small"
           fillColor="currentColor"
-          class="text-muted"
+          class="shrink-0 text-muted"
         ></ledger-icon>
       </button>
     `;
@@ -84,7 +84,7 @@ export class PreferencesScreen extends LitElement {
     const currencyLabel = preferences.currency?.title || "Currency";
 
     return html`
-      <div class="flex flex-col gap-4 p-24 pt-8">
+      <div class="flex flex-col items-start px-16 py-0">
         ${this.renderMenuItem(
           "language",
           languageLabel,
