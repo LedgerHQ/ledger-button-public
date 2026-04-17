@@ -11,8 +11,8 @@ import th from "./th.json" with { type: "json" };
 import tr from "./tr.json" with { type: "json" };
 import zh from "./zh.json" with { type: "json" };
 
+// Arabic is not supported yet (RTL issues)
 export const languageKey = {
-  ar,
   de,
   en,
   es,
@@ -91,13 +91,6 @@ export const languages: Languages = Object.freeze([
     name: "Portuguese",
     translation: pt,
   },
-  {
-    key: "ar",
-    name: "Arabic",
-    translation: ar,
-  },
-  // For thai language, the more formal display name could be "ภาษาไทย" (as in the designs)
-  // but new Intl.DisplayNames("th", { type: "language" }).of("th") returns "ไทย" which is correct too.
   {
     key: "th",
     name: "Thai",
