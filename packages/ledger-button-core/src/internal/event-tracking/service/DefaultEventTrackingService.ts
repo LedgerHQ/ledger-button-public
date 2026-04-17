@@ -112,10 +112,6 @@ export class DefaultEventTrackingService implements EventTrackingService {
   }
 
   private async processEvent(event: EventRequest): Promise<void> {
-    /*
-TODO: Uncomment this when we have a validation for the events in the backend.
-Check current state with formats in JSON schemas and update the validation.
-
     const validationResult = EventTrackingUtils.validateEvent(event);
 
     if (!validationResult.success) {
@@ -126,11 +122,9 @@ Check current state with formats in JSON schemas and update the validation.
       });
       return;
     }
-*/
 
     this.logger.info("Tracking event", { event });
 
-    //TODO: Uncomment this when we have a validation for the events in the backend.
     const result = await this.backendService.event(
       event,
       this.config.dAppIdentifier,
