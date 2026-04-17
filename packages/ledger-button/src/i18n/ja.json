@@ -6,8 +6,8 @@
     "floatingButton": {
       "ariaLabel": "Ledgerアカウントメニューを開く",
       "label": "Ledger",
-      "pendingTransactionsHover": "保留中のトランザクションが{count}件あります",
-      "newTransactionPending": "新しい保留中のトランザクション"
+      "pendingTransactionsHover": "{count}件のトランザクション保留中があります。",
+      "newTransactionPending": "保留中の新規トランザクション"
     },
     "search": {
       "placeholder": "アカウントを検索",
@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledgerを接続する"
+      "title": "Ledgerデバイスを接続"
     },
     "ledgerSync": {
       "title": ""
@@ -174,10 +174,11 @@
     "noTokens": "このアカウントのトークンが見つかりませんでした"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "利用可能なネットワーク"
   },
   "transactionList": {
-    "noTransactions": "トランザクションが見つかりません"
+    "noTransactions": "トランザクションが見つかりません",
+    "pendingTransactions": "保留中のトランザクション"
   },
   "mobileOnboarding": {
     "title": "Ledger Walletで続行",
