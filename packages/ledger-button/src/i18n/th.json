@@ -2,16 +2,16 @@
   "common": {
     "connect": "เชื่อมต่อ",
     "loading": "กำลังโหลด...",
-    "appTitle": "Ledger Wallet",
+    "appTitle": "แอป Ledger Wallet",
     "floatingButton": {
-      "ariaLabel": "Open Ledger account menu",
+      "ariaLabel": "เปิดเมนูบัญชี Ledger",
       "label": "Ledger",
-      "pendingTransactionsHover": "คุณมีธุรกรรมที่รอดำเนินการ {count} รายการ",
-      "newTransactionPending": "ธุรกรรมใหม่รอดำเนินการ"
+      "pendingTransactionsHover": "คุณมี {count} ธุรกรรมที่ค้างอยู่",
+      "newTransactionPending": "ธุรกรรมใหม่กำลังรอดำเนินการ"
     },
     "search": {
       "placeholder": "ค้นหาบัญชี",
-      "clearAriaLabel": "Clear search"
+      "clearAriaLabel": "ล้างการค้นหา"
     },
     "button": {
       "connect": "เชื่อมต่อกับอุปกรณ์ Ledger ของคุณ",
@@ -58,7 +58,7 @@
     }
   },
   "home": {
-    "title": "Your Ledger Wallet",
+    "title": "แอป Ledger Wallet ของคุณ",
     "balance": "ยอดคงเหลือในบัญชี"
   },
   "walletActions": {
@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "เชื่อมต่อกับ Ledger"
+      "title": "เชื่อมต่อกับอุปกรณ์ Ledger"
     },
     "ledgerSync": {
       "title": ""
@@ -170,19 +170,19 @@
   },
   "accountTokens": {
     "title": "โทเคนบัญชี",
-    "notFound": "Account not found",
+    "notFound": "ไม่พบบัญชี",
     "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "เครือข่ายที่มีอยู่"
   },
   "transactionList": {
-    "noTransactions": "No transactions found",
-    "pendingTransactions": "Pending transactions"
+    "noTransactions": "ไม่พบธุรกรรม",
+    "pendingTransactions": "ธุรกรรมที่ค้างอยู่"
   },
   "mobileOnboarding": {
     "title": "ดำเนินการต่อในแอป Ledger Wallet",
-    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "description": "DApp นี้จะเปิดขึ้นในแอป Ledger Wallet โดยตรงเพื่อการใช้งานที่ราบรื่น",
     "allowButton": "เปิดแอป Ledger Wallet",
     "rejectButton": "ดาวน์โหลดแอป Ledger Wallet™"
   },

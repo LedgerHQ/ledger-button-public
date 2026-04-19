@@ -7,7 +7,7 @@
       "ariaLabel": "Ledger hesap menüsünü aç",
       "label": "Ledger",
       "pendingTransactionsHover": "{count} bekleyen işleminiz var",
-      "newTransactionPending": "Yeni bekleyen işlem"
+      "newTransactionPending": "Yeni işlem beklemede"
     },
     "search": {
       "placeholder": "Hesap ara",
@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledger cihazını bağlayın"
+      "title": "Bir Ledger cihazı bağlayın"
     },
     "ledgerSync": {
       "title": ""
@@ -174,14 +174,15 @@
     "noTokens": "Bu hesap için hiçbir token bulunamadı."
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Kullanılabilir ağlar"
   },
   "transactionList": {
-    "noTransactions": "İşlem bulunamadı"
+    "noTransactions": "İşlem bulunamadı",
+    "pendingTransactions": "Bekleyen İşlemler"
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet'ta devam edin",
-    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "description": "Daha sorunsuz bir deneyim için bu dApp doğrudan Ledger Wallet uygulamasında açılacaktır.",
     "allowButton": "Ledger Wallet’ı açın",
     "rejectButton": "Ledger Wallet'ı indirin"
   },

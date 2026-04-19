@@ -6,7 +6,7 @@
     "floatingButton": {
       "ariaLabel": "打开 Ledger 账户菜单",
       "label": "Ledger",
-      "pendingTransactionsHover": "您有 {count} 笔待处理交易",
+      "pendingTransactionsHover": "您有 {count} 笔待处理的交易",
       "newTransactionPending": "新交易待处理"
     },
     "search": {
@@ -174,10 +174,11 @@
     "noTokens": "未找到此账户的代币"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "可用网络"
   },
   "transactionList": {
-    "noTransactions": "未找到交易"
+    "noTransactions": "未找到交易",
+    "pendingTransactions": "待处理交易"
   },
   "mobileOnboarding": {
     "title": "在 Ledger 钱包中继续",

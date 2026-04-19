@@ -6,8 +6,8 @@
     "floatingButton": {
       "ariaLabel": "Открыть меню счёта Ledger",
       "label": "Ledger",
-      "pendingTransactionsHover": "У вас {count} ожидающих транзакций",
-      "newTransactionPending": "Новая ожидающая транзакция"
+      "pendingTransactionsHover": "У вас есть неподтверждённые транзакции ({count})",
+      "newTransactionPending": "Новая транзакция ожидает подтверждения"
     },
     "search": {
       "placeholder": "Поиск счёта",
@@ -174,10 +174,11 @@
     "noTokens": "Не нашли токенов для этого счёта"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Доступные сети"
   },
   "transactionList": {
-    "noTransactions": "Не нашли транзакции"
+    "noTransactions": "Не нашли транзакции",
+    "pendingTransactions": "Неподтверждённые транзакции"
   },
   "mobileOnboarding": {
     "title": "Продолжите в Ledger Wallet",

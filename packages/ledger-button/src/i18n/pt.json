@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Conecte uma Ledger"
+      "title": "Conectar um dispositivo Ledger"
     },
     "ledgerSync": {
       "title": ""
@@ -174,10 +174,11 @@
     "noTokens": "Nenhum token encontrado para esta conta"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Redes disponíveis"
   },
   "transactionList": {
-    "noTransactions": "Nenhuma transação encontrada"
+    "noTransactions": "Nenhuma transação encontrada",
+    "pendingTransactions": "Transações pendentes"
   },
   "mobileOnboarding": {
     "title": "Continuar na Ledger Wallet",
