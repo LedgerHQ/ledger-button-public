@@ -4,14 +4,14 @@
     "loading": "로딩 중",
     "appTitle": "Ledger Wallet",
     "floatingButton": {
-      "ariaLabel": "Open Ledger account menu",
+      "ariaLabel": "Ledger 계정 메뉴 열기",
       "label": "Ledger",
-      "pendingTransactionsHover": "대기 중인 거래가 {count}건 있습니다",
-      "newTransactionPending": "새로운 대기 중인 거래"
+      "pendingTransactionsHover": "대기 중인 트랜잭션이 {count}건 있습니다.",
+      "newTransactionPending": "새 트랜잭션 보류 중"
     },
     "search": {
       "placeholder": "계정 검색",
-      "clearAriaLabel": "Clear search"
+      "clearAriaLabel": "검색 기록 삭제"
     },
     "button": {
       "connect": "Ledger 장치 연결하기",
@@ -58,7 +58,7 @@
     }
   },
   "home": {
-    "title": "Your Ledger Wallet",
+    "title": "내 Ledger Wallet",
     "balance": "잔액"
   },
   "walletActions": {
@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledger 장치 연결"
+      "title": "Ledger 장치를 연결하세요"
     },
     "ledgerSync": {
       "title": ""
@@ -170,19 +170,19 @@
   },
   "accountTokens": {
     "title": "계정 토큰",
-    "notFound": "Account not found",
+    "notFound": "계정을 찾을 수 없습니다",
     "noTokens": "이 계정에서 토큰을 찾을 수 없습니다"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "사용 가능한 네트워크"
   },
   "transactionList": {
-    "noTransactions": "No transactions found",
-    "pendingTransactions": "Pending transactions"
+    "noTransactions": "트랜잭션 정보를 찾을 수 없습니다",
+    "pendingTransactions": "보류 중인 트랜잭션"
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet에서 계속하기",
-    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "description": "더 원활한 사용자 경험을 위해 이 디앱(DApp)은 Ledger Wallet 앱에서 바로 실행됩니다.",
     "allowButton": "Ledger Wallet을 실행합니다.",
     "rejectButton": "Ledger Wallet 다운로드"
   },

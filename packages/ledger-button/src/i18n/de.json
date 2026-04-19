@@ -6,8 +6,8 @@
     "floatingButton": {
       "ariaLabel": "Ledger-Kontomenü öffnen",
       "label": "Ledger",
-      "pendingTransactionsHover": "Sie haben {count} ausstehende Transaktionen",
-      "newTransactionPending": "Neue ausstehende Transaktion"
+      "pendingTransactionsHover": "Du hast {count} ausstehende Transaktionen",
+      "newTransactionPending": "Neue Transaktion ausstehend"
     },
     "search": {
       "placeholder": "Konto suchen",
@@ -101,7 +101,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledger-Gerät verbinden"
+      "title": "Ledger-Gerät anschließen"
     },
     "ledgerSync": {
       "title": ""
@@ -174,10 +174,11 @@
     "noTokens": "Keine Token für dieses Konto gefunden"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Verfügbare Netzwerke"
   },
   "transactionList": {
-    "noTransactions": "Keine Transaktionen gefunden"
+    "noTransactions": "Keine Transaktionen gefunden",
+    "pendingTransactions": "Schwebende Transaktionen"
   },
   "mobileOnboarding": {
     "title": "Vorgang fortsetzen in Ledger Wallet",
