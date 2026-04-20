@@ -35,7 +35,7 @@ export class LedgerWalletRedirectDrawer extends LitElement {
   @property({ type: String })
   action: WalletTransactionFeature = "send";
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

@@ -32,7 +32,7 @@ type GroupedTransactions = {
 @customElement("transaction-list-screen")
 @tailwindElement()
 export class TransactionListScreen extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

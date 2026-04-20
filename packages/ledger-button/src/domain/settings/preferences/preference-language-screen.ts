@@ -16,7 +16,7 @@ import { tailwindElement } from "../../../tailwind-element.js";
 @customElement("preference-language-screen")
 @tailwindElement()
 export class PreferenceLanguageScreen extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
