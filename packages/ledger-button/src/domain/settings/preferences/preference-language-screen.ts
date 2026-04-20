@@ -8,8 +8,9 @@ import {
   langContext,
   type LangKey,
   LanguageContext,
+  languages,
 } from "../../../context/language-context.js";
-import { getLanguageDisplayName, languages } from "../../../i18n";
+import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 @customElement("preference-language-screen")

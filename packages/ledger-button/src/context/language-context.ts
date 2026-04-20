@@ -2,7 +2,12 @@ import { createContext, provide } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import { getTranslation, type LangKey } from "../i18n";
+import {
+  DEFAULT_LANGUAGE,
+  type LangKey,
+  languages,
+  type Translation,
+} from "./constants/languages.js";
 
 export class LanguageContext {
   private _currentLanguage: LangKey = "en";
@@ -15,8 +20,15 @@ export class LanguageContext {
     return this._currentLanguage;
   }
 
+  getTranslation(langKey: LangKey): Translation {
+    const { translation } =
+      languages.find((language) => language.key === langKey) || {};
+
+    return translation ?? this.getTranslation(DEFAULT_LANGUAGE);
+  }
+
   get currentTranslation() {
-    return getTranslation(this._currentLanguage);
+    return this.getTranslation(this.currentLanguage);
   }
 }
 
@@ -33,5 +45,8 @@ export class LanguageProvider extends LitElement {
     return html`<slot></slot>`;
   }
 }
-
-export type { LangKey, Languages, Translation } from "../i18n";
+export {
+  type LangKey,
+  languages,
+  type Translation,
+} from "./constants/languages.js";
