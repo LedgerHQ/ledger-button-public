@@ -1,4 +1,4 @@
-import { type LangKey } from "./languages.js";
+import { type LangKey } from "./../constants/languages.js";
 
 export function capitalizeFirstLetterWhenCased(
   text: string,
