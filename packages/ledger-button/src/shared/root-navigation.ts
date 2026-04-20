@@ -91,8 +91,9 @@ export class RootNavigationComponent extends LitElement {
 
   public closeModalWithMorph(): void {
     const targetRect = this.findFloatingButtonRect();
+    const position = this.resolveFloatingButtonPosition();
     this.handleModalClose();
-    this.ledgerModal.closeModalWithMorph(targetRect);
+    this.ledgerModal.closeModalWithMorph(targetRect, position);
   }
 
   // PRIVATE METHODS
@@ -150,10 +151,17 @@ export class RootNavigationComponent extends LitElement {
     return this.computeFloatingButtonRect();
   }
 
-  private computeFloatingButtonRect(): DOMRect {
+  private resolveFloatingButtonPosition(): FloatingButtonPosition {
     const root = this.getRootNode() as ShadowRoot;
-    const appHost = root?.host as { floatingButtonPosition?: FloatingButtonPosition | false } | undefined;
-    const position = appHost?.floatingButtonPosition || "bottom-right";
+    const appHost = root?.host as
+      | { floatingButtonPosition?: FloatingButtonPosition | false }
+      | undefined;
+    const position = appHost?.floatingButtonPosition;
+    return position ? position : "bottom-right";
+  }
+
+  private computeFloatingButtonRect(): DOMRect {
+    const position = this.resolveFloatingButtonPosition();
 
     const size = 64;
     const offset = 24;

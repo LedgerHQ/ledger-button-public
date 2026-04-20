@@ -2,6 +2,7 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { animate } from "motion";
 
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
 import { type AnimationInstance } from "./animation-types.js";
 import { CenterAnimation } from "./center-animation.js";
 import { MorphAnimation } from "./morph-animation.js";
@@ -81,8 +82,13 @@ export class ModalAnimationController implements ReactiveController {
   async animateMorphClose(
     elements: AnimationElements,
     targetRect: DOMRect,
+    position?: FloatingButtonPosition,
   ): Promise<void> {
-    await this.morphAnimation.morphClose(elements.container, targetRect);
+    await this.morphAnimation.morphClose(
+      elements.container,
+      targetRect,
+      position,
+    );
 
     await new Promise<void>((resolve) => {
       this.backdropAnimation = animate(
