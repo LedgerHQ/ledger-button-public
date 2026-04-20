@@ -8,6 +8,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
 import {
   ModalAnimationController,
   type ModalMode,
@@ -130,6 +131,7 @@ export class LedgerModal extends LitElement {
   private focusController = new ModalFocusController(this);
   private scrollLockController = new ModalScrollLockController(this);
   private morphTargetRect: DOMRect | null = null;
+  private morphTargetPosition: FloatingButtonPosition | undefined = undefined;
 
   public openModal(mode: ModalMode = "center"): void {
     this.mode = mode;
@@ -154,12 +156,16 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  public closeModalWithMorph(targetRect: DOMRect): void {
+  public closeModalWithMorph(
+    targetRect: DOMRect,
+    position?: FloatingButtonPosition,
+  ): void {
     if (this.isClosing) {
       return;
     }
 
     this.morphTargetRect = targetRect;
+    this.morphTargetPosition = position;
     this.dispatchEvent(
       new CustomEvent("modal-closed", {
         bubbles: true,
@@ -213,8 +219,10 @@ export class LedgerModal extends LitElement {
       await this.animationController.animateMorphClose(
         elements,
         this.morphTargetRect,
+        this.morphTargetPosition,
       );
       this.morphTargetRect = null;
+      this.morphTargetPosition = undefined;
     } else {
       await this.animationController.animateClose(elements, this.mode);
     }
