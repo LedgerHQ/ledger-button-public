@@ -1,7 +1,8 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "../model/errors.js";
-import { UserConsent } from "../model/UserConsent.js";
+import { type PreferredLanguage } from "../model/PreferredLanguage.js";
+import { type UserConsent } from "../model/UserConsent.js";
 
 export interface IndexedDbService {
   initIdb(): Promise<Either<StorageIDBErrors, IDBDatabase>>;
@@ -26,5 +27,12 @@ export interface IndexedDbService {
   ): Promise<Either<StorageIDBErrors, void>>;
   getWelcomeScreenCompleted(): Promise<
     Either<StorageIDBErrors, Maybe<boolean>>
+  >;
+
+  storePreferredLanguage(
+    preferredLanguage: string,
+  ): Promise<Either<StorageIDBErrors, void>>;
+  getPreferredLanguage(): Promise<
+    Either<StorageIDBErrors, Maybe<PreferredLanguage>>
   >;
 }

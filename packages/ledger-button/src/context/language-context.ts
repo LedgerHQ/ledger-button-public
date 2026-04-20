@@ -10,7 +10,7 @@ import {
 } from "./constants/languages.js";
 
 export class LanguageContext {
-  private _currentLanguage: LangKey = "en";
+  private _currentLanguage: LangKey = DEFAULT_LANGUAGE;
 
   setCurrentLanguage(lang: LangKey) {
     this._currentLanguage = lang;
