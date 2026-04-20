@@ -119,6 +119,10 @@
       "refreshingAccounts": "Ledger Wallet يقوم بتحديث حساباتك.",
       "refreshingAccountsHint": "اختر حساباً في أي وقت للمتابعة."
     },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
+    },
     "turnOnSync": {
       "title": "",
       "subtitle": "قم بتشغيل مزامنة Ledger Sync للمتابعة",

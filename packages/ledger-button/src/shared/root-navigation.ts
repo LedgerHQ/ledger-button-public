@@ -5,6 +5,7 @@ import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
+import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
 import {
   LedgerModal,
   ModalMode,
@@ -88,6 +89,12 @@ export class RootNavigationComponent extends LitElement {
     this.ledgerModal.closeModal();
   }
 
+  public closeModalWithMorph(): void {
+    const targetRect = this.findFloatingButtonRect();
+    this.handleModalClose();
+    this.ledgerModal.closeModalWithMorph(targetRect);
+  }
+
   // PRIVATE METHODS
   private handleModalOpen() {
     this.requestUpdate();
@@ -128,6 +135,67 @@ export class RootNavigationComponent extends LitElement {
 
   private handleSettingsClick() {
     this.rootNavigationController.navigateToSettings();
+  }
+
+  private findFloatingButtonRect(): DOMRect {
+    const root = this.getRootNode() as ShadowRoot;
+    const floatingButton = root?.querySelector("ledger-floating-button");
+    const innerButton = floatingButton?.shadowRoot?.querySelector("button");
+    if (innerButton) {
+      const rect = innerButton.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return rect;
+      }
+    }
+    return this.computeFloatingButtonRect();
+  }
+
+  private computeFloatingButtonRect(): DOMRect {
+    const root = this.getRootNode() as ShadowRoot;
+    const appHost = root?.host as { floatingButtonPosition?: FloatingButtonPosition | false } | undefined;
+    const position = appHost?.floatingButtonPosition || "bottom-right";
+
+    const size = 64;
+    const offset = 24;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    let x: number;
+    let y: number;
+
+    switch (position) {
+      case "bottom-left":
+        x = offset;
+        y = vh - offset - size;
+        break;
+      case "bottom-center":
+        x = (vw - size) / 2;
+        y = vh - offset - size;
+        break;
+      case "top-right":
+        x = vw - offset - size;
+        y = offset;
+        break;
+      case "top-left":
+        x = offset;
+        y = offset;
+        break;
+      case "top-center":
+        x = (vw - size) / 2;
+        y = offset;
+        break;
+      case "middle-right":
+        x = vw - offset - size;
+        y = (vh - size) / 2;
+        break;
+      case "bottom-right":
+      default:
+        x = vw - offset - size;
+        y = vh - offset - size;
+        break;
+    }
+
+    return new DOMRect(x, y, size, size);
   }
 
   private goBack() {
