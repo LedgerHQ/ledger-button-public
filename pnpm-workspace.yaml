@@ -8,6 +8,7 @@ catalog:
   '@eslint/compat': ^1.1.1
   '@eslint/eslintrc': ^2.1.1
   '@eslint/js': ^9.8.0
+  '@floating-ui/dom': ^1.6.13
   '@inquirer/prompts': ^5.0.0
   '@ledgerhq/coin-framework': ^5.0.0
   '@ledgerhq/context-module': 1.15.0
@@ -31,7 +32,6 @@ catalog:
   '@nx/vite': 22.0.1
   '@nx/web': 22.0.1
   '@playwright/test': ^1.36.0
-  '@floating-ui/dom': ^1.6.13
   '@storybook/addon-coverage': ^2.0.0
   '@storybook/addon-docs': 9.0.17
   '@storybook/react-vite': 9.0.17
@@ -122,10 +122,6 @@ catalog:
 catalogMode: prefer
 
 catalogs:
-  react18:
-    '@types/react': 18.3.12
-    react: 18.3.1
-    react-dom: 18.3.1
   react19:
     '@types/react': 19.0.0
     react: 19.0.0
