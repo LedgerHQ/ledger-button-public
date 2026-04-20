@@ -10,6 +10,7 @@ import type { NetworkService } from "../../../network/NetworkService.js";
 import { type CalDataSource } from "./CalDataSource.js";
 import {
   type CalCoinResponse,
+  type CalNetworkExternalLinks,
   type CalTokenResponse,
   type CurrencyInformation,
   type TokenInformation,
@@ -30,7 +31,7 @@ export class DefaultCalDataSource implements CalDataSource {
   ): Promise<Either<Error, TokenInformation>> {
     const chainId = getChainIdFromCurrencyId(currencyId);
 
-    const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=id,name,decimals,ticker`;
+    const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=id,name,decimals,ticker,network_external_links`;
     const getTokenInformationResult: Either<Error, CalTokenResponse> =
       await this.networkService.get(requestUrl);
 
@@ -43,13 +44,23 @@ export class DefaultCalDataSource implements CalDataSource {
       return Left(new Error("No token information found in Cal"));
     }
 
-    return Right(tokenInformation[0]);
+    const token = tokenInformation[0];
+
+    return Right({
+      id: token.id,
+      decimals: token.decimals,
+      ticker: token.ticker,
+      name: token.name,
+      transactionExplorerUrlTemplate: extractTransactionExplorerUrlTemplate(
+        token.network_external_links,
+      ),
+    });
   }
 
   async getCurrencyInformation(
     currencyId: string,
   ): Promise<Either<Error, CurrencyInformation>> {
-    const requestUrl = `${this.config.getCalUrl()}/v1/coins?id=${currencyId}&output=id,name,ticker,units`;
+    const requestUrl = `${this.config.getCalUrl()}/v1/coins?id=${currencyId}&output=id,name,ticker,units,network_external_links`;
     const getCurrencyInformationResult: Either<Error, CalCoinResponse> =
       await this.networkService.get(requestUrl);
 
@@ -74,6 +85,15 @@ export class DefaultCalDataSource implements CalDataSource {
       name: coin.name,
       ticker: coin.ticker,
       decimals,
+      transactionExplorerUrlTemplate: extractTransactionExplorerUrlTemplate(
+        coin.network_external_links,
+      ),
     });
   }
+}
+
+function extractTransactionExplorerUrlTemplate(
+  links: CalNetworkExternalLinks | undefined,
+): string | undefined {
+  return links?.explorers?.[0]?.transaction;
 }
