@@ -255,13 +255,15 @@ export class LedgerModal extends LitElement {
     const appTitle = this.languages?.currentTranslation?.common?.appTitle;
 
     return html`
-      <slot name="toolbar">
-        <ledger-toolbar
-          title=${appTitle}
-          aria-label=${appTitle}
-          @ledger-toolbar-close=${this.closeModal}
-        ></ledger-toolbar>
-      </slot>
+      <div class="modal-toolbar">
+        <slot name="toolbar">
+          <ledger-toolbar
+            title=${appTitle}
+            aria-label=${appTitle}
+            @ledger-toolbar-close=${this.closeModal}
+          ></ledger-toolbar>
+        </slot>
+      </div>
     `;
   }
 
