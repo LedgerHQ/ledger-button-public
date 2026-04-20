@@ -10,7 +10,7 @@ import {
 
 // Debug helper: multiply every phase duration to slow the whole animation
 // down for easier inspection. Set to 1 for normal playback.
-const DEBUG_SLOWDOWN = 1.5;
+const DEBUG_SLOWDOWN = 10;
 
 // Phase 1: Content Fade
 /** How long the modal content (toolbar + status) fades to transparent */
@@ -26,7 +26,9 @@ const SCALE_DOWN_TARGET = 0.15;
 /** Easing for the scale-down phase */
 const SCALE_DOWN_EASING: Easing = [0.4, 0, 0.2, 1];
 
-// Phase 3: Bezier move (starts at midpoint of phase 2)
+// Phase 3: Bezier move (overlaps with end of phase 2)
+/** How early phase 3 starts before phase 2 ends */
+const PHASE2_PHASE3_OVERLAP = 0.3 * DEBUG_SLOWDOWN;
 /** How long the Bezier trajectory takes */
 const MOVE_DURATION = 0.6 * DEBUG_SLOWDOWN;
 /** Easing applied to the parameter t in [0, 1] driving the Bezier */
@@ -39,12 +41,27 @@ const DEFAULT_POSITION: FloatingButtonPosition = "bottom-right";
 
 // Computed phase start times (seconds from morphClose start)
 const PHASE2_START = CONTENT_FADE_DURATION - MORPH_OVERLAP;
-const PHASE3_START = PHASE2_START + SCALE_DOWN_DURATION / 2;
+const PHASE3_START = PHASE2_START + SCALE_DOWN_DURATION - PHASE2_PHASE3_OVERLAP;
 const TOTAL_DURATION = PHASE3_START + MOVE_DURATION + SETTLE_FADE_DURATION;
 
+/**
+ * Phases 2 and 3 run concurrently (phase 3 starts at phase 2's midpoint).
+ * To avoid the two animations fighting over the same CSS `transform`
+ * property, each phase writes to a disjoint CSS surface:
+ *
+ * - Phase 2 animates the `scale` CSS property (via Motion).
+ * - Phase 3 writes the `translate` CSS property and `borderRadius` in its
+ *   `onUpdate`, and issues a separate Motion animation that retargets
+ *   `scale` to the final value. Motion naturally picks up the in-flight
+ *   scale value, so phase 2's animation is seamlessly superseded without
+ *   any manual stop/read/resume dance.
+ *
+ * This mirrors the phase 1 ↔ phase 2 overlap, which already works because
+ * they target disjoint properties (`opacity` on children vs `scale` on the
+ * container).
+ */
 export class MorphAnimation {
   private animations: AnimationInstance[] = [];
-  private phase2Animation: AnimationInstance | null = null;
 
   async morphClose(
     container: HTMLElement,
@@ -85,7 +102,6 @@ export class MorphAnimation {
       anim.cancel();
     }
     this.animations = [];
-    this.phase2Animation = null;
   }
 
   private startPhase1(container: HTMLElement): void {
@@ -113,7 +129,6 @@ export class MorphAnimation {
         },
       );
       this.animations.push(anim);
-      this.phase2Animation = anim;
     }, startAt * 1000);
   }
 
@@ -125,11 +140,21 @@ export class MorphAnimation {
     startAt: number,
   ): void {
     setTimeout(() => {
-      this.cancelPhase2Conflicts();
-
-      const startScale = readCurrentScale(container);
       const startBorderRadiusPx = readCurrentBorderRadiusPx(container);
       const progress = { t: 0 };
+
+      // Retargets `scale` to the final value. Motion seamlessly takes over
+      // from phase 2's in-flight scale animation (same element, same CSS
+      // property) without needing to stop/read it manually.
+      const scaleAnim = animate(
+        container,
+        { scale: finalScale },
+        {
+          duration: MOVE_DURATION,
+          ease: MOVE_EASING,
+        },
+      );
+      this.animations.push(scaleAnim);
 
       const move = animate(
         progress,
@@ -146,9 +171,8 @@ export class MorphAnimation {
               controlPoints.p2,
               controlPoints.p3,
             );
-            const scale = lerp(startScale, finalScale, t);
             const radius = lerp(startBorderRadiusPx, finalBorderRadiusPx, t);
-            container.style.transform = `translate(${point.x}px, ${point.y}px) scale(${scale})`;
+            container.style.translate = `${point.x}px ${point.y}px`;
             container.style.borderRadius = `${radius}px`;
           },
         },
@@ -166,22 +190,6 @@ export class MorphAnimation {
     }, startAt * 1000);
   }
 
-  /**
-   * Phase 2 is still running when phase 3 starts (intentional overlap).
-   * We stop its scale animation so the onUpdate-driven trajectory becomes
-   * the single source of truth. `stop()` (unlike `cancel()`) commits the
-   * current sampled transform to the inline style before tearing down the
-   * underlying WAAPI animation, so the immediately-following
-   * `readCurrentScale` sees the real mid-animation value instead of the
-   * reverted initial state — preventing a one-frame snap back to full size.
-   */
-  private cancelPhase2Conflicts(): void {
-    if (this.phase2Animation) {
-      this.phase2Animation.stop();
-      this.phase2Animation = null;
-    }
-  }
-
   private delay(seconds: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
@@ -189,19 +197,6 @@ export class MorphAnimation {
 
 function lerp(start: number, end: number, t: number): number {
   return start + (end - start) * t;
-}
-
-function readCurrentScale(element: HTMLElement): number {
-  const transform = getComputedStyle(element).transform;
-  if (!transform || transform === "none") {
-    return 1;
-  }
-  try {
-    const matrix = new DOMMatrixReadOnly(transform);
-    return matrix.a;
-  } catch {
-    return 1;
-  }
 }
 
 function readCurrentBorderRadiusPx(element: HTMLElement): number {
