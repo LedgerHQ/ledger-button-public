@@ -15,7 +15,7 @@ const CURRENCIES = ["usd", "eur", "gbp"] as const;
 @customElement("preference-currency-screen")
 @tailwindElement()
 export class PreferenceCurrencyScreen extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

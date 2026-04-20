@@ -29,7 +29,7 @@ export class LedgerSyncScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

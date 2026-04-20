@@ -33,7 +33,7 @@ export class LedgerWalletActions extends LitElement {
   @property({ type: Array })
   features: WalletTransactionFeature[] = [];
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
