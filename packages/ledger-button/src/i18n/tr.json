@@ -192,8 +192,8 @@
     "title": "Ayarlar",
     "preferences": {
       "title": "Tercihler",
-      "language": { "title": "Language" },
-      "currency": { "title": "Currency" },
+      "language": { "title": "Dil" },
+      "currency": { "title": "Para birimi" },
       "description": "Tercih seçenekleri burada görünecektir."
     },
     "securityConfidentiality": {

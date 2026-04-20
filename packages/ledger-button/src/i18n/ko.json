@@ -193,10 +193,10 @@
     "preferences": {
       "title": "환경설정",
       "language": {
-        "title": "Language"
+        "title": "언어"
       },
       "currency": {
-        "title": "Currency"
+        "title": "통화"
       },
       "description": "환경설정 항목이 여기에 표시됩니다."
     },

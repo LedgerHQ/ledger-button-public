@@ -192,8 +192,8 @@
     "title": "設定",
     "preferences": {
       "title": "環境設定",
-      "language": { "title": "Language" },
-      "currency": { "title": "Currency" },
+      "language": { "title": "言語" },
+      "currency": { "title": "通貨" },
       "description": "環境設定の項目はここに表示されます。"
     },
     "securityConfidentiality": {

@@ -192,8 +192,8 @@
     "title": "Ajustes",
     "preferences": {
       "title": "Preferencias",
-      "language": { "title": "Language" },
-      "currency": { "title": "Currency" },
+      "language": { "title": "Idioma" },
+      "currency": { "title": "Moneda" },
       "description": "Las opciones de preferencias aparecerán aquí."
     },
     "securityConfidentiality": {
