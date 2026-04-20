@@ -119,6 +119,10 @@
       "refreshingAccounts": "Ledger Wallet hesaplarınızı yeniliyor.",
       "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin."
     },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
+    },
     "turnOnSync": {
       "title": "",
       "subtitle": "Devam etmek için Ledger Sync'i açın",

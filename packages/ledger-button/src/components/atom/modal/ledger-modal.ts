@@ -129,6 +129,7 @@ export class LedgerModal extends LitElement {
   private animationController = new ModalAnimationController(this);
   private focusController = new ModalFocusController(this);
   private scrollLockController = new ModalScrollLockController(this);
+  private morphTargetRect: DOMRect | null = null;
 
   public openModal(mode: ModalMode = "center"): void {
     this.mode = mode;
@@ -145,6 +146,20 @@ export class LedgerModal extends LitElement {
       return;
     }
 
+    this.dispatchEvent(
+      new CustomEvent("modal-closed", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  public closeModalWithMorph(targetRect: DOMRect): void {
+    if (this.isClosing) {
+      return;
+    }
+
+    this.morphTargetRect = targetRect;
     this.dispatchEvent(
       new CustomEvent("modal-closed", {
         bubbles: true,
@@ -188,14 +203,21 @@ export class LedgerModal extends LitElement {
     this.isClosing = true;
     this.focusController.deactivate();
 
-    await this.animationController.animateClose(
-      {
-        backdrop: this.backdropElement,
-        container: this.containerElement,
-        wrapper: this.wrapperElement,
-      },
-      this.mode,
-    );
+    const elements = {
+      backdrop: this.backdropElement,
+      container: this.containerElement,
+      wrapper: this.wrapperElement,
+    };
+
+    if (this.morphTargetRect) {
+      await this.animationController.animateMorphClose(
+        elements,
+        this.morphTargetRect,
+      );
+      this.morphTargetRect = null;
+    } else {
+      await this.animationController.animateClose(elements, this.mode);
+    }
 
     this.scrollLockController.unlock();
     this.isClosing = false;

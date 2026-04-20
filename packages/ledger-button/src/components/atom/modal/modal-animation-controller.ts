@@ -4,6 +4,7 @@ import { animate } from "motion";
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
 import { type AnimationInstance } from "./animation-types.js";
 import { CenterAnimation } from "./center-animation.js";
+import { MorphAnimation } from "./morph-animation.js";
 import { PanelAnimation } from "./panel-animation.js";
 
 export type ModalMode = "center" | "panel" | "bottom";
@@ -18,6 +19,7 @@ export class ModalAnimationController implements ReactiveController {
   private backdropAnimation: AnimationInstance | null = null;
   private centerAnimation = new CenterAnimation();
   private panelAnimation = new PanelAnimation();
+  private morphAnimation = new MorphAnimation();
 
   constructor(private readonly host: ReactiveControllerHost) {
     this.host.addController(this);
@@ -76,6 +78,27 @@ export class ModalAnimationController implements ReactiveController {
     this.backdropAnimation = null;
   }
 
+  async animateMorphClose(
+    elements: AnimationElements,
+    targetRect: DOMRect,
+  ): Promise<void> {
+    await this.morphAnimation.morphClose(elements.container, targetRect);
+
+    await new Promise<void>((resolve) => {
+      this.backdropAnimation = animate(
+        elements.backdrop,
+        { opacity: [1, 0] },
+        {
+          duration: ANIMATION_DELAY / 1000,
+          onComplete: () => resolve(),
+        },
+      );
+    });
+
+    elements.wrapper.classList.remove("modal-wrapper--open");
+    this.backdropAnimation = null;
+  }
+
   cancelAnimations(): void {
     if (this.backdropAnimation) {
       this.backdropAnimation.cancel();
@@ -84,5 +107,6 @@ export class ModalAnimationController implements ReactiveController {
 
     this.centerAnimation.cancel();
     this.panelAnimation.cancel();
+    this.morphAnimation.cancel();
   }
 }
