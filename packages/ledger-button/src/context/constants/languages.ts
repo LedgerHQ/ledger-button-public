@@ -30,6 +30,10 @@ export const DEFAULT_LANGUAGE = "en";
 export type LangKey = keyof typeof languageKey;
 export type Translation = (typeof languageKey)[LangKey];
 
+export function isLangKey(value: string): value is LangKey {
+  return value in languageKey;
+}
+
 export type Language = {
   key: LangKey;
   name: string;

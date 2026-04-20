@@ -192,8 +192,8 @@
     "title": "设置",
     "preferences": {
       "title": "偏好设置",
-      "language": { "title": "Language" },
-      "currency": { "title": "Currency" },
+      "language": { "title": "语言" },
+      "currency": { "title": "货币" },
       "description": "偏好设置选项将显示在此处。"
     },
     "securityConfidentiality": {
