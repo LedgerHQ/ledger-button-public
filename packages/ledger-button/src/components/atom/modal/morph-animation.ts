@@ -10,7 +10,7 @@ import {
 
 // Debug helper: multiply every phase duration to slow the whole animation
 // down for easier inspection. Set to 1 for normal playback.
-const DEBUG_SLOWDOWN = 10;
+const DEBUG_SLOWDOWN = 1.5;
 
 // Phase 1: Content Fade
 /** How long the modal content (toolbar + status) fades to transparent */
@@ -168,12 +168,16 @@ export class MorphAnimation {
 
   /**
    * Phase 2 is still running when phase 3 starts (intentional overlap).
-   * We cancel its scale/borderRadius animation so the onUpdate-driven
-   * trajectory becomes the single source of truth for those properties.
+   * We stop its scale animation so the onUpdate-driven trajectory becomes
+   * the single source of truth. `stop()` (unlike `cancel()`) commits the
+   * current sampled transform to the inline style before tearing down the
+   * underlying WAAPI animation, so the immediately-following
+   * `readCurrentScale` sees the real mid-animation value instead of the
+   * reverted initial state — preventing a one-frame snap back to full size.
    */
   private cancelPhase2Conflicts(): void {
     if (this.phase2Animation) {
-      this.phase2Animation.cancel();
+      this.phase2Animation.stop();
       this.phase2Animation = null;
     }
   }
