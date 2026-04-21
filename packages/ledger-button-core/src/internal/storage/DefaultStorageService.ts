@@ -4,7 +4,6 @@ import { Either, Just, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
-import { type PreferredLanguage } from "./model/PreferredLanguage.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
@@ -269,7 +268,7 @@ export class DefaultStorageService implements StorageService {
     });
   }
 
-  async getPreferredLanguage(): Promise<Maybe<PreferredLanguage>> {
+  async getPreferredLanguage(): Promise<Maybe<string>> {
     const result = await this.indexedDbService.getPreferredLanguage();
     return result.caseOf({
       Right: (language) => language,

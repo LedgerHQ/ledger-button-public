@@ -1,7 +1,6 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "../model/errors.js";
-import { type PreferredLanguage } from "../model/PreferredLanguage.js";
 import { type UserConsent } from "../model/UserConsent.js";
 
 export interface IndexedDbService {
@@ -32,7 +31,5 @@ export interface IndexedDbService {
   storePreferredLanguage(
     preferredLanguage: string,
   ): Promise<Either<StorageIDBErrors, void>>;
-  getPreferredLanguage(): Promise<
-    Either<StorageIDBErrors, Maybe<PreferredLanguage>>
-  >;
+  getPreferredLanguage(): Promise<Either<StorageIDBErrors, Maybe<string>>>;
 }

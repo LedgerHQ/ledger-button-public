@@ -1,7 +1,6 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
-import { type PreferredLanguage } from "./model/PreferredLanguage.js";
 import { UserConsent } from "./model/UserConsent.js";
 import { Account } from "../account/service/AccountService.js";
 
@@ -39,5 +38,5 @@ export interface StorageService {
   removeWelcomeScreenCompleted(): Promise<void>;
 
   savePreferredLanguage(language: string): Promise<void>;
-  getPreferredLanguage(): Promise<Maybe<PreferredLanguage>>;
+  getPreferredLanguage(): Promise<Maybe<string>>;
 }
