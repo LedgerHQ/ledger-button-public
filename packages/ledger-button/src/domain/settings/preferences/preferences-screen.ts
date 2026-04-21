@@ -9,6 +9,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
+import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 import { tailwindElement } from "../../../tailwind-element.js";
@@ -41,6 +42,7 @@ export class PreferencesScreen extends LitElement {
   private renderMenuItem(
     icon: "dollar" | "language",
     label: string,
+    currentValue: string,
     onClick: () => void,
   ) {
     return html`
@@ -55,13 +57,18 @@ export class PreferencesScreen extends LitElement {
             fillColor="currentColor"
           ></ledger-icon>
 
-          <span class="body-2-semi-bold min-w-0 truncate text-base">${label}</span>
+          <div class="flex flex-col gap-4 text-left">
+            <span class="body-2-semi-bold min-w-0 truncate text-base"
+              >${label}</span
+            >
+            <span class="text-muted body-3">${currentValue}</span>
+          </div>
         </div>
         <ledger-icon
           type="chevronRight"
           size="small"
           fillColor="currentColor"
-          class="shrink-0 text-muted"
+          class="text-muted shrink-0"
         ></ledger-icon>
       </button>
     `;
@@ -69,6 +76,7 @@ export class PreferencesScreen extends LitElement {
 
   override render() {
     const translations = this.languages.currentTranslation;
+    const currentLanguage = this.languages.currentLanguage;
     const settings = translations.settings;
 
     if (!settings) {
@@ -88,11 +96,13 @@ export class PreferencesScreen extends LitElement {
         ${this.renderMenuItem(
           "language",
           languageLabel,
+          getLanguageDisplayName(currentLanguage),
           this.handleLanguageClick,
         )}
         ${this.renderMenuItem(
           "dollar",
           currencyLabel,
+          "USD",
           this.handleCurrencyClick,
         )}
       </div>
