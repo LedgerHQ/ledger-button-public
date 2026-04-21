@@ -42,7 +42,7 @@ export class RootNavigationComponent extends LitElement {
     this.rootNavigationController = new RootNavigationController(
       this,
       this.coreContext,
-      this.languageContext.currentTranslation,
+      this.languageContext,
       this.modalContent,
     );
   }
