@@ -4,9 +4,9 @@
   "description": "Ledger Wallet Provider documentation",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 0",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 0",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prettier": "prettier . --check",
@@ -20,8 +20,8 @@
     "next": "catalog:",
     "nextra": "catalog:",
     "nextra-theme-docs": "catalog:",
-    "react": "catalog:react18",
-    "react-dom": "catalog:react18",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
     "react-medium-image-zoom": "catalog:",
     "tailwindcss": "catalog:",
     "tailwind-merge": "catalog:"
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
-    "@types/react": "catalog:react18",
+    "@types/react": "catalog:react19",
     "globals": "catalog:"
   }
 }
