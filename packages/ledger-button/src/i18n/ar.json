@@ -7,7 +7,9 @@
       "ariaLabel": "افتح قائمة حساب Ledger",
       "label": "Ledger",
       "pendingTransactionsHover": "لديك {count} معاملات قيد الانتظار",
-      "newTransactionPending": "معاملة جديدة قيد الانتظار"
+      "newTransactionPending": "معاملة جديدة قيد الانتظار",
+      "transactionsValidatedOne": "تم التحقق من معاملة واحدة",
+      "transactionsValidatedOther": "تم التحقق من {count} معاملات"
     },
     "search": {
       "placeholder": "ابحث في الحساب",

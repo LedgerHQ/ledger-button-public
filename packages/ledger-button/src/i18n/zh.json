@@ -7,7 +7,9 @@
       "ariaLabel": "打开 Ledger 账户菜单",
       "label": "Ledger",
       "pendingTransactionsHover": "您有 {count} 笔待处理的交易",
-      "newTransactionPending": "新交易待处理"
+      "newTransactionPending": "新交易待处理",
+      "transactionsValidatedOne": "1 笔交易已验证",
+      "transactionsValidatedOther": "{count} 笔交易已验证"
     },
     "search": {
       "placeholder": "搜索账户",

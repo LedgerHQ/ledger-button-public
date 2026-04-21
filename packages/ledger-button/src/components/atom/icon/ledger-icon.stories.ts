@@ -22,6 +22,7 @@ const meta: Meta = {
         "chevronRight",
         "chevronDown",
         "check",
+        "checkMarkCircleFill",
         "error",
         "device",
         "mobile",
@@ -303,6 +304,10 @@ export const AllIcons: Story = {
       <div style="text-align: center;">
         <ledger-icon type="check" size="medium"></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Check</p>
+      </div>
+      <div style="text-align: center;">
+        <ledger-icon type="checkMarkCircleFill" size="medium"></ledger-icon>
+        <p style="margin: 8px 0 0 0; font-size: 12px;">Check mark circle fill</p>
       </div>
       <div style="text-align: center;">
         <ledger-icon type="error" size="medium"></ledger-icon>
