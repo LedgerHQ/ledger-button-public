@@ -10,7 +10,7 @@ import {
 
 // Debug helper: multiply every phase duration to slow the whole animation
 // down for easier inspection. Set to 1 for normal playback.
-const DEBUG_SLOWDOWN = 10;
+const DEBUG_SLOWDOWN = 1.5;
 
 // Phase 1: Content Fade
 /** How long the modal content (toolbar + status) fades to transparent */
