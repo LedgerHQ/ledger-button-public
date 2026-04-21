@@ -13,12 +13,19 @@ import { type CoreContext, coreContext } from "./core-context.js";
 
 // The SSOT for language & translations are the local values of the Language context.
 // The user language preference is stored in the IndexedDB via the core context and retrieved on mount.
-export class LanguageContext {
+export class LanguageContext extends EventTarget {
+  static readonly LANGUAGE_CHANGE = "languagechange";
+
   private _currentLanguage: LangKey = DEFAULT_LANGUAGE;
 
   core?: CoreContext;
 
   setCurrentLanguage(languageKey: LangKey, options?: { persist?: boolean }) {
+    const hasChanged = this._currentLanguage !== languageKey;
+    this._currentLanguage = languageKey;
+    if (hasChanged) {
+      this.dispatchEvent(new Event(LanguageContext.LANGUAGE_CHANGE));
+    }
     this._currentLanguage = languageKey;
     const persist = options?.persist !== false;
     if (!persist || !this.core) {
