@@ -21,9 +21,47 @@ Initializes the Ledger Wallet Provider and injects the UI components into the DO
 function initializeLedgerProvider(
   options: InitializeLedgerProviderOptions
 ): () => void
+
+type InitializeLedgerProviderOptions = {
+  // Core
+  apiKey?: string;
+  dAppIdentifier?: string;
+  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';
+  environment?: 'staging' | 'production';
+  dmkConfig?: DeviceModuleOptions;
+
+  // UI
+  target?: HTMLElement;
+  hideButton?: boolean;
+  floatingButtonPosition?:
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'bottom-center'
+    | 'top-right'
+    | 'top-left'
+    | 'top-center'
+    | 'middle-right';
+  floatingButtonTarget?: HTMLElement | string;
+  walletTransactionFeatures?: Array<
+    'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'
+  >;
+
+  // Development
+  devConfig?: {
+    stub?: {
+      base?: boolean;
+      account?: boolean;
+      balance?: boolean;
+      device?: boolean;
+      web3Provider?: boolean;
+      dAppConfig?: boolean;
+      transactionHistory?: boolean;
+    };
+  };
+};
 ```
 
-See [Configuration](./configuration) for the full `options` reference.
+See [Configuration](./configuration) for the full `options` reference with defaults and examples.
 
 **Returns** a cleanup function. Call it to remove the provider and UI components from the DOM and to deregister the `eip6963:requestProvider` listener.
 
