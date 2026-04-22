@@ -13,7 +13,7 @@ export type MorphControlPoints = {
  * How far the trajectory goes past the target on the dominant axis.
  * 0.08 = 8% beyond the target, then settles back.
  */
-export const MORPH_OVERSHOOT = 0.08;
+export const MORPH_OVERSHOOT = 0.1;
 
 /**
  * Where on the segment P1 sits when the curve is degenerate (straight line).

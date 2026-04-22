@@ -128,6 +128,21 @@ export class RootNavigationComponent extends LitElement {
 
   private handleModalAnimationComplete() {
     this.rootNavigationController.handleModalClose();
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-animation-complete", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private handleModalMorphLanded() {
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-morph-landed", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private handleChipClick(_e: CustomEvent) {
@@ -238,6 +253,7 @@ export class RootNavigationComponent extends LitElement {
         @modal-opened=${this.handleModalOpen}
         @modal-closed=${this.handleModalClose}
         @modal-animation-complete=${this.handleModalAnimationComplete}
+        @modal-morph-landed=${this.handleModalMorphLanded}
       >
         <div slot="toolbar">
           <ledger-toolbar
@@ -272,5 +288,7 @@ declare global {
     "ledger-provider-close": CustomEvent;
     "ledger-core-modal-open": CustomEvent;
     "ledger-core-modal-close": CustomEvent;
+    "ledger-core-modal-animation-complete": CustomEvent;
+    "ledger-core-modal-morph-landed": CustomEvent;
   }
 }

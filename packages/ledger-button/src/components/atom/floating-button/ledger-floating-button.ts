@@ -44,7 +44,7 @@ const floatingButtonVariants = cva(
   },
 );
 
-const positionVariants = cva("fixed z-1000", {
+const positionVariants = cva("fixed z-7732", {
   variants: {
     position: {
       "bottom-right": "right-24 bottom-24",
@@ -69,6 +69,20 @@ const styles = css`
 
   :host([hidden]) {
     display: none;
+  }
+
+  @keyframes ledger-floating-button-logo-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .floating-button-logo-fade-in {
+    animation: ledger-floating-button-logo-fade-in 220ms ease-out both;
+    animation-delay: 60ms;
   }
 `;
 
@@ -250,17 +264,21 @@ export class LedgerFloatingButton extends LitElement {
         @click=${this.handleClick}
         aria-label=${ariaLabel}
       >
-        <ledger-icon
-          type="ledger"
-          size=${iconSize}
-          fillColor="white"
-        ></ledger-icon>
-        ${this.variant === "compact"
-          ? html`<span
-              class="shrink-0 leading-normal font-medium text-white not-italic"
-              >${buttonLabel}</span
-            >`
-          : nothing}
+        <span
+          class="floating-button-logo-fade-in inline-flex items-center justify-center gap-8"
+        >
+          <ledger-icon
+            type="ledger"
+            size=${iconSize}
+            fillColor="white"
+          ></ledger-icon>
+          ${this.variant === "compact"
+            ? html`<span
+                class="shrink-0 leading-normal font-medium text-white not-italic"
+                >${buttonLabel}</span
+              >`
+            : nothing}
+        </span>
       </button>
     `;
   }

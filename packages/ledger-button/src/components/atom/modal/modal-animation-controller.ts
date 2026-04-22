@@ -83,23 +83,29 @@ export class ModalAnimationController implements ReactiveController {
     elements: AnimationElements,
     targetRect: DOMRect,
     position?: FloatingButtonPosition,
+    onLanded?: () => void,
   ): Promise<void> {
-    await this.morphAnimation.morphClose(
-      elements.container,
-      targetRect,
-      position,
-    );
-
-    await new Promise<void>((resolve) => {
+    const backdropFade = new Promise<void>((resolve) => {
       this.backdropAnimation = animate(
         elements.backdrop,
         { opacity: [1, 0] },
         {
           duration: ANIMATION_DELAY / 1000,
+          ease: "easeOut",
           onComplete: () => resolve(),
         },
       );
     });
+
+    await Promise.all([
+      this.morphAnimation.morphClose(
+        elements.container,
+        targetRect,
+        position,
+        onLanded,
+      ),
+      backdropFade,
+    ]);
 
     elements.wrapper.classList.remove("modal-wrapper--open");
     this.backdropAnimation = null;

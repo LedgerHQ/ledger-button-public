@@ -12,6 +12,13 @@ import {
 // down for easier inspection. Set to 1 for normal playback.
 const DEBUG_SLOWDOWN = 1.5;
 
+/**
+ * Debug helper: when true, the morph never fades out and `morphClose`
+ * never resolves, so the modal stays frozen at its final state for
+ * inspection in DevTools. Set to false for normal playback.
+ */
+const DEBUG_KEEP_VISIBLE = false;
+
 // Phase 1: Content Fade
 /** How long the modal content (toolbar + status) fades to transparent */
 const CONTENT_FADE_DURATION = 0.26 * DEBUG_SLOWDOWN;
@@ -33,8 +40,21 @@ const PHASE2_PHASE3_OVERLAP = 0.3 * DEBUG_SLOWDOWN;
 const MOVE_DURATION = 0.6 * DEBUG_SLOWDOWN;
 /** Easing applied to the parameter t in [0, 1] driving the Bezier */
 const MOVE_EASING: Easing = [0.33, 0, 0.2, 1];
-/** Quick fade-out after the move settles */
-const SETTLE_FADE_DURATION = 0.12 * DEBUG_SLOWDOWN;
+/**
+ * Fraction of MOVE_DURATION over which the shape morph (scale + border
+ * radius) completes. The bezier translate keeps running until the end, so
+ * the last (1 - MORPH_FINISH_RATIO) of the trajectory is a fully-formed
+ * pill gliding into the floating-button slot.
+ */
+const MORPH_FINISH_RATIO = 0.6;
+/**
+ * The morph used to fade itself out after the bezier move landed. We
+ * now leave the morphed pill in place at the floating-button slot and
+ * let the real `<ledger-floating-button>` (rendered above the modal
+ * z-index) take over the same pixels: the swap is invisible, and the
+ * Ledger logo fades in inside the button.
+ */
+const POST_LANDING_HOLD_DURATION = 0 * DEBUG_SLOWDOWN;
 
 /** Default position used when the caller does not specify one */
 const DEFAULT_POSITION: FloatingButtonPosition = "bottom-right";
@@ -42,33 +62,53 @@ const DEFAULT_POSITION: FloatingButtonPosition = "bottom-right";
 // Computed phase start times (seconds from morphClose start)
 const PHASE2_START = CONTENT_FADE_DURATION - MORPH_OVERLAP;
 const PHASE3_START = PHASE2_START + SCALE_DOWN_DURATION - PHASE2_PHASE3_OVERLAP;
-const TOTAL_DURATION = PHASE3_START + MOVE_DURATION + SETTLE_FADE_DURATION;
+const TOTAL_DURATION =
+  PHASE3_START + MOVE_DURATION + POST_LANDING_HOLD_DURATION;
 
 /**
- * Phases 2 and 3 run concurrently (phase 3 starts at phase 2's midpoint).
- * To avoid the two animations fighting over the same CSS `transform`
- * property, each phase writes to a disjoint CSS surface:
+ * All transform animations share a single
+ * `transformState = { tx, ty, sx, sy }` object and a single render
+ * function that writes `style.transform` once per frame as
+ * `translate(...) scale(...)`. Animations only mutate the shared state
+ * and call the render function:
  *
- * - Phase 2 animates the `scale` CSS property (via Motion).
- * - Phase 3 writes the `translate` CSS property and `borderRadius` in its
- *   `onUpdate`, and issues a separate Motion animation that retargets
- *   `scale` to the final value. Motion naturally picks up the in-flight
- *   scale value, so phase 2's animation is seamlessly superseded without
- *   any manual stop/read/resume dance.
+ * - The scale animation is a single keyframe animation:
+ *     `(sx, sy)` goes from `(1, 1) → (intermediateScaleX, intermediateScaleY)
+ *      → (finalScaleX, finalScaleY)`,
+ *   with the intermediate keyframe placed so that the first leg lasts
+ *   SCALE_DOWN_DURATION and the second leg fits within
+ *   `MOVE_DURATION * MORPH_FINISH_RATIO`. Using one animation
+ *   sidesteps any race or cancel-handoff between two concurrent
+ *   tweens writing to the same property.
+ *   `intermediateScale{X,Y}` is non-uniform, chosen so that the
+ *   intermediate visual aspect ratio already matches the target
+ *   (so the second leg only does a tiny uniform zoom and never has
+ *   to morph the box from a rectangle into a square at the end).
+ * - The bezier `move` drives `(tx, ty)` in its `onUpdate`, then
+ *   re-renders. So translate and scale always go through the SAME
+ *   `applyTransform` write, never clobber each other.
+ * - A separate animation interpolates an elliptical `borderRadius`
+ *   and writes it to the container in its `onUpdate`
+ *   (`borderRadius: "${rx}px / ${ry}px"`).
  *
- * This mirrors the phase 1 ↔ phase 2 overlap, which already works because
- * they target disjoint properties (`opacity` on children vs `scale` on the
- * container).
+ * The scale and radius animations finish early (so they're done at
+ * `MORPH_FINISH_RATIO` of the move) — the bezier translate carries
+ * an already-formed pill the rest of the way.
  */
+type TransformState = { tx: number; ty: number; sx: number; sy: number };
+
 export class MorphAnimation {
   private animations: AnimationInstance[] = [];
+  private transformState: TransformState = { tx: 0, ty: 0, sx: 1, sy: 1 };
 
   async morphClose(
     container: HTMLElement,
     targetRect: DOMRect,
     position: FloatingButtonPosition = DEFAULT_POSITION,
+    onLanded?: () => void,
   ): Promise<void> {
     this.cancel();
+    this.transformState = { tx: 0, ty: 0, sx: 1, sy: 1 };
 
     const containerRect = container.getBoundingClientRect();
 
@@ -79,22 +119,67 @@ export class MorphAnimation {
 
     const deltaX = targetCenterX - containerCenterX;
     const deltaY = targetCenterY - containerCenterY;
-    const finalScale = targetRect.width / containerRect.width;
-    const finalBorderRadiusPx = containerRect.width / 2;
+    // Non-uniform scale so the visual end size matches targetRect exactly
+    // (the modal's source aspect ratio is generally not 1:1).
+    const finalScaleX = targetRect.width / containerRect.width;
+    const finalScaleY = targetRect.height / containerRect.height;
+    // Intermediate scale: keep the visual width at SCALE_DOWN_TARGET *
+    // containerRect.width (so phase 2 still feels like a "shrink"), but
+    // pick the y-scale so the intermediate visual aspect ratio already
+    // matches the target. That way the final keyframe only needs to do a
+    // tiny uniform zoom to land exactly on targetRect.{width,height},
+    // avoiding a visible rectangle → square morph at the very end.
+    const intermediateScaleX = SCALE_DOWN_TARGET;
+    const intermediateScaleY =
+      SCALE_DOWN_TARGET *
+      (containerRect.width / containerRect.height) *
+      (targetRect.height / targetRect.width);
+    // Elliptical border radius. Visual radius after non-uniform scale is
+    // preRadius * scaleAxis, so to land at a perfect circle of diameter
+    // targetRect.{width,height} the pre-scale radii must be:
+    //   rxPre = (targetRect.width  / 2) / finalScaleX = containerRect.width  / 2
+    //   ryPre = (targetRect.height / 2) / finalScaleY = containerRect.height / 2
+    const finalRadiusXPx = containerRect.width / 2;
+    const finalRadiusYPx = containerRect.height / 2;
     const controlPoints = getMorphControlPoints(position, deltaX, deltaY);
 
+    // Single keyframe scale animation that spans phase 2 + phase 3.
+    // Lands at (finalScaleX, finalScaleY) when the morph should finish,
+    // i.e. at PHASE3_START + MOVE_DURATION * MORPH_FINISH_RATIO.
+    const scaleTotalDuration =
+      PHASE3_START + MOVE_DURATION * MORPH_FINISH_RATIO - PHASE2_START;
+    const scaleMidFraction = SCALE_DOWN_DURATION / scaleTotalDuration;
+
     this.startPhase1(container);
-    this.schedulePhase2(container, PHASE2_START);
+    this.scheduleScale(
+      container,
+      intermediateScaleX,
+      intermediateScaleY,
+      finalScaleX,
+      finalScaleY,
+      PHASE2_START,
+      scaleTotalDuration,
+      scaleMidFraction,
+    );
     this.schedulePhase3(
       container,
       controlPoints,
-      finalScale,
-      finalBorderRadiusPx,
+      finalRadiusXPx,
+      finalRadiusYPx,
       PHASE3_START,
+      onLanded,
     );
 
     await this.delay(TOTAL_DURATION);
     this.animations = [];
+
+    if (DEBUG_KEEP_VISIBLE) {
+      // Park forever so the controller never tears down the wrapper.
+      // Refresh the page to reset.
+      await new Promise<void>(() => {
+        /* never resolves */
+      });
+    }
   }
 
   cancel(): void {
@@ -116,16 +201,28 @@ export class MorphAnimation {
     }
   }
 
-  private schedulePhase2(container: HTMLElement, startAt: number): void {
+  private scheduleScale(
+    container: HTMLElement,
+    intermediateScaleX: number,
+    intermediateScaleY: number,
+    finalScaleX: number,
+    finalScaleY: number,
+    startAt: number,
+    totalDuration: number,
+    midTimeFraction: number,
+  ): void {
     setTimeout(() => {
       const anim = animate(
-        container,
+        this.transformState,
         {
-          scale: SCALE_DOWN_TARGET,
+          sx: [1, intermediateScaleX, finalScaleX],
+          sy: [1, intermediateScaleY, finalScaleY],
         },
         {
-          duration: SCALE_DOWN_DURATION,
-          ease: SCALE_DOWN_EASING,
+          duration: totalDuration,
+          times: [0, midTimeFraction, 1],
+          ease: [SCALE_DOWN_EASING, SCALE_DOWN_EASING],
+          onUpdate: () => this.applyTransform(container),
         },
       );
       this.animations.push(anim);
@@ -135,26 +232,32 @@ export class MorphAnimation {
   private schedulePhase3(
     container: HTMLElement,
     controlPoints: MorphControlPoints,
-    finalScale: number,
-    finalBorderRadiusPx: number,
+    finalRadiusXPx: number,
+    finalRadiusYPx: number,
     startAt: number,
+    onLanded?: () => void,
   ): void {
     setTimeout(() => {
       const startBorderRadiusPx = readCurrentBorderRadiusPx(container);
       const progress = { t: 0 };
+      const radiusState = {
+        rx: startBorderRadiusPx,
+        ry: startBorderRadiusPx,
+      };
+      const shapeDuration = MOVE_DURATION * MORPH_FINISH_RATIO;
 
-      // Retargets `scale` to the final value. Motion seamlessly takes over
-      // from phase 2's in-flight scale animation (same element, same CSS
-      // property) without needing to stop/read it manually.
-      const scaleAnim = animate(
-        container,
-        { scale: finalScale },
+      const radiusAnim = animate(
+        radiusState,
+        { rx: finalRadiusXPx, ry: finalRadiusYPx },
         {
-          duration: MOVE_DURATION,
-          ease: MOVE_EASING,
+          duration: shapeDuration,
+          ease: "easeOut",
+          onUpdate: () => {
+            container.style.borderRadius = `${radiusState.rx}px / ${radiusState.ry}px`;
+          },
         },
       );
-      this.animations.push(scaleAnim);
+      this.animations.push(radiusAnim);
 
       const move = animate(
         progress,
@@ -163,29 +266,23 @@ export class MorphAnimation {
           duration: MOVE_DURATION,
           ease: MOVE_EASING,
           onUpdate: () => {
-            const t = progress.t;
             const point = cubicBezier(
-              t,
+              progress.t,
               controlPoints.p0,
               controlPoints.p1,
               controlPoints.p2,
               controlPoints.p3,
             );
-            const radius = lerp(startBorderRadiusPx, finalBorderRadiusPx, t);
-            container.style.translate = `${point.x}px ${point.y}px`;
-            container.style.borderRadius = `${radius}px`;
+            this.transformState.tx = point.x;
+            this.transformState.ty = point.y;
+            this.applyTransform(container);
           },
         },
       );
       this.animations.push(move);
 
       setTimeout(() => {
-        const settleFade = animate(
-          container,
-          { opacity: 0 },
-          { duration: SETTLE_FADE_DURATION, ease: "easeOut" },
-        );
-        this.animations.push(settleFade);
+        onLanded?.();
       }, MOVE_DURATION * 1000);
     }, startAt * 1000);
   }
@@ -193,10 +290,18 @@ export class MorphAnimation {
   private delay(seconds: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
   }
-}
 
-function lerp(start: number, end: number, t: number): number {
-  return start + (end - start) * t;
+  /**
+   * Single source of truth for the container's transform. Always writes
+   * `translate(...) scale(...)` so that phase 2 (uniform scale) and
+   * phase 3 (translate + non-uniform scale) cannot clobber each other,
+   * and no individual CSS transform property (`scale`, `translate`) is
+   * ever read or set independently.
+   */
+  private applyTransform(container: HTMLElement): void {
+    const { tx, ty, sx, sy } = this.transformState;
+    container.style.transform = `translate(${tx}px, ${ty}px) scale(${sx}, ${sy})`;
+  }
 }
 
 function readCurrentBorderRadiusPx(element: HTMLElement): number {
