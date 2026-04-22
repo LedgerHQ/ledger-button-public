@@ -5,6 +5,8 @@ import { CoreContext } from "../../../context/core-context.js";
 
 const MODAL_OPEN_EVENT = "ledger-core-modal-open";
 const MODAL_CLOSE_EVENT = "ledger-core-modal-close";
+const MODAL_ANIMATION_COMPLETE_EVENT = "ledger-core-modal-animation-complete";
+const MODAL_MORPH_LANDED_EVENT = "ledger-core-modal-morph-landed";
 
 const TOOLTIP_DISMISS_DELAY_MS = 300;
 const POST_CLOSE_APPEARANCE_DELAY_MS = 500;
@@ -22,6 +24,7 @@ export class FloatingButtonController implements ReactiveController {
   dismissingTooltipContent: string | null = null;
 
   private _modalIsOpen = false;
+  private _modalCloseAnimationInProgress = false;
   private _pendingIncreasedWhileModalOpen = false;
   private _previousPendingCount: number | undefined;
   private _dismissTimer: ReturnType<typeof setTimeout> | null = null;
@@ -41,11 +44,27 @@ export class FloatingButtonController implements ReactiveController {
     this.subscribeToPendingTransactions();
     window.addEventListener(MODAL_OPEN_EVENT, this.handleModalOpen);
     window.addEventListener(MODAL_CLOSE_EVENT, this.handleModalClose);
+    window.addEventListener(
+      MODAL_ANIMATION_COMPLETE_EVENT,
+      this.handleModalAnimationComplete,
+    );
+    window.addEventListener(
+      MODAL_MORPH_LANDED_EVENT,
+      this.handleModalAnimationComplete,
+    );
   }
 
   hostDisconnected(): void {
     window.removeEventListener(MODAL_OPEN_EVENT, this.handleModalOpen);
     window.removeEventListener(MODAL_CLOSE_EVENT, this.handleModalClose);
+    window.removeEventListener(
+      MODAL_ANIMATION_COMPLETE_EVENT,
+      this.handleModalAnimationComplete,
+    );
+    window.removeEventListener(
+      MODAL_MORPH_LANDED_EVENT,
+      this.handleModalAnimationComplete,
+    );
     this.contextSubscription?.unsubscribe();
     this.pendingTxSubscription?.unsubscribe();
     this.validatedCelebrationOpen = false;
@@ -64,10 +83,6 @@ export class FloatingButtonController implements ReactiveController {
 
   get modalIsOpen(): boolean {
     return this._modalIsOpen;
-  }
-
-  get shouldShow(): boolean {
-    return this.isConnected;
   }
 
   handleTooltipAutoHide(fallbackText: string): void {
@@ -113,10 +128,13 @@ export class FloatingButtonController implements ReactiveController {
 
   private handleModalOpen = (): void => {
     this._modalIsOpen = true;
+    this._modalCloseAnimationInProgress = false;
+    this.host.requestUpdate();
   };
 
   private handleModalClose = (): void => {
     this._modalIsOpen = false;
+    this._modalCloseAnimationInProgress = true;
     const shouldShowPostClose =
       this._pendingIncreasedWhileModalOpen &&
       this.pendingTransactionCount > 0;
@@ -132,6 +150,11 @@ export class FloatingButtonController implements ReactiveController {
     } else {
       this.host.requestUpdate();
     }
+  };
+
+  private handleModalAnimationComplete = (): void => {
+    this._modalCloseAnimationInProgress = false;
+    this.host.requestUpdate();
   };
 
   private subscribeToContext() {
@@ -196,5 +219,13 @@ export class FloatingButtonController implements ReactiveController {
     }
 
     this.isConnected = nextConnected;
+  }
+
+  get shouldShow(): boolean {
+    return (
+      this.isConnected &&
+      !this._modalIsOpen &&
+      !this._modalCloseAnimationInProgress
+    );
   }
 }

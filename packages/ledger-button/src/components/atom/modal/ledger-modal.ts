@@ -220,6 +220,7 @@ export class LedgerModal extends LitElement {
         elements,
         this.morphTargetRect,
         this.morphTargetPosition,
+        () => this.dispatchMorphLanded(),
       );
       this.morphTargetRect = null;
       this.morphTargetPosition = undefined;
@@ -235,6 +236,15 @@ export class LedgerModal extends LitElement {
   private dispatchAnimationComplete(): void {
     this.dispatchEvent(
       new CustomEvent("modal-animation-complete", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private dispatchMorphLanded(): void {
+    this.dispatchEvent(
+      new CustomEvent("modal-morph-landed", {
         bubbles: true,
         composed: true,
       }),
@@ -348,5 +358,6 @@ declare global {
     "modal-opened": CustomEvent<void>;
     "modal-closed": CustomEvent<void>;
     "modal-animation-complete": CustomEvent<void>;
+    "modal-morph-landed": CustomEvent<void>;
   }
 }

@@ -5,7 +5,6 @@ import "../../organism/status/ledger-status";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
-import { animate } from "motion";
 
 import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
 import type { LedgerModal } from "./ledger-modal";
@@ -67,99 +66,6 @@ function computeTargetRect(position: FloatingButtonPosition): DOMRect {
   return new DOMRect(x, y, size, size);
 }
 
-function positionToCSS(position: FloatingButtonPosition): string {
-  switch (position) {
-    case "bottom-right":
-      return `bottom: ${FLOATING_BUTTON_OFFSET}px; right: ${FLOATING_BUTTON_OFFSET}px;`;
-    case "bottom-left":
-      return `bottom: ${FLOATING_BUTTON_OFFSET}px; left: ${FLOATING_BUTTON_OFFSET}px;`;
-    case "bottom-center":
-      return `bottom: ${FLOATING_BUTTON_OFFSET}px; left: 50%; transform: translateX(-50%);`;
-    case "top-right":
-      return `top: ${FLOATING_BUTTON_OFFSET}px; right: ${FLOATING_BUTTON_OFFSET}px;`;
-    case "top-left":
-      return `top: ${FLOATING_BUTTON_OFFSET}px; left: ${FLOATING_BUTTON_OFFSET}px;`;
-    case "top-center":
-      return `top: ${FLOATING_BUTTON_OFFSET}px; left: 50%; transform: translateX(-50%);`;
-    case "middle-right":
-      return `top: 50%; right: ${FLOATING_BUTTON_OFFSET}px; transform: translateY(-50%);`;
-    default:
-      return `bottom: ${FLOATING_BUTTON_OFFSET}px; right: ${FLOATING_BUTTON_OFFSET}px;`;
-  }
-}
-
-function moveFloatingTarget(position: FloatingButtonPosition) {
-  const target = document.getElementById("floating-target");
-  if (!target) return;
-  target.style.cssText = `
-    position: fixed;
-    ${positionToCSS(position)}
-    width: ${FLOATING_BUTTON_SIZE}px;
-    height: ${FLOATING_BUTTON_SIZE}px;
-    border-radius: 9999px;
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    z-index: 9999;
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  `;
-}
-
-function renderFloatingButtonTarget() {
-  return html`
-    <div
-      id="floating-target"
-      style="
-        position: fixed;
-        bottom: ${FLOATING_BUTTON_OFFSET}px;
-        right: ${FLOATING_BUTTON_OFFSET}px;
-        width: ${FLOATING_BUTTON_SIZE}px;
-        height: ${FLOATING_BUTTON_SIZE}px;
-        border-radius: 9999px;
-        background: black;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        z-index: 9999;
-        border: 1px solid rgba(255,255,255,0.15);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      "
-    >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-        <rect
-          x="3"
-          y="3"
-          width="18"
-          height="18"
-          rx="3"
-          fill="none"
-          stroke="white"
-          stroke-width="1.5"
-        />
-        <rect x="7" y="15" width="4" height="4" rx="1" fill="white" />
-      </svg>
-    </div>
-  `;
-}
-
-function fadeInFloatingTarget() {
-  const target = document.getElementById("floating-target");
-  if (target) {
-    animate(target, { opacity: [0, 1] }, { duration: 0.39, ease: "easeOut" });
-  }
-}
-
-function resetFloatingTarget() {
-  const target = document.getElementById("floating-target");
-  if (target) {
-    target.style.opacity = "0";
-  }
-}
-
 let currentPosition: FloatingButtonPosition = "bottom-right";
 
 const meta: Meta = {
@@ -196,8 +102,6 @@ export const AllPositionsGrid: Story = {
             <ledger-button
               @click=${() => {
                 currentPosition = position;
-                resetFloatingTarget();
-                moveFloatingTarget(position);
                 const modal = document.querySelector(
                   "#grid-modal",
                 ) as LedgerModal | null;
@@ -226,7 +130,6 @@ export const AllPositionsGrid: Story = {
                   computeTargetRect(currentPosition),
                   currentPosition,
                 );
-                setTimeout(fadeInFloatingTarget, 800);
               }
             }}
           ></ledger-toolbar>
@@ -246,14 +149,11 @@ export const AllPositionsGrid: Story = {
                   computeTargetRect(currentPosition),
                   currentPosition,
                 );
-                setTimeout(fadeInFloatingTarget, 800);
               }
             }}
           ></ledger-status>
         </div>
       </ledger-modal>
-
-      ${renderFloatingButtonTarget()}
     `;
   },
 };
