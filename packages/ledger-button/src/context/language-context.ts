@@ -26,7 +26,6 @@ export class LanguageContext extends EventTarget {
     if (hasChanged) {
       this.dispatchEvent(new Event(LanguageContext.LANGUAGE_CHANGE));
     }
-    this._currentLanguage = languageKey;
     const persist = options?.persist !== false;
     if (!persist || !this.core) {
       return;
