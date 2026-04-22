@@ -130,8 +130,10 @@ export class LedgerModal extends LitElement {
   private animationController = new ModalAnimationController(this);
   private focusController = new ModalFocusController(this);
   private scrollLockController = new ModalScrollLockController(this);
-  private morphTargetRect: DOMRect | null = null;
-  private morphTargetPosition: FloatingButtonPosition | undefined = undefined;
+  private pendingMorph: {
+    targetRect: DOMRect;
+    position?: FloatingButtonPosition;
+  } | null = null;
 
   public openModal(mode: ModalMode = "center"): void {
     this.mode = mode;
@@ -143,29 +145,19 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  public closeModal(): void {
+  /**
+   * Trigger the close animation. Pass `morph` to fly the modal into the
+   * floating-button slot (used at the end of the connection-success
+   * flow); otherwise the modal just fades / slides out.
+   */
+  public closeModal(options?: {
+    morph?: { targetRect: DOMRect; position?: FloatingButtonPosition };
+  }): void {
     if (this.isClosing) {
       return;
     }
 
-    this.dispatchEvent(
-      new CustomEvent("modal-closed", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
-  }
-
-  public closeModalWithMorph(
-    targetRect: DOMRect,
-    position?: FloatingButtonPosition,
-  ): void {
-    if (this.isClosing) {
-      return;
-    }
-
-    this.morphTargetRect = targetRect;
-    this.morphTargetPosition = position;
+    this.pendingMorph = options?.morph ?? null;
     this.dispatchEvent(
       new CustomEvent("modal-closed", {
         bubbles: true,
@@ -215,17 +207,25 @@ export class LedgerModal extends LitElement {
       wrapper: this.wrapperElement,
     };
 
-    if (this.morphTargetRect) {
+    const morph = this.pendingMorph;
+    this.pendingMorph = null;
+
+    if (morph) {
+      // The morph close has two interesting moments:
+      //  - `onLanded`: the bezier reached the floating-button slot, which
+      //    is the cue for the real `<ledger-floating-button>` to take
+      //    over the same pixels.
+      //  - the await below: the morph fully resolved; safe to tear down
+      //    navigation state and report the close as done.
       await this.animationController.animateMorphClose(
         elements,
-        this.morphTargetRect,
-        this.morphTargetPosition,
-        () => this.dispatchMorphLanded(),
+        morph.targetRect,
+        morph.position,
+        () => this.dispatchCloseFinished(),
       );
-      this.morphTargetRect = null;
-      this.morphTargetPosition = undefined;
     } else {
       await this.animationController.animateClose(elements, this.mode);
+      this.dispatchCloseFinished();
     }
 
     this.scrollLockController.unlock();
@@ -242,9 +242,15 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  private dispatchMorphLanded(): void {
+  /**
+   * Fired at the moment the floating button can take over from the modal:
+   *  - regular close: at the end of the close animation.
+   *  - morph close:   when the morphed pill lands in the FB slot (before
+   *                   the animation fully resolves).
+   */
+  private dispatchCloseFinished(): void {
     this.dispatchEvent(
-      new CustomEvent("modal-morph-landed", {
+      new CustomEvent("modal-close-finished", {
         bubbles: true,
         composed: true,
       }),
@@ -358,6 +364,6 @@ declare global {
     "modal-opened": CustomEvent<void>;
     "modal-closed": CustomEvent<void>;
     "modal-animation-complete": CustomEvent<void>;
-    "modal-morph-landed": CustomEvent<void>;
+    "modal-close-finished": CustomEvent<void>;
   }
 }

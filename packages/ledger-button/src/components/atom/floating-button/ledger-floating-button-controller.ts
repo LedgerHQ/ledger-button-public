@@ -5,8 +5,12 @@ import { CoreContext } from "../../../context/core-context.js";
 
 const MODAL_OPEN_EVENT = "ledger-core-modal-open";
 const MODAL_CLOSE_EVENT = "ledger-core-modal-close";
-const MODAL_ANIMATION_COMPLETE_EVENT = "ledger-core-modal-animation-complete";
-const MODAL_MORPH_LANDED_EVENT = "ledger-core-modal-morph-landed";
+/**
+ * Single "the FB can take over now" cue. Fires at morph-landed for
+ * morph closes and at animation-complete for regular closes — see
+ * `RootNavigationComponent#handleModalCloseFinished`.
+ */
+const MODAL_CLOSE_FINISHED_EVENT = "ledger-core-modal-close-finished";
 
 const TOOLTIP_DISMISS_DELAY_MS = 300;
 const POST_CLOSE_APPEARANCE_DELAY_MS = 500;
@@ -45,12 +49,8 @@ export class FloatingButtonController implements ReactiveController {
     window.addEventListener(MODAL_OPEN_EVENT, this.handleModalOpen);
     window.addEventListener(MODAL_CLOSE_EVENT, this.handleModalClose);
     window.addEventListener(
-      MODAL_ANIMATION_COMPLETE_EVENT,
-      this.handleModalAnimationComplete,
-    );
-    window.addEventListener(
-      MODAL_MORPH_LANDED_EVENT,
-      this.handleModalAnimationComplete,
+      MODAL_CLOSE_FINISHED_EVENT,
+      this.handleModalCloseFinished,
     );
   }
 
@@ -58,12 +58,8 @@ export class FloatingButtonController implements ReactiveController {
     window.removeEventListener(MODAL_OPEN_EVENT, this.handleModalOpen);
     window.removeEventListener(MODAL_CLOSE_EVENT, this.handleModalClose);
     window.removeEventListener(
-      MODAL_ANIMATION_COMPLETE_EVENT,
-      this.handleModalAnimationComplete,
-    );
-    window.removeEventListener(
-      MODAL_MORPH_LANDED_EVENT,
-      this.handleModalAnimationComplete,
+      MODAL_CLOSE_FINISHED_EVENT,
+      this.handleModalCloseFinished,
     );
     this.contextSubscription?.unsubscribe();
     this.pendingTxSubscription?.unsubscribe();
@@ -152,7 +148,7 @@ export class FloatingButtonController implements ReactiveController {
     }
   };
 
-  private handleModalAnimationComplete = (): void => {
+  private handleModalCloseFinished = (): void => {
     this._modalCloseAnimationInProgress = false;
     this.host.requestUpdate();
   };

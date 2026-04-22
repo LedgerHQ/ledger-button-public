@@ -6,11 +6,9 @@ import "../../organism/status/ledger-status";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
-import type { LedgerModal } from "./ledger-modal";
-
-const FLOATING_BUTTON_SIZE = 64;
-const FLOATING_BUTTON_OFFSET = 24;
+import { computeFloatingButtonRect } from "../floating-button/floating-button-rect.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
+import type { LedgerModal } from "./ledger-modal.js";
 
 const ALL_POSITIONS: FloatingButtonPosition[] = [
   "bottom-right",
@@ -21,50 +19,6 @@ const ALL_POSITIONS: FloatingButtonPosition[] = [
   "top-center",
   "middle-right",
 ];
-
-function computeTargetRect(position: FloatingButtonPosition): DOMRect {
-  const size = FLOATING_BUTTON_SIZE;
-  const offset = FLOATING_BUTTON_OFFSET;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  let x: number;
-  let y: number;
-
-  switch (position) {
-    case "bottom-left":
-      x = offset;
-      y = vh - offset - size;
-      break;
-    case "bottom-center":
-      x = (vw - size) / 2;
-      y = vh - offset - size;
-      break;
-    case "top-right":
-      x = vw - offset - size;
-      y = offset;
-      break;
-    case "top-left":
-      x = offset;
-      y = offset;
-      break;
-    case "top-center":
-      x = (vw - size) / 2;
-      y = offset;
-      break;
-    case "middle-right":
-      x = vw - offset - size;
-      y = (vh - size) / 2;
-      break;
-    case "bottom-right":
-    default:
-      x = vw - offset - size;
-      y = vh - offset - size;
-      break;
-  }
-
-  return new DOMRect(x, y, size, size);
-}
 
 let currentPosition: FloatingButtonPosition = "bottom-right";
 
@@ -121,17 +75,7 @@ export const AllPositionsGrid: Story = {
           <ledger-toolbar
             title=""
             .canClose=${true}
-            @ledger-toolbar-close=${() => {
-              const modal = document.querySelector(
-                "#grid-modal",
-              ) as LedgerModal | null;
-              if (modal) {
-                modal.closeModalWithMorph(
-                  computeTargetRect(currentPosition),
-                  currentPosition,
-                );
-              }
-            }}
+            @ledger-toolbar-close=${closeWithMorph}
           ></ledger-toolbar>
         </div>
         <div style="padding: 24px; padding-top: 0;">
@@ -140,20 +84,21 @@ export const AllPositionsGrid: Story = {
             title="You are now connected"
             primary-button-label="Close"
             secondary-button-label=""
-            @status-action=${() => {
-              const modal = document.querySelector(
-                "#grid-modal",
-              ) as LedgerModal | null;
-              if (modal) {
-                modal.closeModalWithMorph(
-                  computeTargetRect(currentPosition),
-                  currentPosition,
-                );
-              }
-            }}
+            @status-action=${closeWithMorph}
           ></ledger-status>
         </div>
       </ledger-modal>
     `;
   },
 };
+
+function closeWithMorph(): void {
+  const modal = document.querySelector("#grid-modal") as LedgerModal | null;
+  if (!modal) return;
+  modal.closeModal({
+    morph: {
+      targetRect: computeFloatingButtonRect(currentPosition),
+      position: currentPosition,
+    },
+  });
+}
