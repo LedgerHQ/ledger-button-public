@@ -8,10 +8,6 @@ import {
   type MorphControlPoints,
 } from "./morph-path.js";
 
-// Debug helper: multiply every phase duration to slow the whole animation
-// down for easier inspection. Set to 1 for normal playback.
-const DEBUG_SLOWDOWN = 1.5;
-
 /**
  * Debug helper: when true, the morph never fades out and `morphClose`
  * never resolves, so the modal stays frozen at its final state for
@@ -21,13 +17,13 @@ const DEBUG_KEEP_VISIBLE = false;
 
 // Phase 1: Content Fade
 /** How long the modal content (toolbar + status) fades to transparent */
-const CONTENT_FADE_DURATION = 0.26 * DEBUG_SLOWDOWN;
+const CONTENT_FADE_DURATION = 0.39;
 
 // Phase 2: Scale Down (overlaps with end of phase 1)
 /** How early phase 2 starts before phase 1 ends */
-const MORPH_OVERLAP = 0.1 * DEBUG_SLOWDOWN;
+const MORPH_OVERLAP = 0.15;
 /** How long the modal shrinks in place */
-const SCALE_DOWN_DURATION = 0.3 * DEBUG_SLOWDOWN;
+const SCALE_DOWN_DURATION = 0.45;
 /** Target scale when the shrink ends (before the move) */
 const SCALE_DOWN_TARGET = 0.15;
 /** Easing for the scale-down phase */
@@ -35,9 +31,9 @@ const SCALE_DOWN_EASING: Easing = [0.4, 0, 0.2, 1];
 
 // Phase 3: Bezier move (overlaps with end of phase 2)
 /** How early phase 3 starts before phase 2 ends */
-const PHASE2_PHASE3_OVERLAP = 0.3 * DEBUG_SLOWDOWN;
+const PHASE2_PHASE3_OVERLAP = 0.45;
 /** How long the Bezier trajectory takes */
-const MOVE_DURATION = 0.6 * DEBUG_SLOWDOWN;
+const MOVE_DURATION = 0.9;
 /** Easing applied to the parameter t in [0, 1] driving the Bezier */
 const MOVE_EASING: Easing = [0.33, 0, 0.2, 1];
 /**
@@ -54,7 +50,7 @@ const MORPH_FINISH_RATIO = 0.6;
  * z-index) take over the same pixels: the swap is invisible, and the
  * Ledger logo fades in inside the button.
  */
-const POST_LANDING_HOLD_DURATION = 0 * DEBUG_SLOWDOWN;
+const POST_LANDING_HOLD_DURATION = 0;
 
 /** Default position used when the caller does not specify one */
 const DEFAULT_POSITION: FloatingButtonPosition = "bottom-right";
