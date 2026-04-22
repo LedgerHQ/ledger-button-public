@@ -5,6 +5,7 @@ import { customElement, property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
+import { computeFloatingButtonRect } from "../components/atom/floating-button/floating-button-rect.js";
 import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
 import {
   LedgerModal,
@@ -13,11 +14,12 @@ import {
 import type { WalletTransactionFeature } from "../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
+import type { CloseModalOptions, NavigationHost } from "./navigation.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
 @customElement("root-navigation-component")
-export class RootNavigationComponent extends LitElement {
+export class RootNavigationComponent extends LitElement implements NavigationHost {
   @consume({ context: coreContext })
   public coreContext!: CoreContext;
 
@@ -84,16 +86,18 @@ export class RootNavigationComponent extends LitElement {
     this.ledgerModal.openModal(mode);
   }
 
-  public closeModal() {
+  public closeModal(options?: CloseModalOptions): void {
     this.handleModalClose();
+    if (options?.morph) {
+      this.ledgerModal.closeModal({
+        morph: {
+          targetRect: this.findFloatingButtonRect(),
+          position: this.resolveFloatingButtonPosition(),
+        },
+      });
+      return;
+    }
     this.ledgerModal.closeModal();
-  }
-
-  public closeModalWithMorph(): void {
-    const targetRect = this.findFloatingButtonRect();
-    const position = this.resolveFloatingButtonPosition();
-    this.handleModalClose();
-    this.ledgerModal.closeModalWithMorph(targetRect, position);
   }
 
   // PRIVATE METHODS
@@ -128,17 +132,17 @@ export class RootNavigationComponent extends LitElement {
 
   private handleModalAnimationComplete() {
     this.rootNavigationController.handleModalClose();
-    window.dispatchEvent(
-      new CustomEvent("ledger-core-modal-animation-complete", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
   }
 
-  private handleModalMorphLanded() {
+  /**
+   * Single window event the floating-button controller listens to. Fires
+   * exactly once per modal close (at morph-landed for morph closes,
+   * at animation-complete for regular closes), so subscribers don't need
+   * to keep two listeners in sync.
+   */
+  private handleModalCloseFinished() {
     window.dispatchEvent(
-      new CustomEvent("ledger-core-modal-morph-landed", {
+      new CustomEvent("ledger-core-modal-close-finished", {
         bubbles: true,
         composed: true,
       }),
@@ -153,6 +157,11 @@ export class RootNavigationComponent extends LitElement {
     this.rootNavigationController.navigateToSettings();
   }
 
+  /**
+   * Prefer the live element's bounding rect (matches whatever the page
+   * actually painted) and fall back to the pure viewport-based
+   * computation when the FB isn't mounted yet.
+   */
   private findFloatingButtonRect(): DOMRect {
     const root = this.getRootNode() as ShadowRoot;
     const floatingButton = root?.querySelector("ledger-floating-button");
@@ -163,7 +172,7 @@ export class RootNavigationComponent extends LitElement {
         return rect;
       }
     }
-    return this.computeFloatingButtonRect();
+    return computeFloatingButtonRect(this.resolveFloatingButtonPosition());
   }
 
   private resolveFloatingButtonPosition(): FloatingButtonPosition {
@@ -173,52 +182,6 @@ export class RootNavigationComponent extends LitElement {
       | undefined;
     const position = appHost?.floatingButtonPosition;
     return position ? position : "bottom-right";
-  }
-
-  private computeFloatingButtonRect(): DOMRect {
-    const position = this.resolveFloatingButtonPosition();
-
-    const size = 64;
-    const offset = 24;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    let x: number;
-    let y: number;
-
-    switch (position) {
-      case "bottom-left":
-        x = offset;
-        y = vh - offset - size;
-        break;
-      case "bottom-center":
-        x = (vw - size) / 2;
-        y = vh - offset - size;
-        break;
-      case "top-right":
-        x = vw - offset - size;
-        y = offset;
-        break;
-      case "top-left":
-        x = offset;
-        y = offset;
-        break;
-      case "top-center":
-        x = (vw - size) / 2;
-        y = offset;
-        break;
-      case "middle-right":
-        x = vw - offset - size;
-        y = (vh - size) / 2;
-        break;
-      case "bottom-right":
-      default:
-        x = vw - offset - size;
-        y = vh - offset - size;
-        break;
-    }
-
-    return new DOMRect(x, y, size, size);
   }
 
   private goBack() {
@@ -253,7 +216,7 @@ export class RootNavigationComponent extends LitElement {
         @modal-opened=${this.handleModalOpen}
         @modal-closed=${this.handleModalClose}
         @modal-animation-complete=${this.handleModalAnimationComplete}
-        @modal-morph-landed=${this.handleModalMorphLanded}
+        @modal-close-finished=${this.handleModalCloseFinished}
       >
         <div slot="toolbar">
           <ledger-toolbar
@@ -288,7 +251,6 @@ declare global {
     "ledger-provider-close": CustomEvent;
     "ledger-core-modal-open": CustomEvent;
     "ledger-core-modal-close": CustomEvent;
-    "ledger-core-modal-animation-complete": CustomEvent;
-    "ledger-core-modal-morph-landed": CustomEvent;
+    "ledger-core-modal-close-finished": CustomEvent;
   }
 }

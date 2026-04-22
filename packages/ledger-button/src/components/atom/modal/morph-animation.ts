@@ -41,16 +41,13 @@ const MOVE_EASING: Easing = [0.33, 0, 0.2, 1];
  * radius) completes. The bezier translate keeps running until the end, so
  * the last (1 - MORPH_FINISH_RATIO) of the trajectory is a fully-formed
  * pill gliding into the floating-button slot.
+ *
+ * Once the bezier move finishes, the morphed pill is left in place at the
+ * floating-button slot and the real `<ledger-floating-button>` (rendered
+ * above the modal z-index) takes over the same pixels: the swap is
+ * invisible, and the Ledger logo fades in inside the button.
  */
 const MORPH_FINISH_RATIO = 0.6;
-/**
- * The morph used to fade itself out after the bezier move landed. We
- * now leave the morphed pill in place at the floating-button slot and
- * let the real `<ledger-floating-button>` (rendered above the modal
- * z-index) take over the same pixels: the swap is invisible, and the
- * Ledger logo fades in inside the button.
- */
-const POST_LANDING_HOLD_DURATION = 0;
 
 /** Default position used when the caller does not specify one */
 const DEFAULT_POSITION: FloatingButtonPosition = "bottom-right";
@@ -58,8 +55,7 @@ const DEFAULT_POSITION: FloatingButtonPosition = "bottom-right";
 // Computed phase start times (seconds from morphClose start)
 const PHASE2_START = CONTENT_FADE_DURATION - MORPH_OVERLAP;
 const PHASE3_START = PHASE2_START + SCALE_DOWN_DURATION - PHASE2_PHASE3_OVERLAP;
-const TOTAL_DURATION =
-  PHASE3_START + MOVE_DURATION + POST_LANDING_HOLD_DURATION;
+const TOTAL_DURATION = PHASE3_START + MOVE_DURATION;
 
 /**
  * All transform animations share a single
@@ -95,7 +91,10 @@ type TransformState = { tx: number; ty: number; sx: number; sy: number };
 
 export class MorphAnimation {
   private animations: AnimationInstance[] = [];
+  private timeouts: ReturnType<typeof setTimeout>[] = [];
+  private pendingDelayResolvers: Array<() => void> = [];
   private transformState: TransformState = { tx: 0, ty: 0, sx: 1, sy: 1 };
+  private cancelled = false;
 
   async morphClose(
     container: HTMLElement,
@@ -104,6 +103,7 @@ export class MorphAnimation {
     onLanded?: () => void,
   ): Promise<void> {
     this.cancel();
+    this.cancelled = false;
     this.transformState = { tx: 0, ty: 0, sx: 1, sy: 1 };
 
     const containerRect = container.getBoundingClientRect();
@@ -167,6 +167,9 @@ export class MorphAnimation {
     );
 
     await this.delay(TOTAL_DURATION);
+    if (this.cancelled) {
+      return;
+    }
     this.animations = [];
 
     if (DEBUG_KEEP_VISIBLE) {
@@ -179,10 +182,22 @@ export class MorphAnimation {
   }
 
   cancel(): void {
+    this.cancelled = true;
     for (const anim of this.animations) {
       anim.cancel();
     }
     this.animations = [];
+    for (const id of this.timeouts) {
+      clearTimeout(id);
+    }
+    this.timeouts = [];
+    // Unblock anyone awaiting `delay(...)` so morphClose resolves promptly
+    // and the caller can clean up.
+    const resolvers = this.pendingDelayResolvers;
+    this.pendingDelayResolvers = [];
+    for (const resolve of resolvers) {
+      resolve();
+    }
   }
 
   private startPhase1(container: HTMLElement): void {
@@ -207,7 +222,7 @@ export class MorphAnimation {
     totalDuration: number,
     midTimeFraction: number,
   ): void {
-    setTimeout(() => {
+    this.scheduleAt(startAt, () => {
       const anim = animate(
         this.transformState,
         {
@@ -222,7 +237,7 @@ export class MorphAnimation {
         },
       );
       this.animations.push(anim);
-    }, startAt * 1000);
+    });
   }
 
   private schedulePhase3(
@@ -233,7 +248,7 @@ export class MorphAnimation {
     startAt: number,
     onLanded?: () => void,
   ): void {
-    setTimeout(() => {
+    this.scheduleAt(startAt, () => {
       const startBorderRadiusPx = readCurrentBorderRadiusPx(container);
       const progress = { t: 0 };
       const radiusState = {
@@ -277,14 +292,39 @@ export class MorphAnimation {
       );
       this.animations.push(move);
 
-      setTimeout(() => {
+      this.scheduleAt(MOVE_DURATION, () => {
         onLanded?.();
-      }, MOVE_DURATION * 1000);
-    }, startAt * 1000);
+      });
+    });
   }
 
+  /**
+   * Track the timeout id so `cancel()` can clear it. Pending callbacks
+   * also early-return if the animation was cancelled before they fired,
+   * so we never start a new motion tween after cancellation.
+   */
+  private scheduleAt(seconds: number, callback: () => void): void {
+    const id = setTimeout(() => {
+      if (this.cancelled) return;
+      callback();
+    }, seconds * 1000);
+    this.timeouts.push(id);
+  }
+
+  /**
+   * Resolves either when `seconds` elapses OR immediately on cancel(),
+   * so the awaiting morphClose loop unblocks promptly.
+   */
   private delay(seconds: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    return new Promise((resolve) => {
+      this.pendingDelayResolvers.push(resolve);
+      const id = setTimeout(() => {
+        const idx = this.pendingDelayResolvers.indexOf(resolve);
+        if (idx >= 0) this.pendingDelayResolvers.splice(idx, 1);
+        resolve();
+      }, seconds * 1000);
+      this.timeouts.push(id);
+    });
   }
 
   /**

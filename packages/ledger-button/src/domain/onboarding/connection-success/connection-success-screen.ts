@@ -9,7 +9,6 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 @customElement("connection-success-screen")
@@ -30,9 +29,7 @@ export class ConnectionSuccessScreen extends LitElement {
   public languages!: LanguageContext;
 
   private handleStatusAction() {
-    if (this.navigation.host instanceof RootNavigationComponent) {
-      this.navigation.host.closeModalWithMorph();
-    }
+    this.navigation.host.closeModal({ morph: true });
   }
 
   override render() {
