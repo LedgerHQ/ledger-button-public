@@ -176,10 +176,11 @@
     "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "الشبكات المتاحة"
   },
   "transactionList": {
-    "noTransactions": "لم يتم العثور على معاملات"
+    "noTransactions": "لم يتم العثور على معاملات",
+    "pendingTransactions": "معاملات مُعلَّقة"
   },
   "mobileOnboarding": {
     "title": "المتابعة في Ledger Wallet",
