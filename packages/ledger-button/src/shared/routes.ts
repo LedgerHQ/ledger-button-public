@@ -363,7 +363,7 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       skipHistory: true,
       toolbar: {
         title: "",
-        canClose: true,
+        canClose: false,
       },
     },
     notFound: {
