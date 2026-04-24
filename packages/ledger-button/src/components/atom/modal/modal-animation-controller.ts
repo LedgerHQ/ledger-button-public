@@ -32,6 +32,8 @@ export class ModalAnimationController implements ReactiveController {
 
   animateOpen(elements: AnimationElements, mode: ModalMode): void {
     this.cancelAnimations();
+    this.resetVisualState(elements);
+    this.prepareContainerForOpen(elements.container, mode);
 
     elements.wrapper.classList.add("modal-wrapper--open");
 
@@ -76,6 +78,7 @@ export class ModalAnimationController implements ReactiveController {
     await Promise.all(animations);
 
     elements.wrapper.classList.remove("modal-wrapper--open");
+    this.resetVisualState(elements);
     this.backdropAnimation = null;
   }
 
@@ -108,6 +111,7 @@ export class ModalAnimationController implements ReactiveController {
     ]);
 
     elements.wrapper.classList.remove("modal-wrapper--open");
+    this.resetVisualState(elements);
     this.backdropAnimation = null;
   }
 
@@ -120,5 +124,37 @@ export class ModalAnimationController implements ReactiveController {
     this.centerAnimation.cancel();
     this.panelAnimation.cancel();
     this.morphAnimation.cancel();
+  }
+
+  private prepareContainerForOpen(
+    container: HTMLElement,
+    mode: ModalMode,
+  ): void {
+    if (mode === "panel") {
+      container.style.opacity = "";
+      return;
+    }
+
+    container.style.opacity = "0";
+  }
+
+  private resetVisualState(elements: AnimationElements): void {
+    this.resetContainerVisualState(elements.container);
+    this.resetBackdropVisualState(elements.backdrop);
+  }
+
+  private resetContainerVisualState(container: HTMLElement): void {
+    container.style.transform = "";
+    container.style.borderRadius = "";
+    container.style.opacity = "";
+
+    const children = Array.from(container.children) as HTMLElement[];
+    for (const child of children) {
+      child.style.opacity = "";
+    }
+  }
+
+  private resetBackdropVisualState(backdrop: HTMLElement): void {
+    backdrop.style.opacity = "";
   }
 }
