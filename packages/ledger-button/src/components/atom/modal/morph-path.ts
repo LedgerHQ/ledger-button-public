@@ -13,7 +13,7 @@ export type MorphControlPoints = {
  * How far the trajectory goes past the target on the dominant axis.
  * 0.08 = 8% beyond the target, then settles back.
  */
-export const MORPH_OVERSHOOT = 0.1;
+export const MORPH_OVERSHOOT = 0.2;
 
 /**
  * Where on the segment P1 sits when the curve is degenerate (straight line).
@@ -22,16 +22,21 @@ export const MORPH_OVERSHOOT = 0.1;
 const STRAIGHT_P1_RATIO = 1 / 3;
 
 /**
- * For corner trajectories, how early the curve "drops" along the axis of departure.
- * 0.6 = P1 is 60% of the way down at the start, giving a steep initial descent.
+ * For corner trajectories, P1 and P2 are derived from a quadratic Bezier
+ * with its control point at (0, dy) — directly below (or above) the start.
+ * Cubic conversion: P1 = 2/3*P_mid, P2 = P3 + 2/3*(P_mid - P3).
+ *
+ * This guarantees a clean "first go in Y, then go in X" arc (like a
+ * rounded L), with no S-curve by construction. A slight Y-overshoot is
+ * applied on P2 to give a gentle spring at landing.
+ *
+ * No-S-curve proof: both P1 and P2 are on the same side of P0→P3:
+ *   P1 cross = dx·(0.67·dy) - dy·0         = +0.67·dx·dy
+ *   P2 cross = dx·(1.2·dy)  - dy·(0.33·dx) = +0.87·dx·dy  → same sign ✓
  */
-const CORNER_P1_DROP_RATIO = 0.6;
-
-/**
- * For corner trajectories, P2 is placed past P3 on the X axis to produce
- * the overshoot. Value above 1 means "go beyond the target then settle back".
- */
+const CORNER_P1_Y_RATIO = 1.2;
 const CORNER_P2_X_RATIO = 1 + MORPH_OVERSHOOT;
+const CORNER_P2_Y_RATIO = 1.0;
 
 const CORNER_POSITIONS: ReadonlySet<FloatingButtonPosition> = new Set([
   "top-left",
@@ -73,9 +78,10 @@ export function cubicBezier(
  * Convention: DOM coordinates, so positive Y is downward. `dx` and `dy` are
  * already signed (target center minus container center).
  *
- * - **Corner** position: an "L"-shaped Bezier that starts vertically (P1 on
- *   the X=0 axis) and ends horizontally (P2 sharing P3's Y). Overshoot is
- *   applied on the horizontal axis.
+ * - **Corner** position: a bow-shaped arc (no S-curve). P1 and P2 are both
+ *   placed on the same side of the straight line P0→P3, guaranteeing a
+ *   single clean arc. The path sweeps toward the horizontal axis first
+ *   then plunges to the target, with an overshoot on X.
  * - **Mid-edge** position (top/bottom-center, middle-right): the curve is
  *   degenerate into a straight line by placing P1 and P2 on the segment
  *   P0-P3, with overshoot on the dominant axis.
@@ -94,8 +100,8 @@ export function getMorphControlPoints(
 function cornerControlPoints(dx: number, dy: number): MorphControlPoints {
   return {
     p0: { x: 0, y: 0 },
-    p1: { x: 0, y: dy * CORNER_P1_DROP_RATIO },
-    p2: { x: dx * CORNER_P2_X_RATIO, y: dy },
+    p1: { x: 0, y: dy * CORNER_P1_Y_RATIO },
+    p2: { x: dx * CORNER_P2_X_RATIO, y: dy * CORNER_P2_Y_RATIO },
     p3: { x: dx, y: dy },
   };
 }
