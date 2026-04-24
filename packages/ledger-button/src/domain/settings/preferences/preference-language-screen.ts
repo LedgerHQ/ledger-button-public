@@ -6,12 +6,10 @@ import { customElement, property } from "lit/decorators.js";
 
 import {
   langContext,
-  type LangKey,
   LanguageContext,
-  languages,
 } from "../../../context/language-context.js";
-import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import { PreferenceLanguageController } from "./preference-language-controller.js";
 
 @customElement("preference-language-screen")
 @tailwindElement()
@@ -20,21 +18,31 @@ export class PreferenceLanguageScreen extends LitElement {
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
+  private languageController!: PreferenceLanguageController;
+
+  override connectedCallback() {
+    super.connectedCallback();
+    this.languageController = new PreferenceLanguageController(
+      this,
+      this.languageContext,
+    );
+  }
+
   override render() {
-    const selected = this.languageContext.currentLanguage;
+    const selected = this.languageController.currentLanguage;
 
     return html`
       <div class="w-400 w-full flex-col items-start px-16 py-0">
-        ${languages.map(
+        ${this.languageController.languageOptions.map(
           (language) => html`
             <button
               type="button"
               class="bg-base-transparent hover:bg-base-transparent-hover flex h-64 w-full cursor-pointer items-center justify-between gap-16 rounded-md px-8 py-0 text-left transition duration-150 ease-in-out"
               aria-current=${language.key === selected ? "true" : "false"}
-              @click=${() => this.handleSelectLanguage(language.key)}
+              @click=${() => this.languageController.selectLanguage(language.key)}
             >
               <span class="body-2-semi-bold text-base"
-                >${getLanguageDisplayName(language.key)}</span
+                >${language.displayName}</span
               >
               ${language.key === selected
                 ? html`
@@ -50,11 +58,6 @@ export class PreferenceLanguageScreen extends LitElement {
         )}
       </div>
     `;
-  }
-
-  private handleSelectLanguage(code: LangKey) {
-    this.languageContext.setCurrentLanguage(code);
-    this.requestUpdate();
   }
 }
 

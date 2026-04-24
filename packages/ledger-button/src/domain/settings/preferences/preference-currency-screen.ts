@@ -9,8 +9,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-
-const CURRENCIES = ["usd", "eur", "gbp"] as const;
+import { PreferenceCurrencyController } from "./preference-currency-controller.js";
 
 @customElement("preference-currency-screen")
 @tailwindElement()
@@ -19,17 +18,17 @@ export class PreferenceCurrencyScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  private currencyController = new PreferenceCurrencyController(this);
+
   override render() {
     return html`
       <div class="flex flex-col px-16">
-        ${CURRENCIES.map(
+        ${this.currencyController.currencies.map(
           (code) => html`
             <button
               type="button"
               class="hover:bg-base-transparent-hover flex w-full cursor-pointer items-center rounded-md p-12 text-left transition duration-150 ease-in-out"
-              @click=${() => {
-                console.log(code);
-              }}
+              @click=${() => this.currencyController.selectCurrency(code)}
             >
               <span class="body-2-semi-bold text-base"
                 >${code.toUpperCase()}</span
