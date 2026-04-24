@@ -8,8 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "Tienes {count} transacciones pendientes",
       "newTransactionPending": "Nueva transacción pendiente",
-      "transactionsValidatedOne": "Se ha validado 1 transacción",
-      "transactionsValidatedOther": "Se han validado {count} transacciones"
+      "transactionsValidatedOne": "1 transacción ha sido validada",
+      "transactionsValidatedOther": "{count} transacciones han sido validadas"
     },
     "search": {
       "placeholder": "Buscar cuenta",
