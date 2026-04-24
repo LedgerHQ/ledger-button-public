@@ -1,7 +1,9 @@
+import "../domain/onboarding/connection-success/connection-success-overlay.js";
+
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
@@ -18,8 +20,16 @@ import type { CloseModalOptions, NavigationHost } from "./navigation.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
+type SuccessOverlayState = {
+  targetRect: DOMRect;
+  position: FloatingButtonPosition;
+};
+
 @customElement("root-navigation-component")
-export class RootNavigationComponent extends LitElement implements NavigationHost {
+export class RootNavigationComponent
+  extends LitElement
+  implements NavigationHost
+{
   @consume({ context: coreContext })
   public coreContext!: CoreContext;
 
@@ -39,6 +49,9 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
   rootNavigationController!: RootNavigationController;
 
   isModalOpen = false;
+
+  @state()
+  private successOverlayState: SuccessOverlayState | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -82,11 +95,26 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
   }
 
   public openModal(mode?: ModalMode) {
+    if (this.successOverlayState) {
+      this.dismissSuccessOverlay();
+      void this.updateComplete.then(() => {
+        this.handleModalOpen();
+        this.ledgerModal.openModal(mode);
+      });
+      return;
+    }
+
     this.handleModalOpen();
     this.ledgerModal.openModal(mode);
   }
 
   public closeModal(options?: CloseModalOptions): void {
+    if (this.successOverlayState) {
+      this.dismissSuccessOverlay();
+      this.handleModalCloseFinished();
+      return;
+    }
+
     this.handleModalClose();
     if (options?.morph) {
       this.ledgerModal.closeModal({
@@ -98,6 +126,19 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
       return;
     }
     this.ledgerModal.closeModal();
+  }
+
+  public presentConnectionSuccessOverlay(): void {
+    if (this.successOverlayState) {
+      return;
+    }
+
+    this.handleModalClose();
+    this.rootNavigationController.handleModalClose();
+    this.successOverlayState = {
+      targetRect: this.findFloatingButtonRect(),
+      position: this.resolveFloatingButtonPosition(),
+    };
   }
 
   // PRIVATE METHODS
@@ -136,9 +177,8 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
 
   /**
    * Single window event the floating-button controller listens to. Fires
-   * exactly once per modal close (at morph-landed for morph closes,
-   * at animation-complete for regular closes), so subscribers don't need
-   * to keep two listeners in sync.
+   * exactly once per modal close, after the modal has fully finished
+   * cleaning up its close animation.
    */
   private handleModalCloseFinished() {
     window.dispatchEvent(
@@ -155,6 +195,13 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
 
   private handleSettingsClick() {
     this.rootNavigationController.navigateToSettings();
+  }
+
+  private handleConnectionSuccessOverlayFinished() {
+    this.dismissSuccessOverlay();
+    void this.updateComplete.then(() => {
+      this.handleModalCloseFinished();
+    });
   }
 
   /**
@@ -207,7 +254,7 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
     return html`<ledger-button-404 id="not-found"></ledger-button-404>`;
   }
 
-  override render() {
+  private renderLedgerModal() {
     const uiModel = this.rootNavigationController.rootNavigationUiModel;
 
     return html`
@@ -239,6 +286,32 @@ export class RootNavigationComponent extends LitElement implements NavigationHos
         </div>
       </ledger-modal>
     `;
+  }
+
+  private renderConnectionSuccessOverlay() {
+    if (!this.successOverlayState) {
+      return null;
+    }
+
+    return html`
+      <connection-success-overlay
+        .targetRect=${this.successOverlayState.targetRect}
+        .position=${this.successOverlayState.position}
+        @connection-success-overlay-finished=${this
+          .handleConnectionSuccessOverlayFinished}
+      ></connection-success-overlay>
+    `;
+  }
+
+  override render() {
+    return html`
+      ${this.successOverlayState ? null : this.renderLedgerModal()}
+      ${this.renderConnectionSuccessOverlay()}
+    `;
+  }
+
+  private dismissSuccessOverlay(): void {
+    this.successOverlayState = null;
   }
 }
 

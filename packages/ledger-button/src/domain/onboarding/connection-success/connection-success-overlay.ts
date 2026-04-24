@@ -1,0 +1,265 @@
+import "../../../components/index.js";
+
+import { consume } from "@lit/context";
+import { css, html, LitElement, type PropertyValues } from "lit";
+import { customElement, property, query } from "lit/decorators.js";
+import { animate } from "motion";
+
+import type { FloatingButtonPosition } from "../../../components/atom/floating-button/ledger-floating-button.js";
+import { type AnimationInstance } from "../../../components/atom/modal/animation-types.js";
+import { MorphAnimation } from "../../../components/atom/modal/morph-animation.js";
+import {
+  langContext,
+  type LanguageContext,
+} from "../../../context/language-context.js";
+import { ANIMATION_DELAY } from "../../../shared/navigation.js";
+import { tailwindElement } from "../../../tailwind-element.js";
+
+const AUTO_CLOSE_DELAY_MS = 1500;
+
+const styles = css`
+  :host {
+    position: fixed;
+    inset: 0;
+    z-index: 7730;
+    display: block;
+  }
+
+  .connection-success-overlay__backdrop {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      rgba(102, 102, 102, 0.6) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    backdrop-filter: blur(calc(var(--blur-md, 12px) / 2));
+  }
+
+  .connection-success-overlay__container {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    margin: auto;
+    width: min(calc(100% - 32px), 400px);
+    height: fit-content;
+    max-height: min(calc(100vh - 64px), var(--modal-max-height, 550px));
+    overflow: hidden;
+    opacity: 0;
+  }
+`;
+
+@customElement("connection-success-overlay")
+@tailwindElement(styles)
+export class ConnectionSuccessOverlay extends LitElement {
+  @property({ attribute: false })
+  public targetRect!: DOMRect;
+
+  @property({ type: String })
+  public position: FloatingButtonPosition = "bottom-right";
+
+  @property({ type: Number, attribute: false })
+  public runId = 0;
+
+  @consume({ context: langContext })
+  @property({ attribute: false })
+  public languages!: LanguageContext;
+
+  @query(".connection-success-overlay__backdrop")
+  private backdropElement!: HTMLElement;
+
+  @query(".connection-success-overlay__container")
+  private containerElement!: HTMLElement;
+
+  private morphAnimation = new MorphAnimation();
+  private backdropAnimation: AnimationInstance | null = null;
+  private containerAnimation: AnimationInstance | null = null;
+  private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private isClosing = false;
+  private pendingStart = true;
+  private activeRunToken = 0;
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.pendingStart = true;
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.activeRunToken += 1;
+    this.cancelAutoClose();
+    this.cancelAnimations();
+  }
+
+  override updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
+
+    if (
+      changedProperties.has("runId") ||
+      changedProperties.has("targetRect") ||
+      changedProperties.has("position")
+    ) {
+      this.pendingStart = true;
+    }
+
+    if (this.pendingStart && this.backdropElement && this.containerElement) {
+      this.pendingStart = false;
+      void this.startRun();
+    }
+  }
+
+  override render() {
+    const translations = this.languages.currentTranslation;
+
+    return html`
+      <div class="connection-success-overlay__backdrop"></div>
+      <div
+        class="connection-success-overlay__container bg-canvas-sheet flex flex-col rounded-2xl"
+      >
+        <div class="flex min-h-0 flex-col items-stretch justify-center p-24">
+          <ledger-status
+            type="success"
+            title=${translations.onboarding.connectionSuccess.title}
+            primary-button-label=""
+            secondary-button-label=""
+          ></ledger-status>
+        </div>
+      </div>
+    `;
+  }
+
+  private animateIn(): void {
+    this.backdropAnimation = animate(
+      this.backdropElement,
+      { opacity: [0, 1] },
+      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
+    );
+
+    this.containerAnimation = animate(
+      this.containerElement,
+      { opacity: [0, 1], y: [16, 0], scale: [0.98, 1] },
+      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
+    );
+  }
+
+  private scheduleAutoClose(): void {
+    this.cancelAutoClose();
+    this.autoCloseTimer = setTimeout(() => {
+      this.autoCloseTimer = null;
+      void this.closeWithMorph();
+    }, AUTO_CLOSE_DELAY_MS);
+  }
+
+  private cancelAutoClose(): void {
+    if (this.autoCloseTimer !== null) {
+      clearTimeout(this.autoCloseTimer);
+      this.autoCloseTimer = null;
+    }
+  }
+
+  private async closeWithMorph(): Promise<void> {
+    if (this.isClosing) {
+      return;
+    }
+
+    this.isClosing = true;
+    this.cancelAnimations();
+    const runToken = this.activeRunToken;
+
+    const backdropFade = new Promise<void>((resolve) => {
+      this.backdropAnimation = animate(
+        this.backdropElement,
+        { opacity: [1, 0] },
+        {
+          duration: ANIMATION_DELAY / 1000,
+          ease: "easeOut",
+          onComplete: () => resolve(),
+        },
+      );
+    });
+
+    await Promise.all([
+      backdropFade,
+      this.morphAnimation.morphClose(
+        this.containerElement,
+        this.targetRect,
+        this.position,
+      ),
+    ]);
+
+    if (runToken !== this.activeRunToken || !this.isConnected) {
+      return;
+    }
+
+    this.dispatchEvent(
+      new CustomEvent("connection-success-overlay-finished", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  private cancelAnimations(): void {
+    this.backdropAnimation?.cancel();
+    this.backdropAnimation = null;
+    this.containerAnimation?.cancel();
+    this.containerAnimation = null;
+    this.morphAnimation.cancel();
+  }
+
+  private async startRun(): Promise<void> {
+    this.activeRunToken += 1;
+    const runToken = this.activeRunToken;
+
+    this.cancelAutoClose();
+    this.cancelAnimations();
+    this.isClosing = false;
+    this.resetVisualState();
+
+    await this.updateComplete;
+
+    if (
+      runToken !== this.activeRunToken ||
+      !this.isConnected ||
+      !this.backdropElement ||
+      !this.containerElement
+    ) {
+      return;
+    }
+
+    this.animateIn();
+    this.scheduleAutoClose();
+  }
+
+  private resetVisualState(): void {
+    if (this.backdropElement) {
+      this.backdropElement.style.opacity = "";
+    }
+
+    if (!this.containerElement) {
+      return;
+    }
+
+    this.containerElement.style.transform = "";
+    this.containerElement.style.borderRadius = "";
+    this.containerElement.style.opacity = "";
+
+    const children = Array.from(
+      this.containerElement.children,
+    ) as HTMLElement[];
+    for (const child of children) {
+      child.style.opacity = "";
+    }
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "connection-success-overlay": ConnectionSuccessOverlay;
+  }
+
+  interface WindowEventMap {
+    "connection-success-overlay-finished": CustomEvent<void>;
+  }
+}

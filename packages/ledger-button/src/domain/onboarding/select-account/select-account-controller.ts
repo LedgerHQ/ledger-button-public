@@ -180,10 +180,7 @@ export class SelectAccountController implements ReactiveController {
       if (this.navigation.host.getModalMode() === "panel") {
         this.navigation.host.navigateToHome();
       } else {
-        this.navigation.navigateTo(
-          this.navigation.host.rootNavigationController.destinations
-            .connectionSuccess,
-        );
+        this.navigation.host.presentConnectionSuccessOverlay();
       }
       this.host.requestUpdate();
     }

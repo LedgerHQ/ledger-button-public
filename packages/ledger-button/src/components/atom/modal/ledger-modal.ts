@@ -211,23 +211,16 @@ export class LedgerModal extends LitElement {
     this.pendingMorph = null;
 
     if (morph) {
-      // The morph close has two interesting moments:
-      //  - `onLanded`: the bezier reached the floating-button slot, which
-      //    is the cue for the real `<ledger-floating-button>` to take
-      //    over the same pixels.
-      //  - the await below: the morph fully resolved; safe to tear down
-      //    navigation state and report the close as done.
       await this.animationController.animateMorphClose(
         elements,
         morph.targetRect,
         morph.position,
-        () => this.dispatchCloseFinished(),
       );
     } else {
       await this.animationController.animateClose(elements, this.mode);
-      this.dispatchCloseFinished();
     }
 
+    this.dispatchCloseFinished();
     this.scrollLockController.unlock();
     this.isClosing = false;
     this.dispatchAnimationComplete();
@@ -243,10 +236,8 @@ export class LedgerModal extends LitElement {
   }
 
   /**
-   * Fired at the moment the floating button can take over from the modal:
-   *  - regular close: at the end of the close animation.
-   *  - morph close:   when the morphed pill lands in the FB slot (before
-   *                   the animation fully resolves).
+   * Fired once the modal close is fully finished and the floating button can
+   * safely reappear without racing the final cleanup/reset work.
    */
   private dispatchCloseFinished(): void {
     this.dispatchEvent(
