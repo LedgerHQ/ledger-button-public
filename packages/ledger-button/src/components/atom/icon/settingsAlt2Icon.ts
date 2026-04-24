@@ -1,6 +1,6 @@
 import { html } from "lit";
 
-export const SettingsIcon = html`
+export const SettingsAlt2Icon = html`
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"
@@ -18,4 +18,4 @@ export const SettingsIcon = html`
   </svg>
 `;
 
-export default SettingsIcon;
+export default SettingsAlt2Icon;
