@@ -86,7 +86,7 @@ function cvaResultToClassMap(classString: string): Record<string, boolean> {
 @customElement("ledger-floating-button")
 @tailwindElement(styles)
 export class LedgerFloatingButton extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

@@ -37,7 +37,7 @@ const styles = css`
 @customElement("ledger-search-input")
 @tailwindElement(styles)
 export class LedgerSearchInput extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

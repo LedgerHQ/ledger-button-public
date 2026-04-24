@@ -2,11 +2,21 @@
  * @vitest-environment jsdom
  */
 
-import { beforeEach, describe, expect, type MockInstance, test, vi } from "vitest";
+import {
+  beforeEach,
+  describe,
+  expect,
+  type MockInstance,
+  test,
+  vi,
+} from "vitest";
 
-vi.mock("../../components/index.js", () => ({}));
+vi.mock("../../../components/index.js", () => ({}));
 
-import { CONTACT_US_URL, SUPPORT_URL } from "../../shared/constants";
+import {
+  CONTACT_US_URL,
+  SUPPORT_URL,
+} from "../../../shared/constants/support-urls.js";
 import { SupportScreen } from "./support-screen.js";
 
 function createMockLanguages() {
@@ -114,7 +124,6 @@ describe("SupportScreen", () => {
         "noopener,noreferrer",
       );
     });
-
   });
 
   describe("handleContactUsClick", () => {

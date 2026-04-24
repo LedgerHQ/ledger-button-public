@@ -9,6 +9,7 @@ import {
   CartIcon,
   CheckIcon,
   CheckMarkCircleFillIcon,
+  CheckmarkCircleIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   ClearSigningIcon,
@@ -16,12 +17,14 @@ import {
   DesktopIcon,
   DeviceIcon,
   DirectConnectivityIcon,
+  DollarIcon,
   EarnIcon,
   EnvelopeIcon,
   ErrorIcon,
   ExternalLinkIcon,
   HeadphoneIcon,
   InfoIcon,
+  LanguageIcon,
   LedgerLogoIcon,
   MobileIcon,
   QuestionIcon,
@@ -29,6 +32,7 @@ import {
   SearchIcon,
   SellIcon,
   SendIcon,
+  SettingsAlt2Icon,
   SettingsIcon,
   ShieldIcon,
   SwapIcon,
@@ -47,10 +51,12 @@ export interface LedgerIconAttributes {
     | "chevronDown"
     | "check"
     | "checkMarkCircleFill"
+    | "checkmarkCircle"
     | "error"
     | "device"
     | "mobile"
     | "desktop"
+    | "dollar"
     | "cart"
     | "externalLink"
     | "directConnectivity"
@@ -58,6 +64,7 @@ export interface LedgerIconAttributes {
     | "transactionCheck"
     | "question"
     | "settings"
+    | "settingsAlt2"
     | "send"
     | "receive"
     | "swap"
@@ -68,7 +75,8 @@ export interface LedgerIconAttributes {
     | "info"
     | "headphone"
     | "envelope"
-    | "shield";
+    | "shield"
+    | "language";
   size: "small" | "medium" | "large";
   fillColor?: string;
 }
@@ -115,10 +123,12 @@ export class LedgerIcon extends LitElement {
       chevronDown: () => ChevronDownIcon,
       check: () => CheckIcon,
       checkMarkCircleFill: () => CheckMarkCircleFillIcon,
+      checkmarkCircle: () => CheckmarkCircleIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
       mobile: () => MobileIcon,
       desktop: () => DesktopIcon,
+      dollar: () => DollarIcon,
       cart: () => CartIcon,
       externalLink: () => ExternalLinkIcon,
       directConnectivity: () => DirectConnectivityIcon,
@@ -126,6 +136,7 @@ export class LedgerIcon extends LitElement {
       transactionCheck: () => TransactionCheckIcon,
       question: () => QuestionIcon,
       settings: () => SettingsIcon,
+      settingsAlt2: () => SettingsAlt2Icon,
       send: () => SendIcon,
       receive: () => ReceiveIcon,
       swap: () => SwapIcon,
@@ -137,6 +148,7 @@ export class LedgerIcon extends LitElement {
       headphone: () => HeadphoneIcon,
       envelope: () => EnvelopeIcon,
       shield: () => ShieldIcon,
+      language: () => LanguageIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;

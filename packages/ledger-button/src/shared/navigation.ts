@@ -31,23 +31,10 @@ export class Navigation implements ReactiveController {
     this.resetNavigation();
   }
 
-  updateCurrentScreen(updates: Partial<Destination>) {
-    if (this.currentScreen) {
-      this.currentScreen = {
-        ...this.currentScreen,
-        ...updates,
-        toolbar: {
-          ...this.currentScreen.toolbar,
-          ...(updates.toolbar ?? {}),
-        },
-      };
-      this.host.requestUpdate();
-    }
-  }
-
   navigateTo(destination: Destination) {
     if (destination.name === this.currentScreen?.name) {
-      this.updateCurrentScreen(destination);
+      this.currentScreen = destination;
+      this.host.requestUpdate();
       return;
     }
 

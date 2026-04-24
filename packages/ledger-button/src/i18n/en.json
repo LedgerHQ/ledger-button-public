@@ -190,12 +190,18 @@
   },
   "settings": {
     "title": "Settings",
-    "analytics": {
-      "title": "Analytics",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+    "preferences": {
+      "title": "Preferences",
+      "language": { "title": "Language" },
+      "currency": { "title": "Currency" }
     },
-    "securityConfidentiality": "Security & confidentiality",
-    "helpSupport": "Help & Support",
+    "securityConfidentiality": {
+      "title": "Security & confidentiality",
+      "analytics": {
+        "title": "Analytics",
+        "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      }
+    },
     "support": {
       "title": "Help & Support",
       "support": "Support",

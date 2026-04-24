@@ -190,12 +190,19 @@
   },
   "settings": {
     "title": "إعدادات",
-    "analytics": {
-      "title": "التحليلات",
-      "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+    "preferences": {
+      "title": "التفضيلات",
+      "language": { "title": "اللغة" },
+      "currency": { "title": "العملة" },
+      "description": "ستظهر خيارات التفضيلات هنا."
     },
-    "securityConfidentiality": "الأمان والسرية",
-    "helpSupport": "المساعدة والدعم",
+    "securityConfidentiality": {
+      "title": "الأمان والسرية",
+      "analytics": {
+        "title": "التحليلات",
+        "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+      }
+    },
     "support": {
       "title": "المساعدة والدعم",
       "support": "الدعم",
