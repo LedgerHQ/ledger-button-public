@@ -107,7 +107,7 @@ const panelContainerClasses = {
 @customElement("ledger-modal")
 @tailwindElement(styles)
 export class LedgerModal extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 

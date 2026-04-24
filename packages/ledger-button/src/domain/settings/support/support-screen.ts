@@ -1,18 +1,21 @@
-import "../../components/index.js";
+import "../../../components/index.js";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { CONTACT_US_URL, SUPPORT_URL } from "../../shared/constants";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { tailwindElement } from "../../tailwind-element.js";
+} from "../../../context/language-context.js";
+import {
+  CONTACT_US_URL,
+  SUPPORT_URL,
+} from "../../../shared/constants/support-urls.js";
+import { Navigation } from "../../../shared/navigation.js";
+import { Destinations } from "../../../shared/routes.js";
+import { tailwindElement } from "../../../tailwind-element.js";
 
 @customElement("support-screen")
 @tailwindElement()
@@ -27,7 +30,7 @@ export class SupportScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -46,10 +49,10 @@ export class SupportScreen extends LitElement {
   ) {
     return html`
       <button
-        class="bg-base-transparent hover:bg-base-transparent-hover flex min-w-full cursor-pointer items-center justify-between rounded-md p-12 transition duration-150 ease-in-out"
+        class="bg-base-transparent hover:bg-base-transparent-hover flex h-64 min-w-full cursor-pointer items-center justify-between gap-16 rounded-md px-8 py-0 transition duration-150 ease-in-out"
         @click=${onClick}
       >
-        <div class="flex items-center gap-12">
+        <div class="flex min-w-0 flex-1 items-center gap-12">
           <ledger-icon
             type=${icon}
             size="medium"
@@ -76,7 +79,7 @@ export class SupportScreen extends LitElement {
     const contactUsLabel = support?.contactUs ?? "Contact us";
 
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-8">
+      <div class="flex flex-col items-start px-16 py-0">
         ${this.renderSupportItem(
           "headphone",
           supportLabel,

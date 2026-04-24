@@ -190,12 +190,23 @@
   },
   "settings": {
     "title": "การตั้งค่า",
-    "analytics": {
-      "title": "การวิเคราะห์",
-      "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
+    "preferences": {
+      "title": "การตั้งค่าการใช้งาน",
+      "language": {
+        "title": "ภาษา"
+      },
+      "currency": {
+        "title": "สกุลเงิน"
+      },
+      "description": "ตัวเลือกการตั้งค่าการใช้งานจะปรากฏที่นี่"
     },
-    "securityConfidentiality": "ความปลอดภัยและการรักษาความลับ",
-    "helpSupport": "ความช่วยเหลือและการสนับสนุน",
+    "securityConfidentiality": {
+      "title": "ความปลอดภัยและการรักษาความลับ",
+      "analytics": {
+        "title": "การวิเคราะห์",
+        "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
+      }
+    },
     "support": {
       "title": "ความช่วยเหลือและการสนับสนุน",
       "support": "การสนับสนุน",

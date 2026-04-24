@@ -1,32 +1,51 @@
-import { createContext, provide } from "@lit/context";
-import { html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { consume, createContext, provide } from "@lit/context";
+import { html, LitElement, type PropertyValues } from "lit";
+import { customElement, property } from "lit/decorators.js";
 
-import en from "../i18n/en.json" with { type: "json" };
+import {
+  DEFAULT_LANGUAGE,
+  isLangKey,
+  type LangKey,
+  languages,
+  type Translation,
+} from "./constants/languages.js";
+import { type CoreContext, coreContext } from "./core-context.js";
 
-export const languages = {
-  en,
-} as const;
+// The SSOT for language & translations are the local values of the Language context.
+// The user language preference is stored in the IndexedDB via the core context and retrieved on mount.
+export class LanguageContext extends EventTarget {
+  static readonly LANGUAGE_CHANGE = "languagechange";
 
-export type Languages = typeof languages;
-export type LangKey = keyof Languages;
-export type Translation = Languages[keyof Languages];
+  private _currentLanguage: LangKey = DEFAULT_LANGUAGE;
 
-export class LanguageContext {
-  private _currentLanguage: keyof Languages = "en";
+  core?: CoreContext;
 
-  constructor(private readonly _languages: Languages = languages) {}
-
-  setCurrentLanguage(lang: keyof Languages) {
-    this._currentLanguage = lang;
+  setCurrentLanguage(languageKey: LangKey, options?: { persist?: boolean }) {
+    const hasChanged = this._currentLanguage !== languageKey;
+    this._currentLanguage = languageKey;
+    if (hasChanged) {
+      this.dispatchEvent(new Event(LanguageContext.LANGUAGE_CHANGE));
+    }
+    const persist = options?.persist !== false;
+    if (!persist || !this.core) {
+      return;
+    }
+    void this.core.savePreferredLanguage(languageKey);
   }
 
   get currentLanguage(): LangKey {
     return this._currentLanguage;
   }
 
-  get currentTranslation(): Translation {
-    return this._languages[this._currentLanguage];
+  getTranslation(languageKey: LangKey): Translation {
+    const { translation } =
+      languages.find((language) => language.key === languageKey) || {};
+
+    return translation ?? this.getTranslation(DEFAULT_LANGUAGE);
+  }
+
+  get currentTranslation() {
+    return this.getTranslation(this.currentLanguage);
   }
 }
 
@@ -39,7 +58,31 @@ export class LanguageProvider extends LitElement {
   @provide({ context: langContext })
   public languages: LanguageContext = new LanguageContext();
 
+  @consume({ context: coreContext, subscribe: true })
+  @property({ attribute: false })
+  public core?: CoreContext;
+
+  override willUpdate(changedProps: PropertyValues) {
+    if (changedProps.has("core") && this.core) {
+      this.languages.core = this.core;
+      void this.core.getPreferredLanguage().then((storedLanguageKey) => {
+        if (storedLanguageKey && isLangKey(storedLanguageKey)) {
+          this.languages.setCurrentLanguage(storedLanguageKey, {
+            persist: false,
+          });
+        }
+        this.requestUpdate("languages");
+      });
+    }
+  }
+
   override render() {
     return html`<slot></slot>`;
   }
 }
+export {
+  isLangKey,
+  type LangKey,
+  languages,
+  type Translation,
+} from "./constants/languages.js";

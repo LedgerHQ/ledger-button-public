@@ -498,6 +498,20 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
+  async savePreferredLanguage(language: string): Promise<void> {
+    this._logger.debug("Saving preferred language", { language });
+    await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .savePreferredLanguage(language);
+  }
+
+  async getPreferredLanguage(): Promise<string | undefined> {
+    const result = await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getPreferredLanguage();
+    return result.extract();
+  }
+
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container

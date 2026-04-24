@@ -190,12 +190,19 @@
   },
   "settings": {
     "title": "设置",
-    "analytics": {
-      "title": "数据分析",
-      "description": "允许 Ledger 收集应用程序使用数据，以便我们衡量 Ledger Wallet Direct Connectivity 直连工具的性能，优化应用程序并提升您的体验。"
+    "preferences": {
+      "title": "偏好设置",
+      "language": { "title": "语言" },
+      "currency": { "title": "货币" },
+      "description": "偏好设置选项将显示在此处。"
     },
-    "securityConfidentiality": "安全性与机密性",
-    "helpSupport": "帮助和支持",
+    "securityConfidentiality": {
+      "title": "安全性与机密性",
+      "analytics": {
+        "title": "数据分析",
+        "description": "允许 Ledger 收集应用程序使用数据，以便我们衡量 Ledger Wallet Direct Connectivity 直连工具的性能，优化应用程序并提升您的体验。"
+      }
+    },
     "support": {
       "title": "帮助和支持",
       "support": "客服",

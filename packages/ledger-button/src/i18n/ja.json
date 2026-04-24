@@ -190,12 +190,19 @@
   },
   "settings": {
     "title": "設定",
-    "analytics": {
-      "title": "アナリティクス",
-      "description": "Ledgerがアプリの使用状況データを収集できるようにし、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、アプリと体験の両方を向上させます。"
+    "preferences": {
+      "title": "環境設定",
+      "language": { "title": "言語" },
+      "currency": { "title": "通貨" },
+      "description": "環境設定の項目はここに表示されます。"
     },
-    "securityConfidentiality": "セキュリティと機密性",
-    "helpSupport": "ヘルプとサポート",
+    "securityConfidentiality": {
+      "title": "セキュリティと機密性",
+      "analytics": {
+        "title": "アナリティクス",
+        "description": "Ledgerがアプリの使用状況データを収集できるようにし、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、アプリと体験の両方を向上させます。"
+      }
+    },
     "support": {
       "title": "ヘルプとサポート",
       "support": "サポート",

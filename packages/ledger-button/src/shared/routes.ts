@@ -16,8 +16,11 @@ import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
 import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
-import "../domain/settings/security-screen.js";
-import "../domain/support/support-screen.js";
+import "../domain/settings/preferences/preferences-screen.js";
+import "../domain/settings/preferences/preference-language-screen.js";
+import "../domain/settings/preferences/preference-currency-screen.js";
+import "../domain/settings/security/security-screen.js";
+import "../domain/settings/support/support-screen.js";
 import "../domain/home-flow/home-flow.js";
 import "../domain/available-networks/available-networks.js";
 
@@ -25,7 +28,7 @@ import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
 import { CoreContext } from "../context/core-context.js";
-import { Translation } from "../context/language-context.js";
+import { LanguageContext } from "../context/language-context.js";
 
 @customElement("ledger-button-404")
 export class LedgerButton404 extends LitElement {
@@ -89,16 +92,19 @@ export function resolveCanGoBack(
 }
 
 // MOVE DESTINATIONS TO NAVIGATION
-export const makeDestinations = (translation: Translation) => {
-  const destinations = {
+export const makeDestinations = (languages: LanguageContext): Destinations => {
+  const t = () => languages.currentTranslation;
+
+  return {
     home: {
       name: "home-flow",
       component: "home-flow",
       canGoBack: false,
       toolbar: {
-        title: translation.home.title,
+        get title() {
+          return t().home.title;
+        },
         canClose: true,
-        showSettings: true,
       },
     },
     deviceSwitch: {
@@ -106,7 +112,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "device-switch-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.deviceSwitch.title,
+        get title() {
+          return t().deviceSwitch.title;
+        },
         canClose: true,
       },
     },
@@ -124,7 +132,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "onboarding-flow",
       canGoBack: false,
       toolbar: {
-        title: translation.onboarding.selectDevice.title,
+        get title() {
+          return t().onboarding.selectDevice.title;
+        },
         canClose: true,
       },
     },
@@ -133,7 +143,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "ledger-sync-screen",
       canGoBack: false,
       toolbar: {
-        title: translation.onboarding.ledgerSync.title,
+        get title() {
+          return t().onboarding.ledgerSync.title;
+        },
         canClose: false,
       },
     },
@@ -142,7 +154,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "turn-on-sync-screen",
       canGoBack: false,
       toolbar: {
-        title: translation.onboarding.turnOnSync.title,
+        get title() {
+          return t().onboarding.turnOnSync.title;
+        },
         canClose: true,
       },
     },
@@ -151,7 +165,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "turn-on-sync-desktop-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.ledgerSync.activate,
+        get title() {
+          return t().ledgerSync.activate;
+        },
         canClose: true,
       },
     },
@@ -160,7 +176,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "turn-on-sync-mobile-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.ledgerSync.activate,
+        get title() {
+          return t().ledgerSync.activate;
+        },
         canClose: true,
       },
     },
@@ -170,7 +188,9 @@ export const makeDestinations = (translation: Translation) => {
       canGoBack: false,
       skipHistory: true,
       toolbar: {
-        title: translation.onboarding.retrievingAccounts.title,
+        get title() {
+          return t().onboarding.retrievingAccounts.title;
+        },
         canClose: false,
       },
     },
@@ -179,7 +199,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "select-account-screen",
       canGoBack: (core: CoreContext) => !!core.getSelectedAccount(),
       toolbar: {
-        title: translation.onboarding.selectAccount.title,
+        get title() {
+          return t().onboarding.selectAccount.title;
+        },
         canClose: true,
       },
     },
@@ -197,7 +219,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "consent-analytics-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.onboarding.consentPrompt?.consent?.title,
+        get title() {
+          return t().onboarding.consentPrompt?.consent?.title ?? "";
+        },
         canClose: true,
       },
     },
@@ -206,7 +230,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "select-device-screen",
       canGoBack: false,
       toolbar: {
-        title: translation.onboarding.selectDevice.title,
+        get title() {
+          return t().onboarding.selectDevice.title;
+        },
         canClose: true,
       },
     },
@@ -233,7 +259,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "account-tokens-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.accountTokens?.title,
+        get title() {
+          return t().accountTokens?.title ?? "";
+        },
         canClose: true,
       },
     },
@@ -242,7 +270,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "settings-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.settings?.title,
+        get title() {
+          return t().settings?.title ?? "";
+        },
         canClose: true,
       },
     },
@@ -251,7 +281,42 @@ export const makeDestinations = (translation: Translation) => {
       component: "available-networks-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.availableNetworks?.title,
+        get title() {
+          return t().availableNetworks?.title ?? "";
+        },
+        canClose: true,
+      },
+    },
+    preferences: {
+      name: "preferences",
+      component: "preferences-screen",
+      canGoBack: true,
+      toolbar: {
+        get title() {
+          return t().settings?.preferences?.title ?? "Preferences";
+        },
+        canClose: true,
+      },
+    },
+    preferenceLanguage: {
+      name: "preferenceLanguage",
+      component: "preference-language-screen",
+      canGoBack: true,
+      toolbar: {
+        get title() {
+          return t().settings?.preferences?.language?.title ?? "Language";
+        },
+        canClose: true,
+      },
+    },
+    preferenceCurrency: {
+      name: "preferenceCurrency",
+      component: "preference-currency-screen",
+      canGoBack: true,
+      toolbar: {
+        get title() {
+          return t().settings?.preferences?.currency?.title ?? "Currency";
+        },
         canClose: true,
       },
     },
@@ -260,9 +325,12 @@ export const makeDestinations = (translation: Translation) => {
       component: "security-screen",
       canGoBack: true,
       toolbar: {
-        title:
-          translation.settings?.securityConfidentiality ??
-          "Security & confidentiality",
+        get title() {
+          return (
+            t().settings?.securityConfidentiality?.title ??
+            "Security & confidentiality"
+          );
+        },
         canClose: true,
       },
     },
@@ -271,7 +339,9 @@ export const makeDestinations = (translation: Translation) => {
       component: "support-screen",
       canGoBack: true,
       toolbar: {
-        title: translation.settings?.support?.title ?? "Help & Support",
+        get title() {
+          return t().settings?.support?.title ?? "Help & Support";
+        },
         canClose: true,
       },
     },
@@ -294,7 +364,5 @@ export const makeDestinations = (translation: Translation) => {
         canClose: true,
       },
     },
-  } as const;
-
-  return destinations;
+  };
 };

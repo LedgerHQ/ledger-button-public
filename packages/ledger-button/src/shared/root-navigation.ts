@@ -20,7 +20,7 @@ export class RootNavigationComponent extends LitElement {
   @consume({ context: coreContext })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
@@ -42,7 +42,7 @@ export class RootNavigationComponent extends LitElement {
     this.rootNavigationController = new RootNavigationController(
       this,
       this.coreContext,
-      this.languageContext.currentTranslation,
+      this.languageContext,
       this.modalContent,
     );
   }

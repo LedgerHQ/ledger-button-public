@@ -190,12 +190,19 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "analytics": {
-      "title": "Analysen",
-      "description": "Ermöglicht Ledger die Erhebung von App-Nutzungsdaten, um die Leistung von Ledger Wallet Direct Connectivity zu messen und sowohl die App als auch dein Nutzungserlebnis zu optimieren."
+    "preferences": {
+      "title": "Präferenzen",
+      "language": { "title": "Sprache" },
+      "currency": { "title": "Währung" },
+      "description": "Weitere Einstellungen werden hier angezeigt."
     },
-    "securityConfidentiality": "Sicherheit und Vertraulichkeit",
-    "helpSupport": "Hilfe & Support",
+    "securityConfidentiality": {
+      "title": "Sicherheit und Vertraulichkeit",
+      "analytics": {
+        "title": "Analysen",
+        "description": "Ermöglicht Ledger die Erhebung von App-Nutzungsdaten, um die Leistung von Ledger Wallet Direct Connectivity zu messen und sowohl die App als auch dein Nutzungserlebnis zu optimieren."
+      }
+    },
     "support": {
       "title": "Hilfe & Support",
       "support": "Support",

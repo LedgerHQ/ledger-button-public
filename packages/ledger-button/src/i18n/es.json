@@ -190,12 +190,19 @@
   },
   "settings": {
     "title": "Ajustes",
-    "analytics": {
-      "title": "Análisis",
-      "description": "Permite que Ledger recopile los datos de uso de la aplicación para ayudarnos a medir el rendimiento de Ledger Wallet Direct Connectivity y mejorar tanto la aplicación como tu experiencia."
+    "preferences": {
+      "title": "Preferencias",
+      "language": { "title": "Idioma" },
+      "currency": { "title": "Moneda" },
+      "description": "Las opciones de preferencias aparecerán aquí."
     },
-    "securityConfidentiality": "Seguridad y confidencialidad",
-    "helpSupport": "Ayuda y soporte",
+    "securityConfidentiality": {
+      "title": "Seguridad y confidencialidad",
+      "analytics": {
+        "title": "Análisis",
+        "description": "Permite que Ledger recopile los datos de uso de la aplicación para ayudarnos a medir el rendimiento de Ledger Wallet Direct Connectivity y mejorar tanto la aplicación como tu experiencia."
+      }
+    },
     "support": {
       "title": "Ayuda y soporte",
       "support": "el servicio de soporte",

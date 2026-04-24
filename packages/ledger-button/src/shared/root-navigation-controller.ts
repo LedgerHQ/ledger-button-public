@@ -8,7 +8,7 @@ import { Subscription } from "rxjs";
 
 import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import { CoreContext } from "../context/core-context.js";
-import { Translation } from "../context/language-context.js";
+import { LanguageContext } from "../context/language-context.js";
 import { Navigation } from "./navigation.js";
 import {
   Destination,
@@ -35,20 +35,27 @@ export class RootNavigationController implements ReactiveController {
   private hasTrackingConsent?: boolean;
   private welcomeScreenCompleted = false;
   private contextSubscription?: Subscription;
+  private readonly onLanguageChange = () => {
+    this.host.requestUpdate();
+  };
   connectedDevice: Device | undefined;
 
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
-    translation: Translation,
+    private readonly languages: LanguageContext,
     private readonly modalContent: HTMLElement,
   ) {
     this.host.addController(this);
     this.navigation = new Navigation(host, this.modalContent);
-    this.destinations = makeDestinations(translation);
+    this.destinations = makeDestinations(this.languages);
   }
 
   hostConnected() {
+    this.languages.addEventListener(
+      LanguageContext.LANGUAGE_CHANGE,
+      this.onLanguageChange,
+    );
     this.computeInitialState();
     this.contextSubscription = this.core
       .observeContext()
@@ -62,6 +69,10 @@ export class RootNavigationController implements ReactiveController {
 
   hostDisconnected() {
     this.contextSubscription?.unsubscribe();
+    this.languages.removeEventListener(
+      LanguageContext.LANGUAGE_CHANGE,
+      this.onLanguageChange,
+    );
   }
 
   get currentScreen() {
@@ -222,6 +233,10 @@ export class RootNavigationController implements ReactiveController {
 
       case "availableNetworks":
         this.navigation.navigateTo(this.destinations.availableNetworks);
+        break;
+
+      case "preferences":
+        this.navigation.navigateTo(this.destinations.preferences);
         break;
 
       case "security":
