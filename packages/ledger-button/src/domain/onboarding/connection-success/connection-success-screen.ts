@@ -11,6 +11,9 @@ import {
 import { Navigation } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
+/** How long the success screen stays visible before auto-closing. */
+const AUTO_CLOSE_DELAY_MS = 1500;
+
 @customElement("connection-success-screen")
 @tailwindElement()
 export class ConnectionSuccessScreen extends LitElement {
@@ -28,8 +31,15 @@ export class ConnectionSuccessScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  private handleStatusAction() {
-    this.navigation.host.closeModal({ morph: true });
+  private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
+
+  override firstUpdated(): void {
+    this.scheduleAutoClose();
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.cancelAutoClose();
   }
 
   override render() {
@@ -42,13 +52,26 @@ export class ConnectionSuccessScreen extends LitElement {
         <ledger-status
           type="success"
           title=${translations.onboarding.connectionSuccess.title}
-          primary-button-label=${translations.onboarding.connectionSuccess
-            .close}
+          primary-button-label=""
           secondary-button-label=""
-          @status-action=${this.handleStatusAction}
         ></ledger-status>
       </div>
     `;
+  }
+
+  private scheduleAutoClose(): void {
+    this.cancelAutoClose();
+    this.autoCloseTimer = setTimeout(() => {
+      this.autoCloseTimer = null;
+      this.navigation.host.closeModal({ morph: true });
+    }, AUTO_CLOSE_DELAY_MS);
+  }
+
+  private cancelAutoClose(): void {
+    if (this.autoCloseTimer !== null) {
+      clearTimeout(this.autoCloseTimer);
+      this.autoCloseTimer = null;
+    }
   }
 }
 
