@@ -19,7 +19,7 @@ export { default as ErrorIcon } from "./errorIcon";
 export { default as ExternalLinkIcon } from "./externalLinkIcon";
 export { default as HeadphoneIcon } from "./headphoneIcon";
 export { default as InfoIcon } from "./infoIcon";
-export { default as LanguageIcon } from "./LanguageIcon";
+export { default as LanguageIcon } from "./languageIcon";
 export { default as LedgerLogoIcon } from "./ledgerLogoIcon";
 export { default as MobileIcon } from "./mobileIcon";
 export { default as QuestionIcon } from "./questionIcon";
