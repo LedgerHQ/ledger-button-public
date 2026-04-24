@@ -8,8 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "{count} bekleyen işleminiz var",
       "newTransactionPending": "Yeni işlem beklemede",
-      "transactionsValidatedOne": "1 işlem doğrulandı",
-      "transactionsValidatedOther": "{count} işlem doğrulandı"
+      "transactionsValidatedOne": "1 transaction has been validated",
+      "transactionsValidatedOther": "{count} transactions have been validated"
     },
     "search": {
       "placeholder": "Hesap ara",
