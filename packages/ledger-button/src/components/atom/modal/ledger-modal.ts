@@ -8,6 +8,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
 import {
   ModalAnimationController,
   type ModalMode,
@@ -129,6 +130,10 @@ export class LedgerModal extends LitElement {
   private animationController = new ModalAnimationController(this);
   private focusController = new ModalFocusController(this);
   private scrollLockController = new ModalScrollLockController(this);
+  private pendingMorph: {
+    targetRect: DOMRect;
+    position?: FloatingButtonPosition;
+  } | null = null;
 
   public openModal(mode: ModalMode = "center"): void {
     this.mode = mode;
@@ -140,11 +145,19 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  public closeModal(): void {
+  /**
+   * Trigger the close animation. Pass `morph` to fly the modal into the
+   * floating-button slot (used at the end of the connection-success
+   * flow); otherwise the modal just fades / slides out.
+   */
+  public closeModal(options?: {
+    morph?: { targetRect: DOMRect; position?: FloatingButtonPosition };
+  }): void {
     if (this.isClosing) {
       return;
     }
 
+    this.pendingMorph = options?.morph ?? null;
     this.dispatchEvent(
       new CustomEvent("modal-closed", {
         bubbles: true,
@@ -188,15 +201,26 @@ export class LedgerModal extends LitElement {
     this.isClosing = true;
     this.focusController.deactivate();
 
-    await this.animationController.animateClose(
-      {
-        backdrop: this.backdropElement,
-        container: this.containerElement,
-        wrapper: this.wrapperElement,
-      },
-      this.mode,
-    );
+    const elements = {
+      backdrop: this.backdropElement,
+      container: this.containerElement,
+      wrapper: this.wrapperElement,
+    };
 
+    const morph = this.pendingMorph;
+    this.pendingMorph = null;
+
+    if (morph) {
+      await this.animationController.animateMorphClose(
+        elements,
+        morph.targetRect,
+        morph.position,
+      );
+    } else {
+      await this.animationController.animateClose(elements, this.mode);
+    }
+
+    this.dispatchCloseFinished();
     this.scrollLockController.unlock();
     this.isClosing = false;
     this.dispatchAnimationComplete();
@@ -205,6 +229,19 @@ export class LedgerModal extends LitElement {
   private dispatchAnimationComplete(): void {
     this.dispatchEvent(
       new CustomEvent("modal-animation-complete", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  /**
+   * Fired once the modal close is fully finished and the floating button can
+   * safely reappear without racing the final cleanup/reset work.
+   */
+  private dispatchCloseFinished(): void {
+    this.dispatchEvent(
+      new CustomEvent("modal-close-finished", {
         bubbles: true,
         composed: true,
       }),
@@ -225,13 +262,15 @@ export class LedgerModal extends LitElement {
     const appTitle = this.languages?.currentTranslation?.common?.appTitle;
 
     return html`
-      <slot name="toolbar">
-        <ledger-toolbar
-          title=${appTitle}
-          aria-label=${appTitle}
-          @ledger-toolbar-close=${this.closeModal}
-        ></ledger-toolbar>
-      </slot>
+      <div class="modal-toolbar">
+        <slot name="toolbar">
+          <ledger-toolbar
+            title=${appTitle}
+            aria-label=${appTitle}
+            @ledger-toolbar-close=${this.closeModal}
+          ></ledger-toolbar>
+        </slot>
+      </div>
     `;
   }
 
@@ -316,5 +355,6 @@ declare global {
     "modal-opened": CustomEvent<void>;
     "modal-closed": CustomEvent<void>;
     "modal-animation-complete": CustomEvent<void>;
+    "modal-close-finished": CustomEvent<void>;
   }
 }

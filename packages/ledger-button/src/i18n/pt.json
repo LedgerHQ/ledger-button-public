@@ -119,6 +119,10 @@
       "refreshingAccounts": "A Ledger Wallet está atualizando suas contas.",
       "refreshingAccountsHint": "Selecione uma conta a qualquer momento para continuar."
     },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
+    },
     "turnOnSync": {
       "title": "",
       "subtitle": "Ative o Ledger Sync para continuar",
