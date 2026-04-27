@@ -14,6 +14,7 @@ import "../domain/signing-flow/signing-flow.js";
 import "../domain/account-tokens/account-tokens.js";
 import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
 import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
+import "../domain/onboarding/connection-success/connection-success-screen.js";
 import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
 import "../domain/settings/settings-screen.js";
 import "../domain/settings/preferences/preferences-screen.js";
@@ -353,6 +354,16 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
         title: "",
         canClose: true,
         showLogo: false,
+      },
+    },
+    connectionSuccess: {
+      name: "connectionSuccess",
+      component: "connection-success-screen",
+      canGoBack: false,
+      skipHistory: true,
+      toolbar: {
+        title: "",
+        canClose: false,
       },
     },
     notFound: {

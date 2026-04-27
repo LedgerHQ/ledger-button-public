@@ -5,15 +5,37 @@ import { Destination, resolveCanGoBack } from "./routes.js";
 
 export const ANIMATION_DELAY = 300;
 
+/**
+ * Options accepted by the modal close action exposed on the navigation host.
+ *
+ * `morph: true` triggers the curved shrink-and-fly animation that lands the
+ * modal at the floating-button position. Anything else is a regular fade.
+ */
+export type CloseModalOptions = {
+  morph?: boolean;
+};
+
+/**
+ * Minimal contract every Navigation host must satisfy. Screens and feature
+ * controllers can call `navigation.host.closeModal(...)` without doing an
+ * `instanceof RootNavigationComponent` check just for that.
+ *
+ * Anything host-specific beyond this still needs to narrow to the concrete
+ * host type explicitly.
+ */
+export interface NavigationHost extends ReactiveControllerHost {
+  closeModal(options?: CloseModalOptions): void;
+}
+
 export class Navigation implements ReactiveController {
-  host: ReactiveControllerHost;
+  host: NavigationHost;
 
   history: Destination[] = [];
   currentScreen: Destination | null = null;
   private navigationTimeoutId: number | null = null;
 
   constructor(
-    host: ReactiveControllerHost,
+    host: NavigationHost,
     private readonly modalContent: HTMLElement,
   ) {
     this.host = host;

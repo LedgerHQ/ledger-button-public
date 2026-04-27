@@ -119,6 +119,10 @@
       "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
       "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。"
     },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
+    },
     "turnOnSync": {
       "title": "",
       "subtitle": "Ledger Syncをオンにして続行する",

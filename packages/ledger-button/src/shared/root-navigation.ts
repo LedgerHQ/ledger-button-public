@@ -1,10 +1,14 @@
+import "../domain/onboarding/connection-success/connection-success-overlay.js";
+
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
+import { computeFloatingButtonRect } from "../components/atom/floating-button/floating-button-rect.js";
+import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
 import {
   LedgerModal,
   ModalMode,
@@ -12,11 +16,20 @@ import {
 import type { WalletTransactionFeature } from "../components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
+import type { CloseModalOptions, NavigationHost } from "./navigation.js";
 import { RootNavigationController } from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
+type SuccessOverlayState = {
+  targetRect: DOMRect;
+  position: FloatingButtonPosition;
+};
+
 @customElement("root-navigation-component")
-export class RootNavigationComponent extends LitElement {
+export class RootNavigationComponent
+  extends LitElement
+  implements NavigationHost
+{
   @consume({ context: coreContext })
   public coreContext!: CoreContext;
 
@@ -36,6 +49,9 @@ export class RootNavigationComponent extends LitElement {
   rootNavigationController!: RootNavigationController;
 
   isModalOpen = false;
+
+  @state()
+  private successOverlayState: SuccessOverlayState | null = null;
 
   override connectedCallback() {
     super.connectedCallback();
@@ -79,13 +95,50 @@ export class RootNavigationComponent extends LitElement {
   }
 
   public openModal(mode?: ModalMode) {
+    if (this.successOverlayState) {
+      this.dismissSuccessOverlay();
+      void this.updateComplete.then(() => {
+        this.handleModalOpen();
+        this.ledgerModal.openModal(mode);
+      });
+      return;
+    }
+
     this.handleModalOpen();
     this.ledgerModal.openModal(mode);
   }
 
-  public closeModal() {
+  public closeModal(options?: CloseModalOptions): void {
+    if (this.successOverlayState) {
+      this.dismissSuccessOverlay();
+      this.handleModalCloseFinished();
+      return;
+    }
+
     this.handleModalClose();
+    if (options?.morph) {
+      this.ledgerModal.closeModal({
+        morph: {
+          targetRect: this.findFloatingButtonRect(),
+          position: this.resolveFloatingButtonPosition(),
+        },
+      });
+      return;
+    }
     this.ledgerModal.closeModal();
+  }
+
+  public presentConnectionSuccessOverlay(): void {
+    if (this.successOverlayState) {
+      return;
+    }
+
+    this.handleModalClose();
+    this.rootNavigationController.handleModalClose();
+    this.successOverlayState = {
+      targetRect: this.findFloatingButtonRect(),
+      position: this.resolveFloatingButtonPosition(),
+    };
   }
 
   // PRIVATE METHODS
@@ -122,12 +175,60 @@ export class RootNavigationComponent extends LitElement {
     this.rootNavigationController.handleModalClose();
   }
 
+  /**
+   * Single window event the floating-button controller listens to. Fires
+   * exactly once per modal close, after the modal has fully finished
+   * cleaning up its close animation.
+   */
+  private handleModalCloseFinished() {
+    window.dispatchEvent(
+      new CustomEvent("ledger-core-modal-close-finished", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
   private handleChipClick(_e: CustomEvent) {
     this.rootNavigationController.handleChipClick();
   }
 
   private handleSettingsClick() {
     this.rootNavigationController.navigateToSettings();
+  }
+
+  private handleConnectionSuccessOverlayFinished() {
+    this.dismissSuccessOverlay();
+    void this.updateComplete.then(() => {
+      this.handleModalCloseFinished();
+    });
+  }
+
+  /**
+   * Prefer the live element's bounding rect (matches whatever the page
+   * actually painted) and fall back to the pure viewport-based
+   * computation when the FB isn't mounted yet.
+   */
+  private findFloatingButtonRect(): DOMRect {
+    const root = this.getRootNode() as ShadowRoot;
+    const floatingButton = root?.querySelector("ledger-floating-button");
+    const innerButton = floatingButton?.shadowRoot?.querySelector("button");
+    if (innerButton) {
+      const rect = innerButton.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return rect;
+      }
+    }
+    return computeFloatingButtonRect(this.resolveFloatingButtonPosition());
+  }
+
+  private resolveFloatingButtonPosition(): FloatingButtonPosition {
+    const root = this.getRootNode() as ShadowRoot;
+    const appHost = root?.host as
+      | { floatingButtonPosition?: FloatingButtonPosition | false }
+      | undefined;
+    const position = appHost?.floatingButtonPosition;
+    return position ? position : "bottom-right";
   }
 
   private goBack() {
@@ -153,7 +254,7 @@ export class RootNavigationComponent extends LitElement {
     return html`<ledger-button-404 id="not-found"></ledger-button-404>`;
   }
 
-  override render() {
+  private renderLedgerModal() {
     const uiModel = this.rootNavigationController.rootNavigationUiModel;
 
     return html`
@@ -162,6 +263,7 @@ export class RootNavigationComponent extends LitElement {
         @modal-opened=${this.handleModalOpen}
         @modal-closed=${this.handleModalClose}
         @modal-animation-complete=${this.handleModalAnimationComplete}
+        @modal-close-finished=${this.handleModalCloseFinished}
       >
         <div slot="toolbar">
           <ledger-toolbar
@@ -185,6 +287,32 @@ export class RootNavigationComponent extends LitElement {
       </ledger-modal>
     `;
   }
+
+  private renderConnectionSuccessOverlay() {
+    if (!this.successOverlayState) {
+      return null;
+    }
+
+    return html`
+      <connection-success-overlay
+        .targetRect=${this.successOverlayState.targetRect}
+        .position=${this.successOverlayState.position}
+        @connection-success-overlay-finished=${this
+          .handleConnectionSuccessOverlayFinished}
+      ></connection-success-overlay>
+    `;
+  }
+
+  override render() {
+    return html`
+      ${this.successOverlayState ? null : this.renderLedgerModal()}
+      ${this.renderConnectionSuccessOverlay()}
+    `;
+  }
+
+  private dismissSuccessOverlay(): void {
+    this.successOverlayState = null;
+  }
 }
 
 declare global {
@@ -196,5 +324,6 @@ declare global {
     "ledger-provider-close": CustomEvent;
     "ledger-core-modal-open": CustomEvent;
     "ledger-core-modal-close": CustomEvent;
+    "ledger-core-modal-close-finished": CustomEvent;
   }
 }

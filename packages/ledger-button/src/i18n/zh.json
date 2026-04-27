@@ -119,6 +119,10 @@
       "refreshingAccounts": "Ledger Wallet 正在刷新您的账户。",
       "refreshingAccountsHint": "您可以随时选择一个账户以继续。"
     },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
+    },
     "turnOnSync": {
       "title": "",
       "subtitle": "开启 Ledger Sync 以继续",

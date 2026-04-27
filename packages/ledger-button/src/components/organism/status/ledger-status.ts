@@ -158,25 +158,32 @@ export class LedgerStatus extends LitElement {
                 : ""}
             </div>
           </div>
-          <div class="flex flex-col gap-16 self-stretch">
-            ${this.secondaryButtonLabel
-              ? html`
-                  <ledger-button
-                    label=${this.secondaryButtonLabel}
-                    variant="secondary"
-                    size="full"
-                    @ledger-button-click=${this.handleSecondaryAction}
-                  ></ledger-button>
-                `
-              : ""}
-
-            <ledger-button
-              label=${this.primaryButtonLabel}
-              variant="primary"
-              size="full"
-              @ledger-button-click=${this.handlePrimaryAction}
-            ></ledger-button>
-          </div>
+          ${this.primaryButtonLabel || this.secondaryButtonLabel
+            ? html`
+                <div class="flex flex-col gap-16 self-stretch">
+                  ${this.secondaryButtonLabel
+                    ? html`
+                        <ledger-button
+                          label=${this.secondaryButtonLabel}
+                          variant="secondary"
+                          size="full"
+                          @ledger-button-click=${this.handleSecondaryAction}
+                        ></ledger-button>
+                      `
+                    : ""}
+                  ${this.primaryButtonLabel
+                    ? html`
+                        <ledger-button
+                          label=${this.primaryButtonLabel}
+                          variant="primary"
+                          size="full"
+                          @ledger-button-click=${this.handlePrimaryAction}
+                        ></ledger-button>
+                      `
+                    : ""}
+                </div>
+              `
+            : ""}
         </div>
       </div>
     `;

@@ -119,6 +119,10 @@
       "refreshingAccounts": "Ledger Wallet aktualisiert deine Konten.",
       "refreshingAccountsHint": "Wähle jederzeit ein Konto, um fortzufahren."
     },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
+    },
     "turnOnSync": {
       "title": "",
       "subtitle": "Ledger Sync einschalten, um fortzufahren",

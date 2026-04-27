@@ -3,13 +3,13 @@ import {
   Device,
   SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { ReactiveController, ReactiveControllerHost } from "lit";
+import { ReactiveController } from "lit";
 import { Subscription } from "rxjs";
 
 import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import { CoreContext } from "../context/core-context.js";
 import { LanguageContext } from "../context/language-context.js";
-import { Navigation } from "./navigation.js";
+import { Navigation, NavigationHost } from "./navigation.js";
 import {
   Destination,
   Destinations,
@@ -41,7 +41,7 @@ export class RootNavigationController implements ReactiveController {
   connectedDevice: Device | undefined;
 
   constructor(
-    private readonly host: ReactiveControllerHost,
+    private readonly host: NavigationHost,
     private readonly core: CoreContext,
     private readonly languages: LanguageContext,
     private readonly modalContent: HTMLElement,

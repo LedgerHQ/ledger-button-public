@@ -44,7 +44,17 @@ const floatingButtonVariants = cva(
   },
 );
 
-const positionVariants = cva("fixed z-1000", {
+// `z-7732` is a wink to EIP-7732 (https://eips.ethereum.org/EIPS/eip-7732)
+// and intentionally sits one tier above the modal stack:
+//   - `.modal-backdrop`  → z-index 7730
+//   - `.modal-container` → z-index 7731
+//   - this floating btn  → z-index 7732
+// so that at the end of the morph-close animation the real button can
+// take over the same pixels as the morphed pill underneath.
+// Tailwind offset/size classes below must stay in sync with
+// `FLOATING_BUTTON_SIZE` / `FLOATING_BUTTON_OFFSET` in
+// `floating-button-rect.ts` (h-64/w-64 + right-24/bottom-24/…).
+const positionVariants = cva("fixed z-7732", {
   variants: {
     position: {
       "bottom-right": "right-24 bottom-24",
@@ -69,6 +79,20 @@ const styles = css`
 
   :host([hidden]) {
     display: none;
+  }
+
+  @keyframes ledger-floating-button-logo-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .floating-button-logo-fade-in {
+    animation: ledger-floating-button-logo-fade-in 220ms ease-out both;
+    animation-delay: 60ms;
   }
 `;
 
@@ -102,6 +126,17 @@ export class LedgerFloatingButton extends LitElement {
 
   @property({ type: String })
   variant: FloatingButtonVariant = "circular";
+
+  /**
+   * Whether to apply the logo fade-in class on the next render. We want
+   * the fade to play exactly once each time the button (re)appears
+   * (initial mount, or after a modal close), and never replay on routine
+   * re-renders such as variant changes or a pending-tx count update.
+   */
+  @state()
+  private playLogoFadeIn = true;
+
+  private wasShowing = false;
 
   private controller!: FloatingButtonController;
   private badgeAnimCtrl!: BadgeAnimationController;
@@ -159,7 +194,18 @@ export class LedgerFloatingButton extends LitElement {
       );
       this.requestUpdate();
     }
+
+    const isShowing = this.controller?.shouldShow ?? false;
+    if (!isShowing && this.wasShowing) {
+      // Arm the fade-in for the next time the button re-appears.
+      this.playLogoFadeIn = true;
+    }
+    this.wasShowing = isShowing;
   }
+
+  private handleLogoFadeInEnd = (): void => {
+    this.playLogoFadeIn = false;
+  };
 
   private handleClick = () => {
     this.dispatchEvent(
@@ -242,6 +288,13 @@ export class LedgerFloatingButton extends LitElement {
     const iconMaskStyle = showBadgeChrome
       ? `-webkit-mask-image: ${BADGE_MASK_GRADIENT}; mask-image: ${BADGE_MASK_GRADIENT};`
       : "";
+    const logoFadeClasses = {
+      "floating-button-logo-fade-in": this.playLogoFadeIn,
+      "inline-flex": true,
+      "items-center": true,
+      "justify-center": true,
+      "gap-8": true,
+    };
 
     return html`
       <button
@@ -250,17 +303,22 @@ export class LedgerFloatingButton extends LitElement {
         @click=${this.handleClick}
         aria-label=${ariaLabel}
       >
-        <ledger-icon
-          type="ledger"
-          size=${iconSize}
-          fillColor="white"
-        ></ledger-icon>
-        ${this.variant === "compact"
-          ? html`<span
-              class="shrink-0 leading-normal font-medium text-white not-italic"
-              >${buttonLabel}</span
-            >`
-          : nothing}
+        <span
+          class=${classMap(logoFadeClasses)}
+          @animationend=${this.handleLogoFadeInEnd}
+        >
+          <ledger-icon
+            type="ledger"
+            size=${iconSize}
+            fillColor="white"
+          ></ledger-icon>
+          ${this.variant === "compact"
+            ? html`<span
+                class="shrink-0 leading-normal font-medium text-white not-italic"
+                >${buttonLabel}</span
+              >`
+            : nothing}
+        </span>
       </button>
     `;
   }
