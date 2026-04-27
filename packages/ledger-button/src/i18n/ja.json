@@ -8,8 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "{count}件のトランザクション保留中があります。",
       "newTransactionPending": "保留中の新規トランザクション",
-      "transactionsValidatedOne": "1件のトランザクションが検証されました",
-      "transactionsValidatedOther": "{count}件のトランザクションが検証されました"
+      "transactionsValidatedOne": "1件のトランザクションを検証済みです",
+      "transactionsValidatedOther": "{count}件のトランザクションを検証済みです"
     },
     "search": {
       "placeholder": "アカウントを検索",
