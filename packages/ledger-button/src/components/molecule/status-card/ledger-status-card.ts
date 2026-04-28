@@ -18,7 +18,7 @@ export interface LedgerStatusCardAttributes {
 const spotVariants = cva(
   [
     "flex h-48 w-48 shrink-0 items-center justify-center rounded-full",
-    "bg-base-transparent",
+    "bg-muted-transparent",
   ],
   {
     variants: {
