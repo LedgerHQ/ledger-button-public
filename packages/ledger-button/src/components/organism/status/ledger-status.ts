@@ -2,7 +2,7 @@ import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, type PropertyValues } from "lit";
+import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -37,23 +37,8 @@ const spotVariants = cva(
   },
 );
 
-const styles = css`
-  :host {
-    display: block;
-  }
-
-  /*
-   * The card slot is a light DOM child of the host so we can detect it via
-   * :host(:has(...)) and enlarge the gap between the title block and the
-   * card. This avoids a JS-driven layout shift on first paint.
-   */
-  :host(:has([slot="card"])) [data-status-content] {
-    gap: 24px;
-  }
-`;
-
 @customElement("ledger-status")
-@tailwindElement(styles)
+@tailwindElement()
 export class LedgerStatus extends LitElement {
   @property({ type: String })
   type: StatusType = "success";
@@ -197,30 +182,27 @@ export class LedgerStatus extends LitElement {
             ></ledger-icon>
           </div>
           <div
-            data-status-content
             class="flex flex-col items-center gap-12 self-stretch text-center"
           >
-            <div class="flex flex-col items-center gap-12">
-              ${this.title
-                ? html`
-                    <h2
-                      id="status-title"
-                      class="text-base heading-4-semi-bold"
-                    >
-                      ${this.title}
-                    </h2>
-                  `
-                : ""}
-              ${this.description
-                ? html`
-                    <p id="status-description" class="text-muted body-2">
-                      ${this.description}
-                    </p>
-                  `
-                : ""}
-            </div>
-            <slot name="card"></slot>
+            ${this.title
+              ? html`
+                  <h2
+                    id="status-title"
+                    class="text-base heading-4-semi-bold"
+                  >
+                    ${this.title}
+                  </h2>
+                `
+              : ""}
+            ${this.description
+              ? html`
+                  <p id="status-description" class="text-muted body-2">
+                    ${this.description}
+                  </p>
+                `
+              : ""}
           </div>
+          <slot name="card"></slot>
           ${this.renderActions()}
         </div>
       </div>
