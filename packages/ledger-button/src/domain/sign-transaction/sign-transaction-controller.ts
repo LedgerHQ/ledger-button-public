@@ -1,6 +1,7 @@
 import {
   BlindSigningDisabledError,
   BroadcastTransactionError,
+  buildExplorerTransactionUrl,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -52,6 +53,7 @@ export class SignTransactionController implements ReactiveController {
     | SignRawTransactionParams
     | SignTypedMessageParams
     | SignPersonalMessageParams;
+  private explorerTemplatePrefetch?: Promise<string | undefined>;
   result?: SignedResults;
 
   state: ScreenState = {
@@ -102,6 +104,11 @@ export class SignTransactionController implements ReactiveController {
       | SignPersonalMessageParams,
   ) {
     this.currentTransaction = transactionParams;
+    this.explorerTemplatePrefetch = this.isTransactionParameter(
+      transactionParams,
+    )
+      ? this.prefetchTransactionExplorerUrlTemplate()
+      : undefined;
 
     if (this.transactionSubscription) {
       this.transactionSubscription.unsubscribe();
@@ -128,8 +135,7 @@ export class SignTransactionController implements ReactiveController {
                 );
               }
 
-              this.state = this.mapSuccessToState(result.data);
-              this.host.requestUpdate();
+              void this.handleSignSuccess(result.data);
               break;
             }
             break;
@@ -186,19 +192,22 @@ export class SignTransactionController implements ReactiveController {
     );
   }
 
-  private mapSuccessToState(data: SignedResults): ScreenState {
+  private mapSuccessToState(
+    data: SignedResults,
+    transactionExplorerUrlTemplate?: string,
+  ): ScreenState {
     const lang = this.lang.currentTranslation;
 
     let cta2 = undefined;
     if (isBroadcastedTransactionResult(data)) {
-      const scanWebsiteUrl = this.getScanWebsiteUrl(
-        this.core.getChainId(),
+      const explorerUrl = buildExplorerTransactionUrl(
+        transactionExplorerUrlTemplate,
         data.hash,
       );
-      if (scanWebsiteUrl) {
+      if (explorerUrl) {
         cta2 = {
           label: lang.signTransaction?.success?.viewTransaction,
-          action: () => this.viewTransactionDetails(scanWebsiteUrl),
+          action: () => this.viewTransactionDetails(explorerUrl),
         };
       }
     }
@@ -440,31 +449,36 @@ export class SignTransactionController implements ReactiveController {
       }
     }
   }
-  getScanWebsiteUrl(chainId: number, transactionHash: string): string | null {
-    switch (chainId) {
-      case 1:
-        return `https://etherscan.io/tx/${transactionHash}`;
-      case 10:
-        return `https://optimistic.etherscan.io/tx/${transactionHash}`;
-      case 137:
-        return `https://polygonscan.com/tx/${transactionHash}`;
-      case 42161:
-        return `https://arbiscan.io/tx/${transactionHash}`;
-      case 8453:
-        return `https://basescan.org/tx/${transactionHash}`;
-      case 56:
-        return `https://bscscan.com/tx/${transactionHash}`;
-      case 59144:
-        return `https://lineascan.build/tx/${transactionHash}`;
-      case 146:
-        return `https://sonicscan.org/tx/${transactionHash}`;
-      case 324:
-        return `https://zkscan.io/explorer/transactions/${transactionHash}`;
-      case 43114:
-        return `https://snowtrace.io/tx/${transactionHash}?chainid=43114`;
-      default:
-        return null;
+
+  private async prefetchTransactionExplorerUrlTemplate(): Promise<
+    string | undefined
+  > {
+    const currencyId = this.core.getSelectedAccount()?.currencyId;
+    if (!currencyId) {
+      return undefined;
     }
+
+    try {
+      const { transactionExplorerUrlTemplate } =
+        await this.core.getCurrencyInfo(currencyId);
+      return transactionExplorerUrlTemplate;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private async handleSignSuccess(data: SignedResults) {
+    const prefetch = this.explorerTemplatePrefetch;
+    const transactionExplorerUrlTemplate = isBroadcastedTransactionResult(data)
+      ? await prefetch
+      : undefined;
+
+    if (this.explorerTemplatePrefetch !== prefetch) {
+      return;
+    }
+
+    this.state = this.mapSuccessToState(data, transactionExplorerUrlTemplate);
+    this.host.requestUpdate();
   }
 
   viewTransactionDetails(url: string) {

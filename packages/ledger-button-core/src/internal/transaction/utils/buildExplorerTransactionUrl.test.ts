@@ -1,40 +1,40 @@
 import { describe, expect, it } from "vitest";
 
-import { buildTransactionExplorerUrl } from "./buildTransactionExplorerUrl.js";
+import { buildExplorerTransactionUrl } from "./buildExplorerTransactionUrl.js";
 
 const HASH =
   "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";
 
-describe("buildTransactionExplorerUrl", () => {
+describe("buildExplorerTransactionUrl", () => {
   it("resolves the explorer URL by replacing the ${hash} placeholder", () => {
-    const url = buildTransactionExplorerUrl(
-      HASH,
+    const url = buildExplorerTransactionUrl(
       "https://etherscan.io/tx/${hash}",
+      HASH,
     );
 
     expect(url).toBe(`https://etherscan.io/tx/${HASH}`);
   });
 
   it("replaces every occurrence of ${hash} in the template", () => {
-    const url = buildTransactionExplorerUrl(
-      HASH,
+    const url = buildExplorerTransactionUrl(
       "https://explorer.test/tx/${hash}?ref=${hash}",
+      HASH,
     );
 
     expect(url).toBe(`https://explorer.test/tx/${HASH}?ref=${HASH}`);
   });
 
   it("returns the template unchanged when it contains no placeholder", () => {
-    const url = buildTransactionExplorerUrl(HASH, "https://explorer.test/home");
+    const url = buildExplorerTransactionUrl("https://explorer.test/home", HASH);
 
     expect(url).toBe("https://explorer.test/home");
   });
 
   it("returns null when no template is provided", () => {
-    expect(buildTransactionExplorerUrl(HASH, undefined)).toBeNull();
+    expect(buildExplorerTransactionUrl(undefined, HASH)).toBeNull();
   });
 
   it("returns null for an empty-string template", () => {
-    expect(buildTransactionExplorerUrl(HASH, "")).toBeNull();
+    expect(buildExplorerTransactionUrl("", HASH)).toBeNull();
   });
 });
