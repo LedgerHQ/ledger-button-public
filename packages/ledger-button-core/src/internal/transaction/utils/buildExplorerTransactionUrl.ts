@@ -1,6 +1,6 @@
-export function buildTransactionExplorerUrl(
+export function buildExplorerTransactionUrl(
+  transactionExplorerUrlTemplate: string | undefined,
   hash: string,
-  transactionExplorerUrlTemplate?: string,
 ): string | null {
   if (!transactionExplorerUrlTemplate) {
     return null;

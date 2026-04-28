@@ -611,16 +611,18 @@ export class LedgerButtonCore {
     return this._contextService.getContext().chainId;
   }
 
-  async getCurrencyInfo(
-    currencyId: string,
-  ): Promise<{ name: string; ticker: string }> {
+  async getCurrencyInfo(currencyId: string): Promise<{
+    name: string;
+    ticker: string;
+    transactionExplorerUrlTemplate?: string;
+  }> {
     const result = await this.container
       .get<CalDataSource>(balanceModuleTypes.CalDataSource)
       .getCurrencyInformation(currencyId);
 
     if (result.isRight()) {
-      const { name, ticker } = result.extract();
-      return { name, ticker };
+      const { name, ticker, transactionExplorerUrlTemplate } = result.extract();
+      return { name, ticker, transactionExplorerUrlTemplate };
     }
     return { name: currencyId, ticker: currencyId.toUpperCase() };
   }
