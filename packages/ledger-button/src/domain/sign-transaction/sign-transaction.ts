@@ -172,6 +172,16 @@ export class SignTransactionScreen extends LitElement {
       return html``;
     }
 
+    const broadcast =
+      this.controller.state.screen === "success"
+        ? this.controller.state.broadcast
+        : undefined;
+
+    const lang = this.languageContext.currentTranslation;
+    const broadcastCopy = broadcast
+      ? lang.signTransaction?.broadcast?.[broadcast.state]
+      : undefined;
+
     return html`
       <div
         class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
@@ -179,12 +189,23 @@ export class SignTransactionScreen extends LitElement {
         <ledger-status
           type=${this.controller.state.screen}
           title=${this.controller.state.status.title}
-          description=${this.controller.state.status.message}
+          description=${broadcast ? "" : this.controller.state.status.message}
           primary-button-label=${this.controller.state.status.cta1.label}
           secondary-button-label=${this.controller.state.status.cta2?.label ??
           ""}
           @status-action=${this.handleStatusAction}
-        ></ledger-status>
+        >
+          ${broadcast && broadcastCopy
+            ? html`
+                <ledger-status-card
+                  slot="card"
+                  state=${broadcast.state}
+                  title=${broadcastCopy.title}
+                  description=${broadcastCopy.description}
+                ></ledger-status-card>
+              `
+            : ""}
+        </ledger-status>
       </div>
     `;
   }

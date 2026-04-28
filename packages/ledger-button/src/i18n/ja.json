@@ -226,6 +226,16 @@
     "error": {
       "title": "トランザクションが失敗しました。",
       "description": "トランザクションの署名中にエラーが発生しました。もう一度お試しください。"
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

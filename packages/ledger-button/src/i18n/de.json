@@ -226,6 +226,16 @@
     "error": {
       "title": "Transaktion fehlgeschlagen.",
       "description": "Beim Signieren deiner Transaktion ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

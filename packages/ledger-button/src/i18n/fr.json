@@ -226,6 +226,16 @@
     "error": {
       "title": "Échec de la transaction",
       "description": "Une erreur est survenue lors de la signature de la transaction. Veuillez réessayer."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {
