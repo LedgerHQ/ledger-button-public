@@ -18,7 +18,7 @@ export interface LedgerStatusCardAttributes {
 const spotVariants = cva(
   [
     "flex h-48 w-48 shrink-0 items-center justify-center rounded-full",
-    "bg-muted-transparent",
+    "bg-base-transparent",
   ],
   {
     variants: {
@@ -39,6 +39,7 @@ const styles = css`
     width: 100%;
   }
 `;
+
 @customElement("ledger-status-card")
 @tailwindElement(styles)
 export class LedgerStatusCard extends LitElement {
@@ -61,10 +62,6 @@ export class LedgerStatusCard extends LitElement {
     return this.state === "validated" ? "checkMarkCircleFill" : "clock";
   }
 
-  private get spotAriaLabel() {
-    return this.state === "validated" ? "Validated" : "Processing";
-  }
-
   override render() {
     return html`
       <div
@@ -72,11 +69,7 @@ export class LedgerStatusCard extends LitElement {
         role="status"
         aria-live="polite"
       >
-        <div
-          class=${classMap(this.spotClasses)}
-          role="img"
-          aria-label=${this.spotAriaLabel}
-        >
+        <div class=${classMap(this.spotClasses)} aria-hidden="true">
           <ledger-icon
             .type=${this.iconType}
             size="medium"

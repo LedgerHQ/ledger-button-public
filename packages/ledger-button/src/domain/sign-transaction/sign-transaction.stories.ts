@@ -10,6 +10,10 @@ import type { AnimationKey } from "../../components/index.js";
 import type { StatusType } from "../../components/organism/status/ledger-status.js";
 import en from "../../i18n/en.json" with { type: "json" };
 
+// These stories render the visual layout the SignTransactionScreen produces
+// without driving the controller. They are mockups for design review only.
+// The controller (broadcast lifecycle, error mapping, etc.) is exercised at
+// runtime; here we just preview the markup the screen will emit.
 const broadcastCopy = en.signTransaction.broadcast;
 
 type SignTransactionStoryArgs = {
@@ -28,7 +32,7 @@ type SignTransactionStoryArgs = {
 
 const renderSigning = (args: SignTransactionStoryArgs) => html`
   <div
-    class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
+    class="flex min-h-200 flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
   >
     <div class="w-208">
       <ledger-device-animation
@@ -37,8 +41,8 @@ const renderSigning = (args: SignTransactionStoryArgs) => html`
       ></ledger-device-animation>
     </div>
     <div class="flex flex-col items-center gap-8 self-stretch">
-      <p class="text-center body-1">${args.title}</p>
-      <p class="text-center text-muted body-2">${args.description}</p>
+      <p class="body-1 text-center">${args.title}</p>
+      <p class="text-muted body-2 text-center">${args.description}</p>
     </div>
   </div>
 `;
