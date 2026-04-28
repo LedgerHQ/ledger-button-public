@@ -226,6 +226,16 @@
     "error": {
       "title": "İşlem başarısız",
       "description": "İşleminiz imzalanırken bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

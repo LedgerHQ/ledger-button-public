@@ -6,18 +6,81 @@ import "../../components/index.js";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
-const meta: Meta = {
+import type { AnimationKey } from "../../components/index.js";
+import type { StatusType } from "../../components/organism/status/ledger-status.js";
+import en from "../../i18n/en.json" with { type: "json" };
+
+const broadcastCopy = en.signTransaction.broadcast;
+
+type SignTransactionStoryArgs = {
+  state: "signing" | StatusType;
+  deviceModel: "stax" | "flex" | "nanox" | "nanosp" | "apexp";
+  deviceAnimation: Extract<
+    AnimationKey,
+    "pin" | "continueOnLedger" | "signTransaction"
+  >;
+  title: string;
+  description: string;
+  primaryButtonLabel: string;
+  secondaryButtonLabel: string;
+  broadcastState: "none" | "processing" | "validated";
+};
+
+const renderSigning = (args: SignTransactionStoryArgs) => html`
+  <div
+    class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
+  >
+    <div class="w-208">
+      <ledger-device-animation
+        modelId=${args.deviceModel}
+        animation=${args.deviceAnimation}
+      ></ledger-device-animation>
+    </div>
+    <div class="flex flex-col items-center gap-8 self-stretch">
+      <p class="text-center body-1">${args.title}</p>
+      <p class="text-center text-muted body-2">${args.description}</p>
+    </div>
+  </div>
+`;
+
+const renderBroadcastCard = (args: SignTransactionStoryArgs) => {
+  if (args.broadcastState === "none" || args.state !== "success") {
+    return null;
+  }
+  const copy = broadcastCopy[args.broadcastState];
+  return html`
+    <ledger-status-card
+      slot="card"
+      state=${args.broadcastState}
+      title=${copy.title}
+      description=${copy.description}
+    ></ledger-status-card>
+  `;
+};
+
+const renderStatus = (args: SignTransactionStoryArgs) => html`
+  <div
+    class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
+  >
+    <ledger-status
+      type=${args.state}
+      title=${args.title}
+      description=${args.description}
+      primary-button-label=${args.primaryButtonLabel}
+      secondary-button-label=${args.secondaryButtonLabel}
+    >
+      ${renderBroadcastCard(args)}
+    </ledger-status>
+  </div>
+`;
+
+const meta: Meta<SignTransactionStoryArgs> = {
   title: "Screens/SignTransaction/SignTransactionScreen",
   render: (args) => html`
     <core-provider>
       <language-provider>
         <ledger-modal-story-wrapper>
-          <sign-transaction-screen
-            .state=${args.state}
-            .deviceModel=${args.deviceModel}
-            .transactionId=${args.transactionId}
-            .transactionParams=${args.transactionParams}
-          ></sign-transaction-screen>
+          ${args.state === "signing" ? renderSigning(args) : renderStatus(args)}
         </ledger-modal-story-wrapper>
       </language-provider>
     </core-provider>
@@ -26,143 +89,118 @@ const meta: Meta = {
     state: {
       control: { type: "select" },
       options: ["signing", "success", "error"],
+      description: "Which screen variant to display",
+      table: {
+        type: { summary: "signing | success | error" },
+        defaultValue: { summary: "signing" },
+      },
     },
-    transactionId: {
+    deviceModel: {
+      control: { type: "select" },
+      options: ["stax", "flex", "nanox", "nanosp", "apexp"],
+      description: "Device model (used when state is signing)",
+      if: { arg: "state", eq: "signing" },
+    },
+    deviceAnimation: {
+      control: { type: "select" },
+      options: ["pin", "continueOnLedger", "signTransaction"],
+      description: "Device animation (used when state is signing)",
+      if: { arg: "state", eq: "signing" },
+    },
+    title: {
       control: { type: "text" },
+      description: "Main title shown in the screen",
     },
-    transactionParams: {
-      control: { type: "object" },
+    description: {
+      control: { type: "text" },
+      description: "Description shown below the title",
     },
+    primaryButtonLabel: {
+      control: { type: "text" },
+      description: "Primary button label (used when state is success or error)",
+      if: { arg: "state", neq: "signing" },
+    },
+    secondaryButtonLabel: {
+      control: { type: "text" },
+      description:
+        "Secondary button label (used when state is success or error)",
+      if: { arg: "state", neq: "signing" },
+    },
+    broadcastState: {
+      control: { type: "select" },
+      options: ["none", "processing", "validated"],
+      description:
+        "Broadcast status card displayed under the title (success only)",
+      if: { arg: "state", eq: "success" },
+      table: {
+        type: { summary: "none | processing | validated" },
+        defaultValue: { summary: "none" },
+      },
+    },
+  },
+  args: {
+    state: "signing",
+    deviceModel: "stax",
+    deviceAnimation: "signTransaction",
+    title: "Confirm on your Stax",
+    description: "Review and sign the transaction on your device.",
+    primaryButtonLabel: "Close",
+    secondaryButtonLabel: "View transaction",
+    broadcastState: "none",
   },
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<SignTransactionStoryArgs>;
 
 export const Signing: Story = {
   args: {
     state: "signing",
     deviceModel: "stax",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0xf86c8085174876e800825208944bbeeb066ed09b7aed07bf39eee0460dfa261520880de0b6b3a7640000802aa0a7def7a0b8c8c8b8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a01a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
-      derivationPath: "44'/60'/0'/0/0",
-    },
-  },
-};
-
-export const SigningNanoX: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "nanox",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0xf86e8085174876e800825208944bbeeb066ed09b7aed07bf39eee0460dfa26152088016345785d8a0000802aa0b8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a02d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3",
-    },
-  },
-};
-
-export const SigningFlex: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "flex",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0xf86d8085174876e800825208948da5cb82b122cb4e10be751d45b3b6f5e4a7d91588038d7ea4c68000802aa0c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a03e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4",
-    },
+    deviceAnimation: "signTransaction",
+    title: "Confirm on your Stax",
+    description: "Review and sign the transaction on your device.",
   },
 };
 
 export const Success: Story = {
   args: {
     state: "success",
-    deviceModel: "stax",
-    transactionId: "0x1234567890abcdef1234567890abcdef12345678",
-    transactionParams: {
-      rawTransaction:
-        "0xf86c8085174876e800825208944bbeeb066ed09b7aed07bf39eee0460dfa261520880de0b6b3a7640000802aa0a7def7a0b8c8c8b8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a01a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
-    },
+    title: en.signTransaction.success.title,
+    description: en.signTransaction.success.description,
+    primaryButtonLabel: en.common.button.close,
+    secondaryButtonLabel: en.signTransaction.success.viewTransaction,
+  },
+};
+
+export const SuccessProcessing: Story = {
+  args: {
+    state: "success",
+    title: en.signTransaction.success.title,
+    description: "",
+    primaryButtonLabel: en.common.button.close,
+    secondaryButtonLabel: en.signTransaction.success.viewTransaction,
+    broadcastState: "processing",
+  },
+};
+
+export const SuccessValidated: Story = {
+  args: {
+    state: "success",
+    title: en.signTransaction.success.title,
+    description: "",
+    primaryButtonLabel: en.common.button.close,
+    secondaryButtonLabel: en.signTransaction.success.viewTransaction,
+    broadcastState: "validated",
   },
 };
 
 export const Error: Story = {
   args: {
     state: "error",
-    deviceModel: "stax",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0xf86c8085174876e800825208944bbeeb066ed09b7aed07bf39eee0460dfa261520880de0b6b3a7640000802aa0a7def7a0b8c8c8b8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a01a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2",
-    },
-  },
-};
-
-// ERC20 transfer transaction
-export const ERC20Transfer: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "stax",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0xf8a98085174876e80082fde894a0b86a33e6815e2d5e7b4a00ad4bd5085e0a4d9e80b844a9059cbb000000000000000000000000742d35cc6634c0532925a3b8d35d423b2e5ac4a80000000000000000000000000000000000000000000000000de0b6b3a7640000802aa0e8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a04f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5",
-    },
-  },
-};
-
-// EIP-1559 transaction with maxFeePerGas and maxPriorityFeePerGas
-export const EIP1559Transaction: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "flex",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0x02f8708001808459682f0085174876e800825208944bbeeb066ed09b7aed07bf39eee0460dfa261520880de0b6b3a764000080c001a0f8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a05a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6",
-    },
-  },
-};
-
-// Polygon transaction (different chain ID)
-export const PolygonTransaction: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "nanox",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0x02f871818901808459682f0085174876e80082c350948f3cf7ad23cd3cadbdfebf95f44f9bc3829c1ecd80b844a9059cbb000000000000000000000000742d35cc6634c0532925a3b8d35d423b2e5ac4a80000000000000000000000000000000000000000000000000de0b6b3a7640000c001a0a8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a06b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7",
-      derivationPath: "44'/60'/0'/0/0", // Same path for Polygon
-    },
-  },
-};
-
-// Contract interaction with complex data
-export const ContractInteraction: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "flex",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0x02f8d18001808459682f00851766cd800083019a28941f9840a85d5af5bf1d1762f925bdaddc4201f98480b864095ea7b300000000000000000000000068b3465833fb72a70ecdf485e0e4c7bd8665fc45ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc001a0b8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a07c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8",
-    },
-  },
-};
-
-// High priority transaction with custom derivation path
-export const HighPriorityTransaction: Story = {
-  args: {
-    state: "signing",
-    deviceModel: "flex",
-    transactionId: "",
-    transactionParams: {
-      rawTransaction:
-        "0x02f8708001808502540be400851ca7b320008252089442be7636ecfeb93a7a99b58d0728a9c5abed7a3608806f05b59d3b2000080c001a0c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8a08d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9",
-      derivationPath: "44'/60'/0'/0/1", // Different account index
-    },
+    title: "Transaction failed",
+    description: "There was an error processing your transaction.",
+    primaryButtonLabel: "Try again",
+    secondaryButtonLabel: "Cancel",
   },
 };

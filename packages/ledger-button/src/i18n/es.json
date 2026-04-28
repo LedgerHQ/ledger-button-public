@@ -226,6 +226,16 @@
     "error": {
       "title": "La transacción ha fallado.",
       "description": "Hubo un error al firmar tu transacción. Inténtalo de nuevo."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

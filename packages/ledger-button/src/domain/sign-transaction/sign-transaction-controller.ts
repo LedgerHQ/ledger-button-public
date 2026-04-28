@@ -27,6 +27,13 @@ import { LanguageContext } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { RootNavigationComponent } from "../../shared/root-navigation.js";
 
+export type BroadcastState = "processing" | "validated";
+
+export type BroadcastInfo = {
+  state: BroadcastState;
+  hash: string;
+};
+
 export type ScreenState =
   | {
       screen: "signing";
@@ -35,7 +42,7 @@ export type ScreenState =
         "pairing" | "pairingSuccess" | "frontView"
       >;
     }
-  | { screen: "success"; status: StatusState }
+  | { screen: "success"; status: StatusState; broadcast?: BroadcastInfo }
   | { screen: "error"; status: StatusState };
 
 export type StatusState = {
@@ -48,6 +55,7 @@ export type StatusState = {
 export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
   private transactionSubscription?: Subscription;
+  private pendingTxSubscription?: Subscription;
   private currentTransaction?:
     | SignTransactionParams
     | SignRawTransactionParams
@@ -77,6 +85,7 @@ export class SignTransactionController implements ReactiveController {
 
   hostDisconnected() {
     this.transactionSubscription?.unsubscribe();
+    this.pendingTxSubscription?.unsubscribe();
   }
 
   private mapUserInteractionToDeviceAnimation(
@@ -199,7 +208,9 @@ export class SignTransactionController implements ReactiveController {
     const lang = this.lang.currentTranslation;
 
     let cta2 = undefined;
+    let broadcast: BroadcastInfo | undefined = undefined;
     if (isBroadcastedTransactionResult(data)) {
+      broadcast = { state: "processing", hash: data.hash };
       const explorerUrl = buildExplorerTransactionUrl(
         transactionExplorerUrlTemplate,
         data.hash,
@@ -241,7 +252,32 @@ export class SignTransactionController implements ReactiveController {
         },
         cta2,
       },
+      broadcast,
     };
+  }
+
+  private subscribeToBroadcastLifecycle(hash: string) {
+    this.pendingTxSubscription?.unsubscribe();
+
+    this.pendingTxSubscription = this.core
+      .observePendingTransactions()
+      .subscribe((txs) => {
+        if (this.state.screen !== "success" || !this.state.broadcast) {
+          return;
+        }
+        const stillPending = txs.some((tx) => tx.hash === hash);
+        const nextBroadcastState: BroadcastState = stillPending
+          ? "processing"
+          : "validated";
+        if (nextBroadcastState === this.state.broadcast.state) {
+          return;
+        }
+        this.state = {
+          ...this.state,
+          broadcast: { ...this.state.broadcast, state: nextBroadcastState },
+        };
+        this.host.requestUpdate();
+      });
   }
 
   private mapErrors(error: unknown) {
@@ -478,6 +514,9 @@ export class SignTransactionController implements ReactiveController {
     }
 
     this.state = this.mapSuccessToState(data, transactionExplorerUrlTemplate);
+    if (this.state.screen === "success" && this.state.broadcast) {
+      this.subscribeToBroadcastLifecycle(this.state.broadcast.hash);
+    }
     this.host.requestUpdate();
   }
 
