@@ -234,3 +234,69 @@ export const checkTitle = (
 
   return true;
 };
+
+const RELEASABLE_PACKAGE_PATHS = [
+  "packages/ledger-button/",
+  "packages/ledger-button-core/",
+];
+
+const VERSION_PLAN_PATH_PREFIX = ".nx/version-plans/";
+
+const isIgnoredForPlanCheck = (filePath: string) =>
+  filePath.endsWith(".spec.ts") ||
+  filePath.endsWith(".test.ts") ||
+  filePath.endsWith(".stories.tsx") ||
+  filePath.endsWith(".stories.ts") ||
+  filePath.includes("/.storybook/");
+
+const touchesReleasableSourceFile = (filePath: string) =>
+  RELEASABLE_PACKAGE_PATHS.some((packagePath) =>
+    filePath.startsWith(packagePath),
+  ) && !isIgnoredForPlanCheck(filePath);
+
+const isVersionPlanFile = (filePath: string) =>
+  filePath.startsWith(VERSION_PLAN_PATH_PREFIX) && filePath.endsWith(".md");
+
+type PullRequestLabel = { name: string };
+type PullRequestWithLabels = GitHubPRDSL & {
+  labels?: PullRequestLabel[];
+};
+
+const hasNoBumpLabel = (danger: DangerDSLType) => {
+  const pullRequest = danger.github.pr as PullRequestWithLabels;
+  const labels = pullRequest.labels?.map(({ name }) => name) ?? [];
+  return labels.includes("release:no-bump");
+};
+
+export const checkReleasePlanOrNoBumpLabel = (
+  danger: DangerDSLType,
+  fail: FailFn,
+) => {
+  const changedFiles = [
+    ...danger.git.created_files,
+    ...danger.git.modified_files,
+    ...danger.git.deleted_files,
+  ];
+
+  const touchesReleasableFiles = changedFiles.some(touchesReleasableSourceFile);
+  if (!touchesReleasableFiles) {
+    return true;
+  }
+
+  const hasVersionPlan = changedFiles.some(isVersionPlanFile);
+  if (hasVersionPlan || hasNoBumpLabel(danger)) {
+    return true;
+  }
+
+  fail(`\
+This PR touches releasable packages (\`packages/ledger-button\` or \`packages/ledger-button-core\`) but has no release intent marker.
+
+Please add one of:
+- a version plan file in \`.nx/version-plans/\`
+- the label \`release:no-bump\` for changes that should not bump version
+
+This keeps release intent explicit and prevents accidental missing release metadata.\
+`);
+
+  return false;
+};
