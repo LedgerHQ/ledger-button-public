@@ -5,6 +5,7 @@ import {
   checkBranches,
   checkCommits,
   checkIfBot,
+  checkReleasePlanOrNoBumpLabel,
   // checkChangesets,
   checkTitle,
   getAuthor,
@@ -30,6 +31,8 @@ results.push(checkBranches(danger, fail, fork));
 results.push(checkCommits(danger, fail, fork));
 
 results.push(checkTitle(danger, fail, fork));
+
+results.push(checkReleasePlanOrNoBumpLabel(danger, fail));
 
 // results.push(checkChangesets(danger, message));
 
