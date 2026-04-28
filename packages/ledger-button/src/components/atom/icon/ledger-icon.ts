@@ -81,7 +81,7 @@ export interface LedgerIconAttributes {
     | "envelope"
     | "shield"
     | "language";
-  size: "small" | "medium" | "large";
+  size: "small" | "20" | "medium" | "large";
   fillColor?: string;
 }
 
