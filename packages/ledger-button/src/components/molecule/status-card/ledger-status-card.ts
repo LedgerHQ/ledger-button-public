@@ -72,7 +72,7 @@ export class LedgerStatusCard extends LitElement {
         <div class=${classMap(this.spotClasses)} aria-hidden="true">
           <ledger-icon
             .type=${this.iconType}
-            size="medium"
+            size="20"
             fillColor="currentColor"
           ></ledger-icon>
         </div>
