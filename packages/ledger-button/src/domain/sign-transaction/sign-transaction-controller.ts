@@ -85,7 +85,12 @@ export class SignTransactionController implements ReactiveController {
 
   hostDisconnected() {
     this.transactionSubscription?.unsubscribe();
+    this.clearPendingTxSubscription();
+  }
+
+  private clearPendingTxSubscription() {
     this.pendingTxSubscription?.unsubscribe();
+    this.pendingTxSubscription = undefined;
   }
 
   private mapUserInteractionToDeviceAnimation(
@@ -122,6 +127,7 @@ export class SignTransactionController implements ReactiveController {
     if (this.transactionSubscription) {
       this.transactionSubscription.unsubscribe();
     }
+    this.clearPendingTxSubscription();
 
     this.transactionSubscription = this.core.sign(transactionParams).subscribe({
       next: (result: SignFlowStatus) => {
@@ -257,7 +263,7 @@ export class SignTransactionController implements ReactiveController {
   }
 
   private subscribeToBroadcastLifecycle(hash: string) {
-    this.pendingTxSubscription?.unsubscribe();
+    this.clearPendingTxSubscription();
 
     this.pendingTxSubscription = this.core
       .observePendingTransactions()
@@ -269,14 +275,16 @@ export class SignTransactionController implements ReactiveController {
         const nextBroadcastState: BroadcastState = stillPending
           ? "processing"
           : "validated";
-        if (nextBroadcastState === this.state.broadcast.state) {
-          return;
+        if (nextBroadcastState !== this.state.broadcast.state) {
+          this.state = {
+            ...this.state,
+            broadcast: { ...this.state.broadcast, state: nextBroadcastState },
+          };
+          this.host.requestUpdate();
         }
-        this.state = {
-          ...this.state,
-          broadcast: { ...this.state.broadcast, state: nextBroadcastState },
-        };
-        this.host.requestUpdate();
+        if (nextBroadcastState === "validated") {
+          this.clearPendingTxSubscription();
+        }
       });
   }
 

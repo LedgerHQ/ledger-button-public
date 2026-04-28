@@ -2,13 +2,8 @@ import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, type PropertyValues } from "lit";
-import {
-  customElement,
-  property,
-  queryAssignedElements,
-  state,
-} from "lit/decorators.js";
+import { css, html, LitElement, type PropertyValues } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
@@ -42,8 +37,23 @@ const spotVariants = cva(
   },
 );
 
+const styles = css`
+  :host {
+    display: block;
+  }
+
+  /*
+   * The card slot is a light DOM child of the host so we can detect it via
+   * :host(:has(...)) and enlarge the gap between the title block and the
+   * card. This avoids a JS-driven layout shift on first paint.
+   */
+  :host(:has([slot="card"])) [data-status-content] {
+    gap: 24px;
+  }
+`;
+
 @customElement("ledger-status")
-@tailwindElement()
+@tailwindElement(styles)
 export class LedgerStatus extends LitElement {
   @property({ type: String })
   type: StatusType = "success";
@@ -59,12 +69,6 @@ export class LedgerStatus extends LitElement {
 
   @property({ type: String, attribute: "secondary-button-label" })
   secondaryButtonLabel = "Secondary action";
-
-  @queryAssignedElements({ slot: "card" })
-  private cardSlotElements!: HTMLElement[];
-
-  @state()
-  private hasCardSlot = false;
 
   override connectedCallback(): void {
     super.connectedCallback();
@@ -119,10 +123,6 @@ export class LedgerStatus extends LitElement {
         },
       }),
     );
-  }
-
-  private handleCardSlotChange() {
-    this.hasCardSlot = this.cardSlotElements.length > 0;
   }
 
   private handleSecondaryAction() {
@@ -197,11 +197,8 @@ export class LedgerStatus extends LitElement {
             ></ledger-icon>
           </div>
           <div
-            class=${classMap({
-              "flex flex-col items-center self-stretch text-center": true,
-              "gap-24": this.hasCardSlot,
-              "gap-12": !this.hasCardSlot,
-            })}
+            data-status-content
+            class="flex flex-col items-center gap-12 self-stretch text-center"
           >
             <div class="flex flex-col items-center gap-12">
               ${this.title
@@ -222,7 +219,7 @@ export class LedgerStatus extends LitElement {
                   `
                 : ""}
             </div>
-            <slot name="card" @slotchange=${this.handleCardSlotChange}></slot>
+            <slot name="card"></slot>
           </div>
           ${this.renderActions()}
         </div>
