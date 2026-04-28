@@ -23,7 +23,7 @@ const spotVariants = cva(
   {
     variants: {
       state: {
-        processing: "text-muted",
+        processing: "text-base",
         validated: "text-success",
       },
     },
