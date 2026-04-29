@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ"
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "คุณได้เชื่อมต่อแล้ว",
+      "close": "ปิด"
     },
     "turnOnSync": {
       "title": "",
@@ -195,14 +195,9 @@
   "settings": {
     "title": "การตั้งค่า",
     "preferences": {
-      "title": "การตั้งค่าการใช้งาน",
-      "language": {
-        "title": "ภาษา"
-      },
-      "currency": {
-        "title": "สกุลเงิน"
-      },
-      "description": "ตัวเลือกการตั้งค่าการใช้งานจะปรากฏที่นี่"
+      "title": "การตั้งค่าความชอบส่วนตัว",
+      "language": { "title": "ภาษา" },
+      "currency": { "title": "สกุลเงิน" }
     },
     "securityConfidentiality": {
       "title": "ความปลอดภัยและการรักษาความลับ",
