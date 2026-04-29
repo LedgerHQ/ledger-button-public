@@ -3,6 +3,7 @@ import "../../components/index.js";
 import { consume } from "@lit/context";
 import { html, LitElement, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 
 import type {
   TransactionKind,
@@ -16,6 +17,7 @@ import {
 import { tailwindElement } from "../../tailwind-element.js";
 
 export type TransactionListItem = {
+  id: string;
   hash: string;
   type: TransactionType;
   status: TransactionStatus;
@@ -124,7 +126,11 @@ export class TransactionListScreen extends LitElement {
       <div class="flex flex-col gap-4">
         ${this.renderDateHeader(group.displayDate)}
         <div class="flex flex-col">
-          ${group.transactions.map(this.renderTransactionItem)}
+          ${repeat(
+            group.transactions,
+            (transaction) => transaction.id,
+            this.renderTransactionItem,
+          )}
         </div>
       </div>
     `;
@@ -142,7 +148,11 @@ export class TransactionListScreen extends LitElement {
             "Pending transactions",
         )}
         <div class="flex flex-col">
-          ${this.pendingTransactions.map(this.renderTransactionItem)}
+          ${repeat(
+            this.pendingTransactions,
+            (transaction) => transaction.id,
+            this.renderTransactionItem,
+          )}
         </div>
       </div>
     `;

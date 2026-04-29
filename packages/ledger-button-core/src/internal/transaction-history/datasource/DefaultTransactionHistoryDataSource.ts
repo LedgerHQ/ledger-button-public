@@ -13,8 +13,6 @@ import {
 } from "../model/transactionHistoryTypes.js";
 import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource.js";
 
-const DEFAULT_BATCH_SIZE = 20;
-
 @injectable()
 export class DefaultTransactionHistoryDataSource
   implements TransactionHistoryDataSource
@@ -49,7 +47,8 @@ export class DefaultTransactionHistoryDataSource
   private buildQueryParams(options?: TransactionHistoryOptions): string {
     const params = new URLSearchParams();
 
-    params.set("limit", String(options?.batchSize ?? DEFAULT_BATCH_SIZE));
+    // Newest first by default to match the existing UX.
+    params.set("order", "desc");
 
     if (options?.pageToken) {
       params.set("cursor", options.pageToken);

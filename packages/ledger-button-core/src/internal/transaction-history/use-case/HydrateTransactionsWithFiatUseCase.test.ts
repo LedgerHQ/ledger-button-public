@@ -32,8 +32,10 @@ function createMockCounterValueDataSource(): {
 function createMockTransaction(
   overrides: Partial<TransactionHistoryItem> = {},
 ): TransactionHistoryItem {
+  const hash = overrides.hash ?? "0xabc123";
   return {
-    hash: "0xabc123",
+    id: overrides.id ?? `js:2:ethereum:0xowner:-${hash}-OUT-i0`,
+    hash,
     type: "sent",
     direction: "sent",
     kind: "transfer",

@@ -1,49 +1,69 @@
 /**
- * Raw API response types from Alpaca account-operations endpoint
+ * Raw API response types for the Alpaca v3 account-operations endpoint.
  * GET https://alpaca.api.ledger.com/v1/{network}/account/{address}/operations
+ *
+ * Source of truth: Alpaca v3 OpenAPI spec.
  */
 
-export type AlpacaAssetType = "native" | "erc20" | "erc721" | "erc1155";
+export type AlpacaAddress = string;
 
 export type AlpacaAsset = {
-  type: AlpacaAssetType;
-  assetReference?: string;
-};
-
-export type AlpacaOperationParty = {
-  address: string;
-  amount?: string;
-  assetReference?: string;
-  type?: AlpacaAssetType;
-};
-
-export type AlpacaOperationStatus = "confirmed" | "failed" | "pending";
-
-export type AlpacaOperation = {
-  hash: string;
   type: string;
-  senders: AlpacaOperationParty[];
-  recipients: AlpacaOperationParty[];
-  value: string;
-  asset: AlpacaAsset;
-  date: string;
-  blockTime?: string;
-  blockHeight?: number;
-  fee?: string;
-  status?: AlpacaOperationStatus;
-  errorMessage?: string;
+  assetReference?: string;
+  assetOwner?: AlpacaAddress;
 };
 
-export type AlpacaOperationsResponse = {
-  data: AlpacaOperation[];
-  token?: string;
+export type AlpacaBlockInfo = {
+  height: number;
+  hash?: string;
+  time?: string;
+  parent?: AlpacaBlockInfo;
+};
+
+export type AlpacaOperationTransaction = {
+  hash: string;
+  fees: string;
+  block: AlpacaBlockInfo;
+  failed: boolean;
+  date?: string;
+  // Non-spec but present in EVM payloads; kept optional.
+  feesPayer?: AlpacaAddress;
 };
 
 /**
- * Options for fetching transaction history
+ * EVM-specific operation details. Per the spec, `details` is loosely typed
+ * (`additionalProperties: true`), so every field here is optional.
+ */
+export type AlpacaEvmOperationDetails = {
+  sequence?: string;
+  ledgerOpType?: "OUT" | "IN";
+  assetAmount?: string;
+  assetSenders?: AlpacaAddress[];
+  assetRecipients?: AlpacaAddress[];
+  parentSenders?: AlpacaAddress[];
+  parentRecipients?: AlpacaAddress[];
+};
+
+export type AlpacaOperation = {
+  id: string;
+  tx: AlpacaOperationTransaction;
+  type: string;
+  value: string;
+  senders: AlpacaAddress[];
+  recipients: AlpacaAddress[];
+  asset?: AlpacaAsset;
+  details?: AlpacaEvmOperationDetails;
+};
+
+export type AlpacaOperationsResponse = {
+  items: AlpacaOperation[];
+  next?: string;
+};
+
+/**
+ * Options for fetching transaction history.
  */
 export type TransactionHistoryOptions = {
-  batchSize?: number;
   pageToken?: string;
 };
 
@@ -56,7 +76,7 @@ export type TransactionHistoryOptions = {
 export type TransactionDirection = "sent" | "received" | "self";
 
 /**
- * Semantic kind of the transaction inferred from the Alpaca operation type.
+ * Semantic kind of the transaction inferred from the Alpaca operation.
  */
 export type TransactionKind =
   | "transfer"
@@ -77,9 +97,14 @@ export type TransactionStatus = "confirmed" | "failed" | "pending";
 export type TransactionType = "sent" | "received";
 
 /**
- * Transformed transaction item for display
+ * Transformed transaction item for display.
+ *
+ * `id` is the stable Alpaca operation identifier; one transaction hash can
+ * produce several operations (e.g. a swap yields one OUT + one IN sharing the
+ * same `tx.hash`), so the UI must key off `id`, not `hash`.
  */
 export type TransactionHistoryItem = {
+  id: string;
   hash: string;
   type: TransactionType;
   direction: TransactionDirection;
@@ -98,11 +123,10 @@ export type TransactionHistoryItem = {
   fee?: string;
   formattedFee?: string;
   feeTicker?: string;
-  errorMessage?: string;
 };
 
 /**
- * Result type for the use case
+ * Result type for the use case.
  */
 export type TransactionHistoryResult = {
   transactions: TransactionHistoryItem[];

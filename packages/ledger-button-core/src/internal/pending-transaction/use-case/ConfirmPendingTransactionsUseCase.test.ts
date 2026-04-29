@@ -8,6 +8,23 @@ import type {
 } from "../../transaction-history/model/transactionHistoryTypes.js";
 import { ConfirmPendingTransactionsUseCase } from "./ConfirmPendingTransactionsUseCase.js";
 
+function makeOp(hash: string): AlpacaOperation {
+  return {
+    id: `js:2:ethereum:0xowner:-${hash}-OUT-i0`,
+    type: "OUT",
+    value: "0",
+    senders: [],
+    recipients: [],
+    asset: { type: "native" },
+    tx: {
+      hash,
+      fees: "0",
+      block: { height: 1 },
+      failed: false,
+    },
+  };
+}
+
 function createMockLogger() {
   return {
     log: vi.fn(),
@@ -44,11 +61,7 @@ describe("ConfirmPendingTransactionsUseCase", () => {
 
   it("should return confirmed hashes that appear in the Alpaca response", async () => {
     const alpacaResponse: AlpacaOperationsResponse = {
-      data: [
-        { hash: "0xaaa" } as AlpacaOperation,
-        { hash: "0xbbb" } as AlpacaOperation,
-        { hash: "0xccc" } as AlpacaOperation,
-      ],
+      items: [makeOp("0xaaa"), makeOp("0xbbb"), makeOp("0xccc")],
     };
     mockDataSource.getTransactions.mockResolvedValue(Right(alpacaResponse));
 
@@ -63,7 +76,7 @@ describe("ConfirmPendingTransactionsUseCase", () => {
 
   it("should return empty array when no pending hashes match", async () => {
     const alpacaResponse: AlpacaOperationsResponse = {
-      data: [{ hash: "0xzzz" } as AlpacaOperation],
+      items: [makeOp("0xzzz")],
     };
     mockDataSource.getTransactions.mockResolvedValue(Right(alpacaResponse));
 
