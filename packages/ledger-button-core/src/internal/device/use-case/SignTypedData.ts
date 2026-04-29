@@ -41,7 +41,6 @@ import type {
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { getHexaStringFromSignature } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
@@ -52,6 +51,7 @@ import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigServi
 import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
 import { TrackTypedMessageCompleted } from "../../event-tracking/usecase/TrackTypedMessageCompleted.js";
 import { TrackTypedMessageStarted } from "../../event-tracking/usecase/TrackTypedMessageStarted.js";
+import { getHexaStringFromSignature } from "../../evm-provider/transaction/TransactionHelper.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";

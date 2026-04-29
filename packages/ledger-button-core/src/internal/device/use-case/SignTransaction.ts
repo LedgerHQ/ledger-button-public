@@ -6,11 +6,11 @@ import {
   SignTransactionParams,
   Transaction,
 } from "../../../api/model/signing/SignTransactionParams.js";
-import { getRawTransactionFromEipTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type GasFeeEstimationService } from "../../balance/service/GasFeeEstimationService.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
+import { getRawTransactionFromEipTransaction } from "../../evm-provider/transaction/TransactionHelper.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";

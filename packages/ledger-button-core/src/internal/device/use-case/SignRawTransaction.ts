@@ -45,7 +45,6 @@ import {
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
@@ -56,6 +55,7 @@ import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigServi
 import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
 import { TrackTransactionCompleted } from "../../event-tracking/usecase/TrackTransactionCompleted.js";
 import { TrackTransactionStarted } from "../../event-tracking/usecase/TrackTransactionStarted.js";
+import { createSignedTransaction } from "../../evm-provider/transaction/TransactionHelper.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../../modal/modalModuleTypes.js";
