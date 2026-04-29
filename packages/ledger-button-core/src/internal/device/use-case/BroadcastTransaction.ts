@@ -15,9 +15,9 @@ import {
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
 } from "../../backend/types.js";
-import { getCurrencyIdFromChainId } from "../../blockchain/evm/chainUtils.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
+import { getCurrencyIdFromChainId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
