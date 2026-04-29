@@ -8,8 +8,8 @@ import { CounterValueDataSource } from "./datasource/countervalue/CounterValueDa
 import { DefaultCounterValueDataSource } from "./datasource/countervalue/DefaultCounterValueDataSource.js";
 import { BalanceService } from "./service/BalanceService.js";
 import { DefaultBalanceService } from "./service/DefaultBalanceService.js";
-import { DefaultGasFeeEstimationService } from "./service/DefaultGasFeeEstimationService.js";
-import { GasFeeEstimationService } from "./service/GasFeeEstimationService.js";
+import { DefaultGasFeeEstimationService } from "../evm-provider/gas-fee/DefaultGasFeeEstimationService.js";
+import { GasFeeEstimationService } from "../evm-provider/gas-fee/GasFeeEstimationService.js";
 import { balanceModuleTypes } from "./balanceModuleTypes.js";
 
 type BalanceModuleOptions = {

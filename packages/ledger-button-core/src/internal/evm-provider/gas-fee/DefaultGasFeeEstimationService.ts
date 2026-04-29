@@ -8,13 +8,13 @@ import {
 } from "../../../internal/backend/types.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import { getAlpacaNetworkName } from "../../balance/constants/networkConstants.js";
+import type { AlpacaDataSource } from "../../balance/datasource/alpaca/AlpacaDataSource.js";
+import { TransactionInfo } from "../../balance/model/types.js";
+import { GasFeeEstimation } from "../../balance/model/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { balanceModuleTypes } from "../balanceModuleTypes.js";
-import { getAlpacaNetworkName } from "../constants/networkConstants.js";
-import type { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
-import { TransactionInfo } from "../model/types.js";
-import { GasFeeEstimation } from "../model/types.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
 
 @injectable()
