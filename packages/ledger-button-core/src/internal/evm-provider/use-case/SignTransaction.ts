@@ -8,7 +8,6 @@ import {
 } from "../../../api/model/signing/SignTransactionParams.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -28,7 +27,7 @@ export class SignTransaction {
     private readonly gasFeeEstimationService: GasFeeEstimationService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(deviceModuleTypes.SignRawTransactionUseCase)
+    @inject(evmProviderModuleTypes.SignRawTransactionUseCase)
     private readonly signRawTransaction: SignRawTransaction,
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
