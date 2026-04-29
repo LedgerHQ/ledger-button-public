@@ -5,8 +5,8 @@ import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.j
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type {
-  ExplorerResponse,
-  ExplorerTransaction,
+  AlpacaOperation,
+  AlpacaOperationsResponse,
 } from "../model/transactionHistoryTypes.js";
 import { FetchTransactionHistoryUseCase } from "./FetchTransactionHistoryUseCase.js";
 
@@ -59,31 +59,17 @@ function createMockCalDataSource(): {
   };
 }
 
-function createMockTransaction(
-  overrides: Partial<ExplorerTransaction> = {},
-): ExplorerTransaction {
+function createMockOperation(
+  overrides: Partial<AlpacaOperation> = {},
+): AlpacaOperation {
   return {
     hash: "0xabc123",
-    transaction_type: 2,
-    nonce: "0x1",
-    nonce_value: 1,
+    type: "send",
+    senders: [],
+    recipients: [],
     value: "0",
-    gas: "21000",
-    gas_price: "1000000000",
-    from: "0xsender",
-    to: "0xrecipient",
-    transfer_events: [],
-    erc721_transfer_events: [],
-    erc1155_transfer_events: [],
-    approval_events: [],
-    actions: [],
-    confirmations: 10,
-    input: null,
-    gas_used: "21000",
-    cumulative_gas_used: null,
-    status: 1,
-    received_at: "2024-01-15T10:30:00Z",
-    txPoolStatus: null,
+    asset: { type: "native" },
+    date: "2024-01-15T10:30:00Z",
     ...overrides,
   };
 }
@@ -93,8 +79,9 @@ describe("FetchTransactionHistoryUseCase", () => {
   let mockDataSource: ReturnType<typeof createMockDataSource>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
-  const testBlockchain = "ethereum";
+  const testBlockchain = "eth";
   const testCurrencyId = "ethereum";
+  const resolvedNetwork = "ethereum";
 
   beforeEach(() => {
     mockDataSource = createMockDataSource();
@@ -110,11 +97,8 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("execute", () => {
-    it("should call datasource with correct parameters", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: null,
-      };
+    it("should call datasource with the resolved Alpaca network derived from currencyId", async () => {
+      const response: AlpacaOperationsResponse = { data: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
       await useCase.execute(testBlockchain, testAddress, testCurrencyId, {
@@ -122,20 +106,34 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
 
       expect(mockDataSource.getTransactions).toHaveBeenCalledWith(
-        testBlockchain,
+        resolvedNetwork,
         testAddress,
         { batchSize: 50 },
       );
     });
 
-    it("should return empty transactions array when no transactions", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: null,
-      };
+    it("should resolve to the correct Alpaca network for non-ethereum currencies", async () => {
+      const response: AlpacaOperationsResponse = { data: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      await useCase.execute("polygon", testAddress, "polygon");
+
+      expect(mockDataSource.getTransactions).toHaveBeenCalledWith(
+        "polygon",
+        testAddress,
+        undefined,
+      );
+    });
+
+    it("should return empty transactions array when no operations are returned", async () => {
+      const response: AlpacaOperationsResponse = { data: [] };
+      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -146,27 +144,32 @@ describe("FetchTransactionHistoryUseCase", () => {
     });
 
     it("should return nextPageToken when token is present", async () => {
-      const response: ExplorerResponse = {
+      const response: AlpacaOperationsResponse = {
         data: [],
         token: "next-page-token",
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
       expect(data).toHaveProperty("nextPageToken", "next-page-token");
     });
 
-    it("should not return nextPageToken when token is null", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: null,
-      };
+    it("should not return nextPageToken when token is missing", async () => {
+      const response: AlpacaOperationsResponse = { data: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -176,11 +179,15 @@ describe("FetchTransactionHistoryUseCase", () => {
     it("should return Left with error when datasource fails", async () => {
       const error = new TransactionHistoryError("Network error", {
         address: testAddress,
-        blockchain: testBlockchain,
+        network: resolvedNetwork,
       });
       mockDataSource.getTransactions.mockResolvedValue(Left(error));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isLeft()).toBe(true);
       expect(result.extract()).toBe(error);
@@ -188,105 +195,77 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("transaction type detection", () => {
-    it("should mark transaction as 'sent' when address is the sender", async () => {
-      const tx = createMockTransaction({
+    it("should mark operation as 'sent' when address is in senders", async () => {
+      const op = createMockOperation({
         hash: "0xsent",
-        from: testAddress,
-        to: "0xrecipient",
+        senders: [{ address: testAddress, amount: "1000000000000000000" }],
+        recipients: [
+          { address: "0xrecipient", amount: "1000000000000000000" },
+        ],
         value: "1000000000000000000",
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("type", "sent");
     });
 
-    it("should mark transaction as 'received' when address is the recipient", async () => {
-      const tx = createMockTransaction({
+    it("should mark operation as 'received' when address is in recipients", async () => {
+      const op = createMockOperation({
         hash: "0xreceived",
-        from: "0xsender",
-        to: testAddress,
-        value: "1000000000000000000",
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("type", "received");
-    });
-
-    it("should mark as 'received' when address is recipient in transfer_events", async () => {
-      const tx = createMockTransaction({
-        hash: "0xtokenreceived",
-        from: "0xsender",
-        to: "0xcontract",
-        value: "0",
-        transfer_events: [
-          {
-            contract: "0xcontract",
-            from: "0xsender",
-            to: testAddress,
-            count: "1000000",
-          },
+        senders: [{ address: "0xsender", amount: "1000000000000000000" }],
+        recipients: [
+          { address: testAddress, amount: "1000000000000000000" },
         ],
+        value: "1000000000000000000",
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("type", "received");
     });
 
-    it("should handle case-insensitive address matching", async () => {
+    it("should handle case-insensitive address matching for senders", async () => {
       const upperCaseAddress = testAddress.toUpperCase();
-      const tx = createMockTransaction({
-        from: upperCaseAddress,
-        to: "0xrecipient",
+      const op = createMockOperation({
+        senders: [{ address: upperCaseAddress, amount: "1000000000000000000" }],
+        recipients: [{ address: "0xrecipient", amount: "0" }],
         value: "1000000000000000000",
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("type", "sent");
@@ -294,217 +273,236 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("value calculation", () => {
-    it("should use native value for direct transfers", async () => {
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: testAddress,
+    it("should use op.value for native transfers when set", async () => {
+      const op = createMockOperation({
+        senders: [{ address: "0xsender" }],
+        recipients: [{ address: testAddress, amount: "1000000000000000000" }],
         value: "1000000000000000000",
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("value", "1000000000000000000");
     });
 
-    it("should use token transfer count for ERC20 transfers", async () => {
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: "0xcontract",
-        value: "0",
-        transfer_events: [
-          {
-            contract: "0xcontract",
-            from: "0xsender",
-            to: testAddress,
-            count: "5000000",
-          },
+    it("should sum recipient amounts when op.value is zero (received)", async () => {
+      const op = createMockOperation({
+        senders: [{ address: "0xsender" }],
+        recipients: [
+          { address: testAddress, amount: "1000000000000000" },
+          { address: testAddress, amount: "1801780000000000" },
+          { address: "0xother", amount: "999" },
         ],
+        value: "0",
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "5000000");
-    });
-
-    it("should use actions value for native transfers with actions", async () => {
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: testAddress,
-        value: "0",
-        actions: [
-          {
-            from: "0xsender",
-            to: testAddress,
-            value: "2801780000000000",
-            gas: "21000",
-            gas_used: "21000",
-            error: null,
-          },
-        ],
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("value", "2801780000000000");
     });
 
-    it("should use first relevant token transfer when multiple transfers exist", async () => {
-      // Note: Multiple transfers with different contracts are different tokens
-      // We take the first relevant one and get its token info from CAL
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: "0xcontract",
-        value: "0",
-        transfer_events: [
-          {
-            contract: "0xcontract1",
-            from: "0xsender",
-            to: testAddress,
-            count: "1000000",
-          },
-          {
-            contract: "0xcontract2",
-            from: "0xsender",
-            to: testAddress,
-            count: "2000000",
-          },
-        ],
+    it("should use ERC20 token info from CAL for ERC20 transfers", async () => {
+      const op = createMockOperation({
+        hash: "0xtoken",
+        senders: [{ address: "0xsender" }],
+        recipients: [{ address: testAddress, amount: "5000000" }],
+        value: "5000000",
+        asset: { type: "erc20", assetReference: "0xcontract" },
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      // Uses first transfer's value
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "1000000");
-      // Uses token info from CAL (USDC mock)
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("ticker", "USDC");
+      const transactions = (data as { transactions: unknown[] }).transactions;
+      expect(transactions[0]).toHaveProperty("value", "5000000");
+      expect(transactions[0]).toHaveProperty("ticker", "USDC");
+      expect(transactions[0]).toHaveProperty("currencyName", "USD Coin");
+      expect(transactions[0]).toHaveProperty("ledgerId", "ethereum/erc20/usdc");
+    });
+
+    it("should cache CAL token info across multiple calls for the same contract", async () => {
+      const op = createMockOperation({
+        hash: "0xtoken1",
+        senders: [{ address: "0xsender" }],
+        recipients: [{ address: testAddress, amount: "1000000" }],
+        value: "1000000",
+        asset: { type: "erc20", assetReference: "0xcontract" },
+      });
+
+      const response: AlpacaOperationsResponse = { data: [op] };
+      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+
+      await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+
+      expect(mockCalDataSource.getTokenInformation).toHaveBeenCalledTimes(1);
+    });
+
+    it("should fall back to default unknown-token info when CAL lookup fails", async () => {
+      mockCalDataSource.getTokenInformation.mockResolvedValueOnce(
+        Left(new Error("CAL down")),
+      );
+
+      const op = createMockOperation({
+        senders: [{ address: "0xsender" }],
+        recipients: [{ address: testAddress, amount: "5000000" }],
+        value: "5000000",
+        asset: { type: "erc20", assetReference: "0xunknown" },
+      });
+
+      const response: AlpacaOperationsResponse = { data: [op] };
+      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
+
+      expect(result.isRight()).toBe(true);
+      const data = result.extract();
+      const transactions = (data as { transactions: unknown[] }).transactions;
+      expect(transactions[0]).toHaveProperty("ticker", "???");
+      expect(transactions[0]).toHaveProperty("currencyName", "Unknown Token");
+      expect(transactions[0]).toHaveProperty(
+        "ledgerId",
+        "ethereum/erc20/unknown",
+      );
     });
   });
 
   describe("timestamp extraction", () => {
-    it("should use block.time when available", async () => {
-      const tx = createMockTransaction({
-        received_at: "2024-01-15T10:30:00Z",
-        block: {
-          hash: "0xblock",
-          height: 12345,
-          time: "2024-01-15T10:35:00Z",
-        },
+    it("should use blockTime when available", async () => {
+      const op = createMockOperation({
+        date: "2024-01-15T10:30:00Z",
+        blockTime: "2024-01-15T10:35:00Z",
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("timestamp", "2024-01-15T10:35:00Z");
     });
 
-    it("should use received_at when block is not available", async () => {
-      const tx = createMockTransaction({
-        received_at: "2024-01-15T10:30:00Z",
-        block: undefined,
+    it("should fall back to date when blockTime is not available", async () => {
+      const op = createMockOperation({
+        date: "2024-01-15T10:30:00Z",
+        blockTime: undefined,
       });
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
       expect(
         (data as { transactions: unknown[] }).transactions[0],
       ).toHaveProperty("timestamp", "2024-01-15T10:30:00Z");
     });
   });
 
-  describe("transaction transformation", () => {
-    it("should correctly transform multiple transactions", async () => {
-      const sentTx = createMockTransaction({
-        hash: "0xsent123",
-        from: testAddress,
-        to: "0xrecipient",
-        value: "500000000000000000",
-        received_at: "2024-01-15T10:00:00Z",
-      });
+  describe("malformed operations", () => {
+    it("should skip operations without a hash", async () => {
+      const op = createMockOperation({ hash: "" });
 
-      const receivedTx = createMockTransaction({
-        hash: "0xreceived456",
-        from: "0xsender",
-        to: testAddress,
-        value: "1800000000000000000",
-        received_at: "2024-01-15T11:00:00Z",
-      });
-
-      const response: ExplorerResponse = {
-        data: [sentTx, receivedTx],
-        token: null,
-      };
+      const response: AlpacaOperationsResponse = { data: [op] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
-      expect(data).toHaveProperty("transactions");
+      expect((data as { transactions: unknown[] }).transactions).toHaveLength(
+        0,
+      );
+    });
+  });
+
+  describe("transaction transformation", () => {
+    it("should correctly transform multiple operations with mixed direction", async () => {
+      const sentOp = createMockOperation({
+        hash: "0xsent123",
+        senders: [{ address: testAddress, amount: "500000000000000000" }],
+        recipients: [
+          { address: "0xrecipient", amount: "500000000000000000" },
+        ],
+        value: "500000000000000000",
+        date: "2024-01-15T10:00:00Z",
+      });
+
+      const receivedOp = createMockOperation({
+        hash: "0xreceived456",
+        senders: [{ address: "0xsender", amount: "1800000000000000000" }],
+        recipients: [
+          { address: testAddress, amount: "1800000000000000000" },
+        ],
+        value: "1800000000000000000",
+        date: "2024-01-15T11:00:00Z",
+      });
+
+      const response: AlpacaOperationsResponse = {
+        data: [sentOp, receivedOp],
+      };
+      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+
+      const result = await useCase.execute(
+        testBlockchain,
+        testAddress,
+        testCurrencyId,
+      );
+
+      expect(result.isRight()).toBe(true);
+      const data = result.extract();
       const transactions = (data as { transactions: unknown[] }).transactions;
       expect(transactions).toHaveLength(2);
       expect(transactions[0]).toEqual({

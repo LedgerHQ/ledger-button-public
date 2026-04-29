@@ -1,60 +1,38 @@
 /**
- * Raw API response types from Ledger Explorer API
- * GET https://explorers.api.live.ledger.com/blockchain/v4/{blockchain}/address/{address}/txs
+ * Raw API response types from Alpaca account-operations endpoint
+ * GET https://alpaca.api.ledger.com/v1/{network}/account/{address}/operations
  */
 
-export type ExplorerBlockInfo = {
+export type AlpacaAssetType = "native" | "erc20" | "erc721" | "erc1155";
+
+export type AlpacaAsset = {
+  type: AlpacaAssetType;
+  assetReference?: string;
+};
+
+export type AlpacaOperationParty = {
+  address: string;
+  amount?: string;
+  assetReference?: string;
+  type?: AlpacaAssetType;
+};
+
+export type AlpacaOperation = {
   hash: string;
-  height: number;
-  time: string;
-};
-
-export type EvmTransferEvent = {
-  contract: string;
-  from: string;
-  to: string;
-  count: string;
-};
-
-export type EvmAction = {
-  from: string;
-  to: string;
+  type: string;
+  senders: AlpacaOperationParty[];
+  recipients: AlpacaOperationParty[];
   value: string;
-  gas: string;
-  gas_used: string;
-  error: string | null;
+  asset: AlpacaAsset;
+  date: string;
+  blockTime?: string;
+  blockHeight?: number;
+  fee?: string;
 };
 
-export type ExplorerTransaction = {
-  hash: string;
-  transaction_type: number;
-  nonce: string;
-  nonce_value: number;
-  value: string;
-  gas: string;
-  gas_price: string;
-  max_fee_per_gas?: string;
-  max_priority_fee_per_gas?: string;
-  from: string;
-  to: string;
-  transfer_events: EvmTransferEvent[];
-  erc721_transfer_events: unknown[];
-  erc1155_transfer_events: unknown[];
-  approval_events: unknown[];
-  actions: EvmAction[];
-  confirmations: number;
-  input: string | null;
-  gas_used: string;
-  cumulative_gas_used: string | null;
-  status: number;
-  received_at: string;
-  block?: ExplorerBlockInfo;
-  txPoolStatus: unknown | null;
-};
-
-export type ExplorerResponse = {
-  data: ExplorerTransaction[];
-  token: string | null;
+export type AlpacaOperationsResponse = {
+  data: AlpacaOperation[];
+  token?: string;
 };
 
 /**
