@@ -2,26 +2,17 @@ import { html } from "lit";
 
 export const ClockIcon = html`
   <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-    focusable="false"
+    width="1em"
+    height="1em"
+    fill="currentColor"
+    viewBox="0 0 16 16"
   >
     <path
-      fill-rule="evenodd"
-      clip-rule="evenodd"
-      d="M1.5 8C1.5 4.40353 4.41018 1.5 8 1.5C11.5901 1.5 14.5 4.40986 14.5 8C14.5 11.5901 11.5901 14.5 8 14.5C4.40353 14.5 1.5 11.5898 1.5 8Z"
       fill="currentColor"
-    />
-    <path
-      d="M11.1 8H8V4.26666"
-      stroke="var(--background-base, #000)"
-      stroke-width="1.3"
-      stroke-linecap="round"
-      stroke-linejoin="round"
+      fillRule="evenodd"
+      d="M8 1.5a6.5 6.5 0 1 1 0 13c-3.596 0-6.5-2.91-6.5-6.5 0-3.596 2.91-6.5 6.5-6.5m0 2.116a.65.65 0 0 0-.65.65V8c0 .359.291.65.65.65h3.1a.65.65 0 0 0 0-1.3H8.65V4.267a.65.65 0 0 0-.65-.65"
+      clipRule="evenodd"
     />
   </svg>
 `;
