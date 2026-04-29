@@ -197,5 +197,45 @@ describe("DefaultTransactionHistoryDataSource", () => {
       const response = result.extract() as AlpacaOperationsResponse;
       expect(response.data).toHaveLength(0);
     });
+
+    it("should pass through enriched operation fields (status, fee, errorMessage, blockHeight)", async () => {
+      const enrichedResponse: AlpacaOperationsResponse = {
+        data: [
+          {
+            hash: "0xfailed",
+            type: "swap",
+            senders: [{ address: testAddress, amount: "1000000000000000000" }],
+            recipients: [
+              { address: "0xrouter", amount: "1000000000000000000" },
+            ],
+            value: "1000000000000000000",
+            asset: { type: "native" },
+            date: "2024-01-15T10:30:00Z",
+            blockHeight: 19_000_000,
+            fee: "210000000000000",
+            status: "failed",
+            errorMessage: "execution reverted",
+          },
+        ],
+      };
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right(enrichedResponse),
+      );
+
+      const result = await dataSource.getTransactions(
+        testNetwork,
+        testAddress,
+      );
+
+      expect(result.isRight()).toBe(true);
+      const response = result.extract() as AlpacaOperationsResponse;
+      expect(response.data[0]).toMatchObject({
+        status: "failed",
+        fee: "210000000000000",
+        errorMessage: "execution reverted",
+        blockHeight: 19_000_000,
+        type: "swap",
+      });
+    });
   });
 });

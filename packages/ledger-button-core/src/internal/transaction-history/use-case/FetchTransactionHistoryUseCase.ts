@@ -16,9 +16,12 @@ import {
   AlpacaOperation,
   AlpacaOperationParty,
   AlpacaOperationsResponse,
+  TransactionDirection,
   TransactionHistoryItem,
   TransactionHistoryOptions,
   TransactionHistoryResult,
+  TransactionKind,
+  TransactionStatus,
   TransactionType,
 } from "../model/transactionHistoryTypes.js";
 import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
@@ -110,6 +113,7 @@ export class FetchTransactionHistoryUseCase {
         );
 
         this.logger.debug("Transaction history fetched successfully", {
+          rawOperationCount: alpacaResponse.data?.length ?? 0,
           transactionCount: transformedResult.transactions.length,
           hasNextPage: !!transformedResult.nextPageToken,
         });
@@ -161,50 +165,134 @@ export class FetchTransactionHistoryUseCase {
     nativeAssetInfo: AssetInfo,
     transactionExplorerUrlTemplate: string | undefined,
   ): Promise<TransactionHistoryItem | null> {
-    if (!op || typeof op.hash !== "string" || op.hash.length === 0) {
-      this.logger.warn("Skipping operation with missing hash", { op });
+    if (!op) {
+      this.logger.warn("Skipping null/undefined operation");
       return null;
     }
 
-    const type = this.determineTransactionType(op, normalizedAddress);
+    if (typeof op.hash !== "string" || op.hash.length === 0) {
+      this.logger.warn("Operation has missing/invalid hash, surfacing anyway", {
+        type: op.type,
+        date: op.date,
+        hasSenders: Array.isArray(op.senders) && op.senders.length > 0,
+        hasRecipients: Array.isArray(op.recipients) && op.recipients.length > 0,
+      });
+    }
+
+    const direction = this.determineDirection(op, normalizedAddress);
+    const kind = this.determineKind(op);
+    const status = this.determineStatus(op);
     const assetInfo = await this.resolveAssetInfo(
       op,
       currencyId,
       nativeAssetInfo,
     );
 
-    const value = this.computeValue(op, normalizedAddress, type);
+    const value = this.computeValue(op, normalizedAddress, direction);
     const formattedValue = formatBalance(
       value,
       assetInfo.decimals,
       assetInfo.ticker,
     );
     const timestamp = this.extractTimestamp(op);
+    const { fee, formattedFee, feeTicker } = this.extractFee(
+      op,
+      nativeAssetInfo,
+    );
 
     return {
-      hash: op.hash,
-      type,
+      hash: op.hash ?? "",
+      type: this.toLegacyType(direction),
+      direction,
+      kind,
+      status,
       value,
       formattedValue,
       currencyName: assetInfo.name,
       ticker: assetInfo.ticker,
       timestamp,
+      blockHeight: op.blockHeight,
       ledgerId: assetInfo.ledgerId,
       explorerUrl:
         buildExplorerTransactionUrl(transactionExplorerUrlTemplate, op.hash) ??
         undefined,
+      fee,
+      formattedFee,
+      feeTicker,
+      errorMessage: op.errorMessage,
     };
   }
 
-  private determineTransactionType(
+  private determineDirection(
     op: AlpacaOperation,
     normalizedAddress: string,
-  ): TransactionType {
+  ): TransactionDirection {
     const isSender = (op.senders ?? []).some(
       (party) => party.address?.toLowerCase() === normalizedAddress,
     );
+    const isRecipient = (op.recipients ?? []).some(
+      (party) => party.address?.toLowerCase() === normalizedAddress,
+    );
 
+    if (isSender && isRecipient) {
+      return "self";
+    }
     return isSender ? "sent" : "received";
+  }
+
+  private determineKind(op: AlpacaOperation): TransactionKind {
+    const t = (op.type ?? "").toLowerCase();
+    if (t.length === 0) {
+      return "unknown";
+    }
+    if (t.includes("swap")) {
+      return "swap";
+    }
+    if (t.includes("approve") || t === "approval") {
+      return "approve";
+    }
+    if (
+      t === "send" ||
+      t === "receive" ||
+      t === "transfer" ||
+      t === "token-transfer" ||
+      t === "token_transfer"
+    ) {
+      return "transfer";
+    }
+    return "contract";
+  }
+
+  private determineStatus(op: AlpacaOperation): TransactionStatus {
+    if (op.status === "failed" || op.errorMessage) {
+      return "failed";
+    }
+    if (op.status === "pending") {
+      return "pending";
+    }
+    return "confirmed";
+  }
+
+  private toLegacyType(direction: TransactionDirection): TransactionType {
+    return direction === "received" ? "received" : "sent";
+  }
+
+  private extractFee(
+    op: AlpacaOperation,
+    nativeAssetInfo: AssetInfo,
+  ): { fee?: string; formattedFee?: string; feeTicker?: string } {
+    if (!op.fee || op.fee === "0") {
+      return {};
+    }
+    return {
+      fee: op.fee,
+      formattedFee: formatBalance(
+        op.fee,
+        nativeAssetInfo.decimals,
+        nativeAssetInfo.ticker,
+      ),
+      feeTicker: nativeAssetInfo.ticker,
+    };
   }
 
   private async resolveAssetInfo(
@@ -223,14 +311,14 @@ export class FetchTransactionHistoryUseCase {
   private computeValue(
     op: AlpacaOperation,
     normalizedAddress: string,
-    type: TransactionType,
+    direction: TransactionDirection,
   ): string {
     if (op.value && op.value !== "0") {
       return op.value;
     }
 
     const parties: AlpacaOperationParty[] =
-      type === "sent" ? (op.senders ?? []) : (op.recipients ?? []);
+      direction === "received" ? (op.recipients ?? []) : (op.senders ?? []);
 
     const matching = parties.filter(
       (party) => party.address?.toLowerCase() === normalizedAddress,

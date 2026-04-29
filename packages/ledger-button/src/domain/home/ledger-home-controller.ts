@@ -5,7 +5,11 @@ import type {
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
+import type {
+  TransactionKind,
+  TransactionStatus,
+  TransactionType,
+} from "../../components/molecule/transaction-item/ledger-transaction-item.js";
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
@@ -14,6 +18,8 @@ import type { TransactionListItem } from "../transaction-list/transaction-list.j
 type MappableTransaction = {
   hash: string;
   type: TransactionType;
+  status?: TransactionStatus;
+  kind?: TransactionKind;
   timestamp: string;
   formattedValue: string;
   ticker: string;
@@ -21,6 +27,7 @@ type MappableTransaction = {
   fiatValue?: string;
   fiatCurrency?: string;
   explorerUrl?: string;
+  formattedFee?: string;
 };
 
 export class LedgerHomeController implements ReactiveController {
@@ -101,6 +108,8 @@ export class LedgerHomeController implements ReactiveController {
     return {
       hash: tx.hash,
       type: tx.type,
+      status: tx.status ?? "pending",
+      kind: tx.kind ?? "transfer",
       date: date.toISOString().split("T")[0],
       time: date.toLocaleTimeString("en-GB", {
         hour: "2-digit",
@@ -112,6 +121,7 @@ export class LedgerHomeController implements ReactiveController {
       fiatAmount: tx.fiatValue ?? "",
       fiatCurrency: tx.fiatCurrency ?? "",
       explorerUrl: tx.explorerUrl,
+      formattedFee: tx.formattedFee,
     };
   }
 

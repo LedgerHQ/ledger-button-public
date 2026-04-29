@@ -17,6 +17,8 @@ export type AlpacaOperationParty = {
   type?: AlpacaAssetType;
 };
 
+export type AlpacaOperationStatus = "confirmed" | "failed" | "pending";
+
 export type AlpacaOperation = {
   hash: string;
   type: string;
@@ -28,6 +30,8 @@ export type AlpacaOperation = {
   blockTime?: string;
   blockHeight?: number;
   fee?: string;
+  status?: AlpacaOperationStatus;
+  errorMessage?: string;
 };
 
 export type AlpacaOperationsResponse = {
@@ -44,22 +48,57 @@ export type TransactionHistoryOptions = {
 };
 
 /**
- * Transformed transaction item for display
+ * Direction of the transaction relative to the user account.
+ * - "sent": user is the sender
+ * - "received": user is the recipient
+ * - "self": user is both sender and recipient (e.g. self-transfer)
+ */
+export type TransactionDirection = "sent" | "received" | "self";
+
+/**
+ * Semantic kind of the transaction inferred from the Alpaca operation type.
+ */
+export type TransactionKind =
+  | "transfer"
+  | "swap"
+  | "approve"
+  | "contract"
+  | "unknown";
+
+/**
+ * On-chain status of the transaction.
+ */
+export type TransactionStatus = "confirmed" | "failed" | "pending";
+
+/**
+ * Back-compat alias kept for the existing UI which still consumes a binary
+ * sent/received distinction. Prefer `TransactionDirection` for new code.
  */
 export type TransactionType = "sent" | "received";
 
+/**
+ * Transformed transaction item for display
+ */
 export type TransactionHistoryItem = {
   hash: string;
   type: TransactionType;
+  direction: TransactionDirection;
+  kind: TransactionKind;
+  status: TransactionStatus;
   value: string;
   formattedValue: string;
   currencyName: string;
   ticker: string;
   timestamp: string;
+  blockHeight?: number;
   ledgerId?: string;
   fiatValue?: string;
   fiatCurrency?: string;
   explorerUrl?: string;
+  fee?: string;
+  formattedFee?: string;
+  feeTicker?: string;
+  errorMessage?: string;
 };
 
 /**

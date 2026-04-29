@@ -193,7 +193,15 @@
   "transactionList": {
     "noTransactions": "Nenhuma transação encontrada",
     "pendingTransactions": "Transações pendentes",
-    "viewOnExplorer": "Ver no explorador"
+    "viewOnExplorer": "Ver no explorador",
+    "failed": "Falhou",
+    "fee": "Taxa",
+    "kinds": {
+      "swap": "Troca",
+      "approve": "Aprovação",
+      "contract": "Interação com contrato",
+      "self": "Transferência para si"
+    }
   },
   "mobileOnboarding": {
     "title": "Continuar na Ledger Wallet",

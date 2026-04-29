@@ -193,7 +193,15 @@
   "transactionList": {
     "noTransactions": "Keine Transaktionen gefunden",
     "pendingTransactions": "Schwebende Transaktionen",
-    "viewOnExplorer": "Im Explorer ansehen"
+    "viewOnExplorer": "Im Explorer ansehen",
+    "failed": "Fehlgeschlagen",
+    "fee": "Gebühr",
+    "kinds": {
+      "swap": "Tausch",
+      "approve": "Freigabe",
+      "contract": "Vertragsinteraktion",
+      "self": "Eigenüberweisung"
+    }
   },
   "mobileOnboarding": {
     "title": "Vorgang fortsetzen in Ledger Wallet",
