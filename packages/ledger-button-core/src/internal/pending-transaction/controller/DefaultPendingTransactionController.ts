@@ -48,10 +48,6 @@ export class DefaultPendingTransactionController
   }
 
   track(): void {
-    // Synchronous emit so subscribers see the latest storage state before any
-    // async hydration round-trip completes (avoids races where a subscriber
-    // attaches between an add() and the hydrated emit).
-    this.pendingTxSubject.next(this.storageService.getAll());
     void this.emitCurrentState();
     this.startPolling();
   }

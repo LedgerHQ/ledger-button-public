@@ -47,20 +47,6 @@ export class DefaultPendingTransactionStorageService
     }
   }
 
-  update(tx: PendingTransaction): void {
-    const current = this.getAll();
-    const idx = current.findIndex((existing) => existing.hash === tx.hash);
-    if (idx === -1) {
-      this.logger.debug("Transaction not found, skipping update", {
-        hash: tx.hash,
-      });
-      return;
-    }
-    current[idx] = tx;
-    this.write(current);
-    this.logger.debug("Pending transaction updated", { hash: tx.hash });
-  }
-
   remove(hash: string): void {
     const current = this.getAll();
     const filtered = current.filter((tx) => tx.hash !== hash);
