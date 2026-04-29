@@ -21,17 +21,14 @@ export type { ModalMode };
 
 export type ModalGradient = "success" | "error";
 
-const gradientOverlayVariants = cva(
-  "pointer-events-none absolute inset-0",
-  {
-    variants: {
-      gradient: {
-        success: "bg-gradient-success",
-        error: "bg-gradient-error",
-      },
+const gradientOverlayVariants = cva("pointer-events-none absolute inset-0", {
+  variants: {
+    gradient: {
+      success: "bg-gradient-success",
+      error: "bg-gradient-error",
     },
   },
-);
+});
 
 const styles = css`
   .modal-wrapper {
@@ -254,6 +251,8 @@ export class LedgerModal extends LitElement {
     } else {
       await this.animationController.animateClose(elements, this.mode);
     }
+
+    this.gradient = undefined;
 
     this.dispatchCloseFinished();
     this.scrollLockController.unlock();

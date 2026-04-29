@@ -2,9 +2,8 @@ import "../../atom/button/ledger-button";
 import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
-import { html, LitElement, type PropertyValues } from "lit";
+import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 
@@ -54,43 +53,6 @@ export class LedgerStatus extends LitElement {
 
   @property({ type: String, attribute: "secondary-button-label" })
   secondaryButtonLabel = "Secondary action";
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    this.dispatchShowEvent();
-  }
-
-  override disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.dispatchEvent(
-      new CustomEvent("ledger-status-hide", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
-  }
-
-  override updated(changedProperties: PropertyValues<this>): void {
-    if (changedProperties.has("type")) {
-      this.dispatchShowEvent();
-    }
-  }
-
-  private dispatchShowEvent(): void {
-    this.dispatchEvent(
-      new CustomEvent("ledger-status-show", {
-        bubbles: true,
-        composed: true,
-        detail: { type: this.type },
-      }),
-    );
-  }
-
-  private get spotClasses() {
-    return {
-      [spotVariants({ type: this.type })]: true,
-    };
-  }
 
   private get iconType() {
     return this.type === "success" ? "checkMarkCircleFill" : "deleteCircleFill";
@@ -171,7 +133,7 @@ export class LedgerStatus extends LitElement {
       <div class="flex max-w-sm flex-col gap-32">
         <div class="flex flex-col items-center gap-24">
           <div
-            class=${classMap(this.spotClasses)}
+            class=${spotVariants({ type: this.type })}
             role="img"
             aria-label="${this.type === "success" ? "Success" : "Error"}"
           >
