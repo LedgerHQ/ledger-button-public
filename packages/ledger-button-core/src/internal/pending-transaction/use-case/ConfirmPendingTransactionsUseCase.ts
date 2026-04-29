@@ -34,7 +34,9 @@ export class ConfirmPendingTransactionsUseCase {
     );
 
     return result.map((response) => {
-      const onChainHashes = new Set(response.data.map((tx) => tx.hash));
+      const onChainHashes = new Set(
+        (response.items ?? []).map((op) => op.tx?.hash).filter(Boolean),
+      );
       const confirmed = pendingHashes.filter((hash) => onChainHashes.has(hash));
 
       if (confirmed.length > 0) {

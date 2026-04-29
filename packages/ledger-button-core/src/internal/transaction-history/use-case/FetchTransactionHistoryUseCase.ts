@@ -14,7 +14,6 @@ import type { TransactionHistoryDataSource } from "../datasource/TransactionHist
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
   AlpacaOperation,
-  AlpacaOperationParty,
   AlpacaOperationsResponse,
   TransactionDirection,
   TransactionHistoryItem,
@@ -32,6 +31,8 @@ type AssetInfo = {
   ticker: string;
   decimals: number;
 };
+
+const FEES_OPERATION_SUFFIX = "-FEES";
 
 @injectable()
 export class FetchTransactionHistoryUseCase {
@@ -113,7 +114,7 @@ export class FetchTransactionHistoryUseCase {
         );
 
         this.logger.debug("Transaction history fetched successfully", {
-          rawOperationCount: alpacaResponse.data?.length ?? 0,
+          rawOperationCount: alpacaResponse.items?.length ?? 0,
           transactionCount: transformedResult.transactions.length,
           hasNextPage: !!transformedResult.nextPageToken,
         });
@@ -137,7 +138,7 @@ export class FetchTransactionHistoryUseCase {
     nativeAssetInfo: AssetInfo,
     transactionExplorerUrlTemplate: string | undefined,
   ): Promise<TransactionHistoryResult> {
-    const operations = response.data ?? [];
+    const operations = response.items ?? [];
     const transformed = await Promise.all(
       operations.map((op) =>
         this.transformOperation(
@@ -154,7 +155,7 @@ export class FetchTransactionHistoryUseCase {
       transactions: transformed.filter(
         (item): item is TransactionHistoryItem => item !== null,
       ),
-      nextPageToken: response.token ?? undefined,
+      nextPageToken: response.next ?? undefined,
     };
   }
 
@@ -170,13 +171,15 @@ export class FetchTransactionHistoryUseCase {
       return null;
     }
 
-    if (typeof op.hash !== "string" || op.hash.length === 0) {
-      this.logger.warn("Operation has missing/invalid hash, surfacing anyway", {
+    if (typeof op.id !== "string" || op.id.length === 0) {
+      this.logger.warn("Operation has missing/invalid id, skipping", {
         type: op.type,
-        date: op.date,
+        date: op.tx?.date,
         hasSenders: Array.isArray(op.senders) && op.senders.length > 0,
         hasRecipients: Array.isArray(op.recipients) && op.recipients.length > 0,
+        hash: op.tx?.hash,
       });
+      return null;
     }
 
     const direction = this.determineDirection(op, normalizedAddress);
@@ -188,7 +191,7 @@ export class FetchTransactionHistoryUseCase {
       nativeAssetInfo,
     );
 
-    const value = this.computeValue(op, normalizedAddress, direction);
+    const value = this.computeValue(op);
     const formattedValue = formatBalance(
       value,
       assetInfo.decimals,
@@ -197,11 +200,13 @@ export class FetchTransactionHistoryUseCase {
     const timestamp = this.extractTimestamp(op);
     const { fee, formattedFee, feeTicker } = this.extractFee(
       op,
+      normalizedAddress,
       nativeAssetInfo,
     );
 
     return {
-      hash: op.hash ?? "",
+      id: op.id,
+      hash: op.tx?.hash ?? "",
       type: this.toLegacyType(direction),
       direction,
       kind,
@@ -211,15 +216,16 @@ export class FetchTransactionHistoryUseCase {
       currencyName: assetInfo.name,
       ticker: assetInfo.ticker,
       timestamp,
-      blockHeight: op.blockHeight,
+      blockHeight: op.tx?.block?.height,
       ledgerId: assetInfo.ledgerId,
       explorerUrl:
-        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, op.hash) ??
-        undefined,
+        buildExplorerTransactionUrl(
+          transactionExplorerUrlTemplate,
+          op.tx?.hash ?? "",
+        ) ?? undefined,
       fee,
       formattedFee,
       feeTicker,
-      errorMessage: op.errorMessage,
     };
   }
 
@@ -228,49 +234,42 @@ export class FetchTransactionHistoryUseCase {
     normalizedAddress: string,
   ): TransactionDirection {
     const isSender = (op.senders ?? []).some(
-      (party) => party.address?.toLowerCase() === normalizedAddress,
+      (address) => address?.toLowerCase() === normalizedAddress,
     );
     const isRecipient = (op.recipients ?? []).some(
-      (party) => party.address?.toLowerCase() === normalizedAddress,
+      (address) => address?.toLowerCase() === normalizedAddress,
     );
 
     if (isSender && isRecipient) {
       return "self";
     }
-    return isSender ? "sent" : "received";
+    if (isSender) {
+      return "sent";
+    }
+    if (isRecipient) {
+      return "received";
+    }
+
+    // Fall back to the explicit OUT/IN type when the user address is missing
+    // from both arrays (e.g. FEES-only failed operations on EVM).
+    if (op.type === "OUT") {
+      return "sent";
+    }
+    if (op.type === "IN") {
+      return "received";
+    }
+    return "self";
   }
 
   private determineKind(op: AlpacaOperation): TransactionKind {
-    const t = (op.type ?? "").toLowerCase();
-    if (t.length === 0) {
-      return "unknown";
+    if (this.isFeesOperation(op)) {
+      return "contract";
     }
-    if (t.includes("swap")) {
-      return "swap";
-    }
-    if (t.includes("approve") || t === "approval") {
-      return "approve";
-    }
-    if (
-      t === "send" ||
-      t === "receive" ||
-      t === "transfer" ||
-      t === "token-transfer" ||
-      t === "token_transfer"
-    ) {
-      return "transfer";
-    }
-    return "contract";
+    return "transfer";
   }
 
   private determineStatus(op: AlpacaOperation): TransactionStatus {
-    if (op.status === "failed" || op.errorMessage) {
-      return "failed";
-    }
-    if (op.status === "pending") {
-      return "pending";
-    }
-    return "confirmed";
+    return op.tx?.failed === true ? "failed" : "confirmed";
   }
 
   private toLegacyType(direction: TransactionDirection): TransactionType {
@@ -279,15 +278,23 @@ export class FetchTransactionHistoryUseCase {
 
   private extractFee(
     op: AlpacaOperation,
+    normalizedAddress: string,
     nativeAssetInfo: AssetInfo,
   ): { fee?: string; formattedFee?: string; feeTicker?: string } {
-    if (!op.fee || op.fee === "0") {
+    const fee = op.tx?.fees;
+    if (!fee || fee === "0") {
       return {};
     }
+
+    const feesPayer = op.tx?.feesPayer?.toLowerCase();
+    if (feesPayer && feesPayer !== normalizedAddress) {
+      return {};
+    }
+
     return {
-      fee: op.fee,
+      fee,
       formattedFee: formatBalance(
-        op.fee,
+        fee,
         nativeAssetInfo.decimals,
         nativeAssetInfo.ticker,
       ),
@@ -308,38 +315,12 @@ export class FetchTransactionHistoryUseCase {
     return this.getTokenAssetInfo(asset.assetReference, currencyId);
   }
 
-  private computeValue(
-    op: AlpacaOperation,
-    normalizedAddress: string,
-    direction: TransactionDirection,
-  ): string {
-    if (op.value && op.value !== "0") {
-      return op.value;
+  private computeValue(op: AlpacaOperation): string {
+    const detailsAmount = op.details?.assetAmount;
+    if (detailsAmount && detailsAmount !== "0") {
+      return detailsAmount;
     }
-
-    const parties: AlpacaOperationParty[] =
-      direction === "received" ? (op.recipients ?? []) : (op.senders ?? []);
-
-    const matching = parties.filter(
-      (party) => party.address?.toLowerCase() === normalizedAddress,
-    );
-
-    if (matching.length === 0) {
-      return op.value ?? "0";
-    }
-
-    const total = matching.reduce((sum, party) => {
-      if (!party.amount) {
-        return sum;
-      }
-      try {
-        return sum + BigInt(party.amount);
-      } catch {
-        return sum;
-      }
-    }, BigInt(0));
-
-    return total.toString();
+    return op.value ?? "0";
   }
 
   private async getTokenAssetInfo(
@@ -384,6 +365,10 @@ export class FetchTransactionHistoryUseCase {
   }
 
   private extractTimestamp(op: AlpacaOperation): string {
-    return op.blockTime ?? op.date;
+    return op.tx?.block?.time ?? op.tx?.date ?? new Date(0).toISOString();
+  }
+
+  private isFeesOperation(op: AlpacaOperation): boolean {
+    return op.id?.endsWith(FEES_OPERATION_SUFFIX) ?? false;
   }
 }

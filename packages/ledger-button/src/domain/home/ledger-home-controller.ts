@@ -16,6 +16,7 @@ import { Destinations } from "../../shared/routes.js";
 import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 
 type MappableTransaction = {
+  id: string;
   hash: string;
   type: TransactionType;
   status?: TransactionStatus;
@@ -63,7 +64,10 @@ export class LedgerHomeController implements ReactiveController {
 
   get pendingTransactionListItems(): TransactionListItem[] {
     return this.pendingTransactions.map((tx) =>
-      this.mapToTransactionListItem(tx),
+      this.mapToTransactionListItem({
+        ...tx,
+        id: `pending:${tx.hash}`,
+      }),
     );
   }
 
@@ -106,6 +110,7 @@ export class LedgerHomeController implements ReactiveController {
   ): TransactionListItem {
     const date = new Date(tx.timestamp);
     return {
+      id: tx.id,
       hash: tx.hash,
       type: tx.type,
       status: tx.status ?? "pending",

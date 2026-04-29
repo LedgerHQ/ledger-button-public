@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Config } from "../../config/model/config.js";
 import type { NetworkService } from "../../network/NetworkService.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
-import type { AlpacaOperationsResponse } from "../model/transactionHistoryTypes.js";
+import type {
+  AlpacaOperation,
+  AlpacaOperationsResponse,
+} from "../model/transactionHistoryTypes.js";
 import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource.js";
 
 describe("DefaultTransactionHistoryDataSource", () => {
@@ -16,18 +19,29 @@ describe("DefaultTransactionHistoryDataSource", () => {
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
   const testNetwork = "ethereum";
 
-  const mockAlpacaResponse: AlpacaOperationsResponse = {
-    data: [
-      {
-        hash: "0xabc123",
-        type: "send",
-        senders: [{ address: testAddress, amount: "1000000000000000000" }],
-        recipients: [{ address: "0xrecipient", amount: "1000000000000000000" }],
-        value: "1000000000000000000",
-        asset: { type: "native" },
-        date: "2024-01-15T10:30:00Z",
+  const sampleOperation: AlpacaOperation = {
+    id: "js:2:ethereum:0xabc:-0xabc123-OUT-i0",
+    type: "OUT",
+    value: "1000000000000000000",
+    senders: [testAddress],
+    recipients: ["0xrecipient"],
+    asset: { type: "native" },
+    tx: {
+      hash: "0xabc123",
+      fees: "210000000000000",
+      block: {
+        height: 19_000_000,
+        hash: "0xblock",
+        time: "2024-01-15T10:30:00Z",
       },
-    ],
+      date: "2024-01-15T10:30:00Z",
+      failed: false,
+      feesPayer: testAddress,
+    },
+  };
+
+  const mockAlpacaResponse: AlpacaOperationsResponse = {
+    items: [sampleOperation],
   };
 
   beforeEach(() => {
@@ -50,7 +64,7 @@ describe("DefaultTransactionHistoryDataSource", () => {
   });
 
   describe("getTransactions", () => {
-    it("should call the Alpaca operations endpoint with default limit", async () => {
+    it("should call the Alpaca operations endpoint with order=desc by default", async () => {
       vi.mocked(mockNetworkService.get).mockResolvedValue(
         Right(mockAlpacaResponse),
       );
@@ -58,22 +72,19 @@ describe("DefaultTransactionHistoryDataSource", () => {
       await dataSource.getTransactions(testNetwork, testAddress);
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockAlpacaUrl}/v1/${testNetwork}/account/${testAddress}/operations?limit=20`,
+        `${mockAlpacaUrl}/v1/${testNetwork}/account/${testAddress}/operations?order=desc`,
       );
     });
 
-    it("should use custom batch size as limit when provided", async () => {
+    it("should not include the deprecated limit query param", async () => {
       vi.mocked(mockNetworkService.get).mockResolvedValue(
         Right(mockAlpacaResponse),
       );
 
-      await dataSource.getTransactions(testNetwork, testAddress, {
-        batchSize: 50,
-      });
+      await dataSource.getTransactions(testNetwork, testAddress);
 
-      expect(mockNetworkService.get).toHaveBeenCalledWith(
-        expect.stringContaining("limit=50"),
-      );
+      const calledUrl = vi.mocked(mockNetworkService.get).mock.calls[0]?.[0];
+      expect(calledUrl).not.toContain("limit=");
     });
 
     it("should include cursor when pageToken is provided", async () => {
@@ -88,21 +99,6 @@ describe("DefaultTransactionHistoryDataSource", () => {
       expect(mockNetworkService.get).toHaveBeenCalledWith(
         expect.stringContaining("cursor=next-page-token-123"),
       );
-    });
-
-    it("should include both limit and cursor when provided", async () => {
-      vi.mocked(mockNetworkService.get).mockResolvedValue(
-        Right(mockAlpacaResponse),
-      );
-
-      await dataSource.getTransactions(testNetwork, testAddress, {
-        batchSize: 100,
-        pageToken: "my-token",
-      });
-
-      const calledUrl = vi.mocked(mockNetworkService.get).mock.calls[0]?.[0];
-      expect(calledUrl).toContain("limit=100");
-      expect(calledUrl).toContain("cursor=my-token");
     });
 
     it("should not include cursor when pageToken is absent", async () => {
@@ -163,10 +159,10 @@ describe("DefaultTransactionHistoryDataSource", () => {
       );
     });
 
-    it("should return response with token for pagination", async () => {
+    it("should return response with next cursor for pagination", async () => {
       const paginatedResponse: AlpacaOperationsResponse = {
-        data: mockAlpacaResponse.data,
-        token: "pagination-token-abc",
+        items: mockAlpacaResponse.items,
+        next: "pagination-token-abc",
       };
       vi.mocked(mockNetworkService.get).mockResolvedValue(
         Right(paginatedResponse),
@@ -179,12 +175,12 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
       expect(result.isRight()).toBe(true);
       const response = result.extract() as AlpacaOperationsResponse;
-      expect(response.token).toBe("pagination-token-abc");
+      expect(response.next).toBe("pagination-token-abc");
     });
 
-    it("should return empty operations array when no operations exist", async () => {
+    it("should return empty items array when no operations exist", async () => {
       const emptyResponse: AlpacaOperationsResponse = {
-        data: [],
+        items: [],
       };
       vi.mocked(mockNetworkService.get).mockResolvedValue(Right(emptyResponse));
 
@@ -195,26 +191,33 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
       expect(result.isRight()).toBe(true);
       const response = result.extract() as AlpacaOperationsResponse;
-      expect(response.data).toHaveLength(0);
+      expect(response.items).toHaveLength(0);
     });
 
-    it("should pass through enriched operation fields (status, fee, errorMessage, blockHeight)", async () => {
+    it("should pass through nested tx, asset and details fields untouched", async () => {
       const enrichedResponse: AlpacaOperationsResponse = {
-        data: [
+        items: [
           {
-            hash: "0xfailed",
-            type: "swap",
-            senders: [{ address: testAddress, amount: "1000000000000000000" }],
-            recipients: [
-              { address: "0xrouter", amount: "1000000000000000000" },
-            ],
-            value: "1000000000000000000",
+            id: "js:2:ethereum:0xabc:-0xfailed-FEES",
+            type: "OUT",
+            value: "0",
+            senders: [testAddress],
+            recipients: ["0xrouter"],
             asset: { type: "native" },
-            date: "2024-01-15T10:30:00Z",
-            blockHeight: 19_000_000,
-            fee: "210000000000000",
-            status: "failed",
-            errorMessage: "execution reverted",
+            tx: {
+              hash: "0xfailed",
+              fees: "210000000000000",
+              block: {
+                height: 19_000_000,
+                hash: "0xblock",
+                time: "2024-01-15T10:30:00Z",
+              },
+              failed: true,
+              feesPayer: testAddress,
+            },
+            details: {
+              sequence: "42",
+            },
           },
         ],
       };
@@ -229,12 +232,16 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
       expect(result.isRight()).toBe(true);
       const response = result.extract() as AlpacaOperationsResponse;
-      expect(response.data[0]).toMatchObject({
-        status: "failed",
-        fee: "210000000000000",
-        errorMessage: "execution reverted",
-        blockHeight: 19_000_000,
-        type: "swap",
+      expect(response.items[0]).toMatchObject({
+        id: "js:2:ethereum:0xabc:-0xfailed-FEES",
+        type: "OUT",
+        tx: {
+          hash: "0xfailed",
+          failed: true,
+          fees: "210000000000000",
+          block: { height: 19_000_000 },
+        },
+        details: { sequence: "42" },
       });
     });
   });
