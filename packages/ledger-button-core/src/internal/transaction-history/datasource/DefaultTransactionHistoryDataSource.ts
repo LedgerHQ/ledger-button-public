@@ -8,7 +8,7 @@ import { networkModuleTypes } from "../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../network/NetworkService.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
-  ExplorerResponse,
+  AlpacaOperationsResponse,
   TransactionHistoryOptions,
 } from "../model/transactionHistoryTypes.js";
 import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource.js";
@@ -27,20 +27,21 @@ export class DefaultTransactionHistoryDataSource
   ) {}
 
   async getTransactions(
-    blockchain: string,
+    network: string,
     address: string,
     options?: TransactionHistoryOptions,
-  ): Promise<Either<TransactionHistoryError, ExplorerResponse>> {
+  ): Promise<Either<TransactionHistoryError, AlpacaOperationsResponse>> {
     const queryParams = this.buildQueryParams(options);
-    const requestUrl = this.buildRequestUrl(blockchain, address, queryParams);
+    const requestUrl = this.buildRequestUrl(network, address, queryParams);
 
-    const result = await this.networkService.get<ExplorerResponse>(requestUrl);
+    const result =
+      await this.networkService.get<AlpacaOperationsResponse>(requestUrl);
 
     return result.mapLeft(
       (error) =>
         new TransactionHistoryError(
           `Failed to fetch transaction history for ${address}`,
-          { address, blockchain, originalError: error.message },
+          { address, network, originalError: error.message },
         ),
     );
   }
@@ -48,24 +49,21 @@ export class DefaultTransactionHistoryDataSource
   private buildQueryParams(options?: TransactionHistoryOptions): string {
     const params = new URLSearchParams();
 
-    params.set("batch_size", String(options?.batchSize ?? DEFAULT_BATCH_SIZE));
-    params.set("order", "descending");
-    params.set("noinput", "true");
-    params.set("filtering", "true");
+    params.set("limit", String(options?.batchSize ?? DEFAULT_BATCH_SIZE));
 
     if (options?.pageToken) {
-      params.set("token", options.pageToken);
+      params.set("cursor", options.pageToken);
     }
 
     return params.toString();
   }
 
   private buildRequestUrl(
-    blockchain: string,
+    network: string,
     address: string,
     queryParams: string,
   ): string {
-    const baseUrl = this.config.getExplorerUrl();
-    return `${baseUrl}/blockchain/v4/${blockchain}/address/${address}/txs?${queryParams}`;
+    const baseUrl = this.config.getAlpacaUrl();
+    return `${baseUrl}/v1/${network}/account/${address}/operations?${queryParams}`;
   }
 }

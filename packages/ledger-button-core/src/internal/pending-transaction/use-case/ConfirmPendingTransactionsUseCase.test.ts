@@ -2,7 +2,10 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TransactionHistoryError } from "../../transaction-history/model/TransactionHistoryError.js";
-import type { ExplorerResponse } from "../../transaction-history/model/transactionHistoryTypes.js";
+import type {
+  AlpacaOperation,
+  AlpacaOperationsResponse,
+} from "../../transaction-history/model/transactionHistoryTypes.js";
 import { ConfirmPendingTransactionsUseCase } from "./ConfirmPendingTransactionsUseCase.js";
 
 function createMockLogger() {
@@ -39,16 +42,15 @@ describe("ConfirmPendingTransactionsUseCase", () => {
     );
   });
 
-  it("should return confirmed hashes that appear in Explorer response", async () => {
-    const explorerResponse: ExplorerResponse = {
+  it("should return confirmed hashes that appear in the Alpaca response", async () => {
+    const alpacaResponse: AlpacaOperationsResponse = {
       data: [
-        { hash: "0xaaa" } as ExplorerResponse["data"][0],
-        { hash: "0xbbb" } as ExplorerResponse["data"][0],
-        { hash: "0xccc" } as ExplorerResponse["data"][0],
+        { hash: "0xaaa" } as AlpacaOperation,
+        { hash: "0xbbb" } as AlpacaOperation,
+        { hash: "0xccc" } as AlpacaOperation,
       ],
-      token: null,
     };
-    mockDataSource.getTransactions.mockResolvedValue(Right(explorerResponse));
+    mockDataSource.getTransactions.mockResolvedValue(Right(alpacaResponse));
 
     const result = await useCase.execute("ethereum", "0x1234", [
       "0xaaa",
@@ -60,11 +62,10 @@ describe("ConfirmPendingTransactionsUseCase", () => {
   });
 
   it("should return empty array when no pending hashes match", async () => {
-    const explorerResponse: ExplorerResponse = {
-      data: [{ hash: "0xzzz" } as ExplorerResponse["data"][0]],
-      token: null,
+    const alpacaResponse: AlpacaOperationsResponse = {
+      data: [{ hash: "0xzzz" } as AlpacaOperation],
     };
-    mockDataSource.getTransactions.mockResolvedValue(Right(explorerResponse));
+    mockDataSource.getTransactions.mockResolvedValue(Right(alpacaResponse));
 
     const result = await useCase.execute("ethereum", "0x1234", [
       "0xaaa",
@@ -75,7 +76,7 @@ describe("ConfirmPendingTransactionsUseCase", () => {
     expect(result.unsafeCoerce()).toEqual([]);
   });
 
-  it("should return Left when Explorer API fails", async () => {
+  it("should return Left when the Alpaca API fails", async () => {
     mockDataSource.getTransactions.mockResolvedValue(
       Left(new TransactionHistoryError("Network error")),
     );

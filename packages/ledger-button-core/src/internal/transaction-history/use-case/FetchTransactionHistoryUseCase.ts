@@ -6,15 +6,16 @@ import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
+import { EVM_MAPPING_TABLE } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
-  EvmTransferEvent,
-  ExplorerResponse,
-  ExplorerTransaction,
+  AlpacaOperation,
+  AlpacaOperationParty,
+  AlpacaOperationsResponse,
   TransactionHistoryItem,
   TransactionHistoryOptions,
   TransactionHistoryResult,
@@ -45,21 +46,34 @@ export class FetchTransactionHistoryUseCase {
     this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
 
+  // TODO: drop the legacy `blockchain` arg once HydrateAccountWithTxHistoryUseCase is updated to pass currencyId only.
   async execute(
-    blockchain: string,
+    _blockchain: string,
     address: string,
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryResult>> {
     this.logger.debug("Fetching transaction history", {
-      blockchain,
       address,
       currencyId,
       options,
     });
 
+    const network = this.resolveAlpacaNetwork(currencyId);
+    if (!network) {
+      const error = new TransactionHistoryError(
+        `Unsupported network for Alpaca transaction history: ${currencyId}`,
+        { address, network: currencyId },
+      );
+      this.logger.warn("Unsupported network for Alpaca transaction history", {
+        currencyId,
+        address,
+      });
+      return Left(error);
+    }
+
     const [transactionResult, currencyInfoResult] = await Promise.all([
-      this.dataSource.getTransactions(blockchain, address, options),
+      this.dataSource.getTransactions(network, address, options),
       this.calDataSource.getCurrencyInformation(currencyId),
     ]);
 
@@ -68,7 +82,7 @@ export class FetchTransactionHistoryUseCase {
         this.logger.error("Failed to fetch transaction history", { error });
         return Left(error);
       },
-      Right: async (explorerResponse) => {
+      Right: async (alpacaResponse) => {
         const nativeAssetInfo: AssetInfo = currencyInfoResult.caseOf({
           Left: () => ({
             ledgerId: currencyId,
@@ -88,7 +102,7 @@ export class FetchTransactionHistoryUseCase {
           .extract()?.transactionExplorerUrlTemplate;
 
         const transformedResult = await this.transformResponse(
-          explorerResponse,
+          alpacaResponse,
           address.toLowerCase(),
           currencyId,
           nativeAssetInfo,
@@ -105,17 +119,25 @@ export class FetchTransactionHistoryUseCase {
     });
   }
 
+  private resolveAlpacaNetwork(currencyId: string): string | undefined {
+    if (Object.hasOwn(EVM_MAPPING_TABLE, currencyId)) {
+      return currencyId;
+    }
+    return undefined;
+  }
+
   private async transformResponse(
-    response: ExplorerResponse,
+    response: AlpacaOperationsResponse,
     normalizedAddress: string,
     currencyId: string,
     nativeAssetInfo: AssetInfo,
     transactionExplorerUrlTemplate: string | undefined,
   ): Promise<TransactionHistoryResult> {
-    const transactions = await Promise.all(
-      response.data.map((tx) =>
-        this.transformTransaction(
-          tx,
+    const operations = response.data ?? [];
+    const transformed = await Promise.all(
+      operations.map((op) =>
+        this.transformOperation(
+          op,
           normalizedAddress,
           currencyId,
           nativeAssetInfo,
@@ -125,48 +147,42 @@ export class FetchTransactionHistoryUseCase {
     );
 
     return {
-      transactions,
+      transactions: transformed.filter(
+        (item): item is TransactionHistoryItem => item !== null,
+      ),
       nextPageToken: response.token ?? undefined,
     };
   }
 
-  private async transformTransaction(
-    tx: ExplorerTransaction,
+  private async transformOperation(
+    op: AlpacaOperation,
     normalizedAddress: string,
     currencyId: string,
     nativeAssetInfo: AssetInfo,
     transactionExplorerUrlTemplate: string | undefined,
-  ): Promise<TransactionHistoryItem> {
-    const type = this.determineTransactionType(tx, normalizedAddress);
-    const tokenTransfer = this.getRelevantTokenTransfer(
-      tx,
-      normalizedAddress,
-      type,
-    );
-
-    let value: string;
-    let assetInfo: AssetInfo;
-
-    if (tokenTransfer) {
-      value = tokenTransfer.count;
-      assetInfo = await this.getTokenAssetInfo(
-        tokenTransfer.contract,
-        currencyId,
-      );
-    } else {
-      value = this.getNativeValue(tx, normalizedAddress, type);
-      assetInfo = nativeAssetInfo;
+  ): Promise<TransactionHistoryItem | null> {
+    if (!op || typeof op.hash !== "string" || op.hash.length === 0) {
+      this.logger.warn("Skipping operation with missing hash", { op });
+      return null;
     }
 
+    const type = this.determineTransactionType(op, normalizedAddress);
+    const assetInfo = await this.resolveAssetInfo(
+      op,
+      currencyId,
+      nativeAssetInfo,
+    );
+
+    const value = this.computeValue(op, normalizedAddress, type);
     const formattedValue = formatBalance(
       value,
       assetInfo.decimals,
       assetInfo.ticker,
     );
-    const timestamp = this.extractTimestamp(tx);
+    const timestamp = this.extractTimestamp(op);
 
     return {
-      hash: tx.hash,
+      hash: op.hash,
       type,
       value,
       formattedValue,
@@ -175,28 +191,67 @@ export class FetchTransactionHistoryUseCase {
       timestamp,
       ledgerId: assetInfo.ledgerId,
       explorerUrl:
-        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, tx.hash) ??
+        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, op.hash) ??
         undefined,
     };
   }
 
-  private getRelevantTokenTransfer(
-    tx: ExplorerTransaction,
+  private determineTransactionType(
+    op: AlpacaOperation,
     normalizedAddress: string,
-    type: TransactionType,
-  ): EvmTransferEvent | null {
-    const relevantTransfers = tx.transfer_events.filter((event) => {
-      if (type === "received") {
-        return event.to.toLowerCase() === normalizedAddress;
-      }
-      return event.from.toLowerCase() === normalizedAddress;
-    });
+  ): TransactionType {
+    const isSender = (op.senders ?? []).some(
+      (party) => party.address?.toLowerCase() === normalizedAddress,
+    );
 
-    if (relevantTransfers.length === 0) {
-      return null;
+    return isSender ? "sent" : "received";
+  }
+
+  private async resolveAssetInfo(
+    op: AlpacaOperation,
+    currencyId: string,
+    nativeAssetInfo: AssetInfo,
+  ): Promise<AssetInfo> {
+    const asset = op.asset;
+    if (!asset || asset.type === "native" || !asset.assetReference) {
+      return nativeAssetInfo;
     }
 
-    return relevantTransfers[0];
+    return this.getTokenAssetInfo(asset.assetReference, currencyId);
+  }
+
+  private computeValue(
+    op: AlpacaOperation,
+    normalizedAddress: string,
+    type: TransactionType,
+  ): string {
+    if (op.value && op.value !== "0") {
+      return op.value;
+    }
+
+    const parties: AlpacaOperationParty[] =
+      type === "sent" ? (op.senders ?? []) : (op.recipients ?? []);
+
+    const matching = parties.filter(
+      (party) => party.address?.toLowerCase() === normalizedAddress,
+    );
+
+    if (matching.length === 0) {
+      return op.value ?? "0";
+    }
+
+    const total = matching.reduce((sum, party) => {
+      if (!party.amount) {
+        return sum;
+      }
+      try {
+        return sum + BigInt(party.amount);
+      } catch {
+        return sum;
+      }
+    }, BigInt(0));
+
+    return total.toString();
   }
 
   private async getTokenAssetInfo(
@@ -240,61 +295,7 @@ export class FetchTransactionHistoryUseCase {
     return assetInfo;
   }
 
-  private determineTransactionType(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-  ): TransactionType {
-    const isSender = tx.from.toLowerCase() === normalizedAddress;
-
-    const isRecipientInTransfer = tx.transfer_events.some(
-      (event) => event.to.toLowerCase() === normalizedAddress,
-    );
-
-    if (isSender && !isRecipientInTransfer) {
-      return "sent";
-    }
-
-    return isRecipientInTransfer || tx.to.toLowerCase() === normalizedAddress
-      ? "received"
-      : "sent";
-  }
-
-  private getNativeValue(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-    type: TransactionType,
-  ): string {
-    const relevantActions = tx.actions.filter((action) => {
-      if (type === "received") {
-        return action.to.toLowerCase() === normalizedAddress;
-      }
-      return action.from.toLowerCase() === normalizedAddress;
-    });
-
-    if (relevantActions.length > 0) {
-      const totalValue = relevantActions.reduce(
-        (sum, action) => sum + BigInt(action.value),
-        BigInt(0),
-      );
-      return totalValue.toString();
-    }
-
-    if (
-      type === "received" &&
-      tx.to.toLowerCase() === normalizedAddress &&
-      tx.value !== "0"
-    ) {
-      return tx.value;
-    }
-
-    if (type === "sent" && tx.from.toLowerCase() === normalizedAddress) {
-      return tx.value;
-    }
-
-    return "0";
-  }
-
-  private extractTimestamp(tx: ExplorerTransaction): string {
-    return tx.block?.time ?? tx.received_at;
+  private extractTimestamp(op: AlpacaOperation): string {
+    return op.blockTime ?? op.date;
   }
 }

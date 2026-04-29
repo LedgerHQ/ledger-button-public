@@ -2,14 +2,14 @@ import { Either } from "purify-ts";
 
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
-  ExplorerResponse,
+  AlpacaOperationsResponse,
   TransactionHistoryOptions,
 } from "../model/transactionHistoryTypes.js";
 
 export interface TransactionHistoryDataSource {
   getTransactions(
-    blockchain: string,
+    network: string,
     address: string,
     options?: TransactionHistoryOptions,
-  ): Promise<Either<TransactionHistoryError, ExplorerResponse>>;
+  ): Promise<Either<TransactionHistoryError, AlpacaOperationsResponse>>;
 }
