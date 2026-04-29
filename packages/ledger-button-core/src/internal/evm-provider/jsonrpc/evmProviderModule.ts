@@ -3,22 +3,22 @@ import { ContainerModule } from "inversify";
 import { LedgerRemoteDatasource } from "./datasource/LedgerRemoteDatasource.js";
 import { StubLedgerRemoteDatasource } from "./datasource/StubLedgerRemoteDatasource.js";
 import { JSONRPCCallUseCase } from "./use-case/JSONRPCRequest.js";
-import { web3ProviderModuleTypes } from "./web3ProviderModuleTypes.js";
+import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
 
-type Web3ProviderModuleOptions = {
+type EvmProviderModuleOptions = {
   stub?: boolean;
 };
 
-export function web3ProviderModuleFactory({ stub }: Web3ProviderModuleOptions) {
+export function evmProviderModuleFactory({ stub }: EvmProviderModuleOptions) {
   return new ContainerModule(({ bind, rebindSync }) => {
-    bind(web3ProviderModuleTypes.LedgerRemoteDatasource).to(
+    bind(evmProviderModuleTypes.LedgerRemoteDatasource).to(
       LedgerRemoteDatasource,
     );
 
-    bind(web3ProviderModuleTypes.JSONRPCCallUseCase).to(JSONRPCCallUseCase);
+    bind(evmProviderModuleTypes.JSONRPCCallUseCase).to(JSONRPCCallUseCase);
 
     if (stub) {
-      rebindSync(web3ProviderModuleTypes.LedgerRemoteDatasource).to(
+      rebindSync(evmProviderModuleTypes.LedgerRemoteDatasource).to(
         StubLedgerRemoteDatasource,
       );
     }
