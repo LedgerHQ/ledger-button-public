@@ -16,10 +16,10 @@ import {
 } from "../../backend/types.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
-import { createSignedTransaction } from "../../evm-provider/transaction/TransactionHelper.js";
-import { getCurrencyIdFromChainId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { createSignedTransaction } from "../transaction/TransactionHelper.js";
+import { getCurrencyIdFromChainId } from "../utils/chainUtils.js";
 
 export type BroadcastTransactionParams = {
   signature: Signature;

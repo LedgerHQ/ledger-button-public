@@ -1,4 +1,5 @@
 import {
+  DeviceActionState,
   DeviceActionStatus,
   OpenAppWithDependenciesDAInput,
   type OpenAppWithDependenciesDAState,
@@ -7,8 +8,9 @@ import {
 } from "@ledgerhq/device-management-kit";
 import {
   SignerEthBuilder,
-  SignTransactionDAStep,
-  type SignTypedDataDAState,
+  type SignPersonalMessageDAError,
+  type SignPersonalMessageDAIntermediateValue,
+  type SignPersonalMessageDAOutput,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { type Factory, inject, injectable } from "inversify";
@@ -24,12 +26,11 @@ import {
 } from "rxjs";
 
 import {
-  BlindSigningDisabledError,
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../api/errors/DeviceErrors.js";
 import {
-  type GetAddressDAState,
+  GetAddressDAState,
   isGetAddressResult,
 } from "../../../api/model/signing/GetAddress.js";
 import {
@@ -40,33 +41,36 @@ import type {
   SignFlowStatus,
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
-import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
-import { TrackTypedMessageCompleted } from "../../event-tracking/usecase/TrackTypedMessageCompleted.js";
-import { TrackTypedMessageStarted } from "../../event-tracking/usecase/TrackTypedMessageStarted.js";
-import { getHexaStringFromSignature } from "../../evm-provider/transaction/TransactionHelper.js";
+import type { DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
+import {
+  AccountNotSelectedError,
+  DeviceConnectionError,
+} from "../../device/model/errors.js";
+import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-} from "../model/errors.js";
-import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
+
+// TODO: Remove this once the type is exported from the package
+type SignPersonalMessageDAState = DeviceActionState<
+  SignPersonalMessageDAOutput,
+  SignPersonalMessageDAError,
+  SignPersonalMessageDAIntermediateValue
+>;
 
 @injectable()
-export class SignTypedData {
+export class SignPersonalMessage {
   private readonly logger: LoggerPublisher;
-  private pendingStep = "";
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -79,19 +83,12 @@ export class SignTypedData {
     private readonly dappConfigService: DAppConfigService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
-    @inject(eventTrackingModuleTypes.TrackTypedMessageStarted)
-    private readonly trackTypedMessageStarted: TrackTypedMessageStarted,
-    @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
-    private readonly trackTypedMessageCompleted: TrackTypedMessageCompleted,
   ) {
-    this.logger = loggerFactory("SignTypedData");
+    this.logger = loggerFactory("SignPersonalMessage");
   }
 
-  execute(params: SignTypedMessageParams): Observable<SignFlowStatus> {
-    this.logger.info("Starting transaction signing", { params });
-    const [, typedData] = params;
-
-    this.trackTypedMessageStarted.execute(typedData);
+  execute(params: SignPersonalMessageParams): Observable<SignFlowStatus> {
+    this.logger.info("Starting signing message", { params });
 
     const sessionId = this.deviceManagementKitService.sessionId;
 
@@ -111,12 +108,13 @@ export class SignTypedData {
       });
     }
 
-    const signType = "typed-message";
+    const [, message] = params;
+    const signType: SignType = "personal-sign";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
       signType,
       status: "debugging",
-      message: "Initializing transaction signing",
+      message: "Initializing personal message signing",
     });
 
     try {
@@ -168,7 +166,7 @@ export class SignTypedData {
           ),
           tap((result: OpenAppWithDependenciesDAState) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, signType),
+              this.getTransactionResultForEvent(result, message, signType),
             );
           }),
           filter((result: OpenAppWithDependenciesDAState) => {
@@ -214,66 +212,58 @@ export class SignTypedData {
             resultObservable.next({
               signType,
               status: "debugging",
-              message: "Starting Sign Typed Data DA",
+              message: "Starting Sign Personal Message DA",
             });
 
-            const { observable: signObservable } = ethSigner.signTypedData(
+            const { observable: signObservable } = ethSigner.signMessage(
               derivationPath,
-              typedData,
+              message,
               {
                 skipOpenApp: true,
               },
             );
 
-            return signObservable.pipe(
-              tap((result: SignTypedDataDAState) => {
-                if (result.status === DeviceActionStatus.Pending) {
-                  this.pendingStep = result.intermediateValue?.step ?? "";
-                }
-
-                if (
-                  result.status !== DeviceActionStatus.Completed &&
-                  result.status !== DeviceActionStatus.Error
-                ) {
-                  resultObservable.next(
-                    this.getTransactionResultForEvent(result, signType),
-                  );
-                }
-              }),
-            );
+            return signObservable;
           }),
           filter(
-            (result: SignTypedDataDAState) =>
+            (result: SignPersonalMessageDAState) =>
               result.status !== DeviceActionStatus.Pending ||
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
-          filter((result: SignTypedDataDAState) => {
+          tap((result: SignPersonalMessageDAState) => {
+            if (
+              result.status !== DeviceActionStatus.Completed &&
+              result.status !== DeviceActionStatus.Error
+            ) {
+              resultObservable.next(
+                this.getTransactionResultForEvent(result, message, signType),
+              );
+            }
+          }),
+          filter((result: SignPersonalMessageDAState) => {
             return (
               result.status === DeviceActionStatus.Error ||
               result.status === DeviceActionStatus.Completed
             );
           }),
-          map((result: SignTypedDataDAState) => {
+          tap((result: SignPersonalMessageDAState) => {
+            resultObservable.next(
+              this.getTransactionResultForEvent(result, message, signType),
+            );
+          }),
+          map((result: SignPersonalMessageDAState) => {
             if (result.status === DeviceActionStatus.Error) {
               switch (true) {
-                case result.error instanceof EthAppCommandError &&
-                  result.error.errorCode === "6a80" &&
-                  this.pendingStep ===
-                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
-                  throw new BlindSigningDisabledError("Blind signing disabled");
                 case result.error instanceof EthAppCommandError &&
                   result.error.errorCode === "6985":
                   throw new UserRejectedTransactionError(
                     "User rejected transaction",
                   );
                 default:
-                  throw result.error;
+                  return result;
               }
             }
-
-            // Track typed message flow successfully completed
-            this.trackTypedMessageCompleted.execute(typedData);
 
             return result;
           }),
@@ -281,21 +271,22 @@ export class SignTypedData {
         .subscribe({
           next: (result) => {
             resultObservable.next(
-              this.getTransactionResultForEvent(result, signType),
+              this.getTransactionResultForEvent(
+                result as SignPersonalMessageDAState,
+                message,
+                signType,
+              ),
             );
           },
           error: (error: Error) => {
-            this.logger.error("Typed data signing failed", { error });
+            this.logger.error("Personal message signing failed", { error });
             resultObservable.next({ signType, status: "error", error: error });
           },
         });
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign typed data in SignTypedData", {
-        error,
-      });
-      this.logger.error("Failed to sign typed data", { error });
+      this.logger.error("Failed to sign personal message", { error });
       return of({
         signType,
         status: "error",
@@ -326,9 +317,10 @@ export class SignTypedData {
   private getTransactionResultForEvent(
     result:
       | OpenAppWithDependenciesDAState
-      | SignTypedDataDAState
       | GetAddressDAState
+      | SignPersonalMessageDAState
       | SignedPersonalMessageOrTypedDataResult,
+    _message: string | Uint8Array,
     signType: SignType,
   ): SignFlowStatus {
     if (isSignedMessageOrTypedDataResult(result)) {
@@ -360,7 +352,7 @@ export class SignTypedData {
               status: "user-interaction-needed",
               interaction: "confirm-open-app",
             };
-          case "sign-typed-data":
+          case "sign-personal-message":
             return {
               signType,
               status: "user-interaction-needed",
@@ -371,12 +363,6 @@ export class SignTypedData {
               signType,
               status: "user-interaction-needed",
               interaction: "allow-list-apps",
-            };
-          case "web3-checks-opt-in":
-            return {
-              signType,
-              status: "user-interaction-needed",
-              interaction: "web3-checks-opt-in",
             };
           default:
             return {
@@ -395,15 +381,15 @@ export class SignTypedData {
         }
 
         if (!("deviceMetadata" in result.output)) {
+          const signature = getHexaStringFromSignature(result.output);
           return {
             signType,
             status: "success",
             data: {
-              signature: getHexaStringFromSignature(result.output),
+              signature,
             },
           };
         } else {
-          console.debug("Open app completed", { result });
           return {
             signType,
             status: "debugging",
@@ -412,9 +398,6 @@ export class SignTypedData {
         }
       }
       case DeviceActionStatus.Error:
-        console.error("Error signing typed data in SignTypedData", {
-          error: result.error.toString(),
-        });
         return {
           signType,
           status: "error",

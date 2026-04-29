@@ -10,12 +10,12 @@ import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type GasFeeEstimationService } from "../../balance/service/GasFeeEstimationService.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
-import { getRawTransactionFromEipTransaction } from "../../evm-provider/transaction/TransactionHelper.js";
+import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
 import { SignRawTransaction } from "./SignRawTransaction.js";
 @injectable()
 export class SignTransaction {
