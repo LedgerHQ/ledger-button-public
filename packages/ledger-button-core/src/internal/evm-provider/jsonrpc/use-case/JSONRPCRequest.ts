@@ -3,11 +3,11 @@ import { type Factory, inject, injectable } from "inversify";
 import {
   JSONRPCRequest,
   JsonRpcResponse,
-} from "../../../api/model/eip/EIPTypes.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "../../../../api/model/eip/EIPTypes.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import { LedgerRemoteDatasource } from "../datasource/LedgerRemoteDatasource.js";
-import { web3ProviderModuleTypes } from "../web3ProviderModuleTypes.js";
+import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 
 @injectable()
 export class JSONRPCCallUseCase {
@@ -15,7 +15,7 @@ export class JSONRPCCallUseCase {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
-    @inject(web3ProviderModuleTypes.LedgerRemoteDatasource)
+    @inject(evmProviderModuleTypes.LedgerRemoteDatasource)
     private readonly datasource: LedgerRemoteDatasource,
   ) {
     this.logger = loggerFactory("JSONRPCCallUseCase UseCase");
