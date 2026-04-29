@@ -5,7 +5,9 @@ import "../../components/index.js";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
 
+import type { ModalGradient } from "../../components/atom/modal/ledger-modal.js";
 import type { AnimationKey } from "../../components/index.js";
 import type { StatusType } from "../../components/organism/status/ledger-status.js";
 import en from "../../i18n/en.json" with { type: "json" };
@@ -78,12 +80,19 @@ const renderStatus = (args: SignTransactionStoryArgs) => html`
   </div>
 `;
 
+const resolveGradient = (
+  state: SignTransactionStoryArgs["state"],
+): ModalGradient | undefined =>
+  state === "success" || state === "error" ? state : undefined;
+
 const meta: Meta<SignTransactionStoryArgs> = {
   title: "Screens/SignTransaction/SignTransactionScreen",
   render: (args) => html`
     <core-provider>
       <language-provider>
-        <ledger-modal-story-wrapper>
+        <ledger-modal-story-wrapper
+          gradient=${ifDefined(resolveGradient(args.state))}
+        >
           ${args.state === "signing" ? renderSigning(args) : renderStatus(args)}
         </ledger-modal-story-wrapper>
       </language-provider>

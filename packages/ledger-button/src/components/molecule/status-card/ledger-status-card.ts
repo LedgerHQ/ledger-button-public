@@ -3,7 +3,6 @@ import "../../atom/icon/ledger-icon";
 import { cva } from "class-variance-authority";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 
@@ -52,12 +51,6 @@ export class LedgerStatusCard extends LitElement {
   @property({ type: String })
   description = "";
 
-  private get spotClasses() {
-    return {
-      [spotVariants({ state: this.state })]: true,
-    };
-  }
-
   private get iconType() {
     return this.state === "validated" ? "checkMarkCircleFill" : "clock";
   }
@@ -69,7 +62,7 @@ export class LedgerStatusCard extends LitElement {
         role="status"
         aria-live="polite"
       >
-        <div class=${classMap(this.spotClasses)} aria-hidden="true">
+        <div class=${spotVariants({ state: this.state })} aria-hidden="true">
           <ledger-icon
             .type=${this.iconType}
             size="20"
