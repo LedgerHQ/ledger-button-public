@@ -28,6 +28,7 @@ function createMockLoggerFactory() {
 function createMockStorageService(): PendingTransactionStorageService {
   return {
     add: vi.fn(),
+    update: vi.fn(),
     getAll: vi.fn().mockReturnValue([]),
     remove: vi.fn(),
   };
@@ -48,6 +49,8 @@ function createMockContextService() {
       selectedAccount: {
         freshAddress: "0x1234",
         currencyId: "ethereum",
+        ticker: "ETH",
+        name: "Ethereum",
       },
     }),
     onEvent: vi.fn(),
@@ -112,8 +115,26 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     );
   });
 
-  it("should track a successful broadcasted transaction", async () => {
-    await useCase.execute(successBroadcastStatus, signTransactionParams);
+  it("should add a minimal pending transaction synchronously before enrichment", async () => {
+    let calResolve: () => void = () => undefined;
+    mockCalDataSource.getCurrencyInformation.mockReturnValue(
+      new Promise((resolve) => {
+        calResolve = () =>
+          resolve(
+            Right({
+              id: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            }),
+          );
+      }),
+    );
+
+    const executePromise = useCase.execute(
+      successBroadcastStatus,
+      signTransactionParams,
+    );
 
     expect(mockStorageService.add).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -122,13 +143,24 @@ describe("TrackBroadcastedTransactionUseCase", () => {
         address: "0x1234",
         type: "sent",
         value: "1000000000000000000",
-        ticker: "ETH",
-        currencyName: "Ethereum",
         ledgerId: "ethereum",
         explorerUrl: "https://etherscan.io/tx/0xabc123",
       }),
     );
-    expect(mockController.track).toHaveBeenCalled();
+    expect(mockController.track).toHaveBeenCalledTimes(1);
+    expect(mockStorageService.update).not.toHaveBeenCalled();
+
+    calResolve();
+    await executePromise;
+
+    expect(mockStorageService.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        hash: "0xabc123",
+        ticker: "ETH",
+        currencyName: "Ethereum",
+      }),
+    );
+    expect(mockController.track).toHaveBeenCalledTimes(2);
   });
 
   it("should skip non-success statuses", async () => {
@@ -189,7 +221,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    expect(mockStorageService.add).toHaveBeenCalledWith(
+    expect(mockStorageService.update).toHaveBeenCalledWith(
       expect.objectContaining({
         ticker: "ETHEREUM",
         currencyName: "ethereum",

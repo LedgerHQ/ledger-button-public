@@ -29,6 +29,10 @@ function createMockStorageService() {
   const store: PendingTransaction[] = [];
   return {
     add: vi.fn((tx: PendingTransaction) => store.push(tx)),
+    update: vi.fn((tx: PendingTransaction) => {
+      const idx = store.findIndex((existing) => existing.hash === tx.hash);
+      if (idx >= 0) store[idx] = tx;
+    }),
     getAll: vi.fn(() => [...store]),
     remove: vi.fn((hash: string) => {
       const idx = store.findIndex((tx) => tx.hash === hash);
@@ -159,6 +163,21 @@ describe("DefaultPendingTransactionController", () => {
         controller.observePendingTransactions(),
       );
       expect(value).toEqual([tx]);
+    });
+
+    it("should synchronously emit storage snapshot before async hydration", () => {
+      const tx = createPendingTx();
+      mockStorageService._store.push(tx);
+
+      const observed: PendingTransaction[][] = [];
+      const subscription = controller
+        .observePendingTransactions()
+        .subscribe((txs) => observed.push(txs));
+
+      controller.track();
+
+      expect(observed[observed.length - 1]).toEqual([tx]);
+      subscription.unsubscribe();
     });
   });
 
