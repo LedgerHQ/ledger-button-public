@@ -68,6 +68,7 @@ import { modalModuleTypes } from "../../modal/modalModuleTypes.js";
 import { ModalService } from "../../modal/service/ModalService.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
+import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import {
   BroadcastTransaction,
@@ -90,7 +91,7 @@ export class SignRawTransaction {
     private readonly config: Config,
     @inject(dAppConfigModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
-    @inject(deviceModuleTypes.BroadcastTransactionUseCase)
+    @inject(evmProviderModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly trackTransactionStarted: TrackTransactionStarted,
