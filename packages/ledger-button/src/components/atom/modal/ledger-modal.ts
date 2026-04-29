@@ -62,6 +62,10 @@ const styles = css`
     max-height: 100vh;
     transform: translateX(100%);
   }
+
+  .modal-container--bottom {
+    transform: translateY(100%);
+  }
 `;
 
 const centerContainerClasses = {
