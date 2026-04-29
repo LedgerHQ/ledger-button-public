@@ -265,6 +265,10 @@ export class SignTransactionController implements ReactiveController {
   private subscribeToBroadcastLifecycle(hash: string) {
     this.clearPendingTxSubscription();
 
+    // Keep this subscription alive until hostDisconnected() or the next
+    // startSigning(). We deliberately do NOT auto-clear on `validated` so a
+    // late race where the hash reappears in the pending pool (re-broadcast,
+    // polling glitch) still flips the card back to `processing`.
     this.pendingTxSubscription = this.core
       .observePendingTransactions()
       .subscribe((txs) => {

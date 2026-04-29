@@ -1,4 +1,5 @@
 import type {
+  PendingTransaction,
   SignFlowStatus,
   SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
@@ -11,6 +12,24 @@ import type { LanguageContext } from "../../context/language-context.js";
 import type { Navigation } from "../../shared/navigation.js";
 import { SignTransactionController } from "./sign-transaction-controller.js";
 
+function createPendingTx(
+  overrides: Partial<PendingTransaction> = {},
+): PendingTransaction {
+  return {
+    hash: "0xabc",
+    chainId: 1,
+    address: "0x0000000000000000000000000000000000000001",
+    timestamp: "2026-04-29T10:00:00.000Z",
+    type: "sent",
+    value: "0",
+    formattedValue: "0 ETH",
+    ticker: "ETH",
+    currencyName: "Ethereum",
+    ledgerId: "ethereum",
+    ...overrides,
+  };
+}
+
 describe("SignTransactionController broadcast lifecycle", () => {
   let controller: SignTransactionController;
   let host: ReactiveControllerHost;
@@ -18,7 +37,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
   let navigation: Navigation;
   let lang: LanguageContext;
   let signFlowSubject: Subject<SignFlowStatus>;
-  let pendingTransactionsSubject: BehaviorSubject<Array<{ hash: string }>>;
+  let pendingTransactionsSubject: BehaviorSubject<PendingTransaction[]>;
 
   const signParams: SignTransactionParams = {
     method: "eth_sendTransaction",
@@ -50,9 +69,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
     };
 
     signFlowSubject = new Subject<SignFlowStatus>();
-    pendingTransactionsSubject = new BehaviorSubject<Array<{ hash: string }>>(
-      [],
-    );
+    pendingTransactionsSubject = new BehaviorSubject<PendingTransaction[]>([]);
 
     core = {
       sign: vi.fn().mockReturnValue(signFlowSubject.asObservable()),
@@ -107,7 +124,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
   });
 
   it("stays processing while hash is pending then switches to validated", async () => {
-    pendingTransactionsSubject.next([{ hash: "0xabc" }]);
+    pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
 
     controller.startSigning(signParams);
     signFlowSubject.next(broadcastSuccessResult);
@@ -143,7 +160,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
       expect(controller.state.broadcast?.state).toBe("validated");
     });
 
-    pendingTransactionsSubject.next([{ hash: "0xabc" }]);
+    pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
 
     await vi.waitFor(() => {
       expect(controller.state.screen).toBe("success");
