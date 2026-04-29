@@ -8,8 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "대기 중인 트랜잭션이 {count} 건 있습니다.",
       "newTransactionPending": "새 트랜잭션 보류 중",
-      "transactionsValidatedOne": "1 transaction has been validated",
-      "transactionsValidatedOther": "{count} transactions have been validated"
+      "transactionsValidatedOne": "1건의 트랜잭션이 승인되었습니다",
+      "transactionsValidatedOther": "{count}건의 트랜잭션이 승인되었습니다."
     },
     "search": {
       "placeholder": "계정 검색",
@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "언제든 계정을 선택해 계속 진행하세요."
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "연결되었습니다",
+      "close": "닫기"
     },
     "turnOnSync": {
       "title": "",
@@ -195,14 +195,9 @@
   "settings": {
     "title": "설정",
     "preferences": {
-      "title": "환경설정",
-      "language": {
-        "title": "언어"
-      },
-      "currency": {
-        "title": "통화"
-      },
-      "description": "환경설정 항목이 여기에 표시됩니다."
+      "title": "설정",
+      "language": { "title": "언어" },
+      "currency": { "title": "통화" }
     },
     "securityConfidentiality": {
       "title": "보안 및 기밀성",
