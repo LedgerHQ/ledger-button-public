@@ -4,6 +4,7 @@ import { animate } from "motion";
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
 import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
 import { type AnimationInstance } from "./animation-types.js";
+import { BottomAnimation } from "./bottom-animation.js";
 import { CenterAnimation } from "./center-animation.js";
 import { MorphAnimation } from "./morph-animation.js";
 import { PanelAnimation } from "./panel-animation.js";
@@ -21,6 +22,7 @@ export class ModalAnimationController implements ReactiveController {
   private centerAnimation = new CenterAnimation();
   private panelAnimation = new PanelAnimation();
   private morphAnimation = new MorphAnimation();
+  private bottomAnimation = new BottomAnimation();
 
   constructor(private readonly host: ReactiveControllerHost) {
     this.host.addController(this);
@@ -45,6 +47,8 @@ export class ModalAnimationController implements ReactiveController {
 
     if (mode === "panel") {
       this.panelAnimation.open(elements.container);
+    } else if (mode === "bottom") {
+      this.bottomAnimation.open(elements.container);
     } else {
       this.centerAnimation.open(elements.container);
     }
@@ -58,6 +62,8 @@ export class ModalAnimationController implements ReactiveController {
 
     if (mode === "panel") {
       animations.push(this.panelAnimation.close(elements.container));
+    } else if (mode === "bottom") {
+      animations.push(this.bottomAnimation.close(elements.container));
     } else {
       animations.push(this.centerAnimation.close(elements.container));
     }
@@ -123,6 +129,7 @@ export class ModalAnimationController implements ReactiveController {
 
     this.centerAnimation.cancel();
     this.panelAnimation.cancel();
+    this.bottomAnimation.cancel();
     this.morphAnimation.cancel();
   }
 
@@ -130,12 +137,12 @@ export class ModalAnimationController implements ReactiveController {
     container: HTMLElement,
     mode: ModalMode,
   ): void {
-    if (mode === "panel") {
-      container.style.opacity = "";
+    if (mode === "center") {
+      container.style.opacity = "0";
       return;
     }
 
-    container.style.opacity = "0";
+    container.style.opacity = "";
   }
 
   private resetVisualState(elements: AnimationElements): void {
