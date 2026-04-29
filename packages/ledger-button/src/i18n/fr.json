@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "Sélectionnez un compte à tout moment pour continuer."
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "Vous êtes maintenant connecté(e)",
+      "close": "Fermer"
     },
     "turnOnSync": {
       "title": "",
@@ -197,8 +197,7 @@
     "preferences": {
       "title": "Préférences",
       "language": { "title": "Langue" },
-      "currency": { "title": "Devise" },
-      "description": "Les options de préférences apparaîtront ici."
+      "currency": { "title": "Monnaie" }
     },
     "securityConfidentiality": {
       "title": "Sécurité et vie privée",
