@@ -2,9 +2,9 @@ import { Left, Right } from "purify-ts";
 
 import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
 import { BackendService } from "../../backend/BackendService.js";
+import { AlpacaDataSource } from "../../balance/datasource/alpaca/AlpacaDataSource.js";
+import { TransactionInfo } from "../../balance/model/types.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
-import { TransactionInfo } from "../model/types.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
 
 describe("DefaultGasFeeEstimationService", () => {
