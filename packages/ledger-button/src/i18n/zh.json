@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "您可以随时选择一个账户以继续。"
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "您已成功连接",
+      "close": "关闭"
     },
     "turnOnSync": {
       "title": "",
@@ -195,10 +195,9 @@
   "settings": {
     "title": "设置",
     "preferences": {
-      "title": "偏好设置",
+      "title": "偏好",
       "language": { "title": "语言" },
-      "currency": { "title": "货币" },
-      "description": "偏好设置选项将显示在此处。"
+      "currency": { "title": "货币" }
     },
     "securityConfidentiality": {
       "title": "安全性与机密性",
