@@ -8,8 +8,8 @@
       "label": "Ledger",
       "pendingTransactionsHover": "{count} bekleyen işleminiz var",
       "newTransactionPending": "Yeni işlem beklemede",
-      "transactionsValidatedOne": "1 transaction has been validated",
-      "transactionsValidatedOther": "{count} transactions have been validated"
+      "transactionsValidatedOne": "1 işlem doğrulandı",
+      "transactionsValidatedOther": "{count} işlem doğrulandı"
     },
     "search": {
       "placeholder": "Hesap ara",
@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin."
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "Şimdi bağlandınız",
+      "close": "Kapat"
     },
     "turnOnSync": {
       "title": "",
@@ -197,8 +197,7 @@
     "preferences": {
       "title": "Tercihler",
       "language": { "title": "Dil" },
-      "currency": { "title": "Para birimi" },
-      "description": "Tercih seçenekleri burada görünecektir."
+      "currency": { "title": "Para birimi" }
     },
     "securityConfidentiality": {
       "title": "Güvenlik ve gizlilik",
