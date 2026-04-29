@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。"
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "接続されました",
+      "close": "閉じる"
     },
     "turnOnSync": {
       "title": "",
@@ -195,10 +195,9 @@
   "settings": {
     "title": "設定",
     "preferences": {
-      "title": "環境設定",
+      "title": "設定",
       "language": { "title": "言語" },
-      "currency": { "title": "通貨" },
-      "description": "環境設定の項目はここに表示されます。"
+      "currency": { "title": "通貨" }
     },
     "securityConfidentiality": {
       "title": "セキュリティと機密性",

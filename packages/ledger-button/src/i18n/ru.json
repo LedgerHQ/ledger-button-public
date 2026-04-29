@@ -120,8 +120,8 @@
       "refreshingAccountsHint": "Вы можете в любой момент выбрать счёт, чтобы продолжить."
     },
     "connectionSuccess": {
-      "title": "You are now connected",
-      "close": "Close"
+      "title": "Вы подключены",
+      "close": "Закрыть"
     },
     "turnOnSync": {
       "title": "",
@@ -196,9 +196,8 @@
     "title": "Настройки",
     "preferences": {
       "title": "Предпочтения",
-      "language": { "title": "Язык" },
-      "currency": { "title": "Валюта" },
-      "description": "Дополнительные настройки появятся здесь."
+      "language": { "title": "Язык устройства" },
+      "currency": { "title": "Валюта" }
     },
     "securityConfidentiality": {
       "title": "Безопасность и конфиденциальность",
