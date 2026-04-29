@@ -282,9 +282,6 @@ export class SignTransactionController implements ReactiveController {
           };
           this.host.requestUpdate();
         }
-        if (nextBroadcastState === "validated") {
-          this.clearPendingTxSubscription();
-        }
       });
   }
 

@@ -1,0 +1,163 @@
+import type {
+  SignFlowStatus,
+  SignTransactionParams,
+} from "@ledgerhq/ledger-wallet-provider-core";
+import type { ReactiveControllerHost } from "lit";
+import { BehaviorSubject, Subject } from "rxjs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { CoreContext } from "../../context/core-context.js";
+import type { LanguageContext } from "../../context/language-context.js";
+import type { Navigation } from "../../shared/navigation.js";
+import { SignTransactionController } from "./sign-transaction-controller.js";
+
+describe("SignTransactionController broadcast lifecycle", () => {
+  let controller: SignTransactionController;
+  let host: ReactiveControllerHost;
+  let core: CoreContext;
+  let navigation: Navigation;
+  let lang: LanguageContext;
+  let signFlowSubject: Subject<SignFlowStatus>;
+  let pendingTransactionsSubject: BehaviorSubject<Array<{ hash: string }>>;
+
+  const signParams: SignTransactionParams = {
+    method: "eth_sendTransaction",
+    broadcast: true,
+    transaction: {
+      chainId: 1,
+      to: "0x0000000000000000000000000000000000000001",
+      data: "0x",
+      value: "0x0",
+    },
+  };
+
+  const broadcastSuccessResult: SignFlowStatus = {
+    status: "success",
+    data: {
+      hash: "0xabc",
+    },
+  };
+
+  beforeEach(() => {
+    host = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+
+    signFlowSubject = new Subject<SignFlowStatus>();
+    pendingTransactionsSubject = new BehaviorSubject<Array<{ hash: string }>>(
+      [],
+    );
+
+    core = {
+      sign: vi.fn().mockReturnValue(signFlowSubject.asObservable()),
+      observePendingTransactions: vi
+        .fn()
+        .mockReturnValue(pendingTransactionsSubject.asObservable()),
+      getSelectedAccount: vi.fn().mockReturnValue(undefined),
+    } as unknown as CoreContext;
+
+    navigation = {
+      navigateTo: vi.fn(),
+      navigateBack: vi.fn(),
+      host: {},
+    } as unknown as Navigation;
+
+    lang = {
+      currentTranslation: {
+        common: {
+          button: { close: "Close" },
+          device: { model: { fallback: "Ledger" } },
+        },
+        signMessage: {
+          success: {
+            title: "Message signed",
+            description: "Message signature successful",
+          },
+        },
+        signTransaction: {
+          success: {
+            title: "Transaction sent",
+            description: "Transaction was broadcast successfully",
+            viewTransaction: "View transaction",
+          },
+        },
+      },
+    } as unknown as LanguageContext;
+
+    controller = new SignTransactionController(host, core, navigation, lang);
+  });
+
+  it("switches to validated when hash is not pending", async () => {
+    controller.startSigning(signParams);
+    signFlowSubject.next(broadcastSuccessResult);
+
+    await vi.waitFor(() => {
+      expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("validated");
+    });
+  });
+
+  it("stays processing while hash is pending then switches to validated", async () => {
+    pendingTransactionsSubject.next([{ hash: "0xabc" }]);
+
+    controller.startSigning(signParams);
+    signFlowSubject.next(broadcastSuccessResult);
+
+    await vi.waitFor(() => {
+      expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("processing");
+    });
+
+    pendingTransactionsSubject.next([]);
+
+    await vi.waitFor(() => {
+      expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("validated");
+    });
+  });
+
+  it("switches to processing if hash appears after initial validated", async () => {
+    controller.startSigning(signParams);
+    signFlowSubject.next(broadcastSuccessResult);
+
+    await vi.waitFor(() => {
+      expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("validated");
+    });
+
+    pendingTransactionsSubject.next([{ hash: "0xabc" }]);
+
+    await vi.waitFor(() => {
+      expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("processing");
+    });
+
+    pendingTransactionsSubject.next([]);
+
+    await vi.waitFor(() => {
+      expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("validated");
+    });
+  });
+});
