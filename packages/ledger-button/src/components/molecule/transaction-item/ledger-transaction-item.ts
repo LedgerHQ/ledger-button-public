@@ -4,8 +4,13 @@ import { consume } from "@lit/context";
 import { cva, cx } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
+import {
+  langContext,
+  LanguageContext,
+} from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatFiatValue } from "../../../utils/format-fiat.js";
 
@@ -17,9 +22,18 @@ const transactionItemVariants = cva([
 const ALLOWED_EXPLORER_PROTOCOLS = new Set(["http:", "https:"]);
 
 export type TransactionType = "sent" | "received";
+export type TransactionStatus = "confirmed" | "failed" | "pending";
+export type TransactionKind =
+  | "transfer"
+  | "swap"
+  | "approve"
+  | "contract"
+  | "unknown";
 
 export interface LedgerTransactionItemAttributes {
   type: TransactionType;
+  status: TransactionStatus;
+  kind: TransactionKind;
   title: string;
   timestamp: string;
   amount: string;
@@ -29,13 +43,24 @@ export interface LedgerTransactionItemAttributes {
   explorerUrl?: string;
   viewOnExplorerLabel?: string;
   hash?: string;
+  formattedFee?: string;
 }
 
 @customElement("ledger-transaction-item")
 @tailwindElement()
 export class LedgerTransactionItem extends LitElement {
+  @consume({ context: langContext, subscribe: true })
+  @property({ attribute: false })
+  public languages?: LanguageContext;
+
   @property({ type: String })
   type: TransactionType = "received";
+
+  @property({ type: String })
+  status: TransactionStatus = "confirmed";
+
+  @property({ type: String })
+  kind: TransactionKind = "transfer";
 
   @property({ type: String })
   override title = "";
@@ -76,6 +101,8 @@ export class LedgerTransactionItem extends LitElement {
       void this.coreContext?.trackViewTransactionDetailsClicked(this.hash);
     }
   };
+  @property({ type: String, attribute: "formatted-fee" })
+  formattedFee = "";
 
   private get safeExplorerUrl(): string | undefined {
     if (!this.explorerUrl) {
@@ -92,15 +119,37 @@ export class LedgerTransactionItem extends LitElement {
     return undefined;
   }
 
+  private get translations() {
+    return this.languages?.currentTranslation;
+  }
+
+  private get isFailed(): boolean {
+    return this.status === "failed";
+  }
+
   private get displayType(): string {
-    return this.type === "received" ? "Received" : "Sent";
+    const kindLabels = this.translations?.transactionList?.kinds;
+    switch (this.kind) {
+      case "swap":
+        return kindLabels?.swap ?? "Swap";
+      case "approve":
+        return kindLabels?.approve ?? "Approve";
+      case "contract":
+        return kindLabels?.contract ?? "Contract interaction";
+      case "transfer":
+      case "unknown":
+      default:
+        return this.type === "received" ? "Received" : "Sent";
+    }
   }
 
   private get iconType(): "send" | "receive" {
+    if (this.kind === "swap") return "send";
     return this.type === "sent" ? "send" : "receive";
   }
 
   private get sign(): string {
+    if (this.isFailed) return "";
     if (parseFloat(this.amount) === 0) return "";
     return this.type === "received" ? "+" : "-";
   }
@@ -110,6 +159,7 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get displayFiatAmount(): string {
+    if (this.isFailed) return "";
     if (!this.fiatAmount || !this.fiatCurrency) {
       return "";
     }
@@ -119,6 +169,35 @@ export class LedgerTransactionItem extends LitElement {
       this.locale,
     );
     return `${this.sign}${formatted}`;
+  }
+
+  private get displayFee(): string {
+    if (!this.formattedFee) return "";
+    const feeLabel = this.translations?.transactionList?.fee ?? "Fee";
+    return `${feeLabel} ${this.formattedFee}`;
+  }
+
+  private get amountClasses() {
+    return {
+      "text-base body-2-semi-bold": !this.isFailed,
+      "text-muted body-2-semi-bold line-through": this.isFailed,
+    };
+  }
+
+  private renderFailedBadge() {
+    if (!this.isFailed) return "";
+    const failedLabel = this.translations?.transactionList?.failed ?? "Failed";
+    return html`
+      <span
+        class="bg-error/15 text-error body-4 inline-flex items-center rounded-sm px-4 py-1"
+        >${failedLabel}</span
+      >
+    `;
+  }
+
+  private renderFeeLine() {
+    if (!this.formattedFee) return "";
+    return html`<span class="text-muted body-4">${this.displayFee}</span>`;
   }
 
   private renderLeftSection() {
@@ -131,14 +210,14 @@ export class LedgerTransactionItem extends LitElement {
             type=${this.iconType}
             size="small"
             fillColor="currentColor"
-            class="text-base"
+            class=${this.isFailed ? "text-muted" : "text-base"}
           ></ledger-icon>
         </div>
         <div class="flex flex-col gap-4 text-left">
           <span class="body-2-semi-bold text-base">${this.title}</span>
-          <span class="text-muted body-3"
-            >${this.displayType} ${this.timestamp}</span
-          >
+          <span class="text-muted body-3 flex items-center gap-4">
+            ${this.renderFailedBadge()} ${this.displayType} ${this.timestamp}
+          </span>
         </div>
       </div>
     `;
@@ -152,10 +231,11 @@ export class LedgerTransactionItem extends LitElement {
           interactive && "group-hover:hidden group-focus-visible:hidden",
         )}
       >
-        <span class="text-base body-2-semi-bold"
+        <span class=${classMap(this.amountClasses)}
           >${this.displayFiatAmount}</span
         >
         <span class="text-muted body-3">${this.displayCryptoAmount}</span>
+        ${this.renderFeeLine()}
       </div>
     `;
 
@@ -166,7 +246,7 @@ export class LedgerTransactionItem extends LitElement {
     return html`
       ${amounts}
       <div
-        class="hidden items-center gap-4 text-interactive body-3-semi-bold group-hover:flex group-focus-visible:flex"
+        class="text-interactive body-3-semi-bold hidden items-center gap-4 group-hover:flex group-focus-visible:flex"
       >
         <span>${this.viewOnExplorerLabel}</span>
         <ledger-icon

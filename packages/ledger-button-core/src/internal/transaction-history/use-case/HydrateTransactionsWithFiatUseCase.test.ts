@@ -35,6 +35,9 @@ function createMockTransaction(
   return {
     hash: "0xabc123",
     type: "sent",
+    direction: "sent",
+    kind: "transfer",
+    status: "confirmed",
     value: "500000000000000000",
     formattedValue: "0.5",
     currencyName: "Ethereum",

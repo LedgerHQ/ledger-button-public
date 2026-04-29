@@ -193,7 +193,15 @@
   "transactionList": {
     "noTransactions": "トランザクションが見つかりません",
     "pendingTransactions": "保留中のトランザクション",
-    "viewOnExplorer": "エクスプローラーで表示"
+    "viewOnExplorer": "エクスプローラーで表示",
+    "failed": "失敗",
+    "fee": "手数料",
+    "kinds": {
+      "swap": "スワップ",
+      "approve": "承認",
+      "contract": "コントラクト操作",
+      "self": "自己送金"
+    }
   },
   "mobileOnboarding": {
     "title": "Ledger Walletで続行",

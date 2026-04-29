@@ -77,6 +77,9 @@ describe("FetchSelectedAccountUseCase", () => {
       {
         hash: "0xabc123",
         type: "received",
+        direction: "received",
+        kind: "transfer",
+        status: "confirmed",
         value: "1000000000000000000",
         formattedValue: "1.0",
         currencyName: "Ethereum",
