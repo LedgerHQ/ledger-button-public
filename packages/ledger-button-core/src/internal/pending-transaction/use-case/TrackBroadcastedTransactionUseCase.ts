@@ -29,6 +29,8 @@ type SignParams =
   | SignTypedMessageParams
   | SignPersonalMessageParams;
 
+const FALLBACK_DECIMALS = 18;
+
 @injectable()
 export class TrackBroadcastedTransactionUseCase {
   private readonly logger: LoggerPublisher;
@@ -146,5 +148,3 @@ export class TrackBroadcastedTransactionUseCase {
     });
   }
 }
-
-const FALLBACK_DECIMALS = 18;
