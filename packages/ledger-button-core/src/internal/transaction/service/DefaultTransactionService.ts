@@ -18,11 +18,11 @@ import {
   isSignTypedMessageParams,
   type SignTypedMessageParams,
 } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { SignPersonalMessageUseCase } from "../../../internal/device/use-case/SignPersonalMessageUseCase.js";
-import { SignRawTransaction } from "../../../internal/device/use-case/SignRawTransaction.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
-import { SignTransaction } from "../../device/use-case/SignTransaction.js";
-import { SignTypedData } from "../../device/use-case/SignTypedData.js";
+import { SignPersonalMessageUseCase } from "../../evm-provider/use-case/SignPersonalMessageUseCase.js";
+import { SignRawTransaction } from "../../evm-provider/use-case/SignRawTransaction.js";
+import { SignTransaction } from "../../evm-provider/use-case/SignTransaction.js";
+import { SignTypedData } from "../../evm-provider/use-case/SignTypedData.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { TransactionService } from "./TransactionService.js";
