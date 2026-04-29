@@ -56,7 +56,7 @@ import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackL
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
-import { evmProviderModuleTypes } from "../internal/evm-provider/jsonrpc/evmProviderModuleTypes.js";
+import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
 import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";

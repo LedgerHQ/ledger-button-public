@@ -6,8 +6,8 @@ import {
 } from "../../../../api/model/eip/EIPTypes.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { LedgerRemoteDatasource } from "../datasource/LedgerRemoteDatasource.js";
-import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 
 @injectable()
 export class JSONRPCCallUseCase {

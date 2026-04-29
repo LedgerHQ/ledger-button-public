@@ -6,7 +6,6 @@ import {
   SignTransactionParams,
   Transaction,
 } from "../../../api/model/signing/SignTransactionParams.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
@@ -14,6 +13,7 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
+import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
 import { SignRawTransaction } from "./SignRawTransaction.js";
@@ -24,7 +24,7 @@ export class SignTransaction {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
-    @inject(balanceModuleTypes.GasFeeEstimationService)
+    @inject(evmProviderModuleTypes.GasFeeEstimationService)
     private readonly gasFeeEstimationService: GasFeeEstimationService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,

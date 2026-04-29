@@ -12,7 +12,7 @@ import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
-import { evmProviderModuleFactory } from "./evm-provider/jsonrpc/evmProviderModule.js";
+import { evmProviderModuleFactory } from "./evm-provider/evmProviderModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";

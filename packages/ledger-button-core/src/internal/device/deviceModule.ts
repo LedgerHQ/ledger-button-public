@@ -7,11 +7,6 @@ import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
 import { ListAvailableDevices } from "./use-case/ListAvailableDevices.js";
 import { SwitchDevice } from "./use-case/SwitchDevice.js";
 import { ContainerOptions } from "../diTypes.js";
-import { BroadcastTransaction } from "../evm-provider/use-case/BroadcastTransaction.js";
-import { SignPersonalMessageUseCase } from "../evm-provider/use-case/SignPersonalMessageUseCase.js";
-import { SignRawTransaction } from "../evm-provider/use-case/SignRawTransaction.js";
-import { SignTransaction } from "../evm-provider/use-case/SignTransaction.js";
-import { SignTypedData } from "../evm-provider/use-case/SignTypedData.js";
 import { deviceModuleTypes } from "./deviceModuleTypes.js";
 
 type DeviceModuleOptions = Pick<ContainerOptions, "dmkConfig"> & {
@@ -29,13 +24,6 @@ export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
     bind(deviceModuleTypes.ConnectDeviceUseCase).to(ConnectDevice);
     bind(deviceModuleTypes.DisconnectDeviceUseCase).to(DisconnectDevice);
     bind(deviceModuleTypes.SwitchDeviceUseCase).to(SwitchDevice);
-    bind(deviceModuleTypes.SignRawTransactionUseCase).to(SignRawTransaction);
-    bind(deviceModuleTypes.SignTransactionUseCase).to(SignTransaction);
-    bind(deviceModuleTypes.BroadcastTransactionUseCase).to(
-      BroadcastTransaction,
-    );
-    bind(deviceModuleTypes.SignTypedDataUseCase).to(SignTypedData);
-    bind(deviceModuleTypes.SignPersonalMessageUseCase).to(SignPersonalMessageUseCase);
     bind(deviceModuleTypes.ListAvailableDevicesUseCase).to(
       ListAvailableDevices,
     );
