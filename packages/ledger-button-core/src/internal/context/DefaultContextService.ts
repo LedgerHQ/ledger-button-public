@@ -10,7 +10,7 @@ import {
 import {
   getChainIdFromCurrencyId,
   getCurrencyIdFromChainId,
-} from "../blockchain/evm/chainUtils.js";
+} from "../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type ContextService } from "./ContextService.js";
