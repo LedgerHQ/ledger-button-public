@@ -42,7 +42,6 @@ import type {
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
-import { getHexaStringFromSignature } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
@@ -50,6 +49,7 @@ import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import type { DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { getHexaStringFromSignature } from "../../evm-provider/transaction/TransactionHelper.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
