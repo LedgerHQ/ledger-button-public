@@ -32,9 +32,12 @@ describe("SignTransactionController broadcast lifecycle", () => {
   };
 
   const broadcastSuccessResult: SignFlowStatus = {
+    signType: "transaction",
     status: "success",
     data: {
       hash: "0xabc",
+      rawTransaction: new Uint8Array(),
+      signedRawTransaction: "0x",
     },
   };
 
