@@ -29,8 +29,6 @@ type SignParams =
   | SignTypedMessageParams
   | SignPersonalMessageParams;
 
-const FALLBACK_DECIMALS = 18;
-
 @injectable()
 export class TrackBroadcastedTransactionUseCase {
   private readonly logger: LoggerPublisher;
@@ -57,33 +55,29 @@ export class TrackBroadcastedTransactionUseCase {
     const context = this.contextService.getContext();
     if (!context.selectedAccount) return;
 
-    const minimalTx = this.buildMinimalPendingTransaction(
+    const tx = await this.buildPendingTransaction(
       status.data.hash,
       context.selectedAccount,
       context.chainId,
       params,
     );
 
-    this.logger.debug("Tracking broadcasted transaction", {
-      hash: minimalTx.hash,
-    });
-    this.storageService.add(minimalTx);
+    this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
+    this.storageService.add(tx);
     this.controller.track();
-
-    await this.enrichPendingTransaction(minimalTx, context.selectedAccount);
   }
 
-  private buildMinimalPendingTransaction(
+  private async buildPendingTransaction(
     hash: string,
     account: Account,
     chainId: number,
     params: SignParams,
-  ): PendingTransaction {
+  ): Promise<PendingTransaction> {
+    const { ticker, name, decimals, transactionExplorerUrlTemplate } =
+      await this.resolveCurrencyMetadata(account.currencyId);
     const rawValue = isSignTransactionParams(params)
       ? params.transaction.value
       : "0";
-    const fallbackTicker = account.ticker || account.currencyId.toUpperCase();
-    const fallbackName = account.name || account.currencyId;
 
     return {
       hash,
@@ -92,34 +86,14 @@ export class TrackBroadcastedTransactionUseCase {
       timestamp: new Date().toISOString(),
       type: "sent",
       value: rawValue,
-      formattedValue: formatBalance(rawValue, FALLBACK_DECIMALS, fallbackTicker),
-      ticker: fallbackTicker,
-      currencyName: fallbackName,
-      ledgerId: account.currencyId,
-    };
-  }
-
-  private async enrichPendingTransaction(
-    tx: PendingTransaction,
-    account: Account,
-  ): Promise<void> {
-    const { ticker, name, decimals, transactionExplorerUrlTemplate } =
-      await this.resolveCurrencyMetadata(
-      account.currencyId,
-    );
-
-    const enrichedTx: PendingTransaction = {
-      ...tx,
+      formattedValue: formatBalance(rawValue, decimals, ticker),
       ticker,
       currencyName: name,
-      formattedValue: formatBalance(tx.value, decimals, ticker),
+      ledgerId: account.currencyId,
       explorerUrl:
-        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, tx.hash) ??
+        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, hash) ??
         undefined,
     };
-
-    this.storageService.update(enrichedTx);
-    this.controller.track();
   }
 
   private async resolveCurrencyMetadata(
@@ -137,7 +111,7 @@ export class TrackBroadcastedTransactionUseCase {
       Left: () => ({
         ticker: currencyId.toUpperCase(),
         name: currencyId,
-        decimals: FALLBACK_DECIMALS,
+        decimals: 18,
       }),
       Right: (info) => ({
         ticker: info.ticker,

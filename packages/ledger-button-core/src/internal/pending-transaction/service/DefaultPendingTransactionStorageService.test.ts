@@ -111,54 +111,6 @@ describe("DefaultPendingTransactionStorageService", () => {
     });
   });
 
-  describe("update", () => {
-    it("should replace an existing transaction by hash", () => {
-      const original = createPendingTx({ hash: "0x111", ticker: "ETHEREUM" });
-      const updated = createPendingTx({
-        hash: "0x111",
-        ticker: "ETH",
-        currencyName: "Ethereum",
-      });
-      mockSessionStorage["ledger-button:pending-txs"] = JSON.stringify([
-        original,
-      ]);
-
-      service.update(updated);
-
-      expect(sessionStorage.setItem).toHaveBeenCalledWith(
-        "ledger-button:pending-txs",
-        JSON.stringify([updated]),
-      );
-    });
-
-    it("should noop when transaction does not exist", () => {
-      const updated = createPendingTx({ hash: "0xmissing" });
-
-      service.update(updated);
-
-      expect(sessionStorage.setItem).not.toHaveBeenCalled();
-    });
-
-    it("should preserve order when updating one transaction among many", () => {
-      const tx1 = createPendingTx({ hash: "0x111" });
-      const tx2 = createPendingTx({ hash: "0x222", ticker: "ETHEREUM" });
-      const tx3 = createPendingTx({ hash: "0x333" });
-      mockSessionStorage["ledger-button:pending-txs"] = JSON.stringify([
-        tx1,
-        tx2,
-        tx3,
-      ]);
-
-      const updatedTx2 = createPendingTx({ hash: "0x222", ticker: "ETH" });
-      service.update(updatedTx2);
-
-      expect(sessionStorage.setItem).toHaveBeenCalledWith(
-        "ledger-button:pending-txs",
-        JSON.stringify([tx1, updatedTx2, tx3]),
-      );
-    });
-  });
-
   describe("remove", () => {
     it("should remove a transaction by hash", () => {
       const tx1 = createPendingTx({ hash: "0x111" });

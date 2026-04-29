@@ -28,7 +28,6 @@ function createMockLoggerFactory() {
 function createMockStorageService(): PendingTransactionStorageService {
   return {
     add: vi.fn(),
-    update: vi.fn(),
     getAll: vi.fn().mockReturnValue([]),
     remove: vi.fn(),
   };
@@ -115,7 +114,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     );
   });
 
-  it("should add a minimal pending transaction synchronously before enrichment", async () => {
+  it("awaits CAL before adding to storage", async () => {
     let calResolve: () => void = () => undefined;
     mockCalDataSource.getCurrencyInformation.mockReturnValue(
       new Promise((resolve) => {
@@ -136,6 +135,13 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       signTransactionParams,
     );
 
+    expect(mockStorageService.add).not.toHaveBeenCalled();
+    expect(mockController.track).not.toHaveBeenCalled();
+
+    calResolve();
+    await executePromise;
+
+    expect(mockStorageService.add).toHaveBeenCalledTimes(1);
     expect(mockStorageService.add).toHaveBeenCalledWith(
       expect.objectContaining({
         hash: "0xabc123",
@@ -143,24 +149,13 @@ describe("TrackBroadcastedTransactionUseCase", () => {
         address: "0x1234",
         type: "sent",
         value: "1000000000000000000",
+        ticker: "ETH",
+        currencyName: "Ethereum",
         ledgerId: "ethereum",
         explorerUrl: "https://etherscan.io/tx/0xabc123",
       }),
     );
     expect(mockController.track).toHaveBeenCalledTimes(1);
-    expect(mockStorageService.update).not.toHaveBeenCalled();
-
-    calResolve();
-    await executePromise;
-
-    expect(mockStorageService.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        hash: "0xabc123",
-        ticker: "ETH",
-        currencyName: "Ethereum",
-      }),
-    );
-    expect(mockController.track).toHaveBeenCalledTimes(2);
   });
 
   it("should skip non-success statuses", async () => {
@@ -221,7 +216,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    expect(mockStorageService.update).toHaveBeenCalledWith(
+    expect(mockStorageService.add).toHaveBeenCalledWith(
       expect.objectContaining({
         ticker: "ETHEREUM",
         currencyName: "ethereum",

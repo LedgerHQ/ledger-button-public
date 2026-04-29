@@ -265,10 +265,14 @@ export class SignTransactionController implements ReactiveController {
   private subscribeToBroadcastLifecycle(hash: string) {
     this.clearPendingTxSubscription();
 
-    // Keep this subscription alive until hostDisconnected() or the next
-    // startSigning(). We deliberately do NOT auto-clear on `validated` so a
-    // late race where the hash reappears in the pending pool (re-broadcast,
-    // polling glitch) still flips the card back to `processing`.
+    // Wait until the hash has appeared in the pending pool at least once
+    // before allowing the `validated` flip. The pool is populated only after
+    // TrackBroadcastedTransactionUseCase has finished its CAL enrichment, so
+    // the BehaviorSubject's initial replay can legitimately not contain the
+    // hash for a few hundred ms after `processing` is set. The subscription
+    // is kept alive until hostDisconnected() or the next startSigning().
+    let hasBeenSeenInPool = false;
+
     this.pendingTxSubscription = this.core
       .observePendingTransactions()
       .subscribe((txs) => {
@@ -276,9 +280,11 @@ export class SignTransactionController implements ReactiveController {
           return;
         }
         const stillPending = txs.some((tx) => tx.hash === hash);
-        const nextBroadcastState: BroadcastState = stillPending
-          ? "processing"
-          : "validated";
+        if (stillPending) {
+          hasBeenSeenInPool = true;
+        }
+        const nextBroadcastState: BroadcastState =
+          !hasBeenSeenInPool || stillPending ? "processing" : "validated";
         if (nextBroadcastState !== this.state.broadcast.state) {
           this.state = {
             ...this.state,

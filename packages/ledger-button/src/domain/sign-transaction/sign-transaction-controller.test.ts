@@ -1,3 +1,7 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 import type {
   PendingTransaction,
   SignFlowStatus,
@@ -6,6 +10,9 @@ import type {
 import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("../../components/index.js", () => ({}));
+vi.mock("../onboarding/ledger-sync/ledger-sync", () => ({}));
 
 import type { CoreContext } from "../../context/core-context.js";
 import type { LanguageContext } from "../../context/language-context.js";
@@ -110,12 +117,30 @@ describe("SignTransactionController broadcast lifecycle", () => {
     controller = new SignTransactionController(host, core, navigation, lang);
   });
 
-  it("switches to validated when hash is not pending", async () => {
+  it("stays processing while hash has not yet entered the pool, then validates after enter+exit", async () => {
     controller.startSigning(signParams);
     signFlowSubject.next(broadcastSuccessResult);
 
     await vi.waitFor(() => {
       expect(controller.state.screen).toBe("success");
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("processing");
+    });
+
+    pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
+
+    await vi.waitFor(() => {
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.broadcast?.state).toBe("processing");
+    });
+
+    pendingTransactionsSubject.next([]);
+
+    await vi.waitFor(() => {
       if (controller.state.screen !== "success") {
         throw new Error("Expected success state");
       }
@@ -128,39 +153,6 @@ describe("SignTransactionController broadcast lifecycle", () => {
 
     controller.startSigning(signParams);
     signFlowSubject.next(broadcastSuccessResult);
-
-    await vi.waitFor(() => {
-      expect(controller.state.screen).toBe("success");
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("processing");
-    });
-
-    pendingTransactionsSubject.next([]);
-
-    await vi.waitFor(() => {
-      expect(controller.state.screen).toBe("success");
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("validated");
-    });
-  });
-
-  it("switches to processing if hash appears after initial validated", async () => {
-    controller.startSigning(signParams);
-    signFlowSubject.next(broadcastSuccessResult);
-
-    await vi.waitFor(() => {
-      expect(controller.state.screen).toBe("success");
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("validated");
-    });
-
-    pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
 
     await vi.waitFor(() => {
       expect(controller.state.screen).toBe("success");
