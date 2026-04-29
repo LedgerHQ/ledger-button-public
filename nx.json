@@ -157,6 +157,22 @@
       "workspaceChangelog": false,
       "projectChangelogs": true
     },
+    "conventionalCommits": {
+      "types": {
+        "ci": {
+          "semverBump": "none",
+          "changelog": {
+            "title": "Internal tooling"
+          }
+        },
+        "chore": {
+          "semverBump": "none",
+          "changelog": {
+            "title": "Internal tooling"
+          }
+        }
+      }
+    },
     "releaseTag": {
       "pattern": "v{version}",
       "strictPreid": true
