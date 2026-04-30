@@ -56,18 +56,74 @@ describe("DefaultEventTrackingService", () => {
     ...overrides,
   });
 
+  const VALID_UUID = "00000000-0000-0000-0000-000000000000";
+  const VALID_HASH = "abc123";
+
+  const buildEventData = (
+    type: EventType,
+    eventType: string,
+  ): EventRequest["data"] => {
+    const base = {
+      event_type: eventType,
+      event_id: VALID_UUID,
+      transaction_dapp_id: "test-dapp",
+      timestamp_ms: Date.now(),
+    };
+
+    switch (type) {
+      case EventType.InvoicingTransactionSigned:
+        return {
+          ...base,
+          blockchain_network_selected: "ethereum",
+          chain_id: "1",
+          transaction_hash: VALID_HASH,
+          recipient_address: "0xrecipient",
+          unsigned_transaction_hash: VALID_HASH,
+        } as EventRequest["data"];
+      case EventType.ConsentGiven:
+      case EventType.ConsentRemoved:
+      case EventType.MobileRedirectLedgerWallet:
+        return base as EventRequest["data"];
+      case EventType.TransactionFlowInitialization:
+      case EventType.TransactionFlowCompletion:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          blockchain_network_selected: "ethereum",
+          chain_id: "1",
+        } as EventRequest["data"];
+      case EventType.TypedMessageFlowInitialization:
+      case EventType.TypedMessageFlowCompletion:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          blockchain_network_selected: "ethereum",
+          chain_id: "1",
+          typed_message_hash: VALID_HASH,
+        } as EventRequest["data"];
+      case EventType.WalletActionClicked:
+      case EventType.WalletRedirectConfirmed:
+      case EventType.WalletRedirectCancelled:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          wallet_action: "send",
+        } as EventRequest["data"];
+      default:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+        } as EventRequest["data"];
+    }
+  };
+
   const createMockEvent = (
     type: EventType,
     eventType: string,
   ): EventRequest => ({
     name: "Test Event",
     type,
-    data: {
-      event_type: eventType,
-      event_id: "test-id",
-      transaction_dapp_id: "test-dapp",
-      timestamp_ms: Date.now(),
-    } as EventRequest["data"],
+    data: buildEventData(type, eventType),
   });
 
   beforeEach(() => {
