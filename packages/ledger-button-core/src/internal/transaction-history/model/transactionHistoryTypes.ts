@@ -118,6 +118,7 @@ export type TransactionHistoryItem = {
   fee?: string;
   formattedFee?: string;
   feeTicker?: string;
+  fiatFee?: string;
 };
 
 /**

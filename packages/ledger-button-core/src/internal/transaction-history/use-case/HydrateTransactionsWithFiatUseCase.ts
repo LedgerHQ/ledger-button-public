@@ -163,16 +163,32 @@ export class HydrateTransactionsWithFiatUseCase {
       }
 
       const valueNum = parseFloat(tx.formattedValue);
-      if (Number.isNaN(valueNum)) {
+      const valueIsNumeric = !Number.isNaN(valueNum);
+
+      // The historical rate fetched here is for `tx.ledgerId` (the asset of
+      // the transferred value). It only applies to the fee when the fee asset
+      // matches that asset — typically native transfers and the fees-only rows
+      // of failed transactions, where both fall back to the native ticker.
+      const feeShouldUseSameRate =
+        tx.feeTicker !== undefined && tx.feeTicker === tx.ticker;
+      const feeNum = tx.formattedFee !== undefined
+        ? parseFloat(tx.formattedFee)
+        : Number.NaN;
+      const canComputeFiatFee =
+        feeShouldUseSameRate && !Number.isNaN(feeNum);
+
+      if (!valueIsNumeric && !canComputeFiatFee) {
         return tx;
       }
 
-      const fiatValue = (valueNum * rate).toFixed(2);
-      return {
-        ...tx,
-        fiatValue,
-        fiatCurrency,
-      };
+      const next: TransactionHistoryItem = { ...tx, fiatCurrency };
+      if (valueIsNumeric) {
+        next.fiatValue = (valueNum * rate).toFixed(2);
+      }
+      if (canComputeFiatFee) {
+        next.fiatFee = (feeNum * rate).toFixed(2);
+      }
+      return next;
     });
   }
 }
