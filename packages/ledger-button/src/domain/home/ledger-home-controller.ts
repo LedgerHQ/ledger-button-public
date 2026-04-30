@@ -29,6 +29,7 @@ type MappableTransaction = {
   explorerUrl?: string;
   formattedFee?: string;
   feeTicker?: string;
+  fiatFee?: string;
 };
 
 export class LedgerHomeController implements ReactiveController {
@@ -106,6 +107,7 @@ export class LedgerHomeController implements ReactiveController {
     tx: MappableTransaction,
   ): TransactionListItem {
     const date = new Date(tx.timestamp);
+    const isFeesRow = tx.kind === "contract" && !!tx.formattedFee;
     return {
       hash: tx.hash,
       type: tx.type,
@@ -119,7 +121,7 @@ export class LedgerHomeController implements ReactiveController {
       amount: tx.formattedValue,
       ticker: tx.ticker,
       title: tx.currencyName,
-      fiatAmount: tx.fiatValue ?? "",
+      fiatAmount: (isFeesRow ? tx.fiatFee : tx.fiatValue) ?? "",
       fiatCurrency: tx.fiatCurrency ?? "",
       explorerUrl: tx.explorerUrl,
       formattedFee: tx.formattedFee,

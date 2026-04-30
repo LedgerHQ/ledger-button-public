@@ -157,6 +157,60 @@ describe("HydrateTransactionsWithFiatUseCase", () => {
       expect(result[0]).not.toHaveProperty("fiatValue");
     });
 
+    it("should also hydrate fiatFee when formattedFee is present and the fee ticker matches the asset ticker", async () => {
+      const transactions = [
+        createMockTransaction({
+          hash: "0xfailed",
+          kind: "contract",
+          status: "failed",
+          formattedValue: "0",
+          ticker: "ETH",
+          ledgerId: "ethereum",
+          timestamp: "2024-01-15T10:00:00Z",
+          formattedFee: "0.00013424",
+          feeTicker: "ETH",
+        }),
+      ];
+      mockCounterValueDataSource.getHistoricalRates.mockResolvedValue(
+        Right({ "2024-01-15": 3354 }),
+      );
+
+      const result = await useCase.execute(transactions, "usd");
+
+      expect(result[0]).toMatchObject({
+        fiatValue: "0.00",
+        fiatFee: "0.45",
+        fiatCurrency: "USD",
+      });
+    });
+
+    it("should not hydrate fiatFee when fee ticker differs from the asset ticker (e.g. ERC20 transfer paying gas in native)", async () => {
+      const transactions = [
+        createMockTransaction({
+          hash: "0xerc20",
+          kind: "transfer",
+          status: "confirmed",
+          formattedValue: "5",
+          ticker: "USDC",
+          ledgerId: "ethereum/erc20/usdc",
+          timestamp: "2024-01-15T10:00:00Z",
+          formattedFee: "0.00021",
+          feeTicker: "ETH",
+        }),
+      ];
+      mockCounterValueDataSource.getHistoricalRates.mockResolvedValue(
+        Right({ "2024-01-15": 1.0 }),
+      );
+
+      const result = await useCase.execute(transactions, "usd");
+
+      expect(result[0]).toMatchObject({
+        fiatValue: "5.00",
+        fiatCurrency: "USD",
+      });
+      expect(result[0]).not.toHaveProperty("fiatFee");
+    });
+
     it("should not set fiat when formattedValue is not a valid number", async () => {
       const transactions = [
         createMockTransaction({
