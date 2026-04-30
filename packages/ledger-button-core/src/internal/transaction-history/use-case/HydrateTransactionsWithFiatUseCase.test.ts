@@ -161,7 +161,7 @@ describe("HydrateTransactionsWithFiatUseCase", () => {
       const transactions = [
         createMockTransaction({
           hash: "0xfailed",
-          kind: "contract",
+          kind: "fees",
           status: "failed",
           formattedValue: "0",
           ticker: "ETH",

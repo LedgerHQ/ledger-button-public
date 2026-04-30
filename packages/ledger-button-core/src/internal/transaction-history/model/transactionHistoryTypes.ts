@@ -83,12 +83,17 @@ export type TransactionDirection = "sent" | "received" | "self";
 
 /**
  * Semantic kind of the transaction inferred from the Alpaca operation.
+ *
+ * - "fees": a separate fee-only operation (e.g. an EVM `-FEES` row paired
+ *   with a failed parent transaction). Distinct from `"contract"` so the UI
+ *   can render gas-only rows differently from real contract interactions.
  */
 export type TransactionKind =
   | "transfer"
   | "swap"
   | "approve"
   | "contract"
+  | "fees"
   | "unknown";
 
 /**

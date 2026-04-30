@@ -28,6 +28,7 @@ export type TransactionKind =
   | "swap"
   | "approve"
   | "contract"
+  | "fees"
   | "unknown";
 
 export interface LedgerTransactionItemAttributes {
@@ -132,7 +133,7 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get isFeesKind(): boolean {
-    return this.kind === "contract";
+    return this.kind === "fees";
   }
 
   private get isFeesRow(): boolean {
@@ -152,16 +153,21 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get displayType(): string {
+    const kindLabels = this.transactionListLabels.kinds;
+    if (this.isFeesRow) {
+      return kindLabels?.fees ?? "Fees";
+    }
     if (this.isFailed) {
       return this.transactionListLabels.failed ?? "Failed";
     }
-    const kindLabels = this.transactionListLabels.kinds;
     switch (this.kind) {
       case "swap":
         return kindLabels?.swap ?? "Swap";
       case "approve":
         return kindLabels?.approve ?? "Approve";
       case "contract":
+        return kindLabels?.contract ?? "Contract interaction";
+      case "fees":
         return kindLabels?.fees ?? "Fees";
       case "transfer":
       case "unknown":
@@ -171,23 +177,25 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get iconType(): "send" | "receive" | "coins" {
-    if (this.kind === "contract") return "coins";
+    if (this.kind === "fees") return "coins";
     if (this.kind === "swap") return "send";
     return this.type === "sent" ? "send" : "receive";
   }
 
   private get iconSpotClasses() {
+    const showFailed = this.isFailed && !this.isFeesRow;
     return {
       "flex h-48 w-48 items-center justify-center rounded-full": true,
-      "bg-error": this.isFailed,
-      "bg-muted-transparent": !this.isFailed,
+      "bg-error": showFailed,
+      "bg-muted-transparent": !showFailed,
     };
   }
 
   private get iconColorClasses() {
+    const showFailed = this.isFailed && !this.isFeesRow;
     return {
-      "text-error": this.isFailed,
-      "text-base": !this.isFailed,
+      "text-error": showFailed,
+      "text-base": !showFailed,
     };
   }
 
