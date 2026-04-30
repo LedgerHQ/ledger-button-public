@@ -218,7 +218,7 @@ export class FetchTransactionHistoryUseCase {
       explorerUrl:
         buildExplorerTransactionUrl(
           transactionExplorerUrlTemplate,
-          op.tx?.hash ?? "",
+          op.tx.hash,
         ) ?? undefined,
       fee,
       formattedFee,
@@ -260,7 +260,7 @@ export class FetchTransactionHistoryUseCase {
 
   private determineKind(op: AlpacaOperation): TransactionKind {
     if (this.isFeesOperation(op)) {
-      return "contract";
+      return "fees";
     }
     return "transfer";
   }

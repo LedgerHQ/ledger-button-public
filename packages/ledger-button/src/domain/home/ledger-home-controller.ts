@@ -107,7 +107,7 @@ export class LedgerHomeController implements ReactiveController {
     tx: MappableTransaction,
   ): TransactionListItem {
     const date = new Date(tx.timestamp);
-    const isFeesRow = tx.kind === "contract" && !!tx.formattedFee;
+    const isFeesRow = tx.kind === "fees" && !!tx.formattedFee;
     return {
       hash: tx.hash,
       type: tx.type,

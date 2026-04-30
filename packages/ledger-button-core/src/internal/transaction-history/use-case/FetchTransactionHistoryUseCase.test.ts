@@ -180,6 +180,15 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(data).toHaveProperty("nextPageToken", undefined);
     });
 
+    it("should return Left with TransactionHistoryError and skip the datasource for unsupported currencies", async () => {
+      const result = await useCase.execute(testAddress, "solana");
+
+      expect(result.isLeft()).toBe(true);
+      const error = result.extract();
+      expect(error).toBeInstanceOf(TransactionHistoryError);
+      expect(mockDataSource.getTransactions).not.toHaveBeenCalled();
+    });
+
     it("should return Left with error when datasource fails", async () => {
       const error = new TransactionHistoryError("Network error", {
         address: testAddress,
@@ -310,7 +319,7 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("kind detection", () => {
-    it("should mark FEES rows as 'contract'", async () => {
+    it("should mark FEES rows as 'fees'", async () => {
       const op = createMockOperation({
         id: "js:2:ethereum:0xowner:-0xfailed-FEES",
         type: "OUT",
@@ -329,7 +338,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
       ).transactions[0];
-      expect(tx).toMatchObject({ kind: "contract" });
+      expect(tx).toMatchObject({ kind: "fees" });
     });
 
     it("should mark non-FEES rows as 'transfer'", async () => {
