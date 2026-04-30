@@ -14,7 +14,6 @@ import {
   type OnboardingEventData,
   type OpenLedgerSyncEventData,
   type OpenSessionEventData,
-  type SessionAuthenticationEventData,
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
   type TypedMessageFlowCompletionEventData,
@@ -234,28 +233,6 @@ export class EventTrackingUtils {
     };
   }
 
-  static createSessionAuthenticationEvent(
-    params: TransactionEventParams & { transactionHash: string },
-  ): EventRequest {
-    const data: SessionAuthenticationEventData = {
-      event_id: generateUUID(),
-      transaction_dapp_id: params.dAppId,
-      timestamp_ms: Date.now(),
-      event_type: EventType.SessionAuthentication,
-      session_id: params.sessionId,
-      ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
-      transaction_type: "authentication_tx",
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
-    };
-
-    return {
-      name: EventType.SessionAuthentication,
-      type: EventType.SessionAuthentication,
-      data,
-    };
-  }
-
   static createInvoicingTransactionSignedEvent(
     params: SessionEventParams & {
       transactionHash: string;
@@ -382,12 +359,12 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: EventType.RedirectToLedgerWallet,
+      event_type: EventType.MobileRedirectLedgerWallet,
     };
 
     return {
       name: "Mobile Redirect Ledger Wallet",
-      type: EventType.RedirectToLedgerWallet,
+      type: EventType.MobileRedirectLedgerWallet,
       data,
     };
   }

@@ -314,11 +314,11 @@ describe("DefaultStorageService", () => {
       });
 
       it("should return false when trust chain is exactly 30 days old", () => {
-        const exactTimestamp = new Date();
-        exactTimestamp.setDate(exactTimestamp.getDate() - 30);
+        const ms30days = 30 * 24 * 60 * 60 * 1000;
+        const exactTimestamp = Date.now() - ms30days;
         storageService.saveItem(
           STORAGE_KEYS.TRUST_CHAIN_VALIDITY,
-          exactTimestamp.getTime(),
+          exactTimestamp,
         );
 
         const isValid = storageService.isTrustChainValid();
