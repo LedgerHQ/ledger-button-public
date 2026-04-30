@@ -195,11 +195,11 @@
     "pendingTransactions": "Pending transactions",
     "viewOnExplorer": "View on explorer",
     "failed": "Failed",
-    "fee": "Fee",
     "kinds": {
       "swap": "Swap",
       "approve": "Approve",
       "contract": "Contract interaction",
+      "fees": "Fees",
       "self": "Self transfer"
     }
   },

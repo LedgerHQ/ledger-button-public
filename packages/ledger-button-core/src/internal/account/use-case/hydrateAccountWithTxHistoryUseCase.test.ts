@@ -65,10 +65,8 @@ function createMockAccount(overrides: Partial<Account> = {}): Account {
 function createMockTransaction(
   overrides: Partial<TransactionHistoryItem> = {},
 ): TransactionHistoryItem {
-  const hash = overrides.hash ?? "0xabc123";
   return {
-    id: overrides.id ?? `js:2:ethereum:0xowner:-${hash}-OUT-i0`,
-    hash,
+    hash: "0xabc123",
     type: "sent",
     direction: "sent",
     kind: "transfer",
@@ -148,7 +146,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       });
     });
 
-    it("should call FetchTransactionHistoryUseCase with blockchain (ticker), address and currencyId", async () => {
+    it("should call FetchTransactionHistoryUseCase with address and currencyId", async () => {
       const account = createMockAccount({
         ticker: "ETH",
         freshAddress: "0xtest123",
@@ -161,7 +159,6 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       await useCase.execute(account);
 
       expect(mockFetchTransactionHistoryUseCase.execute).toHaveBeenCalledWith(
-        "eth",
         "0xtest123",
         "ethereum",
       );
@@ -199,7 +196,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       const account = createMockAccount();
       const error = new TransactionHistoryError("Network error", {
         address: account.freshAddress,
-        blockchain: "eth",
+        network: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(Left(error));
 
@@ -245,7 +242,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       const account = createMockAccount();
       const error = new TransactionHistoryError("API timeout", {
         address: account.freshAddress,
-        blockchain: "eth",
+        network: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(Left(error));
 
@@ -262,7 +259,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
         Left(
           new TransactionHistoryError("Error", {
             address: account.freshAddress,
-            blockchain: "eth",
+            network: "ethereum",
           }),
         ),
       );

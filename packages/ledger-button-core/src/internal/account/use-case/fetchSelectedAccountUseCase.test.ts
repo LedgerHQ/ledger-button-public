@@ -75,7 +75,6 @@ describe("FetchSelectedAccountUseCase", () => {
     fiatBalance: { value: "5000.00", currency: "USD" },
     transactionHistory: [
       {
-        id: "js:2:ethereum:0xowner:-0xabc123-IN-i0",
         hash: "0xabc123",
         type: "received",
         direction: "received",

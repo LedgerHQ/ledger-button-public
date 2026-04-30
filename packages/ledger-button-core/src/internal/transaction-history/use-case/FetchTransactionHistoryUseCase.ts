@@ -50,9 +50,7 @@ export class FetchTransactionHistoryUseCase {
     this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
 
-  // TODO: drop the legacy `blockchain` arg once HydrateAccountWithTxHistoryUseCase is updated to pass currencyId only.
   async execute(
-    _blockchain: string,
     address: string,
     currencyId: string,
     options?: TransactionHistoryOptions,
@@ -171,15 +169,15 @@ export class FetchTransactionHistoryUseCase {
       return null;
     }
 
-    if (typeof op.id !== "string" || op.id.length === 0) {
-      this.logger.warn("Operation has missing/invalid id, skipping", {
+    if (typeof op.tx?.hash !== "string" || op.tx.hash.length === 0) {
+      this.logger.warn("Operation has missing/invalid hash, surfacing anyway", {
+        id: op.id,
         type: op.type,
         date: op.tx?.date,
         hasSenders: Array.isArray(op.senders) && op.senders.length > 0,
         hasRecipients: Array.isArray(op.recipients) && op.recipients.length > 0,
         hash: op.tx?.hash,
       });
-      return null;
     }
 
     const direction = this.determineDirection(op, normalizedAddress);
@@ -205,7 +203,6 @@ export class FetchTransactionHistoryUseCase {
     );
 
     return {
-      id: op.id,
       hash: op.tx?.hash ?? "",
       type: this.toLegacyType(direction),
       direction,
