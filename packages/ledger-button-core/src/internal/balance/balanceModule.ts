@@ -1,9 +1,9 @@
 import { ContainerModule } from "inversify";
 
-import { AlpacaDataSource } from "./datasource/alpaca/AlpacaDataSource.js";
-import { DefaultAlpacaDataSource } from "./datasource/alpaca/DefaultAlpacaDataSource.js";
 import { CalDataSource } from "./datasource/cal/CalDataSource.js";
 import { DefaultCalDataSource } from "./datasource/cal/DefaultCalDataSource.js";
+import { CoinServiceDataSource } from "./datasource/coinService/CoinServiceDataSource.js";
+import { DefaultCoinServiceDataSource } from "./datasource/coinService/DefaultCoinServiceDataSource.js";
 import { CounterValueDataSource } from "./datasource/countervalue/CounterValueDataSource.js";
 import { DefaultCounterValueDataSource } from "./datasource/countervalue/DefaultCounterValueDataSource.js";
 import { BalanceService } from "./service/BalanceService.js";
@@ -20,8 +20,8 @@ export function balanceModuleFactory({ stub }: BalanceModuleOptions) {
       .to(DefaultBalanceService)
       .inSingletonScope();
 
-    bind<AlpacaDataSource>(balanceModuleTypes.AlpacaDataSource)
-      .to(DefaultAlpacaDataSource)
+    bind<CoinServiceDataSource>(balanceModuleTypes.CoinServiceDataSource)
+      .to(DefaultCoinServiceDataSource)
       .inSingletonScope();
 
     bind<CalDataSource>(balanceModuleTypes.CalDataSource)
@@ -34,11 +34,11 @@ export function balanceModuleFactory({ stub }: BalanceModuleOptions) {
 
     if (stub) {
       /*
-      rebindSync<AlpacaDataSource>(balanceModuleTypes.AlpacaDataSource)
-        .to(StubAlpacaDataSource)
+      rebindSync<CoinServiceDataSource>(balanceModuleTypes.CoinServiceDataSource)
+        .to(StubCoinServiceDataSource)
         .inSingletonScope();
 */
-      //TODO: add stubs for CalDataSource and AlpacaDataSource
+      //TODO: add stubs for CalDataSource and CoinServiceDataSource
     }
   });
 }

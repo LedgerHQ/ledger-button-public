@@ -1,6 +1,6 @@
 export const balanceModuleTypes = {
   BalanceService: Symbol.for("BalanceService"),
-  AlpacaDataSource: Symbol.for("AlpacaDataSource"),
+  CoinServiceDataSource: Symbol.for("CoinServiceDataSource"),
   CalDataSource: Symbol.for("CalDataSource"),
   CounterValueDataSource: Symbol.for("CounterValueDataSource"),
 } as const;
