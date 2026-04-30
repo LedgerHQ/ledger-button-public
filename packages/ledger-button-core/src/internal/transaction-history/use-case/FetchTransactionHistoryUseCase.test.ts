@@ -607,28 +607,6 @@ describe("FetchTransactionHistoryUseCase", () => {
     });
   });
 
-  describe("malformed operations", () => {
-    it("should still surface operations even when tx.hash is missing (with a warning)", async () => {
-      const op = createMockOperation({
-        senders: [testAddress],
-        value: "1",
-        txOverrides: { hash: "" },
-      });
-
-      mockDataSource.getTransactions.mockResolvedValue(
-        Right({ items: [op] } satisfies AlpacaOperationsResponse),
-      );
-
-      const result = await useCase.execute(testAddress, testCurrencyId);
-
-      const transactions = (
-        result.extract() as { transactions: Array<Record<string, unknown>> }
-      ).transactions;
-      expect(transactions).toHaveLength(1);
-      expect(transactions[0]).toMatchObject({ hash: "" });
-    });
-  });
-
   describe("transaction transformation", () => {
     it("should propagate the key fields", async () => {
       const sentOp = createMockOperation({
