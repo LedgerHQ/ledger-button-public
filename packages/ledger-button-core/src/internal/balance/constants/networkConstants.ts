@@ -3,7 +3,7 @@
  *
  * Maps Ethereum chain IDs to CoinService network names for gas fee estimation.
  * Based on CoinService's supported networks documentation:
- * https://coinService.api.ledger.com/docs/#tag/network/get/networks
+ * https://coin-service.api.ledger.com/docs/#tag/network/get/networks
  */
 
 export const COIN_SERVICE_CHAIN_ID_TO_NETWORK: Record<string, string> = {
