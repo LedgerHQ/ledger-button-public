@@ -113,14 +113,58 @@ const typedMessageFlowCompletion = (ctx: ScenarioContext) =>
     typed_message_hash: hexHash(),
   });
 
-const walletActionClicked = (ctx: ScenarioContext) =>
-  sessionEvent(ctx, "wallet_action_clicked");
+const walletActionClicked = (ctx: ScenarioContext): EventRequest => ({
+  name: "wallet_action_clicked",
+  type: "wallet_action_clicked",
+  data: {
+    ...baseData(ctx),
+    event_type: "wallet_action_clicked",
+    session_id: ctx.sessionId,
+    wallet_action: "swap",
+  },
+});
 
-const walletRedirectConfirmed = (ctx: ScenarioContext) =>
-  sessionEvent(ctx, "wallet_redirect_confirmed");
+const walletRedirectConfirmed = (ctx: ScenarioContext): EventRequest => ({
+  name: "wallet_redirect_confirmed",
+  type: "wallet_redirect_confirmed",
+  data: {
+    ...baseData(ctx),
+    event_type: "wallet_redirect_confirmed",
+    session_id: ctx.sessionId,
+    wallet_action: "swap",
+  },
+});
 
-const errorOccurred = (ctx: ScenarioContext): EventRequest =>
-  sessionEvent(ctx, "error_occurred");
+const walletRedirectCancelled = (ctx: ScenarioContext): EventRequest => ({
+  name: "wallet_redirect_cancelled",
+  type: "wallet_redirect_cancelled",
+  data: {
+    ...baseData(ctx),
+    event_type: "wallet_redirect_cancelled",
+    session_id: ctx.sessionId,
+    wallet_action: "swap",
+  },
+});
+
+const errorOccurred = (ctx: ScenarioContext): EventRequest => ({
+  name: "error_occurred",
+  type: "error_occurred",
+  data: {
+    ...baseData(ctx),
+    event_type: "error_occurred",
+    session_id: ctx.sessionId,
+    error_type: "SimulatedError",
+    error_code: "SIMULATED_ERROR",
+    error_message: "This is a simulated error event",
+    error_category: "simulation",
+  },
+});
+
+const mobileRedirectLedgerWallet = (ctx: ScenarioContext): EventRequest => ({
+  name: "mobile_redirect_ledger_wallet",
+  type: "mobile_redirect_ledger_wallet",
+  data: { ...baseData(ctx), event_type: "mobile_redirect_ledger_wallet" },
+});
 
 export const SCENARIOS: Scenario[] = [
   {
@@ -165,6 +209,19 @@ export const SCENARIOS: Scenario[] = [
     ],
   },
   {
+    name: "wallet-action-cancelled",
+    description: "Wallet action click > redirect cancelled",
+    buildEvents: (ctx) => [
+      walletActionClicked(ctx),
+      walletRedirectCancelled(ctx),
+    ],
+  },
+  {
+    name: "mobile-redirect",
+    description: "Mobile redirect to Ledger Wallet app",
+    buildEvents: (ctx) => [mobileRedirectLedgerWallet(ctx)],
+  },
+  {
     name: "error",
     description: "Simulated error event",
     buildEvents: (ctx) => [errorOccurred(ctx)],
@@ -186,6 +243,7 @@ export const SCENARIOS: Scenario[] = [
       typedMessageFlowCompletion(ctx),
       walletActionClicked(ctx),
       walletRedirectConfirmed(ctx),
+      mobileRedirectLedgerWallet(ctx),
     ],
   },
 ];

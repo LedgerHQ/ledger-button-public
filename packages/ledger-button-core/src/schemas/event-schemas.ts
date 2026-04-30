@@ -3,7 +3,6 @@ import { z } from "zod";
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const hexPattern = /^[0-9a-f]+$/;
-const nonNegativeIntegerPattern = /^([1-9][0-9]*|0)$/;
 
 const BaseEventDataSchema = z.object({
   event_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -19,6 +18,7 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
     event_type: z.literal("invoicing_transaction_signed"),
     ledger_sync_user_id: z.string().optional(),
     blockchain_network_selected: z.enum(["ethereum"]),
+    chain_id: z.string().nullable(),
     transaction_hash: z
       .string()
       .regex(
@@ -30,54 +30,48 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
       .string()
       .regex(hexPattern, "Sha256 hash without 0x prefix"),
   },
-);
+).strict();
 
 /**
  * Matches: ./sre-bento/containers/ledger-button-product-analytics-events/config/schema.json
  */
 export const ConsentGivenEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_given"),
-});
+}).strict();
 
 export const ConsentRemovedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("consent_removed"),
   ledger_sync_user_id: z.string().optional(),
-});
+}).strict();
 
 export const FloatingButtonClickEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("floating_button_clicked"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-});
+}).strict();
 
 export const OpenSessionEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("open_session"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-});
+}).strict();
 
 export const OpenLedgerSyncEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("open_ledger_sync"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-});
+}).strict();
 
 export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("ledger_sync_activated"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
-});
+}).strict();
 
 export const OnboardingEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("onboarding"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
   blockchain_network_selected: z.enum(["ethereum"]),
-  account_currency: z.string(),
-  account_balance: z
-    .string()
-    .regex(
-      nonNegativeIntegerPattern,
-      "Account balance must be a non-negative integer string",
-    ),
-});
+  chain_id: z.string().nullable(),
+}).strict();
 
 export const TransactionFlowInitializationEventSchema =
   BaseEventDataSchema.extend({
@@ -85,51 +79,72 @@ export const TransactionFlowInitializationEventSchema =
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
     blockchain_network_selected: z.enum(["ethereum"]),
-    unsigned_transaction_hash: z
-      .string()
-      .regex(hexPattern, "Sha256 hash without 0x prefix"),
-  });
+    chain_id: z.string().nullable(),
+  }).strict();
 
 export const TransactionFlowCompletionEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("transaction_flow_completion"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
   blockchain_network_selected: z.enum(["ethereum"]),
-  unsigned_transaction_hash: z
-    .string()
-    .regex(hexPattern, "Sha256 hash without 0x prefix"),
-  transaction_hash: z
-    .string()
-    .regex(
-      hexPattern,
-      "Transaction hash must be lowercase hex without 0x prefix",
-    ),
-});
+  chain_id: z.string().nullable(),
+}).strict();
 
-export const SessionAuthenticationEventSchema = BaseEventDataSchema.extend({
-  event_type: z.literal("session_authentication"),
+export const TypedMessageFlowInitializationEventSchema =
+  BaseEventDataSchema.extend({
+    event_type: z.literal("typed_message_flow_initialization"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    blockchain_network_selected: z.enum(["ethereum"]),
+    chain_id: z.string().nullable(),
+    typed_message_hash: z
+      .string()
+      .regex(hexPattern, "Sha256 hash without 0x prefix"),
+  }).strict();
+
+export const TypedMessageFlowCompletionEventSchema =
+  BaseEventDataSchema.extend({
+    event_type: z.literal("typed_message_flow_completion"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    blockchain_network_selected: z.enum(["ethereum"]),
+    chain_id: z.string().nullable(),
+    typed_message_hash: z
+      .string()
+      .regex(hexPattern, "Sha256 hash without 0x prefix"),
+  }).strict();
+
+const walletActionSchema = z.enum([
+  "send",
+  "receive",
+  "swap",
+  "buy",
+  "earn",
+  "sell",
+]);
+
+export const WalletActionClickedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("wallet_action_clicked"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
-  ledger_sync_user_id: z.string().optional(),
-  blockchain_network_selected: z.enum(["ethereum"]),
-  unsigned_transaction_hash: z
-    .string()
-    .regex(
-      hexPattern,
-      "Unsigned transaction hash must be lowercase hex without 0x prefix",
-    ),
-  transaction_type: z.literal("authentication_tx"),
-  transaction_hash: z
-    .string()
-    .regex(
-      hexPattern,
-      "Transaction hash must be lowercase hex without 0x prefix",
-    ),
-});
+  wallet_action: walletActionSchema,
+}).strict();
+
+export const WalletRedirectConfirmedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("wallet_redirect_confirmed"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  wallet_action: walletActionSchema,
+}).strict();
+
+export const WalletRedirectCancelledEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("wallet_redirect_cancelled"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  wallet_action: walletActionSchema,
+}).strict();
 
 export const MobileRedirectLedgerWalletEventSchema =
   BaseEventDataSchema.extend({
     event_type: z.literal("mobile_redirect_ledger_wallet"),
-  });
+  }).strict();
 
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
@@ -142,7 +157,11 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   OnboardingEventSchema,
   TransactionFlowInitializationEventSchema,
   TransactionFlowCompletionEventSchema,
-  SessionAuthenticationEventSchema,
+  TypedMessageFlowInitializationEventSchema,
+  TypedMessageFlowCompletionEventSchema,
+  WalletActionClickedEventSchema,
+  WalletRedirectConfirmedEventSchema,
+  WalletRedirectCancelledEventSchema,
   MobileRedirectLedgerWalletEventSchema,
 ]);
 
@@ -163,7 +182,19 @@ export type TransactionFlowInitializationEvent = z.infer<
 export type TransactionFlowCompletionEvent = z.infer<
   typeof TransactionFlowCompletionEventSchema
 >;
-export type SessionAuthenticationEvent = z.infer<
-  typeof SessionAuthenticationEventSchema
+export type TypedMessageFlowInitializationEvent = z.infer<
+  typeof TypedMessageFlowInitializationEventSchema
+>;
+export type TypedMessageFlowCompletionEvent = z.infer<
+  typeof TypedMessageFlowCompletionEventSchema
+>;
+export type WalletActionClickedEvent = z.infer<
+  typeof WalletActionClickedEventSchema
+>;
+export type WalletRedirectConfirmedEvent = z.infer<
+  typeof WalletRedirectConfirmedEventSchema
+>;
+export type WalletRedirectCancelledEvent = z.infer<
+  typeof WalletRedirectCancelledEventSchema
 >;
 export type EventData = z.infer<typeof EventDataSchema>;
