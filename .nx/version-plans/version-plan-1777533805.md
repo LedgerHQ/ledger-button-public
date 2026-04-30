@@ -1,5 +1,5 @@
 ---
-"@ledgerhq/ledger-wallet-provider-core": none
+"@ledgerhq/ledger-wallet-provider-core": patch
 ---
 
 Rename Alpaca to CoinService
