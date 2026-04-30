@@ -16,7 +16,6 @@ function makeTx(
   overrides: Partial<TransactionListItem> & Pick<TransactionListItem, "hash">,
 ): TransactionListItem {
   return {
-    id: overrides.id ?? overrides.hash,
     type: "received",
     status: "confirmed",
     kind: "transfer",

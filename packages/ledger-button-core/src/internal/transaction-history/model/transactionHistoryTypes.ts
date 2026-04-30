@@ -98,13 +98,8 @@ export type TransactionType = "sent" | "received";
 
 /**
  * Transformed transaction item for display.
- *
- * `id` is the stable Alpaca operation identifier; one transaction hash can
- * produce several operations (e.g. a swap yields one OUT + one IN sharing the
- * same `tx.hash`), so the UI must key off `id`, not `hash`.
  */
 export type TransactionHistoryItem = {
-  id: string;
   hash: string;
   type: TransactionType;
   direction: TransactionDirection;

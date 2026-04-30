@@ -15,6 +15,7 @@ import {
   ClearSigningIcon,
   ClockIcon,
   CloseIcon,
+  CoinsIcon,
   DeleteCircleFillIcon,
   DesktopIcon,
   DeviceIcon,
@@ -67,6 +68,7 @@ export interface LedgerIconAttributes {
     | "externalLink"
     | "directConnectivity"
     | "clearSigning"
+    | "coins"
     | "transactionCheck"
     | "question"
     | "settings"
@@ -144,6 +146,7 @@ export class LedgerIcon extends LitElement {
       externalLink: () => ExternalLinkIcon,
       directConnectivity: () => DirectConnectivityIcon,
       clearSigning: () => ClearSigningIcon,
+      coins: () => CoinsIcon,
       transactionCheck: () => TransactionCheckIcon,
       question: () => QuestionIcon,
       settings: () => SettingsIcon,

@@ -96,7 +96,6 @@ describe("FetchTransactionHistoryUseCase", () => {
   let mockDataSource: ReturnType<typeof createMockDataSource>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
-  const testBlockchain = "eth";
   const testCurrencyId = "ethereum";
   const resolvedNetwork = "ethereum";
 
@@ -118,7 +117,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       const response: AlpacaOperationsResponse = { items: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      await useCase.execute(testBlockchain, testAddress, testCurrencyId, {
+      await useCase.execute(testAddress, testCurrencyId, {
         pageToken: "abc",
       });
 
@@ -133,7 +132,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       const response: AlpacaOperationsResponse = { items: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      await useCase.execute("polygon", testAddress, "polygon");
+      await useCase.execute(testAddress, "polygon");
 
       expect(mockDataSource.getTransactions).toHaveBeenCalledWith(
         "polygon",
@@ -146,11 +145,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       const response: AlpacaOperationsResponse = { items: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -167,11 +162,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -182,11 +173,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       const response: AlpacaOperationsResponse = { items: [] };
       mockDataSource.getTransactions.mockResolvedValue(Right(response));
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
       const data = result.extract();
@@ -200,11 +187,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
       mockDataSource.getTransactions.mockResolvedValue(Left(error));
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isLeft()).toBe(true);
       expect(result.extract()).toBe(error);
@@ -224,11 +207,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -248,11 +227,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -271,11 +246,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -294,11 +265,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -332,11 +299,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const txs = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -361,11 +324,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -385,11 +344,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -410,11 +365,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -433,11 +384,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -459,11 +406,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -487,11 +430,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -513,11 +452,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -541,11 +476,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -570,8 +501,8 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-      await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      await useCase.execute(testAddress, testCurrencyId);
+      await useCase.execute(testAddress, testCurrencyId);
 
       expect(mockCalDataSource.getTokenInformation).toHaveBeenCalledTimes(1);
     });
@@ -592,11 +523,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -621,11 +548,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -653,11 +576,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -679,11 +598,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -693,32 +608,29 @@ describe("FetchTransactionHistoryUseCase", () => {
   });
 
   describe("malformed operations", () => {
-    it("should skip operations without an id", async () => {
+    it("should still surface operations even when tx.hash is missing (with a warning)", async () => {
       const op = createMockOperation({
-        id: "",
         senders: [testAddress],
         value: "1",
+        txOverrides: { hash: "" },
       });
 
       mockDataSource.getTransactions.mockResolvedValue(
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const transactions = (
-        result.extract() as { transactions: unknown[] }
+        result.extract() as { transactions: Array<Record<string, unknown>> }
       ).transactions;
-      expect(transactions).toHaveLength(0);
+      expect(transactions).toHaveLength(1);
+      expect(transactions[0]).toMatchObject({ hash: "" });
     });
   });
 
   describe("transaction transformation", () => {
-    it("should propagate the stable id and key fields", async () => {
+    it("should propagate the key fields", async () => {
       const sentOp = createMockOperation({
         id: "js:2:ethereum:0xowner:-0xsent123-OUT-i0",
         type: "OUT",
@@ -751,18 +663,13 @@ describe("FetchTransactionHistoryUseCase", () => {
         } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const transactions = (
         result.extract() as { transactions: unknown[] }
       ).transactions;
       expect(transactions).toHaveLength(2);
       expect(transactions[0]).toMatchObject({
-        id: "js:2:ethereum:0xowner:-0xsent123-OUT-i0",
         hash: "0xsent123",
         type: "sent",
         direction: "sent",
@@ -776,7 +683,6 @@ describe("FetchTransactionHistoryUseCase", () => {
         ledgerId: "ethereum",
       });
       expect(transactions[1]).toMatchObject({
-        id: "js:2:ethereum:0xowner:-0xreceived456-IN-i0",
         hash: "0xreceived456",
         type: "received",
         direction: "received",
@@ -812,18 +718,15 @@ describe("FetchTransactionHistoryUseCase", () => {
         } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const transactions = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
       ).transactions;
       expect(transactions).toHaveLength(2);
-      expect(transactions[0].id).not.toBe(transactions[1].id);
       expect(transactions[0].hash).toBe(transactions[1].hash);
+      expect(transactions[0]).toMatchObject({ direction: "sent", value: "1000000" });
+      expect(transactions[1]).toMatchObject({ direction: "received", value: "999313" });
     });
   });
 
@@ -845,11 +748,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -873,11 +772,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -903,11 +798,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }
@@ -930,11 +821,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         Right({ items: [op] } satisfies AlpacaOperationsResponse),
       );
 
-      const result = await useCase.execute(
-        testBlockchain,
-        testAddress,
-        testCurrencyId,
-      );
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       const tx = (
         result.extract() as { transactions: Array<Record<string, unknown>> }

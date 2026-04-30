@@ -44,6 +44,7 @@ export interface LedgerTransactionItemAttributes {
   viewOnExplorerLabel?: string;
   hash?: string;
   formattedFee?: string;
+  feeTicker?: string;
 }
 
 @customElement("ledger-transaction-item")
@@ -104,6 +105,9 @@ export class LedgerTransactionItem extends LitElement {
   @property({ type: String, attribute: "formatted-fee" })
   formattedFee = "";
 
+  @property({ type: String, attribute: "fee-ticker" })
+  feeTicker = "";
+
   private get safeExplorerUrl(): string | undefined {
     if (!this.explorerUrl) {
       return undefined;
@@ -127,15 +131,38 @@ export class LedgerTransactionItem extends LitElement {
     return this.status === "failed";
   }
 
+  private get isFeesKind(): boolean {
+    return this.kind === "contract";
+  }
+
+  private get isFeesRow(): boolean {
+    return this.isFeesKind && !!this.formattedFee;
+  }
+
+  private get transactionListLabels(): {
+    failed?: string;
+    kinds?: {
+      swap?: string;
+      approve?: string;
+      contract?: string;
+      fees?: string;
+    };
+  } {
+    return this.translations?.transactionList ?? {};
+  }
+
   private get displayType(): string {
-    const kindLabels = this.translations?.transactionList?.kinds;
+    if (this.isFailed) {
+      return this.transactionListLabels.failed ?? "Failed";
+    }
+    const kindLabels = this.transactionListLabels.kinds;
     switch (this.kind) {
       case "swap":
         return kindLabels?.swap ?? "Swap";
       case "approve":
         return kindLabels?.approve ?? "Approve";
       case "contract":
-        return kindLabels?.contract ?? "Contract interaction";
+        return kindLabels?.fees ?? "Fees";
       case "transfer":
       case "unknown":
       default:
@@ -143,23 +170,48 @@ export class LedgerTransactionItem extends LitElement {
     }
   }
 
-  private get iconType(): "send" | "receive" {
+  private get iconType(): "send" | "receive" | "coins" {
+    if (this.kind === "contract") return "coins";
     if (this.kind === "swap") return "send";
     return this.type === "sent" ? "send" : "receive";
   }
 
+  private get iconSpotClasses() {
+    return {
+      "flex h-48 w-48 items-center justify-center rounded-full": true,
+      "bg-error": this.isFailed,
+      "bg-muted-transparent": !this.isFailed,
+    };
+  }
+
+  private get iconColorClasses() {
+    return {
+      "text-error": this.isFailed,
+      "text-base": !this.isFailed,
+    };
+  }
+
+  private get subLabelTime(): string {
+    if (this.isFailed || this.isFeesKind) {
+      return `- ${this.timestamp}`;
+    }
+    return this.timestamp;
+  }
+
   private get sign(): string {
-    if (this.isFailed) return "";
-    if (parseFloat(this.amount) === 0) return "";
+    if (parseFloat(this.amount) === 0 && !this.isFeesRow) return "";
     return this.type === "received" ? "+" : "-";
   }
 
   private get displayCryptoAmount(): string {
+    if (this.isFeesRow) {
+      const ticker = this.feeTicker || this.ticker;
+      return `-${this.formattedFee} ${ticker}`.trimEnd();
+    }
     return `${this.sign}${this.amount} ${this.ticker}`;
   }
 
   private get displayFiatAmount(): string {
-    if (this.isFailed) return "";
     if (!this.fiatAmount || !this.fiatCurrency) {
       return "";
     }
@@ -168,55 +220,31 @@ export class LedgerTransactionItem extends LitElement {
       this.fiatCurrency,
       this.locale,
     );
-    return `${this.sign}${formatted}`;
-  }
-
-  private get displayFee(): string {
-    if (!this.formattedFee) return "";
-    const feeLabel = this.translations?.transactionList?.fee ?? "Fee";
-    return `${feeLabel} ${this.formattedFee}`;
+    const sign = parseFloat(this.fiatAmount) === 0 ? "" : this.sign;
+    return `${sign}${formatted}`;
   }
 
   private get amountClasses() {
     return {
-      "text-base body-2-semi-bold": !this.isFailed,
-      "text-muted body-2-semi-bold line-through": this.isFailed,
+      "text-base body-2-semi-bold": true,
     };
-  }
-
-  private renderFailedBadge() {
-    if (!this.isFailed) return "";
-    const failedLabel = this.translations?.transactionList?.failed ?? "Failed";
-    return html`
-      <span
-        class="bg-error/15 text-error body-4 inline-flex items-center rounded-sm px-4 py-1"
-        >${failedLabel}</span
-      >
-    `;
-  }
-
-  private renderFeeLine() {
-    if (!this.formattedFee) return "";
-    return html`<span class="text-muted body-4">${this.displayFee}</span>`;
   }
 
   private renderLeftSection() {
     return html`
       <div class="flex items-center gap-12">
-        <div
-          class="bg-muted-transparent flex h-48 w-48 items-center justify-center rounded-full"
-        >
+        <div class=${classMap(this.iconSpotClasses)}>
           <ledger-icon
             type=${this.iconType}
             size="small"
             fillColor="currentColor"
-            class=${this.isFailed ? "text-muted" : "text-base"}
+            class=${classMap(this.iconColorClasses)}
           ></ledger-icon>
         </div>
         <div class="flex flex-col gap-4 text-left">
-          <span class="body-2-semi-bold text-base">${this.title}</span>
-          <span class="text-muted body-3 flex items-center gap-4">
-            ${this.renderFailedBadge()} ${this.displayType} ${this.timestamp}
+          <span class="text-base body-2-semi-bold">${this.title}</span>
+          <span class="flex items-center gap-4 text-muted body-3">
+            ${this.displayType} ${this.subLabelTime}
           </span>
         </div>
       </div>
@@ -235,7 +263,6 @@ export class LedgerTransactionItem extends LitElement {
           >${this.displayFiatAmount}</span
         >
         <span class="text-muted body-3">${this.displayCryptoAmount}</span>
-        ${this.renderFeeLine()}
       </div>
     `;
 

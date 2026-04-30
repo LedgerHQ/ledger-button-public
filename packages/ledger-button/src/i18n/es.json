@@ -200,6 +200,7 @@
       "swap": "Intercambio",
       "approve": "Aprobación",
       "contract": "Interacción con contrato",
+      "fees": "Comisiones",
       "self": "Transferencia propia"
     }
   },

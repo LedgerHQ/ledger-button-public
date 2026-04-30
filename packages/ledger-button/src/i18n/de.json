@@ -200,6 +200,7 @@
       "swap": "Tausch",
       "approve": "Freigabe",
       "contract": "Vertragsinteraktion",
+      "fees": "Gebühren",
       "self": "Eigenüberweisung"
     }
   },
