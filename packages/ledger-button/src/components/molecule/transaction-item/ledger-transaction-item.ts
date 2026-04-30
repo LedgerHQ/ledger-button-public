@@ -224,12 +224,6 @@ export class LedgerTransactionItem extends LitElement {
     return `${sign}${formatted}`;
   }
 
-  private get amountClasses() {
-    return {
-      "text-base body-2-semi-bold": true,
-    };
-  }
-
   private renderLeftSection() {
     return html`
       <div class="flex items-center gap-12">
@@ -259,10 +253,10 @@ export class LedgerTransactionItem extends LitElement {
           interactive && "group-hover:hidden group-focus-visible:hidden",
         )}
       >
-        <span class=${classMap(this.amountClasses)}
-          >${this.displayFiatAmount}</span
+        <span class="body-2-semi-bold text-base"
+          >${this.displayCryptoAmount}</span
         >
-        <span class="text-muted body-3">${this.displayCryptoAmount}</span>
+        <span class="text-muted body-3">${this.displayFiatAmount}</span>
       </div>
     `;
 
