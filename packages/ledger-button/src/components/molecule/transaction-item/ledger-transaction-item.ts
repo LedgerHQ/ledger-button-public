@@ -157,9 +157,6 @@ export class LedgerTransactionItem extends LitElement {
     if (this.isFeesRow) {
       return kindLabels?.fees ?? "Fees";
     }
-    if (this.isFailed) {
-      return this.transactionListLabels.failed ?? "Failed";
-    }
     switch (this.kind) {
       case "swap":
         return kindLabels?.swap ?? "Swap";
@@ -176,6 +173,13 @@ export class LedgerTransactionItem extends LitElement {
     }
   }
 
+  private get displayStatus(): string {
+    if (this.isFailed) {
+      return this.transactionListLabels.failed ?? "Failed";
+    }
+    return "";
+  }
+
   private get iconType(): "send" | "receive" | "coins" {
     if (this.kind === "fees") return "coins";
     if (this.kind === "swap") return "send";
@@ -183,19 +187,17 @@ export class LedgerTransactionItem extends LitElement {
   }
 
   private get iconSpotClasses() {
-    const showFailed = this.isFailed && !this.isFeesRow;
     return {
       "flex h-48 w-48 items-center justify-center rounded-full": true,
-      "bg-error": showFailed,
-      "bg-muted-transparent": !showFailed,
+      "bg-error": this.isFailed,
+      "bg-muted-transparent": !this.isFailed,
     };
   }
 
   private get iconColorClasses() {
-    const showFailed = this.isFailed && !this.isFeesRow;
     return {
-      "text-error": showFailed,
-      "text-base": !showFailed,
+      "text-error": this.isFailed,
+      "text-base": !this.isFailed,
     };
   }
 
@@ -246,7 +248,10 @@ export class LedgerTransactionItem extends LitElement {
         <div class="flex flex-col gap-4 text-left">
           <span class="text-base body-2-semi-bold">${this.title}</span>
           <span class="flex items-center gap-4 text-muted body-3">
-            ${this.displayType} ${this.subLabelTime}
+            ${this.displayStatus
+              ? html`<span class="text-error">${this.displayStatus}</span>`
+              : this.displayType}
+            ${this.subLabelTime}
           </span>
         </div>
       </div>
