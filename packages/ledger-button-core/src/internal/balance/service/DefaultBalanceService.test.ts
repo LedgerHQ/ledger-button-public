@@ -2,16 +2,16 @@ import { Left, Right } from "purify-ts";
 
 import { Account } from "../../account/service/AccountService.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
-import { AlpacaBalance } from "../datasource/alpaca/alpacaTypes.js";
 import { CalDataSource } from "../datasource/cal/CalDataSource.js";
+import { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";
+import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes.js";
 import { TokenBalance } from "../model/types.js";
 import { DefaultBalanceService } from "./DefaultBalanceService.js";
 
 describe("DefaultBalanceService", () => {
   let balanceService: DefaultBalanceService;
   let mockLoggerFactory: () => LoggerPublisher;
-  let mockAlpacaDataSource: AlpacaDataSource;
+  let mockCoinServiceDataSource: CoinServiceDataSource;
   let mockCalDataSource: CalDataSource;
   let mockLogger: LoggerPublisher;
 
@@ -28,10 +28,10 @@ describe("DefaultBalanceService", () => {
 
     mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
 
-    // Mock AlpacaDataSource
-    mockAlpacaDataSource = {
+    // Mock CoinServiceDataSource
+    mockCoinServiceDataSource = {
       getBalanceForAddressAndCurrencyId: vi.fn(),
-    } as unknown as AlpacaDataSource;
+    } as unknown as CoinServiceDataSource;
 
     // Mock CalDataSource
     mockCalDataSource = {
@@ -40,7 +40,7 @@ describe("DefaultBalanceService", () => {
 
     balanceService = new DefaultBalanceService(
       mockLoggerFactory,
-      mockAlpacaDataSource,
+      mockCoinServiceDataSource,
       mockCalDataSource,
     );
   });
@@ -60,7 +60,7 @@ describe("DefaultBalanceService", () => {
     };
 
     it("should successfully fetch native balance without tokens", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "1000000000000000000", // 1 ETH in wei
@@ -68,9 +68,9 @@ describe("DefaultBalanceService", () => {
       ];
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       const result = await balanceService.getBalanceForAccount(
         mockAccount,
@@ -96,7 +96,7 @@ describe("DefaultBalanceService", () => {
     });
 
     it("should successfully fetch native balance with tokens", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "2000000000000000000", // 2 ETH
@@ -128,9 +128,9 @@ describe("DefaultBalanceService", () => {
       };
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       vi.spyOn(mockCalDataSource, "getTokenInformation")
         .mockResolvedValueOnce(Right(mockTokenInfo1))
@@ -175,7 +175,7 @@ describe("DefaultBalanceService", () => {
     });
 
     it("should filter out tokens when token information fetch fails", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "1000000000000000000",
@@ -200,9 +200,9 @@ describe("DefaultBalanceService", () => {
       };
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       // First token succeeds, second fails
       vi.spyOn(mockCalDataSource, "getTokenInformation")
@@ -227,7 +227,7 @@ describe("DefaultBalanceService", () => {
     });
 
     it("should handle case when all token information fetches fail", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "1000000000000000000",
@@ -240,9 +240,9 @@ describe("DefaultBalanceService", () => {
       ];
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       vi.spyOn(mockCalDataSource, "getTokenInformation").mockResolvedValue(
         Left(new Error("Token info fetch failed")),
@@ -263,11 +263,11 @@ describe("DefaultBalanceService", () => {
       });
     });
 
-    it("should return error when alpaca data source fails", async () => {
+    it("should return error when coinService data source fails", async () => {
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Left(new Error("Alpaca fetch failed")));
+      ).mockResolvedValue(Left(new Error("CoinService fetch failed")));
 
       const result = await balanceService.getBalanceForAccount(
         mockAccount,
@@ -276,12 +276,12 @@ describe("DefaultBalanceService", () => {
 
       expect(result.isLeft()).toBe(true);
       result.mapLeft((error) => {
-        expect(error.message).toBe("Failed to fetch balance from Alpaca");
+        expect(error.message).toBe("Failed to fetch balance from CoinService");
       });
     });
 
     it("should log debug information when fetching balance", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "1000000000000000000",
@@ -289,9 +289,9 @@ describe("DefaultBalanceService", () => {
       ];
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       await balanceService.getBalanceForAccount(mockAccount, true);
 
@@ -313,7 +313,7 @@ describe("DefaultBalanceService", () => {
         ticker: "BTC",
       };
 
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "100000000", // 1 BTC in satoshis
@@ -321,9 +321,9 @@ describe("DefaultBalanceService", () => {
       ];
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       const result = await balanceService.getBalanceForAccount(
         bitcoinAccount,
@@ -332,7 +332,7 @@ describe("DefaultBalanceService", () => {
 
       expect(result.isRight()).toBe(true);
       expect(
-        mockAlpacaDataSource.getBalanceForAddressAndCurrencyId,
+        mockCoinServiceDataSource.getBalanceForAddressAndCurrencyId,
       ).toHaveBeenCalledWith(
         "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
         "bitcoin",
@@ -344,7 +344,7 @@ describe("DefaultBalanceService", () => {
     });
 
     it("should handle zero balance", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "0",
@@ -352,9 +352,9 @@ describe("DefaultBalanceService", () => {
       ];
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       const result = await balanceService.getBalanceForAccount(
         mockAccount,
@@ -370,7 +370,7 @@ describe("DefaultBalanceService", () => {
     });
 
     it("should handle multiple token balances with mixed success/failure", async () => {
-      const mockAlpacaBalances: AlpacaBalance[] = [
+      const mockCoinServiceBalances: CoinServiceBalance[] = [
         {
           type: "native",
           value: "1000000000000000000",
@@ -407,9 +407,9 @@ describe("DefaultBalanceService", () => {
       };
 
       vi.spyOn(
-        mockAlpacaDataSource,
+        mockCoinServiceDataSource,
         "getBalanceForAddressAndCurrencyId",
-      ).mockResolvedValue(Right(mockAlpacaBalances));
+      ).mockResolvedValue(Right(mockCoinServiceBalances));
 
       vi.spyOn(mockCalDataSource, "getTokenInformation")
         .mockResolvedValueOnce(Right(mockTokenInfo1))

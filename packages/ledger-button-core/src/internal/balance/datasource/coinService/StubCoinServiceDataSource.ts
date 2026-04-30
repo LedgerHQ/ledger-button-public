@@ -1,6 +1,6 @@
 /*
 @injectable()
-export class StubAlpacaDataSource implements AlpacaDataSource {
+export class StubCoinServiceDataSource implements CoinServiceDataSource {
   private readonly stubNativeBalances: Record<string, string> = {
     "0x1234567890123456789012345678901234567890": "1000000000000000000",
     "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd": "2500000000000000000",
@@ -51,7 +51,7 @@ export class StubAlpacaDataSource implements AlpacaDataSource {
   async getNativeBalance(
     address: string,
     chainConfig: EvmChainConfig,
-  ): Promise<Either<AlpacaServiceError, NativeBalance>> {
+  ): Promise<Either<CoinServiceServiceError, NativeBalance>> {
     const balance = this.stubNativeBalances[address.toLowerCase()];
 
     if (!balance) {
@@ -77,7 +77,7 @@ export class StubAlpacaDataSource implements AlpacaDataSource {
   async getTokenBalances(
     address: string,
     _chainConfig: EvmChainConfig,
-  ): Promise<Either<AlpacaServiceError, TokenBalance[]>> {
+  ): Promise<Either<CoinServiceServiceError, TokenBalance[]>> {
     const tokens = this.stubTokenBalances[address.toLowerCase()] || [];
 
     return Right([...tokens]);
@@ -87,7 +87,7 @@ export class StubAlpacaDataSource implements AlpacaDataSource {
     address: string,
     contractAddress: string,
     chainConfig: EvmChainConfig,
-  ): Promise<Either<AlpacaServiceError, TokenBalance>> {
+  ): Promise<Either<CoinServiceServiceError, TokenBalance>> {
     const tokens = this.stubTokenBalances[address.toLowerCase()] || [];
     const token = tokens.find(
       (t) => t.contractAddress.toLowerCase() === contractAddress.toLowerCase(),
@@ -95,7 +95,7 @@ export class StubAlpacaDataSource implements AlpacaDataSource {
 
     if (!token) {
       return Left(
-        AlpacaServiceErrors.tokenFetchError(
+        CoinServiceServiceErrors.tokenFetchError(
           address,
           chainConfig.name,
           new Error("Token not found in stub data"),
@@ -109,7 +109,7 @@ export class StubAlpacaDataSource implements AlpacaDataSource {
   async hasTransactionHistory(
     address: string,
     _chainConfig: EvmChainConfig,
-  ): Promise<Either<AlpacaServiceError, boolean>> {
+  ): Promise<Either<CoinServiceServiceError, boolean>> {
     const hasHistory =
       this.stubTransactionHistory[address.toLowerCase()] ?? false;
 

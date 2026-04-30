@@ -106,7 +106,7 @@ export class BroadcastTransaction {
           }
         }
 
-        //Response from alpaca broadcast
+        //Response from coin-service broadcast
         return {
           hash: response.transactionIdentifier,
           rawTransaction:

@@ -1,12 +1,12 @@
 /**
- * Network constants for Alpaca integration
- * 
- * Maps Ethereum chain IDs to Alpaca network names for gas fee estimation.
- * Based on Alpaca's supported networks documentation:
- * https://alpaca.api.ledger.com/docs/#tag/network/get/networks
+ * Network constants for CoinService integration
+ *
+ * Maps Ethereum chain IDs to CoinService network names for gas fee estimation.
+ * Based on CoinService's supported networks documentation:
+ * https://coinService.api.ledger.com/docs/#tag/network/get/networks
  */
 
-export const ALPACA_CHAIN_ID_TO_NETWORK: Record<string, string> = {
+export const COIN_SERVICE_CHAIN_ID_TO_NETWORK: Record<string, string> = {
   "1": "ethereum",
   "61": "ethereum_classic",
   "17000": "ethereum_holesky",
@@ -58,10 +58,10 @@ export const ALPACA_CHAIN_ID_TO_NETWORK: Record<string, string> = {
 };
 
 /**
- * Gets the Alpaca network name for a given chain ID
+ * Gets the CoinService network name for a given chain ID
  * @param chainId - The blockchain chain ID as string
- * @returns The Alpaca network name or undefined if not supported
+ * @returns The CoinService network name or undefined if not supported
  */
-export function getAlpacaNetworkName(chainId: string): string | undefined {
-  return ALPACA_CHAIN_ID_TO_NETWORK[chainId];
+export function getCoinServiceNetworkName(chainId: string): string | undefined {
+  return COIN_SERVICE_CHAIN_ID_TO_NETWORK[chainId];
 }

@@ -2,7 +2,7 @@ import { Left, Right } from "purify-ts";
 
 import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
 import { BackendService } from "../../backend/BackendService.js";
-import { AlpacaDataSource } from "../../balance/datasource/alpaca/AlpacaDataSource.js";
+import { CoinServiceDataSource } from "../../balance/datasource/coinService/CoinServiceDataSource.js";
 import { TransactionInfo } from "../../balance/model/types.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
@@ -11,7 +11,7 @@ describe("DefaultGasFeeEstimationService", () => {
   let gasFeeEstimationService: DefaultGasFeeEstimationService;
   let mockLoggerFactory: () => LoggerPublisher;
   let mockBackendService: BackendService;
-  let mockAlpacaDataSource: AlpacaDataSource;
+  let mockCoinServiceDataSource: CoinServiceDataSource;
   let mockLogger: LoggerPublisher;
 
   const mockTx: TransactionInfo = {
@@ -40,15 +40,15 @@ describe("DefaultGasFeeEstimationService", () => {
       broadcast: vi.fn(),
     } as unknown as BackendService;
 
-    mockAlpacaDataSource = {
+    mockCoinServiceDataSource = {
       getBalanceForAddressAndCurrencyId: vi.fn(),
       estimateTransactionFee: vi.fn(),
-    } as unknown as AlpacaDataSource;
+    } as unknown as CoinServiceDataSource;
 
     gasFeeEstimationService = new DefaultGasFeeEstimationService(
       mockLoggerFactory,
       mockBackendService,
-      mockAlpacaDataSource,
+      mockCoinServiceDataSource,
     );
   });
 
@@ -91,8 +91,8 @@ describe("DefaultGasFeeEstimationService", () => {
   });
 
   describe("getFeesForTransaction", () => {
-    it("should use Alpaca for gas fee estimation when network is supported", async () => {
-      const mockAlpacaResponse = {
+    it("should use CoinService for gas fee estimation when network is supported", async () => {
+      const mockCoinServiceResponse = {
         value: "50000",
         parameters: {
           gasLimit: "0xc350",
@@ -103,14 +103,17 @@ describe("DefaultGasFeeEstimationService", () => {
         },
       };
 
-      vi.spyOn(mockAlpacaDataSource, "estimateTransactionFee").mockResolvedValue(
-        Right(mockAlpacaResponse),
-      );
+      vi.spyOn(
+        mockCoinServiceDataSource,
+        "estimateTransactionFee",
+      ).mockResolvedValue(Right(mockCoinServiceResponse));
 
       const result =
         await gasFeeEstimationService.getFeesForTransaction(mockTx);
 
-      expect(mockAlpacaDataSource.estimateTransactionFee).toHaveBeenCalledWith(
+      expect(
+        mockCoinServiceDataSource.estimateTransactionFee,
+      ).toHaveBeenCalledWith(
         "ethereum",
         expect.objectContaining({
           type: "send",
@@ -121,19 +124,22 @@ describe("DefaultGasFeeEstimationService", () => {
         }),
       );
 
-      expect(result.gasLimit).toEqual(mockAlpacaResponse.parameters.gasLimit);
+      expect(result.gasLimit).toEqual(
+        mockCoinServiceResponse.parameters.gasLimit,
+      );
       expect(result.maxFeePerGas).toEqual(
-        mockAlpacaResponse.parameters.maxFeePerGas,
+        mockCoinServiceResponse.parameters.maxFeePerGas,
       );
       expect(result.maxPriorityFeePerGas).toEqual(
-        mockAlpacaResponse.parameters.maxPriorityFeePerGas,
+        mockCoinServiceResponse.parameters.maxPriorityFeePerGas,
       );
     });
 
-    it("should fallback to RPC method when Alpaca fails", async () => {
-      vi.spyOn(mockAlpacaDataSource, "estimateTransactionFee").mockResolvedValue(
-        Left(new Error("Alpaca error")),
-      );
+    it("should fallback to RPC method when CoinService fails", async () => {
+      vi.spyOn(
+        mockCoinServiceDataSource,
+        "estimateTransactionFee",
+      ).mockResolvedValue(Left(new Error("CoinService error")));
 
       const mockEstimateGas = 50000;
       const mockBaseFeePerGas = 30000000000;
@@ -153,12 +159,14 @@ describe("DefaultGasFeeEstimationService", () => {
       const result =
         await gasFeeEstimationService.getFeesForTransaction(mockTx);
 
-      expect(mockAlpacaDataSource.estimateTransactionFee).toHaveBeenCalled();
+      expect(
+        mockCoinServiceDataSource.estimateTransactionFee,
+      ).toHaveBeenCalled();
       expect(gasFeeEstimationService.estimateGas).toHaveBeenCalledWith(mockTx);
       expect(result.gasLimit).toMatch(/^0x[0-9a-f]+$/i);
     });
 
-    it("should use RPC method when network is not supported by Alpaca", async () => {
+    it("should use RPC method when network is not supported by CoinService", async () => {
       const unsupportedTx: TransactionInfo = {
         ...mockTx,
         chainId: "999999", // Unsupported network
@@ -181,17 +189,20 @@ describe("DefaultGasFeeEstimationService", () => {
 
       await gasFeeEstimationService.getFeesForTransaction(unsupportedTx);
 
-      expect(mockAlpacaDataSource.estimateTransactionFee).not.toHaveBeenCalled();
+      expect(
+        mockCoinServiceDataSource.estimateTransactionFee,
+      ).not.toHaveBeenCalled();
       expect(gasFeeEstimationService.estimateGas).toHaveBeenCalledWith(
         unsupportedTx,
       );
     });
 
     it("should calculate maxFeePerGas correctly (baseFee * 2 + maxPriorityFee) when using RPC fallback", async () => {
-      // Assert RPC fallback by forcing Alpaca to fail
-      vi.spyOn(mockAlpacaDataSource, "estimateTransactionFee").mockResolvedValue(
-        Left(new Error("Alpaca error")),
-      );
+      // Assert RPC fallback by forcing CoinService to fail
+      vi.spyOn(
+        mockCoinServiceDataSource,
+        "estimateTransactionFee",
+      ).mockResolvedValue(Left(new Error("CoinService error")));
 
       const mockEstimateGas = 50000;
       const mockBaseFeePerGas = 30000000000; // 30 gwei
