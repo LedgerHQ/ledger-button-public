@@ -10,10 +10,27 @@ import type {
 } from "../model/transactionHistoryTypes.js";
 import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource.js";
 
+function createMockLogger() {
+  return {
+    log: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    info: vi.fn(),
+    fatal: vi.fn(),
+    subscribers: [],
+  };
+}
+
+function createMockLoggerFactory() {
+  return vi.fn().mockReturnValue(createMockLogger());
+}
+
 describe("DefaultTransactionHistoryDataSource", () => {
   let dataSource: DefaultTransactionHistoryDataSource;
   let mockNetworkService: NetworkService<unknown>;
   let mockConfig: Config;
+  let mockLoggerFactory: ReturnType<typeof createMockLoggerFactory>;
 
   const mockAlpacaUrl = "https://alpaca.api.ledger.com";
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
@@ -57,9 +74,12 @@ describe("DefaultTransactionHistoryDataSource", () => {
       getAlpacaUrl: vi.fn().mockReturnValue(mockAlpacaUrl),
     } as unknown as Config;
 
+    mockLoggerFactory = createMockLoggerFactory();
+
     dataSource = new DefaultTransactionHistoryDataSource(
       mockNetworkService,
       mockConfig,
+      mockLoggerFactory,
     );
   });
 
@@ -192,6 +212,62 @@ describe("DefaultTransactionHistoryDataSource", () => {
       expect(result.isRight()).toBe(true);
       const response = result.extract() as AlpacaOperationsResponse;
       expect(response.items).toHaveLength(0);
+    });
+
+    it("should drop operations whose tx.hash is missing or empty", async () => {
+      const validOp: AlpacaOperation = {
+        ...sampleOperation,
+        id: "with-hash",
+        tx: { ...sampleOperation.tx, hash: "0xvalid" },
+      };
+      const emptyHashOp: AlpacaOperation = {
+        ...sampleOperation,
+        id: "empty-hash",
+        tx: { ...sampleOperation.tx, hash: "" },
+      };
+      const missingHashOp = {
+        ...sampleOperation,
+        id: "missing-hash",
+        tx: { ...sampleOperation.tx, hash: undefined },
+      } as unknown as AlpacaOperation;
+
+      const noisyResponse: AlpacaOperationsResponse = {
+        items: [validOp, emptyHashOp, missingHashOp],
+        next: "page-2",
+      };
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Right(noisyResponse));
+
+      const result = await dataSource.getTransactions(
+        testNetwork,
+        testAddress,
+      );
+
+      expect(result.isRight()).toBe(true);
+      const response = result.extract() as AlpacaOperationsResponse;
+      expect(response.items).toHaveLength(1);
+      expect(response.items[0]?.id).toBe("with-hash");
+      expect(response.next).toBe("page-2");
+
+      const logger = mockLoggerFactory.mock.results[0]?.value as ReturnType<
+        typeof createMockLogger
+      >;
+      expect(logger.warn).toHaveBeenCalledWith(
+        "Dropped Alpaca operations without a tx hash",
+        { received: 3, kept: 1 },
+      );
+    });
+
+    it("should not log when every operation has a hash", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right(mockAlpacaResponse),
+      );
+
+      await dataSource.getTransactions(testNetwork, testAddress);
+
+      const logger = mockLoggerFactory.mock.results[0]?.value as ReturnType<
+        typeof createMockLogger
+      >;
+      expect(logger.warn).not.toHaveBeenCalled();
     });
 
     it("should pass through nested tx, asset and details fields untouched", async () => {

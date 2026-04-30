@@ -20,6 +20,12 @@ export type AlpacaBlockInfo = {
   parent?: AlpacaBlockInfo;
 };
 
+/**
+ * Note on `hash`: the Alpaca API occasionally returns operations with a
+ * missing/empty `tx.hash`. `TransactionHistoryDataSource` filters those out
+ * at the boundary, so consumers of the data source can rely on `hash` being
+ * a non-empty string.
+ */
 export type AlpacaOperationTransaction = {
   hash: string;
   fees: string;

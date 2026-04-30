@@ -203,7 +203,7 @@ export class FetchTransactionHistoryUseCase {
     );
 
     return {
-      hash: op.tx?.hash ?? "",
+      hash: op.tx.hash,
       type: this.toLegacyType(direction),
       direction,
       kind,
