@@ -8,6 +8,7 @@ import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js"
 import { formatBalance } from "../../currency/formatCurrency.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
 import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
@@ -82,12 +83,16 @@ export class FetchTransactionHistoryUseCase {
             decimals: info.decimals,
           }),
         });
+        const transactionExplorerUrlTemplate = currencyInfoResult
+          .toMaybe()
+          .extract()?.transactionExplorerUrlTemplate;
 
         const transformedResult = await this.transformResponse(
           explorerResponse,
           address.toLowerCase(),
           currencyId,
           nativeAssetInfo,
+          transactionExplorerUrlTemplate,
         );
 
         this.logger.debug("Transaction history fetched successfully", {
@@ -105,6 +110,7 @@ export class FetchTransactionHistoryUseCase {
     normalizedAddress: string,
     currencyId: string,
     nativeAssetInfo: AssetInfo,
+    transactionExplorerUrlTemplate: string | undefined,
   ): Promise<TransactionHistoryResult> {
     const transactions = await Promise.all(
       response.data.map((tx) =>
@@ -113,6 +119,7 @@ export class FetchTransactionHistoryUseCase {
           normalizedAddress,
           currencyId,
           nativeAssetInfo,
+          transactionExplorerUrlTemplate,
         ),
       ),
     );
@@ -128,6 +135,7 @@ export class FetchTransactionHistoryUseCase {
     normalizedAddress: string,
     currencyId: string,
     nativeAssetInfo: AssetInfo,
+    transactionExplorerUrlTemplate: string | undefined,
   ): Promise<TransactionHistoryItem> {
     const type = this.determineTransactionType(tx, normalizedAddress);
     const tokenTransfer = this.getRelevantTokenTransfer(
@@ -166,6 +174,9 @@ export class FetchTransactionHistoryUseCase {
       ticker: assetInfo.ticker,
       timestamp,
       ledgerId: assetInfo.ledgerId,
+      explorerUrl:
+        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, tx.hash) ??
+        undefined,
     };
   }
 

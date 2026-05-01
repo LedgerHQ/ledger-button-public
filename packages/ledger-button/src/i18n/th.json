@@ -184,7 +184,8 @@
   },
   "transactionList": {
     "noTransactions": "ไม่พบธุรกรรม",
-    "pendingTransactions": "ธุรกรรมที่ค้างอยู่"
+    "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
+    "viewOnExplorer": "View on explorer"
   },
   "mobileOnboarding": {
     "title": "ดำเนินการต่อในแอป Ledger Wallet",

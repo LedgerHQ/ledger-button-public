@@ -21,6 +21,7 @@ export type TransactionListItem = {
   title: string;
   fiatAmount: string;
   fiatCurrency: string;
+  explorerUrl?: string;
 };
 
 type GroupedTransactions = {
@@ -77,6 +78,10 @@ export class TransactionListScreen extends LitElement {
   }
 
   private renderTransactionItem = (transaction: TransactionListItem) => {
+    const viewOnExplorerLabel =
+      this.languages?.currentTranslation?.transactionList?.viewOnExplorer ??
+      "View on explorer";
+
     return html`
       <ledger-transaction-item
         .type=${transaction.type}
@@ -86,6 +91,8 @@ export class TransactionListScreen extends LitElement {
         .ticker=${transaction.ticker}
         .fiatAmount=${transaction.fiatAmount}
         .fiatCurrency=${transaction.fiatCurrency}
+        .explorerUrl=${transaction.explorerUrl}
+        .viewOnExplorerLabel=${viewOnExplorerLabel}
       ></ledger-transaction-item>
     `;
   };

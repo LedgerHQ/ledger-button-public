@@ -184,7 +184,8 @@
   },
   "transactionList": {
     "noTransactions": "トランザクションが見つかりません",
-    "pendingTransactions": "保留中のトランザクション"
+    "pendingTransactions": "保留中のトランザクション",
+    "viewOnExplorer": "View on explorer"
   },
   "mobileOnboarding": {
     "title": "Ledger Walletで続行",
