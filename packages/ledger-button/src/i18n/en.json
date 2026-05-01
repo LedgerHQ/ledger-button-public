@@ -184,7 +184,8 @@
   },
   "transactionList": {
     "noTransactions": "No transactions found",
-    "pendingTransactions": "Pending transactions"
+    "pendingTransactions": "Pending transactions",
+    "viewOnExplorer": "View on explorer"
   },
   "mobileOnboarding": {
     "title": "Continue in Ledger Wallet",

@@ -11,4 +11,5 @@ export type PendingTransaction = {
   ledgerId: string;
   fiatValue?: string;
   fiatCurrency?: string;
+  explorerUrl?: string;
 };

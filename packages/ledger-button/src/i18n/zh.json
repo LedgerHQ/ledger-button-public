@@ -184,7 +184,8 @@
   },
   "transactionList": {
     "noTransactions": "未找到交易",
-    "pendingTransactions": "待处理交易"
+    "pendingTransactions": "待处理交易",
+    "viewOnExplorer": "View on explorer"
   },
   "mobileOnboarding": {
     "title": "在 Ledger 钱包中继续",

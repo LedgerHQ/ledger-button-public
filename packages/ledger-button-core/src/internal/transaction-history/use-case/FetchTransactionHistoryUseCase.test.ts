@@ -53,6 +53,7 @@ function createMockCalDataSource(): {
         name: "Ethereum",
         ticker: "ETH",
         decimals: 18,
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
       }),
     ),
   };
@@ -515,6 +516,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         ticker: "ETH",
         timestamp: "2024-01-15T10:00:00Z",
         ledgerId: "ethereum",
+        explorerUrl: "https://etherscan.io/tx/0xsent123",
       });
       expect(transactions[1]).toEqual({
         hash: "0xreceived456",
@@ -525,6 +527,7 @@ describe("FetchTransactionHistoryUseCase", () => {
         ticker: "ETH",
         timestamp: "2024-01-15T11:00:00Z",
         ledgerId: "ethereum",
+        explorerUrl: "https://etherscan.io/tx/0xreceived456",
       });
     });
   });

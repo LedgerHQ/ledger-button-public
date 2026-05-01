@@ -1,9 +1,8 @@
 import "../../atom/icon/ledger-icon";
 
-import { cva } from "class-variance-authority";
+import { cva, cx } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatFiatValue } from "../../../utils/format-fiat.js";
@@ -12,6 +11,8 @@ const transactionItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
   "bg-base-transparent transition duration-150 ease-in-out",
 ]);
+
+const ALLOWED_EXPLORER_PROTOCOLS = new Set(["http:", "https:"]);
 
 export type TransactionType = "sent" | "received";
 
@@ -23,6 +24,8 @@ export interface LedgerTransactionItemAttributes {
   ticker: string;
   fiatAmount: string;
   fiatCurrency: string;
+  explorerUrl?: string;
+  viewOnExplorerLabel?: string;
 }
 
 @customElement("ledger-transaction-item")
@@ -49,10 +52,25 @@ export class LedgerTransactionItem extends LitElement {
   @property({ type: String, attribute: "fiat-currency" })
   fiatCurrency = "$";
 
-  private get containerClasses() {
-    return {
-      [transactionItemVariants()]: true,
-    };
+  @property({ type: String, attribute: "explorer-url" })
+  explorerUrl?: string;
+
+  @property({ type: String, attribute: "view-on-explorer-label" })
+  viewOnExplorerLabel = "View on explorer";
+
+  private get safeExplorerUrl(): string | undefined {
+    if (!this.explorerUrl) {
+      return undefined;
+    }
+    try {
+      const parsed = new URL(this.explorerUrl);
+      if (ALLOWED_EXPLORER_PROTOCOLS.has(parsed.protocol)) {
+        return this.explorerUrl;
+      }
+    } catch {
+      // Invalid URL
+    }
+    return undefined;
   }
 
   private get displayType(): string {
@@ -103,10 +121,13 @@ export class LedgerTransactionItem extends LitElement {
     `;
   }
 
-  private renderRightSection() {
-    return html`
+  private renderRightSection(interactive: boolean) {
+    const amounts = html`
       <div
-        class="flex flex-col items-end justify-end gap-4 text-right"
+        class=${cx(
+          "flex flex-col items-end justify-end gap-4 text-right",
+          interactive && "group-hover:hidden group-focus-visible:hidden",
+        )}
       >
         <span class="text-base body-2-semi-bold"
           >${this.displayFiatAmount}</span
@@ -114,16 +135,57 @@ export class LedgerTransactionItem extends LitElement {
         <span class="text-muted body-3">${this.displayCryptoAmount}</span>
       </div>
     `;
+
+    if (!interactive) {
+      return amounts;
+    }
+
+    return html`
+      ${amounts}
+      <div
+        class="hidden items-center gap-4 text-interactive body-3-semi-bold group-hover:flex group-focus-visible:flex"
+      >
+        <span>${this.viewOnExplorerLabel}</span>
+        <ledger-icon
+          type="externalLink"
+          size="small"
+          fillColor="currentColor"
+        ></ledger-icon>
+      </div>
+    `;
   }
 
   override render() {
+    const safeUrl = this.safeExplorerUrl;
+    const interactive = !!safeUrl;
+    const innerClasses = cx(
+      transactionItemVariants(),
+      interactive &&
+        "group-hover:bg-muted-transparent group-focus-visible:bg-muted-transparent",
+    );
+
+    const inner = html`
+      <div class=${innerClasses}>
+        ${this.renderLeftSection()} ${this.renderRightSection(interactive)}
+      </div>
+    `;
+
+    if (safeUrl) {
+      return html`
+        <a
+          href=${safeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group flex min-w-full cursor-pointer flex-col overflow-hidden rounded-md text-inherit no-underline focus-visible:outline-none"
+        >
+          ${inner}
+        </a>
+      `;
+    }
+
     return html`
-      <div
-        class="flex min-w-full flex-col overflow-hidden rounded-md"
-      >
-        <div class=${classMap(this.containerClasses)}>
-          ${this.renderLeftSection()} ${this.renderRightSection()}
-        </div>
+      <div class="flex min-w-full flex-col overflow-hidden rounded-md">
+        ${inner}
       </div>
     `;
   }

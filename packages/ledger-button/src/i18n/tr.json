@@ -184,7 +184,8 @@
   },
   "transactionList": {
     "noTransactions": "İşlem bulunamadı",
-    "pendingTransactions": "Bekleyen İşlemler"
+    "pendingTransactions": "Bekleyen İşlemler",
+    "viewOnExplorer": "View on explorer"
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet'ta devam edin",
