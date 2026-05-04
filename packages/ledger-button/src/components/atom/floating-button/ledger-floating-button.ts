@@ -142,7 +142,7 @@ export class LedgerFloatingButton extends LitElement {
   private badgeAnimCtrl!: BadgeAnimationController;
 
   @query("ledger-floating-button-badge")
-  private badgeEl!: HTMLElement | null;
+  private readonly badgeEl!: HTMLElement | null;
 
   private get floatingButtonClasses(): Record<string, boolean> {
     return cvaResultToClassMap(
@@ -203,7 +203,7 @@ export class LedgerFloatingButton extends LitElement {
     this.wasShowing = isShowing;
   }
 
-  private handleLogoFadeInEnd = (): void => {
+  private readonly handleLogoFadeInEnd = (): void => {
     this.playLogoFadeIn = false;
   };
 
@@ -216,7 +216,7 @@ export class LedgerFloatingButton extends LitElement {
     );
   };
 
-  private handleControlledTooltipAutoHide = (): void => {
+  private readonly handleControlledTooltipAutoHide = (): void => {
     const text =
       this.languages?.currentTranslation?.common?.floatingButton
         ?.newTransactionPending ?? "New transaction pending";

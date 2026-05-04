@@ -129,10 +129,10 @@ export class LedgerTooltip extends LitElement {
   private _closing = false;
 
   @query(".tooltip-trigger")
-  private triggerEl!: HTMLElement;
+  private readonly triggerEl!: HTMLElement;
 
   @query(".tooltip-popup")
-  private popupEl!: HTMLElement;
+  private readonly popupEl!: HTMLElement;
 
   @query(".tooltip-arrow")
   private arrowEl!: HTMLElement;
@@ -181,7 +181,7 @@ export class LedgerTooltip extends LitElement {
     this.clearAutoHideTimer();
   }
 
-  private handleAnimationEnd = (): void => {
+  private readonly handleAnimationEnd = (): void => {
     if (this._closing) {
       this._visible = false;
       this._closing = false;
