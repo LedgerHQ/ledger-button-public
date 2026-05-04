@@ -16,12 +16,12 @@ git log --oneline develop..HEAD
 
 Use the output to determine which phases to execute:
 
-| Current branch | Uncommitted changes? | Commits ahead of develop? | Phases to run |
-|---|---|---|---|
-| `develop` | yes | — | 1 → 2 → 2.5 → 3 → 4 |
-| feature branch | yes | — | 2 → 2.5 → 3 → 4 |
-| feature branch | no | yes | 2.5 → 3 → 4 |
-| feature branch | no | no | Nothing to do — inform the user |
+| Current branch | Uncommitted changes? | Commits ahead of develop? | Phases to run                   |
+| -------------- | -------------------- | ------------------------- | ------------------------------- |
+| `develop`      | yes                  | —                         | 1 → 2 → 2.5 → 3 → 4             |
+| feature branch | yes                  | —                         | 2 → 2.5 → 3 → 4                 |
+| feature branch | no                   | yes                       | 2.5 → 3 → 4                     |
+| feature branch | no                   | no                        | Nothing to do — inform the user |
 
 ## Step 1. Gather Shared Information
 
@@ -34,22 +34,22 @@ Before executing any phase, collect the information needed across branch name, c
 
 **Type mapping (branch prefix + gitmoji):**
 
-| Type | Branch prefix | Emoji |
-|------|--------------|-------|
-| Feature | `feat/` | ✨ |
-| Bug fix | `bugfix/` | 🐛 |
-| Refactor | `refacto/` | ♻️ |
-| Documentation | `doc/` | 📝 |
-| Tests | `support/` | ✅ |
-| Performance | `support/` | ⚡ |
-| Chore/config | `chore/` | 🔧 |
-| Dependencies | `chore/` | ⬆️ |
-| Style/format | `support/` | 🎨 |
-| Types | `support/` | 🏷️ |
-| CI | `chore/` | 👷 |
-| Breaking change | `feat/` | 💥 |
-| Remove code | `refacto/` | 🔥 |
-| Lint fixes | `support/` | 🚨 |
+| Type            | Branch prefix | Emoji |
+| --------------- | ------------- | ----- |
+| Feature         | `feat/`       | ✨    |
+| Bug fix         | `bugfix/`     | 🐛    |
+| Refactor        | `refacto/`    | ♻️    |
+| Documentation   | `doc/`        | 📝    |
+| Tests           | `support/`    | ✅    |
+| Performance     | `support/`    | ⚡    |
+| Chore/config    | `chore/`      | 🔧    |
+| Dependencies    | `chore/`      | ⬆️    |
+| Style/format    | `support/`    | 🎨    |
+| Types           | `support/`    | 🏷️    |
+| CI              | `chore/`      | 👷    |
+| Breaking change | `feat/`       | 💥    |
+| Remove code     | `refacto/`    | 🔥    |
+| Lint fixes      | `support/`    | 🚨    |
 
 ### User input shortcut
 
@@ -66,9 +66,11 @@ Only ask for information that cannot be inferred.
 Skip this phase if already on a feature branch.
 
 1. Construct the branch name:
+
    ```
    <branch-prefix>/<ticket-lowercase>-<description-kebab-case>
    ```
+
    Examples: `feature/lbd-123-add-sparkles`, `refacto/no-issue-remove-sparkles`
 
 2. Create the branch from up-to-date `develop`:
@@ -84,11 +86,13 @@ Skip this phase if the working tree is clean and staging area is empty.
 1. Review changes with `git status` and `git diff` (already done in Step 0).
 
 2. Stage all relevant files:
+
    ```bash
    git add <files>
    ```
 
 3. Commit using the shared information:
+
    ```bash
    git commit -m "<emoji> (<scope>): <Description>"
    ```
@@ -104,22 +108,23 @@ Also skip if **all** changed files in those packages match the ignore patterns (
 Otherwise, a version plan **must** be created — CI will reject the PR without one.
 
 1. Determine which releasable packages are affected by inspecting changed files:
+
    ```bash
    git diff --name-only develop..HEAD
    ```
 
 2. Create a version plan file in `.nx/version-plans/` with the affected packages and the appropriate semver bump. Use the type of change from Step 1 to determine the bump:
 
-   | Type | Bump |
-   |------|------|
-   | Breaking change | `major` |
-   | Feature | `minor` |
-   | Bug fix, Performance, Dependencies, Types | `patch` |
-   | Refactor, Chore/config, Remove code, Style/format, Documentation, CI, Lint fixes | `none` |
+   | Type                                                                                                           | Bump    |
+   | -------------------------------------------------------------------------------------------------------------- | ------- |
+   | Breaking change, Remove code from public API                                                                   | `major` |
+   | Feature                                                                                                        | `minor` |
+   | Bug fix, Performance, Dependencies, Types, Refactor, Chore/config, Style/format, Documentation, CI, Lint fixes | `patch` |
 
-   The `none` bump acknowledges the change for changelog purposes without incrementing the version.
+   > Nx version plans only accept semver bump types (`major`, `minor`, `patch`, `premajor`, `preminor`, `prepatch`, `prerelease`). There is **no** `none` — if a change should not trigger a release, do not create a plan and instead extend `release.versionPlans.ignorePatternsForPlanCheck` in `nx.json` to cover the touched files.
 
    Write the file directly (filename: `version-plan-<timestamp>.md`):
+
    ```markdown
    ---
    "@ledgerhq/ledger-wallet-provider-core": minor
@@ -168,7 +173,7 @@ Examples:
 
 Generate a description by analyzing all commits with `git log --oneline develop..HEAD`:
 
-````markdown
+```markdown
 ## Summary
 
 - <bullet point summarizing main change>
@@ -182,7 +187,7 @@ Generate a description by analyzing all commits with `git log --oneline develop.
 ## Screenshots/Videos
 
 <!-- Add if relevant, remove section if not applicable -->
-````
+```
 
 ### Push and create
 
