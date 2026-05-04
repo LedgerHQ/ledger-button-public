@@ -134,7 +134,7 @@ const demoStyles = css`
 @tailwindElement(demoStyles)
 class LedgerFloatingButtonBadgeAnimationDemo extends LitElement {
 
-  private badgeAnimation = new FloatingButtonBadgeAnimation();
+  private readonly badgeAnimation = new FloatingButtonBadgeAnimation();
 
   @state()
   private currentVariant: FloatingButtonBadgeVariant = "pending";
@@ -146,7 +146,7 @@ class LedgerFloatingButtonBadgeAnimationDemo extends LitElement {
   private showBadge = true;
 
   @query("ledger-floating-button-badge")
-  private badgeEl!: LedgerFloatingButtonBadge;
+  private readonly badgeEl!: LedgerFloatingButtonBadge;
 
   private async runTransition(
     targetVariant: FloatingButtonBadgeVariant,
