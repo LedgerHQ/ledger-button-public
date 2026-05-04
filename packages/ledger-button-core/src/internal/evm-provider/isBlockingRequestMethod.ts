@@ -6,7 +6,7 @@
  * (that lives in {@link ./supportedRpcMethods.js} for the `local` /
  * `broadcasted` routing decision).
  */
-const BLOCKING_REQUEST_METHODS: ReadonlyArray<string> = [
+const BLOCKING_REQUEST_METHODS: ReadonlySet<string> = new Set([
   "eth_requestAccounts",
   "eth_accounts",
   "eth_signTypedData_v4",
@@ -16,8 +16,8 @@ const BLOCKING_REQUEST_METHODS: ReadonlyArray<string> = [
   "eth_signRawTransaction",
   "eth_sendTransaction",
   "eth_sendRawTransaction",
-];
+]);
 
 export function isBlockingRequestMethod(method: string): boolean {
-  return BLOCKING_REQUEST_METHODS.includes(method);
+  return BLOCKING_REQUEST_METHODS.has(method);
 }
