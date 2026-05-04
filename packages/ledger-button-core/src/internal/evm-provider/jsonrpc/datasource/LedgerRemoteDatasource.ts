@@ -4,14 +4,14 @@ import { Either, Left, Right } from "purify-ts";
 import {
   JSONRPCRequest,
   JsonRpcResponse,
-} from "../../../api/model/eip/EIPTypes.js";
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
-import { type BackendService } from "../../backend/BackendService.js";
-import { isJsonRpcResponse } from "../../backend/types.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "../../../../api/model/eip/EIPTypes.js";
+import { backendModuleTypes } from "../../../backend/backendModuleTypes.js";
+import { type BackendService } from "../../../backend/BackendService.js";
+import { isJsonRpcResponse } from "../../../backend/types.js";
+import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
+import { type ContextService } from "../../../context/ContextService.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 
 @injectable()
 export class LedgerRemoteDatasource {

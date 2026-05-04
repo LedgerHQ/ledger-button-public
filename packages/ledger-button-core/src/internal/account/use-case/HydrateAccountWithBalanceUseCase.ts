@@ -8,8 +8,8 @@ import {
   type TokenBalance,
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
-import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
 import { formatBalance } from "../../currency/formatCurrency.js";
+import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { Account, Token } from "../service/AccountService.js";

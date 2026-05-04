@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
 import type { Account } from "../account/service/AccountService.js";
-import * as chainUtils from "../blockchain/evm/chainUtils.js";
 import type { Device } from "../device/model/Device.js";
+import * as chainUtils from "../evm-provider/utils/chainUtils.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { DefaultContextService } from "./DefaultContextService.js";
 

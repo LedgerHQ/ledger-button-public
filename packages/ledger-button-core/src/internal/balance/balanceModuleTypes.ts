@@ -3,5 +3,4 @@ export const balanceModuleTypes = {
   AlpacaDataSource: Symbol.for("AlpacaDataSource"),
   CalDataSource: Symbol.for("CalDataSource"),
   CounterValueDataSource: Symbol.for("CounterValueDataSource"),
-  GasFeeEstimationService: Symbol.for("GasFeeEstimationService"),
 } as const;

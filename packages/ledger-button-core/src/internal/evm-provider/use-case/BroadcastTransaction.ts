@@ -6,7 +6,6 @@ import {
   SignedResults,
   SignedTransactionResult,
 } from "../../../api/model/signing/SignedTransaction.js";
-import { createSignedTransaction } from "../../../internal/transaction/utils/TransactionHelper.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import {
@@ -15,11 +14,12 @@ import {
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
 } from "../../backend/types.js";
-import { getCurrencyIdFromChainId } from "../../blockchain/evm/chainUtils.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { createSignedTransaction } from "../transaction/TransactionHelper.js";
+import { getCurrencyIdFromChainId } from "../utils/chainUtils.js";
 
 export type BroadcastTransactionParams = {
   signature: Signature;
