@@ -82,6 +82,28 @@ export class LedgerToolbar extends LitElement {
     );
   };
 
+  private renderLeftIcon() {
+    if (this.canGoBack) {
+      return html`
+        <ledger-button
+          data-testid="close-button"
+          .icon=${true}
+          variant="noBackground"
+          iconType="back"
+          size="xs"
+          @click=${this.handleGoBackClick}
+        >
+        </ledger-button>
+      `;
+    }
+
+    if (this.showLogo) {
+      return html` <ledger-icon type="ledger" size="medium"></ledger-icon> `;
+    }
+
+    return nothing;
+  }
+
   override render() {
     return html`
       <div
@@ -89,23 +111,7 @@ export class LedgerToolbar extends LitElement {
       >
         <div class="flex w-72 items-center justify-start">
           <div class="flex h-32 w-32 items-center justify-center">
-            <slot name="left-icon">
-              ${this.canGoBack
-                ? html`
-                    <ledger-button
-                      data-testid="close-button"
-                      .icon=${true}
-                      variant="noBackground"
-                      iconType="back"
-                      size="xs"
-                      @click=${this.handleGoBackClick}
-                    >
-                    </ledger-button>
-                  `
-                : this.showLogo
-                  ? html` <ledger-icon type="ledger" size="medium"></ledger-icon> `
-                  : nothing}
-            </slot>
+            <slot name="left-icon">${this.renderLeftIcon()}</slot>
           </div>
         </div>
         <div
