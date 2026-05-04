@@ -93,6 +93,21 @@ const TOTAL_DURATION = PHASE3_START + MOVE_DURATION;
  */
 type TransformState = { tx: number; ty: number; sx: number; sy: number };
 
+type ScaleSchedule = {
+  intermediate: { x: number; y: number };
+  final: { x: number; y: number };
+  startAt: number;
+  totalDuration: number;
+  midTimeFraction: number;
+};
+
+type Phase3Schedule = {
+  controlPoints: MorphControlPoints;
+  finalRadiusPx: { x: number; y: number };
+  startAt: number;
+  onLanded?: () => void;
+};
+
 export class MorphAnimation {
   private animations: AnimationInstance[] = [];
   private timeouts: ReturnType<typeof setTimeout>[] = [];
@@ -151,24 +166,19 @@ export class MorphAnimation {
     const scaleMidFraction = SCALE_DOWN_DURATION / scaleTotalDuration;
 
     this.startPhase1(container);
-    this.scheduleScale(
-      container,
-      intermediateScaleX,
-      intermediateScaleY,
-      finalScaleX,
-      finalScaleY,
-      PHASE2_START,
-      scaleTotalDuration,
-      scaleMidFraction,
-    );
-    this.schedulePhase3(
-      container,
+    this.scheduleScale(container, {
+      intermediate: { x: intermediateScaleX, y: intermediateScaleY },
+      final: { x: finalScaleX, y: finalScaleY },
+      startAt: PHASE2_START,
+      totalDuration: scaleTotalDuration,
+      midTimeFraction: scaleMidFraction,
+    });
+    this.schedulePhase3(container, {
       controlPoints,
-      finalRadiusXPx,
-      finalRadiusYPx,
-      PHASE3_START,
+      finalRadiusPx: { x: finalRadiusXPx, y: finalRadiusYPx },
+      startAt: PHASE3_START,
       onLanded,
-    );
+    });
 
     await this.delay(TOTAL_DURATION);
     if (this.cancelled) {
@@ -218,20 +228,16 @@ export class MorphAnimation {
 
   private scheduleScale(
     container: HTMLElement,
-    intermediateScaleX: number,
-    intermediateScaleY: number,
-    finalScaleX: number,
-    finalScaleY: number,
-    startAt: number,
-    totalDuration: number,
-    midTimeFraction: number,
+    schedule: ScaleSchedule,
   ): void {
+    const { intermediate, final, startAt, totalDuration, midTimeFraction } =
+      schedule;
     this.scheduleAt(startAt, () => {
       const anim = animate(
         this.transformState,
         {
-          sx: [1, intermediateScaleX, finalScaleX],
-          sy: [1, intermediateScaleY, finalScaleY],
+          sx: [1, intermediate.x, final.x],
+          sy: [1, intermediate.y, final.y],
         },
         {
           duration: totalDuration,
@@ -246,12 +252,9 @@ export class MorphAnimation {
 
   private schedulePhase3(
     container: HTMLElement,
-    controlPoints: MorphControlPoints,
-    finalRadiusXPx: number,
-    finalRadiusYPx: number,
-    startAt: number,
-    onLanded?: () => void,
+    schedule: Phase3Schedule,
   ): void {
+    const { controlPoints, finalRadiusPx, startAt, onLanded } = schedule;
     this.scheduleAt(startAt, () => {
       const startBorderRadiusPx = readCurrentBorderRadiusPx(container);
       const progress = { t: 0 };
@@ -263,7 +266,7 @@ export class MorphAnimation {
 
       const radiusAnim = animate(
         radiusState,
-        { rx: finalRadiusXPx, ry: finalRadiusYPx },
+        { rx: finalRadiusPx.x, ry: finalRadiusPx.y },
         {
           duration: shapeDuration,
           ease: "easeOut",
@@ -346,6 +349,6 @@ export class MorphAnimation {
 
 function readCurrentBorderRadiusPx(element: HTMLElement): number {
   const value = getComputedStyle(element).borderTopLeftRadius;
-  const parsed = parseFloat(value);
+  const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
