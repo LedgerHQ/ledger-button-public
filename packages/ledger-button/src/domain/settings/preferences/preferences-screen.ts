@@ -1,7 +1,7 @@
 import "../../../components/index.js";
 
 import { consume } from "@lit/context";
-import { html, LitElement } from "lit";
+import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
@@ -13,6 +13,7 @@ import { getLanguageDisplayName } from "../../../context/utils/language-utils.js
 import { Navigation } from "../../../shared/navigation.js";
 import { Destinations } from "../../../shared/routes.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import { PreferencesController } from "./preferences-controller.js";
 
 @customElement("preferences-screen")
 @tailwindElement()
@@ -23,13 +24,21 @@ export class PreferencesScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
-  @consume({ context: coreContext })
+  @consume({ context: coreContext, subscribe: true })
   @property({ attribute: false })
-  public coreContext!: CoreContext;
+  public core!: CoreContext;
 
   @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
+
+  private preferencesController!: PreferencesController;
+
+  override willUpdate(changedProps: PropertyValues) {
+    if (changedProps.has("core") && this.core && !this.preferencesController) {
+      this.preferencesController = new PreferencesController(this, this.core);
+    }
+  }
 
   private handleLanguageClick() {
     this.navigation.navigateTo(this.destinations.preferenceLanguage);
