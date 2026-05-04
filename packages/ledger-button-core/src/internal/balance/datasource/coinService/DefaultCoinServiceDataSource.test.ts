@@ -3,26 +3,30 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "../../../config/model/config.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import type { AlpacaBalanceDto, AlpacaFeeEstimationResponse, AlpacaTransactionIntent } from "./alpacaTypes.js";
-import { DefaultAlpacaDataSource } from "./DefaultAlpacaDataSource.js";
+import type {
+  CoinServiceBalanceDto,
+  CoinServiceFeeEstimationResponse,
+  CoinServiceTransactionIntent,
+} from "./coinServiceTypes.js";
+import { DefaultCoinServiceDataSource } from "./DefaultCoinServiceDataSource.js";
 
-describe("DefaultAlpacaDataSource", () => {
-  let dataSource: DefaultAlpacaDataSource;
+describe("DefaultCoinServiceDataSource", () => {
+  let dataSource: DefaultCoinServiceDataSource;
   let mockNetworkService: NetworkService<unknown>;
   let mockConfig: Config;
 
-  const mockAlpacaUrl = "https://api.alpaca.test";
+  const mockCoinServiceUrl = "https://api.coinService.test";
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
   const testCurrencyId = "ethereum";
 
-  const mockNativeBalanceDto: AlpacaBalanceDto = {
+  const mockNativeBalanceDto: CoinServiceBalanceDto = {
     value: "1000000000000000000",
     asset: {
       type: "native",
     },
   };
 
-  const mockErc20BalanceDto: AlpacaBalanceDto = {
+  const mockErc20BalanceDto: CoinServiceBalanceDto = {
     value: "5000000000000000000",
     asset: {
       type: "erc20",
@@ -37,14 +41,17 @@ describe("DefaultAlpacaDataSource", () => {
     } as unknown as NetworkService<unknown>;
 
     mockConfig = {
-      getAlpacaUrl: vi.fn().mockReturnValue(mockAlpacaUrl),
+      getCoinServiceUrl: vi.fn().mockReturnValue(mockCoinServiceUrl),
     } as unknown as Config;
 
-    dataSource = new DefaultAlpacaDataSource(mockNetworkService, mockConfig);
+    dataSource = new DefaultCoinServiceDataSource(
+      mockNetworkService,
+      mockConfig,
+    );
   });
 
   describe("getBalanceForAddressAndCurrencyId", () => {
-    it("should successfully call the Alpaca API and transform balance data", async () => {
+    it("should successfully call the CoinService API and transform balance data", async () => {
       vi.mocked(mockNetworkService.get).mockResolvedValue(
         Right([mockNativeBalanceDto, mockErc20BalanceDto]),
       );
@@ -55,7 +62,7 @@ describe("DefaultAlpacaDataSource", () => {
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockAlpacaUrl}/v1/${testCurrencyId}/account/${testAddress}/balance`,
+        `${mockCoinServiceUrl}/v1/${testCurrencyId}/account/${testAddress}/balance`,
       );
 
       expect(result.isRight()).toBe(true);
@@ -100,14 +107,14 @@ describe("DefaultAlpacaDataSource", () => {
       expect(result.isLeft()).toBe(true);
       expect(result.extract() as Error).toBeInstanceOf(Error);
       expect((result.extract() as Error).message).toBe(
-        "Failed to fetch balance from Alpaca",
+        "Failed to fetch balance from CoinService",
       );
     });
 
     it("should return Left with error when response is not an array", async () => {
       const invalidResponse = { invalid: "data" };
       vi.mocked(mockNetworkService.get).mockResolvedValue(
-        Right(invalidResponse as unknown as AlpacaBalanceDto[]),
+        Right(invalidResponse as unknown as CoinServiceBalanceDto[]),
       );
 
       const result = await dataSource.getBalanceForAddressAndCurrencyId(
@@ -117,14 +124,14 @@ describe("DefaultAlpacaDataSource", () => {
 
       expect(result.isLeft()).toBe(true);
       expect((result.extract() as Error).message).toBe(
-        "Failed to fetch balance from Alpaca",
+        "Failed to fetch balance from CoinService",
       );
     });
   });
 
   describe("estimateTransactionFee", () => {
     const mockNetwork = "ethereum";
-    const mockIntent: AlpacaTransactionIntent = {
+    const mockIntent: CoinServiceTransactionIntent = {
       type: "send",
       sender: "0x1234567890abcdef1234567890abcdef12345678",
       recipient: "0xabcdef1234567890abcdef1234567890abcdef12",
@@ -136,7 +143,7 @@ describe("DefaultAlpacaDataSource", () => {
       data: "0x",
     };
 
-    const mockFeeResponse: AlpacaFeeEstimationResponse = {
+    const mockFeeResponse: CoinServiceFeeEstimationResponse = {
       value: "50000",
       parameters: {
         gasLimit: "0xc350",
@@ -148,12 +155,17 @@ describe("DefaultAlpacaDataSource", () => {
     };
 
     it("should successfully estimate transaction fee", async () => {
-      vi.mocked(mockNetworkService.post).mockResolvedValue(Right(mockFeeResponse));
+      vi.mocked(mockNetworkService.post).mockResolvedValue(
+        Right(mockFeeResponse),
+      );
 
-      const result = await dataSource.estimateTransactionFee(mockNetwork, mockIntent);
+      const result = await dataSource.estimateTransactionFee(
+        mockNetwork,
+        mockIntent,
+      );
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        `${mockAlpacaUrl}/v1/${mockNetwork}/transaction/estimate`,
+        `${mockCoinServiceUrl}/v1/${mockNetwork}/transaction/estimate`,
         JSON.stringify({ intent: mockIntent }),
       );
 
@@ -168,30 +180,37 @@ describe("DefaultAlpacaDataSource", () => {
       const networkError = new Error("Network request failed");
       vi.mocked(mockNetworkService.post).mockResolvedValue(Left(networkError));
 
-      const result = await dataSource.estimateTransactionFee(mockNetwork, mockIntent);
+      const result = await dataSource.estimateTransactionFee(
+        mockNetwork,
+        mockIntent,
+      );
 
       expect(result.isLeft()).toBe(true);
       if (result.isLeft()) {
         const error = result.extract() as Error;
-        expect(error.message).toBe("Failed to estimate transaction fee for ethereum");
-        expect(error.name).toBe("AlpacaFeeEstimationError");
+        expect(error.message).toBe(
+          "Failed to estimate transaction fee for ethereum",
+        );
+        expect(error.name).toBe("CoinServiceFeeEstimationError");
       }
     });
 
     it("should handle different network names correctly", async () => {
       const arbitrumNetwork = "arbitrum";
-      vi.mocked(mockNetworkService.post).mockResolvedValue(Right(mockFeeResponse));
+      vi.mocked(mockNetworkService.post).mockResolvedValue(
+        Right(mockFeeResponse),
+      );
 
       await dataSource.estimateTransactionFee(arbitrumNetwork, mockIntent);
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        `${mockAlpacaUrl}/v1/${arbitrumNetwork}/transaction/estimate`,
+        `${mockCoinServiceUrl}/v1/${arbitrumNetwork}/transaction/estimate`,
         JSON.stringify({ intent: mockIntent }),
       );
     });
 
     it("should handle different transaction intents correctly", async () => {
-      const contractIntent: AlpacaTransactionIntent = {
+      const contractIntent: CoinServiceTransactionIntent = {
         type: "contract_call",
         sender: "0x1234567890abcdef1234567890abcdef12345678",
         recipient: "0xcontract123456789abcdef123456789abcdef12",
@@ -204,12 +223,14 @@ describe("DefaultAlpacaDataSource", () => {
         data: "0xa9059cbb000000000000000000000000recipient123456789abcdef123456789abcdef",
       };
 
-      vi.mocked(mockNetworkService.post).mockResolvedValue(Right(mockFeeResponse));
+      vi.mocked(mockNetworkService.post).mockResolvedValue(
+        Right(mockFeeResponse),
+      );
 
       await dataSource.estimateTransactionFee(mockNetwork, contractIntent);
 
       expect(mockNetworkService.post).toHaveBeenCalledWith(
-        `${mockAlpacaUrl}/v1/${mockNetwork}/transaction/estimate`,
+        `${mockCoinServiceUrl}/v1/${mockNetwork}/transaction/estimate`,
         JSON.stringify({ intent: contractIntent }),
       );
     });

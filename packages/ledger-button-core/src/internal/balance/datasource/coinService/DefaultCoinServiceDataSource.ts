@@ -6,18 +6,18 @@ import { Config } from "../../../config/model/config.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import { AlpacaServiceErrors } from "../../model/error.js";
-import type { AlpacaDataSource } from "./AlpacaDataSource.js";
+import { CoinServiceServiceErrors } from "../../model/error.js";
+import type { CoinServiceDataSource } from "./CoinServiceDataSource.js";
 import {
-  AlpacaBalance,
-  AlpacaBalanceDto,
-  AlpacaFeeEstimationRequest,
-  AlpacaFeeEstimationResponse,
-  AlpacaTransactionIntent,
-} from "./alpacaTypes.js";
+  CoinServiceBalance,
+  CoinServiceBalanceDto,
+  CoinServiceFeeEstimationRequest,
+  CoinServiceFeeEstimationResponse,
+  CoinServiceTransactionIntent,
+} from "./coinServiceTypes.js";
 
 @injectable()
-export class DefaultAlpacaDataSource implements AlpacaDataSource {
+export class DefaultCoinServiceDataSource implements CoinServiceDataSource {
   constructor(
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<NetworkServiceOpts>,
@@ -28,19 +28,19 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
   async getBalanceForAddressAndCurrencyId(
     address: string,
     currencyId: string,
-  ): Promise<Either<Error, AlpacaBalance[]>> {
-    // Add check if blockchain is supported by Alpaca
-    const requestUrl = `${this.config.getAlpacaUrl()}/v1/${currencyId}/account/${address}/balance`;
-    const balanceResult: Either<Error, AlpacaBalanceDto[]> =
+  ): Promise<Either<Error, CoinServiceBalance[]>> {
+    // Add check if blockchain is supported by CoinService
+    const requestUrl = `${this.config.getCoinServiceUrl()}/v1/${currencyId}/account/${address}/balance`;
+    const balanceResult: Either<Error, CoinServiceBalanceDto[]> =
       await this.networkService.get(requestUrl);
 
     if (!balanceResult.isRight())
-      return Left(new Error("Failed to fetch balance from Alpaca"));
+      return Left(new Error("Failed to fetch balance from CoinService"));
 
     const balanceDtos = balanceResult.extract();
 
     if (!Array.isArray(balanceDtos))
-      return Left(new Error("Failed to fetch balance from Alpaca"));
+      return Left(new Error("Failed to fetch balance from CoinService"));
 
     const balances = balanceDtos.map((balance) => ({
       value: balance.value,
@@ -53,16 +53,16 @@ export class DefaultAlpacaDataSource implements AlpacaDataSource {
 
   async estimateTransactionFee(
     network: string,
-    intent: AlpacaTransactionIntent,
-  ): Promise<Either<Error, AlpacaFeeEstimationResponse>> {
-    const requestUrl = `${this.config.getAlpacaUrl()}/v1/${network}/transaction/estimate`;
-    const requestBody: AlpacaFeeEstimationRequest = { intent };
+    intent: CoinServiceTransactionIntent,
+  ): Promise<Either<Error, CoinServiceFeeEstimationResponse>> {
+    const requestUrl = `${this.config.getCoinServiceUrl()}/v1/${network}/transaction/estimate`;
+    const requestBody: CoinServiceFeeEstimationRequest = { intent };
 
-    const feeEstimationResult: Either<Error, AlpacaFeeEstimationResponse> =
+    const feeEstimationResult: Either<Error, CoinServiceFeeEstimationResponse> =
       await this.networkService.post(requestUrl, JSON.stringify(requestBody));
 
     return feeEstimationResult.mapLeft((error) =>
-      AlpacaServiceErrors.feeEstimationError(network, error)
+      CoinServiceServiceErrors.feeEstimationError(network, error),
     );
   }
 }

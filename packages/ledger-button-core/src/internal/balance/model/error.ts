@@ -1,127 +1,130 @@
 import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
 
-export class AlpacaNetworkError extends LedgerButtonError {
+export class CoinServiceNetworkError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "AlpacaNetworkError", context);
+    super(message, "CoinServiceNetworkError", context);
   }
 }
 
-export class AlpacaInvalidAddressError extends LedgerButtonError {
+export class CoinServiceInvalidAddressError extends LedgerButtonError {
   constructor(address: string, context?: Record<string, unknown>) {
     super(
       `Invalid address format: ${address}`,
-      "AlpacaInvalidAddressError",
-      { address, ...context }
+      "CoinServiceInvalidAddressError",
+      { address, ...context },
     );
   }
 }
 
-export class AlpacaUnsupportedChainError extends LedgerButtonError {
+export class CoinServiceUnsupportedChainError extends LedgerButtonError {
   constructor(currencyId: string, context?: Record<string, unknown>) {
     super(
       `Unsupported chain: ${currencyId}`,
-      "AlpacaUnsupportedChainError",
-      { currencyId, ...context }
+      "CoinServiceUnsupportedChainError",
+      { currencyId, ...context },
     );
   }
 }
 
-export class AlpacaApiError extends LedgerButtonError {
+export class CoinServiceApiError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "AlpacaApiError", context);
+    super(message, "CoinServiceApiError", context);
   }
 }
 
-export class AlpacaBalanceFetchError extends LedgerButtonError {
+export class CoinServiceBalanceFetchError extends LedgerButtonError {
   constructor(
     address: string,
     currencyId: string,
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ) {
     super(
       `Failed to fetch balance for address ${address} on ${currencyId}`,
-      "AlpacaBalanceFetchError",
-      { address, currencyId, ...context }
+      "CoinServiceBalanceFetchError",
+      { address, currencyId, ...context },
     );
   }
 }
 
-export class AlpacaTokenFetchError extends LedgerButtonError {
+export class CoinServiceTokenFetchError extends LedgerButtonError {
   constructor(
     address: string,
     currencyId: string,
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ) {
     super(
       `Failed to fetch token balances for address ${address} on ${currencyId}`,
-      "AlpacaTokenFetchError",
-      { address, currencyId, ...context }
+      "CoinServiceTokenFetchError",
+      { address, currencyId, ...context },
     );
   }
 }
 
-export class AlpacaUnknownError extends LedgerButtonError {
+export class CoinServiceUnknownError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "AlpacaUnknownError", context);
+    super(message, "CoinServiceUnknownError", context);
   }
 }
 
-export class AlpacaFeeEstimationError extends LedgerButtonError {
-  constructor(
-    network: string,
-    context?: Record<string, unknown>
-  ) {
+export class CoinServiceFeeEstimationError extends LedgerButtonError {
+  constructor(network: string, context?: Record<string, unknown>) {
     super(
       `Failed to estimate transaction fee for ${network}`,
-      "AlpacaFeeEstimationError",
-      { network, ...context }
+      "CoinServiceFeeEstimationError",
+      { network, ...context },
     );
   }
 }
 
-export type AlpacaServiceError =
-  | AlpacaNetworkError
-  | AlpacaInvalidAddressError
-  | AlpacaUnsupportedChainError
-  | AlpacaApiError
-  | AlpacaBalanceFetchError
-  | AlpacaTokenFetchError
-  | AlpacaFeeEstimationError
-  | AlpacaUnknownError;
+export type CoinServiceServiceError =
+  | CoinServiceNetworkError
+  | CoinServiceInvalidAddressError
+  | CoinServiceUnsupportedChainError
+  | CoinServiceApiError
+  | CoinServiceBalanceFetchError
+  | CoinServiceTokenFetchError
+  | CoinServiceFeeEstimationError
+  | CoinServiceUnknownError;
 
-export const AlpacaServiceErrors = {
-  networkError: (message: string, originalError?: unknown): AlpacaNetworkError =>
-    new AlpacaNetworkError(message, { originalError }),
+export const CoinServiceServiceErrors = {
+  networkError: (
+    message: string,
+    originalError?: unknown,
+  ): CoinServiceNetworkError =>
+    new CoinServiceNetworkError(message, { originalError }),
 
-  invalidAddress: (address: string): AlpacaInvalidAddressError =>
-    new AlpacaInvalidAddressError(address),
+  invalidAddress: (address: string): CoinServiceInvalidAddressError =>
+    new CoinServiceInvalidAddressError(address),
 
-  unsupportedChain: (currencyId: string): AlpacaUnsupportedChainError =>
-    new AlpacaUnsupportedChainError(currencyId),
+  unsupportedChain: (currencyId: string): CoinServiceUnsupportedChainError =>
+    new CoinServiceUnsupportedChainError(currencyId),
 
-  apiError: (message: string, originalError?: unknown): AlpacaApiError =>
-    new AlpacaApiError(message, { originalError }),
+  apiError: (message: string, originalError?: unknown): CoinServiceApiError =>
+    new CoinServiceApiError(message, { originalError }),
 
   balanceFetchError: (
     address: string,
     currencyId: string,
-    originalError?: unknown
-  ): AlpacaBalanceFetchError =>
-    new AlpacaBalanceFetchError(address, currencyId, { originalError }),
+    originalError?: unknown,
+  ): CoinServiceBalanceFetchError =>
+    new CoinServiceBalanceFetchError(address, currencyId, { originalError }),
 
   tokenFetchError: (
     address: string,
     currencyId: string,
-    originalError?: unknown
-  ): AlpacaTokenFetchError =>
-    new AlpacaTokenFetchError(address, currencyId, { originalError }),
+    originalError?: unknown,
+  ): CoinServiceTokenFetchError =>
+    new CoinServiceTokenFetchError(address, currencyId, { originalError }),
 
   feeEstimationError: (
     network: string,
-    originalError?: unknown
-  ): AlpacaFeeEstimationError =>
-    new AlpacaFeeEstimationError(network, { originalError }),
+    originalError?: unknown,
+  ): CoinServiceFeeEstimationError =>
+    new CoinServiceFeeEstimationError(network, { originalError }),
 
-  unknownError: (message: string, originalError?: unknown): AlpacaUnknownError =>
-    new AlpacaUnknownError(message, { originalError }),
+  unknownError: (
+    message: string,
+    originalError?: unknown,
+  ): CoinServiceUnknownError =>
+    new CoinServiceUnknownError(message, { originalError }),
 };

@@ -404,12 +404,12 @@ Use `EitherAsync` for composing async operations that can fail.
 ```typescript
 import { EitherAsync } from "purify-ts";
 
-private async getFeesFromAlpaca(
+private async getFeesFromCoinService(
   tx: TransactionInfo,
   network: string,
 ): Promise<GasFeeEstimation | undefined> {
   const result = await EitherAsync(async () => {
-    const either = await this.alpacaDataSource.estimateTransactionFee(network, intent);
+    const either = await this.coinServiceDataSource.estimateTransactionFee(network, intent);
     return either.caseOf({
       Left: (error) => { throw error; },
       Right: (response) => response

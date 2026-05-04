@@ -5,9 +5,9 @@ import { Account } from "../../../internal/account/service/AccountService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { balanceModuleTypes } from "../balanceModuleTypes.js";
-import type { AlpacaDataSource } from "../datasource/alpaca/AlpacaDataSource.js";
-import { AlpacaBalance } from "../datasource/alpaca/alpacaTypes.js";
 import type { CalDataSource } from "../datasource/cal/CalDataSource.js";
+import type { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";
+import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes.js";
 import {
   type AccountBalance,
   type NativeBalance,
@@ -22,12 +22,12 @@ export class DefaultBalanceService implements BalanceService {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
-    @inject(balanceModuleTypes.AlpacaDataSource)
-    private readonly alpacaDataSource: AlpacaDataSource,
+    @inject(balanceModuleTypes.CoinServiceDataSource)
+    private readonly coinServiceDataSource: CoinServiceDataSource,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
   ) {
-    this.logger = this.loggerFactory("Alpaca Service");
+    this.logger = this.loggerFactory("CoinService Service");
   }
 
   async getBalanceForAccount(
@@ -41,23 +41,23 @@ export class DefaultBalanceService implements BalanceService {
     });
 
     const balanceResult =
-      await this.alpacaDataSource.getBalanceForAddressAndCurrencyId(
+      await this.coinServiceDataSource.getBalanceForAddressAndCurrencyId(
         account.freshAddress,
         account.currencyId,
       );
     if (balanceResult.isRight()) {
-      const alpacaBalances: AlpacaBalance[] = balanceResult.extract();
-      const alpacaNativeBalance = alpacaBalances.find(
+      const coinServiceBalances: CoinServiceBalance[] = balanceResult.extract();
+      const coinServiceNativeBalance = coinServiceBalances.find(
         (balance) => balance.type === "native",
       );
 
-      if (!alpacaNativeBalance) {
+      if (!coinServiceNativeBalance) {
         return Left(new Error("No native balance found"));
       }
 
       if (withTokens) {
         const tokenBalances: (TokenBalance | undefined)[] = await Promise.all(
-          alpacaBalances
+          coinServiceBalances
             .filter((balance) => balance.type !== "native")
             .map(async (balance) => {
               if (!balance.reference) {
@@ -92,20 +92,20 @@ export class DefaultBalanceService implements BalanceService {
 
         return Right({
           nativeBalance: {
-            balance: BigInt(alpacaNativeBalance.value),
+            balance: BigInt(coinServiceNativeBalance.value),
           } as NativeBalance,
           tokenBalances: filteredTokenBalances,
         });
       } else {
         return Right({
           nativeBalance: {
-            balance: BigInt(alpacaNativeBalance.value),
+            balance: BigInt(coinServiceNativeBalance.value),
           } as NativeBalance,
           tokenBalances: [],
         });
       }
     } else {
-      return Left(new Error("Failed to fetch balance from Alpaca"));
+      return Left(new Error("Failed to fetch balance from CoinService"));
     }
   }
 }

@@ -80,7 +80,7 @@ export class HydrateAccountWithBalanceUseCase {
     error: Error,
   ): Promise<Account> {
     this.logger.warn(
-      "Failed to fetch balance from balance service (Alpaca), falling back to RPC node",
+      "Failed to fetch balance from balance service (CoinService), falling back to RPC node",
       {
         error,
         address: account.freshAddress,
