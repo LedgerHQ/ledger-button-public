@@ -507,6 +507,10 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
+  getPreferredFiatCurrency(): string | undefined {
+    return this._contextService.getContext().preferredFiatCurrency;
+  }
+
   async savePreferredFiatCurrency(currency: string): Promise<void> {
     this._logger.debug("Saving preferred fiat currency", { currency });
     await this.container

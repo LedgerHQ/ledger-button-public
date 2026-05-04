@@ -12,6 +12,12 @@ function createMockHost(): ReactiveControllerHost {
   };
 }
 
+function createMockCore() {
+  return {
+    savePreferredFiatCurrency: vi.fn().mockResolvedValue(undefined),
+  };
+}
+
 describe("PreferenceCurrencyController", () => {
   let host: ReactiveControllerHost;
 
@@ -20,22 +26,45 @@ describe("PreferenceCurrencyController", () => {
   });
 
   it("should register itself with the host", () => {
-    new PreferenceCurrencyController(host);
+    const core = createMockCore();
+    new PreferenceCurrencyController(host, core as never);
 
     expect(host.addController).toHaveBeenCalledWith(expect.any(Object));
   });
 
   describe("currencies", () => {
     it("should expose the list of supported currencies", () => {
-      const controller = new PreferenceCurrencyController(host);
+      const core = createMockCore();
+      const controller = new PreferenceCurrencyController(host, core as never);
 
       expect(controller.currencies).toEqual(["usd", "eur", "gbp"]);
     });
 
     it("should always return the same reference", () => {
-      const controller = new PreferenceCurrencyController(host);
+      const core = createMockCore();
+      const controller = new PreferenceCurrencyController(host, core as never);
 
       expect(controller.currencies).toBe(controller.currencies);
+    });
+  });
+
+  describe("selectCurrency", () => {
+    it("should call core.savePreferredFiatCurrency with the selected currency", async () => {
+      const core = createMockCore();
+      const controller = new PreferenceCurrencyController(host, core as never);
+
+      await controller.selectCurrency("eur");
+
+      expect(core.savePreferredFiatCurrency).toHaveBeenCalledWith("eur");
+    });
+
+    it("should request a host update after selecting a currency", async () => {
+      const core = createMockCore();
+      const controller = new PreferenceCurrencyController(host, core as never);
+
+      await controller.selectCurrency("usd");
+
+      expect(host.requestUpdate).toHaveBeenCalled();
     });
   });
 });
