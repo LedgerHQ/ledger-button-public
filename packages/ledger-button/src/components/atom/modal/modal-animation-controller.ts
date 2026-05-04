@@ -19,10 +19,10 @@ type AnimationElements = {
 
 export class ModalAnimationController implements ReactiveController {
   private backdropAnimation: AnimationInstance | null = null;
-  private centerAnimation = new CenterAnimation();
-  private panelAnimation = new PanelAnimation();
-  private morphAnimation = new MorphAnimation();
-  private bottomAnimation = new BottomAnimation();
+  private readonly centerAnimation = new CenterAnimation();
+  private readonly panelAnimation = new PanelAnimation();
+  private readonly morphAnimation = new MorphAnimation();
+  private readonly bottomAnimation = new BottomAnimation();
 
   constructor(private readonly host: ReactiveControllerHost) {
     this.host.addController(this);

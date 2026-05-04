@@ -67,12 +67,12 @@ export class ConnectionSuccessOverlay extends LitElement {
   public languages!: LanguageContext;
 
   @query(".connection-success-overlay__backdrop")
-  private backdropElement!: HTMLElement;
+  private readonly backdropElement!: HTMLElement;
 
   @query(".connection-success-overlay__container")
-  private containerElement!: HTMLElement;
+  private readonly containerElement!: HTMLElement;
 
-  private morphAnimation = new MorphAnimation();
+  private readonly morphAnimation = new MorphAnimation();
   private backdropAnimation: AnimationInstance | null = null;
   private containerAnimation: AnimationInstance | null = null;
   private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
