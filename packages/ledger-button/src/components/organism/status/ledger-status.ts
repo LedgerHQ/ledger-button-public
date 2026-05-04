@@ -122,6 +122,48 @@ export class LedgerStatus extends LitElement {
     );
   }
 
+  private renderSecondaryButton() {
+    if (!this.secondaryButtonLabel) {
+      return "";
+    }
+
+    return html`
+      <ledger-button
+        label=${this.secondaryButtonLabel}
+        variant="secondary"
+        size="full"
+        @ledger-button-click=${this.handleSecondaryAction}
+      ></ledger-button>
+    `;
+  }
+
+  private renderPrimaryButton() {
+    if (!this.primaryButtonLabel) {
+      return "";
+    }
+
+    return html`
+      <ledger-button
+        label=${this.primaryButtonLabel}
+        variant="primary"
+        size="full"
+        @ledger-button-click=${this.handlePrimaryAction}
+      ></ledger-button>
+    `;
+  }
+
+  private renderActions() {
+    if (!this.primaryButtonLabel && !this.secondaryButtonLabel) {
+      return "";
+    }
+
+    return html`
+      <div class="flex flex-col gap-16 self-stretch">
+        ${this.renderSecondaryButton()} ${this.renderPrimaryButton()}
+      </div>
+    `;
+  }
+
   override render() {
     return html`
       <div class=${classMap(this.containerClasses)}>
@@ -158,32 +200,7 @@ export class LedgerStatus extends LitElement {
                 : ""}
             </div>
           </div>
-          ${this.primaryButtonLabel || this.secondaryButtonLabel
-            ? html`
-                <div class="flex flex-col gap-16 self-stretch">
-                  ${this.secondaryButtonLabel
-                    ? html`
-                        <ledger-button
-                          label=${this.secondaryButtonLabel}
-                          variant="secondary"
-                          size="full"
-                          @ledger-button-click=${this.handleSecondaryAction}
-                        ></ledger-button>
-                      `
-                    : ""}
-                  ${this.primaryButtonLabel
-                    ? html`
-                        <ledger-button
-                          label=${this.primaryButtonLabel}
-                          variant="primary"
-                          size="full"
-                          @ledger-button-click=${this.handlePrimaryAction}
-                        ></ledger-button>
-                      `
-                    : ""}
-                </div>
-              `
-            : ""}
+          ${this.renderActions()}
         </div>
       </div>
     `;
