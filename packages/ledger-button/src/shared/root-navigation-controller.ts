@@ -98,14 +98,12 @@ export class RootNavigationController implements ReactiveController {
 
     const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
 
-    const title =
-      connectedDevice && shouldShowDeviceChip
-        ? connectedDevice.name
-        : isOnConsentScreen
-          ? this.destinations.consentAnalytics.toolbar.title
-          : isOnboardingFlow && !this.welcomeScreenCompleted
-            ? ""
-            : this.currentScreen?.toolbar.title;
+    const title = this.resolveTitle({
+      connectedDevice,
+      shouldShowDeviceChip,
+      isOnConsentScreen,
+      isOnboardingFlow,
+    });
 
     const deviceModelId =
       connectedDevice && shouldShowDeviceChip
@@ -143,6 +141,32 @@ export class RootNavigationController implements ReactiveController {
     return this.core.isMobile()
       ? this.destinations.mobileOnboarding
       : this.destinations.onboardingFlow;
+  }
+
+  private resolveTitle({
+    connectedDevice,
+    shouldShowDeviceChip,
+    isOnConsentScreen,
+    isOnboardingFlow,
+  }: {
+    connectedDevice: Device | undefined;
+    shouldShowDeviceChip: boolean;
+    isOnConsentScreen: boolean;
+    isOnboardingFlow: boolean;
+  }): string | undefined {
+    if (connectedDevice && shouldShowDeviceChip) {
+      return connectedDevice.name;
+    }
+
+    if (isOnConsentScreen) {
+      return this.destinations.consentAnalytics.toolbar.title;
+    }
+
+    if (isOnboardingFlow && !this.welcomeScreenCompleted) {
+      return "";
+    }
+
+    return this.currentScreen?.toolbar.title;
   }
 
   // NOTE: First Draft of navigationIntent
