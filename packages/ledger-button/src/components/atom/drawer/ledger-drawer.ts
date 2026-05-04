@@ -61,7 +61,7 @@ export class LedgerDrawer extends LitElement {
   private containerElement!: HTMLElement;
 
   private backdropAnimation: AnimationInstance | null = null;
-  private slideUpAnimation = new SlideUpAnimation();
+  private readonly slideUpAnimation = new SlideUpAnimation();
   private isClosing = false;
 
   override firstUpdated() {

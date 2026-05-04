@@ -122,13 +122,13 @@ export class FloatingButtonController implements ReactiveController {
     }
   }
 
-  private handleModalOpen = (): void => {
+  private readonly handleModalOpen = (): void => {
     this._modalIsOpen = true;
     this._modalCloseAnimationInProgress = false;
     this.host.requestUpdate();
   };
 
-  private handleModalClose = (): void => {
+  private readonly handleModalClose = (): void => {
     this._modalIsOpen = false;
     this._modalCloseAnimationInProgress = true;
     const shouldShowPostClose =
@@ -148,7 +148,7 @@ export class FloatingButtonController implements ReactiveController {
     }
   };
 
-  private handleModalCloseFinished = (): void => {
+  private readonly handleModalCloseFinished = (): void => {
     this._modalCloseAnimationInProgress = false;
     this.host.requestUpdate();
   };
