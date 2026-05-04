@@ -80,6 +80,7 @@ describe("DefaultContextService", () => {
         welcomeScreenCompleted: false,
         hasTrackingConsent: undefined,
         isMobilePlatform: false,
+        preferredFiatCurrency: undefined,
       });
     });
   });
@@ -111,6 +112,7 @@ describe("DefaultContextService", () => {
             welcomeScreenCompleted: false,
             hasTrackingConsent: false,
             isMobilePlatform: false,
+            preferredFiatCurrency: undefined,
           },
         },
         expectedContext: {
@@ -122,6 +124,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -136,6 +139,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -150,6 +154,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -164,6 +169,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -178,6 +184,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -202,6 +209,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -219,6 +227,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
       {
@@ -236,6 +245,7 @@ describe("DefaultContextService", () => {
               welcomeScreenCompleted: false,
               hasTrackingConsent: false,
               isMobilePlatform: false,
+              preferredFiatCurrency: undefined,
             },
           });
         },
@@ -248,6 +258,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
           isMobilePlatform: false,
+          preferredFiatCurrency: undefined,
         },
       },
     ])("onEvent - $eventType", (event) => {
@@ -302,6 +313,23 @@ describe("DefaultContextService", () => {
         service.onEvent({ type: "tracking_consent_refused" });
 
         expect(service.getContext().hasTrackingConsent).toBe(false);
+      });
+    });
+
+    describe("preferred_fiat_currency_changed event", () => {
+      it("should set preferredFiatCurrency to the given currency", () => {
+        expect(service.getContext().preferredFiatCurrency).toBe(undefined);
+
+        service.onEvent({ type: "preferred_fiat_currency_changed", currency: "eur" });
+
+        expect(service.getContext().preferredFiatCurrency).toBe("eur");
+      });
+
+      it("should update preferredFiatCurrency when changed again", () => {
+        service.onEvent({ type: "preferred_fiat_currency_changed", currency: "usd" });
+        service.onEvent({ type: "preferred_fiat_currency_changed", currency: "gbp" });
+
+        expect(service.getContext().preferredFiatCurrency).toBe("gbp");
       });
     });
   });

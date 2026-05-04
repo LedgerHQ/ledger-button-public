@@ -165,6 +165,14 @@ export class LedgerButtonCore {
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
 
+    const preferredFiatCurrencyMaybe = await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getPreferredFiatCurrency();
+
+    const preferredFiatCurrency = preferredFiatCurrencyMaybe.isJust()
+      ? preferredFiatCurrencyMaybe.extract()
+      : undefined;
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -176,6 +184,7 @@ export class LedgerButtonCore {
         welcomeScreenCompleted,
         hasTrackingConsent,
         isMobilePlatform,
+        preferredFiatCurrency,
       },
     });
 
@@ -496,6 +505,17 @@ export class LedgerButtonCore {
 
   isWelcomeScreenCompleted(): boolean {
     return this._contextService.getContext().welcomeScreenCompleted;
+  }
+
+  async savePreferredFiatCurrency(currency: string): Promise<void> {
+    this._logger.debug("Saving preferred fiat currency", { currency });
+    await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .savePreferredFiatCurrency(currency);
+    this._contextService.onEvent({
+      type: "preferred_fiat_currency_changed",
+      currency,
+    });
   }
 
   async savePreferredLanguage(language: string): Promise<void> {

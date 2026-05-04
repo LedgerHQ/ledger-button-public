@@ -26,6 +26,7 @@ export class DefaultContextService implements ContextService {
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
     isMobilePlatform: false,
+    preferredFiatCurrency: undefined,
   };
 
   private readonly logger: LoggerPublisher;
@@ -91,6 +92,9 @@ export class DefaultContextService implements ContextService {
         break;
       case "tracking_consent_refused":
         this.context.hasTrackingConsent = false;
+        break;
+      case "preferred_fiat_currency_changed":
+        this.context.preferredFiatCurrency = event.currency;
         break;
     }
 
