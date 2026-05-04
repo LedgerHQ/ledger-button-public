@@ -10,23 +10,22 @@
  * @see https://eips.ethereum.org/EIPS/eip-2255
  */
 
-import "../ledger-button-app.js";
+import { Subscription } from "rxjs";
 
+import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
 import {
-  Account,
   BlindSigningDisabledError,
-  BroadcastTransactionError,
-  // type ChainInfo,
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "../../api/errors/DeviceErrors.js";
+import { LedgerButtonError } from "../../api/errors/LedgerButtonError.js";
+import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
+import { LedgerButtonCore } from "../../api/LedgerButtonCore.js";
+import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
   type EIP6963AnnounceProviderEvent,
   type EIP6963RequestProviderEvent,
-  hexToUtf8,
-  IncorrectSeedError,
-  isBroadcastedTransactionResult,
-  isSignedMessageOrTypedDataResult,
-  isSignedTransactionResult,
-  LedgerButtonError,
   type ProviderConnectInfo,
   type ProviderEvent,
   type ProviderMessage,
@@ -34,18 +33,19 @@ import {
   type RequestArguments,
   type RpcMethods,
   TypedData,
-  UserRejectedTransactionError,
-} from "@ledgerhq/ledger-wallet-provider-core";
-import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
-import { getChainIdFromCurrencyId } from "@ledgerhq/ledger-wallet-provider-core";
-import { Subscription } from "rxjs";
-
-import { LedgerButtonApp } from "../ledger-button-app.js";
-import { isSupportedChainId } from "./supportedChains.js";
+} from "../../api/model/eip/EIPTypes.js";
 import {
-  isBlockingRequestMethod,
-  isSupportedRpcMethod,
-} from "./supportedRpcMethods.js";
+  isBroadcastedTransactionResult,
+  isSignedMessageOrTypedDataResult,
+  isSignedTransactionResult,
+  type SignedResults,
+} from "../../api/model/signing/SignedTransaction.js";
+import { hexToUtf8 } from "../../api/utils/byteUtils.js";
+import { Account } from "../account/service/AccountService.js";
+import { EvmProviderUI } from "./EvmProviderUI.js";
+import { isBlockingRequestMethod } from "./isBlockingRequestMethod.js";
+import { isSupportedChainId } from "./supportedChains.js";
+import { isSupportedRpcMethod } from "./supportedRpcMethods.js";
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -79,7 +79,7 @@ export class LedgerEIP1193Provider
 
   constructor(
     private readonly core: LedgerButtonCore,
-    private readonly app: LedgerButtonApp,
+    private readonly app: EvmProviderUI,
   ) {
     super();
 
@@ -769,5 +769,17 @@ declare global {
     message: CustomEvent<ProviderMessage>;
     "eip6963:announceProvider": EIP6963AnnounceProviderEvent;
     "eip6963:requestProvider": EIP6963RequestProviderEvent;
+    // Custom events bridged from the UI layer to the provider. The UI
+    // implementation (e.g. `LedgerButtonApp`) is responsible for dispatching
+    // these on `window` after user interaction completes.
+    "ledger-provider-account-selected": CustomEvent<
+      | { account: Account; status: "success" }
+      | { status: "error"; error: unknown }
+    >;
+    "ledger-provider-sign": CustomEvent<
+      | { status: "success"; data: SignedResults }
+      | { status: "error"; error: unknown }
+    >;
+    "ledger-provider-disconnect": CustomEvent;
   }
 }

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  CommonEIP1193ErrorCode,
-  type LedgerButtonCore,
-} from "@ledgerhq/ledger-wallet-provider-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerButtonApp } from "../ledger-button-app.js";
+import { type LedgerButtonCore } from "../../api/LedgerButtonCore.js";
+import {
+  CommonEIP1193ErrorCode,
+} from "../../api/model/eip/EIPTypes.js";
+import { type EvmProviderUI } from "./EvmProviderUI.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
 const createMockLedgerButtonCore = (): LedgerButtonCore =>
@@ -21,16 +21,16 @@ const createMockLedgerButtonCore = (): LedgerButtonCore =>
     })),
   }) as unknown as LedgerButtonCore;
 
-const createMockLedgerButtonApp = (): LedgerButtonApp =>
+const createMockEvmProviderUI = (): EvmProviderUI =>
   ({
     isModalOpen: false,
     navigationIntent: vi.fn(),
-  }) as unknown as LedgerButtonApp;
+  }) as unknown as EvmProviderUI;
 
 describe("LedgerEIP1193Provider", () => {
   let provider: LedgerEIP1193Provider;
   let mockCore: ReturnType<typeof createMockLedgerButtonCore>;
-  let mockApp: ReturnType<typeof createMockLedgerButtonApp>;
+  let mockApp: ReturnType<typeof createMockEvmProviderUI>;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -52,7 +52,7 @@ describe("LedgerEIP1193Provider", () => {
     }
 
     mockCore = createMockLedgerButtonCore();
-    mockApp = createMockLedgerButtonApp();
+    mockApp = createMockEvmProviderUI();
 
     provider = new LedgerEIP1193Provider(mockCore, mockApp);
   });
