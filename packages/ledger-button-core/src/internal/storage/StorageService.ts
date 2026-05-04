@@ -39,4 +39,7 @@ export interface StorageService {
 
   savePreferredLanguage(language: string): Promise<void>;
   getPreferredLanguage(): Promise<Maybe<string>>;
+
+  savePreferredFiatCurrency(preferredFiatCurrency: string): Promise<void>;
+  getPreferredFiatCurrency(): Promise<Maybe<string>>;
 }
