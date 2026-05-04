@@ -53,6 +53,7 @@ describe("DefaultEventTrackingService", () => {
     welcomeScreenCompleted: false,
     hasTrackingConsent: false,
     isMobilePlatform: false,
+    preferredFiatCurrency: undefined,
     ...overrides,
   });
 
