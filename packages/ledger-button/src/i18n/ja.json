@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "あなたのLedger Wallet",
-    "balance": "残高"
+    "balance": "残高",
+    "tabs": {
+      "tokens": "トークン",
+      "transactions": "トランザクション"
+    }
   },
   "walletActions": {
     "send": "送付",

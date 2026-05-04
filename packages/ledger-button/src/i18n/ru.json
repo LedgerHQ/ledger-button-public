@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "Ваше приложение Ledger Wallet",
-    "balance": "Баланс"
+    "balance": "Баланс",
+    "tabs": {
+      "tokens": "Токены",
+      "transactions": "Транзакции"
+    }
   },
   "walletActions": {
     "send": "Отправить",
