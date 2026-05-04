@@ -20,6 +20,7 @@ type MappableTransaction = {
   currencyName: string;
   fiatValue?: string;
   fiatCurrency?: string;
+  explorerUrl?: string;
 };
 
 export class LedgerHomeController implements ReactiveController {
@@ -105,6 +106,7 @@ export class LedgerHomeController implements ReactiveController {
       title: tx.currencyName,
       fiatAmount: tx.fiatValue ?? "",
       fiatCurrency: tx.fiatCurrency ?? "",
+      explorerUrl: tx.explorerUrl,
     };
   }
 

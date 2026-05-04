@@ -215,4 +215,57 @@ describe("LedgerHomeController", () => {
       expect(controller.pendingTransactionListItems).toHaveLength(0);
     });
   });
+
+  describe("explorer URLs", () => {
+    it("should propagate explorerUrl from the upstream history item to the list row", async () => {
+      const accountWithExplorerUrl = createDetailedAccount({
+        transactionHistory: [
+          {
+            hash: "0xabc",
+            type: "sent",
+            timestamp: "2026-04-08T10:00:00.000Z",
+            formattedValue: "1 ETH",
+            ticker: "ETH",
+            currencyName: "Ethereum",
+            explorerUrl: "https://etherscan.io/tx/0xabc",
+          },
+        ] as DetailedAccount["transactionHistory"],
+      });
+
+      controller.hostConnected();
+      await vi.waitFor(() => {
+        expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
+      });
+      contextSubject.next({ selectedAccount: accountWithExplorerUrl });
+
+      expect(controller.transactionListItems[0]?.explorerUrl).toBe(
+        "https://etherscan.io/tx/0xabc",
+      );
+    });
+
+    it("should propagate explorerUrl from pending transactions to the list row", () => {
+      const tx = createPendingTx({
+        hash: "0xpending1",
+        explorerUrl: "https://etherscan.io/tx/0xpending1",
+      });
+
+      controller.hostConnected();
+      pendingTxSubject.next([tx]);
+
+      expect(controller.pendingTransactionListItems[0]?.explorerUrl).toBe(
+        "https://etherscan.io/tx/0xpending1",
+      );
+    });
+
+    it("should leave explorerUrl undefined when upstream did not provide one", () => {
+      const tx = createPendingTx({ hash: "0xnoexplorer" });
+
+      controller.hostConnected();
+      pendingTxSubject.next([tx]);
+
+      expect(
+        controller.pendingTransactionListItems[0]?.explorerUrl,
+      ).toBeUndefined();
+    });
+  });
 });

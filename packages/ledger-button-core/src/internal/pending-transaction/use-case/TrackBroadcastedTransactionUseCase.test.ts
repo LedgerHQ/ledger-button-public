@@ -63,6 +63,7 @@ function createMockCalDataSource() {
         name: "Ethereum",
         ticker: "ETH",
         decimals: 18,
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
       }),
     ),
   };
@@ -124,6 +125,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
         ticker: "ETH",
         currencyName: "Ethereum",
         ledgerId: "ethereum",
+        explorerUrl: "https://etherscan.io/tx/0xabc123",
       }),
     );
     expect(mockController.track).toHaveBeenCalled();
@@ -191,6 +193,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       expect.objectContaining({
         ticker: "ETHEREUM",
         currencyName: "ethereum",
+        explorerUrl: undefined,
       }),
     );
     expect(mockController.track).toHaveBeenCalled();
