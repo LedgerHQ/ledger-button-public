@@ -56,6 +56,8 @@ import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackL
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
+import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
+import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -75,8 +77,6 @@ import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
-import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
-import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
@@ -515,7 +515,7 @@ export class LedgerButtonCore {
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container
-      .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
+      .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
   }
 

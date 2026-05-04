@@ -12,6 +12,7 @@ import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
+import { evmProviderModuleFactory } from "./evm-provider/evmProviderModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
@@ -21,7 +22,6 @@ import { platformModuleFactory } from "./platform/platformModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/transactionHistoryModule.js";
-import { web3ProviderModuleFactory } from "./web3-provider/web3ProviderModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({
@@ -63,7 +63,7 @@ export function createContainer({
     transactionHistoryModuleFactory({
       stub: devConfig.stub.transactionHistory,
     }),
-    web3ProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
+    evmProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
