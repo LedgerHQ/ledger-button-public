@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "Ledger Wallet لديك",
-    "balance": "الرصيد"
+    "balance": "الرصيد",
+    "tabs": {
+      "tokens": "التوكن",
+      "transactions": "المعاملات"
+    }
   },
   "walletActions": {
     "send": "إرسال",

@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "Tu Ledger Wallet",
-    "balance": "Saldo"
+    "balance": "Saldo",
+    "tabs": {
+      "tokens": "Tokens",
+      "transactions": "Transacciones"
+    }
   },
   "walletActions": {
     "send": "Enviar",

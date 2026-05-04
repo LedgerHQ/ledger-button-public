@@ -216,10 +216,10 @@ export class LedgerHomeScreen extends LitElement {
             <div class="mt-12">
               <ledger-tabs
                 .tabs=${[
-                  { id: "tokens", label: "Tokens" },
+                  { id: "tokens", label: lang.home.tabs.tokens },
                   {
                     id: "transactions",
-                    label: "Transactions",
+                    label: lang.home.tabs.transactions,
                     badge: this.controller.pendingTransactionListItems.length || undefined,
                   },
                 ]}

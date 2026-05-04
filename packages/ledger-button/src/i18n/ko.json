@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "내 Ledger Wallet",
-    "balance": "잔액"
+    "balance": "잔액",
+    "tabs": {
+      "tokens": "토큰",
+      "transactions": "트랜잭션"
+    }
   },
   "walletActions": {
     "send": "전송",
