@@ -1,26 +1,26 @@
-export interface AlpacaBalanceRequest {
+export interface CoinServiceBalanceRequest {
   address: string;
   currencyId: string;
 }
 
-export type AlpacaBalanceDto = {
+export type CoinServiceBalanceDto = {
   value: string;
   asset: AssetDto;
 };
-export type AlpacaBalanceResponse = AlpacaBalanceDto[];
+export type CoinServiceBalanceResponse = CoinServiceBalanceDto[];
 
 export type AssetDto = {
   type: "native" | "erc20" | "erc721" | "erc1155";
   assetReference?: string;
 };
 
-export type AlpacaBalance = {
+export type CoinServiceBalance = {
   value: string;
   type: "native" | "erc20" | "erc721" | "erc1155";
   reference?: string;
 };
 
-export type AlpacaTransactionIntent = {
+export type CoinServiceTransactionIntent = {
   type: string;
   sender: string;
   recipient?: string;
@@ -33,11 +33,11 @@ export type AlpacaTransactionIntent = {
   data?: string;
 };
 
-export type AlpacaFeeEstimationRequest = {
-  intent: AlpacaTransactionIntent;
+export type CoinServiceFeeEstimationRequest = {
+  intent: CoinServiceTransactionIntent;
 };
 
-export type AlpacaEvmFeeEstimationParameters = {
+export type CoinServiceEvmFeeEstimationParameters = {
   gasPrice?: string;
   maxFeePerGas: string;
   maxPriorityFeePerGas: string;
@@ -46,7 +46,7 @@ export type AlpacaEvmFeeEstimationParameters = {
   gasOptions: Record<string, unknown>;
 };
 
-export type AlpacaFeeEstimationResponse = {
+export type CoinServiceFeeEstimationResponse = {
   value: string;
-  parameters: AlpacaEvmFeeEstimationParameters;
+  parameters: CoinServiceEvmFeeEstimationParameters;
 };

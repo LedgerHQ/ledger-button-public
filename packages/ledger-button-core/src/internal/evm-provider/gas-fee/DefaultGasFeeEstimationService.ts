@@ -9,10 +9,12 @@ import {
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../backend/BackendService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import { getAlpacaNetworkName } from "../../balance/constants/networkConstants.js";
-import type { AlpacaDataSource } from "../../balance/datasource/alpaca/AlpacaDataSource.js";
-import { TransactionInfo } from "../../balance/model/types.js";
-import { GasFeeEstimation } from "../../balance/model/types.js";
+import { getCoinServiceNetworkName } from "../../balance/constants/networkConstants.js";
+import type { CoinServiceDataSource } from "../../balance/datasource/coinService/CoinServiceDataSource.js";
+import {
+  GasFeeEstimation,
+  TransactionInfo,
+} from "../../balance/model/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
@@ -25,13 +27,11 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
-    @inject(balanceModuleTypes.AlpacaDataSource)
-    private readonly alpacaDataSource: AlpacaDataSource,
+    @inject(balanceModuleTypes.CoinServiceDataSource)
+    private readonly coinServiceDataSource: CoinServiceDataSource,
   ) {
     this.logger = this.loggerFactory("DefaultGasFeeEstimationService");
   }
-
-
 
   //TODO: Move to a different service
   async getNonceForTx(tx: TransactionInfo): Promise<string> {
@@ -44,35 +44,41 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
   }
 
   async getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation> {
-    const alpacaNetwork = getAlpacaNetworkName(tx.chainId);
+    const coinServiceNetwork = getCoinServiceNetworkName(tx.chainId);
 
-    if (!alpacaNetwork) {
+    if (!coinServiceNetwork) {
       this.logger.debug(
-        "Network not supported by Alpaca, using fallback RPC method",
+        "Network not supported by CoinService, using fallback RPC method",
         { chainId: tx.chainId },
       );
       return this.getFeesFromRpc(tx);
     }
 
-    this.logger.debug("Attempting to get gas fee estimation from Alpaca", {
-      network: alpacaNetwork,
+    this.logger.debug("Attempting to get gas fee estimation from CoinService", {
+      network: coinServiceNetwork,
     });
 
-    const alpacaResult = await this.getFeesFromAlpaca(tx, alpacaNetwork);
-    if (alpacaResult) {
-      this.logger.debug("Successfully got gas fee estimation from Alpaca", {
-        alpacaResult,
-      });
-      return alpacaResult;
+    const coinServiceResult = await this.getFeesFromCoinService(
+      tx,
+      coinServiceNetwork,
+    );
+    if (coinServiceResult) {
+      this.logger.debug(
+        "Successfully got gas fee estimation from CoinService",
+        {
+          coinServiceResult,
+        },
+      );
+      return coinServiceResult;
     }
 
     this.logger.debug(
-      "Alpaca gas fee estimation failed, falling back to RPC method",
+      "CoinService gas fee estimation failed, falling back to RPC method",
     );
     return this.getFeesFromRpc(tx);
   }
 
-  private async getFeesFromAlpaca(
+  private async getFeesFromCoinService(
     tx: TransactionInfo,
     network: string,
   ): Promise<GasFeeEstimation | undefined> {
@@ -89,10 +95,15 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
     };
 
     const result = await EitherAsync(async () => {
-      const either = await this.alpacaDataSource.estimateTransactionFee(network, intent);
+      const either = await this.coinServiceDataSource.estimateTransactionFee(
+        network,
+        intent,
+      );
       return either.caseOf({
-        Left: (error) => { throw error; },
-        Right: (response) => response
+        Left: (error) => {
+          throw error;
+        },
+        Right: (response) => response,
       });
     })
       .map((response) => ({
@@ -101,7 +112,7 @@ export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
         maxPriorityFeePerGas: response.parameters.maxPriorityFeePerGas,
       }))
       .ifLeft((error) => {
-        this.logger.debug("Alpaca gas fee estimation failed", { error });
+        this.logger.debug("CoinService gas fee estimation failed", { error });
       });
 
     return result.toMaybe().extract();
