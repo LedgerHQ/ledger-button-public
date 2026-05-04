@@ -1,5 +1,5 @@
 ---
-"@ledgerhq/ledger-wallet-provider": none
+"@ledgerhq/ledger-wallet-provider": patch
 ---
 
 Extract nested ternaries into independent statements
