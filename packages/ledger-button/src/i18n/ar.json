@@ -188,7 +188,8 @@
   },
   "transactionList": {
     "noTransactions": "لم يتم العثور على معاملات",
-    "pendingTransactions": "معاملات مُعلَّقة"
+    "pendingTransactions": "معاملات مُعلَّقة",
+    "viewOnExplorer": "View on explorer"
   },
   "mobileOnboarding": {
     "title": "المتابعة في Ledger Wallet",

@@ -81,6 +81,7 @@ export type TransactionHistoryItem = {
   ledgerId?: string;
   fiatValue?: string;
   fiatCurrency?: string;
+  explorerUrl?: string;
 };
 
 /**
