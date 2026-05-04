@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "Ledger Wallet",
-    "balance": "Solde"
+    "balance": "Solde",
+    "tabs": {
+      "tokens": "Tokens",
+      "transactions": "Transactions"
+    }
   },
   "walletActions": {
     "send": "Envoyer",

@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "Ledger Wallet’ınız",
-    "balance": "Bakiye"
+    "balance": "Bakiye",
+    "tabs": {
+      "tokens": "Token’lar",
+      "transactions": "İşlemler"
+    }
   },
   "walletActions": {
     "send": "Gönder",

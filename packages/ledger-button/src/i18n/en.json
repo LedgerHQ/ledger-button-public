@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "Your Ledger Wallet",
-    "balance": "Balance"
+    "balance": "Balance",
+    "tabs": {
+      "tokens": "Tokens",
+      "transactions": "Transactions"
+    }
   },
   "walletActions": {
     "send": "Send",

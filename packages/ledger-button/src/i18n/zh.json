@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "您的 Ledger Wallet",
-    "balance": "余额"
+    "balance": "余额",
+    "tabs": {
+      "tokens": "代币",
+      "transactions": "交易"
+    }
   },
   "walletActions": {
     "send": "发送",

@@ -61,7 +61,11 @@
   },
   "home": {
     "title": "แอป Ledger Wallet ของคุณ",
-    "balance": "ยอดคงเหลือในบัญชี"
+    "balance": "ยอดคงเหลือในบัญชี",
+    "tabs": {
+      "tokens": "โทเคน",
+      "transactions": "ธุรกรรม"
+    }
   },
   "walletActions": {
     "send": "ส่ง",
