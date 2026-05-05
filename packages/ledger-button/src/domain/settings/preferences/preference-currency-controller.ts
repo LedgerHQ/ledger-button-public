@@ -1,9 +1,10 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { DEFAULT_CURRENCY } from "../../../context/constants/currency.js";
 import { type CoreContext } from "../../../context/core-context.js";
 
-const CURRENCIES = ["USD", "EUR", "GBP"] as const;
+// CURRENCIES must be a subset of SUPPORTED_FIAT_CURRENCIES in ledger-button-core.
+// Adding a currency here without adding it to core will cause a mismatch!
+const CURRENCIES = ["usd", "eur", "gbp"];
 
 export type Currency = (typeof CURRENCIES)[number];
 
@@ -15,16 +16,12 @@ export class PreferenceCurrencyController {
     this.host.addController(this as ReactiveController);
   }
 
-  get currentCurrency(): Currency {
-    const preferredCurrency = this.core.getPreferredFiatCurrency();
-    const currency = CURRENCIES.find(
-      (c) => c === preferredCurrency?.toUpperCase(),
-    );
-    return currency ?? (DEFAULT_CURRENCY as Currency);
+  get currentCurrency(): string {
+    return this.core.getPreferredFiatCurrency().toUpperCase();
   }
 
   get currencies(): readonly Currency[] {
-    return CURRENCIES;
+    return CURRENCIES.map((c) => c.toUpperCase());
   }
 
   async selectCurrency(currency: Currency): Promise<void> {

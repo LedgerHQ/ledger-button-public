@@ -3,6 +3,7 @@ import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
+import { DEFAULT_FIAT_CURRENCY } from "../../account/model/constant.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import type { EventRequest } from "../../backend/model/trackEvent.js";
 import { EventType } from "../../backend/model/trackEvent.js";
@@ -53,7 +54,7 @@ describe("DefaultEventTrackingService", () => {
     welcomeScreenCompleted: false,
     hasTrackingConsent: false,
     isMobilePlatform: false,
-    preferredFiatCurrency: undefined,
+    preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
     ...overrides,
   });
 

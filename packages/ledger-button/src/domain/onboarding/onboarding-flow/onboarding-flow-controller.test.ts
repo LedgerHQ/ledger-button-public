@@ -21,7 +21,7 @@ function createMockContext(
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
     isMobilePlatform: false,
-    preferredFiatCurrency: undefined,
+    preferredFiatCurrency: "usd",
     ...overrides,
   };
 }

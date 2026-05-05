@@ -16,6 +16,10 @@ import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.j
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import {
+  DEFAULT_FIAT_CURRENCY,
+  SUPPORTED_FIAT_CURRENCIES,
+} from "../internal/account/model/constant.js";
+import {
   Account,
   type AccountService,
   type AccountWithFiat,
@@ -165,13 +169,18 @@ export class LedgerButtonCore {
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
 
-    const preferredFiatCurrencyMaybe = await this.container
+    const storedFiatCurrencyMaybe = await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .getPreferredFiatCurrency();
 
-    const preferredFiatCurrency = preferredFiatCurrencyMaybe.isJust()
-      ? preferredFiatCurrencyMaybe.extract()
-      : undefined;
+    const storedFiatCurrency = storedFiatCurrencyMaybe.orDefault(
+      DEFAULT_FIAT_CURRENCY,
+    );
+    const preferredFiatCurrency = (
+      SUPPORTED_FIAT_CURRENCIES as readonly string[]
+    ).includes(storedFiatCurrency)
+      ? storedFiatCurrency
+      : DEFAULT_FIAT_CURRENCY;
 
     this._contextService.onEvent({
       type: "initialize_context",
@@ -313,7 +322,9 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  getAccounts(targetCurrency = "usd"): Observable<AccountWithFiat[]> {
+  getAccounts(
+    targetCurrency = DEFAULT_FIAT_CURRENCY,
+  ): Observable<AccountWithFiat[]> {
     this._logger.debug("Getting accounts with fiat observable", {
       targetCurrency,
     });
@@ -507,8 +518,11 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
-  getPreferredFiatCurrency(): string | undefined {
-    return this._contextService.getContext().preferredFiatCurrency;
+  getPreferredFiatCurrency(): string {
+    return (
+      this._contextService.getContext().preferredFiatCurrency ??
+      DEFAULT_FIAT_CURRENCY
+    );
   }
 
   async savePreferredFiatCurrency(currency: string): Promise<void> {

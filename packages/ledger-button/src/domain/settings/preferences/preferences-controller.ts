@@ -1,6 +1,5 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { DEFAULT_CURRENCY } from "../../../context/constants/currency.js";
 import { type CoreContext } from "../../../context/core-context.js";
 
 export class PreferencesController {
@@ -12,8 +11,6 @@ export class PreferencesController {
   }
 
   get currency(): string {
-    return (
-      this.core.getPreferredFiatCurrency() ?? DEFAULT_CURRENCY
-    ).toUpperCase();
+    return this.core.getPreferredFiatCurrency().toUpperCase();
   }
 }
