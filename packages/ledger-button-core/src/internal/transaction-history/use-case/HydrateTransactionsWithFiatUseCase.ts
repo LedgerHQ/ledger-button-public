@@ -137,11 +137,11 @@ export class HydrateTransactionsWithFiatUseCase {
   }
 
   private getDateRange(transactions: TransactionHistoryItem[]): DateRange {
-    const dates = transactions.map((tx) =>
+    const [firstDate, ...restDates] = transactions.map((tx) =>
       this.getDateFromTimestamp(tx.timestamp),
     );
-    const minDate = dates.reduce((a, b) => (a < b ? a : b));
-    const maxDate = dates.reduce((a, b) => (a > b ? a : b));
+    const minDate = restDates.reduce((a, b) => (a < b ? a : b), firstDate);
+    const maxDate = restDates.reduce((a, b) => (a > b ? a : b), firstDate);
     return { minDate, maxDate };
   }
 
