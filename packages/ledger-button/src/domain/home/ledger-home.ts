@@ -205,6 +205,7 @@ export class LedgerHomeScreen extends LitElement {
 
               <ledger-fiat-total
                 .value=${account.totalFiatValue?.value ?? "0"}
+                .currency=${this.controller.preferredCurrency}
               ></ledger-fiat-total>
             </div>
 

@@ -30,6 +30,7 @@ export class LedgerHomeController implements ReactiveController {
   private contextSubscription: Subscription | undefined = undefined;
   private pendingTxSubscription: Subscription | undefined = undefined;
   private isConnected = false;
+  private preferredFiatCurrency!: string;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -38,6 +39,10 @@ export class LedgerHomeController implements ReactiveController {
     private readonly destinations: Destinations,
   ) {
     this.host.addController(this);
+  }
+
+  get preferredCurrency(): string {
+    return this.preferredFiatCurrency.toUpperCase();
   }
 
   get transactionListItems(): TransactionListItem[] {
@@ -121,7 +126,12 @@ export class LedgerHomeController implements ReactiveController {
       .observeContext()
       .subscribe((_context) => {
         const contextAccount = _context.selectedAccount;
-        if (this.isAccountChanged(contextAccount)) {
+        const currencyChanged =
+          this.preferredFiatCurrency !== undefined &&
+          this.preferredFiatCurrency !== _context.preferredFiatCurrency;
+        this.preferredFiatCurrency = _context.preferredFiatCurrency;
+
+        if (this.isAccountChanged(contextAccount) || currencyChanged) {
           this.getSelectedAccount();
         } else if (this.isDetailedAccount(contextAccount)) {
           this.selectedAccount = contextAccount;
@@ -130,18 +140,17 @@ export class LedgerHomeController implements ReactiveController {
       });
   }
 
-  private isAccountChanged(
-    contextAccount?: { freshAddress?: string; currencyId?: string },
-  ): boolean {
+  private isAccountChanged(contextAccount?: {
+    freshAddress?: string;
+    currencyId?: string;
+  }): boolean {
     return (
       contextAccount?.freshAddress !== this.selectedAccount?.freshAddress ||
       contextAccount?.currencyId !== this.selectedAccount?.currencyId
     );
   }
 
-  private isDetailedAccount(
-    account: unknown,
-  ): account is DetailedAccount {
+  private isDetailedAccount(account: unknown): account is DetailedAccount {
     return (
       !!account &&
       typeof account === "object" &&
