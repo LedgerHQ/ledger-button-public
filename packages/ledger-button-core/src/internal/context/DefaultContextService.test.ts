@@ -319,7 +319,7 @@ describe("DefaultContextService", () => {
 
     describe("preferred_fiat_currency_changed event", () => {
       it("should set preferredFiatCurrency to the given currency", () => {
-        expect(service.getContext().preferredFiatCurrency).toBe(undefined);
+        expect(service.getContext().preferredFiatCurrency).toBe(DEFAULT_FIAT_CURRENCY);
 
         service.onEvent({
           type: "preferred_fiat_currency_changed",

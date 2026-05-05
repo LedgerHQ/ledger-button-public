@@ -87,11 +87,12 @@ export class PreferencesScreen extends LitElement {
     const translations = this.languages.currentTranslation;
     const currentLanguage = this.languages.currentLanguage;
     const settings = translations.settings;
-    const currentCurrency = this.preferencesController.currency;
 
-    if (!settings) {
+    if (!settings || !this.preferencesController) {
       return html`<div>${translations.common?.loading}</div>`;
     }
+
+    const currentCurrency = this.preferencesController.currency;
 
     const preferences = settings.preferences;
     if (!preferences) {
