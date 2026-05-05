@@ -1,9 +1,8 @@
 import "../../../shared/root-navigation.js";
 
-import {
-  type Account,
-  type AccountWithFiat,
-  getCurrencyIdFromChainId,
+import type {
+  Account,
+  AccountWithFiat,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
@@ -181,11 +180,7 @@ export class SelectAccountController implements ReactiveController {
   }
 
   handleAddAccountClick() {
-    const currencyId = getCurrencyIdFromChainId(this.core.getChainId());
-    const url = currencyId
-      ? `ledgerwallet://add-account?currency=${currencyId}`
-      : "ledgerwallet://add-account";
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open("ledgerwallet://add-account", "_blank", "noopener,noreferrer");
   }
 
   close() {
