@@ -322,12 +322,8 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  getAccounts(
-    targetCurrency = DEFAULT_FIAT_CURRENCY,
-  ): Observable<AccountWithFiat[]> {
-    this._logger.debug("Getting accounts with fiat observable", {
-      targetCurrency,
-    });
+  getAccounts(): Observable<AccountWithFiat[]> {
+    this._logger.debug("Getting accounts with fiat observable");
 
     return this.container
       .get<SortAccountsByFiatUseCase>(
@@ -345,7 +341,7 @@ export class LedgerButtonCore {
                 .get<FetchAccountsWithFiatUseCase>(
                   accountModuleTypes.FetchAccountsWithFiatUseCase,
                 )
-                .execute(accounts, targetCurrency),
+                .execute(accounts),
             ),
           ),
       );
