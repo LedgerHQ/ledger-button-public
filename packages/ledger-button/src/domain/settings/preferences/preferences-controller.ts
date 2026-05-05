@@ -12,6 +12,8 @@ export class PreferencesController {
   }
 
   get currency(): string {
-    return this.core.getPreferredFiatCurrency() ?? DEFAULT_CURRENCY;
+    return (
+      this.core.getPreferredFiatCurrency() ?? DEFAULT_CURRENCY
+    ).toUpperCase();
   }
 }

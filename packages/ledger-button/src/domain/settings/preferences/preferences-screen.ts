@@ -87,6 +87,7 @@ export class PreferencesScreen extends LitElement {
     const translations = this.languages.currentTranslation;
     const currentLanguage = this.languages.currentLanguage;
     const settings = translations.settings;
+    const currentCurrency = this.preferencesController.currency;
 
     if (!settings) {
       return html`<div>${translations.common?.loading}</div>`;
@@ -111,7 +112,7 @@ export class PreferencesScreen extends LitElement {
         ${this.renderMenuItem(
           "dollar",
           currencyLabel,
-          "USD",
+          currentCurrency,
           this.handleCurrencyClick,
         )}
       </div>
