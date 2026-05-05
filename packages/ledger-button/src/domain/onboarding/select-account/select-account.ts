@@ -109,12 +109,37 @@ export class SelectAccountScreen extends LitElement {
     `;
   }
 
-  override render() {
+  private renderActionIconButton(params: {
+    iconType: "plus" | "refresh";
+    ariaLabel: string;
+    tooltip: string;
+    onClick: () => void;
+  }) {
+    return html`
+      <ledger-tooltip .content=${params.tooltip} side="top" .sideOffset=${8}>
+        <button
+          type="button"
+          class="bg-muted hover:bg-muted-hover active:bg-muted-pressed flex h-48 w-48 shrink-0 cursor-pointer items-center justify-center rounded-full border-none text-base"
+          aria-label=${params.ariaLabel}
+          @click=${params.onClick}
+        >
+          <ledger-icon
+            .type=${params.iconType}
+            size="small"
+            fillColor="currentColor"
+          ></ledger-icon>
+        </button>
+      </ledger-tooltip>
+    `;
+  }
+
+  private renderSearchHeader() {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="flex items-center gap-8">
         <ledger-search-input
+          class="min-w-0 flex-1"
           .placeholder=${translations.onboarding.selectAccount
             .searchPlaceholder}
           .value=${this.controller.searchQuery}
@@ -122,6 +147,27 @@ export class SelectAccountScreen extends LitElement {
             this.controller.handleSearchInput(e)}
           @search-input-clear=${() => this.controller.handleSearchClear()}
         ></ledger-search-input>
+        ${this.renderActionIconButton({
+          iconType: "plus",
+          ariaLabel: translations.onboarding.selectAccount.addAccountAriaLabel,
+          tooltip: translations.onboarding.selectAccount.addAccountTooltip,
+          onClick: () => this.controller.handleAddAccountClick(),
+        })}
+        ${this.renderActionIconButton({
+          iconType: "refresh",
+          ariaLabel:
+            translations.onboarding.selectAccount.refreshAccountsAriaLabel,
+          tooltip: translations.onboarding.selectAccount.refreshAccountsTooltip,
+          onClick: () => this.controller.handleRefreshAccountsClick(),
+        })}
+      </div>
+    `;
+  }
+
+  override render() {
+    return html`
+      <div class="flex flex-col gap-12 p-24 pt-0">
+        ${this.renderSearchHeader()}
         ${this.controller.filteredAccounts.map(this.renderAccountItem)}
         ${this.renderNoResults()}
       </div>

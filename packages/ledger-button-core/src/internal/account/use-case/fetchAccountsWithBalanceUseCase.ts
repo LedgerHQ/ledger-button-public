@@ -39,12 +39,14 @@ export class FetchAccountsWithBalanceUseCase {
     this.logger = loggerFactory("FetchAccountsWithBalanceUseCase");
   }
 
-  execute(): Observable<Account[]> {
+  execute(options?: { forceRefresh?: boolean }): Observable<Account[]> {
     const existingAccounts = this.accountService.getAccounts();
-    const accountsSource =
-      existingAccounts.length > 0
-        ? of(existingAccounts)
-        : from(this.fetchAccountsUseCase.execute());
+    const accountsSource = this.shouldFetchFromCloudSync(
+      existingAccounts,
+      options,
+    )
+      ? from(this.fetchAccountsUseCase.execute())
+      : of(existingAccounts);
 
     return accountsSource.pipe(
       switchMap((accounts) => {
@@ -69,6 +71,13 @@ export class FetchAccountsWithBalanceUseCase {
         );
       }),
     );
+  }
+
+  private shouldFetchFromCloudSync(
+    cachedAccounts: Account[],
+    options?: { forceRefresh?: boolean },
+  ): boolean {
+    return options?.forceRefresh === true || cachedAccounts.length === 0;
   }
 
   private initializeAccountsWithEmptyBalances(accounts: Account[]): Account[] {
