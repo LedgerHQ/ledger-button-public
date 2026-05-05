@@ -13,10 +13,10 @@ function createMockHost(): ReactiveControllerHost {
 }
 
 function createMockCore(
-  overrides: Partial<{ getPreferredFiatCurrency: () => string | undefined }> = {},
+  overrides: Partial<{ getPreferredFiatCurrency: () => string }> = {},
 ) {
   return {
-    getPreferredFiatCurrency: vi.fn().mockReturnValue(undefined),
+    getPreferredFiatCurrency: vi.fn().mockReturnValue("usd"),
     savePreferredFiatCurrency: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -37,29 +37,20 @@ describe("PreferenceCurrencyController", () => {
   });
 
   describe("currentCurrency", () => {
-    it("should default when preference is unset", () => {
+    it("should return the default currency", () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      expect(controller.currentCurrency).toBe("USD");
+      expect(controller.currentCurrency).toBe("usd");
     });
 
-    it("should normalize stored value to uppercase", () => {
+    it("should reflect the stored currency", () => {
       const core = createMockCore({
         getPreferredFiatCurrency: () => "eur",
       });
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      expect(controller.currentCurrency).toBe("EUR");
-    });
-
-    it("should fall back to default when stored value is unknown", () => {
-      const core = createMockCore({
-        getPreferredFiatCurrency: () => "xyz",
-      });
-      const controller = new PreferenceCurrencyController(host, core as never);
-
-      expect(controller.currentCurrency).toBe("USD");
+      expect(controller.currentCurrency).toBe("eur");
     });
   });
 
@@ -68,14 +59,14 @@ describe("PreferenceCurrencyController", () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      expect(controller.currencies).toEqual(["USD", "EUR", "GBP"]);
+      expect(controller.currencies).toEqual(["usd", "eur", "gbp"]);
     });
 
     it("should always return the same reference", () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      expect(controller.currencies).toBe(controller.currencies);
+      expect(controller.currencies).toStrictEqual(controller.currencies);
     });
   });
 
@@ -84,16 +75,16 @@ describe("PreferenceCurrencyController", () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      await controller.selectCurrency("EUR");
+      await controller.selectCurrency("eur");
 
-      expect(core.savePreferredFiatCurrency).toHaveBeenCalledWith("EUR");
+      expect(core.savePreferredFiatCurrency).toHaveBeenCalledWith("eur");
     });
 
     it("should request a host update after selecting a currency", async () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      await controller.selectCurrency("USD");
+      await controller.selectCurrency("usd");
 
       expect(host.requestUpdate).toHaveBeenCalled();
     });

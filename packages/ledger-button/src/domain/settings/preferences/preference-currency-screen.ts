@@ -50,7 +50,7 @@ export class PreferenceCurrencyScreen extends LitElement {
               aria-current=${currency === selected ? "true" : "false"}
               @click=${() => this.currencyController?.selectCurrency(currency)}
             >
-              <span class="body-2-semi-bold text-base">${currency}</span>
+              <span class="body-2-semi-bold text-base">${currency.toUpperCase()}</span>
               ${currency === selected
                 ? html`
                     <ledger-icon

@@ -4,7 +4,7 @@ import { type CoreContext } from "../../../context/core-context.js";
 
 // CURRENCIES must be a subset of SUPPORTED_FIAT_CURRENCIES in ledger-button-core.
 // Adding a currency here without adding it to core will cause a mismatch!
-const CURRENCIES = ["usd", "eur", "gbp"];
+const CURRENCIES = ["usd", "eur", "gbp"] as const;
 
 export type Currency = (typeof CURRENCIES)[number];
 
@@ -16,12 +16,12 @@ export class PreferenceCurrencyController {
     this.host.addController(this as ReactiveController);
   }
 
-  get currentCurrency(): string {
-    return this.core.getPreferredFiatCurrency().toUpperCase();
+  get currentCurrency() {
+    return this.core.getPreferredFiatCurrency();
   }
 
   get currencies(): readonly Currency[] {
-    return CURRENCIES.map((c) => c.toUpperCase());
+    return CURRENCIES;
   }
 
   async selectCurrency(currency: Currency): Promise<void> {
