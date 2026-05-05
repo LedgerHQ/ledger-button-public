@@ -1,8 +1,9 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { DEFAULT_CURRENCY } from "../../../context/constants/currency.js";
 import { type CoreContext } from "../../../context/core-context.js";
 
-const CURRENCIES = ["usd", "eur", "gbp"] as const;
+const CURRENCIES = ["USD", "EUR", "GBP"] as const;
 
 export type Currency = (typeof CURRENCIES)[number];
 
@@ -12,6 +13,14 @@ export class PreferenceCurrencyController {
     private readonly core: CoreContext,
   ) {
     this.host.addController(this as ReactiveController);
+  }
+
+  get currentCurrency(): Currency {
+    const preferredCurrency = this.core.getPreferredFiatCurrency();
+    const currency = CURRENCIES.find(
+      (c) => c === preferredCurrency?.toUpperCase(),
+    );
+    return currency ?? (DEFAULT_CURRENCY as Currency);
   }
 
   get currencies(): readonly Currency[] {
