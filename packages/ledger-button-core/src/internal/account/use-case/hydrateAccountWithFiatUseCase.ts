@@ -7,6 +7,7 @@ import type { CounterValueResult } from "../../balance/datasource/countervalue/c
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
+import { DEFAULT_FIAT_CURRENCY } from "../model/constant.js";
 import type {
   Account,
   AccountWithFiat,
@@ -29,7 +30,7 @@ export class HydrateAccountWithFiatUseCase {
 
   async execute(
     account: Account,
-    targetCurrency = "usd",
+    targetCurrency = DEFAULT_FIAT_CURRENCY,
   ): Promise<AccountWithFiat> {
     this.logHydrationStart(account);
 

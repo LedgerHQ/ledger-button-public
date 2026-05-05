@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
+import { DEFAULT_FIAT_CURRENCY } from "../account/model/constant.js";
 import type { Account } from "../account/service/AccountService.js";
 import type { Device } from "../device/model/Device.js";
 import * as chainUtils from "../evm-provider/utils/chainUtils.js";
@@ -80,7 +81,7 @@ describe("DefaultContextService", () => {
         welcomeScreenCompleted: false,
         hasTrackingConsent: undefined,
         isMobilePlatform: false,
-        preferredFiatCurrency: undefined,
+        preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
       });
     });
   });
@@ -112,7 +113,7 @@ describe("DefaultContextService", () => {
             welcomeScreenCompleted: false,
             hasTrackingConsent: false,
             isMobilePlatform: false,
-            preferredFiatCurrency: undefined,
+            preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
           },
         },
         expectedContext: {
@@ -124,7 +125,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -139,7 +140,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -154,7 +155,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -169,7 +170,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -184,7 +185,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -209,7 +210,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -227,7 +228,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
@@ -245,7 +246,7 @@ describe("DefaultContextService", () => {
               welcomeScreenCompleted: false,
               hasTrackingConsent: false,
               isMobilePlatform: false,
-              preferredFiatCurrency: undefined,
+              preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
             },
           });
         },
@@ -258,7 +259,7 @@ describe("DefaultContextService", () => {
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
           isMobilePlatform: false,
-          preferredFiatCurrency: undefined,
+          preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
     ])("onEvent - $eventType", (event) => {
@@ -320,14 +321,23 @@ describe("DefaultContextService", () => {
       it("should set preferredFiatCurrency to the given currency", () => {
         expect(service.getContext().preferredFiatCurrency).toBe(undefined);
 
-        service.onEvent({ type: "preferred_fiat_currency_changed", currency: "eur" });
+        service.onEvent({
+          type: "preferred_fiat_currency_changed",
+          currency: "eur",
+        });
 
         expect(service.getContext().preferredFiatCurrency).toBe("eur");
       });
 
       it("should update preferredFiatCurrency when changed again", () => {
-        service.onEvent({ type: "preferred_fiat_currency_changed", currency: "usd" });
-        service.onEvent({ type: "preferred_fiat_currency_changed", currency: "gbp" });
+        service.onEvent({
+          type: "preferred_fiat_currency_changed",
+          currency: "usd",
+        });
+        service.onEvent({
+          type: "preferred_fiat_currency_changed",
+          currency: "gbp",
+        });
 
         expect(service.getContext().preferredFiatCurrency).toBe("gbp");
       });

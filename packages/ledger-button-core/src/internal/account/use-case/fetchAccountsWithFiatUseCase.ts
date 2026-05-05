@@ -14,6 +14,7 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
+import { DEFAULT_FIAT_CURRENCY } from "../model/constant.js";
 import type {
   Account,
   AccountUpdate,
@@ -36,7 +37,7 @@ export class FetchAccountsWithFiatUseCase {
 
   execute(
     accounts: Account[],
-    targetCurrency = "usd",
+    targetCurrency = DEFAULT_FIAT_CURRENCY,
   ): Observable<AccountWithFiat[]> {
     if (accounts.length === 0) {
       return of([]);
