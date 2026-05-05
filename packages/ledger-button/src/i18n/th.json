@@ -121,7 +121,11 @@
       "searchPlaceholder": "ค้นหาบัญชี",
       "noResults": "ไม่มีบัญชีที่ตรงกับการค้นหาของคุณ",
       "refreshingAccounts": "แอป Ledger Wallet กำลังอัปเดตข้อมูลบัญชีของคุณ",
-      "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ"
+      "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ",
+      "addAccountAriaLabel": "เพิ่มบัญชี",
+      "refreshAccountsAriaLabel": "รีเฟรชบัญชี",
+      "addAccountTooltip": "สร้างบัญชีใหม่",
+      "refreshAccountsTooltip": "รีเฟรช"
     },
     "connectionSuccess": {
       "title": "คุณได้เชื่อมต่อแล้ว",

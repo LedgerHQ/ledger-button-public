@@ -1,11 +1,12 @@
 import "../../../shared/root-navigation.js";
 
-import type {
-  Account,
-  AccountWithFiat,
+import {
+  type Account,
+  type AccountWithFiat,
+  getCurrencyIdFromChainId,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { ReactiveController, ReactiveControllerHost } from "lit";
-import { Subscription } from "rxjs";
+import type { ReactiveController, ReactiveControllerHost } from "lit";
+import type { Subscription } from "rxjs";
 
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext } from "../../../context/core-context.js";
@@ -64,7 +65,7 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  getAccounts() {
+  getAccounts(options?: { forceRefresh?: boolean }) {
     if (this.accountsSubscription) {
       this.accountsSubscription.unsubscribe();
     }
@@ -72,7 +73,7 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts().subscribe({
+    this.accountsSubscription = this.core.getAccounts(options).subscribe({
       next: (accounts) => {
         this.accounts = accounts;
         this.isAccountsLoading = false;
@@ -173,6 +174,18 @@ export class SelectAccountController implements ReactiveController {
   handleSearchClear() {
     this.searchQuery = "";
     this.host.requestUpdate();
+  }
+
+  handleRefreshAccountsClick() {
+    this.getAccounts({ forceRefresh: true });
+  }
+
+  handleAddAccountClick() {
+    const currencyId = getCurrencyIdFromChainId(this.core.getChainId());
+    const url = currencyId
+      ? `ledgerwallet://add-account?currency=${currencyId}`
+      : "ledgerwallet://add-account";
+    window.open(url, "_blank", "noopener,noreferrer");
   }
 
   close() {

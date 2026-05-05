@@ -121,7 +121,11 @@
       "searchPlaceholder": "Buscar cuenta",
       "noResults": "No hay ninguna cuenta que coincida con tu búsqueda",
       "refreshingAccounts": "Ledger Wallet está actualizando tus cuentas.",
-      "refreshingAccountsHint": "Selecciona una cuenta en cualquier momento para continuar."
+      "refreshingAccountsHint": "Selecciona una cuenta en cualquier momento para continuar.",
+      "addAccountAriaLabel": "Añadir cuenta",
+      "refreshAccountsAriaLabel": "Actualizar cuentas",
+      "addAccountTooltip": "Crear una nueva cuenta",
+      "refreshAccountsTooltip": "Actualizar"
     },
     "connectionSuccess": {
       "title": "Ya estás conectado",

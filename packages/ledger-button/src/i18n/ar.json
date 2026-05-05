@@ -121,7 +121,11 @@
       "searchPlaceholder": "ابحث في الحساب",
       "noResults": "لا توجد حسابات تطابق بحثك",
       "refreshingAccounts": "Ledger Wallet يقوم بتحديث حساباتك.",
-      "refreshingAccountsHint": "اختر حساباً في أي وقت للمتابعة."
+      "refreshingAccountsHint": "اختر حساباً في أي وقت للمتابعة.",
+      "addAccountAriaLabel": "إضافة حساب",
+      "refreshAccountsAriaLabel": "تحديث الحسابات",
+      "addAccountTooltip": "إنشاء حساب جديد",
+      "refreshAccountsTooltip": "تحديث"
     },
     "connectionSuccess": {
       "title": "You are now connected",

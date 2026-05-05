@@ -322,8 +322,12 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  getAccounts(): Observable<AccountWithFiat[]> {
-    this._logger.debug("Getting accounts with fiat observable");
+  getAccounts(options?: {
+    forceRefresh?: boolean;
+  }): Observable<AccountWithFiat[]> {
+    this._logger.debug("Getting accounts with fiat observable", {
+      forceRefresh: options?.forceRefresh ?? false,
+    });
 
     return this.container
       .get<SortAccountsByFiatUseCase>(
@@ -334,7 +338,7 @@ export class LedgerButtonCore {
           .get<FetchAccountsWithBalanceUseCase>(
             accountModuleTypes.FetchAccountsWithBalanceUseCase,
           )
-          .execute()
+          .execute(options)
           .pipe(
             switchMap((accounts) =>
               this.container

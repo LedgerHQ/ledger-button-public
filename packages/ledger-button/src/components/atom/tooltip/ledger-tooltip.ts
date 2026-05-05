@@ -27,7 +27,7 @@ export interface LedgerTooltipAttributes {
 const ARROW_SIZE = 5;
 
 const tooltipContentVariants = cva(
-  "z-tooltip w-fit rounded-xs border border-muted-subtle bg-base text-base shadow-sm select-none text-balance body-3",
+  "z-tooltip border-muted-subtle bg-interactive body-3 w-fit rounded-xs border text-on-interactive text-balance shadow-sm select-none",
   {
     variants: {
       side: {
@@ -84,7 +84,7 @@ const styles = css`
   }
 
   .tooltip-popup {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: max-content;
@@ -99,7 +99,7 @@ const styles = css`
   .tooltip-arrow {
     position: absolute;
     rotate: 45deg;
-    background: var(--background-base);
+    background: var(--background-interactive);
     border: 1px solid var(--border-muted-subtle);
   }
 `;
@@ -235,6 +235,7 @@ export class LedgerTooltip extends LitElement {
       middlewareData,
     } = await computePosition(this.triggerEl, this.popupEl, {
       placement,
+      strategy: "fixed",
       middleware: [
         offset(ARROW_SIZE + this.sideOffset),
         flip(),
@@ -314,7 +315,7 @@ export class LedgerTooltip extends LitElement {
         @animationend=${this.handleAnimationEnd}
       >
         <div class="tooltip-arrow size-10"></div>
-        <div class="bg-base relative z-1 rounded-xs px-8 py-4">
+        <div class="bg-interactive relative z-1 rounded-xs px-8 py-4">
           ${this.content}
         </div>
       </div>
