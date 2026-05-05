@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import {
   catchError,
+  distinctUntilChanged,
   from,
   map,
   merge,
@@ -8,13 +9,15 @@ import {
   of,
   scan,
   startWith,
+  switchMap,
 } from "rxjs";
 
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
-import { DEFAULT_FIAT_CURRENCY } from "../model/constant.js";
 import type {
   Account,
   AccountUpdate,
@@ -31,22 +34,31 @@ export class FetchAccountsWithFiatUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(accountModuleTypes.HydrateAccountWithFiatUseCase)
     private readonly hydrateAccountWithFiatUseCase: HydrateAccountWithFiatUseCase,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("FetchAccountsWithFiatUseCase");
   }
 
-  execute(
-    accounts: Account[],
-    targetCurrency = DEFAULT_FIAT_CURRENCY,
-  ): Observable<AccountWithFiat[]> {
+  execute(accounts: Account[]): Observable<AccountWithFiat[]> {
     if (accounts.length === 0) {
       return of([]);
     }
 
+    return this.contextService.observeContext().pipe(
+      map((context) => context.preferredFiatCurrency),
+      distinctUntilChanged(),
+      switchMap(() => this.hydrateAccounts(accounts)),
+    );
+  }
+
+  private hydrateAccounts(
+    accounts: Account[],
+  ): Observable<AccountWithFiat[]> {
     const initialAccounts = this.initializeAccountsWithoutFiat(accounts);
 
     const fiatObservables = initialAccounts.map((account) =>
-      this.createFiatObservable(account, targetCurrency),
+      this.createFiatObservable(account),
     );
 
     return merge(...fiatObservables).pipe(
@@ -71,13 +83,8 @@ export class FetchAccountsWithFiatUseCase {
     );
   }
 
-  private createFiatObservable(
-    account: Account,
-    targetCurrency: string,
-  ): Observable<AccountUpdate> {
-    return from(
-      this.hydrateAccountWithFiatUseCase.execute(account, targetCurrency),
-    ).pipe(
+  private createFiatObservable(account: Account): Observable<AccountUpdate> {
+    return from(this.hydrateAccountWithFiatUseCase.execute(account)).pipe(
       catchError((error) => {
         this.logger.warn(
           "Failed to fetch fiat value for account, keeping original",
