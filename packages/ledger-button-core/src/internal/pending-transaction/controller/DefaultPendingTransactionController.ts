@@ -57,12 +57,22 @@ export class DefaultPendingTransactionController
   }
 
   private startPollingWhenAccountAvailable(): void {
+    let preferredCurrency: string | undefined;
+
     this.contextService.observeContext().subscribe((context) => {
       const account = context.selectedAccount;
       const isHydrated = account && account.ticker && account.ticker.length > 0;
       if (isHydrated && this.storageService.getAll().length > 0) {
         this.startPolling();
       }
+
+      if (
+        preferredCurrency !== undefined &&
+        context.preferredFiatCurrency !== preferredCurrency
+      ) {
+        this.emitCurrentState();
+      }
+      preferredCurrency = context.preferredFiatCurrency;
     });
   }
 
@@ -138,7 +148,7 @@ export class DefaultPendingTransactionController
   private async emitCurrentState(): Promise<void> {
     const hydratedTxs = this.hydratePendingTransactionsWithFiatUseCase.execute(
       this.storageService.getAll(),
-      "usd",
+      this.contextService.getContext().preferredFiatCurrency,
     );
     this.pendingTxSubject.next(await hydratedTxs);
   }

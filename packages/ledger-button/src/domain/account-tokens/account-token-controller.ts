@@ -50,7 +50,7 @@ export class AccountTokenController implements ReactiveController {
     this.loading = true;
     this.isFirstEmission = true;
 
-    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+    this.accountsSubscription = this.core.getAccounts().subscribe({
       next: (accounts) => {
         this.account =
           accounts.find((acc: AccountWithFiat) => acc.id === targetId) ?? null;

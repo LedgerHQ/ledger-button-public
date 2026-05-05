@@ -1,6 +1,8 @@
 import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
@@ -24,6 +26,8 @@ export class HydrateAccountWithTxHistoryUseCase {
     private readonly fetchTransactionHistoryUseCase: FetchTransactionHistoryUseCase,
     @inject(transactionHistoryModuleTypes.HydrateTransactionsWithFiatUseCase)
     private readonly hydrateTransactionsWithFiatUseCase: HydrateTransactionsWithFiatUseCase,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("HydrateAccountWithTxHistoryUseCase");
   }
@@ -62,7 +66,7 @@ export class HydrateAccountWithTxHistoryUseCase {
         const hydratedTransactions =
           await this.hydrateTransactionsWithFiatUseCase.execute(
             historyResult.transactions,
-            "usd",
+            this.contextService.getContext().preferredFiatCurrency,
           );
         return {
           ...account,
