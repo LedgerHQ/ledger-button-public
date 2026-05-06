@@ -144,7 +144,7 @@ Special case for commit messages coming from a pull request merge:
     }
 
     const currentBranch = Branch(danger, fail, fork).getBranch();
-    return execFileSync("git", [
+    return execFileSync("/usr/bin/git", [
       "log",
       `origin/develop..${currentBranch}`,
       "--pretty=format:%s",
