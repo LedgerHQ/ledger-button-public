@@ -51,7 +51,20 @@ export default defineConfig(() => ({
     coverage: {
       reportsDirectory: "./test-output/vitest/coverage",
       provider: "v8" as const,
-      reporter: ["text", "lcov"],
+      // projectRoot makes lcov SF: paths relative to the workspace root
+      // (e.g. "packages/ledger-button/src/...") so SonarCloud can resolve them.
+      reporter: [
+        "text",
+        ["lcov", { projectRoot: path.resolve(__dirname, "../..") }],
+      ],
+      exclude: [
+        "scope-css-variables.js",
+        "**/.storybook/**",
+        "**/*.config.{js,cjs,mjs,ts,mts}",
+        "**/*.d.ts",
+        "**/index.ts",
+        "**/dist/**",
+      ],
     },
   },
 }));
