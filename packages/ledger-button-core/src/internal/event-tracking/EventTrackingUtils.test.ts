@@ -38,6 +38,39 @@ describe("EventTrackingUtils", () => {
       expect(result.errors).toBeUndefined();
     });
 
+    it("should validate a correctly formatted view transaction details clicked event", () => {
+      const event =
+        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          chainId: "1",
+          transactionHash:
+            "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+        });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+    });
+
+    it("should normalize the transaction_hash on the view-details click event", () => {
+      const event =
+        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          chainId: "1",
+          transactionHash:
+            "0xCAF172BF3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+        });
+
+      expect(
+        (event.data as { transaction_hash: string }).transaction_hash,
+      ).toBe(
+        "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+      );
+    });
+
     it("should return detailed errors for an invalid event", () => {
       const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
         dAppId: "test-dapp",
