@@ -1,0 +1,51 @@
+name: "[CI] Sonar"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches-ignore:
+      - main
+
+env:
+  FORCE_COLOR: "1"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name != 'develop' && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  unit-testing:
+    name: "Unit tests with coverage"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-action-composite
+
+      - name: Run unit tests with coverage
+        run: pnpm test:coverage
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            packages/ledger-button/test-output/vitest/coverage/lcov.info
+            packages/ledger-button-core/test-output/vitest/coverage/lcov.info
+          if-no-files-found: error
+
+  sonar:
+    name: "Sonar scan"
+    needs: unit-testing
+    if: ${{ !cancelled() && needs.unit-testing.result == 'success' }}
+    uses: ./.github/workflows/scan-sonar-called.yml
+    with:
+      should_download_coverage: true
+    secrets: inherit
