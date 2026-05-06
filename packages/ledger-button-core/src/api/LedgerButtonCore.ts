@@ -59,6 +59,7 @@ import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/Tra
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
 import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
@@ -679,6 +680,16 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackFloatingButtonClick,
       )
       .execute();
+  }
+
+  async trackViewTransactionDetailsClicked(
+    transactionHash: string,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewTransactionDetailsClick>(
+        eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
+      )
+      .execute(transactionHash);
   }
 
   async trackWalletActionClicked(

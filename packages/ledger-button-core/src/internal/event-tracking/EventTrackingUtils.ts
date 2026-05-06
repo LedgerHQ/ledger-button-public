@@ -18,6 +18,7 @@ import {
   type TransactionFlowInitializationEventData,
   type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
+  type ViewTransactionDetailsClickedEventData,
   type WalletActionClickedEventData,
   type WalletActionType,
   type WalletRedirectCancelledEventData,
@@ -258,6 +259,28 @@ export class EventTrackingUtils {
     return {
       name: EventType.InvoicingTransactionSigned,
       type: EventType.InvoicingTransactionSigned,
+      data,
+    };
+  }
+
+  static createViewTransactionDetailsClickedEvent(
+    params: TransactionEventParams & { transactionHash: string },
+  ): EventRequest {
+    const data: ViewTransactionDetailsClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewTransactionDetailsClicked,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: "ethereum",
+      chain_id: params.chainId,
+      transaction_hash: normalizeTransactionHash(params.transactionHash),
+    };
+
+    return {
+      name: EventType.ViewTransactionDetailsClicked,
+      type: EventType.ViewTransactionDetailsClicked,
       data,
     };
   }
