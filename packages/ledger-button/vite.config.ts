@@ -57,13 +57,24 @@ export default defineConfig(() => ({
         "text",
         ["lcov", { projectRoot: path.resolve(__dirname, "../..") }],
       ],
+      // Mirror sonar.coverage.exclusions in sonar-project.properties so that
+      // lcov.info doesn't reference files SonarCloud excludes (avoids the
+      // "Could not resolve N file paths" warning).
       exclude: [
-        "scope-css-variables.js",
-        "**/.storybook/**",
+        "**/*.spec.{ts,tsx}",
+        "**/*.test.{ts,tsx}",
+        "**/*.stories.{ts,tsx}",
         "**/*.config.{js,cjs,mjs,ts,mts}",
+        "**/eslint.config.*",
+        "**/vite.config.*",
+        "**/tailwind.config.*",
+        "**/postcss.config.*",
+        "**/scope-css-variables.js",
         "**/*.d.ts",
         "**/index.ts",
+        "**/.storybook/**",
         "**/dist/**",
+        "src/i18n/**",
       ],
     },
   },
