@@ -6,6 +6,14 @@ import { type CoreContext } from "../../../context/core-context.js";
 // Adding a currency here without adding it to core will cause a mismatch!
 const CURRENCIES = ["usd", "eur", "gbp"] as const;
 
+// To be handled by fiat detailed service https://ledgerhq.atlassian.net/browse/LBD-485
+const FIAT_CURRENCY_DISPLAY_NAMES: Record<(typeof CURRENCIES)[number], string> =
+  {
+    usd: "USD Dollar - USD",
+    eur: "Euro - EUR",
+    gbp: "British Pound - GBP",
+  };
+
 export type Currency = (typeof CURRENCIES)[number];
 
 export class PreferenceCurrencyController {
@@ -22,6 +30,10 @@ export class PreferenceCurrencyController {
 
   get currencies(): readonly Currency[] {
     return CURRENCIES;
+  }
+
+  getCurrencyDisplayName(currency: Currency): string {
+    return FIAT_CURRENCY_DISPLAY_NAMES[currency];
   }
 
   async selectCurrency(currency: Currency): Promise<void> {
