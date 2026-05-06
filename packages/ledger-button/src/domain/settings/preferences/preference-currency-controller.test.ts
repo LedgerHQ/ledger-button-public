@@ -70,6 +70,21 @@ describe("PreferenceCurrencyController", () => {
     });
   });
 
+  describe("getCurrencyDisplayName", () => {
+    it("should return the display label for each supported currency", () => {
+      const core = createMockCore();
+      const controller = new PreferenceCurrencyController(host, core as never);
+
+      expect(controller.getCurrencyDisplayName("usd")).toBe(
+        "USD Dollar - USD",
+      );
+      expect(controller.getCurrencyDisplayName("eur")).toBe("Euro - EUR");
+      expect(controller.getCurrencyDisplayName("gbp")).toBe(
+        "British Pound - GBP",
+      );
+    });
+  });
+
   describe("selectCurrency", () => {
     it("should call core.savePreferredFiatCurrency with the selected currency", async () => {
       const core = createMockCore();

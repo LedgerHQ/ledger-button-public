@@ -38,19 +38,26 @@ export class PreferenceCurrencyScreen extends LitElement {
   }
 
   override render() {
-    const selected = this.currencyController?.currentCurrency;
+    const controller = this.currencyController;
+    const selected = controller?.currentCurrency;
+
+    if (!controller) {
+      return html`<div class="flex flex-col px-16"></div>`;
+    }
 
     return html`
       <div class="flex flex-col px-16">
-        ${this.currencyController?.currencies.map(
+        ${controller.currencies.map(
           (currency) => html`
             <button
               type="button"
               class="bg-base-transparent hover:bg-base-transparent-hover flex h-64 w-full cursor-pointer items-center justify-between gap-16 rounded-md px-8 py-0 text-left transition duration-150 ease-in-out"
               aria-current=${currency === selected ? "true" : "false"}
-              @click=${() => this.currencyController?.selectCurrency(currency)}
+              @click=${() => controller.selectCurrency(currency)}
             >
-              <span class="body-2-semi-bold text-base">${currency.toUpperCase()}</span>
+              <span class="body-2-semi-bold text-base">
+                ${controller.getCurrencyDisplayName(currency)}
+              </span>
               ${currency === selected
                 ? html`
                     <ledger-icon
