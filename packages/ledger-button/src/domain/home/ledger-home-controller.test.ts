@@ -84,6 +84,7 @@ describe("LedgerHomeController", () => {
         freshAddress: "0xabc123",
         currencyId: "ethereum",
       },
+      preferredFiatCurrency: "usd",
     });
 
     core = {
@@ -91,9 +92,7 @@ describe("LedgerHomeController", () => {
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTxSubject.asObservable()),
-      getDetailedSelectedAccount: vi
-        .fn()
-        .mockResolvedValue(mockRight(account)),
+      getDetailedSelectedAccount: vi.fn().mockResolvedValue(mockRight(account)),
     } as unknown as CoreContext;
 
     navigation = {
@@ -106,24 +105,68 @@ describe("LedgerHomeController", () => {
       onboardingFlow: { name: "onboarding-flow" },
     } as unknown as Destinations;
 
-    controller = new LedgerHomeController(
-      host,
-      core,
-      navigation,
-      destinations,
-    );
+    controller = new LedgerHomeController(host, core, navigation, destinations);
   });
 
-  describe("context-driven account updates", () => {
-    async function connectAndWaitForLoad() {
-      controller.hostConnected();
+  async function connectAndWaitForLoad() {
+    controller.hostConnected();
+    await vi.waitFor(() => {
+      expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
+    });
+    (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+    (host.requestUpdate as ReturnType<typeof vi.fn>).mockClear();
+  }
+
+  describe("preferredCurrency", () => {
+    it("returns the uppercased currency emitted by context", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "eur",
+      });
+
+      expect(controller.preferredCurrency).toBe("EUR");
+    });
+
+    it("calls getSelectedAccount when preferredFiatCurrency changes", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "usd",
+      });
+      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "eur",
+      });
+
       await vi.waitFor(() => {
         expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
       });
-      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
-      (host.requestUpdate as ReturnType<typeof vi.fn>).mockClear();
-    }
+    });
 
+    it("does not call getSelectedAccount when preferredFiatCurrency stays the same", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "usd",
+      });
+      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "usd",
+      });
+
+      expect(core.getDetailedSelectedAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("context-driven account updates", () => {
     it("should update selectedAccount when context emits a DetailedAccount with transactionHistory", async () => {
       const freshAccount = createDetailedAccount({
         transactionHistory: [
@@ -142,6 +185,7 @@ describe("LedgerHomeController", () => {
 
       contextSubject.next({
         selectedAccount: freshAccount,
+        preferredFiatCurrency: "usd",
       });
 
       expect(controller.selectedAccount).toEqual(freshAccount);
@@ -157,6 +201,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xdifferent",
           currencyId: "ethereum",
         },
+        preferredFiatCurrency: "usd",
       });
 
       await vi.waitFor(() => {
@@ -172,6 +217,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xabc123",
           currencyId: "polygon",
         },
+        preferredFiatCurrency: "usd",
       });
 
       await vi.waitFor(() => {
@@ -187,6 +233,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xabc123",
           currencyId: "ethereum",
         },
+        preferredFiatCurrency: "usd",
       });
 
       expect(core.getDetailedSelectedAccount).not.toHaveBeenCalled();
@@ -236,7 +283,10 @@ describe("LedgerHomeController", () => {
       await vi.waitFor(() => {
         expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
       });
-      contextSubject.next({ selectedAccount: accountWithExplorerUrl });
+      contextSubject.next({
+        selectedAccount: accountWithExplorerUrl,
+        preferredFiatCurrency: "usd",
+      });
 
       expect(controller.transactionListItems[0]?.explorerUrl).toBe(
         "https://etherscan.io/tx/0xabc",

@@ -47,11 +47,18 @@ function createMockLanguages(overrides?: { settings?: unknown }) {
   };
 }
 
+function createMockCore() {
+  return {
+    getPreferredFiatCurrency: vi.fn().mockReturnValue("usd"),
+  };
+}
+
 function createPreferencesScreen(
   overrides: {
     languages?: unknown;
     navigation?: unknown;
     destinations?: unknown;
+    core?: unknown;
   } = {},
 ) {
   const el = new PreferencesScreen();
@@ -59,6 +66,10 @@ function createPreferencesScreen(
   el.destinations = (overrides.destinations ??
     createMockDestinations()) as never;
   el.languages = (overrides.languages ?? createMockLanguages()) as never;
+  el.core = (overrides.core ?? createMockCore()) as never;
+  (el as unknown as { willUpdate(map: Map<string, unknown>): void }).willUpdate(
+    new Map([["core", undefined]]),
+  );
   return el;
 }
 

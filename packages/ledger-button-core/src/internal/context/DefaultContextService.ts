@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 
 import { type ContextEvent } from "./model/ContextEvent.js";
 import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
+import { DEFAULT_FIAT_CURRENCY } from "../account/model/constant.js";
 import {
   type Account,
   type DetailedAccount,
@@ -26,6 +27,7 @@ export class DefaultContextService implements ContextService {
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
     isMobilePlatform: false,
+    preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
   };
 
   private readonly logger: LoggerPublisher;
@@ -91,6 +93,9 @@ export class DefaultContextService implements ContextService {
         break;
       case "tracking_consent_refused":
         this.context.hasTrackingConsent = false;
+        break;
+      case "preferred_fiat_currency_changed":
+        this.context.preferredFiatCurrency = event.currency;
         break;
     }
 

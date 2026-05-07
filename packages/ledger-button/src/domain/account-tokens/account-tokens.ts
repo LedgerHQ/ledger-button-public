@@ -49,7 +49,10 @@ export class AccountTokensScreen extends LitElement {
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
         .value=${token.balance}
-        .fiatValue=${formatFiatBalance(token.fiatBalance)}
+        .fiatValue=${formatFiatBalance(
+          token.fiatBalance,
+          this.languages.locale,
+        )}
         .isClickable=${false}
         type="token"
         iconVariant="rounded"
@@ -60,9 +63,7 @@ export class AccountTokensScreen extends LitElement {
   private renderLoadingSkeleton() {
     return html`
       <div class="flex flex-col gap-12">
-        <ledger-skeleton
-          class="h-48 w-full rounded-xl"
-        ></ledger-skeleton>
+        <ledger-skeleton class="h-48 w-full rounded-xl"></ledger-skeleton>
       </div>
     `;
   }
@@ -71,9 +72,7 @@ export class AccountTokensScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div
-        class="flex flex-col items-center justify-center py-48 text-center"
-      >
+      <div class="flex flex-col items-center justify-center py-48 text-center">
         <span class="text-muted body-2">
           ${translations.accountTokens?.noTokens ||
           "No tokens found for this account"}
@@ -98,9 +97,7 @@ export class AccountTokensScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div
-        class="sticky bottom-0 rounded-2xl bg-canvas-sheet p-24 pt-0"
-      >
+      <div class="bg-canvas-sheet sticky bottom-0 rounded-2xl p-24 pt-0">
         <ledger-button
           variant="primary"
           size="full"
@@ -117,7 +114,9 @@ export class AccountTokensScreen extends LitElement {
     if (!this.controller.account) {
       return html`
         <div class="flex h-full items-center justify-center">
-          <span class="text-muted body-2">${translations.accountTokens?.notFound}</span>
+          <span class="text-muted body-2"
+            >${translations.accountTokens?.notFound}</span
+          >
         </div>
       `;
     }
@@ -125,7 +124,7 @@ export class AccountTokensScreen extends LitElement {
     return html`
       <div class="relative flex h-full flex-col">
         <div
-          class="sticky top-0 flex flex-col gap-4 border-b border-muted-subtle bg-canvas-sheet p-12"
+          class="border-muted-subtle bg-canvas-sheet sticky top-0 flex flex-col gap-4 border-b p-12"
           style="z-index: 100;"
         >
           <div class="flex items-center gap-12">
@@ -135,7 +134,7 @@ export class AccountTokensScreen extends LitElement {
               size="large"
             ></ledger-crypto-icon>
             <div class="flex flex-col gap-4">
-              <span class="text-lg body-1-semi-bold"
+              <span class="body-1-semi-bold text-lg"
                 >${this.controller.account.name}</span
               >
               <span class="text-muted body-3"
