@@ -201,6 +201,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xdifferent",
           currencyId: "ethereum",
         },
+        preferredFiatCurrency: "usd",
       });
 
       await vi.waitFor(() => {
@@ -216,6 +217,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xabc123",
           currencyId: "polygon",
         },
+        preferredFiatCurrency: "usd",
       });
 
       await vi.waitFor(() => {
@@ -281,7 +283,10 @@ describe("LedgerHomeController", () => {
       await vi.waitFor(() => {
         expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
       });
-      contextSubject.next({ selectedAccount: accountWithExplorerUrl });
+      contextSubject.next({
+        selectedAccount: accountWithExplorerUrl,
+        preferredFiatCurrency: "usd",
+      });
 
       expect(controller.transactionListItems[0]?.explorerUrl).toBe(
         "https://etherscan.io/tx/0xabc",
