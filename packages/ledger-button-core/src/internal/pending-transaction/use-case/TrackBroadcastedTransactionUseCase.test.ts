@@ -125,6 +125,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
               name: "Ethereum",
               ticker: "ETH",
               decimals: 18,
+              transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
             }),
           );
       }),
