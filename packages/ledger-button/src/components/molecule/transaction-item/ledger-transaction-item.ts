@@ -113,7 +113,7 @@ export class LedgerTransactionItem extends LitElement {
         >
           <ledger-icon
             type=${this.iconType}
-            size="small"
+            .size=${16}
             fillColor="currentColor"
             class="text-base"
           ></ledger-icon>
@@ -155,7 +155,7 @@ export class LedgerTransactionItem extends LitElement {
         <span>${this.viewOnExplorerLabel}</span>
         <ledger-icon
           type="externalLink"
-          size="small"
+          .size=${16}
           fillColor="currentColor"
         ></ledger-icon>
       </div>

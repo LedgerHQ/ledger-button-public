@@ -139,7 +139,7 @@ export class LedgerStatus extends LitElement {
           >
             <ledger-icon
               .type=${this.iconType}
-              size="large"
+              .size=${32}
               fillColor="currentColor"
             ></ledger-icon>
           </div>

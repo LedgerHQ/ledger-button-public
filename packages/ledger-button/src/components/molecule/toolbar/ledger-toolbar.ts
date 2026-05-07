@@ -98,7 +98,7 @@ export class LedgerToolbar extends LitElement {
     }
 
     if (this.showLogo) {
-      return html` <ledger-icon type="ledger" size="medium"></ledger-icon> `;
+      return html` <ledger-icon type="ledger" .size=${24}></ledger-icon> `;
     }
 
     return nothing;

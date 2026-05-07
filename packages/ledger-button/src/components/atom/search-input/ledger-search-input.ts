@@ -119,7 +119,7 @@ export class LedgerSearchInput extends LitElement {
         aria-label=${clearAriaLabel}
         tabindex="-1"
       >
-        <ledger-icon type="close" size="small" fillColor="white"></ledger-icon>
+        <ledger-icon type="close" .size=${16} fillColor="white"></ledger-icon>
       </button>
     `;
   }
@@ -134,7 +134,7 @@ export class LedgerSearchInput extends LitElement {
       <div class=${classMap(containerClasses)}>
         <ledger-icon
           type="search"
-          size="small"
+          .size=${16}
           fillColor="white"
           class="flex-shrink-0"
         ></ledger-icon>

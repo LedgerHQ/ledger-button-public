@@ -1,3 +1,4 @@
+import { cva } from "class-variance-authority";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -44,6 +45,8 @@ import {
   UsbIcon,
 } from "./index";
 
+export type LedgerIconSize = 12 | 16 | 20 | 24 | 32 | 40 | 48 | 56;
+
 export interface LedgerIconAttributes {
   type:
     | "ledger"
@@ -82,12 +85,28 @@ export interface LedgerIconAttributes {
     | "headphone"
     | "envelope"
     | "shield"
-    | "language"
     | "plus"
-    | "refresh";
-  size: "small" | "20" | "medium" | "large" | "40";
+    | "refresh"
+    | "language";
+  size?: LedgerIconSize;
   fillColor?: string;
 }
+
+const iconVariants = cva("inline-flex shrink-0 items-center justify-center", {
+  variants: {
+    size: {
+      12: "icon-w-12 icon-h-12 icon-stroke-12",
+      16: "icon-w-16 icon-h-16 icon-stroke-16",
+      20: "icon-w-20 icon-h-20 icon-stroke-20",
+      24: "icon-w-24 icon-h-24 icon-stroke-24",
+      32: "icon-w-32 icon-h-32 icon-stroke-32",
+      40: "icon-w-40 icon-h-40 icon-stroke-40",
+      48: "icon-w-48 icon-h-48 icon-stroke-48",
+      56: "icon-w-56 icon-h-56 icon-stroke-56",
+    },
+  },
+  defaultVariants: { size: 24 },
+});
 
 const styles = css`
   svg {
@@ -103,23 +122,11 @@ export class LedgerIcon extends LitElement {
   @property({ type: String })
   type: LedgerIconAttributes["type"] = "ledger";
 
-  @property({ type: String })
-  size = "medium";
+  @property({ type: Number })
+  size: LedgerIconSize = 24;
 
   @property({ type: String })
   fillColor?: string;
-
-  private get iconClasses(): string {
-    const sizeClasses: { [key: string]: string } = {
-      small: "w-16 h-16",
-      20: "w-20 h-20",
-      medium: "w-24 h-24",
-      large: "w-32 h-32",
-      40: "w-40 h-40",
-    };
-
-    return sizeClasses[this.size];
-  }
 
   override render() {
     const iconMapper = {
@@ -171,7 +178,7 @@ export class LedgerIcon extends LitElement {
       role="img"
       style="fill: ${this.fillColor ?? "black"}; color: ${this.fillColor ??
       "black"};"
-      class="${this.iconClasses} flex items-center justify-center"
+      class=${iconVariants({ size: this.size })}
     >
       ${renderIcon()}
     </div> `;

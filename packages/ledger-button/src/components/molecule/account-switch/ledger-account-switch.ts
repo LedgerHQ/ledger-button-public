@@ -58,7 +58,7 @@ export class LedgerAccountSwitch extends LitElement {
           <ledger-icon
             class="shrink-0"
             type="chevronDown"
-            size="medium"
+            .size=${24}
           ></ledger-icon>
         </div>
         <div class="flex items-center gap-4">

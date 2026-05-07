@@ -74,7 +74,7 @@ export class WelcomeScreen extends LitElement {
         <div
           class="flex h-24 w-24 flex-shrink-0 items-center justify-center"
         >
-          <ledger-icon type=${iconType} size="medium"></ledger-icon>
+          <ledger-icon type=${iconType} .size=${24}></ledger-icon>
         </div>
         <div class="flex flex-col gap-4">
           <span class="text-base body-1-semi-bold">${title}</span>
@@ -145,7 +145,7 @@ export class WelcomeScreen extends LitElement {
             <div class="flex items-center gap-12">
               <ledger-icon
                 type="question"
-                size="medium"
+                .size=${24}
                 fillColor="#9C9C9C"
               ></ledger-icon>
               <span class="text-base body-1-semi-bold"
@@ -160,7 +160,7 @@ export class WelcomeScreen extends LitElement {
             >
               <ledger-icon
                 type="chevronDown"
-                size="medium"
+                .size=${24}
                 fillColor="#9C9C9C"
               ></ledger-icon>
             </div>

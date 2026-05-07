@@ -90,7 +90,7 @@ export class LedgerPlatformItem extends LitElement {
       >
         <ledger-icon
           type=${this.platformType}
-          size="small"
+          .size=${16}
           fillColor="white"
         ></ledger-icon>
       </div>
@@ -112,7 +112,7 @@ export class LedgerPlatformItem extends LitElement {
       <div
         class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
       >
-        <ledger-icon type="chevronRight" size="small"></ledger-icon>
+        <ledger-icon type="chevronRight" .size=${16}></ledger-icon>
       </div>
     `;
   }

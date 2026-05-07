@@ -6,7 +6,10 @@ import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import { LedgerIconAttributes } from "../icon/ledger-icon.js";
+import {
+  LedgerIconAttributes,
+  LedgerIconSize,
+} from "../icon/ledger-icon.js";
 
 export type ButtonVariant = "primary" | "secondary" | "accent" | "noBackground";
 export type ButtonSize = "small" | "medium" | "large" | "xs" | "full";
@@ -128,12 +131,19 @@ export class LedgerButton extends LitElement {
     }
 
     const fillColor = this.variant === "primary" ? "black" : "white";
-    const size = this.size === "xs" ? "small" : this.size;
+    const iconSizeMap: Record<ButtonSize, LedgerIconSize> = {
+      xs: 16,
+      small: 16,
+      medium: 24,
+      large: 32,
+      full: 24,
+    };
+    const iconSize = iconSizeMap[this.size];
 
     return html`
       <ledger-icon
         .type=${this.iconType ?? "ledger"}
-        size=${size}
+        .size=${iconSize}
         class="text-base"
         .fillColor=${fillColor}
       >

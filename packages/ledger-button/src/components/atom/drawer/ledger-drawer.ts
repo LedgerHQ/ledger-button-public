@@ -148,7 +148,7 @@ export class LedgerDrawer extends LitElement {
         @click=${this.handleClose}
         aria-label="Close"
       >
-        <ledger-icon type="close" size="small" fillColor="white"></ledger-icon>
+        <ledger-icon type="close" .size=${16} fillColor="white"></ledger-icon>
       </button>
     `;
   }
