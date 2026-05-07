@@ -72,7 +72,7 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+    this.accountsSubscription = this.core.getAccounts().subscribe({
       next: (accounts) => {
         this.accounts = accounts;
         this.isAccountsLoading = false;

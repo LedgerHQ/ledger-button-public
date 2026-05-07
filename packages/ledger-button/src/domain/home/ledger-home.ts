@@ -205,6 +205,8 @@ export class LedgerHomeScreen extends LitElement {
 
               <ledger-fiat-total
                 .value=${account.totalFiatValue?.value ?? "0"}
+                .currency=${this.controller.preferredCurrency}
+                .locale=${this.languages.locale}
               ></ledger-fiat-total>
             </div>
 
@@ -220,7 +222,9 @@ export class LedgerHomeScreen extends LitElement {
                   {
                     id: "transactions",
                     label: lang.home.tabs.transactions,
-                    badge: this.controller.pendingTransactionListItems.length || undefined,
+                    badge:
+                      this.controller.pendingTransactionListItems.length ||
+                      undefined,
                   },
                 ]}
                 .selectedId=${this.activeTab}
@@ -231,10 +235,12 @@ export class LedgerHomeScreen extends LitElement {
             ${this.activeTab === "tokens"
               ? html`<token-list-screen
                   .account=${account}
+                  .locale=${this.languages.locale}
                 ></token-list-screen>`
               : html`<transaction-list-screen
                   .transactions=${this.controller.transactionListItems}
-                  .pendingTransactions=${this.controller.pendingTransactionListItems}
+                  .pendingTransactions=${this.controller
+                    .pendingTransactionListItems}
                 ></transaction-list-screen>`}
           </div>
         </div>

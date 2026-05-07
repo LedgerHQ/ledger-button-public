@@ -65,6 +65,7 @@ export class SelectAccountScreen extends LitElement {
         .fiatBalance=${fiatBalance}
         .isFiatLoading=${isFiatLoading}
         .isFiatError=${isFiatError}
+        .locale=${this.languages.locale}
         @account-item-click=${(e: CustomEvent) =>
           this.controller.handleAccountItemClick(e)}
         @account-item-show-tokens-click=${(e: CustomEvent) =>
@@ -81,8 +82,8 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <div class="sticky bottom-0 bg-canvas-sheet pb-16 pt-8">
-        <p class="text-center text-muted body-3">
+      <div class="bg-canvas-sheet sticky bottom-0 pt-8 pb-16">
+        <p class="text-muted body-3 text-center">
           ${translations.onboarding.selectAccount.refreshingAccounts}
           <br />
           ${translations.onboarding.selectAccount.refreshingAccountsHint}
@@ -102,7 +103,7 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <p class="py-24 text-center text-muted body-2">
+      <p class="text-muted body-2 py-24 text-center">
         ${translations.onboarding.selectAccount.noResults}
       </p>
     `;

@@ -6,6 +6,7 @@ const INDEXED_DB_KEYS = {
   USER_CONSENT: "userConsent",
   WELCOME_SCREEN_COMPLETED: "welcomeScreenCompleted",
   PREFERRED_LANGUAGE_STORE_KEY: "preferredLanguage",
+  PREFERRED_FIAT_CURRENCY_STORE_KEY: "preferredFiatCurrency",
 } as const;
 
 export const INDEXED_DB_VERSION = 3;

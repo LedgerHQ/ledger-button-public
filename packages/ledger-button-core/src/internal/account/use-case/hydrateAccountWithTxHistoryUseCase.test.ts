@@ -1,6 +1,7 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { ContextService } from "../../context/ContextService.js";
 import { TransactionHistoryError } from "../../transaction-history/model/TransactionHistoryError.js";
 import type {
   TransactionHistoryItem,
@@ -93,13 +94,23 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       createMockHydrateTransactionsWithFiatUseCase();
     mockLoggerFactory = createMockLoggerFactory();
 
+    const mockContextService = {
+      getContext: vi.fn().mockReturnValue({ preferredFiatCurrency: "usd" }),
+      observeContext: vi.fn(),
+      onEvent: vi.fn(),
+    };
+
     useCase = new HydrateAccountWithTxHistoryUseCase(
       mockLoggerFactory,
       mockFetchTransactionHistoryUseCase as unknown as FetchTransactionHistoryUseCase,
       mockHydrateTransactionsWithFiatUseCase as unknown as HydrateTransactionsWithFiatUseCase,
+      mockContextService as unknown as ContextService,
     );
 
     vi.clearAllMocks();
+    mockContextService.getContext.mockReturnValue({
+      preferredFiatCurrency: "usd",
+    });
   });
 
   describe("execute", () => {
@@ -263,10 +274,17 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
   describe("logging", () => {
     it("should create logger with correct name", () => {
       const loggerFactory = createMockLoggerFactory();
+      const mockContextService = {
+        getContext: vi.fn().mockReturnValue({ preferredFiatCurrency: "usd" }),
+        observeContext: vi.fn(),
+        onEvent: vi.fn(),
+      };
+
       new HydrateAccountWithTxHistoryUseCase(
         loggerFactory,
         mockFetchTransactionHistoryUseCase as unknown as FetchTransactionHistoryUseCase,
         mockHydrateTransactionsWithFiatUseCase as unknown as HydrateTransactionsWithFiatUseCase,
+        mockContextService as unknown as ContextService,
       );
 
       expect(loggerFactory).toHaveBeenCalledWith(

@@ -59,7 +59,7 @@ export class AvailableNetworksController implements ReactiveController {
         return;
       }
 
-      this.accountsSubscription = this.core.getAccounts("usd").subscribe({
+      this.accountsSubscription = this.core.getAccounts().subscribe({
         next: (accounts) => {
           if (this.disconnected) return;
 
@@ -72,6 +72,7 @@ export class AvailableNetworksController implements ReactiveController {
             matching.forEach((a) =>
               this.accountsByNetwork.set(a.currencyId, a),
             );
+            void this.finalizeNetworks();
           }
         },
         error: () => {
@@ -79,10 +80,6 @@ export class AvailableNetworksController implements ReactiveController {
           this.balanceLoading = false;
           this.loading = false;
           this.host.requestUpdate();
-        },
-        complete: () => {
-          if (this.disconnected) return;
-          void this.finalizeNetworks();
         },
       });
     } catch {

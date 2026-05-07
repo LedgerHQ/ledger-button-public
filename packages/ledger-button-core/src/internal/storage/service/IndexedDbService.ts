@@ -32,4 +32,9 @@ export interface IndexedDbService {
     preferredLanguage: string,
   ): Promise<Either<StorageIDBErrors, void>>;
   getPreferredLanguage(): Promise<Either<StorageIDBErrors, Maybe<string>>>;
+
+  storePreferredFiatCurrency(
+    preferredFiatCurrency: string,
+  ): Promise<Either<StorageIDBErrors, void>>;
+  getPreferredFiatCurrency(): Promise<Either<StorageIDBErrors, Maybe<string>>>;
 }

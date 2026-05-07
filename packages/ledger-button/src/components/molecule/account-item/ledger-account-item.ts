@@ -14,7 +14,7 @@ import { formatFiatBalance } from "../../../utils/format-fiat.js";
 
 const accountItemVariants = cva([
   "flex min-w-full cursor-pointer justify-between p-12",
-  "bg-muted transition duration-150 ease-in-out hover:bg-muted-hover",
+  "bg-muted hover:bg-muted-hover transition duration-150 ease-in-out",
 ]);
 
 export type AccountItemClickEventDetail = {
@@ -81,6 +81,9 @@ export class LedgerAccountItemMolecule extends LitElement {
   @property({ type: Boolean, attribute: "is-fiat-error" })
   isFiatError = false;
 
+  @property({ type: String })
+  locale!: string;
+
   private get containerClasses() {
     return {
       [accountItemVariants()]: true,
@@ -135,9 +138,9 @@ export class LedgerAccountItemMolecule extends LitElement {
   private renderAccountInfo() {
     return html`
       <div class="flex flex-col gap-4 text-left">
-        <span class="text-base body-2-semi-bold">${this.title}</span>
+        <span class="body-2-semi-bold text-base">${this.title}</span>
         <div class="flex items-center gap-4">
-          <span class="whitespace-nowrap text-muted body-3">
+          <span class="text-muted body-3 whitespace-nowrap">
             ${formatAddress(this.address)}
           </span>
           <ledger-crypto-icon
@@ -154,9 +157,7 @@ export class LedgerAccountItemMolecule extends LitElement {
     if (this.isBalanceLoading) {
       return html`
         <div class="flex flex-col items-end gap-4">
-          <ledger-skeleton
-            class="h-16 w-80 rounded-full"
-          ></ledger-skeleton>
+          <ledger-skeleton class="h-16 w-80 rounded-full"></ledger-skeleton>
         </div>
       `;
     }
@@ -164,19 +165,17 @@ export class LedgerAccountItemMolecule extends LitElement {
     if (this.isBalanceError) {
       return html`
         <div class="flex flex-col items-end gap-4">
-          <span class="text-base body-2-semi-bold">--</span>
+          <span class="body-2-semi-bold text-base">--</span>
         </div>
       `;
     }
 
-    const fiatValue = formatFiatBalance(this.fiatBalance);
+    const fiatValue = formatFiatBalance(this.fiatBalance, this.locale);
 
     return html`
       <div class="flex flex-col items-end gap-4">
         ${this.renderFiatValue(fiatValue)}
-        <span class="text-muted body-3"
-          >${this.balance} ${this.ticker}</span
-        >
+        <span class="text-muted body-3">${this.balance} ${this.ticker}</span>
       </div>
     `;
   }
@@ -184,7 +183,7 @@ export class LedgerAccountItemMolecule extends LitElement {
   private renderFiatValue(fiatValue: string) {
     if (this.isFiatLoading) {
       return html`<ledger-skeleton
-        class="w-60 h-14 rounded-full"
+        class="h-14 w-60 rounded-full"
       ></ledger-skeleton>`;
     }
 
@@ -192,9 +191,7 @@ export class LedgerAccountItemMolecule extends LitElement {
       return nothing;
     }
 
-    return html`
-      <span class="text-base body-2-semi-bold">${fiatValue}</span>
-    `;
+    return html` <span class="body-2-semi-bold text-base">${fiatValue}</span> `;
   }
 
   private renderTokenRow() {
@@ -205,11 +202,9 @@ export class LedgerAccountItemMolecule extends LitElement {
     if (this.isBalanceLoading) {
       return html`
         <div
-          class="flex items-center justify-between border border-b-0 border-l-0 border-r-0 border-muted-subtle bg-muted p-12"
+          class="border-muted-subtle bg-muted flex items-center justify-between border border-r-0 border-b-0 border-l-0 p-12"
         >
-          <ledger-skeleton
-            class="h-16 w-112 rounded-full"
-          ></ledger-skeleton>
+          <ledger-skeleton class="h-16 w-112 rounded-full"></ledger-skeleton>
         </div>
       `;
     }
@@ -220,12 +215,10 @@ export class LedgerAccountItemMolecule extends LitElement {
 
     return html`
       <button
-        class="group flex items-center justify-between border border-b-0 border-l-0 border-r-0 border-muted-subtle bg-muted p-12 transition duration-300 ease-in-out hover:bg-muted-hover"
+        class="group border-muted-subtle bg-muted hover:bg-muted-hover flex items-center justify-between border border-r-0 border-b-0 border-l-0 p-12 transition duration-300 ease-in-out"
         @click=${this.handleShowTokens}
       >
-        <div
-          class="flex h-20 items-center text-base body-3-semi-bold"
-        >
+        <div class="body-3-semi-bold flex h-20 items-center text-base">
           ${this.linkLabel} (${this.tokens})
         </div>
         <div
@@ -239,9 +232,7 @@ export class LedgerAccountItemMolecule extends LitElement {
 
   override render() {
     return html`
-      <div
-        class="flex min-w-full flex-col overflow-hidden rounded-md"
-      >
+      <div class="flex min-w-full flex-col overflow-hidden rounded-md">
         <button
           class=${classMap(this.containerClasses)}
           @click=${this.handleAccountClick}

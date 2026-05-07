@@ -1,36 +1,39 @@
 import "fake-indexeddb/auto";
 
-import { Either, Just, Maybe, Nothing, Right } from "purify-ts";
+import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
 import { STORAGE_KEYS } from "./model/constant.js";
+import { StorageIDBGetError } from "./model/errors.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import { type Account } from "../account/service/AccountService.js";
-import { Config } from "../config/model/config.js";
-import { ConsoleLoggerSubscriber } from "../logger/service/ConsoleLoggerSubscriber.js";
-import { DefaultLoggerPublisher } from "../logger/service/DefaultLoggerPublisher.js";
+import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
 
-vi.mock("../logger/service/DefaultLoggerPublisher.js");
-vi.mock("../logger/service/ConsoleLoggerSubscriber.js");
-
-let config: Config;
+let mockLogger: LoggerPublisher;
 let storageService: DefaultStorageService;
 let mockIndexedDbService: IndexedDbService;
 
 describe("DefaultStorageService", () => {
-  let mockStorage: { userConsent?: UserConsent; welcomeScreen?: boolean };
+  let mockStorage: {
+    userConsent?: UserConsent;
+    welcomeScreen?: boolean;
+    preferredFiatCurrency?: string;
+  };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     localStorage.clear();
     mockStorage = {};
 
-    config = new Config({
-      originToken: "test-token",
-      dAppIdentifier: "test-app",
-      logLevel: "info",
-    });
+    mockLogger = {
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      fatal: vi.fn(),
+      subscribers: [],
+    } as unknown as LoggerPublisher;
 
     mockIndexedDbService = {
       initIdb: vi.fn(),
@@ -63,11 +66,23 @@ describe("DefaultStorageService", () => {
             : Nothing,
         );
       }),
+      storePreferredFiatCurrency: vi
+        .fn()
+        .mockImplementation(async (currency: string) => {
+          mockStorage.preferredFiatCurrency = currency;
+          return Right(undefined);
+        }),
+      getPreferredFiatCurrency: vi.fn().mockImplementation(async () => {
+        return Right(
+          mockStorage.preferredFiatCurrency !== undefined
+            ? Just(mockStorage.preferredFiatCurrency)
+            : Nothing,
+        );
+      }),
     } as unknown as IndexedDbService;
 
     storageService = new DefaultStorageService(
-      (tag) =>
-        new DefaultLoggerPublisher([new ConsoleLoggerSubscriber(config)], tag),
+      () => mockLogger,
       mockIndexedDbService,
     );
   });
@@ -465,6 +480,62 @@ describe("DefaultStorageService", () => {
         await storageService.saveWelcomeScreenCompleted();
         await storageService.removeWelcomeScreenCompleted();
         expect(await storageService.isWelcomeScreenCompleted()).toBe(false);
+      });
+    });
+  });
+
+  describe("Preferred Fiat Currency methods", () => {
+    describe("savePreferredFiatCurrency", () => {
+      it("should call indexedDbService.storePreferredFiatCurrency with the given currency", async () => {
+        await storageService.savePreferredFiatCurrency("USD");
+
+        expect(
+          mockIndexedDbService.storePreferredFiatCurrency,
+        ).toHaveBeenCalledWith("USD");
+      });
+
+      it("should log an error when indexedDbService returns a Left", async () => {
+        vi.mocked(
+          mockIndexedDbService.storePreferredFiatCurrency,
+        ).mockResolvedValue(Left(new StorageIDBGetError("store error")));
+
+        await expect(
+          storageService.savePreferredFiatCurrency("EUR"),
+        ).resolves.toBeUndefined();
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          "Error saving preferred fiat currency",
+          expect.objectContaining({ preferredFiatCurrency: "EUR" }),
+        );
+      });
+    });
+
+    describe("getPreferredFiatCurrency", () => {
+      it("should return Just(currency) when a currency has been saved", async () => {
+        await storageService.savePreferredFiatCurrency("USD");
+
+        const result = await storageService.getPreferredFiatCurrency();
+
+        expect(result).toEqual(Just("USD"));
+      });
+
+      it("should return Nothing when no currency has been saved", async () => {
+        const result = await storageService.getPreferredFiatCurrency();
+
+        expect(result).toBe(Nothing);
+      });
+
+      it("should log an error when indexedDbService returns a Left", async () => {
+        vi.mocked(
+          mockIndexedDbService.getPreferredFiatCurrency,
+        ).mockResolvedValue(Left(new StorageIDBGetError("get error")));
+
+        const result = await storageService.getPreferredFiatCurrency();
+
+        expect(result).toBe(Nothing);
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          "Error getting preferred fiat currency",
+          expect.objectContaining({ error: expect.any(StorageIDBGetError) }),
+        );
       });
     });
   });

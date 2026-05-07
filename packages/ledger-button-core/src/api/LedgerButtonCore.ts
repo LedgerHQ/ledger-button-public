@@ -16,6 +16,10 @@ import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.j
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import {
+  DEFAULT_FIAT_CURRENCY,
+  SUPPORTED_FIAT_CURRENCIES,
+} from "../internal/account/model/constant.js";
+import {
   Account,
   type AccountService,
   type AccountWithFiat,
@@ -165,6 +169,19 @@ export class LedgerButtonCore {
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
 
+    const storedFiatCurrencyMaybe = await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getPreferredFiatCurrency();
+
+    const storedFiatCurrency = storedFiatCurrencyMaybe.orDefault(
+      DEFAULT_FIAT_CURRENCY,
+    );
+    const preferredFiatCurrency = (
+      SUPPORTED_FIAT_CURRENCIES as readonly string[]
+    ).includes(storedFiatCurrency)
+      ? storedFiatCurrency
+      : DEFAULT_FIAT_CURRENCY;
+
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -176,6 +193,7 @@ export class LedgerButtonCore {
         welcomeScreenCompleted,
         hasTrackingConsent,
         isMobilePlatform,
+        preferredFiatCurrency,
       },
     });
 
@@ -304,10 +322,8 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  getAccounts(targetCurrency = "usd"): Observable<AccountWithFiat[]> {
-    this._logger.debug("Getting accounts with fiat observable", {
-      targetCurrency,
-    });
+  getAccounts(): Observable<AccountWithFiat[]> {
+    this._logger.debug("Getting accounts with fiat observable");
 
     return this.container
       .get<SortAccountsByFiatUseCase>(
@@ -325,7 +341,7 @@ export class LedgerButtonCore {
                 .get<FetchAccountsWithFiatUseCase>(
                   accountModuleTypes.FetchAccountsWithFiatUseCase,
                 )
-                .execute(accounts, targetCurrency),
+                .execute(accounts),
             ),
           ),
       );
@@ -496,6 +512,24 @@ export class LedgerButtonCore {
 
   isWelcomeScreenCompleted(): boolean {
     return this._contextService.getContext().welcomeScreenCompleted;
+  }
+
+  getPreferredFiatCurrency(): string {
+    return (
+      this._contextService.getContext().preferredFiatCurrency ??
+      DEFAULT_FIAT_CURRENCY
+    );
+  }
+
+  async savePreferredFiatCurrency(currency: string): Promise<void> {
+    this._logger.debug("Saving preferred fiat currency", { currency });
+    await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .savePreferredFiatCurrency(currency);
+    this._contextService.onEvent({
+      type: "preferred_fiat_currency_changed",
+      currency,
+    });
   }
 
   async savePreferredLanguage(language: string): Promise<void> {
