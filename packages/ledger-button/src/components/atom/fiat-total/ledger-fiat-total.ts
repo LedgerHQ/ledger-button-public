@@ -13,10 +13,13 @@ export class LedgerFiatTotal extends LitElement {
   @property({ type: String })
   currency!: string;
 
+  @property({ type: String })
+  locale!: string;
+
   override render() {
     return html`
       <span class="heading-2 text-base">
-        ${formatFiatValue(this.value, this.currency)}
+        ${formatFiatValue(this.value, this.currency, this.locale)}
       </span>
     `;
   }

@@ -26,6 +26,7 @@ export const languageKey = {
 } as const;
 
 export const DEFAULT_LANGUAGE = "en";
+export const DEFAULT_LOCALE = "en-US";
 
 export type LangKey = keyof typeof languageKey;
 export type Translation = (typeof languageKey)[LangKey];
@@ -38,6 +39,7 @@ export type Language = {
   key: LangKey;
   name: string;
   translation: Translation;
+  locale: string;
 };
 
 export type Languages = readonly Language[];
@@ -47,55 +49,66 @@ export const languages: Languages = Object.freeze([
     key: "en",
     name: "English",
     translation: en,
+    locale: "en-US",
   },
   {
     key: "fr",
     name: "French",
     translation: fr,
+    locale: "fr-FR",
   },
   {
     key: "de",
     name: "German",
     translation: de,
+    locale: "de-DE",
   },
   {
     key: "ru",
     name: "Russian",
     translation: ru,
+    locale: "ru-RU",
   },
   {
     key: "es",
     name: "Spanish",
     translation: es,
+    locale: "es-ES",
   },
   {
     key: "ja",
     name: "Japanese",
     translation: ja,
+    locale: "ja-JP",
   },
   {
     key: "tr",
     name: "Turkish",
     translation: tr,
+    locale: "tr-TR",
   },
   {
     key: "ko",
     name: "Korean",
     translation: ko,
+    locale: "ko-KR",
   },
   {
     key: "zh",
     name: "Chinese",
     translation: zh,
+    locale: "zh-CN",
   },
   {
     key: "pt",
     name: "Portuguese",
     translation: pt,
+    locale: "pt-PT",
   },
   {
     key: "th",
     name: "Thai",
     translation: th,
+    locale: "th-TH",
   },
 ]);

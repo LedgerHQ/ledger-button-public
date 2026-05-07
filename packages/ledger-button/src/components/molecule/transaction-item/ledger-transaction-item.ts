@@ -50,7 +50,10 @@ export class LedgerTransactionItem extends LitElement {
   fiatAmount = "";
 
   @property({ type: String, attribute: "fiat-currency" })
-  fiatCurrency = "$";
+  fiatCurrency!: string;
+
+  @property({ type: String, attribute: "locale" })
+  locale!: string;
 
   @property({ type: String, attribute: "explorer-url" })
   explorerUrl?: string;
@@ -94,7 +97,11 @@ export class LedgerTransactionItem extends LitElement {
     if (!this.fiatAmount || !this.fiatCurrency) {
       return "";
     }
-    const formatted = formatFiatValue(this.fiatAmount, this.fiatCurrency);
+    const formatted = formatFiatValue(
+      this.fiatAmount,
+      this.fiatCurrency,
+      this.locale,
+    );
     return `${this.sign}${formatted}`;
   }
 
@@ -102,7 +109,7 @@ export class LedgerTransactionItem extends LitElement {
     return html`
       <div class="flex items-center gap-12">
         <div
-          class="flex h-48 w-48 items-center justify-center rounded-full bg-muted-transparent"
+          class="bg-muted-transparent flex h-48 w-48 items-center justify-center rounded-full"
         >
           <ledger-icon
             type=${this.iconType}
@@ -112,7 +119,7 @@ export class LedgerTransactionItem extends LitElement {
           ></ledger-icon>
         </div>
         <div class="flex flex-col gap-4 text-left">
-          <span class="text-base body-2-semi-bold">${this.title}</span>
+          <span class="body-2-semi-bold text-base">${this.title}</span>
           <span class="text-muted body-3"
             >${this.displayType} ${this.timestamp}</span
           >

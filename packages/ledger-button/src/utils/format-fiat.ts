@@ -1,5 +1,7 @@
 import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 
+import { DEFAULT_LOCALE } from "../context/constants/languages.js";
+
 /**
  * Formats a numeric value as a fiat currency string using the user's browser locale.
  *
@@ -16,8 +18,9 @@ import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 export function formatFiatValue(
   value: number | string,
   currencyCode = "USD",
+  locale = DEFAULT_LOCALE,
 ): string {
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currencyCode,
     currencyDisplay: "narrowSymbol",
@@ -29,7 +32,8 @@ export function formatFiatValue(
  */
 export function formatFiatBalance(
   fiatBalance: FiatBalance | undefined,
+  locale: string,
 ): string {
   if (!fiatBalance) return "";
-  return formatFiatValue(fiatBalance.value, fiatBalance.currency);
+  return formatFiatValue(fiatBalance.value, fiatBalance.currency, locale);
 }
