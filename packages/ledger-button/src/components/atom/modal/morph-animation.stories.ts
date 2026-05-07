@@ -1,7 +1,7 @@
 import "../button/ledger-button";
 import "./ledger-modal";
 import "../../molecule/toolbar/ledger-toolbar";
-import "../../organism/status/ledger-status";
+import "../icon/ledger-icon";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
@@ -78,14 +78,22 @@ export const AllPositionsGrid: Story = {
             @ledger-toolbar-close=${closeWithMorph}
           ></ledger-toolbar>
         </div>
-        <div style="padding: 24px; padding-top: 0;">
-          <ledger-status
-            type="success"
-            title="You are now connected"
-            primary-button-label="Close"
-            secondary-button-label=""
-            @status-action=${closeWithMorph}
-          ></ledger-status>
+        <div
+          class="flex h-full flex-col items-center justify-center gap-24 p-24"
+          @click=${closeWithMorph}
+        >
+          <div
+            class="bg-muted-transparent text-success flex h-72 w-72 items-center justify-center rounded-full"
+          >
+            <ledger-icon
+              type="checkMarkCircleFill"
+              size="40"
+              fillColor="currentColor"
+            ></ledger-icon>
+          </div>
+          <h2 class="text-base heading-3-semi-bold text-center">
+            You are now connected
+          </h2>
         </div>
       </ledger-modal>
     `;
