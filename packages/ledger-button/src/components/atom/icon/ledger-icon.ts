@@ -85,7 +85,7 @@ export interface LedgerIconAttributes {
     | "language"
     | "plus"
     | "refresh";
-  size: "small" | "20" | "medium" | "large";
+  size: "small" | "20" | "medium" | "large" | "40";
   fillColor?: string;
 }
 
@@ -115,6 +115,7 @@ export class LedgerIcon extends LitElement {
       20: "w-20 h-20",
       medium: "w-24 h-24",
       large: "w-32 h-32",
+      40: "w-40 h-40",
     };
 
     return sizeClasses[this.size];
