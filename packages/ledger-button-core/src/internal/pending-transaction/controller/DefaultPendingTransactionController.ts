@@ -48,7 +48,7 @@ export class DefaultPendingTransactionController
   }
 
   track(): void {
-    this.emitCurrentState();
+    void this.emitCurrentState();
     this.startPolling();
   }
 

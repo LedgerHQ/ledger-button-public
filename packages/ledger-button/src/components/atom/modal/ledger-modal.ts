@@ -1,5 +1,6 @@
 import { consume } from "@lit/context";
-import { css, html, LitElement } from "lit";
+import { cva } from "class-variance-authority";
+import { css, html, LitElement, nothing } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -17,6 +18,17 @@ import { ModalFocusController } from "./modal-focus-controller.js";
 import { ModalScrollLockController } from "./modal-scroll-lock-controller.js";
 
 export type { ModalMode };
+
+export type ModalGradient = "success" | "error";
+
+const gradientOverlayVariants = cva("pointer-events-none absolute inset-0", {
+  variants: {
+    gradient: {
+      success: "bg-gradient-success",
+      error: "bg-gradient-error",
+    },
+  },
+});
 
 const styles = css`
   .modal-wrapper {
@@ -119,6 +131,9 @@ export class LedgerModal extends LitElement {
   @property({ type: String })
   mode: ModalMode = "center";
 
+  @property({ type: String })
+  gradient?: ModalGradient;
+
   @state()
   private isClosing = false;
 
@@ -174,13 +189,26 @@ export class LedgerModal extends LitElement {
     super.connectedCallback();
     this.addEventListener("modal-opened", this.handleOpen);
     this.addEventListener("modal-closed", this.handleClose);
+    this.addEventListener("ledger-status-show", this.handleStatusShow);
+    this.addEventListener("ledger-status-hide", this.handleStatusHide);
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.removeEventListener("modal-opened", this.handleOpen);
     this.removeEventListener("modal-closed", this.handleClose);
+    this.removeEventListener("ledger-status-show", this.handleStatusShow);
+    this.removeEventListener("ledger-status-hide", this.handleStatusHide);
   }
+
+  private handleStatusShow = (event: Event): void => {
+    const detail = (event as CustomEvent<{ type: ModalGradient }>).detail;
+    this.gradient = detail.type;
+  };
+
+  private handleStatusHide = (): void => {
+    this.gradient = undefined;
+  };
 
   private handleOpen = async (): Promise<void> => {
     this.scrollLockController.lock();
@@ -224,6 +252,8 @@ export class LedgerModal extends LitElement {
       await this.animationController.animateClose(elements, this.mode);
     }
 
+    this.gradient = undefined;
+
     this.dispatchCloseFinished();
     this.scrollLockController.unlock();
     this.isClosing = false;
@@ -258,6 +288,19 @@ export class LedgerModal extends LitElement {
         class="modal-backdrop"
         data-testid="modal-backdrop"
         @click=${this.closeModal}
+      ></div>
+    `;
+  }
+
+  private renderGradientOverlay() {
+    if (!this.gradient) {
+      return nothing;
+    }
+
+    return html`
+      <div
+        class=${gradientOverlayVariants({ gradient: this.gradient })}
+        aria-hidden="true"
       ></div>
     `;
   }
@@ -298,7 +341,8 @@ export class LedgerModal extends LitElement {
         aria-describedby="modal-content"
         @click=${(e: Event) => e.stopPropagation()}
       >
-        ${this.renderToolbar()} ${this.renderContent()}
+        ${this.renderGradientOverlay()} ${this.renderToolbar()}
+        ${this.renderContent()}
       </div>
     `;
   }
@@ -311,7 +355,8 @@ export class LedgerModal extends LitElement {
         aria-modal="true"
         aria-describedby="modal-content"
       >
-        ${this.renderToolbar()} ${this.renderContent()}
+        ${this.renderGradientOverlay()} ${this.renderToolbar()}
+        ${this.renderContent()}
       </div>
     `;
   }
@@ -325,7 +370,8 @@ export class LedgerModal extends LitElement {
         aria-describedby="modal-content"
         @click=${(e: Event) => e.stopPropagation()}
       >
-        ${this.renderToolbar()} ${this.renderContent()}
+        ${this.renderGradientOverlay()} ${this.renderToolbar()}
+        ${this.renderContent()}
       </div>
     `;
   }
@@ -360,5 +406,7 @@ declare global {
     "modal-closed": CustomEvent<void>;
     "modal-animation-complete": CustomEvent<void>;
     "modal-close-finished": CustomEvent<void>;
+    "ledger-status-show": CustomEvent<{ type: ModalGradient }>;
+    "ledger-status-hide": CustomEvent<void>;
   }
 }

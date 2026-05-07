@@ -4,7 +4,6 @@ import "../../atom/icon/ledger-icon";
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 
@@ -19,27 +18,16 @@ export interface LedgerStatusAttributes {
   showSecondaryButton?: boolean;
 }
 
-const statusVariants = cva(["max-w-sm"], {
-  variants: {
-    type: {
-      success: "",
-      error: "",
-    },
-  },
-  defaultVariants: {
-    type: "success",
-  },
-});
-
-const statusIconVariants = cva(
+const spotVariants = cva(
   [
-    "flex h-64 w-64 items-center justify-center rounded-full p-12",
+    "flex h-72 w-72 shrink-0 items-center justify-center rounded-full",
+    "bg-muted-transparent",
   ],
   {
     variants: {
       type: {
-        success: "bg-success",
-        error: "bg-error",
+        success: "text-success",
+        error: "text-error",
       },
     },
     defaultVariants: {
@@ -66,32 +54,8 @@ export class LedgerStatus extends LitElement {
   @property({ type: String, attribute: "secondary-button-label" })
   secondaryButtonLabel = "Secondary action";
 
-  private get containerClasses() {
-    const classString = statusVariants({ type: this.type });
-    const classes = classString.split(" ").filter(Boolean);
-    return classes.reduce(
-      (acc, className) => {
-        acc[className] = true;
-        return acc;
-      },
-      {} as Record<string, boolean>,
-    );
-  }
-
-  private get statusIconClasses() {
-    const classString = statusIconVariants({ type: this.type });
-    const classes = classString.split(" ").filter(Boolean);
-    return classes.reduce(
-      (acc, className) => {
-        acc[className] = true;
-        return acc;
-      },
-      {} as Record<string, boolean>,
-    );
-  }
-
   private get iconType() {
-    return this.type === "success" ? "check" : "error";
+    return this.type === "success" ? "checkMarkCircleFill" : "deleteCircleFill";
   }
 
   private handlePrimaryAction() {
@@ -166,40 +130,41 @@ export class LedgerStatus extends LitElement {
 
   override render() {
     return html`
-      <div class=${classMap(this.containerClasses)}>
-        <div class="flex flex-col items-center gap-32">
-          <div class="flex flex-col items-center gap-24">
-            <div class="flex justify-center">
-              <div
-                class=${classMap(this.statusIconClasses)}
-                role="img"
-                aria-label="${this.type === "success" ? "Success" : "Error"}"
-              >
-                <ledger-icon type=${this.iconType} size="large"></ledger-icon>
-              </div>
-            </div>
-            <div
-              class="flex flex-col items-center gap-8 text-center"
-            >
-              ${this.title
-                ? html`
-                    <h2
-                      id="status-title"
-                      class="text-base heading-4-semi-bold"
-                    >
-                      ${this.title}
-                    </h2>
-                  `
-                : ""}
-              ${this.description
-                ? html`
-                    <p id="status-description" class="text-muted body-2">
-                      ${this.description}
-                    </p>
-                  `
-                : ""}
-            </div>
+      <div class="flex max-w-sm flex-col gap-32">
+        <div class="flex flex-col items-center gap-24">
+          <div
+            class=${spotVariants({ type: this.type })}
+            role="img"
+            aria-label="${this.type === "success" ? "Success" : "Error"}"
+          >
+            <ledger-icon
+              .type=${this.iconType}
+              size="large"
+              fillColor="currentColor"
+            ></ledger-icon>
           </div>
+          <div
+            class="flex flex-col items-center gap-12 self-stretch text-center"
+          >
+            ${this.title
+              ? html`
+                  <h2
+                    id="status-title"
+                    class="text-base heading-4-semi-bold"
+                  >
+                    ${this.title}
+                  </h2>
+                `
+              : ""}
+            ${this.description
+              ? html`
+                  <p id="status-description" class="text-muted body-2">
+                    ${this.description}
+                  </p>
+                `
+              : ""}
+          </div>
+          <slot name="card"></slot>
           ${this.renderActions()}
         </div>
       </div>
