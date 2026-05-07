@@ -274,10 +274,17 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
   describe("logging", () => {
     it("should create logger with correct name", () => {
       const loggerFactory = createMockLoggerFactory();
+      const mockContextService = {
+        getContext: vi.fn().mockReturnValue({ preferredFiatCurrency: "usd" }),
+        observeContext: vi.fn(),
+        onEvent: vi.fn(),
+      };
+
       new HydrateAccountWithTxHistoryUseCase(
         loggerFactory,
         mockFetchTransactionHistoryUseCase as unknown as FetchTransactionHistoryUseCase,
         mockHydrateTransactionsWithFiatUseCase as unknown as HydrateTransactionsWithFiatUseCase,
+        mockContextService as unknown as ContextService,
       );
 
       expect(loggerFactory).toHaveBeenCalledWith(
