@@ -33,7 +33,7 @@ function floatingButtonWithBadge(args: {
       >
         <ledger-icon
           type="ledger"
-          size="large"
+          .size=${32}
           fillColor="white"
         ></ledger-icon>
       </button>
@@ -250,7 +250,7 @@ class LedgerFloatingButtonBadgeAnimationDemo extends LitElement {
           >
             <ledger-icon
               type="ledger"
-              size="large"
+              .size=${32}
               fillColor="white"
             ></ledger-icon>
           </button>

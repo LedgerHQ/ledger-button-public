@@ -58,7 +58,7 @@ export class LedgerFloatingButtonBadge extends LitElement {
         <span class=${classMap(this.badgeSurfaceClasses)} aria-hidden="true">
           <ledger-icon
             type="check"
-            size="small"
+            .size=${16}
             fillColor="white"
           ></ledger-icon>
         </span>

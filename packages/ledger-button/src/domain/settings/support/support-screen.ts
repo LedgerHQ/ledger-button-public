@@ -55,7 +55,7 @@ export class SupportScreen extends LitElement {
         <div class="flex min-w-0 flex-1 items-center gap-12">
           <ledger-icon
             type=${icon}
-            size="medium"
+            .size=${24}
             fillColor="currentColor"
           ></ledger-icon>
 
@@ -63,7 +63,7 @@ export class SupportScreen extends LitElement {
         </div>
         <ledger-icon
           type="externalLink"
-          size="small"
+          .size=${16}
           fillColor="currentColor"
           class="text-muted"
         ></ledger-icon>
