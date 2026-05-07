@@ -226,6 +226,16 @@
     "error": {
       "title": "ธุรกรรมล้มเหลว",
       "description": "เกิดข้อผิดพลาดในการลงนามในธุรกรรมของคุณ โปรดลองอีกครั้ง"
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

@@ -226,6 +226,16 @@
     "error": {
       "title": "交易失败。",
       "description": "签署交易时出错。请重试。"
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

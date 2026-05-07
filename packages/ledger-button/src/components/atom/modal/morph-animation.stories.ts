@@ -70,7 +70,7 @@ export const AllPositionsGrid: Story = {
         )}
       </div>
 
-      <ledger-modal id="grid-modal">
+      <ledger-modal id="grid-modal" gradient="success">
         <div slot="toolbar">
           <ledger-toolbar
             title=""

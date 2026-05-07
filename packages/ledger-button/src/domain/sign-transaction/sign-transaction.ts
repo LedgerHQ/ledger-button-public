@@ -9,9 +9,10 @@ import {
   type SignTypedMessageParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
-import { css, html, LitElement } from "lit";
+import { css, html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { type ModalGradient } from "../../components/atom/modal/ledger-modal.js";
 import { AnimationKey } from "../../components/index.js";
 import { type StatusType } from "../../components/organism/status/ledger-status.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
@@ -83,6 +84,8 @@ export class SignTransactionScreen extends LitElement {
 
   controller!: SignTransactionController;
 
+  private dispatchedGradient: ModalGradient | null = null;
+
   override connectedCallback() {
     super.connectedCallback();
     this.controller = new SignTransactionController(
@@ -109,6 +112,52 @@ export class SignTransactionScreen extends LitElement {
 
     this.transactionParams = transactionParams;
     this.controller.startSigning(transactionParams);
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this.clearModalGradient();
+  }
+
+  override updated(_changedProperties: PropertyValues<this>) {
+    this.syncModalGradient();
+  }
+
+  private syncModalGradient() {
+    const screen = this.controller.state.screen;
+    const nextGradient: ModalGradient | null =
+      screen === "success" || screen === "error" ? screen : null;
+
+    if (nextGradient === this.dispatchedGradient) {
+      return;
+    }
+
+    if (nextGradient === null) {
+      this.clearModalGradient();
+      return;
+    }
+
+    this.dispatchedGradient = nextGradient;
+    this.dispatchEvent(
+      new CustomEvent("ledger-status-show", {
+        bubbles: true,
+        composed: true,
+        detail: { type: nextGradient },
+      }),
+    );
+  }
+
+  private clearModalGradient() {
+    if (this.dispatchedGradient === null) {
+      return;
+    }
+    this.dispatchedGradient = null;
+    this.dispatchEvent(
+      new CustomEvent("ledger-status-hide", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private isParams(params: unknown): params is Params {
@@ -172,6 +221,16 @@ export class SignTransactionScreen extends LitElement {
       return html``;
     }
 
+    const broadcast =
+      this.controller.state.screen === "success"
+        ? this.controller.state.broadcast
+        : undefined;
+
+    const lang = this.languageContext.currentTranslation;
+    const broadcastCopy = broadcast
+      ? lang.signTransaction?.broadcast?.[broadcast.state]
+      : undefined;
+
     return html`
       <div
         class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
@@ -179,12 +238,23 @@ export class SignTransactionScreen extends LitElement {
         <ledger-status
           type=${this.controller.state.screen}
           title=${this.controller.state.status.title}
-          description=${this.controller.state.status.message}
+          description=${broadcast ? "" : this.controller.state.status.message}
           primary-button-label=${this.controller.state.status.cta1.label}
           secondary-button-label=${this.controller.state.status.cta2?.label ??
           ""}
           @status-action=${this.handleStatusAction}
-        ></ledger-status>
+        >
+          ${broadcast && broadcastCopy
+            ? html`
+                <ledger-status-card
+                  slot="card"
+                  state=${broadcast.state}
+                  title=${broadcastCopy.title}
+                  description=${broadcastCopy.description}
+                ></ledger-status-card>
+              `
+            : ""}
+        </ledger-status>
       </div>
     `;
   }

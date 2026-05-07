@@ -96,7 +96,9 @@ export class TrackBroadcastedTransactionUseCase {
     };
   }
 
-  private async resolveCurrencyMetadata(currencyId: string): Promise<{
+  private async resolveCurrencyMetadata(
+    currencyId: string,
+  ): Promise<{
     ticker: string;
     name: string;
     decimals: number;

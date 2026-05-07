@@ -226,6 +226,16 @@
     "error": {
       "title": "트랜잭션 실패",
       "description": "트랜잭션 서명 중 오류가 발생했습니다. 다시 시도해 주세요."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

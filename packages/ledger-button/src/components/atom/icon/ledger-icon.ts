@@ -13,7 +13,9 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   ClearSigningIcon,
+  ClockIcon,
   CloseIcon,
+  DeleteCircleFillIcon,
   DesktopIcon,
   DeviceIcon,
   DirectConnectivityIcon,
@@ -52,6 +54,8 @@ export interface LedgerIconAttributes {
     | "check"
     | "checkMarkCircleFill"
     | "checkmarkCircle"
+    | "clock"
+    | "deleteCircleFill"
     | "error"
     | "device"
     | "mobile"
@@ -77,7 +81,7 @@ export interface LedgerIconAttributes {
     | "envelope"
     | "shield"
     | "language";
-  size: "small" | "medium" | "large";
+  size: "small" | "20" | "medium" | "large";
   fillColor?: string;
 }
 
@@ -124,6 +128,8 @@ export class LedgerIcon extends LitElement {
       check: () => CheckIcon,
       checkMarkCircleFill: () => CheckMarkCircleFillIcon,
       checkmarkCircle: () => CheckmarkCircleIcon,
+      clock: () => ClockIcon,
+      deleteCircleFill: () => DeleteCircleFillIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
       mobile: () => MobileIcon,
