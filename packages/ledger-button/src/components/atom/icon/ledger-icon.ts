@@ -95,14 +95,14 @@ export interface LedgerIconAttributes {
 const iconVariants = cva("inline-flex shrink-0 items-center justify-center", {
   variants: {
     size: {
-      12: "icon-w-12 icon-h-12 icon-stroke-12",
-      16: "icon-w-16 icon-h-16 icon-stroke-16",
-      20: "icon-w-20 icon-h-20 icon-stroke-20",
-      24: "icon-w-24 icon-h-24 icon-stroke-24",
-      32: "icon-w-32 icon-h-32 icon-stroke-32",
-      40: "icon-w-40 icon-h-40 icon-stroke-40",
-      48: "icon-w-48 icon-h-48 icon-stroke-48",
-      56: "icon-w-56 icon-h-56 icon-stroke-56",
+      12: "icon-stroke-12 h-12 w-12",
+      16: "icon-stroke-16 h-16 w-16",
+      20: "icon-stroke-20 h-20 w-20",
+      24: "icon-stroke-24 h-24 w-24",
+      32: "icon-stroke-32 h-32 w-32",
+      40: "icon-stroke-40 h-40 w-40",
+      48: "icon-stroke-48 h-48 w-48",
+      56: "icon-stroke-56 h-56 w-56",
     },
   },
   defaultVariants: { size: 24 },
