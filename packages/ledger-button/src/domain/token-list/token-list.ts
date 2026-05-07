@@ -16,6 +16,9 @@ export class TokenListScreen extends LitElement {
   @property({ type: Object })
   account?: DetailedAccount;
 
+  @property({ type: String })
+  locale!: string;
+
   private renderNativeCoin() {
     if (!this.account) return "";
 
@@ -25,7 +28,7 @@ export class TokenListScreen extends LitElement {
         .title=${this.account.ticker}
         .ticker=${this.account.ticker}
         .value=${this.account.balance ?? "0"}
-        .fiatValue=${formatFiatBalance(this.account.fiatBalance)}
+        .fiatValue=${formatFiatBalance(this.account.fiatBalance, this.locale)}
         .isClickable=${false}
         type="network"
         iconVariant="rounded"
@@ -45,7 +48,7 @@ export class TokenListScreen extends LitElement {
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
         .value=${token.balance}
-        .fiatValue=${formatFiatBalance(token.fiatBalance)}
+        .fiatValue=${formatFiatBalance(token.fiatBalance, this.locale)}
         .isClickable=${false}
         type="token"
         iconVariant="rounded"

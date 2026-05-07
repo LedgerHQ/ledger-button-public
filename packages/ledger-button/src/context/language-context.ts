@@ -4,6 +4,7 @@ import { customElement, property } from "lit/decorators.js";
 
 import {
   DEFAULT_LANGUAGE,
+  DEFAULT_LOCALE,
   isLangKey,
   type LangKey,
   languages,
@@ -46,6 +47,13 @@ export class LanguageContext extends EventTarget {
 
   get currentTranslation() {
     return this.getTranslation(this.currentLanguage);
+  }
+
+  get locale() {
+    return (
+      languages.find((language) => language.key === this.currentLanguage)
+        ?.locale ?? DEFAULT_LOCALE
+    );
   }
 }
 
