@@ -124,7 +124,7 @@
       "refreshingAccountsHint": "Вы можете в любой момент выбрать счёт, чтобы продолжить.",
       "addAccountAriaLabel": "Добавить счёт",
       "refreshAccountsAriaLabel": "Обновить счета",
-      "addAccountTooltip": "Создать новый счёт",
+      "addAccountTooltip": "Создание нового счёта",
       "refreshAccountsTooltip": "Обновить"
     },
     "connectionSuccess": {
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "Не нашли транзакции",
     "pendingTransactions": "Неподтверждённые транзакции",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "Посмотреть в Обозревателе"
   },
   "mobileOnboarding": {
     "title": "Продолжите в Ledger Wallet",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "Обрабатываем...",
+        "description": "Транзакция обрабатывается в блокчейне"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "Подтверждена",
+        "description": "Транзакция подтверждается в блокчейне"
       }
     }
   },
