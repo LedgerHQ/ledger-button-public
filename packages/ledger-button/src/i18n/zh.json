@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "未找到交易",
     "pendingTransactions": "待处理交易",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "在浏览器上查看"
   },
   "mobileOnboarding": {
     "title": "在 Ledger 钱包中继续",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "处理中...",
+        "description": "交易正在区块链上处理"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "已验证",
+        "description": "交易在区块链上已被验证"
       }
     }
   },
