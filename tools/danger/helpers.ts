@@ -1,6 +1,6 @@
 // NOTE: we cannot import danger from another module,
 // so we need to pass it as argument, only types can be imported
-import { execSync } from "child_process";
+import { execFileSync, execSync } from "child_process";
 import {
   type DangerDSLType,
   type GitHubPRDSL,
@@ -144,9 +144,11 @@ Special case for commit messages coming from a pull request merge:
     }
 
     const currentBranch = Branch(danger, fail, fork).getBranch();
-    return execSync(
-      `git log origin/develop..${currentBranch} --pretty=format:%s`,
-    )
+    return execFileSync("/usr/bin/git", [
+      "log",
+      `origin/develop..${currentBranch}`,
+      "--pretty=format:%s",
+    ])
       .toString()
       .split("\n");
   },
