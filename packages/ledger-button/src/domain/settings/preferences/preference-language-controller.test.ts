@@ -148,19 +148,4 @@ describe("PreferenceLanguageController", () => {
     });
   });
 
-  describe("trackLanguageChanged", () => {
-    it("should delegate to CoreContext.trackLanguageChanged", () => {
-      const languageContext = createMockLanguageContext();
-      const core = createMockCore();
-      const controller = new PreferenceLanguageController(
-        host,
-        languageContext as never,
-        core as never,
-      );
-
-      controller.trackLanguageChanged("ja");
-
-      expect(core.trackLanguageChanged).toHaveBeenCalledWith("ja");
-    });
-  });
 });

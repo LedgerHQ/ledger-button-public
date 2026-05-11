@@ -168,6 +168,12 @@ export const LanguageChangedEventSchema = BaseEventDataSchema.extend({
   language_key: z.string().min(1),
 }).strict();
 
+export const CurrencyChangedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("currency_changed"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  currency_code: z.string().min(1),
+}).strict();
+
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
   ConsentGivenEventSchema,
@@ -187,6 +193,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   MobileRedirectLedgerWalletEventSchema,
   ViewTransactionDetailsClickedEventSchema,
   LanguageChangedEventSchema,
+  CurrencyChangedEventSchema,
 ]);
 
 export type InvoicingTransactionSignedEvent = z.infer<
@@ -225,4 +232,5 @@ export type ViewTransactionDetailsClickedEvent = z.infer<
   typeof ViewTransactionDetailsClickedEventSchema
 >;
 export type LanguageChangedEvent = z.infer<typeof LanguageChangedEventSchema>;
+export type CurrencyChangedEvent = z.infer<typeof CurrencyChangedEventSchema>;
 export type EventData = z.infer<typeof EventDataSchema>;
