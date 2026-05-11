@@ -28,7 +28,7 @@ export class TrackLanguageChanged {
 
     const event = EventTrackingUtils.createLanguageChangedEvent({
       dAppId: this.config.dAppIdentifier,
-      sessionId: sessionId,
+      sessionId,
       languageKey,
     });
 

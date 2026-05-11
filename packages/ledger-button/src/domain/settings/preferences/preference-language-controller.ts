@@ -26,12 +26,12 @@ export class PreferenceLanguageController {
     void this.core.trackLanguageChanged(languageKey);
   }
 
-  selectLanguage(code: LangKey): void {
-    if (code === this.languageContext.currentLanguage) {
+  selectLanguage(languageKey: LangKey): void {
+    if (languageKey === this.languageContext.currentLanguage) {
       return;
     }
-    this.languageContext.setCurrentLanguage(code);
-    this.trackLanguageChanged(code);
+    this.languageContext.setCurrentLanguage(languageKey);
+    this.trackLanguageChanged(languageKey);
     this.host.requestUpdate();
   }
 
