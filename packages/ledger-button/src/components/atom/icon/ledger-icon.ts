@@ -29,8 +29,10 @@ import {
   LanguageIcon,
   LedgerLogoIcon,
   MobileIcon,
+  PlusIcon,
   QuestionIcon,
   ReceiveIcon,
+  RefreshIcon,
   SearchIcon,
   SellIcon,
   SendIcon,
@@ -80,7 +82,9 @@ export interface LedgerIconAttributes {
     | "headphone"
     | "envelope"
     | "shield"
-    | "language";
+    | "language"
+    | "plus"
+    | "refresh";
   size: "small" | "20" | "medium" | "large";
   fillColor?: string;
 }
@@ -155,6 +159,8 @@ export class LedgerIcon extends LitElement {
       envelope: () => EnvelopeIcon,
       shield: () => ShieldIcon,
       language: () => LanguageIcon,
+      plus: () => PlusIcon,
+      refresh: () => RefreshIcon,
     };
     const renderIcon =
       iconMapper[this.type as keyof typeof iconMapper] || iconMapper.ledger;

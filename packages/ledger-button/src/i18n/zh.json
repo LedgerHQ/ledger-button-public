@@ -121,7 +121,11 @@
       "searchPlaceholder": "搜索账户",
       "noResults": "没有与您的搜索相符的账户。",
       "refreshingAccounts": "Ledger Wallet 正在刷新您的账户。",
-      "refreshingAccountsHint": "您可以随时选择一个账户以继续。"
+      "refreshingAccountsHint": "您可以随时选择一个账户以继续。",
+      "addAccountAriaLabel": "添加账户",
+      "refreshAccountsAriaLabel": "刷新账户",
+      "addAccountTooltip": "创建新账户",
+      "refreshAccountsTooltip": "刷新"
     },
     "connectionSuccess": {
       "title": "您已成功连接",

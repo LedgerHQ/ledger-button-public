@@ -121,7 +121,11 @@
       "searchPlaceholder": "アカウントを検索",
       "noResults": "検索条件に一致するアカウントがありません。",
       "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
-      "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。"
+      "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。",
+      "addAccountAriaLabel": "アカウントを追加",
+      "refreshAccountsAriaLabel": "アカウントを更新",
+      "addAccountTooltip": "新しいアカウントを作成",
+      "refreshAccountsTooltip": "更新"
     },
     "connectionSuccess": {
       "title": "接続されました",

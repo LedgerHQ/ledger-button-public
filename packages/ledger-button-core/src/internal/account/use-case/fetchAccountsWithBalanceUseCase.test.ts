@@ -255,5 +255,35 @@ describe("FetchAccountsWithBalanceUseCase", () => {
       expect(finalEmission[0].balance).toBe(ETH_BALANCE);
       expect(finalEmission[1].balance).toBe(USDT_BALANCE);
     });
+
+    it("should re-fetch from cloud sync when forceRefresh is true even if accounts are cached", async () => {
+      const cachedAccount = createMockAccount({
+        ...mockEthAccountValue,
+        balance: "stale",
+      });
+      const freshAccount1 = createMockAccount(mockEthAccountValue);
+      const freshAccount2 = createMockAccount(mockUsdtAccountValue);
+
+      mockAccountService.getAccounts.mockReturnValue([cachedAccount]);
+      mockFetchAccountsUseCase.execute.mockResolvedValue([
+        freshAccount1,
+        freshAccount2,
+      ]);
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        createMockHydrateImplementation(ETH_BALANCE, USDT_BALANCE),
+      );
+
+      const emissions = await lastValueFrom(
+        useCase.execute({ forceRefresh: true }).pipe(toArray()),
+      );
+
+      expect(mockFetchAccountsUseCase.execute).toHaveBeenCalledTimes(1);
+      const finalEmission = emissions[emissions.length - 1];
+      expect(finalEmission).toHaveLength(2);
+      expect(finalEmission[0].id).toBe(freshAccount1.id);
+      expect(finalEmission[0].balance).toBe(ETH_BALANCE);
+      expect(finalEmission[1].id).toBe(freshAccount2.id);
+      expect(finalEmission[1].balance).toBe(USDT_BALANCE);
+    });
   });
 });

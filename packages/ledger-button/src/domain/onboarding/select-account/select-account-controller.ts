@@ -4,8 +4,8 @@ import type {
   Account,
   AccountWithFiat,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { ReactiveController, ReactiveControllerHost } from "lit";
-import { Subscription } from "rxjs";
+import type { ReactiveController, ReactiveControllerHost } from "lit";
+import type { Subscription } from "rxjs";
 
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext } from "../../../context/core-context.js";
@@ -64,7 +64,7 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  getAccounts() {
+  getAccounts(options?: { forceRefresh?: boolean }) {
     if (this.accountsSubscription) {
       this.accountsSubscription.unsubscribe();
     }
@@ -72,7 +72,7 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts().subscribe({
+    this.accountsSubscription = this.core.getAccounts(options).subscribe({
       next: (accounts) => {
         this.accounts = accounts;
         this.isAccountsLoading = false;
@@ -173,6 +173,14 @@ export class SelectAccountController implements ReactiveController {
   handleSearchClear() {
     this.searchQuery = "";
     this.host.requestUpdate();
+  }
+
+  handleRefreshAccountsClick() {
+    this.getAccounts({ forceRefresh: true });
+  }
+
+  handleAddAccountClick() {
+    window.open("ledgerwallet://add-account", "_blank", "noopener,noreferrer");
   }
 
   close() {
