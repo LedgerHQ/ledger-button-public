@@ -121,7 +121,11 @@
       "searchPlaceholder": "Поиск счёта",
       "noResults": "Не нашли счетов по вашему запросу",
       "refreshingAccounts": "Ledger Wallet обновляет ваши счёта.",
-      "refreshingAccountsHint": "Вы можете в любой момент выбрать счёт, чтобы продолжить."
+      "refreshingAccountsHint": "Вы можете в любой момент выбрать счёт, чтобы продолжить.",
+      "addAccountAriaLabel": "Добавить счёт",
+      "refreshAccountsAriaLabel": "Обновить счета",
+      "addAccountTooltip": "Создать новый счёт",
+      "refreshAccountsTooltip": "Обновить"
     },
     "connectionSuccess": {
       "title": "Вы подключены",

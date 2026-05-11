@@ -121,7 +121,11 @@
       "searchPlaceholder": "Hesap ara",
       "noResults": "Aramanızla eşleşen hesap yok",
       "refreshingAccounts": "Ledger Wallet hesaplarınızı yeniliyor.",
-      "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin."
+      "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin.",
+      "addAccountAriaLabel": "Hesap ekle",
+      "refreshAccountsAriaLabel": "Hesapları yenile",
+      "addAccountTooltip": "Yeni hesap oluştur",
+      "refreshAccountsTooltip": "Yenile"
     },
     "connectionSuccess": {
       "title": "Şimdi bağlandınız",
