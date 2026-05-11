@@ -94,6 +94,7 @@ export class TransactionListScreen extends LitElement {
         .explorerUrl=${transaction.explorerUrl}
         .viewOnExplorerLabel=${viewOnExplorerLabel}
         .locale=${this.languages.locale}
+        .hash=${transaction.hash}
       ></ledger-transaction-item>
     `;
   };
