@@ -124,7 +124,7 @@
       "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin.",
       "addAccountAriaLabel": "Hesap ekle",
       "refreshAccountsAriaLabel": "Hesapları yenile",
-      "addAccountTooltip": "Yeni hesap oluştur",
+      "addAccountTooltip": "Yeni bir hesap oluşturun",
       "refreshAccountsTooltip": "Yenile"
     },
     "connectionSuccess": {
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "İşlem bulunamadı",
     "pendingTransactions": "Bekleyen İşlemler",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "Tarayıcıda görüntüle"
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet'ta devam edin",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "İşleniyor...",
+        "description": "İşlem blok zincirinde işleniyor"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "Doğrulandı",
+        "description": "İşlem blok zincirinde doğrulandı"
       }
     }
   },
