@@ -29,11 +29,7 @@ export class PreferenceLanguageScreen extends LitElement {
   private languageController?: PreferenceLanguageController;
 
   override willUpdate() {
-    if (
-      this.core &&
-      this.languageContext &&
-      !this.languageController
-    ) {
+    if (this.core && this.languageContext && !this.languageController) {
       this.languageController = new PreferenceLanguageController(
         this,
         this.languageContext,
@@ -45,13 +41,13 @@ export class PreferenceLanguageScreen extends LitElement {
   override render() {
     const controller = this.languageController;
     if (!controller) {
-      return html`<div class="w-400 w-full flex-col items-start px-16 py-0"></div>`;
+      return html`<div class="flex flex-col px-16"></div>`;
     }
 
     const selected = controller.currentLanguage;
 
     return html`
-      <div class="w-400 w-full flex-col items-start px-16 py-0">
+      <div class="flex flex-col px-16">
         ${controller.languageOptions.map(
           (language) => html`
             <button

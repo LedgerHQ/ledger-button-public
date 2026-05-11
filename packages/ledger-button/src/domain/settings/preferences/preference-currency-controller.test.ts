@@ -22,8 +22,8 @@ function createMockHost(): ReactiveControllerHost {
 function createMockCore(
   overrides: Partial<{
     getPreferredFiatCurrency: () => string;
-    savePreferredFiatCurrency: () => Promise<void>;
-    trackCurrencyChanged: () => Promise<void>;
+    savePreferredFiatCurrency: (currency: string) => Promise<void>;
+    trackCurrencyChanged: (currency: string) => Promise<void>;
   }> = {},
 ) {
   return {
@@ -80,6 +80,19 @@ describe("PreferenceCurrencyController", () => {
       const controller = new PreferenceCurrencyController(host, core as never);
 
       expect(controller.currencies).toStrictEqual(controller.currencies);
+    });
+  });
+
+  describe("getCurrencyDisplayName", () => {
+    it("should return the display label for each supported currency", () => {
+      const core = createMockCore();
+      const controller = new PreferenceCurrencyController(host, core as never);
+
+      expect(controller.getCurrencyDisplayName("usd")).toBe("USD Dollar - USD");
+      expect(controller.getCurrencyDisplayName("eur")).toBe("Euro - EUR");
+      expect(controller.getCurrencyDisplayName("gbp")).toBe(
+        "British Pound - GBP",
+      );
     });
   });
 
