@@ -1,5 +1,6 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
+import { type CoreContext } from "../../../context/core-context.js";
 import {
   type LangKey,
   LanguageContext,
@@ -16,8 +17,22 @@ export class PreferenceLanguageController {
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly languageContext: LanguageContext,
+    private readonly core: CoreContext,
   ) {
     this.host.addController(this as ReactiveController);
+  }
+
+  trackLanguageChanged(languageKey: LangKey): void {
+    void this.core.trackLanguageChanged(languageKey);
+  }
+
+  selectLanguage(code: LangKey): void {
+    if (code === this.languageContext.currentLanguage) {
+      return;
+    }
+    this.languageContext.setCurrentLanguage(code);
+    this.trackLanguageChanged(code);
+    this.host.requestUpdate();
   }
 
   get currentLanguage(): LangKey {
@@ -29,10 +44,5 @@ export class PreferenceLanguageController {
       key: language.key,
       displayName: getLanguageDisplayName(language.key),
     }));
-  }
-
-  selectLanguage(code: LangKey) {
-    this.languageContext.setCurrentLanguage(code);
-    this.host.requestUpdate();
   }
 }
