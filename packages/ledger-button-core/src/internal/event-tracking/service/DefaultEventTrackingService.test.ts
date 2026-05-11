@@ -117,6 +117,12 @@ describe("DefaultEventTrackingService", () => {
           session_id: VALID_UUID,
           language_key: "en",
         } as EventRequest["data"];
+      case EventType.CurrencyChanged:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          currency_code: "usd",
+        } as EventRequest["data"];
       default:
         return {
           ...base,

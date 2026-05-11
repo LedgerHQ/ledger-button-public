@@ -5,6 +5,7 @@ import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
+  type CurrencyChangedEventData,
   type EventRequest,
   EventType,
   type FloatingButtonClickEventData,
@@ -372,6 +373,25 @@ export class EventTrackingUtils {
     return {
       name: EventType.WalletRedirectConfirmed,
       type: EventType.WalletRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createCurrencyChangedEvent(
+    params: SessionEventParams & { currencyCode: string },
+  ): EventRequest {
+    const data: CurrencyChangedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.CurrencyChanged,
+      session_id: params.sessionId,
+      currency_code: params.currencyCode,
+    };
+
+    return {
+      name: EventType.CurrencyChanged,
+      type: EventType.CurrencyChanged,
       data,
     };
   }

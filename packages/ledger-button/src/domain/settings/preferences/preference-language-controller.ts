@@ -22,7 +22,7 @@ export class PreferenceLanguageController {
     this.host.addController(this as ReactiveController);
   }
 
-  trackLanguageChanged(languageKey: LangKey): void {
+  private trackLanguageChanged(languageKey: LangKey): void {
     void this.core.trackLanguageChanged(languageKey);
   }
 

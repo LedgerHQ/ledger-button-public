@@ -18,6 +18,7 @@ export enum EventType {
   WalletRedirectCancelled = "wallet_redirect_cancelled",
   MobileRedirectLedgerWallet = "mobile_redirect_ledger_wallet",
   LanguageChanged = "language_changed",
+  CurrencyChanged = "currency_changed",
 }
 
 type BaseEventData = {
@@ -162,6 +163,12 @@ export type LanguageChangedEventData = BaseEventData & {
   language_key: string;
 };
 
+export type CurrencyChangedEventData = BaseEventData & {
+  event_type: "currency_changed";
+  session_id: string;
+  currency_code: string;
+};
+
 export type EventData =
   | ConsentGivenEventData
   | ConsentRemovedEventData
@@ -183,7 +190,8 @@ export type EventData =
   | WalletRedirectConfirmedEventData
   | WalletRedirectCancelledEventData
   | MobileRedirectLedgerWalletEventData
-  | LanguageChangedEventData;
+  | LanguageChangedEventData
+  | CurrencyChangedEventData;
 
 export type EventRequest = {
   name: string;
