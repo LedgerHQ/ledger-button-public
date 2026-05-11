@@ -9,6 +9,7 @@ import {
   EventType,
   type FloatingButtonClickEventData,
   type InvoicingTransactionSignedEventData,
+  type LanguageChangedEventData,
   type LedgerSyncActivatedEventData,
   type MobileRedirectLedgerWalletEventData,
   type OnboardingEventData,
@@ -371,6 +372,25 @@ export class EventTrackingUtils {
     return {
       name: EventType.WalletRedirectConfirmed,
       type: EventType.WalletRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createLanguageChangedEvent(
+    params: SessionEventParams & { languageKey: string },
+  ): EventRequest {
+    const data: LanguageChangedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.LanguageChanged,
+      session_id: params.sessionId,
+      language_key: params.languageKey,
+    };
+
+    return {
+      name: EventType.LanguageChanged,
+      type: EventType.LanguageChanged,
       data,
     };
   }

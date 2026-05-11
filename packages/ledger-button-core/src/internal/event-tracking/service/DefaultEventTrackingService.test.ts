@@ -111,6 +111,12 @@ describe("DefaultEventTrackingService", () => {
           session_id: VALID_UUID,
           wallet_action: "send",
         } as EventRequest["data"];
+      case EventType.LanguageChanged:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          language_key: "en",
+        } as EventRequest["data"];
       default:
         return {
           ...base,

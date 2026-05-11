@@ -102,8 +102,8 @@ export const TypedMessageFlowInitializationEventSchema =
       .regex(hexPattern, "Sha256 hash without 0x prefix"),
   }).strict();
 
-export const TypedMessageFlowCompletionEventSchema =
-  BaseEventDataSchema.extend({
+export const TypedMessageFlowCompletionEventSchema = BaseEventDataSchema.extend(
+  {
     event_type: z.literal("typed_message_flow_completion"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
@@ -112,7 +112,8 @@ export const TypedMessageFlowCompletionEventSchema =
     typed_message_hash: z
       .string()
       .regex(hexPattern, "Sha256 hash without 0x prefix"),
-  }).strict();
+  },
+).strict();
 
 const walletActionSchema = z.enum([
   "send",
@@ -141,10 +142,11 @@ export const WalletRedirectCancelledEventSchema = BaseEventDataSchema.extend({
   wallet_action: walletActionSchema,
 }).strict();
 
-export const MobileRedirectLedgerWalletEventSchema =
-  BaseEventDataSchema.extend({
+export const MobileRedirectLedgerWalletEventSchema = BaseEventDataSchema.extend(
+  {
     event_type: z.literal("mobile_redirect_ledger_wallet"),
-  }).strict();
+  },
+).strict();
 
 export const ViewTransactionDetailsClickedEventSchema =
   BaseEventDataSchema.extend({
@@ -160,6 +162,11 @@ export const ViewTransactionDetailsClickedEventSchema =
         "Transaction hash must be lowercase hex without 0x prefix",
       ),
   }).strict();
+export const LanguageChangedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("language_changed"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  language_key: z.string().min(1),
+}).strict();
 
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
@@ -179,6 +186,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   WalletRedirectCancelledEventSchema,
   MobileRedirectLedgerWalletEventSchema,
   ViewTransactionDetailsClickedEventSchema,
+  LanguageChangedEventSchema,
 ]);
 
 export type InvoicingTransactionSignedEvent = z.infer<
@@ -216,4 +224,5 @@ export type WalletRedirectCancelledEvent = z.infer<
 export type ViewTransactionDetailsClickedEvent = z.infer<
   typeof ViewTransactionDetailsClickedEventSchema
 >;
+export type LanguageChangedEvent = z.infer<typeof LanguageChangedEventSchema>;
 export type EventData = z.infer<typeof EventDataSchema>;
