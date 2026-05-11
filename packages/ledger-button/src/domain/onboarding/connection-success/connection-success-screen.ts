@@ -20,7 +20,7 @@ export class ConnectionSuccessScreen extends LitElement {
   static override styles = css`
     :host {
       display: block;
-      height: 100%;
+      height: min(400px, calc(100vh - 64px));
     }
   `;
 
@@ -33,6 +33,17 @@ export class ConnectionSuccessScreen extends LitElement {
 
   private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.dispatchEvent(
+      new CustomEvent("ledger-status-show", {
+        bubbles: true,
+        composed: true,
+        detail: { type: "success" },
+      }),
+    );
+  }
+
   override firstUpdated(): void {
     this.scheduleAutoClose();
   }
@@ -40,6 +51,12 @@ export class ConnectionSuccessScreen extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.cancelAutoClose();
+    this.dispatchEvent(
+      new CustomEvent("ledger-status-hide", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   override render() {
@@ -47,14 +64,20 @@ export class ConnectionSuccessScreen extends LitElement {
 
     return html`
       <div
-        class="flex min-h-0 flex-col items-stretch justify-center self-stretch p-24 pt-0"
+        class="flex h-full flex-col items-center justify-center gap-24 p-24"
       >
-        <ledger-status
-          type="success"
-          title=${translations.onboarding.connectionSuccess.title}
-          primary-button-label=""
-          secondary-button-label=""
-        ></ledger-status>
+        <div
+          class="bg-muted-transparent text-success flex h-72 w-72 items-center justify-center rounded-full"
+        >
+          <ledger-icon
+            type="checkMarkCircleFill"
+            size="40"
+            fillColor="currentColor"
+          ></ledger-icon>
+        </div>
+        <h2 class="text-base heading-3-semi-bold text-center">
+          ${translations.onboarding.connectionSuccess.title}
+        </h2>
       </div>
     `;
   }

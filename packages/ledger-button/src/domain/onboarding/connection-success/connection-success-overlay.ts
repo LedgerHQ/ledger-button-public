@@ -43,8 +43,7 @@ const styles = css`
     z-index: 1;
     margin: auto;
     width: min(calc(100% - 32px), 400px);
-    height: fit-content;
-    max-height: min(calc(100vh - 64px), var(--modal-max-height, 550px));
+    height: min(400px, calc(100vh - 64px));
     overflow: hidden;
     opacity: 0;
   }
@@ -115,15 +114,27 @@ export class ConnectionSuccessOverlay extends LitElement {
     return html`
       <div class="connection-success-overlay__backdrop"></div>
       <div
-        class="connection-success-overlay__container bg-canvas-sheet flex flex-col rounded-2xl"
+        class="connection-success-overlay__container bg-canvas-sheet rounded-2xl"
       >
-        <div class="flex min-h-0 flex-col items-stretch justify-center p-24">
-          <ledger-status
-            type="success"
-            title=${translations.onboarding.connectionSuccess.title}
-            primary-button-label=""
-            secondary-button-label=""
-          ></ledger-status>
+        <div
+          class="bg-gradient-success pointer-events-none absolute inset-0"
+          aria-hidden="true"
+        ></div>
+        <div
+          class="relative flex h-full flex-col items-center justify-center gap-24 p-24"
+        >
+          <div
+            class="bg-muted-transparent text-success flex h-72 w-72 items-center justify-center rounded-full"
+          >
+            <ledger-icon
+              type="checkMarkCircleFill"
+              size="40"
+              fillColor="currentColor"
+            ></ledger-icon>
+          </div>
+          <h2 class="text-base heading-3-semi-bold text-center">
+            ${translations.onboarding.connectionSuccess.title}
+          </h2>
         </div>
       </div>
     `;
