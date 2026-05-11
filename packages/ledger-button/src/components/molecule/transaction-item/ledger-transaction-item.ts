@@ -1,9 +1,11 @@
 import "../../atom/icon/ledger-icon";
 
+import { consume } from "@lit/context";
 import { cva, cx } from "class-variance-authority";
 import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
+import { CoreContext, coreContext } from "../../../context/core-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatFiatValue } from "../../../utils/format-fiat.js";
 
@@ -26,6 +28,7 @@ export interface LedgerTransactionItemAttributes {
   fiatCurrency: string;
   explorerUrl?: string;
   viewOnExplorerLabel?: string;
+  hash?: string;
 }
 
 @customElement("ledger-transaction-item")
@@ -60,6 +63,19 @@ export class LedgerTransactionItem extends LitElement {
 
   @property({ type: String, attribute: "view-on-explorer-label" })
   viewOnExplorerLabel = "View on explorer";
+
+  @property({ type: String })
+  hash = "";
+
+  @consume({ context: coreContext })
+  @state()
+  private coreContext?: CoreContext;
+
+  private handleExplorerClick = () => {
+    if (this.hash) {
+      void this.coreContext?.trackViewTransactionDetailsClicked(this.hash);
+    }
+  };
 
   private get safeExplorerUrl(): string | undefined {
     if (!this.explorerUrl) {
@@ -184,6 +200,7 @@ export class LedgerTransactionItem extends LitElement {
           target="_blank"
           rel="noopener noreferrer"
           class="group flex min-w-full cursor-pointer flex-col overflow-hidden rounded-md text-inherit no-underline focus-visible:outline-none"
+          @click=${this.handleExplorerClick}
         >
           ${inner}
         </a>

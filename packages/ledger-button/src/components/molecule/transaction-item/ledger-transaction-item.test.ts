@@ -3,7 +3,7 @@
  */
 
 import { render } from "lit";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { LedgerTransactionItem } from "./ledger-transaction-item.js";
 
@@ -88,5 +88,36 @@ describe("ledger-transaction-item", () => {
     const container = renderItem({ explorerUrl: "not a url" });
 
     expect(container.querySelector("a")).toBeNull();
+  });
+
+  it("calls trackViewTransactionDetailsClicked with the hash when the anchor is clicked", () => {
+    const trackViewTransactionDetailsClicked = vi.fn();
+    const hash =
+      "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";
+
+    const container = renderItem({
+      explorerUrl: EXPLORER_URL,
+      hash,
+      coreContext: { trackViewTransactionDetailsClicked },
+    } as Partial<LedgerTransactionItem>);
+
+    const anchor = container.querySelector("a");
+    const clickEvent = new MouseEvent("click", { cancelable: true });
+    anchor?.dispatchEvent(clickEvent);
+
+    expect(trackViewTransactionDetailsClicked).toHaveBeenCalledTimes(1);
+    expect(trackViewTransactionDetailsClicked).toHaveBeenCalledWith(hash);
+    expect(clickEvent.defaultPrevented).toBe(false);
+  });
+
+  it("does not call tracking and does not throw when coreContext is missing", () => {
+    const container = renderItem({
+      explorerUrl: EXPLORER_URL,
+      hash: "0xabc",
+    } as Partial<LedgerTransactionItem>);
+
+    const anchor = container.querySelector("a");
+
+    expect(() => anchor?.click()).not.toThrow();
   });
 });
