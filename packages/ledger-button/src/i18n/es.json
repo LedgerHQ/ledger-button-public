@@ -122,9 +122,9 @@
       "noResults": "No hay ninguna cuenta que coincida con tu búsqueda",
       "refreshingAccounts": "Ledger Wallet está actualizando tus cuentas.",
       "refreshingAccountsHint": "Selecciona una cuenta en cualquier momento para continuar.",
-      "addAccountAriaLabel": "Añadir cuenta",
+      "addAccountAriaLabel": "Agregar cuenta",
       "refreshAccountsAriaLabel": "Actualizar cuentas",
-      "addAccountTooltip": "Crear una nueva cuenta",
+      "addAccountTooltip": "Crear una cuenta nueva",
       "refreshAccountsTooltip": "Actualizar"
     },
     "connectionSuccess": {
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "No se encontraron transacciones",
     "pendingTransactions": "Transacciones pendientes",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "Ver en el explorador"
   },
   "mobileOnboarding": {
     "title": "Continuar en Ledger Wallet™",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "Procesando...",
+        "description": "La transacción se está procesando en la blockchain"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "Validada",
+        "description": "La transacción se valida en la blockchain"
       }
     }
   },
