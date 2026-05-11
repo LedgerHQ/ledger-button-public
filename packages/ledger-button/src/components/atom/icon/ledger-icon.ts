@@ -1,4 +1,3 @@
-import { cva } from "class-variance-authority";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -47,6 +46,26 @@ import {
 
 export type LedgerIconSize = 12 | 16 | 20 | 24 | 32 | 40 | 48 | 56;
 
+const SIZE_CLASSES: Record<LedgerIconSize, string> = {
+  12: "w-12 h-12",
+  16: "w-16 h-16",
+  20: "w-20 h-20",
+  24: "w-24 h-24",
+  32: "w-32 h-32",
+  40: "w-40 h-40",
+  48: "w-48 h-48",
+  56: "w-56 h-56",
+};
+
+const LEGAL_SIZES = new Set<number>([12, 16, 20, 24, 32, 40, 48, 56]);
+
+function normalizeIconSize(size: number): LedgerIconSize {
+  if (!Number.isFinite(size) || !LEGAL_SIZES.has(size)) {
+    return 24;
+  }
+  return size as LedgerIconSize;
+}
+
 export interface LedgerIconAttributes {
   type:
     | "ledger"
@@ -92,22 +111,6 @@ export interface LedgerIconAttributes {
   fillColor?: string;
 }
 
-const iconVariants = cva("inline-flex shrink-0 items-center justify-center", {
-  variants: {
-    size: {
-      12: "icon-stroke-12 h-12 w-12",
-      16: "icon-stroke-16 h-16 w-16",
-      20: "icon-stroke-20 h-20 w-20",
-      24: "icon-stroke-24 h-24 w-24",
-      32: "icon-stroke-32 h-32 w-32",
-      40: "icon-stroke-40 h-40 w-40",
-      48: "icon-stroke-48 h-48 w-48",
-      56: "icon-stroke-56 h-56 w-56",
-    },
-  },
-  defaultVariants: { size: 24 },
-});
-
 const styles = css`
   svg {
     width: 100%;
@@ -127,6 +130,10 @@ export class LedgerIcon extends LitElement {
 
   @property({ type: String })
   fillColor?: string;
+
+  private get iconClasses(): string {
+    return SIZE_CLASSES[normalizeIconSize(this.size)];
+  }
 
   override render() {
     const iconMapper = {
@@ -178,7 +185,7 @@ export class LedgerIcon extends LitElement {
       role="img"
       style="fill: ${this.fillColor ?? "black"}; color: ${this.fillColor ??
       "black"};"
-      class=${iconVariants({ size: this.size })}
+      class="${this.iconClasses} flex items-center justify-center"
     >
       ${renderIcon()}
     </div> `;
