@@ -123,8 +123,8 @@
       "refreshingAccounts": "Ledger Wallet이 계정 정보를 업데이트하고 있습니다.",
       "refreshingAccountsHint": "언제든 계정을 선택해 계속 진행하세요.",
       "addAccountAriaLabel": "계정 추가",
-      "refreshAccountsAriaLabel": "계정 새로고침",
-      "addAccountTooltip": "새 계정 만들기",
+      "refreshAccountsAriaLabel": "Refresh accounts",
+      "addAccountTooltip": "새로운 계정 생성",
       "refreshAccountsTooltip": "새로고침"
     },
     "connectionSuccess": {
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "트랜잭션 정보를 찾을 수 없습니다",
     "pendingTransactions": "보류 중인 트랜잭션",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "탐색기에서 보기"
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet에서 계속하기",
@@ -233,7 +233,7 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
+        "title": "처리 중...",
         "description": "Transaction is processing on the blockchain"
       },
       "validated": {
