@@ -28,7 +28,6 @@ export class DefaultContextService implements ContextService {
     hasTrackingConsent: undefined,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
-    supportedFiatCurrencies: [],
   };
 
   private readonly logger: LoggerPublisher;
