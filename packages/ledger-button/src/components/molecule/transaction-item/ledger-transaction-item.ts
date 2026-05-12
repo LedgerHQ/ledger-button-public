@@ -69,9 +69,9 @@ export class LedgerTransactionItem extends LitElement {
 
   @consume({ context: coreContext })
   @state()
-  private coreContext?: CoreContext;
+  private readonly coreContext?: CoreContext;
 
-  private handleExplorerClick = () => {
+  private readonly handleExplorerClick = () => {
     if (this.hash) {
       void this.coreContext?.trackViewTransactionDetailsClicked(this.hash);
     }
