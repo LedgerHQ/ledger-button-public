@@ -1,5 +1,4 @@
 import { Account } from "../../internal/account/service/AccountService.js";
-import { FiatCurrency } from "../../internal/balance/datasource/fiatCurrency/fiatCurrencyTypes.js";
 import { Device } from "../../internal/device/model/Device.js";
 
 export type ButtonCoreContext = {
@@ -12,5 +11,4 @@ export type ButtonCoreContext = {
   hasTrackingConsent: boolean | undefined;
   isMobilePlatform: boolean;
   preferredFiatCurrency: string;
-  supportedFiatCurrencies: FiatCurrency[];
 };

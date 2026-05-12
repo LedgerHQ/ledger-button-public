@@ -2,11 +2,11 @@ import { inject, injectable } from "inversify";
 import type { Either } from "purify-ts";
 import { Left, Right } from "purify-ts";
 
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import type { NetworkServiceOpts } from "../../../network/model/types.js";
-import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
+import type { NetworkServiceOpts } from "../../network/model/types.js";
+import { networkModuleTypes } from "../../network/networkModuleTypes.js";
+import type { NetworkService } from "../../network/NetworkService.js";
 import type { FiatCurrencyDataSource } from "./FiatCurrencyDataSource.js";
 import type { FiatCurrency } from "./fiatCurrencyTypes.js";
 

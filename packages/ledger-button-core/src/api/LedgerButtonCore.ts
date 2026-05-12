@@ -15,10 +15,7 @@ import { SignTransactionParams } from "./model/signing/SignTransactionParams.js"
 import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import {
-  DEFAULT_FIAT_CURRENCY,
-  DEFAULT_SUPPORTED_FIAT_CURRENCIES,
-} from "../internal/account/model/constant.js";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/account/model/constant.js";
 import {
   Account,
   type AccountService,
@@ -34,14 +31,15 @@ import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import type { FiatCurrencyDataSource } from "../internal/balance/datasource/fiatCurrency/FiatCurrencyDataSource.js";
-import type { FiatCurrency } from "../internal/balance/datasource/fiatCurrency/fiatCurrencyTypes.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
 import { type ConsentService } from "../internal/consent/ConsentService.js";
 import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
 import { ContextService } from "../internal/context/ContextService.js";
+import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
+import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
+import type { FiatCatalogService } from "../internal/currency/service/FiatCatalogService.js";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
@@ -175,14 +173,11 @@ export class LedgerButtonCore {
       .get<StorageService>(storageModuleTypes.StorageService)
       .getPreferredFiatCurrency();
 
-    const supportedFiatCurrenciesResult = await this.container
-      .get<FiatCurrencyDataSource>(balanceModuleTypes.FiatCurrencyDataSource)
-      .getSupportedFiatCurrencies();
-
-    const supportedFiatCurrencies = supportedFiatCurrenciesResult.orDefault(
-      DEFAULT_SUPPORTED_FIAT_CURRENCIES,
+    const fiatCatalogService = this.container.get<FiatCatalogService>(
+      currencyModuleTypes.FiatCatalogService,
     );
-
+    await fiatCatalogService.initializeSupportedFiatCurrencies();
+    const supportedFiatCurrencies = fiatCatalogService.getSupportedFiatCurrencies();
     const storedFiatCurrency = storedFiatCurrencyMaybe.orDefault(
       DEFAULT_FIAT_CURRENCY,
     );
@@ -203,7 +198,6 @@ export class LedgerButtonCore {
         hasTrackingConsent,
         isMobilePlatform,
         preferredFiatCurrency,
-        supportedFiatCurrencies,
       },
     });
 
@@ -536,7 +530,9 @@ export class LedgerButtonCore {
   }
 
   getSupportedFiatCurrencies(): FiatCurrency[] {
-    return this._contextService.getContext().supportedFiatCurrencies;
+    return this.container
+      .get<FiatCatalogService>(currencyModuleTypes.FiatCatalogService)
+      .getSupportedFiatCurrencies();
   }
 
   async savePreferredFiatCurrency(currency: string): Promise<void> {

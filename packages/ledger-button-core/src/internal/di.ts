@@ -8,6 +8,7 @@ import { configModuleFactory } from "./config/configModule.js";
 import { consentModuleFactory } from "./consent/consentModule.js";
 import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
+import { currencyModuleFactory } from "./currency/currencyModule.js";
 import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
@@ -46,6 +47,7 @@ export function createContainer({
 
   container.loadSync(
     configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
+    currencyModuleFactory(),
     balanceModuleFactory({ stub: devConfig.stub.balance }),
     loggerModuleFactory({
       stub: devConfig.stub.base,

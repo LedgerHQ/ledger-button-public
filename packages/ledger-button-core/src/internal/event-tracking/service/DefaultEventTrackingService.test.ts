@@ -55,7 +55,6 @@ describe("DefaultEventTrackingService", () => {
     hasTrackingConsent: false,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
-    supportedFiatCurrencies: [],
     ...overrides,
   });
 

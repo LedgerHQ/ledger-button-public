@@ -6,8 +6,6 @@ import { CoinServiceDataSource } from "./datasource/coinService/CoinServiceDataS
 import { DefaultCoinServiceDataSource } from "./datasource/coinService/DefaultCoinServiceDataSource.js";
 import { CounterValueDataSource } from "./datasource/countervalue/CounterValueDataSource.js";
 import { DefaultCounterValueDataSource } from "./datasource/countervalue/DefaultCounterValueDataSource.js";
-import { DefaultFiatCurrencyDataSource } from "./datasource/fiatCurrency/DefaultFiatCurrencyDataSource.js";
-import { FiatCurrencyDataSource } from "./datasource/fiatCurrency/FiatCurrencyDataSource.js";
 import { BalanceService } from "./service/BalanceService.js";
 import { DefaultBalanceService } from "./service/DefaultBalanceService.js";
 import { balanceModuleTypes } from "./balanceModuleTypes.js";
@@ -32,10 +30,6 @@ export function balanceModuleFactory({ stub }: BalanceModuleOptions) {
 
     bind<CounterValueDataSource>(balanceModuleTypes.CounterValueDataSource)
       .to(DefaultCounterValueDataSource)
-      .inSingletonScope();
-
-    bind<FiatCurrencyDataSource>(balanceModuleTypes.FiatCurrencyDataSource)
-      .to(DefaultFiatCurrencyDataSource)
       .inSingletonScope();
 
     if (stub) {
