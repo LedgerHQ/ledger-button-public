@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "Nenhuma transação encontrada",
     "pendingTransactions": "Transações pendentes",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "Ver no explorador"
   },
   "mobileOnboarding": {
     "title": "Continuar na Ledger Wallet",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "Processando…",
+        "description": "A transação está sendo processada na blockchain"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "Validada",
+        "description": "A transação é validada na blockchain"
       }
     }
   },
