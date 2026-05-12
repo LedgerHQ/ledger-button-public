@@ -1,69 +1,37 @@
 /**
- * Raw API response types for the Alpaca v3 account-operations endpoint.
- * GET https://alpaca.api.ledger.com/v1/{network}/account/{address}/operations
- *
- * Source of truth: Alpaca v3 OpenAPI spec.
+ * Normalized, provider-agnostic boundary types exposed by
+ * `TransactionHistoryDataSource`. All wire-level decoding (Coin Service
+ * specifics, `tx.*` nesting, FEES detection, asset discriminator, address
+ * casing, value/timestamp resolution) is owned by the data source adapter so
+ * use cases never see provider-shaped data.
  */
 
-export type AlpacaAddress = string;
+export type TransactionHistoryEntryAsset =
+  | { isNative: true }
+  | { isNative: false; contractAddress: string };
 
-export type AlpacaAsset = {
-  type: string;
-  assetReference?: string;
-  assetOwner?: AlpacaAddress;
+export type TransactionHistoryEntryFee = {
+  amount: string;
+  payer?: string;
 };
 
-export type AlpacaBlockInfo = {
-  height: number;
-  hash?: string;
-  time?: string;
-  parent?: AlpacaBlockInfo;
-};
-
-/**
- * Note on `hash`: the Alpaca API occasionally returns operations with a
- * missing/empty `tx.hash`. `TransactionHistoryDataSource` filters those out
- * at the boundary, so consumers of the data source can rely on `hash` being
- * a non-empty string.
- */
-export type AlpacaOperationTransaction = {
+export type TransactionHistoryEntry = {
   hash: string;
-  fees: string;
-  block: AlpacaBlockInfo;
-  failed: boolean;
-  date?: string;
-  // Non-spec but present in EVM payloads; kept optional.
-  feesPayer?: AlpacaAddress;
-};
-
-/**
- * EVM-specific operation details. Per the spec, `details` is loosely typed
- * (`additionalProperties: true`), so every field here is optional.
- */
-export type AlpacaEvmOperationDetails = {
-  sequence?: string;
-  ledgerOpType?: "OUT" | "IN";
-  assetAmount?: string;
-  assetSenders?: AlpacaAddress[];
-  assetRecipients?: AlpacaAddress[];
-  parentSenders?: AlpacaAddress[];
-  parentRecipients?: AlpacaAddress[];
-};
-
-export type AlpacaOperation = {
-  id: string;
-  tx: AlpacaOperationTransaction;
-  type: string;
   value: string;
-  senders: AlpacaAddress[];
-  recipients: AlpacaAddress[];
-  asset?: AlpacaAsset;
-  details?: AlpacaEvmOperationDetails;
+  senders: string[];
+  recipients: string[];
+  fee?: TransactionHistoryEntryFee;
+  failed: boolean;
+  blockHeight?: number;
+  timestamp: string;
+  asset: TransactionHistoryEntryAsset;
+  direction?: "out" | "in";
+  isFees: boolean;
 };
 
-export type AlpacaOperationsResponse = {
-  items: AlpacaOperation[];
-  next?: string;
+export type TransactionHistoryPage = {
+  items: TransactionHistoryEntry[];
+  nextPageToken?: string;
 };
 
 /**
@@ -82,11 +50,11 @@ export type TransactionHistoryOptions = {
 export type TransactionDirection = "sent" | "received" | "self";
 
 /**
- * Semantic kind of the transaction inferred from the Alpaca operation.
+ * Semantic kind of the transaction inferred from the underlying operation.
  *
- * - "fees": a separate fee-only operation (e.g. an EVM `-FEES` row paired
- *   with a failed parent transaction). Distinct from `"contract"` so the UI
- *   can render gas-only rows differently from real contract interactions.
+ * - "fees": a separate fee-only operation (e.g. a row paired with a failed
+ *   parent transaction). Distinct from `"contract"` so the UI can render
+ *   gas-only rows differently from real contract interactions.
  */
 export type TransactionKind =
   | "transfer"
