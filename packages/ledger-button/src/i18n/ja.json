@@ -123,8 +123,8 @@
       "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
       "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。",
       "addAccountAriaLabel": "アカウントを追加",
-      "refreshAccountsAriaLabel": "アカウントを更新",
-      "addAccountTooltip": "新しいアカウントを作成",
+      "refreshAccountsAriaLabel": "Refresh accounts",
+      "addAccountTooltip": "新しいアカウントを作成する",
       "refreshAccountsTooltip": "更新"
     },
     "connectionSuccess": {
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "トランザクションが見つかりません",
     "pendingTransactions": "保留中のトランザクション",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "エクスプローラーで表示"
   },
   "mobileOnboarding": {
     "title": "Ledger Walletで続行",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "処理中...",
+        "description": "トランザクションはブロックチェーン上で処理中です"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "検証済み",
+        "description": "トランザクションはブロックチェーン上で検証されます"
       }
     }
   },

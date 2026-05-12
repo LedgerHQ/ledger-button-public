@@ -123,7 +123,7 @@
       "refreshingAccounts": "แอป Ledger Wallet กำลังอัปเดตข้อมูลบัญชีของคุณ",
       "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ",
       "addAccountAriaLabel": "เพิ่มบัญชี",
-      "refreshAccountsAriaLabel": "รีเฟรชบัญชี",
+      "refreshAccountsAriaLabel": "Refresh accounts",
       "addAccountTooltip": "สร้างบัญชีใหม่",
       "refreshAccountsTooltip": "รีเฟรช"
     },
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "ไม่พบธุรกรรม",
     "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "ดูใน Explorer"
   },
   "mobileOnboarding": {
     "title": "ดำเนินการต่อในแอป Ledger Wallet",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "กำลังดำเนินการ...",
+        "description": "กำลังประมวลผลธุรกรรมบนบล็อกเชน"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "ยืนยันแล้ว",
+        "description": "ธุรกรรมได้รับการตรวจสอบบนบล็อกเชนแล้ว"
       }
     }
   },

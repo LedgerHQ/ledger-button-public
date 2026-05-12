@@ -123,9 +123,9 @@
       "refreshingAccounts": "Ledger Wallet aktualisiert deine Konten.",
       "refreshingAccountsHint": "Wähle jederzeit ein Konto, um fortzufahren.",
       "addAccountAriaLabel": "Konto hinzufügen",
-      "refreshAccountsAriaLabel": "Konten aktualisieren",
-      "addAccountTooltip": "Neues Konto erstellen",
-      "refreshAccountsTooltip": "Aktualisieren"
+      "refreshAccountsAriaLabel": "Konten neu laden",
+      "addAccountTooltip": "Erstelle ein neues Konto",
+      "refreshAccountsTooltip": "Neu laden"
     },
     "connectionSuccess": {
       "title": "Du bist jetzt verbunden",
@@ -193,7 +193,7 @@
   "transactionList": {
     "noTransactions": "Keine Transaktionen gefunden",
     "pendingTransactions": "Schwebende Transaktionen",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "Im Explorer ansehen"
   },
   "mobileOnboarding": {
     "title": "Vorgang fortsetzen in Ledger Wallet",
@@ -233,12 +233,12 @@
     },
     "broadcast": {
       "processing": {
-        "title": "Processing...",
-        "description": "Transaction is processing on the blockchain"
+        "title": "In Bearbeitung …",
+        "description": "Die Transaktion wird auf der Blockchain verarbeitet"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "Validiert",
+        "description": "Die Transaktion wird auf der Blockchain validiert"
       }
     }
   },
