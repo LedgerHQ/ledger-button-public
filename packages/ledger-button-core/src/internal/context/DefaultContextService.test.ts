@@ -82,6 +82,7 @@ describe("DefaultContextService", () => {
         hasTrackingConsent: undefined,
         isMobilePlatform: false,
         preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+        supportedFiatCurrencies: [],
       });
     });
   });
@@ -114,6 +115,7 @@ describe("DefaultContextService", () => {
             hasTrackingConsent: false,
             isMobilePlatform: false,
             preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+            supportedFiatCurrencies: [],
           },
         },
         expectedContext: {
@@ -126,6 +128,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -141,6 +144,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -156,6 +160,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -171,6 +176,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -186,6 +192,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -211,6 +218,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -229,6 +237,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: undefined,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
       {
@@ -247,6 +256,7 @@ describe("DefaultContextService", () => {
               hasTrackingConsent: false,
               isMobilePlatform: false,
               preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+              supportedFiatCurrencies: [],
             },
           });
         },
@@ -260,6 +270,7 @@ describe("DefaultContextService", () => {
           hasTrackingConsent: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+          supportedFiatCurrencies: [],
         },
       },
     ])("onEvent - $eventType", (event) => {

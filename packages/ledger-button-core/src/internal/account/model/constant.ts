@@ -1,5 +1,7 @@
-export const DEFAULT_FIAT_CURRENCY = "usd";
+export const DEFAULT_FIAT_CURRENCY = "USD";
 
-export const SUPPORTED_FIAT_CURRENCIES = ["usd", "eur", "gbp"] as const;
-
-export type SupportedFiatCurrency = (typeof SUPPORTED_FIAT_CURRENCIES)[number];
+export const DEFAULT_SUPPORTED_FIAT_CURRENCIES = [
+  { code: "USD", name: "US Dollar" },
+  { code: "EUR", name: "Euro" },
+  { code: "GBP", name: "Pound Sterling" },
+];
