@@ -1,4 +1,4 @@
 export const currencyModuleTypes = {
-  FiatCatalogService: Symbol.for("FiatCatalogService"),
+  CurrencyService: Symbol.for("CurrencyService"),
   FiatCurrencyDataSource: Symbol.for("FiatCurrencyDataSource"),
 } as const;

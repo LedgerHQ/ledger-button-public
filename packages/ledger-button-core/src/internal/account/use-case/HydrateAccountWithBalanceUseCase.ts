@@ -8,7 +8,7 @@ import {
   type TokenBalance,
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
-import { formatBalance } from "../../currency/formatCurrency.js";
+import { formatBalance } from "../../currency/currencyUtils.js";
 import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
