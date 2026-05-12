@@ -52,13 +52,13 @@ export class PreferenceCurrencyScreen extends LitElement {
             <button
               type="button"
               class="bg-base-transparent hover:bg-base-transparent-hover flex h-64 w-full cursor-pointer items-center justify-between gap-16 rounded-md px-8 py-0 text-left transition duration-150 ease-in-out"
-              aria-current=${currency === selected ? "true" : "false"}
+              aria-current=${currency.code === selected ? "true" : "false"}
               @click=${() => controller.selectCurrency(currency)}
             >
               <span class="body-2-semi-bold text-base">
-                ${controller.getCurrencyDisplayName(currency)}
-              </span>
-              ${currency === selected
+                ${currency.name} - ${currency.code}</span
+              >
+              ${currency.code === selected
                 ? html`
                     <ledger-icon
                       type="checkmarkCircle"

@@ -36,7 +36,8 @@ function createMockContext(
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
     isMobilePlatform: false,
-    preferredFiatCurrency: "usd",
+    preferredFiatCurrency: "USD",
+    supportedFiatCurrencies: [],
     ...overrides,
   };
 }
@@ -99,7 +100,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
       getContext: vi.fn(),
       onEvent: vi.fn(),
     };
-    setPreferredFiatCurrency("usd");
+    setPreferredFiatCurrency("USD");
 
     useCase = new HydrateAccountWithFiatUseCase(
       createMockLoggerFactory(),
@@ -108,7 +109,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
     );
 
     vi.clearAllMocks();
-    setPreferredFiatCurrency("usd");
+    setPreferredFiatCurrency("USD");
   });
 
   describe("execute", () => {
@@ -167,7 +168,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum"], "usd");
+        ).toHaveBeenCalledWith(["ethereum"], "USD");
       });
     });
 
@@ -212,7 +213,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum"], "usd");
+        ).toHaveBeenCalledWith(["ethereum"], "USD");
       });
 
       it("should use the preferred fiat currency from context", async () => {
@@ -222,7 +223,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         mockCounterValueDataSource.getCounterValues.mockResolvedValue(
           Right(counterValueResult),
         );
-        setPreferredFiatCurrency("eur");
+        setPreferredFiatCurrency("EUR");
 
         const result = await useCase.execute(baseAccount);
 
@@ -232,7 +233,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum"], "eur");
+        ).toHaveBeenCalledWith(["ethereum"], "EUR");
       });
 
       it("should handle decimal balance values", async () => {
@@ -275,7 +276,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum", "ethereum/erc20/usdc"], "usd");
+        ).toHaveBeenCalledWith(["ethereum", "ethereum/erc20/usdc"], "USD");
       });
     });
   });

@@ -17,7 +17,7 @@ import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import {
   DEFAULT_FIAT_CURRENCY,
-  SUPPORTED_FIAT_CURRENCIES,
+  DEFAULT_SUPPORTED_FIAT_CURRENCIES,
 } from "../internal/account/model/constant.js";
 import {
   Account,
@@ -34,6 +34,8 @@ import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
+import type { FiatCurrencyDataSource } from "../internal/balance/datasource/fiatCurrency/FiatCurrencyDataSource.js";
+import type { FiatCurrency } from "../internal/balance/datasource/fiatCurrency/fiatCurrencyTypes.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -173,15 +175,22 @@ export class LedgerButtonCore {
       .get<StorageService>(storageModuleTypes.StorageService)
       .getPreferredFiatCurrency();
 
+    const supportedFiatCurrenciesResult = await this.container
+      .get<FiatCurrencyDataSource>(balanceModuleTypes.FiatCurrencyDataSource)
+      .getSupportedFiatCurrencies();
+
+    const supportedFiatCurrencies = supportedFiatCurrenciesResult.orDefault(
+      DEFAULT_SUPPORTED_FIAT_CURRENCIES,
+    );
+
     const storedFiatCurrency = storedFiatCurrencyMaybe.orDefault(
       DEFAULT_FIAT_CURRENCY,
     );
-    const preferredFiatCurrency = (
-      SUPPORTED_FIAT_CURRENCIES as readonly string[]
-    ).includes(storedFiatCurrency)
+    const preferredFiatCurrency = supportedFiatCurrencies.some(
+      (c) => c.code === storedFiatCurrency,
+    )
       ? storedFiatCurrency
       : DEFAULT_FIAT_CURRENCY;
-
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -194,6 +203,7 @@ export class LedgerButtonCore {
         hasTrackingConsent,
         isMobilePlatform,
         preferredFiatCurrency,
+        supportedFiatCurrencies,
       },
     });
 
@@ -523,6 +533,10 @@ export class LedgerButtonCore {
       this._contextService.getContext().preferredFiatCurrency ??
       DEFAULT_FIAT_CURRENCY
     );
+  }
+
+  getSupportedFiatCurrencies(): FiatCurrency[] {
+    return this._contextService.getContext().supportedFiatCurrencies;
   }
 
   async savePreferredFiatCurrency(currency: string): Promise<void> {

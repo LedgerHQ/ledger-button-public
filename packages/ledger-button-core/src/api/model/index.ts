@@ -8,6 +8,7 @@ export type {
   Network,
   Token,
 } from "../../internal/account/service/AccountService.js";
+export type { FiatCurrency } from "../../internal/balance/datasource/fiatCurrency/fiatCurrencyTypes.js";
 export type { PendingTransaction } from "../../internal/pending-transaction/model/PendingTransaction.js";
 export type {
   TransactionHistoryItem,
