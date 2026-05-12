@@ -8,6 +8,10 @@ export function getCurrencyIdFromChainId(chainId: number) {
   );
 }
 
+export function isSupportedEvmCurrency(currencyId: string): boolean {
+  return Object.hasOwn(EVM_MAPPING_TABLE, currencyId);
+}
+
 export const EVM_MAPPING_TABLE: Record<string, number> = {
   ethereum: 1,
   arbitrum: 42161,

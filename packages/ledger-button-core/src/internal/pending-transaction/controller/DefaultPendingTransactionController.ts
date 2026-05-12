@@ -106,7 +106,7 @@ export class DefaultPendingTransactionController
     const pendingHashes = pending.map((tx) => tx.hash);
 
     const result = await this.checkPendingStatus.execute(
-      account.ticker.toLowerCase(),
+      account.currencyId,
       account.freshAddress,
       pendingHashes,
     );

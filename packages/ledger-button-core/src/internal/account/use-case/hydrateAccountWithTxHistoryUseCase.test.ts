@@ -196,7 +196,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       const account = createMockAccount();
       const error = new TransactionHistoryError("Network error", {
         address: account.freshAddress,
-        network: "ethereum",
+        currencyId: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(Left(error));
 
@@ -242,7 +242,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       const account = createMockAccount();
       const error = new TransactionHistoryError("API timeout", {
         address: account.freshAddress,
-        network: "ethereum",
+        currencyId: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(Left(error));
 
@@ -259,7 +259,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
         Left(
           new TransactionHistoryError("Error", {
             address: account.freshAddress,
-            network: "ethereum",
+            currencyId: "ethereum",
           }),
         ),
       );

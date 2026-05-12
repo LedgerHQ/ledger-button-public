@@ -20,7 +20,7 @@ export class ConfirmPendingTransactionsUseCase {
   }
 
   async execute(
-    network: string,
+    currencyId: string,
     address: string,
     pendingHashes: string[],
   ): Promise<Either<Error, string[]>> {
@@ -29,12 +29,12 @@ export class ConfirmPendingTransactionsUseCase {
     });
 
     const result = await this.txHistoryDataSource.getTransactions(
-      network,
       address,
+      currencyId,
     );
 
-    return result.map((response) => {
-      const onChainHashes = new Set(response.items.map((op) => op.tx.hash));
+    return result.map((page) => {
+      const onChainHashes = new Set(page.items.map((entry) => entry.hash));
       const confirmed = pendingHashes.filter((hash) => onChainHashes.has(hash));
 
       if (confirmed.length > 0) {
