@@ -72,7 +72,7 @@ export class DefaultTransactionHistoryDataSource
     address: string,
     queryParams: string,
   ): string {
-    const baseUrl = this.config.getAlpacaUrl();
+    const baseUrl = this.config.getCoinServiceUrl();
     return `${baseUrl}/v1/${network}/account/${address}/operations?${queryParams}`;
   }
 
