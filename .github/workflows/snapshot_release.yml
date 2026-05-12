@@ -19,18 +19,15 @@ env:
   TAG: ${{ inputs.tag || 'develop' }}
   NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
 
-permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
-  # Need to attest artifacts
-  attestations: write
-
 jobs:
   public-runner:
     name: Build and Attest Snapshot Packages
     # npmjs requires attestation to be generated on a public runner
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC for npmjs attestation and keyless signing
+      attestations: write # Needed to attest artifacts
     steps:
       - uses: actions/checkout@v6
         with:
@@ -80,6 +77,8 @@ jobs:
     name: Publish Snapshot to JFrog
     needs: public-runner
     runs-on: public-ledgerhq-shared-medium
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
