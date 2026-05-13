@@ -44,5 +44,5 @@ export function formatBalance(
   };
 
   const value = new BigNumber(rawBalance.toString());
-  return formatCurrencyUnit(unit, value, options);
+  return formatCurrencyUnit(unit, value, options).replace(/\u00A0/g, " ");
 }

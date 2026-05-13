@@ -3,12 +3,12 @@ import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
-import { DEFAULT_FIAT_CURRENCY } from "../../account/model/constant.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import type { EventRequest } from "../../backend/model/trackEvent.js";
 import { EventType } from "../../backend/model/trackEvent.js";
 import type { Config } from "../../config/model/config.js";
 import type { ContextService } from "../../context/ContextService.js";
+import { DEFAULT_FIAT_CURRENCY } from "../../currency/constant.js";
 import { DefaultEventTrackingService } from "./DefaultEventTrackingService.js";
 
 /**
@@ -382,9 +382,9 @@ describe("DefaultEventTrackingService", () => {
 
         const contextTrue = createMockContext({ hasTrackingConsent: true });
         mockContextService.getContext.mockReturnValue(contextTrue);
-        
+
         contextSubject.next(contextTrue);
-        
+
         // Wait for the flush to complete by waiting for both events to be processed
         await waitForCondition(
           () => mockBackendService.event.mock.calls.length >= 2,
@@ -446,7 +446,6 @@ describe("DefaultEventTrackingService", () => {
           mockConfig.dAppIdentifier,
         );
       });
-
 
       it("should flush queued events before sending consent_given event", async () => {
         const contextUndefined = createMockContext({

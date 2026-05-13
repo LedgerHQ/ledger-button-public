@@ -1,4 +1,4 @@
-import { formatBalance } from "../../currency/formatCurrency.js";
+import { formatBalance } from "../../currency/currencyUtils.js";
 
 export type AccountBalance = {
   nativeBalance: NativeBalance;
