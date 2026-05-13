@@ -72,9 +72,12 @@ function createMockTransaction(
     kind: "transfer",
     status: "confirmed",
     value: "500000000000000000",
-    formattedValue: "0.5",
-    currencyName: "Ethereum",
-    ticker: "ETH",
+    asset: {
+      ledgerId: "ethereum",
+      name: "Ethereum",
+      ticker: "ETH",
+      decimals: 18,
+    },
     timestamp: "2024-01-15T10:30:00Z",
     ...overrides,
   };
@@ -171,7 +174,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
     it("should use transactions returned by HydrateTransactionsWithFiatUseCase", async () => {
       const account = createMockAccount();
       const transactions = [
-        createMockTransaction({ hash: "0x111", formattedValue: "1" }),
+        createMockTransaction({ hash: "0x111", value: "1000000000000000000" }),
       ];
       const hydratedTransactions = [
         {

@@ -88,7 +88,29 @@ export type TransactionStatus = "confirmed" | "failed" | "pending";
 export type TransactionType = "sent" | "received";
 
 /**
- * Transformed transaction item for display.
+ * Asset metadata attached to a transaction's value (and to its fee when the
+ * fee is paid in a different asset). All formatting is deferred to the
+ * presentation layer; consumers receive raw values and these decimals.
+ */
+export type TransactionHistoryItemAsset = {
+  ledgerId: string;
+  name: string;
+  ticker: string;
+  decimals: number;
+};
+
+export type TransactionHistoryItemFee = {
+  /** Raw fee amount in the asset's smallest unit. */
+  amount: string;
+  asset: TransactionHistoryItemAsset;
+  /** Fiat-converted fee amount, populated after fiat hydration. */
+  fiatAmount?: string;
+};
+
+/**
+ * Domain shape of a transaction returned by the use case. Carries raw values
+ * and asset metadata only; the presentation layer is responsible for
+ * formatting, explorer URL substitution, and any locale-aware display.
  */
 export type TransactionHistoryItem = {
   hash: string;
@@ -96,26 +118,24 @@ export type TransactionHistoryItem = {
   direction: TransactionDirection;
   kind: TransactionKind;
   status: TransactionStatus;
+  /** Raw value of the transferred asset, in its smallest unit. */
   value: string;
-  formattedValue: string;
-  currencyName: string;
-  ticker: string;
+  asset: TransactionHistoryItemAsset;
   timestamp: string;
   blockHeight?: number;
-  ledgerId?: string;
+  /** Fiat-converted value, populated after fiat hydration. */
   fiatValue?: string;
   fiatCurrency?: string;
-  explorerUrl?: string;
-  fee?: string;
-  formattedFee?: string;
-  feeTicker?: string;
-  fiatFee?: string;
+  fee?: TransactionHistoryItemFee;
 };
 
 /**
- * Result type for the use case.
+ * Result type for the use case. The explorer URL template is per-currency,
+ * not per-transaction, so it lives at the page level; the presentation layer
+ * substitutes `${hash}` for each item.
  */
 export type TransactionHistoryResult = {
   transactions: TransactionHistoryItem[];
+  transactionExplorerUrlTemplate?: string;
   nextPageToken?: string;
 };

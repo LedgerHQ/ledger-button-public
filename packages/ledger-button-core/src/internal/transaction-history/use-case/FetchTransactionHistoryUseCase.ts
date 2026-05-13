@@ -117,13 +117,13 @@ export class FetchTransactionHistoryUseCase {
           normalizedAddress,
           assetInfo,
           nativeAssetInfo,
-          transactionExplorerUrlTemplate,
         });
       }),
     );
 
     return {
       transactions,
+      transactionExplorerUrlTemplate,
       nextPageToken: page.nextPageToken,
     };
   }

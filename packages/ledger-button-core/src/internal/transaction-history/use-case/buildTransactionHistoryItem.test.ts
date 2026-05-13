@@ -139,37 +139,41 @@ describe("toLegacyType", () => {
 });
 
 describe("extractFee", () => {
-  it("returns empty object when entry has no fee", () => {
+  it("returns undefined when entry has no fee", () => {
     const entry = makeEntry({ fee: undefined });
-    expect(extractFee(entry, TEST_ADDRESS, NATIVE_ASSET_INFO)).toEqual({});
+    expect(extractFee(entry, TEST_ADDRESS, NATIVE_ASSET_INFO)).toBeUndefined();
   });
 
-  it("returns empty object when fee.payer is someone else", () => {
+  it("returns undefined when fee.payer is someone else", () => {
     const fee: TransactionHistoryEntryFee = {
       amount: "21000000000000",
       payer: "0xothersponsor",
     };
-    expect(extractFee(makeEntry({ fee }), TEST_ADDRESS, NATIVE_ASSET_INFO)).toEqual({});
+    expect(
+      extractFee(makeEntry({ fee }), TEST_ADDRESS, NATIVE_ASSET_INFO),
+    ).toBeUndefined();
   });
 
-  it("populates fee fields when user is the fee payer", () => {
+  it("returns a fee with the native asset when the user is the fee payer", () => {
     const fee: TransactionHistoryEntryFee = {
       amount: "21000000000000",
       payer: TEST_ADDRESS,
     };
-    expect(extractFee(makeEntry({ fee }), TEST_ADDRESS, NATIVE_ASSET_INFO)).toEqual({
-      fee: "21000000000000",
-      formattedFee: "0.000021",
-      feeTicker: "ETH",
+    expect(
+      extractFee(makeEntry({ fee }), TEST_ADDRESS, NATIVE_ASSET_INFO),
+    ).toEqual({
+      amount: "21000000000000",
+      asset: NATIVE_ASSET_INFO,
     });
   });
 
-  it("populates fee fields when fee.payer is missing (back-compat)", () => {
+  it("returns a fee when fee.payer is missing (back-compat)", () => {
     const fee: TransactionHistoryEntryFee = { amount: "21000000000000" };
-    expect(extractFee(makeEntry({ fee }), TEST_ADDRESS, NATIVE_ASSET_INFO)).toEqual({
-      fee: "21000000000000",
-      formattedFee: "0.000021",
-      feeTicker: "ETH",
+    expect(
+      extractFee(makeEntry({ fee }), TEST_ADDRESS, NATIVE_ASSET_INFO),
+    ).toEqual({
+      amount: "21000000000000",
+      asset: NATIVE_ASSET_INFO,
     });
   });
 });
@@ -190,7 +194,6 @@ describe("buildTransactionHistoryItem", () => {
       normalizedAddress: TEST_ADDRESS,
       assetInfo: NATIVE_ASSET_INFO,
       nativeAssetInfo: NATIVE_ASSET_INFO,
-      transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
     });
 
     expect(item).toMatchObject({
@@ -200,17 +203,13 @@ describe("buildTransactionHistoryItem", () => {
       kind: "transfer",
       status: "confirmed",
       value: "500000000000000000",
-      formattedValue: "0.5",
-      currencyName: "Ethereum",
-      ticker: "ETH",
+      asset: NATIVE_ASSET_INFO,
       timestamp: "2024-01-15T10:00:00Z",
       blockHeight: 19_000_001,
-      ledgerId: "ethereum",
-      explorerUrl: "https://etherscan.io/tx/0xsent",
     });
   });
 
-  it("formats value using the ERC20 asset info for token transfers", () => {
+  it("uses the ERC20 asset info for token transfers", () => {
     const entry = makeEntry({
       hash: "0xtoken",
       senders: [TEST_ADDRESS],
@@ -224,19 +223,15 @@ describe("buildTransactionHistoryItem", () => {
       normalizedAddress: TEST_ADDRESS,
       assetInfo: ERC20_ASSET_INFO,
       nativeAssetInfo: NATIVE_ASSET_INFO,
-      transactionExplorerUrlTemplate: undefined,
     });
 
     expect(item).toMatchObject({
       value: "5000000",
-      ticker: "USDC",
-      currencyName: "USD Coin",
-      ledgerId: "ethereum/erc20/usdc",
-      formattedValue: "5",
+      asset: ERC20_ASSET_INFO,
     });
   });
 
-  it("includes fee fields when the user is the fee payer", () => {
+  it("includes a fee carrying the native asset when the user is the fee payer", () => {
     const fee: TransactionHistoryEntryFee = {
       amount: "21000000000000",
       payer: TEST_ADDRESS,
@@ -253,17 +248,15 @@ describe("buildTransactionHistoryItem", () => {
       normalizedAddress: TEST_ADDRESS,
       assetInfo: NATIVE_ASSET_INFO,
       nativeAssetInfo: NATIVE_ASSET_INFO,
-      transactionExplorerUrlTemplate: undefined,
     });
 
-    expect(item).toMatchObject({
-      fee: "21000000000000",
-      formattedFee: "0.000021",
-      feeTicker: "ETH",
+    expect(item.fee).toEqual({
+      amount: "21000000000000",
+      asset: NATIVE_ASSET_INFO,
     });
   });
 
-  it("omits fee fields when fee.payer is someone else", () => {
+  it("omits fee when fee.payer is someone else", () => {
     const fee: TransactionHistoryEntryFee = {
       amount: "21000000000000",
       payer: "0xothersponsor",
@@ -281,30 +274,9 @@ describe("buildTransactionHistoryItem", () => {
       normalizedAddress: TEST_ADDRESS,
       assetInfo: NATIVE_ASSET_INFO,
       nativeAssetInfo: NATIVE_ASSET_INFO,
-      transactionExplorerUrlTemplate: undefined,
     });
 
     expect(item.fee).toBeUndefined();
-    expect(item.formattedFee).toBeUndefined();
-    expect(item.feeTicker).toBeUndefined();
-  });
-
-  it("leaves explorerUrl undefined when the template is undefined", () => {
-    const entry = makeEntry({
-      hash: "0xabc",
-      senders: [TEST_ADDRESS],
-      value: "1",
-    });
-
-    const item = buildTransactionHistoryItem({
-      entry,
-      normalizedAddress: TEST_ADDRESS,
-      assetInfo: NATIVE_ASSET_INFO,
-      nativeAssetInfo: NATIVE_ASSET_INFO,
-      transactionExplorerUrlTemplate: undefined,
-    });
-
-    expect(item.explorerUrl).toBeUndefined();
   });
 
   it("marks failed entries as 'failed' and kind 'fees' when isFeeOnlyOperation=true", () => {
@@ -322,7 +294,6 @@ describe("buildTransactionHistoryItem", () => {
       normalizedAddress: TEST_ADDRESS,
       assetInfo: NATIVE_ASSET_INFO,
       nativeAssetInfo: NATIVE_ASSET_INFO,
-      transactionExplorerUrlTemplate: undefined,
     });
 
     expect(item).toMatchObject({

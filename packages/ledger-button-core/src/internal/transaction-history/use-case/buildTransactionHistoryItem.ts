@@ -1,78 +1,50 @@
-import { formatBalance } from "../../currency/currencyUtils.js";
-import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
 import type {
   TransactionDirection,
   TransactionHistoryEntry,
   TransactionHistoryItem,
+  TransactionHistoryItemAsset,
+  TransactionHistoryItemFee,
   TransactionKind,
   TransactionStatus,
   TransactionType,
 } from "../model/transactionHistoryTypes.js";
 
-export type AssetInfo = {
-  ledgerId: string;
-  name: string;
-  ticker: string;
-  decimals: number;
-};
+export type AssetInfo = TransactionHistoryItemAsset;
 
 export type BuildTransactionHistoryItemArgs = {
   entry: TransactionHistoryEntry;
   normalizedAddress: string;
   assetInfo: AssetInfo;
   nativeAssetInfo: AssetInfo;
-  transactionExplorerUrlTemplate: string | undefined;
 };
 
 /**
  * Pure transformation of a normalized `TransactionHistoryEntry` (plus its
- * resolved asset metadata) into a display-ready `TransactionHistoryItem`.
+ * resolved asset metadata) into a domain-level `TransactionHistoryItem`.
  *
- * This function has no I/O, no DI, and no logger. The async resolution of
- * `assetInfo` (CAL lookups, caching) stays in the use case, so this remains
- * trivially unit-testable.
+ * The result carries raw values only; the presentation layer is responsible
+ * for formatting amounts, building explorer URLs, and any locale-aware
+ * display. This function has no I/O, no DI, and no logger.
  */
 export function buildTransactionHistoryItem({
   entry,
   normalizedAddress,
   assetInfo,
   nativeAssetInfo,
-  transactionExplorerUrlTemplate,
 }: BuildTransactionHistoryItemArgs): TransactionHistoryItem {
   const direction = determineDirection(entry, normalizedAddress);
-  const kind = determineKind(entry);
-  const status = determineStatus(entry);
-  const { fee, formattedFee, feeTicker } = extractFee(
-    entry,
-    normalizedAddress,
-    nativeAssetInfo,
-  );
 
   return {
     hash: entry.hash,
     type: toLegacyType(direction),
     direction,
-    kind,
-    status,
+    kind: determineKind(entry),
+    status: determineStatus(entry),
     value: entry.value,
-    formattedValue: formatBalance(
-      entry.value,
-      assetInfo.decimals,
-      assetInfo.ticker,
-    ),
-    currencyName: assetInfo.name,
-    ticker: assetInfo.ticker,
+    asset: assetInfo,
     timestamp: entry.timestamp,
     blockHeight: entry.blockHeight,
-    ledgerId: assetInfo.ledgerId,
-    explorerUrl:
-      buildExplorerTransactionUrl(
-        transactionExplorerUrlTemplate,
-        entry.hash,
-      ) ?? undefined,
-    fee,
-    formattedFee,
-    feeTicker,
+    fee: extractFee(entry, normalizedAddress, nativeAssetInfo),
   };
 }
 
@@ -109,27 +81,25 @@ export function toLegacyType(direction: TransactionDirection): TransactionType {
   return direction === "received" ? "received" : "sent";
 }
 
+/**
+ * Returns the fee paid by the user, if any, in raw form. The fee asset is
+ * the native asset of the chain — adapters whose providers charge gas in a
+ * non-native asset would need a richer signal on `TransactionHistoryEntry`.
+ */
 export function extractFee(
   entry: TransactionHistoryEntry,
   normalizedAddress: string,
   nativeAssetInfo: AssetInfo,
-): { fee?: string; formattedFee?: string; feeTicker?: string } {
+): TransactionHistoryItemFee | undefined {
   const fee = entry.fee;
   if (!fee) {
-    return {};
+    return undefined;
   }
-
   if (fee.payer && fee.payer !== normalizedAddress) {
-    return {};
+    return undefined;
   }
-
   return {
-    fee: fee.amount,
-    formattedFee: formatBalance(
-      fee.amount,
-      nativeAssetInfo.decimals,
-      nativeAssetInfo.ticker,
-    ),
-    feeTicker: nativeAssetInfo.ticker,
+    amount: fee.amount,
+    asset: nativeAssetInfo,
   };
 }
