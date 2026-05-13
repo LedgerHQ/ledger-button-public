@@ -12,6 +12,7 @@ export enum EventType {
   TransactionFlowInitialization = "transaction_flow_initialization",
   TypedMessageFlowCompletion = "typed_message_flow_completion",
   TypedMessageFlowInitialization = "typed_message_flow_initialization",
+  ViewTransactionDetailsClicked = "view_transaction_details_clicked",
   WalletActionClicked = "wallet_action_clicked",
   WalletRedirectConfirmed = "wallet_redirect_confirmed",
   WalletRedirectCancelled = "wallet_redirect_cancelled",
@@ -145,6 +146,15 @@ export type MobileRedirectLedgerWalletEventData = BaseEventData & {
   event_type: "mobile_redirect_ledger_wallet";
 };
 
+export type ViewTransactionDetailsClickedEventData = BaseEventData & {
+  event_type: "view_transaction_details_clicked";
+  session_id: string;
+  ledger_sync_user_id?: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  transaction_hash: string;
+};
+
 export type EventData =
   | ConsentGivenEventData
   | ConsentRemovedEventData
@@ -161,6 +171,7 @@ export type EventData =
   | TransactionFlowInitializationEventData
   | TypedMessageFlowCompletionEventData
   | TypedMessageFlowInitializationEventData
+  | ViewTransactionDetailsClickedEventData
   | WalletActionClickedEventData
   | WalletRedirectConfirmedEventData
   | WalletRedirectCancelledEventData

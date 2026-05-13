@@ -89,6 +89,11 @@ const transactionFlowInitialization = (ctx: ScenarioContext) =>
 const transactionFlowCompletion = (ctx: ScenarioContext) =>
   chainEvent(ctx, "transaction_flow_completion");
 
+const viewTransactionDetailsClicked = (ctx: ScenarioContext) =>
+  chainEvent(ctx, "view_transaction_details_clicked", {
+    transaction_hash: hexHash(),
+  });
+
 const invoicingTransactionSigned = (ctx: ScenarioContext): EventRequest => ({
   name: "invoicing_transaction_signed",
   type: "invoicing_transaction_signed",
@@ -185,6 +190,7 @@ export const SCENARIOS: Scenario[] = [
       floatingButtonClicked(ctx),
       transactionFlowInitialization(ctx),
       transactionFlowCompletion(ctx),
+      viewTransactionDetailsClicked(ctx),
     ],
   },
   {
@@ -238,6 +244,7 @@ export const SCENARIOS: Scenario[] = [
       floatingButtonClicked(ctx),
       transactionFlowInitialization(ctx),
       transactionFlowCompletion(ctx),
+      viewTransactionDetailsClicked(ctx),
       invoicingTransactionSigned(ctx),
       typedMessageFlowInitialization(ctx),
       typedMessageFlowCompletion(ctx),

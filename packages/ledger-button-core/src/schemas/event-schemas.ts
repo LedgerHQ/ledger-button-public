@@ -146,6 +146,21 @@ export const MobileRedirectLedgerWalletEventSchema =
     event_type: z.literal("mobile_redirect_ledger_wallet"),
   }).strict();
 
+export const ViewTransactionDetailsClickedEventSchema =
+  BaseEventDataSchema.extend({
+    event_type: z.literal("view_transaction_details_clicked"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    blockchain_network_selected: z.enum(["ethereum"]),
+    chain_id: z.string().nullable(),
+    transaction_hash: z
+      .string()
+      .regex(
+        hexPattern,
+        "Transaction hash must be lowercase hex without 0x prefix",
+      ),
+  }).strict();
+
 export const EventDataSchema = z.discriminatedUnion("event_type", [
   InvoicingTransactionSignedEventSchema,
   ConsentGivenEventSchema,
@@ -163,6 +178,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   WalletRedirectConfirmedEventSchema,
   WalletRedirectCancelledEventSchema,
   MobileRedirectLedgerWalletEventSchema,
+  ViewTransactionDetailsClickedEventSchema,
 ]);
 
 export type InvoicingTransactionSignedEvent = z.infer<
@@ -196,5 +212,8 @@ export type WalletRedirectConfirmedEvent = z.infer<
 >;
 export type WalletRedirectCancelledEvent = z.infer<
   typeof WalletRedirectCancelledEventSchema
+>;
+export type ViewTransactionDetailsClickedEvent = z.infer<
+  typeof ViewTransactionDetailsClickedEventSchema
 >;
 export type EventData = z.infer<typeof EventDataSchema>;

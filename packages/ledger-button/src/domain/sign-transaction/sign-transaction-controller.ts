@@ -224,7 +224,7 @@ export class SignTransactionController implements ReactiveController {
       if (explorerUrl) {
         cta2 = {
           label: lang.signTransaction?.success?.viewTransaction,
-          action: () => this.viewTransactionDetails(explorerUrl),
+          action: () => this.viewTransactionDetails(explorerUrl, data.hash),
         };
       }
     }
@@ -535,7 +535,8 @@ export class SignTransactionController implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  viewTransactionDetails(url: string) {
+  viewTransactionDetails(url: string, transactionHash: string) {
+    void this.core.trackViewTransactionDetailsClicked(transactionHash);
     window.open(url, "_blank", "noopener,noreferrer");
     this.close();
   }
