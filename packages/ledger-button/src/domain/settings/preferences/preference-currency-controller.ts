@@ -11,29 +11,24 @@ export class PreferenceCurrencyController {
     this.host.addController(this as ReactiveController);
   }
 
-  private trackCurrencyChanged(currencyCode: Currency): void {
+  private trackCurrencyChanged(currencyCode: FiatCurrency["code"]): void {
     void this.core.trackCurrencyChanged(currencyCode);
   }
 
-  async selectCurrency(currency: Currency): Promise<void> {
-    if (currency === this.core.getPreferredFiatCurrency()) {
+  async selectCurrency(currency: FiatCurrency): Promise<void> {
+    if (currency.code === this.core.getPreferredFiatCurrency()) {
       return;
     }
 
-    await this.core.savePreferredFiatCurrency(currency);
-    this.trackCurrencyChanged(currency);
+    await this.core.savePreferredFiatCurrency(currency.code);
+    this.trackCurrencyChanged(currency.code);
     this.host.requestUpdate();
   }
-
   get currentCurrency() {
     return this.core.getPreferredFiatCurrency();
   }
 
   get currencies(): FiatCurrency[] {
     return this.core.getSupportedFiatCurrencies();
-  }
-
-  getCurrencyDisplayName(currency: Currency): string {
-    return FIAT_CURRENCY_DISPLAY_NAMES[currency];
   }
 }
