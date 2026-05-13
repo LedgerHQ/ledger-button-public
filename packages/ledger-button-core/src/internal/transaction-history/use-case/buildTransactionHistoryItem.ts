@@ -92,18 +92,11 @@ export function determineDirection(
   if (isRecipient) {
     return "received";
   }
-
-  if (entry.direction === "out") {
-    return "sent";
-  }
-  if (entry.direction === "in") {
-    return "received";
-  }
-  return "self";
+  return entry.direction ?? "self";
 }
 
 export function determineKind(entry: TransactionHistoryEntry): TransactionKind {
-  return entry.isFees ? "fees" : "transfer";
+  return entry.isFeeOnlyOperation ? "fees" : "transfer";
 }
 
 export function determineStatus(

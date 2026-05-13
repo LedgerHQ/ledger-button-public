@@ -249,18 +249,18 @@ describe("DefaultTransactionHistoryDataSource", () => {
       expect(entry.timestamp).toBe(new Date(0).toISOString());
     });
 
-    it("should set isFees=true when id ends with -FEES", async () => {
+    it("should set isFeeOnlyOperation=true when id ends with -FEES", async () => {
       const entry = await fetchSingleEntry(
         makeDto({ id: "js:2:ethereum:0xabc:-0xfailed-FEES" }),
       );
-      expect(entry.isFees).toBe(true);
+      expect(entry.isFeeOnlyOperation).toBe(true);
     });
 
-    it("should set isFees=false otherwise", async () => {
+    it("should set isFeeOnlyOperation=false otherwise", async () => {
       const entry = await fetchSingleEntry(
         makeDto({ id: "js:2:ethereum:0xabc:-0xabc123-OUT-i0" }),
       );
-      expect(entry.isFees).toBe(false);
+      expect(entry.isFeeOnlyOperation).toBe(false);
     });
 
     it("should expose native asset as { isNative: true }", async () => {
@@ -289,14 +289,14 @@ describe("DefaultTransactionHistoryDataSource", () => {
       expect(entry.asset).toEqual({ isNative: true });
     });
 
-    it("should normalize type 'OUT' to direction='out'", async () => {
+    it("should normalize type 'OUT' to direction='sent'", async () => {
       const entry = await fetchSingleEntry(makeDto({ type: "OUT" }));
-      expect(entry.direction).toBe("out");
+      expect(entry.direction).toBe("sent");
     });
 
-    it("should normalize type 'IN' to direction='in'", async () => {
+    it("should normalize type 'IN' to direction='received'", async () => {
       const entry = await fetchSingleEntry(makeDto({ type: "IN" }));
-      expect(entry.direction).toBe("in");
+      expect(entry.direction).toBe("received");
     });
 
     it("should leave direction undefined for unknown types", async () => {

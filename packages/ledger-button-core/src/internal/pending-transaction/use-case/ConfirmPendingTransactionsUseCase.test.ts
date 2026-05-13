@@ -19,8 +19,8 @@ function makeEntry(hash: string): TransactionHistoryEntry {
     blockHeight: 1,
     timestamp: "2024-01-15T10:30:00Z",
     asset: { isNative: true },
-    direction: "out",
-    isFees: false,
+    direction: "sent",
+    isFeeOnlyOperation: false,
   };
 }
 

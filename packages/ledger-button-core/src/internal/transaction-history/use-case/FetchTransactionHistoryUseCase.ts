@@ -2,8 +2,6 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
@@ -15,6 +13,7 @@ import {
   TransactionHistoryPage,
   TransactionHistoryResult,
 } from "../model/transactionHistoryTypes.js";
+import type { CurrencyMetadataProvider } from "../service/CurrencyMetadataProvider.js";
 import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
 import {
   AssetInfo,
@@ -24,15 +23,14 @@ import {
 @injectable()
 export class FetchTransactionHistoryUseCase {
   private readonly logger: LoggerPublisher;
-  private tokenInfoCache: Map<string, AssetInfo> = new Map();
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
     @inject(transactionHistoryModuleTypes.TransactionHistoryDataSource)
     private readonly dataSource: TransactionHistoryDataSource,
-    @inject(balanceModuleTypes.CalDataSource)
-    private readonly calDataSource: CalDataSource,
+    @inject(transactionHistoryModuleTypes.CurrencyMetadataProvider)
+    private readonly currencyMetadata: CurrencyMetadataProvider,
   ) {
     this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
@@ -50,7 +48,7 @@ export class FetchTransactionHistoryUseCase {
 
     const [transactionResult, currencyInfoResult] = await Promise.all([
       this.dataSource.getTransactions(address, currencyId, options),
-      this.calDataSource.getCurrencyInformation(currencyId),
+      this.currencyMetadata.getCurrencyInformation(currencyId),
     ]);
 
     return await transactionResult.caseOf({
@@ -138,26 +136,19 @@ export class FetchTransactionHistoryUseCase {
     if (entry.asset.isNative) {
       return nativeAssetInfo;
     }
-    return this.getTokenAssetInfo(entry.asset.contractAddress, currencyId);
+    return this.resolveTokenAssetInfo(entry.asset.contractAddress, currencyId);
   }
 
-  private async getTokenAssetInfo(
+  private async resolveTokenAssetInfo(
     contractAddress: string,
     currencyId: string,
   ): Promise<AssetInfo> {
-    const cacheKey = `${currencyId}:${contractAddress.toLowerCase()}`;
-
-    const cachedInfo = this.tokenInfoCache.get(cacheKey);
-    if (cachedInfo) {
-      return cachedInfo;
-    }
-
-    const tokenInfoResult = await this.calDataSource.getTokenInformation(
+    const tokenInfoResult = await this.currencyMetadata.getTokenInformation(
       contractAddress,
       currencyId,
     );
 
-    const assetInfo: AssetInfo = tokenInfoResult.caseOf({
+    return tokenInfoResult.caseOf({
       Left: () => {
         this.logger.warn("Failed to fetch token info, using defaults", {
           contractAddress,
@@ -177,8 +168,5 @@ export class FetchTransactionHistoryUseCase {
         decimals: info.decimals,
       }),
     });
-
-    this.tokenInfoCache.set(cacheKey, assetInfo);
-    return assetInfo;
   }
 }

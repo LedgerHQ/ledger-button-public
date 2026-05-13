@@ -46,8 +46,8 @@ function makeEntry(
     blockHeight: 19_000_000,
     timestamp: "2024-01-15T10:30:00Z",
     asset: NATIVE_ASSET,
-    direction: "out",
-    isFees: false,
+    direction: "sent",
+    isFeeOnlyOperation: false,
     ...overrides,
   };
 }
@@ -77,14 +77,23 @@ describe("determineDirection", () => {
     expect(determineDirection(entry, TEST_ADDRESS)).toBe("self");
   });
 
-  it("falls back to entry.direction='out' as 'sent' when address is in neither list", () => {
-    const entry = makeEntry({ senders: [], recipients: [], direction: "out" });
+  it("falls back to entry.direction='sent' when address is in neither list", () => {
+    const entry = makeEntry({ senders: [], recipients: [], direction: "sent" });
     expect(determineDirection(entry, TEST_ADDRESS)).toBe("sent");
   });
 
-  it("falls back to entry.direction='in' as 'received' when address is in neither list", () => {
-    const entry = makeEntry({ senders: [], recipients: [], direction: "in" });
+  it("falls back to entry.direction='received' when address is in neither list", () => {
+    const entry = makeEntry({
+      senders: [],
+      recipients: [],
+      direction: "received",
+    });
     expect(determineDirection(entry, TEST_ADDRESS)).toBe("received");
+  });
+
+  it("falls back to entry.direction='self' when address is in neither list", () => {
+    const entry = makeEntry({ senders: [], recipients: [], direction: "self" });
+    expect(determineDirection(entry, TEST_ADDRESS)).toBe("self");
   });
 
   it("returns 'self' when no direction signal is available", () => {
@@ -98,12 +107,14 @@ describe("determineDirection", () => {
 });
 
 describe("determineKind", () => {
-  it("returns 'fees' when entry.isFees is true", () => {
-    expect(determineKind(makeEntry({ isFees: true }))).toBe("fees");
+  it("returns 'fees' when entry.isFeeOnlyOperation is true", () => {
+    expect(determineKind(makeEntry({ isFeeOnlyOperation: true }))).toBe("fees");
   });
 
-  it("returns 'transfer' when entry.isFees is false", () => {
-    expect(determineKind(makeEntry({ isFees: false }))).toBe("transfer");
+  it("returns 'transfer' when entry.isFeeOnlyOperation is false", () => {
+    expect(determineKind(makeEntry({ isFeeOnlyOperation: false }))).toBe(
+      "transfer",
+    );
   });
 });
 
@@ -260,7 +271,7 @@ describe("buildTransactionHistoryItem", () => {
     const entry = makeEntry({
       senders: ["0xsender"],
       recipients: [TEST_ADDRESS],
-      direction: "in",
+      direction: "received",
       value: "1",
       fee,
     });
@@ -296,12 +307,12 @@ describe("buildTransactionHistoryItem", () => {
     expect(item.explorerUrl).toBeUndefined();
   });
 
-  it("marks failed entries as 'failed' and kind 'fees' when isFees=true", () => {
+  it("marks failed entries as 'failed' and kind 'fees' when isFeeOnlyOperation=true", () => {
     const entry = makeEntry({
       hash: "0xfailed",
       senders: [TEST_ADDRESS],
       failed: true,
-      isFees: true,
+      isFeeOnlyOperation: true,
       fee: { amount: "100", payer: TEST_ADDRESS },
       value: "0",
     });
