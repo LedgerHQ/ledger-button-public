@@ -136,6 +136,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       expect(result.isRight()).toBe(true);
       expect(result.extract()).toEqual({
         transactions: [],
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
         nextPageToken: undefined,
       });
     });
@@ -189,10 +190,11 @@ describe("FetchTransactionHistoryUseCase", () => {
       const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
-      expect(result.unsafeCoerce().transactions[0]).toMatchObject({
-        ticker: "ETHEREUM",
-        currencyName: "ethereum",
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum",
+        name: "ethereum",
+        ticker: "ETHEREUM",
+        decimals: 18,
       });
     });
   });
@@ -242,10 +244,11 @@ describe("FetchTransactionHistoryUseCase", () => {
 
       const result = await useCase.execute(testAddress, testCurrencyId);
 
-      expect(result.unsafeCoerce().transactions[0]).toMatchObject({
-        ticker: "USDC",
-        currencyName: "USD Coin",
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum/erc20/usdc",
+        name: "USD Coin",
+        ticker: "USDC",
+        decimals: 6,
       });
     });
 
@@ -267,10 +270,11 @@ describe("FetchTransactionHistoryUseCase", () => {
 
       const result = await useCase.execute(testAddress, testCurrencyId);
 
-      expect(result.unsafeCoerce().transactions[0]).toMatchObject({
-        ticker: "???",
-        currencyName: "Unknown Token",
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum/erc20/unknown",
+        name: "Unknown Token",
+        ticker: "???",
+        decimals: 18,
       });
     });
 
@@ -291,16 +295,17 @@ describe("FetchTransactionHistoryUseCase", () => {
 
       const result = await useCase.execute(testAddress, testCurrencyId);
 
-      expect(result.unsafeCoerce().transactions[0]).toMatchObject({
-        ticker: "ETH",
-        currencyName: "Ethereum",
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum",
+        name: "Ethereum",
+        ticker: "ETH",
+        decimals: 18,
       });
     });
   });
 
-  describe("explorer URL", () => {
-    it("attaches the explorerUrl built from the CAL template", async () => {
+  describe("explorer URL template", () => {
+    it("exposes the explorerUrlTemplate on the result when CAL provides one", async () => {
       mockDataSource.getTransactions.mockResolvedValue(
         Right(
           pageOf(
@@ -315,12 +320,12 @@ describe("FetchTransactionHistoryUseCase", () => {
 
       const result = await useCase.execute(testAddress, testCurrencyId);
 
-      expect(result.unsafeCoerce().transactions[0]).toMatchObject({
-        explorerUrl: "https://etherscan.io/tx/0xabc",
-      });
+      expect(result.unsafeCoerce().transactionExplorerUrlTemplate).toBe(
+        "https://etherscan.io/tx/${hash}",
+      );
     });
 
-    it("leaves explorerUrl undefined when the provider did not return a template", async () => {
+    it("leaves transactionExplorerUrlTemplate undefined when CAL did not return one", async () => {
       mockCurrencyMetadata.getCurrencyInformation.mockResolvedValueOnce(
         Right({
           id: "ethereum",
@@ -343,7 +348,9 @@ describe("FetchTransactionHistoryUseCase", () => {
 
       const result = await useCase.execute(testAddress, testCurrencyId);
 
-      expect(result.unsafeCoerce().transactions[0].explorerUrl).toBeUndefined();
+      expect(
+        result.unsafeCoerce().transactionExplorerUrlTemplate,
+      ).toBeUndefined();
     });
   });
 });

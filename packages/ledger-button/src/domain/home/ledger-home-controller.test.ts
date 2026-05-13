@@ -173,10 +173,17 @@ describe("LedgerHomeController", () => {
           {
             hash: "0x111",
             type: "sent",
+            direction: "sent",
+            kind: "transfer",
+            status: "confirmed",
             timestamp: "2026-04-08T10:00:00.000Z",
-            formattedValue: "1 ETH",
-            ticker: "ETH",
-            currencyName: "Ethereum",
+            value: "1000000000000000000",
+            asset: {
+              ledgerId: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            },
           },
         ] as DetailedAccount["transactionHistory"],
       });
@@ -264,19 +271,26 @@ describe("LedgerHomeController", () => {
   });
 
   describe("explorer URLs", () => {
-    it("should propagate explorerUrl from the upstream history item to the list row", async () => {
+    it("should build explorerUrl from the account's per-currency template", async () => {
       const accountWithExplorerUrl = createDetailedAccount({
         transactionHistory: [
           {
             hash: "0xabc",
             type: "sent",
+            direction: "sent",
+            kind: "transfer",
+            status: "confirmed",
             timestamp: "2026-04-08T10:00:00.000Z",
-            formattedValue: "1 ETH",
-            ticker: "ETH",
-            currencyName: "Ethereum",
-            explorerUrl: "https://etherscan.io/tx/0xabc",
+            value: "1000000000000000000",
+            asset: {
+              ledgerId: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            },
           },
         ] as DetailedAccount["transactionHistory"],
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
       });
 
       controller.hostConnected();

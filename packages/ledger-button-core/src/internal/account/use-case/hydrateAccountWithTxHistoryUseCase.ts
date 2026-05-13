@@ -13,6 +13,11 @@ import type { Account } from "../service/AccountService.js";
 
 export type AccountWithTransactionHistory = Account & {
   transactionHistory: TransactionHistoryItem[] | undefined;
+  /**
+   * Per-currency explorer URL template (with a `${hash}` placeholder) that the
+   * presentation layer expands into a clickable URL for each transaction.
+   */
+  transactionExplorerUrlTemplate?: string;
 };
 
 @injectable()
@@ -68,6 +73,8 @@ export class HydrateAccountWithTxHistoryUseCase {
         return {
           ...account,
           transactionHistory: hydratedTransactions,
+          transactionExplorerUrlTemplate:
+            historyResult.transactionExplorerUrlTemplate,
         };
       },
     });

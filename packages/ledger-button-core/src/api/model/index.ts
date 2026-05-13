@@ -13,6 +13,8 @@ export type { PendingTransaction } from "../../internal/pending-transaction/mode
 export type {
   TransactionDirection,
   TransactionHistoryItem,
+  TransactionHistoryItemAsset,
+  TransactionHistoryItemFee,
   TransactionKind,
   TransactionStatus,
   TransactionType,
