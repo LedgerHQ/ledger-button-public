@@ -32,14 +32,12 @@ export class HydrateAccountWithFiatUseCase {
   }
 
   async execute(account: Account): Promise<AccountWithFiat> {
-    const targetCurrency =
-      this.contextService.getContext().preferredFiatCurrency;
+    const currency = this.contextService.getContext().preferredFiatCurrency;
     this.logHydrationStart(account);
 
     const balance = account.balance ?? "0";
     const balanceNum = this.parseBalance(balance);
     if (Number.isNaN(balanceNum) || balanceNum === 0) {
-      const currency = targetCurrency.toUpperCase();
       return enrichWithLoadingStates({
         ...account,
         fiatBalance: { value: "0.00", currency },
@@ -49,7 +47,7 @@ export class HydrateAccountWithFiatUseCase {
 
     const counterValuesResult = await this.fetchCounterValues(
       account,
-      targetCurrency,
+      currency,
     );
 
     return counterValuesResult.caseOf<AccountWithFiat>({
@@ -62,8 +60,6 @@ export class HydrateAccountWithFiatUseCase {
         });
       },
       Right: (counterValues) => {
-        const currency = targetCurrency.toUpperCase();
-
         const accountFiatBalance = this.calculateAccountFiat(
           balance,
           counterValues[0]?.rate,

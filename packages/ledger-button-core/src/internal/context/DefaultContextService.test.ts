@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
-import { DEFAULT_FIAT_CURRENCY } from "../account/model/constant.js";
 import type { Account } from "../account/service/AccountService.js";
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import type { Device } from "../device/model/Device.js";
 import * as chainUtils from "../evm-provider/utils/chainUtils.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
@@ -319,7 +319,9 @@ describe("DefaultContextService", () => {
 
     describe("preferred_fiat_currency_changed event", () => {
       it("should set preferredFiatCurrency to the given currency", () => {
-        expect(service.getContext().preferredFiatCurrency).toBe(DEFAULT_FIAT_CURRENCY);
+        expect(service.getContext().preferredFiatCurrency).toBe(
+          DEFAULT_FIAT_CURRENCY,
+        );
 
         service.onEvent({
           type: "preferred_fiat_currency_changed",

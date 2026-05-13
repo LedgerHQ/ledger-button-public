@@ -16,10 +16,6 @@ import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.j
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import {
-  DEFAULT_FIAT_CURRENCY,
-  SUPPORTED_FIAT_CURRENCIES,
-} from "../internal/account/model/constant.js";
-import {
   Account,
   type AccountService,
   type AccountWithFiat,
@@ -40,6 +36,10 @@ import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
 import { type ConsentService } from "../internal/consent/ConsentService.js";
 import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
 import { ContextService } from "../internal/context/ContextService.js";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
+import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
+import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
+import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
@@ -170,19 +170,9 @@ export class LedgerButtonCore {
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
 
-    const storedFiatCurrencyMaybe = await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getPreferredFiatCurrency();
-
-    const storedFiatCurrency = storedFiatCurrencyMaybe.orDefault(
-      DEFAULT_FIAT_CURRENCY,
-    );
-    const preferredFiatCurrency = (
-      SUPPORTED_FIAT_CURRENCIES as readonly string[]
-    ).includes(storedFiatCurrency)
-      ? storedFiatCurrency
-      : DEFAULT_FIAT_CURRENCY;
-
+    const preferredFiatCurrency = await this.container
+      .get<CurrencyService>(currencyModuleTypes.CurrencyService)
+      .initialize();
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -526,10 +516,16 @@ export class LedgerButtonCore {
     );
   }
 
+  getSupportedFiatCurrencies(): FiatCurrency[] {
+    return this.container
+      .get<CurrencyService>(currencyModuleTypes.CurrencyService)
+      .getSupportedFiatCurrencies();
+  }
+
   async savePreferredFiatCurrency(currency: string): Promise<void> {
     this._logger.debug("Saving preferred fiat currency", { currency });
     await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
+      .get<CurrencyService>(currencyModuleTypes.CurrencyService)
       .savePreferredFiatCurrency(currency);
     this._contextService.onEvent({
       type: "preferred_fiat_currency_changed",

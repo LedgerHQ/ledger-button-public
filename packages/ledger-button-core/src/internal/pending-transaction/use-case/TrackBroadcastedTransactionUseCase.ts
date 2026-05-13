@@ -14,7 +14,7 @@ import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
-import { formatBalance } from "../../currency/formatCurrency.js";
+import { formatBalance } from "../../currency/currencyUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
