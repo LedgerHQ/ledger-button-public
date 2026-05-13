@@ -2,6 +2,8 @@ import { ContainerModule } from "inversify";
 
 import { DefaultTransactionHistoryDataSource } from "./datasource/coinService/DefaultTransactionHistoryDataSource.js";
 import type { TransactionHistoryDataSource } from "./datasource/TransactionHistoryDataSource.js";
+import type { CurrencyMetadataProvider } from "./service/CurrencyMetadataProvider.js";
+import { DefaultCurrencyMetadataProvider } from "./service/DefaultCurrencyMetadataProvider.js";
 import { FetchTransactionHistoryUseCase } from "./use-case/FetchTransactionHistoryUseCase.js";
 import { HydrateTransactionsWithFiatUseCase } from "./use-case/HydrateTransactionsWithFiatUseCase.js";
 import { transactionHistoryModuleTypes } from "./transactionHistoryModuleTypes.js";
@@ -18,6 +20,12 @@ export function transactionHistoryModuleFactory({
       transactionHistoryModuleTypes.TransactionHistoryDataSource,
     )
       .to(DefaultTransactionHistoryDataSource)
+      .inSingletonScope();
+
+    bind<CurrencyMetadataProvider>(
+      transactionHistoryModuleTypes.CurrencyMetadataProvider,
+    )
+      .to(DefaultCurrencyMetadataProvider)
       .inSingletonScope();
 
     bind<FetchTransactionHistoryUseCase>(

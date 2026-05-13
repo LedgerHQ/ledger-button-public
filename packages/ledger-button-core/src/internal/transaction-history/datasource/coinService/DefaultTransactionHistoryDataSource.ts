@@ -11,6 +11,7 @@ import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {
+  TransactionDirection,
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,
@@ -155,7 +156,7 @@ export class DefaultTransactionHistoryDataSource
       timestamp: this.resolveTimestamp(op),
       asset: this.resolveAsset(op),
       direction: this.resolveDirection(op),
-      isFees: this.detectFeesOperation(op),
+      isFeeOnlyOperation: this.detectFeeOnlyOperation(op),
     };
   }
 
@@ -194,13 +195,13 @@ export class DefaultTransactionHistoryDataSource
 
   private resolveDirection(
     op: CoinServiceAccountOperationDto,
-  ): "out" | "in" | undefined {
-    if (op.type === "OUT") return "out";
-    if (op.type === "IN") return "in";
+  ): TransactionDirection | undefined {
+    if (op.type === "OUT") return "sent";
+    if (op.type === "IN") return "received";
     return undefined;
   }
 
-  private detectFeesOperation(op: CoinServiceAccountOperationDto): boolean {
+  private detectFeeOnlyOperation(op: CoinServiceAccountOperationDto): boolean {
     return op.id?.endsWith(FEES_OPERATION_SUFFIX) ?? false;
   }
 }

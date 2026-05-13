@@ -25,8 +25,20 @@ export type TransactionHistoryEntry = {
   blockHeight?: number;
   timestamp: string;
   asset: TransactionHistoryEntryAsset;
-  direction?: "out" | "in";
-  isFees: boolean;
+  /**
+   * Domain-level direction hint from the adapter. Used as a fallback when
+   * `senders`/`recipients` are empty (e.g. fee-only rows). The transformer
+   * may still override this based on whether the user appears in
+   * `senders`/`recipients`.
+   */
+  direction?: TransactionDirection;
+  /**
+   * True when the adapter has identified this row as representing only the
+   * gas paid by a failed transaction (e.g. Coin Service `-FEES` rows).
+   * Adapters whose provider does not emit separate fee rows must return
+   * `false`.
+   */
+  isFeeOnlyOperation: boolean;
 };
 
 export type TransactionHistoryPage = {
