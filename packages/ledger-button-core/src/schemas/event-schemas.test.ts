@@ -4,6 +4,7 @@ import {
   InvoicingTransactionSignedEventSchema,
   MobileRedirectLedgerWalletEventSchema,
   TransactionFlowCompletionEventSchema,
+  ViewTransactionDetailsClickedEventSchema,
 } from "./event-schemas.js";
 
 describe("Event Schema Validation", () => {
@@ -222,6 +223,65 @@ describe("Event Schema Validation", () => {
       const result =
         MobileRedirectLedgerWalletEventSchema.safeParse(invalidEvent);
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("ViewTransactionDetailsClickedEventSchema", () => {
+    it("validates a correctly formatted event", () => {
+      const validEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_transaction_details_clicked",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        blockchain_network_selected: "ethereum",
+        chain_id: "1",
+        transaction_hash:
+          "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+      };
+
+      const result =
+        ViewTransactionDetailsClickedEventSchema.safeParse(validEvent);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects transaction_hash with 0x prefix", () => {
+      const invalidEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_transaction_details_clicked",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        blockchain_network_selected: "ethereum",
+        chain_id: "1",
+        transaction_hash:
+          "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+      };
+
+      const result =
+        ViewTransactionDetailsClickedEventSchema.safeParse(invalidEvent);
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts a null chain_id", () => {
+      const validEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_transaction_details_clicked",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        blockchain_network_selected: "ethereum",
+        chain_id: null,
+        transaction_hash:
+          "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+      };
+
+      const result =
+        ViewTransactionDetailsClickedEventSchema.safeParse(validEvent);
+
+      expect(result.success).toBe(true);
     });
   });
 });
