@@ -123,7 +123,7 @@
       "refreshingAccounts": "แอป Ledger Wallet กำลังอัปเดตข้อมูลบัญชีของคุณ",
       "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ",
       "addAccountAriaLabel": "เพิ่มบัญชี",
-      "refreshAccountsAriaLabel": "Refresh accounts",
+      "refreshAccountsAriaLabel": "รีเฟรชข้อมูลบัญชี",
       "addAccountTooltip": "สร้างบัญชีใหม่",
       "refreshAccountsTooltip": "รีเฟรช"
     },
