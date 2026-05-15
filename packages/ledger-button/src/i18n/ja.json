@@ -123,7 +123,7 @@
       "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
       "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。",
       "addAccountAriaLabel": "アカウントを追加",
-      "refreshAccountsAriaLabel": "Refresh accounts",
+      "refreshAccountsAriaLabel": "アカウントを更新",
       "addAccountTooltip": "新しいアカウントを作成する",
       "refreshAccountsTooltip": "更新"
     },
