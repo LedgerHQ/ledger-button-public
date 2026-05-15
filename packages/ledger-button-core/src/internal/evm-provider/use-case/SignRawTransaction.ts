@@ -1,3 +1,4 @@
+import { ContextModuleBuilder } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   hexaStringToBuffer,
@@ -135,11 +136,18 @@ export class SignRawTransaction {
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
+      const contextModule = new ContextModuleBuilder({
+        originToken: this.config.originToken,
+      })
+        .setAppSource(this.config.dAppIdentifier)
+        .build();
       const ethSigner = new SignerEthBuilder({
         dmk,
         originToken: this.config.originToken,
         sessionId,
-      }).build();
+      })
+        .withContextModule(contextModule)
+        .build();
 
       const tx = hexaStringToBuffer(transaction);
       if (!tx) {
