@@ -9,7 +9,8 @@ import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
+import type { TransactionHistoryDataSource } from "../../application/port/TransactionHistoryDataSource.js";
+import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
 import {
   TransactionDirection,
   TransactionHistoryEntry,
@@ -17,8 +18,7 @@ import {
   TransactionHistoryEntryFee,
   TransactionHistoryOptions,
   TransactionHistoryPage,
-} from "../../model/transactionHistoryTypes.js";
-import type { TransactionHistoryDataSource } from "../TransactionHistoryDataSource.js";
+} from "../../domain/transactionHistoryTypes.js";
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,

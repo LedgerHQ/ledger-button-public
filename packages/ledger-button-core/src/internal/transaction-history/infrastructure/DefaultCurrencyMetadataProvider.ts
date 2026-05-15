@@ -7,7 +7,7 @@ import type {
   CurrencyInformation,
   TokenInformation,
 } from "../../balance/datasource/cal/calTypes.js";
-import type { CurrencyMetadataProvider } from "./CurrencyMetadataProvider.js";
+import type { CurrencyMetadataProvider } from "../application/port/CurrencyMetadataProvider.js";
 
 /**
  * Caches token-information lookups keyed by `${currencyId}:${contractAddress}`.

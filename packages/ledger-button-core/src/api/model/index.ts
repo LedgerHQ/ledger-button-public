@@ -18,7 +18,7 @@ export type {
   TransactionKind,
   TransactionStatus,
   TransactionType,
-} from "../../internal/transaction-history/model/transactionHistoryTypes.js";
+} from "../../internal/transaction-history/domain/transactionHistoryTypes.js";
 export * from "./ButtonCoreContext.js";
 export * from "./eip/EIPTypes.js";
 export * from "./errors.js";
