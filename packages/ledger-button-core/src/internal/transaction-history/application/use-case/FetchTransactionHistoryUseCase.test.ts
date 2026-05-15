@@ -1,14 +1,14 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
-import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
+import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
 import type {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryPage,
-} from "../model/transactionHistoryTypes.js";
-import type { CurrencyMetadataProvider } from "../service/CurrencyMetadataProvider.js";
+} from "../../domain/transactionHistoryTypes.js";
+import type { CurrencyMetadataProvider } from "../port/CurrencyMetadataProvider.js";
+import type { TransactionHistoryDataSource } from "../port/TransactionHistoryDataSource.js";
 import { FetchTransactionHistoryUseCase } from "./FetchTransactionHistoryUseCase.js";
 
 function createMockLogger() {

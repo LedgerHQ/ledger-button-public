@@ -7,7 +7,7 @@ import type {
   TransactionKind,
   TransactionStatus,
   TransactionType,
-} from "../model/transactionHistoryTypes.js";
+} from "../../domain/transactionHistoryTypes.js";
 
 export type AssetInfo = TransactionHistoryItemAsset;
 

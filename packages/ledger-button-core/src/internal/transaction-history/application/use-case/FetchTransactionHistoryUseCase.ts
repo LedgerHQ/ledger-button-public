@@ -2,19 +2,19 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
-import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
+import type { TokenInformation } from "../../../balance/datasource/cal/calTypes.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
 import {
   TransactionHistoryEntry,
   TransactionHistoryOptions,
   TransactionHistoryPage,
   TransactionHistoryResult,
-} from "../model/transactionHistoryTypes.js";
-import type { CurrencyMetadataProvider } from "../service/CurrencyMetadataProvider.js";
-import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
+} from "../../domain/transactionHistoryTypes.js";
+import { transactionHistoryModuleTypes } from "../../transactionHistoryModuleTypes.js";
+import type { CurrencyMetadataProvider } from "../port/CurrencyMetadataProvider.js";
+import type { TransactionHistoryDataSource } from "../port/TransactionHistoryDataSource.js";
 import {
   AssetInfo,
   buildTransactionHistoryItem,

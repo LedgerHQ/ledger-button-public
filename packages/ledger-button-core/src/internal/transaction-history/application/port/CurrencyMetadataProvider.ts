@@ -3,7 +3,7 @@ import { Either } from "purify-ts";
 import type {
   CurrencyInformation,
   TokenInformation,
-} from "../../balance/datasource/cal/calTypes.js";
+} from "../../../balance/datasource/cal/calTypes.js";
 
 /**
  * Domain-named port that the transaction-history use cases depend on for

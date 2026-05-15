@@ -1,11 +1,11 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultTransactionHistoryDataSource } from "./datasource/coinService/DefaultTransactionHistoryDataSource.js";
-import type { TransactionHistoryDataSource } from "./datasource/TransactionHistoryDataSource.js";
-import type { CurrencyMetadataProvider } from "./service/CurrencyMetadataProvider.js";
-import { DefaultCurrencyMetadataProvider } from "./service/DefaultCurrencyMetadataProvider.js";
-import { FetchTransactionHistoryUseCase } from "./use-case/FetchTransactionHistoryUseCase.js";
-import { HydrateTransactionsWithFiatUseCase } from "./use-case/HydrateTransactionsWithFiatUseCase.js";
+import type { CurrencyMetadataProvider } from "./application/port/CurrencyMetadataProvider.js";
+import type { TransactionHistoryDataSource } from "./application/port/TransactionHistoryDataSource.js";
+import { FetchTransactionHistoryUseCase } from "./application/use-case/FetchTransactionHistoryUseCase.js";
+import { HydrateTransactionsWithFiatUseCase } from "./application/use-case/HydrateTransactionsWithFiatUseCase.js";
+import { DefaultTransactionHistoryDataSource } from "./infrastructure/coinService/DefaultTransactionHistoryDataSource.js";
+import { DefaultCurrencyMetadataProvider } from "./infrastructure/DefaultCurrencyMetadataProvider.js";
 import { transactionHistoryModuleTypes } from "./transactionHistoryModuleTypes.js";
 
 type TransactionHistoryModuleOptions = {

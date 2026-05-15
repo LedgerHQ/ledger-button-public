@@ -4,7 +4,7 @@ import type {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,
-} from "../model/transactionHistoryTypes.js";
+} from "../../domain/transactionHistoryTypes.js";
 import {
   AssetInfo,
   buildTransactionHistoryItem,
