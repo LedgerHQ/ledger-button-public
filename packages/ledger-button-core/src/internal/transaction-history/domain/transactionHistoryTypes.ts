@@ -25,19 +25,7 @@ export type TransactionHistoryEntry = {
   blockHeight?: number;
   timestamp: string;
   asset: TransactionHistoryEntryAsset;
-  /**
-   * Domain-level direction hint from the adapter. Used as a fallback when
-   * `senders`/`recipients` are empty (e.g. fee-only rows). The transformer
-   * may still override this based on whether the user appears in
-   * `senders`/`recipients`.
-   */
   direction?: TransactionDirection;
-  /**
-   * True when the adapter has identified this row as representing only the
-   * gas paid by a failed transaction (e.g. Coin Service `-FEES` rows).
-   * Adapters whose provider does not emit separate fee rows must return
-   * `false`.
-   */
   isFeeOnlyOperation: boolean;
 };
 
@@ -100,10 +88,8 @@ export type TransactionHistoryItemAsset = {
 };
 
 export type TransactionHistoryItemFee = {
-  /** Raw fee amount in the asset's smallest unit. */
   amount: string;
   asset: TransactionHistoryItemAsset;
-  /** Fiat-converted fee amount, populated after fiat hydration. */
   fiatAmount?: string;
 };
 
@@ -118,22 +104,15 @@ export type TransactionHistoryItem = {
   direction: TransactionDirection;
   kind: TransactionKind;
   status: TransactionStatus;
-  /** Raw value of the transferred asset, in its smallest unit. */
   value: string;
   asset: TransactionHistoryItemAsset;
   timestamp: string;
   blockHeight?: number;
-  /** Fiat-converted value, populated after fiat hydration. */
   fiatValue?: string;
   fiatCurrency?: string;
   fee?: TransactionHistoryItemFee;
 };
 
-/**
- * Result type for the use case. The explorer URL template is per-currency,
- * not per-transaction, so it lives at the page level; the presentation layer
- * substitutes `${hash}` for each item.
- */
 export type TransactionHistoryResult = {
   transactions: TransactionHistoryItem[];
   transactionExplorerUrlTemplate?: string;
