@@ -1,3 +1,4 @@
+import { ContextModuleBuilder } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   OpenAppWithDependenciesDAInput,
@@ -121,11 +122,18 @@ export class SignTypedData {
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
+      const contextModule = new ContextModuleBuilder({
+        originToken: this.config.originToken,
+      })
+        .setAppSource(this.config.dAppIdentifier)
+        .build();
       const ethSigner = new SignerEthBuilder({
         dmk,
         originToken: this.config.originToken,
         sessionId,
-      }).build();
+      })
+        .withContextModule(contextModule)
+        .build();
 
       const selectedAccount: Account | undefined = this.storageService
         .getSelectedAccount()
