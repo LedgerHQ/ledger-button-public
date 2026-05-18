@@ -15,13 +15,13 @@ export class PreferenceCurrencyController {
     void this.core.trackCurrencyChanged(currencyCode);
   }
 
-  async selectCurrency(currency: FiatCurrency): Promise<void> {
-    if (currency.code === this.core.getPreferredFiatCurrency()) {
+  async selectCurrency(currencyCode: FiatCurrency["code"]): Promise<void> {
+    if (currencyCode === this.core.getPreferredFiatCurrency()) {
       return;
     }
 
-    await this.core.savePreferredFiatCurrency(currency.code);
-    this.trackCurrencyChanged(currency.code);
+    await this.core.savePreferredFiatCurrency(currencyCode);
+    this.trackCurrencyChanged(currencyCode);
     this.host.requestUpdate();
   }
   get currentCurrency() {
