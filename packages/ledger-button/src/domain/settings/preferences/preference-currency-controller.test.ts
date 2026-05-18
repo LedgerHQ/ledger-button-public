@@ -22,13 +22,15 @@ function createMockHost(): ReactiveControllerHost {
 function createMockCore(
   overrides: Partial<{
     getPreferredFiatCurrency: () => string;
-    getSupportedFiatCurrencies: () => FiatCurrency[];
+    savePreferredFiatCurrency: (currency: string) => Promise<void>;
+    trackCurrencyChanged: (currency: string) => Promise<void>;
   }> = {},
 ) {
   return {
     getPreferredFiatCurrency: vi.fn().mockReturnValue("USD"),
     getSupportedFiatCurrencies: vi.fn().mockReturnValue(MOCK_CURRENCIES),
     savePreferredFiatCurrency: vi.fn().mockResolvedValue(undefined),
+    trackCurrencyChanged: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -86,7 +88,7 @@ describe("PreferenceCurrencyController", () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      await controller.selectCurrency({ code: "EUR", name: "Euro" });
+      await controller.selectCurrency("EUR");
 
       expect(core.savePreferredFiatCurrency).toHaveBeenCalledWith("EUR");
     });
@@ -95,9 +97,33 @@ describe("PreferenceCurrencyController", () => {
       const core = createMockCore();
       const controller = new PreferenceCurrencyController(host, core as never);
 
-      await controller.selectCurrency({ code: "USD", name: "US Dollar" });
+      await controller.selectCurrency("eur");
 
       expect(host.requestUpdate).toHaveBeenCalled();
+    });
+
+    it("should not save, track or update when the currency is unchanged", async () => {
+      const core = createMockCore({
+        getPreferredFiatCurrency: () => "gbp",
+      });
+      const controller = new PreferenceCurrencyController(host, core as never);
+
+      await controller.selectCurrency("gbp");
+
+      expect(core.savePreferredFiatCurrency).not.toHaveBeenCalled();
+      expect(core.trackCurrencyChanged).not.toHaveBeenCalled();
+      expect(host.requestUpdate).not.toHaveBeenCalled();
+    });
+
+    it("should track currency_changed after a successful change", async () => {
+      const core = createMockCore({
+        getPreferredFiatCurrency: () => "usd",
+      });
+      const controller = new PreferenceCurrencyController(host, core as never);
+
+      await controller.selectCurrency("eur");
+
+      expect(core.trackCurrencyChanged).toHaveBeenCalledWith("eur");
     });
   });
 });

@@ -42,6 +42,12 @@ describe("DefaultEventTrackingService", () => {
     onEvent: ReturnType<typeof vi.fn>;
   };
   let contextSubject: BehaviorSubject<ButtonCoreContext>;
+  let mockLogger: {
+    debug: ReturnType<typeof vi.fn>;
+    info: ReturnType<typeof vi.fn>;
+    warn: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+  };
 
   const createMockContext = (
     overrides: Partial<ButtonCoreContext> = {},
@@ -111,6 +117,18 @@ describe("DefaultEventTrackingService", () => {
           session_id: VALID_UUID,
           wallet_action: "send",
         } as EventRequest["data"];
+      case EventType.LanguageChanged:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          language_key: "en",
+        } as EventRequest["data"];
+      case EventType.CurrencyChanged:
+        return {
+          ...base,
+          session_id: VALID_UUID,
+          currency_code: "usd",
+        } as EventRequest["data"];
       default:
         return {
           ...base,
@@ -139,12 +157,13 @@ describe("DefaultEventTrackingService", () => {
       dAppIdentifier: "test-dapp",
     };
 
-    const mockLoggerFactory = vi.fn().mockReturnValue({
+    mockLogger = {
       debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
-    });
+    };
+    const mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
 
     contextSubject = new BehaviorSubject<ButtonCoreContext>(
       createMockContext(),
@@ -326,7 +345,11 @@ describe("DefaultEventTrackingService", () => {
           "invoicing_transaction_signed",
         );
 
-        await eventTrackingService.trackEvent(event);
+        await expect(eventTrackingService.trackEvent(event)).resolves.toBeUndefined();
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
       });
 
       it("should handle exceptions gracefully", async () => {
@@ -340,7 +363,11 @@ describe("DefaultEventTrackingService", () => {
           "invoicing_transaction_signed",
         );
 
-        await eventTrackingService.trackEvent(event);
+        await expect(eventTrackingService.trackEvent(event)).resolves.toBeUndefined();
+        expect(mockBackendService.event).toHaveBeenCalledWith(
+          event,
+          mockConfig.dAppIdentifier,
+        );
       });
 
       it("should log success when event is tracked successfully", async () => {
@@ -355,6 +382,11 @@ describe("DefaultEventTrackingService", () => {
         );
 
         await eventTrackingService.trackEvent(event);
+
+        expect(mockLogger.debug).toHaveBeenCalledWith(
+          "Event tracked successfully",
+          { response: { success: true } },
+        );
       });
     });
 

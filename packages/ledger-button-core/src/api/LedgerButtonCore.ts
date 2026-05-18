@@ -54,7 +54,9 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { TrackCurrencyChanged } from "../internal/event-tracking/usecase/TrackCurrencyChanged.js";
 import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
+import { TrackLanguageChanged } from "../internal/event-tracking/usecase/TrackLanguageChanged.js";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
@@ -686,6 +688,20 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
       )
       .execute(transactionHash);
+  }
+
+  async trackLanguageChanged(languageKey: string): Promise<void> {
+    await this.container
+      .get<TrackLanguageChanged>(eventTrackingModuleTypes.TrackLanguageChanged)
+      .execute(languageKey);
+  }
+
+  async trackCurrencyChanged(currencyCode: string): Promise<void> {
+    await this.container
+      .get<TrackCurrencyChanged>(
+        eventTrackingModuleTypes.TrackCurrencyChanged,
+      )
+      .execute(currencyCode);
   }
 
   async trackWalletActionClicked(

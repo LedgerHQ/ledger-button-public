@@ -171,6 +171,28 @@ const mobileRedirectLedgerWallet = (ctx: ScenarioContext): EventRequest => ({
   data: { ...baseData(ctx), event_type: "mobile_redirect_ledger_wallet" },
 });
 
+const languageChanged = (ctx: ScenarioContext): EventRequest => ({
+  name: "language_changed",
+  type: "language_changed",
+  data: {
+    ...baseData(ctx),
+    event_type: "language_changed",
+    session_id: ctx.sessionId,
+    language_key: "en",
+  },
+});
+
+const currencyChanged = (ctx: ScenarioContext): EventRequest => ({
+  name: "currency_changed",
+  type: "currency_changed",
+  data: {
+    ...baseData(ctx),
+    event_type: "currency_changed",
+    session_id: ctx.sessionId,
+    currency_code: "eur",
+  },
+});
+
 export const SCENARIOS: Scenario[] = [
   {
     name: "onboarding",
@@ -226,6 +248,11 @@ export const SCENARIOS: Scenario[] = [
     name: "mobile-redirect",
     description: "Mobile redirect to Ledger Wallet app",
     buildEvents: (ctx) => [mobileRedirectLedgerWallet(ctx)],
+  },
+  {
+    name: "preferences",
+    description: "Language and fiat currency preference changes",
+    buildEvents: (ctx) => [languageChanged(ctx), currencyChanged(ctx)],
   },
   {
     name: "error",

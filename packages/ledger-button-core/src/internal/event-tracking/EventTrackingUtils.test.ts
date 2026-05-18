@@ -54,6 +54,19 @@ describe("EventTrackingUtils", () => {
       expect(result.errors).toBeUndefined();
     });
 
+    it("should validate a correctly formatted language_changed event", () => {
+      const event = EventTrackingUtils.createLanguageChangedEvent({
+        dAppId: "test-dapp",
+        sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        languageKey: "en",
+      });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+    });
+
     it("should normalize the transaction_hash on the view-details click event", () => {
       const event =
         EventTrackingUtils.createViewTransactionDetailsClickedEvent({
@@ -69,6 +82,19 @@ describe("EventTrackingUtils", () => {
       ).toBe(
         "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
       );
+    });
+
+    it("should validate a correctly formatted currency_changed event", () => {
+      const event = EventTrackingUtils.createCurrencyChangedEvent({
+        dAppId: "test-dapp",
+        sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        currencyCode: "eur",
+      });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
     });
 
     it("should return detailed errors for an invalid event", () => {
