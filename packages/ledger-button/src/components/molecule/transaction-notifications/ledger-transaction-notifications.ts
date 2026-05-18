@@ -96,7 +96,7 @@ export class LedgerTransactionNotifications extends LitElement {
   }
 
   private generateId(): string {
-    return `tx-toast-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    return `tx-toast-${crypto.randomUUID()}`;
   }
 }
 
