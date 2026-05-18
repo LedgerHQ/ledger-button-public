@@ -101,7 +101,7 @@ export class LedgerConnectionItem extends LitElement {
         <div
           class="rounded-full p-8 drop-shadow-md bg-muted-transparent"
         >
-          <ledger-icon type=${this.connectionType} size="medium"></ledger-icon>
+          <ledger-icon type=${this.connectionType} .size=${24}></ledger-icon>
         </div>
       `;
     }
@@ -113,7 +113,7 @@ export class LedgerConnectionItem extends LitElement {
       <div
         class="pr-2 transition-transform duration-150 ease-in-out group-hover:translate-x-1"
       >
-        <ledger-icon type="chevronRight" size="small"></ledger-icon>
+        <ledger-icon type="chevronRight" .size=${16}></ledger-icon>
       </div>
     `;
   }

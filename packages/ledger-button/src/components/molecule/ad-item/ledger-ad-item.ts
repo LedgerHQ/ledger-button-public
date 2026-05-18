@@ -81,7 +81,7 @@ export class LedgerAdItem extends LitElement {
       <div
         class="group-hover:translate-x-1 pr-2 transition-transform duration-150 ease-in-out"
       >
-        <ledger-icon type="chevronRight" size="small"></ledger-icon>
+        <ledger-icon type="chevronRight" .size=${16}></ledger-icon>
       </div>
     `;
   }
@@ -111,7 +111,7 @@ export class LedgerAdItem extends LitElement {
           <div
             class="rounded-full bg-muted-transparent p-8 drop-shadow-md"
           >
-            <ledger-icon type="cart" size="small"></ledger-icon>
+            <ledger-icon type="cart" .size=${16}></ledger-icon>
           </div>
           ${this.renderTitle()}
         </div>

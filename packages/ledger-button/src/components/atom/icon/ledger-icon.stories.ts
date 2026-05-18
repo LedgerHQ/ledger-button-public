@@ -32,8 +32,8 @@ const meta: Meta = {
     },
     size: {
       control: "select",
-      options: ["small", "medium", "large"],
-      description: "The size of the icon",
+      options: [12, 16, 20, 24, 32, 40, 48, 56],
+      description: "The size of the icon (Lumen IconSize)",
     },
     fillColor: {
       control: "color",
@@ -49,217 +49,217 @@ type Story = StoryObj;
 export const LedgerIconSmall: Story = {
   args: {
     type: "ledger",
-    size: "small",
+    size: 16,
   },
 };
 
 export const LedgerIconMedium: Story = {
   args: {
     type: "ledger",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const LedgerIconLarge: Story = {
   args: {
     type: "ledger",
-    size: "large",
+    size: 32,
   },
 };
 
 export const CloseIconSmall: Story = {
   args: {
     type: "close",
-    size: "small",
+    size: 16,
   },
 };
 
 export const CloseIconMedium: Story = {
   args: {
     type: "close",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const CloseIconLarge: Story = {
   args: {
     type: "close",
-    size: "large",
+    size: 32,
   },
 };
 
 export const BluetoothIconSmall: Story = {
   args: {
     type: "bluetooth",
-    size: "small",
+    size: 16,
   },
 };
 
 export const BluetoothIconMedium: Story = {
   args: {
     type: "bluetooth",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const BluetoothIconLarge: Story = {
   args: {
     type: "bluetooth",
-    size: "large",
+    size: 32,
   },
 };
 
 export const UsbIconSmall: Story = {
   args: {
     type: "usb",
-    size: "small",
+    size: 16,
   },
 };
 
 export const UsbIconMedium: Story = {
   args: {
     type: "usb",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const UsbIconLarge: Story = {
   args: {
     type: "usb",
-    size: "large",
+    size: 32,
   },
 };
 
 export const ChevronRightIconSmall: Story = {
   args: {
     type: "chevronRight",
-    size: "small",
+    size: 16,
   },
 };
 
 export const ChevronRightIconMedium: Story = {
   args: {
     type: "chevronRight",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const ChevronRightIconLarge: Story = {
   args: {
     type: "chevronRight",
-    size: "large",
+    size: 32,
   },
 };
 
 export const ChevronDownIconSmall: Story = {
   args: {
     type: "chevronDown",
-    size: "small",
+    size: 16,
   },
 };
 
 export const ChevronDownIconMedium: Story = {
   args: {
     type: "chevronDown",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const ChevronDownIconLarge: Story = {
   args: {
     type: "chevronDown",
-    size: "large",
+    size: 32,
   },
 };
 
 export const BackIconSmall: Story = {
   args: {
     type: "back",
-    size: "small",
+    size: 16,
   },
 };
 
 export const BackIconMedium: Story = {
   args: {
     type: "back",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const CheckIconSmall: Story = {
   args: {
     type: "check",
-    size: "small",
+    size: 16,
   },
 };
 
 export const CheckIconMedium: Story = {
   args: {
     type: "check",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const CheckIconLarge: Story = {
   args: {
     type: "check",
-    size: "large",
+    size: 32,
   },
 };
 
 export const ErrorIconSmall: Story = {
   args: {
     type: "error",
-    size: "small",
+    size: 16,
   },
 };
 
 export const ErrorIconMedium: Story = {
   args: {
     type: "error",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const ErrorIconLarge: Story = {
   args: {
     type: "error",
-    size: "large",
+    size: 32,
   },
 };
 
 export const DeviceIconSmall: Story = {
   args: {
     type: "device",
-    size: "small",
+    size: 16,
   },
 };
 
 export const DeviceIconMedium: Story = {
   args: {
     type: "device",
-    size: "medium",
+    size: 24,
   },
 };
 
 export const DeviceIconLarge: Story = {
   args: {
     type: "device",
-    size: "large",
+    size: 32,
   },
 };
 
 export const MobileIconSmall: Story = {
   args: {
     type: "mobile",
-    size: "small",
+    size: 16,
     fillColor: "white",
   },
 };
 export const MobileIconMedium: Story = {
   args: {
     type: "mobile",
-    size: "medium",
+    size: 24,
     fillColor: "black",
   },
 };
@@ -267,7 +267,7 @@ export const MobileIconMedium: Story = {
 export const MobileIconLarge: Story = {
   args: {
     type: "mobile",
-    size: "large",
+    size: 32,
     fillColor: "white",
   },
 };
@@ -278,47 +278,47 @@ export const AllIcons: Story = {
       style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;"
     >
       <div style="text-align: center;">
-        <ledger-icon type="ledger" size="medium"></ledger-icon>
+        <ledger-icon type="ledger" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Ledger</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="close" size="medium"></ledger-icon>
+        <ledger-icon type="close" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Close</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="bluetooth" size="medium"></ledger-icon>
+        <ledger-icon type="bluetooth" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Bluetooth</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="usb" size="medium"></ledger-icon>
+        <ledger-icon type="usb" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">USB</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="back" size="medium"></ledger-icon>
+        <ledger-icon type="back" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Back</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="chevronRight" size="medium"></ledger-icon>
+        <ledger-icon type="chevronRight" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Chevron Right</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="check" size="medium"></ledger-icon>
+        <ledger-icon type="check" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Check</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="checkMarkCircleFill" size="medium"></ledger-icon>
+        <ledger-icon type="checkMarkCircleFill" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Check mark circle fill</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="error" size="medium"></ledger-icon>
+        <ledger-icon type="error" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Error</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="device" size="medium"></ledger-icon>
+        <ledger-icon type="device" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Device</p>
       </div>
       <div style="text-align: center;">
-        <ledger-icon type="platform" size="medium"></ledger-icon>
+        <ledger-icon type="platform" .size=${24}></ledger-icon>
         <p style="margin: 8px 0 0 0; font-size: 12px;">Platform</p>
       </div>
     </div>

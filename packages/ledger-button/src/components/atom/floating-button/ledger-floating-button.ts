@@ -284,7 +284,7 @@ export class LedgerFloatingButton extends LitElement {
     buttonLabel: string | undefined,
     showBadgeChrome: boolean,
   ) {
-    const iconSize = this.variant === "compact" ? "small" : "large";
+    const iconSize = this.variant === "compact" ? 16 : 32;
     const iconMaskStyle = showBadgeChrome
       ? `-webkit-mask-image: ${BADGE_MASK_GRADIENT}; mask-image: ${BADGE_MASK_GRADIENT};`
       : "";
@@ -309,7 +309,7 @@ export class LedgerFloatingButton extends LitElement {
         >
           <ledger-icon
             type="ledger"
-            size=${iconSize}
+            .size=${iconSize}
             fillColor="white"
           ></ledger-icon>
           ${this.variant === "compact"
