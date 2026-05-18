@@ -27,6 +27,12 @@ function createMockCore() {
   };
 }
 
+function createMockNavigation() {
+  return {
+    navigateBack: vi.fn(),
+  };
+}
+
 describe("PreferenceLanguageController", () => {
   let host: ReactiveControllerHost;
 
@@ -37,10 +43,12 @@ describe("PreferenceLanguageController", () => {
   it("should register itself with the host", () => {
     const languageContext = createMockLanguageContext();
     const core = createMockCore();
+    const navigation = createMockNavigation();
     new PreferenceLanguageController(
       host,
       languageContext as never,
       core as never,
+      navigation as never,
     );
 
     expect(host.addController).toHaveBeenCalledWith(expect.any(Object));
@@ -50,10 +58,12 @@ describe("PreferenceLanguageController", () => {
     it("should return the current language from the context", () => {
       const languageContext = createMockLanguageContext("fr");
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       expect(controller.currentLanguage).toBe("fr");
@@ -64,10 +74,12 @@ describe("PreferenceLanguageController", () => {
     it("should return one option per supported language", () => {
       const languageContext = createMockLanguageContext();
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       expect(controller.languageOptions).toHaveLength(languages.length);
@@ -76,10 +88,12 @@ describe("PreferenceLanguageController", () => {
     it("should include key and displayName for each option", () => {
       const languageContext = createMockLanguageContext();
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       const enOption = controller.languageOptions.find((o) => o.key === "en");
@@ -92,10 +106,12 @@ describe("PreferenceLanguageController", () => {
     it("should call setCurrentLanguage on the context with the given code", () => {
       const languageContext = createMockLanguageContext();
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       controller.selectLanguage("fr");
@@ -103,43 +119,49 @@ describe("PreferenceLanguageController", () => {
       expect(languageContext.setCurrentLanguage).toHaveBeenCalledWith("fr");
     });
 
-    it("should request a host update after selecting a language", () => {
+    it("should navigate back after selecting a language", () => {
       const languageContext = createMockLanguageContext();
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       controller.selectLanguage("fr");
 
-      expect(host.requestUpdate).toHaveBeenCalled();
+      expect(navigation.navigateBack).toHaveBeenCalled();
     });
 
-    it("should not track or apply when selecting the current language", () => {
+    it("should not track, apply or navigate back when selecting the current language", () => {
       const languageContext = createMockLanguageContext("en");
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       controller.selectLanguage("en");
 
       expect(languageContext.setCurrentLanguage).not.toHaveBeenCalled();
       expect(core.trackLanguageChanged).not.toHaveBeenCalled();
-      expect(host.requestUpdate).not.toHaveBeenCalled();
+      expect(navigation.navigateBack).not.toHaveBeenCalled();
     });
 
     it("should track language_changed when the selection changes", () => {
       const languageContext = createMockLanguageContext("en");
       const core = createMockCore();
+      const navigation = createMockNavigation();
       const controller = new PreferenceLanguageController(
         host,
         languageContext as never,
         core as never,
+        navigation as never,
       );
 
       controller.selectLanguage("fr");

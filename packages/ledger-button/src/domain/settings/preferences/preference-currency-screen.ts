@@ -26,6 +26,9 @@ export class PreferenceCurrencyScreen extends LitElement {
   @property({ attribute: false })
   public core!: CoreContext;
 
+  @property({ type: Object })
+  navigation!: Navigation;
+
   private currencyController?: PreferenceCurrencyController;
 
   override willUpdate(changedProps: PropertyValues) {
@@ -33,6 +36,7 @@ export class PreferenceCurrencyScreen extends LitElement {
       this.currencyController = new PreferenceCurrencyController(
         this,
         this.core,
+        this.navigation,
       );
     }
   }
