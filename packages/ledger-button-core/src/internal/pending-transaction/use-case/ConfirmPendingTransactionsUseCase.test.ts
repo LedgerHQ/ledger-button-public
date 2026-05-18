@@ -2,8 +2,27 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { TransactionHistoryError } from "../../transaction-history/model/TransactionHistoryError.js";
-import type { ExplorerResponse } from "../../transaction-history/model/transactionHistoryTypes.js";
+import type {
+  TransactionHistoryEntry,
+  TransactionHistoryPage,
+} from "../../transaction-history/model/transactionHistoryTypes.js";
 import { ConfirmPendingTransactionsUseCase } from "./ConfirmPendingTransactionsUseCase.js";
+
+function makeEntry(hash: string): TransactionHistoryEntry {
+  return {
+    hash,
+    value: "0",
+    senders: [],
+    recipients: [],
+    fee: undefined,
+    failed: false,
+    blockHeight: 1,
+    timestamp: "2024-01-15T10:30:00Z",
+    asset: { isNative: true },
+    direction: "sent",
+    isFeeOnlyOperation: false,
+  };
+}
 
 function createMockLogger() {
   return {
@@ -39,16 +58,23 @@ describe("ConfirmPendingTransactionsUseCase", () => {
     );
   });
 
-  it("should return confirmed hashes that appear in Explorer response", async () => {
-    const explorerResponse: ExplorerResponse = {
-      data: [
-        { hash: "0xaaa" } as ExplorerResponse["data"][0],
-        { hash: "0xbbb" } as ExplorerResponse["data"][0],
-        { hash: "0xccc" } as ExplorerResponse["data"][0],
-      ],
-      token: null,
+  it("should forward currencyId and address to the data source", async () => {
+    const page: TransactionHistoryPage = { items: [] };
+    mockDataSource.getTransactions.mockResolvedValue(Right(page));
+
+    await useCase.execute("ethereum", "0x1234", []);
+
+    expect(mockDataSource.getTransactions).toHaveBeenCalledWith(
+      "0x1234",
+      "ethereum",
+    );
+  });
+
+  it("should return confirmed hashes that appear on chain", async () => {
+    const page: TransactionHistoryPage = {
+      items: [makeEntry("0xaaa"), makeEntry("0xbbb"), makeEntry("0xccc")],
     };
-    mockDataSource.getTransactions.mockResolvedValue(Right(explorerResponse));
+    mockDataSource.getTransactions.mockResolvedValue(Right(page));
 
     const result = await useCase.execute("ethereum", "0x1234", [
       "0xaaa",
@@ -59,12 +85,9 @@ describe("ConfirmPendingTransactionsUseCase", () => {
     expect(result.unsafeCoerce()).toEqual(["0xaaa"]);
   });
 
-  it("should return empty array when no pending hashes match", async () => {
-    const explorerResponse: ExplorerResponse = {
-      data: [{ hash: "0xzzz" } as ExplorerResponse["data"][0]],
-      token: null,
-    };
-    mockDataSource.getTransactions.mockResolvedValue(Right(explorerResponse));
+  it("should return an empty array when no pending hashes match", async () => {
+    const page: TransactionHistoryPage = { items: [makeEntry("0xzzz")] };
+    mockDataSource.getTransactions.mockResolvedValue(Right(page));
 
     const result = await useCase.execute("ethereum", "0x1234", [
       "0xaaa",
@@ -75,7 +98,7 @@ describe("ConfirmPendingTransactionsUseCase", () => {
     expect(result.unsafeCoerce()).toEqual([]);
   });
 
-  it("should return Left when Explorer API fails", async () => {
+  it("should return Left when the data source fails", async () => {
     mockDataSource.getTransactions.mockResolvedValue(
       Left(new TransactionHistoryError("Network error")),
     );

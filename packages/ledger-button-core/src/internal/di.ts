@@ -22,7 +22,7 @@ import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTr
 import { platformModuleFactory } from "./platform/platformModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
-import { transactionHistoryModuleFactory } from "./transaction-history/transactionHistoryModule.js";
+import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({

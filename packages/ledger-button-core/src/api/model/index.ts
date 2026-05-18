@@ -11,7 +11,12 @@ export type {
 export type { FiatCurrency } from "../../internal/currency/datasource/fiatCurrencyTypes.js";
 export type { PendingTransaction } from "../../internal/pending-transaction/model/PendingTransaction.js";
 export type {
+  TransactionDirection,
   TransactionHistoryItem,
+  TransactionHistoryItemAsset,
+  TransactionHistoryItemFee,
+  TransactionKind,
+  TransactionStatus,
   TransactionType,
 } from "../../internal/transaction-history/model/transactionHistoryTypes.js";
 export * from "./ButtonCoreContext.js";

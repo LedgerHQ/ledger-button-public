@@ -2,11 +2,12 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type {
-  ExplorerResponse,
-  ExplorerTransaction,
+  TransactionHistoryEntry,
+  TransactionHistoryEntryAsset,
+  TransactionHistoryPage,
 } from "../model/transactionHistoryTypes.js";
 import { FetchTransactionHistoryUseCase } from "./FetchTransactionHistoryUseCase.js";
 
@@ -59,33 +60,29 @@ function createMockCalDataSource(): {
   };
 }
 
-function createMockTransaction(
-  overrides: Partial<ExplorerTransaction> = {},
-): ExplorerTransaction {
+const NATIVE_ASSET: TransactionHistoryEntryAsset = { isNative: true };
+
+function makeEntry(
+  overrides: Partial<TransactionHistoryEntry> = {},
+): TransactionHistoryEntry {
   return {
     hash: "0xabc123",
-    transaction_type: 2,
-    nonce: "0x1",
-    nonce_value: 1,
     value: "0",
-    gas: "21000",
-    gas_price: "1000000000",
-    from: "0xsender",
-    to: "0xrecipient",
-    transfer_events: [],
-    erc721_transfer_events: [],
-    erc1155_transfer_events: [],
-    approval_events: [],
-    actions: [],
-    confirmations: 10,
-    input: null,
-    gas_used: "21000",
-    cumulative_gas_used: null,
-    status: 1,
-    received_at: "2024-01-15T10:30:00Z",
-    txPoolStatus: null,
+    senders: [],
+    recipients: [],
+    fee: undefined,
+    failed: false,
+    blockHeight: 19_000_000,
+    timestamp: "2024-01-15T10:30:00Z",
+    asset: NATIVE_ASSET,
+    direction: "sent",
+    isFeeOnlyOperation: false,
     ...overrides,
   };
+}
+
+function pageOf(...items: TransactionHistoryEntry[]): TransactionHistoryPage {
+  return { items, nextPageToken: undefined };
 }
 
 describe("FetchTransactionHistoryUseCase", () => {
@@ -93,7 +90,6 @@ describe("FetchTransactionHistoryUseCase", () => {
   let mockDataSource: ReturnType<typeof createMockDataSource>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
-  const testBlockchain = "ethereum";
   const testCurrencyId = "ethereum";
 
   beforeEach(() => {
@@ -109,426 +105,252 @@ describe("FetchTransactionHistoryUseCase", () => {
     vi.clearAllMocks();
   });
 
-  describe("execute", () => {
-    it("should call datasource with correct parameters", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+  describe("data source + CAL composition", () => {
+    it("forwards address, currencyId and options to the data source", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(Right(pageOf()));
 
-      await useCase.execute(testBlockchain, testAddress, testCurrencyId, {
-        batchSize: 50,
-      });
+      await useCase.execute(testAddress, testCurrencyId, { pageToken: "abc" });
 
       expect(mockDataSource.getTransactions).toHaveBeenCalledWith(
-        testBlockchain,
         testAddress,
-        { batchSize: 50 },
+        testCurrencyId,
+        { pageToken: "abc" },
       );
     });
 
-    it("should return empty transactions array when no transactions", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+    it("requests currency information from CAL using the same currencyId", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(Right(pageOf()));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      await useCase.execute(testAddress, testCurrencyId);
+
+      expect(mockCalDataSource.getCurrencyInformation).toHaveBeenCalledWith(
+        testCurrencyId,
+      );
+    });
+
+    it("returns an empty transactions array when the page is empty", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(Right(pageOf()));
+
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toEqual({
+      expect(result.extract()).toEqual({
         transactions: [],
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
         nextPageToken: undefined,
       });
     });
 
-    it("should return nextPageToken when token is present", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: "next-page-token",
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
+    it("passes through nextPageToken from the data source", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right({
+          items: [],
+          nextPageToken: "next-page-token",
+        } satisfies TransactionHistoryPage),
+      );
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("nextPageToken", "next-page-token");
+      expect(result.unsafeCoerce()).toHaveProperty(
+        "nextPageToken",
+        "next-page-token",
+      );
     });
+  });
 
-    it("should not return nextPageToken when token is null", async () => {
-      const response: ExplorerResponse = {
-        data: [],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("nextPageToken", undefined);
-    });
-
-    it("should return Left with error when datasource fails", async () => {
+  describe("error propagation", () => {
+    it("propagates Left from the data source", async () => {
       const error = new TransactionHistoryError("Network error", {
         address: testAddress,
-        blockchain: testBlockchain,
+        currencyId: testCurrencyId,
       });
       mockDataSource.getTransactions.mockResolvedValue(Left(error));
 
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isLeft()).toBe(true);
       expect(result.extract()).toBe(error);
     });
-  });
 
-  describe("transaction type detection", () => {
-    it("should mark transaction as 'sent' when address is the sender", async () => {
-      const tx = createMockTransaction({
-        hash: "0xsent",
-        from: testAddress,
-        to: "0xrecipient",
-        value: "1000000000000000000",
-      });
+    it("still produces transactions when currency info fails (uses fallback native info)", async () => {
+      mockCalDataSource.getCurrencyInformation.mockResolvedValueOnce(
+        Left(new Error("CAL down")),
+      );
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              senders: [testAddress],
+              value: "1000000000000000000",
+            }),
+          ),
+        ),
+      );
 
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("type", "sent");
-    });
-
-    it("should mark transaction as 'received' when address is the recipient", async () => {
-      const tx = createMockTransaction({
-        hash: "0xreceived",
-        from: "0xsender",
-        to: testAddress,
-        value: "1000000000000000000",
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
+      const result = await useCase.execute(testAddress, testCurrencyId);
 
       expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("type", "received");
-    });
-
-    it("should mark as 'received' when address is recipient in transfer_events", async () => {
-      const tx = createMockTransaction({
-        hash: "0xtokenreceived",
-        from: "0xsender",
-        to: "0xcontract",
-        value: "0",
-        transfer_events: [
-          {
-            contract: "0xcontract",
-            from: "0xsender",
-            to: testAddress,
-            count: "1000000",
-          },
-        ],
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("type", "received");
-    });
-
-    it("should handle case-insensitive address matching", async () => {
-      const upperCaseAddress = testAddress.toUpperCase();
-      const tx = createMockTransaction({
-        from: upperCaseAddress,
-        to: "0xrecipient",
-        value: "1000000000000000000",
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("type", "sent");
-    });
-  });
-
-  describe("value calculation", () => {
-    it("should use native value for direct transfers", async () => {
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: testAddress,
-        value: "1000000000000000000",
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "1000000000000000000");
-    });
-
-    it("should use token transfer count for ERC20 transfers", async () => {
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: "0xcontract",
-        value: "0",
-        transfer_events: [
-          {
-            contract: "0xcontract",
-            from: "0xsender",
-            to: testAddress,
-            count: "5000000",
-          },
-        ],
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "5000000");
-    });
-
-    it("should use actions value for native transfers with actions", async () => {
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: testAddress,
-        value: "0",
-        actions: [
-          {
-            from: "0xsender",
-            to: testAddress,
-            value: "2801780000000000",
-            gas: "21000",
-            gas_used: "21000",
-            error: null,
-          },
-        ],
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "2801780000000000");
-    });
-
-    it("should use first relevant token transfer when multiple transfers exist", async () => {
-      // Note: Multiple transfers with different contracts are different tokens
-      // We take the first relevant one and get its token info from CAL
-      const tx = createMockTransaction({
-        from: "0xsender",
-        to: "0xcontract",
-        value: "0",
-        transfer_events: [
-          {
-            contract: "0xcontract1",
-            from: "0xsender",
-            to: testAddress,
-            count: "1000000",
-          },
-          {
-            contract: "0xcontract2",
-            from: "0xsender",
-            to: testAddress,
-            count: "2000000",
-          },
-        ],
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      // Uses first transfer's value
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("value", "1000000");
-      // Uses token info from CAL (USDC mock)
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("ticker", "USDC");
-    });
-  });
-
-  describe("timestamp extraction", () => {
-    it("should use block.time when available", async () => {
-      const tx = createMockTransaction({
-        received_at: "2024-01-15T10:30:00Z",
-        block: {
-          hash: "0xblock",
-          height: 12345,
-          time: "2024-01-15T10:35:00Z",
-        },
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("timestamp", "2024-01-15T10:35:00Z");
-    });
-
-    it("should use received_at when block is not available", async () => {
-      const tx = createMockTransaction({
-        received_at: "2024-01-15T10:30:00Z",
-        block: undefined,
-      });
-
-      const response: ExplorerResponse = {
-        data: [tx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      expect(
-        (data as { transactions: unknown[] }).transactions[0],
-      ).toHaveProperty("timestamp", "2024-01-15T10:30:00Z");
-    });
-  });
-
-  describe("transaction transformation", () => {
-    it("should correctly transform multiple transactions", async () => {
-      const sentTx = createMockTransaction({
-        hash: "0xsent123",
-        from: testAddress,
-        to: "0xrecipient",
-        value: "500000000000000000",
-        received_at: "2024-01-15T10:00:00Z",
-      });
-
-      const receivedTx = createMockTransaction({
-        hash: "0xreceived456",
-        from: "0xsender",
-        to: testAddress,
-        value: "1800000000000000000",
-        received_at: "2024-01-15T11:00:00Z",
-      });
-
-      const response: ExplorerResponse = {
-        data: [sentTx, receivedTx],
-        token: null,
-      };
-      mockDataSource.getTransactions.mockResolvedValue(Right(response));
-
-      const result = await useCase.execute(testBlockchain, testAddress, testCurrencyId);
-
-      expect(result.isRight()).toBe(true);
-      const data = result.extract();
-      expect(data).toHaveProperty("transactions");
-      const transactions = (data as { transactions: unknown[] }).transactions;
-      expect(transactions).toHaveLength(2);
-      expect(transactions[0]).toEqual({
-        hash: "0xsent123",
-        type: "sent",
-        value: "500000000000000000",
-        formattedValue: "0.5",
-        currencyName: "Ethereum",
-        ticker: "ETH",
-        timestamp: "2024-01-15T10:00:00Z",
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum",
-        explorerUrl: "https://etherscan.io/tx/0xsent123",
+        name: "ethereum",
+        ticker: "ETHEREUM",
+        decimals: 18,
       });
-      expect(transactions[1]).toEqual({
-        hash: "0xreceived456",
-        type: "received",
-        value: "1800000000000000000",
-        formattedValue: "1.8",
-        currencyName: "Ethereum",
-        ticker: "ETH",
-        timestamp: "2024-01-15T11:00:00Z",
+    });
+  });
+
+  describe("address normalization", () => {
+    it("matches senders/recipients case-insensitively by lowercasing the input address", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              senders: [testAddress],
+              recipients: [],
+              value: "1000000000000000000",
+            }),
+          ),
+        ),
+      );
+
+      const result = await useCase.execute(
+        testAddress.toUpperCase(),
+        testCurrencyId,
+      );
+
+      expect(result.unsafeCoerce().transactions[0]).toMatchObject({
+        direction: "sent",
+      });
+    });
+  });
+
+  describe("asset resolution via CAL", () => {
+    it("uses ERC20 token info from CAL when entry.asset.isNative is false", async () => {
+      const tokenAsset: TransactionHistoryEntryAsset = {
+        isNative: false,
+        contractAddress: "0xcontract",
+      };
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              senders: [testAddress],
+              value: "5000000",
+              asset: tokenAsset,
+            }),
+          ),
+        ),
+      );
+
+      const result = await useCase.execute(testAddress, testCurrencyId);
+
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
+        ledgerId: "ethereum/erc20/usdc",
+        name: "USD Coin",
+        ticker: "USDC",
+        decimals: 6,
+      });
+    });
+
+    it("falls back to unknown-token defaults when the CAL token lookup fails", async () => {
+      mockCalDataSource.getTokenInformation.mockResolvedValueOnce(
+        Left(new Error("CAL down")),
+      );
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              senders: [testAddress],
+              value: "5000000",
+              asset: { isNative: false, contractAddress: "0xunknown" },
+            }),
+          ),
+        ),
+      );
+
+      const result = await useCase.execute(testAddress, testCurrencyId);
+
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
+        ledgerId: "ethereum/erc20/unknown",
+        name: "Unknown Token",
+        ticker: "???",
+        decimals: 18,
+      });
+    });
+
+    it("uses native asset info when entry.asset.isNative is true", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              senders: ["0xsender"],
+              recipients: [testAddress],
+              direction: "received",
+              value: "1000000000000000000",
+              asset: { isNative: true },
+            }),
+          ),
+        ),
+      );
+
+      const result = await useCase.execute(testAddress, testCurrencyId);
+
+      expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum",
-        explorerUrl: "https://etherscan.io/tx/0xreceived456",
+        name: "Ethereum",
+        ticker: "ETH",
+        decimals: 18,
       });
+    });
+  });
+
+  describe("explorer URL template", () => {
+    it("exposes the explorerUrlTemplate on the result when CAL provides one", async () => {
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              hash: "0xabc",
+              senders: [testAddress],
+              value: "1",
+            }),
+          ),
+        ),
+      );
+
+      const result = await useCase.execute(testAddress, testCurrencyId);
+
+      expect(result.unsafeCoerce().transactionExplorerUrlTemplate).toBe(
+        "https://etherscan.io/tx/${hash}",
+      );
+    });
+
+    it("leaves transactionExplorerUrlTemplate undefined when CAL did not return one", async () => {
+      mockCalDataSource.getCurrencyInformation.mockResolvedValueOnce(
+        Right({
+          id: "ethereum",
+          name: "Ethereum",
+          ticker: "ETH",
+          decimals: 18,
+        }),
+      );
+      mockDataSource.getTransactions.mockResolvedValue(
+        Right(
+          pageOf(
+            makeEntry({
+              hash: "0xabc",
+              senders: [testAddress],
+              value: "1",
+            }),
+          ),
+        ),
+      );
+
+      const result = await useCase.execute(testAddress, testCurrencyId);
+
+      expect(
+        result.unsafeCoerce().transactionExplorerUrlTemplate,
+      ).toBeUndefined();
     });
   });
 });

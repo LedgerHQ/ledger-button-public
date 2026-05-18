@@ -193,7 +193,16 @@
   "transactionList": {
     "noTransactions": "لم يتم العثور على معاملات",
     "pendingTransactions": "معاملات مُعلَّقة",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "View on explorer",
+    "failed": "فشلت",
+    "fee": "الرسوم",
+    "kinds": {
+      "swap": "مبادلة",
+      "approve": "موافقة",
+      "contract": "تفاعل مع عقد",
+      "fees": "الرسوم",
+      "self": "تحويل لنفسك"
+    }
   },
   "mobileOnboarding": {
     "title": "المتابعة في Ledger Wallet",

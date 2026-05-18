@@ -193,7 +193,15 @@
   "transactionList": {
     "noTransactions": "No transactions found",
     "pendingTransactions": "Pending transactions",
-    "viewOnExplorer": "View on explorer"
+    "viewOnExplorer": "View on explorer",
+    "failed": "Failed",
+    "kinds": {
+      "swap": "Swap",
+      "approve": "Approve",
+      "contract": "Contract interaction",
+      "fees": "Fees",
+      "self": "Self transfer"
+    }
   },
   "mobileOnboarding": {
     "title": "Continue in Ledger Wallet",

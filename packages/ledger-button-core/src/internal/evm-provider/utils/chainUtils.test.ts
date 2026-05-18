@@ -1,4 +1,7 @@
-import { getChainIdFromCurrencyId } from "./chainUtils.js";
+import {
+  getChainIdFromCurrencyId,
+  isSupportedEvmCurrency,
+} from "./chainUtils.js";
 
 describe("chainUtils", () => {
   describe("getChainIdFromCurrencyId", () => {
@@ -34,5 +37,32 @@ describe("chainUtils", () => {
         expect(result).toBe(1);
       },
     );
+  });
+
+  describe("isSupportedEvmCurrency", () => {
+    it.each([
+      "ethereum",
+      "arbitrum",
+      "avalanche_c_chain",
+      "base",
+      "bsc",
+      "linea",
+      "optimism",
+      "polygon",
+      "sonic",
+      "zksync",
+    ])("should return true for known EVM currency '%s'", (currencyId) => {
+      expect(isSupportedEvmCurrency(currencyId)).toBe(true);
+    });
+
+    it.each([
+      { currencyId: "solana", description: "non-EVM currency" },
+      { currencyId: "bitcoin", description: "non-EVM currency" },
+      { currencyId: "", description: "empty string" },
+      { currencyId: "Ethereum", description: "incorrect casing" },
+      { currencyId: "eth@reum", description: "special characters" },
+    ])("should return false for $description", ({ currencyId }) => {
+      expect(isSupportedEvmCurrency(currencyId)).toBe(false);
+    });
   });
 });

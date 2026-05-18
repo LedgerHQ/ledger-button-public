@@ -5,34 +5,25 @@ import { Either, Left, Right } from "purify-ts";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
-import { formatBalance } from "../../currency/currencyUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
-import type { TransactionHistoryDataSource } from "../datasource/TransactionHistoryDataSource.js";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
+import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
-  EvmTransferEvent,
-  ExplorerResponse,
-  ExplorerTransaction,
-  TransactionHistoryItem,
+  TransactionHistoryEntry,
   TransactionHistoryOptions,
+  TransactionHistoryPage,
   TransactionHistoryResult,
-  TransactionType,
 } from "../model/transactionHistoryTypes.js";
-import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
-
-type AssetInfo = {
-  ledgerId: string;
-  name: string;
-  ticker: string;
-  decimals: number;
-};
+import {
+  AssetInfo,
+  buildTransactionHistoryItem,
+} from "./buildTransactionHistoryItem.js";
 
 @injectable()
 export class FetchTransactionHistoryUseCase {
   private readonly logger: LoggerPublisher;
-  private tokenInfoCache: Map<string, AssetInfo> = new Map();
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -46,20 +37,18 @@ export class FetchTransactionHistoryUseCase {
   }
 
   async execute(
-    blockchain: string,
     address: string,
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryResult>> {
     this.logger.debug("Fetching transaction history", {
-      blockchain,
       address,
       currencyId,
       options,
     });
 
     const [transactionResult, currencyInfoResult] = await Promise.all([
-      this.dataSource.getTransactions(blockchain, address, options),
+      this.dataSource.getTransactions(address, currencyId, options),
       this.calDataSource.getCurrencyInformation(currencyId),
     ]);
 
@@ -68,14 +57,9 @@ export class FetchTransactionHistoryUseCase {
         this.logger.error("Failed to fetch transaction history", { error });
         return Left(error);
       },
-      Right: async (explorerResponse) => {
-        const nativeAssetInfo: AssetInfo = currencyInfoResult.caseOf({
-          Left: () => ({
-            ledgerId: currencyId,
-            name: currencyId,
-            ticker: currencyId.toUpperCase(),
-            decimals: 18,
-          }),
+      Right: async (page) => {
+        const nativeAssetInfo = currencyInfoResult.caseOf({
+          Left: () => this.buildFallbackNativeAssetInfo(currencyId),
           Right: (info) => ({
             ledgerId: info.id,
             name: info.name,
@@ -87,8 +71,8 @@ export class FetchTransactionHistoryUseCase {
           .toMaybe()
           .extract()?.transactionExplorerUrlTemplate;
 
-        const transformedResult = await this.transformResponse(
-          explorerResponse,
+        const transformedResult = await this.transformPage(
+          page,
           address.toLowerCase(),
           currencyId,
           nativeAssetInfo,
@@ -96,6 +80,7 @@ export class FetchTransactionHistoryUseCase {
         );
 
         this.logger.debug("Transaction history fetched successfully", {
+          rawEntryCount: page.items.length,
           transactionCount: transformedResult.transactions.length,
           hasNextPage: !!transformedResult.nextPageToken,
         });
@@ -105,117 +90,66 @@ export class FetchTransactionHistoryUseCase {
     });
   }
 
-  private async transformResponse(
-    response: ExplorerResponse,
+  private buildFallbackNativeAssetInfo(currencyId: string): AssetInfo {
+    return {
+      ledgerId: currencyId,
+      name: currencyId,
+      ticker: currencyId.toUpperCase(),
+      decimals: 18,
+    };
+  }
+
+  private async transformPage(
+    page: TransactionHistoryPage,
     normalizedAddress: string,
     currencyId: string,
     nativeAssetInfo: AssetInfo,
     transactionExplorerUrlTemplate: string | undefined,
   ): Promise<TransactionHistoryResult> {
     const transactions = await Promise.all(
-      response.data.map((tx) =>
-        this.transformTransaction(
-          tx,
-          normalizedAddress,
+      page.items.map(async (entry) => {
+        const assetInfo = await this.resolveAssetInfo(
+          entry,
           currencyId,
           nativeAssetInfo,
-          transactionExplorerUrlTemplate,
-        ),
-      ),
+        );
+        return buildTransactionHistoryItem({
+          entry,
+          normalizedAddress,
+          assetInfo,
+          nativeAssetInfo,
+        });
+      }),
     );
 
     return {
       transactions,
-      nextPageToken: response.token ?? undefined,
+      transactionExplorerUrlTemplate,
+      nextPageToken: page.nextPageToken,
     };
   }
 
-  private async transformTransaction(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
+  private async resolveAssetInfo(
+    entry: TransactionHistoryEntry,
     currencyId: string,
     nativeAssetInfo: AssetInfo,
-    transactionExplorerUrlTemplate: string | undefined,
-  ): Promise<TransactionHistoryItem> {
-    const type = this.determineTransactionType(tx, normalizedAddress);
-    const tokenTransfer = this.getRelevantTokenTransfer(
-      tx,
-      normalizedAddress,
-      type,
-    );
-
-    let value: string;
-    let assetInfo: AssetInfo;
-
-    if (tokenTransfer) {
-      value = tokenTransfer.count;
-      assetInfo = await this.getTokenAssetInfo(
-        tokenTransfer.contract,
-        currencyId,
-      );
-    } else {
-      value = this.getNativeValue(tx, normalizedAddress, type);
-      assetInfo = nativeAssetInfo;
+  ): Promise<AssetInfo> {
+    if (entry.asset.isNative) {
+      return nativeAssetInfo;
     }
-
-    const formattedValue = formatBalance(
-      value,
-      assetInfo.decimals,
-      assetInfo.ticker,
-    );
-    const timestamp = this.extractTimestamp(tx);
-
-    return {
-      hash: tx.hash,
-      type,
-      value,
-      formattedValue,
-      currencyName: assetInfo.name,
-      ticker: assetInfo.ticker,
-      timestamp,
-      ledgerId: assetInfo.ledgerId,
-      explorerUrl:
-        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, tx.hash) ??
-        undefined,
-    };
+    return this.resolveTokenAssetInfo(entry.asset.contractAddress, currencyId);
   }
 
-  private getRelevantTokenTransfer(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-    type: TransactionType,
-  ): EvmTransferEvent | null {
-    const relevantTransfers = tx.transfer_events.filter((event) => {
-      if (type === "received") {
-        return event.to.toLowerCase() === normalizedAddress;
-      }
-      return event.from.toLowerCase() === normalizedAddress;
-    });
-
-    if (relevantTransfers.length === 0) {
-      return null;
-    }
-
-    return relevantTransfers[0];
-  }
-
-  private async getTokenAssetInfo(
+  private async resolveTokenAssetInfo(
     contractAddress: string,
     currencyId: string,
   ): Promise<AssetInfo> {
-    const cacheKey = `${currencyId}:${contractAddress.toLowerCase()}`;
-
-    const cachedInfo = this.tokenInfoCache.get(cacheKey);
-    if (cachedInfo) {
-      return cachedInfo;
-    }
-
     const tokenInfoResult = await this.calDataSource.getTokenInformation(
       contractAddress,
       currencyId,
     );
 
-    const assetInfo: AssetInfo = tokenInfoResult.caseOf({
+    return tokenInfoResult.caseOf({
       Left: () => {
         this.logger.warn("Failed to fetch token info, using defaults", {
           contractAddress,
@@ -235,66 +169,5 @@ export class FetchTransactionHistoryUseCase {
         decimals: info.decimals,
       }),
     });
-
-    this.tokenInfoCache.set(cacheKey, assetInfo);
-    return assetInfo;
-  }
-
-  private determineTransactionType(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-  ): TransactionType {
-    const isSender = tx.from.toLowerCase() === normalizedAddress;
-
-    const isRecipientInTransfer = tx.transfer_events.some(
-      (event) => event.to.toLowerCase() === normalizedAddress,
-    );
-
-    if (isSender && !isRecipientInTransfer) {
-      return "sent";
-    }
-
-    return isRecipientInTransfer || tx.to.toLowerCase() === normalizedAddress
-      ? "received"
-      : "sent";
-  }
-
-  private getNativeValue(
-    tx: ExplorerTransaction,
-    normalizedAddress: string,
-    type: TransactionType,
-  ): string {
-    const relevantActions = tx.actions.filter((action) => {
-      if (type === "received") {
-        return action.to.toLowerCase() === normalizedAddress;
-      }
-      return action.from.toLowerCase() === normalizedAddress;
-    });
-
-    if (relevantActions.length > 0) {
-      const totalValue = relevantActions.reduce(
-        (sum, action) => sum + BigInt(action.value),
-        BigInt(0),
-      );
-      return totalValue.toString();
-    }
-
-    if (
-      type === "received" &&
-      tx.to.toLowerCase() === normalizedAddress &&
-      tx.value !== "0"
-    ) {
-      return tx.value;
-    }
-
-    if (type === "sent" && tx.from.toLowerCase() === normalizedAddress) {
-      return tx.value;
-    }
-
-    return "0";
-  }
-
-  private extractTimestamp(tx: ExplorerTransaction): string {
-    return tx.block?.time ?? tx.received_at;
   }
 }
