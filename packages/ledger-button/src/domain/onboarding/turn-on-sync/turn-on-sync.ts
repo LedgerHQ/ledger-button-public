@@ -104,7 +104,7 @@ export class TurnOnSyncScreen extends LitElement {
             <ledger-icon
               type="externalLink"
               fillColor="currentColor"
-              size="medium"
+              .size=${24}
             ></ledger-icon>
           </button>
         </div>

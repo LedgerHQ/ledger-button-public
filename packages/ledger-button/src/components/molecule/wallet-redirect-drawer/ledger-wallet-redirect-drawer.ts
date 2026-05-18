@@ -110,7 +110,7 @@ export class LedgerWalletRedirectDrawer extends LitElement {
           >
             <ledger-icon
               type="info"
-              size="large"
+              .size=${32}
               fillColor="white"
             ></ledger-icon>
           </div>

@@ -57,7 +57,7 @@ export class LedgerChip extends LitElement {
   private renderChevron() {
     return html`
       <div class=${classMap(this.chipChevronClasses)}>
-        <ledger-icon type="chevronRight" size="medium"></ledger-icon>
+        <ledger-icon type="chevronRight" .size=${24}></ledger-icon>
       </div>
     `;
   }

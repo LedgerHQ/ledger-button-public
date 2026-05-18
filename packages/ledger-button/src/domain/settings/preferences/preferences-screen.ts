@@ -62,7 +62,7 @@ export class PreferencesScreen extends LitElement {
         <div class="flex min-w-0 flex-1 items-center gap-12">
           <ledger-icon
             type=${icon}
-            size="medium"
+            .size=${24}
             fillColor="currentColor"
           ></ledger-icon>
 
@@ -75,7 +75,7 @@ export class PreferencesScreen extends LitElement {
         </div>
         <ledger-icon
           type="chevronRight"
-          size="small"
+          .size=${16}
           fillColor="currentColor"
           class="text-muted shrink-0"
         ></ledger-icon>

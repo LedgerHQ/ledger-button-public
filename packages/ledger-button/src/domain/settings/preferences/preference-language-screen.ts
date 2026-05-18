@@ -68,7 +68,7 @@ export class PreferenceLanguageScreen extends LitElement {
                 ? html`
                     <ledger-icon
                       type="checkmarkCircle"
-                      size="medium"
+                      .size=${24}
                       fillColor="currentColor"
                     ></ledger-icon>
                   `
