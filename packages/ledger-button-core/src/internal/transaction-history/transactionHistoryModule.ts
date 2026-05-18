@@ -1,11 +1,9 @@
 import { ContainerModule } from "inversify";
 
-import type { CurrencyMetadataProvider } from "./application/port/CurrencyMetadataProvider.js";
-import type { TransactionHistoryDataSource } from "./application/port/TransactionHistoryDataSource.js";
-import { FetchTransactionHistoryUseCase } from "./application/use-case/FetchTransactionHistoryUseCase.js";
-import { HydrateTransactionsWithFiatUseCase } from "./application/use-case/HydrateTransactionsWithFiatUseCase.js";
-import { DefaultTransactionHistoryDataSource } from "./infrastructure/coinService/DefaultTransactionHistoryDataSource.js";
-import { DefaultCurrencyMetadataProvider } from "./infrastructure/DefaultCurrencyMetadataProvider.js";
+import { DefaultTransactionHistoryDataSource } from "./datasource/coinService/DefaultTransactionHistoryDataSource.js";
+import type { TransactionHistoryDataSource } from "./datasource/coinService/TransactionHistoryDataSource.js";
+import { FetchTransactionHistoryUseCase } from "./use-case/FetchTransactionHistoryUseCase.js";
+import { HydrateTransactionsWithFiatUseCase } from "./use-case/HydrateTransactionsWithFiatUseCase.js";
 import { transactionHistoryModuleTypes } from "./transactionHistoryModuleTypes.js";
 
 type TransactionHistoryModuleOptions = {
@@ -20,12 +18,6 @@ export function transactionHistoryModuleFactory({
       transactionHistoryModuleTypes.TransactionHistoryDataSource,
     )
       .to(DefaultTransactionHistoryDataSource)
-      .inSingletonScope();
-
-    bind<CurrencyMetadataProvider>(
-      transactionHistoryModuleTypes.CurrencyMetadataProvider,
-    )
-      .to(DefaultCurrencyMetadataProvider)
       .inSingletonScope();
 
     bind<FetchTransactionHistoryUseCase>(

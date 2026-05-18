@@ -1,11 +1,11 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CounterValueDataSource } from "../../../balance/datasource/countervalue/CounterValueDataSource.js";
+import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
 import type {
   TransactionHistoryItem,
   TransactionHistoryItemAsset,
-} from "../../domain/transactionHistoryTypes.js";
+} from "../model/transactionHistoryTypes.js";
 import { HydrateTransactionsWithFiatUseCase } from "./HydrateTransactionsWithFiatUseCase.js";
 
 function createMockLogger() {

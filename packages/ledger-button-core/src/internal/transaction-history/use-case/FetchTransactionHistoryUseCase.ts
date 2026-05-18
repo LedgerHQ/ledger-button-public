@@ -2,19 +2,20 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import type { TokenInformation } from "../../../balance/datasource/cal/calTypes.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
+import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
+import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
   TransactionHistoryEntry,
   TransactionHistoryOptions,
   TransactionHistoryPage,
   TransactionHistoryResult,
-} from "../../domain/transactionHistoryTypes.js";
-import { transactionHistoryModuleTypes } from "../../transactionHistoryModuleTypes.js";
-import type { CurrencyMetadataProvider } from "../port/CurrencyMetadataProvider.js";
-import type { TransactionHistoryDataSource } from "../port/TransactionHistoryDataSource.js";
+} from "../model/transactionHistoryTypes.js";
+import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
 import {
   AssetInfo,
   buildTransactionHistoryItem,
@@ -29,8 +30,8 @@ export class FetchTransactionHistoryUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(transactionHistoryModuleTypes.TransactionHistoryDataSource)
     private readonly dataSource: TransactionHistoryDataSource,
-    @inject(transactionHistoryModuleTypes.CurrencyMetadataProvider)
-    private readonly currencyMetadata: CurrencyMetadataProvider,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
   ) {
     this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
@@ -48,7 +49,7 @@ export class FetchTransactionHistoryUseCase {
 
     const [transactionResult, currencyInfoResult] = await Promise.all([
       this.dataSource.getTransactions(address, currencyId, options),
-      this.currencyMetadata.getCurrencyInformation(currencyId),
+      this.calDataSource.getCurrencyInformation(currencyId),
     ]);
 
     return await transactionResult.caseOf({
@@ -143,7 +144,7 @@ export class FetchTransactionHistoryUseCase {
     contractAddress: string,
     currencyId: string,
   ): Promise<AssetInfo> {
-    const tokenInfoResult = await this.currencyMetadata.getTokenInformation(
+    const tokenInfoResult = await this.calDataSource.getTokenInformation(
       contractAddress,
       currencyId,
     );

@@ -1,11 +1,3 @@
-/**
- * Normalized, provider-agnostic boundary types exposed by
- * `TransactionHistoryDataSource`. All wire-level decoding (Coin Service
- * specifics, `tx.*` nesting, FEES detection, asset discriminator, address
- * casing, value/timestamp resolution) is owned by the data source adapter so
- * use cases never see provider-shaped data.
- */
-
 export type TransactionHistoryEntryAsset =
   | { isNative: true }
   | { isNative: false; contractAddress: string };

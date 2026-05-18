@@ -5,10 +5,10 @@ import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { FetchTransactionHistoryUseCase } from "../../transaction-history/application/use-case/FetchTransactionHistoryUseCase.js";
-import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/application/use-case/HydrateTransactionsWithFiatUseCase.js";
-import type { TransactionHistoryItem } from "../../transaction-history/domain/transactionHistoryTypes.js";
+import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
 import { transactionHistoryModuleTypes } from "../../transaction-history/transactionHistoryModuleTypes.js";
+import type { FetchTransactionHistoryUseCase } from "../../transaction-history/use-case/FetchTransactionHistoryUseCase.js";
+import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/use-case/HydrateTransactionsWithFiatUseCase.js";
 import type { Account } from "../service/AccountService.js";
 
 export type AccountWithTransactionHistory = Account & {
