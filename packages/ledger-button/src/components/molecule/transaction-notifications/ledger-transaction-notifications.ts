@@ -5,7 +5,10 @@ import { customElement, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import type { ToastVariant } from "../../atom/toast/ledger-toast";
+import {
+  TOAST_STACK_REFLOW_MS,
+  type ToastVariant,
+} from "../../atom/toast/ledger-toast";
 
 export interface TransactionNotification {
   id: string;
@@ -84,6 +87,7 @@ export class LedgerTransactionNotifications extends LitElement {
             .linkHref=${n.linkHref ?? ""}
             .duration=${n.duration ?? 5000}
             .autoDismiss=${n.autoDismiss ?? true}
+            @ledger-toast-closing=${this.handleToastClosing}
             @ledger-toast-close=${() => this.handleToastClose(n.id)}
           ></ledger-toast>
         `,
@@ -91,8 +95,62 @@ export class LedgerTransactionNotifications extends LitElement {
     `;
   }
 
+  private handleToastClosing = (event: Event) => {
+    const closingToast = event.target;
+
+    if (!(closingToast instanceof HTMLElement) || closingToast.tagName !== "LEDGER-TOAST") {
+      return;
+    }
+
+    if (!this.contains(closingToast)) {
+      return;
+    }
+
+    const toasts = [
+      ...this.querySelectorAll("ledger-toast"),
+    ] as HTMLElement[];
+    const index = toasts.indexOf(closingToast);
+
+    if (index === -1 || index >= toasts.length - 1) {
+      return;
+    }
+
+    const offset = this.getReflowOffset(closingToast, toasts, index);
+
+    requestAnimationFrame(() => {
+      for (let i = index + 1; i < toasts.length; i++) {
+        const toast = toasts[i];
+        toast.style.transition = `transform ${TOAST_STACK_REFLOW_MS}ms ease-in-out`;
+        toast.style.transform = "translateY(0)";
+        void toast.offsetWidth;
+        toast.style.transform = `translateY(-${offset}px)`;
+      }
+    });
+  };
+
   private handleToastClose(id: string) {
+    this.clearSiblingTransforms();
     this.dismiss(id);
+  }
+
+  private getReflowOffset(
+    closingToast: HTMLElement,
+    toasts: HTMLElement[],
+    index: number,
+  ): number {
+    const nextToast = toasts[index + 1];
+    const closingRect = closingToast.getBoundingClientRect();
+    const nextRect = nextToast.getBoundingClientRect();
+
+    return nextRect.top - closingRect.top;
+  }
+
+  private clearSiblingTransforms(): void {
+    this.querySelectorAll("ledger-toast").forEach((toast) => {
+      const element = toast as HTMLElement;
+      element.style.transition = "";
+      element.style.transform = "";
+    });
   }
 
   private generateId(): string {
