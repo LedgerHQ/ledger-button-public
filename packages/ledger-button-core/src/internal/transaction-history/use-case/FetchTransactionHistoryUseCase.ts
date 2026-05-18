@@ -8,6 +8,7 @@ import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js"
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
+import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import {
   TransactionHistoryEntry,
@@ -15,7 +16,6 @@ import {
   TransactionHistoryPage,
   TransactionHistoryResult,
 } from "../model/transactionHistoryTypes.js";
-import { transactionHistoryModuleTypes } from "../transactionHistoryModuleTypes.js";
 import {
   AssetInfo,
   buildTransactionHistoryItem,
