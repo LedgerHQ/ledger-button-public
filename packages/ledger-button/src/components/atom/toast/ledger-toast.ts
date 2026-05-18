@@ -47,7 +47,10 @@ const linkVariants = cva([
   "body-2-semi-bold underline",
 ]);
 
-const FADE_DURATION_MS = 200;
+export const TOAST_EXIT_DURATION_MS = 300;
+export const TOAST_STACK_REFLOW_MS = 300;
+
+const FADE_DURATION_MS = TOAST_EXIT_DURATION_MS;
 
 const styles = css`
   :host {
@@ -58,7 +61,7 @@ const styles = css`
     transform: translateX(0);
     margin-bottom: 8px;
     transition:
-      opacity 100ms ease-in-out,
+      opacity 200ms ease-in-out,
       transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
@@ -70,12 +73,7 @@ const styles = css`
 
   :host([data-state="closing"]) {
     opacity: 0;
-    max-height: 0 !important;
-    margin-bottom: 0;
-    transition:
-      opacity 200ms ease-in-out,
-      max-height 200ms ease-in-out,
-      margin-bottom 200ms ease-in-out;
+    transition: opacity 300ms ease-in-out;
   }
 
   :host([data-state="closed"]) {
@@ -119,6 +117,8 @@ export class LedgerToast extends LitElement {
   private _dismissTimer: ReturnType<typeof setTimeout> | null = null;
 
   private _fadeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private _closeReason: ToastCloseReason = "timeout";
 
   override connectedCallback() {
     super.connectedCallback();
@@ -292,10 +292,19 @@ export class LedgerToast extends LitElement {
 
     this.clearDismissTimer();
     this._closing = true;
+    this._closeReason = reason;
 
-    const height = this.offsetHeight;
-    this.style.maxHeight = `${height}px`;
-    void this.offsetWidth;
+    this.dispatchEvent(
+      new CustomEvent("ledger-toast-closing", {
+        bubbles: true,
+        composed: true,
+        detail: {
+          reason,
+          variant: this.variant,
+          title: this.title,
+        },
+      }),
+    );
 
     this.dataset.state = "closing";
 
@@ -335,11 +344,11 @@ export class LedgerToast extends LitElement {
       return;
     }
 
-    if (event.propertyName !== "opacity" && event.propertyName !== "max-height") {
+    if (event.propertyName !== "opacity") {
       return;
     }
 
-    this.finalizeClose("user");
+    this.finalizeClose(this._closeReason);
   };
 
   private handleCloseClick() {
@@ -383,6 +392,11 @@ declare global {
   }
 
   interface WindowEventMap {
+    "ledger-toast-closing": CustomEvent<{
+      reason: ToastCloseReason;
+      variant: ToastVariant;
+      title: string;
+    }>;
     "ledger-toast-close": CustomEvent<{
       reason: ToastCloseReason;
       variant: ToastVariant;
