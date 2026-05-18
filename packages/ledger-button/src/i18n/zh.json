@@ -193,7 +193,16 @@
   "transactionList": {
     "noTransactions": "未找到交易",
     "pendingTransactions": "待处理交易",
-    "viewOnExplorer": "在浏览器上查看"
+    "viewOnExplorer": "在浏览器上查看",
+    "failed": "失败",
+    "fee": "手续费",
+    "kinds": {
+      "swap": "兑换",
+      "approve": "授权",
+      "contract": "合约交互",
+      "fees": "手续费",
+      "self": "自转账"
+    }
   },
   "mobileOnboarding": {
     "title": "在 Ledger 钱包中继续",

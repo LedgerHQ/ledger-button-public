@@ -1,27 +1,17 @@
-import type {
-  DetailedAccount,
-  PendingTransaction,
+import {
+  buildExplorerTransactionUrl,
+  type DetailedAccount,
+  formatBalance,
+  type PendingTransaction,
+  type TransactionHistoryItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
 import { CoreContext } from "../../context/core-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import type { TransactionListItem } from "../transaction-list/transaction-list.js";
-
-type MappableTransaction = {
-  hash: string;
-  type: TransactionType;
-  timestamp: string;
-  formattedValue: string;
-  ticker: string;
-  currencyName: string;
-  fiatValue?: string;
-  fiatCurrency?: string;
-  explorerUrl?: string;
-};
 
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
@@ -49,14 +39,16 @@ export class LedgerHomeController implements ReactiveController {
     if (!this.selectedAccount?.transactionHistory) {
       return [];
     }
+    const explorerUrlTemplate =
+      this.selectedAccount.transactionExplorerUrlTemplate;
     return this.selectedAccount.transactionHistory.map((tx) =>
-      this.mapToTransactionListItem(tx),
+      this.mapHistoryItemToListItem(tx, explorerUrlTemplate),
     );
   }
 
   get pendingTransactionListItems(): TransactionListItem[] {
     return this.pendingTransactions.map((tx) =>
-      this.mapToTransactionListItem(tx),
+      this.mapPendingToListItem(tx),
     );
   }
 
@@ -94,13 +86,52 @@ export class LedgerHomeController implements ReactiveController {
     this.pendingTxSubscription?.unsubscribe();
   }
 
-  private mapToTransactionListItem(
-    tx: MappableTransaction,
+  private mapHistoryItemToListItem(
+    tx: TransactionHistoryItem,
+    explorerUrlTemplate: string | undefined,
   ): TransactionListItem {
+    const date = new Date(tx.timestamp);
+    const formattedValue = formatBalance(
+      tx.value,
+      tx.asset.decimals,
+      tx.asset.ticker,
+    );
+    const formattedFee = tx.fee
+      ? formatBalance(tx.fee.amount, tx.fee.asset.decimals, tx.fee.asset.ticker)
+      : undefined;
+    const isFeesRow = tx.kind === "fees" && !!formattedFee;
+    const fiatAmount =
+      (isFeesRow ? tx.fee?.fiatAmount : tx.fiatValue) ?? "";
+
+    return {
+      hash: tx.hash,
+      type: tx.type,
+      status: tx.status,
+      kind: tx.kind,
+      date: date.toISOString().split("T")[0],
+      time: date.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      amount: formattedValue,
+      ticker: tx.asset.ticker,
+      title: tx.asset.name,
+      fiatAmount,
+      fiatCurrency: tx.fiatCurrency ?? "",
+      explorerUrl:
+        buildExplorerTransactionUrl(explorerUrlTemplate, tx.hash) ?? undefined,
+      formattedFee,
+      feeTicker: tx.fee?.asset.ticker,
+    };
+  }
+
+  private mapPendingToListItem(tx: PendingTransaction): TransactionListItem {
     const date = new Date(tx.timestamp);
     return {
       hash: tx.hash,
       type: tx.type,
+      status: "pending",
+      kind: "transfer",
       date: date.toISOString().split("T")[0],
       time: date.toLocaleTimeString("en-GB", {
         hour: "2-digit",
@@ -112,6 +143,8 @@ export class LedgerHomeController implements ReactiveController {
       fiatAmount: tx.fiatValue ?? "",
       fiatCurrency: tx.fiatCurrency ?? "",
       explorerUrl: tx.explorerUrl,
+      formattedFee: undefined,
+      feeTicker: undefined,
     };
   }
 

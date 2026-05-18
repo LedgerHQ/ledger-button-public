@@ -4,7 +4,11 @@ import { consume } from "@lit/context";
 import { html, LitElement, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
+import type {
+  TransactionKind,
+  TransactionStatus,
+  TransactionType,
+} from "../../components/molecule/transaction-item/ledger-transaction-item.js";
 import {
   langContext,
   LanguageContext,
@@ -14,6 +18,8 @@ import { tailwindElement } from "../../tailwind-element.js";
 export type TransactionListItem = {
   hash: string;
   type: TransactionType;
+  status: TransactionStatus;
+  kind: TransactionKind;
   date: string;
   time: string;
   amount: string;
@@ -22,6 +28,8 @@ export type TransactionListItem = {
   fiatAmount: string;
   fiatCurrency: string;
   explorerUrl?: string;
+  formattedFee?: string;
+  feeTicker?: string;
 };
 
 type GroupedTransactions = {
@@ -85,6 +93,8 @@ export class TransactionListScreen extends LitElement {
     return html`
       <ledger-transaction-item
         .type=${transaction.type}
+        .status=${transaction.status}
+        .kind=${transaction.kind}
         .title=${transaction.title}
         .timestamp=${transaction.time}
         .amount=${transaction.amount}
@@ -95,6 +105,8 @@ export class TransactionListScreen extends LitElement {
         .viewOnExplorerLabel=${viewOnExplorerLabel}
         .locale=${this.languages.locale}
         .hash=${transaction.hash}
+        .formattedFee=${transaction.formattedFee ?? ""}
+        .feeTicker=${transaction.feeTicker ?? ""}
       ></ledger-transaction-item>
     `;
   };

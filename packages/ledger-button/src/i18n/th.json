@@ -193,7 +193,16 @@
   "transactionList": {
     "noTransactions": "ไม่พบธุรกรรม",
     "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
-    "viewOnExplorer": "ดูใน Explorer"
+    "viewOnExplorer": "ดูใน Explorer",
+    "failed": "ล้มเหลว",
+    "fee": "ค่าธรรมเนียม",
+    "kinds": {
+      "swap": "สลับ",
+      "approve": "อนุมัติ",
+      "contract": "การโต้ตอบกับสัญญา",
+      "fees": "ค่าธรรมเนียม",
+      "self": "โอนให้ตนเอง"
+    }
   },
   "mobileOnboarding": {
     "title": "ดำเนินการต่อในแอป Ledger Wallet",

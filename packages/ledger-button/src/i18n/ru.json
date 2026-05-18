@@ -193,7 +193,16 @@
   "transactionList": {
     "noTransactions": "Не нашли транзакции",
     "pendingTransactions": "Неподтверждённые транзакции",
-    "viewOnExplorer": "Посмотреть в Обозревателе"
+    "viewOnExplorer": "Посмотреть в Обозревателе",
+    "failed": "Ошибка",
+    "fee": "Комиссия",
+    "kinds": {
+      "swap": "Обмен",
+      "approve": "Одобрение",
+      "contract": "Взаимодействие с контрактом",
+      "fees": "Комиссии",
+      "self": "Перевод себе"
+    }
   },
   "mobileOnboarding": {
     "title": "Продолжите в Ledger Wallet",

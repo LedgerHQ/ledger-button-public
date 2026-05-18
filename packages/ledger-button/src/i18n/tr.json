@@ -193,7 +193,16 @@
   "transactionList": {
     "noTransactions": "İşlem bulunamadı",
     "pendingTransactions": "Bekleyen İşlemler",
-    "viewOnExplorer": "Tarayıcıda görüntüle"
+    "viewOnExplorer": "Tarayıcıda görüntüle",
+    "failed": "Başarısız",
+    "fee": "Ücret",
+    "kinds": {
+      "swap": "Takas",
+      "approve": "Onayla",
+      "contract": "Sözleşme etkileşimi",
+      "fees": "Ücretler",
+      "self": "Kendine transfer"
+    }
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet'ta devam edin",

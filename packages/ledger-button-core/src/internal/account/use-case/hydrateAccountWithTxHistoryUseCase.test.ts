@@ -68,10 +68,16 @@ function createMockTransaction(
   return {
     hash: "0xabc123",
     type: "sent",
+    direction: "sent",
+    kind: "transfer",
+    status: "confirmed",
     value: "500000000000000000",
-    formattedValue: "0.5",
-    currencyName: "Ethereum",
-    ticker: "ETH",
+    asset: {
+      ledgerId: "ethereum",
+      name: "Ethereum",
+      ticker: "ETH",
+      decimals: 18,
+    },
     timestamp: "2024-01-15T10:30:00Z",
     ...overrides,
   };
@@ -143,7 +149,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       });
     });
 
-    it("should call FetchTransactionHistoryUseCase with blockchain (ticker), address and currencyId", async () => {
+    it("should call FetchTransactionHistoryUseCase with address and currencyId", async () => {
       const account = createMockAccount({
         ticker: "ETH",
         freshAddress: "0xtest123",
@@ -156,7 +162,6 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       await useCase.execute(account);
 
       expect(mockFetchTransactionHistoryUseCase.execute).toHaveBeenCalledWith(
-        "eth",
         "0xtest123",
         "ethereum",
       );
@@ -169,7 +174,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
     it("should use transactions returned by HydrateTransactionsWithFiatUseCase", async () => {
       const account = createMockAccount();
       const transactions = [
-        createMockTransaction({ hash: "0x111", formattedValue: "1" }),
+        createMockTransaction({ hash: "0x111", value: "1000000000000000000" }),
       ];
       const hydratedTransactions = [
         {
@@ -194,7 +199,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       const account = createMockAccount();
       const error = new TransactionHistoryError("Network error", {
         address: account.freshAddress,
-        blockchain: "eth",
+        currencyId: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(Left(error));
 
@@ -240,7 +245,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
       const account = createMockAccount();
       const error = new TransactionHistoryError("API timeout", {
         address: account.freshAddress,
-        blockchain: "eth",
+        currencyId: "ethereum",
       });
       mockFetchTransactionHistoryUseCase.execute.mockResolvedValue(Left(error));
 
@@ -257,7 +262,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
         Left(
           new TransactionHistoryError("Error", {
             address: account.freshAddress,
-            blockchain: "eth",
+            currencyId: "ethereum",
           }),
         ),
       );

@@ -3,8 +3,8 @@ import { Either } from "purify-ts";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { type TransactionHistoryDataSource } from "../../transaction-history/datasource/TransactionHistoryDataSource.js";
-import { transactionHistoryModuleTypes } from "../../transaction-history/transactionHistoryModuleTypes.js";
+import { type TransactionHistoryDataSource } from "../../transaction-history/datasource/coinService/TransactionHistoryDataSource.js";
+import { transactionHistoryModuleTypes } from "../../transaction-history/di/transactionHistoryModuleTypes.js";
 
 @injectable()
 export class ConfirmPendingTransactionsUseCase {
@@ -20,7 +20,7 @@ export class ConfirmPendingTransactionsUseCase {
   }
 
   async execute(
-    network: string,
+    currencyId: string,
     address: string,
     pendingHashes: string[],
   ): Promise<Either<Error, string[]>> {
@@ -29,12 +29,12 @@ export class ConfirmPendingTransactionsUseCase {
     });
 
     const result = await this.txHistoryDataSource.getTransactions(
-      network,
       address,
+      currencyId,
     );
 
-    return result.map((response) => {
-      const onChainHashes = new Set(response.data.map((tx) => tx.hash));
+    return result.map((page) => {
+      const onChainHashes = new Set(page.items.map((entry) => entry.hash));
       const confirmed = pendingHashes.filter((hash) => onChainHashes.has(hash));
 
       if (confirmed.length > 0) {
