@@ -47,6 +47,13 @@ describe("EventTrackingUtils", () => {
           transactionHash:
             "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+    });
+
     it("should validate a correctly formatted language_changed event", () => {
       const event = EventTrackingUtils.createLanguageChangedEvent({
         dAppId: "test-dapp",
@@ -75,6 +82,8 @@ describe("EventTrackingUtils", () => {
       ).toBe(
         "caf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
       );
+    });
+
     it("should validate a correctly formatted currency_changed event", () => {
       const event = EventTrackingUtils.createCurrencyChangedEvent({
         dAppId: "test-dapp",
