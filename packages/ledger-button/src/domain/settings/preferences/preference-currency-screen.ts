@@ -12,6 +12,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
+import { Navigation } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { PreferenceCurrencyController } from "./preference-currency-controller.js";
 
