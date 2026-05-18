@@ -2,11 +2,13 @@ import type { FiatCurrency } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
+import { Navigation } from "../../../shared/navigation.js";
 
 export class PreferenceCurrencyController {
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
+    private readonly navigation: Navigation,
   ) {
     this.host.addController(this as ReactiveController);
   }
@@ -22,7 +24,7 @@ export class PreferenceCurrencyController {
 
     await this.core.savePreferredFiatCurrency(currencyCode);
     this.trackCurrencyChanged(currencyCode);
-    this.host.requestUpdate();
+    this.navigation.navigateBack();
   }
   get currentCurrency() {
     return this.core.getPreferredFiatCurrency();
