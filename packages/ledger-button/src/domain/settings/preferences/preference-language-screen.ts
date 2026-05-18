@@ -5,6 +5,10 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import {
+  type CoreContext,
+  coreContext,
+} from "../../../context/core-context.js";
+import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
@@ -18,28 +22,39 @@ export class PreferenceLanguageScreen extends LitElement {
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
-  private languageController!: PreferenceLanguageController;
+  @consume({ context: coreContext, subscribe: true })
+  @property({ attribute: false })
+  public core!: CoreContext;
 
-  override connectedCallback() {
-    super.connectedCallback();
-    this.languageController = new PreferenceLanguageController(
-      this,
-      this.languageContext,
-    );
+  private languageController?: PreferenceLanguageController;
+
+  override willUpdate() {
+    if (this.core && this.languageContext && !this.languageController) {
+      this.languageController = new PreferenceLanguageController(
+        this,
+        this.languageContext,
+        this.core,
+      );
+    }
   }
 
   override render() {
-    const selected = this.languageController.currentLanguage;
+    const controller = this.languageController;
+    if (!controller) {
+      return html`<div class="flex flex-col px-16"></div>`;
+    }
+
+    const selected = controller.currentLanguage;
 
     return html`
-      <div class="w-400 w-full flex-col items-start px-16 py-0">
-        ${this.languageController.languageOptions.map(
+      <div class="flex flex-col px-16">
+        ${controller.languageOptions.map(
           (language) => html`
             <button
               type="button"
               class="bg-base-transparent hover:bg-base-transparent-hover flex h-64 w-full cursor-pointer items-center justify-between gap-16 rounded-md px-8 py-0 text-left transition duration-150 ease-in-out"
               aria-current=${language.key === selected ? "true" : "false"}
-              @click=${() => this.languageController.selectLanguage(language.key)}
+              @click=${() => controller.selectLanguage(language.key)}
             >
               <span class="body-2-semi-bold text-base"
                 >${language.displayName}</span
