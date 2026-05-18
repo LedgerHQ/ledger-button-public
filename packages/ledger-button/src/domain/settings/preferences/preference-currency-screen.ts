@@ -12,6 +12,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
+import { Navigation } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { PreferenceCurrencyController } from "./preference-currency-controller.js";
 
@@ -26,6 +27,9 @@ export class PreferenceCurrencyScreen extends LitElement {
   @property({ attribute: false })
   public core!: CoreContext;
 
+  @property({ type: Object })
+  navigation!: Navigation;
+
   private currencyController?: PreferenceCurrencyController;
 
   override willUpdate(changedProps: PropertyValues) {
@@ -33,6 +37,7 @@ export class PreferenceCurrencyScreen extends LitElement {
       this.currencyController = new PreferenceCurrencyController(
         this,
         this.core,
+        this.navigation,
       );
     }
   }

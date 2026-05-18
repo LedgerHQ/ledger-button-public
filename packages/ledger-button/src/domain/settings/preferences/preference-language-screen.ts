@@ -12,6 +12,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
+import { Navigation } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { PreferenceLanguageController } from "./preference-language-controller.js";
 
@@ -26,6 +27,9 @@ export class PreferenceLanguageScreen extends LitElement {
   @property({ attribute: false })
   public core!: CoreContext;
 
+  @property({ type: Object })
+  navigation!: Navigation;
+
   private languageController?: PreferenceLanguageController;
 
   override willUpdate() {
@@ -34,6 +38,7 @@ export class PreferenceLanguageScreen extends LitElement {
         this,
         this.languageContext,
         this.core,
+        this.navigation,
       );
     }
   }

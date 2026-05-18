@@ -19,6 +19,12 @@ function createMockHost(): ReactiveControllerHost {
   };
 }
 
+function createMockNavigation() {
+  return {
+    navigateBack: vi.fn(),
+  };
+}
+
 function createMockCore(
   overrides: Partial<{
     getPreferredFiatCurrency: () => string;
@@ -44,7 +50,8 @@ describe("PreferenceCurrencyController", () => {
 
   it("should register itself with the host", () => {
     const core = createMockCore();
-    new PreferenceCurrencyController(host, core as never);
+    const navigation = createMockNavigation();
+    new PreferenceCurrencyController(host, core as never, navigation as never);
 
     expect(host.addController).toHaveBeenCalledWith(expect.any(Object));
   });
@@ -52,7 +59,12 @@ describe("PreferenceCurrencyController", () => {
   describe("currentCurrency", () => {
     it("should return the default currency", () => {
       const core = createMockCore();
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       expect(controller.currentCurrency).toBe("USD");
     });
@@ -61,7 +73,12 @@ describe("PreferenceCurrencyController", () => {
       const core = createMockCore({
         getPreferredFiatCurrency: () => "EUR",
       });
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       expect(controller.currentCurrency).toBe("EUR");
     });
@@ -70,14 +87,24 @@ describe("PreferenceCurrencyController", () => {
   describe("currencies", () => {
     it("should expose the list of supported currencies from core", () => {
       const core = createMockCore();
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       expect(controller.currencies).toEqual(MOCK_CURRENCIES);
     });
 
     it("should always return the same reference", () => {
       const core = createMockCore();
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       expect(controller.currencies).toStrictEqual(controller.currencies);
     });
@@ -86,40 +113,60 @@ describe("PreferenceCurrencyController", () => {
   describe("selectCurrency", () => {
     it("should call core.savePreferredFiatCurrency with the currency code", async () => {
       const core = createMockCore();
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       await controller.selectCurrency("EUR");
 
       expect(core.savePreferredFiatCurrency).toHaveBeenCalledWith("EUR");
     });
 
-    it("should request a host update after selecting a currency", async () => {
+    it("should navigate back after selecting a currency", async () => {
       const core = createMockCore();
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       await controller.selectCurrency("eur");
 
-      expect(host.requestUpdate).toHaveBeenCalled();
+      expect(navigation.navigateBack).toHaveBeenCalled();
     });
 
-    it("should not save, track or update when the currency is unchanged", async () => {
+    it("should not save, track or navigate back when the currency is unchanged", async () => {
       const core = createMockCore({
         getPreferredFiatCurrency: () => "gbp",
       });
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       await controller.selectCurrency("gbp");
 
       expect(core.savePreferredFiatCurrency).not.toHaveBeenCalled();
       expect(core.trackCurrencyChanged).not.toHaveBeenCalled();
-      expect(host.requestUpdate).not.toHaveBeenCalled();
+      expect(navigation.navigateBack).not.toHaveBeenCalled();
     });
 
     it("should track currency_changed after a successful change", async () => {
       const core = createMockCore({
         getPreferredFiatCurrency: () => "usd",
       });
-      const controller = new PreferenceCurrencyController(host, core as never);
+      const navigation = createMockNavigation();
+      const controller = new PreferenceCurrencyController(
+        host,
+        core as never,
+        navigation as never,
+      );
 
       await controller.selectCurrency("eur");
 
