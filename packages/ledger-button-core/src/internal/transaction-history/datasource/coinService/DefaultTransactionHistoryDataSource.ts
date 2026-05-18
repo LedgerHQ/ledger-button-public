@@ -9,8 +9,7 @@ import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import type { TransactionHistoryDataSource } from "../../application/port/TransactionHistoryDataSource.js";
-import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
+import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {
   TransactionDirection,
   TransactionHistoryEntry,
@@ -18,11 +17,12 @@ import {
   TransactionHistoryEntryFee,
   TransactionHistoryOptions,
   TransactionHistoryPage,
-} from "../../domain/transactionHistoryTypes.js";
+} from "../../model/transactionHistoryTypes.js";
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
 } from "./coinServiceDtos.js";
+import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource.js";
 
 const EPOCH_ISO = new Date(0).toISOString();
 const FEES_OPERATION_SUFFIX = "-FEES";

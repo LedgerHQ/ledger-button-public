@@ -1,10 +1,10 @@
 import { Either } from "purify-ts";
 
-import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
+import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {
   TransactionHistoryOptions,
   TransactionHistoryPage,
-} from "../../domain/transactionHistoryTypes.js";
+} from "../../model/transactionHistoryTypes.js";
 
 export interface TransactionHistoryDataSource {
   getTransactions(

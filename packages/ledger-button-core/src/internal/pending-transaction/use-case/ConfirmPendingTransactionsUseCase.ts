@@ -3,7 +3,7 @@ import { Either } from "purify-ts";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { type TransactionHistoryDataSource } from "../../transaction-history/application/port/TransactionHistoryDataSource.js";
+import { type TransactionHistoryDataSource } from "../../transaction-history/datasource/coinService/TransactionHistoryDataSource.js";
 import { transactionHistoryModuleTypes } from "../../transaction-history/transactionHistoryModuleTypes.js";
 
 @injectable()

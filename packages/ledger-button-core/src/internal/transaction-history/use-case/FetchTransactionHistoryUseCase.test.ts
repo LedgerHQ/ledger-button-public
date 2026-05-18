@@ -1,14 +1,14 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TransactionHistoryError } from "../../domain/TransactionHistoryError.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
+import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryPage,
-} from "../../domain/transactionHistoryTypes.js";
-import type { CurrencyMetadataProvider } from "../port/CurrencyMetadataProvider.js";
-import type { TransactionHistoryDataSource } from "../port/TransactionHistoryDataSource.js";
+} from "../model/transactionHistoryTypes.js";
 import { FetchTransactionHistoryUseCase } from "./FetchTransactionHistoryUseCase.js";
 
 function createMockLogger() {
@@ -35,7 +35,7 @@ function createMockDataSource(): {
   };
 }
 
-function createMockCurrencyMetadataProvider(): {
+function createMockCalDataSource(): {
   getTokenInformation: ReturnType<typeof vi.fn>;
   getCurrencyInformation: ReturnType<typeof vi.fn>;
 } {
@@ -88,24 +88,24 @@ function pageOf(...items: TransactionHistoryEntry[]): TransactionHistoryPage {
 describe("FetchTransactionHistoryUseCase", () => {
   let useCase: FetchTransactionHistoryUseCase;
   let mockDataSource: ReturnType<typeof createMockDataSource>;
-  let mockCurrencyMetadata: ReturnType<typeof createMockCurrencyMetadataProvider>;
+  let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";
   const testCurrencyId = "ethereum";
 
   beforeEach(() => {
     mockDataSource = createMockDataSource();
-    mockCurrencyMetadata = createMockCurrencyMetadataProvider();
+    mockCalDataSource = createMockCalDataSource();
 
     useCase = new FetchTransactionHistoryUseCase(
       createMockLoggerFactory(),
       mockDataSource as unknown as TransactionHistoryDataSource,
-      mockCurrencyMetadata as unknown as CurrencyMetadataProvider,
+      mockCalDataSource as unknown as CalDataSource,
     );
 
     vi.clearAllMocks();
   });
 
-  describe("port + CAL composition", () => {
+  describe("data source + CAL composition", () => {
     it("forwards address, currencyId and options to the data source", async () => {
       mockDataSource.getTransactions.mockResolvedValue(Right(pageOf()));
 
@@ -118,12 +118,12 @@ describe("FetchTransactionHistoryUseCase", () => {
       );
     });
 
-    it("requests currency information from the metadata provider using the same currencyId", async () => {
+    it("requests currency information from CAL using the same currencyId", async () => {
       mockDataSource.getTransactions.mockResolvedValue(Right(pageOf()));
 
       await useCase.execute(testAddress, testCurrencyId);
 
-      expect(mockCurrencyMetadata.getCurrencyInformation).toHaveBeenCalledWith(
+      expect(mockCalDataSource.getCurrencyInformation).toHaveBeenCalledWith(
         testCurrencyId,
       );
     });
@@ -173,7 +173,7 @@ describe("FetchTransactionHistoryUseCase", () => {
     });
 
     it("still produces transactions when currency info fails (uses fallback native info)", async () => {
-      mockCurrencyMetadata.getCurrencyInformation.mockResolvedValueOnce(
+      mockCalDataSource.getCurrencyInformation.mockResolvedValueOnce(
         Left(new Error("CAL down")),
       );
       mockDataSource.getTransactions.mockResolvedValue(
@@ -224,8 +224,8 @@ describe("FetchTransactionHistoryUseCase", () => {
     });
   });
 
-  describe("asset resolution via the metadata provider", () => {
-    it("uses ERC20 token info from the provider when entry.asset.isNative is false", async () => {
+  describe("asset resolution via CAL", () => {
+    it("uses ERC20 token info from CAL when entry.asset.isNative is false", async () => {
       const tokenAsset: TransactionHistoryEntryAsset = {
         isNative: false,
         contractAddress: "0xcontract",
@@ -252,8 +252,8 @@ describe("FetchTransactionHistoryUseCase", () => {
       });
     });
 
-    it("falls back to unknown-token defaults when the provider token lookup fails", async () => {
-      mockCurrencyMetadata.getTokenInformation.mockResolvedValueOnce(
+    it("falls back to unknown-token defaults when the CAL token lookup fails", async () => {
+      mockCalDataSource.getTokenInformation.mockResolvedValueOnce(
         Left(new Error("CAL down")),
       );
       mockDataSource.getTransactions.mockResolvedValue(
@@ -326,7 +326,7 @@ describe("FetchTransactionHistoryUseCase", () => {
     });
 
     it("leaves transactionExplorerUrlTemplate undefined when CAL did not return one", async () => {
-      mockCurrencyMetadata.getCurrencyInformation.mockResolvedValueOnce(
+      mockCalDataSource.getCurrencyInformation.mockResolvedValueOnce(
         Right({
           id: "ethereum",
           name: "Ethereum",
