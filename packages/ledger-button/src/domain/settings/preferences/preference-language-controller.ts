@@ -7,6 +7,7 @@ import {
   languages,
 } from "../../../context/language-context.js";
 import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
+import { Navigation } from "../../../shared/navigation.js";
 
 export type LanguageOption = {
   key: LangKey;
@@ -18,6 +19,7 @@ export class PreferenceLanguageController {
     private readonly host: ReactiveControllerHost,
     private readonly languageContext: LanguageContext,
     private readonly core: CoreContext,
+    private readonly navigation: Navigation,
   ) {
     this.host.addController(this as ReactiveController);
   }
@@ -32,7 +34,7 @@ export class PreferenceLanguageController {
     }
     this.languageContext.setCurrentLanguage(languageKey);
     this.trackLanguageChanged(languageKey);
-    this.host.requestUpdate();
+    this.navigation.navigateBack();
   }
 
   get currentLanguage(): LangKey {
