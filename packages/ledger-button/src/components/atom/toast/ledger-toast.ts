@@ -47,10 +47,13 @@ const linkVariants = cva([
   "body-2-semi-bold underline",
 ]);
 
-export const TOAST_EXIT_DURATION_MS = 300;
-export const TOAST_STACK_REFLOW_MS = 300;
+export const TOAST_FADE_DURATION_MS = 300;
+export const TOAST_COLLAPSE_DURATION_MS = 300;
 
-const FADE_DURATION_MS = TOAST_EXIT_DURATION_MS;
+/** @deprecated Use TOAST_FADE_DURATION_MS */
+export const TOAST_EXIT_DURATION_MS = TOAST_FADE_DURATION_MS;
+
+const PHASE_FALLBACK_BUFFER_MS = 50;
 
 const styles = css`
   :host {
@@ -59,7 +62,6 @@ const styles = css`
     overflow: hidden;
     opacity: 1;
     transform: translateX(0);
-    margin-bottom: 8px;
     transition:
       opacity 200ms ease-in-out,
       transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -74,6 +76,14 @@ const styles = css`
   :host([data-state="closing"]) {
     opacity: 0;
     transition: opacity 300ms ease-in-out;
+  }
+
+  :host([data-state="collapsing"]) {
+    opacity: 0;
+    overflow: hidden;
+    transition:
+      max-height 300ms ease-in-out,
+      margin-bottom 300ms ease-in-out;
   }
 
   :host([data-state="closed"]) {
@@ -114,9 +124,11 @@ export class LedgerToast extends LitElement {
   @state()
   private _closed = false;
 
+  private _collapsing = false;
+
   private _dismissTimer: ReturnType<typeof setTimeout> | null = null;
 
-  private _fadeTimer: ReturnType<typeof setTimeout> | null = null;
+  private _phaseTimer: ReturnType<typeof setTimeout> | null = null;
 
   private _closeReason: ToastCloseReason = "timeout";
 
@@ -130,6 +142,7 @@ export class LedgerToast extends LitElement {
   override disconnectedCallback() {
     super.disconnectedCallback();
     this.clearTimers();
+    this.clearInlineCollapseStyles();
     this.removeEventListener("transitionend", this.handleHostTransitionEnd);
   }
 
@@ -307,10 +320,36 @@ export class LedgerToast extends LitElement {
     );
 
     this.dataset.state = "closing";
+    this.scheduleFadeFallback();
+  }
 
-    this._fadeTimer = setTimeout(() => {
-      this.finalizeClose(reason);
-    }, FADE_DURATION_MS + 50);
+  private beginCollapse(): void {
+    if (this._collapsing || this._closed) {
+      return;
+    }
+
+    this.clearPhaseTimer();
+    this._collapsing = true;
+
+    const computed = getComputedStyle(this);
+    const marginBottom = parseFloat(computed.marginBottom) || 0;
+    const totalHeight = this.offsetHeight + marginBottom;
+
+    this.style.overflow = "hidden";
+    this.style.maxHeight = `${totalHeight}px`;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this._closed) {
+          return;
+        }
+
+        this.dataset.state = "collapsing";
+        this.style.maxHeight = "0px";
+        this.style.marginBottom = "0px";
+        this.scheduleCollapseFallback();
+      });
+    });
   }
 
   private finalizeClose(reason: ToastCloseReason) {
@@ -321,6 +360,7 @@ export class LedgerToast extends LitElement {
     this._closed = true;
     this.dataset.state = "closed";
     this.clearTimers();
+    this.clearInlineCollapseStyles();
 
     this.dispatchEvent(
       new CustomEvent("ledger-toast-close", {
@@ -336,19 +376,21 @@ export class LedgerToast extends LitElement {
   }
 
   private handleHostTransitionEnd = (event: Event) => {
-    if (!(event instanceof TransitionEvent)) {
+    if (!(event instanceof TransitionEvent) || event.target !== this) {
       return;
     }
 
-    if (event.target !== this || !this._closing) {
+    if (this.dataset.state === "closing" && event.propertyName === "opacity") {
+      this.beginCollapse();
       return;
     }
 
-    if (event.propertyName !== "opacity") {
-      return;
+    if (
+      this.dataset.state === "collapsing" &&
+      event.propertyName === "max-height"
+    ) {
+      this.finalizeClose(this._closeReason);
     }
-
-    this.finalizeClose(this._closeReason);
   };
 
   private handleCloseClick() {
@@ -369,6 +411,20 @@ export class LedgerToast extends LitElement {
     );
   }
 
+  private scheduleFadeFallback(): void {
+    this.clearPhaseTimer();
+    this._phaseTimer = setTimeout(() => {
+      this.beginCollapse();
+    }, TOAST_FADE_DURATION_MS + PHASE_FALLBACK_BUFFER_MS);
+  }
+
+  private scheduleCollapseFallback(): void {
+    this.clearPhaseTimer();
+    this._phaseTimer = setTimeout(() => {
+      this.finalizeClose(this._closeReason);
+    }, TOAST_COLLAPSE_DURATION_MS + PHASE_FALLBACK_BUFFER_MS);
+  }
+
   private clearDismissTimer() {
     if (this._dismissTimer !== null) {
       clearTimeout(this._dismissTimer);
@@ -376,13 +432,22 @@ export class LedgerToast extends LitElement {
     }
   }
 
+  private clearPhaseTimer() {
+    if (this._phaseTimer !== null) {
+      clearTimeout(this._phaseTimer);
+      this._phaseTimer = null;
+    }
+  }
+
   private clearTimers() {
     this.clearDismissTimer();
+    this.clearPhaseTimer();
+  }
 
-    if (this._fadeTimer !== null) {
-      clearTimeout(this._fadeTimer);
-      this._fadeTimer = null;
-    }
+  private clearInlineCollapseStyles(): void {
+    this.style.maxHeight = "";
+    this.style.marginBottom = "";
+    this.style.overflow = "";
   }
 }
 
