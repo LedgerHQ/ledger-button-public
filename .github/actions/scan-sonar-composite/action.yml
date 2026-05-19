@@ -1,11 +1,7 @@
 name: "SonarCloud Analysis"
-description: "Checkout, optionally download coverage artifact, and run SonarCloud scan"
+description: "Download coverage artifact (optional) and run SonarCloud scan. Requires actions/checkout first."
 
 inputs:
-  ref:
-    description: "Git ref to checkout (defaults to the current commit)"
-    required: false
-    default: ""
   should_download_coverage:
     description: "Download coverage artifact from a prior unit-testing job"
     required: false
@@ -14,11 +10,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v6
-      with:
-        ref: ${{ inputs.ref != '' && inputs.ref || github.sha }}
-        fetch-depth: 0
-
     - name: Download unit test coverage
       if: ${{ inputs.should_download_coverage == 'true' }}
       uses: actions/download-artifact@v7

@@ -50,6 +50,10 @@ jobs:
       id-token: write
       contents: read
     steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - uses: ./.github/actions/scan-sonar-composite
         with:
           should_download_coverage: "true"
