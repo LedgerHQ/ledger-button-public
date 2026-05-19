@@ -130,7 +130,9 @@ export class SignPersonalMessageUseCase {
   private createContextModule() {
     return new ContextModuleBuilder({
       originToken: this.config.originToken,
-    }).build();
+    })
+      .setAppSource(this.config.dAppIdentifier)
+      .build();
   }
 
   async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {
