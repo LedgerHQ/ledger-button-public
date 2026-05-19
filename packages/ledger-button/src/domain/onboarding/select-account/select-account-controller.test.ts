@@ -85,6 +85,92 @@ describe("SelectAccountController.filteredAccounts", () => {
   });
 });
 
+describe("SelectAccountController.groupedAccounts", () => {
+  let controller: SelectAccountController;
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      {} as Navigation,
+    );
+  });
+
+  it("groups accounts sharing the same freshAddress", () => {
+    const ethMainnet = createAccount({
+      id: "eth-1",
+      currencyId: "ethereum",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "1000.00", currency: "USD" },
+    });
+    const polygon = createAccount({
+      id: "polygon-1",
+      currencyId: "polygon",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "500.00", currency: "USD" },
+    });
+    const ethSecondWallet = createAccount({
+      id: "eth-2",
+      currencyId: "ethereum",
+      freshAddress: "0xdef456",
+      fiatBalance: { value: "200.00", currency: "USD" },
+    });
+    const baseSecondWallet = createAccount({
+      id: "base-2",
+      currencyId: "base",
+      freshAddress: "0xdef456",
+      fiatBalance: { value: "50.00", currency: "USD" },
+    });
+
+    controller.accounts = [ethMainnet, polygon, ethSecondWallet, baseSecondWallet];
+
+    expect(controller.groupedAccounts).toEqual([
+      {
+        freshAddress: "0xabc123",
+        accounts: [ethMainnet, polygon],
+      },
+      {
+        freshAddress: "0xdef456",
+        accounts: [ethSecondWallet, baseSecondWallet],
+      },
+    ]);
+  });
+
+  it("applies search filter before grouping", () => {
+    const ethMainnet = createAccount({
+      id: "eth-1",
+      currencyId: "ethereum",
+      ticker: "ETH",
+      freshAddress: "0xabc123",
+    });
+    const polygon = createAccount({
+      id: "polygon-1",
+      currencyId: "polygon",
+      ticker: "POL",
+      freshAddress: "0xabc123",
+    });
+
+    controller.accounts = [ethMainnet, polygon];
+    controller.searchQuery = "ETH";
+    const result = controller.groupedAccounts;
+
+    expect(result).toHaveLength(1);
+    expect(result[0].freshAddress).toBe("0xabc123");
+    expect(result[0].accounts.map((a) => a.id)).toEqual(["eth-1"]);
+  });
+
+  it("returns empty array when accounts list is empty", () => {
+    controller.accounts = [];
+    expect(controller.groupedAccounts).toEqual([]);
+  });
+});
+
 describe("SelectAccountController.filteredAccounts sorting", () => {
   let controller: SelectAccountController;
 
