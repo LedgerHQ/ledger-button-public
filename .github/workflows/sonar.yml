@@ -5,11 +5,8 @@ on:
   push:
     branches:
       - develop
-      - main
   pull_request:
     types: [opened, synchronize, reopened]
-    branches-ignore:
-      - main
 
 env:
   FORCE_COLOR: "1"
