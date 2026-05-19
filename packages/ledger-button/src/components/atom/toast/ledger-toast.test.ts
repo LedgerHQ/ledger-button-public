@@ -51,7 +51,10 @@ function getStatusIcon(toast: LedgerToast): LedgerIcon {
   const icons = [
     ...(toast.shadowRoot?.querySelectorAll("ledger-icon") ?? []),
   ] as LedgerIcon[];
-  const statusIcon = icons.find((icon) => icon.size === "medium");
+  const statusIcon = icons.find(
+    (icon) =>
+      icon.type === "checkMarkCircleFill" || icon.type === "deleteCircleFill",
+  );
 
   if (!statusIcon) {
     throw new Error("Status icon not found");
