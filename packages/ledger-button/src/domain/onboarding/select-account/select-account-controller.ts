@@ -6,17 +6,48 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
+export type AccountGroup = {
+  freshAddress: string;
+  accounts: AccountWithFiat[];
+};
+
 export class SelectAccountController implements ReactiveController {
   accounts: AccountWithFiat[] = [];
   isAccountsLoading = false;
   searchQuery = "";
   private accountsSubscription?: Subscription;
+
+  truncateAddress(address: string): string {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  }
+
+  formatGroupCount(count: number): string {
+    return count === 1 ? "1 account" : `${count} accounts`;
+  }
+
+  formatTokenCount(count: number): string {
+    return count === 1 ? "1 token" : `${count} tokens`;
+  }
+
+  get groupedAccounts(): AccountGroup[] {
+    const map = new Map<string, AccountWithFiat[]>();
+    for (const account of this.filteredAccounts) {
+      const group = map.get(account.freshAddress) ?? [];
+      group.push(account);
+      map.set(account.freshAddress, group);
+    }
+    return Array.from(map.entries()).map(([freshAddress, accounts]) => ({
+      freshAddress,
+      accounts,
+    }));
+  }
 
   get filteredAccounts(): AccountWithFiat[] {
     const query = this.searchQuery.toLowerCase().trim();
@@ -72,7 +103,7 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts(options).subscribe({
+    this.accountsSubscription = this.core.getAccounts(options).pipe(debounceTime(200)).subscribe({
       next: (accounts) => {
         this.accounts = accounts;
         this.isAccountsLoading = false;
@@ -128,6 +159,23 @@ export class SelectAccountController implements ReactiveController {
     if (account) {
       this.selectAccount(account);
     }
+
+    const selectedAccount = this.core.getSelectedAccount();
+    window.dispatchEvent(
+      new CustomEvent<{ account: Account; status: "success" }>(
+        "ledger-internal-account-selected",
+        {
+          bubbles: true,
+          composed: true,
+          detail: { account: selectedAccount as Account, status: "success" },
+        },
+      ),
+    );
+    this.close();
+  }
+
+  handleAccountCardClick(account: AccountWithFiat) {
+    this.selectAccount(account);
 
     const selectedAccount = this.core.getSelectedAccount();
     window.dispatchEvent(

@@ -1,6 +1,9 @@
 import "../../../components/index.js";
 
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  AccountWithFiat,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -12,7 +15,11 @@ import {
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import { SelectAccountController } from "./select-account-controller.js";
+import { formatFiatBalance } from "../../../utils/format-fiat.js";
+import {
+  type AccountGroup,
+  SelectAccountController,
+} from "./select-account-controller.js";
 
 @customElement("select-account-screen")
 @tailwindElement()
@@ -39,8 +46,7 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  renderAccountItem = (account: Account) => {
-    const translations = this.languages.currentTranslation;
+  private renderAccountCard(account: AccountWithFiat) {
     const isBalanceLoading = this.controller.isAccountBalanceLoading(
       account.id,
     );
@@ -48,31 +54,71 @@ export class SelectAccountScreen extends LitElement {
     const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
     const isFiatError = this.controller.hasAccountFiatError(account.id);
     const fiatBalance = this.controller.getAccountFiatValue(account.id);
+    const description =
+      account.tokens.length > 0
+        ? this.controller.formatTokenCount(account.tokens.length)
+        : this.controller.truncateAddress(account.freshAddress);
 
-    // NOTE: The label should be displayed only if the account has tokens
     return html`
-      <ledger-account-item
-        .title=${account.name}
-        .address=${account.freshAddress}
-        .linkLabel=${translations.onboarding.selectAccount.showTokens}
-        .ledgerId=${account.id}
-        .ticker=${account.ticker}
-        .balance=${account.balance ?? "0"}
-        .tokens=${account.tokens.length}
-        .currencyId=${account.currencyId}
-        .isBalanceLoading=${isBalanceLoading}
-        .isBalanceError=${isBalanceError}
-        .fiatBalance=${fiatBalance}
-        .isFiatLoading=${isFiatLoading}
-        .isFiatError=${isFiatError}
-        .locale=${this.languages.locale}
-        @account-item-click=${(e: CustomEvent) =>
-          this.controller.handleAccountItemClick(e)}
-        @account-item-show-tokens-click=${(e: CustomEvent) =>
-          this.controller.handleAccountItemShowTokensClick(e)}
-      ></ledger-account-item>
+      <div class="overflow-hidden rounded-md">
+        <button
+          class="flex w-full cursor-pointer items-center gap-12 border-none p-12 text-left transition duration-150 ease-in-out [background-color:var(--color-background-surface-transparent)] hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
+          @click=${() => this.controller.handleAccountCardClick(account)}
+          aria-label=${account.name}
+        >
+          <ledger-crypto-icon
+            ledger-id=${account.currencyId}
+            variant="square"
+            size="large"
+          ></ledger-crypto-icon>
+          <div class="flex min-w-0 flex-1 flex-col gap-4 text-left">
+            <span class="body-2-semi-bold truncate text-base"
+              >${account.name}</span
+            >
+            <span class="text-muted body-3">${description}</span>
+          </div>
+          <div class="flex shrink-0 flex-col items-end gap-4">
+            ${this.renderAccountCardBalance({
+              isBalanceLoading,
+              isBalanceError,
+              isFiatLoading,
+              isFiatError,
+              fiatBalance,
+            })}
+          </div>
+        </button>
+      </div>
     `;
-  };
+  }
+
+  private renderAccountCardBalance(params: {
+    isBalanceLoading: boolean;
+    isBalanceError: boolean;
+    isFiatLoading: boolean;
+    isFiatError: boolean;
+    fiatBalance: ReturnType<SelectAccountController["getAccountFiatValue"]>;
+  }) {
+    if (params.isBalanceLoading || params.isFiatLoading) {
+      return html`<ledger-skeleton
+        class="h-16 w-80 rounded-full"
+      ></ledger-skeleton>`;
+    }
+
+    if (params.isBalanceError) {
+      return html`<span class="body-2-semi-bold text-base">--</span>`;
+    }
+
+    const fiatValue = formatFiatBalance(
+      params.fiatBalance,
+      this.languages.locale,
+    );
+
+    if (params.isFiatError || !fiatValue) {
+      return nothing;
+    }
+
+    return html`<span class="body-2-semi-bold text-base">${fiatValue}</span>`;
+  }
 
   private renderBalanceLoadingFooter() {
     const translations = this.languages.currentTranslation;
@@ -92,11 +138,29 @@ export class SelectAccountScreen extends LitElement {
     `;
   }
 
+  private renderGroup(group: AccountGroup) {
+    return html`
+      <div class="bg-muted-transparent flex flex-col gap-12 rounded-md p-12">
+        <div class="flex flex-col py-4">
+          <p class="body-1-semi-bold text-base">
+            ${this.controller.truncateAddress(group.freshAddress)}
+          </p>
+          <p class="text-muted body-3">
+            ${this.controller.formatGroupCount(group.accounts.length)}
+          </p>
+        </div>
+        <div class="flex flex-col gap-12">
+          ${group.accounts.map((account) => this.renderAccountCard(account))}
+        </div>
+      </div>
+    `;
+  }
+
   private renderNoResults() {
     const translations = this.languages.currentTranslation;
 
     if (
-      this.controller.filteredAccounts.length > 0 ||
+      this.controller.groupedAccounts.length > 0 ||
       !this.controller.searchQuery
     ) {
       return nothing;
@@ -168,7 +232,9 @@ export class SelectAccountScreen extends LitElement {
     return html`
       <div class="flex flex-col gap-12 p-24 pt-0">
         ${this.renderSearchHeader()}
-        ${this.controller.filteredAccounts.map(this.renderAccountItem)}
+        ${this.controller.groupedAccounts.map((group) =>
+          this.renderGroup(group),
+        )}
         ${this.renderNoResults()}
       </div>
       ${this.renderBalanceLoadingFooter()}
