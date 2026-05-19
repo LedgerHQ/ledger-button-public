@@ -344,6 +344,29 @@ export class LedgerButtonCore {
       );
   }
 
+  observeAccounts(options?: {
+    forceRefresh?: boolean;
+  }): Observable<AccountWithFiat[]> {
+    this._logger.debug("Observe accounts with fiat", {
+      forceRefresh: options?.forceRefresh ?? false,
+    });
+
+    return this.container
+      .get<FetchAccountsWithBalanceUseCase>(
+        accountModuleTypes.FetchAccountsWithBalanceUseCase,
+      )
+      .execute(options)
+      .pipe(
+        switchMap((accounts) =>
+          this.container
+            .get<FetchAccountsWithFiatUseCase>(
+              accountModuleTypes.FetchAccountsWithFiatUseCase,
+            )
+            .execute(accounts),
+        ),
+      );
+  }
+
   selectAccount(account: Account) {
     this._logger.debug("Selecting account", { account });
     this.container
@@ -698,9 +721,7 @@ export class LedgerButtonCore {
 
   async trackCurrencyChanged(currencyCode: string): Promise<void> {
     await this.container
-      .get<TrackCurrencyChanged>(
-        eventTrackingModuleTypes.TrackCurrencyChanged,
-      )
+      .get<TrackCurrencyChanged>(eventTrackingModuleTypes.TrackCurrencyChanged)
       .execute(currencyCode);
   }
 
