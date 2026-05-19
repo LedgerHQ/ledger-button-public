@@ -45,7 +45,14 @@ jobs:
     name: "Sonar scan"
     needs: unit-testing
     if: ${{ !cancelled() && needs.unit-testing.result == 'success' }}
-    uses: ./.github/workflows/scan-sonar-called.yml
-    with:
-      should_download_coverage: true
-    secrets: inherit
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: ./.github/actions/scan-sonar-composite
+        with:
+          should_download_coverage: "true"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
