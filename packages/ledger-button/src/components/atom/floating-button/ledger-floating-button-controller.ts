@@ -2,6 +2,7 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
 import { CoreContext } from "../../../context/core-context.js";
+import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
 
 const MODAL_OPEN_EVENT = "ledger-core-modal-open";
 const MODAL_CLOSE_EVENT = "ledger-core-modal-close";
@@ -37,6 +38,7 @@ export class FloatingButtonController implements ReactiveController {
   constructor(
     host: ReactiveControllerHost,
     private readonly core: CoreContext,
+    private readonly transactionConfirmationNotification: TransactionConfirmationNotification = "tooltip",
   ) {
     this.host = host;
     this.host.addController(this);
@@ -132,8 +134,7 @@ export class FloatingButtonController implements ReactiveController {
     this._modalIsOpen = false;
     this._modalCloseAnimationInProgress = true;
     const shouldShowPostClose =
-      this._pendingIncreasedWhileModalOpen &&
-      this.pendingTransactionCount > 0;
+      this._pendingIncreasedWhileModalOpen && this.pendingTransactionCount > 0;
     this._pendingIncreasedWhileModalOpen = false;
 
     if (shouldShowPostClose) {
@@ -177,11 +178,7 @@ export class FloatingButtonController implements ReactiveController {
 
         this.pendingTransactionCount = nextCount;
 
-        if (
-          previousCount !== undefined &&
-          previousCount > 0 &&
-          nextCount < previousCount
-        ) {
+        if (this.shouldShowValidatedCelebration(previousCount, nextCount)) {
           this.frozenBadgeCount = previousCount;
           this.validatedCelebrationOpen = true;
           this.validatedCount = previousCount - nextCount;
@@ -199,6 +196,21 @@ export class FloatingButtonController implements ReactiveController {
         this._previousPendingCount = nextCount;
         this.host.requestUpdate();
       });
+  }
+
+  private shouldShowValidatedCelebration(
+    previousCount: number | undefined,
+    nextCount: number,
+  ): previousCount is number {
+    if (this.transactionConfirmationNotification !== "tooltip") {
+      return false;
+    }
+
+    return (
+      previousCount !== undefined &&
+      previousCount > 0 &&
+      nextCount < previousCount
+    );
   }
 
   private updateConnectionState() {
