@@ -125,7 +125,8 @@
       "addAccountAriaLabel": "添加账户",
       "refreshAccountsAriaLabel": "刷新账户",
       "addAccountTooltip": "创建新账户",
-      "refreshAccountsTooltip": "刷新"
+      "refreshAccountsTooltip": "刷新",
+      "noToken": "No token"
     },
     "connectionSuccess": {
       "title": "您已成功连接",

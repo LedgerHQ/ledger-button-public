@@ -59,10 +59,12 @@ export class SelectAccountScreen extends LitElement {
         ? this.controller.formatTokenCount(account.tokens.length)
         : this.controller.truncateAddress(account.freshAddress);
 
+    const translations = this.languages.currentTranslation;
+
     return html`
       <div class="overflow-hidden rounded-md">
         <div
-          class="flex w-full cursor-pointer items-center gap-12 p-12 text-left transition duration-150 ease-in-out [background-color:var(--color-background-surface-transparent)] hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
+          class="flex w-full cursor-pointer items-center gap-12 [background-color:var(--color-background-surface-transparent)] p-12 text-left transition duration-150 ease-in-out hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
           role="button"
           tabindex="0"
           aria-label=${account.name}
@@ -93,7 +95,9 @@ export class SelectAccountScreen extends LitElement {
                 >
                   ${description}
                 </button>`
-              : html`<span class="text-muted body-3">${description}</span>`}
+              : html`<span class="text-muted body-3"
+                  >${translations.onboarding.selectAccount.noToken}</span
+                >`}
           </div>
           <div class="flex shrink-0 flex-col items-end gap-4">
             ${this.renderAccountCardBalance({

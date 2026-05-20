@@ -125,7 +125,8 @@
       "addAccountAriaLabel": "Добавить счёт",
       "refreshAccountsAriaLabel": "Обновить счета",
       "addAccountTooltip": "Создание нового счёта",
-      "refreshAccountsTooltip": "Обновить"
+      "refreshAccountsTooltip": "Обновить",
+      "noToken": "No token"
     },
     "connectionSuccess": {
       "title": "Вы подключены",

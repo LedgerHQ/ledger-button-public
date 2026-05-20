@@ -125,7 +125,8 @@
       "addAccountAriaLabel": "เพิ่มบัญชี",
       "refreshAccountsAriaLabel": "รีเฟรชข้อมูลบัญชี",
       "addAccountTooltip": "สร้างบัญชีใหม่",
-      "refreshAccountsTooltip": "รีเฟรช"
+      "refreshAccountsTooltip": "รีเฟรช",
+      "noToken": "No token"
     },
     "connectionSuccess": {
       "title": "คุณได้เชื่อมต่อแล้ว",
