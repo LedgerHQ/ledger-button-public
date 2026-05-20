@@ -151,6 +151,7 @@ describe("SelectAccountController.groupedAccounts", () => {
     });
     const polygon = createAccount({
       id: "polygon-1",
+      name: "My Polygon",
       currencyId: "polygon",
       ticker: "POL",
       freshAddress: "0xabc123",
