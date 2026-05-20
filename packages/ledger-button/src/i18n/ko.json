@@ -126,7 +126,11 @@
       "refreshAccountsAriaLabel": "계정 새로고침",
       "addAccountTooltip": "새로운 계정 생성",
       "refreshAccountsTooltip": "새로고침",
-      "noToken": "No token"
+      "noToken": "토큰 없음",
+      "accountCountOne": "계정 1개",
+      "accountCountOther": "계정 {count}개",
+      "tokenCountOne": "토큰 1개",
+      "tokenCountOther": "토큰 {count}개"
     },
     "connectionSuccess": {
       "title": "연결되었습니다",

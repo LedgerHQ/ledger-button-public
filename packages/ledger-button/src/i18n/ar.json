@@ -126,7 +126,11 @@
       "refreshAccountsAriaLabel": "تحديث الحسابات",
       "addAccountTooltip": "إنشاء حساب جديد",
       "refreshAccountsTooltip": "تحديث",
-      "noToken": "No token"
+      "noToken": "لا يوجد رمز مميز",
+      "accountCountOne": "1 حساب",
+      "accountCountOther": "{count} حسابات",
+      "tokenCountOne": "1 رمز مميز",
+      "tokenCountOther": "{count} رموز مميزة"
     },
     "connectionSuccess": {
       "title": "You are now connected",

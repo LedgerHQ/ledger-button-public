@@ -126,7 +126,11 @@
       "refreshAccountsAriaLabel": "รีเฟรชข้อมูลบัญชี",
       "addAccountTooltip": "สร้างบัญชีใหม่",
       "refreshAccountsTooltip": "รีเฟรช",
-      "noToken": "No token"
+      "noToken": "ไม่มีโทเค็น",
+      "accountCountOne": "1 บัญชี",
+      "accountCountOther": "{count} บัญชี",
+      "tokenCountOne": "1 โทเค็น",
+      "tokenCountOther": "{count} โทเค็น"
     },
     "connectionSuccess": {
       "title": "คุณได้เชื่อมต่อแล้ว",

@@ -126,7 +126,11 @@
       "refreshAccountsAriaLabel": "Hesapları yenile",
       "addAccountTooltip": "Yeni bir hesap oluşturun",
       "refreshAccountsTooltip": "Yenile",
-      "noToken": "No token"
+      "noToken": "Token yok",
+      "accountCountOne": "1 hesap",
+      "accountCountOther": "{count} hesap",
+      "tokenCountOne": "1 token",
+      "tokenCountOther": "{count} token"
     },
     "connectionSuccess": {
       "title": "Şimdi bağlandınız",

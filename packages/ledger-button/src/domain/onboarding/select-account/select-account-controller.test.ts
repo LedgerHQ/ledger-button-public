@@ -2,8 +2,22 @@ import type { AccountWithFiat } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 
 import type { CoreContext } from "../../../context/core-context.js";
+import type { LanguageContext } from "../../../context/language-context.js";
 import type { Navigation } from "../../../shared/navigation.js";
 import { SelectAccountController } from "./select-account-controller.js";
+
+const mockLang = {
+  currentTranslation: {
+    onboarding: {
+      selectAccount: {
+        accountCountOne: "1 account",
+        accountCountOther: "{count} accounts",
+        tokenCountOne: "1 token",
+        tokenCountOther: "{count} tokens",
+      },
+    },
+  },
+} as unknown as LanguageContext;
 
 function createAccount(
   overrides: Partial<AccountWithFiat> = {},
@@ -67,6 +81,7 @@ describe("SelectAccountController.filteredAccounts", () => {
       host,
       {} as CoreContext,
       {} as Navigation,
+      mockLang,
     );
     controller.accounts = [ethAccount, btcAccount];
   });
@@ -82,6 +97,60 @@ describe("SelectAccountController.filteredAccounts", () => {
   ])("$description", ({ query, expected }) => {
     controller.searchQuery = query;
     expect(controller.filteredAccounts).toEqual(expected());
+  });
+});
+
+describe("SelectAccountController.formatGroupCount", () => {
+  let controller: SelectAccountController;
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      {} as Navigation,
+      mockLang,
+    );
+  });
+
+  it("returns the singular form for 1 account", () => {
+    expect(controller.formatGroupCount(1)).toBe("1 account");
+  });
+
+  it("returns the plural form with the count interpolated", () => {
+    expect(controller.formatGroupCount(3)).toBe("3 accounts");
+  });
+});
+
+describe("SelectAccountController.formatTokenCount", () => {
+  let controller: SelectAccountController;
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      {} as Navigation,
+      mockLang,
+    );
+  });
+
+  it("returns the singular form for 1 token", () => {
+    expect(controller.formatTokenCount(1)).toBe("1 token");
+  });
+
+  it("returns the plural form with the count interpolated", () => {
+    expect(controller.formatTokenCount(5)).toBe("5 tokens");
   });
 });
 
@@ -105,7 +174,7 @@ describe("SelectAccountController.handleShowTokensClick", () => {
     };
     core = { setPendingAccountId: vi.fn() } as unknown as CoreContext;
     navigation = { navigateTo: vi.fn() } as unknown as Navigation;
-    controller = new SelectAccountController(host, core, navigation);
+    controller = new SelectAccountController(host, core, navigation, mockLang);
   });
 
   it("sets the pending account id before navigating", () => {
@@ -173,6 +242,7 @@ describe("SelectAccountController.groupedAccounts", () => {
       host,
       {} as CoreContext,
       {} as Navigation,
+      mockLang,
     );
   });
 

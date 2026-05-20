@@ -126,7 +126,11 @@
       "refreshAccountsAriaLabel": "刷新账户",
       "addAccountTooltip": "创建新账户",
       "refreshAccountsTooltip": "刷新",
-      "noToken": "No token"
+      "noToken": "无代币",
+      "accountCountOne": "1个账户",
+      "accountCountOther": "{count}个账户",
+      "tokenCountOne": "1个代币",
+      "tokenCountOther": "{count}个代币"
     },
     "connectionSuccess": {
       "title": "您已成功连接",

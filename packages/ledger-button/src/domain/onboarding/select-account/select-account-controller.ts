@@ -10,6 +10,7 @@ import { of, timer } from "rxjs";
 import { debounce } from "rxjs/operators";
 
 import { CoreContext } from "../../../context/core-context.js";
+import { LanguageContext } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 
@@ -28,11 +29,17 @@ export class SelectAccountController implements ReactiveController {
   }
 
   formatGroupCount(count: number): string {
-    return count === 1 ? "1 account" : `${count} accounts`;
+    const t = this.lang.currentTranslation.onboarding.selectAccount;
+    return count === 1
+      ? t.accountCountOne
+      : t.accountCountOther.replace("{count}", String(count));
   }
 
   formatTokenCount(count: number): string {
-    return count === 1 ? "1 token" : `${count} tokens`;
+    const t = this.lang.currentTranslation.onboarding.selectAccount;
+    return count === 1
+      ? t.tokenCountOne
+      : t.tokenCountOther.replace("{count}", String(count));
   }
 
   get groupedAccounts(): AccountGroup[] {
@@ -75,6 +82,7 @@ export class SelectAccountController implements ReactiveController {
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
+    private readonly lang: LanguageContext,
   ) {
     this.host.addController(this);
   }
