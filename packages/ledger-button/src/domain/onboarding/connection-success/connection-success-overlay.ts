@@ -58,6 +58,9 @@ export class ConnectionSuccessOverlay extends LitElement {
   @property({ type: String })
   public position: FloatingButtonPosition = "bottom-right";
 
+  @property({ type: Boolean })
+  public morph = true;
+
   @property({ type: Number, attribute: false })
   public runId = 0;
 
@@ -158,7 +161,7 @@ export class ConnectionSuccessOverlay extends LitElement {
     this.cancelAutoClose();
     this.autoCloseTimer = setTimeout(() => {
       this.autoCloseTimer = null;
-      void this.closeWithMorph();
+      void this.closeOverlay();
     }, AUTO_CLOSE_DELAY_MS);
   }
 
@@ -169,7 +172,7 @@ export class ConnectionSuccessOverlay extends LitElement {
     }
   }
 
-  private async closeWithMorph(): Promise<void> {
+  private async closeOverlay(): Promise<void> {
     if (this.isClosing) {
       return;
     }
@@ -190,14 +193,29 @@ export class ConnectionSuccessOverlay extends LitElement {
       );
     });
 
-    await Promise.all([
-      backdropFade,
-      this.morphAnimation.morphClose(
-        this.containerElement,
-        this.targetRect,
-        this.position,
-      ),
-    ]);
+    if (this.morph) {
+      await Promise.all([
+        backdropFade,
+        this.morphAnimation.morphClose(
+          this.containerElement,
+          this.targetRect,
+          this.position,
+        ),
+      ]);
+    } else {
+      const containerFade = new Promise<void>((resolve) => {
+        this.containerAnimation = animate(
+          this.containerElement,
+          { opacity: [1, 0] },
+          {
+            duration: ANIMATION_DELAY / 1000,
+            ease: "easeOut",
+            onComplete: () => resolve(),
+          },
+        );
+      });
+      await Promise.all([backdropFade, containerFade]);
+    }
 
     if (runToken !== this.activeRunToken || !this.isConnected) {
       return;

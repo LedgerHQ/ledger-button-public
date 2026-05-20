@@ -23,6 +23,7 @@ import { Destination } from "./routes.js";
 type SuccessOverlayState = {
   targetRect: DOMRect;
   position: FloatingButtonPosition;
+  morph: boolean;
 };
 
 @customElement("root-navigation-component")
@@ -116,7 +117,7 @@ export class RootNavigationComponent
     }
 
     this.handleModalClose();
-    if (options?.morph) {
+    if (options?.morph && !this.isFloatingButtonHidden()) {
       this.ledgerModal.closeModal({
         morph: {
           targetRect: this.findFloatingButtonRect(),
@@ -138,6 +139,7 @@ export class RootNavigationComponent
     this.successOverlayState = {
       targetRect: this.findFloatingButtonRect(),
       position: this.resolveFloatingButtonPosition(),
+      morph: !this.isFloatingButtonHidden(),
     };
   }
 
@@ -231,6 +233,14 @@ export class RootNavigationComponent
     return position ? position : "bottom-right";
   }
 
+  private isFloatingButtonHidden(): boolean {
+    const root = this.getRootNode() as ShadowRoot;
+    const appHost = root?.host as
+      | { floatingButtonPosition?: FloatingButtonPosition | false }
+      | undefined;
+    return appHost?.floatingButtonPosition === false;
+  }
+
   private goBack() {
     this.rootNavigationController.navigateBack();
   }
@@ -297,6 +307,7 @@ export class RootNavigationComponent
       <connection-success-overlay
         .targetRect=${this.successOverlayState.targetRect}
         .position=${this.successOverlayState.position}
+        .morph=${this.successOverlayState.morph}
         @connection-success-overlay-finished=${this
           .handleConnectionSuccessOverlayFinished}
       ></connection-success-overlay>
