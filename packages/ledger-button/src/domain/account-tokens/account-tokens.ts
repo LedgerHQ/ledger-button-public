@@ -12,7 +12,6 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
-import { formatAddress } from "../../utils/format-address.js";
 import { formatFiatBalance } from "../../utils/format-fiat.js";
 import { AccountTokenController } from "./account-token-controller.js";
 
@@ -97,13 +96,19 @@ export class AccountTokensScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div class="bg-canvas-sheet sticky bottom-0 rounded-2xl p-24 pt-0">
-        <ledger-button
-          variant="primary"
-          size="full"
-          .label=${translations.common.connect}
-          @ledger-button-click=${this.controller.handleConnect}
-        ></ledger-button>
+      <div class="sticky bottom-0">
+        <div
+          class="pointer-events-none h-24"
+          style="background: linear-gradient(to bottom, transparent, var(--background-canvas-sheet))"
+        ></div>
+        <div class="bg-canvas-sheet p-24 pt-0">
+          <ledger-button
+            variant="primary"
+            size="full"
+            .label=${translations.common.connect}
+            @ledger-button-click=${this.controller.handleConnect}
+          ></ledger-button>
+        </div>
       </div>
     `;
   }
@@ -123,27 +128,6 @@ export class AccountTokensScreen extends LitElement {
 
     return html`
       <div class="relative flex h-full flex-col">
-        <div
-          class="border-muted-subtle bg-canvas-sheet sticky top-0 flex flex-col gap-4 border-b p-12"
-          style="z-index: 100;"
-        >
-          <div class="flex items-center gap-12">
-            <ledger-crypto-icon
-              ledger-id=${this.controller.account.currencyId}
-              variant="square"
-              size="large"
-            ></ledger-crypto-icon>
-            <div class="flex flex-col gap-4">
-              <span class="body-1-semi-bold text-lg"
-                >${this.controller.account.name}</span
-              >
-              <span class="text-muted body-3"
-                >${formatAddress(this.controller.account.freshAddress)}</span
-              >
-            </div>
-          </div>
-        </div>
-
         <div class="h-full overflow-y-auto p-24">
           <div class="flex flex-col gap-12">
             ${this.renderTokenList(this.controller.account)}

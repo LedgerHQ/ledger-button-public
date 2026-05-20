@@ -8,7 +8,6 @@ import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
-import type { AccountItemClickEventDetail } from "../../../components/molecule/account-item/ledger-account-item.js";
 import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
@@ -103,21 +102,24 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
-    this.accountsSubscription = this.core.getAccounts(options).pipe(debounceTime(200)).subscribe({
-      next: (accounts) => {
-        this.accounts = accounts;
-        this.isAccountsLoading = false;
-        this.host.requestUpdate();
-      },
-      error: (error) => {
-        this.isAccountsLoading = false;
-        console.error("Failed to fetch accounts", error);
-        this.host.requestUpdate();
-      },
-      complete: () => {
-        this.host.requestUpdate();
-      },
-    });
+    this.accountsSubscription = this.core
+      .getAccounts(options)
+      .pipe(debounceTime(200))
+      .subscribe({
+        next: (accounts) => {
+          this.accounts = accounts;
+          this.isAccountsLoading = false;
+          this.host.requestUpdate();
+        },
+        error: (error) => {
+          this.isAccountsLoading = false;
+          console.error("Failed to fetch accounts", error);
+          this.host.requestUpdate();
+        },
+        complete: () => {
+          this.host.requestUpdate();
+        },
+      });
   }
 
   isAccountBalanceLoading(accountId: string): boolean {
@@ -151,29 +153,6 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  handleAccountItemClick(event: CustomEvent<AccountItemClickEventDetail>) {
-    const account = this.accounts.find(
-      (acc: Account) => acc.id === event.detail.ledgerId,
-    );
-
-    if (account) {
-      this.selectAccount(account);
-    }
-
-    const selectedAccount = this.core.getSelectedAccount();
-    window.dispatchEvent(
-      new CustomEvent<{ account: Account; status: "success" }>(
-        "ledger-internal-account-selected",
-        {
-          bubbles: true,
-          composed: true,
-          detail: { account: selectedAccount as Account, status: "success" },
-        },
-      ),
-    );
-    this.close();
-  }
-
   handleAccountCardClick(account: AccountWithFiat) {
     this.selectAccount(account);
 
@@ -191,26 +170,18 @@ export class SelectAccountController implements ReactiveController {
     this.close();
   }
 
-  handleAccountItemShowTokensClick(
-    event: CustomEvent<AccountItemClickEventDetail>,
-  ) {
-    const account = this.accounts.find(
-      (acc: Account) => acc.id === event.detail.ledgerId,
-    );
+  handleShowTokensClick(account: AccountWithFiat) {
+    this.core.setPendingAccountId(account.id);
 
-    if (account) {
-      this.core.setPendingAccountId(account.id);
-
-      this.navigation.navigateTo({
-        name: "accountTokens",
-        component: "account-tokens-screen",
-        canGoBack: true,
-        toolbar: {
-          title: `${account.name}`,
-          canClose: true,
-        },
-      });
-    }
+    this.navigation.navigateTo({
+      name: "accountTokens",
+      component: "account-tokens-screen",
+      canGoBack: true,
+      toolbar: {
+        title: account.name,
+        canClose: true,
+      },
+    });
   }
 
   handleSearchInput(event: CustomEvent<{ value: string }>) {
