@@ -7,7 +7,7 @@ import type {
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
 import { of, timer } from "rxjs";
-import { debounce, map } from "rxjs/operators";
+import { debounce } from "rxjs/operators";
 
 import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
@@ -20,7 +20,6 @@ export type AccountGroup = {
 
 export class SelectAccountController implements ReactiveController {
   accounts: AccountWithFiat[] = [];
-  isAccountsLoading = false;
   searchQuery = "";
   private accountsSubscription?: Subscription;
 
@@ -51,25 +50,21 @@ export class SelectAccountController implements ReactiveController {
 
   get filteredAccounts(): AccountWithFiat[] {
     const query = this.searchQuery.toLowerCase().trim();
-    const accounts = query
-      ? this.accounts.filter(
-          (account) =>
-            account.name.toLowerCase().includes(query) ||
-            account.freshAddress.toLowerCase().includes(query) ||
-            account.ticker.toLowerCase().includes(query) ||
-            account.tokens.some(
-              (token) =>
-                token.ticker.toLowerCase().includes(query) ||
-                token.name.toLowerCase().includes(query),
-            ),
-        )
-      : [...this.accounts];
+    if (!query) {
+      return [...this.accounts];
+    }
 
-    return accounts.sort((a, b) => {
-      const aValue = a.fiatBalance ? parseFloat(a.fiatBalance.value) : 0;
-      const bValue = b.fiatBalance ? parseFloat(b.fiatBalance.value) : 0;
-      return bValue - aValue;
-    });
+    return this.accounts.filter(
+      (account) =>
+        account.name.toLowerCase().includes(query) ||
+        account.freshAddress.toLowerCase().includes(query) ||
+        account.ticker.toLowerCase().includes(query) ||
+        account.tokens.some(
+          (token) =>
+            token.ticker.toLowerCase().includes(query) ||
+            token.name.toLowerCase().includes(query),
+        ),
+    );
   }
 
   get isBalanceLoading(): boolean {
@@ -100,7 +95,6 @@ export class SelectAccountController implements ReactiveController {
       this.accountsSubscription.unsubscribe();
     }
 
-    this.isAccountsLoading = true;
     this.host.requestUpdate();
 
     // Emit the first batch immediately so accounts appear before balances load
@@ -120,11 +114,9 @@ export class SelectAccountController implements ReactiveController {
       .subscribe({
         next: (accounts) => {
           this.accounts = accounts;
-          this.isAccountsLoading = false;
           this.host.requestUpdate();
         },
         error: (error) => {
-          this.isAccountsLoading = false;
           console.error("Failed to fetch accounts", error);
           this.host.requestUpdate();
         },
