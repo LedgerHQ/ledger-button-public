@@ -2,6 +2,7 @@ import type { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 
 import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
 import type { LedgerButtonApp } from "../ledger-button-app.js";
+import type { TransactionConfirmationNotification } from "../types/transaction-confirmation-notification.js";
 
 export type FloatingButtonConfig = {
   floatingButtonContainer: HTMLElement | null;
@@ -12,6 +13,7 @@ export function setupFloatingButton(
   app: LedgerButtonApp,
   floatingButtonTarget: HTMLElement | string | undefined,
   floatingButtonPosition: FloatingButtonPosition | false,
+  transactionConfirmationNotification: TransactionConfirmationNotification = "tooltip",
 ): FloatingButtonConfig {
   if (!floatingButtonTarget) {
     setDefaultFloatingButtonPosition(app, floatingButtonPosition);
@@ -28,7 +30,10 @@ export function setupFloatingButton(
 
   disableAppFloatingButton(app);
 
-  const button = createCompactFloatingButton(app.core);
+  const button = createCompactFloatingButton(
+    app.core,
+    transactionConfirmationNotification,
+  );
   attachFloatingButtonClickHandler(button, app);
   targetElement.appendChild(button);
 
@@ -50,12 +55,18 @@ function resolveTargetElement(
   return target instanceof HTMLElement ? target : null;
 }
 
-function createCompactFloatingButton(core: LedgerButtonCore): Element {
+function createCompactFloatingButton(
+  core: LedgerButtonCore,
+  transactionConfirmationNotification: TransactionConfirmationNotification,
+): Element {
   const button = document.createElement("ledger-floating-button");
   button.setAttribute("variant", "compact");
   button.classList.add("ledger-wallet-provider");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (button as any).core = core;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (button as any).transactionConfirmationNotification =
+    transactionConfirmationNotification;
   return button;
 }
 

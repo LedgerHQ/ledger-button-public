@@ -177,7 +177,9 @@ describe("DefaultPendingTransactionController", () => {
       const tx = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx);
 
-      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0x111", failed: false }]),
+      );
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
@@ -206,7 +208,9 @@ describe("DefaultPendingTransactionController", () => {
     it("should restart polling on new track after shutdown", async () => {
       const tx1 = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx1);
-      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0x111", failed: false }]),
+      );
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
@@ -311,12 +315,38 @@ describe("DefaultPendingTransactionController", () => {
     });
   });
 
+  describe("pending removal on confirmation", () => {
+    it("should emit an empty pending list after confirmed transactions are removed from storage", async () => {
+      const tx = createPendingTx({ hash: "0x111" });
+      mockStorageService._store.push(tx);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0x111", failed: false }]),
+      );
+
+      const emissions: PendingTransaction[][] = [];
+      const subscription = controller
+        .observePendingTransactions()
+        .subscribe((value) => emissions.push(value));
+
+      controller.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(emissions.at(-1)).toEqual([]);
+      expect(mockStorageService.remove).toHaveBeenCalledWith("0x111");
+
+      subscription.unsubscribe();
+    });
+  });
+
   describe("transaction history refresh", () => {
     it("should refresh transaction history when transactions are confirmed", async () => {
       const tx = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx);
 
-      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0x111", failed: false }]),
+      );
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
@@ -341,7 +371,9 @@ describe("DefaultPendingTransactionController", () => {
       const tx2 = createPendingTx({ hash: "0x222" });
       mockStorageService._store.push(tx1, tx2);
 
-      mockCheckPendingStatus.execute.mockResolvedValue(Right(["0x111"]));
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0x111", failed: false }]),
+      );
       mockFetchSelectedAccount.execute.mockResolvedValue(
         Left(new Error("Refresh failed")),
       );

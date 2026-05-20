@@ -11,6 +11,11 @@
       "transactionsValidatedOne": "ธุรกรรม 1 รายการได้รับการตรวจสอบแล้ว",
       "transactionsValidatedOther": "{count} ธุรกรรมได้รับการตรวจสอบแล้ว"
     },
+    "transactionConfirmation": {
+      "transactionConfirmedTitle": "ยืนยันธุรกรรมแล้ว",
+      "transactionFailedTitle": "ธุรกรรมล้มเหลว",
+      "checkOnExplorer": "ตรวจสอบธุรกรรมบนตัวสำรวจ"
+    },
     "search": {
       "placeholder": "ค้นหาบัญชี",
       "clearAriaLabel": "ล้างการค้นหา"

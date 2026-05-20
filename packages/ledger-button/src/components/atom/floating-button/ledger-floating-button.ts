@@ -14,6 +14,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
 import { BadgeAnimationController } from "./floating-button-badge-animation-controller.js";
 import { resolveTooltipContent } from "./floating-button-tooltip-utils.js";
 import { FloatingButtonController } from "./ledger-floating-button-controller.js";
@@ -127,6 +128,10 @@ export class LedgerFloatingButton extends LitElement {
   @property({ type: String })
   variant: FloatingButtonVariant = "circular";
 
+  @property({ type: String, attribute: false })
+  transactionConfirmationNotification: TransactionConfirmationNotification =
+    "tooltip";
+
   /**
    * Whether to apply the logo fade-in class on the next render. We want
    * the fade to play exactly once each time the button (re)appears
@@ -187,7 +192,11 @@ export class LedgerFloatingButton extends LitElement {
   private ensureControllers(): void {
     const coreInstance = this.core || this.coreContext;
     if (!this.controller && coreInstance) {
-      this.controller = new FloatingButtonController(this, coreInstance);
+      this.controller = new FloatingButtonController(
+        this,
+        coreInstance,
+        this.transactionConfirmationNotification,
+      );
       this.badgeAnimCtrl = new BadgeAnimationController(
         this,
         () => this.badgeEl,
@@ -270,7 +279,8 @@ export class LedgerFloatingButton extends LitElement {
                 ${mainContent}
                 <ledger-floating-button-badge
                   variant=${this.badgeAnimCtrl.resolvedBadgeVariant}
-                  .count=${this.controller.frozenBadgeCount ?? this.controller.pendingTransactionCount}
+                  .count=${this.controller.frozenBadgeCount ??
+                  this.controller.pendingTransactionCount}
                 ></ledger-floating-button-badge>
               </div>
             `
