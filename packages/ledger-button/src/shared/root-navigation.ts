@@ -268,6 +268,7 @@ export class RootNavigationComponent
         <div slot="toolbar">
           <ledger-toolbar
             title=${ifDefined(uiModel.title)}
+            subtitle=${ifDefined(uiModel.subtitle)}
             aria-label=${ifDefined(uiModel.title)}
             .canGoBack=${uiModel.canGoBack}
             .canClose=${uiModel.canClose}
