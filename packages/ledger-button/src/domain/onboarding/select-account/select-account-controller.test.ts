@@ -85,6 +85,80 @@ describe("SelectAccountController.filteredAccounts", () => {
   });
 });
 
+describe("SelectAccountController.handleShowTokensClick", () => {
+  let controller: SelectAccountController;
+  let navigation: Navigation;
+  let core: CoreContext;
+
+  const account = createAccount({
+    id: "eth-1",
+    name: "john.eth",
+    freshAddress: "0xD6abcdef12348d9Z",
+  });
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    core = { setPendingAccountId: vi.fn() } as unknown as CoreContext;
+    navigation = { navigateTo: vi.fn() } as unknown as Navigation;
+    controller = new SelectAccountController(host, core, navigation);
+  });
+
+  it("sets the pending account id before navigating", () => {
+    controller.handleShowTokensClick(account);
+
+    expect(core.setPendingAccountId).toHaveBeenCalledWith("eth-1");
+  });
+
+  it("navigates to the account tokens screen", () => {
+    controller.handleShowTokensClick(account);
+
+    expect(navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "accountTokens",
+        component: "account-tokens-screen",
+        canGoBack: true,
+      }),
+    );
+  });
+
+  it("sets the toolbar title to the account name", () => {
+    controller.handleShowTokensClick(account);
+
+    expect(navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        toolbar: expect.objectContaining({ title: "john.eth" }),
+      }),
+    );
+  });
+
+  it("sets the toolbar subtitle to the truncated fresh address", () => {
+    controller.handleShowTokensClick(account);
+
+    expect(navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        toolbar: expect.objectContaining({
+          subtitle: controller.truncateAddress(account.freshAddress),
+        }),
+      }),
+    );
+  });
+
+  it("sets canClose on the toolbar", () => {
+    controller.handleShowTokensClick(account);
+
+    expect(navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        toolbar: expect.objectContaining({ canClose: true }),
+      }),
+    );
+  });
+});
+
 describe("SelectAccountController.groupedAccounts", () => {
   let controller: SelectAccountController;
 

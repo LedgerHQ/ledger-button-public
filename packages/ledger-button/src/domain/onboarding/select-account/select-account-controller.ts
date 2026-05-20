@@ -183,6 +183,7 @@ export class SelectAccountController implements ReactiveController {
       canGoBack: true,
       toolbar: {
         title: account.name,
+        subtitle: this.truncateAddress(account.freshAddress),
         canClose: true,
       },
     });

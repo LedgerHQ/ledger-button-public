@@ -77,6 +77,7 @@ export type Destination = {
   skipHistory?: boolean;
   toolbar: {
     title: string;
+    subtitle?: string;
     canClose: boolean;
     showLogo?: boolean;
   };
