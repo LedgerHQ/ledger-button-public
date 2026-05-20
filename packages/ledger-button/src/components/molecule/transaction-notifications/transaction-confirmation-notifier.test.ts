@@ -77,7 +77,9 @@ describe("TransactionConfirmationNotifier", () => {
 
   beforeEach(() => {
     pendingSubject = new BehaviorSubject<PendingTransaction[]>([]);
-    contextSubject = new BehaviorSubject({
+    contextSubject = new BehaviorSubject<{
+      selectedAccount: DetailedAccount | undefined;
+    }>({
       selectedAccount: createDetailedAccount({ transactionHistory: [] }),
     });
     notifications = {
