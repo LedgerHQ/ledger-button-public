@@ -136,10 +136,11 @@ export class RootNavigationComponent
 
     this.handleModalClose();
     this.rootNavigationController.handleModalClose();
+    const morph = !this.isFloatingButtonHidden();
     this.successOverlayState = {
-      targetRect: this.findFloatingButtonRect(),
+      targetRect: morph ? this.findFloatingButtonRect() : new DOMRect(),
       position: this.resolveFloatingButtonPosition(),
-      morph: !this.isFloatingButtonHidden(),
+      morph,
     };
   }
 
@@ -212,7 +213,7 @@ export class RootNavigationComponent
    * computation when the FB isn't mounted yet.
    */
   private findFloatingButtonRect(): DOMRect {
-    const root = this.getRootNode() as ShadowRoot;
+    const root = this.getShadowRoot();
     const floatingButton = root?.querySelector("ledger-floating-button");
     const innerButton = floatingButton?.shadowRoot?.querySelector("button");
     if (innerButton) {
@@ -225,20 +226,28 @@ export class RootNavigationComponent
   }
 
   private resolveFloatingButtonPosition(): FloatingButtonPosition {
-    const root = this.getRootNode() as ShadowRoot;
-    const appHost = root?.host as
-      | { floatingButtonPosition?: FloatingButtonPosition | false }
-      | undefined;
-    const position = appHost?.floatingButtonPosition;
+    const position = this.getAppHost()?.floatingButtonPosition;
     return position ? position : "bottom-right";
   }
 
   private isFloatingButtonHidden(): boolean {
-    const root = this.getRootNode() as ShadowRoot;
-    const appHost = root?.host as
-      | { floatingButtonPosition?: FloatingButtonPosition | false }
-      | undefined;
-    return appHost?.floatingButtonPosition === false;
+    return this.getAppHost()?.floatingButtonPosition === false;
+  }
+
+  private getShadowRoot(): ShadowRoot | null {
+    const root = this.getRootNode();
+    return root instanceof ShadowRoot ? root : null;
+  }
+
+  private getAppHost():
+    | { floatingButtonPosition?: FloatingButtonPosition | false }
+    | undefined {
+    const root = this.getShadowRoot();
+    return root
+      ? (root.host as {
+          floatingButtonPosition?: FloatingButtonPosition | false;
+        })
+      : undefined;
   }
 
   private goBack() {
