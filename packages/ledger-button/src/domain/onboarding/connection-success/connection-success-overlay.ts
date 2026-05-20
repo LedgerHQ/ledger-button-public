@@ -16,7 +16,6 @@ import { ANIMATION_DELAY } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 
 const AUTO_CLOSE_DELAY_MS = 1500;
-const FADE_DURATION_MS = ANIMATION_DELAY;
 
 const styles = css`
   :host {
@@ -148,13 +147,13 @@ export class ConnectionSuccessOverlay extends LitElement {
     this.backdropAnimation = animate(
       this.backdropElement,
       { opacity: [0, 1] },
-      { duration: FADE_DURATION_MS / 1000, ease: "easeOut" },
+      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
     );
 
     this.containerAnimation = animate(
       this.containerElement,
       { opacity: [0, 1], y: [16, 0], scale: [0.98, 1] },
-      { duration: FADE_DURATION_MS / 1000, ease: "easeOut" },
+      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
     );
   }
 
@@ -187,7 +186,7 @@ export class ConnectionSuccessOverlay extends LitElement {
         this.backdropElement,
         { opacity: [1, 0] },
         {
-          duration: FADE_DURATION_MS / 1000,
+          duration: ANIMATION_DELAY / 1000,
           ease: "easeOut",
           onComplete: () => resolve(),
         },
@@ -209,7 +208,7 @@ export class ConnectionSuccessOverlay extends LitElement {
           this.containerElement,
           { opacity: [1, 0], scale: [1, 0.92] },
           {
-            duration: FADE_DURATION_MS / 1000,
+            duration: ANIMATION_DELAY / 1000,
             ease: "easeOut",
             onComplete: () => resolve(),
           },
