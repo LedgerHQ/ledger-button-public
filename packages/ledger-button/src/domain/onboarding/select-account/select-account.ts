@@ -43,6 +43,7 @@ export class SelectAccountScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.languages,
     );
   }
 
