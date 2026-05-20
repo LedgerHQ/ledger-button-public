@@ -6,7 +6,8 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
-import { debounceTime } from "rxjs/operators";
+import { of, timer } from "rxjs";
+import { debounce, map } from "rxjs/operators";
 
 import { CoreContext } from "../../../context/core-context.js";
 import { Navigation } from "../../../shared/navigation.js";
@@ -102,9 +103,20 @@ export class SelectAccountController implements ReactiveController {
     this.isAccountsLoading = true;
     this.host.requestUpdate();
 
+    // Emit the first batch immediately so accounts appear before balances load
+    let isFirstEmission = true;
+
     this.accountsSubscription = this.core
       .getAccounts(options)
-      .pipe(debounceTime(200))
+      .pipe(
+        debounce(() => {
+          if (isFirstEmission) {
+            isFirstEmission = false;
+            return of(0);
+          }
+          return timer(200);
+        }),
+      )
       .subscribe({
         next: (accounts) => {
           this.accounts = accounts;
