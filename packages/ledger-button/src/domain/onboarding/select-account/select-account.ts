@@ -61,10 +61,18 @@ export class SelectAccountScreen extends LitElement {
 
     return html`
       <div class="overflow-hidden rounded-md">
-        <button
-          class="flex w-full cursor-pointer items-center gap-12 border-none p-12 text-left transition duration-150 ease-in-out [background-color:var(--color-background-surface-transparent)] hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
-          @click=${() => this.controller.handleAccountCardClick(account)}
+        <div
+          class="flex w-full cursor-pointer items-center gap-12 p-12 text-left transition duration-150 ease-in-out [background-color:var(--color-background-surface-transparent)] hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
+          role="button"
+          tabindex="0"
           aria-label=${account.name}
+          @click=${() => this.controller.handleAccountCardClick(account)}
+          @keydown=${(e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              this.controller.handleAccountCardClick(account);
+            }
+          }}
         >
           <ledger-crypto-icon
             ledger-id=${account.currencyId}
@@ -75,7 +83,17 @@ export class SelectAccountScreen extends LitElement {
             <span class="body-2-semi-bold truncate text-base"
               >${account.name}</span
             >
-            <span class="text-muted body-3">${description}</span>
+            ${account.tokens.length > 0
+              ? html`<button
+                  class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
+                  @click=${(e: Event) => {
+                    e.stopPropagation();
+                    this.controller.handleShowTokensClick(account);
+                  }}
+                >
+                  ${description}
+                </button>`
+              : html`<span class="text-muted body-3">${description}</span>`}
           </div>
           <div class="flex shrink-0 flex-col items-end gap-4">
             ${this.renderAccountCardBalance({
@@ -86,7 +104,7 @@ export class SelectAccountScreen extends LitElement {
               fiatBalance,
             })}
           </div>
-        </button>
+        </div>
       </div>
     `;
   }
