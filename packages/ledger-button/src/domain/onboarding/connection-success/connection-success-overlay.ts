@@ -206,7 +206,7 @@ export class ConnectionSuccessOverlay extends LitElement {
       const containerFade = new Promise<void>((resolve) => {
         this.containerAnimation = animate(
           this.containerElement,
-          { opacity: [1, 0] },
+          { opacity: [1, 0], scale: [1, 0.92] },
           {
             duration: ANIMATION_DELAY / 1000,
             ease: "easeOut",
