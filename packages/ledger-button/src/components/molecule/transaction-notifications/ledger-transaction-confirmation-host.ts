@@ -77,7 +77,6 @@ export class LedgerTransactionConfirmationHost extends LitElement {
   }
 
   override render() {
-    console.log("render", this.confirmationMode);
     if (this.confirmationMode !== "toast") {
       return nothing;
     }
