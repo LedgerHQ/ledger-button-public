@@ -125,7 +125,8 @@
       "addAccountAriaLabel": "Ajouter un compte",
       "refreshAccountsAriaLabel": "Actualiser les comptes",
       "addAccountTooltip": "Créer un nouveau compte",
-      "refreshAccountsTooltip": "Actualiser"
+      "refreshAccountsTooltip": "Actualiser",
+      "noToken": "No token"
     },
     "connectionSuccess": {
       "title": "Vous êtes maintenant connecté(e)",

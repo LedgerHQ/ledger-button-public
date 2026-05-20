@@ -125,7 +125,8 @@
       "addAccountAriaLabel": "アカウントを追加",
       "refreshAccountsAriaLabel": "アカウントを更新",
       "addAccountTooltip": "新しいアカウントを作成する",
-      "refreshAccountsTooltip": "更新"
+      "refreshAccountsTooltip": "更新",
+      "noToken": "No token"
     },
     "connectionSuccess": {
       "title": "接続されました",

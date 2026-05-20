@@ -125,7 +125,8 @@
       "addAccountAriaLabel": "إضافة حساب",
       "refreshAccountsAriaLabel": "تحديث الحسابات",
       "addAccountTooltip": "إنشاء حساب جديد",
-      "refreshAccountsTooltip": "تحديث"
+      "refreshAccountsTooltip": "تحديث",
+      "noToken": "No token"
     },
     "connectionSuccess": {
       "title": "You are now connected",
