@@ -96,19 +96,13 @@ export class AccountTokensScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div class="sticky bottom-0">
-        <div
-          class="pointer-events-none h-24"
-          style="background: linear-gradient(to bottom, transparent, var(--background-canvas-sheet))"
-        ></div>
-        <div class="bg-canvas-sheet p-24 pt-0">
-          <ledger-button
-            variant="primary"
-            size="full"
-            .label=${translations.common.connect}
-            @ledger-button-click=${this.controller.handleConnect}
-          ></ledger-button>
-        </div>
+      <div class="bg-canvas-sheet sticky bottom-0 p-24 pt-0">
+        <ledger-button
+          variant="primary"
+          size="full"
+          .label=${translations.common.connect}
+          @ledger-button-click=${this.controller.handleConnect}
+        ></ledger-button>
       </div>
     `;
   }

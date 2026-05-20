@@ -55,60 +55,53 @@ export class SelectAccountScreen extends LitElement {
     const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
     const isFiatError = this.controller.hasAccountFiatError(account.id);
     const fiatBalance = this.controller.getAccountFiatValue(account.id);
-    const description =
-      account.tokens.length > 0
-        ? this.controller.formatTokenCount(account.tokens.length)
-        : this.controller.truncateAddress(account.freshAddress);
-
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div class="overflow-hidden rounded-md">
-        <div
-          class="flex w-full cursor-pointer items-center gap-12 [background-color:var(--color-background-surface-transparent)] p-12 text-left transition duration-150 ease-in-out hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
-          role="button"
-          tabindex="0"
-          aria-label=${account.name}
-          @click=${() => this.controller.handleAccountCardClick(account)}
-          @keydown=${(e: KeyboardEvent) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              this.controller.handleAccountCardClick(account);
-            }
-          }}
-        >
-          <ledger-crypto-icon
-            ledger-id=${account.currencyId}
-            variant="square"
-            size="large"
-          ></ledger-crypto-icon>
-          <div class="flex min-w-0 flex-1 flex-col gap-4 text-left">
-            <span class="body-2-semi-bold truncate text-base"
-              >${account.name}</span
-            >
-            ${account.tokens.length > 0
-              ? html`<button
-                  class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
-                  @click=${(e: Event) => {
-                    e.stopPropagation();
-                    this.controller.handleShowTokensClick(account);
-                  }}
-                >
-                  ${description}
-                </button>`
-              : html`<span class="text-muted body-3"
-                  >${translations.onboarding.selectAccount.noToken}</span
-                >`}
-          </div>
-          <div class="flex shrink-0 flex-col items-end gap-4">
-            ${this.renderAccountCardBalance({
-              isBalanceLoading,
-              isBalanceError,
-              isFiatLoading,
-              isFiatError,
-              fiatBalance,
-            })}
-          </div>
+      <div
+        class="flex w-full cursor-pointer items-center gap-12 overflow-hidden rounded-md [background-color:var(--color-background-surface-transparent)] p-12 text-left transition duration-150 ease-in-out hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
+        role="button"
+        tabindex="0"
+        aria-label=${account.name}
+        @click=${() => this.controller.handleAccountCardClick(account)}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            this.controller.handleAccountCardClick(account);
+          }
+        }}
+      >
+        <ledger-crypto-icon
+          ledger-id=${account.currencyId}
+          variant="square"
+          size="large"
+        ></ledger-crypto-icon>
+        <div class="flex min-w-0 flex-1 flex-col gap-4 text-left">
+          <span class="body-2-semi-bold truncate text-base"
+            >${account.name}</span
+          >
+          ${account.tokens.length > 0
+            ? html`<button
+                class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
+                @click=${(e: Event) => {
+                  e.stopPropagation();
+                  this.controller.handleShowTokensClick(account);
+                }}
+              >
+                ${this.controller.formatTokenCount(account.tokens.length)}
+              </button>`
+            : html`<span class="text-muted body-3"
+                >${translations.onboarding.selectAccount.noToken}</span
+              >`}
+        </div>
+        <div class="flex shrink-0 flex-col items-end gap-4">
+          ${this.renderAccountCardBalance({
+            isBalanceLoading,
+            isBalanceError,
+            isFiatLoading,
+            isFiatError,
+            fiatBalance,
+          })}
         </div>
       </div>
     `;
