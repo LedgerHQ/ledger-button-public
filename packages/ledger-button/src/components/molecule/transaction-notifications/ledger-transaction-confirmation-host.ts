@@ -68,10 +68,11 @@ export class LedgerTransactionConfirmationHost extends LitElement {
     const tx =
       this.languages?.currentTranslation?.common?.transactionConfirmation;
     return {
-      transactionConfirmedTitle:
-        tx?.transactionConfirmedTitle ?? "Transaction confirmed",
+      transactionSentTitle: tx?.transactionSentTitle ?? "Sent",
+      transactionReceivedTitle: tx?.transactionReceivedTitle ?? "Received",
       transactionFailedTitle:
         tx?.transactionFailedTitle ?? "Transaction failed",
+      transactionSwapTitle: tx?.transactionSwapTitle ?? "Transaction confirmed",
       checkOnExplorer: tx?.checkOnExplorer ?? "Check transaction on explorer",
     };
   }

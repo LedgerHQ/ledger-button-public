@@ -12,8 +12,10 @@
       "transactionsValidatedOther": "{count} transacciones han sido validadas"
     },
     "transactionConfirmation": {
-      "transactionConfirmedTitle": "Transacción confirmada",
+      "transactionSentTitle": "Enviado",
+      "transactionReceivedTitle": "Recibido",
       "transactionFailedTitle": "Transacción fallida",
+      "transactionSwapTitle": "Transacción confirmada",
       "checkOnExplorer": "Ver transacción en el explorador"
     },
     "search": {

@@ -13,8 +13,10 @@ import { combineLatest, Subscription } from "rxjs";
 import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications.js";
 
 export type TransactionConfirmationI18n = {
-  transactionConfirmedTitle: string;
+  transactionSentTitle: string;
+  transactionReceivedTitle: string;
   transactionFailedTitle: string;
+  transactionSwapTitle: string;
   checkOnExplorer: string;
 };
 
@@ -94,29 +96,70 @@ export class TransactionConfirmationNotifier {
         continue;
       }
 
-      const tx = this.findHistoryItem(history, hash);
-      if (!tx) {
+      const items = this.findHistoryItems(history, hash);
+      if (items.length === 0) {
         continue;
       }
 
-      this.pushToast(tx, explorerUrlTemplate);
+      const swapLegs = this.detectSwap(items);
+      if (swapLegs) {
+        this.pushSwapToast(swapLegs.sentLeg, swapLegs.receivedLeg);
+      } else {
+        this.pushToast(items[0], explorerUrlTemplate);
+      }
+
       this.shownHashes.add(normalizedHash);
       this.pendingConfirmationHashes.delete(hash);
     }
   }
 
-  private findHistoryItem(
+  private findHistoryItems(
     history: TransactionHistoryItem[],
     hash: string,
-  ): TransactionHistoryItem | undefined {
+  ): TransactionHistoryItem[] {
     const normalizedHash = this.normalizeHash(hash);
-    return history.find(
+    return history.filter(
       (item) => this.normalizeHash(item.hash) === normalizedHash,
     );
   }
 
+  private detectSwap(
+    items: TransactionHistoryItem[],
+  ): { sentLeg: TransactionHistoryItem; receivedLeg: TransactionHistoryItem } | null {
+    const successful = items.filter((i) => i.status !== "failed");
+    const sentLeg = successful.find((i) => i.direction === "sent");
+    const receivedLeg = successful.find((i) => i.direction === "received");
+    if (sentLeg && receivedLeg && sentLeg.asset.ledgerId !== receivedLeg.asset.ledgerId) {
+      return { sentLeg, receivedLeg };
+    }
+    return null;
+  }
+
   private normalizeHash(hash: string): string {
     return hash.toLowerCase();
+  }
+
+  private pushSwapToast(
+    sentLeg: TransactionHistoryItem,
+    receivedLeg: TransactionHistoryItem,
+  ): void {
+    const i18n = this.getI18n();
+    const sentFormatted = formatBalance(
+      sentLeg.value,
+      sentLeg.asset.decimals,
+      sentLeg.asset.ticker,
+    );
+    const receivedFormatted = formatBalance(
+      receivedLeg.value,
+      receivedLeg.asset.decimals,
+      receivedLeg.asset.ticker,
+    );
+    this.notifications.push({
+      variant: "success",
+      title: i18n.transactionSwapTitle,
+      description:
+        `${sentFormatted} ${sentLeg.asset.ticker} → ${receivedFormatted} ${receivedLeg.asset.ticker}`.trim(),
+    });
   }
 
   private pushToast(
@@ -149,9 +192,14 @@ export class TransactionConfirmationNotifier {
       tx.asset.ticker,
     );
 
+    const title =
+      tx.direction === "received"
+        ? i18n.transactionReceivedTitle
+        : i18n.transactionSentTitle;
+
     this.notifications.push({
       variant: "success",
-      title: i18n.transactionConfirmedTitle,
+      title,
       description: `${formattedValue} ${tx.asset.ticker}`.trim(),
     });
   }
