@@ -68,3 +68,44 @@ export const ReplayableMorph: Story = {
     `;
   },
 };
+
+export const ReplayableFadeNoMorph: Story = {
+  render: () => {
+    const targetRect = computeFloatingButtonRect("bottom-right");
+
+    const replay = () => {
+      const overlay = document.querySelector(
+        "#connection-success-overlay-story-no-morph",
+      ) as HTMLElement | null;
+
+      if (!overlay) {
+        return;
+      }
+
+      const nextRunId =
+        Number(overlay.getAttribute("data-run-id") ?? "0") + 1;
+      overlay.setAttribute("data-run-id", String(nextRunId));
+      (overlay as HTMLElement & { runId: number }).runId = nextRunId;
+    };
+
+    return html`
+      <language-provider>
+        <div style="min-height: 100vh;">
+          <button
+            style="position: fixed; top: 24px; left: 24px; z-index: 8000;"
+            @click=${replay}
+          >
+            Replay overlay
+          </button>
+
+          <connection-success-overlay
+            id="connection-success-overlay-story-no-morph"
+            .targetRect=${targetRect}
+            .morph=${false}
+            data-run-id="0"
+          ></connection-success-overlay>
+        </div>
+      </language-provider>
+    `;
+  },
+};
