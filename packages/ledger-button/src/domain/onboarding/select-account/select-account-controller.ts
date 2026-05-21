@@ -25,7 +25,7 @@ export class SelectAccountController implements ReactiveController {
   private accountsSubscription?: Subscription;
 
   truncateAddress(address: string): string {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
   }
 
   formatGroupCount(count: number): string {
