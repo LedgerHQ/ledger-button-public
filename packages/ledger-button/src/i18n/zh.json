@@ -12,8 +12,10 @@
       "transactionsValidatedOther": "{count} 笔交易已经过验证"
     },
     "transactionConfirmation": {
-      "transactionConfirmedTitle": "交易已确认",
+      "transactionSentTitle": "已发送",
+      "transactionReceivedTitle": "已收到",
       "transactionFailedTitle": "交易失败",
+      "transactionSwapTitle": "交易已确认",
       "checkOnExplorer": "在浏览器中查看交易"
     },
     "search": {

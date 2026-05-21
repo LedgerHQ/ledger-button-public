@@ -12,8 +12,10 @@
       "transactionsValidatedOther": "{count} işlem doğrulandı"
     },
     "transactionConfirmation": {
-      "transactionConfirmedTitle": "İşlem onaylandı",
+      "transactionSentTitle": "Gönderildi",
+      "transactionReceivedTitle": "Alındı",
       "transactionFailedTitle": "İşlem başarısız",
+      "transactionSwapTitle": "İşlem onaylandı",
       "checkOnExplorer": "İşlemi gezginde kontrol et"
     },
     "search": {

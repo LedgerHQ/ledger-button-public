@@ -97,14 +97,16 @@ describe("TransactionConfirmationNotifier", () => {
       core as never,
       notifications,
       () => ({
-        transactionConfirmedTitle: "Transaction confirmed",
+        transactionSentTitle: "Sent",
+        transactionReceivedTitle: "Received",
         transactionFailedTitle: "Transaction failed",
+        transactionSwapTitle: "Transaction confirmed",
         checkOnExplorer: "Check transaction on explorer",
       }),
     );
   });
 
-  it("should push a success toast when a pending hash is removed and appears in history", () => {
+  it("should push a success toast with 'Sent' title for a sent transaction", () => {
     const tx = createPendingTx();
     notifier.start();
 
@@ -112,13 +114,57 @@ describe("TransactionConfirmationNotifier", () => {
     pendingSubject.next([]);
     contextSubject.next({
       selectedAccount: createDetailedAccount({
-        transactionHistory: [createHistoryItem({ hash: tx.hash })],
+        transactionHistory: [
+          createHistoryItem({ hash: tx.hash, direction: "sent" }),
+        ],
       }),
     });
 
     expect(notifications.push).toHaveBeenCalledWith({
       variant: "success",
-      title: "Transaction confirmed",
+      title: "Sent",
+      description: "1 ETH",
+    });
+  });
+
+  it("should push a success toast with 'Received' title for a received transaction", () => {
+    const tx = createPendingTx();
+    notifier.start();
+
+    pendingSubject.next([tx]);
+    pendingSubject.next([]);
+    contextSubject.next({
+      selectedAccount: createDetailedAccount({
+        transactionHistory: [
+          createHistoryItem({ hash: tx.hash, direction: "received" }),
+        ],
+      }),
+    });
+
+    expect(notifications.push).toHaveBeenCalledWith({
+      variant: "success",
+      title: "Received",
+      description: "1 ETH",
+    });
+  });
+
+  it("should push a success toast with 'Sent' title for a self-transfer", () => {
+    const tx = createPendingTx();
+    notifier.start();
+
+    pendingSubject.next([tx]);
+    pendingSubject.next([]);
+    contextSubject.next({
+      selectedAccount: createDetailedAccount({
+        transactionHistory: [
+          createHistoryItem({ hash: tx.hash, direction: "self" }),
+        ],
+      }),
+    });
+
+    expect(notifications.push).toHaveBeenCalledWith({
+      variant: "success",
+      title: "Sent",
       description: "1 ETH",
     });
   });
@@ -230,5 +276,129 @@ describe("TransactionConfirmationNotifier", () => {
     });
 
     expect(notifications.push).not.toHaveBeenCalled();
+  });
+
+  it("should push a swap toast when two history items share the same hash with different assets", () => {
+    const tx = createPendingTx({ hash: "0xswap" });
+    notifier.start();
+
+    pendingSubject.next([tx]);
+    pendingSubject.next([]);
+    contextSubject.next({
+      selectedAccount: createDetailedAccount({
+        transactionHistory: [
+          createHistoryItem({
+            hash: tx.hash,
+            direction: "sent",
+            asset: {
+              ledgerId: "ethereum/erc20/usd_coin",
+              name: "USD Coin",
+              ticker: "USDC",
+              decimals: 6,
+            },
+            value: "100000000",
+          }),
+          createHistoryItem({
+            hash: tx.hash,
+            direction: "received",
+            asset: {
+              ledgerId: "ethereum/erc20/tether",
+              name: "Tether USD",
+              ticker: "USDT",
+              decimals: 6,
+            },
+            value: "99500000",
+          }),
+        ],
+      }),
+    });
+
+    expect(notifications.push).toHaveBeenCalledTimes(1);
+    expect(notifications.push).toHaveBeenCalledWith({
+      variant: "success",
+      title: "Transaction confirmed",
+      description: "100 USDC → 99.5 USDT",
+    });
+  });
+
+  it("should not treat two history items with the same asset as a swap", () => {
+    const tx = createPendingTx({ hash: "0xnotswap" });
+    notifier.start();
+
+    pendingSubject.next([tx]);
+    pendingSubject.next([]);
+    contextSubject.next({
+      selectedAccount: createDetailedAccount({
+        transactionHistory: [
+          createHistoryItem({
+            hash: tx.hash,
+            direction: "sent",
+            asset: {
+              ledgerId: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            },
+          }),
+          createHistoryItem({
+            hash: tx.hash,
+            direction: "received",
+            asset: {
+              ledgerId: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            },
+          }),
+        ],
+      }),
+    });
+
+    expect(notifications.push).toHaveBeenCalledTimes(1);
+    expect(notifications.push).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success", title: "Sent" }),
+    );
+  });
+
+  it("should push a fail toast when swap legs are failed", () => {
+    const tx = createPendingTx({ hash: "0xfailedswap" });
+    notifier.start();
+
+    pendingSubject.next([tx]);
+    pendingSubject.next([]);
+    contextSubject.next({
+      selectedAccount: createDetailedAccount({
+        transactionHistory: [
+          createHistoryItem({
+            hash: tx.hash,
+            direction: "sent",
+            status: "failed",
+            asset: {
+              ledgerId: "ethereum/erc20/usd_coin",
+              name: "USD Coin",
+              ticker: "USDC",
+              decimals: 6,
+            },
+          }),
+          createHistoryItem({
+            hash: tx.hash,
+            direction: "received",
+            status: "failed",
+            asset: {
+              ledgerId: "ethereum/erc20/tether",
+              name: "Tether USD",
+              ticker: "USDT",
+              decimals: 6,
+            },
+          }),
+        ],
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
+      }),
+    });
+
+    expect(notifications.push).toHaveBeenCalledTimes(1);
+    expect(notifications.push).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "fail", title: "Transaction failed" }),
+    );
   });
 });

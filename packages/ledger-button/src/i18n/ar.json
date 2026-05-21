@@ -12,8 +12,10 @@
       "transactionsValidatedOther": "تم التحقق من {count} معاملات"
     },
     "transactionConfirmation": {
-      "transactionConfirmedTitle": "تم تأكيد المعاملة",
+      "transactionSentTitle": "تم الإرسال",
+      "transactionReceivedTitle": "تم الاستلام",
       "transactionFailedTitle": "فشلت المعاملة",
+      "transactionSwapTitle": "تم تأكيد المعاملة",
       "checkOnExplorer": "تحقق من المعاملة على المستكشف"
     },
     "search": {
