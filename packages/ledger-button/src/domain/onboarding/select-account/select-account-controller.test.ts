@@ -100,6 +100,50 @@ describe("SelectAccountController.filteredAccounts", () => {
   });
 });
 
+describe("SelectAccountController.truncateAddress", () => {
+  let controller: SelectAccountController;
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      {} as Navigation,
+      mockLang,
+    );
+  });
+
+  it.each([
+    {
+      description: "truncates a standard Ethereum address",
+      address: "0xD6abcdef12348d9Z",
+      expected: "0xD6...8d9Z",
+    },
+    {
+      description: "truncates a long address keeping first 4 and last 4 chars",
+      address: "0x1234567890abcdef",
+      expected: "0x12...cdef",
+    },
+    {
+      description: "returns the full string when exactly 8 characters",
+      address: "12345678",
+      expected: "1234...5678",
+    },
+    {
+      description: "handles an address shorter than 8 characters",
+      address: "abcd",
+      expected: "abcd...abcd",
+    },
+  ])("$description", ({ address, expected }) => {
+    expect(controller.truncateAddress(address)).toBe(expected);
+  });
+});
+
 describe("SelectAccountController.formatGroupCount", () => {
   let controller: SelectAccountController;
 
