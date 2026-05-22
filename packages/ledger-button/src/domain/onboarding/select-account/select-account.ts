@@ -108,7 +108,7 @@ export class SelectAccountScreen extends LitElement {
 
     if (displayTokens.length > 0) {
       return html`<button
-        class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
+        class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 no-underline hover:underline"
         @click=${(e: Event) => {
           e.stopPropagation();
           this.controller.handleShowTokensClick(account);
