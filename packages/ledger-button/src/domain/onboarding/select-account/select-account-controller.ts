@@ -156,7 +156,7 @@ export class SelectAccountController implements ReactiveController {
   }
 
   getAccountFiatValue(account: AccountWithFiat) {
-    if (!account.fiatBalance?.value) return undefined;
+    if (!account.fiatBalance) return undefined;
 
     const nativeFiat = parseFloat(account.fiatBalance.value);
     const tokensFiat = account.tokens.reduce((sum, token) => {
