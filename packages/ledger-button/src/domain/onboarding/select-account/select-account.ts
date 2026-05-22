@@ -56,6 +56,7 @@ export class SelectAccountScreen extends LitElement {
     const isFiatError = this.controller.hasAccountFiatError(account.id);
     const fiatBalance = this.controller.getAccountFiatValue(account.id);
     const translations = this.languages.currentTranslation;
+    const displayTokens = this.controller.getDisplayTokens(account);
 
     return html`
       <div
@@ -80,7 +81,7 @@ export class SelectAccountScreen extends LitElement {
           <span class="body-2-semi-bold truncate text-base"
             >${account.name}</span
           >
-          ${account.tokens.length > 0
+          ${displayTokens.length > 0
             ? html`<button
                 class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
                 @click=${(e: Event) => {
@@ -88,7 +89,7 @@ export class SelectAccountScreen extends LitElement {
                   this.controller.handleShowTokensClick(account);
                 }}
               >
-                ${this.controller.formatTokenCount(account.tokens.length)}
+                ${this.controller.formatTokenCount(displayTokens.length)}
               </button>`
             : html`<span class="text-muted body-3"
                 >${translations.onboarding.selectAccount.noToken}</span

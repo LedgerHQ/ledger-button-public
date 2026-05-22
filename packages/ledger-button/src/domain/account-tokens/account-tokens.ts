@@ -1,6 +1,6 @@
 import "../../components/index.js";
 
-import { Account, Token } from "@ledgerhq/ledger-wallet-provider-core";
+import { Account, AccountWithFiat, Token } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -12,6 +12,7 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import { getDisplayTokens } from "../../utils/account-display-tokens.js";
 import { formatFiatBalance } from "../../utils/format-fiat.js";
 import { AccountTokenController } from "./account-token-controller.js";
 
@@ -80,13 +81,15 @@ export class AccountTokensScreen extends LitElement {
     `;
   }
 
-  private renderTokenList(account: Account) {
+  private renderTokenList(account: AccountWithFiat) {
     if (this.controller.loading) {
       return this.renderLoadingSkeleton();
     }
 
-    if (account.tokens.length > 0) {
-      return account.tokens.map(this.renderTokenItem);
+    const displayTokens = getDisplayTokens(account);
+
+    if (displayTokens.length > 0) {
+      return displayTokens.map(this.renderTokenItem);
     }
 
     return this.renderEmptyState();
