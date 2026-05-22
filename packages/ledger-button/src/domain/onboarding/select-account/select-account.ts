@@ -48,13 +48,11 @@ export class SelectAccountScreen extends LitElement {
   }
 
   private renderAccountCard(account: AccountWithFiat) {
-    const isBalanceLoading = this.controller.isAccountBalanceLoading(
-      account.id,
-    );
-    const isBalanceError = this.controller.hasAccountBalanceError(account.id);
-    const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
-    const isFiatError = this.controller.hasAccountFiatError(account.id);
-    const fiatBalance = this.controller.getAccountFiatValue(account.id);
+    const isBalanceLoading = this.controller.isAccountBalanceLoading(account);
+    const isBalanceError = this.controller.hasAccountBalanceError(account);
+    const isFiatLoading = this.controller.isAccountFiatLoading(account);
+    const isFiatError = this.controller.hasAccountFiatError(account);
+    const fiatBalance = this.controller.getAccountFiatValue(account);
 
     return html`
       <div
@@ -108,6 +106,7 @@ export class SelectAccountScreen extends LitElement {
 
     if (displayTokens.length > 0) {
       return html`<button
+        type="button"
         class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 no-underline hover:underline"
         @click=${(e: Event) => {
           e.stopPropagation();
