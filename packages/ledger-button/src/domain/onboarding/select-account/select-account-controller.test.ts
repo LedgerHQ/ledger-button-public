@@ -360,7 +360,18 @@ describe("SelectAccountController.getAccountFiatValue", () => {
     });
   });
 
-  it("returns undefined when there is no native fiat balance and no token fiat balances", () => {
+  it("returns undefined when native fiatBalance is undefined", () => {
+    const account = createAccount({
+      id: "eth-1",
+      fiatBalance: undefined,
+      tokens: [],
+    });
+    controller.accounts = [account];
+
+    expect(controller.getAccountFiatValue("eth-1")).toBeUndefined();
+  });
+
+  it("returns undefined when native fiatBalance is undefined even if tokens have fiat", () => {
     const account = createAccount({
       id: "eth-1",
       fiatBalance: undefined,
@@ -370,7 +381,7 @@ describe("SelectAccountController.getAccountFiatValue", () => {
           ticker: "USDT",
           name: "Tether",
           balance: "50000000",
-          fiatBalance: undefined,
+          fiatBalance: { value: "50.00", currency: "USD" },
         },
       ],
     });
