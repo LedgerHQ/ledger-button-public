@@ -26,7 +26,7 @@
       "disconnect": "Déconnecter"
     },
     "ad": {
-      "getALedger": "Achetez un appareil Ledger"
+      "getALedger": "Acheter un appareil Ledger"
     },
     "platform": {
       "onDesktop": "Sur ordinateur",
@@ -199,14 +199,13 @@
     "noTransactions": "Aucune transaction trouvée",
     "pendingTransactions": "Transactions en attente",
     "viewOnExplorer": "Voir dans l’explorateur",
-    "failed": "Échouée",
-    "fee": "Frais",
+    "failed": "Échec",
     "kinds": {
-      "swap": "Échange",
-      "approve": "Approbation",
-      "contract": "Interaction de contrat",
+      "swap": "Échanger",
+      "approve": "Approuver",
+      "contract": "Interaction avec un contrat",
       "fees": "Frais",
-      "self": "Transfert vers soi"
+      "self": "Transfert interne"
     }
   },
   "mobileOnboarding": {
