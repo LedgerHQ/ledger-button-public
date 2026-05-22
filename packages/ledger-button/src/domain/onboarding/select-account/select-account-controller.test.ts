@@ -339,6 +339,26 @@ describe("SelectAccountController.getAccountFiatValue", () => {
     });
   });
 
+  it("returns the token fiat sum when native fiat value is zero", () => {
+    const account = createAccount({
+      fiatBalance: { value: "0.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/usdt",
+          ticker: "USDT",
+          name: "Tether",
+          balance: "50000000",
+          fiatBalance: { value: "50.00", currency: "USD" },
+        },
+      ],
+    });
+
+    expect(controller.getAccountFiatValue(account)).toEqual({
+      value: "50.00",
+      currency: "USD",
+    });
+  });
+
   it("returns undefined when native fiatBalance is undefined", () => {
     const account = createAccount({ fiatBalance: undefined, tokens: [] });
 
