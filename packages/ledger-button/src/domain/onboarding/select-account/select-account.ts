@@ -188,9 +188,11 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <p class="text-muted body-2 py-24 text-center">
-        ${translations.onboarding.selectAccount.noResults}
-      </p>
+      <div class="flex min-h-px flex-1 flex-col items-center justify-center">
+        <p class="body-1-semi-bold text-base text-center">
+          ${translations.onboarding.selectAccount.noResults}
+        </p>
+      </div>
     `;
   }
 
@@ -251,7 +253,7 @@ export class SelectAccountScreen extends LitElement {
 
   override render() {
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="flex h-full flex-col gap-12 p-24 pt-0">
         ${this.renderSearchHeader()}
         ${this.controller.groupedAccounts.map((group) =>
           this.renderGroup(group),
