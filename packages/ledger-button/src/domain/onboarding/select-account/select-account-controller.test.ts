@@ -272,6 +272,114 @@ describe("SelectAccountController.handleShowTokensClick", () => {
   });
 });
 
+describe("SelectAccountController.getAccountFiatValue", () => {
+  let controller: SelectAccountController;
+
+  beforeEach(() => {
+    const host: ReactiveControllerHost = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    };
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      {} as Navigation,
+      mockLang,
+    );
+  });
+
+  it("returns undefined when the account is not found", () => {
+    controller.accounts = [];
+    expect(controller.getAccountFiatValue("unknown")).toBeUndefined();
+  });
+
+  it("returns the native fiat balance when there are no tokens", () => {
+    const account = createAccount({
+      id: "eth-1",
+      fiatBalance: { value: "100.00", currency: "USD" },
+      tokens: [],
+    });
+    controller.accounts = [account];
+
+    expect(controller.getAccountFiatValue("eth-1")).toEqual({
+      value: "100.00",
+      currency: "USD",
+    });
+  });
+
+  it("returns the sum of native and token fiat balances", () => {
+    const account = createAccount({
+      id: "eth-1",
+      fiatBalance: { value: "100.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/usdt",
+          ticker: "USDT",
+          name: "Tether",
+          balance: "50000000",
+          fiatBalance: { value: "50.00", currency: "USD" },
+        },
+        {
+          ledgerId: "ethereum/erc20/dai",
+          ticker: "DAI",
+          name: "Dai",
+          balance: "25000000000000000000",
+          fiatBalance: { value: "25.00", currency: "USD" },
+        },
+      ],
+    });
+    controller.accounts = [account];
+
+    expect(controller.getAccountFiatValue("eth-1")).toEqual({
+      value: "175.00",
+      currency: "USD",
+    });
+  });
+
+  it("ignores tokens without a fiat balance in the sum", () => {
+    const account = createAccount({
+      id: "eth-1",
+      fiatBalance: { value: "200.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/usdt",
+          ticker: "USDT",
+          name: "Tether",
+          balance: "50000000",
+          fiatBalance: undefined,
+        },
+      ],
+    });
+    controller.accounts = [account];
+
+    expect(controller.getAccountFiatValue("eth-1")).toEqual({
+      value: "200.00",
+      currency: "USD",
+    });
+  });
+
+  it("returns undefined when there is no native fiat balance and no token fiat balances", () => {
+    const account = createAccount({
+      id: "eth-1",
+      fiatBalance: undefined,
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/usdt",
+          ticker: "USDT",
+          name: "Tether",
+          balance: "50000000",
+          fiatBalance: undefined,
+        },
+      ],
+    });
+    controller.accounts = [account];
+
+    expect(controller.getAccountFiatValue("eth-1")).toBeUndefined();
+  });
+});
+
 describe("SelectAccountController.groupedAccounts", () => {
   let controller: SelectAccountController;
 

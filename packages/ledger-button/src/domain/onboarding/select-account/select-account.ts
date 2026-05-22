@@ -55,8 +55,6 @@ export class SelectAccountScreen extends LitElement {
     const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
     const isFiatError = this.controller.hasAccountFiatError(account.id);
     const fiatBalance = this.controller.getAccountFiatValue(account.id);
-    const translations = this.languages.currentTranslation;
-    const displayTokens = this.controller.getDisplayTokens(account);
 
     return html`
       <div
@@ -81,23 +79,7 @@ export class SelectAccountScreen extends LitElement {
           <span class="body-2-semi-bold truncate text-base"
             >${account.name}</span
           >
-          ${isBalanceLoading
-            ? html`<ledger-skeleton
-                class="h-12 w-80 rounded-full"
-              ></ledger-skeleton>`
-            : displayTokens.length > 0
-              ? html`<button
-                  class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
-                  @click=${(e: Event) => {
-                    e.stopPropagation();
-                    this.controller.handleShowTokensClick(account);
-                  }}
-                >
-                  ${this.controller.formatTokenCount(displayTokens.length)}
-                </button>`
-              : html`<span class="text-muted body-3"
-                  >${translations.onboarding.selectAccount.noToken}</span
-                >`}
+          ${this.renderAccountCardTokenInfo(account, isBalanceLoading)}
         </div>
         <div class="flex shrink-0 flex-col items-end gap-4">
           ${this.renderAccountCardBalance({
@@ -110,6 +92,37 @@ export class SelectAccountScreen extends LitElement {
         </div>
       </div>
     `;
+  }
+
+  private renderAccountCardTokenInfo(
+    account: AccountWithFiat,
+    isBalanceLoading: boolean,
+  ) {
+    if (isBalanceLoading) {
+      return html`<ledger-skeleton
+        class="h-12 w-80 rounded-full"
+      ></ledger-skeleton>`;
+    }
+
+    const displayTokens = this.controller.getDisplayTokens(account);
+
+    if (displayTokens.length > 0) {
+      return html`<button
+        class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
+        @click=${(e: Event) => {
+          e.stopPropagation();
+          this.controller.handleShowTokensClick(account);
+        }}
+      >
+        ${this.controller.formatTokenCount(displayTokens.length)}
+      </button>`;
+    }
+
+    const translations = this.languages.currentTranslation;
+
+    return html`<span class="text-muted body-3"
+      >${translations.onboarding.selectAccount.noToken}</span
+    >`;
   }
 
   private renderAccountCardBalance(params: {
