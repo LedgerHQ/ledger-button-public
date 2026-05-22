@@ -1,11 +1,14 @@
 import "../../components/index.js";
 
-import { Account, AccountWithFiat, Token } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  AccountWithFiat,
+  Token,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
@@ -22,20 +25,19 @@ export class AccountTokensScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
+  @property({ type: Object })
+  screenData?: AccountWithFiat;
+
   controller!: AccountTokenController;
 
   override connectedCallback() {
     super.connectedCallback();
     this.controller = new AccountTokenController(
       this,
-      this.coreContext,
       this.navigation,
+      this.screenData,
     );
   }
-
-  @consume({ context: coreContext })
-  @property({ attribute: false })
-  public coreContext!: CoreContext;
 
   @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
@@ -60,14 +62,6 @@ export class AccountTokensScreen extends LitElement {
     `;
   };
 
-  private renderLoadingSkeleton() {
-    return html`
-      <div class="flex flex-col gap-12">
-        <ledger-skeleton class="h-48 w-full rounded-xl"></ledger-skeleton>
-      </div>
-    `;
-  }
-
   private renderEmptyState() {
     const translations = this.languages.currentTranslation;
 
@@ -82,10 +76,6 @@ export class AccountTokensScreen extends LitElement {
   }
 
   private renderTokenList(account: AccountWithFiat) {
-    if (this.controller.loading) {
-      return this.renderLoadingSkeleton();
-    }
-
     const displayTokens = getDisplayTokens(account);
 
     if (displayTokens.length > 0) {

@@ -188,12 +188,11 @@ export class SelectAccountController implements ReactiveController {
   }
 
   handleShowTokensClick(account: AccountWithFiat) {
-    this.core.setPendingAccountId(account.id);
-
     this.navigation.navigateTo({
       name: "accountTokens",
       component: "account-tokens-screen",
       canGoBack: true,
+      screenData: account,
       toolbar: {
         title: account.name,
         subtitle: this.truncateAddress(account.freshAddress),
