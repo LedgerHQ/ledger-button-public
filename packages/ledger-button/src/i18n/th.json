@@ -126,11 +126,11 @@
       "refreshAccountsAriaLabel": "รีเฟรชข้อมูลบัญชี",
       "addAccountTooltip": "สร้างบัญชีใหม่",
       "refreshAccountsTooltip": "รีเฟรช",
-      "noToken": "ไม่มีโทเค็น",
-      "accountCountOne": "1 บัญชี",
+      "noToken": "No token",
+      "accountCountOne": "1 account",
       "accountCountOther": "{count} บัญชี",
-      "tokenCountOne": "1 โทเค็น",
-      "tokenCountOther": "{count} โทเค็น"
+      "tokenCountOne": "1 โทเคน",
+      "tokenCountOther": "โทเคน {count}"
     },
     "connectionSuccess": {
       "title": "คุณได้เชื่อมต่อแล้ว",
@@ -200,13 +200,12 @@
     "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
     "viewOnExplorer": "ดูใน Explorer",
     "failed": "ล้มเหลว",
-    "fee": "ค่าธรรมเนียม",
     "kinds": {
-      "swap": "สลับ",
+      "swap": "สวอป",
       "approve": "อนุมัติ",
       "contract": "การโต้ตอบกับสัญญา",
       "fees": "ค่าธรรมเนียม",
-      "self": "โอนให้ตนเอง"
+      "self": "โอนด้วยตัวเอง"
     }
   },
   "mobileOnboarding": {

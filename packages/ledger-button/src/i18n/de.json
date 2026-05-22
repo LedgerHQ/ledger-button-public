@@ -127,7 +127,7 @@
       "addAccountTooltip": "Erstelle ein neues Konto",
       "refreshAccountsTooltip": "Neu laden",
       "noToken": "Kein Token",
-      "accountCountOne": "1 Konto",
+      "accountCountOne": "1 Konto",
       "accountCountOther": "{count} Konten",
       "tokenCountOne": "1 Token",
       "tokenCountOther": "{count} Token"
@@ -200,13 +200,12 @@
     "pendingTransactions": "Schwebende Transaktionen",
     "viewOnExplorer": "Im Explorer ansehen",
     "failed": "Fehlgeschlagen",
-    "fee": "Gebühr",
     "kinds": {
-      "swap": "Tausch",
-      "approve": "Freigabe",
+      "swap": "Swappen",
+      "approve": "Bestätigen",
       "contract": "Vertragsinteraktion",
       "fees": "Gebühren",
-      "self": "Eigenüberweisung"
+      "self": "Selbstüberweisung"
     }
   },
   "mobileOnboarding": {

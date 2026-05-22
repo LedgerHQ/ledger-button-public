@@ -126,11 +126,11 @@
       "refreshAccountsAriaLabel": "Обновить счета",
       "addAccountTooltip": "Создание нового счёта",
       "refreshAccountsTooltip": "Обновить",
-      "noToken": "Нет токенов",
+      "noToken": "Токенов нет",
       "accountCountOne": "1 счёт",
-      "accountCountOther": "{count} счёта",
+      "accountCountOther": "Счета: {count}",
       "tokenCountOne": "1 токен",
-      "tokenCountOther": "{count} токена"
+      "tokenCountOther": "Токенов: {count}"
     },
     "connectionSuccess": {
       "title": "Вы подключены",
@@ -199,13 +199,12 @@
     "noTransactions": "Не нашли транзакции",
     "pendingTransactions": "Неподтверждённые транзакции",
     "viewOnExplorer": "Посмотреть в Обозревателе",
-    "failed": "Ошибка",
-    "fee": "Комиссия",
+    "failed": "Неудачно",
     "kinds": {
       "swap": "Обмен",
-      "approve": "Одобрение",
-      "contract": "Взаимодействие с контрактом",
-      "fees": "Комиссии",
+      "approve": "Утвердить",
+      "contract": "Действие с контрактом",
+      "fees": "Комиссия",
       "self": "Перевод себе"
     }
   },

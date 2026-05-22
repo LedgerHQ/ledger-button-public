@@ -126,11 +126,11 @@
       "refreshAccountsAriaLabel": "계정 새로고침",
       "addAccountTooltip": "새로운 계정 생성",
       "refreshAccountsTooltip": "새로고침",
-      "noToken": "토큰 없음",
-      "accountCountOne": "계정 1개",
-      "accountCountOther": "계정 {count}개",
-      "tokenCountOne": "토큰 1개",
-      "tokenCountOther": "토큰 {count}개"
+      "noToken": "No token",
+      "accountCountOne": "1 account",
+      "accountCountOther": "{count}개 계정",
+      "tokenCountOne": "1개의 토큰",
+      "tokenCountOther": "{count}개의 토큰"
     },
     "connectionSuccess": {
       "title": "연결되었습니다",
@@ -199,14 +199,13 @@
     "noTransactions": "트랜잭션 정보를 찾을 수 없습니다",
     "pendingTransactions": "보류 중인 트랜잭션",
     "viewOnExplorer": "탐색기에서 보기",
-    "failed": "실패",
-    "fee": "수수료",
+    "failed": "실패함",
     "kinds": {
       "swap": "스왑",
       "approve": "승인",
-      "contract": "컨트랙트 상호작용",
+      "contract": "Contract interaction",
       "fees": "수수료",
-      "self": "자기 자신에게 전송"
+      "self": "내 계좌로 전송"
     }
   },
   "mobileOnboarding": {
@@ -248,11 +247,11 @@
     "broadcast": {
       "processing": {
         "title": "처리 중...",
-        "description": "Transaction is processing on the blockchain"
+        "description": "트랜잭션이 블록체인에서 처리 중입니다"
       },
       "validated": {
-        "title": "Validated",
-        "description": "Transaction is validated on the blockchain"
+        "title": "승인 완료",
+        "description": "블록체인에서 트랜잭션 검증이 완료되었습니다"
       }
     }
   },
