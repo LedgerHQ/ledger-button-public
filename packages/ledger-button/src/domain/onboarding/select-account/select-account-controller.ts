@@ -139,29 +139,24 @@ export class SelectAccountController implements ReactiveController {
       });
   }
 
-  isAccountBalanceLoading(accountId: string): boolean {
-    const account = this.accounts.find((acc) => acc.id === accountId);
-    return account?.balanceLoadingState === "loading";
+  isAccountBalanceLoading(account: AccountWithFiat): boolean {
+    return account.balanceLoadingState === "loading";
   }
 
-  hasAccountBalanceError(accountId: string): boolean {
-    const account = this.accounts.find((acc) => acc.id === accountId);
-    return account?.balanceLoadingState === "error";
+  hasAccountBalanceError(account: AccountWithFiat): boolean {
+    return account.balanceLoadingState === "error";
   }
 
-  isAccountFiatLoading(accountId: string): boolean {
-    const account = this.accounts.find((acc) => acc.id === accountId);
-    return account?.fiatLoadingState === "loading";
+  isAccountFiatLoading(account: AccountWithFiat): boolean {
+    return account.fiatLoadingState === "loading";
   }
 
-  hasAccountFiatError(accountId: string): boolean {
-    const account = this.accounts.find((acc) => acc.id === accountId);
-    return account?.fiatLoadingState === "error";
+  hasAccountFiatError(account: AccountWithFiat): boolean {
+    return account.fiatLoadingState === "error";
   }
 
-  getAccountFiatValue(accountId: string) {
-    const account = this.accounts.find((acc) => acc.id === accountId);
-    if (!account?.fiatBalance?.value) return undefined;
+  getAccountFiatValue(account: AccountWithFiat) {
+    if (!account.fiatBalance?.value) return undefined;
 
     const nativeFiat = parseFloat(account.fiatBalance.value);
     const tokensFiat = account.tokens.reduce((sum, token) => {

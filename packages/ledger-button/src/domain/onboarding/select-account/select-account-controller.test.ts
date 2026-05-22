@@ -273,37 +273,20 @@ describe("SelectAccountController.handleShowTokensClick", () => {
 });
 
 describe("SelectAccountController.getAccountFiatValue", () => {
-  let controller: SelectAccountController;
-
-  beforeEach(() => {
-    const host: ReactiveControllerHost = {
-      addController: vi.fn(),
-      removeController: vi.fn(),
-      requestUpdate: vi.fn(),
-      updateComplete: Promise.resolve(true),
-    };
-    controller = new SelectAccountController(
-      host,
-      {} as CoreContext,
-      {} as Navigation,
-      mockLang,
-    );
-  });
-
-  it("returns undefined when the account is not found", () => {
-    controller.accounts = [];
-    expect(controller.getAccountFiatValue("unknown")).toBeUndefined();
-  });
+  const controller = new SelectAccountController(
+    { addController: vi.fn(), removeController: vi.fn(), requestUpdate: vi.fn(), updateComplete: Promise.resolve(true) },
+    {} as CoreContext,
+    {} as Navigation,
+    mockLang,
+  );
 
   it("returns the native fiat balance when there are no tokens", () => {
     const account = createAccount({
-      id: "eth-1",
       fiatBalance: { value: "100.00", currency: "USD" },
       tokens: [],
     });
-    controller.accounts = [account];
 
-    expect(controller.getAccountFiatValue("eth-1")).toEqual({
+    expect(controller.getAccountFiatValue(account)).toEqual({
       value: "100.00",
       currency: "USD",
     });
@@ -311,7 +294,6 @@ describe("SelectAccountController.getAccountFiatValue", () => {
 
   it("returns the sum of native and token fiat balances", () => {
     const account = createAccount({
-      id: "eth-1",
       fiatBalance: { value: "100.00", currency: "USD" },
       tokens: [
         {
@@ -330,9 +312,8 @@ describe("SelectAccountController.getAccountFiatValue", () => {
         },
       ],
     });
-    controller.accounts = [account];
 
-    expect(controller.getAccountFiatValue("eth-1")).toEqual({
+    expect(controller.getAccountFiatValue(account)).toEqual({
       value: "175.00",
       currency: "USD",
     });
@@ -340,7 +321,6 @@ describe("SelectAccountController.getAccountFiatValue", () => {
 
   it("ignores tokens without a fiat balance in the sum", () => {
     const account = createAccount({
-      id: "eth-1",
       fiatBalance: { value: "200.00", currency: "USD" },
       tokens: [
         {
@@ -352,28 +332,21 @@ describe("SelectAccountController.getAccountFiatValue", () => {
         },
       ],
     });
-    controller.accounts = [account];
 
-    expect(controller.getAccountFiatValue("eth-1")).toEqual({
+    expect(controller.getAccountFiatValue(account)).toEqual({
       value: "200.00",
       currency: "USD",
     });
   });
 
   it("returns undefined when native fiatBalance is undefined", () => {
-    const account = createAccount({
-      id: "eth-1",
-      fiatBalance: undefined,
-      tokens: [],
-    });
-    controller.accounts = [account];
+    const account = createAccount({ fiatBalance: undefined, tokens: [] });
 
-    expect(controller.getAccountFiatValue("eth-1")).toBeUndefined();
+    expect(controller.getAccountFiatValue(account)).toBeUndefined();
   });
 
   it("returns undefined when native fiatBalance is undefined even if tokens have fiat", () => {
     const account = createAccount({
-      id: "eth-1",
       fiatBalance: undefined,
       tokens: [
         {
@@ -385,9 +358,8 @@ describe("SelectAccountController.getAccountFiatValue", () => {
         },
       ],
     });
-    controller.accounts = [account];
 
-    expect(controller.getAccountFiatValue("eth-1")).toBeUndefined();
+    expect(controller.getAccountFiatValue(account)).toBeUndefined();
   });
 });
 
