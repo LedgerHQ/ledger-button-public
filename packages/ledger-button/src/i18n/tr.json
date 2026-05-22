@@ -126,8 +126,8 @@
       "refreshAccountsAriaLabel": "Hesapları yenile",
       "addAccountTooltip": "Yeni bir hesap oluşturun",
       "refreshAccountsTooltip": "Yenile",
-      "noToken": "Token yok",
-      "accountCountOne": "1 hesap",
+      "noToken": "No token",
+      "accountCountOne": "1 account",
       "accountCountOther": "{count} hesap",
       "tokenCountOne": "1 token",
       "tokenCountOther": "{count} token"
@@ -200,9 +200,8 @@
     "pendingTransactions": "Bekleyen İşlemler",
     "viewOnExplorer": "Tarayıcıda görüntüle",
     "failed": "Başarısız",
-    "fee": "Ücret",
     "kinds": {
-      "swap": "Takas",
+      "swap": "Takas et",
       "approve": "Onayla",
       "contract": "Sözleşme etkileşimi",
       "fees": "Ücretler",

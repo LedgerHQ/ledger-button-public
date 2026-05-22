@@ -126,11 +126,11 @@
       "refreshAccountsAriaLabel": "アカウントを更新",
       "addAccountTooltip": "新しいアカウントを作成する",
       "refreshAccountsTooltip": "更新",
-      "noToken": "トークンなし",
-      "accountCountOne": "1つのアカウント",
-      "accountCountOther": "{count}つのアカウント",
-      "tokenCountOne": "1つのトークン",
-      "tokenCountOther": "{count}つのトークン"
+      "noToken": "No token",
+      "accountCountOne": "1 account",
+      "accountCountOther": "{count}アカウント",
+      "tokenCountOne": "1トークン",
+      "tokenCountOther": "{count}トークン"
     },
     "connectionSuccess": {
       "title": "接続されました",
@@ -200,11 +200,10 @@
     "pendingTransactions": "保留中のトランザクション",
     "viewOnExplorer": "エクスプローラーで表示",
     "failed": "失敗",
-    "fee": "手数料",
     "kinds": {
       "swap": "スワップ",
       "approve": "承認",
-      "contract": "コントラクト操作",
+      "contract": "コントラクトのやり取り",
       "fees": "手数料",
       "self": "自己送金"
     }
