@@ -48,7 +48,28 @@ export default defineConfig(() => ({
     coverage: {
       reportsDirectory: "./test-output/vitest/coverage",
       provider: "v8" as const,
-      reporter: ["text", "lcov"],
+      // projectRoot makes lcov SF: paths relative to the workspace root
+      // (e.g. "packages/ledger-button-core/src/...") so SonarCloud can resolve them.
+      reporter: [
+        "text",
+        ["lcov", { projectRoot: path.resolve(__dirname, "../..") }],
+      ],
+      // Mirror sonar.coverage.exclusions in sonar-project.properties so that
+      // lcov.info doesn't reference files SonarCloud excludes (avoids the
+      // "Could not resolve N file paths" warning).
+      exclude: [
+        "**/*.spec.{ts,tsx}",
+        "**/*.test.{ts,tsx}",
+        "**/*.stories.{ts,tsx}",
+        "**/*.config.{js,cjs,mjs,ts,mts}",
+        "**/eslint.config.*",
+        "**/vite.config.*",
+        "**/tailwind.config.*",
+        "**/postcss.config.*",
+        "**/*.d.ts",
+        "**/index.ts",
+        "**/dist/**",
+      ],
     },
   },
 }));
