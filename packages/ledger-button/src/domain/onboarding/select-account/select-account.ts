@@ -81,19 +81,23 @@ export class SelectAccountScreen extends LitElement {
           <span class="body-2-semi-bold truncate text-base"
             >${account.name}</span
           >
-          ${displayTokens.length > 0
-            ? html`<button
-                class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
-                @click=${(e: Event) => {
-                  e.stopPropagation();
-                  this.controller.handleShowTokensClick(account);
-                }}
-              >
-                ${this.controller.formatTokenCount(displayTokens.length)}
-              </button>`
-            : html`<span class="text-muted body-3"
-                >${translations.onboarding.selectAccount.noToken}</span
-              >`}
+          ${isBalanceLoading
+            ? html`<ledger-skeleton
+                class="h-12 w-80 rounded-full"
+              ></ledger-skeleton>`
+            : displayTokens.length > 0
+              ? html`<button
+                  class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 underline"
+                  @click=${(e: Event) => {
+                    e.stopPropagation();
+                    this.controller.handleShowTokensClick(account);
+                  }}
+                >
+                  ${this.controller.formatTokenCount(displayTokens.length)}
+                </button>`
+              : html`<span class="text-muted body-3"
+                  >${translations.onboarding.selectAccount.noToken}</span
+                >`}
         </div>
         <div class="flex shrink-0 flex-col items-end gap-4">
           ${this.renderAccountCardBalance({
