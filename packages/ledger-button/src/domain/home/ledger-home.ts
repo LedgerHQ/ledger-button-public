@@ -7,7 +7,6 @@ import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
-import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
@@ -93,14 +92,11 @@ export class LedgerHomeScreen extends LitElement {
     );
   }
 
-  private handleAccountItemClick = (
-    event: CustomEvent<AccountItemClickEventDetail>,
-  ) => {
+  private handleAccountItemClick = () => {
     this.dispatchEvent(
       new CustomEvent("ledger-internal-account-switch", {
         bubbles: true,
         composed: true,
-        detail: event.detail,
       }),
     );
   };
@@ -275,6 +271,6 @@ declare global {
 
   interface WindowEventMap {
     "ledger-internal-button-disconnect": CustomEvent<void>;
-    "ledger-internal-account-switch": CustomEvent<AccountItemClickEventDetail>;
+    "ledger-internal-account-switch": CustomEvent<void>;
   }
 }

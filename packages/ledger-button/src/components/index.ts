@@ -18,7 +18,6 @@ export * from "./atom/tabs/ledger-tabs.js";
 export * from "./atom/toast/ledger-toast.js";
 export * from "./atom/toggle/ledger-toggle.js";
 export * from "./atom/tooltip/ledger-tooltip.js";
-export * from "./molecule/account-item/ledger-account-item.js";
 export * from "./molecule/account-switch/ledger-account-switch.js";
 export * from "./molecule/ad-item/ledger-ad-item.js";
 export * from "./molecule/chain-item/ledger-chain-item.js";

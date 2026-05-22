@@ -125,7 +125,12 @@
       "addAccountAriaLabel": "Add account",
       "refreshAccountsAriaLabel": "Refresh accounts",
       "addAccountTooltip": "Create a new account",
-      "refreshAccountsTooltip": "Refresh"
+      "refreshAccountsTooltip": "Refresh",
+      "noToken": "No token",
+      "accountCountOne": "1 account",
+      "accountCountOther": "{count} accounts",
+      "tokenCountOne": "1 token",
+      "tokenCountOther": "{count} tokens"
     },
     "connectionSuccess": {
       "title": "You are now connected",
