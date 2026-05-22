@@ -6,6 +6,7 @@ import "./shared/routes.js";
 
 import {
   Account,
+  type EvmProviderUI,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
@@ -27,7 +28,7 @@ type FloatingButtonPosition = FloatingButtonPositionComponent | false;
 
 @customElement("ledger-button-app")
 @tailwindElement()
-export class LedgerButtonApp extends LitElement {
+export class LedgerButtonApp extends LitElement implements EvmProviderUI {
   @query("#navigation")
   root!: RootNavigationComponent;
 

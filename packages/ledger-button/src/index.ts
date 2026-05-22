@@ -5,12 +5,12 @@ import {
   type EIP6963ProviderInfo,
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
+  LedgerEIP1193Provider,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { v4 as uuidv4 } from "uuid";
 
 import { FloatingButtonPosition } from "./components/index.js";
 import { setupFloatingButton } from "./utils/setup-floating-button.js";
-import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
 export type {
