@@ -126,8 +126,8 @@
       "refreshAccountsAriaLabel": "Atualizar contas",
       "addAccountTooltip": "Criar uma nova conta",
       "refreshAccountsTooltip": "Atualizar",
-      "noToken": "Sem token",
-      "accountCountOne": "1 conta",
+      "noToken": "No token",
+      "accountCountOne": "1 account",
       "accountCountOther": "{count} contas",
       "tokenCountOne": "1 token",
       "tokenCountOther": "{count} tokens"
@@ -199,14 +199,13 @@
     "noTransactions": "Nenhuma transação encontrada",
     "pendingTransactions": "Transações pendentes",
     "viewOnExplorer": "Ver no explorador",
-    "failed": "Falhou",
-    "fee": "Taxa",
+    "failed": "Falha",
     "kinds": {
-      "swap": "Troca",
-      "approve": "Aprovação",
-      "contract": "Interação com contrato",
+      "swap": "Trocar",
+      "approve": "Aprovar",
+      "contract": "Interação contratual",
       "fees": "Taxas",
-      "self": "Transferência para si"
+      "self": "Auto transferência"
     }
   },
   "mobileOnboarding": {
