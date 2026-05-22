@@ -20,11 +20,14 @@ export type TransactionConfirmationI18n = {
   checkOnExplorer: string;
 };
 
+export const WINDOW_DURATION_MS = 10 * 60 * 1000;
+
 export class TransactionConfirmationNotifier {
   private subscription: Subscription | undefined;
-  private previousPendingHashes = new Set<string>();
-  private pendingConfirmationHashes = new Set<string>();
-  private shownHashes = new Set<string>();
+  private knownPendingHashes = new Set<string>();
+  private knownHashes = new Set<string>();
+  private windowActive = false;
+  private windowTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private readonly core: LedgerButtonCore,
@@ -34,93 +37,99 @@ export class TransactionConfirmationNotifier {
 
   start(): void {
     this.stop();
-    this.previousPendingHashes = new Set();
-    this.pendingConfirmationHashes = new Set();
-    this.shownHashes = new Set();
 
     this.subscription = combineLatest([
       this.core.observePendingTransactions(),
       this.core.observeContext(),
     ]).subscribe(([pending, context]) => {
-      this.trackRemovedPendingHashes(pending);
-
-      if (this.pendingConfirmationHashes.size === 0) {
-        return;
-      }
-
       const account = context.selectedAccount;
-      if (!this.isDetailedAccount(account) || !account.transactionHistory) {
-        return;
+      const history = this.isDetailedAccount(account)
+        ? (account.transactionHistory ?? [])
+        : [];
+      const explorerUrlTemplate = this.isDetailedAccount(account)
+        ? account.transactionExplorerUrlTemplate
+        : undefined;
+
+      const windowWasPreviouslyActive = this.windowActive;
+      this.detectAndHandleNewPendingHashes(pending);
+
+      if (windowWasPreviouslyActive) {
+        this.flushNewHistoryToasts(history, explorerUrlTemplate);
       }
 
-      this.flushPendingToasts(
-        account.transactionHistory,
-        account.transactionExplorerUrlTemplate,
-      );
+      this.accumulateKnownHashes(history);
     });
   }
 
   stop(): void {
     this.subscription?.unsubscribe();
     this.subscription = undefined;
-    this.previousPendingHashes = new Set();
-    this.pendingConfirmationHashes = new Set();
-    this.shownHashes = new Set();
+    this.clearWindowTimer();
+    this.knownPendingHashes = new Set();
+    this.knownHashes = new Set();
+    this.windowActive = false;
   }
 
-  private trackRemovedPendingHashes(pending: { hash: string }[]): void {
-    const currentHashes = new Set(
-      pending.map((tx) => this.normalizeHash(tx.hash)),
+  private detectAndHandleNewPendingHashes(pending: { hash: string }[]): void {
+    const hasNewPending = pending.some(
+      (tx) => !this.knownPendingHashes.has(this.normalizeHash(tx.hash)),
     );
 
-    if (this.previousPendingHashes.size > 0) {
-      for (const hash of this.previousPendingHashes) {
-        if (!currentHashes.has(this.normalizeHash(hash))) {
-          this.pendingConfirmationHashes.add(hash);
-        }
-      }
+    for (const tx of pending) {
+      this.knownPendingHashes.add(this.normalizeHash(tx.hash));
     }
 
-    this.previousPendingHashes = new Set(pending.map((tx) => tx.hash));
+    if (hasNewPending) {
+      this.resetWindowTimer();
+    }
   }
 
-  private flushPendingToasts(
+  private resetWindowTimer(): void {
+    this.clearWindowTimer();
+    this.windowActive = true;
+    this.windowTimer = setTimeout(() => {
+      this.windowActive = false;
+      this.windowTimer = null;
+    }, WINDOW_DURATION_MS);
+  }
+
+  private clearWindowTimer(): void {
+    if (this.windowTimer !== null) {
+      clearTimeout(this.windowTimer);
+      this.windowTimer = null;
+    }
+  }
+
+  private flushNewHistoryToasts(
     history: TransactionHistoryItem[],
     explorerUrlTemplate: string | undefined,
   ): void {
-    for (const hash of [...this.pendingConfirmationHashes]) {
-      const normalizedHash = this.normalizeHash(hash);
+    const uniqueHashes = [
+      ...new Set(history.map((item) => this.normalizeHash(item.hash))),
+    ];
 
-      if (this.shownHashes.has(normalizedHash)) {
-        this.pendingConfirmationHashes.delete(hash);
+    for (const normalizedHash of uniqueHashes) {
+      if (this.knownHashes.has(normalizedHash)) {
         continue;
       }
 
-      const items = this.findHistoryItems(history, hash);
-      if (items.length === 0) {
-        continue;
-      }
+      const items = history.filter(
+        (item) => this.normalizeHash(item.hash) === normalizedHash,
+      );
 
       const swapLegs = this.detectSwap(items);
       if (swapLegs) {
         this.pushSwapToast(swapLegs.sentLeg, swapLegs.receivedLeg);
-      } else {
+      } else if (items[0]) {
         this.pushToast(items[0], explorerUrlTemplate);
       }
-
-      this.shownHashes.add(normalizedHash);
-      this.pendingConfirmationHashes.delete(hash);
     }
   }
 
-  private findHistoryItems(
-    history: TransactionHistoryItem[],
-    hash: string,
-  ): TransactionHistoryItem[] {
-    const normalizedHash = this.normalizeHash(hash);
-    return history.filter(
-      (item) => this.normalizeHash(item.hash) === normalizedHash,
-    );
+  private accumulateKnownHashes(history: TransactionHistoryItem[]): void {
+    for (const item of history) {
+      this.knownHashes.add(this.normalizeHash(item.hash));
+    }
   }
 
   private detectSwap(
@@ -129,7 +138,11 @@ export class TransactionConfirmationNotifier {
     const successful = items.filter((i) => i.status !== "failed");
     const sentLeg = successful.find((i) => i.direction === "sent");
     const receivedLeg = successful.find((i) => i.direction === "received");
-    if (sentLeg && receivedLeg && sentLeg.asset.ledgerId !== receivedLeg.asset.ledgerId) {
+    if (
+      sentLeg &&
+      receivedLeg &&
+      sentLeg.asset.ledgerId !== receivedLeg.asset.ledgerId
+    ) {
       return { sentLeg, receivedLeg };
     }
     return null;
