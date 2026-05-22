@@ -698,9 +698,7 @@ export class LedgerButtonCore {
 
   async trackCurrencyChanged(currencyCode: string): Promise<void> {
     await this.container
-      .get<TrackCurrencyChanged>(
-        eventTrackingModuleTypes.TrackCurrencyChanged,
-      )
+      .get<TrackCurrencyChanged>(eventTrackingModuleTypes.TrackCurrencyChanged)
       .execute(currencyCode);
   }
 

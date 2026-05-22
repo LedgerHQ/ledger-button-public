@@ -10,6 +10,7 @@ import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
 
 export interface LedgerToolbarAttributes {
   title?: string;
+  subtitle?: string;
   deviceModelId?: DeviceModelId;
   canGoBack: boolean;
   canClose: boolean;
@@ -28,6 +29,9 @@ const styles = css`
 export class LedgerToolbar extends LitElement {
   @property({ type: String })
   override title = "";
+
+  @property({ type: String })
+  subtitle = "";
 
   @property({ type: Boolean, reflect: true })
   canClose = false;
@@ -129,7 +133,16 @@ export class LedgerToolbar extends LitElement {
                   </slot>
                 `
               : this.title
-                ? html`<h2 class="text-base body-2">${this.title}</h2>`
+                ? html`
+                    <div class="flex flex-col items-center">
+                      <h2 class="text-base body-2">${this.title}</h2>
+                      ${this.subtitle
+                        ? html`<span class="text-muted body-3"
+                            >${this.subtitle}</span
+                          >`
+                        : nothing}
+                    </div>
+                  `
                 : nothing}
           </div>
         </div>

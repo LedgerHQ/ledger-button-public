@@ -265,6 +265,7 @@ export class RootNavigationComponent
           .destinations=${this.rootNavigationController.destinations}
           .navigation=${this.rootNavigationController.navigation}
           .params=${this.rootNavigationController.params}
+          .screenData=${currentScreen.screenData}
           .walletTransactionFeatures=${this.walletTransactionFeatures}
         ></${tag}>
       `;
@@ -287,6 +288,7 @@ export class RootNavigationComponent
         <div slot="toolbar">
           <ledger-toolbar
             title=${ifDefined(uiModel.title)}
+            subtitle=${ifDefined(uiModel.subtitle)}
             aria-label=${ifDefined(uiModel.title)}
             .canGoBack=${uiModel.canGoBack}
             .canClose=${uiModel.canClose}

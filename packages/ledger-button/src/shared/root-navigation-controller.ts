@@ -19,6 +19,7 @@ import {
 
 export type RootNavigationUiModel = {
   title: string | undefined;
+  subtitle: string | undefined;
   canGoBack: boolean;
   canClose: boolean;
   showSettings: boolean;
@@ -115,6 +116,7 @@ export class RootNavigationController implements ReactiveController {
 
     const uiModel: RootNavigationUiModel = {
       title,
+      subtitle: this.currentScreen?.toolbar.subtitle,
       canGoBack,
       canClose,
       showSettings,
