@@ -1,0 +1,24 @@
+name: "SonarCloud Analysis"
+description: "Download coverage artifact (optional) and run SonarCloud scan. Requires actions/checkout first."
+
+inputs:
+  should_download_coverage:
+    description: "Download coverage artifact from a prior unit-testing job"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download unit test coverage
+      if: ${{ inputs.should_download_coverage == 'true' }}
+      uses: actions/download-artifact@v7
+      with:
+        name: coverage
+        path: packages
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
