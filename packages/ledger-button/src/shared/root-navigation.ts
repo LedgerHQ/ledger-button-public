@@ -246,6 +246,7 @@ export class RootNavigationComponent
           .destinations=${this.rootNavigationController.destinations}
           .navigation=${this.rootNavigationController.navigation}
           .params=${this.rootNavigationController.params}
+          .screenData=${currentScreen.screenData}
           .walletTransactionFeatures=${this.walletTransactionFeatures}
         ></${tag}>
       `;

@@ -75,6 +75,7 @@ export type Destination = {
   component: string;
   canGoBack: CanGoBackValue;
   skipHistory?: boolean;
+  screenData?: unknown;
   toolbar: {
     title: string;
     subtitle?: string;

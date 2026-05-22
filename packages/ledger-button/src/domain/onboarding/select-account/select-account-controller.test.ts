@@ -201,7 +201,6 @@ describe("SelectAccountController.formatTokenCount", () => {
 describe("SelectAccountController.handleShowTokensClick", () => {
   let controller: SelectAccountController;
   let navigation: Navigation;
-  let core: CoreContext;
 
   const account = createAccount({
     id: "eth-1",
@@ -216,15 +215,8 @@ describe("SelectAccountController.handleShowTokensClick", () => {
       requestUpdate: vi.fn(),
       updateComplete: Promise.resolve(true),
     };
-    core = { setPendingAccountId: vi.fn() } as unknown as CoreContext;
     navigation = { navigateTo: vi.fn() } as unknown as Navigation;
-    controller = new SelectAccountController(host, core, navigation, mockLang);
-  });
-
-  it("sets the pending account id before navigating", () => {
-    controller.handleShowTokensClick(account);
-
-    expect(core.setPendingAccountId).toHaveBeenCalledWith("eth-1");
+    controller = new SelectAccountController(host, {} as CoreContext, navigation, mockLang);
   });
 
   it("navigates to the account tokens screen", () => {
@@ -236,6 +228,14 @@ describe("SelectAccountController.handleShowTokensClick", () => {
         component: "account-tokens-screen",
         canGoBack: true,
       }),
+    );
+  });
+
+  it("passes the account as screenData", () => {
+    controller.handleShowTokensClick(account);
+
+    expect(navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({ screenData: account }),
     );
   });
 
