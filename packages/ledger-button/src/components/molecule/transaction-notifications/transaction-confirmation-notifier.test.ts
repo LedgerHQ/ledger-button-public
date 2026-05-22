@@ -209,7 +209,9 @@ describe("TransactionConfirmationNotifier", () => {
 
   describe("initial history snapshot", () => {
     it("does not toast for transactions that existed before start()", () => {
-      contextSubject = new BehaviorSubject({
+      contextSubject = new BehaviorSubject<{
+        selectedAccount: DetailedAccount | undefined;
+      }>({
         selectedAccount: createDetailedAccount({
           transactionHistory: [createHistoryItem({ hash: "0xpre" })],
         }),
