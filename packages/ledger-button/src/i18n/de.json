@@ -205,7 +205,9 @@
       "approve": "Bestätigen",
       "contract": "Vertragsinteraktion",
       "fees": "Gebühren",
-      "self": "Selbstüberweisung"
+      "self": "Selbstüberweisung",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {

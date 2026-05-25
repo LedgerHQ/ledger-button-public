@@ -205,7 +205,9 @@
       "approve": "Aprovar",
       "contract": "Interação contratual",
       "fees": "Taxas",
-      "self": "Auto transferência"
+      "self": "Auto transferência",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {
