@@ -2,15 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { SolanaRemoteDatasource } from "./rpc/datasource/SolanaRemoteDatasource.js";
 import { StubSolanaRemoteDatasource } from "./rpc/datasource/StubSolanaRemoteDatasource.js";
-import { SolanaRPCCallUseCase } from "./rpc/use-case/SolanaRPCRequest.js";
-import { SendSolanaTransactionUseCase } from "./use-case/SendSolanaTransactionUseCase.js";
-import { SignSolanaMessageUseCase } from "./use-case/SignSolanaMessageUseCase.js";
-import { SignSolanaTransactionUseCase } from "./use-case/SignSolanaTransactionUseCase.js";
 import { createContainer } from "../di.js";
 import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
 
 describe("solanaProviderModule", () => {
-  it("should resolve all Solana provider bindings from the root container", () => {
+  it("should resolve SolanaRemoteDatasource from the root container", () => {
     const container = createContainer({
       devConfig: {
         stub: {
@@ -24,26 +20,6 @@ describe("solanaProviderModule", () => {
         solanaProviderModuleTypes.SolanaRemoteDatasource,
       ),
     ).toBeInstanceOf(SolanaRemoteDatasource);
-    expect(
-      container.get<SolanaRPCCallUseCase>(
-        solanaProviderModuleTypes.SolanaRPCCallUseCase,
-      ),
-    ).toBeInstanceOf(SolanaRPCCallUseCase);
-    expect(
-      container.get<SignSolanaMessageUseCase>(
-        solanaProviderModuleTypes.SignSolanaMessageUseCase,
-      ),
-    ).toBeInstanceOf(SignSolanaMessageUseCase);
-    expect(
-      container.get<SignSolanaTransactionUseCase>(
-        solanaProviderModuleTypes.SignSolanaTransactionUseCase,
-      ),
-    ).toBeInstanceOf(SignSolanaTransactionUseCase);
-    expect(
-      container.get<SendSolanaTransactionUseCase>(
-        solanaProviderModuleTypes.SendSolanaTransactionUseCase,
-      ),
-    ).toBeInstanceOf(SendSolanaTransactionUseCase);
   });
 
   it("should bind StubSolanaRemoteDatasource when solanaProvider stub is enabled", () => {
@@ -71,18 +47,19 @@ describe("solanaProviderModule", () => {
       },
     });
 
-    const useCase = container.get<SolanaRPCCallUseCase>(
-      solanaProviderModuleTypes.SolanaRPCCallUseCase,
+    const datasource = container.get<SolanaRemoteDatasource>(
+      solanaProviderModuleTypes.SolanaRemoteDatasource,
     );
 
-    const response = await useCase.execute({
+    const response = await datasource.JSONRPCRequest({
       jsonrpc: "2.0",
       id: 1,
       method: "getBalance",
       params: [],
     });
 
-    expect(response).toMatchObject({
+    expect(response.isRight()).toBe(true);
+    expect(response.extract()).toMatchObject({
       jsonrpc: "2.0",
       id: 1,
       error: {
