@@ -147,6 +147,8 @@ export class LedgerTransactionItem extends LitElement {
       approve?: string;
       contract?: string;
       fees?: string;
+      received?: string;
+      sent?: string;
     };
   } {
     return this.translations?.transactionList ?? {};
@@ -169,7 +171,9 @@ export class LedgerTransactionItem extends LitElement {
       case "transfer":
       case "unknown":
       default:
-        return this.type === "received" ? "Received" : "Sent";
+        return this.type === "received"
+          ? (kindLabels?.received ?? "Received")
+          : (kindLabels?.sent ?? "Sent");
     }
   }
 

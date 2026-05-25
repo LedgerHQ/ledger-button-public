@@ -205,7 +205,9 @@
       "approve": "Approve",
       "contract": "Contract interaction",
       "fees": "Fees",
-      "self": "Self transfer"
+      "self": "Self transfer",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {

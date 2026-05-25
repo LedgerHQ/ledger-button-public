@@ -205,7 +205,9 @@
       "approve": "Aprobar",
       "contract": "Interacción de contratos",
       "fees": "Tarifas",
-      "self": "Autotransferencia"
+      "self": "Autotransferencia",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {
