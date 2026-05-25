@@ -206,8 +206,8 @@
       "contract": "合约交互",
       "fees": "费用",
       "self": "自助转账",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "已接收",
+      "sent": "已发送"
     }
   },
   "mobileOnboarding": {

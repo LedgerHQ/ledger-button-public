@@ -206,8 +206,8 @@
       "contract": "การโต้ตอบกับสัญญา",
       "fees": "ค่าธรรมเนียม",
       "self": "โอนด้วยตัวเอง",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "ได้รับแล้ว",
+      "sent": "ส่งแล้ว"
     }
   },
   "mobileOnboarding": {
