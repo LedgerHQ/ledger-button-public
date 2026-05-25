@@ -30,4 +30,5 @@ export * from "./signing/SignPersonalMessageParams.js";
 export * from "./signing/SignRawTransactionParams.js";
 export * from "./signing/SignTransactionParams.js";
 export * from "./signing/SignTypedMessageParams.js";
+export * from "./solana/SolanaTypes.js";
 export * from "./UserInteractionNeeded.js";
