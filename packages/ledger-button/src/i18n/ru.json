@@ -206,8 +206,8 @@
       "contract": "Действие с контрактом",
       "fees": "Комиссия",
       "self": "Перевод себе",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "Получение",
+      "sent": "Отправка"
     }
   },
   "mobileOnboarding": {
