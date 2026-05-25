@@ -1,25 +1,9 @@
 export type SolanaCluster = "devnet" | "testnet" | "mainnet-beta";
 
-export type SolanaWalletMethods =
-  | "connect"
-  | "disconnect"
-  | "signMessage"
-  | "signTransaction"
-  | "signAllTransactions"
-  | "sendTransaction";
-
-export type SolanaRpcMethods =
-  | SolanaWalletMethods
-  | "getBalance"
-  | "getLatestBlockhash"
-  | "getSignatureStatuses"
-  | "simulateTransaction"
-  | "sendRawTransaction";
-
 export type SolanaJSONRPCRequest = {
   readonly jsonrpc: string;
   readonly id: number;
-  readonly method: SolanaRpcMethods;
+  readonly method: string;
   readonly params: readonly unknown[] | object;
 };
 
