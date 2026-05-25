@@ -206,8 +206,8 @@
       "contract": "Interacción de contratos",
       "fees": "Tarifas",
       "self": "Autotransferencia",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "Recibido",
+      "sent": "Enviado"
     }
   },
   "mobileOnboarding": {
