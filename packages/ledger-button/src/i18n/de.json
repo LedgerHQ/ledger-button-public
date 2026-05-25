@@ -206,8 +206,8 @@
       "contract": "Vertragsinteraktion",
       "fees": "Gebühren",
       "self": "Selbstüberweisung",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "Empfangen",
+      "sent": "Gesendet"
     }
   },
   "mobileOnboarding": {
