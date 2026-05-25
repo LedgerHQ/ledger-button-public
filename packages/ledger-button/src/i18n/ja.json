@@ -126,8 +126,8 @@
       "refreshAccountsAriaLabel": "アカウントを更新",
       "addAccountTooltip": "新しいアカウントを作成する",
       "refreshAccountsTooltip": "更新",
-      "noToken": "No token",
-      "accountCountOne": "1 account",
+      "noToken": "トークンなし",
+      "accountCountOne": "1件のアカウント",
       "accountCountOther": "{count}アカウント",
       "tokenCountOne": "1トークン",
       "tokenCountOther": "{count}トークン"
@@ -206,8 +206,8 @@
       "contract": "コントラクトのやり取り",
       "fees": "手数料",
       "self": "自己送金",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "受取済み",
+      "sent": "送付済み"
     }
   },
   "mobileOnboarding": {
