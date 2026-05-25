@@ -20,6 +20,7 @@ import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTransactionModule.js";
 import { platformModuleFactory } from "./platform/platformModule.js";
+import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
@@ -37,6 +38,7 @@ export function createContainer({
       account: false,
       device: false,
       web3Provider: false,
+      solanaProvider: false,
       balance: false,
       dAppConfig: false,
       transactionHistory: false,
@@ -66,6 +68,7 @@ export function createContainer({
       stub: devConfig.stub.transactionHistory,
     }),
     evmProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
+    solanaProviderModuleFactory({ stub: devConfig.stub.solanaProvider }),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
