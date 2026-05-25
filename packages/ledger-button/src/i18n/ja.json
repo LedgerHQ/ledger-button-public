@@ -205,7 +205,9 @@
       "approve": "承認",
       "contract": "コントラクトのやり取り",
       "fees": "手数料",
-      "self": "自己送金"
+      "self": "自己送金",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {

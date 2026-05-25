@@ -205,7 +205,9 @@
       "approve": "Onayla",
       "contract": "Sözleşme etkileşimi",
       "fees": "Ücretler",
-      "self": "Kendine transfer"
+      "self": "Kendine transfer",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {

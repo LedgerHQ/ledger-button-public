@@ -205,7 +205,9 @@
       "approve": "승인",
       "contract": "Contract interaction",
       "fees": "수수료",
-      "self": "내 계좌로 전송"
+      "self": "내 계좌로 전송",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {

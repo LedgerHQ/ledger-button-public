@@ -205,7 +205,9 @@
       "approve": "อนุมัติ",
       "contract": "การโต้ตอบกับสัญญา",
       "fees": "ค่าธรรมเนียม",
-      "self": "โอนด้วยตัวเอง"
+      "self": "โอนด้วยตัวเอง",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {

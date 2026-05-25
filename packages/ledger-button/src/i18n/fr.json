@@ -205,7 +205,9 @@
       "approve": "Approuver",
       "contract": "Interaction avec un contrat",
       "fees": "Frais",
-      "self": "Transfert interne"
+      "self": "Transfert interne",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {
