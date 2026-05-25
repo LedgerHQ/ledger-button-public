@@ -206,8 +206,8 @@
       "contract": "Contract interaction",
       "fees": "수수료",
       "self": "내 계좌로 전송",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "수령됨",
+      "sent": "전송됨"
     }
   },
   "mobileOnboarding": {
