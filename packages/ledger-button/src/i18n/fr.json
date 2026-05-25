@@ -206,8 +206,8 @@
       "contract": "Interaction avec un contrat",
       "fees": "Frais",
       "self": "Transfert interne",
-      "received": "Received",
-      "sent": "Sent"
+      "received": "Reçu",
+      "sent": "Envoyé"
     }
   },
   "mobileOnboarding": {
