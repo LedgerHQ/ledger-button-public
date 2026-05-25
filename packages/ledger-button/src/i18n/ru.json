@@ -205,7 +205,9 @@
       "approve": "Утвердить",
       "contract": "Действие с контрактом",
       "fees": "Комиссия",
-      "self": "Перевод себе"
+      "self": "Перевод себе",
+      "received": "Received",
+      "sent": "Sent"
     }
   },
   "mobileOnboarding": {
