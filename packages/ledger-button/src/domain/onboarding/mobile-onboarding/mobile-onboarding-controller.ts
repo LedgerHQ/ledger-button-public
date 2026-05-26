@@ -1,11 +1,14 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
+import { type LanguageContext } from "../../../context/language-context.js";
+import { getLedgerWalletDownloadUrl } from "../../../utils/shop-url.js";
 
 export class MobileOnboardingController implements ReactiveController {
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
+    private readonly lang: LanguageContext,
   ) {
     this.host.addController(this);
   }
@@ -29,7 +32,7 @@ export class MobileOnboardingController implements ReactiveController {
 
   downloadLedgerWallet() {
     window.open(
-      "https://shop.ledger.com/pages/ledger-wallet#download-ledger-wallet",
+      getLedgerWalletDownloadUrl(this.lang.currentLanguage),
       "_blank",
       "noopener,noreferrer",
     );
