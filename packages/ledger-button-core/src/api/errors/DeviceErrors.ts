@@ -10,6 +10,12 @@ export class DeviceNotSupportedError extends LedgerButtonError<{
   }
 }
 
+export class DeviceNotOnboardedError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "DeviceNotOnboardedError", context);
+  }
+}
+
 export class DeviceDisconnectedError extends LedgerButtonError<{
   deviceModel?: string;
   connectionType?: "bluetooth" | "usb";
