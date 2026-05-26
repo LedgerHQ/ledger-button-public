@@ -10,8 +10,8 @@ import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
+import { getLedgerWalletDownloadUrl } from "../../../shared/constants/shop-urls.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import { getLedgerWalletDownloadUrl } from "../../../utils/shop-url.js";
 import type { LedgerDrawer } from "../../atom/drawer/ledger-drawer.js";
 import type { WalletTransactionFeature } from "../wallet-actions/ledger-wallet-actions.js";
 

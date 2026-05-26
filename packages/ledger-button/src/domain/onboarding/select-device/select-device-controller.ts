@@ -7,7 +7,10 @@ import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
 import { type LanguageContext } from "../../../context/language-context.js";
-import { getLedgerNanoSUpgradeUrl, getReferralShopUrl } from "../../../utils/shop-url.js";
+import {
+  getLedgerNanoSUpgradeUrl,
+  getReferralShopUrl,
+} from "../../../shared/constants/shop-urls.js";
 
 export class SelectDeviceController implements ReactiveController {
   errorData?: {
@@ -138,5 +141,4 @@ export class SelectDeviceController implements ReactiveController {
       this.mapErrors(error);
     }
   }
-
 }
