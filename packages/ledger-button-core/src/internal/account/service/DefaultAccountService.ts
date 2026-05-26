@@ -82,7 +82,7 @@ export class DefaultAccountService implements AccountService {
 
         const name =
           accountNames[account.id] ??
-          `${blockchain?.currency_name} Account ${account.index + 1}`;
+          `${blockchain?.currency_name} ${account.index + 1}`;
 
         const ticker = blockchain?.currency_ticker;
         return ticker
