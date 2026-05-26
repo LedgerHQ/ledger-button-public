@@ -35,7 +35,11 @@ export class MobileOnboardingScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new MobileOnboardingController(this, this.coreContext);
+    this.controller = new MobileOnboardingController(
+      this,
+      this.coreContext,
+      this.languages,
+    );
   }
 
   override render() {
