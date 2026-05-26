@@ -5,7 +5,6 @@ import {
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  DeviceNotOnboardedError,
   DeviceNotSupportedError,
 } from "../../../api/errors/DeviceErrors.js";
 import {
@@ -101,8 +100,11 @@ describe("ConnectDevice", () => {
       });
 
       it("should throw DeviceNotOnboardedError and disconnect when device is not onboarded", async () => {
-        await expect(connectDevice.execute({ type: "usb" })).rejects.toThrow(
-          DeviceNotOnboardedError,
+        await expect(connectDevice.execute({ type: "usb" })).rejects.toMatchObject(
+          {
+            name: "DeviceNotOnboardedError",
+            context: { modelId: DeviceModelId.NANO_X },
+          },
         );
         expect(
           mockDeviceManagementKitService.disconnectFromDevice,

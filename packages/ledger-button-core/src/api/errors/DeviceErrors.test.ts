@@ -60,25 +60,31 @@ describe("DeviceErrors", () => {
   });
 
   describe("DeviceNotOnboardedError", () => {
-    it("should be able to create a new error without context", () => {
-      const error = new DeviceNotOnboardedError("Device not onboarded");
+    it("should be able to create a new error with modelId context", () => {
+      const modelId = DeviceModelId.NANO_X;
+      const error = new DeviceNotOnboardedError("Device not onboarded", {
+        modelId,
+      });
 
       expect(error).toBeDefined();
       expect(error.name).toBe("DeviceNotOnboardedError");
       expect(error.message).toBe("Device not onboarded");
-      expect(error.context).toBeUndefined();
+      expect(error.context).toMatchObject({ modelId });
+      expect(error.context?.modelId).toBe(modelId);
       expect(error.timestamp).toBeInstanceOf(Date);
       expect(error.stack).toBeDefined();
       expect(error).toBeInstanceOf(LedgerButtonError);
     });
 
     it("should be able to serialize the error", () => {
-      const error = new DeviceNotOnboardedError("test");
+      const modelId = DeviceModelId.FLEX;
+      const error = new DeviceNotOnboardedError("test", { modelId });
       const serialized = error.toJSON();
 
       expect(serialized).toMatchObject({
         name: "DeviceNotOnboardedError",
         message: "test",
+        context: { modelId },
         timestamp: expect.any(Date),
         stack: expect.any(String),
       });

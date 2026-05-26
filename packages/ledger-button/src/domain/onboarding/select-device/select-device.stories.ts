@@ -64,7 +64,10 @@ export const DeviceNotOnboarded: Story = {
 
     screen.controller.errorData = {
       title: deviceNotOnboardedCopy.title,
-      message: deviceNotOnboardedCopy.description,
+      message: deviceNotOnboardedCopy.description.replace(
+        "{device}",
+        en.common.device.model.nanoX,
+      ),
       statusType: "info",
       cta1: {
         label: deviceNotOnboardedCopy.cta1,
