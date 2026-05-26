@@ -7,6 +7,7 @@ import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
 import { type CoreContext } from "../../../context/core-context.js";
 import { type LanguageContext } from "../../../context/language-context.js";
+import { getLedgerNanoSUpgradeUrl, getReferralShopUrl } from "../../../utils/shop-url.js";
 
 export class SelectDeviceController implements ReactiveController {
   errorData?: {
@@ -31,7 +32,13 @@ export class SelectDeviceController implements ReactiveController {
   async clickAdItem() {
     await this.core
       .getReferralUrl()
-      .then((url) => window.open(url, "_blank", "noopener,noreferrer"))
+      .then((url) =>
+        window.open(
+          getReferralShopUrl(url, this.lang.currentLanguage),
+          "_blank",
+          "noopener,noreferrer",
+        ),
+      )
       .catch((error) =>
         console.error("Failed to get a valid referral url", error),
       );
@@ -70,7 +77,7 @@ export class SelectDeviceController implements ReactiveController {
             label: lang.error.device.DeviceNotSupported.cta2,
             action: () => {
               window.open(
-                "https://shop.ledger.com/pages/ledger-nano-s-upgrade-program?utm_source=support",
+                getLedgerNanoSUpgradeUrl(this.lang.currentLanguage),
                 "_blank",
                 "noopener,noreferrer",
               );
