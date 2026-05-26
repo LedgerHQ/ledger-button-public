@@ -3,6 +3,7 @@ import { DeviceModelId } from "@ledgerhq/device-management-kit";
 import {
   BlindSigningDisabledError,
   DeviceDisconnectedError,
+  DeviceNotOnboardedError,
   DeviceNotSupportedError,
   IncorrectSeedError,
   UserRejectedTransactionError,
@@ -52,6 +53,32 @@ describe("DeviceErrors", () => {
         name: "DeviceNotSupportedError",
         message: "test",
         context: { modelId },
+        timestamp: expect.any(Date),
+        stack: expect.any(String),
+      });
+    });
+  });
+
+  describe("DeviceNotOnboardedError", () => {
+    it("should be able to create a new error without context", () => {
+      const error = new DeviceNotOnboardedError("Device not onboarded");
+
+      expect(error).toBeDefined();
+      expect(error.name).toBe("DeviceNotOnboardedError");
+      expect(error.message).toBe("Device not onboarded");
+      expect(error.context).toBeUndefined();
+      expect(error.timestamp).toBeInstanceOf(Date);
+      expect(error.stack).toBeDefined();
+      expect(error).toBeInstanceOf(LedgerButtonError);
+    });
+
+    it("should be able to serialize the error", () => {
+      const error = new DeviceNotOnboardedError("test");
+      const serialized = error.toJSON();
+
+      expect(serialized).toMatchObject({
+        name: "DeviceNotOnboardedError",
+        message: "test",
         timestamp: expect.any(Date),
         stack: expect.any(String),
       });

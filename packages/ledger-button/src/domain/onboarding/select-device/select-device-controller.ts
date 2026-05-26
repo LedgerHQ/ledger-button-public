@@ -1,6 +1,7 @@
 import {
   DeviceConnectionError,
   DeviceDisconnectedError,
+  DeviceNotOnboardedError,
   DeviceNotSupportedError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
@@ -81,6 +82,30 @@ export class SelectDeviceController implements ReactiveController {
             action: () => {
               window.open(
                 getLedgerNanoSUpgradeUrl(this.lang.currentLanguage),
+                "_blank",
+                "noopener,noreferrer",
+              );
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceNotOnboardedError: {
+        this.errorData = {
+          title: lang.error.device.DeviceNotOnboarded.title,
+          message: lang.error.device.DeviceNotOnboarded.description,
+          cta1: {
+            label: lang.error.device.DeviceNotOnboarded.cta1,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
+            },
+          },
+          cta2: {
+            label: lang.error.device.DeviceNotOnboarded.cta2,
+            action: () => {
+              window.open(
+                "https://support.ledger.com/article/8166861096349-zd",
                 "_blank",
                 "noopener,noreferrer",
               );

@@ -24,7 +24,9 @@ export function createMockDeviceManagementKitService(): {
   connectToDevice: ReturnType<typeof vi.fn>;
   disconnectFromDevice: ReturnType<typeof vi.fn>;
   listAvailableDevices: ReturnType<typeof vi.fn>;
-  dmk: unknown;
+  dmk: {
+    sendCommand: ReturnType<typeof vi.fn>;
+  };
   sessionId?: string;
   connectedDevice?: Device;
 } {
@@ -32,7 +34,9 @@ export function createMockDeviceManagementKitService(): {
     connectToDevice: vi.fn(),
     disconnectFromDevice: vi.fn(),
     listAvailableDevices: vi.fn(),
-    dmk: {},
+    dmk: {
+      sendCommand: vi.fn(),
+    },
   };
 }
 
