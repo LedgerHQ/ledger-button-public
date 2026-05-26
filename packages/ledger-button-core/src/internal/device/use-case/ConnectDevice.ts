@@ -63,7 +63,9 @@ export class ConnectDevice {
       !osVersionResult.data.secureElementFlags.isOnboarded
     ) {
       await this.deviceManagementKitService.disconnectFromDevice();
-      const error = new DeviceNotOnboardedError("Device not onboarded");
+      const error = new DeviceNotOnboardedError("Device not onboarded", {
+        modelId: device.modelId,
+      });
       this.logger.error("Device not onboarded", { error });
       throw error;
     }
