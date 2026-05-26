@@ -33,6 +33,10 @@ export function formatFiatValue(
  * @param value - The balance string (e.g., "1234.5678")
  * @param locale - BCP 47 locale tag (e.g., "en-US", "fr-FR")
  * @returns Formatted string (e.g., "1,234.5678" for en-US, "1 234,5678" for fr-FR)
+ *
+ * @warning Values are parsed with {@link parseFloat} before formatting. Integer parts
+ * beyond {@link Number.MAX_SAFE_INTEGER} or long decimal strings may lose precision
+ * and display an incorrect balance.
  */
 export function formatTokenBalance(
   value: string,

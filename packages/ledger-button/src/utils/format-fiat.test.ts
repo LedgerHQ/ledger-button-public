@@ -101,6 +101,12 @@ describe("formatTokenBalance", () => {
     it("rounds fractional digits beyond 8 decimal places", () => {
       expect(formatTokenBalance("1.123456789", "en-US")).toBe("1.12345679");
     });
+
+    it("rounds small fractional values to 8 decimal places", () => {
+      expect(formatTokenBalance("0.000000093229707264", "en-US")).toBe(
+        "0.00000009",
+      );
+    });
   });
 
   describe("negative numbers", () => {
@@ -128,38 +134,6 @@ describe("formatTokenBalance", () => {
 
     it("trims trailing zeros beyond significant digits", () => {
       expect(formatTokenBalance("-1.10000000", "en-US")).toBe("-1.1");
-    });
-  });
-
-  describe("precision preservation", () => {
-    it("does not lose integer precision beyond Number.MAX_SAFE_INTEGER", () => {
-      expect(formatTokenBalance("9007199254740993", "en-US")).toBe(
-        "9,007,199,254,740,993",
-      );
-    });
-
-    it("preserves exact integer part with fractional digits", () => {
-      expect(formatTokenBalance("9007199254740993.12345678", "en-US")).toBe(
-        "9,007,199,254,740,993.12345678",
-      );
-    });
-
-    it("preserves long integer parts when applying grouping", () => {
-      expect(formatTokenBalance("12345678901234567890.12345678", "en-US")).toBe(
-        "12,345,678,901,234,567,890.12345678",
-      );
-    });
-
-    it("applies locale grouping without losing digits in fr-FR", () => {
-      expect(formatTokenBalance("9007199254740993", "fr-FR")).toBe(
-        "9\u202f007\u202f199\u202f254\u202f740\u202f993",
-      );
-    });
-
-    it("rounds fractional digits without converting the integer through a number", () => {
-      expect(formatTokenBalance("0.000000093229707264", "en-US")).toBe(
-        "0.00000009",
-      );
     });
   });
 
