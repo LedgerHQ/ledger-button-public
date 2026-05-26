@@ -5,7 +5,7 @@ import {
   getLedgerWalletDownloadUrl,
   getReferralShopUrl,
   getShopUrl,
-} from "./shop-url.js";
+} from "./shop-urls.js";
 
 describe("getShopUrl", () => {
   describe("page URLs", () => {
@@ -70,9 +70,7 @@ describe("getShopUrl", () => {
     });
 
     it("builds localized root URLs without query parameters", () => {
-      expect(getShopUrl({ language: "fr" })).toBe(
-        "https://shop.ledger.com/fr",
-      );
+      expect(getShopUrl({ language: "fr" })).toBe("https://shop.ledger.com/fr");
     });
   });
 });
