@@ -299,10 +299,10 @@
         "cta2": "Compra un nuevo dispositivo Ledger"
       },
       "DeviceNotOnboarded": {
-        "title": "Your Ledger device isn't set up yet",
-        "description": "Set up your device in Ledger Wallet before connecting. You'll need to create or restore a recovery phrase.",
-        "cta1": "Connect another device",
-        "cta2": "Learn how to set up"
+        "title": "Set up your Ledger first",
+        "description": "This device hasn't been initialized yet. Set it up in Ledger Wallet to create or restore your recovery phrase, then come back to connect.",
+        "cta1": "Learn how to set up",
+        "cta2": "Connect another Ledger Device"
       },
       "IncorrectSeed": {
         "title": "Incompatibilidad entre el dispositivo Ledger y la cuenta cripto",
