@@ -68,6 +68,8 @@ const meta: Meta = {
     <div class="min-w-352 dark">
       <transaction-list-screen
         .transactions=${args.transactions}
+        .pendingTransactions=${args.pendingTransactions ?? []}
+        @view-all-transactions-click=${args.onViewAllTransactionsClick}
       ></transaction-list-screen>
     </div>
   `,
@@ -80,9 +82,22 @@ const meta: Meta = {
         category: "Required",
       },
     },
+    pendingTransactions: {
+      control: "object",
+      description: "Array of pending transaction items",
+      table: {
+        type: { summary: "TransactionListItem[]" },
+        category: "Optional",
+      },
+    },
+    onViewAllTransactionsClick: {
+      action: "view-all-transactions-click",
+      description: "Fired when the user clicks View all transactions",
+    },
   },
   args: {
     transactions: sampleTransactions,
+    pendingTransactions: [],
   },
 };
 
@@ -98,6 +113,20 @@ export const Default: Story = {
 export const EmptyState: Story = {
   args: {
     transactions: [],
+    pendingTransactions: [],
+  },
+};
+
+export const PendingOnly: Story = {
+  args: {
+    transactions: [],
+    pendingTransactions: [
+      makeTx({
+        hash: "0xpending1",
+        status: "pending",
+        type: "sent",
+      }),
+    ],
   },
 };
 

@@ -162,6 +162,15 @@ export const ViewTransactionDetailsClickedEventSchema =
         "Transaction hash must be lowercase hex without 0x prefix",
       ),
   }).strict();
+
+export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("view_all_transactions_clicked"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  ledger_sync_user_id: z.string().optional(),
+  currency_id: z.string().min(1),
+  account_address: z.string().min(1),
+}).strict();
+
 export const LanguageChangedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("language_changed"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -192,6 +201,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   WalletRedirectCancelledEventSchema,
   MobileRedirectLedgerWalletEventSchema,
   ViewTransactionDetailsClickedEventSchema,
+  ViewAllTransactionsClickedEventSchema,
   LanguageChangedEventSchema,
   CurrencyChangedEventSchema,
 ]);
@@ -230,6 +240,9 @@ export type WalletRedirectCancelledEvent = z.infer<
 >;
 export type ViewTransactionDetailsClickedEvent = z.infer<
   typeof ViewTransactionDetailsClickedEventSchema
+>;
+export type ViewAllTransactionsClickedEvent = z.infer<
+  typeof ViewAllTransactionsClickedEventSchema
 >;
 export type LanguageChangedEvent = z.infer<typeof LanguageChangedEventSchema>;
 export type CurrencyChangedEvent = z.infer<typeof CurrencyChangedEventSchema>;

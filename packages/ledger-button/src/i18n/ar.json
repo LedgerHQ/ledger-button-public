@@ -207,6 +207,7 @@
     "noTransactions": "لم يتم العثور على معاملات",
     "pendingTransactions": "معاملات مُعلَّقة",
     "viewOnExplorer": "View on explorer",
+    "viewAllTransactions": "View all transactions",
     "failed": "فشلت",
     "fee": "الرسوم",
     "kinds": {

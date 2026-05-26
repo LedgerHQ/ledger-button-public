@@ -207,6 +207,7 @@
     "noTransactions": "未找到交易",
     "pendingTransactions": "待处理交易",
     "viewOnExplorer": "在浏览器上查看",
+    "viewAllTransactions": "View all transactions",
     "failed": "已失败",
     "kinds": {
       "swap": "互换",

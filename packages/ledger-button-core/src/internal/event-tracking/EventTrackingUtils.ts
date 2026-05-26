@@ -21,6 +21,7 @@ import {
   type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
   type ViewTransactionDetailsClickedEventData,
+  type ViewAllTransactionsClickedEventData,
   type WalletActionClickedEventData,
   type WalletActionType,
   type WalletRedirectCancelledEventData,
@@ -283,6 +284,30 @@ export class EventTrackingUtils {
     return {
       name: EventType.ViewTransactionDetailsClicked,
       type: EventType.ViewTransactionDetailsClicked,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsClickedEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsClicked,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsClicked,
+      type: EventType.ViewAllTransactionsClicked,
       data,
     };
   }

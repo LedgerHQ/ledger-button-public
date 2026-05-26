@@ -20,7 +20,10 @@ import {
   langContext,
   LanguageContext,
 } from "../../context/language-context.js";
-import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
+import {
+  buildAccountDeepLink,
+  buildWalletActionDeepLink,
+} from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
@@ -159,6 +162,25 @@ export class LedgerHomeScreen extends LitElement {
     this.currentAction = null;
   };
 
+  private handleViewAllTransactionsClick = () => {
+    const account = this.controller.selectedAccount;
+    if (!account) return;
+
+    void this.coreContext.trackViewAllTransactionsClicked({
+      currencyId: account.currencyId,
+      accountAddress: account.freshAddress,
+    });
+
+    const deeplink = buildAccountDeepLink(
+      {
+        currency: account.currencyId,
+        address: account.freshAddress,
+      },
+      this.coreContext.getConfig().dAppIdentifier,
+    );
+    window.open(deeplink, "_blank", "noopener,noreferrer");
+  };
+
   override render() {
     if (this.controller.loading) {
       return html`
@@ -237,6 +259,8 @@ export class LedgerHomeScreen extends LitElement {
                   .transactions=${this.controller.transactionListItems}
                   .pendingTransactions=${this.controller
                     .pendingTransactionListItems}
+                  @view-all-transactions-click=${this
+                    .handleViewAllTransactionsClick}
                 ></transaction-list-screen>`}
           </div>
         </div>

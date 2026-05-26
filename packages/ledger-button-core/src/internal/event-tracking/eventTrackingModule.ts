@@ -18,6 +18,7 @@ import { TrackTransactionStarted } from "./usecase/TrackTransactionStarted.js";
 import { TrackTypedMessageCompleted } from "./usecase/TrackTypedMessageCompleted.js";
 import { TrackTypedMessageStarted } from "./usecase/TrackTypedMessageStarted.js";
 import { TrackViewTransactionDetailsClick } from "./usecase/TrackViewTransactionDetailsClick.js";
+import { TrackViewAllTransactionsClick } from "./usecase/TrackViewAllTransactionsClick.js";
 import { TrackWalletAction } from "./usecase/TrackWalletAction.js";
 import { eventTrackingModuleTypes } from "./eventTrackingModuleTypes.js";
 
@@ -104,5 +105,9 @@ export const eventTrackingModuleFactory = ({
     bind<TrackViewTransactionDetailsClick>(
       eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
     ).to(TrackViewTransactionDetailsClick);
+
+    bind<TrackViewAllTransactionsClick>(
+      eventTrackingModuleTypes.TrackViewAllTransactionsClick,
+    ).to(TrackViewAllTransactionsClick);
   });
 };
