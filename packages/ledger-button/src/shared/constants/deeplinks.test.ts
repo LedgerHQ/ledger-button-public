@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { buildWalletActionDeepLink } from "./deeplinks.js";
+import { buildAccountDeepLink, buildWalletActionDeepLink } from "./deeplinks.js";
 
 describe("buildWalletActionDeepLink", () => {
   describe("without partner", () => {
@@ -68,6 +68,44 @@ describe("buildWalletActionDeepLink", () => {
     test("URL-encodes partner with special characters", () => {
       const url = buildWalletActionDeepLink("buy", undefined, "Partner & Co");
       expect(url).toContain("deeplinkButtonPartner=Partner+%26+Co");
+    });
+  });
+});
+
+describe("buildAccountDeepLink", () => {
+  describe("without partner", () => {
+    test("returns base URL when no context", () => {
+      expect(buildAccountDeepLink({})).toBe("ledgerwallet://account");
+    });
+
+    test("appends currency and address params when context is provided", () => {
+      expect(
+        buildAccountDeepLink({
+          currency: "ethereum",
+          address: "0x1234",
+        }),
+      ).toBe("ledgerwallet://account?currency=ethereum&address=0x1234");
+    });
+
+    test("appends only currency when address is omitted", () => {
+      expect(buildAccountDeepLink({ currency: "bitcoin" })).toBe(
+        "ledgerwallet://account?currency=bitcoin",
+      );
+    });
+  });
+
+  describe("with partner", () => {
+    test("appends tracking query params with deeplinkDestination=account", () => {
+      const url = buildAccountDeepLink(
+        { currency: "ethereum", address: "0x1234" },
+        "MyPartner",
+      );
+      expect(url).toContain("currency=ethereum");
+      expect(url).toContain("address=0x1234");
+      expect(url).toContain("deeplinkType=Internal");
+      expect(url).toContain("deeplinkChannel=Button");
+      expect(url).toContain("deeplinkDestination=account");
+      expect(url).toContain("deeplinkButtonPartner=MyPartner");
     });
   });
 });

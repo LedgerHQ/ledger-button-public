@@ -207,6 +207,7 @@
     "noTransactions": "トランザクションが見つかりません",
     "pendingTransactions": "保留中のトランザクション",
     "viewOnExplorer": "エクスプローラーで表示",
+    "viewAllTransactions": "View all transactions",
     "failed": "失敗",
     "kinds": {
       "swap": "スワップ",

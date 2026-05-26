@@ -207,6 +207,7 @@
     "noTransactions": "İşlem bulunamadı",
     "pendingTransactions": "Bekleyen İşlemler",
     "viewOnExplorer": "Tarayıcıda görüntüle",
+    "viewAllTransactions": "View all transactions",
     "failed": "Başarısız",
     "kinds": {
       "swap": "Takas et",

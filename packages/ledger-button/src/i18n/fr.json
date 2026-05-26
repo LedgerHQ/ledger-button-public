@@ -207,6 +207,7 @@
     "noTransactions": "Aucune transaction trouvée",
     "pendingTransactions": "Transactions en attente",
     "viewOnExplorer": "Voir dans l’explorateur",
+    "viewAllTransactions": "View all transactions",
     "failed": "Échec",
     "kinds": {
       "swap": "Échanger",
