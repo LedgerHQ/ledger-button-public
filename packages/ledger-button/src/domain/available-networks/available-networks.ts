@@ -11,6 +11,7 @@ import {
 } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import { formatTokenBalance } from "../../utils/format-fiat.js";
 import {
   AvailableNetworksController,
   type NetworkWithBalance,
@@ -51,7 +52,7 @@ export class AvailableNetworksScreen extends LitElement {
         ledger-id=${network.id}
         ticker=${network.ticker ?? ""}
         .title=${network.name}
-        .value=${network.balance ?? ""}
+        .value=${network.balance ? formatTokenBalance(network.balance, this.languages.locale) : ""}
         .isClickable=${true}
         type="network"
         iconVariant="square"

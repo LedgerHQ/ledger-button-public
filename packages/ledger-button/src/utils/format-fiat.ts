@@ -28,6 +28,24 @@ export function formatFiatValue(
 }
 
 /**
+ * Formats a token/crypto balance as a locale-aware number string.
+ *
+ * @param value - The balance string (e.g., "1234.5678")
+ * @param locale - BCP 47 locale tag (e.g., "en-US", "fr-FR")
+ * @returns Formatted string (e.g., "1,234.5678" for en-US, "1 234,5678" for fr-FR)
+ */
+export function formatTokenBalance(
+  value: string,
+  locale = DEFAULT_LOCALE,
+): string {
+  const num = parseFloat(value);
+  if (isNaN(num)) return value;
+  return new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 8,
+  }).format(num);
+}
+
+/**
  * Formats a FiatBalance as a currency string. Returns empty string when undefined.
  */
 export function formatFiatBalance(

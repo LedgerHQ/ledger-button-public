@@ -16,7 +16,10 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { getDisplayTokens } from "../../utils/account-display-tokens.js";
-import { formatFiatBalance } from "../../utils/format-fiat.js";
+import {
+  formatFiatBalance,
+  formatTokenBalance,
+} from "../../utils/format-fiat.js";
 import { AccountTokenController } from "./account-token-controller.js";
 
 @customElement("account-tokens-screen")
@@ -50,7 +53,7 @@ export class AccountTokensScreen extends LitElement {
         .title=${token.name}
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
-        .value=${token.balance}
+        .value=${formatTokenBalance(token.balance, this.languages.locale)}
         .fiatValue=${formatFiatBalance(
           token.fiatBalance,
           this.languages.locale,
