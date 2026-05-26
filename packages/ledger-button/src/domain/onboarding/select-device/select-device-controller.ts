@@ -6,6 +6,7 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
+import { type StatusType } from "../../../components/organism/status/ledger-status.js";
 import { type CoreContext } from "../../../context/core-context.js";
 import { type LanguageContext } from "../../../context/language-context.js";
 import {
@@ -17,6 +18,7 @@ export class SelectDeviceController implements ReactiveController {
   errorData?: {
     message: string;
     title: string;
+    statusType?: StatusType;
     cta1?: { label: string; action: () => void | Promise<void> };
     cta2?: { label: string; action: () => void | Promise<void> };
   } = undefined;
@@ -94,21 +96,22 @@ export class SelectDeviceController implements ReactiveController {
         this.errorData = {
           title: lang.error.device.DeviceNotOnboarded.title,
           message: lang.error.device.DeviceNotOnboarded.description,
+          statusType: "info",
           cta1: {
             label: lang.error.device.DeviceNotOnboarded.cta1,
-            action: () => {
-              this.errorData = undefined;
-              this.host.requestUpdate();
-            },
-          },
-          cta2: {
-            label: lang.error.device.DeviceNotOnboarded.cta2,
             action: () => {
               window.open(
                 "https://support.ledger.com/article/8166861096349-zd",
                 "_blank",
                 "noopener,noreferrer",
               );
+            },
+          },
+          cta2: {
+            label: lang.error.device.DeviceNotOnboarded.cta2,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
             },
           },
         };
