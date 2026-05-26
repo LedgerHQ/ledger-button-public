@@ -36,7 +36,6 @@ export class ConnectDevice {
       type,
     });
 
-    console.log("device", JSON.stringify(device, null, 2));
     await this.rejectUnsupportedDevice(device);
     await this.assertDeviceOnboarded(device);
 
@@ -59,7 +58,6 @@ export class ConnectDevice {
   private async assertDeviceOnboarded(device: Device): Promise<void> {
     const osVersionResult = await this.getOsVersionResult(device);
 
-    console.log("osVersionResult", JSON.stringify(osVersionResult, null, 2));
     if (
       isSuccessCommandResult(osVersionResult) &&
       !osVersionResult.data.secureElementFlags.isOnboarded
