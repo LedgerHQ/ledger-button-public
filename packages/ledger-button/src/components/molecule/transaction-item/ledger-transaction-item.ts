@@ -12,7 +12,10 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import { formatFiatValue } from "../../../utils/format-fiat.js";
+import {
+  formatFiatValue,
+  formatTokenBalance,
+} from "../../../utils/format-fiat.js";
 
 const transactionItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
@@ -220,9 +223,9 @@ export class LedgerTransactionItem extends LitElement {
   private get displayCryptoAmount(): string {
     if (this.isFeesRow) {
       const ticker = this.feeTicker || this.ticker;
-      return `-${this.formattedFee} ${ticker}`.trimEnd();
+      return `-${formatTokenBalance(this.formattedFee, this.locale)} ${ticker}`.trimEnd();
     }
-    return `${this.sign}${this.amount} ${this.ticker}`;
+    return `${this.sign}${formatTokenBalance(this.amount, this.locale)} ${this.ticker}`;
   }
 
   private get displayFiatAmount(): string {
