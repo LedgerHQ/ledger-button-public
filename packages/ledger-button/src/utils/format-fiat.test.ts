@@ -2,7 +2,11 @@ import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_LOCALE } from "../context/constants/languages.js";
-import { formatFiatBalance, formatFiatValue } from "./format-fiat.js";
+import {
+  formatFiatBalance,
+  formatFiatValue,
+  formatTokenBalance,
+} from "./format-fiat.js";
 
 describe("formatFiatValue", () => {
   describe("ISO 4217 currency codes (en-US)", () => {
@@ -55,6 +59,82 @@ describe("formatFiatValue", () => {
     it("uses DEFAULT_LOCALE when currency is passed but locale is omitted", () => {
       expect(formatFiatValue(50.25, "EUR")).toBe(
         formatFiatValue(50.25, "EUR", DEFAULT_LOCALE),
+      );
+    });
+  });
+});
+
+describe("formatTokenBalance", () => {
+  describe("locale formatting", () => {
+    it("uses dot as decimal separator in en-US", () => {
+      expect(formatTokenBalance("0.01", "en-US")).toBe("0.01");
+    });
+
+    it("uses comma as decimal separator in fr-FR", () => {
+      expect(formatTokenBalance("0.01", "fr-FR")).toBe("0,01");
+    });
+
+    it("uses grouping separator in en-US for large numbers", () => {
+      expect(formatTokenBalance("1234567.89", "en-US")).toBe("1,234,567.89");
+    });
+
+    it("uses grouping separator in fr-FR for large numbers", () => {
+      expect(formatTokenBalance("1234567.89", "fr-FR")).toBe(
+        "1\u202f234\u202f567,89",
+      );
+    });
+  });
+
+  describe("precision", () => {
+    it("preserves up to 8 decimal places", () => {
+      expect(formatTokenBalance("0.12345678", "en-US")).toBe("0.12345678");
+    });
+
+    it("trims trailing zeros beyond significant digits", () => {
+      expect(formatTokenBalance("1.10000000", "en-US")).toBe("1.1");
+    });
+
+    it("formats zero", () => {
+      expect(formatTokenBalance("0", "en-US")).toBe("0");
+    });
+  });
+
+  describe("negative numbers", () => {
+    it("uses dot as decimal separator in en-US", () => {
+      expect(formatTokenBalance("-0.01", "en-US")).toBe("-0.01");
+    });
+
+    it("uses comma as decimal separator in fr-FR", () => {
+      expect(formatTokenBalance("-0.01", "fr-FR")).toBe("-0,01");
+    });
+
+    it("uses grouping separator in en-US for large numbers", () => {
+      expect(formatTokenBalance("-1234567.89", "en-US")).toBe("-1,234,567.89");
+    });
+
+    it("uses grouping separator in fr-FR for large numbers", () => {
+      expect(formatTokenBalance("-1234567.89", "fr-FR")).toBe(
+        "-1\u202f234\u202f567,89",
+      );
+    });
+
+    it("preserves up to 8 decimal places", () => {
+      expect(formatTokenBalance("-0.12345678", "en-US")).toBe("-0.12345678");
+    });
+
+    it("trims trailing zeros beyond significant digits", () => {
+      expect(formatTokenBalance("-1.10000000", "en-US")).toBe("-1.1");
+    });
+  });
+
+  describe("edge cases", () => {
+    it("returns the raw string when value is not a valid number", () => {
+      expect(formatTokenBalance("not-a-number", "en-US")).toBe("not-a-number");
+    });
+
+    it("uses DEFAULT_LOCALE when locale is omitted", () => {
+      expect(formatTokenBalance("1.5")).toBe(
+        formatTokenBalance("1.5", DEFAULT_LOCALE),
       );
     });
   });
