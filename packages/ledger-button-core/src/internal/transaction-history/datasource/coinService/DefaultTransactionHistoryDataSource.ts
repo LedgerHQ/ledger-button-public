@@ -26,6 +26,7 @@ import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSourc
 
 const EPOCH_ISO = new Date(0).toISOString();
 const FEES_OPERATION_SUFFIX = "-FEES";
+const TRANSACTION_HISTORY_MAX_ITEMS = 20;
 
 @injectable()
 export class DefaultTransactionHistoryDataSource
@@ -137,7 +138,9 @@ export class DefaultTransactionHistoryDataSource
     dto: CoinServiceAccountOperationsResponseDto,
   ): TransactionHistoryPage {
     return {
-      items: dto.items.map((op) => this.mapDtoToEntry(op)),
+      items: dto.items
+        .slice(0, TRANSACTION_HISTORY_MAX_ITEMS)
+        .map((op) => this.mapDtoToEntry(op)),
       nextPageToken: dto.next ?? undefined,
     };
   }
