@@ -406,6 +406,28 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
       expect(result.unsafeCoerce().items).toHaveLength(0);
     });
+
+    it("should return at most 20 items when the API returns more", async () => {
+      const items = Array.from({ length: 25 }, (_, index) =>
+        makeDto({
+          id: `op-${index}`,
+          txOverrides: { hash: `0x${index.toString(16).padStart(2, "0")}` },
+        }),
+      );
+      vi.mocked(mockNetworkService.get).mockResolvedValue(Right({ items }));
+
+      const result = await dataSource.getTransactions(
+        testAddress,
+        testCurrencyId,
+      );
+
+      expect(result.isRight()).toBe(true);
+      const page = result.unsafeCoerce();
+      expect(page.items).toHaveLength(20);
+      expect(page.items.map((entry) => entry.hash)).toEqual(
+        items.slice(0, 20).map((op) => op.tx.hash),
+      );
+    });
   });
 
   describe("dropping operations without hash", () => {
