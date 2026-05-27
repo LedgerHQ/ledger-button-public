@@ -1,4 +1,5 @@
 import "./components/index.js";
+import "./components/molecule/transaction-notifications/ledger-transaction-confirmation-host.js";
 import "./shared/root-navigation.js";
 import "./context/language-context.js";
 import "./context/core-context.js";
@@ -21,6 +22,7 @@ import { ModalMode } from "./components/index.js";
 import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 import { RootNavigationComponent } from "./shared/root-navigation.js";
 import { Destination } from "./shared/routes.js";
+import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
 import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
 import { tailwindElement } from "./tailwind-element.js";
 
@@ -40,6 +42,10 @@ export class LedgerButtonApp extends LitElement implements EvmProviderUI {
 
   @property({ type: Array })
   walletTransactionFeatures?: WalletTransactionFeature[];
+
+  @property({ type: String, attribute: false })
+  transactionConfirmationNotification: TransactionConfirmationNotification =
+    "tooltip";
 
   controller!: LedgerButtonAppController;
 
@@ -214,6 +220,8 @@ export class LedgerButtonApp extends LitElement implements EvmProviderUI {
 
     return html`<ledger-floating-button
       .position=${this.floatingButtonPosition}
+      .transactionConfirmationNotification=${this
+        .transactionConfirmationNotification}
     ></ledger-floating-button>`;
   }
 
@@ -222,6 +230,9 @@ export class LedgerButtonApp extends LitElement implements EvmProviderUI {
       <div class="dark">
         <core-provider .coreClass=${this.core}>
           <language-provider>
+            <ledger-transaction-confirmation-host
+              confirmation-mode=${this.transactionConfirmationNotification}
+            ></ledger-transaction-confirmation-host>
             <root-navigation-component
               id="navigation"
               .walletTransactionFeatures=${this.walletTransactionFeatures}

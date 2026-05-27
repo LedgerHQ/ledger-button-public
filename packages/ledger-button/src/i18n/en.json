@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "1 transaction has been validated",
       "transactionsValidatedOther": "{count} transactions have been validated"
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Sent",
+      "transactionReceivedTitle": "Received",
+      "transactionFailedTitle": "Transaction failed",
+      "transactionSwapTitle": "Transaction confirmed",
+      "checkOnExplorer": "Check transaction on explorer"
+    },
     "search": {
       "placeholder": "Search account",
       "clearAriaLabel": "Clear search"

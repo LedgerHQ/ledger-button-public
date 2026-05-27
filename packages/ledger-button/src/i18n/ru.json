@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "1 транзакция подтверждена",
       "transactionsValidatedOther": "Транзакции подтверждены ({count})"
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Отправлено",
+      "transactionReceivedTitle": "Получено",
+      "transactionFailedTitle": "Транзакция не выполнена",
+      "transactionSwapTitle": "Транзакция подтверждена",
+      "checkOnExplorer": "Посмотреть транзакцию в обозревателе"
+    },
     "search": {
       "placeholder": "Поиск счёта",
       "clearAriaLabel": "Очистить поиск"

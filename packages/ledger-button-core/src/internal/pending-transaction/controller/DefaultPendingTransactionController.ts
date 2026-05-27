@@ -70,7 +70,7 @@ export class DefaultPendingTransactionController
         preferredCurrency !== undefined &&
         context.preferredFiatCurrency !== preferredCurrency
       ) {
-        this.emitCurrentState();
+        void this.emitCurrentState();
       }
       preferredCurrency = context.preferredFiatCurrency;
     });
@@ -118,15 +118,17 @@ export class DefaultPendingTransactionController
       return;
     }
 
-    const confirmedHashes = result.unsafeCoerce();
+    const settledOutcomes = result.unsafeCoerce();
 
-    for (const hash of confirmedHashes) {
-      this.storageService.remove(hash);
+    if (settledOutcomes.length > 0) {
+      for (const { hash } of settledOutcomes) {
+        this.storageService.remove(hash);
+      }
     }
 
-    this.emitCurrentState();
+    await this.emitUpdate();
 
-    if (confirmedHashes.length > 0) {
+    if (settledOutcomes.length > 0) {
       this.refreshSelectedAccount();
     }
 
@@ -146,10 +148,15 @@ export class DefaultPendingTransactionController
   }
 
   private async emitCurrentState(): Promise<void> {
-    const hydratedTxs = this.hydratePendingTransactionsWithFiatUseCase.execute(
-      this.storageService.getAll(),
-      this.contextService.getContext().preferredFiatCurrency,
-    );
-    this.pendingTxSubject.next(await hydratedTxs);
+    await this.emitUpdate();
+  }
+
+  private async emitUpdate(): Promise<void> {
+    const hydratedTxs =
+      await this.hydratePendingTransactionsWithFiatUseCase.execute(
+        this.storageService.getAll(),
+        this.contextService.getContext().preferredFiatCurrency,
+      );
+    this.pendingTxSubject.next(hydratedTxs);
   }
 }

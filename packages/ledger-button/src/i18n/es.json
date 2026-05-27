@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "1 transacción ha sido validada",
       "transactionsValidatedOther": "{count} transacciones han sido validadas"
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Enviado",
+      "transactionReceivedTitle": "Recibido",
+      "transactionFailedTitle": "Transacción fallida",
+      "transactionSwapTitle": "Transacción confirmada",
+      "checkOnExplorer": "Ver transacción en el explorador"
+    },
     "search": {
       "placeholder": "Buscar cuenta",
       "clearAriaLabel": "Borrar búsqueda"
