@@ -2,27 +2,18 @@
 
 End-to-end release workflow. Follows the conventions defined in [release-process.mdc](../.cursor/rules/release-process.mdc).
 
-## Step 0 — Assess current state
+## Step 1 — Start from a clean develop
 
 Run all of these in parallel:
 
 ```bash
-git branch --show-current
-git status
-git log --oneline main..develop
+git checkout develop
+git pull origin develop
+git log --oneline origin/main..develop
 ls .nx/version-plans/
 ```
 
-Use the output to:
-- Confirm you are on `develop` (or move there)
-- Identify the pending version plans to determine the version bump
-
-## Step 1 — Start from a clean develop
-
-```bash
-git checkout develop
-git pull origin develop
-```
+Use the log and version plans output to identify the pending changes and determine the version bump.
 
 ## Step 2 — Determine the version
 
