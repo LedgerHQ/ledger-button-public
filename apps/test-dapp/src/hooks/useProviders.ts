@@ -22,6 +22,8 @@ export const ALL_WALLET_FEATURES: WalletTransactionFeature[] = [
   "sell",
 ];
 
+export type TransactionConfirmationNotification = "tooltip" | "toast";
+
 export interface LedgerProviderConfig {
   dAppIdentifier: string;
   apiKey: string;
@@ -30,6 +32,7 @@ export interface LedgerProviderConfig {
   logLevel: string;
   environment: string;
   walletTransactionFeatures: WalletTransactionFeature[];
+  transactionConfirmationNotification: TransactionConfirmationNotification;
 }
 
 export const DEFAULT_CONFIG: LedgerProviderConfig = {
@@ -40,6 +43,7 @@ export const DEFAULT_CONFIG: LedgerProviderConfig = {
   logLevel: "info",
   environment: "production",
   walletTransactionFeatures: ["send", "receive", "swap", "buy", "earn", "sell"],
+  transactionConfirmationNotification: "tooltip",
 };
 
 export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
@@ -111,6 +115,8 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
         environment: configToUse.environment as "production" | "staging",
         dmkConfig: undefined,
         walletTransactionFeatures: configToUse.walletTransactionFeatures,
+        transactionConfirmationNotification:
+          configToUse.transactionConfirmationNotification,
         devConfig: disableEventTracking
           ? {
               stub: {

@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "1 işlem doğrulandı",
       "transactionsValidatedOther": "{count} işlem doğrulandı"
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Gönderildi",
+      "transactionReceivedTitle": "Alındı",
+      "transactionFailedTitle": "İşlem başarısız",
+      "transactionSwapTitle": "İşlem onaylandı",
+      "checkOnExplorer": "İşlemi gezginde kontrol et"
+    },
     "search": {
       "placeholder": "Hesap ara",
       "clearAriaLabel": "Aramayı temizle"

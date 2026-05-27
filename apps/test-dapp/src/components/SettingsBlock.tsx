@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Button,
   Select,
@@ -16,6 +16,7 @@ import { ChevronDown, ChevronRight, Settings } from "@ledgerhq/lumen-ui-react/sy
 import {
   ALL_WALLET_FEATURES,
   type LedgerProviderConfig,
+  type TransactionConfirmationNotification,
   type WalletTransactionFeature,
 } from "../hooks/useProviders";
 
@@ -52,6 +53,14 @@ const ENVIRONMENTS = [
   { value: "staging", label: "Staging" },
 ];
 
+const CONFIRMATION_NOTIFICATION_MODES: {
+  value: TransactionConfirmationNotification;
+  label: string;
+}[] = [
+  { value: "tooltip", label: "Tooltip" },
+  { value: "toast", label: "Toast" },
+];
+
 export function SettingsBlock({
   config,
   onConfigChange,
@@ -70,6 +79,11 @@ export function SettingsBlock({
   );
 
   const dappSelectValue = isCustomDapp ? "custom" : localConfig.dAppIdentifier;
+
+  useEffect(() => {
+    setLocalConfig(config);
+    setLastAppliedConfig(config);
+  }, [config]);
 
   const handleInputChange = useCallback(
     (field: keyof LedgerProviderConfig, value: string) => {
@@ -115,6 +129,16 @@ export function SettingsBlock({
     [],
   );
 
+  const handleConfirmationModeChange = useCallback(
+    (mode: TransactionConfirmationNotification) => {
+      setLocalConfig((prev) => ({
+        ...prev,
+        transactionConfirmationNotification: mode,
+      }));
+    },
+    [],
+  );
+
   const handleApply = useCallback(() => {
     onConfigChange(localConfig);
     setLastAppliedConfig(localConfig);
@@ -140,8 +164,19 @@ export function SettingsBlock({
           {hasChanges && (
             <Tag appearance="warning" size="sm" label="Unsaved" />
           )}
+          <Tag
+            appearance="gray"
+            size="sm"
+            label={
+              lastAppliedConfig.transactionConfirmationNotification === "toast"
+                ? "Confirm: Toast"
+                : "Confirm: Tooltip"
+            }
+          />
         </div>
-        <span className="text-muted">{isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
+        <span className="text-muted">
+          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+        </span>
       </div>
 
       {isExpanded && (
@@ -245,6 +280,37 @@ export function SettingsBlock({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-10">
+            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+              Transaction confirmation
+            </h4>
+            <p className="body-2 text-muted">
+              How on-chain confirmation is shown after a pending transaction
+              settles. Click Apply &amp; Reinitialize to switch modes.
+            </p>
+            <div className="flex flex-wrap gap-8">
+              {CONFIRMATION_NOTIFICATION_MODES.map((mode) => {
+                const isActive =
+                  localConfig.transactionConfirmationNotification ===
+                  mode.value;
+                return (
+                  <button
+                    key={mode.value}
+                    type="button"
+                    onClick={() => handleConfirmationModeChange(mode.value)}
+                    className={`px-14 py-8 rounded-lg body-2-semi-bold cursor-pointer transition-colors border ${
+                      isActive
+                        ? "border-active bg-muted-transparent text-base"
+                        : "border-muted bg-canvas text-muted"
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-10">

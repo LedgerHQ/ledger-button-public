@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "1건의 트랜잭션이 승인되었습니다",
       "transactionsValidatedOther": "{count}건의 트랜잭션이 승인되었습니다."
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "전송됨",
+      "transactionReceivedTitle": "수신됨",
+      "transactionFailedTitle": "트랜잭션이 실패했습니다",
+      "transactionSwapTitle": "트랜잭션이 확인되었습니다",
+      "checkOnExplorer": "익스플로러에서 트랜잭션 확인"
+    },
     "search": {
       "placeholder": "계정 검색",
       "clearAriaLabel": "검색 기록 삭제"

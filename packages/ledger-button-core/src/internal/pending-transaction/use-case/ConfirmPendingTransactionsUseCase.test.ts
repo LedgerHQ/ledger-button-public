@@ -8,14 +8,17 @@ import type {
 } from "../../transaction-history/model/transactionHistoryTypes.js";
 import { ConfirmPendingTransactionsUseCase } from "./ConfirmPendingTransactionsUseCase.js";
 
-function makeEntry(hash: string): TransactionHistoryEntry {
+function makeEntry(
+  hash: string,
+  failed = false,
+): TransactionHistoryEntry {
   return {
     hash,
     value: "0",
     senders: [],
     recipients: [],
     fee: undefined,
-    failed: false,
+    failed,
     blockHeight: 1,
     timestamp: "2024-01-15T10:30:00Z",
     asset: { isNative: true },
@@ -82,7 +85,19 @@ describe("ConfirmPendingTransactionsUseCase", () => {
     ]);
 
     expect(result.isRight()).toBe(true);
-    expect(result.unsafeCoerce()).toEqual(["0xaaa"]);
+    expect(result.unsafeCoerce()).toEqual([{ hash: "0xaaa", failed: false }]);
+  });
+
+  it("should return failed flag when the on-chain entry failed", async () => {
+    const page: TransactionHistoryPage = {
+      items: [makeEntry("0xaaa", true)],
+    };
+    mockDataSource.getTransactions.mockResolvedValue(Right(page));
+
+    const result = await useCase.execute("ethereum", "0x1234", ["0xaaa"]);
+
+    expect(result.isRight()).toBe(true);
+    expect(result.unsafeCoerce()).toEqual([{ hash: "0xaaa", failed: true }]);
   });
 
   it("should return an empty array when no pending hashes match", async () => {

@@ -414,6 +414,9 @@ export default function Index() {
                 account={account}
                 chainId={chainId}
                 isInitialized={isInitialized}
+                transactionConfirmationNotification={
+                  config.transactionConfirmationNotification
+                }
               />
             </div>
             <div className="flex min-h-0 flex-1 flex-col">

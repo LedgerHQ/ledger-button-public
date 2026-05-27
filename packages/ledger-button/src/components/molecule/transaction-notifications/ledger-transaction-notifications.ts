@@ -82,7 +82,7 @@ export class LedgerTransactionNotifications extends LitElement {
             .description=${n.description ?? ""}
             .linkText=${n.linkText ?? ""}
             .linkHref=${n.linkHref ?? ""}
-            .duration=${n.duration ?? 5000}
+            .duration=${n.duration ?? 8000}
             .autoDismiss=${n.autoDismiss ?? true}
             @ledger-toast-close=${() => this.handleToastClose(n.id)}
           ></ledger-toast>

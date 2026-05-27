@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "1件のトランザクションを検証済みです",
       "transactionsValidatedOther": "{count}件のトランザクションを検証済みです"
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "送信済み",
+      "transactionReceivedTitle": "受信済み",
+      "transactionFailedTitle": "トランザクションが失敗しました",
+      "transactionSwapTitle": "トランザクションが確認されました",
+      "checkOnExplorer": "エクスプローラーでトランザクションを確認"
+    },
     "search": {
       "placeholder": "アカウントを検索",
       "clearAriaLabel": "検索をクリア"

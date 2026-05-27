@@ -11,6 +11,13 @@
       "transactionsValidatedOne": "تم التحقق من معاملة واحدة",
       "transactionsValidatedOther": "تم التحقق من {count} معاملات"
     },
+    "transactionConfirmation": {
+      "transactionSentTitle": "تم الإرسال",
+      "transactionReceivedTitle": "تم الاستلام",
+      "transactionFailedTitle": "فشلت المعاملة",
+      "transactionSwapTitle": "تم تأكيد المعاملة",
+      "checkOnExplorer": "تحقق من المعاملة على المستكشف"
+    },
     "search": {
       "placeholder": "ابحث في الحساب",
       "clearAriaLabel": "مسح البحث"

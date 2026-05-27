@@ -104,6 +104,24 @@ describe("FloatingButtonController", () => {
     });
   });
 
+  describe("toast confirmation mode", () => {
+    beforeEach(() => {
+      controller = new FloatingButtonController(host, core, "toast");
+    });
+
+    it("should not open validated celebration when pending count decreases", () => {
+      const tx = createPendingTx();
+      pendingTxSubject.next([tx]);
+      controller.hostConnected();
+
+      pendingTxSubject.next([]);
+
+      expect(controller.validatedCelebrationOpen).toBe(false);
+      expect(controller.validatedCount).toBe(0);
+      expect(controller.pendingTransactionCount).toBe(0);
+    });
+  });
+
   describe("clearValidatedCelebration", () => {
     it("should reset celebration state", () => {
       const tx = createPendingTx();
