@@ -54,6 +54,5 @@ jobs:
       - uses: ./.github/actions/scan-sonar-composite
         with:
           should_download_coverage: "true"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_LEDGER_BUTTON_PROJECT }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_token: ${{ secrets.SONAR_TOKEN_LEDGER_BUTTON_PROJECT }}
