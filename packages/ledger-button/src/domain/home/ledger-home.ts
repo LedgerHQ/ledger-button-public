@@ -189,6 +189,7 @@ export class LedgerHomeScreen extends LitElement {
             <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
               <div class="flex flex-row items-center justify-between">
                 <ledger-account-switch
+                  class="max-w-256"
                   .account=${account}
                   @account-switch=${this.handleAccountItemClick}
                 ></ledger-account-switch>

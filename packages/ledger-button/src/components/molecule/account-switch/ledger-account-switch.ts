@@ -53,7 +53,9 @@ export class LedgerAccountSwitch extends LitElement {
       <button class=${buttonClass()} @click=${this.handleClick}>
         <div class="flex items-center gap-4">
           <div class="body-2-semi-bold flex min-w-0 flex-1 truncate text-base">
-            <span class="body-2-semi-bold text-base">${this.account.name}</span>
+            <span class="body-2-semi-bold truncate text-base"
+              >${this.account.name}</span
+            >
           </div>
           <ledger-icon
             class="shrink-0"
