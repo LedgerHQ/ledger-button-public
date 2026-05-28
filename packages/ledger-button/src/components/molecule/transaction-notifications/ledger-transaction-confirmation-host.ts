@@ -68,19 +68,19 @@ export class LedgerTransactionConfirmationHost extends LitElement {
     return {
       transactionSentTitle:
         this.languages?.currentTranslation?.common?.transactionConfirmation
-          .transactionSentTitle ?? "Sent",
+          ?.transactionSentTitle ?? "Sent",
       transactionReceivedTitle:
         this.languages?.currentTranslation?.common?.transactionConfirmation
-          .transactionReceivedTitle ?? "Received",
+          ?.transactionReceivedTitle ?? "Received",
       transactionFailedTitle:
         this.languages?.currentTranslation?.common?.transactionConfirmation
-          .transactionFailedTitle ?? "Transaction failed",
+          ?.transactionFailedTitle ?? "Transaction failed",
       transactionSwapTitle:
         this.languages?.currentTranslation?.common?.transactionConfirmation
-          .transactionSwapTitle ?? "Transaction confirmed",
+          ?.transactionSwapTitle ?? "Transaction confirmed",
       checkOnExplorer:
         this.languages?.currentTranslation?.common?.transactionConfirmation
-          .checkOnExplorer ?? "Check transaction on explorer",
+          ?.checkOnExplorer ?? "Check transaction on explorer",
     };
   }
 
