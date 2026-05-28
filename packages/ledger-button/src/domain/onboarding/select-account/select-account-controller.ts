@@ -49,15 +49,29 @@ export class SelectAccountController implements ReactiveController {
 
   get groupedAccounts(): AccountGroup[] {
     const map = new Map<string, AccountWithFiat[]>();
+    const totalBalances = new Map<string, number>();
+
     for (const account of this.filteredAccounts) {
       const group = map.get(account.freshAddress) ?? [];
       group.push(account);
       map.set(account.freshAddress, group);
+
+      const totalBalance = totalBalances.get(account.freshAddress) ?? 0;
+      const accountFiat = this.getAccountFiatValue(account);
+      totalBalances.set(
+        account.freshAddress,
+        totalBalance + parseFloat(accountFiat?.value ?? "0"),
+      );
     }
-    return Array.from(map.entries()).map(([freshAddress, accounts]) => ({
-      freshAddress,
-      accounts,
-    }));
+
+    return Array.from(map.entries())
+      .sort(
+        ([a], [b]) => (totalBalances.get(b) ?? 0) - (totalBalances.get(a) ?? 0),
+      )
+      .map(([freshAddress, accounts]) => ({
+        freshAddress,
+        accounts,
+      }));
   }
 
   get filteredAccounts(): AccountWithFiat[] {
