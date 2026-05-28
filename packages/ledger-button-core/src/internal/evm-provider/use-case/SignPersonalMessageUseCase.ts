@@ -1,4 +1,7 @@
-import { ContextModuleBuilder } from "@ledgerhq/context-module";
+import {
+  ContextModuleBuilder,
+  ContextModuleChainID,
+} from "@ledgerhq/context-module";
 import {
   type DeviceActionState,
   DeviceActionStatus,
@@ -132,6 +135,7 @@ export class SignPersonalMessageUseCase {
       originToken: this.config.originToken,
     })
       .setAppSource(this.config.dAppIdentifier)
+      .setChain(ContextModuleChainID.Ethereum)
       .build();
   }
 
