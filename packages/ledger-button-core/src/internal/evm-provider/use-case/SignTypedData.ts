@@ -1,4 +1,7 @@
-import { ContextModuleBuilder } from "@ledgerhq/context-module";
+import {
+  ContextModuleBuilder,
+  ContextModuleChainID,
+} from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   OpenAppWithDependenciesDAInput,
@@ -126,6 +129,7 @@ export class SignTypedData {
         originToken: this.config.originToken,
       })
         .setAppSource(this.config.dAppIdentifier)
+        .setChain(ContextModuleChainID.Ethereum)
         .build();
       const ethSigner = new SignerEthBuilder({
         dmk,
