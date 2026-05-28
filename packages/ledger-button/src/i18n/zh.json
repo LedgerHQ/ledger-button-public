@@ -308,17 +308,10 @@
         "cta1": "重试",
         "cta2": "关闭"
       },
-      "UserRejectedTransaction": {
-        "title": "交易被拒绝",
-        "description": "您在 {device} 上拒绝了该交易",
-        "cta1": "关闭",
-        "cta2": "重试交易。"
-      },
-      "UserRejectedMessage": {
-        "title": "消息被拒绝",
-        "description": "您在 {device} 上拒绝了签署消息。",
-        "cta1": "关闭",
-        "cta2": "重试消息签署"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

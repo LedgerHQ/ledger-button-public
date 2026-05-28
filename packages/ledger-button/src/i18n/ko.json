@@ -308,17 +308,10 @@
         "cta1": "다시 시도",
         "cta2": "닫기"
       },
-      "UserRejectedTransaction": {
-        "title": "트랜잭션이 거부되었습니다",
-        "description": "{device}에서 트랜잭션을 거부했습니다",
-        "cta1": "닫기",
-        "cta2": "트랜잭션 재시도"
-      },
-      "UserRejectedMessage": {
-        "title": "메시지가 거부되었습니다",
-        "description": "{device}에서 메시지 서명을 거부했습니다",
-        "cta1": "닫기",
-        "cta2": "메시지 서명 재시도"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

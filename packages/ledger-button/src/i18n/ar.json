@@ -308,17 +308,10 @@
         "cta1": "إعادة المحاولة",
         "cta2": "إغلاق"
       },
-      "UserRejectedTransaction": {
-        "title": "تم رفض المعاملة",
-        "description": "لقد قمت برفض المعاملة على جهازك {device}",
-        "cta1": "إغلاق",
-        "cta2": "أعد المحاولة للمعاملة"
-      },
-      "UserRejectedMessage": {
-        "title": "تم رفض الرسالة",
-        "description": "لقد قمت برفض توقيع الرسالة على جهازك {device}",
-        "cta1": "إغلاق",
-        "cta2": "أعد محاولة توقيع الرسالة"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

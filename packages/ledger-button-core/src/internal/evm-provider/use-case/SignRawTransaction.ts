@@ -1,10 +1,12 @@
 import { ContextModuleBuilder } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
+  GlobalCommandError,
   hexaStringToBuffer,
   OpenAppWithDependenciesDAInput,
   OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
 import {
@@ -208,6 +210,16 @@ export class SignRawTransaction {
           }),
           switchMap((result: OpenAppWithDependenciesDAState) => {
             if (result.status === DeviceActionStatus.Error) {
+              const err = result.error;
+              if (
+                err instanceof RefusedByUserDAError ||
+                (err instanceof GlobalCommandError && err.errorCode === "5501")
+              ) {
+                throw new UserRejectedTransactionError(
+                  "User rejected open app",
+                );
+              }
+
               throw new Error("Open app with dependencies failed");
             }
 
