@@ -12,10 +12,10 @@
       "transactionsValidatedOther": "{count}件のトランザクションを検証済みです"
     },
     "transactionConfirmation": {
-      "transactionSentTitle": "送信済み",
-      "transactionReceivedTitle": "受信済み",
-      "transactionFailedTitle": "トランザクションが失敗しました",
-      "transactionSwapTitle": "トランザクションが確認されました",
+      "transactionSentTitle": "送付済み",
+      "transactionReceivedTitle": "受取済み",
+      "transactionFailedTitle": "トランザクションが失敗しました。",
+      "transactionSwapTitle": "トランザクションが承認されました",
       "checkOnExplorer": "エクスプローラーでトランザクションを確認"
     },
     "search": {
