@@ -14,9 +14,9 @@
     "transactionConfirmation": {
       "transactionSentTitle": "Enviado",
       "transactionReceivedTitle": "Recibido",
-      "transactionFailedTitle": "Transacción fallida",
+      "transactionFailedTitle": "La transacción ha fallado.",
       "transactionSwapTitle": "Transacción confirmada",
-      "checkOnExplorer": "Ver transacción en el explorador"
+      "checkOnExplorer": "Comprobar transacción en el explorador"
     },
     "search": {
       "placeholder": "Buscar cuenta",
