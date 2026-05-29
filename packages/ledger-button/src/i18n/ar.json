@@ -197,7 +197,8 @@
   "accountTokens": {
     "title": "رموز الحساب",
     "notFound": "لم يتم العثور على الحساب",
-    "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب"
+    "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب",
+    "unknownToken": "Unknown Token"
   },
   "availableNetworks": {
     "title": "الشبكات المتاحة"
