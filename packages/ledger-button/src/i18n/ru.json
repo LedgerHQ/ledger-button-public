@@ -197,7 +197,8 @@
   "accountTokens": {
     "title": "Токены счёта",
     "notFound": "Не нашли такой счёт",
-    "noTokens": "Не нашли токенов для этого счёта"
+    "noTokens": "Не нашли токенов для этого счёта",
+    "unknownToken": "Unknown Token"
   },
   "availableNetworks": {
     "title": "Доступные сети"
