@@ -16,7 +16,7 @@
       "transactionReceivedTitle": "Empfangen",
       "transactionFailedTitle": "Transaktion fehlgeschlagen",
       "transactionSwapTitle": "Transaktion bestätigt",
-      "checkOnExplorer": "Transaktion im Explorer ansehen"
+      "checkOnExplorer": "Transaktion im Explorer prüfen"
     },
     "search": {
       "placeholder": "Konto suchen",
@@ -198,7 +198,7 @@
     "title": "Konto-Token",
     "notFound": "Konto nicht gefunden",
     "noTokens": "Keine Token für dieses Konto gefunden",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "Unbekannter Token"
   },
   "availableNetworks": {
     "title": "Verfügbare Netzwerke"
