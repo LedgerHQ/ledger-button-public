@@ -272,7 +272,7 @@ describe("FetchTransactionHistoryUseCase", () => {
 
       expect(result.unsafeCoerce().transactions[0]?.asset).toEqual({
         ledgerId: "ethereum/erc20/unknown",
-        name: "Unknown Token",
+        name: undefined,
         ticker: "???",
         decimals: 18,
       });
