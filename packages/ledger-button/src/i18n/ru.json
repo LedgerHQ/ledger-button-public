@@ -12,11 +12,11 @@
       "transactionsValidatedOther": "Транзакции подтверждены ({count})"
     },
     "transactionConfirmation": {
-      "transactionSentTitle": "Отправлено",
-      "transactionReceivedTitle": "Получено",
-      "transactionFailedTitle": "Транзакция не выполнена",
+      "transactionSentTitle": "Отправка",
+      "transactionReceivedTitle": "Получение",
+      "transactionFailedTitle": "Сбой транзакции",
       "transactionSwapTitle": "Транзакция подтверждена",
-      "checkOnExplorer": "Посмотреть транзакцию в обозревателе"
+      "checkOnExplorer": "Посмотреть в Обозревателе"
     },
     "search": {
       "placeholder": "Поиск счёта",
@@ -67,7 +67,7 @@
     }
   },
   "home": {
-    "title": "Ваше приложение Ledger Wallet",
+    "title": "Ваш кошелёк Ledger Wallet",
     "balance": "Баланс",
     "tabs": {
       "tokens": "Токены",
@@ -77,7 +77,7 @@
   "walletActions": {
     "send": "Отправить",
     "receive": "Получить",
-    "swap": "Обмен",
+    "swap": "Обменять",
     "buy": "Купить",
     "earn": "Приумножить",
     "sell": "Продать"
@@ -86,7 +86,7 @@
     "title": "Продолжите в Ledger Wallet",
     "description": "Для этого действия требуется Ledger Wallet для ПК.",
     "confirm": "Открыть Ledger Wallet",
-    "download": "Загрузите Ledger Wallet"
+    "download": "Загрузить Ledger Wallet"
   },
   "deviceSwitch": {
     "title": "Ваши устройства Ledger",
@@ -127,11 +127,11 @@
       "showTokens": "Показать токены",
       "searchPlaceholder": "Поиск счёта",
       "noResults": "Не нашли счетов по вашему запросу",
-      "refreshingAccounts": "Ledger Wallet обновляет ваши счёта.",
+      "refreshingAccounts": "Ledger Wallet обновляет ваши счета.",
       "refreshingAccountsHint": "Вы можете в любой момент выбрать счёт, чтобы продолжить.",
       "addAccountAriaLabel": "Добавить счёт",
       "refreshAccountsAriaLabel": "Обновить счета",
-      "addAccountTooltip": "Создание нового счёта",
+      "addAccountTooltip": "Создать новый счёт",
       "refreshAccountsTooltip": "Обновить",
       "noToken": "Токенов нет",
       "accountCountOne": "1 счёт",
@@ -206,7 +206,7 @@
     "noTransactions": "Не нашли транзакции",
     "pendingTransactions": "Неподтверждённые транзакции",
     "viewOnExplorer": "Посмотреть в Обозревателе",
-    "failed": "Неудачно",
+    "failed": "Ошибка",
     "kinds": {
       "swap": "Обмен",
       "approve": "Утвердить",
@@ -221,7 +221,7 @@
     "title": "Продолжите в Ledger Wallet",
     "description": "Для более плавного взаимодействия это децентрализованное приложение откроется непосредственно в приложении Ledger Wallet",
     "allowButton": "Открыть Ledger Wallet",
-    "rejectButton": "Загрузите Ledger Wallet"
+    "rejectButton": "Загрузить Ledger Wallet"
   },
   "settings": {
     "title": "Настройки",
