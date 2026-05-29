@@ -197,7 +197,8 @@
   "accountTokens": {
     "title": "Tokens de compte",
     "notFound": "Compte non trouvé",
-    "noTokens": "Aucun token trouvé pour ce compte"
+    "noTokens": "Aucun token trouvé pour ce compte",
+    "unknownToken": "Token inconnu"
   },
   "availableNetworks": {
     "title": "Réseaux disponibles"

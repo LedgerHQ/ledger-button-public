@@ -89,6 +89,7 @@ export class LedgerHomeScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
+      this.languages,
     );
   }
 
