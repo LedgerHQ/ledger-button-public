@@ -13,10 +13,10 @@
     },
     "transactionConfirmation": {
       "transactionSentTitle": "전송됨",
-      "transactionReceivedTitle": "수신됨",
-      "transactionFailedTitle": "트랜잭션이 실패했습니다",
-      "transactionSwapTitle": "트랜잭션이 확인되었습니다",
-      "checkOnExplorer": "익스플로러에서 트랜잭션 확인"
+      "transactionReceivedTitle": "수령됨",
+      "transactionFailedTitle": "트랜잭션 실패",
+      "transactionSwapTitle": "트랜잭션이 승인되었습니다",
+      "checkOnExplorer": "탐색기에서 트랜잭션을 확인하세요"
     },
     "search": {
       "placeholder": "계정 검색",
@@ -133,8 +133,8 @@
       "refreshAccountsAriaLabel": "계정 새로고침",
       "addAccountTooltip": "새로운 계정 생성",
       "refreshAccountsTooltip": "새로고침",
-      "noToken": "No token",
-      "accountCountOne": "1 account",
+      "noToken": "토큰 없음",
+      "accountCountOne": "1개 계정",
       "accountCountOther": "{count}개 계정",
       "tokenCountOne": "1개의 토큰",
       "tokenCountOther": "{count}개의 토큰"
@@ -198,7 +198,7 @@
     "title": "계정 토큰",
     "notFound": "계정을 찾을 수 없습니다",
     "noTokens": "이 계정에서 토큰을 찾을 수 없습니다",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "알 수 없는 토큰"
   },
   "availableNetworks": {
     "title": "사용 가능한 네트워크"
@@ -211,7 +211,7 @@
     "kinds": {
       "swap": "스왑",
       "approve": "승인",
-      "contract": "Contract interaction",
+      "contract": "컨트랙트 상호작용",
       "fees": "수수료",
       "self": "내 계좌로 전송",
       "received": "수령됨",
