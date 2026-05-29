@@ -13,7 +13,7 @@
     },
     "transactionConfirmation": {
       "transactionSentTitle": "已发送",
-      "transactionReceivedTitle": "已收到",
+      "transactionReceivedTitle": "已接收",
       "transactionFailedTitle": "交易失败",
       "transactionSwapTitle": "交易已确认",
       "checkOnExplorer": "在浏览器中查看交易"
