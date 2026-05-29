@@ -133,8 +133,8 @@
       "refreshAccountsAriaLabel": "刷新账户",
       "addAccountTooltip": "创建新账户",
       "refreshAccountsTooltip": "刷新",
-      "noToken": "No token",
-      "accountCountOne": "1 account",
+      "noToken": "无代币",
+      "accountCountOne": "1 个账户",
       "accountCountOther": "{count} 个账户",
       "tokenCountOne": "1 枚代币",
       "tokenCountOther": "{count} 枚代币"
