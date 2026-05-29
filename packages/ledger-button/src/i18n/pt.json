@@ -14,9 +14,9 @@
     "transactionConfirmation": {
       "transactionSentTitle": "Enviado",
       "transactionReceivedTitle": "Recebido",
-      "transactionFailedTitle": "Transação falhou",
+      "transactionFailedTitle": "A transação falhou",
       "transactionSwapTitle": "Transação confirmada",
-      "checkOnExplorer": "Ver transação no explorador"
+      "checkOnExplorer": "Verificar transação no explorador"
     },
     "search": {
       "placeholder": "Buscar conta",
@@ -198,7 +198,7 @@
     "title": "Tokens de Conta",
     "notFound": "Conta não encontrada",
     "noTokens": "Nenhum token encontrado para esta conta",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "Token Desconhecido"
   },
   "availableNetworks": {
     "title": "Redes disponíveis"
