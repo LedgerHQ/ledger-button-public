@@ -12,11 +12,11 @@
       "transactionsValidatedOther": "Транзакции подтверждены ({count})"
     },
     "transactionConfirmation": {
-      "transactionSentTitle": "Отправлено",
-      "transactionReceivedTitle": "Получено",
-      "transactionFailedTitle": "Транзакция не выполнена",
+      "transactionSentTitle": "Отправка",
+      "transactionReceivedTitle": "Получение",
+      "transactionFailedTitle": "Сбой транзакции",
       "transactionSwapTitle": "Транзакция подтверждена",
-      "checkOnExplorer": "Посмотреть транзакцию в обозревателе"
+      "checkOnExplorer": "Посмотреть в Обозревателе"
     },
     "search": {
       "placeholder": "Поиск счёта",
