@@ -27,6 +27,9 @@ function createPendingTx(
   };
 }
 
+const account1 = { freshAddress: "0xabc123", currencyId: "ethereum" };
+const account2 = { freshAddress: "0xdef456", currencyId: "ethereum" };
+
 describe("FloatingButtonController", () => {
   let host: ReactiveControllerHost;
   let core: CoreContext;
@@ -43,7 +46,9 @@ describe("FloatingButtonController", () => {
     };
 
     pendingTxSubject = new BehaviorSubject<PendingTransaction[]>([]);
-    contextSubject = new BehaviorSubject<Record<string, unknown>>({});
+    contextSubject = new BehaviorSubject<Record<string, unknown>>({
+      selectedAccount: account1,
+    });
 
     core = {
       observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
@@ -162,6 +167,72 @@ describe("FloatingButtonController", () => {
 
       expect(controller.validatedCelebrationOpen).toBe(false);
       expect(controller.validatedCount).toBe(0);
+    });
+  });
+
+  describe("per-account pending count", () => {
+    it("only counts pending txs that belong to the selected account", () => {
+      const txAccount1 = createPendingTx({
+        hash: "0x1",
+        address: account1.freshAddress,
+      });
+      const txAccount2 = createPendingTx({
+        hash: "0x2",
+        address: account2.freshAddress,
+      });
+      pendingTxSubject.next([txAccount1, txAccount2]);
+      controller.hostConnected();
+
+      expect(controller.pendingTransactionCount).toBe(1);
+    });
+
+    it("ignores pending txs whose currency differs from the selected account", () => {
+      const sameAddressOtherChain = createPendingTx({
+        hash: "0x1",
+        address: account1.freshAddress,
+        ledgerId: "polygon",
+      });
+      pendingTxSubject.next([sameAddressOtherChain]);
+      controller.hostConnected();
+
+      expect(controller.pendingTransactionCount).toBe(0);
+    });
+
+    it("recomputes the count when the user switches account and does not fire the celebration", () => {
+      const txAccount1 = createPendingTx({
+        hash: "0x1",
+        address: account1.freshAddress,
+      });
+      pendingTxSubject.next([txAccount1]);
+      controller.hostConnected();
+      expect(controller.pendingTransactionCount).toBe(1);
+
+      contextSubject.next({ selectedAccount: account2 });
+
+      expect(controller.pendingTransactionCount).toBe(0);
+      expect(controller.validatedCelebrationOpen).toBe(false);
+      expect(controller.validatedCount).toBe(0);
+      expect(controller.frozenBadgeCount).toBeNull();
+    });
+
+    it("still fires the celebration when the active account's last pending tx is confirmed", () => {
+      const txAccount1 = createPendingTx({
+        hash: "0x1",
+        address: account1.freshAddress,
+      });
+      const txAccount2 = createPendingTx({
+        hash: "0x2",
+        address: account2.freshAddress,
+      });
+      pendingTxSubject.next([txAccount1, txAccount2]);
+      controller.hostConnected();
+      expect(controller.pendingTransactionCount).toBe(1);
+
+      pendingTxSubject.next([txAccount2]);
+
+      expect(controller.pendingTransactionCount).toBe(0);
+      expect(controller.validatedCelebrationOpen).toBe(true);
+      expect(controller.validatedCount).toBe(1);
     });
   });
 });
