@@ -13,7 +13,7 @@
     },
     "transactionConfirmation": {
       "transactionSentTitle": "已发送",
-      "transactionReceivedTitle": "已收到",
+      "transactionReceivedTitle": "已接收",
       "transactionFailedTitle": "交易失败",
       "transactionSwapTitle": "交易已确认",
       "checkOnExplorer": "在浏览器中查看交易"
@@ -133,8 +133,8 @@
       "refreshAccountsAriaLabel": "刷新账户",
       "addAccountTooltip": "创建新账户",
       "refreshAccountsTooltip": "刷新",
-      "noToken": "No token",
-      "accountCountOne": "1 account",
+      "noToken": "无代币",
+      "accountCountOne": "1 个账户",
       "accountCountOther": "{count} 个账户",
       "tokenCountOne": "1 枚代币",
       "tokenCountOther": "{count} 枚代币"
@@ -198,7 +198,7 @@
     "title": "账户代币",
     "notFound": "未找到账户",
     "noTokens": "未找到此账户的代币",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "未知代币"
   },
   "availableNetworks": {
     "title": "可用网络"
