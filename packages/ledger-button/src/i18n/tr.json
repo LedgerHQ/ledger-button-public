@@ -16,7 +16,7 @@
       "transactionReceivedTitle": "Alındı",
       "transactionFailedTitle": "İşlem başarısız",
       "transactionSwapTitle": "İşlem onaylandı",
-      "checkOnExplorer": "İşlemi gezginde kontrol et"
+      "checkOnExplorer": "İşlemi tarayıcıda kontrol et"
     },
     "search": {
       "placeholder": "Hesap ara",
