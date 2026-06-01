@@ -198,7 +198,7 @@
     "title": "Tokens de cuenta",
     "notFound": "Cuenta no encontrada",
     "noTokens": "No se encontraron tokens para esta cuenta",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "Token desconocido"
   },
   "availableNetworks": {
     "title": "Redes disponibles"
