@@ -110,6 +110,17 @@ export const Default: Story = {
   },
 };
 
+export const WithViewAllLink: Story = {
+  args: {
+    transactions: Array.from({ length: 20 }, (_, index) =>
+      makeTx({
+        hash: `0xall${index}`,
+        type: index % 2 === 0 ? "received" : "sent",
+      }),
+    ),
+  },
+};
+
 export const EmptyState: Story = {
   args: {
     transactions: [],
