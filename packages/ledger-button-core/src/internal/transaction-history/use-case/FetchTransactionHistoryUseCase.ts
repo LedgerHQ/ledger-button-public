@@ -150,14 +150,14 @@ export class FetchTransactionHistoryUseCase {
     );
 
     return tokenInfoResult.caseOf({
-      Left: () => {
+      Left: (): AssetInfo => {
         this.logger.warn("Failed to fetch token info, using defaults", {
           contractAddress,
           currencyId,
         });
         return {
           ledgerId: `${currencyId}/erc20/unknown`,
-          name: "Unknown Token",
+          name: undefined,
           ticker: "???",
           decimals: 18,
         };

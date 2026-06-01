@@ -9,6 +9,7 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
+import { LanguageContext } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { belongsToAccount } from "../../shared/pending-transaction-account-filter.js";
 import { Destinations } from "../../shared/routes.js";
@@ -28,6 +29,7 @@ export class LedgerHomeController implements ReactiveController {
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
+    private readonly languages: LanguageContext,
   ) {
     this.host.addController(this);
   }
@@ -104,9 +106,10 @@ export class LedgerHomeController implements ReactiveController {
       ? formatBalance(tx.fee.amount, tx.fee.asset.decimals, tx.fee.asset.ticker)
       : undefined;
     const isFeesRow = tx.kind === "fees" && !!formattedFee;
-    const fiatAmount =
-      (isFeesRow ? tx.fee?.fiatAmount : tx.fiatValue) ?? "";
-
+    const fiatAmount = (isFeesRow ? tx.fee?.fiatAmount : tx.fiatValue) ?? "";
+    const unknownToken =
+      this.languages.currentTranslation.accountTokens?.unknownToken ??
+      "Unknown Token";
     return {
       hash: tx.hash,
       type: tx.type,
@@ -119,7 +122,7 @@ export class LedgerHomeController implements ReactiveController {
       }),
       amount: formattedValue,
       ticker: tx.asset.ticker,
-      title: tx.asset.name,
+      title: tx.asset.name ?? unknownToken,
       fiatAmount,
       fiatCurrency: tx.fiatCurrency ?? "",
       explorerUrl:

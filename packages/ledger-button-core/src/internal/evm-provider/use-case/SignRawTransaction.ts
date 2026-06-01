@@ -1,4 +1,7 @@
-import { ContextModuleBuilder } from "@ledgerhq/context-module";
+import {
+  ContextModuleBuilder,
+  ContextModuleChainID,
+} from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   hexaStringToBuffer,
@@ -140,6 +143,7 @@ export class SignRawTransaction {
         originToken: this.config.originToken,
       })
         .setAppSource(this.config.dAppIdentifier)
+        .setChain(ContextModuleChainID.Ethereum)
         .build();
       const ethSigner = new SignerEthBuilder({
         dmk,

@@ -74,7 +74,7 @@ export type TransactionType = "sent" | "received";
  */
 export type TransactionHistoryItemAsset = {
   ledgerId: string;
-  name: string;
+  name: string | undefined;
   ticker: string;
   decimals: number;
 };

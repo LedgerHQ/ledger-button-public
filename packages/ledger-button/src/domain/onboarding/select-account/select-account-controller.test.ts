@@ -465,6 +465,104 @@ describe("SelectAccountController.groupedAccounts", () => {
     expect(result[0].accounts.map((a) => a.id)).toEqual(["eth-1"]);
   });
 
+  it("sorts groups by descending total fiat balance", () => {
+    const ethMainnet = createAccount({
+      id: "eth-1",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "1000.00", currency: "USD" },
+    });
+    const polygon = createAccount({
+      id: "polygon-1",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "500.00", currency: "USD" },
+    });
+    const btc = createAccount({
+      id: "btc-1",
+      freshAddress: "bc1qxyz",
+      fiatBalance: { value: "50000.00", currency: "USD" },
+    });
+
+    controller.accounts = [ethMainnet, polygon, btc];
+
+    const result = controller.groupedAccounts;
+    expect(result[0].freshAddress).toBe("bc1qxyz");
+    expect(result[1].freshAddress).toBe("0xabc123");
+  });
+
+  it("places the group with higher combined balance first when multiple accounts share an address", () => {
+    const ethMainnet = createAccount({
+      id: "eth-1",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "300.00", currency: "USD" },
+    });
+    const polygon = createAccount({
+      id: "polygon-1",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "200.00", currency: "USD" },
+    });
+    const btc = createAccount({
+      id: "btc-1",
+      freshAddress: "bc1qxyz",
+      fiatBalance: { value: "400.00", currency: "USD" },
+    });
+
+    controller.accounts = [ethMainnet, polygon, btc];
+
+    // 0xabc123 total = 500, bc1qxyz total = 400 → 0xabc123 should be first
+    const result = controller.groupedAccounts;
+    expect(result[0].freshAddress).toBe("0xabc123");
+    expect(result[1].freshAddress).toBe("bc1qxyz");
+  });
+
+  it("includes token fiat balances in the group total when sorting", () => {
+    const ethWithTokens = createAccount({
+      id: "eth-1",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "100.00", currency: "USD" },
+      tokens: [
+        {
+          ledgerId: "ethereum/erc20/usdt",
+          ticker: "USDT",
+          name: "Tether",
+          balance: "50000000",
+          fiatBalance: { value: "900.00", currency: "USD" },
+        },
+      ],
+    });
+    const btc = createAccount({
+      id: "btc-1",
+      freshAddress: "bc1qxyz",
+      fiatBalance: { value: "500.00", currency: "USD" },
+      tokens: [],
+    });
+
+    controller.accounts = [btc, ethWithTokens];
+
+    // ethWithTokens total = 100 + 900 = 1000, btc total = 500 → eth should be first
+    const result = controller.groupedAccounts;
+    expect(result[0].freshAddress).toBe("0xabc123");
+    expect(result[1].freshAddress).toBe("bc1qxyz");
+  });
+
+  it("treats missing fiat balance as zero when sorting", () => {
+    const withBalance = createAccount({
+      id: "eth-1",
+      freshAddress: "0xabc123",
+      fiatBalance: { value: "100.00", currency: "USD" },
+    });
+    const withoutBalance = createAccount({
+      id: "btc-1",
+      freshAddress: "bc1qxyz",
+      fiatBalance: undefined,
+    });
+
+    controller.accounts = [withoutBalance, withBalance];
+
+    const result = controller.groupedAccounts;
+    expect(result[0].freshAddress).toBe("0xabc123");
+    expect(result[1].freshAddress).toBe("bc1qxyz");
+  });
+
   it("returns empty array when accounts list is empty", () => {
     controller.accounts = [];
     expect(controller.groupedAccounts).toEqual([]);
