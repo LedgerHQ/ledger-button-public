@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
+import type { LanguageContext } from "../../context/language-context.js";
 import type { Navigation } from "../../shared/navigation.js";
 import type { Destinations } from "../../shared/routes.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
@@ -66,6 +67,7 @@ describe("LedgerHomeController", () => {
   let core: CoreContext;
   let navigation: Navigation;
   let destinations: Destinations;
+  let languages: LanguageContext;
   let pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
   let contextSubject: BehaviorSubject<Record<string, unknown>>;
   const account = createDetailedAccount();
@@ -105,7 +107,19 @@ describe("LedgerHomeController", () => {
       onboardingFlow: { name: "onboarding-flow" },
     } as unknown as Destinations;
 
-    controller = new LedgerHomeController(host, core, navigation, destinations);
+    languages = {
+      currentTranslation: {
+        accountTokens: { unknownToken: "Unknown Token" },
+      },
+    } as unknown as LanguageContext;
+
+    controller = new LedgerHomeController(
+      host,
+      core,
+      navigation,
+      destinations,
+      languages,
+    );
   });
 
   async function connectAndWaitForLoad() {
