@@ -1,4 +1,4 @@
-## 1.3.0 (2026-05-27)
+## 1.3.0 (2026-06-01)
 
 ### 🚀 Features
 
@@ -31,6 +31,9 @@
 - Align event schemas with trackEvent.ts and enforce strict validation ([f3abcf47](https://github.com/LedgerHQ/ledger-button/commit/f3abcf47))
 - Reorganize EVM-specific code under internal/evm-provider/ (chainUtils, JSON-RPC datasources, TransactionHelper, sign/broadcast use-cases, gas-fee estimation, DI module). Pure internal refactor; public API is byte-identical (no consumer change required). ([df9ec7de](https://github.com/LedgerHQ/ledger-button/commit/df9ec7de))
 - Remove SessionAuthentication event and rename MobileRedirectLedgerWallet ([28996bd2](https://github.com/LedgerHQ/ledger-button/commit/28996bd2))
+- Update unknown token translation ([e52d52b6](https://github.com/LedgerHQ/ledger-button/commit/e52d52b6))
+- Sort account groups by total fiat balance (desc.) ([f37b9d95](https://github.com/LedgerHQ/ledger-button/commit/f37b9d95))
+- Bump @ledgerhq/context-module to 2.1.0, @ledgerhq/device-management-kit to 1.5.1, and @ledgerhq/device-signer-kit-ethereum to 1.16.0 ([28cc3414](https://github.com/LedgerHQ/ledger-button/commit/28cc3414))
 
 ### ❤️ Thank You
 

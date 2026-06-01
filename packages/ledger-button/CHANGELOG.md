@@ -1,4 +1,4 @@
-## 1.3.0 (2026-05-27)
+## 1.3.0 (2026-06-01)
 
 ### 🚀 Features
 
@@ -40,6 +40,10 @@
 - Mark never-reassigned class members as readonly ([0695dd8d](https://github.com/LedgerHQ/ledger-button/commit/0695dd8d))
 - Fix mobile drawer slide animation ([c063fc0a](https://github.com/LedgerHQ/ledger-button/commit/c063fc0a))
 - Fix mobile onboarding redirect tracking event not firing ([#384](https://github.com/LedgerHQ/ledger-button/pull/384))
+- Update unknown token translation ([e52d52b6](https://github.com/LedgerHQ/ledger-button/commit/e52d52b6))
+- Sort account groups by total fiat balance (desc.) ([f37b9d95](https://github.com/LedgerHQ/ledger-button/commit/f37b9d95))
+- Bump @ledgerhq/context-module to 2.1.0, @ledgerhq/device-management-kit to 1.5.1, and @ledgerhq/device-signer-kit-ethereum to 1.16.0 ([28cc3414](https://github.com/LedgerHQ/ledger-button/commit/28cc3414))
+- Fix account name overflow ([20524af8](https://github.com/LedgerHQ/ledger-button/commit/20524af8))
 
 ### ❤️ Thank You
 
