@@ -15,6 +15,8 @@ import {
 } from "../../context/language-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
 
+const TRANSACTION_HISTORY_MAX_ITEMS = 20;
+
 export type TransactionListItem = {
   hash: string;
   type: TransactionType;
@@ -209,7 +211,9 @@ export class TransactionListScreen extends LitElement {
             this.renderTransactionGroup(group),
           )}
         </div>
-        ${this.renderViewAllTransactionsLink()}
+        ${this.transactions.length >= TRANSACTION_HISTORY_MAX_ITEMS
+          ? this.renderViewAllTransactionsLink()
+          : ""}
       </div>
     `;
   }
