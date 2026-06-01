@@ -198,7 +198,7 @@
     "title": "账户代币",
     "notFound": "未找到账户",
     "noTokens": "未找到此账户的代币",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "未知代币"
   },
   "availableNetworks": {
     "title": "可用网络"
