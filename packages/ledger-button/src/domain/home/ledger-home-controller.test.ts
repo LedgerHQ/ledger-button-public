@@ -262,25 +262,104 @@ describe("LedgerHomeController", () => {
   });
 
   describe("pending transactions", () => {
-    it("should update pendingTransactionListItems when pending transactions change", () => {
+    it("should update pendingTransactionListItems when pending transactions change", async () => {
       const tx1 = createPendingTx({ hash: "0x111" });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx1]);
 
       expect(controller.pendingTransactionListItems).toHaveLength(1);
       expect(host.requestUpdate).toHaveBeenCalled();
     });
 
-    it("should clear pending list when all are confirmed", () => {
+    it("should clear pending list when all are confirmed", async () => {
       const tx1 = createPendingTx({ hash: "0x111" });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx1]);
       expect(controller.pendingTransactionListItems).toHaveLength(1);
 
       pendingTxSubject.next([]);
       expect(controller.pendingTransactionListItems).toHaveLength(0);
+    });
+
+    it("returns an empty list while no account is selected", () => {
+      const tx = createPendingTx({ hash: "0x111" });
+
+      pendingTxSubject.next([tx]);
+      controller.hostConnected();
+
+      expect(controller.pendingTransactionListItems).toEqual([]);
+    });
+
+    it("hides pending txs whose address differs from the selected account", async () => {
+      const matching = createPendingTx({
+        hash: "0xmine",
+        address: account.freshAddress,
+      });
+      const otherAccount = createPendingTx({
+        hash: "0xtheirs",
+        address: "0xdifferent",
+      });
+
+      await connectAndWaitForLoad();
+      pendingTxSubject.next([matching, otherAccount]);
+
+      expect(controller.pendingTransactionListItems).toHaveLength(1);
+      expect(controller.pendingTransactionListItems[0]?.hash).toBe("0xmine");
+    });
+
+    it("hides pending txs whose currency differs from the selected account", async () => {
+      const sameAddressOtherChain = createPendingTx({
+        hash: "0xother-chain",
+        address: account.freshAddress,
+        ledgerId: "polygon",
+      });
+
+      await connectAndWaitForLoad();
+      pendingTxSubject.next([sameAddressOtherChain]);
+
+      expect(controller.pendingTransactionListItems).toEqual([]);
+    });
+
+    it("re-filters the global pending list when the user switches account", async () => {
+      const txAccount1 = createPendingTx({
+        hash: "0x1",
+        address: "0xabc123",
+        ledgerId: "ethereum",
+      });
+      const txAccount2 = createPendingTx({
+        hash: "0x2",
+        address: "0xdef456",
+        ledgerId: "ethereum",
+      });
+
+      await connectAndWaitForLoad();
+      pendingTxSubject.next([txAccount1, txAccount2]);
+      expect(controller.pendingTransactionListItems).toHaveLength(1);
+      expect(controller.pendingTransactionListItems[0]?.hash).toBe("0x1");
+
+      const account2 = createDetailedAccount({
+        id: "account-2",
+        freshAddress: "0xdef456",
+      });
+      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>)
+        .mockClear()
+        .mockResolvedValue(mockRight(account2));
+      contextSubject.next({
+        selectedAccount: {
+          freshAddress: "0xdef456",
+          currencyId: "ethereum",
+        },
+        preferredFiatCurrency: "usd",
+      });
+
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("0xdef456");
+      });
+
+      expect(controller.pendingTransactionListItems).toHaveLength(1);
+      expect(controller.pendingTransactionListItems[0]?.hash).toBe("0x2");
     });
   });
 
@@ -321,13 +400,13 @@ describe("LedgerHomeController", () => {
       );
     });
 
-    it("should propagate explorerUrl from pending transactions to the list row", () => {
+    it("should propagate explorerUrl from pending transactions to the list row", async () => {
       const tx = createPendingTx({
         hash: "0xpending1",
         explorerUrl: "https://etherscan.io/tx/0xpending1",
       });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx]);
 
       expect(controller.pendingTransactionListItems[0]?.explorerUrl).toBe(
@@ -335,10 +414,10 @@ describe("LedgerHomeController", () => {
       );
     });
 
-    it("should leave explorerUrl undefined when upstream did not provide one", () => {
+    it("should leave explorerUrl undefined when upstream did not provide one", async () => {
       const tx = createPendingTx({ hash: "0xnoexplorer" });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx]);
 
       expect(
