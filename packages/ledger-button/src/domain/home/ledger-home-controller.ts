@@ -11,6 +11,7 @@ import { Subscription } from "rxjs";
 import { CoreContext } from "../../context/core-context.js";
 import { LanguageContext } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
+import { belongsToAccount } from "../../shared/pending-transaction-account-filter.js";
 import { Destinations } from "../../shared/routes.js";
 import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 
@@ -49,7 +50,12 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   get pendingTransactionListItems(): TransactionListItem[] {
-    return this.pendingTransactions.map((tx) => this.mapPendingToListItem(tx));
+    if (!this.selectedAccount) {
+      return [];
+    }
+    return this.pendingTransactions
+      .filter((tx) => belongsToAccount(tx, this.selectedAccount))
+      .map((tx) => this.mapPendingToListItem(tx));
   }
 
   async getSelectedAccount() {
