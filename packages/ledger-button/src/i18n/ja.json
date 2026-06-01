@@ -198,7 +198,7 @@
     "title": "アカウント・トークン",
     "notFound": "アカウントが見つかりません",
     "noTokens": "このアカウントのトークンが見つかりませんでした",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "不明なトークン"
   },
   "availableNetworks": {
     "title": "利用可能なネットワーク"
