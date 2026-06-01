@@ -5,20 +5,22 @@ import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
+  type CurrencyChangedEventData,
   type EventRequest,
   EventType,
   type FloatingButtonClickEventData,
   type InvoicingTransactionSignedEventData,
+  type LanguageChangedEventData,
   type LedgerSyncActivatedEventData,
   type MobileRedirectLedgerWalletEventData,
   type OnboardingEventData,
   type OpenLedgerSyncEventData,
   type OpenSessionEventData,
-  type SessionAuthenticationEventData,
   type TransactionFlowCompletionEventData,
   type TransactionFlowInitializationEventData,
   type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
+  type ViewTransactionDetailsClickedEventData,
   type WalletActionClickedEventData,
   type WalletActionType,
   type WalletRedirectCancelledEventData,
@@ -234,28 +236,6 @@ export class EventTrackingUtils {
     };
   }
 
-  static createSessionAuthenticationEvent(
-    params: TransactionEventParams & { transactionHash: string },
-  ): EventRequest {
-    const data: SessionAuthenticationEventData = {
-      event_id: generateUUID(),
-      transaction_dapp_id: params.dAppId,
-      timestamp_ms: Date.now(),
-      event_type: EventType.SessionAuthentication,
-      session_id: params.sessionId,
-      ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
-      transaction_type: "authentication_tx",
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
-    };
-
-    return {
-      name: EventType.SessionAuthentication,
-      type: EventType.SessionAuthentication,
-      data,
-    };
-  }
-
   static createInvoicingTransactionSignedEvent(
     params: SessionEventParams & {
       transactionHash: string;
@@ -281,6 +261,28 @@ export class EventTrackingUtils {
     return {
       name: EventType.InvoicingTransactionSigned,
       type: EventType.InvoicingTransactionSigned,
+      data,
+    };
+  }
+
+  static createViewTransactionDetailsClickedEvent(
+    params: TransactionEventParams & { transactionHash: string },
+  ): EventRequest {
+    const data: ViewTransactionDetailsClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewTransactionDetailsClicked,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      blockchain_network_selected: "ethereum",
+      chain_id: params.chainId,
+      transaction_hash: normalizeTransactionHash(params.transactionHash),
+    };
+
+    return {
+      name: EventType.ViewTransactionDetailsClicked,
+      type: EventType.ViewTransactionDetailsClicked,
       data,
     };
   }
@@ -375,6 +377,44 @@ export class EventTrackingUtils {
     };
   }
 
+  static createCurrencyChangedEvent(
+    params: SessionEventParams & { currencyCode: string },
+  ): EventRequest {
+    const data: CurrencyChangedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.CurrencyChanged,
+      session_id: params.sessionId,
+      currency_code: params.currencyCode,
+    };
+
+    return {
+      name: EventType.CurrencyChanged,
+      type: EventType.CurrencyChanged,
+      data,
+    };
+  }
+
+  static createLanguageChangedEvent(
+    params: SessionEventParams & { languageKey: string },
+  ): EventRequest {
+    const data: LanguageChangedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.LanguageChanged,
+      session_id: params.sessionId,
+      language_key: params.languageKey,
+    };
+
+    return {
+      name: EventType.LanguageChanged,
+      type: EventType.LanguageChanged,
+      data,
+    };
+  }
+
   static createMobileRedirectLedgerWalletEvent(
     params: BaseEventParams,
   ): EventRequest {
@@ -382,12 +422,12 @@ export class EventTrackingUtils {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
-      event_type: EventType.RedirectToLedgerWallet,
+      event_type: EventType.MobileRedirectLedgerWallet,
     };
 
     return {
       name: "Mobile Redirect Ledger Wallet",
-      type: EventType.RedirectToLedgerWallet,
+      type: EventType.MobileRedirectLedgerWallet,
       data,
     };
   }

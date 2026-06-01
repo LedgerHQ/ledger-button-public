@@ -22,6 +22,7 @@ This page describes all available configuration options for `initializeLedgerPro
 
   // UI options
   target?: HTMLElement;                               // Where to mount the UI (default: document.body)
+  hideButton?: boolean;                               // Hide the floating button entirely (default: false)
   floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
   floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
   walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
@@ -64,6 +65,23 @@ Target Ledger backend environment. Accepted values: `'staging'`, `'production'`.
 ### `target`
 
 Target element to mount the Ledger Wallet Provider UI. Defaults to `document.body`.
+
+### `hideButton`
+
+Hides the floating Ledger button entirely. Defaults to `false`.
+
+When set to `true`, the floating button is not rendered on screen or inside a `floatingButtonTarget`. The Ledger UI (modal, side panel) is still mounted and the EIP-1193 provider is still registered — this is useful when you want to drive the flow exclusively from your own UI through the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) provider.
+
+```javascript
+initializeLedgerProvider({
+  hideButton: true,
+  // ...
+});
+```
+
+<Callout type="info">
+  When `hideButton` is `true`, `floatingButtonPosition` and `floatingButtonTarget` have no effect.
+</Callout>
 
 ### `floatingButtonPosition`
 

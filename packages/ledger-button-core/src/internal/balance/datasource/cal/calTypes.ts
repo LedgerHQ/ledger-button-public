@@ -1,3 +1,11 @@
+export type CalExplorerLink = {
+  transaction?: string;
+};
+
+export type CalNetworkExternalLinks = {
+  explorers?: CalExplorerLink[];
+};
+
 export type CalTokenResponse = CalTokenDto[];
 
 export type CalTokenDto = {
@@ -5,6 +13,7 @@ export type CalTokenDto = {
   decimals: number;
   ticker: string;
   name: string;
+  network_external_links?: CalNetworkExternalLinks;
 };
 
 export type TokenInformation = {
@@ -12,6 +21,7 @@ export type TokenInformation = {
   decimals: number;
   ticker: string;
   name: string;
+  transactionExplorerUrlTemplate?: string;
 };
 
 export type CalServiceError = {
@@ -31,6 +41,7 @@ export type CalCoinDto = {
   name: string;
   ticker: string;
   units: CalUnit[];
+  network_external_links?: CalNetworkExternalLinks;
 };
 
 export type CurrencyInformation = {
@@ -38,4 +49,5 @@ export type CurrencyInformation = {
   name: string;
   ticker: string;
   decimals: number;
+  transactionExplorerUrlTemplate?: string;
 };

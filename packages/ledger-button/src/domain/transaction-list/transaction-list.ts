@@ -1,10 +1,14 @@
 import "../../components/index.js";
 
 import { consume } from "@lit/context";
-import { html, LitElement, TemplateResult } from "lit";
+import { html, LitElement, type TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import type { TransactionType } from "../../components/molecule/transaction-item/ledger-transaction-item.js";
+import type {
+  TransactionKind,
+  TransactionStatus,
+  TransactionType,
+} from "../../components/molecule/transaction-item/ledger-transaction-item.js";
 import {
   langContext,
   LanguageContext,
@@ -14,6 +18,8 @@ import { tailwindElement } from "../../tailwind-element.js";
 export type TransactionListItem = {
   hash: string;
   type: TransactionType;
+  status: TransactionStatus;
+  kind: TransactionKind;
   date: string;
   time: string;
   amount: string;
@@ -21,6 +27,9 @@ export type TransactionListItem = {
   title: string;
   fiatAmount: string;
   fiatCurrency: string;
+  explorerUrl?: string;
+  formattedFee?: string;
+  feeTicker?: string;
 };
 
 type GroupedTransactions = {
@@ -32,7 +41,7 @@ type GroupedTransactions = {
 @customElement("transaction-list-screen")
 @tailwindElement()
 export class TransactionListScreen extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -77,15 +86,27 @@ export class TransactionListScreen extends LitElement {
   }
 
   private renderTransactionItem = (transaction: TransactionListItem) => {
+    const viewOnExplorerLabel =
+      this.languages?.currentTranslation?.transactionList?.viewOnExplorer ??
+      "View on explorer";
+
     return html`
       <ledger-transaction-item
         .type=${transaction.type}
+        .status=${transaction.status}
+        .kind=${transaction.kind}
         .title=${transaction.title}
         .timestamp=${transaction.time}
         .amount=${transaction.amount}
         .ticker=${transaction.ticker}
         .fiatAmount=${transaction.fiatAmount}
         .fiatCurrency=${transaction.fiatCurrency}
+        .explorerUrl=${transaction.explorerUrl}
+        .viewOnExplorerLabel=${viewOnExplorerLabel}
+        .locale=${this.languages.locale}
+        .hash=${transaction.hash}
+        .formattedFee=${transaction.formattedFee ?? ""}
+        .feeTicker=${transaction.feeTicker ?? ""}
       ></ledger-transaction-item>
     `;
   };
@@ -93,9 +114,9 @@ export class TransactionListScreen extends LitElement {
   private renderDateHeader(displayDate: string) {
     return html`
       <div
-        class="flex items-center justify-start gap-8 rounded-sm bg-muted-transparent px-8 py-4"
+        class="bg-muted-transparent flex items-center justify-start gap-8 rounded-sm px-8 py-4"
       >
-        <span class="text-white body-4">${displayDate}</span>
+        <span class="body-4 text-white">${displayDate}</span>
       </div>
     `;
   }
@@ -118,7 +139,10 @@ export class TransactionListScreen extends LitElement {
 
     return html`
       <div class="flex flex-col gap-4">
-        ${this.renderDateHeader(translations.transactionList?.pendingTransactions ?? "Pending transactions")}
+        ${this.renderDateHeader(
+          translations.transactionList?.pendingTransactions ??
+            "Pending transactions",
+        )}
         <div class="flex flex-col">
           ${this.pendingTransactions.map(this.renderTransactionItem)}
         </div>
@@ -130,10 +154,10 @@ export class TransactionListScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div
-        class="flex flex-col items-center justify-center py-48 text-center"
-      >
-        <span class="text-muted body-2">${translations.transactionList?.noTransactions}</span>
+      <div class="flex flex-col items-center justify-center py-48 text-center">
+        <span class="text-muted body-2"
+          >${translations.transactionList?.noTransactions}</span
+        >
       </div>
     `;
   }

@@ -1,0 +1,35 @@
+---
+description: Cached Nx project list and common targets to avoid repeated nx_project_details / nx show project lookups
+alwaysApply: true
+---
+
+# Nx Project Cache
+
+Use this table for routine `build` / `lint` / `test` / `typecheck` / `dev` work. Do **not** call `nx_project_details`, `nx_workspace`, or `nx show project` first — just run the target.
+
+Workspace: pnpm + Nx 22.0.1. Globs from `pnpm-workspace.yaml`: `packages/*`, `apps/*`. Targets are inferred by the `@nx/vite`, `@nx/js/typescript`, `@nx/next`, `@nx/jest`, `@nx/eslint` plugins in `nx.json`, plus per-project `project.json` overrides.
+
+| Package name | Path | Type | Available routine targets |
+| --- | --- | --- | --- |
+| `@ledgerhq/ledger-wallet-provider` | `packages/ledger-button` | library | `build` (custom: vite + tailwind + scope-css), `test`, `typecheck`, `lint`, `dev` |
+| `@ledgerhq/ledger-wallet-provider-core` | `packages/ledger-button-core` | library | `build`, `test`, `typecheck`, `lint` |
+| `@ledgerhq/ledger-wallet-provider-docs` | `apps/docs` | Next.js app | `build`, `dev`, `start`, `typecheck`, `lint` |
+| `@ledgerhq/test-dapp` | `apps/test-dapp` | Next.js app | `build`, `dev`, `start`, `typecheck`, `lint` |
+| `@ledgerhq/test-extension` | `apps/test-extension` | Vite app | `build`, `lint` (no `test` target) |
+| `ldb-tools` | `packages/ldb-tools` | release tooling | custom-only (see its `project.json`); not subject to the routine reflex below |
+
+## How to run
+
+```bash
+pnpm nx <target> <package-name>           # e.g. pnpm nx test @ledgerhq/ledger-wallet-provider-core
+pnpm nx run-many -t <target> -p <p1>,<p2>  # multiple projects
+```
+
+## When to fall back to `nx_project_details`
+
+Only when:
+1. The target you need isn't listed above (storybook, e2e, buildZip, ldb-tools commands, etc.).
+2. A listed target fails in a way that suggests project config has drifted.
+3. A project not in this table is involved (new project added).
+
+For generators, graph visualization, or diagnosing Nx config errors, keep using the Nx MCP tools per [nx-rules.mdc](mdc:.cursor/rules/nx-rules.mdc).

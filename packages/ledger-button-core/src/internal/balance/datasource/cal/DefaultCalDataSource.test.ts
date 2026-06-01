@@ -1,8 +1,8 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import * as chainUtils from "../../../blockchain/evm/chainUtils.js";
 import type { Config } from "../../../config/model/config.js";
+import * as chainUtils from "../../../evm-provider/utils/chainUtils.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import type { CalCoinResponse, CalTokenResponse } from "./calTypes.js";
 import { DefaultCalDataSource } from "./DefaultCalDataSource.js";
@@ -16,6 +16,7 @@ describe("DefaultCalDataSource", () => {
   const testTokenAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
   const testCurrencyId = "ethereum";
   const testChainId = 1;
+  const explorerTemplate = "https://etherscan.io/tx/${hash}";
 
   beforeEach(() => {
     mockNetworkService = {
@@ -41,6 +42,9 @@ describe("DefaultCalDataSource", () => {
         decimals: 6,
         ticker: "USDT",
         name: "Tether USD",
+        network_external_links: {
+          explorers: [{ transaction: explorerTemplate }],
+        },
       },
     ];
     it("should successfully call the CAL API to get token information", async () => {
@@ -54,15 +58,43 @@ describe("DefaultCalDataSource", () => {
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&chain_id=${testChainId}&output=id,name,decimals,ticker`,
+        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&chain_id=${testChainId}&output=id,name,decimals,ticker,network_external_links`,
       );
 
       expect(result.isRight()).toBe(true);
 
       if (result.isRight()) {
         const tokenInfo = result.extract();
-        expect(tokenInfo).toEqual(mockUSDTResponse[0]);
+        expect(tokenInfo).toEqual({
+          id: "ethereum/erc20/usd_tether__erc20_",
+          decimals: 6,
+          ticker: "USDT",
+          name: "Tether USD",
+          transactionExplorerUrlTemplate: explorerTemplate,
+        });
       }
+    });
+
+    it("maps transactionExplorerUrlTemplate to undefined when CAL returns no network_external_links", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right([
+          {
+            id: "ethereum/erc20/usd_tether__erc20_",
+            decimals: 6,
+            ticker: "USDT",
+            name: "Tether USD",
+          },
+        ] satisfies CalTokenResponse),
+      );
+
+      const result = await dataSource.getTokenInformation(
+        testTokenAddress,
+        testCurrencyId,
+      );
+
+      expect(result.extract()).toMatchObject({
+        transactionExplorerUrlTemplate: undefined,
+      });
     });
 
     it("should return Left when network service returns Left", async () => {
@@ -105,6 +137,9 @@ describe("DefaultCalDataSource", () => {
         name: "Ethereum",
         ticker: "ETH",
         units: [{ name: "ether", code: "ETH", magnitude: 18 }],
+        network_external_links: {
+          explorers: [{ transaction: explorerTemplate }],
+        },
       },
     ];
 
@@ -116,7 +151,7 @@ describe("DefaultCalDataSource", () => {
       const result = await dataSource.getCurrencyInformation(testCurrencyId);
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockCalUrl}/v1/coins?id=${testCurrencyId}&output=id,name,ticker,units`,
+        `${mockCalUrl}/v1/coins?id=${testCurrencyId}&output=id,name,ticker,units,network_external_links`,
       );
 
       expect(result.isRight()).toBe(true);
@@ -127,8 +162,29 @@ describe("DefaultCalDataSource", () => {
           name: "Ethereum",
           ticker: "ETH",
           decimals: 18,
+          transactionExplorerUrlTemplate: explorerTemplate,
         });
       }
+    });
+
+    it("maps transactionExplorerUrlTemplate to undefined when the explorers list is empty", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right([
+          {
+            id: "ethereum",
+            name: "Ethereum",
+            ticker: "ETH",
+            units: [{ name: "ether", code: "ETH", magnitude: 18 }],
+            network_external_links: { explorers: [] },
+          },
+        ] satisfies CalCoinResponse),
+      );
+
+      const result = await dataSource.getCurrencyInformation(testCurrencyId);
+
+      expect(result.extract()).toMatchObject({
+        transactionExplorerUrlTemplate: undefined,
+      });
     });
 
     it("should return Left when network service returns Left", async () => {

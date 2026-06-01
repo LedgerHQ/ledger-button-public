@@ -5,7 +5,9 @@ import { EventTrackingService } from "./service/EventTrackingService.js";
 import { StubEventTrackingService } from "./service/StubEventTrackingService.js";
 import { TrackConsentGiven } from "./usecase/TrackConsentGiven.js";
 import { TrackConsentRemoved } from "./usecase/TrackConsentRemoved.js";
+import { TrackCurrencyChanged } from "./usecase/TrackCurrencyChanged.js";
 import { TrackFloatingButtonClick } from "./usecase/TrackFloatingButtonClick.js";
+import { TrackLanguageChanged } from "./usecase/TrackLanguageChanged.js";
 import { TrackLedgerSyncActivated } from "./usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "./usecase/TrackLedgerSyncOpened.js";
 import { TrackMobileRedirectLedgerWallet } from "./usecase/TrackMobileRedirectLedgerWallet.js";
@@ -15,6 +17,7 @@ import { TrackTransactionCompleted } from "./usecase/TrackTransactionCompleted.j
 import { TrackTransactionStarted } from "./usecase/TrackTransactionStarted.js";
 import { TrackTypedMessageCompleted } from "./usecase/TrackTypedMessageCompleted.js";
 import { TrackTypedMessageStarted } from "./usecase/TrackTypedMessageStarted.js";
+import { TrackViewTransactionDetailsClick } from "./usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "./usecase/TrackWalletAction.js";
 import { eventTrackingModuleTypes } from "./eventTrackingModuleTypes.js";
 
@@ -38,13 +41,21 @@ export const eventTrackingModuleFactory = ({
       .to(DefaultEventTrackingService)
       .inSingletonScope();
 
-    bind<TrackConsentGiven>(
-      eventTrackingModuleTypes.TrackConsentGiven,
-    ).to(TrackConsentGiven);
+    bind<TrackConsentGiven>(eventTrackingModuleTypes.TrackConsentGiven).to(
+      TrackConsentGiven,
+    );
 
-    bind<TrackConsentRemoved>(
-      eventTrackingModuleTypes.TrackConsentRemoved,
-    ).to(TrackConsentRemoved);
+    bind<TrackConsentRemoved>(eventTrackingModuleTypes.TrackConsentRemoved).to(
+      TrackConsentRemoved,
+    );
+
+    bind<TrackLanguageChanged>(
+      eventTrackingModuleTypes.TrackLanguageChanged,
+    ).to(TrackLanguageChanged);
+
+    bind<TrackCurrencyChanged>(
+      eventTrackingModuleTypes.TrackCurrencyChanged,
+    ).to(TrackCurrencyChanged);
 
     bind<TrackFloatingButtonClick>(
       eventTrackingModuleTypes.TrackFloatingButtonClick,
@@ -89,5 +100,9 @@ export const eventTrackingModuleFactory = ({
     bind<TrackMobileRedirectLedgerWallet>(
       eventTrackingModuleTypes.TrackMobileRedirectLedgerWallet,
     ).to(TrackMobileRedirectLedgerWallet);
+
+    bind<TrackViewTransactionDetailsClick>(
+      eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
+    ).to(TrackViewTransactionDetailsClick);
   });
 };

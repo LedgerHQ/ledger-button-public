@@ -10,7 +10,7 @@ import {
   langContext,
   LanguageContext,
 } from "../../../context/language-context.js";
-import { LEDGER_WALLET_DOWNLOAD_URL } from "../../../shared/constants/deeplinks.js";
+import { getLedgerWalletDownloadUrl } from "../../../shared/constants/shop-urls.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import type { LedgerDrawer } from "../../atom/drawer/ledger-drawer.js";
 import type { WalletTransactionFeature } from "../wallet-actions/ledger-wallet-actions.js";
@@ -35,7 +35,7 @@ export class LedgerWalletRedirectDrawer extends LitElement {
   @property({ type: String })
   action: WalletTransactionFeature = "send";
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -85,7 +85,11 @@ export class LedgerWalletRedirectDrawer extends LitElement {
   }
 
   private handleDownload() {
-    window.open(LEDGER_WALLET_DOWNLOAD_URL, "_blank", "noopener,noreferrer");
+    window.open(
+      getLedgerWalletDownloadUrl(this.languages.currentLanguage),
+      "_blank",
+      "noopener,noreferrer",
+    );
   }
 
   override render() {
@@ -102,22 +106,20 @@ export class LedgerWalletRedirectDrawer extends LitElement {
 
     return html`
       <ledger-drawer @drawer-close=${this.handleDrawerClose}>
-        <div
-          class="flex flex-col items-center gap-32 text-center"
-        >
+        <div class="flex flex-col items-center gap-32 text-center">
           <div
-            class="flex h-64 w-64 items-center justify-center rounded-full bg-muted-transparent"
+            class="bg-muted-transparent flex h-64 w-64 items-center justify-center rounded-full"
           >
             <ledger-icon
               type="info"
-              size="large"
+              .size=${32}
               fillColor="white"
             ></ledger-icon>
           </div>
 
           <div class="flex flex-col gap-12">
-            <h3 class="font-semibold text-base heading-4">${title}</h3>
-            <p class="text-muted opacity-60 body-1">${description}</p>
+            <h3 class="heading-4 text-base font-semibold">${title}</h3>
+            <p class="text-muted body-1 opacity-60">${description}</p>
           </div>
 
           <div class="flex w-full flex-col gap-12">

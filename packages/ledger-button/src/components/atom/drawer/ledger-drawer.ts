@@ -6,10 +6,8 @@ import { animate } from "motion";
 
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import {
-  type AnimationInstance,
-  SPRING_CONFIG,
-} from "../modal/animation-types.js";
+import { type AnimationInstance } from "../modal/animation-types.js";
+import { SlideUpAnimation } from "../modal/slide-up-animation.js";
 
 const styles = css`
   .drawer-halo {
@@ -63,7 +61,7 @@ export class LedgerDrawer extends LitElement {
   private containerElement!: HTMLElement;
 
   private backdropAnimation: AnimationInstance | null = null;
-  private containerAnimation: AnimationInstance | null = null;
+  private readonly slideUpAnimation = new SlideUpAnimation();
   private isClosing = false;
 
   override firstUpdated() {
@@ -92,47 +90,28 @@ export class LedgerDrawer extends LitElement {
       { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
     );
 
-    this.containerAnimation = animate(
-      this.containerElement,
-      { transform: ["translateY(100%)", "translateY(0)"] },
-      { ...SPRING_CONFIG, duration: ANIMATION_DELAY / 1000 },
-    );
+    this.slideUpAnimation.open(this.containerElement);
   }
 
   private async animateClose(): Promise<void> {
     this.cancelAnimations();
 
-    const animations: Promise<void>[] = [];
+    const backdropAnimation = new Promise<void>((resolve) => {
+      this.backdropAnimation = animate(
+        this.backdropElement,
+        { opacity: [1, 0] },
+        {
+          duration: ANIMATION_DELAY / 1000,
+          ease: "easeOut",
+          onComplete: () => resolve(),
+        },
+      );
+    });
 
-    animations.push(
-      new Promise<void>((resolve) => {
-        this.backdropAnimation = animate(
-          this.backdropElement,
-          { opacity: [1, 0] },
-          {
-            duration: ANIMATION_DELAY / 1000,
-            ease: "easeOut",
-            onComplete: () => resolve(),
-          },
-        );
-      }),
-    );
-
-    animations.push(
-      new Promise<void>((resolve) => {
-        this.containerAnimation = animate(
-          this.containerElement,
-          { transform: ["translateY(0)", "translateY(100%)"] },
-          {
-            ...SPRING_CONFIG,
-            duration: ANIMATION_DELAY / 1000,
-            onComplete: () => resolve(),
-          },
-        );
-      }),
-    );
-
-    await Promise.all(animations);
+    await Promise.all([
+      backdropAnimation,
+      this.slideUpAnimation.close(this.containerElement),
+    ]);
   }
 
   private cancelAnimations() {
@@ -140,10 +119,7 @@ export class LedgerDrawer extends LitElement {
       this.backdropAnimation.cancel();
       this.backdropAnimation = null;
     }
-    if (this.containerAnimation) {
-      this.containerAnimation.cancel();
-      this.containerAnimation = null;
-    }
+    this.slideUpAnimation.cancel();
   }
 
   private async handleClose() {
@@ -172,7 +148,7 @@ export class LedgerDrawer extends LitElement {
         @click=${this.handleClose}
         aria-label="Close"
       >
-        <ledger-icon type="close" size="small" fillColor="white"></ledger-icon>
+        <ledger-icon type="close" .size=${16} fillColor="white"></ledger-icon>
       </button>
     `;
   }

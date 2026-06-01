@@ -7,7 +7,6 @@ import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
-import type { AccountItemClickEventDetail } from "../../components/molecule/account-item/ledger-account-item.js";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
@@ -68,7 +67,7 @@ export class LedgerHomeScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -90,17 +89,15 @@ export class LedgerHomeScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.destinations,
+      this.languages,
     );
   }
 
-  private handleAccountItemClick = (
-    event: CustomEvent<AccountItemClickEventDetail>,
-  ) => {
+  private handleAccountItemClick = () => {
     this.dispatchEvent(
       new CustomEvent("ledger-internal-account-switch", {
         bubbles: true,
         composed: true,
-        detail: event.detail,
       }),
     );
   };
@@ -193,6 +190,7 @@ export class LedgerHomeScreen extends LitElement {
             <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
               <div class="flex flex-row items-center justify-between">
                 <ledger-account-switch
+                  class="max-w-256"
                   .account=${account}
                   @account-switch=${this.handleAccountItemClick}
                 ></ledger-account-switch>
@@ -205,6 +203,8 @@ export class LedgerHomeScreen extends LitElement {
 
               <ledger-fiat-total
                 .value=${account.totalFiatValue?.value ?? "0"}
+                .currency=${this.controller.preferredCurrency}
+                .locale=${this.languages.locale}
               ></ledger-fiat-total>
             </div>
 
@@ -216,11 +216,13 @@ export class LedgerHomeScreen extends LitElement {
             <div class="mt-12">
               <ledger-tabs
                 .tabs=${[
-                  { id: "tokens", label: "Tokens" },
+                  { id: "tokens", label: lang.home.tabs.tokens },
                   {
                     id: "transactions",
-                    label: "Transactions",
-                    badge: this.controller.pendingTransactionListItems.length || undefined,
+                    label: lang.home.tabs.transactions,
+                    badge:
+                      this.controller.pendingTransactionListItems.length ||
+                      undefined,
                   },
                 ]}
                 .selectedId=${this.activeTab}
@@ -231,10 +233,12 @@ export class LedgerHomeScreen extends LitElement {
             ${this.activeTab === "tokens"
               ? html`<token-list-screen
                   .account=${account}
+                  .locale=${this.languages.locale}
                 ></token-list-screen>`
               : html`<transaction-list-screen
                   .transactions=${this.controller.transactionListItems}
-                  .pendingTransactions=${this.controller.pendingTransactionListItems}
+                  .pendingTransactions=${this.controller
+                    .pendingTransactionListItems}
                 ></transaction-list-screen>`}
           </div>
         </div>
@@ -269,6 +273,6 @@ declare global {
 
   interface WindowEventMap {
     "ledger-internal-button-disconnect": CustomEvent<void>;
-    "ledger-internal-account-switch": CustomEvent<AccountItemClickEventDetail>;
+    "ledger-internal-account-switch": CustomEvent<void>;
   }
 }

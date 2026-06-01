@@ -503,6 +503,149 @@ export class DefaultIndexedDbService implements IndexedDbService {
     );
   }
 
+  async storePreferredLanguage(
+    preferredLanguage: string,
+  ): Promise<Either<StorageIDBErrors, void>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, void>>((resolve) => {
+      init.caseOf({
+        Left: (error) => {
+          this.logger.error(
+            "Error initializing IDB for preferred language storage",
+            { error },
+          );
+          resolve(Left(error));
+        },
+        Right: (db) => {
+          try {
+            const transaction = db.transaction(
+              STORAGE_KEYS.DB_STORE_NAME,
+              "readwrite",
+            );
+            const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+            store.put(
+              preferredLanguage,
+              STORAGE_KEYS.PREFERRED_LANGUAGE_STORE_KEY,
+            );
+
+            transaction.oncomplete = () => {
+              this.logger.debug("Preferred language stored in IndexedDB", {
+                preferredLanguage,
+              });
+              resolve(Right(undefined));
+            };
+
+            transaction.onerror = (event) => {
+              this.logger.error(
+                "Error storing preferred language in IndexedDB",
+                {
+                  event,
+                  preferredLanguage,
+                },
+              );
+              resolve(
+                Left(
+                  new StorageIDBStoreError("Error storing preferred language", {
+                    event,
+                    preferredLanguage,
+                  }),
+                ),
+              );
+            };
+          } catch (error) {
+            this.logger.error(
+              "Unexpected error while storing preferred language in IndexedDB",
+              { error, preferredLanguage },
+            );
+            resolve(
+              Left(
+                new StorageIDBStoreError(
+                  "Unexpected error while storing preferred language",
+                  { error, preferredLanguage },
+                ),
+              ),
+            );
+          }
+        },
+      });
+    });
+  }
+
+  async getPreferredLanguage(): Promise<
+    Either<StorageIDBErrors, Maybe<string>>
+  > {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, Maybe<string>>>((resolve) => {
+      init.caseOf({
+        Left: (error) => {
+          this.logger.error(
+            "Error initializing IDB for preferred language retrieval",
+            { error },
+          );
+          resolve(Left(error));
+        },
+        Right: (db) => {
+          try {
+            const transaction = db.transaction(
+              STORAGE_KEYS.DB_STORE_NAME,
+              "readonly",
+            );
+            const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+            const request = store.get(
+              STORAGE_KEYS.PREFERRED_LANGUAGE_STORE_KEY,
+            );
+
+            request.onsuccess = (event) => {
+              const result = (event.target as IDBRequest)?.result;
+              if (result !== undefined && typeof result === "string") {
+                this.logger.debug(
+                  "Preferred language retrieved from IndexedDB",
+                  {
+                    preferredLanguage: result,
+                  },
+                );
+                resolve(Right(Just(result)));
+              } else {
+                this.logger.debug("No preferred language found in IndexedDB");
+                resolve(Right(Nothing));
+              }
+            };
+
+            transaction.onerror = (event) => {
+              this.logger.error(
+                "Error retrieving preferred language from IndexedDB",
+                { event },
+              );
+              resolve(
+                Left(
+                  new StorageIDBGetError(
+                    "Error retrieving preferred language",
+                    { event },
+                  ),
+                ),
+              );
+            };
+          } catch (error) {
+            this.logger.error(
+              "Unexpected error while retrieving preferred language from IndexedDB",
+              { error },
+            );
+            resolve(
+              Left(
+                new StorageIDBGetError(
+                  "Unexpected error while retrieving preferred language",
+                  { error },
+                ),
+              ),
+            );
+          }
+        },
+      });
+    });
+  }
+
   async storeWelcomeScreenCompleted(
     completed: boolean,
   ): Promise<Either<StorageIDBErrors, void>> {
@@ -626,6 +769,154 @@ export class DefaultIndexedDbService implements IndexedDbService {
             // Transaction handled in map callback
           },
         });
+    });
+  }
+
+  async storePreferredFiatCurrency(
+    preferredFiatCurrency: string,
+  ): Promise<Either<StorageIDBErrors, void>> {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, void>>((resolve) => {
+      init.caseOf({
+        Left: (error) => {
+          this.logger.error(
+            "Error initializing IDB for preferred fiat currency storage",
+            { error },
+          );
+          resolve(Left(error));
+        },
+        Right: (db) => {
+          try {
+            const transaction = db.transaction(
+              STORAGE_KEYS.DB_STORE_NAME,
+              "readwrite",
+            );
+            const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+            store.put(
+              preferredFiatCurrency,
+              STORAGE_KEYS.PREFERRED_FIAT_CURRENCY_STORE_KEY,
+            );
+
+            transaction.oncomplete = () => {
+              this.logger.debug("Preferred fiat currency stored in IndexedDB", {
+                preferredFiatCurrency,
+              });
+              resolve(Right(undefined));
+            };
+
+            transaction.onerror = (event) => {
+              this.logger.error(
+                "Error storing preferred fiat currency in IndexedDB",
+                {
+                  event,
+                  preferredFiatCurrency,
+                },
+              );
+              resolve(
+                Left(
+                  new StorageIDBStoreError(
+                    "Error storing preferred fiat currency",
+                    {
+                      event,
+                      preferredFiatCurrency,
+                    },
+                  ),
+                ),
+              );
+            };
+          } catch (error) {
+            this.logger.error(
+              "Unexpected error while storing preferred fiat currency in IndexedDB",
+              { error, preferredFiatCurrency },
+            );
+            resolve(
+              Left(
+                new StorageIDBStoreError(
+                  "Unexpected error while storing preferred fiat currency",
+                  { error, preferredFiatCurrency },
+                ),
+              ),
+            );
+          }
+        },
+      });
+    });
+  }
+
+  async getPreferredFiatCurrency(): Promise<
+    Either<StorageIDBErrors, Maybe<string>>
+  > {
+    const init = await this.initIdb();
+
+    return new Promise<Either<StorageIDBErrors, Maybe<string>>>((resolve) => {
+      init.caseOf({
+        Left: (error) => {
+          this.logger.error(
+            "Error initializing IDB for preferred fiat currency retrieval",
+            { error },
+          );
+          resolve(Left(error));
+        },
+        Right: (db) => {
+          try {
+            const transaction = db.transaction(
+              STORAGE_KEYS.DB_STORE_NAME,
+              "readonly",
+            );
+            const store = transaction.objectStore(STORAGE_KEYS.DB_STORE_NAME);
+            const request = store.get(
+              STORAGE_KEYS.PREFERRED_FIAT_CURRENCY_STORE_KEY,
+            );
+
+            request.onsuccess = (event) => {
+              const result = (event.target as IDBRequest)?.result;
+              if (result !== undefined && typeof result === "string") {
+                this.logger.debug(
+                  "Preferred fiat currency retrieved from IndexedDB",
+                  {
+                    preferredFiatCurrency: result,
+                  },
+                );
+                resolve(Right(Just(result)));
+              } else {
+                this.logger.debug(
+                  "No preferred fiat currency found in IndexedDB",
+                );
+                resolve(Right(Nothing));
+              }
+            };
+
+            transaction.onerror = (event) => {
+              this.logger.error(
+                "Error retrieving preferred fiat currency from IndexedDB",
+                { event },
+              );
+              resolve(
+                Left(
+                  new StorageIDBGetError(
+                    "Error retrieving preferred fiat currency",
+                    { event },
+                  ),
+                ),
+              );
+            };
+          } catch (error) {
+            this.logger.error(
+              "Unexpected error while retrieving preferred fiat currency from IndexedDB",
+              { error },
+            );
+            resolve(
+              Left(
+                new StorageIDBGetError(
+                  "Unexpected error while retrieving preferred fiat currency",
+                  { error },
+                ),
+              ),
+            );
+          }
+        },
+      });
     });
   }
 }

@@ -1,5 +1,6 @@
 import { consume } from "@lit/context";
-import { css, html, LitElement } from "lit";
+import { cva } from "class-variance-authority";
+import { css, html, LitElement, nothing } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -8,6 +9,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
 import {
   ModalAnimationController,
   type ModalMode,
@@ -16,6 +18,17 @@ import { ModalFocusController } from "./modal-focus-controller.js";
 import { ModalScrollLockController } from "./modal-scroll-lock-controller.js";
 
 export type { ModalMode };
+
+export type ModalGradient = "success" | "error";
+
+const gradientOverlayVariants = cva("pointer-events-none absolute inset-0", {
+  variants: {
+    gradient: {
+      success: "bg-gradient-success",
+      error: "bg-gradient-error",
+    },
+  },
+});
 
 const styles = css`
   .modal-wrapper {
@@ -60,6 +73,10 @@ const styles = css`
     height: calc(100vh - 32px);
     max-height: 100vh;
     transform: translateX(100%);
+  }
+
+  .modal-container--bottom {
+    transform: translateY(100%);
   }
 `;
 
@@ -107,12 +124,15 @@ const panelContainerClasses = {
 @customElement("ledger-modal")
 @tailwindElement(styles)
 export class LedgerModal extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
   @property({ type: String })
   mode: ModalMode = "center";
+
+  @property({ type: String })
+  gradient?: ModalGradient;
 
   @state()
   private isClosing = false;
@@ -129,6 +149,10 @@ export class LedgerModal extends LitElement {
   private animationController = new ModalAnimationController(this);
   private focusController = new ModalFocusController(this);
   private scrollLockController = new ModalScrollLockController(this);
+  private pendingMorph: {
+    targetRect: DOMRect;
+    position?: FloatingButtonPosition;
+  } | null = null;
 
   public openModal(mode: ModalMode = "center"): void {
     this.mode = mode;
@@ -140,11 +164,19 @@ export class LedgerModal extends LitElement {
     );
   }
 
-  public closeModal(): void {
+  /**
+   * Trigger the close animation. Pass `morph` to fly the modal into the
+   * floating-button slot (used at the end of the connection-success
+   * flow); otherwise the modal just fades / slides out.
+   */
+  public closeModal(options?: {
+    morph?: { targetRect: DOMRect; position?: FloatingButtonPosition };
+  }): void {
     if (this.isClosing) {
       return;
     }
 
+    this.pendingMorph = options?.morph ?? null;
     this.dispatchEvent(
       new CustomEvent("modal-closed", {
         bubbles: true,
@@ -157,13 +189,26 @@ export class LedgerModal extends LitElement {
     super.connectedCallback();
     this.addEventListener("modal-opened", this.handleOpen);
     this.addEventListener("modal-closed", this.handleClose);
+    this.addEventListener("ledger-status-show", this.handleStatusShow);
+    this.addEventListener("ledger-status-hide", this.handleStatusHide);
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.removeEventListener("modal-opened", this.handleOpen);
     this.removeEventListener("modal-closed", this.handleClose);
+    this.removeEventListener("ledger-status-show", this.handleStatusShow);
+    this.removeEventListener("ledger-status-hide", this.handleStatusHide);
   }
+
+  private handleStatusShow = (event: Event): void => {
+    const detail = (event as CustomEvent<{ type: ModalGradient }>).detail;
+    this.gradient = detail.type;
+  };
+
+  private handleStatusHide = (): void => {
+    this.gradient = undefined;
+  };
 
   private handleOpen = async (): Promise<void> => {
     this.scrollLockController.lock();
@@ -188,15 +233,28 @@ export class LedgerModal extends LitElement {
     this.isClosing = true;
     this.focusController.deactivate();
 
-    await this.animationController.animateClose(
-      {
-        backdrop: this.backdropElement,
-        container: this.containerElement,
-        wrapper: this.wrapperElement,
-      },
-      this.mode,
-    );
+    const elements = {
+      backdrop: this.backdropElement,
+      container: this.containerElement,
+      wrapper: this.wrapperElement,
+    };
 
+    const morph = this.pendingMorph;
+    this.pendingMorph = null;
+
+    if (morph) {
+      await this.animationController.animateMorphClose(
+        elements,
+        morph.targetRect,
+        morph.position,
+      );
+    } else {
+      await this.animationController.animateClose(elements, this.mode);
+    }
+
+    this.gradient = undefined;
+
+    this.dispatchCloseFinished();
     this.scrollLockController.unlock();
     this.isClosing = false;
     this.dispatchAnimationComplete();
@@ -205,6 +263,19 @@ export class LedgerModal extends LitElement {
   private dispatchAnimationComplete(): void {
     this.dispatchEvent(
       new CustomEvent("modal-animation-complete", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
+  /**
+   * Fired once the modal close is fully finished and the floating button can
+   * safely reappear without racing the final cleanup/reset work.
+   */
+  private dispatchCloseFinished(): void {
+    this.dispatchEvent(
+      new CustomEvent("modal-close-finished", {
         bubbles: true,
         composed: true,
       }),
@@ -221,17 +292,32 @@ export class LedgerModal extends LitElement {
     `;
   }
 
+  private renderGradientOverlay() {
+    if (!this.gradient) {
+      return nothing;
+    }
+
+    return html`
+      <div
+        class=${gradientOverlayVariants({ gradient: this.gradient })}
+        aria-hidden="true"
+      ></div>
+    `;
+  }
+
   private renderToolbar() {
     const appTitle = this.languages?.currentTranslation?.common?.appTitle;
 
     return html`
-      <slot name="toolbar">
-        <ledger-toolbar
-          title=${appTitle}
-          aria-label=${appTitle}
-          @ledger-toolbar-close=${this.closeModal}
-        ></ledger-toolbar>
-      </slot>
+      <div class="modal-toolbar">
+        <slot name="toolbar">
+          <ledger-toolbar
+            title=${appTitle}
+            aria-label=${appTitle}
+            @ledger-toolbar-close=${this.closeModal}
+          ></ledger-toolbar>
+        </slot>
+      </div>
     `;
   }
 
@@ -255,7 +341,8 @@ export class LedgerModal extends LitElement {
         aria-describedby="modal-content"
         @click=${(e: Event) => e.stopPropagation()}
       >
-        ${this.renderToolbar()} ${this.renderContent()}
+        ${this.renderGradientOverlay()} ${this.renderToolbar()}
+        ${this.renderContent()}
       </div>
     `;
   }
@@ -268,7 +355,8 @@ export class LedgerModal extends LitElement {
         aria-modal="true"
         aria-describedby="modal-content"
       >
-        ${this.renderToolbar()} ${this.renderContent()}
+        ${this.renderGradientOverlay()} ${this.renderToolbar()}
+        ${this.renderContent()}
       </div>
     `;
   }
@@ -282,7 +370,8 @@ export class LedgerModal extends LitElement {
         aria-describedby="modal-content"
         @click=${(e: Event) => e.stopPropagation()}
       >
-        ${this.renderToolbar()} ${this.renderContent()}
+        ${this.renderGradientOverlay()} ${this.renderToolbar()}
+        ${this.renderContent()}
       </div>
     `;
   }
@@ -316,5 +405,8 @@ declare global {
     "modal-opened": CustomEvent<void>;
     "modal-closed": CustomEvent<void>;
     "modal-animation-complete": CustomEvent<void>;
+    "modal-close-finished": CustomEvent<void>;
+    "ledger-status-show": CustomEvent<{ type: ModalGradient }>;
+    "ledger-status-hide": CustomEvent<void>;
   }
 }

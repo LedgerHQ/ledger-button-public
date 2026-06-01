@@ -1,6 +1,9 @@
 import "../../../components/index.js";
 
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  AccountWithFiat,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -12,7 +15,11 @@ import {
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { tailwindElement } from "../../../tailwind-element.js";
-import { SelectAccountController } from "./select-account-controller.js";
+import { formatFiatBalance } from "../../../utils/format-fiat.js";
+import {
+  type AccountGroup,
+  SelectAccountController,
+} from "./select-account-controller.js";
 
 @customElement("select-account-screen")
 @tailwindElement()
@@ -24,7 +31,7 @@ export class SelectAccountScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -36,42 +43,115 @@ export class SelectAccountScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.languages,
     );
   }
 
-  renderAccountItem = (account: Account) => {
-    const translations = this.languages.currentTranslation;
-    const isBalanceLoading = this.controller.isAccountBalanceLoading(
-      account.id,
-    );
-    const isBalanceError = this.controller.hasAccountBalanceError(account.id);
-    const isFiatLoading = this.controller.isAccountFiatLoading(account.id);
-    const isFiatError = this.controller.hasAccountFiatError(account.id);
-    const fiatBalance = this.controller.getAccountFiatValue(account.id);
+  private renderAccountCard(account: AccountWithFiat) {
+    const isBalanceLoading = this.controller.isAccountBalanceLoading(account);
+    const isBalanceError = this.controller.hasAccountBalanceError(account);
+    const isFiatLoading = this.controller.isAccountFiatLoading(account);
+    const isFiatError = this.controller.hasAccountFiatError(account);
+    const fiatBalance = this.controller.getAccountFiatValue(account);
 
-    // NOTE: The label should be displayed only if the account has tokens
     return html`
-      <ledger-account-item
-        .title=${account.name}
-        .address=${account.freshAddress}
-        .linkLabel=${translations.onboarding.selectAccount.showTokens}
-        .ledgerId=${account.id}
-        .ticker=${account.ticker}
-        .balance=${account.balance ?? "0"}
-        .tokens=${account.tokens.length}
-        .currencyId=${account.currencyId}
-        .isBalanceLoading=${isBalanceLoading}
-        .isBalanceError=${isBalanceError}
-        .fiatBalance=${fiatBalance}
-        .isFiatLoading=${isFiatLoading}
-        .isFiatError=${isFiatError}
-        @account-item-click=${(e: CustomEvent) =>
-          this.controller.handleAccountItemClick(e)}
-        @account-item-show-tokens-click=${(e: CustomEvent) =>
-          this.controller.handleAccountItemShowTokensClick(e)}
-      ></ledger-account-item>
+      <div
+        class="flex w-full cursor-pointer items-center gap-12 overflow-hidden rounded-md [background-color:var(--color-background-surface-transparent)] p-12 text-left transition duration-150 ease-in-out hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
+        role="button"
+        tabindex="0"
+        aria-label=${account.name}
+        @click=${() => this.controller.handleAccountCardClick(account)}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            this.controller.handleAccountCardClick(account);
+          }
+        }}
+      >
+        <ledger-crypto-icon
+          ledger-id=${account.currencyId}
+          variant="square"
+          size="large"
+        ></ledger-crypto-icon>
+        <div class="flex min-w-0 flex-1 flex-col gap-4 text-left">
+          <span class="body-2-semi-bold truncate text-base"
+            >${account.name}</span
+          >
+          ${this.renderAccountCardTokenInfo(account, isBalanceLoading)}
+        </div>
+        <div class="flex shrink-0 flex-col items-end gap-4">
+          ${this.renderAccountCardBalance({
+            isBalanceLoading,
+            isBalanceError,
+            isFiatLoading,
+            isFiatError,
+            fiatBalance,
+          })}
+        </div>
+      </div>
     `;
-  };
+  }
+
+  private renderAccountCardTokenInfo(
+    account: AccountWithFiat,
+    isBalanceLoading: boolean,
+  ) {
+    if (isBalanceLoading) {
+      return html`<ledger-skeleton
+        class="h-12 w-80 rounded-full"
+      ></ledger-skeleton>`;
+    }
+
+    const displayTokens = this.controller.getDisplayTokens(account);
+
+    if (displayTokens.length > 0) {
+      return html`<button
+        type="button"
+        class="text-muted body-3 w-fit cursor-pointer border-none bg-transparent p-0 no-underline hover:underline"
+        @click=${(e: Event) => {
+          e.stopPropagation();
+          this.controller.handleShowTokensClick(account);
+        }}
+      >
+        ${this.controller.formatTokenCount(displayTokens.length)}
+      </button>`;
+    }
+
+    const translations = this.languages.currentTranslation;
+
+    return html`<span class="text-muted body-3"
+      >${translations.onboarding.selectAccount.noToken}</span
+    >`;
+  }
+
+  private renderAccountCardBalance(params: {
+    isBalanceLoading: boolean;
+    isBalanceError: boolean;
+    isFiatLoading: boolean;
+    isFiatError: boolean;
+    fiatBalance: ReturnType<SelectAccountController["getAccountFiatValue"]>;
+  }) {
+    if (params.isBalanceLoading || params.isFiatLoading) {
+      return html`<ledger-skeleton
+        class="h-16 w-80 rounded-full"
+      ></ledger-skeleton>`;
+    }
+
+    if (params.isBalanceError) {
+      return html`<span class="body-2-semi-bold text-base">--</span>`;
+    }
+
+    const fiatValue = formatFiatBalance(
+      params.fiatBalance,
+      this.languages.locale,
+    );
+
+    if (params.isFiatError || !fiatValue) {
+      return nothing;
+    }
+
+    return html`<span class="body-2-semi-bold text-base">${fiatValue}</span>`;
+  }
 
   private renderBalanceLoadingFooter() {
     const translations = this.languages.currentTranslation;
@@ -81,8 +161,8 @@ export class SelectAccountScreen extends LitElement {
     }
 
     return html`
-      <div class="sticky bottom-0 bg-canvas-sheet pb-16 pt-8">
-        <p class="text-center text-muted body-3">
+      <div class="bg-canvas-sheet sticky bottom-0 pt-8 pb-16">
+        <p class="text-muted body-3 text-center">
           ${translations.onboarding.selectAccount.refreshingAccounts}
           <br />
           ${translations.onboarding.selectAccount.refreshingAccountsHint}
@@ -91,29 +171,74 @@ export class SelectAccountScreen extends LitElement {
     `;
   }
 
+  private renderGroup(group: AccountGroup) {
+    return html`
+      <div class="bg-muted-transparent flex flex-col gap-12 rounded-md p-12">
+        <div class="flex flex-col py-4">
+          <p class="body-1-semi-bold text-base">
+            ${this.controller.truncateAddress(group.freshAddress)}
+          </p>
+          <p class="text-muted body-3">
+            ${this.controller.formatGroupCount(group.accounts.length)}
+          </p>
+        </div>
+        <div class="flex flex-col gap-12">
+          ${group.accounts.map((account) => this.renderAccountCard(account))}
+        </div>
+      </div>
+    `;
+  }
+
   private renderNoResults() {
     const translations = this.languages.currentTranslation;
 
     if (
-      this.controller.filteredAccounts.length > 0 ||
+      this.controller.groupedAccounts.length > 0 ||
       !this.controller.searchQuery
     ) {
       return nothing;
     }
 
     return html`
-      <p class="py-24 text-center text-muted body-2">
-        ${translations.onboarding.selectAccount.noResults}
-      </p>
+      <div class="flex min-h-px flex-1 flex-col items-center justify-center">
+        <p class="body-1-semi-bold text-base text-center">
+          ${translations.onboarding.selectAccount.noResults}
+        </p>
+      </div>
     `;
   }
 
-  override render() {
+  private renderActionIconButton(params: {
+    iconType: "plus" | "refresh";
+    ariaLabel: string;
+    tooltip: string;
+    onClick: () => void;
+  }) {
+    return html`
+      <ledger-tooltip .content=${params.tooltip} side="top" .sideOffset=${8}>
+        <button
+          type="button"
+          class="bg-muted hover:bg-muted-hover active:bg-muted-pressed flex h-48 w-48 shrink-0 cursor-pointer items-center justify-center rounded-full border-none text-base"
+          aria-label=${params.ariaLabel}
+          @click=${params.onClick}
+        >
+          <ledger-icon
+            .type=${params.iconType}
+            size="small"
+            fillColor="currentColor"
+          ></ledger-icon>
+        </button>
+      </ledger-tooltip>
+    `;
+  }
+
+  private renderSearchHeader() {
     const translations = this.languages.currentTranslation;
 
     return html`
-      <div class="flex flex-col gap-12 p-24 pt-0">
+      <div class="flex items-center gap-8">
         <ledger-search-input
+          class="min-w-0 flex-1"
           .placeholder=${translations.onboarding.selectAccount
             .searchPlaceholder}
           .value=${this.controller.searchQuery}
@@ -121,7 +246,30 @@ export class SelectAccountScreen extends LitElement {
             this.controller.handleSearchInput(e)}
           @search-input-clear=${() => this.controller.handleSearchClear()}
         ></ledger-search-input>
-        ${this.controller.filteredAccounts.map(this.renderAccountItem)}
+        ${this.renderActionIconButton({
+          iconType: "plus",
+          ariaLabel: translations.onboarding.selectAccount.addAccountAriaLabel,
+          tooltip: translations.onboarding.selectAccount.addAccountTooltip,
+          onClick: () => this.controller.handleAddAccountClick(),
+        })}
+        ${this.renderActionIconButton({
+          iconType: "refresh",
+          ariaLabel:
+            translations.onboarding.selectAccount.refreshAccountsAriaLabel,
+          tooltip: translations.onboarding.selectAccount.refreshAccountsTooltip,
+          onClick: () => this.controller.handleRefreshAccountsClick(),
+        })}
+      </div>
+    `;
+  }
+
+  override render() {
+    return html`
+      <div class="flex h-full flex-col gap-12 p-24 pt-0">
+        ${this.renderSearchHeader()}
+        ${this.controller.groupedAccounts.map((group) =>
+          this.renderGroup(group),
+        )}
         ${this.renderNoResults()}
       </div>
       ${this.renderBalanceLoadingFooter()}

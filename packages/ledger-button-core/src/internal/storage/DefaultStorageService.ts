@@ -252,4 +252,62 @@ export class DefaultStorageService implements StorageService {
       },
     });
   }
+
+  async savePreferredLanguage(language: string): Promise<void> {
+    const result = await this.indexedDbService.storePreferredLanguage(language);
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("Preferred language saved", { language });
+      },
+      Left: (error) => {
+        this.logger.error("Error saving preferred language", {
+          error,
+          language,
+        });
+      },
+    });
+  }
+
+  async getPreferredLanguage(): Promise<Maybe<string>> {
+    const result = await this.indexedDbService.getPreferredLanguage();
+    return result.caseOf({
+      Right: (language) => language,
+      Left: (error) => {
+        this.logger.error("Error getting preferred language", { error });
+        return Nothing;
+      },
+    });
+  }
+
+  async savePreferredFiatCurrency(
+    preferredFiatCurrency: string,
+  ): Promise<void> {
+    const result = await this.indexedDbService.storePreferredFiatCurrency(
+      preferredFiatCurrency,
+    );
+    result.caseOf({
+      Right: () => {
+        this.logger.debug("Preferred fiat currency saved", {
+          preferredFiatCurrency,
+        });
+      },
+      Left: (error) => {
+        this.logger.error("Error saving preferred fiat currency", {
+          error,
+          preferredFiatCurrency,
+        });
+      },
+    });
+  }
+
+  async getPreferredFiatCurrency(): Promise<Maybe<string>> {
+    const result = await this.indexedDbService.getPreferredFiatCurrency();
+    return result.caseOf({
+      Right: (preferredFiatCurrency) => preferredFiatCurrency,
+      Left: (error) => {
+        this.logger.error("Error getting preferred fiat currency", { error });
+        return Nothing;
+      },
+    });
+  }
 }

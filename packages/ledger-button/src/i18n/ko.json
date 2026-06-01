@@ -4,14 +4,23 @@
     "loading": "로딩 중",
     "appTitle": "Ledger Wallet",
     "floatingButton": {
-      "ariaLabel": "Open Ledger account menu",
+      "ariaLabel": "Ledger 계정 메뉴 열기",
       "label": "Ledger",
-      "pendingTransactionsHover": "대기 중인 거래가 {count}건 있습니다",
-      "newTransactionPending": "새로운 대기 중인 거래"
+      "pendingTransactionsHover": "대기 중인 트랜잭션이 {count} 건 있습니다.",
+      "newTransactionPending": "새 트랜잭션 보류 중",
+      "transactionsValidatedOne": "1건의 트랜잭션이 승인되었습니다",
+      "transactionsValidatedOther": "{count}건의 트랜잭션이 승인되었습니다."
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "전송됨",
+      "transactionReceivedTitle": "수령됨",
+      "transactionFailedTitle": "트랜잭션 실패",
+      "transactionSwapTitle": "트랜잭션이 승인되었습니다",
+      "checkOnExplorer": "탐색기에서 트랜잭션을 확인하세요"
     },
     "search": {
       "placeholder": "계정 검색",
-      "clearAriaLabel": "Clear search"
+      "clearAriaLabel": "검색 기록 삭제"
     },
     "button": {
       "connect": "Ledger 장치 연결하기",
@@ -58,8 +67,12 @@
     }
   },
   "home": {
-    "title": "Your Ledger Wallet",
-    "balance": "잔액"
+    "title": "내 Ledger Wallet",
+    "balance": "잔액",
+    "tabs": {
+      "tokens": "토큰",
+      "transactions": "트랜잭션"
+    }
   },
   "walletActions": {
     "send": "전송",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledger 장치 연결"
+      "title": "Ledger 장치를 연결하세요"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "계정 검색",
       "noResults": "검색하신 조건에 맞는 계정을 찾을 수 없습니다",
       "refreshingAccounts": "Ledger Wallet이 계정 정보를 업데이트하고 있습니다.",
-      "refreshingAccountsHint": "언제든 계정을 선택해 계속 진행하세요."
+      "refreshingAccountsHint": "언제든 계정을 선택해 계속 진행하세요.",
+      "addAccountAriaLabel": "계정 추가",
+      "refreshAccountsAriaLabel": "계정 새로고침",
+      "addAccountTooltip": "새로운 계정 생성",
+      "refreshAccountsTooltip": "새로고침",
+      "noToken": "토큰 없음",
+      "accountCountOne": "1개 계정",
+      "accountCountOther": "{count}개 계정",
+      "tokenCountOne": "1개의 토큰",
+      "tokenCountOther": "{count}개의 토큰"
+    },
+    "connectionSuccess": {
+      "title": "연결되었습니다",
+      "close": "닫기"
     },
     "turnOnSync": {
       "title": "",
@@ -170,30 +196,48 @@
   },
   "accountTokens": {
     "title": "계정 토큰",
-    "notFound": "Account not found",
-    "noTokens": "이 계정에서 토큰을 찾을 수 없습니다"
+    "notFound": "계정을 찾을 수 없습니다",
+    "noTokens": "이 계정에서 토큰을 찾을 수 없습니다",
+    "unknownToken": "알 수 없는 토큰"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "사용 가능한 네트워크"
   },
   "transactionList": {
-    "noTransactions": "No transactions found",
-    "pendingTransactions": "Pending transactions"
+    "noTransactions": "트랜잭션 정보를 찾을 수 없습니다",
+    "pendingTransactions": "보류 중인 트랜잭션",
+    "viewOnExplorer": "탐색기에서 보기",
+    "failed": "실패함",
+    "kinds": {
+      "swap": "스왑",
+      "approve": "승인",
+      "contract": "컨트랙트 상호작용",
+      "fees": "수수료",
+      "self": "내 계좌로 전송",
+      "received": "수령됨",
+      "sent": "전송됨"
+    }
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet에서 계속하기",
-    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "description": "더 원활한 사용자 경험을 위해 이 디앱(DApp)은 Ledger Wallet 앱에서 바로 실행됩니다.",
     "allowButton": "Ledger Wallet을 실행합니다.",
     "rejectButton": "Ledger Wallet 다운로드"
   },
   "settings": {
     "title": "설정",
-    "analytics": {
-      "title": "애널리틱스",
-      "description": "Ledger Wallet Direct Connectivity의 성능을 측정하고 앱과 사용자 경험을 모두 향상할 수 있도록 Ledger의 앱 사용 데이터 수집을 허용해 주세요."
+    "preferences": {
+      "title": "설정",
+      "language": { "title": "언어" },
+      "currency": { "title": "통화" }
     },
-    "securityConfidentiality": "보안 및 기밀성",
-    "helpSupport": "도움말 및 지원",
+    "securityConfidentiality": {
+      "title": "보안 및 기밀성",
+      "analytics": {
+        "title": "애널리틱스",
+        "description": "Ledger Wallet Direct Connectivity의 성능을 측정하고 앱과 사용자 경험을 모두 향상할 수 있도록 Ledger의 앱 사용 데이터 수집을 허용해 주세요."
+      }
+    },
     "support": {
       "title": "도움말 및 지원",
       "support": "지원",
@@ -209,6 +253,16 @@
     "error": {
       "title": "트랜잭션 실패",
       "description": "트랜잭션 서명 중 오류가 발생했습니다. 다시 시도해 주세요."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "처리 중...",
+        "description": "트랜잭션이 블록체인에서 처리 중입니다"
+      },
+      "validated": {
+        "title": "승인 완료",
+        "description": "블록체인에서 트랜잭션 검증이 완료되었습니다"
+      }
     }
   },
   "signMessage": {

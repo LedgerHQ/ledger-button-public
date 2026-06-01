@@ -12,6 +12,7 @@ import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import { generateUUID } from "../utils.js";
 import type { EventTrackingService } from "./EventTrackingService.js";
 
@@ -21,7 +22,7 @@ export class DefaultEventTrackingService implements EventTrackingService {
     EventType.InvoicingTransactionSigned,
     EventType.ErrorOccurred,
     EventType.ConsentGiven,
-    EventType.RedirectToLedgerWallet,
+    EventType.MobileRedirectLedgerWallet,
   ];
 
   private readonly logger: LoggerPublisher;
@@ -112,10 +113,6 @@ export class DefaultEventTrackingService implements EventTrackingService {
   }
 
   private async processEvent(event: EventRequest): Promise<void> {
-    /*
-TODO: Uncomment this when we have a validation for the events in the backend.
-Check current state with formats in JSON schemas and update the validation.
-
     const validationResult = EventTrackingUtils.validateEvent(event);
 
     if (!validationResult.success) {
@@ -126,11 +123,9 @@ Check current state with formats in JSON schemas and update the validation.
       });
       return;
     }
-*/
 
     this.logger.info("Tracking event", { event });
 
-    //TODO: Uncomment this when we have a validation for the events in the backend.
     const result = await this.backendService.event(
       event,
       this.config.dAppIdentifier,

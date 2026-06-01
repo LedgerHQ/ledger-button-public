@@ -77,9 +77,3 @@ export function buildWalletActionDeepLink(
   url.searchParams.set("deeplinkButtonPartner", partner);
   return url.toString();
 }
-
-/**
- * URL to download the Ledger Wallet desktop application.
- */
-export const LEDGER_WALLET_DOWNLOAD_URL =
-  "https://shop.ledger.com/pages/ledger-wallet-download";

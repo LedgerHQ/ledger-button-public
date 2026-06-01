@@ -2,16 +2,25 @@
   "common": {
     "connect": "เชื่อมต่อ",
     "loading": "กำลังโหลด...",
-    "appTitle": "Ledger Wallet",
+    "appTitle": "แอป Ledger Wallet",
     "floatingButton": {
-      "ariaLabel": "Open Ledger account menu",
+      "ariaLabel": "เปิดเมนูบัญชี Ledger",
       "label": "Ledger",
-      "pendingTransactionsHover": "คุณมีธุรกรรมที่รอดำเนินการ {count} รายการ",
-      "newTransactionPending": "ธุรกรรมใหม่รอดำเนินการ"
+      "pendingTransactionsHover": "คุณมี {count} ธุรกรรมที่ค้างอยู่",
+      "newTransactionPending": "ธุรกรรมใหม่กำลังรอดำเนินการ",
+      "transactionsValidatedOne": "ธุรกรรม 1 รายการได้รับการตรวจสอบแล้ว",
+      "transactionsValidatedOther": "{count} ธุรกรรมได้รับการตรวจสอบแล้ว"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "ส่งแล้ว",
+      "transactionReceivedTitle": "ได้รับแล้ว",
+      "transactionFailedTitle": "ธุรกรรมล้มเหลว",
+      "transactionSwapTitle": "ธุรกรรมได้รับการยืนยันแล้ว",
+      "checkOnExplorer": "ตรวจสอบธุรกรรมบน Explorer"
     },
     "search": {
       "placeholder": "ค้นหาบัญชี",
-      "clearAriaLabel": "Clear search"
+      "clearAriaLabel": "ล้างการค้นหา"
     },
     "button": {
       "connect": "เชื่อมต่อกับอุปกรณ์ Ledger ของคุณ",
@@ -58,8 +67,12 @@
     }
   },
   "home": {
-    "title": "Your Ledger Wallet",
-    "balance": "ยอดคงเหลือในบัญชี"
+    "title": "แอป Ledger Wallet ของคุณ",
+    "balance": "ยอดคงเหลือในบัญชี",
+    "tabs": {
+      "tokens": "โทเคน",
+      "transactions": "ธุรกรรม"
+    }
   },
   "walletActions": {
     "send": "ส่ง",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "เชื่อมต่อกับ Ledger"
+      "title": "เชื่อมต่อกับอุปกรณ์ Ledger"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "ค้นหาบัญชี",
       "noResults": "ไม่มีบัญชีที่ตรงกับการค้นหาของคุณ",
       "refreshingAccounts": "แอป Ledger Wallet กำลังอัปเดตข้อมูลบัญชีของคุณ",
-      "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ"
+      "refreshingAccountsHint": "เลือกบัญชีได้ทุกเมื่อเพื่อดำเนินการต่อ",
+      "addAccountAriaLabel": "เพิ่มบัญชี",
+      "refreshAccountsAriaLabel": "รีเฟรชข้อมูลบัญชี",
+      "addAccountTooltip": "สร้างบัญชีใหม่",
+      "refreshAccountsTooltip": "รีเฟรช",
+      "noToken": "ไม่มีโทเคน",
+      "accountCountOne": "1 บัญชี",
+      "accountCountOther": "{count} บัญชี",
+      "tokenCountOne": "1 โทเคน",
+      "tokenCountOther": "โทเคน {count}"
+    },
+    "connectionSuccess": {
+      "title": "คุณได้เชื่อมต่อแล้ว",
+      "close": "ปิด"
     },
     "turnOnSync": {
       "title": "",
@@ -170,30 +196,48 @@
   },
   "accountTokens": {
     "title": "โทเคนบัญชี",
-    "notFound": "Account not found",
-    "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้"
+    "notFound": "ไม่พบบัญชี",
+    "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้",
+    "unknownToken": "โทเคนที่ไม่รู้จัก"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "เครือข่ายที่มีอยู่"
   },
   "transactionList": {
-    "noTransactions": "No transactions found",
-    "pendingTransactions": "Pending transactions"
+    "noTransactions": "ไม่พบธุรกรรม",
+    "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
+    "viewOnExplorer": "ดูใน Explorer",
+    "failed": "ล้มเหลว",
+    "kinds": {
+      "swap": "สวอป",
+      "approve": "อนุมัติ",
+      "contract": "การโต้ตอบกับสัญญา",
+      "fees": "ค่าธรรมเนียม",
+      "self": "โอนด้วยตัวเอง",
+      "received": "ได้รับแล้ว",
+      "sent": "ส่งแล้ว"
+    }
   },
   "mobileOnboarding": {
     "title": "ดำเนินการต่อในแอป Ledger Wallet",
-    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "description": "DApp นี้จะเปิดขึ้นในแอป Ledger Wallet โดยตรงเพื่อการใช้งานที่ราบรื่น",
     "allowButton": "เปิดแอป Ledger Wallet",
     "rejectButton": "ดาวน์โหลดแอป Ledger Wallet™"
   },
   "settings": {
     "title": "การตั้งค่า",
-    "analytics": {
-      "title": "การวิเคราะห์",
-      "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
+    "preferences": {
+      "title": "การตั้งค่าความชอบส่วนตัว",
+      "language": { "title": "ภาษา" },
+      "currency": { "title": "สกุลเงิน" }
     },
-    "securityConfidentiality": "ความปลอดภัยและการรักษาความลับ",
-    "helpSupport": "ความช่วยเหลือและการสนับสนุน",
+    "securityConfidentiality": {
+      "title": "ความปลอดภัยและการรักษาความลับ",
+      "analytics": {
+        "title": "การวิเคราะห์",
+        "description": "เปิดให้ Ledger รวบรวมข้อมูลการใช้งานแอปเพื่อวัดประสิทธิภาพของฟีเจอร์ Direct Connectivity ในแอป Ledger Wallet เพื่อปรับปรุงการใช้งานในแอปและประสบการณ์ของคุณ"
+      }
+    },
     "support": {
       "title": "ความช่วยเหลือและการสนับสนุน",
       "support": "การสนับสนุน",
@@ -209,6 +253,16 @@
     "error": {
       "title": "ธุรกรรมล้มเหลว",
       "description": "เกิดข้อผิดพลาดในการลงนามในธุรกรรมของคุณ โปรดลองอีกครั้ง"
+    },
+    "broadcast": {
+      "processing": {
+        "title": "กำลังดำเนินการ...",
+        "description": "กำลังประมวลผลธุรกรรมบนบล็อกเชน"
+      },
+      "validated": {
+        "title": "ยืนยันแล้ว",
+        "description": "ธุรกรรมได้รับการตรวจสอบบนบล็อกเชนแล้ว"
+      }
     }
   },
   "signMessage": {

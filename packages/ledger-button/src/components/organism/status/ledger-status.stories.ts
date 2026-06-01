@@ -1,7 +1,12 @@
 import "./ledger-status";
+import "../../molecule/status-card/ledger-status-card";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
+
+import en from "../../../i18n/en.json" with { type: "json" };
+
+const broadcastCopy = en.signTransaction.broadcast;
 
 const meta: Meta = {
   title: "Component/Organism/Status",
@@ -133,6 +138,58 @@ export const InteractiveError: Story = {
     description: "There was an error processing your transaction.",
     primaryButtonLabel: "Try again",
     secondaryButtonLabel: "Cancel",
+  },
+};
+
+export const SuccessWithProcessingCard: Story = {
+  render: (args) => html`
+    <ledger-status
+      type=${args.type}
+      title=${args.title}
+      description=${args.description}
+      primary-button-label=${args.primaryButtonLabel}
+      secondary-button-label=${args.secondaryButtonLabel}
+    >
+      <ledger-status-card
+        slot="card"
+        state="processing"
+        title=${broadcastCopy.processing.title}
+        description=${broadcastCopy.processing.description}
+      ></ledger-status-card>
+    </ledger-status>
+  `,
+  args: {
+    type: "success",
+    title: en.signTransaction.success.title,
+    description: "",
+    primaryButtonLabel: en.common.button.close,
+    secondaryButtonLabel: en.signTransaction.success.viewTransaction,
+  },
+};
+
+export const SuccessWithValidatedCard: Story = {
+  render: (args) => html`
+    <ledger-status
+      type=${args.type}
+      title=${args.title}
+      description=${args.description}
+      primary-button-label=${args.primaryButtonLabel}
+      secondary-button-label=${args.secondaryButtonLabel}
+    >
+      <ledger-status-card
+        slot="card"
+        state="validated"
+        title=${broadcastCopy.validated.title}
+        description=${broadcastCopy.validated.description}
+      ></ledger-status-card>
+    </ledger-status>
+  `,
+  args: {
+    type: "success",
+    title: en.signTransaction.success.title,
+    description: "",
+    primaryButtonLabel: en.common.button.close,
+    secondaryButtonLabel: en.signTransaction.success.viewTransaction,
   },
 };
 

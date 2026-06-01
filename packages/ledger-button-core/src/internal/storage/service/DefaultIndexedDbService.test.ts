@@ -333,4 +333,50 @@ describe("DefaultIndexedDbService", () => {
       });
     });
   });
+
+  describe("Preferred Fiat Currency - storePreferredFiatCurrency and getPreferredFiatCurrency", () => {
+    beforeEach(async () => {
+      await clearObjectStore();
+      indexedDbService = new DefaultIndexedDbService(() => mockLogger);
+    });
+
+    it("should store and retrieve a preferred fiat currency", async () => {
+      const currency = "USD";
+
+      const storeResult =
+        await indexedDbService.storePreferredFiatCurrency(currency);
+      expect(storeResult.isRight()).toBe(true);
+
+      const getResult = await indexedDbService.getPreferredFiatCurrency();
+      expect(getResult.isRight()).toBe(true);
+      getResult.map((maybeCurrency) => {
+        expect(maybeCurrency.isJust()).toBe(true);
+        maybeCurrency.map((retrievedCurrency) => {
+          expect(retrievedCurrency).toBe(currency);
+        });
+      });
+    });
+
+    it("should return Nothing when no preferred fiat currency has been stored", async () => {
+      const result = await indexedDbService.getPreferredFiatCurrency();
+      expect(result.isRight()).toBe(true);
+      result.map((maybeCurrency) => {
+        expect(maybeCurrency).toBe(Nothing);
+      });
+    });
+
+    it("should overwrite existing preferred fiat currency when storing a new one", async () => {
+      await indexedDbService.storePreferredFiatCurrency("USD");
+      await indexedDbService.storePreferredFiatCurrency("EUR");
+
+      const result = await indexedDbService.getPreferredFiatCurrency();
+      expect(result.isRight()).toBe(true);
+      result.map((maybeCurrency) => {
+        expect(maybeCurrency.isJust()).toBe(true);
+        maybeCurrency.map((retrievedCurrency) => {
+          expect(retrievedCurrency).toBe("EUR");
+        });
+      });
+    });
+  });
 });

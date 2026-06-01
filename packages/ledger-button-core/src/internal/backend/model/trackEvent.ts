@@ -8,15 +8,17 @@ export enum EventType {
   Onboarding = "onboarding",
   OpenLedgerSync = "open_ledger_sync",
   OpenSession = "open_session",
-  SessionAuthentication = "session_authentication",
   TransactionFlowCompletion = "transaction_flow_completion",
   TransactionFlowInitialization = "transaction_flow_initialization",
   TypedMessageFlowCompletion = "typed_message_flow_completion",
   TypedMessageFlowInitialization = "typed_message_flow_initialization",
+  ViewTransactionDetailsClicked = "view_transaction_details_clicked",
   WalletActionClicked = "wallet_action_clicked",
   WalletRedirectConfirmed = "wallet_redirect_confirmed",
   WalletRedirectCancelled = "wallet_redirect_cancelled",
-  RedirectToLedgerWallet = "mobile_redirect_ledger_wallet",
+  MobileRedirectLedgerWallet = "mobile_redirect_ledger_wallet",
+  LanguageChanged = "language_changed",
+  CurrencyChanged = "currency_changed",
 }
 
 type BaseEventData = {
@@ -83,15 +85,6 @@ export type TransactionFlowCompletionEventData = BaseEventData & {
   chain_id: string | null;
 };
 
-export type SessionAuthenticationEventData = BaseEventData & {
-  event_type: "session_authentication";
-  session_id: string;
-  ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
-  transaction_type: "authentication_tx";
-  transaction_hash: string;
-};
-
 export type TypedMessageFlowInitializationEventData = BaseEventData & {
   event_type: "typed_message_flow_initialization";
   session_id: string;
@@ -155,6 +148,27 @@ export type MobileRedirectLedgerWalletEventData = BaseEventData & {
   event_type: "mobile_redirect_ledger_wallet";
 };
 
+export type ViewTransactionDetailsClickedEventData = BaseEventData & {
+  event_type: "view_transaction_details_clicked";
+  session_id: string;
+  ledger_sync_user_id?: string;
+  blockchain_network_selected: "ethereum";
+  chain_id: string | null;
+  transaction_hash: string;
+};
+
+export type LanguageChangedEventData = BaseEventData & {
+  event_type: "language_changed";
+  session_id: string;
+  language_key: string;
+};
+
+export type CurrencyChangedEventData = BaseEventData & {
+  event_type: "currency_changed";
+  session_id: string;
+  currency_code: string;
+};
+
 export type EventData =
   | ConsentGivenEventData
   | ConsentRemovedEventData
@@ -167,15 +181,17 @@ export type EventData =
   | OnboardingEventData
   | OpenLedgerSyncEventData
   | OpenSessionEventData
-  | SessionAuthenticationEventData
   | TransactionFlowCompletionEventData
   | TransactionFlowInitializationEventData
   | TypedMessageFlowCompletionEventData
   | TypedMessageFlowInitializationEventData
+  | ViewTransactionDetailsClickedEventData
   | WalletActionClickedEventData
   | WalletRedirectConfirmedEventData
   | WalletRedirectCancelledEventData
-  | MobileRedirectLedgerWalletEventData;
+  | MobileRedirectLedgerWalletEventData
+  | LanguageChangedEventData
+  | CurrencyChangedEventData;
 
 export type EventRequest = {
   name: string;

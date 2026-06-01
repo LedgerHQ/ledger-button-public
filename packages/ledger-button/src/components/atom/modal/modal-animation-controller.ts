@@ -2,8 +2,11 @@ import { ReactiveController, ReactiveControllerHost } from "lit";
 import { animate } from "motion";
 
 import { ANIMATION_DELAY } from "../../../shared/navigation.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
 import { type AnimationInstance } from "./animation-types.js";
+import { BottomAnimation } from "./bottom-animation.js";
 import { CenterAnimation } from "./center-animation.js";
+import { MorphAnimation } from "./morph-animation.js";
 import { PanelAnimation } from "./panel-animation.js";
 
 export type ModalMode = "center" | "panel" | "bottom";
@@ -16,8 +19,10 @@ type AnimationElements = {
 
 export class ModalAnimationController implements ReactiveController {
   private backdropAnimation: AnimationInstance | null = null;
-  private centerAnimation = new CenterAnimation();
-  private panelAnimation = new PanelAnimation();
+  private readonly centerAnimation = new CenterAnimation();
+  private readonly panelAnimation = new PanelAnimation();
+  private readonly morphAnimation = new MorphAnimation();
+  private readonly bottomAnimation = new BottomAnimation();
 
   constructor(private readonly host: ReactiveControllerHost) {
     this.host.addController(this);
@@ -29,6 +34,8 @@ export class ModalAnimationController implements ReactiveController {
 
   animateOpen(elements: AnimationElements, mode: ModalMode): void {
     this.cancelAnimations();
+    this.resetVisualState(elements);
+    this.prepareContainerForOpen(elements.container, mode);
 
     elements.wrapper.classList.add("modal-wrapper--open");
 
@@ -40,6 +47,8 @@ export class ModalAnimationController implements ReactiveController {
 
     if (mode === "panel") {
       this.panelAnimation.open(elements.container);
+    } else if (mode === "bottom") {
+      this.bottomAnimation.open(elements.container);
     } else {
       this.centerAnimation.open(elements.container);
     }
@@ -53,6 +62,8 @@ export class ModalAnimationController implements ReactiveController {
 
     if (mode === "panel") {
       animations.push(this.panelAnimation.close(elements.container));
+    } else if (mode === "bottom") {
+      animations.push(this.bottomAnimation.close(elements.container));
     } else {
       animations.push(this.centerAnimation.close(elements.container));
     }
@@ -73,6 +84,40 @@ export class ModalAnimationController implements ReactiveController {
     await Promise.all(animations);
 
     elements.wrapper.classList.remove("modal-wrapper--open");
+    this.resetVisualState(elements);
+    this.backdropAnimation = null;
+  }
+
+  async animateMorphClose(
+    elements: AnimationElements,
+    targetRect: DOMRect,
+    position?: FloatingButtonPosition,
+    onLanded?: () => void,
+  ): Promise<void> {
+    const backdropFade = new Promise<void>((resolve) => {
+      this.backdropAnimation = animate(
+        elements.backdrop,
+        { opacity: [1, 0] },
+        {
+          duration: ANIMATION_DELAY / 1000,
+          ease: "easeOut",
+          onComplete: () => resolve(),
+        },
+      );
+    });
+
+    await Promise.all([
+      this.morphAnimation.morphClose(
+        elements.container,
+        targetRect,
+        position,
+        onLanded,
+      ),
+      backdropFade,
+    ]);
+
+    elements.wrapper.classList.remove("modal-wrapper--open");
+    this.resetVisualState(elements);
     this.backdropAnimation = null;
   }
 
@@ -84,5 +129,39 @@ export class ModalAnimationController implements ReactiveController {
 
     this.centerAnimation.cancel();
     this.panelAnimation.cancel();
+    this.bottomAnimation.cancel();
+    this.morphAnimation.cancel();
+  }
+
+  private prepareContainerForOpen(
+    container: HTMLElement,
+    mode: ModalMode,
+  ): void {
+    if (mode === "center") {
+      container.style.opacity = "0";
+      return;
+    }
+
+    container.style.opacity = "";
+  }
+
+  private resetVisualState(elements: AnimationElements): void {
+    this.resetContainerVisualState(elements.container);
+    this.resetBackdropVisualState(elements.backdrop);
+  }
+
+  private resetContainerVisualState(container: HTMLElement): void {
+    container.style.transform = "";
+    container.style.borderRadius = "";
+    container.style.opacity = "";
+
+    const children = Array.from(container.children) as HTMLElement[];
+    for (const child of children) {
+      child.style.opacity = "";
+    }
+  }
+
+  private resetBackdropVisualState(backdrop: HTMLElement): void {
+    backdrop.style.opacity = "";
   }
 }

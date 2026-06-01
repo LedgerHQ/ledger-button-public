@@ -8,13 +8,19 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../tailwind-element.js";
-import { formatFiatBalance } from "../../utils/format-fiat.js";
+import {
+  formatFiatBalance,
+  formatTokenBalance,
+} from "../../utils/format-fiat.js";
 
 @customElement("token-list-screen")
 @tailwindElement()
 export class TokenListScreen extends LitElement {
   @property({ type: Object })
   account?: DetailedAccount;
+
+  @property({ type: String })
+  locale!: string;
 
   private renderNativeCoin() {
     if (!this.account) return "";
@@ -24,8 +30,8 @@ export class TokenListScreen extends LitElement {
         ledger-id=${this.account.currencyId}
         .title=${this.account.ticker}
         .ticker=${this.account.ticker}
-        .value=${this.account.balance ?? "0"}
-        .fiatValue=${formatFiatBalance(this.account.fiatBalance)}
+        .value=${formatTokenBalance(this.account.balance ?? "0", this.locale)}
+        .fiatValue=${formatFiatBalance(this.account.fiatBalance, this.locale)}
         .isClickable=${false}
         type="network"
         iconVariant="rounded"
@@ -44,8 +50,8 @@ export class TokenListScreen extends LitElement {
         .title=${token.name}
         .subtitle=${token.ticker}
         .ticker=${token.ticker}
-        .value=${token.balance}
-        .fiatValue=${formatFiatBalance(token.fiatBalance)}
+        .value=${formatTokenBalance(token.balance, this.locale)}
+        .fiatValue=${formatFiatBalance(token.fiatBalance, this.locale)}
         .isClickable=${false}
         type="token"
         iconVariant="rounded"

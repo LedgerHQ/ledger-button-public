@@ -8,20 +8,22 @@ import { configModuleFactory } from "./config/configModule.js";
 import { consentModuleFactory } from "./consent/consentModule.js";
 import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
+import { currencyModuleFactory } from "./currency/currencyModule.js";
 import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
+import { evmProviderModuleFactory } from "./evm-provider/evmProviderModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTransactionModule.js";
 import { platformModuleFactory } from "./platform/platformModule.js";
+import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionModuleFactory } from "./transaction/transactionModule.js";
-import { transactionHistoryModuleFactory } from "./transaction-history/transactionHistoryModule.js";
-import { web3ProviderModuleFactory } from "./web3-provider/web3ProviderModule.js";
+import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({
@@ -36,6 +38,7 @@ export function createContainer({
       account: false,
       device: false,
       web3Provider: false,
+      solanaProvider: false,
       balance: false,
       dAppConfig: false,
       transactionHistory: false,
@@ -46,6 +49,7 @@ export function createContainer({
 
   container.loadSync(
     configModuleFactory({ loggerLevel, apiKey, dAppIdentifier, environment }),
+    currencyModuleFactory(),
     balanceModuleFactory({ stub: devConfig.stub.balance }),
     loggerModuleFactory({
       stub: devConfig.stub.base,
@@ -63,7 +67,8 @@ export function createContainer({
     transactionHistoryModuleFactory({
       stub: devConfig.stub.transactionHistory,
     }),
-    web3ProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
+    evmProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
+    solanaProviderModuleFactory({ stub: devConfig.stub.solanaProvider }),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),

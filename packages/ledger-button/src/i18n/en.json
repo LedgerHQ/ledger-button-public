@@ -7,7 +7,16 @@
       "ariaLabel": "Open Ledger account menu",
       "label": "Ledger",
       "pendingTransactionsHover": "You have {count} pending transactions",
-      "newTransactionPending": "New transaction pending"
+      "newTransactionPending": "New transaction pending",
+      "transactionsValidatedOne": "1 transaction has been validated",
+      "transactionsValidatedOther": "{count} transactions have been validated"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Sent",
+      "transactionReceivedTitle": "Received",
+      "transactionFailedTitle": "Transaction failed",
+      "transactionSwapTitle": "Transaction confirmed",
+      "checkOnExplorer": "Check transaction on explorer"
     },
     "search": {
       "placeholder": "Search account",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "Your Ledger Wallet",
-    "balance": "Balance"
+    "balance": "Balance",
+    "tabs": {
+      "tokens": "Tokens",
+      "transactions": "Transactions"
+    }
   },
   "walletActions": {
     "send": "Send",
@@ -115,7 +128,20 @@
       "searchPlaceholder": "Search account",
       "noResults": "No accounts match your search",
       "refreshingAccounts": "The Ledger Wallet is refreshing your accounts.",
-      "refreshingAccountsHint": "Select an account at any time to continue."
+      "refreshingAccountsHint": "Select an account at any time to continue.",
+      "addAccountAriaLabel": "Add account",
+      "refreshAccountsAriaLabel": "Refresh accounts",
+      "addAccountTooltip": "Create a new account",
+      "refreshAccountsTooltip": "Refresh",
+      "noToken": "No token",
+      "accountCountOne": "1 account",
+      "accountCountOther": "{count} accounts",
+      "tokenCountOne": "1 token",
+      "tokenCountOther": "{count} tokens"
+    },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
     },
     "turnOnSync": {
       "title": "",
@@ -171,14 +197,26 @@
   "accountTokens": {
     "title": "Account Tokens",
     "notFound": "Account not found",
-    "noTokens": "No tokens found for this account"
+    "noTokens": "No tokens found for this account",
+    "unknownToken": "Unknown Token"
   },
   "availableNetworks": {
     "title": "Available networks"
   },
   "transactionList": {
     "noTransactions": "No transactions found",
-    "pendingTransactions": "Pending transactions"
+    "pendingTransactions": "Pending transactions",
+    "viewOnExplorer": "View on explorer",
+    "failed": "Failed",
+    "kinds": {
+      "swap": "Swap",
+      "approve": "Approve",
+      "contract": "Contract interaction",
+      "fees": "Fees",
+      "self": "Self transfer",
+      "received": "Received",
+      "sent": "Sent"
+    }
   },
   "mobileOnboarding": {
     "title": "Continue in Ledger Wallet",
@@ -188,12 +226,18 @@
   },
   "settings": {
     "title": "Settings",
-    "analytics": {
-      "title": "Analytics",
-      "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+    "preferences": {
+      "title": "Preferences",
+      "language": { "title": "Language" },
+      "currency": { "title": "Currency" }
     },
-    "securityConfidentiality": "Security & confidentiality",
-    "helpSupport": "Help & Support",
+    "securityConfidentiality": {
+      "title": "Security & confidentiality",
+      "analytics": {
+        "title": "Analytics",
+        "description": "Enable Ledger to collect app usage data to help measure Ledger Wallet Direct Connectivity's performance and enhance both the app and your experience."
+      }
+    },
     "support": {
       "title": "Help & Support",
       "support": "Support",
@@ -209,6 +253,16 @@
     "error": {
       "title": "Transaction failed",
       "description": "There was an error signing your transaction. Please try again."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

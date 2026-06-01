@@ -1,10 +1,11 @@
 import "../icon/ledger-icon";
 import "../tooltip/ledger-tooltip";
+import "./ledger-floating-button-badge";
 
 import { consume } from "@lit/context";
 import { cva } from "class-variance-authority";
 import { css, html, LitElement, nothing, type PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
 import { CoreContext, coreContext } from "../../../context/core-context.js";
@@ -13,6 +14,9 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { tailwindElement } from "../../../tailwind-element.js";
+import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
+import { BadgeAnimationController } from "./floating-button-badge-animation-controller.js";
+import { resolveTooltipContent } from "./floating-button-tooltip-utils.js";
 import { FloatingButtonController } from "./ledger-floating-button-controller.js";
 
 export type FloatingButtonPosition =
@@ -41,7 +45,17 @@ const floatingButtonVariants = cva(
   },
 );
 
-const positionVariants = cva("fixed z-1000", {
+// `z-7732` is a wink to EIP-7732 (https://eips.ethereum.org/EIPS/eip-7732)
+// and intentionally sits one tier above the modal stack:
+//   - `.modal-backdrop`  → z-index 7730
+//   - `.modal-container` → z-index 7731
+//   - this floating btn  → z-index 7732
+// so that at the end of the morph-close animation the real button can
+// take over the same pixels as the morphed pill underneath.
+// Tailwind offset/size classes below must stay in sync with
+// `FLOATING_BUTTON_SIZE` / `FLOATING_BUTTON_OFFSET` in
+// `floating-button-rect.ts` (h-64/w-64 + right-24/bottom-24/…).
+const positionVariants = cva("fixed z-7732", {
   variants: {
     position: {
       "bottom-right": "right-24 bottom-24",
@@ -67,7 +81,24 @@ const styles = css`
   :host([hidden]) {
     display: none;
   }
+
+  @keyframes ledger-floating-button-logo-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .floating-button-logo-fade-in {
+    animation: ledger-floating-button-logo-fade-in 220ms ease-out both;
+    animation-delay: 60ms;
+  }
 `;
+
+const BADGE_MASK_GRADIENT =
+  "radial-gradient(circle closest-side at 87.5% 12.5%, transparent 185%, white 195%)";
 
 function cvaResultToClassMap(classString: string): Record<string, boolean> {
   const map: Record<string, boolean> = {};
@@ -80,7 +111,7 @@ function cvaResultToClassMap(classString: string): Record<string, boolean> {
 @customElement("ledger-floating-button")
 @tailwindElement(styles)
 export class LedgerFloatingButton extends LitElement {
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -97,7 +128,26 @@ export class LedgerFloatingButton extends LitElement {
   @property({ type: String })
   variant: FloatingButtonVariant = "circular";
 
+  @property({ type: String, attribute: false })
+  transactionConfirmationNotification: TransactionConfirmationNotification =
+    "tooltip";
+
+  /**
+   * Whether to apply the logo fade-in class on the next render. We want
+   * the fade to play exactly once each time the button (re)appears
+   * (initial mount, or after a modal close), and never replay on routine
+   * re-renders such as variant changes or a pending-tx count update.
+   */
+  @state()
+  private playLogoFadeIn = true;
+
+  private wasShowing = false;
+
   private controller!: FloatingButtonController;
+  private badgeAnimCtrl!: BadgeAnimationController;
+
+  @query("ledger-floating-button-badge")
+  private readonly badgeEl!: HTMLElement | null;
 
   private get floatingButtonClasses(): Record<string, boolean> {
     return cvaResultToClassMap(
@@ -112,20 +162,59 @@ export class LedgerFloatingButton extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    const coreInstance = this.core || this.coreContext;
-    if (coreInstance) {
-      this.controller = new FloatingButtonController(this, coreInstance);
+    this.ensureControllers();
+  }
+
+  override willUpdate(changedProperties: PropertyValues<this>): void {
+    super.willUpdate(changedProperties);
+    this.ensureControllers();
+
+    if (this.controller && this.badgeAnimCtrl) {
+      this.badgeAnimCtrl.sync(
+        this.controller.validatedCelebrationOpen,
+        this.controller.hasPending,
+        this.controller.postClosePendingTooltipOpen,
+        this.controller.modalIsOpen,
+      );
     }
   }
 
-  override updated(changedProperties: PropertyValues<this>): void {
-    super.updated(changedProperties);
+  override updated(_changedProperties: PropertyValues<this>): void {
+    super.updated(_changedProperties);
+    this.badgeAnimCtrl?.flush();
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.badgeAnimCtrl?.cancel();
+  }
+
+  private ensureControllers(): void {
     const coreInstance = this.core || this.coreContext;
     if (!this.controller && coreInstance) {
-      this.controller = new FloatingButtonController(this, coreInstance);
+      this.controller = new FloatingButtonController(
+        this,
+        coreInstance,
+        this.transactionConfirmationNotification,
+      );
+      this.badgeAnimCtrl = new BadgeAnimationController(
+        this,
+        () => this.badgeEl,
+      );
       this.requestUpdate();
     }
+
+    const isShowing = this.controller?.shouldShow ?? false;
+    if (!isShowing && this.wasShowing) {
+      // Arm the fade-in for the next time the button re-appears.
+      this.playLogoFadeIn = true;
+    }
+    this.wasShowing = isShowing;
   }
+
+  private readonly handleLogoFadeInEnd = (): void => {
+    this.playLogoFadeIn = false;
+  };
 
   private handleClick = () => {
     this.dispatchEvent(
@@ -136,12 +225,11 @@ export class LedgerFloatingButton extends LitElement {
     );
   };
 
-  private formatPendingHoverTemplate(template: string, count: number): string {
-    return template.replace("{count}", String(count));
-  }
-
-  private handlePostCloseTooltipAutoHide = (): void => {
-    this.controller?.clearPostClosePendingTooltip();
+  private readonly handleControlledTooltipAutoHide = (): void => {
+    const text =
+      this.languages?.currentTranslation?.common?.floatingButton
+        ?.newTransactionPending ?? "New transaction pending";
+    this.controller?.handleTooltipAutoHide(text);
   };
 
   override render() {
@@ -149,80 +237,118 @@ export class LedgerFloatingButton extends LitElement {
       return nothing;
     }
 
-    const translations = this.languages?.currentTranslation;
-    const floatingButtonI18n = translations?.common?.floatingButton;
-    const ariaLabel = floatingButtonI18n?.ariaLabel;
-    const buttonLabel = floatingButtonI18n?.label;
-    const pendingHoverTemplate =
-      floatingButtonI18n?.pendingTransactionsHover ??
-      "You have {count} pending transactions";
-    const newTransactionPendingText =
-      floatingButtonI18n?.newTransactionPending ?? "New transaction pending";
-    const iconSize = this.variant === "compact" ? "small" : "large";
+    const i18n = this.languages?.currentTranslation?.common?.floatingButton;
+    const showBadge = this.badgeAnimCtrl?.showBadgeChrome ?? false;
 
-    const pendingCount = this.controller?.pendingTransactionCount ?? 0;
-    const hasPending = pendingCount > 0;
-    const postCloseTooltip = this.controller?.postClosePendingTooltipOpen ?? false;
-    const tooltipContent = postCloseTooltip
-      ? newTransactionPendingText
-      : this.formatPendingHoverTemplate(pendingHoverTemplate, pendingCount);
+    const { content: tooltipContent, isControlled: tooltipControlledOpen } =
+      resolveTooltipContent(
+        {
+          dismissingContent: this.controller.dismissingTooltipContent,
+          celebrationOpen: this.controller.validatedCelebrationOpen,
+          validatedCount: this.controller.validatedCount,
+          postCloseTooltipOpen: this.controller.postClosePendingTooltipOpen,
+          pendingCount: this.controller.pendingTransactionCount,
+          delayTooltipOpen: this.badgeAnimCtrl?.delayTooltipOpen ?? false,
+        },
+        {
+          pendingHoverTemplate:
+            i18n?.pendingTransactionsHover ??
+            "You have {count} pending transactions",
+          newTransactionPendingText:
+            i18n?.newTransactionPending ?? "New transaction pending",
+          validatedOne:
+            i18n?.transactionsValidatedOne ??
+            "1 transaction has been validated",
+          validatedOther:
+            i18n?.transactionsValidatedOther ??
+            "{count} transactions have been validated",
+        },
+      );
 
-    const maskGradient =
-      "radial-gradient(circle closest-side at 87.5% 12.5%, transparent 185%, white 195%)";
-    const iconMaskStyle = hasPending
-      ? `-webkit-mask-image: ${maskGradient}; mask-image: ${maskGradient};`
+    const button = this.renderButton(i18n?.ariaLabel, i18n?.label, showBadge);
+
+    const mainContent = this.controller.needsTooltip
+      ? this.renderWithTooltip(button, tooltipContent, tooltipControlledOpen)
+      : button;
+
+    return html`
+      <div class=${classMap(this.positionClasses)}>
+        ${showBadge
+          ? html`
+              <div class="relative inline-block">
+                ${mainContent}
+                <ledger-floating-button-badge
+                  variant=${this.badgeAnimCtrl.resolvedBadgeVariant}
+                  .count=${this.controller.frozenBadgeCount ??
+                  this.controller.pendingTransactionCount}
+                ></ledger-floating-button-badge>
+              </div>
+            `
+          : mainContent}
+      </div>
+    `;
+  }
+
+  private renderButton(
+    ariaLabel: string | undefined,
+    buttonLabel: string | undefined,
+    showBadgeChrome: boolean,
+  ) {
+    const iconSize = this.variant === "compact" ? 16 : 32;
+    const iconMaskStyle = showBadgeChrome
+      ? `-webkit-mask-image: ${BADGE_MASK_GRADIENT}; mask-image: ${BADGE_MASK_GRADIENT};`
       : "";
+    const logoFadeClasses = {
+      "floating-button-logo-fade-in": this.playLogoFadeIn,
+      "inline-flex": true,
+      "items-center": true,
+      "justify-center": true,
+      "gap-8": true,
+    };
 
-    const button = html`
+    return html`
       <button
         class=${classMap(this.floatingButtonClasses)}
         style="${iconMaskStyle}"
         @click=${this.handleClick}
         aria-label=${ariaLabel}
       >
-        <ledger-icon
-          type="ledger"
-          size=${iconSize}
-          fillColor="white"
-        ></ledger-icon>
-        ${this.variant === "compact"
-          ? html`<span
-              class="shrink-0 leading-normal font-medium text-white not-italic"
-              >${buttonLabel}</span
-            >`
-          : nothing}
+        <span
+          class=${classMap(logoFadeClasses)}
+          @animationend=${this.handleLogoFadeInEnd}
+        >
+          <ledger-icon
+            type="ledger"
+            .size=${iconSize}
+            fillColor="white"
+          ></ledger-icon>
+          ${this.variant === "compact"
+            ? html`<span
+                class="shrink-0 leading-normal font-medium text-white not-italic"
+                >${buttonLabel}</span
+              >`
+            : nothing}
+        </span>
       </button>
     `;
+  }
 
-    const mainContent = hasPending
-      ? html`
-          <ledger-tooltip
-            .content=${tooltipContent}
-            side="top"
-            .sideOffset=${8}
-            .open=${postCloseTooltip}
-            .autoHideDelay=${postCloseTooltip ? 3000 : 0}
-            @ledger-tooltip-auto-hide=${this.handlePostCloseTooltipAutoHide}
-          >
-            ${button}
-          </ledger-tooltip>
-        `
-      : button;
-
+  private renderWithTooltip(
+    button: unknown,
+    content: string,
+    controlled: boolean,
+  ) {
     return html`
-      <div class=${classMap(this.positionClasses)}>
-        ${hasPending
-          ? html`
-              <div class="relative inline-block">
-                ${mainContent}
-                <span
-                  class="bg-error-strong body-2-semi-bold absolute top-[-4px] right-[-4px] z-20 inline-flex h-24 min-w-24 items-center justify-center rounded-full text-white"
-                  >${pendingCount}</span
-                >
-              </div>
-            `
-          : mainContent}
-      </div>
+      <ledger-tooltip
+        .content=${content}
+        side="top"
+        .sideOffset=${8}
+        .open=${controlled}
+        .autoHideDelay=${controlled ? 3000 : 0}
+        @ledger-tooltip-auto-hide=${this.handleControlledTooltipAutoHide}
+      >
+        ${button}
+      </ledger-tooltip>
     `;
   }
 }

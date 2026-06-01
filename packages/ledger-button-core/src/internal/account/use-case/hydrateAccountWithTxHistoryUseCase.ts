@@ -1,16 +1,19 @@
 import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { transactionHistoryModuleTypes } from "../../transaction-history/di/transactionHistoryModuleTypes.js";
 import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
-import { transactionHistoryModuleTypes } from "../../transaction-history/transactionHistoryModuleTypes.js";
 import type { FetchTransactionHistoryUseCase } from "../../transaction-history/use-case/FetchTransactionHistoryUseCase.js";
 import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/use-case/HydrateTransactionsWithFiatUseCase.js";
 import type { Account } from "../service/AccountService.js";
 
 export type AccountWithTransactionHistory = Account & {
   transactionHistory: TransactionHistoryItem[] | undefined;
+  transactionExplorerUrlTemplate?: string;
 };
 
 @injectable()
@@ -24,20 +27,19 @@ export class HydrateAccountWithTxHistoryUseCase {
     private readonly fetchTransactionHistoryUseCase: FetchTransactionHistoryUseCase,
     @inject(transactionHistoryModuleTypes.HydrateTransactionsWithFiatUseCase)
     private readonly hydrateTransactionsWithFiatUseCase: HydrateTransactionsWithFiatUseCase,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("HydrateAccountWithTxHistoryUseCase");
   }
 
   async execute(account: Account): Promise<AccountWithTransactionHistory> {
-    const blockchain = account.ticker.toLowerCase();
     this.logger.debug("Fetching transaction history for account", {
-      blockchain,
       address: account.freshAddress,
       currencyId: account.currencyId,
     });
 
     const result = await this.fetchTransactionHistoryUseCase.execute(
-      blockchain,
       account.freshAddress,
       account.currencyId,
     );
@@ -46,7 +48,7 @@ export class HydrateAccountWithTxHistoryUseCase {
       Left: (error) => {
         this.logger.warn("Failed to fetch transaction history", {
           error: error.message,
-          blockchain,
+          currencyId: account.currencyId,
           address: account.freshAddress,
         });
         return Promise.resolve({
@@ -56,17 +58,19 @@ export class HydrateAccountWithTxHistoryUseCase {
       },
       Right: async (historyResult) => {
         this.logger.debug("Transaction history fetched successfully", {
-          blockchain,
+          currencyId: account.currencyId,
           transactionCount: historyResult.transactions.length,
         });
         const hydratedTransactions =
           await this.hydrateTransactionsWithFiatUseCase.execute(
             historyResult.transactions,
-            "usd",
+            this.contextService.getContext().preferredFiatCurrency,
           );
         return {
           ...account,
           transactionHistory: hydratedTransactions,
+          transactionExplorerUrlTemplate:
+            historyResult.transactionExplorerUrlTemplate,
         };
       },
     });

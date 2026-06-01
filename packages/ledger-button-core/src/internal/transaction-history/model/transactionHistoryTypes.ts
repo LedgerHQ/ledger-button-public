@@ -1,92 +1,112 @@
-/**
- * Raw API response types from Ledger Explorer API
- * GET https://explorers.api.live.ledger.com/blockchain/v4/{blockchain}/address/{address}/txs
- */
+export type TransactionHistoryEntryAsset =
+  | { isNative: true }
+  | { isNative: false; contractAddress: string };
 
-export type ExplorerBlockInfo = {
+export type TransactionHistoryEntryFee = {
+  amount: string;
+  payer?: string;
+};
+
+export type TransactionHistoryEntry = {
   hash: string;
-  height: number;
-  time: string;
-};
-
-export type EvmTransferEvent = {
-  contract: string;
-  from: string;
-  to: string;
-  count: string;
-};
-
-export type EvmAction = {
-  from: string;
-  to: string;
   value: string;
-  gas: string;
-  gas_used: string;
-  error: string | null;
+  senders: string[];
+  recipients: string[];
+  fee?: TransactionHistoryEntryFee;
+  failed: boolean;
+  blockHeight?: number;
+  timestamp: string;
+  asset: TransactionHistoryEntryAsset;
+  direction?: TransactionDirection;
+  isFeeOnlyOperation: boolean;
 };
 
-export type ExplorerTransaction = {
-  hash: string;
-  transaction_type: number;
-  nonce: string;
-  nonce_value: number;
-  value: string;
-  gas: string;
-  gas_price: string;
-  max_fee_per_gas?: string;
-  max_priority_fee_per_gas?: string;
-  from: string;
-  to: string;
-  transfer_events: EvmTransferEvent[];
-  erc721_transfer_events: unknown[];
-  erc1155_transfer_events: unknown[];
-  approval_events: unknown[];
-  actions: EvmAction[];
-  confirmations: number;
-  input: string | null;
-  gas_used: string;
-  cumulative_gas_used: string | null;
-  status: number;
-  received_at: string;
-  block?: ExplorerBlockInfo;
-  txPoolStatus: unknown | null;
-};
-
-export type ExplorerResponse = {
-  data: ExplorerTransaction[];
-  token: string | null;
+export type TransactionHistoryPage = {
+  items: TransactionHistoryEntry[];
+  nextPageToken?: string;
 };
 
 /**
- * Options for fetching transaction history
+ * Options for fetching transaction history.
  */
 export type TransactionHistoryOptions = {
-  batchSize?: number;
   pageToken?: string;
 };
 
 /**
- * Transformed transaction item for display
+ * Direction of the transaction relative to the user account.
+ * - "sent": user is the sender
+ * - "received": user is the recipient
+ * - "self": user is both sender and recipient (e.g. self-transfer)
+ */
+export type TransactionDirection = "sent" | "received" | "self";
+
+/**
+ * Semantic kind of the transaction inferred from the underlying operation.
+ *
+ * - "fees": a separate fee-only operation (e.g. a row paired with a failed
+ *   parent transaction). Distinct from `"contract"` so the UI can render
+ *   gas-only rows differently from real contract interactions.
+ */
+export type TransactionKind =
+  | "transfer"
+  | "swap"
+  | "approve"
+  | "contract"
+  | "fees"
+  | "unknown";
+
+/**
+ * On-chain status of the transaction.
+ */
+export type TransactionStatus = "confirmed" | "failed" | "pending";
+
+/**
+ * Back-compat alias kept for the existing UI which still consumes a binary
+ * sent/received distinction. Prefer `TransactionDirection` for new code.
  */
 export type TransactionType = "sent" | "received";
 
-export type TransactionHistoryItem = {
-  hash: string;
-  type: TransactionType;
-  value: string;
-  formattedValue: string;
-  currencyName: string;
+/**
+ * Asset metadata attached to a transaction's value (and to its fee when the
+ * fee is paid in a different asset). All formatting is deferred to the
+ * presentation layer; consumers receive raw values and these decimals.
+ */
+export type TransactionHistoryItemAsset = {
+  ledgerId: string;
+  name: string | undefined;
   ticker: string;
-  timestamp: string;
-  ledgerId?: string;
-  fiatValue?: string;
-  fiatCurrency?: string;
+  decimals: number;
+};
+
+export type TransactionHistoryItemFee = {
+  amount: string;
+  asset: TransactionHistoryItemAsset;
+  fiatAmount?: string;
 };
 
 /**
- * Result type for the use case
+ * Domain shape of a transaction returned by the use case. Carries raw values
+ * and asset metadata only; the presentation layer is responsible for
+ * formatting, explorer URL substitution, and any locale-aware display.
  */
+export type TransactionHistoryItem = {
+  hash: string;
+  type: TransactionType;
+  direction: TransactionDirection;
+  kind: TransactionKind;
+  status: TransactionStatus;
+  value: string;
+  asset: TransactionHistoryItemAsset;
+  timestamp: string;
+  blockHeight?: number;
+  fiatValue?: string;
+  fiatCurrency?: string;
+  fee?: TransactionHistoryItemFee;
+};
+
 export type TransactionHistoryResult = {
   transactions: TransactionHistoryItem[];
+  transactionExplorerUrlTemplate?: string;
   nextPageToken?: string;
 };

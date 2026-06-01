@@ -7,7 +7,16 @@
       "ariaLabel": "افتح قائمة حساب Ledger",
       "label": "Ledger",
       "pendingTransactionsHover": "لديك {count} معاملات قيد الانتظار",
-      "newTransactionPending": "معاملة جديدة قيد الانتظار"
+      "newTransactionPending": "معاملة جديدة قيد الانتظار",
+      "transactionsValidatedOne": "تم التحقق من معاملة واحدة",
+      "transactionsValidatedOther": "تم التحقق من {count} معاملات"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "تم الإرسال",
+      "transactionReceivedTitle": "تم الاستلام",
+      "transactionFailedTitle": "فشلت المعاملة",
+      "transactionSwapTitle": "تم تأكيد المعاملة",
+      "checkOnExplorer": "تحقق من المعاملة على المستكشف"
     },
     "search": {
       "placeholder": "ابحث في الحساب",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "Ledger Wallet لديك",
-    "balance": "الرصيد"
+    "balance": "الرصيد",
+    "tabs": {
+      "tokens": "التوكن",
+      "transactions": "المعاملات"
+    }
   },
   "walletActions": {
     "send": "إرسال",
@@ -115,7 +128,20 @@
       "searchPlaceholder": "ابحث في الحساب",
       "noResults": "لا توجد حسابات تطابق بحثك",
       "refreshingAccounts": "Ledger Wallet يقوم بتحديث حساباتك.",
-      "refreshingAccountsHint": "اختر حساباً في أي وقت للمتابعة."
+      "refreshingAccountsHint": "اختر حساباً في أي وقت للمتابعة.",
+      "addAccountAriaLabel": "إضافة حساب",
+      "refreshAccountsAriaLabel": "تحديث الحسابات",
+      "addAccountTooltip": "إنشاء حساب جديد",
+      "refreshAccountsTooltip": "تحديث",
+      "noToken": "لا يوجد رمز مميز",
+      "accountCountOne": "1 حساب",
+      "accountCountOther": "{count} حسابات",
+      "tokenCountOne": "1 رمز مميز",
+      "tokenCountOther": "{count} رموز مميزة"
+    },
+    "connectionSuccess": {
+      "title": "You are now connected",
+      "close": "Close"
     },
     "turnOnSync": {
       "title": "",
@@ -171,13 +197,25 @@
   "accountTokens": {
     "title": "رموز الحساب",
     "notFound": "لم يتم العثور على الحساب",
-    "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب"
+    "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب",
+    "unknownToken": "Unknown Token"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "الشبكات المتاحة"
   },
   "transactionList": {
-    "noTransactions": "لم يتم العثور على معاملات"
+    "noTransactions": "لم يتم العثور على معاملات",
+    "pendingTransactions": "معاملات مُعلَّقة",
+    "viewOnExplorer": "View on explorer",
+    "failed": "فشلت",
+    "fee": "الرسوم",
+    "kinds": {
+      "swap": "مبادلة",
+      "approve": "موافقة",
+      "contract": "تفاعل مع عقد",
+      "fees": "الرسوم",
+      "self": "تحويل لنفسك"
+    }
   },
   "mobileOnboarding": {
     "title": "المتابعة في Ledger Wallet",
@@ -187,12 +225,19 @@
   },
   "settings": {
     "title": "إعدادات",
-    "analytics": {
-      "title": "التحليلات",
-      "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+    "preferences": {
+      "title": "التفضيلات",
+      "language": { "title": "اللغة" },
+      "currency": { "title": "العملة" },
+      "description": "ستظهر خيارات التفضيلات هنا."
     },
-    "securityConfidentiality": "الأمان والسرية",
-    "helpSupport": "المساعدة والدعم",
+    "securityConfidentiality": {
+      "title": "الأمان والسرية",
+      "analytics": {
+        "title": "التحليلات",
+        "description": "قم بتمكين Ledger من جمع بيانات استخدام التطبيق للمساعدة في قياس أداء الاتصال المباشر في Ledger Wallet وتحسين كلٍ من التطبيق وتجربتك."
+      }
+    },
     "support": {
       "title": "المساعدة والدعم",
       "support": "الدعم",
@@ -208,6 +253,16 @@
     "error": {
       "title": "فشلت المعاملة",
       "description": "حدث خطأ أثناء توقيع معاملتك. يُرجى إعادة المحاولة."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processing...",
+        "description": "Transaction is processing on the blockchain"
+      },
+      "validated": {
+        "title": "Validated",
+        "description": "Transaction is validated on the blockchain"
+      }
     }
   },
   "signMessage": {

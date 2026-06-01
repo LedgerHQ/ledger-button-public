@@ -1,5 +1,7 @@
 import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 
+import { DEFAULT_LOCALE } from "../context/constants/languages.js";
+
 /**
  * Formats a numeric value as a fiat currency string using the user's browser locale.
  *
@@ -16,8 +18,9 @@ import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 export function formatFiatValue(
   value: number | string,
   currencyCode = "USD",
+  locale = DEFAULT_LOCALE,
 ): string {
-  return new Intl.NumberFormat(undefined, {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currencyCode,
     currencyDisplay: "narrowSymbol",
@@ -25,11 +28,34 @@ export function formatFiatValue(
 }
 
 /**
+ * Formats a token/crypto balance as a locale-aware number string.
+ *
+ * @param value - The balance string (e.g., "1234.5678")
+ * @param locale - BCP 47 locale tag (e.g., "en-US", "fr-FR")
+ * @returns Formatted string (e.g., "1,234.5678" for en-US, "1 234,5678" for fr-FR)
+ *
+ * @warning Values are parsed with {@link parseFloat} before formatting. Integer parts
+ * beyond {@link Number.MAX_SAFE_INTEGER} or long decimal strings may lose precision
+ * and display an incorrect balance.
+ */
+export function formatTokenBalance(
+  value: string,
+  locale = DEFAULT_LOCALE,
+): string {
+  const num = parseFloat(value);
+  if (isNaN(num)) return value;
+  return new Intl.NumberFormat(locale, {
+    maximumFractionDigits: 8,
+  }).format(num);
+}
+
+/**
  * Formats a FiatBalance as a currency string. Returns empty string when undefined.
  */
 export function formatFiatBalance(
   fiatBalance: FiatBalance | undefined,
+  locale: string,
 ): string {
   if (!fiatBalance) return "";
-  return formatFiatValue(fiatBalance.value, fiatBalance.currency);
+  return formatFiatValue(fiatBalance.value, fiatBalance.currency, locale);
 }

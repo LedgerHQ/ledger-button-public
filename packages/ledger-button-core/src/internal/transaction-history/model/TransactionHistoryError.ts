@@ -2,7 +2,7 @@ import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
 
 export type TransactionHistoryErrorContext = {
   address?: string;
-  blockchain?: string;
+  currencyId?: string;
   originalError?: string;
 };
 

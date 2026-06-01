@@ -1,8 +1,10 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
 import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
 import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import type { Account } from "../service/AccountService.js";
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
 
@@ -22,11 +24,39 @@ function createMockLoggerFactory() {
   return vi.fn().mockReturnValue(createMockLogger());
 }
 
+function createMockContext(
+  overrides: Partial<ButtonCoreContext> = {},
+): ButtonCoreContext {
+  return {
+    connectedDevice: undefined,
+    selectedAccount: undefined,
+    trustChainId: undefined,
+    applicationPath: undefined,
+    chainId: 1,
+    welcomeScreenCompleted: false,
+    hasTrackingConsent: undefined,
+    isMobilePlatform: false,
+    preferredFiatCurrency: "USD",
+    ...overrides,
+  };
+}
+
 describe("HydrateAccountWithFiatUseCase", () => {
   let useCase: HydrateAccountWithFiatUseCase;
   let mockCounterValueDataSource: {
     getCounterValues: ReturnType<typeof vi.fn>;
   };
+  let mockContextService: {
+    observeContext: ReturnType<typeof vi.fn>;
+    getContext: ReturnType<typeof vi.fn>;
+    onEvent: ReturnType<typeof vi.fn>;
+  };
+
+  function setPreferredFiatCurrency(preferredFiatCurrency: string): void {
+    mockContextService.getContext.mockReturnValue(
+      createMockContext({ preferredFiatCurrency }),
+    );
+  }
 
   const baseAccount: Account = {
     id: "account-1",
@@ -64,12 +94,21 @@ describe("HydrateAccountWithFiatUseCase", () => {
       getCounterValues: vi.fn(),
     };
 
+    mockContextService = {
+      observeContext: vi.fn(),
+      getContext: vi.fn(),
+      onEvent: vi.fn(),
+    };
+    setPreferredFiatCurrency("USD");
+
     useCase = new HydrateAccountWithFiatUseCase(
       createMockLoggerFactory(),
       mockCounterValueDataSource as unknown as CounterValueDataSource,
+      mockContextService as unknown as ContextService,
     );
 
     vi.clearAllMocks();
+    setPreferredFiatCurrency("USD");
   });
 
   describe("execute", () => {
@@ -128,7 +167,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum"], "usd");
+        ).toHaveBeenCalledWith(["ethereum"], "USD");
       });
     });
 
@@ -173,18 +212,19 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum"], "usd");
+        ).toHaveBeenCalledWith(["ethereum"], "USD");
       });
 
-      it("should use custom target currency when provided", async () => {
+      it("should use the preferred fiat currency from context", async () => {
         const counterValueResult: CounterValueResult[] = [
           { ledgerId: "ethereum", rate: 2300 },
         ];
         mockCounterValueDataSource.getCounterValues.mockResolvedValue(
           Right(counterValueResult),
         );
+        setPreferredFiatCurrency("EUR");
 
-        const result = await useCase.execute(baseAccount, "eur");
+        const result = await useCase.execute(baseAccount);
 
         expect(result.fiatBalance).toEqual({
           value: "5750.00",
@@ -192,7 +232,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum"], "eur");
+        ).toHaveBeenCalledWith(["ethereum"], "EUR");
       });
 
       it("should handle decimal balance values", async () => {
@@ -235,7 +275,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         });
         expect(
           mockCounterValueDataSource.getCounterValues,
-        ).toHaveBeenCalledWith(["ethereum", "ethereum/erc20/usdc"], "usd");
+        ).toHaveBeenCalledWith(["ethereum", "ethereum/erc20/usdc"], "USD");
       });
     });
   });

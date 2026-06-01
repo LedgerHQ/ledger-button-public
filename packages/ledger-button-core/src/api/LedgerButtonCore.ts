@@ -36,6 +36,10 @@ import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
 import { type ConsentService } from "../internal/consent/ConsentService.js";
 import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
 import { ContextService } from "../internal/context/ContextService.js";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
+import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
+import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
+import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
 import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
@@ -50,12 +54,17 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { TrackCurrencyChanged } from "../internal/event-tracking/usecase/TrackCurrencyChanged.js";
 import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
+import { TrackLanguageChanged } from "../internal/event-tracking/usecase/TrackLanguageChanged.js";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
+import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
+import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -75,8 +84,6 @@ import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
 import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
-import { JSONRPCCallUseCase } from "../internal/web3-provider/use-case/JSONRPCRequest.js";
-import { web3ProviderModuleTypes } from "../internal/web3-provider/web3ProviderModuleTypes.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
@@ -165,6 +172,9 @@ export class LedgerButtonCore {
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
 
+    const preferredFiatCurrency = await this.container
+      .get<CurrencyService>(currencyModuleTypes.CurrencyService)
+      .initialize();
     this._contextService.onEvent({
       type: "initialize_context",
       context: {
@@ -176,6 +186,7 @@ export class LedgerButtonCore {
         welcomeScreenCompleted,
         hasTrackingConsent,
         isMobilePlatform,
+        preferredFiatCurrency,
       },
     });
 
@@ -304,9 +315,11 @@ export class LedgerButtonCore {
       .execute();
   }
 
-  getAccounts(targetCurrency = "usd"): Observable<AccountWithFiat[]> {
+  getAccounts(options?: {
+    forceRefresh?: boolean;
+  }): Observable<AccountWithFiat[]> {
     this._logger.debug("Getting accounts with fiat observable", {
-      targetCurrency,
+      forceRefresh: options?.forceRefresh ?? false,
     });
 
     return this.container
@@ -318,14 +331,14 @@ export class LedgerButtonCore {
           .get<FetchAccountsWithBalanceUseCase>(
             accountModuleTypes.FetchAccountsWithBalanceUseCase,
           )
-          .execute()
+          .execute(options)
           .pipe(
             switchMap((accounts) =>
               this.container
                 .get<FetchAccountsWithFiatUseCase>(
                   accountModuleTypes.FetchAccountsWithFiatUseCase,
                 )
-                .execute(accounts, targetCurrency),
+                .execute(accounts),
             ),
           ),
       );
@@ -498,10 +511,48 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
+  getPreferredFiatCurrency(): string {
+    return (
+      this._contextService.getContext().preferredFiatCurrency ??
+      DEFAULT_FIAT_CURRENCY
+    );
+  }
+
+  getSupportedFiatCurrencies(): FiatCurrency[] {
+    return this.container
+      .get<CurrencyService>(currencyModuleTypes.CurrencyService)
+      .getSupportedFiatCurrencies();
+  }
+
+  async savePreferredFiatCurrency(currency: string): Promise<void> {
+    this._logger.debug("Saving preferred fiat currency", { currency });
+    await this.container
+      .get<CurrencyService>(currencyModuleTypes.CurrencyService)
+      .savePreferredFiatCurrency(currency);
+    this._contextService.onEvent({
+      type: "preferred_fiat_currency_changed",
+      currency,
+    });
+  }
+
+  async savePreferredLanguage(language: string): Promise<void> {
+    this._logger.debug("Saving preferred language", { language });
+    await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .savePreferredLanguage(language);
+  }
+
+  async getPreferredLanguage(): Promise<string | undefined> {
+    const result = await this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getPreferredLanguage();
+    return result.extract();
+  }
+
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container
-      .get<JSONRPCCallUseCase>(web3ProviderModuleTypes.JSONRPCCallUseCase)
+      .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
   }
 
@@ -597,16 +648,18 @@ export class LedgerButtonCore {
     return this._contextService.getContext().chainId;
   }
 
-  async getCurrencyInfo(
-    currencyId: string,
-  ): Promise<{ name: string; ticker: string }> {
+  async getCurrencyInfo(currencyId: string): Promise<{
+    name: string;
+    ticker: string;
+    transactionExplorerUrlTemplate?: string;
+  }> {
     const result = await this.container
       .get<CalDataSource>(balanceModuleTypes.CalDataSource)
       .getCurrencyInformation(currencyId);
 
     if (result.isRight()) {
-      const { name, ticker } = result.extract();
-      return { name, ticker };
+      const { name, ticker, transactionExplorerUrlTemplate } = result.extract();
+      return { name, ticker, transactionExplorerUrlTemplate };
     }
     return { name: currencyId, ticker: currencyId.toUpperCase() };
   }
@@ -625,6 +678,28 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackFloatingButtonClick,
       )
       .execute();
+  }
+
+  async trackViewTransactionDetailsClicked(
+    transactionHash: string,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewTransactionDetailsClick>(
+        eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
+      )
+      .execute(transactionHash);
+  }
+
+  async trackLanguageChanged(languageKey: string): Promise<void> {
+    await this.container
+      .get<TrackLanguageChanged>(eventTrackingModuleTypes.TrackLanguageChanged)
+      .execute(languageKey);
+  }
+
+  async trackCurrencyChanged(currencyCode: string): Promise<void> {
+    await this.container
+      .get<TrackCurrencyChanged>(eventTrackingModuleTypes.TrackCurrencyChanged)
+      .execute(currencyCode);
   }
 
   async trackWalletActionClicked(

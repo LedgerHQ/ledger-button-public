@@ -1,6 +1,7 @@
 import {
   BlindSigningDisabledError,
   BroadcastTransactionError,
+  buildExplorerTransactionUrl,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -26,6 +27,13 @@ import { LanguageContext } from "../../context/language-context.js";
 import { Navigation } from "../../shared/navigation.js";
 import { RootNavigationComponent } from "../../shared/root-navigation.js";
 
+export type BroadcastState = "processing" | "validated";
+
+export type BroadcastInfo = {
+  state: BroadcastState;
+  hash: string;
+};
+
 export type ScreenState =
   | {
       screen: "signing";
@@ -34,7 +42,7 @@ export type ScreenState =
         "pairing" | "pairingSuccess" | "frontView"
       >;
     }
-  | { screen: "success"; status: StatusState }
+  | { screen: "success"; status: StatusState; broadcast?: BroadcastInfo }
   | { screen: "error"; status: StatusState };
 
 export type StatusState = {
@@ -47,11 +55,13 @@ export type StatusState = {
 export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
   private transactionSubscription?: Subscription;
+  private pendingTxSubscription?: Subscription;
   private currentTransaction?:
     | SignTransactionParams
     | SignRawTransactionParams
     | SignTypedMessageParams
     | SignPersonalMessageParams;
+  private explorerTemplatePrefetch?: Promise<string | undefined>;
   result?: SignedResults;
 
   state: ScreenState = {
@@ -75,6 +85,12 @@ export class SignTransactionController implements ReactiveController {
 
   hostDisconnected() {
     this.transactionSubscription?.unsubscribe();
+    this.clearPendingTxSubscription();
+  }
+
+  private clearPendingTxSubscription() {
+    this.pendingTxSubscription?.unsubscribe();
+    this.pendingTxSubscription = undefined;
   }
 
   private mapUserInteractionToDeviceAnimation(
@@ -102,10 +118,16 @@ export class SignTransactionController implements ReactiveController {
       | SignPersonalMessageParams,
   ) {
     this.currentTransaction = transactionParams;
+    this.explorerTemplatePrefetch = this.isTransactionParameter(
+      transactionParams,
+    )
+      ? this.prefetchTransactionExplorerUrlTemplate()
+      : undefined;
 
     if (this.transactionSubscription) {
       this.transactionSubscription.unsubscribe();
     }
+    this.clearPendingTxSubscription();
 
     this.transactionSubscription = this.core.sign(transactionParams).subscribe({
       next: (result: SignFlowStatus) => {
@@ -128,8 +150,7 @@ export class SignTransactionController implements ReactiveController {
                 );
               }
 
-              this.state = this.mapSuccessToState(result.data);
-              this.host.requestUpdate();
+              void this.handleSignSuccess(result.data);
               break;
             }
             break;
@@ -186,19 +207,24 @@ export class SignTransactionController implements ReactiveController {
     );
   }
 
-  private mapSuccessToState(data: SignedResults): ScreenState {
+  private mapSuccessToState(
+    data: SignedResults,
+    transactionExplorerUrlTemplate?: string,
+  ): ScreenState {
     const lang = this.lang.currentTranslation;
 
     let cta2 = undefined;
+    let broadcast: BroadcastInfo | undefined = undefined;
     if (isBroadcastedTransactionResult(data)) {
-      const scanWebsiteUrl = this.getScanWebsiteUrl(
-        this.core.getChainId(),
+      broadcast = { state: "processing", hash: data.hash };
+      const explorerUrl = buildExplorerTransactionUrl(
+        transactionExplorerUrlTemplate,
         data.hash,
       );
-      if (scanWebsiteUrl) {
+      if (explorerUrl) {
         cta2 = {
           label: lang.signTransaction?.success?.viewTransaction,
-          action: () => this.viewTransactionDetails(scanWebsiteUrl),
+          action: () => this.viewTransactionDetails(explorerUrl, data.hash),
         };
       }
     }
@@ -232,7 +258,41 @@ export class SignTransactionController implements ReactiveController {
         },
         cta2,
       },
+      broadcast,
     };
+  }
+
+  private subscribeToBroadcastLifecycle(hash: string) {
+    this.clearPendingTxSubscription();
+
+    // Wait until the hash has appeared in the pending pool at least once
+    // before allowing the `validated` flip. The pool is populated only after
+    // TrackBroadcastedTransactionUseCase has finished its CAL enrichment, so
+    // the BehaviorSubject's initial replay can legitimately not contain the
+    // hash for a few hundred ms after `processing` is set. The subscription
+    // is kept alive until hostDisconnected() or the next startSigning().
+    let hasBeenSeenInPool = false;
+
+    this.pendingTxSubscription = this.core
+      .observePendingTransactions()
+      .subscribe((txs) => {
+        if (this.state.screen !== "success" || !this.state.broadcast) {
+          return;
+        }
+        const stillPending = txs.some((tx) => tx.hash === hash);
+        if (stillPending) {
+          hasBeenSeenInPool = true;
+        }
+        const nextBroadcastState: BroadcastState =
+          !hasBeenSeenInPool || stillPending ? "processing" : "validated";
+        if (nextBroadcastState !== this.state.broadcast.state) {
+          this.state = {
+            ...this.state,
+            broadcast: { ...this.state.broadcast, state: nextBroadcastState },
+          };
+          this.host.requestUpdate();
+        }
+      });
   }
 
   private mapErrors(error: unknown) {
@@ -440,34 +500,43 @@ export class SignTransactionController implements ReactiveController {
       }
     }
   }
-  getScanWebsiteUrl(chainId: number, transactionHash: string): string | null {
-    switch (chainId) {
-      case 1:
-        return `https://etherscan.io/tx/${transactionHash}`;
-      case 10:
-        return `https://optimistic.etherscan.io/tx/${transactionHash}`;
-      case 137:
-        return `https://polygonscan.com/tx/${transactionHash}`;
-      case 42161:
-        return `https://arbiscan.io/tx/${transactionHash}`;
-      case 8453:
-        return `https://basescan.org/tx/${transactionHash}`;
-      case 56:
-        return `https://bscscan.com/tx/${transactionHash}`;
-      case 59144:
-        return `https://lineascan.build/tx/${transactionHash}`;
-      case 146:
-        return `https://sonicscan.org/tx/${transactionHash}`;
-      case 324:
-        return `https://zkscan.io/explorer/transactions/${transactionHash}`;
-      case 43114:
-        return `https://snowtrace.io/tx/${transactionHash}?chainid=43114`;
-      default:
-        return null;
+
+  private async prefetchTransactionExplorerUrlTemplate(): Promise<
+    string | undefined
+  > {
+    const currencyId = this.core.getSelectedAccount()?.currencyId;
+    if (!currencyId) {
+      return undefined;
+    }
+
+    try {
+      const { transactionExplorerUrlTemplate } =
+        await this.core.getCurrencyInfo(currencyId);
+      return transactionExplorerUrlTemplate;
+    } catch {
+      return undefined;
     }
   }
 
-  viewTransactionDetails(url: string) {
+  private async handleSignSuccess(data: SignedResults) {
+    const prefetch = this.explorerTemplatePrefetch;
+    const transactionExplorerUrlTemplate = isBroadcastedTransactionResult(data)
+      ? await prefetch
+      : undefined;
+
+    if (this.explorerTemplatePrefetch !== prefetch) {
+      return;
+    }
+
+    this.state = this.mapSuccessToState(data, transactionExplorerUrlTemplate);
+    if (this.state.screen === "success" && this.state.broadcast) {
+      this.subscribeToBroadcastLifecycle(this.state.broadcast.hash);
+    }
+    this.host.requestUpdate();
+  }
+
+  viewTransactionDetails(url: string, transactionHash: string) {
+    void this.core.trackViewTransactionDetailsClicked(transactionHash);
     window.open(url, "_blank", "noopener,noreferrer");
     this.close();
   }

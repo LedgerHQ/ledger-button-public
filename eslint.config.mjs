@@ -14,6 +14,8 @@ export default [
       "**/out-tsc",
       "**/storybook-static",
       "**/coverage",
+      "**/.next",
+      "**/next-env.d.ts",
     ],
   },
   {
