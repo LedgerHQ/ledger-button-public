@@ -42,6 +42,7 @@ interface ConnectionStatusProps {
   account: string | null;
   chainId: string | null;
   isInitialized: boolean;
+  transactionConfirmationNotification?: "tooltip" | "toast";
 }
 
 export function ConnectionStatus({
@@ -49,6 +50,7 @@ export function ConnectionStatus({
   account,
   chainId,
   isInitialized,
+  transactionConfirmationNotification = "tooltip",
 }: ConnectionStatusProps) {
   if (!isInitialized) {
     return (
@@ -60,6 +62,17 @@ export function ConnectionStatus({
           </span>
         </div>
         <p className="body-2 text-muted">Initializing provider…</p>
+        <div className="mt-12">
+          <Tag
+            appearance="gray"
+            size="sm"
+            label={
+              transactionConfirmationNotification === "toast"
+                ? "Tx confirm: Toast"
+                : "Tx confirm: Tooltip"
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -77,6 +90,17 @@ export function ConnectionStatus({
           No provider connected. Discover and select a provider to begin
           testing.
         </p>
+        <div className="mt-12">
+          <Tag
+            appearance="gray"
+            size="sm"
+            label={
+              transactionConfirmationNotification === "toast"
+                ? "Tx confirm: Toast"
+                : "Tx confirm: Tooltip"
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -120,6 +144,21 @@ export function ConnectionStatus({
       {account && <CopyableValue label="Account" value={account} />}
 
       {chainId && <CopyableValue label="Chain ID" value={chainId} />}
+
+      <div className="pt-14 border-t border-muted">
+        <span className="body-2 text-muted block mb-8">
+          Transaction confirmation
+        </span>
+        <Tag
+          appearance="gray"
+          size="sm"
+          label={
+            transactionConfirmationNotification === "toast"
+              ? "Toast notifications"
+              : "Floating button tooltip"
+          }
+        />
+      </div>
     </div>
   );
 }

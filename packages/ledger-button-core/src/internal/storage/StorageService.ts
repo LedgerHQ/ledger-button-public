@@ -36,4 +36,10 @@ export interface StorageService {
   saveWelcomeScreenCompleted(): Promise<void>;
   isWelcomeScreenCompleted(): Promise<boolean>;
   removeWelcomeScreenCompleted(): Promise<void>;
+
+  savePreferredLanguage(language: string): Promise<void>;
+  getPreferredLanguage(): Promise<Maybe<string>>;
+
+  savePreferredFiatCurrency(preferredFiatCurrency: string): Promise<void>;
+  getPreferredFiatCurrency(): Promise<Maybe<string>>;
 }

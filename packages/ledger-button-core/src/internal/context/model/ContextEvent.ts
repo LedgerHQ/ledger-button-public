@@ -42,4 +42,8 @@ export type ContextEvent =
     }
   | {
       type: "tracking_consent_refused";
+    }
+  | {
+      type: "preferred_fiat_currency_changed";
+      currency: string;
     };

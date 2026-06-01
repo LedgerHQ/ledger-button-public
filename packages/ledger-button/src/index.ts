@@ -5,12 +5,13 @@ import {
   type EIP6963ProviderInfo,
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
+  LedgerEIP1193Provider,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { v4 as uuidv4 } from "uuid";
 
 import { FloatingButtonPosition } from "./components/index.js";
+import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
 import { setupFloatingButton } from "./utils/setup-floating-button.js";
-import { LedgerEIP1193Provider } from "./web3-provider/LedgerEIP1193Provider.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
 export type {
@@ -26,12 +27,15 @@ import type { WalletTransactionFeature } from "./components/molecule/wallet-acti
 
 let core: LedgerButtonCore | null = null;
 
+export type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
+
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
   hideButton?: boolean;
   floatingButtonPosition?: FloatingButtonPosition;
   floatingButtonTarget?: HTMLElement | string;
   walletTransactionFeatures?: WalletTransactionFeature[];
+  transactionConfirmationNotification?: TransactionConfirmationNotification;
 };
 
 export function initializeLedgerProvider({
@@ -45,6 +49,7 @@ export function initializeLedgerProvider({
   floatingButtonPosition = "bottom-right",
   floatingButtonTarget,
   walletTransactionFeatures,
+  transactionConfirmationNotification = "tooltip",
   devConfig = {
     stub: {
       base: false,
@@ -116,12 +121,15 @@ export function initializeLedgerProvider({
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
   app.core = core;
   app.walletTransactionFeatures = walletTransactionFeatures;
+  app.transactionConfirmationNotification =
+    transactionConfirmationNotification;
   app.classList.add("ledger-wallet-provider");
 
   const { floatingButton } = setupFloatingButton(
     app,
     floatingButtonTarget,
     hideButton ? false : floatingButtonPosition,
+    transactionConfirmationNotification,
   );
 
   if (target) {

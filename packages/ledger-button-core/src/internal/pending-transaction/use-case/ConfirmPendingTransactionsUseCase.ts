@@ -3,8 +3,14 @@ import { Either } from "purify-ts";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { type TransactionHistoryDataSource } from "../../transaction-history/datasource/TransactionHistoryDataSource.js";
-import { transactionHistoryModuleTypes } from "../../transaction-history/transactionHistoryModuleTypes.js";
+import { type TransactionHistoryDataSource } from "../../transaction-history/datasource/coinService/TransactionHistoryDataSource.js";
+import { transactionHistoryModuleTypes } from "../../transaction-history/di/transactionHistoryModuleTypes.js";
+import type { TransactionHistoryPage } from "../../transaction-history/model/transactionHistoryTypes.js";
+
+export type SettledPendingTransactionOutcome = {
+  hash: string;
+  failed: boolean;
+};
 
 @injectable()
 export class ConfirmPendingTransactionsUseCase {
@@ -20,28 +26,68 @@ export class ConfirmPendingTransactionsUseCase {
   }
 
   async execute(
-    network: string,
+    currencyId: string,
     address: string,
     pendingHashes: string[],
-  ): Promise<Either<Error, string[]>> {
+  ): Promise<Either<Error, SettledPendingTransactionOutcome[]>> {
+    this.logPendingCheck(pendingHashes);
+
+    const result = await this.txHistoryDataSource.getTransactions(
+      address,
+      currencyId,
+    );
+
+    return result.map((page) =>
+      this.resolveSettledOutcomesFromPage(page, pendingHashes),
+    );
+  }
+
+  private logPendingCheck(pendingHashes: string[]): void {
     this.logger.debug("Checking pending transactions against Explorer", {
       pendingHashes,
     });
+  }
 
-    const result = await this.txHistoryDataSource.getTransactions(
-      network,
-      address,
+  private resolveSettledOutcomesFromPage(
+    page: TransactionHistoryPage,
+    pendingHashes: string[],
+  ): SettledPendingTransactionOutcome[] {
+    const onChainFailureByHash = this.buildOnChainFailureByHash(page);
+    const settled = this.findSettledOutcomes(
+      pendingHashes,
+      onChainFailureByHash,
     );
+    this.logSettledOutcomes(settled);
+    return settled;
+  }
 
-    return result.map((response) => {
-      const onChainHashes = new Set(response.data.map((tx) => tx.hash));
-      const confirmed = pendingHashes.filter((hash) => onChainHashes.has(hash));
+  private buildOnChainFailureByHash(
+    page: TransactionHistoryPage,
+  ): Map<string, boolean> {
+    return new Map(
+      page.items.map((entry) => [entry.hash, entry.failed] as const),
+    );
+  }
 
-      if (confirmed.length > 0) {
-        this.logger.debug("Confirmed transactions found", { confirmed });
-      }
+  private findSettledOutcomes(
+    pendingHashes: string[],
+    onChainFailureByHash: Map<string, boolean>,
+  ): SettledPendingTransactionOutcome[] {
+    return pendingHashes
+      .filter((hash) => onChainFailureByHash.has(hash))
+      .map((hash) => ({
+        hash,
+        failed: onChainFailureByHash.get(hash) ?? false,
+      }));
+  }
 
-      return confirmed;
-    });
+  private logSettledOutcomes(
+    settled: SettledPendingTransactionOutcome[],
+  ): void {
+    if (settled.length === 0) {
+      return;
+    }
+
+    this.logger.debug("Settled transactions found", { settled });
   }
 }

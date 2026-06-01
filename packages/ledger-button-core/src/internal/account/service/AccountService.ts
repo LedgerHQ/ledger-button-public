@@ -59,6 +59,11 @@ export type Network = {
 export type DetailedAccount = Account & {
   fiatBalance: FiatBalance | undefined;
   transactionHistory: TransactionHistoryItem[] | undefined;
+  /**
+   * Per-currency explorer URL template (with a `${hash}` placeholder) that the
+   * presentation layer expands into a clickable URL for each transaction.
+   */
+  transactionExplorerUrlTemplate?: string;
   totalFiatValue?: FiatBalance;
   networks: Network[];
 };

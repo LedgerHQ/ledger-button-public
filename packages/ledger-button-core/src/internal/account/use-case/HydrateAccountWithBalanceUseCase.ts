@@ -8,8 +8,8 @@ import {
   type TokenBalance,
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
-import { getChainIdFromCurrencyId } from "../../blockchain/evm/chainUtils.js";
-import { formatBalance } from "../../currency/formatCurrency.js";
+import { formatBalance } from "../../currency/currencyUtils.js";
+import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { Account, Token } from "../service/AccountService.js";
@@ -80,7 +80,7 @@ export class HydrateAccountWithBalanceUseCase {
     error: Error,
   ): Promise<Account> {
     this.logger.warn(
-      "Failed to fetch balance from balance service (Alpaca), falling back to RPC node",
+      "Failed to fetch balance from balance service (CoinService), falling back to RPC node",
       {
         error,
         address: account.freshAddress,

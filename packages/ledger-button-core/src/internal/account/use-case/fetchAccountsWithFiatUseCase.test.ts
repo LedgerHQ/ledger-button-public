@@ -1,6 +1,8 @@
-import { lastValueFrom, toArray } from "rxjs";
+import { BehaviorSubject, lastValueFrom, of, toArray } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
 import type {
   Account,
@@ -9,6 +11,23 @@ import type {
 } from "../service/AccountService.js";
 import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
+
+function createMockContext(
+  overrides: Partial<ButtonCoreContext> = {},
+): ButtonCoreContext {
+  return {
+    connectedDevice: undefined,
+    selectedAccount: undefined,
+    trustChainId: undefined,
+    applicationPath: undefined,
+    chainId: 1,
+    welcomeScreenCompleted: false,
+    hasTrackingConsent: undefined,
+    isMobilePlatform: false,
+    preferredFiatCurrency: "USD",
+    ...overrides,
+  };
+}
 
 function createMockLogger() {
   return {
@@ -82,7 +101,7 @@ const USDT_FIAT_BALANCE: FiatBalance = {
 function createMockHydrateImplementation(
   account1Fiat: FiatBalance | undefined,
   account2Fiat: FiatBalance | undefined,
-): (account: Account, targetCurrency?: string) => Promise<AccountWithFiat> {
+): (account: Account) => Promise<AccountWithFiat> {
   return async (account: Account) => {
     if (account.id === mockEthAccountValue.id) {
       return enrichWithLoadingStates({
@@ -104,18 +123,38 @@ describe("FetchAccountsWithFiatUseCase", () => {
   let mockHydrateAccountWithFiatUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
+  let mockContextService: {
+    observeContext: ReturnType<typeof vi.fn>;
+    getContext: ReturnType<typeof vi.fn>;
+    onEvent: ReturnType<typeof vi.fn>;
+  };
+
+  function setPreferredFiatCurrency(preferredFiatCurrency: string): void {
+    const context = createMockContext({ preferredFiatCurrency });
+    mockContextService.observeContext.mockReturnValue(of(context));
+    mockContextService.getContext.mockReturnValue(context);
+  }
 
   beforeEach(() => {
     mockHydrateAccountWithFiatUseCase = {
       execute: vi.fn(),
     };
 
+    mockContextService = {
+      observeContext: vi.fn(),
+      getContext: vi.fn(),
+      onEvent: vi.fn(),
+    };
+    setPreferredFiatCurrency("USD");
+
     useCase = new FetchAccountsWithFiatUseCase(
       createMockLoggerFactory(),
       mockHydrateAccountWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
+      mockContextService as unknown as ContextService,
     );
 
     vi.clearAllMocks();
+    setPreferredFiatCurrency("USD");
   });
 
   describe("execute", () => {
@@ -255,12 +294,14 @@ describe("FetchAccountsWithFiatUseCase", () => {
       expect(finalEmission[1].fiatBalance?.value).toBe(USDT_FIAT_BALANCE.value);
     });
 
-    it("should use custom target currency when provided", async () => {
+    it("should use the preferred fiat currency from context", async () => {
       const account1 = createMockAccount(mockEthAccountValue);
       const eurFiatBalance: FiatBalance = {
         value: "5750.00",
         currency: "EUR",
       };
+
+      setPreferredFiatCurrency("eur");
 
       mockHydrateAccountWithFiatUseCase.execute.mockResolvedValue(
         enrichWithLoadingStates({
@@ -271,7 +312,7 @@ describe("FetchAccountsWithFiatUseCase", () => {
       );
 
       const emissions = await lastValueFrom(
-        useCase.execute([account1], "eur").pipe(toArray()),
+        useCase.execute([account1]).pipe(toArray()),
       );
 
       expect(mockHydrateAccountWithFiatUseCase.execute).toHaveBeenCalledWith(
@@ -280,12 +321,57 @@ describe("FetchAccountsWithFiatUseCase", () => {
           fiatBalance: undefined,
           fiatError: false,
         }),
-        "eur",
       );
 
       const finalEmission = emissions[emissions.length - 1];
       expect(finalEmission[0].fiatBalance?.currency).toBe("EUR");
       expect(finalEmission[0].fiatBalance?.value).toBe(eurFiatBalance.value);
+    });
+
+    it("should re-hydrate when preferredFiatCurrency changes after subscribe", async () => {
+      const account1 = createMockAccount(mockEthAccountValue);
+
+      const context$ = new BehaviorSubject<ButtonCoreContext>(
+        createMockContext({ preferredFiatCurrency: "usd" }),
+      );
+      mockContextService.observeContext.mockReturnValue(context$.asObservable());
+      mockContextService.getContext.mockImplementation(() => context$.getValue());
+
+      mockHydrateAccountWithFiatUseCase.execute.mockImplementation(
+        async (account: Account) => {
+          const currency =
+            mockContextService.getContext().preferredFiatCurrency;
+          return enrichWithLoadingStates({
+            ...account,
+            fiatBalance: { value: "100.00", currency: currency.toUpperCase() },
+            fiatError: false,
+          });
+        },
+      );
+
+      const emissions: AccountWithFiat[][] = [];
+      const sub = useCase
+        .execute([account1])
+        .subscribe((value) => emissions.push(value));
+
+      await new Promise((r) => setTimeout(r, 0));
+      const usdHydrationCalls =
+        mockHydrateAccountWithFiatUseCase.execute.mock.calls.length;
+      expect(usdHydrationCalls).toBeGreaterThan(0);
+      const lastUsdEmission = emissions[emissions.length - 1];
+      expect(lastUsdEmission[0].fiatBalance?.currency).toBe("USD");
+
+      context$.next(createMockContext({ preferredFiatCurrency: "eur" }));
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(
+        mockHydrateAccountWithFiatUseCase.execute.mock.calls.length,
+      ).toBeGreaterThan(usdHydrationCalls);
+      const lastEurEmission = emissions[emissions.length - 1];
+      expect(lastEurEmission[0].fiatBalance?.currency).toBe("EUR");
+
+      sub.unsubscribe();
+      context$.complete();
     });
 
     it("should handle accounts without balance gracefully", async () => {

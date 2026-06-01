@@ -6,8 +6,17 @@
     "floatingButton": {
       "ariaLabel": "打开 Ledger 账户菜单",
       "label": "Ledger",
-      "pendingTransactionsHover": "您有 {count} 笔待处理交易",
-      "newTransactionPending": "新交易待处理"
+      "pendingTransactionsHover": "您有 {count} 笔待处理的交易",
+      "newTransactionPending": "新交易待处理",
+      "transactionsValidatedOne": "1 笔交易已经过验证",
+      "transactionsValidatedOther": "{count} 笔交易已经过验证"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "已发送",
+      "transactionReceivedTitle": "已接收",
+      "transactionFailedTitle": "交易失败",
+      "transactionSwapTitle": "交易已确认",
+      "checkOnExplorer": "在浏览器中查看交易"
     },
     "search": {
       "placeholder": "搜索账户",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "您的 Ledger Wallet",
-    "balance": "余额"
+    "balance": "余额",
+    "tabs": {
+      "tokens": "代币",
+      "transactions": "交易"
+    }
   },
   "walletActions": {
     "send": "发送",
@@ -115,7 +128,20 @@
       "searchPlaceholder": "搜索账户",
       "noResults": "没有与您的搜索相符的账户。",
       "refreshingAccounts": "Ledger Wallet 正在刷新您的账户。",
-      "refreshingAccountsHint": "您可以随时选择一个账户以继续。"
+      "refreshingAccountsHint": "您可以随时选择一个账户以继续。",
+      "addAccountAriaLabel": "添加账户",
+      "refreshAccountsAriaLabel": "刷新账户",
+      "addAccountTooltip": "创建新账户",
+      "refreshAccountsTooltip": "刷新",
+      "noToken": "无代币",
+      "accountCountOne": "1 个账户",
+      "accountCountOther": "{count} 个账户",
+      "tokenCountOne": "1 枚代币",
+      "tokenCountOther": "{count} 枚代币"
+    },
+    "connectionSuccess": {
+      "title": "您已成功连接",
+      "close": "关闭"
     },
     "turnOnSync": {
       "title": "",
@@ -171,13 +197,26 @@
   "accountTokens": {
     "title": "账户代币",
     "notFound": "未找到账户",
-    "noTokens": "未找到此账户的代币"
+    "noTokens": "未找到此账户的代币",
+    "unknownToken": "未知代币"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "可用网络"
   },
   "transactionList": {
-    "noTransactions": "未找到交易"
+    "noTransactions": "未找到交易",
+    "pendingTransactions": "待处理交易",
+    "viewOnExplorer": "在浏览器上查看",
+    "failed": "已失败",
+    "kinds": {
+      "swap": "互换",
+      "approve": "批准",
+      "contract": "合约交互",
+      "fees": "费用",
+      "self": "自助转账",
+      "received": "已接收",
+      "sent": "已发送"
+    }
   },
   "mobileOnboarding": {
     "title": "在 Ledger 钱包中继续",
@@ -187,12 +226,18 @@
   },
   "settings": {
     "title": "设置",
-    "analytics": {
-      "title": "数据分析",
-      "description": "允许 Ledger 收集应用程序使用数据，以便我们衡量 Ledger Wallet Direct Connectivity 直连工具的性能，优化应用程序并提升您的体验。"
+    "preferences": {
+      "title": "偏好",
+      "language": { "title": "语言" },
+      "currency": { "title": "货币" }
     },
-    "securityConfidentiality": "安全性与机密性",
-    "helpSupport": "帮助和支持",
+    "securityConfidentiality": {
+      "title": "安全性与机密性",
+      "analytics": {
+        "title": "数据分析",
+        "description": "允许 Ledger 收集应用程序使用数据，以便我们衡量 Ledger Wallet Direct Connectivity 直连工具的性能，优化应用程序并提升您的体验。"
+      }
+    },
     "support": {
       "title": "帮助和支持",
       "support": "客服",
@@ -208,6 +253,16 @@
     "error": {
       "title": "交易失败。",
       "description": "签署交易时出错。请重试。"
+    },
+    "broadcast": {
+      "processing": {
+        "title": "处理中...",
+        "description": "交易正在区块链上处理"
+      },
+      "validated": {
+        "title": "已验证",
+        "description": "交易在区块链上已被验证"
+      }
     }
   },
   "signMessage": {

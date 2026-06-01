@@ -14,9 +14,10 @@ import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
-import { formatBalance } from "../../currency/formatCurrency.js";
+import { formatBalance } from "../../currency/currencyUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
 import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
@@ -72,9 +73,8 @@ export class TrackBroadcastedTransactionUseCase {
     chainId: number,
     params: SignParams,
   ): Promise<PendingTransaction> {
-    const { ticker, name, decimals } = await this.resolveCurrencyMetadata(
-      account.currencyId,
-    );
+    const { ticker, name, decimals, transactionExplorerUrlTemplate } =
+      await this.resolveCurrencyMetadata(account.currencyId);
     const rawValue = isSignTransactionParams(params)
       ? params.transaction.value
       : "0";
@@ -90,12 +90,20 @@ export class TrackBroadcastedTransactionUseCase {
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,
+      explorerUrl:
+        buildExplorerTransactionUrl(transactionExplorerUrlTemplate, hash) ??
+        undefined,
     };
   }
 
   private async resolveCurrencyMetadata(
     currencyId: string,
-  ): Promise<{ ticker: string; name: string; decimals: number }> {
+  ): Promise<{
+    ticker: string;
+    name: string;
+    decimals: number;
+    transactionExplorerUrlTemplate?: string;
+  }> {
     const currencyInfo =
       await this.calDataSource.getCurrencyInformation(currencyId);
 
@@ -109,6 +117,7 @@ export class TrackBroadcastedTransactionUseCase {
         ticker: info.ticker,
         name: info.name,
         decimals: info.decimals,
+        transactionExplorerUrlTemplate: info.transactionExplorerUrlTemplate,
       }),
     });
   }

@@ -3,13 +3,13 @@ import {
   Device,
   SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { ReactiveController, ReactiveControllerHost } from "lit";
+import { ReactiveController } from "lit";
 import { Subscription } from "rxjs";
 
 import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
 import { CoreContext } from "../context/core-context.js";
-import { Translation } from "../context/language-context.js";
-import { Navigation } from "./navigation.js";
+import { LanguageContext } from "../context/language-context.js";
+import { Navigation, NavigationHost } from "./navigation.js";
 import {
   Destination,
   Destinations,
@@ -19,6 +19,7 @@ import {
 
 export type RootNavigationUiModel = {
   title: string | undefined;
+  subtitle: string | undefined;
   canGoBack: boolean;
   canClose: boolean;
   showSettings: boolean;
@@ -35,20 +36,27 @@ export class RootNavigationController implements ReactiveController {
   private hasTrackingConsent?: boolean;
   private welcomeScreenCompleted = false;
   private contextSubscription?: Subscription;
+  private readonly onLanguageChange = () => {
+    this.host.requestUpdate();
+  };
   connectedDevice: Device | undefined;
 
   constructor(
-    private readonly host: ReactiveControllerHost,
+    private readonly host: NavigationHost,
     private readonly core: CoreContext,
-    translation: Translation,
+    private readonly languages: LanguageContext,
     private readonly modalContent: HTMLElement,
   ) {
     this.host.addController(this);
     this.navigation = new Navigation(host, this.modalContent);
-    this.destinations = makeDestinations(translation);
+    this.destinations = makeDestinations(this.languages);
   }
 
   hostConnected() {
+    this.languages.addEventListener(
+      LanguageContext.LANGUAGE_CHANGE,
+      this.onLanguageChange,
+    );
     this.computeInitialState();
     this.contextSubscription = this.core
       .observeContext()
@@ -62,6 +70,10 @@ export class RootNavigationController implements ReactiveController {
 
   hostDisconnected() {
     this.contextSubscription?.unsubscribe();
+    this.languages.removeEventListener(
+      LanguageContext.LANGUAGE_CHANGE,
+      this.onLanguageChange,
+    );
   }
 
   get currentScreen() {
@@ -87,14 +99,12 @@ export class RootNavigationController implements ReactiveController {
 
     const shouldShowDeviceChip = isHomeFlow && !isOnConsentScreen;
 
-    const title =
-      connectedDevice && shouldShowDeviceChip
-        ? connectedDevice.name
-        : isOnConsentScreen
-          ? this.destinations.consentAnalytics.toolbar.title
-          : isOnboardingFlow && !this.welcomeScreenCompleted
-            ? ""
-            : this.currentScreen?.toolbar.title;
+    const title = this.resolveTitle({
+      connectedDevice,
+      shouldShowDeviceChip,
+      isOnConsentScreen,
+      isOnboardingFlow,
+    });
 
     const deviceModelId =
       connectedDevice && shouldShowDeviceChip
@@ -106,6 +116,7 @@ export class RootNavigationController implements ReactiveController {
 
     const uiModel: RootNavigationUiModel = {
       title,
+      subtitle: this.currentScreen?.toolbar.subtitle,
       canGoBack,
       canClose,
       showSettings,
@@ -132,6 +143,32 @@ export class RootNavigationController implements ReactiveController {
     return this.core.isMobile()
       ? this.destinations.mobileOnboarding
       : this.destinations.onboardingFlow;
+  }
+
+  private resolveTitle({
+    connectedDevice,
+    shouldShowDeviceChip,
+    isOnConsentScreen,
+    isOnboardingFlow,
+  }: {
+    connectedDevice: Device | undefined;
+    shouldShowDeviceChip: boolean;
+    isOnConsentScreen: boolean;
+    isOnboardingFlow: boolean;
+  }): string | undefined {
+    if (connectedDevice && shouldShowDeviceChip) {
+      return connectedDevice.name;
+    }
+
+    if (isOnConsentScreen) {
+      return this.destinations.consentAnalytics.toolbar.title;
+    }
+
+    if (isOnboardingFlow && !this.welcomeScreenCompleted) {
+      return "";
+    }
+
+    return this.currentScreen?.toolbar.title;
   }
 
   // NOTE: First Draft of navigationIntent
@@ -222,6 +259,10 @@ export class RootNavigationController implements ReactiveController {
 
       case "availableNetworks":
         this.navigation.navigateTo(this.destinations.availableNetworks);
+        break;
+
+      case "preferences":
+        this.navigation.navigateTo(this.destinations.preferences);
         break;
 
       case "security":

@@ -57,8 +57,8 @@ export class Config {
     this.logLevel = LOG_LEVELS[logLevel];
   }
 
-  getAlpacaUrl(): string {
-    return "https://alpaca.api.ledger.com";
+  getCoinServiceUrl(): string {
+    return "https://coin-service.api.ledger.com";
   }
 
   getCalUrl(): string {

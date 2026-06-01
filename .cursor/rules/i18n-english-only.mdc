@@ -1,0 +1,34 @@
+---
+description: Keep new i18n JSON entries in English; do not translate when adding keys
+globs: packages/ledger-button/src/i18n/**/*.json
+alwaysApply: false
+---
+
+# i18n — English-only for new entries
+
+When adding or updating keys in `packages/ledger-button/src/i18n/`, **always use English** for new string values. Do not translate new copy into French, German, Spanish, or any other locale.
+
+## Rules
+
+- Add new keys to **every** locale file (`en.json`, `fr.json`, `de.json`, etc.) so structure stays in sync.
+- Use the **same English text** in all locale files for new entries. Existing translated strings in non-`en` files must not be changed unless explicitly asked.
+- Preserve placeholders and ICU-style tokens exactly (e.g. `{count}`, `{name}`).
+- Product names and brand terms stay as in source (e.g. `Ledger`, `Ledger Wallet`).
+
+## Examples
+
+```json
+// ✅ GOOD — new key added everywhere in English
+// en.json, fr.json, de.json, ...
+"accountTokens": {
+  "emptyState": "No tokens found for this account"
+}
+
+// ❌ BAD — translating while adding the key
+// fr.json
+"emptyState": "Aucun jeton trouvé pour ce compte"
+
+// ❌ BAD — English only in en.json, missing keys in other locales
+```
+
+Professional translation of non-English locales is handled separately; your job is keys + English copy only.

@@ -4,6 +4,8 @@ import { type Either } from "purify-ts";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
 import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
@@ -23,20 +25,19 @@ export class HydrateAccountWithFiatUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(balanceModuleTypes.CounterValueDataSource)
     private readonly counterValueDataSource: CounterValueDataSource,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
   ) {
     this.logger = loggerFactory("HydrateAccountWithFiatUseCase");
   }
 
-  async execute(
-    account: Account,
-    targetCurrency = "usd",
-  ): Promise<AccountWithFiat> {
+  async execute(account: Account): Promise<AccountWithFiat> {
+    const currency = this.contextService.getContext().preferredFiatCurrency;
     this.logHydrationStart(account);
 
     const balance = account.balance ?? "0";
     const balanceNum = this.parseBalance(balance);
     if (Number.isNaN(balanceNum) || balanceNum === 0) {
-      const currency = targetCurrency.toUpperCase();
       return enrichWithLoadingStates({
         ...account,
         fiatBalance: { value: "0.00", currency },
@@ -46,7 +47,7 @@ export class HydrateAccountWithFiatUseCase {
 
     const counterValuesResult = await this.fetchCounterValues(
       account,
-      targetCurrency,
+      currency,
     );
 
     return counterValuesResult.caseOf<AccountWithFiat>({
@@ -59,8 +60,6 @@ export class HydrateAccountWithFiatUseCase {
         });
       },
       Right: (counterValues) => {
-        const currency = targetCurrency.toUpperCase();
-
         const accountFiatBalance = this.calculateAccountFiat(
           balance,
           counterValues[0]?.rate,

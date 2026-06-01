@@ -48,7 +48,7 @@ export class DefaultPendingTransactionController
   }
 
   track(): void {
-    this.emitCurrentState();
+    void this.emitCurrentState();
     this.startPolling();
   }
 
@@ -57,12 +57,22 @@ export class DefaultPendingTransactionController
   }
 
   private startPollingWhenAccountAvailable(): void {
+    let preferredCurrency: string | undefined;
+
     this.contextService.observeContext().subscribe((context) => {
       const account = context.selectedAccount;
       const isHydrated = account && account.ticker && account.ticker.length > 0;
       if (isHydrated && this.storageService.getAll().length > 0) {
         this.startPolling();
       }
+
+      if (
+        preferredCurrency !== undefined &&
+        context.preferredFiatCurrency !== preferredCurrency
+      ) {
+        void this.emitCurrentState();
+      }
+      preferredCurrency = context.preferredFiatCurrency;
     });
   }
 
@@ -96,7 +106,7 @@ export class DefaultPendingTransactionController
     const pendingHashes = pending.map((tx) => tx.hash);
 
     const result = await this.checkPendingStatus.execute(
-      account.ticker.toLowerCase(),
+      account.currencyId,
       account.freshAddress,
       pendingHashes,
     );
@@ -108,15 +118,17 @@ export class DefaultPendingTransactionController
       return;
     }
 
-    const confirmedHashes = result.unsafeCoerce();
+    const settledOutcomes = result.unsafeCoerce();
 
-    for (const hash of confirmedHashes) {
-      this.storageService.remove(hash);
+    if (settledOutcomes.length > 0) {
+      for (const { hash } of settledOutcomes) {
+        this.storageService.remove(hash);
+      }
     }
 
-    this.emitCurrentState();
+    await this.emitUpdate();
 
-    if (confirmedHashes.length > 0) {
+    if (settledOutcomes.length > 0) {
       this.refreshSelectedAccount();
     }
 
@@ -136,10 +148,15 @@ export class DefaultPendingTransactionController
   }
 
   private async emitCurrentState(): Promise<void> {
-    const hydratedTxs = this.hydratePendingTransactionsWithFiatUseCase.execute(
-      this.storageService.getAll(),
-      "usd",
-    );
-    this.pendingTxSubject.next(await hydratedTxs);
+    await this.emitUpdate();
+  }
+
+  private async emitUpdate(): Promise<void> {
+    const hydratedTxs =
+      await this.hydratePendingTransactionsWithFiatUseCase.execute(
+        this.storageService.getAll(),
+        this.contextService.getContext().preferredFiatCurrency,
+      );
+    this.pendingTxSubject.next(hydratedTxs);
   }
 }

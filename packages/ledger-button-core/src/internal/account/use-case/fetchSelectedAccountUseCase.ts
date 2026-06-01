@@ -174,6 +174,7 @@ export class FetchSelectedAccountUseCase {
       fiatBalance: withFiat.fiatBalance,
       tokens: withFiat.tokens,
       transactionHistory: withTxHistory.transactionHistory,
+      transactionExplorerUrlTemplate: withTxHistory.transactionExplorerUrlTemplate,
       totalFiatValue,
       networks,
     };

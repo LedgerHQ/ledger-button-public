@@ -6,8 +6,17 @@
     "floatingButton": {
       "ariaLabel": "Ledgerアカウントメニューを開く",
       "label": "Ledger",
-      "pendingTransactionsHover": "保留中のトランザクションが{count}件あります",
-      "newTransactionPending": "新しい保留中のトランザクション"
+      "pendingTransactionsHover": "{count}件のトランザクション保留中があります。",
+      "newTransactionPending": "保留中の新規トランザクション",
+      "transactionsValidatedOne": "1件のトランザクションを検証済みです",
+      "transactionsValidatedOther": "{count}件のトランザクションを検証済みです"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "送付済み",
+      "transactionReceivedTitle": "受取済み",
+      "transactionFailedTitle": "トランザクションが失敗しました。",
+      "transactionSwapTitle": "トランザクションが承認されました",
+      "checkOnExplorer": "エクスプローラーでトランザクションを確認"
     },
     "search": {
       "placeholder": "アカウントを検索",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "あなたのLedger Wallet",
-    "balance": "残高"
+    "balance": "残高",
+    "tabs": {
+      "tokens": "トークン",
+      "transactions": "トランザクション"
+    }
   },
   "walletActions": {
     "send": "送付",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledgerを接続する"
+      "title": "Ledgerデバイスを接続"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "アカウントを検索",
       "noResults": "検索条件に一致するアカウントがありません。",
       "refreshingAccounts": "Ledger Walletがアカウントを更新します。",
-      "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。"
+      "refreshingAccountsHint": "いつでも続行するためのアカウントを選択してください。",
+      "addAccountAriaLabel": "アカウントを追加",
+      "refreshAccountsAriaLabel": "アカウントを更新",
+      "addAccountTooltip": "新しいアカウントを作成する",
+      "refreshAccountsTooltip": "更新",
+      "noToken": "トークンなし",
+      "accountCountOne": "1件のアカウント",
+      "accountCountOther": "{count}アカウント",
+      "tokenCountOne": "1トークン",
+      "tokenCountOther": "{count}トークン"
+    },
+    "connectionSuccess": {
+      "title": "接続されました",
+      "close": "閉じる"
     },
     "turnOnSync": {
       "title": "",
@@ -171,13 +197,26 @@
   "accountTokens": {
     "title": "アカウント・トークン",
     "notFound": "アカウントが見つかりません",
-    "noTokens": "このアカウントのトークンが見つかりませんでした"
+    "noTokens": "このアカウントのトークンが見つかりませんでした",
+    "unknownToken": "不明なトークン"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "利用可能なネットワーク"
   },
   "transactionList": {
-    "noTransactions": "トランザクションが見つかりません"
+    "noTransactions": "トランザクションが見つかりません",
+    "pendingTransactions": "保留中のトランザクション",
+    "viewOnExplorer": "エクスプローラーで表示",
+    "failed": "失敗",
+    "kinds": {
+      "swap": "スワップ",
+      "approve": "承認",
+      "contract": "コントラクトのやり取り",
+      "fees": "手数料",
+      "self": "自己送金",
+      "received": "受取済み",
+      "sent": "送付済み"
+    }
   },
   "mobileOnboarding": {
     "title": "Ledger Walletで続行",
@@ -187,12 +226,18 @@
   },
   "settings": {
     "title": "設定",
-    "analytics": {
-      "title": "アナリティクス",
-      "description": "Ledgerがアプリの使用状況データを収集できるようにし、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、アプリと体験の両方を向上させます。"
+    "preferences": {
+      "title": "設定",
+      "language": { "title": "言語" },
+      "currency": { "title": "通貨" }
     },
-    "securityConfidentiality": "セキュリティと機密性",
-    "helpSupport": "ヘルプとサポート",
+    "securityConfidentiality": {
+      "title": "セキュリティと機密性",
+      "analytics": {
+        "title": "アナリティクス",
+        "description": "Ledgerがアプリの使用状況データを収集できるようにし、Ledger Wallet Direct Connectivityのパフォーマンスを測定し、アプリと体験の両方を向上させます。"
+      }
+    },
     "support": {
       "title": "ヘルプとサポート",
       "support": "サポート",
@@ -208,6 +253,16 @@
     "error": {
       "title": "トランザクションが失敗しました。",
       "description": "トランザクションの署名中にエラーが発生しました。もう一度お試しください。"
+    },
+    "broadcast": {
+      "processing": {
+        "title": "処理中...",
+        "description": "トランザクションはブロックチェーン上で処理中です"
+      },
+      "validated": {
+        "title": "検証済み",
+        "description": "トランザクションはブロックチェーン上で検証されます"
+      }
     }
   },
   "signMessage": {

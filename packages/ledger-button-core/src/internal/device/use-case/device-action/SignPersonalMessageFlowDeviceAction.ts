@@ -22,7 +22,7 @@ import {
 } from "../../../../api/errors/DeviceErrors.js";
 import type { SignFlowStatus } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { UserInteractionNeeded } from "../../../../api/model/UserInteractionNeeded.js";
-import { getHexaStringFromSignature } from "../../../transaction/utils/TransactionHelper.js";
+import { getHexaStringFromSignature } from "../../../evm-provider/transaction/TransactionHelper.js";
 import {
   type SignPersonalMessageFlowDAError,
   type SignPersonalMessageFlowDAInput,

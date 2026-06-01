@@ -7,7 +7,16 @@
       "ariaLabel": "Abra o menu da conta Ledger",
       "label": "Ledger",
       "pendingTransactionsHover": "Você tem {count} transações pendentes",
-      "newTransactionPending": "Nova transação pendente"
+      "newTransactionPending": "Nova transação pendente",
+      "transactionsValidatedOne": "1 transação foi validada",
+      "transactionsValidatedOther": "{count} transações foram validadas"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Enviado",
+      "transactionReceivedTitle": "Recebido",
+      "transactionFailedTitle": "A transação falhou",
+      "transactionSwapTitle": "Transação confirmada",
+      "checkOnExplorer": "Verificar transação no explorador"
     },
     "search": {
       "placeholder": "Buscar conta",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "Sua Ledger Wallet",
-    "balance": "Saldo"
+    "balance": "Saldo",
+    "tabs": {
+      "tokens": "Tokens",
+      "transactions": "Transações"
+    }
   },
   "walletActions": {
     "send": "Enviar",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Conecte uma Ledger"
+      "title": "Conectar um dispositivo Ledger"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "Buscar conta",
       "noResults": "Nenhuma conta corresponde à sua pesquisa.",
       "refreshingAccounts": "A Ledger Wallet está atualizando suas contas.",
-      "refreshingAccountsHint": "Selecione uma conta a qualquer momento para continuar."
+      "refreshingAccountsHint": "Selecione uma conta a qualquer momento para continuar.",
+      "addAccountAriaLabel": "Adicionar conta",
+      "refreshAccountsAriaLabel": "Atualizar contas",
+      "addAccountTooltip": "Criar uma nova conta",
+      "refreshAccountsTooltip": "Atualizar",
+      "noToken": "Nenhum token",
+      "accountCountOne": "1 conta",
+      "accountCountOther": "{count} contas",
+      "tokenCountOne": "1 token",
+      "tokenCountOther": "{count} tokens"
+    },
+    "connectionSuccess": {
+      "title": "Agora você está conectado",
+      "close": "Fechar"
     },
     "turnOnSync": {
       "title": "",
@@ -171,13 +197,26 @@
   "accountTokens": {
     "title": "Tokens de Conta",
     "notFound": "Conta não encontrada",
-    "noTokens": "Nenhum token encontrado para esta conta"
+    "noTokens": "Nenhum token encontrado para esta conta",
+    "unknownToken": "Token Desconhecido"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Redes disponíveis"
   },
   "transactionList": {
-    "noTransactions": "Nenhuma transação encontrada"
+    "noTransactions": "Nenhuma transação encontrada",
+    "pendingTransactions": "Transações pendentes",
+    "viewOnExplorer": "Ver no explorador",
+    "failed": "Falha",
+    "kinds": {
+      "swap": "Trocar",
+      "approve": "Aprovar",
+      "contract": "Interação contratual",
+      "fees": "Taxas",
+      "self": "Auto transferência",
+      "received": "Recebido",
+      "sent": "Enviado"
+    }
   },
   "mobileOnboarding": {
     "title": "Continuar na Ledger Wallet",
@@ -187,12 +226,18 @@
   },
   "settings": {
     "title": "Configurações",
-    "analytics": {
-      "title": "Métricas",
-      "description": "Permitir que a Ledger colete dados de uso do aplicativo para ajudar a medir o desempenho da Ledger Wallet Direct Connectivity e aprimorar tanto o aplicativo quanto a sua experiência."
+    "preferences": {
+      "title": "Preferências",
+      "language": { "title": "Idioma" },
+      "currency": { "title": "Moeda" }
     },
-    "securityConfidentiality": "Segurança e confidencialidade",
-    "helpSupport": "Ajuda e suporte",
+    "securityConfidentiality": {
+      "title": "Segurança e confidencialidade",
+      "analytics": {
+        "title": "Métricas",
+        "description": "Permitir que a Ledger colete dados de uso do aplicativo para ajudar a medir o desempenho da Ledger Wallet Direct Connectivity e aprimorar tanto o aplicativo quanto a sua experiência."
+      }
+    },
     "support": {
       "title": "Ajuda e suporte",
       "support": "Suporte",
@@ -208,6 +253,16 @@
     "error": {
       "title": "A transação falhou",
       "description": "Ocorreu um erro ao assinar sua transação. Tente novamente."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Processando…",
+        "description": "A transação está sendo processada na blockchain"
+      },
+      "validated": {
+        "title": "Validada",
+        "description": "A transação é validada na blockchain"
+      }
     }
   },
   "signMessage": {

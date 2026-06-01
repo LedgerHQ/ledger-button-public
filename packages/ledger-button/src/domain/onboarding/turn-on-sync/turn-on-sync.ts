@@ -27,7 +27,7 @@ export class TurnOnSyncScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languageContext!: LanguageContext;
 
@@ -104,7 +104,7 @@ export class TurnOnSyncScreen extends LitElement {
             <ledger-icon
               type="externalLink"
               fillColor="currentColor"
-              size="medium"
+              .size=${24}
             ></ledger-icon>
           </button>
         </div>

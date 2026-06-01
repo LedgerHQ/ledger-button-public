@@ -6,10 +6,10 @@ import type { SignPersonalMessageParams } from "../../../api/model/signing/SignP
 import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import type { SignPersonalMessageUseCase } from "../../device/use-case/SignPersonalMessageUseCase.js";
-import type { SignRawTransaction } from "../../device/use-case/SignRawTransaction.js";
-import type { SignTransaction } from "../../device/use-case/SignTransaction.js";
-import type { SignTypedData } from "../../device/use-case/SignTypedData.js";
+import type { SignPersonalMessageUseCase } from "../../evm-provider/use-case/SignPersonalMessageUseCase.js";
+import type { SignRawTransaction } from "../../evm-provider/use-case/SignRawTransaction.js";
+import type { SignTransaction } from "../../evm-provider/use-case/SignTransaction.js";
+import type { SignTypedData } from "../../evm-provider/use-case/SignTypedData.js";
 import { DefaultTransactionService } from "./DefaultTransactionService.js";
 
 describe("DefaultTransactionService", () => {

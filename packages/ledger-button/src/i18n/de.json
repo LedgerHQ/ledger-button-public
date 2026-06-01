@@ -6,8 +6,17 @@
     "floatingButton": {
       "ariaLabel": "Ledger-Kontomenü öffnen",
       "label": "Ledger",
-      "pendingTransactionsHover": "Sie haben {count} ausstehende Transaktionen",
-      "newTransactionPending": "Neue ausstehende Transaktion"
+      "pendingTransactionsHover": "Du hast {count} ausstehende Transaktionen",
+      "newTransactionPending": "Neue Transaktion ausstehend",
+      "transactionsValidatedOne": "Eine Transaktion wurde validiert",
+      "transactionsValidatedOther": "{count} Transaktionen wurden validiert"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Gesendet",
+      "transactionReceivedTitle": "Empfangen",
+      "transactionFailedTitle": "Transaktion fehlgeschlagen.",
+      "transactionSwapTitle": "Transaktion bestätigt",
+      "checkOnExplorer": "Transaktion im Explorer prüfen"
     },
     "search": {
       "placeholder": "Konto suchen",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "Dein Ledger Wallet",
-    "balance": "Saldo"
+    "balance": "Saldo",
+    "tabs": {
+      "tokens": "Token",
+      "transactions": "Transaktionen"
+    }
   },
   "walletActions": {
     "send": "Senden",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledger-Gerät verbinden"
+      "title": "Ledger-Gerät anschließen"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "Konto suchen",
       "noResults": "Es wurden keine Konten gefunden, die deiner Suche entsprechen",
       "refreshingAccounts": "Ledger Wallet aktualisiert deine Konten.",
-      "refreshingAccountsHint": "Wähle jederzeit ein Konto, um fortzufahren."
+      "refreshingAccountsHint": "Wähle jederzeit ein Konto, um fortzufahren.",
+      "addAccountAriaLabel": "Konto hinzufügen",
+      "refreshAccountsAriaLabel": "Konten neu laden",
+      "addAccountTooltip": "Erstelle ein neues Konto",
+      "refreshAccountsTooltip": "Neu laden",
+      "noToken": "Kein Token",
+      "accountCountOne": "1 Konto",
+      "accountCountOther": "{count} Konten",
+      "tokenCountOne": "1 Token",
+      "tokenCountOther": "{count} Token"
+    },
+    "connectionSuccess": {
+      "title": "Du bist jetzt verbunden",
+      "close": "Schließen"
     },
     "turnOnSync": {
       "title": "",
@@ -171,13 +197,26 @@
   "accountTokens": {
     "title": "Konto-Token",
     "notFound": "Konto nicht gefunden",
-    "noTokens": "Keine Token für dieses Konto gefunden"
+    "noTokens": "Keine Token für dieses Konto gefunden",
+    "unknownToken": "Unbekannter Token"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Verfügbare Netzwerke"
   },
   "transactionList": {
-    "noTransactions": "Keine Transaktionen gefunden"
+    "noTransactions": "Keine Transaktionen gefunden",
+    "pendingTransactions": "Schwebende Transaktionen",
+    "viewOnExplorer": "Im Explorer ansehen",
+    "failed": "Fehlgeschlagen",
+    "kinds": {
+      "swap": "Swappen",
+      "approve": "Bestätigen",
+      "contract": "Vertragsinteraktion",
+      "fees": "Gebühren",
+      "self": "Selbstüberweisung",
+      "received": "Empfangen",
+      "sent": "Gesendet"
+    }
   },
   "mobileOnboarding": {
     "title": "Vorgang fortsetzen in Ledger Wallet",
@@ -187,12 +226,18 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "analytics": {
-      "title": "Analysen",
-      "description": "Ermöglicht Ledger die Erhebung von App-Nutzungsdaten, um die Leistung von Ledger Wallet Direct Connectivity zu messen und sowohl die App als auch dein Nutzungserlebnis zu optimieren."
+    "preferences": {
+      "title": "Einstellungen",
+      "language": { "title": "Sprache" },
+      "currency": { "title": "Währung" }
     },
-    "securityConfidentiality": "Sicherheit und Vertraulichkeit",
-    "helpSupport": "Hilfe & Support",
+    "securityConfidentiality": {
+      "title": "Sicherheit und Vertraulichkeit",
+      "analytics": {
+        "title": "Analysen",
+        "description": "Ermöglicht Ledger die Erhebung von App-Nutzungsdaten, um die Leistung von Ledger Wallet Direct Connectivity zu messen und sowohl die App als auch dein Nutzungserlebnis zu optimieren."
+      }
+    },
     "support": {
       "title": "Hilfe & Support",
       "support": "Support",
@@ -208,6 +253,16 @@
     "error": {
       "title": "Transaktion fehlgeschlagen.",
       "description": "Beim Signieren deiner Transaktion ist ein Fehler aufgetreten. Bitte versuche es noch einmal."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "In Bearbeitung …",
+        "description": "Die Transaktion wird auf der Blockchain verarbeitet"
+      },
+      "validated": {
+        "title": "Validiert",
+        "description": "Die Transaktion wird auf der Blockchain validiert"
+      }
     }
   },
   "signMessage": {

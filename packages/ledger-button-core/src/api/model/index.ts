@@ -8,9 +8,15 @@ export type {
   Network,
   Token,
 } from "../../internal/account/service/AccountService.js";
+export type { FiatCurrency } from "../../internal/currency/datasource/fiatCurrencyTypes.js";
 export type { PendingTransaction } from "../../internal/pending-transaction/model/PendingTransaction.js";
 export type {
+  TransactionDirection,
   TransactionHistoryItem,
+  TransactionHistoryItemAsset,
+  TransactionHistoryItemFee,
+  TransactionKind,
+  TransactionStatus,
   TransactionType,
 } from "../../internal/transaction-history/model/transactionHistoryTypes.js";
 export * from "./ButtonCoreContext.js";
@@ -24,4 +30,5 @@ export * from "./signing/SignPersonalMessageParams.js";
 export * from "./signing/SignRawTransactionParams.js";
 export * from "./signing/SignTransactionParams.js";
 export * from "./signing/SignTypedMessageParams.js";
+export * from "./solana/SolanaTypes.js";
 export * from "./UserInteractionNeeded.js";

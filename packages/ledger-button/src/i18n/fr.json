@@ -7,7 +7,16 @@
       "ariaLabel": "Ouvrir le menu Comptes Ledger",
       "label": "Ledger",
       "pendingTransactionsHover": "Vous avez {count} transactions en attente",
-      "newTransactionPending": "Nouvelle transaction en attente"
+      "newTransactionPending": "Nouvelle transaction en attente",
+      "transactionsValidatedOne": "1 transaction a été validée",
+      "transactionsValidatedOther": "{count} transactions ont été validées"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Envoyé",
+      "transactionReceivedTitle": "Reçu",
+      "transactionFailedTitle": "Échec de la transaction",
+      "transactionSwapTitle": "Transaction confirmée",
+      "checkOnExplorer": "Voir dans l’explorateur"
     },
     "search": {
       "placeholder": "Rechercher un compte",
@@ -24,7 +33,7 @@
       "disconnect": "Déconnecter"
     },
     "ad": {
-      "getALedger": "Achetez un appareil Ledger"
+      "getALedger": "Acheter un appareil Ledger"
     },
     "platform": {
       "onDesktop": "Sur ordinateur",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "Ledger Wallet",
-    "balance": "Solde"
+    "balance": "Solde",
+    "tabs": {
+      "tokens": "Tokens",
+      "transactions": "Transactions"
+    }
   },
   "walletActions": {
     "send": "Envoyer",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Connexion"
+      "title": "Connectez un appareil Ledger"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "Rechercher un compte",
       "noResults": "Aucun compte ne correspond à votre recherche.",
       "refreshingAccounts": "Ledger Wallet actualise vos comptes.",
-      "refreshingAccountsHint": "Sélectionnez un compte à tout moment pour continuer."
+      "refreshingAccountsHint": "Sélectionnez un compte à tout moment pour continuer.",
+      "addAccountAriaLabel": "Ajouter un compte",
+      "refreshAccountsAriaLabel": "Actualiser les comptes",
+      "addAccountTooltip": "Créer un nouveau compte",
+      "refreshAccountsTooltip": "Actualiser",
+      "noToken": "Aucun token",
+      "accountCountOne": "1 compte",
+      "accountCountOther": "{count} comptes",
+      "tokenCountOne": "1 token",
+      "tokenCountOther": "{count} tokens"
+    },
+    "connectionSuccess": {
+      "title": "Vous êtes maintenant connecté(e)",
+      "close": "Fermer"
     },
     "turnOnSync": {
       "title": "",
@@ -171,13 +197,26 @@
   "accountTokens": {
     "title": "Tokens de compte",
     "notFound": "Compte non trouvé",
-    "noTokens": "Aucun token trouvé pour ce compte"
+    "noTokens": "Aucun token trouvé pour ce compte",
+    "unknownToken": "Token inconnu"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Réseaux disponibles"
   },
   "transactionList": {
-    "noTransactions": "Aucune transaction trouvée"
+    "noTransactions": "Aucune transaction trouvée",
+    "pendingTransactions": "Transactions en attente",
+    "viewOnExplorer": "Voir dans l’explorateur",
+    "failed": "Échec",
+    "kinds": {
+      "swap": "Échanger",
+      "approve": "Approuver",
+      "contract": "Interaction avec un contrat",
+      "fees": "Frais",
+      "self": "Transfert interne",
+      "received": "Reçu",
+      "sent": "Envoyé"
+    }
   },
   "mobileOnboarding": {
     "title": "Continuez sur Ledger Wallet",
@@ -187,12 +226,18 @@
   },
   "settings": {
     "title": "Paramètres",
-    "analytics": {
-      "title": "Statistiques",
-      "description": "Autorisez Ledger à collecter les données d’utilisation pour nous aider à mesurer la performance de la fonctionnalité Connectivité directe de Ledger Wallet, et à améliorer l’application ainsi que votre expérience."
+    "preferences": {
+      "title": "Préférences",
+      "language": { "title": "Langue" },
+      "currency": { "title": "Monnaie" }
     },
-    "securityConfidentiality": "Sécurité et vie privée",
-    "helpSupport": "Aide",
+    "securityConfidentiality": {
+      "title": "Sécurité et vie privée",
+      "analytics": {
+        "title": "Statistiques",
+        "description": "Autorisez Ledger à collecter les données d’utilisation pour nous aider à mesurer la performance de la fonctionnalité Connectivité directe de Ledger Wallet, et à améliorer l’application ainsi que votre expérience."
+      }
+    },
     "support": {
       "title": "Aide",
       "support": "Assistance",
@@ -208,6 +253,16 @@
     "error": {
       "title": "Échec de la transaction",
       "description": "Une erreur est survenue lors de la signature de la transaction. Veuillez réessayer."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "Traitement...",
+        "description": "Votre transaction est en cours de traitement sur la blockchain."
+      },
+      "validated": {
+        "title": "Validé",
+        "description": "Votre transaction est validée sur la blockchain."
+      }
     }
   },
   "signMessage": {

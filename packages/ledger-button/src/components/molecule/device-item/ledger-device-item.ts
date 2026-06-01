@@ -165,7 +165,7 @@ export class LedgerDeviceItem extends LitElement {
       >
         <ledger-icon
           type=${this.connectionType}
-          size="small"
+          .size=${16}
           fillColor="var(--color-foreground)"
         ></ledger-icon>
       </div>

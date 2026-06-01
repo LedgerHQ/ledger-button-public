@@ -7,10 +7,11 @@ import {
   type Account,
   type DetailedAccount,
 } from "../account/service/AccountService.js";
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import {
   getChainIdFromCurrencyId,
   getCurrencyIdFromChainId,
-} from "../blockchain/evm/chainUtils.js";
+} from "../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type ContextService } from "./ContextService.js";
@@ -26,6 +27,7 @@ export class DefaultContextService implements ContextService {
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
     isMobilePlatform: false,
+    preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
   };
 
   private readonly logger: LoggerPublisher;
@@ -91,6 +93,9 @@ export class DefaultContextService implements ContextService {
         break;
       case "tracking_consent_refused":
         this.context.hasTrackingConsent = false;
+        break;
+      case "preferred_fiat_currency_changed":
+        this.context.preferredFiatCurrency = event.currency;
         break;
     }
 

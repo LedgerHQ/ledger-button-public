@@ -27,7 +27,7 @@ export class MobileOnboardingScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
-  @consume({ context: langContext })
+  @consume({ context: langContext, subscribe: true })
   @property({ attribute: false })
   public languages!: LanguageContext;
 
@@ -35,7 +35,11 @@ export class MobileOnboardingScreen extends LitElement {
 
   override connectedCallback() {
     super.connectedCallback();
-    this.controller = new MobileOnboardingController(this, this.coreContext);
+    this.controller = new MobileOnboardingController(
+      this,
+      this.coreContext,
+      this.languages,
+    );
   }
 
   override render() {
@@ -51,7 +55,7 @@ export class MobileOnboardingScreen extends LitElement {
         <div
           class="bg-muted-transparent flex h-64 w-64 items-center justify-center rounded-full"
         >
-          <ledger-icon type="info" size="large" fillColor="white"></ledger-icon>
+          <ledger-icon type="info" .size=${32} fillColor="white"></ledger-icon>
         </div>
 
         <div class="flex flex-col gap-12">

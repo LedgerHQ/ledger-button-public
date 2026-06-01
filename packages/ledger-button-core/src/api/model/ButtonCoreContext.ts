@@ -10,4 +10,5 @@ export type ButtonCoreContext = {
   welcomeScreenCompleted: boolean;
   hasTrackingConsent: boolean | undefined;
   isMobilePlatform: boolean;
+  preferredFiatCurrency: string;
 };

@@ -2,6 +2,8 @@ export const eventTrackingModuleTypes = {
   EventTrackingService: Symbol.for("EventTrackingService"),
   TrackConsentGiven: Symbol.for("TrackConsentGiven"),
   TrackConsentRemoved: Symbol.for("TrackConsentRemoved"),
+  TrackLanguageChanged: Symbol.for("TrackLanguageChanged"),
+  TrackCurrencyChanged: Symbol.for("TrackCurrencyChanged"),
   TrackFloatingButtonClick: Symbol.for("TrackFloatingButtonClick"),
   TrackOpenSession: Symbol.for("TrackOpenSession"),
   TrackLedgerSyncOpened: Symbol.for("TrackLedgerSyncOpened"),
@@ -13,4 +15,7 @@ export const eventTrackingModuleTypes = {
   TrackTypedMessageCompleted: Symbol.for("TrackTypedMessageCompleted"),
   TrackWalletAction: Symbol.for("TrackWalletAction"),
   TrackMobileRedirectLedgerWallet: Symbol.for("TrackMobileRedirectLedgerWallet"),
+  TrackViewTransactionDetailsClick: Symbol.for(
+    "TrackViewTransactionDetailsClick",
+  ),
 };

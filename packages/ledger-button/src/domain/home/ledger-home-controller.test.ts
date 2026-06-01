@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
+import type { LanguageContext } from "../../context/language-context.js";
 import type { Navigation } from "../../shared/navigation.js";
 import type { Destinations } from "../../shared/routes.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
@@ -66,6 +67,7 @@ describe("LedgerHomeController", () => {
   let core: CoreContext;
   let navigation: Navigation;
   let destinations: Destinations;
+  let languages: LanguageContext;
   let pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
   let contextSubject: BehaviorSubject<Record<string, unknown>>;
   const account = createDetailedAccount();
@@ -84,6 +86,7 @@ describe("LedgerHomeController", () => {
         freshAddress: "0xabc123",
         currencyId: "ethereum",
       },
+      preferredFiatCurrency: "usd",
     });
 
     core = {
@@ -91,9 +94,7 @@ describe("LedgerHomeController", () => {
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTxSubject.asObservable()),
-      getDetailedSelectedAccount: vi
-        .fn()
-        .mockResolvedValue(mockRight(account)),
+      getDetailedSelectedAccount: vi.fn().mockResolvedValue(mockRight(account)),
     } as unknown as CoreContext;
 
     navigation = {
@@ -106,34 +107,97 @@ describe("LedgerHomeController", () => {
       onboardingFlow: { name: "onboarding-flow" },
     } as unknown as Destinations;
 
+    languages = {
+      currentTranslation: {
+        accountTokens: { unknownToken: "Unknown Token" },
+      },
+    } as unknown as LanguageContext;
+
     controller = new LedgerHomeController(
       host,
       core,
       navigation,
       destinations,
+      languages,
     );
   });
 
-  describe("context-driven account updates", () => {
-    async function connectAndWaitForLoad() {
-      controller.hostConnected();
+  async function connectAndWaitForLoad() {
+    controller.hostConnected();
+    await vi.waitFor(() => {
+      expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
+    });
+    (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+    (host.requestUpdate as ReturnType<typeof vi.fn>).mockClear();
+  }
+
+  describe("preferredCurrency", () => {
+    it("returns the uppercased currency emitted by context", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "eur",
+      });
+
+      expect(controller.preferredCurrency).toBe("EUR");
+    });
+
+    it("calls getSelectedAccount when preferredFiatCurrency changes", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "usd",
+      });
+      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "eur",
+      });
+
       await vi.waitFor(() => {
         expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
       });
-      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
-      (host.requestUpdate as ReturnType<typeof vi.fn>).mockClear();
-    }
+    });
 
+    it("does not call getSelectedAccount when preferredFiatCurrency stays the same", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "usd",
+      });
+      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+
+      contextSubject.next({
+        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
+        preferredFiatCurrency: "usd",
+      });
+
+      expect(core.getDetailedSelectedAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("context-driven account updates", () => {
     it("should update selectedAccount when context emits a DetailedAccount with transactionHistory", async () => {
       const freshAccount = createDetailedAccount({
         transactionHistory: [
           {
             hash: "0x111",
             type: "sent",
+            direction: "sent",
+            kind: "transfer",
+            status: "confirmed",
             timestamp: "2026-04-08T10:00:00.000Z",
-            formattedValue: "1 ETH",
-            ticker: "ETH",
-            currencyName: "Ethereum",
+            value: "1000000000000000000",
+            asset: {
+              ledgerId: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            },
           },
         ] as DetailedAccount["transactionHistory"],
       });
@@ -142,6 +206,7 @@ describe("LedgerHomeController", () => {
 
       contextSubject.next({
         selectedAccount: freshAccount,
+        preferredFiatCurrency: "usd",
       });
 
       expect(controller.selectedAccount).toEqual(freshAccount);
@@ -157,6 +222,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xdifferent",
           currencyId: "ethereum",
         },
+        preferredFiatCurrency: "usd",
       });
 
       await vi.waitFor(() => {
@@ -172,6 +238,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xabc123",
           currencyId: "polygon",
         },
+        preferredFiatCurrency: "usd",
       });
 
       await vi.waitFor(() => {
@@ -187,6 +254,7 @@ describe("LedgerHomeController", () => {
           freshAddress: "0xabc123",
           currencyId: "ethereum",
         },
+        preferredFiatCurrency: "usd",
       });
 
       expect(core.getDetailedSelectedAccount).not.toHaveBeenCalled();
@@ -213,6 +281,69 @@ describe("LedgerHomeController", () => {
 
       pendingTxSubject.next([]);
       expect(controller.pendingTransactionListItems).toHaveLength(0);
+    });
+  });
+
+  describe("explorer URLs", () => {
+    it("should build explorerUrl from the account's per-currency template", async () => {
+      const accountWithExplorerUrl = createDetailedAccount({
+        transactionHistory: [
+          {
+            hash: "0xabc",
+            type: "sent",
+            direction: "sent",
+            kind: "transfer",
+            status: "confirmed",
+            timestamp: "2026-04-08T10:00:00.000Z",
+            value: "1000000000000000000",
+            asset: {
+              ledgerId: "ethereum",
+              name: "Ethereum",
+              ticker: "ETH",
+              decimals: 18,
+            },
+          },
+        ] as DetailedAccount["transactionHistory"],
+        transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
+      });
+
+      controller.hostConnected();
+      await vi.waitFor(() => {
+        expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
+      });
+      contextSubject.next({
+        selectedAccount: accountWithExplorerUrl,
+        preferredFiatCurrency: "usd",
+      });
+
+      expect(controller.transactionListItems[0]?.explorerUrl).toBe(
+        "https://etherscan.io/tx/0xabc",
+      );
+    });
+
+    it("should propagate explorerUrl from pending transactions to the list row", () => {
+      const tx = createPendingTx({
+        hash: "0xpending1",
+        explorerUrl: "https://etherscan.io/tx/0xpending1",
+      });
+
+      controller.hostConnected();
+      pendingTxSubject.next([tx]);
+
+      expect(controller.pendingTransactionListItems[0]?.explorerUrl).toBe(
+        "https://etherscan.io/tx/0xpending1",
+      );
+    });
+
+    it("should leave explorerUrl undefined when upstream did not provide one", () => {
+      const tx = createPendingTx({ hash: "0xnoexplorer" });
+
+      controller.hostConnected();
+      pendingTxSubject.next([tx]);
+
+      expect(
+        controller.pendingTransactionListItems[0]?.explorerUrl,
+      ).toBeUndefined();
     });
   });
 });

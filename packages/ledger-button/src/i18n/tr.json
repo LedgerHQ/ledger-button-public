@@ -7,7 +7,16 @@
       "ariaLabel": "Ledger hesap menüsünü aç",
       "label": "Ledger",
       "pendingTransactionsHover": "{count} bekleyen işleminiz var",
-      "newTransactionPending": "Yeni bekleyen işlem"
+      "newTransactionPending": "Yeni işlem beklemede",
+      "transactionsValidatedOne": "1 işlem doğrulandı",
+      "transactionsValidatedOther": "{count} işlem doğrulandı"
+    },
+    "transactionConfirmation": {
+      "transactionSentTitle": "Gönderildi",
+      "transactionReceivedTitle": "Alındı",
+      "transactionFailedTitle": "İşlem başarısız",
+      "transactionSwapTitle": "İşlem onaylandı",
+      "checkOnExplorer": "İşlemi tarayıcıda kontrol et"
     },
     "search": {
       "placeholder": "Hesap ara",
@@ -59,7 +68,11 @@
   },
   "home": {
     "title": "Ledger Wallet’ınız",
-    "balance": "Bakiye"
+    "balance": "Bakiye",
+    "tabs": {
+      "tokens": "Token'lar",
+      "transactions": "İşlemler"
+    }
   },
   "walletActions": {
     "send": "Gönder",
@@ -101,7 +114,7 @@
   },
   "onboarding": {
     "selectDevice": {
-      "title": "Ledger cihazını bağlayın"
+      "title": "Bir Ledger cihazı bağlayın"
     },
     "ledgerSync": {
       "title": ""
@@ -115,7 +128,20 @@
       "searchPlaceholder": "Hesap ara",
       "noResults": "Aramanızla eşleşen hesap yok",
       "refreshingAccounts": "Ledger Wallet hesaplarınızı yeniliyor.",
-      "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin."
+      "refreshingAccountsHint": "Dilediğiniz zaman bir hesap seçip devam edin.",
+      "addAccountAriaLabel": "Hesap ekle",
+      "refreshAccountsAriaLabel": "Hesapları yenile",
+      "addAccountTooltip": "Yeni bir hesap oluşturun",
+      "refreshAccountsTooltip": "Yenile",
+      "noToken": "Token yok",
+      "accountCountOne": "1 hesap",
+      "accountCountOther": "{count} hesap",
+      "tokenCountOne": "1 token",
+      "tokenCountOther": "{count} token"
+    },
+    "connectionSuccess": {
+      "title": "Şimdi bağlandınız",
+      "close": "Kapat"
     },
     "turnOnSync": {
       "title": "",
@@ -171,28 +197,47 @@
   "accountTokens": {
     "title": "Hesap Token'ları",
     "notFound": "Hesap bulunamadı",
-    "noTokens": "Bu hesap için hiçbir token bulunamadı."
+    "noTokens": "Bu hesap için hiçbir token bulunamadı.",
+    "unknownToken": "Bilinmeyen Token"
   },
   "availableNetworks": {
-    "title": "Available networks"
+    "title": "Kullanılabilir ağlar"
   },
   "transactionList": {
-    "noTransactions": "İşlem bulunamadı"
+    "noTransactions": "İşlem bulunamadı",
+    "pendingTransactions": "Bekleyen İşlemler",
+    "viewOnExplorer": "Tarayıcıda görüntüle",
+    "failed": "Başarısız",
+    "kinds": {
+      "swap": "Takas et",
+      "approve": "Onayla",
+      "contract": "Sözleşme etkileşimi",
+      "fees": "Ücretler",
+      "self": "Kendine transfer",
+      "received": "Alındı",
+      "sent": "Gönderildi"
+    }
   },
   "mobileOnboarding": {
     "title": "Ledger Wallet'ta devam edin",
-    "description": "For a smoother experience, this dApp will open directly in the Ledger Wallet app",
+    "description": "Daha sorunsuz bir deneyim için bu dApp doğrudan Ledger Wallet uygulamasında açılacaktır.",
     "allowButton": "Ledger Wallet’ı açın",
     "rejectButton": "Ledger Wallet'ı indirin"
   },
   "settings": {
     "title": "Ayarlar",
-    "analytics": {
-      "title": "Analiz",
-      "description": "Ledger Wallet Direct Connectivity'nin performansının ölçülebilmesi ve hem uygulamanın hem de deneyiminizin geliştirilebilmesi için uygulama kullanım verilerini Ledger'ın toplamasına izin verin."
+    "preferences": {
+      "title": "Tercihler",
+      "language": { "title": "Dil" },
+      "currency": { "title": "Para birimi" }
     },
-    "securityConfidentiality": "Güvenlik ve gizlilik",
-    "helpSupport": "Yardım ve Destek",
+    "securityConfidentiality": {
+      "title": "Güvenlik ve gizlilik",
+      "analytics": {
+        "title": "Analiz",
+        "description": "Ledger Wallet Direct Connectivity'nin performansının ölçülebilmesi ve hem uygulamanın hem de deneyiminizin geliştirilebilmesi için uygulama kullanım verilerini Ledger'ın toplamasına izin verin."
+      }
+    },
     "support": {
       "title": "Yardım ve Destek",
       "support": "Destek",
@@ -208,6 +253,16 @@
     "error": {
       "title": "İşlem başarısız",
       "description": "İşleminiz imzalanırken bir hata oluştu. Lütfen tekrar deneyin."
+    },
+    "broadcast": {
+      "processing": {
+        "title": "İşleniyor...",
+        "description": "İşlem blok zincirinde işleniyor"
+      },
+      "validated": {
+        "title": "Doğrulandı",
+        "description": "İşlem blok zincirinde doğrulandı"
+      }
     }
   },
   "signMessage": {
