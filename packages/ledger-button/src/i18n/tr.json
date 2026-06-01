@@ -198,7 +198,7 @@
     "title": "Hesap Token'ları",
     "notFound": "Hesap bulunamadı",
     "noTokens": "Bu hesap için hiçbir token bulunamadı.",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "Bilinmeyen Token"
   },
   "availableNetworks": {
     "title": "Kullanılabilir ağlar"

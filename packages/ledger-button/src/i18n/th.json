@@ -198,7 +198,7 @@
     "title": "โทเคนบัญชี",
     "notFound": "ไม่พบบัญชี",
     "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้",
-    "unknownToken": "Unknown Token"
+    "unknownToken": "โทเคนที่ไม่รู้จัก"
   },
   "availableNetworks": {
     "title": "เครือข่ายที่มีอยู่"
