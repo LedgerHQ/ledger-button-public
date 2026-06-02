@@ -6,6 +6,8 @@ export const SOLANA_MAPPING_TABLE: Record<string, SolanaCluster> = {
 
 export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet-beta";
 
+export const SOLANA_NATIVE_DECIMALS = 9;
+
 export function getClusterFromCurrencyId(currencyId: string): SolanaCluster {
   return SOLANA_MAPPING_TABLE[currencyId] ?? DEFAULT_SOLANA_CLUSTER;
 }
