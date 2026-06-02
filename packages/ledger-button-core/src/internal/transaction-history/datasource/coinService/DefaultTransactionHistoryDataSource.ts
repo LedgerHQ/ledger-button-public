@@ -88,10 +88,10 @@ export class DefaultTransactionHistoryDataSource
   }
 
   private resolveNetworkSlug(currencyId: string): string | undefined {
-    return isSupportedEvmCurrency(currencyId) ||
-      isSupportedSolanaCurrency(currencyId)
-      ? currencyId
-      : undefined;
+    const isSupported =
+      isSupportedEvmCurrency(currencyId) ||
+      isSupportedSolanaCurrency(currencyId);
+    return isSupported ? currencyId : undefined;
   }
 
   private buildQueryParams(options?: TransactionHistoryOptions): string {
