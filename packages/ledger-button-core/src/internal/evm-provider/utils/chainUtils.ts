@@ -1,3 +1,5 @@
+export const EVM_NATIVE_DECIMALS = 18;
+
 export function getChainIdFromCurrencyId(currencyId: string) {
   return EVM_MAPPING_TABLE[currencyId] ?? 1;
 }
