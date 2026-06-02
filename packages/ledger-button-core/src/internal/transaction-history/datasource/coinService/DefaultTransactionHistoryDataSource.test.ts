@@ -128,6 +128,18 @@ describe("DefaultTransactionHistoryDataSource", () => {
         expect.stringContaining("/v1/polygon/account/"),
       );
     });
+
+    it("should resolve a supported Solana currencyId to its slug", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right({ items: [makeDto()] }),
+      );
+
+      await dataSource.getTransactions(testAddress, "solana");
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        expect.stringContaining("/v1/solana/account/"),
+      );
+    });
   });
 
   describe("query params", () => {
