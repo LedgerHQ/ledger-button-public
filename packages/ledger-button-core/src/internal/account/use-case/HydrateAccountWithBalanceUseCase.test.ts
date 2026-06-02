@@ -2,6 +2,8 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BackendService } from "../../backend/BackendService.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import type { CurrencyInformation } from "../../balance/datasource/cal/calTypes.js";
 import type { AccountBalance, TokenBalance } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
 import type { Account } from "../service/AccountService.js";
@@ -43,6 +45,28 @@ function createMockBackendService(): {
   };
 }
 
+function createMockCalDataSource(): {
+  getCurrencyInformation: ReturnType<typeof vi.fn>;
+  getTokenInformation: ReturnType<typeof vi.fn>;
+} {
+  return {
+    getCurrencyInformation: vi.fn(),
+    getTokenInformation: vi.fn(),
+  };
+}
+
+function createCurrencyInformation(
+  overrides: Partial<CurrencyInformation> = {},
+): CurrencyInformation {
+  return {
+    id: "ethereum",
+    name: "Ethereum",
+    ticker: "ETH",
+    decimals: 18,
+    ...overrides,
+  };
+}
+
 function createMockAccount(overrides: Partial<Account> = {}): Account {
   return {
     id: "account-1",
@@ -63,15 +87,21 @@ describe("HydrateAccountWithBalanceUseCase", () => {
   let useCase: HydrateAccountWithBalanceUseCase;
   let mockBalanceService: ReturnType<typeof createMockBalanceService>;
   let mockBackendService: ReturnType<typeof createMockBackendService>;
+  let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
 
   beforeEach(() => {
     mockBalanceService = createMockBalanceService();
     mockBackendService = createMockBackendService();
+    mockCalDataSource = createMockCalDataSource();
+    mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+      Right(createCurrencyInformation()),
+    );
 
     useCase = new HydrateAccountWithBalanceUseCase(
       createMockLoggerFactory(),
       mockBalanceService as unknown as BalanceService,
       mockBackendService as unknown as BackendService,
+      mockCalDataSource as unknown as CalDataSource,
     );
 
     vi.clearAllMocks();
@@ -275,6 +305,112 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       expect(result.name).toBe("Custom Name");
       expect(result.index).toBe(5);
       expect(result.freshAddress).toBe(mockAccount.freshAddress);
+    });
+  });
+
+  describe("native decimals resolution", () => {
+    it("should format SOL balance with 9 decimals resolved from CAL", async () => {
+      const mockAccount = createMockAccount({
+        currencyId: "solana",
+        ticker: "SOL",
+      });
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Right(
+          createCurrencyInformation({
+            id: "solana",
+            name: "Solana",
+            ticker: "SOL",
+            decimals: 9,
+          }),
+        ),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Right({
+          nativeBalance: { balance: BigInt("1500000000") }, // 1.5 SOL (9 decimals)
+          tokenBalances: [],
+        } as AccountBalance),
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1.5");
+      expect(mockCalDataSource.getCurrencyInformation).toHaveBeenCalledWith(
+        "solana",
+      );
+    });
+
+    it("should keep ETH balance at 18 decimals resolved from CAL", async () => {
+      const mockAccount = createMockAccount();
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Right(createCurrencyInformation({ decimals: 18 })),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Right({
+          nativeBalance: { balance: BigInt("1500000000000000000") },
+          tokenBalances: [],
+        } as AccountBalance),
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1.5");
+    });
+
+    it("should fall back to 9 decimals for Solana when CAL fails", async () => {
+      const mockAccount = createMockAccount({
+        currencyId: "solana",
+        ticker: "SOL",
+      });
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Left(new Error("CAL unavailable")),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Right({
+          nativeBalance: { balance: BigInt("1500000000") }, // 1.5 SOL (9 decimals)
+          tokenBalances: [],
+        } as AccountBalance),
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1.5");
+    });
+
+    it("should fall back to 18 decimals for EVM currencies when CAL fails", async () => {
+      const mockAccount = createMockAccount();
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Left(new Error("CAL unavailable")),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Right({
+          nativeBalance: { balance: BigInt("1500000000000000000") },
+          tokenBalances: [],
+        } as AccountBalance),
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1.5");
+    });
+
+    it("should resolve decimals from CAL on the RPC fallback path", async () => {
+      const mockAccount = createMockAccount();
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Right(createCurrencyInformation({ decimals: 18 })),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Left(new Error("Balance service unavailable")),
+      );
+      mockBackendService.broadcast.mockResolvedValue(
+        Right({ result: "0xDE0B6B3A7640000" }), // 1 ETH in hex
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1");
+      expect(mockCalDataSource.getCurrencyInformation).toHaveBeenCalledWith(
+        "ethereum",
+      );
     });
   });
 });
