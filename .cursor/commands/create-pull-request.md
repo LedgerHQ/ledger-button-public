@@ -174,6 +174,12 @@ Examples:
 Generate a description by analyzing all commits with `git log --oneline develop..HEAD`:
 
 ```markdown
+## Jira Ticket
+
+[<ticket>](https://ledgerhq.atlassian.net/browse/<ticket>)
+
+<!-- Use the ticket from Step 1. If the ticket is NO-ISSUE, write "NO-ISSUE" without a link. -->
+
 ## Summary
 
 - <bullet point summarizing main change>
