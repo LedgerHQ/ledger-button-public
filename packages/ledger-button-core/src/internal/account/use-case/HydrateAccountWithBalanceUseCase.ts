@@ -3,18 +3,24 @@ import { type Factory, inject, injectable } from "inversify";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import {
   type AccountBalance,
   type TokenBalance,
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
-import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
+import {
+  EVM_NATIVE_DECIMALS,
+  getChainIdFromCurrencyId,
+} from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import {
+  isSupportedSolanaCurrency,
+  SOLANA_NATIVE_DECIMALS,
+} from "../../solana-provider/utils/clusterUtils.js";
 import type { Account, Token } from "../service/AccountService.js";
-
-const NATIVE_CURRENCY_DECIMALS = 18;
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {
@@ -27,6 +33,8 @@ export class HydrateAccountWithBalanceUseCase {
     private readonly balanceService: BalanceService,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
   ) {
     this.logger = loggerFactory("HydrateAccountWithBalanceUseCase");
   }
@@ -55,13 +63,14 @@ export class HydrateAccountWithBalanceUseCase {
     );
   }
 
-  private formatSuccessfulBalanceResult(
+  private async formatSuccessfulBalanceResult(
     account: Account,
     balanceData: AccountBalance,
-  ): Account {
+  ): Promise<Account> {
+    const decimals = await this.resolveNativeDecimals(account);
     const balance = formatBalance(
       balanceData.nativeBalance.balance,
-      NATIVE_CURRENCY_DECIMALS,
+      decimals,
       account.ticker,
     );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
@@ -93,6 +102,7 @@ export class HydrateAccountWithBalanceUseCase {
   }
 
   private async fetchBalanceFromRpc(account: Account): Promise<string> {
+    const decimals = await this.resolveNativeDecimals(account);
     const chainId = getChainIdFromCurrencyId(account.currencyId);
     const balanceRpcResult = await this.backendService.broadcast({
       blockchain: { name: "ethereum", chainId: chainId.toString() },
@@ -108,15 +118,40 @@ export class HydrateAccountWithBalanceUseCase {
       const extract = balanceRpcResult.extract();
       if ("result" in extract) {
         const balanceHex = extract.result as string;
-        return formatBalance(
-          balanceHex,
-          NATIVE_CURRENCY_DECIMALS,
-          account.ticker,
-        );
+        return formatBalance(balanceHex, decimals, account.ticker);
       }
     }
 
-    return formatBalance(BigInt(0), NATIVE_CURRENCY_DECIMALS, account.ticker);
+    return formatBalance(BigInt(0), decimals, account.ticker);
+  }
+
+  private async resolveNativeDecimals(account: Account): Promise<number> {
+    const currencyInformationResult =
+      await this.calDataSource.getCurrencyInformation(account.currencyId);
+
+    if (currencyInformationResult.isRight()) {
+      return currencyInformationResult.extract().decimals;
+    }
+
+    const fallbackDecimals = this.getFallbackNativeDecimals(account.currencyId);
+    this.logger.warn(
+      "Failed to resolve native decimals from CAL, falling back per-chain",
+      {
+        currencyId: account.currencyId,
+        fallbackDecimals,
+        error: currencyInformationResult.extract(),
+      },
+    );
+
+    return fallbackDecimals;
+  }
+
+  private getFallbackNativeDecimals(currencyId: string): number {
+    if (isSupportedSolanaCurrency(currencyId)) {
+      return SOLANA_NATIVE_DECIMALS;
+    }
+
+    return EVM_NATIVE_DECIMALS;
   }
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {
