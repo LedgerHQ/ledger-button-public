@@ -1,0 +1,10 @@
+---
+description: Backmerge process — how to backmerge main into develop (gitflow)
+alwaysApply: true
+---
+
+# Backmerge Process
+
+When the user asks to **backmerge**, **back-merge**, **merge main into develop**, or uses `/backmerge`, read and follow the skill defined in `.cursor/skills/backmerge/SKILL.md`.
+
+Do not improvise the backmerge steps — always defer to that skill.
