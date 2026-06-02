@@ -3,13 +3,11 @@ import { Either, Left } from "purify-ts";
 
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
-import { isSupportedEvmCurrency } from "../../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
-import { isSupportedSolanaCurrency } from "../../../solana-provider/utils/clusterUtils.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {
   TransactionDirection,
@@ -19,6 +17,7 @@ import {
   TransactionHistoryOptions,
   TransactionHistoryPage,
 } from "../../model/transactionHistoryTypes.js";
+import { resolveNetworkSlug } from "../../utils/resolveNetworkSlug.js";
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
@@ -51,7 +50,7 @@ export class DefaultTransactionHistoryDataSource
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryPage>> {
-    const networkSlug = this.resolveNetworkSlug(currencyId);
+    const networkSlug = resolveNetworkSlug(currencyId);
     if (!networkSlug) {
       this.logger.warn("Unsupported currency for transaction history", {
         currencyId,
@@ -85,13 +84,6 @@ export class DefaultTransactionHistoryDataSource
           ),
       )
       .map((dto) => this.mapDtoToPage(this.dropOperationsWithoutHash(dto)));
-  }
-
-  private resolveNetworkSlug(currencyId: string): string | undefined {
-    const isSupported =
-      isSupportedEvmCurrency(currencyId) ||
-      isSupportedSolanaCurrency(currencyId);
-    return isSupported ? currencyId : undefined;
   }
 
   private buildQueryParams(options?: TransactionHistoryOptions): string {
