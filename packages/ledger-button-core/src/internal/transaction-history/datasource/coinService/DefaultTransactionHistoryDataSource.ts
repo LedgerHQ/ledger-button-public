@@ -9,6 +9,7 @@ import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
+import { isSupportedSolanaCurrency } from "../../../solana-provider/utils/clusterUtils.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {
   TransactionDirection,
@@ -87,7 +88,10 @@ export class DefaultTransactionHistoryDataSource
   }
 
   private resolveNetworkSlug(currencyId: string): string | undefined {
-    return isSupportedEvmCurrency(currencyId) ? currencyId : undefined;
+    return isSupportedEvmCurrency(currencyId) ||
+      isSupportedSolanaCurrency(currencyId)
+      ? currencyId
+      : undefined;
   }
 
   private buildQueryParams(options?: TransactionHistoryOptions): string {
