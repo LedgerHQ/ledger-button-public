@@ -1,3 +1,4 @@
+import { isSupportedEvmCurrency } from "../../evm-provider/utils/chainUtils.js";
 import { isSupportedSolanaCurrency } from "../../solana-provider/utils/clusterUtils.js";
 
 /**
@@ -16,5 +17,10 @@ export function normalizeAddressForCurrency(
   if (isSupportedSolanaCurrency(currencyId)) {
     return address;
   }
-  return address.toLowerCase();
+
+  if (isSupportedEvmCurrency(currencyId)) {
+    return address.toLowerCase();
+  }
+
+  return address;
 }
