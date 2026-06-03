@@ -55,4 +55,4 @@ jobs:
         with:
           should_download_coverage: "true"
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          sonar_token: ${{ secrets.SONAR_TOKEN_LEDGER_BUTTON_PROJECT }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
