@@ -5,6 +5,8 @@ import {
   MobileRedirectLedgerWalletEventSchema,
   TransactionFlowCompletionEventSchema,
   ViewAllTransactionsClickedEventSchema,
+  ViewAllTransactionsRedirectCancelledEventSchema,
+  ViewAllTransactionsRedirectConfirmedEventSchema,
   ViewTransactionDetailsClickedEventSchema,
 } from "./event-schemas.js";
 
@@ -316,6 +318,76 @@ describe("Event Schema Validation", () => {
 
       const result =
         ViewAllTransactionsClickedEventSchema.safeParse(invalidEvent);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("ViewAllTransactionsRedirectConfirmedEventSchema", () => {
+    it("validates a correctly formatted event", () => {
+      const validEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_all_transactions_redirect_confirmed",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        currency_id: "ethereum",
+        account_address: "0xc5c0d8123456789012345678901234567890c0d8",
+      };
+
+      const result =
+        ViewAllTransactionsRedirectConfirmedEventSchema.safeParse(validEvent);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects missing account_address", () => {
+      const invalidEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_all_transactions_redirect_confirmed",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        currency_id: "ethereum",
+      };
+
+      const result =
+        ViewAllTransactionsRedirectConfirmedEventSchema.safeParse(invalidEvent);
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("ViewAllTransactionsRedirectCancelledEventSchema", () => {
+    it("validates a correctly formatted event", () => {
+      const validEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_all_transactions_redirect_cancelled",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        currency_id: "ethereum",
+        account_address: "0xc5c0d8123456789012345678901234567890c0d8",
+      };
+
+      const result =
+        ViewAllTransactionsRedirectCancelledEventSchema.safeParse(validEvent);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects missing currency_id", () => {
+      const invalidEvent = {
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "1inch",
+        timestamp_ms: 1770980790515,
+        event_type: "view_all_transactions_redirect_cancelled",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        account_address: "0xc5c0d8123456789012345678901234567890c0d8",
+      };
+
+      const result =
+        ViewAllTransactionsRedirectCancelledEventSchema.safeParse(invalidEvent);
 
       expect(result.success).toBe(false);
     });

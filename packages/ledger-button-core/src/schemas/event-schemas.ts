@@ -171,6 +171,24 @@ export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend(
   account_address: z.string().min(1),
 }).strict();
 
+export const ViewAllTransactionsRedirectConfirmedEventSchema =
+  BaseEventDataSchema.extend({
+    event_type: z.literal("view_all_transactions_redirect_confirmed"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    currency_id: z.string().min(1),
+    account_address: z.string().min(1),
+  }).strict();
+
+export const ViewAllTransactionsRedirectCancelledEventSchema =
+  BaseEventDataSchema.extend({
+    event_type: z.literal("view_all_transactions_redirect_cancelled"),
+    session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+    ledger_sync_user_id: z.string().optional(),
+    currency_id: z.string().min(1),
+    account_address: z.string().min(1),
+  }).strict();
+
 export const LanguageChangedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("language_changed"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -202,6 +220,8 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   MobileRedirectLedgerWalletEventSchema,
   ViewTransactionDetailsClickedEventSchema,
   ViewAllTransactionsClickedEventSchema,
+  ViewAllTransactionsRedirectConfirmedEventSchema,
+  ViewAllTransactionsRedirectCancelledEventSchema,
   LanguageChangedEventSchema,
   CurrencyChangedEventSchema,
 ]);
@@ -243,6 +263,12 @@ export type ViewTransactionDetailsClickedEvent = z.infer<
 >;
 export type ViewAllTransactionsClickedEvent = z.infer<
   typeof ViewAllTransactionsClickedEventSchema
+>;
+export type ViewAllTransactionsRedirectConfirmedEvent = z.infer<
+  typeof ViewAllTransactionsRedirectConfirmedEventSchema
+>;
+export type ViewAllTransactionsRedirectCancelledEvent = z.infer<
+  typeof ViewAllTransactionsRedirectCancelledEventSchema
 >;
 export type LanguageChangedEvent = z.infer<typeof LanguageChangedEventSchema>;
 export type CurrencyChangedEvent = z.infer<typeof CurrencyChangedEventSchema>;
