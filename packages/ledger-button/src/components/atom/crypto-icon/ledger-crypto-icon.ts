@@ -1,9 +1,9 @@
 import { cva } from "class-variance-authority";
-import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { html, LitElement, type PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
-import cryptoIconMap from "./map.json";
+import { resolveIconUrl } from "./crypto-icon-mapping.js";
 
 export type CryptoIconSize = "small" | "medium" | "large";
 export type CryptoIconVariant = "rounded" | "square";
@@ -53,8 +53,6 @@ const cryptoIconVariants = cva(
   },
 );
 
-const CRYPTO_ICONS_BASE_URL = "https://crypto-icons.ledger.com/";
-
 @customElement("ledger-crypto-icon")
 @tailwindElement()
 export class LedgerCryptoIcon extends LitElement {
@@ -73,19 +71,20 @@ export class LedgerCryptoIcon extends LitElement {
   @property({ type: String })
   variant: CryptoIconVariant = "rounded";
 
-  private get iconClasses() {
-    return cryptoIconVariants({ size: this.size, variant: this.variant });
+  @state()
+  private iconUrl?: string | null;
+
+  override willUpdate(changedProperties: PropertyValues): void {
+    if (changedProperties.has("ledgerId")) {
+      this.iconUrl = undefined;
+      void resolveIconUrl(this.ledgerId).then((url) => {
+        this.iconUrl = url;
+      });
+    }
   }
 
-  private getCryptoIconUrl(ledgerId: string): string | null {
-    if (ledgerId in cryptoIconMap) {
-      const cryptoData = cryptoIconMap[ledgerId as keyof typeof cryptoIconMap];
-      if (cryptoData && cryptoData.icon) {
-        return `${CRYPTO_ICONS_BASE_URL}${cryptoData.icon}`;
-      }
-    }
-
-    return null;
+  private get iconClasses() {
+    return cryptoIconVariants({ size: this.size, variant: this.variant });
   }
 
   private renderFallback() {
@@ -107,18 +106,15 @@ export class LedgerCryptoIcon extends LitElement {
   }
 
   override render() {
-    if (!this.ledgerId) {
+    if (!this.ledgerId || this.iconUrl === undefined) {
       return this.renderFallback();
     }
 
-    const iconForIdUrl = this.getCryptoIconUrl(this.ledgerId);
-
-    if (iconForIdUrl) {
-      return this.renderCryptoIcon(iconForIdUrl);
+    if (this.iconUrl) {
+      return this.renderCryptoIcon(this.iconUrl);
     }
 
-    const iconForTickerUrl = `${CRYPTO_ICONS_BASE_URL}${this.ticker}.png`;
-    return this.renderCryptoIcon(iconForTickerUrl);
+    return this.renderFallback();
   }
 }
 
