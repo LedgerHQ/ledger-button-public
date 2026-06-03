@@ -18,5 +18,5 @@ export const eventTrackingModuleTypes = {
   TrackViewTransactionDetailsClick: Symbol.for(
     "TrackViewTransactionDetailsClick",
   ),
-  TrackViewAllTransactionsClick: Symbol.for("TrackViewAllTransactionsClick"),
+  TrackViewAllTransactions: Symbol.for("TrackViewAllTransactions"),
 };

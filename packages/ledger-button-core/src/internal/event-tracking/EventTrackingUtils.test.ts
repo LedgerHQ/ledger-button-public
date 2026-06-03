@@ -71,6 +71,42 @@ describe("EventTrackingUtils", () => {
       ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
     });
 
+    it("should validate a correctly formatted view all transactions redirect confirmed event", () => {
+      const event =
+        EventTrackingUtils.createViewAllTransactionsRedirectConfirmedEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          currencyId: "ethereum",
+          accountAddress: "0xC5C0D8123456789012345678901234567890C0D8",
+        });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+      expect(
+        (event.data as { account_address: string }).account_address,
+      ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
+    });
+
+    it("should validate a correctly formatted view all transactions redirect cancelled event", () => {
+      const event =
+        EventTrackingUtils.createViewAllTransactionsRedirectCancelledEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          currencyId: "ethereum",
+          accountAddress: "0xC5C0D8123456789012345678901234567890C0D8",
+        });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(result.errors).toBeUndefined();
+      expect(
+        (event.data as { account_address: string }).account_address,
+      ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
+    });
+
     it("should validate a correctly formatted language_changed event", () => {
       const event = EventTrackingUtils.createLanguageChangedEvent({
         dAppId: "test-dapp",

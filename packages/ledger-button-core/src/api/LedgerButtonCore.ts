@@ -62,9 +62,9 @@ import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackL
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
 import {
-  TrackViewAllTransactionsClick,
-  type TrackViewAllTransactionsClickParams,
-} from "../internal/event-tracking/usecase/TrackViewAllTransactionsClick.js";
+  TrackViewAllTransactions,
+  type TrackViewAllTransactionsParams,
+} from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
@@ -695,13 +695,33 @@ export class LedgerButtonCore {
   }
 
   async trackViewAllTransactionsClicked(
-    params: TrackViewAllTransactionsClickParams,
+    params: TrackViewAllTransactionsParams,
   ): Promise<void> {
     await this.container
-      .get<TrackViewAllTransactionsClick>(
-        eventTrackingModuleTypes.TrackViewAllTransactionsClick,
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
       )
-      .execute(params);
+      .trackClicked(params);
+  }
+
+  async trackViewAllTransactionsRedirectConfirmed(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackRedirectConfirmed(params);
+  }
+
+  async trackViewAllTransactionsRedirectCancelled(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackRedirectCancelled(params);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {
