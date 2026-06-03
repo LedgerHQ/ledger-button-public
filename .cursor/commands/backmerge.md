@@ -1,13 +1,4 @@
----
-name: backmerge
-description: >-
-  Perform a gitflow backmerge from main into develop. Handles branch creation,
-  release plan generation with version/changelog correction, PR creation, and
-  conflict detection. Use when the user asks to backmerge, back-merge, merge
-  main into develop, or /backmerge.
----
-
-# Backmerge main → develop
+# Backmerge
 
 Gitflow backmerge workflow. Brings release changes from `main` back into `develop`.
 
@@ -17,18 +8,18 @@ Gitflow backmerge workflow. Brings release changes from `main` back into `develo
 git checkout main && git pull origin main
 ```
 
-Read `packages/ledger-button/package.json` → note `version` (e.g. `1.3.0`). This is **`X.X.X`** throughout the rest of this skill.
+Read `packages/ledger-button/package.json` → note `version` (e.g. `1.3.0`). This is **`X.X.X`** throughout the rest of this command.
 
 ## Step 2 — Create and checkout backmerge branch
 
-The Danger regex for valid branch names is `^(release|chore/backmerge(-.+){0,}|...)`. The correct format is:
+The Danger regex for valid branch names is `^(release|backmerge/v.+|...)`. The correct format is:
 
 ```
-chore/backmerge-X.X.X
+backmerge/vX.X.X
 ```
 
 ```bash
-git checkout -b chore/backmerge-X.X.X
+git checkout -b backmerge/vX.X.X
 ```
 
 ## Step 3 — Release plan (pnpm release)
