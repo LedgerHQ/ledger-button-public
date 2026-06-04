@@ -1,5 +1,5 @@
-import { getDerivationPath } from "./AccountUtils.js";
 import { Account } from "./service/AccountService.js";
+import { getDerivationPath } from "./AccountUtils.js";
 
 function createAccount(overrides: Partial<Account> = {}): Account {
   return {
