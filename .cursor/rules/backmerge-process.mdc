@@ -1,0 +1,10 @@
+---
+description: Backmerge process — how to backmerge main into develop (gitflow)
+alwaysApply: true
+---
+
+# Backmerge Process
+
+When the user asks to **backmerge**, **back-merge**, **merge main into develop**, or uses `/backmerge`, follow the `/backmerge` command defined in `.cursor/commands/backmerge.md`.
+
+Do not improvise the backmerge steps — always defer to that command.
