@@ -40,8 +40,8 @@ import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
 import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
 import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
-import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
+import { dAppConfigV1ModuleTypes } from "../internal/dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import { type DAppConfigService } from "../internal/dAppConfig/v1/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -122,7 +122,7 @@ export class LedgerButtonCore {
 
     //Fetch dApp config that will be used later for fetching supported blockchains/referral url/etc.
     await this.container
-      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
       .getDAppConfig();
 
     //TODO throw error if dApp config is not found ?
@@ -296,7 +296,7 @@ export class LedgerButtonCore {
 
   async getReferralUrl() {
     return this.container
-      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
       .getDAppConfig()
       .then((res) => res.referralUrl);
   }
