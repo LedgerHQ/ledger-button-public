@@ -10,16 +10,9 @@ import {
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
-import {
-  EVM_NATIVE_DECIMALS,
-  getChainIdFromCurrencyId,
-} from "../../evm-provider/utils/chainUtils.js";
+import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import {
-  isSupportedSolanaCurrency,
-  SOLANA_NATIVE_DECIMALS,
-} from "../../solana-provider/utils/clusterUtils.js";
 import type { Account, Token } from "../service/AccountService.js";
 
 @injectable()
@@ -72,6 +65,7 @@ export class HydrateAccountWithBalanceUseCase {
       balanceData.nativeBalance.balance,
       decimals,
       account.ticker,
+      account.currencyId,
     );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
 
@@ -118,14 +112,16 @@ export class HydrateAccountWithBalanceUseCase {
       const extract = balanceRpcResult.extract();
       if ("result" in extract) {
         const balanceHex = extract.result as string;
-        return formatBalance(balanceHex, decimals, account.ticker);
+        return formatBalance(balanceHex, decimals, account.ticker, account.currencyId);
       }
     }
 
-    return formatBalance(BigInt(0), decimals, account.ticker);
+    return formatBalance(BigInt(0), decimals, account.ticker, account.currencyId);
   }
 
-  private async resolveNativeDecimals(account: Account): Promise<number> {
+  private async resolveNativeDecimals(
+    account: Account,
+  ): Promise<number | undefined> {
     const currencyInformationResult =
       await this.calDataSource.getCurrencyInformation(account.currencyId);
 
@@ -133,25 +129,15 @@ export class HydrateAccountWithBalanceUseCase {
       return currencyInformationResult.extract().decimals;
     }
 
-    const fallbackDecimals = this.getFallbackNativeDecimals(account.currencyId);
     this.logger.warn(
       "Failed to resolve native decimals from CAL, falling back per-chain",
       {
         currencyId: account.currencyId,
-        fallbackDecimals,
         error: currencyInformationResult.extract(),
       },
     );
 
-    return fallbackDecimals;
-  }
-
-  private getFallbackNativeDecimals(currencyId: string): number {
-    if (isSupportedSolanaCurrency(currencyId)) {
-      return SOLANA_NATIVE_DECIMALS;
-    }
-
-    return EVM_NATIVE_DECIMALS;
+    return undefined;
   }
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {
