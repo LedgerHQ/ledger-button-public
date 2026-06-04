@@ -86,7 +86,7 @@ export class TrackBroadcastedTransactionUseCase {
       timestamp: new Date().toISOString(),
       type: "sent",
       value: rawValue,
-      formattedValue: formatBalance(rawValue, decimals, ticker),
+      formattedValue: formatBalance(rawValue, decimals, ticker, account.currencyId),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,
@@ -96,9 +96,7 @@ export class TrackBroadcastedTransactionUseCase {
     };
   }
 
-  private async resolveCurrencyMetadata(
-    currencyId: string,
-  ): Promise<{
+  private async resolveCurrencyMetadata(currencyId: string): Promise<{
     ticker: string;
     name: string;
     decimals: number;
@@ -111,7 +109,6 @@ export class TrackBroadcastedTransactionUseCase {
       Left: () => ({
         ticker: currencyId.toUpperCase(),
         name: currencyId,
-        decimals: 18,
       }),
       Right: (info) => ({
         ticker: info.ticker,

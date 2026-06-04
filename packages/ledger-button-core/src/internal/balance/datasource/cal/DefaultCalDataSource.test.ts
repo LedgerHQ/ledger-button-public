@@ -214,7 +214,7 @@ describe("DefaultCalDataSource", () => {
       }
     });
 
-    it("should default to 18 decimals when units array is empty", async () => {
+    it("should return Left when units array is empty", async () => {
       const responseWithNoUnits: CalCoinResponse = [
         {
           id: "ethereum",
@@ -229,10 +229,10 @@ describe("DefaultCalDataSource", () => {
 
       const result = await dataSource.getCurrencyInformation(testCurrencyId);
 
-      expect(result.isRight()).toBe(true);
-      if (result.isRight()) {
-        const currencyInfo = result.extract();
-        expect(currencyInfo.decimals).toBe(18);
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toBe("No units found for currency ethereum in Cal");
       }
     });
   });
