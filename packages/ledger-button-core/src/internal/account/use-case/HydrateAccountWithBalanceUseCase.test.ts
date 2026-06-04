@@ -90,6 +90,8 @@ describe("HydrateAccountWithBalanceUseCase", () => {
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
 
   beforeEach(() => {
+    vi.clearAllMocks();
+
     mockBalanceService = createMockBalanceService();
     mockBackendService = createMockBackendService();
     mockCalDataSource = createMockCalDataSource();
@@ -103,8 +105,6 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       mockBackendService as unknown as BackendService,
       mockCalDataSource as unknown as CalDataSource,
     );
-
-    vi.clearAllMocks();
   });
 
   describe("execute", () => {
@@ -356,7 +356,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to 9 decimals for Solana when CAL fails", async () => {
+    it("should fall back to Solana default decimals via formatBalance when CAL fails", async () => {
       const mockAccount = createMockAccount({
         currencyId: "solana",
         ticker: "SOL",
@@ -373,10 +373,12 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
+      // resolveNativeDecimals returns undefined; formatBalance falls back to
+      // SOLANA_NATIVE_DECIMALS (9) via getDefaultDecimals("solana")
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to 18 decimals for EVM currencies when CAL fails", async () => {
+    it("should fall back to EVM default decimals via formatBalance when CAL fails", async () => {
       const mockAccount = createMockAccount();
       mockCalDataSource.getCurrencyInformation.mockResolvedValue(
         Left(new Error("CAL unavailable")),
@@ -390,6 +392,8 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
+      // resolveNativeDecimals returns undefined; formatBalance falls back to
+      // EVM_NATIVE_DECIMALS (18) via getDefaultDecimals("ethereum")
       expect(result.balance).toBe("1.5");
     });
 
