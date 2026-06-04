@@ -74,6 +74,13 @@ const EVM_DEFAULT_NETWORKS = [
   },
 ] as const;
 
+const SOLANA_MAINNET_NETWORK = {
+  id: "mainnet-beta",
+  currencyId: "solana",
+  currencyName: "Solana",
+  currencyTicker: "SOL",
+} as const;
+
 const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
   ledger: {
     name: "Ledger",
@@ -88,6 +95,15 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
         appDependencies: {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
+        },
+      },
+      {
+        blockchain: "solana",
+        appName: "Solana",
+        networks: [SOLANA_MAINNET_NETWORK],
+        appDependencies: {
+          appName: "Solana",
+          dependencies: ["Solana"],
         },
       },
     ],
@@ -117,6 +133,16 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
         appDependencies: {
           appName: "1inch",
           dependencies: ["1inch", "Ethereum"],
+          minVersion: ">=1.0.0",
+        },
+      },
+      {
+        blockchain: "solana",
+        appName: "1inch",
+        networks: [SOLANA_MAINNET_NETWORK],
+        appDependencies: {
+          appName: "1inch",
+          dependencies: ["1inch", "Solana"],
           minVersion: ">=1.0.0",
         },
       },
