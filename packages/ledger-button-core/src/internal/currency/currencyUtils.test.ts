@@ -54,6 +54,26 @@ describe("formatBalance", () => {
       const result = formatBalance(BigInt("0"), 9, "SOL", "solana");
       expect(result).toBe("0");
     });
+
+    it("should format a non-round ETH value", () => {
+      const result = formatBalance(BigInt("93229707264"), 18, "ETH", "ethereum");
+      expect(result).toBe("0.00000009");
+    });
+
+    it("should format a non-round SOL value", () => {
+      const result = formatBalance(BigInt("93229707264"), 9, "SOL", "solana");
+      expect(result).toBe("93.2297");
+    });
+
+    it("should format a non-round ETH value when decimals is undefined", () => {
+      const result = formatBalance(BigInt("93229707264"), undefined, "ETH", "ethereum");
+      expect(result).toBe("0.00000009");
+    });
+
+    it("should format a non-round SOL value when decimals is undefined", () => {
+      const result = formatBalance(BigInt("93229707264"), undefined, "SOL", "solana");
+      expect(result).toBe("93.2297");
+    });
   });
 
   describe("decimals", () => {
