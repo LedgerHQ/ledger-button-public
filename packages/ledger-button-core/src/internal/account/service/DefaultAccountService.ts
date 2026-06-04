@@ -1,8 +1,8 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
-import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -26,7 +26,7 @@ export class DefaultAccountService implements AccountService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(dAppConfigModuleTypes.DAppConfigService)
+    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dAppConfigService: DAppConfigService,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,

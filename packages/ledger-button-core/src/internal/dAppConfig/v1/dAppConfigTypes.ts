@@ -1,4 +1,4 @@
-import { ConfigResponse, ConfigResponseError } from "../backend/types.js";
+import { ConfigResponse, ConfigResponseError } from "../../backend/types.js";
 
 export type DAppConfig = ConfigResponse;
 export type DAppConfigError = ConfigResponseError;
