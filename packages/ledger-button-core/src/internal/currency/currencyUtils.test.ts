@@ -25,12 +25,12 @@ describe("formatBalance", () => {
       expect(result).toBe("1");
     });
 
-    it("should format a fractional value", () => {
+    it("should format a fractional ETH value", () => {
       const result = formatBalance(BigInt("500000000000000000"), 18, "ETH", "ethereum");
       expect(result).toBe("0.5");
     });
 
-    it("should format zero balance", () => {
+    it("should format zero ETH balance", () => {
       const result = formatBalance(BigInt("0"), 18, "ETH", "ethereum");
       expect(result).toBe("0");
     });
@@ -38,6 +38,21 @@ describe("formatBalance", () => {
     it("should accept a string raw balance", () => {
       const result = formatBalance("1000000000000000000", 18, "ETH", "ethereum");
       expect(result).toBe("1");
+    });
+
+    it("should format 1 SOL correctly", () => {
+      const result = formatBalance(BigInt("1000000000"), 9, "SOL", "solana");
+      expect(result).toBe("1");
+    });
+
+    it("should format a fractional SOL value", () => {
+      const result = formatBalance(BigInt("500000000"), 9, "SOL", "solana");
+      expect(result).toBe("0.5");
+    });
+
+    it("should format zero SOL balance", () => {
+      const result = formatBalance(BigInt("0"), 9, "SOL", "solana");
+      expect(result).toBe("0");
     });
   });
 
