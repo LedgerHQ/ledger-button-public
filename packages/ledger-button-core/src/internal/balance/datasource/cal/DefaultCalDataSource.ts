@@ -75,10 +75,11 @@ export class DefaultCalDataSource implements CalDataSource {
 
     const coin = currencyData[0];
 
-    const decimals =
-      coin.units && coin.units.length > 0
-        ? Math.max(...coin.units.map((u) => u.magnitude))
-        : 18;
+    if (!coin.units || coin.units.length === 0) {
+      return Left(new Error(`No units found for currency ${coin.id} in Cal`));
+    }
+
+    const decimals = Math.max(...coin.units.map((u) => u.magnitude));
 
     return Right({
       id: coin.id,
