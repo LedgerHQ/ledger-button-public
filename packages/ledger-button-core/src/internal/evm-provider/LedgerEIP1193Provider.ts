@@ -13,6 +13,9 @@
 import { Subscription } from "rxjs";
 
 import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
+import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
+import { isSupportedChainId } from "./utils/supportedChains.js";
+import { isSupportedRpcMethod } from "./utils/supportedRpcMethods.js";
 import {
   BlindSigningDisabledError,
   IncorrectSeedError,
@@ -43,9 +46,6 @@ import {
 import { hexToUtf8 } from "../../api/utils/byteUtils.js";
 import { Account } from "../account/service/AccountService.js";
 import { EvmProviderUI } from "./EvmProviderUI.js";
-import { isBlockingRequestMethod } from "./isBlockingRequestMethod.js";
-import { isSupportedChainId } from "./supportedChains.js";
-import { isSupportedRpcMethod } from "./supportedRpcMethods.js";
 
 export class LedgerEIP1193Provider
   extends EventTarget
