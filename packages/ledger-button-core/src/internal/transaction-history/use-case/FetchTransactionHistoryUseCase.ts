@@ -5,6 +5,7 @@ import { Either, Left, Right } from "purify-ts";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
+import { getDefaultDecimals } from "../../currency/currencyUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
@@ -59,7 +60,12 @@ export class FetchTransactionHistoryUseCase {
       },
       Right: async (page) => {
         const nativeAssetInfo = currencyInfoResult.caseOf({
-          Left: () => this.buildFallbackNativeAssetInfo(currencyId),
+          Left: () => ({
+            ledgerId: currencyId,
+            name: currencyId,
+            ticker: currencyId.toUpperCase(),
+            decimals: getDefaultDecimals(currencyId),
+          }),
           Right: (info) => ({
             ledgerId: info.id,
             name: info.name,
@@ -88,15 +94,6 @@ export class FetchTransactionHistoryUseCase {
         return Right(transformedResult);
       },
     });
-  }
-
-  private buildFallbackNativeAssetInfo(currencyId: string): AssetInfo {
-    return {
-      ledgerId: currencyId,
-      name: currencyId,
-      ticker: currencyId.toUpperCase(),
-      decimals: 18,
-    };
   }
 
   private async transformPage(
@@ -159,7 +156,7 @@ export class FetchTransactionHistoryUseCase {
           ledgerId: `${currencyId}/erc20/unknown`,
           name: undefined,
           ticker: "???",
-          decimals: 18,
+          decimals: getDefaultDecimals(currencyId),
         };
       },
       Right: (info: TokenInformation) => ({
