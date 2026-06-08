@@ -1,10 +1,10 @@
 import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
 
 export const SOLANA_MAPPING_TABLE: Record<string, SolanaCluster> = {
-  solana: "mainnet-beta",
+  solana: "mainnet",
 };
 
-export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet-beta";
+export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet";
 
 export const SOLANA_NATIVE_DECIMALS = 9;
 
