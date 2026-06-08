@@ -1,7 +1,7 @@
 import { Left, Right } from "purify-ts";
 
-import type { BackendService } from "../../backend/BackendService.js";
-import type { Config } from "../../config/model/config.js";
+import type { BackendService } from "../../../backend/BackendService.js";
+import type { Config } from "../../../config/model/config.js";
 import type { DAppConfig } from "../dAppConfigTypes.js";
 import { DefaultDAppConfigService } from "./DefaultDAppConfigService.js";
 
