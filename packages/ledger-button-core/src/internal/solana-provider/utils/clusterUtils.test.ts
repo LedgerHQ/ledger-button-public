@@ -6,8 +6,8 @@ import {
 
 describe("clusterUtils", () => {
   describe("getClusterFromCurrencyId", () => {
-    it("should return mainnet-beta for solana currency", () => {
-      expect(getClusterFromCurrencyId("solana")).toBe("mainnet-beta");
+    it("should return mainnet for solana currency", () => {
+      expect(getClusterFromCurrencyId("solana")).toBe("mainnet");
     });
 
     it.each([
@@ -15,13 +15,13 @@ describe("clusterUtils", () => {
       { currencyId: "", description: "empty string" },
       { currencyId: "ethereum", description: "non-Solana currency" },
     ])("should return default cluster for $description", ({ currencyId }) => {
-      expect(getClusterFromCurrencyId(currencyId)).toBe("mainnet-beta");
+      expect(getClusterFromCurrencyId(currencyId)).toBe("mainnet");
     });
   });
 
   describe("getCurrencyIdFromCluster", () => {
-    it("should return solana for mainnet-beta cluster", () => {
-      expect(getCurrencyIdFromCluster("mainnet-beta")).toBe("solana");
+    it("should return solana for mainnet cluster", () => {
+      expect(getCurrencyIdFromCluster("mainnet")).toBe("solana");
     });
 
     it("should return undefined for unmapped cluster", () => {
