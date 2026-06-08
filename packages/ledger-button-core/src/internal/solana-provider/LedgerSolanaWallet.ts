@@ -62,9 +62,45 @@ const ACCOUNT_SELECTED_EVENT = "ledger-provider-account-selected";
 
 const addressEncoder = getAddressEncoder();
 
+type SolanaSignMessageMethod = (
+  ...inputs: readonly { account: WalletAccount; message: Uint8Array }[]
+) => Promise<
+  readonly {
+    signedMessage: Uint8Array;
+    signature: Uint8Array;
+    signatureType?: "ed25519";
+  }[]
+>;
+
+type SolanaSignTransactionMethod = (
+  ...inputs: readonly { account: WalletAccount; transaction: Uint8Array }[]
+) => Promise<readonly { signedTransaction: Uint8Array }[]>;
+
+type SolanaSignAndSendTransactionMethod = (
+  ...inputs: readonly { account: WalletAccount; transaction: Uint8Array }[]
+) => Promise<readonly { signature: Uint8Array }[]>;
+
+type SolanaSignFeatures = {
+  "solana:signMessage": {
+    version: "1.0.0";
+    signMessage: SolanaSignMessageMethod;
+  };
+  "solana:signTransaction": {
+    version: "1.0.0";
+    supportedTransactionVersions: readonly ("legacy" | 0)[];
+    signTransaction: SolanaSignTransactionMethod;
+  };
+  "solana:signAndSendTransaction": {
+    version: "1.0.0";
+    supportedTransactionVersions: readonly ("legacy" | 0)[];
+    signAndSendTransaction: SolanaSignAndSendTransactionMethod;
+  };
+};
+
 type SolanaWalletFeatures = StandardConnectFeature &
   StandardDisconnectFeature &
-  StandardEventsFeature;
+  StandardEventsFeature &
+  SolanaSignFeatures;
 
 export class LedgerSolanaWallet implements Wallet {
   readonly version = "1.0.0" as const;
@@ -94,6 +130,20 @@ export class LedgerSolanaWallet implements Wallet {
       [StandardConnect]: { version: "1.0.0", connect: this.connect },
       [StandardDisconnect]: { version: "1.0.0", disconnect: this.disconnect },
       [StandardEvents]: { version: "1.0.0", on: this.on },
+      "solana:signMessage": {
+        version: "1.0.0",
+        signMessage: this.signMessage,
+      },
+      "solana:signTransaction": {
+        version: "1.0.0",
+        supportedTransactionVersions: ["legacy", 0],
+        signTransaction: this.signTransaction,
+      },
+      "solana:signAndSendTransaction": {
+        version: "1.0.0",
+        supportedTransactionVersions: ["legacy", 0],
+        signAndSendTransaction: this.signAndSendTransaction,
+      },
     };
   }
 
@@ -126,6 +176,32 @@ export class LedgerSolanaWallet implements Wallet {
     }
     return () => this.off(event, listener);
   };
+
+  // Stub signing implementations (real signing arrives with LBD-580 / LBD-582).
+  // For now they only log so dApps can discover the features without crashing.
+  private readonly signMessage: SolanaSignMessageMethod = async (...inputs) => {
+    console.log("[LedgerSolanaWallet] solana:signMessage", inputs);
+    return inputs.map((input) => ({
+      signedMessage: input.message,
+      signature: new Uint8Array(64),
+    }));
+  };
+
+  private readonly signTransaction: SolanaSignTransactionMethod = async (
+    ...inputs
+  ) => {
+    console.log("[LedgerSolanaWallet] solana:signTransaction", inputs);
+    return inputs.map((input) => ({ signedTransaction: input.transaction }));
+  };
+
+  private readonly signAndSendTransaction: SolanaSignAndSendTransactionMethod =
+    async (...inputs) => {
+      console.log(
+        "[LedgerSolanaWallet] solana:signAndSendTransaction",
+        inputs,
+      );
+      return inputs.map(() => ({ signature: new Uint8Array(64) }));
+    };
 
   private async resolveSolanaAccount(): Promise<Account> {
     const selected = this.core.getSelectedAccount();
@@ -171,8 +247,11 @@ export class LedgerSolanaWallet implements Wallet {
         addressEncoder.encode(address(account.freshAddress)),
       ),
       chains: [CLUSTER_TO_CHAIN[cluster]],
-      // Signing features are added in LBD-580 / LBD-582.
-      features: [],
+      features: [
+        "solana:signMessage",
+        "solana:signTransaction",
+        "solana:signAndSendTransaction",
+      ],
     };
   }
 
