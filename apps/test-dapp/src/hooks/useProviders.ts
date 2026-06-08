@@ -95,6 +95,7 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
 
       const disableEventTracking =
         process.env.NEXT_PUBLIC_DISABLE_EVENT_TRACKING === "true";
+      const stubDAppConfig = true;
 
       const cleanup = initializeLedgerProvider({
         target: document.body,
@@ -117,13 +118,15 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
         walletTransactionFeatures: configToUse.walletTransactionFeatures,
         transactionConfirmationNotification:
           configToUse.transactionConfirmationNotification,
-        devConfig: disableEventTracking
-          ? {
-              stub: {
-                base: true,
-              },
-            }
-          : undefined,
+        devConfig:
+          disableEventTracking || stubDAppConfig
+            ? {
+                stub: {
+                  base: disableEventTracking,
+                  dAppConfig: stubDAppConfig,
+                },
+              }
+            : undefined,
       });
 
       cleanupRef.current = cleanup;

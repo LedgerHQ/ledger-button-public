@@ -69,6 +69,12 @@ export const stubDAppConfig: DAppConfig = {
       currency_name: "Gnosis",
       currency_ticker: "GNO",
     },
+    {
+      id: "mainnet-beta",
+      currency_id: "solana",
+      currency_name: "Solana",
+      currency_ticker: "SOL",
+    },
   ],
   referralUrl: "https://shop.ledger.com/pages/hardware-wallets-comparison",
   domainUrl: "https://app.1inch.io/",
