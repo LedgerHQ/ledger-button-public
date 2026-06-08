@@ -8,7 +8,7 @@ export const SOLANA_CLUSTERS: { value: SolanaCluster; label: string }[] = [
   { value: "mainnet", label: "Mainnet" },
 ];
 
-export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "devnet";
+export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet";
 
 const RPC_URLS: Record<SolanaCluster, string> = {
   devnet: "https://api.devnet.solana.com",

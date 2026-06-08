@@ -52,15 +52,16 @@ describe("LedgerSolanaWallet (connection)", () => {
       ]);
     });
 
-    it("exposes only connection features (no signing yet)", () => {
+    it("exposes connection and signing features", () => {
       const featureNames = Object.keys(createWallet().features);
       expect(featureNames).toEqual([
         "standard:connect",
         "standard:disconnect",
         "standard:events",
+        "solana:signMessage",
+        "solana:signTransaction",
+        "solana:signAndSendTransaction",
       ]);
-      expect(featureNames).not.toContain("solana:signTransaction");
-      expect(featureNames).not.toContain("solana:signMessage");
     });
   });
 
@@ -75,7 +76,11 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(accounts).toHaveLength(1);
       expect(accounts[0].address).toBe(SOLANA_ADDRESS);
       expect(accounts[0].chains).toEqual(["solana:mainnet"]);
-      expect(accounts[0].features).toEqual([]);
+      expect(accounts[0].features).toEqual([
+        "solana:signMessage",
+        "solana:signTransaction",
+        "solana:signAndSendTransaction",
+      ]);
       expect(wallet.accounts).toBe(accounts);
     });
 
