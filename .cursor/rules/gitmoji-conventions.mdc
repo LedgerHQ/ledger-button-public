@@ -1,0 +1,65 @@
+---
+description: Gitmoji + Conventional Commits conventions for commits, branches, and PR titles (enforced by Danger)
+alwaysApply: true
+---
+
+# Gitmoji & Conventional Commits
+
+This repo enforces gitmoji + Conventional Commits via `tools/danger/helpers.ts`. Use this format for every commit message, branch name, and PR title.
+
+## Commit messages & PR titles
+
+Format: `<emoji> (<scope>) [<TICKET>]: <Description>`
+
+- `<emoji>` — one gitmoji from the table below.
+- `<scope>` — lowercase module/package (e.g. `ledger-button`, `ledger-button-core`, `ci`, `release`, `docs`, `version`).
+- `[<TICKET>]` — `LBD-<number>` (uppercase in brackets), `NO-ISSUE`, or `ISSUE-<number>`. **Always include it**: Danger only enforces it on PR titles, but the convention is to include it on every commit too so the squash-merge history stays consistent.
+- `<Description>` — starts with an uppercase letter.
+
+**Examples** (matching real commits on `develop`):
+
+```
+✨ (ledger-button-core) [LBD-563]: Add normalizeAddressForCurrency seam
+🐛 (ledger-button) [LBD-560]: Resolve token icons via Ledger CDN
+🔖 (version) [LBD-369]: Add version plan
+🔧 (release) [NO-ISSUE]: Fix build snapshot workflow
+👷 (ci) [NO-ISSUE]: Use SONAR_TOKEN secret
+```
+
+## Gitmoji table
+
+| Type | Emoji | Code |
+|---|---|---|
+| Feature | ✨ | `:sparkles:` |
+| Bug fix | 🐛 | `:bug:` |
+| Refactor | ♻️ | `:recycle:` |
+| Documentation | 📝 | `:memo:` |
+| Tests | ✅ | `:white_check_mark:` |
+| Performance | ⚡ | `:zap:` |
+| Breaking change | 💥 | `:boom:` |
+| Chore / config | 🔧 | `:wrench:` |
+| Dependencies | ⬆️ | `:arrow_up:` |
+| Remove code | 🔥 | `:fire:` |
+| Style / format | 🎨 | `:art:` |
+| Types | 🏷️ | `:label:` |
+| CI | 👷 | `:construction_worker:` |
+| Lint fixes | 🚨 | `:rotating_light:` |
+| Version plan | 🔖 | `:bookmark:` |
+
+## Branch names
+
+Format: `<prefix>/<ticket-lowercase>-<kebab-description>`
+
+Allowed prefixes (from `BRANCH_PREFIX` in `tools/danger/helpers.ts`): `feature` / `feat`, `bugfix` / `bug` / `hotfix` / `fix`, `support`, `chore` / `core` / `task`, `doc`, `refacto` / `refactor`.
+
+Examples:
+
+- `feat/lbd-369-add-v2-dapp-config-use-case`
+- `bugfix/lbd-123-fix-redirect`
+- `chore/no-issue-bump-eslint`
+
+## Validation
+
+- `pnpm commit` — interactive commit prompt.
+- `pnpm danger:local` — validate branch name + commits + PR title locally.
+- Authoritative regexes live in [tools/danger/helpers.ts](../../tools/danger/helpers.ts); human-readable conventions in [CONTRIBUTING.md](../../CONTRIBUTING.md).

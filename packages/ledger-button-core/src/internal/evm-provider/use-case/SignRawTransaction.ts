@@ -53,9 +53,9 @@ import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { configModuleTypes } from "../../config/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
-import { DAppConfig } from "../../dAppConfig/dAppConfigTypes.js";
-import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
+import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
 import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
 import {
   AccountNotSelectedError,
@@ -93,7 +93,7 @@ export class SignRawTransaction {
     private readonly storageService: StorageService,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
-    @inject(dAppConfigModuleTypes.DAppConfigService)
+    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
     @inject(evmProviderModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
