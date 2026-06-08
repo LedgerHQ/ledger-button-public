@@ -1,4 +1,4 @@
-export type SolanaCluster = "devnet" | "testnet" | "mainnet-beta";
+export type SolanaCluster = "devnet" | "testnet" | "mainnet";
 
 export type SolanaJSONRPCRequest = {
   readonly jsonrpc: string;
