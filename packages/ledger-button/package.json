@@ -6,6 +6,7 @@
     "@lit/context": "catalog:",
     "@storybook/web-components": "catalog:",
     "@storybook/web-components-vite": "catalog:",
+    "@wallet-standard/wallet": "catalog:",
     "class-variance-authority": "catalog:",
     "lit": "catalog:",
     "lottie-web": "catalog:",
