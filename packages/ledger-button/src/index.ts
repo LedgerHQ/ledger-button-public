@@ -6,7 +6,9 @@ import {
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
   LedgerEIP1193Provider,
+  LedgerSolanaWallet,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { registerWallet } from "@wallet-standard/wallet";
 import { v4 as uuidv4 } from "uuid";
 
 import { FloatingButtonPosition } from "./components/index.js";
@@ -121,8 +123,7 @@ export function initializeLedgerProvider({
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
   app.core = core;
   app.walletTransactionFeatures = walletTransactionFeatures;
-  app.transactionConfirmationNotification =
-    transactionConfirmationNotification;
+  app.transactionConfirmationNotification = transactionConfirmationNotification;
   app.classList.add("ledger-wallet-provider");
 
   const { floatingButton } = setupFloatingButton(
@@ -156,6 +157,11 @@ export function initializeLedgerProvider({
     }),
   );
 
+  // Announce the Ledger button as a Solana wallet through the Wallet Standard so
+  // it becomes discoverable by Solana dApps (e.g. via @solana/wallet-adapter).
+  const solanaWallet = new LedgerSolanaWallet(core, app);
+  registerWallet(solanaWallet);
+
   // Cleanup function
   return () => {
     if (app.parentNode) {
@@ -170,6 +176,11 @@ export function initializeLedgerProvider({
       "eip6963:requestProvider",
       announceProviderListener,
     );
+
+    // Best-effort teardown for the Solana wallet: the Wallet Standard has no
+    // unregister API, so we just clear its connected accounts. Full unregister
+    // is handled in LBD-578.
+    void solanaWallet.features["standard:disconnect"].disconnect();
 
     // Reset core so new config can be applied on next initialization
     core = null;

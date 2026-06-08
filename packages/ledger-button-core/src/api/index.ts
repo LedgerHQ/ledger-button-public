@@ -4,6 +4,8 @@ export type { ConnectionType } from "../internal/device/service/DeviceManagement
 export type { EvmProviderUI } from "../internal/evm-provider/EvmProviderUI.js";
 export { LedgerEIP1193Provider } from "../internal/evm-provider/LedgerEIP1193Provider.js";
 export { isBlockingRequestMethod } from "../internal/evm-provider/utils/isBlockingRequestMethod.js";
+export { LedgerSolanaWallet } from "../internal/solana-provider/LedgerSolanaWallet.js";
+export type { SolanaProviderUI } from "../internal/solana-provider/SolanaProviderUI.js";
 export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
 export * from "./model/index.js";
