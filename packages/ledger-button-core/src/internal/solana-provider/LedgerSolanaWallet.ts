@@ -15,6 +15,7 @@
  * @see https://github.com/wallet-standard/wallet-standard
  */
 
+import { address, getAddressEncoder } from "@solana/kit";
 import type { Wallet, WalletAccount, WalletIcon } from "@wallet-standard/base";
 import {
   StandardConnect,
@@ -30,7 +31,6 @@ import {
   type StandardEventsNames,
   type StandardEventsOnMethod,
 } from "@wallet-standard/features";
-import bs58 from "bs58";
 
 import {
   getClusterFromCurrencyId,
@@ -53,12 +53,14 @@ const SOLANA_CHAINS = [
 type SolanaChain = (typeof SOLANA_CHAINS)[number];
 
 const CLUSTER_TO_CHAIN: Record<SolanaCluster, SolanaChain> = {
-  "mainnet-beta": "solana:mainnet",
+  mainnet: "solana:mainnet",
   devnet: "solana:devnet",
   testnet: "solana:testnet",
 };
 
 const ACCOUNT_SELECTED_EVENT = "ledger-provider-account-selected";
+
+const addressEncoder = getAddressEncoder();
 
 type SolanaWalletFeatures = StandardConnectFeature &
   StandardDisconnectFeature &
@@ -165,7 +167,9 @@ export class LedgerSolanaWallet implements Wallet {
     const cluster = getClusterFromCurrencyId(account.currencyId);
     return {
       address: account.freshAddress,
-      publicKey: bs58.decode(account.freshAddress),
+      publicKey: new Uint8Array(
+        addressEncoder.encode(address(account.freshAddress)),
+      ),
       chains: [CLUSTER_TO_CHAIN[cluster]],
       // Signing features are added in LBD-580 / LBD-582.
       features: [],
