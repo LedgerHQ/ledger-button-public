@@ -8,7 +8,7 @@ describe("supportedClusters", () => {
       expect(isSupportedCluster(cluster)).toBe(true);
     });
 
-    it.each(["mainnet", "", " devnet ", "unknown"])(
+    it.each(["mainnet-beta", "", " devnet ", "unknown"])(
       'should return false for "%s"',
       (cluster) => {
         expect(isSupportedCluster(cluster)).toBe(false);
