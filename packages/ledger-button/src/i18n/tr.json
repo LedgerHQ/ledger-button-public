@@ -309,17 +309,10 @@
         "cta1": "Tekrar dene",
         "cta2": "Kapat"
       },
-      "UserRejectedTransaction": {
-        "title": "İşlem reddedildi",
-        "description": "İşlemi {device} üzerinde reddettiniz",
-        "cta1": "Kapat",
-        "cta2": "İşlemi tekrar dene"
-      },
-      "UserRejectedMessage": {
-        "title": "Mesaj reddedildi",
-        "description": "{device} cihazınızda mesajı imzalamayı reddettiniz",
-        "cta1": "Kapat",
-        "cta2": "Mesaj imzalamayı yeniden dene"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {
