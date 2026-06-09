@@ -314,6 +314,11 @@
         "title": "การดำเนินการถูกปฏิเสธ",
         "description": "ผู้ใช้ได้ปฏิเสธธุรกรรมบนอุปกรณ์",
         "cta1": "ลองใหม่"
+      },
+      "DeviceOutOfStorage": {
+        "title": "Missing required app",
+        "description": "The {AppName} app is required to complete this action. Please go to Ledger Wallet and install it on your device.",
+        "cta1": "Go to Ledger Wallet"
       }
     },
     "ledgerSync": {
