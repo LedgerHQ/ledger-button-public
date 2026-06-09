@@ -1,7 +1,7 @@
-import { getLedgerProviderIcon } from "./utils/ledgerProviderIcon.js";
 import type { EIP6963ProviderInfo } from "../../api/model/eip/EIPTypes.js";
 import { generateUUID } from "../event-tracking/utils.js";
 import type { ChainProviderRegistration } from "../provider-registration/ChainProviderRegistration.js";
+import { getLedgerProviderIcon } from "../provider-registration/ledgerProviderIcon.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
 /**
