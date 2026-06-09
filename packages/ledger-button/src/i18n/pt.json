@@ -309,17 +309,10 @@
         "cta1": "Tentar Novamente",
         "cta2": "Fechar"
       },
-      "UserRejectedTransaction": {
-        "title": "Transação rejeitada",
-        "description": "Você rejeitou a transação na sua {device}",
-        "cta1": "Fechar",
-        "cta2": "Tente a transação mais uma vez"
-      },
-      "UserRejectedMessage": {
-        "title": "Mensagem Rejeitada",
-        "description": "Você rejeitou a assinatura da mensagem em seu {device}",
-        "cta1": "Fechar",
-        "cta2": "Tentar assinar a mensagem novamente"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

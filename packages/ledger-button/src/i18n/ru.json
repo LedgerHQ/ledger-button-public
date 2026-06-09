@@ -309,17 +309,10 @@
         "cta1": "Повторить",
         "cta2": "Закрыть"
       },
-      "UserRejectedTransaction": {
-        "title": "Транзакция отклонена",
-        "description": "Вы отклонили транзакцию на устройстве {device}",
-        "cta1": "Закрыть",
-        "cta2": "Повторить транзакцию"
-      },
-      "UserRejectedMessage": {
-        "title": "Сообщение отклонено",
-        "description": "Вы отклонили подписание сообщения на устройстве {device}",
-        "cta1": "Закрыть",
-        "cta2": "Повторить подписание сообщения"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

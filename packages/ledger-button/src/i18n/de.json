@@ -309,17 +309,10 @@
         "cta1": "Wiederholen",
         "cta2": "Schließen"
       },
-      "UserRejectedTransaction": {
-        "title": "Transaktion abgelehnt",
-        "description": "Du hast die Transaktion auf deinem {device} abgelehnt",
-        "cta1": "Schließen",
-        "cta2": "Wiederhole die Transaktion"
-      },
-      "UserRejectedMessage": {
-        "title": "Nachricht abgelehnt",
-        "description": "Du hasst die Nachrichtensignierung auf deinem {device} abgelehnt.",
-        "cta1": "Schließen",
-        "cta2": "Signierung der Nachricht erneut versuchen"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {

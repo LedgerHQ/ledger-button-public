@@ -309,17 +309,10 @@
         "cta1": "再試行",
         "cta2": "閉じる"
       },
-      "UserRejectedTransaction": {
-        "title": "トランザクションが拒否されました",
-        "description": "{device}でトランザクションを拒否しました。",
-        "cta1": "閉じる",
-        "cta2": "トランザクションを再試行"
-      },
-      "UserRejectedMessage": {
-        "title": "メッセージが拒否されました",
-        "description": "{device}でメッセージの署名を拒否しました。",
-        "cta1": "閉じる",
-        "cta2": "メッセージの署名を再試行"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       }
     },
     "ledgerSync": {
