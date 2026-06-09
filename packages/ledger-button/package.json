@@ -6,15 +6,13 @@
     "@lit/context": "catalog:",
     "@storybook/web-components": "catalog:",
     "@storybook/web-components-vite": "catalog:",
-    "@wallet-standard/wallet": "catalog:",
     "class-variance-authority": "catalog:",
     "lit": "catalog:",
     "lottie-web": "catalog:",
     "motion": "catalog:",
     "rxjs": "catalog:",
     "shadow-dom-testing-library": "catalog:",
-    "storybook": "catalog:",
-    "uuid": "catalog:"
+    "storybook": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/cli": "catalog:",

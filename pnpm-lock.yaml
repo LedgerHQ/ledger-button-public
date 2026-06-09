@@ -177,9 +177,6 @@ catalogs:
     '@wallet-standard/react':
       specifier: ^1.0.1
       version: 1.0.3
-    '@wallet-standard/wallet':
-      specifier: ^1.1.0
-      version: 1.1.1
     autoprefixer:
       specifier: 10.4.17
       version: 10.4.17
@@ -339,9 +336,6 @@ catalogs:
     typescript-eslint:
       specifier: 8.46.2
       version: 8.46.2
-    uuid:
-      specifier: ^11.1.0
-      version: 11.1.0
     verdaccio:
       specifier: ^6.0.5
       version: 6.1.6
@@ -824,9 +818,6 @@ importers:
       '@storybook/web-components-vite':
         specifier: 'catalog:'
         version: 9.0.17(lit@3.3.1)(storybook@9.0.17(@testing-library/dom@10.4.0)(bufferutil@4.1.0)(prettier@3.6.2)(utf-8-validate@6.0.6))(vite@7.1.9(@types/node@20.19.9)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1))
-      '@wallet-standard/wallet':
-        specifier: 'catalog:'
-        version: 1.1.1
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
@@ -848,9 +839,6 @@ importers:
       storybook:
         specifier: 'catalog:'
         version: 9.0.17(@testing-library/dom@10.4.0)(bufferutil@4.1.0)(prettier@3.6.2)(utf-8-validate@6.0.6)
-      uuid:
-        specifier: 'catalog:'
-        version: 11.1.0
     devDependencies:
       '@tailwindcss/cli':
         specifier: 'catalog:'
@@ -5959,10 +5947,6 @@ packages:
 
   '@wallet-standard/ui@1.0.3':
     resolution: {integrity: sha512-H2QJTR5m3PeHi06q8kj4TiRf3U+fEe6W+jw+hztPkjTRBVDeCIrwRhbdgAyI8yaGc7dBhzGYqhUQ9ecYj7x0rQ==}
-    engines: {node: '>=22'}
-
-  '@wallet-standard/wallet@1.1.1':
-    resolution: {integrity: sha512-8WiRPaKk/wNNRZhB2eVhpR/JW7/aqTCMoZhgVUCujuzDmxxmGvsosMxdCG4NAdYkoyozAHCX8/xLtlWUn5mNdQ==}
     engines: {node: '>=22'}
 
   '@webassemblyjs/ast@1.14.1':
@@ -20179,10 +20163,6 @@ snapshots:
       '@wallet-standard/ui-compare': 1.0.3
       '@wallet-standard/ui-core': 1.0.1
       '@wallet-standard/ui-features': 1.0.3
-
-  '@wallet-standard/wallet@1.1.1':
-    dependencies:
-      '@wallet-standard/base': 1.1.1
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:
