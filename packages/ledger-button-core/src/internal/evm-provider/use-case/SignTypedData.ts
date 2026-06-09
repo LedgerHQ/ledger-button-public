@@ -5,6 +5,7 @@ import {
   OpenAppWithDependenciesDAInput,
   type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
+  OutOfMemoryDAError,
   RefusedByUserDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
@@ -27,6 +28,7 @@ import {
 
 import {
   BlindSigningDisabledError,
+  DeviceOutOfStorageError,
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../api/errors/DeviceErrors.js";
@@ -137,48 +139,50 @@ export class SignTypedData {
       }
 
       //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
-      const initObservable: Observable<OpenAppWithDependenciesDeviceAction> =
-        from(this.createOpenAppConfig()).pipe(
-          map(
-            (openAppConfig) =>
-              new OpenAppWithDependenciesDeviceAction({
-                input: openAppConfig,
-                inspect: false,
-              }),
-          ),
-        );
+      const initObservable: Observable<{
+        deviceAction: OpenAppWithDependenciesDeviceAction;
+        appName: string;
+      }> = from(this.createOpenAppConfig()).pipe(
+        map((openAppConfig) => ({
+          deviceAction: new OpenAppWithDependenciesDeviceAction({
+            input: openAppConfig,
+            inspect: false,
+          }),
+          appName: openAppConfig.application.name,
+        })),
+      );
 
       const derivationPath = getDerivationPath(selectedAccount);
 
       initObservable
         .pipe(
-          switchMap(
-            (openAppDeviceAction: OpenAppWithDependenciesDeviceAction) => {
-              const openObservable = dmk.executeDeviceAction({
-                sessionId: sessionId,
-                deviceAction: openAppDeviceAction,
-              }).observable;
-              return openObservable;
-            },
-          ),
+          switchMap(({ deviceAction: openAppDeviceAction, appName }) => {
+            const openObservable = dmk.executeDeviceAction({
+              sessionId: sessionId,
+              deviceAction: openAppDeviceAction,
+            }).observable;
+            return openObservable.pipe(
+              map((result) => ({ result, appName })),
+            );
+          }),
           filter(
-            (result: OpenAppWithDependenciesDAState) =>
+            ({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) =>
               result.status !== DeviceActionStatus.Pending ||
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
-          tap((result: OpenAppWithDependenciesDAState) => {
+          tap(({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
             resultObservable.next(
               this.getTransactionResultForEvent(result, signType),
             );
           }),
-          filter((result: OpenAppWithDependenciesDAState) => {
+          filter(({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
             return (
               result.status === DeviceActionStatus.Error ||
               result.status === DeviceActionStatus.Completed
             );
           }),
-          switchMap((result: OpenAppWithDependenciesDAState) => {
+          switchMap(({ result, appName }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
             if (result.status === DeviceActionStatus.Error) {
               const err = result.error;
               if (
@@ -187,6 +191,13 @@ export class SignTypedData {
               ) {
                 throw new UserRejectedTransactionError(
                   "User rejected open app",
+                );
+              }
+
+              if (err instanceof OutOfMemoryDAError) {
+                throw new DeviceOutOfStorageError(
+                  "Not enough storage on device to install app",
+                  { appName },
                 );
               }
 

@@ -2,6 +2,7 @@ import {
   BlindSigningDisabledError,
   BroadcastTransactionError,
   buildExplorerTransactionUrl,
+  DeviceOutOfStorageError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -425,6 +426,24 @@ export class SignTransactionController implements ReactiveController {
                 this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
               },
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceOutOfStorageError: {
+        const appName = error.context?.appName ?? "";
+        this.state = {
+          screen: "error",
+          status: {
+            title: lang.error.device.DeviceOutOfStorage.title,
+            message: lang.error.device.DeviceOutOfStorage.description.replace(
+              "{AppName}",
+              appName,
+            ),
+            cta1: {
+              label: lang.error.device.DeviceOutOfStorage.cta1,
+              action: async () => null,
             },
           },
         };

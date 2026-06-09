@@ -314,6 +314,11 @@
         "title": "Action rejetée",
         "description": "Vous avez refusé la transaction sur votre appareil.",
         "cta1": "Réessayer"
+      },
+      "DeviceOutOfStorage": {
+        "title": "Missing required app",
+        "description": "The {AppName} app is required to complete this action. Please go to Ledger Wallet and install it on your device.",
+        "cta1": "Go to Ledger Wallet"
       }
     },
     "ledgerSync": {
