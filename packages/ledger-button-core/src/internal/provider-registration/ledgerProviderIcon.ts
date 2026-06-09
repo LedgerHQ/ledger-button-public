@@ -8,6 +8,9 @@ const BLACK_ICON =
  * Returns the Ledger wallet icon (as a base64 data URI) matching the user's
  * current color-scheme preference: the white glyph on dark mode, the black
  * glyph otherwise.
+ *
+ * Shared by every chain provider registration path (EIP-6963, Wallet Standard,
+ * …) so wallet discovery UIs show a consistent Ledger logo.
  */
 export function getLedgerProviderIcon(): string {
   const prefersDarkColorScheme =
