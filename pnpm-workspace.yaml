@@ -60,7 +60,6 @@ catalog:
   '@wallet-standard/base': ^1.1.0
   '@wallet-standard/features': ^1.1.0
   '@wallet-standard/react': ^1.0.1
-  '@wallet-standard/wallet': ^1.1.0
   autoprefixer: 10.4.17
   bignumber.js: ^9.1.2
   chalk: ^5.4.1
@@ -115,7 +114,6 @@ catalog:
   tslib: ^2.3.0
   typescript: 5.9.3
   typescript-eslint: 8.46.2
-  uuid: ^11.1.0
   verdaccio: ^6.0.5
   vite: 7.1.9
   vite-plugin-dts: ~4.5.0
