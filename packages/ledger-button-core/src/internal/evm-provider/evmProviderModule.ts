@@ -6,6 +6,8 @@ import { LedgerRemoteDatasource } from "./jsonrpc/datasource/LedgerRemoteDatasou
 import { StubLedgerRemoteDatasource } from "./jsonrpc/datasource/StubLedgerRemoteDatasource.js";
 import { JSONRPCCallUseCase } from "./jsonrpc/use-case/JSONRPCRequest.js";
 import { BroadcastTransaction } from "./use-case/BroadcastTransaction.js";
+import { BuildContextModule } from "./use-case/BuildContextModule.js";
+import { BuildEthSigner } from "./use-case/BuildEthSigner.js";
 import { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
 import { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import { SignTransaction } from "./use-case/SignTransaction.js";
@@ -34,6 +36,10 @@ export function evmProviderModuleFactory({ stub }: EvmProviderModuleOptions) {
     bind(evmProviderModuleTypes.BroadcastTransactionUseCase).to(
       BroadcastTransaction,
     );
+    bind(evmProviderModuleTypes.BuildContextModuleUseCase).to(
+      BuildContextModule,
+    );
+    bind(evmProviderModuleTypes.BuildEthSignerUseCase).to(BuildEthSigner);
 
     bind<GasFeeEstimationService>(evmProviderModuleTypes.GasFeeEstimationService)
       .to(DefaultGasFeeEstimationService)

@@ -1,7 +1,4 @@
-import {
-  ContextModuleBuilder,
-  ContextModuleChainID,
-} from "@ledgerhq/context-module";
+import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   type DeviceActionState,
   DeviceActionStatus,
@@ -17,8 +14,6 @@ import type {
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import type { DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -38,6 +33,8 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
+import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
+import { BuildContextModule } from "./BuildContextModule.js";
 
 @injectable()
 export class SignPersonalMessageUseCase {
@@ -52,8 +49,8 @@ export class SignPersonalMessageUseCase {
     private readonly storageService: StorageService,
     @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
+    @inject(evmProviderModuleTypes.BuildContextModuleUseCase)
+    private readonly buildContextModule: BuildContextModule,
   ) {
     this.logger = loggerFactory("[SignPersonalMessageUseCase]");
   }
@@ -94,7 +91,9 @@ export class SignPersonalMessageUseCase {
       }
 
       const derivationPath = getDerivationPath(selectedAccount);
-      const contextModule = this.createContextModule();
+      const contextModule = this.buildContextModule.execute({
+        chain: ContextModuleChainID.Ethereum,
+      });
 
       return from(this.createOpenAppConfig()).pipe(
         switchMap((openAppConfig) => {
@@ -128,15 +127,6 @@ export class SignPersonalMessageUseCase {
         error,
       });
     }
-  }
-
-  private createContextModule() {
-    return new ContextModuleBuilder({
-      originToken: this.config.originToken,
-    })
-      .setAppSource(this.config.dAppIdentifier)
-      .setChain(ContextModuleChainID.Ethereum)
-      .build();
   }
 
   async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {

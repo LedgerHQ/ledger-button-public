@@ -1,7 +1,4 @@
-import {
-  ContextModuleBuilder,
-  ContextModuleChainID,
-} from "@ledgerhq/context-module";
+import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   GlobalCommandError,
@@ -13,7 +10,6 @@ import {
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
 import {
-  SignerEthBuilder,
   SignTransactionDAState,
   SignTransactionDAStep,
 } from "@ledgerhq/device-signer-kit-ethereum";
@@ -53,8 +49,6 @@ import {
 import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -80,6 +74,7 @@ import {
   BroadcastTransaction,
   BroadcastTransactionParams,
 } from "./BroadcastTransaction.js";
+import { BuildEthSigner } from "./BuildEthSigner.js";
 
 @injectable()
 export class SignRawTransaction {
@@ -93,12 +88,12 @@ export class SignRawTransaction {
     private readonly deviceManagementKitService: DeviceManagementKitService,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
     @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
     @inject(evmProviderModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
+    @inject(evmProviderModuleTypes.BuildEthSignerUseCase)
+    private readonly buildEthSigner: BuildEthSigner,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
@@ -141,19 +136,10 @@ export class SignRawTransaction {
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
-      const contextModule = new ContextModuleBuilder({
-        originToken: this.config.originToken,
-      })
-        .setAppSource(this.config.dAppIdentifier)
-        .setChain(ContextModuleChainID.Ethereum)
-        .build();
-      const ethSigner = new SignerEthBuilder({
-        dmk,
-        originToken: this.config.originToken,
+      const ethSigner = this.buildEthSigner.execute({
         sessionId,
-      })
-        .withContextModule(contextModule)
-        .build();
+        chain: ContextModuleChainID.Ethereum,
+      });
 
       const tx = hexaStringToBuffer(transaction);
       if (!tx) {
