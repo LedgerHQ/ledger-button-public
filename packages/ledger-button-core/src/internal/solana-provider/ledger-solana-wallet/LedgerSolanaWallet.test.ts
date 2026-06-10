@@ -1,3 +1,6 @@
+import { getBase58Decoder } from "@solana/kit";
+import type { WalletAccount } from "@wallet-standard/base";
+import { of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
@@ -54,14 +57,22 @@ const createMockHost = (): {
   trackBroadcastedTransaction: vi.fn(),
 });
 
+const stubWalletAccount = { address: SOLANA_ADDRESS } as WalletAccount;
+
 describe("LedgerSolanaWallet (connection)", () => {
   let host: ReturnType<typeof createMockHost>;
+  let signSolanaMessage: { execute: ReturnType<typeof vi.fn> };
 
   const createWallet = () =>
-    new LedgerSolanaWallet(host as unknown as CoreFacade);
+    new LedgerSolanaWallet(host as unknown as CoreFacade, {
+      signSolanaMessage: signSolanaMessage as never,
+    });
 
   beforeEach(() => {
     host = createMockHost();
+    signSolanaMessage = {
+      execute: vi.fn(),
+    };
   });
 
   afterEach(() => {
@@ -185,6 +196,51 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(wallet.accounts).toEqual([]);
       expect(listener).toHaveBeenCalledWith({ accounts: [] });
+    });
+  });
+
+  describe("signMessage", () => {
+    const signatureBytes = new Uint8Array(64).fill(7);
+    const signatureBase58 = getBase58Decoder().decode(signatureBytes);
+
+    it("runs the sign use case through the navigation intent and returns the decoded signature", async () => {
+      signSolanaMessage.execute.mockReturnValue(
+        of({
+          signType: "solana-message",
+          status: "success",
+          data: { signature: signatureBase58 },
+        }),
+      );
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+      const message = new TextEncoder().encode("hello");
+
+      const [result] = await wallet.features["solana:signMessage"].signMessage({
+        account: stubWalletAccount,
+        message,
+      });
+
+      expect(host.emitNavigationIntent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "signTransaction",
+          params: {
+            kind: "solana-message",
+            address: SOLANA_ADDRESS,
+            message,
+          },
+        }),
+      );
+      expect(signSolanaMessage.execute).toHaveBeenCalledWith(
+        {
+          kind: "solana-message",
+          address: SOLANA_ADDRESS,
+          message,
+        },
+        createAccount(),
+      );
+      expect(result.signedMessage).toBe(message);
+      expect(result.signature).toEqual(signatureBytes);
+      expect(result.signatureType).toBe("ed25519");
     });
   });
 });

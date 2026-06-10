@@ -84,5 +84,10 @@ export const stubDAppConfig: DAppConfig = {
       appName: "1inch",
       dependencies: ["1inch", "Ethereum"],
     },
+    {
+      blockchain: "solana",
+      appName: "Solana",
+      dependencies: ["Solana"],
+    },
   ],
 };
