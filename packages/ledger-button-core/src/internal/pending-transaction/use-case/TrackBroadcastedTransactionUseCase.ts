@@ -10,6 +10,7 @@ import {
   type SignTransactionParams,
 } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
 import { type Account } from "../../account/service/AccountService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
@@ -28,7 +29,8 @@ type SignParams =
   | SignTransactionParams
   | SignRawTransactionParams
   | SignTypedMessageParams
-  | SignPersonalMessageParams;
+  | SignPersonalMessageParams
+  | SignSolanaMessageParams;
 
 @injectable()
 export class TrackBroadcastedTransactionUseCase {

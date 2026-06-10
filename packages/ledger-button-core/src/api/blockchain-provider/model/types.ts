@@ -7,6 +7,7 @@ import type { SignPersonalMessageParams } from "../../model/signing/SignPersonal
 import type { SignRawTransactionParams } from "../../model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../model/signing/SignTypedMessageParams.js";
+import type { SignSolanaMessageParams } from "../../model/signing/solana/SignSolanaMessageParams.js";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -69,7 +70,8 @@ export type ProviderSignParams =
   | SignTransactionParams
   | SignRawTransactionParams
   | SignTypedMessageParams
-  | SignPersonalMessageParams;
+  | SignPersonalMessageParams
+  | SignSolanaMessageParams;
 
 /**
  * Payload carried by the `selectAccount` {@link WalletNavigationIntent} when the

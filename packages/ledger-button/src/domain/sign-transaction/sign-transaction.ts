@@ -4,6 +4,7 @@ import "../onboarding/ledger-sync/ledger-sync";
 import {
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
+  type SignSolanaMessageParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
   type WalletNavigationIntent,
@@ -74,7 +75,8 @@ export class SignTransactionScreen extends LitElement {
     | SignTransactionParams
     | SignPersonalMessageParams
     | SignRawTransactionParams
-    | SignTypedMessageParams;
+    | SignTypedMessageParams
+    | SignSolanaMessageParams;
 
   @property({ type: Object })
   params?: unknown;
@@ -112,7 +114,8 @@ export class SignTransactionScreen extends LitElement {
       | SignTransactionParams
       | SignPersonalMessageParams
       | SignRawTransactionParams
-      | SignTypedMessageParams;
+      | SignTypedMessageParams
+      | SignSolanaMessageParams;
 
     this.controller.startSigning(intent);
   }
