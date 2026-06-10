@@ -1,7 +1,4 @@
-import {
-  ContextModuleBuilder,
-  ContextModuleChainID,
-} from "@ledgerhq/context-module";
+import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   GlobalCommandError,
@@ -12,7 +9,6 @@ import {
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
 import {
-  SignerEthBuilder,
   SignTransactionDAStep,
   type SignTypedDataDAState,
 } from "@ledgerhq/device-signer-kit-ethereum";
@@ -49,8 +45,6 @@ import type {
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -67,7 +61,9 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
+import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
+import { BuildEthSigner } from "./BuildEthSigner.js";
 
 @injectable()
 export class SignTypedData {
@@ -83,8 +79,8 @@ export class SignTypedData {
     private readonly storageService: StorageService,
     @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
+    @inject(evmProviderModuleTypes.BuildEthSignerUseCase)
+    private readonly buildEthSigner: BuildEthSigner,
     @inject(eventTrackingModuleTypes.TrackTypedMessageStarted)
     private readonly trackTypedMessageStarted: TrackTypedMessageStarted,
     @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
@@ -127,19 +123,10 @@ export class SignTypedData {
 
     try {
       const dmk = this.deviceManagementKitService.dmk;
-      const contextModule = new ContextModuleBuilder({
-        originToken: this.config.originToken,
-      })
-        .setAppSource(this.config.dAppIdentifier)
-        .setChain(ContextModuleChainID.Ethereum)
-        .build();
-      const ethSigner = new SignerEthBuilder({
-        dmk,
-        originToken: this.config.originToken,
+      const ethSigner = this.buildEthSigner.execute({
         sessionId,
-      })
-        .withContextModule(contextModule)
-        .build();
+        chain: ContextModuleChainID.Ethereum,
+      });
 
       const selectedAccount: Account | undefined = this.storageService
         .getSelectedAccount()
