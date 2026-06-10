@@ -66,13 +66,54 @@ export function buildWalletActionDeepLink(
     }
   }
 
+  return appendPartnerTrackingParams(urlString, route, partner);
+}
+
+const ACCOUNT_ROUTE = "account";
+
+/**
+ * Builds a deep link to open a specific account page in Ledger Wallet.
+ *
+ * Documented in Ledger Live Desktop as the `account` route:
+ * https://github.com/LedgerHQ/ledger-live/wiki/LLD:DeepLinking#account---account-page
+ *
+ * - `ledgerwallet://account?currency={currencyId}&address={freshAddress}` opens the
+ *   matching account page (full transaction history lives there).
+ * - `currency` is required by LL; `address` is optional but we always pass it from Button.
+ *
+ * When partner is provided, appends tracking query params for deeplink_clicked analytics.
+ */
+export function buildAccountDeepLink(
+  context: DeepLinkContext,
+  partner?: string,
+): string {
+  const params = new URLSearchParams();
+
+  if (context.currency) {
+    params.set("currency", context.currency);
+  }
+  if (context.address) {
+    params.set("address", context.address);
+  }
+
+  const query = params.toString();
+  const urlString = `${BASE_URL}${ACCOUNT_ROUTE}${query ? `?${query}` : ""}`;
+
+  return appendPartnerTrackingParams(urlString, ACCOUNT_ROUTE, partner);
+}
+
+function appendPartnerTrackingParams(
+  urlString: string,
+  destination: string,
+  partner?: string,
+): string {
   if (!partner) {
     return urlString;
   }
 
   const url = new URL(urlString);
   url.searchParams.set("deeplinkType", "Internal");
-  url.searchParams.set("deeplinkDestination", route);
+  url.searchParams.set("deeplinkDestination", destination);
   url.searchParams.set("deeplinkChannel", "Button");
   url.searchParams.set("deeplinkButtonPartner", partner);
   return url.toString();

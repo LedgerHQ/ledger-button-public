@@ -207,6 +207,7 @@
     "noTransactions": "No transactions found",
     "pendingTransactions": "Pending transactions",
     "viewOnExplorer": "View on explorer",
+    "viewAllTransactions": "View all transactions",
     "failed": "Failed",
     "kinds": {
       "swap": "Swap",

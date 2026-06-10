@@ -61,6 +61,10 @@ import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/Tra
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import {
+  TrackViewAllTransactions,
+  type TrackViewAllTransactionsParams,
+} from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
@@ -688,6 +692,36 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
       )
       .execute(transactionHash);
+  }
+
+  async trackViewAllTransactionsClicked(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackClicked(params);
+  }
+
+  async trackViewAllTransactionsRedirectConfirmed(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackRedirectConfirmed(params);
+  }
+
+  async trackViewAllTransactionsRedirectCancelled(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackRedirectCancelled(params);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {
