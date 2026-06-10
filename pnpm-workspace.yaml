@@ -95,7 +95,7 @@ catalog:
   nextra-theme-docs: ^3.0.15
   nx: 22.0.1
   pako: ^2.0.4
-  postcss: 8.5.10
+  postcss: 8.5.11
   prettier: ^3.6.1
   prettier-plugin-tailwindcss: ^0.6.13
   purify-ts: 2.1.0
@@ -115,10 +115,10 @@ catalog:
   typescript: 5.9.3
   typescript-eslint: 8.46.2
   verdaccio: ^6.0.5
-  vite: 7.3.2
+  vite: 7.3.3
   vite-plugin-dts: ~4.5.0
   vite-plugin-elm: ^3.0.1
-  vitest: ^3.0.0
+  vitest: ^3.2.6
   wait-on: ^8.0.3
   xstate: 5.19.2
   zod: ^4.1.5
