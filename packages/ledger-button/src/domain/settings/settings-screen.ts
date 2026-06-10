@@ -12,6 +12,7 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
+import PACKAGE from "../../../package.json" with { type: "json" };
 
 @customElement("settings-screen")
 @tailwindElement()
@@ -94,23 +95,30 @@ export class SettingsScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col items-start px-16 py-0">
-        ${this.renderMenuItem(
-          "settingsAlt2",
-          settings.preferences?.title ?? "Preferences",
-          this.handlePreferencesClick,
-        )}
-        ${this.renderMenuItem(
-          "shield",
-          settings.securityConfidentiality?.title ??
-            "Security & confidentiality",
-          this.handleSecurityClick,
-        )}
-        ${this.renderMenuItem(
-          "question",
-          settings.support?.title ?? "Help & Support",
-          this.handleHelpSupportClick,
-        )}
+      <div class="flex h-full flex-col">
+        <div class="flex flex-1 flex-col items-start px-16 py-0">
+          ${this.renderMenuItem(
+            "settingsAlt2",
+            settings.preferences?.title ?? "Preferences",
+            this.handlePreferencesClick,
+          )}
+          ${this.renderMenuItem(
+            "shield",
+            settings.securityConfidentiality?.title ??
+              "Security & confidentiality",
+            this.handleSecurityClick,
+          )}
+          ${this.renderMenuItem(
+            "question",
+            settings.support?.title ?? "Help & Support",
+            this.handleHelpSupportClick,
+          )}
+        </div>
+        <div class="flex w-full items-center justify-center p-24">
+          <span class="body-2 min-w-0 flex-1 truncate text-center text-muted">
+            v${PACKAGE.version}
+          </span>
+        </div>
       </div>
     `;
   }
