@@ -6,9 +6,9 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("../../components/index.js", () => ({}));
 
+import PACKAGE from "../../../package.json" with { type: "json" };
 import type { Destination } from "../../shared/routes.js";
 import { SettingsScreen } from "./settings-screen.js";
-import PACKAGE from "../../../package.json" with { type: "json" };
 
 function createMockNavigation() {
   return {

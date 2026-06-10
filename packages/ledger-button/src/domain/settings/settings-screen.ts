@@ -4,6 +4,7 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import PACKAGE from "../../../package.json" with { type: "json" };
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -12,7 +13,6 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
-import PACKAGE from "../../../package.json" with { type: "json" };
 
 @customElement("settings-screen")
 @tailwindElement()
