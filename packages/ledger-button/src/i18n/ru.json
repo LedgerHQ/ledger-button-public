@@ -207,6 +207,7 @@
     "noTransactions": "Не нашли транзакции",
     "pendingTransactions": "Неподтверждённые транзакции",
     "viewOnExplorer": "Посмотреть в Обозревателе",
+    "viewAllTransactions": "View all transactions",
     "failed": "Ошибка",
     "kinds": {
       "swap": "Обмен",
