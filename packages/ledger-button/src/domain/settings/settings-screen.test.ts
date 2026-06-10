@@ -8,6 +8,7 @@ vi.mock("../../components/index.js", () => ({}));
 
 import type { Destination } from "../../shared/routes.js";
 import { SettingsScreen } from "./settings-screen.js";
+import PACKAGE from "../../../package.json" with { type: "json" };
 
 function createMockNavigation() {
   return {
@@ -99,6 +100,14 @@ describe("SettingsScreen", () => {
       expect(renderedString).toContain("Preferences");
       expect(renderedString).toContain("Security & confidentiality");
       expect(renderedString).toContain("Help & Support");
+    });
+
+    test("should render the package version footer", () => {
+      const el = createSettingsScreen();
+      const rendered = el.render();
+      const renderedString = JSON.stringify(rendered);
+
+      expect(renderedString).toContain(PACKAGE.version);
     });
 
     test("should fallback to default labels when translations are partial", () => {
