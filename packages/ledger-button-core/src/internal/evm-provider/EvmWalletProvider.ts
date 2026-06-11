@@ -31,7 +31,9 @@ export class EvmWalletProvider implements CoreFacingWalletProvider {
     host: WalletProviderHost,
     private readonly configFactory?: ProviderDAppConfigFactory,
   ) {
-    this.provider = new LedgerEIP1193Provider(host);
+    this.provider = new LedgerEIP1193Provider(host, () =>
+      this.getDAppConfig().then((config) => config?.rpcMethods),
+    );
   }
 
   init(): () => void {
@@ -70,7 +72,7 @@ export class EvmWalletProvider implements CoreFacingWalletProvider {
     return this.provider;
   }
 
-  /** dApp config for this family; available only (not yet used for routing). */
+  /** dApp config for this family; drives RPC routing (local vs broadcasted). */
   getDAppConfig(): Promise<ProviderDAppConfig | undefined> {
     return this.configFactory?.(this.family) ?? Promise.resolve(undefined);
   }
