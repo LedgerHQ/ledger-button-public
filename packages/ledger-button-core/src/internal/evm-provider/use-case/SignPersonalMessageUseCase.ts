@@ -117,7 +117,13 @@ export class SignPersonalMessageUseCase {
           });
 
           return observable.pipe(
-            map((state) => this.toSignFlowStatus(state, signType)),
+            map((state) =>
+              this.toSignFlowStatus(
+                state,
+                signType,
+                openAppConfig.application.name,
+              ),
+            ),
           ) as Observable<SignFlowStatus>;
         }),
       );
@@ -157,8 +163,8 @@ export class SignPersonalMessageUseCase {
       SignPersonalMessageFlowDAIntermediateValue
     >,
     signType: SignType,
+    appName: string,
   ): SignFlowStatus {
-    console.log(state);
     switch (state.status) {
       case DeviceActionStatus.Pending:
         return state.intermediateValue.signFlowStatus;
@@ -175,6 +181,7 @@ export class SignPersonalMessageUseCase {
           state.error instanceof OutOfMemoryDAError
             ? new DeviceOutOfStorageError(
                 "Not enough storage on device to install app",
+                { appName },
               )
             : state.error;
         return { signType, status: "error", error };
