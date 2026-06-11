@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Coding Standards
 
-> **Primary Source**: See [CODING_STANDARDS.md](../../CODING_STANDARDS.md) for the complete coding standards document. This file provides a quick reference for AI assistants.
+> **Primary Source**: See [CODING_STANDARDS.md](../../../CODING_STANDARDS.md) for the complete coding standards document. This file provides a quick reference for AI assistants.
 
 ## Quick Reference for AI Assistants
 
@@ -88,4 +88,4 @@ Classes must follow this order:
 
 ---
 
-**For complete details, examples, and explanations, refer to [CODING_STANDARDS.md](../../CODING_STANDARDS.md)**
+**For complete details, examples, and explanations, refer to [CODING_STANDARDS.md](../../../CODING_STANDARDS.md)**
