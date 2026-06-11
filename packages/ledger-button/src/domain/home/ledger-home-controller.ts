@@ -158,7 +158,9 @@ export class LedgerHomeController implements ReactiveController {
         distinctUntilChanged(),
       )
       .subscribe((currency) => {
+        if (!this.isConnected) return;
         this.preferredFiatCurrency = currency;
+        this.host.requestUpdate();
       });
   }
 
