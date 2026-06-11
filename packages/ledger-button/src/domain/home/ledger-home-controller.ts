@@ -16,12 +16,11 @@ import type { TransactionListItem } from "../transaction-list/transaction-list.j
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
   loading = false;
-  preferredFiatCurrency = "";
+  private preferredFiatCurrency!: string;
   private pendingTransactions: PendingTransaction[] = [];
   private accountSubscription: Subscription | undefined = undefined;
   private currencySubscription: Subscription | undefined = undefined;
   private pendingTxSubscription: Subscription | undefined = undefined;
-  private isConnected = false;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -56,14 +55,12 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   hostConnected() {
-    this.isConnected = true;
     this.loading = true;
     this.startListeningToContextChanges();
     this.startListeningToPendingTransactions();
   }
 
   hostDisconnected() {
-    this.isConnected = false;
     this.accountSubscription?.unsubscribe();
     this.currencySubscription?.unsubscribe();
     this.pendingTxSubscription?.unsubscribe();
