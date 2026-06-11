@@ -6,10 +6,10 @@ import { FetchAccountsWithBalanceUseCase } from "./use-case/fetchAccountsWithBal
 import { FetchAccountsWithFiatUseCase } from "./use-case/fetchAccountsWithFiatUseCase.js";
 import { FetchCloudSyncAccountsUseCase } from "./use-case/fetchCloudSyncAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./use-case/fetchSelectedAccountUseCase.js";
-import { GetDetailedSelectedAccountUseCase } from "./use-case/getDetailedSelectedAccountUseCase.js";
 import { HydrateAccountWithBalanceUseCase } from "./use-case/HydrateAccountWithBalanceUseCase.js";
 import { HydrateAccountWithFiatUseCase } from "./use-case/hydrateAccountWithFiatUseCase.js";
 import { HydrateAccountWithTxHistoryUseCase } from "./use-case/hydrateAccountWithTxHistoryUseCase.js";
+import { ObserveAccountsWithFiatUseCase } from "./use-case/observeAccountsWithFiatUseCase.js";
 import { SortAccountsByFiatUseCase } from "./use-case/sortAccountsByFiatUseCase.js";
 import { type ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
@@ -34,9 +34,6 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     bind(accountModuleTypes.FetchSelectedAccountUseCase).to(
       FetchSelectedAccountUseCase,
     );
-    bind(accountModuleTypes.GetDetailedSelectedAccountUseCase).to(
-      GetDetailedSelectedAccountUseCase,
-    );
     bind(accountModuleTypes.HydrateAccountWithTxHistoryUseCase).to(
       HydrateAccountWithTxHistoryUseCase,
     );
@@ -49,6 +46,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     bind(accountModuleTypes.FetchAccountsWithFiatUseCase).to(
       FetchAccountsWithFiatUseCase,
     );
+    bind(accountModuleTypes.ObserveAccountsWithFiatUseCase)
+      .to(ObserveAccountsWithFiatUseCase)
+      .inSingletonScope();
     bind(accountModuleTypes.SortAccountsByFiatUseCase).to(
       SortAccountsByFiatUseCase,
     );

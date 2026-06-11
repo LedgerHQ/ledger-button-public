@@ -10,8 +10,6 @@ import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import { type StorageService } from "../../storage/StorageService.js";
 import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
@@ -25,8 +23,6 @@ export class SignTransaction {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(evmProviderModuleTypes.GasFeeEstimationService)
     private readonly gasFeeEstimationService: GasFeeEstimationService,
-    @inject(storageModuleTypes.StorageService)
-    private readonly storageService: StorageService,
     @inject(evmProviderModuleTypes.SignRawTransactionUseCase)
     private readonly signRawTransaction: SignRawTransaction,
     @inject(contextModuleTypes.ContextService)
@@ -66,7 +62,7 @@ export class SignTransaction {
       const fees = await this.gasFeeEstimationService.getFeesForTransaction({
         from:
           transaction.from ||
-          this.storageService.getSelectedAccount()?.extract()?.freshAddress ||
+          this.contextService.getContext().selectedAccount?.freshAddress ||
           "", //Should never happen
         to: transaction.to,
         value: transaction.value,
@@ -97,7 +93,7 @@ export class SignTransaction {
       const nonce = await this.gasFeeEstimationService.getNonceForTx({
         from:
           transaction.from ||
-          this.storageService.getSelectedAccount()?.extract()?.freshAddress ||
+          this.contextService.getContext().selectedAccount?.freshAddress ||
           "", //Should never happen
         to: transaction.to,
         value: transaction.value,

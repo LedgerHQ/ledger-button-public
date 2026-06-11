@@ -19,7 +19,6 @@ import {
 export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
-  selectedAccount: Account | null = null;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -46,16 +45,11 @@ export class DefaultAccountService implements AccountService {
     const found = this.accounts.find((acc) => acc.id === account.id);
 
     if (found) {
-      this.selectedAccount = found;
       this.logger.info("Account selected, saving to storage", {
         account: found,
       });
       this.storageService.saveSelectedAccount(found);
     }
-  }
-
-  getSelectedAccount(): Account | null {
-    return this.selectedAccount;
   }
 
   getAccounts(): Account[] {
