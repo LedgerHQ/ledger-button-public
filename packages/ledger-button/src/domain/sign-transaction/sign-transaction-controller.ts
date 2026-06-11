@@ -443,7 +443,10 @@ export class SignTransactionController implements ReactiveController {
             ),
             cta1: {
               label: lang.error.device.DeviceOutOfStorage.cta1,
-              action: async () => null,
+              action: () => {
+                window.open("ledgerlive://myledger");
+                this.close();
+              },
             },
           },
         };
