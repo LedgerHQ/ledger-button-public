@@ -17,8 +17,8 @@
 
 import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
 import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
+import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
 import { isSupportedChainId } from "./utils/supportedChains.js";
-import { isSupportedRpcMethod } from "./utils/supportedRpcMethods.js";
 import {
   BlindSigningDisabledError,
   IncorrectSeedError,
@@ -44,9 +44,13 @@ import {
 import { hexToUtf8 } from "../../api/utils/byteUtils.js";
 import { Account } from "../account/service/AccountService.js";
 import type {
+  ProviderRpcMethods,
   WalletProviderHost,
   WalletProviderSignRequest,
 } from "../blockchain-provider/model/BlockchainProvider.js";
+
+/** Lazily resolves the per-dApp RPC routing config (may be undefined). */
+export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -63,6 +67,10 @@ export class LedgerEIP1193Provider
   // One blocking request (account selection / signing) in flight at a time.
   private _inFlight = false;
 
+  // Per-dApp RPC routing config, lazily loaded once and cached.
+  private _rpcMethods?: ProviderRpcMethods;
+  private _rpcMethodsLoaded = false;
+
   // NOTE: Tracking listeners by function reference
   // This is a workaround to wrap the event listener in the `on` method
   // so we can remove it later
@@ -71,7 +79,10 @@ export class LedgerEIP1193Provider
     (e: CustomEvent | Event) => void
   > = new Map();
 
-  constructor(private readonly host: WalletProviderHost) {
+  constructor(
+    private readonly host: WalletProviderHost,
+    private readonly loadRpcMethods?: RpcMethodsLoader,
+  ) {
     super();
   }
 
@@ -445,9 +456,25 @@ export class LedgerEIP1193Provider
     ) => this.handleSwitchChainId(params),
   } as const;
 
+  /** Lazily load (once) and cache the per-dApp RPC routing config. */
+  private async ensureRpcMethods(): Promise<void> {
+    if (this._rpcMethodsLoaded || !this.loadRpcMethods) {
+      return;
+    }
+    try {
+      this._rpcMethods = await this.loadRpcMethods();
+    } catch {
+      this._rpcMethods = undefined;
+    }
+    this._rpcMethodsLoaded = true;
+  }
+
   // Private method to execute request logic
   private async executeRequest({ method, params }: RequestArguments) {
-    if (method in this.handlers) {
+    await this.ensureRpcMethods();
+    const route = resolveRpcRoute(method, this._rpcMethods);
+
+    if (route === "local" && method in this.handlers) {
       if (method !== "eth_requestAccounts" && !this._isConnected) {
         throw this.createError(
           CommonEIP1193ErrorCode.Unauthorized,
@@ -461,7 +488,7 @@ export class LedgerEIP1193Provider
       );
     }
 
-    if (isSupportedRpcMethod(method)) {
+    if (route === "broadcasted") {
       return this.host.broadcastRPC({
         jsonrpc: "2.0",
         id: this._id++,

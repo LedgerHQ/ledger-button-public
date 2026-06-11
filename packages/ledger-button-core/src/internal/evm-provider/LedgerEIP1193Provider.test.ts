@@ -178,6 +178,82 @@ describe("LedgerEIP1193Provider", () => {
     });
   });
 
+  describe("config-driven routing", () => {
+    it("broadcasts a method the dApp config marks as broadcasted (not a static node method)", async () => {
+      const loadRpcMethods = vi.fn().mockResolvedValue({
+        local: [],
+        broadcasted: ["eth_transactionCount"],
+      });
+      const configuredProvider = new LedgerEIP1193Provider(
+        host as unknown as WalletProviderHost,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 5 });
+
+      await configuredProvider.request({
+        method: "eth_transactionCount" as any,
+        params: [],
+      });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_transactionCount" }),
+      );
+    });
+
+    it("forces a default-local method to broadcast when config says so", async () => {
+      const loadRpcMethods = vi.fn().mockResolvedValue({
+        local: [],
+        broadcasted: ["eth_chainId"],
+      });
+      const configuredProvider = new LedgerEIP1193Provider(
+        host as unknown as WalletProviderHost,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: "0x1",
+      });
+
+      await configuredProvider.request({ method: "eth_chainId", params: [] });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_chainId" }),
+      );
+    });
+
+    it("loads the dApp config only once across requests", async () => {
+      const loadRpcMethods = vi
+        .fn()
+        .mockResolvedValue({ local: [], broadcasted: [] });
+      const configuredProvider = new LedgerEIP1193Provider(
+        host as unknown as WalletProviderHost,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
+
+      await configuredProvider.request({ method: "eth_call", params: [] });
+      await configuredProvider.request({ method: "eth_getBalance", params: [] });
+
+      expect(loadRpcMethods).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to static routing when the config loader rejects", async () => {
+      const loadRpcMethods = vi.fn().mockRejectedValue(new Error("boom"));
+      const configuredProvider = new LedgerEIP1193Provider(
+        host as unknown as WalletProviderHost,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
+
+      await configuredProvider.request({ method: "eth_call", params: [] });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_call" }),
+      );
+    });
+  });
+
   describe("setSelectedAccount / setNetwork", () => {
     it("should connect and emit accountsChanged when an account is pushed", () => {
       const listener = vi.fn();
