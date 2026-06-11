@@ -1,7 +1,13 @@
 export type { WalletActionType } from "../internal/backend/model/trackEvent.js";
+export type {
+  BlockchainFamily,
+  CoreFacingWalletProvider,
+  WalletNavigationIntent,
+  WalletProvider,
+  WalletProviderHost,
+} from "../internal/blockchain-provider/model/BlockchainProvider.js";
 export type { Device } from "../internal/device/model/Device.js";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
-export type { EvmProviderUI } from "../internal/evm-provider/EvmProviderUI.js";
 export { LedgerEIP1193Provider } from "../internal/evm-provider/LedgerEIP1193Provider.js";
 export { isBlockingRequestMethod } from "../internal/evm-provider/utils/isBlockingRequestMethod.js";
 export type {
@@ -11,7 +17,6 @@ export type {
 } from "../internal/provider-registration/ChainProviderRegistration.js";
 export { chainProviderRegistrations } from "../internal/provider-registration/chainProviderRegistrations.js";
 export { LedgerSolanaWallet } from "../internal/solana-provider/LedgerSolanaWallet.js";
-export type { SolanaProviderUI } from "../internal/solana-provider/SolanaProviderUI.js";
 export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
 export * from "./model/index.js";

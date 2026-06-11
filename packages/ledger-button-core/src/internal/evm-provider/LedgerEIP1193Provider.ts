@@ -4,13 +4,16 @@
  * A complete implementation of the EIP-1193 Ethereum Provider JavaScript API
  * for Ledger hardware wallets.
  *
+ * The provider is a blackbox from the dApp's point of view and talks to core
+ * only through a {@link WalletProviderHost}. It never imports
+ * `LedgerButtonCore`, which keeps the `blockchain-provider` layer a candidate
+ * for extraction into its own package.
+ *
  * @see https://eips.ethereum.org/EIPS/eip-1193
  * @see https://eips.ethereum.org/EIPS/eip-1102
  * @see https://eips.ethereum.org/EIPS/eip-6963
  * @see https://eips.ethereum.org/EIPS/eip-2255
  */
-
-import { Subscription } from "rxjs";
 
 import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
 import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
@@ -23,15 +26,11 @@ import {
 } from "../../api/errors/DeviceErrors.js";
 import { LedgerButtonError } from "../../api/errors/LedgerButtonError.js";
 import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
-import { LedgerButtonCore } from "../../api/LedgerButtonCore.js";
 import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
-  type EIP6963AnnounceProviderEvent,
-  type EIP6963RequestProviderEvent,
   type ProviderConnectInfo,
   type ProviderEvent,
-  type ProviderMessage,
   type ProviderRpcError,
   type RequestArguments,
   type RpcMethods,
@@ -41,11 +40,13 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-  type SignedResults,
 } from "../../api/model/signing/SignedTransaction.js";
 import { hexToUtf8 } from "../../api/utils/byteUtils.js";
 import { Account } from "../account/service/AccountService.js";
-import { EvmProviderUI } from "./EvmProviderUI.js";
+import type {
+  WalletProviderHost,
+  WalletProviderSignRequest,
+} from "../blockchain-provider/model/BlockchainProvider.js";
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -59,11 +60,8 @@ export class LedgerEIP1193Provider
 
   public isLedgerButton = true;
 
-  private _pendingRequest: RequestArguments | null = null;
-  private _pendingPromise: {
-    resolve: (value: unknown) => void;
-    reject: (reason?: unknown) => void;
-  } | null = null;
+  // One blocking request (account selection / signing) in flight at a time.
+  private _inFlight = false;
 
   // NOTE: Tracking listeners by function reference
   // This is a workaround to wrap the event listener in the `on` method
@@ -73,96 +71,31 @@ export class LedgerEIP1193Provider
     (e: CustomEvent | Event) => void
   > = new Map();
 
-  private _currentEvent: string | null = null;
-
-  private _contextSubscription?: Subscription;
-
-  constructor(
-    private readonly core: LedgerButtonCore,
-    private readonly app: EvmProviderUI,
-  ) {
+  constructor(private readonly host: WalletProviderHost) {
     super();
-
-    window.addEventListener("ledger-provider-disconnect", () => {
-      this.disconnect();
-    });
-
-    window.addEventListener("ledger-provider-close", () => {
-      if (this._currentEvent) {
-        window.dispatchEvent(
-          new CustomEvent(this._currentEvent, {
-            bubbles: true,
-            composed: true,
-            detail: {
-              status: "error",
-              error: new ModalClosedError("User closed the modal"),
-            },
-          }),
-        );
-      }
-    });
-
-    this.subscribeToContextChanges();
-
-    setInterval(() => {
-      if (
-        this._pendingRequest &&
-        !this.app.isModalOpen &&
-        this._pendingPromise
-      ) {
-        const tmpRequest = this._pendingRequest;
-        this._pendingRequest = null;
-
-        // Wait for 1 second before executing the pending request and resolve the promise
-        // Wait is needed to avoid race condition with the modal open event (to be improved)
-        new Promise((resolve) => setTimeout(resolve, 1000))
-          .then(() => {
-            return this.executeRequest(tmpRequest);
-          })
-          .then((result) => {
-            if (this._pendingPromise) {
-              this._pendingPromise.resolve(result);
-              this._pendingPromise = null;
-            }
-          })
-          .catch((error) => {
-            if (this._pendingPromise) {
-              this._pendingPromise.reject(error);
-              this._pendingPromise = null;
-            }
-          });
-      }
-    }, 1000);
   }
 
   public async request({ method, params }: RequestArguments) {
-    console.log("[LedgerEIP1193Provider] request()", { method, params });
-
     if (isBlockingRequestMethod(method)) {
-      if (this._pendingPromise) {
-        return new Promise((_, reject) => {
-          reject(
-            this.createError(
-              CommonEIP1193ErrorCode.InternalError,
-              "Ledger Provider is busy",
-            ),
-          );
-        });
+      if (this._inFlight) {
+        return Promise.reject(
+          this.createError(
+            CommonEIP1193ErrorCode.InternalError,
+            "Ledger Provider is busy",
+          ),
+        );
       }
 
-      if (this.app.isModalOpen) {
-        this._pendingRequest = { method, params };
-        return new Promise<unknown>((resolve, reject) => {
-          this._pendingPromise = { resolve, reject };
-        });
+      this._inFlight = true;
+      try {
+        return await this.executeRequest({ method, params });
+      } finally {
+        this._inFlight = false;
       }
-
-      // If modal is not open, execute the request immediately
-      return this.executeRequest({ method, params });
-    } else {
-      //Should be a JSON RPC request that can be broadcasted to Node RPC
-      return this.executeRequest({ method, params });
     }
+
+    // Should be a JSON RPC request that can be broadcasted to Node RPC
+    return this.executeRequest({ method, params });
   }
 
   public on<TEvent extends keyof ProviderEvent>(
@@ -203,7 +136,6 @@ export class LedgerEIP1193Provider
   }
 
   public async connect(): Promise<void> {
-    // TODO: Logic to check if we are connected to a chain
     if (!this._isConnected) {
       this._isConnected = true;
 
@@ -212,15 +144,11 @@ export class LedgerEIP1193Provider
           bubbles: true,
           composed: true,
           detail: {
-            chainId: "0x1", // TODO: Replace with the actual chainId
+            chainId: "0x" + this._selectedChainId.toString(16),
           },
         }),
       );
     }
-  }
-
-  public navigationIntent(intent: string, params?: unknown): void {
-    this.app.navigationIntent(intent, params);
   }
 
   public async disconnect(
@@ -228,27 +156,13 @@ export class LedgerEIP1193Provider
     message = "Provider disconnected",
     data?: unknown,
   ): Promise<void> {
-    // TODO: Logic to disconnect from the chain
     if (this._isConnected) {
       this._isConnected = false;
-
-      this.core.disconnect();
-      this._isConnected = false;
       this._selectedAccount = null;
-      this._selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
-      this._currentEvent = null;
+      this._selectedChainId = 1; // Default to Ethereum mainnet
+      this._inFlight = false;
 
-      // Clean up pending request on disconnect
-      if (this._pendingPromise) {
-        this._pendingPromise.reject(this.createError(code, message, data));
-        this._pendingPromise = null;
-        this._pendingRequest = null;
-      }
-
-      if (this._contextSubscription) {
-        this._contextSubscription.unsubscribe();
-        this._contextSubscription = undefined;
-      }
+      await this.host.disconnect();
 
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
@@ -260,38 +174,16 @@ export class LedgerEIP1193Provider
     }
   }
 
-  private subscribeToContextChanges() {
-    if (this._contextSubscription) {
-      this._contextSubscription.unsubscribe();
+  /**
+   * Core pushes the freshly selected account (or `undefined` on disconnect).
+   * Emits EIP-1193 `accountsChanged` for switches made directly in the UI.
+   */
+  public setSelectedAccount(account: Account | undefined): void {
+    if (!account) {
+      void this.disconnect();
+      return;
     }
 
-    this._contextSubscription = this.core
-      .observeContext()
-      .subscribe((context) => {
-        if (context.selectedAccount) {
-          const newAddress = context.selectedAccount.freshAddress;
-          const newChainId = getChainIdFromCurrencyId(
-            context.selectedAccount.currencyId,
-          );
-
-          const hasSelectedAccountChanged = this._selectedAccount !== null;
-          const hasAddressChanged = this._selectedAccount !== newAddress;
-          const hasChainIdChanged = this._selectedChainId !== newChainId;
-
-          if (hasAddressChanged) {
-            this.setSelectedAccount(context.selectedAccount);
-          }
-
-          if (hasChainIdChanged || !hasSelectedAccountChanged) {
-            this.setSelectedChainId(newChainId);
-          }
-        } else {
-          this.disconnect();
-        }
-      });
-  }
-
-  private setSelectedAccount(account: Account) {
     if (
       this._selectedAccount &&
       this._selectedAccount === account.freshAddress &&
@@ -299,6 +191,7 @@ export class LedgerEIP1193Provider
     ) {
       return;
     }
+
     this._isConnected = true;
     this._selectedAccount = account.freshAddress;
     this.dispatchEvent(
@@ -308,6 +201,13 @@ export class LedgerEIP1193Provider
         detail: [this._selectedAccount],
       }),
     );
+
+    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId));
+  }
+
+  /** Core pushes the active chain id. Emits EIP-1193 `chainChanged`. */
+  public setNetwork(chainId: number): void {
+    this.setSelectedChainId(chainId);
   }
 
   private setSelectedChainId(chainId: number) {
@@ -325,78 +225,28 @@ export class LedgerEIP1193Provider
   }
 
   private async handleAccounts(): Promise<string[]> {
-    return new Promise((resolve) => {
-      const selectedAccount = this.core.getSelectedAccount();
-      //Selected account is already set and the same as the selected account in core
-      if (
-        this._selectedAccount &&
-        selectedAccount &&
-        selectedAccount.freshAddress === this._selectedAccount
-      ) {
-        return resolve([this._selectedAccount]);
-      }
-
-      if (selectedAccount) {
-        this.setSelectedAccount(selectedAccount);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return resolve([this._selectedAccount!]);
-      }
-
-      //SHOULD NEVER HAPPEN
-      return resolve([]);
-    });
+    if (this._selectedAccount) {
+      return [this._selectedAccount];
+    }
+    return [];
   }
 
-  // Handlers for the different RPC methods
   private async handleRequestAccounts(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      this._currentEvent = "ledger-provider-account-selected";
-      const selectedAccount = this.core.getSelectedAccount();
+    const account = await this.host.requestAccount("evm");
 
-      if (selectedAccount) {
-        this._selectedAccount = selectedAccount.freshAddress;
+    this._isConnected = true;
+    this._selectedAccount = account.freshAddress;
+    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId));
 
-        //Update the selected chain id
-        const address = selectedAccount.freshAddress;
-        const chainId = getChainIdFromCurrencyId(selectedAccount.currencyId);
+    this.dispatchEvent(
+      new CustomEvent<string[]>("accountsChanged", {
+        bubbles: true,
+        composed: true,
+        detail: [account.freshAddress],
+      }),
+    );
 
-        this.setSelectedAccount(selectedAccount);
-        this.setSelectedChainId(chainId);
-        return resolve([address]);
-      } else {
-        window.addEventListener(
-          "ledger-provider-account-selected",
-          (e) => {
-            this._currentEvent = null;
-            if (e.detail.status === "error") {
-              return reject(this.mapErrors(e.detail.error));
-            }
-
-            if (e.detail.status === "success") {
-              //Update the selected account
-
-              this._selectedAccount = e.detail.account.freshAddress;
-              this.setSelectedAccount(e.detail.account);
-
-              //Update the selected chain id
-              const chainId = getChainIdFromCurrencyId(
-                e.detail.account.currencyId,
-              );
-              this.setSelectedChainId(chainId);
-
-              //Update the connected status
-              this._isConnected = true;
-              resolve([e.detail.account.freshAddress]);
-            }
-          },
-          {
-            once: true,
-          },
-        );
-
-        this.app.navigationIntent("selectAccount");
-      }
-    });
+    return [account.freshAddress];
   }
 
   private async handleSignTransaction(
@@ -404,230 +254,167 @@ export class LedgerEIP1193Provider
     method: RpcMethods,
     broadcast = false,
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!this._isConnected) {
-        return reject(
-          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
-        );
+    this.assertReadyToSign();
+
+    let transaction: Record<string, unknown> | string;
+    if (typeof params[0] === "object") {
+      transaction = params[0] as Record<string, unknown>;
+    } else {
+      transaction = params[0] as string;
+    }
+
+    const request: WalletProviderSignRequest = {
+      kind: "transaction",
+      transaction,
+      method,
+      broadcast,
+    };
+
+    try {
+      const result = await this.host.requestSign(request);
+      if (isBroadcastedTransactionResult(result)) {
+        return result.hash;
       }
-
-      if (!this._selectedAccount) {
-        return reject(
-          this.createError(
-            CommonEIP1193ErrorCode.Unauthorized,
-            "No account selected",
-          ),
-        );
+      if (isSignedTransactionResult(result)) {
+        return result.signedRawTransaction;
       }
-
-      this._currentEvent = "ledger-provider-sign";
-
-      let tx: Record<string, unknown> | string;
-      //Sanitize transaction for EIP-1193
-      if (typeof params[0] === "object") {
-        const transaction = params[0] as Record<string, unknown>;
-        tx = transaction;
-      } else {
-        tx = params[0] as string;
-      }
-
-      window.addEventListener(
-        "ledger-provider-sign",
-        (e) => {
-          this._currentEvent = null;
-          if (e.detail.status === "success") {
-            if (isBroadcastedTransactionResult(e.detail.data)) {
-              return resolve(e.detail.data.hash);
-            }
-            if (isSignedTransactionResult(e.detail.data)) {
-              return resolve(e.detail.data.signedRawTransaction);
-            }
-          }
-
-          if (e.detail.status === "error") {
-            return reject(this.mapErrors(e.detail.error));
-          }
-        },
-        {
-          once: true,
-        },
+      throw this.createError(
+        CommonEIP1193ErrorCode.InternalError,
+        "Unexpected sign result",
       );
-
-      this.app.navigationIntent("signTransaction", {
-        transaction: tx,
-        method,
-        broadcast,
-      });
-    });
+    } catch (error) {
+      throw this.mapErrors(error);
+    }
   }
 
   private async handleSignTypedData(
     params: unknown[],
     method: RpcMethods,
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!this._isConnected) {
-        return reject(
-          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
-        );
-      }
+    this.assertReadyToSign();
 
-      if (!this._selectedAccount) {
-        return reject(
-          this.createError(
-            CommonEIP1193ErrorCode.Unauthorized,
-            "No account selected",
-          ),
-        );
-      }
-
-      this._currentEvent = "ledger-provider-sign";
-
-      window.addEventListener(
-        "ledger-provider-sign",
-        (e) => {
-          this._currentEvent = null;
-          if (e.detail.status === "success") {
-            if (isSignedMessageOrTypedDataResult(e.detail.data)) {
-              return resolve(e.detail.data.signature);
-            }
-          }
-
-          if (e.detail.status === "error") {
-            return reject(this.mapErrors(e.detail.error));
-          }
-        },
-        {
-          once: true,
-        },
+    if (
+      typeof params[0] === "string" &&
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      params[0].toLowerCase() !== this._selectedAccount!.toLowerCase()
+    ) {
+      throw this.createError(
+        CommonEIP1193ErrorCode.Unauthorized,
+        "Address mismatch",
       );
+    }
 
-      if (
-        typeof params[0] === "string" &&
-        params[0].toLowerCase() !== this._selectedAccount.toLowerCase()
-      ) {
-        return reject(
-          this.createError(
-            CommonEIP1193ErrorCode.Unauthorized,
-            "Address mismatch",
-          ),
+    let payload: [address: string, typedData: unknown, method: string];
+    if (typeof params[1] === "string") {
+      try {
+        const typedData = JSON.parse(params[1] as string) as TypedData;
+        payload = [params[0] as string, typedData, method];
+      } catch (error) {
+        throw this.createError(
+          CommonEIP1193ErrorCode.InvalidParams,
+          "Invalid typed data",
+          { error },
         );
       }
+    } else {
+      payload = [params[0] as string, params[1], method];
+    }
 
-      if (typeof params[1] === "string") {
-        try {
-          const p = JSON.parse(params[1] as string) as TypedData;
-          this.app.navigationIntent("signTransaction", [params[0], p, method]);
-          return;
-        } catch (error) {
-          return reject(
-            this.createError(
-              CommonEIP1193ErrorCode.InvalidParams,
-              "Invalid typed data",
-              {
-                error,
-              },
-            ),
-          );
-        }
+    try {
+      const result = await this.host.requestSign({
+        kind: "typedData",
+        payload,
+      });
+      if (isSignedMessageOrTypedDataResult(result)) {
+        return result.signature;
       }
-
-      this.app.navigationIntent("signTransaction", [...params, method]);
-    });
+      throw this.createError(
+        CommonEIP1193ErrorCode.InternalError,
+        "Unexpected sign result",
+      );
+    } catch (error) {
+      throw this.mapErrors(error);
+    }
   }
 
   private async handleSignPersonalMessage(
     params: unknown[],
     method: RpcMethods,
   ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!this._isConnected) {
-        return reject(
-          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
-        );
+    this.assertReadyToSign();
+
+    let payload: [address: string, message: string, method: string];
+    // CF: https://docs.metamask.io/wallet/reference/json-rpc-methods/personal_sign
+    if (method === "personal_sign") {
+      const address = params[1] as string;
+      const message = hexToUtf8(params[0] as string);
+      payload = [address, message, method];
+    } else {
+      // eth_sign
+      payload = [params[0] as string, params[1] as string, method];
+    }
+
+    try {
+      const result = await this.host.requestSign({
+        kind: "personalMessage",
+        payload,
+      });
+      if (isSignedMessageOrTypedDataResult(result)) {
+        return result.signature;
       }
-
-      if (!this._selectedAccount) {
-        return reject(
-          this.createError(
-            CommonEIP1193ErrorCode.Unauthorized,
-            "No account selected",
-          ),
-        );
-      }
-
-      this._currentEvent = "ledger-provider-sign";
-
-      window.addEventListener(
-        "ledger-provider-sign",
-        (e) => {
-          this._currentEvent = null;
-          if (e.detail.status === "success") {
-            if (isSignedMessageOrTypedDataResult(e.detail.data)) {
-              return resolve(e.detail.data.signature);
-            }
-          }
-          if (e.detail.status === "error") {
-            return reject(this.mapErrors(e.detail.error));
-          }
-        },
-        {
-          once: true,
-        },
+      throw this.createError(
+        CommonEIP1193ErrorCode.InternalError,
+        "Unexpected sign result",
       );
-
-      //CF: https://docs.metamask.io/wallet/reference/json-rpc-methods/personal_sign
-      if (method === "personal_sign") {
-        const address = params[1] as string;
-        const messageHex = params[0] as string;
-        const message = hexToUtf8(messageHex);
-
-        this.app.navigationIntent("signTransaction", [
-          address,
-          message,
-          method,
-        ]);
-      } else {
-        //eth_sign
-        this.app.navigationIntent("signTransaction", [...params, method]);
-      }
-    });
+    } catch (error) {
+      throw this.mapErrors(error);
+    }
   }
 
   private async handleSwitchChainId(params: unknown[]): Promise<null> {
-    return new Promise((resolve, reject) => {
-      if (!this._isConnected) {
-        return reject(
-          this.createError(CommonEIP1193ErrorCode.Disconnected, "Disconnected"),
-        );
-      }
+    if (!this._isConnected) {
+      throw this.createError(
+        CommonEIP1193ErrorCode.Disconnected,
+        "Disconnected",
+      );
+    }
 
-      const chainId = (params[0] as { chainId: string }).chainId;
-      const chainIdNumber = parseInt(chainId, 16);
+    const chainId = (params[0] as { chainId: string }).chainId;
+    const chainIdNumber = parseInt(chainId, 16);
 
-      if (!isSupportedChainId(chainIdNumber.toString())) {
-        return reject(
-          this.createError(
-            CommonEIP1193ErrorCode.ChainDisconnected,
-            "Unsupported chain",
-          ),
-        );
-      }
+    if (!isSupportedChainId(chainIdNumber.toString())) {
+      throw this.createError(
+        CommonEIP1193ErrorCode.ChainDisconnected,
+        "Unsupported chain",
+      );
+    }
 
-      this.core.setChainId(chainIdNumber);
-      this.setSelectedChainId(chainIdNumber);
+    await this.host.requestSwitchChain(chainIdNumber);
+    this.setSelectedChainId(chainIdNumber);
 
-      //returns null if the active chain is switched.
-      //cf. https://docs.metamask.io/wallet/reference/json-rpc-methods/wallet_switchEthereumChain#returns
-      resolve(null);
-    });
+    // returns null if the active chain is switched.
+    // cf. https://docs.metamask.io/wallet/reference/json-rpc-methods/wallet_switchEthereumChain#returns
+    return null;
   }
 
   private async handleChainId(): Promise<string> {
-    return new Promise((resolve) => {
-      //Chain ID must be in hex format => https://ethereum.org/developers/docs/apis/json-rpc/#eth_chainId
-      resolve("0x" + this._selectedChainId.toString(16));
-    });
+    // Chain ID must be in hex format => https://ethereum.org/developers/docs/apis/json-rpc/#eth_chainId
+    return "0x" + this._selectedChainId.toString(16);
+  }
+
+  private assertReadyToSign(): void {
+    if (!this._isConnected) {
+      throw this.createError(
+        CommonEIP1193ErrorCode.Disconnected,
+        "Disconnected",
+      );
+    }
+    if (!this._selectedAccount) {
+      throw this.createError(
+        CommonEIP1193ErrorCode.Unauthorized,
+        "No account selected",
+      );
+    }
   }
 
   handlers = {
@@ -662,14 +449,10 @@ export class LedgerEIP1193Provider
   private async executeRequest({ method, params }: RequestArguments) {
     if (method in this.handlers) {
       if (method !== "eth_requestAccounts" && !this._isConnected) {
-        return new Promise((_, reject) => {
-          reject(
-            this.createError(
-              CommonEIP1193ErrorCode.Unauthorized,
-              "Unauthorized",
-            ),
-          );
-        });
+        throw this.createError(
+          CommonEIP1193ErrorCode.Unauthorized,
+          "Unauthorized",
+        );
       }
 
       return this.handlers[method as keyof typeof this.handlers](
@@ -679,24 +462,18 @@ export class LedgerEIP1193Provider
     }
 
     if (isSupportedRpcMethod(method)) {
-      const res = await this.core.jsonRpcRequest({
+      return this.host.broadcastRPC({
         jsonrpc: "2.0",
         id: this._id++,
         method,
         params,
       });
-
-      return res;
     }
 
-    return new Promise((_, reject) => {
-      reject(
-        this.createError(
-          CommonEIP1193ErrorCode.UnsupportedMethod,
-          `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
-        ),
-      );
-    });
+    throw this.createError(
+      CommonEIP1193ErrorCode.UnsupportedMethod,
+      `Method ${method} is not supported, { method: ${method}, params: ${JSON.stringify(params)} }`,
+    );
   }
 
   private createError(
@@ -754,32 +531,8 @@ export class LedgerEIP1193Provider
   }
 }
 
-class ModalClosedError extends LedgerButtonError {
+export class ModalClosedError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
     super(message, "ModalClosedError", context);
-  }
-}
-
-declare global {
-  interface WindowEventMap {
-    connect: CustomEvent<ProviderConnectInfo>;
-    disconnect: CustomEvent<ProviderRpcError>;
-    chainChanged: CustomEvent<string>;
-    accountsChanged: CustomEvent<string[]>;
-    message: CustomEvent<ProviderMessage>;
-    "eip6963:announceProvider": EIP6963AnnounceProviderEvent;
-    "eip6963:requestProvider": EIP6963RequestProviderEvent;
-    // Custom events bridged from the UI layer to the provider. The UI
-    // implementation (e.g. `LedgerButtonApp`) is responsible for dispatching
-    // these on `window` after user interaction completes.
-    "ledger-provider-account-selected": CustomEvent<
-      | { account: Account; status: "success" }
-      | { status: "error"; error: unknown }
-    >;
-    "ledger-provider-sign": CustomEvent<
-      | { status: "success"; data: SignedResults }
-      | { status: "error"; error: unknown }
-    >;
-    "ledger-provider-disconnect": CustomEvent;
   }
 }
