@@ -1,64 +1,49 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { type LedgerButtonCore } from "../../api/LedgerButtonCore.js";
-import {
-  CommonEIP1193ErrorCode,
-} from "../../api/model/eip/EIPTypes.js";
-import { type EvmProviderUI } from "./EvmProviderUI.js";
+import { CommonEIP1193ErrorCode } from "../../api/model/eip/EIPTypes.js";
+import { Account } from "../account/service/AccountService.js";
+import type { WalletProviderHost } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
-const createMockLedgerButtonCore = (): LedgerButtonCore =>
-  ({
-    getSelectedAccount: vi.fn(),
-    setChainId: vi.fn(),
-    disconnect: vi.fn(),
-    jsonRpcRequest: vi.fn(),
-    observeContext: vi.fn(() => ({
-      subscribe: vi.fn(() => ({
-        unsubscribe: vi.fn(),
-      })),
-    })),
-  }) as unknown as LedgerButtonCore;
+const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";
 
-const createMockEvmProviderUI = (): EvmProviderUI =>
+const createAccount = (overrides: Partial<Account> = {}): Account =>
   ({
-    isModalOpen: false,
-    navigationIntent: vi.fn(),
-  }) as unknown as EvmProviderUI;
+    id: "evm:1",
+    currencyId: "ethereum",
+    freshAddress: EVM_ADDRESS,
+    seedIdentifier: "seed",
+    derivationMode: "",
+    index: 0,
+    name: "Ethereum 1",
+    ticker: "ETH",
+    balance: undefined,
+    tokens: [],
+    ...overrides,
+  }) as Account;
+
+const createMockHost = (): {
+  [K in keyof WalletProviderHost]: ReturnType<typeof vi.fn>;
+} => ({
+  broadcastRPC: vi.fn(),
+  requestAccount: vi.fn(),
+  requestSign: vi.fn(),
+  requestSwitchChain: vi.fn(),
+  disconnect: vi.fn().mockResolvedValue(undefined),
+});
 
 describe("LedgerEIP1193Provider", () => {
   let provider: LedgerEIP1193Provider;
-  let mockCore: ReturnType<typeof createMockLedgerButtonCore>;
-  let mockApp: ReturnType<typeof createMockEvmProviderUI>;
+  let host: ReturnType<typeof createMockHost>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
-
-    // Mock window object for Node.js environment (fresh mocks for each test)
-    if (typeof window === "undefined") {
-      Object.defineProperty(global, "window", {
-        value: {
-          addEventListener: vi.fn(),
-          dispatchEvent: vi.fn(),
-        },
-        writable: true,
-        configurable: true,
-      });
-    } else {
-      vi.spyOn(window, "addEventListener");
-      vi.spyOn(window, "dispatchEvent");
-    }
-
-    mockCore = createMockLedgerButtonCore();
-    mockApp = createMockEvmProviderUI();
-
-    provider = new LedgerEIP1193Provider(mockCore, mockApp);
+    host = createMockHost();
+    provider = new LedgerEIP1193Provider(host as unknown as WalletProviderHost);
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.clearAllMocks();
   });
 
@@ -67,105 +52,48 @@ describe("LedgerEIP1193Provider", () => {
       expect(provider.isLedgerButton).toBe(true);
       expect(provider.isConnected()).toBe(false);
     });
-
-    it("should set up window event listeners", () => {
-      vi.clearAllMocks();
-      const addEventListenerSpy = vi.spyOn(window, "addEventListener");
-
-      new LedgerEIP1193Provider(mockCore, mockApp);
-
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        "ledger-provider-disconnect",
-        expect.any(Function),
-      );
-      expect(addEventListenerSpy).toHaveBeenCalledWith(
-        "ledger-provider-close",
-        expect.any(Function),
-      );
-    });
   });
 
-  describe("on", () => {
-    it("should add event listener", () => {
+  describe("on / removeListener", () => {
+    it("should add and invoke a listener for custom events", () => {
       const listener = vi.fn();
-
       provider.on("connect", listener);
-
-      expect(provider["_listeners"].has(listener)).toBe(true);
-    });
-
-    it("should wrap listener to handle CustomEvent", () => {
-      const listener = vi.fn();
-      const mockEvent = new CustomEvent("connect", {
-        detail: { chainId: "0x1" },
-      });
-
-      provider.on("connect", listener);
-      provider.dispatchEvent(mockEvent);
-
+      provider.dispatchEvent(
+        new CustomEvent("connect", { detail: { chainId: "0x1" } }),
+      );
       expect(listener).toHaveBeenCalledWith({ chainId: "0x1" });
     });
 
-    it("should return provider instance for chaining", () => {
+    it("should remove a listener", () => {
       const listener = vi.fn();
-
-      const result = provider.on("connect", listener);
-
-      expect(result).toBe(provider);
-    });
-  });
-
-  describe("removeListener", () => {
-    it("should remove event listener", () => {
-      const listener = vi.fn();
-
       provider.on("connect", listener);
-      expect(provider["_listeners"].has(listener)).toBe(true);
-
+      expect(provider["_listeners"].has(listener as any)).toBe(true);
       provider.removeListener("connect", listener);
-      expect(provider["_listeners"].has(listener)).toBe(false);
+      expect(provider["_listeners"].has(listener as any)).toBe(false);
     });
 
-    it("should return provider instance for chaining", () => {
+    it("should return the provider instance for chaining", () => {
       const listener = vi.fn();
-
-      provider.on("connect", listener);
-      const result = provider.removeListener("connect", listener);
-
-      expect(result).toBe(provider);
-    });
-
-    it("should handle removing non-existent listener", () => {
-      const listener = vi.fn();
-
-      const result = provider.removeListener("connect", listener);
-
-      expect(result).toBe(provider);
+      expect(provider.on("connect", listener)).toBe(provider);
+      expect(provider.removeListener("connect", listener)).toBe(provider);
     });
   });
 
   describe("connect", () => {
-    it("should set connected status to true", async () => {
+    it("should set connected status and dispatch a connect event", async () => {
+      const listener = vi.fn();
+      provider.on("connect", listener);
+
       await provider.connect();
 
       expect(provider.isConnected()).toBe(true);
-    });
-
-    it("should dispatch connect event", async () => {
-      const listener = vi.fn();
-
-      provider.on("connect", listener);
-      await provider.connect();
-
-      expect(listener).toHaveBeenCalledWith({
-        chainId: "0x1",
-      });
+      expect(listener).toHaveBeenCalledWith({ chainId: "0x1" });
     });
 
     it("should not connect multiple times", async () => {
       const listener = vi.fn();
-
       provider.on("connect", listener);
+
       await provider.connect();
       await provider.connect();
 
@@ -174,144 +102,124 @@ describe("LedgerEIP1193Provider", () => {
   });
 
   describe("request", () => {
-    it("should reject when provider is busy", async () => {
-      provider["_pendingPromise"] = {
-        resolve: vi.fn(),
-        reject: vi.fn(),
-      };
+    it("should reject a blocking request while another is in flight", async () => {
+      // Hold the first blocking request open via a never-resolving host call.
+      host.requestAccount.mockReturnValue(new Promise(() => undefined));
+      void provider.request({ method: "eth_requestAccounts", params: [] });
 
       await expect(
-        provider.request({
-          method: "eth_accounts",
-          params: [],
-        }),
-      ).rejects.toHaveProperty(
-        "code",
-        CommonEIP1193ErrorCode.InternalError,
-      );
+        provider.request({ method: "eth_requestAccounts", params: [] }),
+      ).rejects.toHaveProperty("code", CommonEIP1193ErrorCode.InternalError);
     });
 
-    it("should queue request when modal is open", async () => {
-      await provider.connect();
-      (mockApp as any).isModalOpen = true;
-
-      const requestPromise = provider.request({
-        method: "eth_accounts",
-        params: [],
-      });
-
-      expect(provider["_pendingRequest"]).toEqual({
-        method: "eth_accounts",
-        params: [],
-      });
-      expect(provider["_pendingPromise"]).toBeDefined();
-
-      (mockApp as any).isModalOpen = false;
-      vi.advanceTimersByTime(2000);
-
-      await requestPromise;
-    });
-
-    it("should execute request immediately when modal is not open", async () => {
-      await provider.connect();
-      mockCore.getSelectedAccount = vi.fn().mockReturnValue(null);
-
-      const result = await provider.request({
-        method: "eth_accounts",
-        params: [],
-      });
-
-      expect(Array.isArray(result)).toBe(true);
-      expect(result).toEqual([]);
-    });
-
-    it("should handle unsupported method", async () => {
+    it("should reject an unsupported method", async () => {
       await expect(
-        provider.request({
-          method: "unsupported_method" as any,
-          params: [],
-        }),
+        provider.request({ method: "unsupported_method" as any, params: [] }),
       ).rejects.toHaveProperty(
         "code",
         CommonEIP1193ErrorCode.UnsupportedMethod,
       );
     });
 
-    it("should allow non-blocking methods when provider is busy", async () => {
-      await provider.connect();
-      provider["_pendingPromise"] = {
-        resolve: vi.fn(),
-        reject: vi.fn(),
-      };
-
-      mockCore.jsonRpcRequest = vi.fn().mockResolvedValue("0x123");
+    it("should route non-blocking methods to host.broadcastRPC", async () => {
+      const response = { jsonrpc: "2.0", id: 0, result: "0x123" };
+      host.broadcastRPC.mockResolvedValue(response);
 
       const result = await provider.request({
         method: "eth_call",
         params: [],
       });
 
-      expect(result).toBe("0x123");
-      expect(mockCore.jsonRpcRequest).toHaveBeenCalled();
+      expect(result).toBe(response);
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_call" }),
+      );
     });
 
-    it("should allow non-blocking methods when modal is open", async () => {
-      await provider.connect();
-      (mockApp as any).isModalOpen = true;
+    it("should allow non-blocking methods even when disconnected", async () => {
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: "0x0",
+      });
 
-      mockCore.jsonRpcRequest = vi.fn().mockResolvedValue("0x456");
+      await provider.request({ method: "eth_getBalance", params: [] });
+
+      expect(host.broadcastRPC).toHaveBeenCalled();
+    });
+
+    it("should reject handler methods when disconnected", async () => {
+      await expect(
+        provider.request({ method: "eth_accounts", params: [] }),
+      ).rejects.toHaveProperty("code", CommonEIP1193ErrorCode.Unauthorized);
+    });
+
+    it("should return the selected account for eth_accounts", async () => {
+      provider.setSelectedAccount(createAccount());
 
       const result = await provider.request({
-        method: "eth_getBalance",
+        method: "eth_accounts",
         params: [],
       });
 
-      expect(result).toBe("0x456");
-      expect(mockCore.jsonRpcRequest).toHaveBeenCalled();
-      expect(provider["_pendingRequest"]).toBeNull();
+      expect(result).toEqual([EVM_ADDRESS]);
     });
 
-    it("should allow non-blocking methods when disconnected", async () => {
-      mockCore.jsonRpcRequest = vi.fn().mockResolvedValue("0x789");
+    it("should request an account via the host for eth_requestAccounts", async () => {
+      host.requestAccount.mockResolvedValue(createAccount());
 
       const result = await provider.request({
-        method: "eth_call",
+        method: "eth_requestAccounts",
         params: [],
       });
 
-      expect(result).toBe("0x789");
-      expect(mockCore.jsonRpcRequest).toHaveBeenCalled();
+      expect(host.requestAccount).toHaveBeenCalledWith("evm");
+      expect(result).toEqual([EVM_ADDRESS]);
+    });
+  });
+
+  describe("setSelectedAccount / setNetwork", () => {
+    it("should connect and emit accountsChanged when an account is pushed", () => {
+      const listener = vi.fn();
+      provider.on("accountsChanged", listener);
+
+      provider.setSelectedAccount(createAccount());
+
+      expect(provider.isConnected()).toBe(true);
+      expect(listener).toHaveBeenCalledWith([EVM_ADDRESS]);
+    });
+
+    it("should disconnect when undefined is pushed", () => {
+      provider.setSelectedAccount(createAccount());
+      provider.setSelectedAccount(undefined);
+      expect(provider.isConnected()).toBe(false);
+    });
+
+    it("should emit chainChanged when the network changes", () => {
+      const listener = vi.fn();
+      provider.on("chainChanged", listener);
+
+      provider.setNetwork(137);
+
+      expect(listener).toHaveBeenCalledWith("0x89");
     });
   });
 
   describe("disconnect", () => {
-    it("should not disconnect when already disconnected", async () => {
-      const disconnectSpy = vi.spyOn(mockCore, "disconnect");
-
+    it("should not call host.disconnect when already disconnected", async () => {
       await provider.disconnect();
-
-      expect(disconnectSpy).not.toHaveBeenCalled();
+      expect(host.disconnect).not.toHaveBeenCalled();
     });
 
-    it("should disconnect when connected", async () => {
+    it("should call host.disconnect and dispatch a disconnect event when connected", async () => {
       await provider.connect();
-      const disconnectSpy = vi.spyOn(mockCore, "disconnect");
-
-      await provider.disconnect();
-
-      expect(disconnectSpy).toHaveBeenCalled();
-      expect(provider.isConnected()).toBe(false);
-    });
-
-    it("should dispatch disconnect event", async () => {
-      await provider.connect();
-
       const listener = vi.fn();
       provider.on("disconnect", listener);
 
       await provider.disconnect();
 
-      expect(listener).toHaveBeenCalled();
+      expect(host.disconnect).toHaveBeenCalled();
+      expect(provider.isConnected()).toBe(false);
       expect(listener.mock.calls[0][0]).toHaveProperty("code", 1000);
       expect(listener.mock.calls[0][0]).toHaveProperty(
         "message",
@@ -319,33 +227,13 @@ describe("LedgerEIP1193Provider", () => {
       );
     });
 
-    it("should reject pending request on disconnect", async () => {
+    it("should use a custom disconnect code and message", async () => {
       await provider.connect();
-      (mockApp as any).isModalOpen = true;
-
-      const requestPromise = provider.request({
-        method: "eth_accounts",
-        params: [],
-      });
-
-      await provider.disconnect();
-
-      await expect(requestPromise).rejects.toHaveProperty("code", 1000);
-      await expect(requestPromise).rejects.toHaveProperty(
-        "message",
-        "Provider disconnected",
-      );
-    });
-
-    it("should use custom disconnect code and message", async () => {
-      await provider.connect();
-
       const listener = vi.fn();
       provider.on("disconnect", listener);
 
       await provider.disconnect(4001, "Custom disconnect message");
 
-      expect(listener).toHaveBeenCalled();
       expect(listener.mock.calls[0][0]).toHaveProperty("code", 4001);
       expect(listener.mock.calls[0][0]).toHaveProperty(
         "message",
