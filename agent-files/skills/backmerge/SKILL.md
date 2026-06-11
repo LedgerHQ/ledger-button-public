@@ -1,3 +1,9 @@
+---
+name: backmerge
+description: Gitflow backmerge workflow that brings release changes from main back into develop. Use whenever the user says "backmerge", "back-merge", "merge main into develop", or invokes /backmerge. Do not improvise the steps — follow this procedure exactly.
+alwaysApply: false
+---
+
 # Backmerge
 
 Gitflow backmerge workflow. Brings release changes from `main` back into `develop`.

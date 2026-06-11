@@ -1,15 +1,18 @@
 ---
-description: Gitmoji + Conventional Commits conventions for commits, branches, and PR titles (enforced by Danger)
-alwaysApply: true
+name: commit
+description: Gitmoji + Conventional Commits convention for this repo (commit messages, branch names, and PR titles), enforced by the Danger CI bot. Use whenever creating commits, invoking /commit, naming a branch or PR, or fixing messages that failed Danger.
+alwaysApply: false
 ---
 
-# Gitmoji & Conventional Commits
+# Commit Changes
 
-This repo enforces gitmoji + Conventional Commits via `tools/danger/helpers.ts`. Use this format for every commit message, branch name, and PR title.
+Create a commit following the project's gitmoji + Conventional Commits conventions (enforced by `tools/danger/helpers.ts`). This same format applies to **commit messages, branch names, and PR titles**.
 
-## Commit messages & PR titles
+## Commit message & PR title format
 
-Format: `<emoji> (<scope>) [<TICKET>]: <Description>`
+```
+<emoji> (<scope>) [<TICKET>]: <Description>
+```
 
 - `<emoji>` — one gitmoji from the table below.
 - `<scope>` — lowercase module/package (e.g. `ledger-button`, `ledger-button-core`, `ci`, `release`, `docs`, `version`).
@@ -46,6 +49,32 @@ Format: `<emoji> (<scope>) [<TICKET>]: <Description>`
 | Lint fixes | 🚨 | `:rotating_light:` |
 | Version plan | 🔖 | `:bookmark:` |
 
+## How to commit (step by step)
+
+1. **Check staged changes** — Run `git status` and `git diff --staged` to understand what will be committed.
+
+2. **Gather required information** — Ask the user for anything that cannot be inferred:
+   - **Scope**: the module/package impacted by the update (e.g., `ledger-button`, `test-dapp`, `docs`)
+   - **Ticket**: `LBD-<number>`, `ISSUE-<number>`, or `NO-ISSUE`
+   - **Description**: a brief description of the change (starts with uppercase)
+   - **Type of change**: to determine the appropriate emoji
+
+3. **Create the commit**:
+
+   ```bash
+   git commit -m "<emoji> (<scope>) [<TICKET>]: <Description>"
+   ```
+
+4. If there are multiple logical changes, create atomic commits for each.
+
+### User input shortcut
+
+If the user provides context after the command (e.g., `/commit fix login button not responding`), use it to:
+
+- Infer the type of change and appropriate emoji
+- Extract the description
+- Ask only for missing information (like scope if unclear from staged files)
+
 ## Branch names
 
 Format: `<prefix>/<ticket-lowercase>-<kebab-description>`
@@ -62,4 +91,9 @@ Examples:
 
 - `pnpm commit` — interactive commit prompt.
 - `pnpm danger:local` — validate branch name + commits + PR title locally.
-- Authoritative regexes live in [tools/danger/helpers.ts](../../tools/danger/helpers.ts); human-readable conventions in [CONTRIBUTING.md](../../CONTRIBUTING.md).
+- Authoritative regexes live in [tools/danger/helpers.ts](../../../tools/danger/helpers.ts); human-readable conventions in [CONTRIBUTING.md](../../../CONTRIBUTING.md).
+
+## Tips
+
+- Keep descriptions concise but descriptive.
+- One logical change per commit (atomic commits).
