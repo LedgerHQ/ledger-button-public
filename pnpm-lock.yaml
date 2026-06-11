@@ -885,6 +885,9 @@ importers:
       '@wallet-standard/features':
         specifier: 'catalog:'
         version: 1.1.1
+      '@wallet-standard/wallet':
+        specifier: 'catalog:'
+        version: 1.1.1
       bignumber.js:
         specifier: 'catalog:'
         version: 9.3.1
