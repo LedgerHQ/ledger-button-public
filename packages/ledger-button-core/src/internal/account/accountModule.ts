@@ -50,9 +50,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     bind(accountModuleTypes.ObserveAccountsWithFiatUseCase)
       .to(ObserveAccountsWithFiatUseCase)
       .inSingletonScope();
-    bind(accountModuleTypes.ObserveSelectedAccountChangesUseCase)
-      .to(ObserveSelectedAccountChangesUseCase)
-      .inSingletonScope();
+    bind(accountModuleTypes.ObserveSelectedAccountChangesUseCase).to(
+      ObserveSelectedAccountChangesUseCase,
+    );
     bind(accountModuleTypes.SortAccountsByFiatUseCase).to(
       SortAccountsByFiatUseCase,
     );
