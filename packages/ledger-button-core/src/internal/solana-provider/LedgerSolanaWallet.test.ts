@@ -1,9 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerButtonCore } from "../../api/LedgerButtonCore.js";
 import { Account } from "../account/service/AccountService.js";
+import type { WalletProviderHost } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
-import { SolanaProviderUI } from "./SolanaProviderUI.js";
 
 // System program id: a valid 32-byte base58 address.
 const SOLANA_ADDRESS = "11111111111111111111111111111111";
@@ -22,21 +21,24 @@ const createAccount = (overrides: Partial<Account> = {}): Account => ({
   ...overrides,
 });
 
-const ACCOUNT_SELECTED_EVENT = "ledger-provider-account-selected";
+const createMockHost = (): {
+  [K in keyof WalletProviderHost]: ReturnType<typeof vi.fn>;
+} => ({
+  broadcastRPC: vi.fn(),
+  requestAccount: vi.fn(),
+  requestSign: vi.fn(),
+  requestSwitchChain: vi.fn(),
+  disconnect: vi.fn().mockResolvedValue(undefined),
+});
 
 describe("LedgerSolanaWallet (connection)", () => {
-  let core: { getSelectedAccount: ReturnType<typeof vi.fn> };
-  let app: SolanaProviderUI & { navigationIntent: ReturnType<typeof vi.fn> };
+  let host: ReturnType<typeof createMockHost>;
 
   const createWallet = () =>
-    new LedgerSolanaWallet(
-      core as unknown as LedgerButtonCore,
-      app as SolanaProviderUI,
-    );
+    new LedgerSolanaWallet(host as unknown as WalletProviderHost);
 
   beforeEach(() => {
-    core = { getSelectedAccount: vi.fn() };
-    app = { isModalOpen: false, navigationIntent: vi.fn() };
+    host = createMockHost();
   });
 
   afterEach(() => {
@@ -66,13 +68,13 @@ describe("LedgerSolanaWallet (connection)", () => {
   });
 
   describe("connect", () => {
-    it("reuses the currently selected Solana account without opening the UI", async () => {
-      core.getSelectedAccount.mockReturnValue(createAccount());
+    it("reuses an account pushed by core without calling the host", async () => {
       const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
 
       const { accounts } = await wallet.features["standard:connect"].connect();
 
-      expect(app.navigationIntent).not.toHaveBeenCalled();
+      expect(host.requestAccount).not.toHaveBeenCalled();
       expect(accounts).toHaveLength(1);
       expect(accounts[0].address).toBe(SOLANA_ADDRESS);
       expect(accounts[0].chains).toEqual(["solana:mainnet"]);
@@ -84,80 +86,49 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(wallet.accounts).toBe(accounts);
     });
 
-    it("opens the account selection UI when no Solana account is selected", async () => {
-      core.getSelectedAccount.mockReturnValue(null);
-      const account = createAccount();
-      app.navigationIntent.mockImplementation(() => {
-        window.dispatchEvent(
-          new CustomEvent(ACCOUNT_SELECTED_EVENT, {
-            detail: { account, status: "success" },
-          }),
-        );
-      });
+    it("requests an account via the host when none is selected", async () => {
+      host.requestAccount.mockResolvedValue(createAccount());
       const wallet = createWallet();
 
       const { accounts } = await wallet.features["standard:connect"].connect();
 
-      expect(app.navigationIntent).toHaveBeenCalledWith("selectAccount");
+      expect(host.requestAccount).toHaveBeenCalledWith("solana");
       expect(accounts[0].address).toBe(SOLANA_ADDRESS);
     });
 
-    it("ignores a non-Solana selected account and falls back to the UI", async () => {
-      core.getSelectedAccount.mockReturnValue(
-        createAccount({ currencyId: "ethereum" }),
-      );
-      const account = createAccount();
-      app.navigationIntent.mockImplementation(() => {
-        window.dispatchEvent(
-          new CustomEvent(ACCOUNT_SELECTED_EVENT, {
-            detail: { account, status: "success" },
-          }),
-        );
-      });
+    it("ignores a non-Solana pushed account and falls back to the host", async () => {
+      host.requestAccount.mockResolvedValue(createAccount());
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount({ currencyId: "ethereum" }));
 
-      await createWallet().features["standard:connect"].connect();
+      await wallet.features["standard:connect"].connect();
 
-      expect(app.navigationIntent).toHaveBeenCalledWith("selectAccount");
+      expect(host.requestAccount).toHaveBeenCalledWith("solana");
     });
 
-    it("rejects when the selected account is not a Solana account", async () => {
-      core.getSelectedAccount.mockReturnValue(null);
-      app.navigationIntent.mockImplementation(() => {
-        window.dispatchEvent(
-          new CustomEvent(ACCOUNT_SELECTED_EVENT, {
-            detail: {
-              account: createAccount({ currencyId: "ethereum" }),
-              status: "success",
-            },
-          }),
-        );
-      });
+    it("rejects when the host returns a non-Solana account", async () => {
+      host.requestAccount.mockResolvedValue(
+        createAccount({ currencyId: "ethereum" }),
+      );
 
       await expect(
         createWallet().features["standard:connect"].connect(),
       ).rejects.toThrow("Selected account is not a Solana account");
     });
 
-    it("rejects when account selection fails", async () => {
-      core.getSelectedAccount.mockReturnValue(null);
-      app.navigationIntent.mockImplementation(() => {
-        window.dispatchEvent(
-          new CustomEvent(ACCOUNT_SELECTED_EVENT, {
-            detail: { status: "error", error: new Error("boom") },
-          }),
-        );
-      });
+    it("rejects when the host account request fails", async () => {
+      host.requestAccount.mockRejectedValue(new Error("boom"));
 
       await expect(
         createWallet().features["standard:connect"].connect(),
-      ).rejects.toThrow("Account selection failed");
+      ).rejects.toThrow("boom");
     });
   });
 
   describe("events", () => {
     it("emits a change event with the connected accounts", async () => {
-      core.getSelectedAccount.mockReturnValue(createAccount());
       const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
       const listener = vi.fn();
       wallet.features["standard:events"].on("change", listener);
 
@@ -167,8 +138,8 @@ describe("LedgerSolanaWallet (connection)", () => {
     });
 
     it("stops notifying a listener after it is removed", async () => {
-      core.getSelectedAccount.mockReturnValue(createAccount());
       const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
       const listener = vi.fn();
       const off = wallet.features["standard:events"].on("change", listener);
       off();
@@ -181,8 +152,8 @@ describe("LedgerSolanaWallet (connection)", () => {
 
   describe("disconnect", () => {
     it("clears the connected accounts and emits a change event", async () => {
-      core.getSelectedAccount.mockReturnValue(createAccount());
       const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
       await wallet.features["standard:connect"].connect();
 
       const listener = vi.fn();
