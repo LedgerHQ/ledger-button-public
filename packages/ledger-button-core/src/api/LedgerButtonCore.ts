@@ -1,15 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import {
-  distinctUntilChanged,
-  from,
-  map,
-  Observable,
-  of,
-  Subscription,
-  switchMap,
-  tap,
-} from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -31,8 +22,8 @@ import {
   type DetailedAccount,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
+import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/use-case/observeSelectedAccountChangesUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
@@ -578,28 +569,11 @@ export class LedgerButtonCore {
   }
 
   observeSelectedAccountChanges(): Observable<DetailedAccount | undefined> {
-    return this._contextService.observeContext().pipe(
-      distinctUntilChanged(
-        (a, b) =>
-          a.selectedAccount?.freshAddress === b.selectedAccount?.freshAddress &&
-          a.selectedAccount?.currencyId === b.selectedAccount?.currencyId &&
-          a.preferredFiatCurrency === b.preferredFiatCurrency,
-      ),
-      switchMap((ctx) => {
-        if (!ctx.selectedAccount) return of(undefined);
-        return from(
-          this.container
-            .get<FetchSelectedAccountUseCase>(
-              accountModuleTypes.FetchSelectedAccountUseCase,
-            )
-            .execute(),
-        ).pipe(
-          map((result) =>
-            result.isRight() ? result.unsafeCoerce() : undefined,
-          ),
-        );
-      }),
-    );
+    return this.container
+      .get<ObserveSelectedAccountChangesUseCase>(
+        accountModuleTypes.ObserveSelectedAccountChangesUseCase,
+      )
+      .execute();
   }
 
   observePendingTransactions(): Observable<PendingTransaction[]> {

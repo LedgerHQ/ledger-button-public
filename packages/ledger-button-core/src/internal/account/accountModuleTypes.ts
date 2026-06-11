@@ -15,5 +15,8 @@ export const accountModuleTypes = {
   ),
   FetchAccountsWithFiatUseCase: Symbol.for("FetchAccountsWithFiatUseCase"),
   ObserveAccountsWithFiatUseCase: Symbol.for("ObserveAccountsWithFiatUseCase"),
+  ObserveSelectedAccountChangesUseCase: Symbol.for(
+    "ObserveSelectedAccountChangesUseCase",
+  ),
   SortAccountsByFiatUseCase: Symbol.for("SortAccountsByFiatUseCase"),
 } as const;
