@@ -145,7 +145,6 @@ export class LedgerHomeController implements ReactiveController {
     this.accountSubscription = this.core
       .observeSelectedAccountChanges()
       .subscribe((account) => {
-        if (!this.isConnected) return;
         this.selectedAccount = account;
         this.loading = false;
         this.host.requestUpdate();
@@ -158,7 +157,6 @@ export class LedgerHomeController implements ReactiveController {
         distinctUntilChanged(),
       )
       .subscribe((currency) => {
-        if (!this.isConnected) return;
         this.preferredFiatCurrency = currency;
         this.host.requestUpdate();
       });
