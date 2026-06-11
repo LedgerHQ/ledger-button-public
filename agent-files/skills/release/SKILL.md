@@ -1,6 +1,12 @@
+---
+name: release
+description: End-to-end release workflow to cut and publish a new version (consume version plans, bump versions, update changelogs, open the release PR against main). Use whenever the user asks to do a release, cut a version, publish packages, or invokes /release. Do not improvise the steps — follow this procedure exactly.
+alwaysApply: false
+---
+
 # Release
 
-End-to-end release workflow. Follows the conventions defined in [release-process.mdc](../.cursor/rules/release-process.mdc).
+End-to-end release workflow.
 
 ## Step 1 — Start from a clean develop
 
