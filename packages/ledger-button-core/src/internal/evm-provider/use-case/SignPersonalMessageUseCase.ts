@@ -14,6 +14,8 @@ import type {
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import type { DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -31,8 +33,6 @@ import type {
 } from "../../device/use-case/device-action/SignPersonalMessageFlowDeviceActionTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import type { StorageService } from "../../storage/StorageService.js";
 import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
@@ -45,8 +45,8 @@ export class SignPersonalMessageUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(storageModuleTypes.StorageService)
-    private readonly storageService: StorageService,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
     @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
     @inject(evmProviderModuleTypes.BuildContextModuleUseCase)
@@ -82,9 +82,8 @@ export class SignPersonalMessageUseCase {
     try {
       const dmk = this.deviceManagementKitService.dmk;
 
-      const selectedAccount: Account | undefined = this.storageService
-        .getSelectedAccount()
-        .extract();
+      const selectedAccount: Account | undefined =
+        this.contextService.getContext().selectedAccount;
 
       if (!selectedAccount) {
         throw new AccountNotSelectedError("No account selected");

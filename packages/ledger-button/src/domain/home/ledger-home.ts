@@ -90,8 +90,6 @@ export class LedgerHomeScreen extends LitElement {
     this.controller = new LedgerHomeController(
       this,
       this.coreContext,
-      this.navigation,
-      this.destinations,
       this.languages,
     );
   }
