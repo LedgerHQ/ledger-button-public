@@ -10,6 +10,7 @@ import { HydrateAccountWithBalanceUseCase } from "./use-case/HydrateAccountWithB
 import { HydrateAccountWithFiatUseCase } from "./use-case/hydrateAccountWithFiatUseCase.js";
 import { HydrateAccountWithTxHistoryUseCase } from "./use-case/hydrateAccountWithTxHistoryUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "./use-case/observeAccountsWithFiatUseCase.js";
+import { ObserveSelectedAccountChangesUseCase } from "./use-case/observeSelectedAccountChangesUseCase.js";
 import { SortAccountsByFiatUseCase } from "./use-case/sortAccountsByFiatUseCase.js";
 import { type ContainerOptions } from "../diTypes.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
@@ -48,6 +49,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     );
     bind(accountModuleTypes.ObserveAccountsWithFiatUseCase)
       .to(ObserveAccountsWithFiatUseCase)
+      .inSingletonScope();
+    bind(accountModuleTypes.ObserveSelectedAccountChangesUseCase)
+      .to(ObserveSelectedAccountChangesUseCase)
       .inSingletonScope();
     bind(accountModuleTypes.SortAccountsByFiatUseCase).to(
       SortAccountsByFiatUseCase,
