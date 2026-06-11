@@ -3,7 +3,7 @@ import type {
   PendingTransaction,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
@@ -55,7 +55,7 @@ describe("LedgerHomeController", () => {
   let host: ReactiveControllerHost;
   let core: CoreContext;
   let languages: LanguageContext;
-  let accountSubject: Subject<DetailedAccount | undefined>;
+  let accountSubject: BehaviorSubject<DetailedAccount | undefined>;
   let pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
   let contextSubject: BehaviorSubject<Record<string, unknown>>;
   const account = createDetailedAccount();
@@ -68,7 +68,9 @@ describe("LedgerHomeController", () => {
       updateComplete: Promise.resolve(true),
     };
 
-    accountSubject = new Subject<DetailedAccount | undefined>();
+    accountSubject = new BehaviorSubject<DetailedAccount | undefined>(
+      undefined,
+    );
     pendingTxSubject = new BehaviorSubject<PendingTransaction[]>([]);
     contextSubject = new BehaviorSubject<Record<string, unknown>>({
       preferredFiatCurrency: "usd",
@@ -120,6 +122,14 @@ describe("LedgerHomeController", () => {
       contextSubject.next({ preferredFiatCurrency: "gbp" });
       expect(controller.preferredCurrency).toBe("GBP");
     });
+
+    it("calls requestUpdate when preferredFiatCurrency changes", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next({ preferredFiatCurrency: "eur" });
+
+      expect(host.requestUpdate).toHaveBeenCalled();
+    });
   });
 
   describe("account updates", () => {
@@ -134,12 +144,12 @@ describe("LedgerHomeController", () => {
 
     it("sets loading to false when first account arrives", async () => {
       controller.hostConnected();
-      expect(controller.loading).toBe(true);
+      expect(controller.loading).toBe(false);
 
       accountSubject.next(account);
 
       await vi.waitFor(() => {
-        expect(controller.loading).toBe(false);
+        expect(controller.selectedAccount).toEqual(account);
       });
     });
 

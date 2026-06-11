@@ -355,14 +355,6 @@ export class LedgerButtonCore {
     return this._contextService.getContext().selectedAccount;
   }
 
-  async fetchSelectedAccount() {
-    return this.container
-      .get<FetchSelectedAccountUseCase>(
-        accountModuleTypes.FetchSelectedAccountUseCase,
-      )
-      .execute();
-  }
-
   // Device methods
   getConnectedDevice() {
     this._logger.debug("Getting connected device");
@@ -595,7 +587,13 @@ export class LedgerButtonCore {
       ),
       switchMap((ctx) => {
         if (!ctx.selectedAccount) return of(undefined);
-        return from(this.fetchSelectedAccount()).pipe(
+        return from(
+          this.container
+            .get<FetchSelectedAccountUseCase>(
+              accountModuleTypes.FetchSelectedAccountUseCase,
+            )
+            .execute(),
+        ).pipe(
           map((result) =>
             result.isRight() ? result.unsafeCoerce() : undefined,
           ),
