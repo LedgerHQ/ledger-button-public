@@ -207,7 +207,7 @@
     "noTransactions": "ไม่พบธุรกรรม",
     "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
     "viewOnExplorer": "ดูใน Explorer",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "ดูธุรกรรมทั้งหมด",
     "failed": "ล้มเหลว",
     "kinds": {
       "swap": "สวอป",
@@ -311,9 +311,9 @@
         "cta2": "ปิด"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "การดำเนินการถูกปฏิเสธ",
+        "description": "ผู้ใช้ได้ปฏิเสธธุรกรรมบนอุปกรณ์",
+        "cta1": "ลองใหม่"
       }
     },
     "ledgerSync": {
