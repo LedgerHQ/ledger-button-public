@@ -14,7 +14,7 @@
     "transactionConfirmation": {
       "transactionSentTitle": "Gesendet",
       "transactionReceivedTitle": "Empfangen",
-      "transactionFailedTitle": "Transaktion fehlgeschlagen.",
+      "transactionFailedTitle": "Transaktion fehlgeschlagen",
       "transactionSwapTitle": "Transaktion bestätigt",
       "checkOnExplorer": "Transaktion im Explorer prüfen"
     },
@@ -207,7 +207,7 @@
     "noTransactions": "Keine Transaktionen gefunden",
     "pendingTransactions": "Schwebende Transaktionen",
     "viewOnExplorer": "Im Explorer ansehen",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "Alle Transaktionen anzeigen",
     "failed": "Fehlgeschlagen",
     "kinds": {
       "swap": "Swappen",
@@ -311,9 +311,9 @@
         "cta2": "Schließen"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "Aktion abgelehnt",
+        "description": "Der Benutzer hat die Transaktion am Gerät abgelehnt.",
+        "cta1": "Wiederholen"
       }
     },
     "ledgerSync": {
