@@ -207,7 +207,7 @@
     "noTransactions": "No se encontraron transacciones",
     "pendingTransactions": "Transacciones pendientes",
     "viewOnExplorer": "Ver en el explorador",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "Ver todas las transacciones",
     "failed": "Fallida",
     "kinds": {
       "swap": "Permutas",
@@ -311,9 +311,9 @@
         "cta2": "Cerrar"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "Acción rechazada",
+        "description": "El usuario rechazó la transacción en el dispositivo.",
+        "cta1": "Reintentar"
       }
     },
     "ledgerSync": {
