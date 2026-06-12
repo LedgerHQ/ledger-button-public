@@ -207,7 +207,7 @@
     "noTransactions": "トランザクションが見つかりません",
     "pendingTransactions": "保留中のトランザクション",
     "viewOnExplorer": "エクスプローラーで表示",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "すべてのトランザクションを表示",
     "failed": "失敗",
     "kinds": {
       "swap": "スワップ",
@@ -311,9 +311,9 @@
         "cta2": "閉じる"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "アクションが拒否されました。",
+        "description": "デバイス上でトランザクションを拒否しました。",
+        "cta1": "再試行"
       }
     },
     "ledgerSync": {

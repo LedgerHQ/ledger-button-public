@@ -311,9 +311,9 @@
         "cta2": "닫기"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "거부된 조치",
+        "description": "사용자가 장치에서 트랜잭션을 거부했습니다.",
+        "cta1": "다시 시도"
       }
     },
     "ledgerSync": {

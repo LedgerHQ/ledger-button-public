@@ -207,7 +207,7 @@
     "noTransactions": "Не нашли транзакции",
     "pendingTransactions": "Неподтверждённые транзакции",
     "viewOnExplorer": "Посмотреть в Обозревателе",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "Просмотреть все транзакции",
     "failed": "Ошибка",
     "kinds": {
       "swap": "Обмен",
@@ -311,9 +311,9 @@
         "cta2": "Закрыть"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "Действие отклонено",
+        "description": "Пользователь отклонил транзакцию на устройстве.",
+        "cta1": "Повторить"
       }
     },
     "ledgerSync": {
