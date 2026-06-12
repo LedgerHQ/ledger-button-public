@@ -15,8 +15,8 @@
       "transactionSentTitle": "Enviado",
       "transactionReceivedTitle": "Recebido",
       "transactionFailedTitle": "A transação falhou",
-      "transactionSwapTitle": "Transação confirmada",
-      "checkOnExplorer": "Verificar transação no explorador"
+      "transactionSwapTitle": "A transação foi confirmada",
+      "checkOnExplorer": "Ver transação no explorador"
     },
     "search": {
       "placeholder": "Buscar conta",
@@ -207,7 +207,7 @@
     "noTransactions": "Nenhuma transação encontrada",
     "pendingTransactions": "Transações pendentes",
     "viewOnExplorer": "Ver no explorador",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "Ver todas as transações",
     "failed": "Falha",
     "kinds": {
       "swap": "Trocar",
@@ -311,9 +311,9 @@
         "cta2": "Fechar"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "Ação Rejeitada",
+        "description": "O usuário rejeitou a transação no dispositivo.",
+        "cta1": "Tentar Novamente"
       }
     },
     "ledgerSync": {
