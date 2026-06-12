@@ -207,7 +207,7 @@
     "noTransactions": "未找到交易",
     "pendingTransactions": "待处理交易",
     "viewOnExplorer": "在浏览器上查看",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "查看所有交易",
     "failed": "已失败",
     "kinds": {
       "swap": "互换",
@@ -311,9 +311,9 @@
         "cta2": "关闭"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "操作被拒绝",
+        "description": "用户在设备上拒绝了该交易。",
+        "cta1": "重试"
       }
     },
     "ledgerSync": {
