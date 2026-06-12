@@ -207,7 +207,7 @@
     "noTransactions": "İşlem bulunamadı",
     "pendingTransactions": "Bekleyen İşlemler",
     "viewOnExplorer": "Tarayıcıda görüntüle",
-    "viewAllTransactions": "View all transactions",
+    "viewAllTransactions": "Tüm işlemleri görüntüle",
     "failed": "Başarısız",
     "kinds": {
       "swap": "Takas et",
@@ -311,9 +311,9 @@
         "cta2": "Kapat"
       },
       "ActionRejected": {
-        "title": "Action rejected",
-        "description": "User rejected the transaction on the device.",
-        "cta1": "Retry"
+        "title": "Eylem reddedildi",
+        "description": "Kullanıcı, cihazdaki işlemi reddetti.",
+        "cta1": "Tekrar dene"
       }
     },
     "ledgerSync": {
