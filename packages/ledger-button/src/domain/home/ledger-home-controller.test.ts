@@ -3,7 +3,7 @@ import type {
   PendingTransaction,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
@@ -55,7 +55,7 @@ describe("LedgerHomeController", () => {
   let host: ReactiveControllerHost;
   let core: CoreContext;
   let languages: LanguageContext;
-  let accountSubject: BehaviorSubject<DetailedAccount | undefined>;
+  let accountSubject: Subject<DetailedAccount | undefined>;
   let pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
   let contextSubject: BehaviorSubject<Record<string, unknown>>;
   const account = createDetailedAccount();
@@ -68,9 +68,7 @@ describe("LedgerHomeController", () => {
       updateComplete: Promise.resolve(true),
     };
 
-    accountSubject = new BehaviorSubject<DetailedAccount | undefined>(
-      undefined,
-    );
+    accountSubject = new Subject<DetailedAccount | undefined>();
     pendingTxSubject = new BehaviorSubject<PendingTransaction[]>([]);
     contextSubject = new BehaviorSubject<Record<string, unknown>>({
       preferredFiatCurrency: "usd",
@@ -144,11 +142,12 @@ describe("LedgerHomeController", () => {
 
     it("sets loading to false when first account arrives", async () => {
       controller.hostConnected();
-      expect(controller.loading).toBe(false);
+      expect(controller.loading).toBe(true);
 
       accountSubject.next(account);
 
       await vi.waitFor(() => {
+        expect(controller.loading).toBe(false);
         expect(controller.selectedAccount).toEqual(account);
       });
     });
