@@ -1,5 +1,3 @@
-import { registerWallet } from "@wallet-standard/wallet";
-
 import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
@@ -9,11 +7,13 @@ import type {
   WalletProviderHost,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import { registerWalletStandard } from "./registerWalletStandard.js";
 
 /**
  * Solana {@link CoreFacingWalletProvider}: a blackbox `WalletProvider` whose
- * `init()` registers the Wallet Standard wallet and returns a best-effort
- * teardown (Wallet Standard has no unregister API yet - LBD-578).
+ * `init()` registers the Wallet Standard wallet via {@link registerWalletStandard}
+ * and returns a full teardown (removes the `app-ready` listener and calls all
+ * app-provided unregister callbacks).
  */
 export class SolanaWalletProvider implements CoreFacingWalletProvider {
   public readonly family: BlockchainFamily = "solana";
@@ -27,12 +27,11 @@ export class SolanaWalletProvider implements CoreFacingWalletProvider {
   }
 
   init(): () => void {
-    registerWallet(this.wallet);
+    const unregister = registerWalletStandard(this.wallet);
 
     return () => {
-      // Wallet Standard has no unregister API; clear connected accounts as a
-      // best-effort teardown. Full unregister is handled in LBD-578.
       void this.wallet.features["standard:disconnect"].disconnect();
+      unregister();
     };
   }
 
