@@ -49,6 +49,8 @@ import {
 import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -66,8 +68,6 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../../modal/modalModuleTypes.js";
 import { ModalService } from "../../modal/service/ModalService.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import type { StorageService } from "../../storage/StorageService.js";
 import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import {
@@ -86,8 +86,8 @@ export class SignRawTransaction {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(storageModuleTypes.StorageService)
-    private readonly storageService: StorageService,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
     @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
     @inject(evmProviderModuleTypes.BroadcastTransactionUseCase)
@@ -146,9 +146,8 @@ export class SignRawTransaction {
         throw Error("Invalid raw transaction format");
       }
 
-      const selectedAccount: Account | undefined = this.storageService
-        .getSelectedAccount()
-        .extract();
+      const selectedAccount: Account | undefined =
+        this.contextService.getContext().selectedAccount;
 
       if (!selectedAccount) {
         throw new AccountNotSelectedError("No account selected");
