@@ -59,7 +59,7 @@ export class AvailableNetworksController implements ReactiveController {
         return;
       }
 
-      this.accountsSubscription = this.core.getAccounts().subscribe({
+      this.accountsSubscription = this.core.observeAccounts().subscribe({
         next: (accounts) => {
           if (this.disconnected) return;
 
@@ -128,7 +128,9 @@ export class AvailableNetworksController implements ReactiveController {
     }
   }
 
-  private sortByFiatValue(networks: NetworkWithBalance[]): NetworkWithBalance[] {
+  private sortByFiatValue(
+    networks: NetworkWithBalance[],
+  ): NetworkWithBalance[] {
     return [...networks].sort((a, b) => {
       const aVal = a.fiatBalance?.value ? parseFloat(a.fiatBalance.value) : 0;
       const bVal = b.fiatBalance?.value ? parseFloat(b.fiatBalance.value) : 0;

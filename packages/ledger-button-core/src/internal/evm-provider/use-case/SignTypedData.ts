@@ -45,6 +45,8 @@ import type {
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { getDerivationPath } from "../../account/AccountUtils.js";
 import type { Account } from "../../account/service/AccountService.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
 import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -59,8 +61,6 @@ import { TrackTypedMessageCompleted } from "../../event-tracking/usecase/TrackTy
 import { TrackTypedMessageStarted } from "../../event-tracking/usecase/TrackTypedMessageStarted.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import type { StorageService } from "../../storage/StorageService.js";
 import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
@@ -75,8 +75,8 @@ export class SignTypedData {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DeviceManagementKitService)
     private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(storageModuleTypes.StorageService)
-    private readonly storageService: StorageService,
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
     @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dappConfigService: DAppConfigService,
     @inject(evmProviderModuleTypes.BuildEthSignerUseCase)
@@ -128,9 +128,8 @@ export class SignTypedData {
         chain: ContextModuleChainID.Ethereum,
       });
 
-      const selectedAccount: Account | undefined = this.storageService
-        .getSelectedAccount()
-        .extract();
+      const selectedAccount: Account | undefined =
+        this.contextService.getContext().selectedAccount;
 
       if (!selectedAccount) {
         throw new AccountNotSelectedError("No account selected");

@@ -77,5 +77,4 @@ export interface AccountService {
   getAccounts(): Account[];
   setAccounts(accounts: Account[]): void;
   selectAccount(account: Account): void;
-  getSelectedAccount(): Account | null;
 }

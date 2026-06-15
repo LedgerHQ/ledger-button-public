@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, Subscription, switchMap, tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -19,12 +19,11 @@ import {
   Account,
   type AccountService,
   type AccountWithFiat,
+  type DetailedAccount,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
-import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
-import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
-import { SortAccountsByFiatUseCase } from "../internal/account/use-case/sortAccountsByFiatUseCase.js";
+import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
+import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/use-case/observeSelectedAccountChangesUseCase.js";
 import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
 import { type BackendService } from "../internal/backend/BackendService.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
@@ -313,79 +312,38 @@ export class LedgerButtonCore {
   }
 
   async fetchAccountsFromCloudSync(): Promise<Account[]> {
-    this._logger.debug("Fetching accounts from CloudSync");
     return this.container
       .get<FetchAccountsUseCase>(accountModuleTypes.FetchAccountsUseCase)
       .execute();
   }
 
-  getAccounts(options?: {
+  observeAccounts(options?: {
     forceRefresh?: boolean;
   }): Observable<AccountWithFiat[]> {
-    this._logger.debug("Getting accounts with fiat observable", {
-      forceRefresh: options?.forceRefresh ?? false,
-    });
-
     return this.container
-      .get<SortAccountsByFiatUseCase>(
-        accountModuleTypes.SortAccountsByFiatUseCase,
+      .get<ObserveAccountsWithFiatUseCase>(
+        accountModuleTypes.ObserveAccountsWithFiatUseCase,
       )
-      .execute(
-        this.container
-          .get<FetchAccountsWithBalanceUseCase>(
-            accountModuleTypes.FetchAccountsWithBalanceUseCase,
-          )
-          .execute(options)
-          .pipe(
-            switchMap((accounts) =>
-              this.container
-                .get<FetchAccountsWithFiatUseCase>(
-                  accountModuleTypes.FetchAccountsWithFiatUseCase,
-                )
-                .execute(accounts),
-            ),
-          ),
-      );
+      .execute(options);
   }
 
   selectAccount(account: Account) {
-    this._logger.debug("Selecting account", { account });
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
       .selectAccount(account);
 
-    const selectedAccount = this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .getSelectedAccount();
+    this._contextService.onEvent({
+      type: "account_changed",
+      account,
+    });
 
-    //SHOULD ALWAYS BE TRUE when use here.
-    if (selectedAccount) {
-      this._contextService.onEvent({
-        type: "account_changed",
-        account: selectedAccount,
-      });
-
-      this.container
-        .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
-        .execute(selectedAccount);
-    }
+    this.container
+      .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
+      .execute(account);
   }
 
   getSelectedAccount() {
-    this._logger.debug("Getting selected account");
-    return this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getSelectedAccount()
-      .extract();
-  }
-
-  async getDetailedSelectedAccount() {
-    this._logger.debug("Getting detailed selected account");
-    return this.container
-      .get<GetDetailedSelectedAccountUseCase>(
-        accountModuleTypes.GetDetailedSelectedAccountUseCase,
-      )
-      .execute();
+    return this._contextService.getContext().selectedAccount;
   }
 
   // Device methods
@@ -608,6 +566,14 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._contextService.observeContext();
+  }
+
+  observeSelectedAccountChanges(): Observable<DetailedAccount | undefined> {
+    return this.container
+      .get<ObserveSelectedAccountChangesUseCase>(
+        accountModuleTypes.ObserveSelectedAccountChangesUseCase,
+      )
+      .execute();
   }
 
   observePendingTransactions(): Observable<PendingTransaction[]> {
