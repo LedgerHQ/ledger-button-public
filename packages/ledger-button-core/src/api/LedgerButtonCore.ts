@@ -289,7 +289,7 @@ export class LedgerButtonCore implements WalletProviderHost {
       .rebindSync(navigationModuleTypes.NavigationIntentService)
       .toConstantValue(currentNavigationIntentService);
 
-    this.initializeContext();
+    void this.initializeContext();
   }
 
   // Device methods

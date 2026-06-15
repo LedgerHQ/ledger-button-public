@@ -1,3 +1,4 @@
+import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
@@ -7,7 +8,6 @@ import type {
   WalletProviderHost,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
-import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 
 /**
  * Solana {@link CoreFacingWalletProvider}: a blackbox `WalletProvider` whose
