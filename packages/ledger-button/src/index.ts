@@ -2,7 +2,6 @@ import "./components/index.js";
 import "./ledger-button-app.js";
 
 import {
-  chainProviderRegistrations,
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
   LedgerEIP1193Provider,
@@ -116,15 +115,26 @@ export function initializeLedgerProvider({
     document.body.appendChild(app);
   }
 
-  // Announce the Ledger wallet to every supported chain (EVM via EIP-6963,
-  // Solana via the Wallet Standard, …) through a single chain-agnostic seam.
-  // Each registration returns the function that unregisters it.
-  const unregisterProviders = chainProviderRegistrations.map((registration) =>
-    registration.register({ core: coreInstance, app }),
-  );
+  // Initialize the wallet providers (one per blockchain family). Each provider
+  // is a blackbox that performs its own discovery announcement (EIP-6963 for
+  // EVM, Wallet Standard for Solana) and returns a teardown function.
+  const providerTeardowns = core.getWalletProviders().map((p) => p.init());
+
+  // Bridge: map core's generic navigation intents to the button UI navigation.
+  const navigationSubscription = core
+    .observeNavigationIntents()
+    .subscribe((intent) => {
+      app.navigationIntent(
+        intent.name as Parameters<LedgerButtonApp["navigationIntent"]>[0],
+        intent.params,
+      );
+    });
 
   // Cleanup function
   return () => {
+    navigationSubscription.unsubscribe();
+    providerTeardowns.forEach((teardown) => teardown());
+
     if (app.parentNode) {
       app.parentNode.removeChild(app);
     }
@@ -132,8 +142,6 @@ export function initializeLedgerProvider({
     if (floatingButton && floatingButton.parentNode) {
       floatingButton.parentNode.removeChild(floatingButton);
     }
-
-    unregisterProviders.forEach((unregister) => unregister());
 
     // Reset core so new config can be applied on next initialization
     core = null;

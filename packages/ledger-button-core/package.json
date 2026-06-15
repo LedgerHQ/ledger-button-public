@@ -11,6 +11,7 @@
     "@solana/kit": "catalog:",
     "@wallet-standard/base": "catalog:",
     "@wallet-standard/features": "catalog:",
+    "@wallet-standard/wallet": "catalog:",
     "chalk": "catalog:",
     "ethers": "catalog:",
     "inversify": "catalog:",
