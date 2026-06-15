@@ -36,11 +36,10 @@ import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils.js";
-import { LedgerButtonCore } from "../../api/LedgerButtonCore.js";
 import type { SolanaCluster } from "../../api/model/solana/SolanaTypes.js";
 import { Account } from "../account/service/AccountService.js";
+import type { WalletProviderHost } from "../blockchain-provider/model/BlockchainProvider.js";
 import { getLedgerProviderIcon } from "../provider-registration/ledgerProviderIcon.js";
-import { SolanaProviderUI } from "./SolanaProviderUI.js";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",
@@ -55,8 +54,6 @@ const CLUSTER_TO_CHAIN: Record<SolanaCluster, SolanaChain> = {
   devnet: "solana:devnet",
   testnet: "solana:testnet",
 };
-
-const ACCOUNT_SELECTED_EVENT = "ledger-provider-account-selected";
 
 const addressEncoder = getAddressEncoder();
 
@@ -106,14 +103,25 @@ export class LedgerSolanaWallet implements Wallet {
   readonly icon = getLedgerProviderIcon() as WalletIcon;
 
   private _accounts: readonly WalletAccount[] = [];
+  private _selectedAccount?: Account;
   private readonly _listeners: {
     [E in StandardEventsNames]?: StandardEventsListeners[E][];
   } = {};
 
-  constructor(
-    private readonly core: LedgerButtonCore,
-    private readonly app: SolanaProviderUI,
-  ) {}
+  constructor(private readonly host: WalletProviderHost) {}
+
+  /** Core pushes the freshly selected account (or `undefined` on disconnect). */
+  setSelectedAccount(account: Account | undefined): void {
+    this._selectedAccount = account;
+    if (!account) {
+      void this.disconnect();
+    }
+  }
+
+  /** No-op for Solana today; kept for the CoreFacingWalletProvider contract. */
+  setNetwork(_chainId: number): void {
+    // Solana network is derived from the account cluster, not a chain id.
+  }
 
   get chains() {
     return SOLANA_CHAINS;
@@ -194,47 +202,24 @@ export class LedgerSolanaWallet implements Wallet {
 
   private readonly signAndSendTransaction: SolanaSignAndSendTransactionMethod =
     async (...inputs) => {
-      console.log(
-        "[LedgerSolanaWallet] solana:signAndSendTransaction",
-        inputs,
-      );
+      console.log("[LedgerSolanaWallet] solana:signAndSendTransaction", inputs);
       return inputs.map(() => ({ signature: new Uint8Array(64) }));
     };
 
   private async resolveSolanaAccount(): Promise<Account> {
-    const selected = this.core.getSelectedAccount();
-    if (selected && isSupportedSolanaCurrency(selected.currencyId)) {
-      return selected;
+    if (
+      this._selectedAccount &&
+      isSupportedSolanaCurrency(this._selectedAccount.currencyId)
+    ) {
+      return this._selectedAccount;
     }
-    return this.requestAccountSelection();
-  }
 
-  private requestAccountSelection(): Promise<Account> {
-    return new Promise<Account>((resolve, reject) => {
-      window.addEventListener(
-        ACCOUNT_SELECTED_EVENT,
-        (event) => {
-          if (event.detail.status === "error") {
-            return reject(
-              new Error("Account selection failed", {
-                cause: event.detail.error,
-              }),
-            );
-          }
-
-          const account = event.detail.account;
-          if (!isSupportedSolanaCurrency(account.currencyId)) {
-            return reject(
-              new Error("Selected account is not a Solana account"),
-            );
-          }
-          return resolve(account);
-        },
-        { once: true },
-      );
-
-      this.app.navigationIntent("selectAccount");
-    });
+    const account = await this.host.requestAccount("solana");
+    if (!isSupportedSolanaCurrency(account.currencyId)) {
+      throw new Error("Selected account is not a Solana account");
+    }
+    this._selectedAccount = account;
+    return account;
   }
 
   private toWalletAccount(account: Account): WalletAccount {
