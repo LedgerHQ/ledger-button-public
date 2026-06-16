@@ -1,15 +1,14 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, Subject, Subscription, tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
-import { JSONRPCRequest, JsonRpcResponse } from "./model/eip/EIPTypes.js";
+import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
 import { SignPersonalMessageParams } from "./model/index.js";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
-import { SignedResults } from "./model/signing/SignedTransaction.js";
 import { SignFlowStatus } from "./model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "./model/signing/SignRawTransactionParams.js";
 import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
@@ -28,19 +27,12 @@ import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/u
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import { BlockchainProviderManager } from "../internal/blockchain-provider/BlockchainProviderManager.js";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type {
-  BlockchainFamily,
-  CoreFacingWalletProvider,
-  ProviderDAppConfig,
-  ProviderDAppConfigFactory,
   WalletNavigationIntent,
   WalletProvider,
-  WalletProviderHost,
-  WalletProviderSignRequest,
 } from "../internal/blockchain-provider/model/BlockchainProvider.js";
-import { resolveBlockchainFamily } from "../internal/blockchain-provider/utils/resolveBlockchainFamily.js";
+import { WalletProviderHostService } from "../internal/blockchain-provider/service/WalletProviderHostService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -53,8 +45,6 @@ import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyT
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
 import { dAppConfigV1ModuleTypes } from "../internal/dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/v1/service/DAppConfigService.js";
-import { dAppConfigV2ModuleTypes } from "../internal/dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
-import { GetDAppConfigV2UseCase } from "../internal/dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -81,9 +71,7 @@ import {
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
-import { EvmWalletProvider } from "../internal/evm-provider/EvmWalletProvider.js";
 import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
-import { ModalClosedError } from "../internal/evm-provider/LedgerEIP1193Provider.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -100,7 +88,6 @@ import { type TrackBroadcastedTransactionUseCase } from "../internal/pending-tra
 import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
-import { SolanaWalletProvider } from "../internal/solana-provider/SolanaWalletProvider.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
@@ -108,14 +95,12 @@ import { type TransactionService } from "../internal/transaction/service/Transac
 import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
-export class LedgerButtonCore implements WalletProviderHost {
+export class LedgerButtonCore {
   private container!: Container;
   private _craftedTransactionParams?:
     | SignRawTransactionParams
     | SignTransactionParams;
   private readonly _logger: LoggerPublisher;
-  private _walletProviders?: CoreFacingWalletProvider[];
-  private _providerContextSubscription?: Subscription;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
 
@@ -537,220 +522,20 @@ export class LedgerButtonCore implements WalletProviderHost {
   }
 
   // ---------------------------------------------------------------------------
-  // Wallet providers (blackboxes) + WalletProviderHost implementation
+  // Wallet providers
   // ---------------------------------------------------------------------------
 
-  /**
-   * Lazily builds the wallet providers (one per blockchain family), registers
-   * them with the {@link BlockchainProviderManager}, wires context-sync, and
-   * pushes the current context. The returned providers are blackboxes: the
-   * caller only sees `family` + `init()`.
-   */
   getWalletProviders(): WalletProvider[] {
-    if (this._walletProviders) {
-      return this._walletProviders;
-    }
-
-    const configFactory: ProviderDAppConfigFactory = (family) =>
-      this.getProviderDAppConfig(family);
-
-    this._walletProviders = [
-      new EvmWalletProvider(this, configFactory),
-      new SolanaWalletProvider(this, configFactory),
-    ];
-
-    const manager = this.container.get<BlockchainProviderManager>(
-      blockchainProviderModuleTypes.BlockchainProviderManager,
-    );
-    this._walletProviders.forEach((provider) =>
-      manager.registerProvider(provider),
-    );
-
-    this.subscribeProvidersToContext();
-    this.pushContextToProviders(this._contextService.getContext());
-
-    return this._walletProviders;
+    return this.container
+      .get<WalletProviderHostService>(
+        blockchainProviderModuleTypes.WalletProviderHostService,
+      )
+      .getWalletProviders();
   }
 
   /** Stream of generic navigation intents emitted by core for the UI to map. */
   observeNavigationIntents(): Observable<WalletNavigationIntent> {
     return this._navigationIntentService.observe();
-  }
-
-  async broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse> {
-    this._logger.debug("Broadcasting JSON-RPC request", { args });
-    const result = await this.container
-      .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
-      .execute(args);
-    if (!result) {
-      throw new Error("JSON-RPC request returned no result");
-    }
-    return result;
-  }
-
-  async requestAccount(family: BlockchainFamily): Promise<Account> {
-    const selected = this.getSelectedAccount();
-    if (
-      selected &&
-      resolveBlockchainFamily(selected.currencyId).extract() === family
-    ) {
-      return selected;
-    }
-
-    return new Promise<Account>((resolve, reject) => {
-      const status$ = new Subject<SignFlowStatus>();
-
-      const onSelected = (
-        event: WindowEventMap["ledger-provider-account-selected"],
-      ) => {
-        cleanup();
-        if (event.detail.status === "error") {
-          reject(event.detail.error);
-          return;
-        }
-        resolve(event.detail.account);
-      };
-      const onClose = () => {
-        cleanup();
-        reject(new ModalClosedError("User closed the modal"));
-      };
-      const cleanup = () => {
-        window.removeEventListener(
-          "ledger-provider-account-selected",
-          onSelected,
-        );
-        window.removeEventListener("ledger-provider-close", onClose);
-      };
-
-      window.addEventListener("ledger-provider-account-selected", onSelected, {
-        once: true,
-      });
-      window.addEventListener("ledger-provider-close", onClose, { once: true });
-
-      this._navigationIntentService.emit({
-        name: "selectAccount",
-        status$,
-        finish: () => status$.complete(),
-        retry: () =>
-          this._navigationIntentService.emit({
-            name: "selectAccount",
-            status$,
-            finish: () => status$.complete(),
-            retry: () => undefined,
-          }),
-      });
-    });
-  }
-
-  async requestSign(
-    request: WalletProviderSignRequest,
-  ): Promise<SignedResults> {
-    const params = this.mapSignRequestToNavigationParams(request);
-
-    return new Promise<SignedResults>((resolve, reject) => {
-      const status$ = new Subject<SignFlowStatus>();
-
-      const onSigned = (event: WindowEventMap["ledger-provider-sign"]) => {
-        cleanup();
-        if (event.detail.status === "error") {
-          reject(event.detail.error);
-          return;
-        }
-        resolve(event.detail.data);
-      };
-      const onClose = () => {
-        cleanup();
-        reject(new ModalClosedError("User closed the modal"));
-      };
-      const cleanup = () => {
-        window.removeEventListener("ledger-provider-sign", onSigned);
-        window.removeEventListener("ledger-provider-close", onClose);
-      };
-
-      window.addEventListener("ledger-provider-sign", onSigned, { once: true });
-      window.addEventListener("ledger-provider-close", onClose, { once: true });
-
-      const emit = () =>
-        this._navigationIntentService.emit({
-          name: "signTransaction",
-          params,
-          status$,
-          finish: () => status$.complete(),
-          retry: () => emit(),
-        });
-      emit();
-    });
-  }
-
-  async requestSwitchChain(chainId: number): Promise<void> {
-    this.setChainId(chainId);
-  }
-
-  private mapSignRequestToNavigationParams(
-    request: WalletProviderSignRequest,
-  ): unknown {
-    switch (request.kind) {
-      case "transaction":
-        return {
-          transaction: request.transaction,
-          method: request.method,
-          broadcast: request.broadcast,
-        };
-      case "typedData":
-      case "personalMessage":
-        return request.payload;
-    }
-  }
-
-  private async getProviderDAppConfig(
-    family: BlockchainFamily,
-  ): Promise<ProviderDAppConfig | undefined> {
-    try {
-      const config = await this.container
-        .get<GetDAppConfigV2UseCase>(
-          dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
-        )
-        .execute();
-
-      const entry = config.blockchains.find((blockchain) =>
-        blockchain.networks.some(
-          (network) =>
-            resolveBlockchainFamily(network.currencyId).extract() === family,
-        ),
-      );
-      if (!entry) {
-        return undefined;
-      }
-
-      return {
-        blockchain: entry.blockchain,
-        appName: entry.appName,
-        networks: entry.networks,
-        rpcMethods: entry.rpcMethods,
-      };
-    } catch (error) {
-      this._logger.error("Failed to resolve provider dApp config", {
-        family,
-        error,
-      });
-      return undefined;
-    }
-  }
-
-  private subscribeProvidersToContext(): void {
-    if (this._providerContextSubscription) {
-      return;
-    }
-    this._providerContextSubscription = this.observeContext().subscribe(
-      (context) => this.pushContextToProviders(context),
-    );
-  }
-
-  private pushContextToProviders(context: ButtonCoreContext): void {
-    this._walletProviders?.forEach((provider) => {
-      provider.setSelectedAccount(context.selectedAccount);
-      provider.setNetwork(context.chainId);
-    });
   }
 
   connectToLedgerSync(): Observable<LedgerSyncAuthenticateResponse> {
@@ -952,19 +737,5 @@ export class LedgerButtonCore implements WalletProviderHost {
     await this.container
       .get<TrackWalletAction>(eventTrackingModuleTypes.TrackWalletAction)
       .trackWalletRedirectCancelled(walletAction);
-  }
-}
-
-declare global {
-  interface WindowEventMap {
-    "ledger-provider-account-selected": CustomEvent<
-      | { account: Account; status: "success" }
-      | { status: "error"; error: unknown }
-    >;
-    "ledger-provider-sign": CustomEvent<
-      | { status: "success"; data: SignedResults }
-      | { status: "error"; error: unknown }
-    >;
-    "ledger-provider-close": CustomEvent;
   }
 }
