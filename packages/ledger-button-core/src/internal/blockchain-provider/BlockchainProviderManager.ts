@@ -51,13 +51,7 @@ export class BlockchainProviderManager {
 
   setSelectedAccount(account: Account | undefined): void {
     for (const provider of this.providers.values()) {
-      if (
-        account?.currencyId &&
-        provider.family ===
-          resolveBlockchainFamily(account.currencyId).extract()
-      ) {
-        provider.setSelectedAccount(account);
-      }
+      provider.setSelectedAccount(account);
     }
   }
 

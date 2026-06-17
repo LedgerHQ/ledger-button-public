@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Account } from "../account/service/AccountService.js";
-import type { WalletProviderHost } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 // System program id: a valid 32-byte base58 address.
@@ -22,7 +22,7 @@ const createAccount = (overrides: Partial<Account> = {}): Account => ({
 });
 
 const createMockHost = (): {
-  [K in keyof WalletProviderHost]: ReturnType<typeof vi.fn>;
+  [K in keyof WalletProviderCore]: ReturnType<typeof vi.fn>;
 } => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
@@ -35,7 +35,7 @@ describe("LedgerSolanaWallet (connection)", () => {
   let host: ReturnType<typeof createMockHost>;
 
   const createWallet = () =>
-    new LedgerSolanaWallet(host as unknown as WalletProviderHost);
+    new LedgerSolanaWallet(host as unknown as WalletProviderCore);
 
   beforeEach(() => {
     host = createMockHost();

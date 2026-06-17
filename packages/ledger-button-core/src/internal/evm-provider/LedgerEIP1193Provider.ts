@@ -5,7 +5,7 @@
  * for Ledger hardware wallets.
  *
  * The provider is a blackbox from the dApp's point of view and talks to core
- * only through a {@link WalletProviderHost}. It never imports
+ * only through a {@link WalletProviderCore}. It never imports
  * `LedgerButtonCore`, which keeps the `blockchain-provider` layer a candidate
  * for extraction into its own package.
  *
@@ -44,8 +44,10 @@ import {
 import { hexToUtf8 } from "../../api/utils/byteUtils.js";
 import { Account } from "../account/service/AccountService.js";
 import type {
+  BlockchainFamily,
+  BlockchainProvider,
   ProviderRpcMethods,
-  WalletProviderHost,
+  WalletProviderCore,
   WalletProviderSignRequest,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 
@@ -54,8 +56,9 @@ export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;
 
 export class LedgerEIP1193Provider
   extends EventTarget
-  implements EIP1193Provider
+  implements EIP1193Provider, BlockchainProvider
 {
+  public readonly family: BlockchainFamily = "evm";
   private _isConnected = false;
   private _selectedAccount: string | null = null;
   private _selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
@@ -80,7 +83,7 @@ export class LedgerEIP1193Provider
   > = new Map();
 
   constructor(
-    private readonly host: WalletProviderHost,
+    private readonly host: WalletProviderCore,
     private readonly loadRpcMethods?: RpcMethodsLoader,
   ) {
     super();

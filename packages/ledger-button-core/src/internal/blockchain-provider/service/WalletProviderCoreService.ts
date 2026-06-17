@@ -26,19 +26,18 @@ import { BlockchainProviderManager } from "../BlockchainProviderManager.js";
 import { blockchainProviderModuleTypes } from "../di/blockchainProviderModuleTypes.js";
 import type {
   BlockchainFamily,
-  BlockchainProvider,
   ProviderDAppConfig,
   ProviderDAppConfigFactory,
   WalletProvider,
-  WalletProviderHost,
+  WalletProviderCore,
   WalletProviderSignRequest,
 } from "../model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 
 @injectable()
-export class WalletProviderHostService implements WalletProviderHost {
+export class WalletProviderCoreService implements WalletProviderCore {
   private readonly _logger: LoggerPublisher;
-  private _walletProviders?: BlockchainProvider[];
+  private _walletProviders?: WalletProvider[];
   private _providerContextSubscription?: Subscription;
 
   constructor(
@@ -55,7 +54,7 @@ export class WalletProviderHostService implements WalletProviderHost {
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this._logger = loggerFactory("WalletProviderHostService");
+    this._logger = loggerFactory("WalletProviderCoreService");
   }
 
   getWalletProviders(): WalletProvider[] {
@@ -66,13 +65,16 @@ export class WalletProviderHostService implements WalletProviderHost {
     const configFactory: ProviderDAppConfigFactory = (family) =>
       this.getProviderDAppConfig(family);
 
-    this._walletProviders = [
-      new EvmWalletProvider(this, configFactory),
-      new SolanaWalletProvider(this, configFactory),
-    ];
+    const evmProvider = new EvmWalletProvider(this, configFactory);
+    const solanaProvider = new SolanaWalletProvider(this, configFactory);
 
-    this._walletProviders.forEach((provider) =>
-      this._blockchainProviderManager.registerProvider(provider),
+    this._walletProviders = [evmProvider, solanaProvider];
+
+    this._blockchainProviderManager.registerProvider(
+      evmProvider.getEip1193Provider(),
+    );
+    this._blockchainProviderManager.registerProvider(
+      solanaProvider.getWallet(),
     );
 
     this.subscribeProvidersToContext();
@@ -250,7 +252,7 @@ export class WalletProviderHostService implements WalletProviderHost {
   }
 
   private pushContextToProviders(context: ButtonCoreContext): void {
-    this._walletProviders?.forEach((provider) => {
+    this._blockchainProviderManager.getProviders().forEach((provider) => {
       provider.setSelectedAccount(context.selectedAccount);
       provider.setNetwork(context.chainId);
     });

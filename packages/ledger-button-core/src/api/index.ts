@@ -4,7 +4,7 @@ export type {
   BlockchainProvider,
   WalletNavigationIntent,
   WalletProvider,
-  WalletProviderHost,
+  WalletProviderCore,
 } from "../internal/blockchain-provider/model/BlockchainProvider.js";
 export type { Device } from "../internal/device/model/Device.js";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";

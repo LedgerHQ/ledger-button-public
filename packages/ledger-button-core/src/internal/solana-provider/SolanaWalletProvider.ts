@@ -1,26 +1,27 @@
 import { registerWalletStandard } from "./utils/registerWalletStandard.js";
-import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
-  BlockchainProvider,
   ProviderDAppConfig,
   ProviderDAppConfigFactory,
-  WalletProviderHost,
+  WalletProvider,
+  WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 /**
- * Solana {@link BlockchainProvider}: a blackbox `WalletProvider` whose
- * `init()` registers the Wallet Standard wallet via {@link registerWalletStandard}
- * and returns a full teardown (removes the `app-ready` listener and calls all
- * app-provided unregister callbacks).
+ * Solana {@link WalletProvider}: registers the Wallet Standard wallet via
+ * {@link registerWalletStandard} and returns a full teardown.
+ *
+ * It wraps the {@link LedgerSolanaWallet}, which implements
+ * {@link BlockchainProvider} (setSelectedAccount / setNetwork) and talks to
+ * core through the {@link WalletProviderCore}.
  */
-export class SolanaWalletProvider implements BlockchainProvider {
+export class SolanaWalletProvider implements WalletProvider {
   public readonly family: BlockchainFamily = "solana";
   private readonly wallet: LedgerSolanaWallet;
 
   constructor(
-    host: WalletProviderHost,
+    host: WalletProviderCore,
     private readonly configFactory?: ProviderDAppConfigFactory,
   ) {
     this.wallet = new LedgerSolanaWallet(host);
@@ -33,14 +34,6 @@ export class SolanaWalletProvider implements BlockchainProvider {
       void this.wallet.features["standard:disconnect"].disconnect();
       unregister();
     };
-  }
-
-  setSelectedAccount(account: Account | undefined): void {
-    this.wallet.setSelectedAccount(account);
-  }
-
-  setNetwork(chainId: number): void {
-    this.wallet.setNetwork(chainId);
   }
 
   getWallet(): LedgerSolanaWallet {

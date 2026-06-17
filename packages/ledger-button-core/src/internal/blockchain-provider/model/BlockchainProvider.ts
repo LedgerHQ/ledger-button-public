@@ -23,7 +23,7 @@ export type BlockchainFamily = "evm" | "solana";
  * serves and a single `init()` that performs discovery wiring (EIP-6963
  * announce for EVM, `registerWallet` for Solana) and returns a teardown.
  *
- * The provider talks to core only through {@link WalletProviderHost}; it never
+ * The provider talks to core only through {@link WalletProviderCore}; it never
  * imports `LedgerButtonCore`, which keeps `blockchain-provider` a candidate for
  * extraction into its own package.
  */
@@ -36,7 +36,7 @@ export interface WalletProvider {
 /**
  * Discriminated sign request mirroring the existing EVM signing flows.
  *
- * The provider builds it and hands it to {@link WalletProviderHost.requestSign};
+ * The provider builds it and hands it to {@link WalletProviderCore.requestSign};
  * core interprets the `kind` to run the matching signing use case.
  */
 export type WalletProviderSignRequest =
@@ -62,7 +62,7 @@ export type { SignedResults };
  * the provider triggers a phase and awaits the result while core owns the UI
  * and device machinery.
  */
-export interface WalletProviderHost {
+export interface WalletProviderCore {
   /**
    * Backend-backed JSON-RPC transport to the node: reads (`eth_getBalance`,
    * `eth_call`, gas, nonce, ...) AND broadcasting a signed raw tx. Core fills
