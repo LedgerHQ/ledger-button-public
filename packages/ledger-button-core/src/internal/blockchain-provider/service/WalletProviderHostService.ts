@@ -26,7 +26,7 @@ import { BlockchainProviderManager } from "../BlockchainProviderManager.js";
 import { blockchainProviderModuleTypes } from "../di/blockchainProviderModuleTypes.js";
 import type {
   BlockchainFamily,
-  CoreFacingWalletProvider,
+  BlockchainProvider,
   ProviderDAppConfig,
   ProviderDAppConfigFactory,
   WalletProvider,
@@ -38,7 +38,7 @@ import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 @injectable()
 export class WalletProviderHostService implements WalletProviderHost {
   private readonly _logger: LoggerPublisher;
-  private _walletProviders?: CoreFacingWalletProvider[];
+  private _walletProviders?: BlockchainProvider[];
   private _providerContextSubscription?: Subscription;
 
   constructor(

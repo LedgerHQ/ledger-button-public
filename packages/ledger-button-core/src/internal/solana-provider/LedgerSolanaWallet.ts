@@ -118,7 +118,7 @@ export class LedgerSolanaWallet implements Wallet {
     }
   }
 
-  /** No-op for Solana today; kept for the CoreFacingWalletProvider contract. */
+  /** No-op for Solana today; kept for the BlockchainProvider contract. */
   setNetwork(_chainId: number): void {
     // Solana network is derived from the account cluster, not a chain id.
   }

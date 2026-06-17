@@ -2,7 +2,7 @@ import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
-  CoreFacingWalletProvider,
+  BlockchainProvider,
   ProviderDAppConfig,
   ProviderDAppConfigFactory,
   WalletProviderHost,
@@ -10,12 +10,12 @@ import type {
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 /**
- * Solana {@link CoreFacingWalletProvider}: a blackbox `WalletProvider` whose
+ * Solana {@link BlockchainProvider}: a blackbox `WalletProvider` whose
  * `init()` registers the Wallet Standard wallet via {@link registerWalletStandard}
  * and returns a full teardown (removes the `app-ready` listener and calls all
  * app-provided unregister callbacks).
  */
-export class SolanaWalletProvider implements CoreFacingWalletProvider {
+export class SolanaWalletProvider implements BlockchainProvider {
   public readonly family: BlockchainFamily = "solana";
   private readonly wallet: LedgerSolanaWallet;
 

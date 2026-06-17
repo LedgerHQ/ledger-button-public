@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   BlockchainFamily,
-  CoreFacingWalletProvider,
+  BlockchainProvider,
 } from "./model/BlockchainProvider.js";
 import type { Account } from "../account/service/AccountService.js";
 import { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
 const createProvider = (
   family: BlockchainFamily,
-): CoreFacingWalletProvider & {
+): BlockchainProvider & {
   init: ReturnType<typeof vi.fn>;
   setSelectedAccount: ReturnType<typeof vi.fn>;
   setNetwork: ReturnType<typeof vi.fn>;
