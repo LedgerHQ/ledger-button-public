@@ -3,23 +3,19 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { Account } from "../account/service/AccountService.js";
 import type {
   ProviderDAppConfig,
   ProviderDAppConfigFactory,
-  WalletProviderHost,
+  WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
 vi.mock("./LedgerEIP1193Provider.js", () => ({
-  LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({
-    setSelectedAccount: vi.fn(),
-    setNetwork: vi.fn(),
-  })),
+  LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({})),
 }));
 
-const createMockHost = (): WalletProviderHost => ({
+const createMockHost = (): WalletProviderCore => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
   requestSign: vi.fn(),
@@ -28,7 +24,7 @@ const createMockHost = (): WalletProviderHost => ({
 });
 
 describe("EvmWalletProvider", () => {
-  let host: WalletProviderHost;
+  let host: WalletProviderCore;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,7 +39,10 @@ describe("EvmWalletProvider", () => {
     test("passes host as first arg to LedgerEIP1193Provider", () => {
       new EvmWalletProvider(host);
 
-      expect(LedgerEIP1193Provider).toHaveBeenCalledWith(host, expect.any(Function));
+      expect(LedgerEIP1193Provider).toHaveBeenCalledWith(
+        host,
+        expect.any(Function),
+      );
     });
 
     test("loadRpcMethods loader resolves rpcMethods from configFactory", async () => {
@@ -57,14 +56,16 @@ describe("EvmWalletProvider", () => {
 
       new EvmWalletProvider(host, configFactory);
 
-      const loadRpcMethods = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[1];
+      const loadRpcMethods = vi.mocked(LedgerEIP1193Provider).mock
+        .calls[0]?.[1];
       await expect(loadRpcMethods?.()).resolves.toEqual(rpcMethods);
     });
 
     test("loadRpcMethods loader resolves to undefined when no configFactory provided", async () => {
       new EvmWalletProvider(host);
 
-      const loadRpcMethods = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[1];
+      const loadRpcMethods = vi.mocked(LedgerEIP1193Provider).mock
+        .calls[0]?.[1];
       await expect(loadRpcMethods?.()).resolves.toBeUndefined();
     });
   });
@@ -76,7 +77,8 @@ describe("EvmWalletProvider", () => {
       announced = [];
       const onAnnounce = (event: Event) => announced.push(event as CustomEvent);
       window.addEventListener("eip6963:announceProvider", onAnnounce);
-      return () => window.removeEventListener("eip6963:announceProvider", onAnnounce);
+      return () =>
+        window.removeEventListener("eip6963:announceProvider", onAnnounce);
     });
 
     test("announces an EIP-6963 provider immediately", () => {
@@ -112,7 +114,9 @@ describe("EvmWalletProvider", () => {
       const evmProvider = new EvmWalletProvider(host);
       const teardown = evmProvider.init();
 
-      expect(announced[0]?.detail.provider).toBe(evmProvider.getEip1193Provider());
+      expect(announced[0]?.detail.provider).toBe(
+        evmProvider.getEip1193Provider(),
+      );
 
       teardown();
     });
@@ -139,57 +143,36 @@ describe("EvmWalletProvider", () => {
     });
 
     test("icon is a dark SVG data URI when prefers-color-scheme is dark", () => {
-      vi.spyOn(window, "matchMedia").mockReturnValue({ matches: true } as MediaQueryList);
+      vi.spyOn(window, "matchMedia").mockReturnValue({
+        matches: true,
+      } as MediaQueryList);
 
       const teardown = new EvmWalletProvider(host).init();
       const icon = announced[0]?.detail.info.icon as string;
 
       expect(icon).toMatch(/^data:image\/svg\+xml;base64,/);
       // White glyph SVG contains fill:#FFFFFF; black glyph contains fill:#000000
-      expect(atob(icon.replace("data:image/svg+xml;base64,", ""))).toContain("fill:#FFFFFF");
+      expect(atob(icon.replace("data:image/svg+xml;base64,", ""))).toContain(
+        "fill:#FFFFFF",
+      );
 
       teardown();
     });
 
     test("icon is a light SVG data URI when prefers-color-scheme is not dark", () => {
-      vi.spyOn(window, "matchMedia").mockReturnValue({ matches: false } as MediaQueryList);
+      vi.spyOn(window, "matchMedia").mockReturnValue({
+        matches: false,
+      } as MediaQueryList);
 
       const teardown = new EvmWalletProvider(host).init();
       const icon = announced[0]?.detail.info.icon as string;
 
       expect(icon).toMatch(/^data:image\/svg\+xml;base64,/);
-      expect(atob(icon.replace("data:image/svg+xml;base64,", ""))).toContain("fill:#000000");
+      expect(atob(icon.replace("data:image/svg+xml;base64,", ""))).toContain(
+        "fill:#000000",
+      );
 
       teardown();
-    });
-  });
-
-  describe("setSelectedAccount()", () => {
-    test("delegates to LedgerEIP1193Provider", () => {
-      const evmProvider = new EvmWalletProvider(host);
-      const account = { id: "evm:1" } as unknown as Account;
-
-      evmProvider.setSelectedAccount(account);
-
-      expect(evmProvider.getEip1193Provider().setSelectedAccount).toHaveBeenCalledWith(account);
-    });
-
-    test("delegates undefined on disconnect", () => {
-      const evmProvider = new EvmWalletProvider(host);
-
-      evmProvider.setSelectedAccount(undefined);
-
-      expect(evmProvider.getEip1193Provider().setSelectedAccount).toHaveBeenCalledWith(undefined);
-    });
-  });
-
-  describe("setNetwork()", () => {
-    test("delegates chain id to LedgerEIP1193Provider", () => {
-      const evmProvider = new EvmWalletProvider(host);
-
-      evmProvider.setNetwork(1);
-
-      expect(evmProvider.getEip1193Provider().setNetwork).toHaveBeenCalledWith(1);
     });
   });
 
@@ -197,13 +180,17 @@ describe("EvmWalletProvider", () => {
     test("returns the same LedgerEIP1193Provider instance every time", () => {
       const evmProvider = new EvmWalletProvider(host);
 
-      expect(evmProvider.getEip1193Provider()).toBe(evmProvider.getEip1193Provider());
+      expect(evmProvider.getEip1193Provider()).toBe(
+        evmProvider.getEip1193Provider(),
+      );
     });
   });
 
   describe("getDAppConfig()", () => {
     test("calls configFactory with evm family", async () => {
-      const configFactory: ProviderDAppConfigFactory = vi.fn().mockResolvedValue(undefined);
+      const configFactory: ProviderDAppConfigFactory = vi
+        .fn()
+        .mockResolvedValue(undefined);
       const evmProvider = new EvmWalletProvider(host, configFactory);
 
       await evmProvider.getDAppConfig();
@@ -212,7 +199,9 @@ describe("EvmWalletProvider", () => {
     });
 
     test("returns undefined when no configFactory is provided", async () => {
-      await expect(new EvmWalletProvider(host).getDAppConfig()).resolves.toBeUndefined();
+      await expect(
+        new EvmWalletProvider(host).getDAppConfig(),
+      ).resolves.toBeUndefined();
     });
   });
 });

@@ -4,18 +4,15 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { registerWalletStandard } from "./utils/registerWalletStandard.js";
-import type { Account } from "../account/service/AccountService.js";
 import type {
   ProviderDAppConfigFactory,
-  WalletProviderHost,
+  WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 vi.mock("./LedgerSolanaWallet.js", () => ({
   LedgerSolanaWallet: vi.fn().mockImplementation(() => ({
-    setSelectedAccount: vi.fn(),
-    setNetwork: vi.fn(),
     features: {
       "standard:disconnect": {
         disconnect: vi.fn().mockResolvedValue(undefined),
@@ -28,7 +25,7 @@ vi.mock("./utils/registerWalletStandard.js", () => ({
   registerWalletStandard: vi.fn().mockReturnValue(vi.fn()),
 }));
 
-const createMockHost = (): WalletProviderHost => ({
+const createMockHost = (): WalletProviderCore => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
   requestSign: vi.fn(),
@@ -37,7 +34,7 @@ const createMockHost = (): WalletProviderHost => ({
 });
 
 describe("SolanaWalletProvider", () => {
-  let host: WalletProviderHost;
+  let host: WalletProviderCore;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -80,39 +77,6 @@ describe("SolanaWalletProvider", () => {
         wallet.features["standard:disconnect"].disconnect,
       ).toHaveBeenCalled();
       expect(unregister).toHaveBeenCalled();
-    });
-  });
-
-  describe("setSelectedAccount()", () => {
-    test("delegates to LedgerSolanaWallet", () => {
-      const provider = new SolanaWalletProvider(host);
-      const account = { id: "solana:1" } as unknown as Account;
-
-      provider.setSelectedAccount(account);
-
-      expect(provider.getWallet().setSelectedAccount).toHaveBeenCalledWith(
-        account,
-      );
-    });
-
-    test("delegates undefined on disconnect", () => {
-      const provider = new SolanaWalletProvider(host);
-
-      provider.setSelectedAccount(undefined);
-
-      expect(provider.getWallet().setSelectedAccount).toHaveBeenCalledWith(
-        undefined,
-      );
-    });
-  });
-
-  describe("setNetwork()", () => {
-    test("delegates chain id to LedgerSolanaWallet", () => {
-      const provider = new SolanaWalletProvider(host);
-
-      provider.setNetwork(1);
-
-      expect(provider.getWallet().setNetwork).toHaveBeenCalledWith(1);
     });
   });
 

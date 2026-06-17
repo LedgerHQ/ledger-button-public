@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CommonEIP1193ErrorCode } from "../../api/model/eip/EIPTypes.js";
 import { Account } from "../account/service/AccountService.js";
-import type { WalletProviderHost } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
 const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";
@@ -24,7 +24,7 @@ const createAccount = (overrides: Partial<Account> = {}): Account =>
   }) as Account;
 
 const createMockHost = (): {
-  [K in keyof WalletProviderHost]: ReturnType<typeof vi.fn>;
+  [K in keyof WalletProviderCore]: ReturnType<typeof vi.fn>;
 } => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
@@ -40,7 +40,7 @@ describe("LedgerEIP1193Provider", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     host = createMockHost();
-    provider = new LedgerEIP1193Provider(host as unknown as WalletProviderHost);
+    provider = new LedgerEIP1193Provider(host as unknown as WalletProviderCore);
   });
 
   afterEach(() => {
@@ -185,7 +185,7 @@ describe("LedgerEIP1193Provider", () => {
         broadcasted: ["eth_transactionCount"],
       });
       const configuredProvider = new LedgerEIP1193Provider(
-        host as unknown as WalletProviderHost,
+        host as unknown as WalletProviderCore,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 5 });
@@ -206,7 +206,7 @@ describe("LedgerEIP1193Provider", () => {
         broadcasted: ["eth_chainId"],
       });
       const configuredProvider = new LedgerEIP1193Provider(
-        host as unknown as WalletProviderHost,
+        host as unknown as WalletProviderCore,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({
@@ -227,13 +227,16 @@ describe("LedgerEIP1193Provider", () => {
         .fn()
         .mockResolvedValue({ local: [], broadcasted: [] });
       const configuredProvider = new LedgerEIP1193Provider(
-        host as unknown as WalletProviderHost,
+        host as unknown as WalletProviderCore,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
 
       await configuredProvider.request({ method: "eth_call", params: [] });
-      await configuredProvider.request({ method: "eth_getBalance", params: [] });
+      await configuredProvider.request({
+        method: "eth_getBalance",
+        params: [],
+      });
 
       expect(loadRpcMethods).toHaveBeenCalledTimes(1);
     });
@@ -241,7 +244,7 @@ describe("LedgerEIP1193Provider", () => {
     it("falls back to static routing when the config loader rejects", async () => {
       const loadRpcMethods = vi.fn().mockRejectedValue(new Error("boom"));
       const configuredProvider = new LedgerEIP1193Provider(
-        host as unknown as WalletProviderHost,
+        host as unknown as WalletProviderCore,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });

@@ -32,7 +32,7 @@ import type {
   WalletNavigationIntent,
   WalletProvider,
 } from "../internal/blockchain-provider/model/BlockchainProvider.js";
-import { WalletProviderHostService } from "../internal/blockchain-provider/service/WalletProviderHostService.js";
+import { WalletProviderCoreService } from "../internal/blockchain-provider/service/WalletProviderCoreService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -527,8 +527,8 @@ export class LedgerButtonCore {
 
   getWalletProviders(): WalletProvider[] {
     return this.container
-      .get<WalletProviderHostService>(
-        blockchainProviderModuleTypes.WalletProviderHostService,
+      .get<WalletProviderCoreService>(
+        blockchainProviderModuleTypes.WalletProviderCoreService,
       )
       .getWalletProviders();
   }
