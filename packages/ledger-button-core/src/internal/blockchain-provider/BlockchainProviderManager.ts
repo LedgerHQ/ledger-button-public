@@ -3,7 +3,7 @@ import { Maybe } from "purify-ts";
 
 import {
   BlockchainFamily,
-  CoreFacingWalletProvider,
+  BlockchainProvider,
 } from "./model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "./utils/resolveBlockchainFamily.js";
 import type { Account } from "../account/service/AccountService.js";
@@ -21,10 +21,7 @@ import { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 @injectable()
 export class BlockchainProviderManager {
   private readonly logger: LoggerPublisher;
-  private readonly providers = new Map<
-    BlockchainFamily,
-    CoreFacingWalletProvider
-  >();
+  private readonly providers = new Map<BlockchainFamily, BlockchainProvider>();
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -33,30 +30,34 @@ export class BlockchainProviderManager {
     this.logger = loggerFactory("BlockchainProviderManager");
   }
 
-  registerProvider(provider: CoreFacingWalletProvider): void {
+  registerProvider(provider: BlockchainProvider): void {
     this.logger.debug("Registering provider", { family: provider.family });
     this.providers.set(provider.family, provider);
   }
 
-  getProvider(family: BlockchainFamily): Maybe<CoreFacingWalletProvider> {
+  getProvider(family: BlockchainFamily): Maybe<BlockchainProvider> {
     return Maybe.fromNullable(this.providers.get(family));
   }
 
-  getProviderForCurrency(
-    currencyId: string,
-  ): Maybe<CoreFacingWalletProvider> {
+  getProviderForCurrency(currencyId: string): Maybe<BlockchainProvider> {
     return resolveBlockchainFamily(currencyId).chain((family) =>
       this.getProvider(family),
     );
   }
 
-  getProviders(): CoreFacingWalletProvider[] {
+  getProviders(): BlockchainProvider[] {
     return Array.from(this.providers.values());
   }
 
   setSelectedAccount(account: Account | undefined): void {
     for (const provider of this.providers.values()) {
-      provider.setSelectedAccount(account);
+      if (
+        account?.currencyId &&
+        provider.family ===
+          resolveBlockchainFamily(account.currencyId).extract()
+      ) {
+        provider.setSelectedAccount(account);
+      }
     }
   }
 

@@ -83,7 +83,8 @@ export interface WalletProviderHost {
  * Inbound surface core CALLS on a concrete provider to push context. NOT part
  * of the public {@link WalletProvider} blackbox.
  */
-export interface CoreFacingWalletProvider extends WalletProvider {
+export interface BlockchainProvider {
+  readonly family: BlockchainFamily;
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
   setSelectedAccount(account: Account | undefined): void;
   /** Core pushes the active chain id. */

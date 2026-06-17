@@ -1,7 +1,7 @@
 export type { WalletActionType } from "../internal/backend/model/trackEvent.js";
 export type {
   BlockchainFamily,
-  CoreFacingWalletProvider,
+  BlockchainProvider,
   WalletNavigationIntent,
   WalletProvider,
   WalletProviderHost,
