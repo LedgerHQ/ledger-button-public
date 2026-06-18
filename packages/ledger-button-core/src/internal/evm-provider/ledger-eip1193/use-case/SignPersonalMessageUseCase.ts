@@ -12,30 +12,30 @@ import { DeviceOutOfMemoryError } from "../../../api/errors/DeviceErrors.js";
 import type {
   SignFlowStatus,
   SignType,
-} from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
-import { getDerivationPath } from "../../account/AccountUtils.js";
-import type { Account } from "../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
-import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import type { DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
+} from "../../../../api/model/signing/SignFlowStatus.js";
+import type { SignPersonalMessageParams } from "../../../../api/model/signing/SignPersonalMessageParams.js";
+import { getDerivationPath } from "../../../account/AccountUtils.js";
+import type { Account } from "../../../account/service/AccountService.js";
+import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
+import type { ContextService } from "../../../context/ContextService.js";
+import { DAppConfig } from "../../../dAppConfig/v1/dAppConfigTypes.js";
+import { dAppConfigV1ModuleTypes } from "../../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import type { DAppConfigService } from "../../../dAppConfig/v1/service/DAppConfigService.js";
+import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
 import {
   AccountNotSelectedError,
   DeviceConnectionError,
-} from "../../device/model/errors.js";
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
-import { SignPersonalMessageFlowDeviceAction } from "../../device/use-case/device-action/SignPersonalMessageFlowDeviceAction.js";
+} from "../../../device/model/errors.js";
+import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
+import { SignPersonalMessageFlowDeviceAction } from "../../../device/use-case/device-action/SignPersonalMessageFlowDeviceAction.js";
 import type {
   SignPersonalMessageFlowDAError,
   SignPersonalMessageFlowDAIntermediateValue,
   SignPersonalMessageFlowDAOutput,
-} from "../../device/use-case/device-action/SignPersonalMessageFlowDeviceActionTypes.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
+} from "../../../device/use-case/device-action/SignPersonalMessageFlowDeviceActionTypes.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 @injectable()

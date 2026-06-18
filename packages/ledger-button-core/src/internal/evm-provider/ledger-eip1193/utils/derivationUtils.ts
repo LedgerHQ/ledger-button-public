@@ -1,4 +1,4 @@
-import { Account } from "../../account/service/AccountService.js";
+import { Account } from "../../../account/service/AccountService.js";
 
 const EVM_DERIVATION_MODE: Record<string, string> = {
   // MEW legacy derivation for eth

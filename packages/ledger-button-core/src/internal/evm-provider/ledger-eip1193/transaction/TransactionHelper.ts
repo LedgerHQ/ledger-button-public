@@ -1,8 +1,8 @@
 import { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
 import { ethers, Signature, TransactionLike } from "ethers";
 
-import type { SignedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
-import type { Transaction } from "../../../api/model/signing/SignTransactionParams.js";
+import type { SignedTransactionResult } from "../../../../api/model/signing/SignedTransaction.js";
+import type { Transaction } from "../../../../api/model/signing/SignTransactionParams.js";
 
 export function createSignedTransaction(
   rawTransaction: string,

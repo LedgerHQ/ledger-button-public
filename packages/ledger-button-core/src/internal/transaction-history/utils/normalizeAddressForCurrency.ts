@@ -1,5 +1,5 @@
-import { isSupportedEvmCurrency } from "../../evm-provider/utils/chainUtils.js";
-import { isSupportedSolanaCurrency } from "../../solana-provider/utils/clusterUtils.js";
+import { isSupportedEvmCurrency } from "../../evm-provider/ledger-eip1193/utils/chainUtils.js";
+import { isSupportedSolanaCurrency } from "../../solana-provider/ledger-solana-wallet/utils/clusterUtils.js";
 
 /**
  * Normalize an address for storage/comparison according to the conventions of

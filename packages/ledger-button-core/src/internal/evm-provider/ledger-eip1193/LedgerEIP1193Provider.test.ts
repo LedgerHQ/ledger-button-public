@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CommonEIP1193ErrorCode } from "../../api/model/eip/EIPTypes.js";
-import { Account } from "../account/service/AccountService.js";
-import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
+import { CommonEIP1193ErrorCode } from "../../../api/model/eip/EIPTypes.js";
+import { Account } from "../../account/service/AccountService.js";
+import type { WalletProviderCore } from "../../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
 const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";

@@ -2,7 +2,7 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "../../../config/model/config.js";
-import * as chainUtils from "../../../evm-provider/utils/chainUtils.js";
+import * as chainUtils from "../../../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import type { CalCoinResponse, CalTokenResponse } from "./calTypes.js";
 import { DefaultCalDataSource } from "./DefaultCalDataSource.js";

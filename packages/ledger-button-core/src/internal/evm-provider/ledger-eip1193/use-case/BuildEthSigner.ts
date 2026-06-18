@@ -5,11 +5,11 @@ import {
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { inject, injectable } from "inversify";
 
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
-import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
+import { configModuleTypes } from "../../../config/configModuleTypes.js";
+import { Config } from "../../../config/model/config.js";
+import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
+import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 export type BuildEthSignerParams = {

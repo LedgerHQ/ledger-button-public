@@ -1,4 +1,4 @@
-import type { ProviderRpcMethods } from "../../blockchain-provider/model/BlockchainProvider.js";
+import type { ProviderRpcMethods } from "../../../blockchain-provider/model/BlockchainProvider.js";
 import {
   BROADCASTED_TO_NODE_RPC_METHODS,
   LOCALLY_HANDLED_RPC_METHODS,

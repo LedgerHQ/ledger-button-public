@@ -1,4 +1,4 @@
-import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
+import type { SolanaCluster } from "../../../../api/model/solana/SolanaTypes.js";
 
 export const SUPPORTED_CLUSTERS: SolanaCluster[] = [
   "devnet",

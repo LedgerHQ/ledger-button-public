@@ -1,3 +1,4 @@
+import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
@@ -5,7 +6,6 @@ import type {
   WalletProvider,
   WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
-import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 /**

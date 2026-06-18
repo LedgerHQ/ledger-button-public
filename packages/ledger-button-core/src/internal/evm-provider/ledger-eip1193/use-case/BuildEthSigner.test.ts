@@ -1,9 +1,9 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Config } from "../../config/model/config.js";
-import { createMockDeviceManagementKitService } from "../../device/__tests__/mocks.js";
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
+import { Config } from "../../../config/model/config.js";
+import { createMockDeviceManagementKitService } from "../../../device/__tests__/mocks.js";
+import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 

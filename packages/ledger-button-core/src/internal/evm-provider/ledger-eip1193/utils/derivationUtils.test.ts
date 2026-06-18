@@ -1,4 +1,4 @@
-import { Account } from "../../account/service/AccountService.js";
+import { Account } from "../../../account/service/AccountService.js";
 import { getEvmDerivationPath } from "./derivationUtils.js";
 
 function createAccount(overrides: Partial<Account> = {}): Account {

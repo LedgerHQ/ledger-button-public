@@ -5,8 +5,8 @@ import {
 } from "@ledgerhq/context-module";
 import { inject, injectable } from "inversify";
 
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
+import { configModuleTypes } from "../../../config/configModuleTypes.js";
+import { Config } from "../../../config/model/config.js";
 
 export type BuildContextModuleParams = {
   chain: ContextModuleChainID;

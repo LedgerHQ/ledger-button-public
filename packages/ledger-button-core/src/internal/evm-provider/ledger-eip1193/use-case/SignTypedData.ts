@@ -31,39 +31,39 @@ import {
   DeviceOutOfMemoryError,
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../../api/errors/DeviceErrors.js";
+} from "../../../../api/errors/DeviceErrors.js";
 import {
   type GetAddressDAState,
   isGetAddressResult,
-} from "../../../api/model/signing/GetAddress.js";
+} from "../../../../api/model/signing/GetAddress.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
-} from "../../../api/model/signing/SignedTransaction.js";
+} from "../../../../api/model/signing/SignedTransaction.js";
 import type {
   SignFlowStatus,
   SignType,
-} from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { getDerivationPath } from "../../account/AccountUtils.js";
-import type { Account } from "../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { DAppConfig } from "../../dAppConfig/v1/dAppConfigTypes.js";
-import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
+} from "../../../../api/model/signing/SignFlowStatus.js";
+import type { SignTypedMessageParams } from "../../../../api/model/signing/SignTypedMessageParams.js";
+import { getDerivationPath } from "../../../account/AccountUtils.js";
+import type { Account } from "../../../account/service/AccountService.js";
+import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
+import type { ContextService } from "../../../context/ContextService.js";
+import { DAppConfig } from "../../../dAppConfig/v1/dAppConfigTypes.js";
+import { dAppConfigV1ModuleTypes } from "../../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import { type DAppConfigService } from "../../../dAppConfig/v1/service/DAppConfigService.js";
+import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
 import {
   AccountNotSelectedError,
   DeviceConnectionError,
-} from "../../device/model/errors.js";
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
-import { TrackTypedMessageCompleted } from "../../event-tracking/usecase/TrackTypedMessageCompleted.js";
-import { TrackTypedMessageStarted } from "../../event-tracking/usecase/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
+} from "../../../device/model/errors.js";
+import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
+import { eventTrackingModuleTypes } from "../../../event-tracking/eventTrackingModuleTypes.js";
+import { TrackTypedMessageCompleted } from "../../../event-tracking/usecase/TrackTypedMessageCompleted.js";
+import { TrackTypedMessageStarted } from "../../../event-tracking/usecase/TrackTypedMessageStarted.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
