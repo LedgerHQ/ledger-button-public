@@ -4,7 +4,7 @@ import { Right } from "purify-ts";
 import {
   CommonEIP1193ErrorCode,
   JSONRPCRequest,
-} from "../../../../api/model/eip/EIPTypes.js";
+} from "../../../../../api/model/eip/EIPTypes.js";
 import { LedgerRemoteDatasource } from "./LedgerRemoteDatasource.js";
 
 @injectable()

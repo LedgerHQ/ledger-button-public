@@ -3,10 +3,10 @@ import { type Factory, inject, injectable } from "inversify";
 import {
   JSONRPCRequest,
   JsonRpcResponse,
-} from "../../../../api/model/eip/EIPTypes.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+} from "../../../../../api/model/eip/EIPTypes.js";
+import { loggerModuleTypes } from "../../../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../../../logger/service/LoggerPublisher.js";
+import { evmProviderModuleTypes } from "../../../evmProviderModuleTypes.js";
 import { LedgerRemoteDatasource } from "../datasource/LedgerRemoteDatasource.js";
 
 @injectable()

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Account } from "../account/service/AccountService.js";
-import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
+import { Account } from "../../account/service/AccountService.js";
+import type { WalletProviderCore } from "../../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 // System program id: a valid 32-byte base58 address.

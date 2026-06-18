@@ -1,10 +1,10 @@
 import { Left, Right } from "purify-ts";
 
-import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
-import { BackendService } from "../../backend/BackendService.js";
-import { CoinServiceDataSource } from "../../balance/datasource/coinService/CoinServiceDataSource.js";
-import { TransactionInfo } from "../../balance/model/types.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
+import { BackendService } from "../../../backend/BackendService.js";
+import { CoinServiceDataSource } from "../../../balance/datasource/coinService/CoinServiceDataSource.js";
+import { TransactionInfo } from "../../../balance/model/types.js";
+import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
 
 describe("DefaultGasFeeEstimationService", () => {

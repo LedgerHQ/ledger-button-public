@@ -1,3 +1,4 @@
+import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
 import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
@@ -8,7 +9,6 @@ import type {
   WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
-import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
 
 /**
  * EVM {@link BlockchainProvider}: entry point for the EVM family.

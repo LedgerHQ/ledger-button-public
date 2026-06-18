@@ -1,7 +1,7 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Config } from "../../config/model/config.js";
+import { Config } from "../../../config/model/config.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 const mocks = vi.hoisted(() => ({

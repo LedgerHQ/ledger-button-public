@@ -3,8 +3,8 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
+import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 

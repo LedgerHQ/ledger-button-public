@@ -15,8 +15,8 @@ import { dAppConfigV2ModuleTypes } from "../../dAppConfig/v2/di/dAppConfigV2Modu
 import type { GetDAppConfigV2UseCase } from "../../dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
 import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
 import { evmProviderModuleTypes } from "../../evm-provider/evmProviderModuleTypes.js";
-import { JSONRPCCallUseCase } from "../../evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
-import { ModalClosedError } from "../../evm-provider/LedgerEIP1193Provider.js";
+import { JSONRPCCallUseCase } from "../../evm-provider/ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
+import { ModalClosedError } from "../../evm-provider/ledger-eip1193/LedgerEIP1193Provider.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js";

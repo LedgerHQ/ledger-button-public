@@ -23,9 +23,9 @@ import {
   BlindSigningDisabledError,
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../api/errors/DeviceErrors.js";
-import { LedgerButtonError } from "../../api/errors/LedgerButtonError.js";
-import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
+} from "../../../api/errors/DeviceErrors.js";
+import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
 import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
@@ -35,20 +35,20 @@ import {
   type RequestArguments,
   type RpcMethods,
   TypedData,
-} from "../../api/model/eip/EIPTypes.js";
+} from "../../../api/model/eip/EIPTypes.js";
 import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-} from "../../api/model/signing/SignedTransaction.js";
-import { hexToUtf8 } from "../../api/utils/byteUtils.js";
-import { Account } from "../account/service/AccountService.js";
+} from "../../../api/model/signing/SignedTransaction.js";
+import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
+import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
   ProviderRpcMethods,
   WalletProviderCore,
   WalletProviderSignRequest,
-} from "../blockchain-provider/model/BlockchainProvider.js";
+} from "../../blockchain-provider/model/BlockchainProvider.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;

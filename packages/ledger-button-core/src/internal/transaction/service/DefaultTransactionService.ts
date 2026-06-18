@@ -19,10 +19,10 @@ import {
   type SignTypedMessageParams,
 } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { evmProviderModuleTypes } from "../../evm-provider/evmProviderModuleTypes.js";
-import { SignPersonalMessageUseCase } from "../../evm-provider/use-case/SignPersonalMessageUseCase.js";
-import { SignRawTransaction } from "../../evm-provider/use-case/SignRawTransaction.js";
-import { SignTransaction } from "../../evm-provider/use-case/SignTransaction.js";
-import { SignTypedData } from "../../evm-provider/use-case/SignTypedData.js";
+import { SignPersonalMessageUseCase } from "../../evm-provider/ledger-eip1193/use-case/SignPersonalMessageUseCase.js";
+import { SignRawTransaction } from "../../evm-provider/ledger-eip1193/use-case/SignRawTransaction.js";
+import { SignTransaction } from "../../evm-provider/ledger-eip1193/use-case/SignTransaction.js";
+import { SignTypedData } from "../../evm-provider/ledger-eip1193/use-case/SignTypedData.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { TransactionService } from "./TransactionService.js";

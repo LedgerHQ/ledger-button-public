@@ -1,22 +1,22 @@
 import { type Factory, inject, injectable } from "inversify";
 import { EitherAsync } from "purify-ts";
 
-import { JsonRpcResponseSuccess } from "../../../api/model/eip/EIPTypes.js";
+import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
 import {
   BroadcastResponse,
   isJsonRpcResponseSuccess,
-} from "../../../internal/backend/types.js";
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
-import { type BackendService } from "../../backend/BackendService.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import { getCoinServiceNetworkName } from "../../balance/constants/networkConstants.js";
-import type { CoinServiceDataSource } from "../../balance/datasource/coinService/CoinServiceDataSource.js";
+} from "../../../../internal/backend/types.js";
+import { backendModuleTypes } from "../../../backend/backendModuleTypes.js";
+import { type BackendService } from "../../../backend/BackendService.js";
+import { balanceModuleTypes } from "../../../balance/balanceModuleTypes.js";
+import { getCoinServiceNetworkName } from "../../../balance/constants/networkConstants.js";
+import type { CoinServiceDataSource } from "../../../balance/datasource/coinService/CoinServiceDataSource.js";
 import {
   GasFeeEstimation,
   TransactionInfo,
-} from "../../balance/model/types.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "../../../balance/model/types.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
 
 @injectable()

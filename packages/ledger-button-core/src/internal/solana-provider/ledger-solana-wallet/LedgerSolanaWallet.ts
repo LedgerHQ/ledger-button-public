@@ -36,13 +36,13 @@ import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils.js";
-import type { SolanaCluster } from "../../api/model/solana/SolanaTypes.js";
-import { Account } from "../account/service/AccountService.js";
+import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
+import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
   WalletProviderCore,
-} from "../blockchain-provider/model/BlockchainProvider.js";
-import { getLedgerProviderIcon } from "../provider-registration/ledgerProviderIcon.js";
+} from "../../blockchain-provider/model/BlockchainProvider.js";
+import { getLedgerProviderIcon } from "../../provider-registration/ledgerProviderIcon.js";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",

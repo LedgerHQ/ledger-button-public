@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ProviderRpcMethods } from "../../blockchain-provider/model/BlockchainProvider.js";
+import type { ProviderRpcMethods } from "../../../blockchain-provider/model/BlockchainProvider.js";
 import { resolveRpcRoute } from "./resolveRpcRoute.js";
 
 describe("resolveRpcRoute", () => {
