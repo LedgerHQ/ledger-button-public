@@ -3,7 +3,7 @@ import type {
   BlockchainFamily,
   WalletProvider,
 } from "../blockchain-provider/model/BlockchainProvider.js";
-import type { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import type { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 
 /**
  * Solana {@link WalletProvider}: registers the {@link LedgerSolanaWallet} via

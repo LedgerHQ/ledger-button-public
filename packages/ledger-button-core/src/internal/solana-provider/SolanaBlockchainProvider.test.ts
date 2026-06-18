@@ -4,11 +4,11 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { WalletProviderCore } from "../blockchain-provider/model/BlockchainProvider.js";
-import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
-vi.mock("./LedgerSolanaWallet.js", () => ({
+vi.mock("./ledger-solana-wallet/LedgerSolanaWallet.js", () => ({
   LedgerSolanaWallet: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),

@@ -4,7 +4,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { registerWalletStandard } from "./utils/registerWalletStandard.js";
-import type { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import type { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 vi.mock("./utils/registerWalletStandard.js", () => ({
