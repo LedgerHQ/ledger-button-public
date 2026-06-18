@@ -5,7 +5,7 @@ import type {
   WalletProvider,
   WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
-import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 /**

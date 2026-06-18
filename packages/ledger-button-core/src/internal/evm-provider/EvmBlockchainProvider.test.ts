@@ -7,9 +7,9 @@ import type {
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
 
-vi.mock("./LedgerEIP1193Provider.js", () => ({
+vi.mock("./ledger-eip1193/LedgerEIP1193Provider.js", () => ({
   LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
