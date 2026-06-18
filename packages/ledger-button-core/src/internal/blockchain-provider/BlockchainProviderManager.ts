@@ -4,6 +4,9 @@ import { Maybe } from "purify-ts";
 import {
   BlockchainFamily,
   BlockchainProvider,
+  BlockchainProviderFactory,
+  ProviderDAppConfigFactory,
+  WalletProviderCore,
 } from "./model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "./utils/resolveBlockchainFamily.js";
 import type { Account } from "../account/service/AccountService.js";
@@ -28,6 +31,18 @@ export class BlockchainProviderManager {
     loggerFactory: Factory<LoggerPublisher>,
   ) {
     this.logger = loggerFactory("BlockchainProviderManager");
+  }
+
+  addBlockchainProvider(
+    factory: BlockchainProviderFactory,
+    config: ProviderDAppConfigFactory,
+    host: WalletProviderCore,
+  ): () => void {
+    const provider = factory(host, config);
+    const walletProvider = provider.getWalletProvider();
+    const teardown = walletProvider.init();
+    this.registerProvider(provider);
+    return teardown;
   }
 
   registerProvider(provider: BlockchainProvider): void {

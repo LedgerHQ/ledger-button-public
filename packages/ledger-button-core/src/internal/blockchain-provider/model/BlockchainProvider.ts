@@ -69,27 +69,38 @@ export interface WalletProviderCore {
    * `blockchain` / `chainId` from context; it never interprets the method.
    */
   broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse>;
-  /** Trigger the account-selection phase; the UI is run entirely by core. */
   requestAccount(family: BlockchainFamily): Promise<Account>;
-  /** Trigger the signing phase; the UI + device flow are run entirely by core. */
   requestSign(request: WalletProviderSignRequest): Promise<SignedResults>;
-  /** Provider-initiated chain switch (replaces the public `core.setChainId`). */
   requestSwitchChain(chainId: number): Promise<void>;
-  /** Provider-initiated disconnect (replaces a direct `core.disconnect()`). */
   disconnect(): Promise<void>;
 }
 
 /**
- * Inbound surface core CALLS on a concrete provider to push context. NOT part
- * of the public {@link WalletProvider} blackbox.
+ * Entry point for a concrete blockchain family implementation (EVM, Solana, …).
+ *
+ * Combines the dApp-facing {@link WalletProvider} surface (via
+ * {@link getWalletProvider}) with the inbound context surface that core calls
+ * to push the selected account / network. Implementations are registered with
+ * {@link BlockchainProviderManager} via {@link BlockchainProviderFactory}.
  */
 export interface BlockchainProvider {
   readonly family: BlockchainFamily;
-  /** Core pushes the freshly selected account (or `undefined` on disconnect). */
+  /** Returns the dApp-facing provider (EIP-6963 announcer, Wallet Standard, …). */
+  getWalletProvider(): WalletProvider;
   setSelectedAccount(account: Account | undefined): void;
-  /** Core pushes the active chain id. */
   setNetwork(chainId: number): void;
 }
+
+/**
+ * Constructor-style factory for a {@link BlockchainProvider}.
+ *
+ * Passed to {@link BlockchainProviderManager.addBlockchainProvider}; the
+ * manager supplies the host and config so the factory stays stateless.
+ */
+export type BlockchainProviderFactory = (
+  host: WalletProviderCore,
+  config: ProviderDAppConfigFactory,
+) => BlockchainProvider;
 
 /**
  * Core -> UI navigation intent emitted while core runs `requestAccount` /

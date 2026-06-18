@@ -13,22 +13,21 @@ import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { dAppConfigV2ModuleTypes } from "../../dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
 import type { GetDAppConfigV2UseCase } from "../../dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
+import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
 import { evmProviderModuleTypes } from "../../evm-provider/evmProviderModuleTypes.js";
-import { EvmWalletProvider } from "../../evm-provider/EvmWalletProvider.js";
 import { JSONRPCCallUseCase } from "../../evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
 import { ModalClosedError } from "../../evm-provider/LedgerEIP1193Provider.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js";
 import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import { SolanaWalletProvider } from "../../solana-provider/SolanaWalletProvider.js";
+import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
 import { BlockchainProviderManager } from "../BlockchainProviderManager.js";
 import { blockchainProviderModuleTypes } from "../di/blockchainProviderModuleTypes.js";
 import type {
   BlockchainFamily,
   ProviderDAppConfig,
   ProviderDAppConfigFactory,
-  WalletProvider,
   WalletProviderCore,
   WalletProviderSignRequest,
 } from "../model/BlockchainProvider.js";
@@ -37,7 +36,7 @@ import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 @injectable()
 export class WalletProviderCoreService implements WalletProviderCore {
   private readonly _logger: LoggerPublisher;
-  private _walletProviders?: WalletProvider[];
+  private _initialized = false;
   private _providerContextSubscription?: Subscription;
 
   constructor(
@@ -57,30 +56,31 @@ export class WalletProviderCoreService implements WalletProviderCore {
     this._logger = loggerFactory("WalletProviderCoreService");
   }
 
-  getWalletProviders(): WalletProvider[] {
-    if (this._walletProviders) {
-      return this._walletProviders;
+  initProviders(): (() => void)[] {
+    if (this._initialized) {
+      return [];
     }
+    this._initialized = true;
 
     const configFactory: ProviderDAppConfigFactory = (family) =>
       this.getProviderDAppConfig(family);
 
-    const evmProvider = new EvmWalletProvider(this, configFactory);
-    const solanaProvider = new SolanaWalletProvider(this, configFactory);
-
-    this._walletProviders = [evmProvider, solanaProvider];
-
-    this._blockchainProviderManager.registerProvider(
-      evmProvider.getEip1193Provider(),
+    const evmTeardown = this._blockchainProviderManager.addBlockchainProvider(
+      (host, config) => new EvmBlockchainProvider(host, config),
+      configFactory,
+      this,
     );
-    this._blockchainProviderManager.registerProvider(
-      solanaProvider.getWallet(),
-    );
+    const solanaTeardown =
+      this._blockchainProviderManager.addBlockchainProvider(
+        (host) => new SolanaBlockchainProvider(host),
+        configFactory,
+        this,
+      );
 
     this.subscribeProvidersToContext();
     this.pushContextToProviders(this._contextService.getContext());
 
-    return this._walletProviders;
+    return [evmTeardown, solanaTeardown];
   }
 
   async broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse> {
