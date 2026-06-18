@@ -1,5 +1,4 @@
 import type { Observable } from "rxjs";
-
 import type {
   JSONRPCRequest,
   JsonRpcResponse,
@@ -7,6 +6,7 @@ import type {
 import type { SignedResults } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../account/service/AccountService.js";
+import type { DAppConfigV2 } from "../../dAppConfig/v2/model/dAppConfigV2Types.js";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -23,7 +23,7 @@ export type BlockchainFamily = "evm" | "solana";
  * serves and a single `init()` that performs discovery wiring (EIP-6963
  * announce for EVM, `registerWallet` for Solana) and returns a teardown.
  *
- * The provider talks to core only through {@link WalletProviderCore}; it never
+ * The provider talks to core only through {@link CoreFacade}; it never
  * imports `LedgerButtonCore`, which keeps `blockchain-provider` a candidate for
  * extraction into its own package.
  */
@@ -36,7 +36,7 @@ export interface WalletProvider {
 /**
  * Discriminated sign request mirroring the existing EVM signing flows.
  *
- * The provider builds it and hands it to {@link WalletProviderCore.requestSign};
+ * The provider builds it and hands it to {@link CoreFacade.requestSign};
  * core interprets the `kind` to run the matching signing use case.
  */
 export type WalletProviderSignRequest =
@@ -62,7 +62,7 @@ export type { SignedResults };
  * the provider triggers a phase and awaits the result while core owns the UI
  * and device machinery.
  */
-export interface WalletProviderCore {
+export interface CoreFacade {
   /**
    * Backend-backed JSON-RPC transport to the node: reads (`eth_getBalance`,
    * `eth_call`, gas, nonce, ...) AND broadcasting a signed raw tx. Core fills
@@ -78,29 +78,22 @@ export interface WalletProviderCore {
 /**
  * Entry point for a concrete blockchain family implementation (EVM, Solana, …).
  *
- * Combines the dApp-facing {@link WalletProvider} surface (via
- * {@link getWalletProvider}) with the inbound context surface that core calls
- * to push the selected account / network. Implementations are registered with
- * {@link BlockchainProviderManager} via {@link BlockchainProviderFactory}.
+ * Wired once via {@link BlockchainProviderManager.injectWalletProviders}; core
+ * then pushes selected account / network through the context methods.
  */
 export interface BlockchainProvider {
   readonly family: BlockchainFamily;
-  /** Returns the dApp-facing provider (EIP-6963 announcer, Wallet Standard, …). */
-  getWalletProvider(): WalletProvider;
+  /**
+   * Wire the provider with the core host and dApp config and announce it to
+   * the dApp (EIP-6963 / Wallet Standard).
+   *
+   * Called once by {@link BlockchainProviderManager} after the dApp config
+   * has been fetched.
+   */
+  injectWalletProviders(core: CoreFacade, dappConfig: DAppConfigV2): void;
   setSelectedAccount(account: Account | undefined): void;
   setNetwork(chainId: number): void;
 }
-
-/**
- * Constructor-style factory for a {@link BlockchainProvider}.
- *
- * Passed to {@link BlockchainProviderManager.addBlockchainProvider}; the
- * manager supplies the host and config so the factory stays stateless.
- */
-export type BlockchainProviderFactory = (
-  host: WalletProviderCore,
-  config: ProviderDAppConfigFactory,
-) => BlockchainProvider;
 
 /**
  * Core -> UI navigation intent emitted while core runs `requestAccount` /
@@ -143,13 +136,3 @@ export type ProviderDAppConfig = {
   networks: ProviderNetwork[];
   rpcMethods?: ProviderRpcMethods;
 };
-
-/**
- * Inversify factory keyed by family; resolves the per-family blockchain entry
- * of the dApp config. The config is fetched async and re-fetched after a
- * `disconnect()` recreates the container, so it is a factory rather than a
- * static value.
- */
-export type ProviderDAppConfigFactory = (
-  family: BlockchainFamily,
-) => Promise<ProviderDAppConfig | undefined>;

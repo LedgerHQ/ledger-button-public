@@ -1,7 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
-import { Subject, type Subscription } from "rxjs";
+import { Subject } from "rxjs";
 
-import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
 import type {
   JSONRPCRequest,
   JsonRpcResponse,
@@ -11,9 +10,6 @@ import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.j
 import type { Account } from "../../account/service/AccountService.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
-import { dAppConfigV2ModuleTypes } from "../../dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
-import type { GetDAppConfigV2UseCase } from "../../dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
-import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
 import { evmProviderModuleTypes } from "../../evm-provider/evmProviderModuleTypes.js";
 import { JSONRPCCallUseCase } from "../../evm-provider/ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
 import { ModalClosedError } from "../../evm-provider/ledger-eip1193/LedgerEIP1193Provider.js";
@@ -21,23 +17,16 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js";
 import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
-import { BlockchainProviderManager } from "../BlockchainProviderManager.js";
-import { blockchainProviderModuleTypes } from "../di/blockchainProviderModuleTypes.js";
 import type {
   BlockchainFamily,
-  ProviderDAppConfig,
-  ProviderDAppConfigFactory,
-  WalletProviderCore,
+  CoreFacade,
   WalletProviderSignRequest,
 } from "../model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 
 @injectable()
-export class WalletProviderCoreService implements WalletProviderCore {
+export class WalletProviderCoreService implements CoreFacade {
   private readonly _logger: LoggerPublisher;
-  private _initialized = false;
-  private _providerContextSubscription?: Subscription;
 
   constructor(
     @inject(navigationModuleTypes.NavigationIntentService)
@@ -46,41 +35,10 @@ export class WalletProviderCoreService implements WalletProviderCore {
     private readonly _contextService: ContextService,
     @inject(evmProviderModuleTypes.JSONRPCCallUseCase)
     private readonly _jsonRpcCallUseCase: JSONRPCCallUseCase,
-    @inject(dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase)
-    private readonly _getDAppConfigV2UseCase: GetDAppConfigV2UseCase,
-    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
-    private readonly _blockchainProviderManager: BlockchainProviderManager,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
     this._logger = loggerFactory("WalletProviderCoreService");
-  }
-
-  initProviders(): (() => void)[] {
-    if (this._initialized) {
-      return [];
-    }
-    this._initialized = true;
-
-    const configFactory: ProviderDAppConfigFactory = (family) =>
-      this.getProviderDAppConfig(family);
-
-    const evmTeardown = this._blockchainProviderManager.addBlockchainProvider(
-      (host, config) => new EvmBlockchainProvider(host, config),
-      configFactory,
-      this,
-    );
-    const solanaTeardown =
-      this._blockchainProviderManager.addBlockchainProvider(
-        (host) => new SolanaBlockchainProvider(host),
-        configFactory,
-        this,
-      );
-
-    this.subscribeProvidersToContext();
-    this.pushContextToProviders(this._contextService.getContext());
-
-    return [evmTeardown, solanaTeardown];
   }
 
   async broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse> {
@@ -209,53 +167,6 @@ export class WalletProviderCoreService implements WalletProviderCore {
       case "personalMessage":
         return request.payload;
     }
-  }
-
-  private async getProviderDAppConfig(
-    family: BlockchainFamily,
-  ): Promise<ProviderDAppConfig | undefined> {
-    try {
-      const config = await this._getDAppConfigV2UseCase.execute();
-
-      const entry = config.blockchains.find((blockchain) =>
-        blockchain.networks.some(
-          (network) =>
-            resolveBlockchainFamily(network.currencyId).extract() === family,
-        ),
-      );
-      if (!entry) {
-        return undefined;
-      }
-
-      return {
-        blockchain: entry.blockchain,
-        appName: entry.appName,
-        networks: entry.networks,
-        rpcMethods: entry.rpcMethods,
-      };
-    } catch (error) {
-      this._logger.error("Failed to resolve provider dApp config", {
-        family,
-        error,
-      });
-      return undefined;
-    }
-  }
-
-  private subscribeProvidersToContext(): void {
-    if (this._providerContextSubscription) {
-      return;
-    }
-    this._providerContextSubscription = this._contextService
-      .observeContext()
-      .subscribe((context) => this.pushContextToProviders(context));
-  }
-
-  private pushContextToProviders(context: ButtonCoreContext): void {
-    this._blockchainProviderManager.getProviders().forEach((provider) => {
-      provider.setSelectedAccount(context.selectedAccount);
-      provider.setNetwork(context.chainId);
-    });
   }
 }
 

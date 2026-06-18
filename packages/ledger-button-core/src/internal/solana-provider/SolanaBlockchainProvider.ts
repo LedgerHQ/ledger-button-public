@@ -3,36 +3,33 @@ import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
   BlockchainProvider,
-  WalletProvider,
-  WalletProviderCore,
+  CoreFacade,
 } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 /**
  * Solana {@link BlockchainProvider}: entry point for the Solana family.
  *
- * Creates the inner {@link LedgerSolanaWallet} and the {@link SolanaWalletProvider}
- * (Wallet Standard registrar), then forwards context updates from core to the wallet.
+ * Created by {@link BlockchainProviderManager.injectWalletProviders};
+ * wiring with core happens in {@link injectWalletProviders}.
  */
 export class SolanaBlockchainProvider implements BlockchainProvider {
   public readonly family: BlockchainFamily = "solana";
-  private readonly wallet: LedgerSolanaWallet;
-  private readonly walletProvider: SolanaWalletProvider;
+  private wallet?: LedgerSolanaWallet;
+  private walletProvider?: SolanaWalletProvider;
 
-  constructor(host: WalletProviderCore) {
-    this.wallet = new LedgerSolanaWallet(host);
+  injectWalletProviders(core: CoreFacade, _dappConfig: DAppConfigV2): void {
+    this.wallet = new LedgerSolanaWallet(core);
     this.walletProvider = new SolanaWalletProvider(this.wallet);
-  }
-
-  getWalletProvider(): WalletProvider {
-    return this.walletProvider;
+    this.walletProvider.init();
   }
 
   setSelectedAccount(account: Account | undefined): void {
-    this.wallet.setSelectedAccount(account);
+    this.wallet?.setSelectedAccount(account);
   }
 
   setNetwork(chainId: number): void {
-    this.wallet.setNetwork(chainId);
+    this.wallet?.setNetwork(chainId);
   }
 }

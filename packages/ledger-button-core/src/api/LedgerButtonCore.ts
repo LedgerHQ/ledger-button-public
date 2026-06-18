@@ -27,6 +27,7 @@ import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/u
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
+import { BlockchainProviderManager } from "../internal/blockchain-provider/BlockchainProviderManager.js";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/BlockchainProvider.js";
 import { WalletProviderCoreService } from "../internal/blockchain-provider/service/WalletProviderCoreService.js";
@@ -42,6 +43,8 @@ import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyT
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
 import { dAppConfigV1ModuleTypes } from "../internal/dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/v1/service/DAppConfigService.js";
+import { dAppConfigV2ModuleTypes } from "../internal/dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
+import { type GetDAppConfigV2UseCase } from "../internal/dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -137,11 +140,27 @@ export class LedgerButtonCore {
       .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
       .getDAppConfig();
 
+    const dappConfig = await this.container
+      .get<GetDAppConfigV2UseCase>(
+        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
+      )
+      .execute();
+
     //TODO throw error if dApp config is not found ?
     // Migrate database to latest version
     await this.container
       .get<MigrateDbUseCase>(storageModuleTypes.MigrateDbUseCase)
       .execute();
+
+    const coreFacade = this.container.get<WalletProviderCoreService>(
+      blockchainProviderModuleTypes.WalletProviderCoreService,
+    );
+    this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .init()
+      .injectProviders(coreFacade, dappConfig);
 
     // Restore selected account from storage
     const selectedAccount = this.container
@@ -516,18 +535,6 @@ export class LedgerButtonCore {
     return this.container
       .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Wallet providers
-  // ---------------------------------------------------------------------------
-
-  initProviders(): (() => void)[] {
-    return this.container
-      .get<WalletProviderCoreService>(
-        blockchainProviderModuleTypes.WalletProviderCoreService,
-      )
-      .initProviders();
   }
 
   /** Stream of generic navigation intents emitted by core for the UI to map. */

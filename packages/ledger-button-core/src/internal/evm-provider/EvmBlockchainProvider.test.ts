@@ -1,11 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
-import type {
-  ProviderDAppConfig,
-  ProviderDAppConfigFactory,
-  WalletProviderCore,
-} from "../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 
@@ -23,7 +20,7 @@ vi.mock("./EvmWalletProvider.js", () => ({
   })),
 }));
 
-const createMockHost = (): WalletProviderCore => ({
+const createMockCore = (): CoreFacade => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
   requestSign: vi.fn(),
@@ -31,88 +28,90 @@ const createMockHost = (): WalletProviderCore => ({
   disconnect: vi.fn().mockResolvedValue(undefined),
 });
 
+const createMockDAppConfig = (): DAppConfigV2 =>
+  ({
+    name: "test",
+    liveAppId: "test",
+    domainUrl: "test",
+    referralUrl: "test",
+    blockchains: [],
+    featureFlags: {},
+  }) as DAppConfigV2;
+
 describe("EvmBlockchainProvider", () => {
-  let host: WalletProviderCore;
+  let provider: EvmBlockchainProvider;
+  let core: CoreFacade;
+  let dappConfig: DAppConfigV2;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    host = createMockHost();
+    provider = new EvmBlockchainProvider();
+    core = createMockCore();
+    dappConfig = createMockDAppConfig();
   });
 
   test('family is "evm"', () => {
-    expect(new EvmBlockchainProvider(host).family).toBe("evm");
+    expect(provider.family).toBe("evm");
   });
 
-  describe("constructor", () => {
-    test("passes host as first arg to LedgerEIP1193Provider", () => {
-      new EvmBlockchainProvider(host);
+  describe("injectWalletProviders()", () => {
+    test("creates LedgerEIP1193Provider with core and a rpcMethods loader", () => {
+      provider.injectWalletProviders(core, dappConfig);
 
       expect(LedgerEIP1193Provider).toHaveBeenCalledWith(
-        host,
+        core,
         expect.any(Function),
       );
     });
 
-    test("loadRpcMethods loader resolves rpcMethods from configFactory", async () => {
-      const rpcMethods: ProviderDAppConfig["rpcMethods"] = {
-        local: ["eth_call"],
-        broadcasted: ["eth_sendRawTransaction"],
-      };
-      const configFactory: ProviderDAppConfigFactory = vi
-        .fn()
-        .mockResolvedValue({ rpcMethods } as ProviderDAppConfig);
+    test("rpcMethods loader resolves to undefined when no matching blockchain in config", async () => {
+      provider.injectWalletProviders(core, dappConfig);
 
-      new EvmBlockchainProvider(host, configFactory);
-
-      const loadRpcMethods = vi.mocked(LedgerEIP1193Provider).mock
-        .calls[0]?.[1];
-      await expect(loadRpcMethods?.()).resolves.toEqual(rpcMethods);
-    });
-
-    test("loadRpcMethods loader resolves to undefined when no configFactory provided", async () => {
-      new EvmBlockchainProvider(host);
-
-      const loadRpcMethods = vi.mocked(LedgerEIP1193Provider).mock
-        .calls[0]?.[1];
-      await expect(loadRpcMethods?.()).resolves.toBeUndefined();
+      const loader = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[1];
+      await expect(loader?.()).resolves.toBeUndefined();
     });
 
     test("constructs EvmWalletProvider with the LedgerEIP1193Provider instance", () => {
-      new EvmBlockchainProvider(host);
+      provider.injectWalletProviders(core, dappConfig);
 
-      const innerProvider = vi.mocked(LedgerEIP1193Provider).mock.results[0]
-        ?.value;
-      expect(EvmWalletProvider).toHaveBeenCalledWith(innerProvider);
+      const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
+      expect(EvmWalletProvider).toHaveBeenCalledWith(inner);
     });
-  });
 
-  describe("getWalletProvider()", () => {
-    test("returns the EvmWalletProvider instance", () => {
-      const evmProvider = new EvmBlockchainProvider(host);
+    test("calls init() on EvmWalletProvider", () => {
+      provider.injectWalletProviders(core, dappConfig);
+
       const walletProvider =
         vi.mocked(EvmWalletProvider).mock.results[0]?.value;
-
-      expect(evmProvider.getWalletProvider()).toBe(walletProvider);
+      expect(walletProvider.init).toHaveBeenCalledOnce();
     });
   });
 
   describe("setSelectedAccount()", () => {
-    test("delegates to the inner LedgerEIP1193Provider", () => {
-      const evmProvider = new EvmBlockchainProvider(host);
+    test("is a no-op before injectWalletProviders", () => {
+      expect(() => provider.setSelectedAccount(undefined)).not.toThrow();
+    });
+
+    test("delegates to LedgerEIP1193Provider after injection", () => {
+      provider.injectWalletProviders(core, dappConfig);
       const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
 
-      evmProvider.setSelectedAccount(undefined);
+      provider.setSelectedAccount(undefined);
 
       expect(inner.setSelectedAccount).toHaveBeenCalledWith(undefined);
     });
   });
 
   describe("setNetwork()", () => {
-    test("delegates to the inner LedgerEIP1193Provider", () => {
-      const evmProvider = new EvmBlockchainProvider(host);
+    test("is a no-op before injectWalletProviders", () => {
+      expect(() => provider.setNetwork(137)).not.toThrow();
+    });
+
+    test("delegates to LedgerEIP1193Provider after injection", () => {
+      provider.injectWalletProviders(core, dappConfig);
       const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
 
-      evmProvider.setNetwork(137);
+      provider.setNetwork(137);
 
       expect(inner.setNetwork).toHaveBeenCalledWith(137);
     });
