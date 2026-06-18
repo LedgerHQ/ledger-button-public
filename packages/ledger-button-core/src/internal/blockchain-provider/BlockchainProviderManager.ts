@@ -1,25 +1,28 @@
 import { type Factory, inject, injectable } from "inversify";
-import { Maybe } from "purify-ts";
 
-import {
+import type {
   BlockchainFamily,
   BlockchainProvider,
-  BlockchainProviderFactory,
-  ProviderDAppConfigFactory,
-  WalletProviderCore,
+  CoreFacade,
 } from "./model/BlockchainProvider.js";
-import { resolveBlockchainFamily } from "./utils/resolveBlockchainFamily.js";
 import type { Account } from "../account/service/AccountService.js";
+import { contextModuleTypes } from "../context/contextModuleTypes.js";
+import type { ContextService } from "../context/ContextService.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
+import { EvmBlockchainProvider } from "../evm-provider/EvmBlockchainProvider.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
+import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainProvider.js";
 
 /**
- * Central registry that routes to the right wallet provider based on the
- * blockchain family (`evm` / `solana`).
+ * Central registry that creates, wires, and manages blockchain providers.
  *
- * Providers are resolved from the DI container and registered here; core uses
- * the manager to push context (selected account / network) to every provider
- * so they can emit their native events.
+ * Usage: `manager.init().injectProviders(coreFacade, dappConfig)`
+ *
+ * - {@link init} instantiates and registers providers, then returns `this`.
+ * - {@link injectProviders} wires each provider with the core facade and dApp
+ *   config, then subscribes to context so providers stay in sync with the
+ *   selected account and chain.
  */
 @injectable()
 export class BlockchainProviderManager {
@@ -27,41 +30,39 @@ export class BlockchainProviderManager {
   private readonly providers = new Map<BlockchainFamily, BlockchainProvider>();
 
   constructor(
+    @inject(contextModuleTypes.ContextService)
+    private readonly contextService: ContextService,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
     this.logger = loggerFactory("BlockchainProviderManager");
   }
 
-  addBlockchainProvider(
-    factory: BlockchainProviderFactory,
-    config: ProviderDAppConfigFactory,
-    host: WalletProviderCore,
-  ): () => void {
-    const provider = factory(host, config);
-    const walletProvider = provider.getWalletProvider();
-    const teardown = walletProvider.init();
-    this.registerProvider(provider);
-    return teardown;
+  /** Instantiates and registers all providers. Returns `this` for chaining. */
+  init(): BlockchainProviderManager {
+    const providers: BlockchainProvider[] = [
+      new EvmBlockchainProvider(),
+      new SolanaBlockchainProvider(),
+    ];
+    for (const provider of providers) {
+      this.logger.debug("Registering provider", { family: provider.family });
+      this.providers.set(provider.family, provider);
+    }
+    return this;
   }
 
-  registerProvider(provider: BlockchainProvider): void {
-    this.logger.debug("Registering provider", { family: provider.family });
-    this.providers.set(provider.family, provider);
-  }
-
-  getProvider(family: BlockchainFamily): Maybe<BlockchainProvider> {
-    return Maybe.fromNullable(this.providers.get(family));
-  }
-
-  getProviderForCurrency(currencyId: string): Maybe<BlockchainProvider> {
-    return resolveBlockchainFamily(currencyId).chain((family) =>
-      this.getProvider(family),
-    );
-  }
-
-  getProviders(): BlockchainProvider[] {
-    return Array.from(this.providers.values());
+  /**
+   * Wires every registered provider with the core facade and dApp config,
+   * then subscribes to context changes so providers receive account / chain
+   * updates automatically.
+   *
+   * Must be called after {@link init}.
+   */
+  injectProviders(core: CoreFacade, dappConfig: DAppConfigV2): void {
+    for (const provider of this.providers.values()) {
+      provider.injectWalletProviders(core, dappConfig);
+    }
+    this.subscribeToContext();
   }
 
   setSelectedAccount(account: Account | undefined): void {
@@ -74,5 +75,21 @@ export class BlockchainProviderManager {
     for (const provider of this.providers.values()) {
       provider.setNetwork(chainId);
     }
+  }
+
+  private subscribeToContext(): void {
+    this.contextService.observeContext().subscribe((context) => {
+      this.pushContextToProviders(context.selectedAccount, context.chainId);
+    });
+    const ctx = this.contextService.getContext();
+    this.pushContextToProviders(ctx.selectedAccount, ctx.chainId);
+  }
+
+  private pushContextToProviders(
+    account: Account | undefined,
+    chainId: number,
+  ): void {
+    this.setSelectedAccount(account);
+    this.setNetwork(chainId);
   }
 }

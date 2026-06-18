@@ -1,36 +1,32 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type {
-  BlockchainFamily,
-  BlockchainProvider,
-  BlockchainProviderFactory,
-  ProviderDAppConfigFactory,
-  WalletProvider,
-  WalletProviderCore,
-} from "./model/BlockchainProvider.js";
+import type { CoreFacade } from "./model/BlockchainProvider.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import type { Account } from "../account/service/AccountService.js";
+import type { ContextService } from "../context/ContextService.js";
 import { BlockchainProviderManager } from "./BlockchainProviderManager.js";
+import { EvmBlockchainProvider } from "../evm-provider/EvmBlockchainProvider.js";
+import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainProvider.js";
 
-const createWalletProvider = (): WalletProvider & {
-  init: ReturnType<typeof vi.fn>;
-} => ({
-  family: "evm",
-  init: vi.fn(() => vi.fn()),
-});
-
-const createProvider = (
-  family: BlockchainFamily,
-  walletProvider?: WalletProvider,
-): BlockchainProvider => {
-  const wp = walletProvider ?? createWalletProvider();
-  return {
-    family,
-    getWalletProvider: vi.fn(() => wp),
+vi.mock("../evm-provider/EvmBlockchainProvider.js", () => ({
+  EvmBlockchainProvider: vi.fn().mockImplementation(() => ({
+    family: "evm",
+    injectWalletProviders: vi.fn(),
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
-  };
-};
+  })),
+}));
 
+vi.mock("../solana-provider/SolanaBlockchainProvider.js", () => ({
+  SolanaBlockchainProvider: vi.fn().mockImplementation(() => ({
+    family: "solana",
+    injectWalletProviders: vi.fn(),
+    setSelectedAccount: vi.fn(),
+    setNetwork: vi.fn(),
+  })),
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const loggerFactory = () =>
   ({
     debug: vi.fn(),
@@ -40,127 +36,125 @@ const loggerFactory = () =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }) as any;
 
+const createMockDAppConfig = (): DAppConfigV2 =>
+  ({
+    name: "test",
+    liveAppId: "test",
+    domainUrl: "test",
+    referralUrl: "test",
+    blockchains: [],
+    featureFlags: {},
+  }) as DAppConfigV2;
+
+const createMockCore = (): CoreFacade => ({
+  broadcastRPC: vi.fn(),
+  requestAccount: vi.fn(),
+  requestSign: vi.fn(),
+  requestSwitchChain: vi.fn(),
+  disconnect: vi.fn(),
+});
+
+const createMockContextService = (
+  account?: Account,
+  chainId = 1,
+): ContextService => ({
+  getContext: vi.fn().mockReturnValue({ selectedAccount: account, chainId }),
+  observeContext: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+  onEvent: vi.fn(),
+});
+
 describe("BlockchainProviderManager", () => {
   let manager: BlockchainProviderManager;
+  let core: CoreFacade;
+  let dappConfig: DAppConfigV2;
 
   beforeEach(() => {
+    vi.clearAllMocks();
+    const contextService = createMockContextService();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    manager = new BlockchainProviderManager(loggerFactory as any);
+    manager = new BlockchainProviderManager(
+      contextService,
+      loggerFactory as any,
+    );
+    core = createMockCore();
+    dappConfig = createMockDAppConfig();
   });
 
-  it("registers and retrieves a provider by family", () => {
-    const evm = createProvider("evm");
-    manager.registerProvider(evm);
+  describe("init()", () => {
+    it("creates EvmBlockchainProvider and SolanaBlockchainProvider", () => {
+      manager.init();
 
-    expect(manager.getProvider("evm").extract()).toBe(evm);
-    expect(manager.getProvider("solana").isNothing()).toBe(true);
-  });
-
-  it("resolves a provider for a known currency", () => {
-    const evm = createProvider("evm");
-    manager.registerProvider(evm);
-
-    expect(manager.getProviderForCurrency("ethereum").extract()).toBe(evm);
-  });
-
-  it("returns Nothing for an unknown currency", () => {
-    expect(manager.getProviderForCurrency("dogecoin").isNothing()).toBe(true);
-  });
-
-  it("returns all registered providers", () => {
-    const evm = createProvider("evm");
-    const solana = createProvider("solana");
-    manager.registerProvider(evm);
-    manager.registerProvider(solana);
-
-    expect(manager.getProviders()).toEqual([evm, solana]);
-  });
-
-  it("fans out the selected account to every provider", () => {
-    const evm = createProvider("evm");
-    const solana = createProvider("solana");
-    manager.registerProvider(evm);
-    manager.registerProvider(solana);
-
-    const account = { currencyId: "ethereum" } as Account;
-    manager.setSelectedAccount(account);
-
-    expect(evm.setSelectedAccount).toHaveBeenCalledWith(account);
-    expect(solana.setSelectedAccount).toHaveBeenCalledWith(account);
-  });
-
-  it("fans out the network to every provider", () => {
-    const evm = createProvider("evm");
-    manager.registerProvider(evm);
-
-    manager.setNetwork(137);
-
-    expect(evm.setNetwork).toHaveBeenCalledWith(137);
-  });
-
-  describe("addBlockchainProvider", () => {
-    const createMockHost = (): WalletProviderCore => ({
-      broadcastRPC: vi.fn(),
-      requestAccount: vi.fn(),
-      requestSign: vi.fn(),
-      requestSwitchChain: vi.fn(),
-      disconnect: vi.fn(),
+      expect(EvmBlockchainProvider).toHaveBeenCalledOnce();
+      expect(SolanaBlockchainProvider).toHaveBeenCalledOnce();
     });
 
-    const createMockConfigFactory = (): ProviderDAppConfigFactory =>
-      vi.fn().mockResolvedValue(undefined);
+    it("returns the manager instance for chaining", () => {
+      expect(manager.init()).toBe(manager);
+    });
+  });
 
-    it("calls the factory with host and config", () => {
-      const host = createMockHost();
-      const config = createMockConfigFactory();
-      const provider = createProvider("evm");
-      const factory: BlockchainProviderFactory = vi.fn(() => provider);
+  describe("injectProviders()", () => {
+    it("calls injectWalletProviders on each provider with core and dappConfig", () => {
+      manager.init().injectProviders(core, dappConfig);
 
-      manager.addBlockchainProvider(factory, config, host);
+      const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
+        ?.value;
+      const solanaInstance = vi.mocked(SolanaBlockchainProvider).mock.results[0]
+        ?.value;
 
-      expect(factory).toHaveBeenCalledWith(host, config);
+      expect(evmInstance.injectWalletProviders).toHaveBeenCalledWith(
+        core,
+        dappConfig,
+      );
+      expect(solanaInstance.injectWalletProviders).toHaveBeenCalledWith(
+        core,
+        dappConfig,
+      );
     });
 
-    it("calls init() on the WalletProvider returned by getWalletProvider()", () => {
-      const walletProvider = createWalletProvider();
-      const provider = createProvider("evm", walletProvider);
-      const factory: BlockchainProviderFactory = vi.fn(() => provider);
-
-      manager.addBlockchainProvider(
-        factory,
-        createMockConfigFactory(),
-        createMockHost(),
+    it("pushes initial context to providers after wiring", () => {
+      const account = { currencyId: "ethereum" } as Account;
+      const contextService = createMockContextService(account, 137);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      manager = new BlockchainProviderManager(
+        contextService,
+        loggerFactory as any,
       );
 
-      expect(walletProvider.init).toHaveBeenCalledOnce();
+      manager.init().injectProviders(core, dappConfig);
+
+      const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
+        ?.value;
+      expect(evmInstance.setSelectedAccount).toHaveBeenCalledWith(account);
+      expect(evmInstance.setNetwork).toHaveBeenCalledWith(137);
     });
+  });
 
-    it("registers the provider so it can be retrieved by family", () => {
-      const provider = createProvider("evm");
-      const factory: BlockchainProviderFactory = vi.fn(() => provider);
+  describe("setSelectedAccount()", () => {
+    it("fans out to every provider", () => {
+      manager.init().injectProviders(core, dappConfig);
+      const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
+        ?.value;
+      const solanaInstance = vi.mocked(SolanaBlockchainProvider).mock.results[0]
+        ?.value;
 
-      manager.addBlockchainProvider(
-        factory,
-        createMockConfigFactory(),
-        createMockHost(),
-      );
+      const account = { currencyId: "ethereum" } as Account;
+      manager.setSelectedAccount(account);
 
-      expect(manager.getProvider("evm").extract()).toBe(provider);
+      expect(evmInstance.setSelectedAccount).toHaveBeenCalledWith(account);
+      expect(solanaInstance.setSelectedAccount).toHaveBeenCalledWith(account);
     });
+  });
 
-    it("returns the teardown from init()", () => {
-      const teardown = vi.fn();
-      const walletProvider = createWalletProvider();
-      walletProvider.init.mockReturnValue(teardown);
-      const provider = createProvider("evm", walletProvider);
+  describe("setNetwork()", () => {
+    it("fans out to every provider", () => {
+      manager.init().injectProviders(core, dappConfig);
+      const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
+        ?.value;
 
-      const result = manager.addBlockchainProvider(
-        vi.fn(() => provider),
-        createMockConfigFactory(),
-        createMockHost(),
-      );
+      manager.setNetwork(137);
 
-      expect(result).toBe(teardown);
+      expect(evmInstance.setNetwork).toHaveBeenCalledWith(137);
     });
   });
 });

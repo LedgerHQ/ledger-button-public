@@ -40,7 +40,7 @@ import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
 import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
-  WalletProviderCore,
+  CoreFacade,
 } from "../../blockchain-provider/model/BlockchainProvider.js";
 import { getLedgerProviderIcon } from "../../provider-registration/ledgerProviderIcon.js";
 
@@ -112,7 +112,7 @@ export class LedgerSolanaWallet implements Wallet {
     [E in StandardEventsNames]?: StandardEventsListeners[E][];
   } = {};
 
-  constructor(private readonly host: WalletProviderCore) {}
+  constructor(private readonly host: CoreFacade) {}
 
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
   setSelectedAccount(account: Account | undefined): void {

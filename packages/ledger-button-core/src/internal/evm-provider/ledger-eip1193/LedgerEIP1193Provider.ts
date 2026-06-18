@@ -5,7 +5,7 @@
  * for Ledger hardware wallets.
  *
  * The provider is a blackbox from the dApp's point of view and talks to core
- * only through a {@link WalletProviderCore}. It never imports
+ * only through a {@link CoreFacade}. It never imports
  * `LedgerButtonCore`, which keeps the `blockchain-provider` layer a candidate
  * for extraction into its own package.
  *
@@ -46,7 +46,7 @@ import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
   ProviderRpcMethods,
-  WalletProviderCore,
+  CoreFacade,
   WalletProviderSignRequest,
 } from "../../blockchain-provider/model/BlockchainProvider.js";
 
@@ -82,7 +82,7 @@ export class LedgerEIP1193Provider
   > = new Map();
 
   constructor(
-    private readonly host: WalletProviderCore,
+    private readonly host: CoreFacade,
     private readonly loadRpcMethods?: RpcMethodsLoader,
   ) {
     super();
