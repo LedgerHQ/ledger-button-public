@@ -3,22 +3,33 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   BlockchainFamily,
   BlockchainProvider,
+  BlockchainProviderFactory,
+  ProviderDAppConfigFactory,
+  WalletProvider,
+  WalletProviderCore,
 } from "./model/BlockchainProvider.js";
 import type { Account } from "../account/service/AccountService.js";
 import { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
+const createWalletProvider = (): WalletProvider & {
+  init: ReturnType<typeof vi.fn>;
+} => ({
+  family: "evm",
+  init: vi.fn(() => vi.fn()),
+});
+
 const createProvider = (
   family: BlockchainFamily,
-): BlockchainProvider & {
-  init: ReturnType<typeof vi.fn>;
-  setSelectedAccount: ReturnType<typeof vi.fn>;
-  setNetwork: ReturnType<typeof vi.fn>;
-} => ({
-  family,
-  init: vi.fn(() => () => undefined),
-  setSelectedAccount: vi.fn(),
-  setNetwork: vi.fn(),
-});
+  walletProvider?: WalletProvider,
+): BlockchainProvider => {
+  const wp = walletProvider ?? createWalletProvider();
+  return {
+    family,
+    getWalletProvider: vi.fn(() => wp),
+    setSelectedAccount: vi.fn(),
+    setNetwork: vi.fn(),
+  };
+};
 
 const loggerFactory = () =>
   ({
@@ -85,5 +96,71 @@ describe("BlockchainProviderManager", () => {
     manager.setNetwork(137);
 
     expect(evm.setNetwork).toHaveBeenCalledWith(137);
+  });
+
+  describe("addBlockchainProvider", () => {
+    const createMockHost = (): WalletProviderCore => ({
+      broadcastRPC: vi.fn(),
+      requestAccount: vi.fn(),
+      requestSign: vi.fn(),
+      requestSwitchChain: vi.fn(),
+      disconnect: vi.fn(),
+    });
+
+    const createMockConfigFactory = (): ProviderDAppConfigFactory =>
+      vi.fn().mockResolvedValue(undefined);
+
+    it("calls the factory with host and config", () => {
+      const host = createMockHost();
+      const config = createMockConfigFactory();
+      const provider = createProvider("evm");
+      const factory: BlockchainProviderFactory = vi.fn(() => provider);
+
+      manager.addBlockchainProvider(factory, config, host);
+
+      expect(factory).toHaveBeenCalledWith(host, config);
+    });
+
+    it("calls init() on the WalletProvider returned by getWalletProvider()", () => {
+      const walletProvider = createWalletProvider();
+      const provider = createProvider("evm", walletProvider);
+      const factory: BlockchainProviderFactory = vi.fn(() => provider);
+
+      manager.addBlockchainProvider(
+        factory,
+        createMockConfigFactory(),
+        createMockHost(),
+      );
+
+      expect(walletProvider.init).toHaveBeenCalledOnce();
+    });
+
+    it("registers the provider so it can be retrieved by family", () => {
+      const provider = createProvider("evm");
+      const factory: BlockchainProviderFactory = vi.fn(() => provider);
+
+      manager.addBlockchainProvider(
+        factory,
+        createMockConfigFactory(),
+        createMockHost(),
+      );
+
+      expect(manager.getProvider("evm").extract()).toBe(provider);
+    });
+
+    it("returns the teardown from init()", () => {
+      const teardown = vi.fn();
+      const walletProvider = createWalletProvider();
+      walletProvider.init.mockReturnValue(teardown);
+      const provider = createProvider("evm", walletProvider);
+
+      const result = manager.addBlockchainProvider(
+        vi.fn(() => provider),
+        createMockConfigFactory(),
+        createMockHost(),
+      );
+
+      expect(result).toBe(teardown);
+    });
   });
 });

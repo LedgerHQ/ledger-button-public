@@ -28,10 +28,7 @@ import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type {
-  WalletNavigationIntent,
-  WalletProvider,
-} from "../internal/blockchain-provider/model/BlockchainProvider.js";
+import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/BlockchainProvider.js";
 import { WalletProviderCoreService } from "../internal/blockchain-provider/service/WalletProviderCoreService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
@@ -525,12 +522,12 @@ export class LedgerButtonCore {
   // Wallet providers
   // ---------------------------------------------------------------------------
 
-  getWalletProviders(): WalletProvider[] {
+  initProviders(): (() => void)[] {
     return this.container
       .get<WalletProviderCoreService>(
         blockchainProviderModuleTypes.WalletProviderCoreService,
       )
-      .getWalletProviders();
+      .initProviders();
   }
 
   /** Stream of generic navigation intents emitted by core for the UI to map. */

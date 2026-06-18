@@ -40,7 +40,6 @@ import type { SolanaCluster } from "../../api/model/solana/SolanaTypes.js";
 import { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
-  BlockchainProvider,
   WalletProviderCore,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { getLedgerProviderIcon } from "../provider-registration/ledgerProviderIcon.js";
@@ -101,7 +100,7 @@ type SolanaWalletFeatures = StandardConnectFeature &
   StandardEventsFeature &
   SolanaSignFeatures;
 
-export class LedgerSolanaWallet implements Wallet, BlockchainProvider {
+export class LedgerSolanaWallet implements Wallet {
   readonly version = "1.0.0" as const;
   readonly family: BlockchainFamily = "solana";
   readonly name = "Ledger";

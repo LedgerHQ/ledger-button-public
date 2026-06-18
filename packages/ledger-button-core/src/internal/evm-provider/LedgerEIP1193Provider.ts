@@ -45,7 +45,6 @@ import { hexToUtf8 } from "../../api/utils/byteUtils.js";
 import { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
-  BlockchainProvider,
   ProviderRpcMethods,
   WalletProviderCore,
   WalletProviderSignRequest,
@@ -56,7 +55,7 @@ export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;
 
 export class LedgerEIP1193Provider
   extends EventTarget
-  implements EIP1193Provider, BlockchainProvider
+  implements EIP1193Provider
 {
   public readonly family: BlockchainFamily = "evm";
   private _isConnected = false;
