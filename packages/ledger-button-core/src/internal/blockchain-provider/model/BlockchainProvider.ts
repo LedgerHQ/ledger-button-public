@@ -1,4 +1,5 @@
 import type { Observable } from "rxjs";
+
 import type {
   JSONRPCRequest,
   JsonRpcResponse,

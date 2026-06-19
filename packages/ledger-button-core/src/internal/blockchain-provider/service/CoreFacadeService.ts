@@ -25,7 +25,7 @@ import type {
 import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 
 @injectable()
-export class WalletProviderCoreService implements CoreFacade {
+export class CoreFacadeService implements CoreFacade {
   private readonly _logger: LoggerPublisher;
 
   constructor(
@@ -38,7 +38,7 @@ export class WalletProviderCoreService implements CoreFacade {
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
-    this._logger = loggerFactory("WalletProviderCoreService");
+    this._logger = loggerFactory("CoreFacadeService");
   }
 
   async broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse> {
