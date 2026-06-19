@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
 import { BlockchainProviderManager } from "../BlockchainProviderManager.js";
-import { WalletProviderCoreService } from "../service/WalletProviderCoreService.js";
+import { CoreFacadeService } from "../service/CoreFacadeService.js";
 import { blockchainProviderModuleTypes } from "./blockchainProviderModuleTypes.js";
 
 export function blockchainProviderModuleFactory() {
@@ -12,10 +12,8 @@ export function blockchainProviderModuleFactory() {
       .to(BlockchainProviderManager)
       .inSingletonScope();
 
-    bind<WalletProviderCoreService>(
-      blockchainProviderModuleTypes.WalletProviderCoreService,
-    )
-      .to(WalletProviderCoreService)
+    bind<CoreFacadeService>(blockchainProviderModuleTypes.CoreFacadeService)
+      .to(CoreFacadeService)
       .inSingletonScope();
   });
 }

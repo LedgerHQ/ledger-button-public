@@ -30,7 +30,7 @@ import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSo
 import { BlockchainProviderManager } from "../internal/blockchain-provider/BlockchainProviderManager.js";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/BlockchainProvider.js";
-import { WalletProviderCoreService } from "../internal/blockchain-provider/service/WalletProviderCoreService.js";
+import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -152,8 +152,8 @@ export class LedgerButtonCore {
       .get<MigrateDbUseCase>(storageModuleTypes.MigrateDbUseCase)
       .execute();
 
-    const coreFacade = this.container.get<WalletProviderCoreService>(
-      blockchainProviderModuleTypes.WalletProviderCoreService,
+    const coreFacade = this.container.get<CoreFacadeService>(
+      blockchainProviderModuleTypes.CoreFacadeService,
     );
     this.container
       .get<BlockchainProviderManager>(

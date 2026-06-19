@@ -1,4 +1,4 @@
 export const blockchainProviderModuleTypes = {
   BlockchainProviderManager: Symbol.for("BlockchainProviderManager"),
-  WalletProviderCoreService: Symbol.for("WalletProviderCoreService"),
+  CoreFacadeService: Symbol.for("CoreFacadeService"),
 } as const;
