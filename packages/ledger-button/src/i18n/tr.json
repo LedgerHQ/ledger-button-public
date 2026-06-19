@@ -316,9 +316,9 @@
         "cta1": "Tekrar dene"
       },
       "DeviceOutOfStorage": {
-        "title": "Missing required app",
-        "description": "The {AppName} app is required to complete this action. Please go to Ledger Wallet and install it on your device.",
-        "cta1": "Go to Ledger Wallet"
+        "title": "Not enough space for the {AppName} app",
+        "description": "Your {deviceName} is out of storage, so it couldn't install on its own. Free up space in Ledger Wallet, then install the app.",
+        "cta1": "Free up space"
       }
     },
     "ledgerSync": {

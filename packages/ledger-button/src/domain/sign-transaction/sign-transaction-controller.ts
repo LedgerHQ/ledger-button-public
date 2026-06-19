@@ -433,13 +433,17 @@ export class SignTransactionController implements ReactiveController {
       }
       case error instanceof DeviceOutOfStorageError: {
         const appName = error.context?.appName ?? "";
+        const deviceName = this.getDeviceName();
         this.state = {
           screen: "error",
           status: {
-            title: lang.error.device.DeviceOutOfStorage.title,
-            message: lang.error.device.DeviceOutOfStorage.description.replace(
+            title: lang.error.device.DeviceOutOfStorage.title.replace(
               "{AppName}",
               appName,
+            ),
+            message: lang.error.device.DeviceOutOfStorage.description.replace(
+              "{deviceName}",
+              deviceName,
             ),
             cta1: {
               label: lang.error.device.DeviceOutOfStorage.cta1,
