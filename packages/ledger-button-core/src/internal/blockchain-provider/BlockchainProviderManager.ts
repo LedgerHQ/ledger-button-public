@@ -17,12 +17,8 @@ import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainPro
 /**
  * Central registry that creates, wires, and manages blockchain providers.
  *
- * Usage: `manager.init().injectProviders(coreFacade, dappConfig)`
- *
- * - {@link init} instantiates and registers providers, then returns `this`.
- * - {@link injectProviders} wires each provider with the core facade and dApp
- *   config, then subscribes to context so providers stay in sync with the
- *   selected account and chain.
+ * Call {@link init} with the core facade and dApp config to instantiate all
+ * providers, inject them, and subscribe to context changes.
  */
 @injectable()
 export class BlockchainProviderManager {
@@ -38,8 +34,7 @@ export class BlockchainProviderManager {
     this.logger = loggerFactory("BlockchainProviderManager");
   }
 
-  /** Instantiates and registers all providers. Returns `this` for chaining. */
-  init(): BlockchainProviderManager {
+  init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void {
     const providers: BlockchainProvider[] = [
       new EvmBlockchainProvider(),
       new SolanaBlockchainProvider(),
@@ -47,20 +42,7 @@ export class BlockchainProviderManager {
     for (const provider of providers) {
       this.logger.debug("Registering provider", { family: provider.family });
       this.providers.set(provider.family, provider);
-    }
-    return this;
-  }
-
-  /**
-   * Wires every registered provider with the core facade and dApp config,
-   * then subscribes to context changes so providers receive account / chain
-   * updates automatically.
-   *
-   * Must be called after {@link init}.
-   */
-  injectProviders(core: CoreFacade, dappConfig: DAppConfigV2): void {
-    for (const provider of this.providers.values()) {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders(coreFacade, dappConfig);
     }
     this.subscribeToContext();
   }

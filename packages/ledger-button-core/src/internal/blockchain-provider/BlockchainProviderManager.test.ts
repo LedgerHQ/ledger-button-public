@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreFacade } from "./model/BlockchainProvider.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import type { Account } from "../account/service/AccountService.js";
 import type { ContextService } from "../context/ContextService.js";
-import { BlockchainProviderManager } from "./BlockchainProviderManager.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { EvmBlockchainProvider } from "../evm-provider/EvmBlockchainProvider.js";
 import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainProvider.js";
+import { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
 vi.mock("../evm-provider/EvmBlockchainProvider.js", () => ({
   EvmBlockchainProvider: vi.fn().mockImplementation(() => ({
@@ -26,7 +26,6 @@ vi.mock("../solana-provider/SolanaBlockchainProvider.js", () => ({
   })),
 }));
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const loggerFactory = () =>
   ({
     debug: vi.fn(),
@@ -71,7 +70,7 @@ describe("BlockchainProviderManager", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const contextService = createMockContextService();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     manager = new BlockchainProviderManager(
       contextService,
       loggerFactory as any,
@@ -82,20 +81,14 @@ describe("BlockchainProviderManager", () => {
 
   describe("init()", () => {
     it("creates EvmBlockchainProvider and SolanaBlockchainProvider", () => {
-      manager.init();
+      manager.init(core, dappConfig);
 
       expect(EvmBlockchainProvider).toHaveBeenCalledOnce();
       expect(SolanaBlockchainProvider).toHaveBeenCalledOnce();
     });
 
-    it("returns the manager instance for chaining", () => {
-      expect(manager.init()).toBe(manager);
-    });
-  });
-
-  describe("injectProviders()", () => {
-    it("calls injectWalletProviders on each provider with core and dappConfig", () => {
-      manager.init().injectProviders(core, dappConfig);
+    it("wires each provider with core and dappConfig", () => {
+      manager.init(core, dappConfig);
 
       const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
         ?.value;
@@ -115,13 +108,13 @@ describe("BlockchainProviderManager", () => {
     it("pushes initial context to providers after wiring", () => {
       const account = { currencyId: "ethereum" } as Account;
       const contextService = createMockContextService(account, 137);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       manager = new BlockchainProviderManager(
         contextService,
         loggerFactory as any,
       );
 
-      manager.init().injectProviders(core, dappConfig);
+      manager.init(core, dappConfig);
 
       const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
         ?.value;
@@ -132,7 +125,7 @@ describe("BlockchainProviderManager", () => {
 
   describe("setSelectedAccount()", () => {
     it("fans out to every provider", () => {
-      manager.init().injectProviders(core, dappConfig);
+      manager.init(core, dappConfig);
       const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
         ?.value;
       const solanaInstance = vi.mocked(SolanaBlockchainProvider).mock.results[0]
@@ -148,7 +141,7 @@ describe("BlockchainProviderManager", () => {
 
   describe("setNetwork()", () => {
     it("fans out to every provider", () => {
-      manager.init().injectProviders(core, dappConfig);
+      manager.init(core, dappConfig);
       const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
         ?.value;
 
