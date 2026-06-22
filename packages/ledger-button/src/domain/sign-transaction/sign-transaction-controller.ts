@@ -2,7 +2,7 @@ import {
   BlindSigningDisabledError,
   BroadcastTransactionError,
   buildExplorerTransactionUrl,
-  DeviceOutOfStorageError,
+  DeviceOutOfMemoryError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -431,7 +431,7 @@ export class SignTransactionController implements ReactiveController {
         };
         break;
       }
-      case error instanceof DeviceOutOfStorageError: {
+      case error instanceof DeviceOutOfMemoryError: {
         const appName = error.context?.appName ?? "";
         const deviceName = this.getDeviceName();
         this.state = {
