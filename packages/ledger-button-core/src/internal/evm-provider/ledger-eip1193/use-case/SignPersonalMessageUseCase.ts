@@ -8,7 +8,7 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { from, map, type Observable, of, switchMap } from "rxjs";
 
-import { DeviceOutOfMemoryError } from "../../../api/errors/DeviceErrors.js";
+import { DeviceOutOfMemoryError } from "../../../../api/errors/DeviceErrors.js";
 import type {
   SignFlowStatus,
   SignType,
