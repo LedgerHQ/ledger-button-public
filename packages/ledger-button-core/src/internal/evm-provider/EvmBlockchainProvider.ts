@@ -1,3 +1,4 @@
+import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
 import type { Account } from "../account/service/AccountService.js";
 import type {
   BlockchainFamily,
@@ -5,9 +6,8 @@ import type {
   CoreFacade,
   ProviderRpcMethods,
 } from "../blockchain-provider/model/BlockchainProvider.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { resolveBlockchainFamily } from "../blockchain-provider/utils/resolveBlockchainFamily.js";
-import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 
 /**
