@@ -45,8 +45,8 @@ import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
 import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
-  ProviderRpcMethods,
   CoreFacade,
+  ProviderRpcMethods,
   WalletProviderSignRequest,
 } from "../../blockchain-provider/model/BlockchainProvider.js";
 
