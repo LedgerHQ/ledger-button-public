@@ -314,6 +314,11 @@
         "title": "Action rejetée",
         "description": "Vous avez refusé la transaction sur votre appareil.",
         "cta1": "Réessayer"
+      },
+      "DeviceOutOfStorage": {
+        "title": "Not enough space for the {AppName} app",
+        "description": "Your {deviceName} is out of storage, so it couldn't install on its own. Free up space in Ledger Wallet, then install the app.",
+        "cta1": "Free up space"
       }
     },
     "ledgerSync": {

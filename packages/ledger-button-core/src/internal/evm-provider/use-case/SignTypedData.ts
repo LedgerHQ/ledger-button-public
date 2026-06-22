@@ -5,6 +5,7 @@ import {
   OpenAppWithDependenciesDAInput,
   type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
+  OutOfMemoryDAError,
   RefusedByUserDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
@@ -27,6 +28,7 @@ import {
 
 import {
   BlindSigningDisabledError,
+  DeviceOutOfStorageError,
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../api/errors/DeviceErrors.js";
@@ -64,6 +66,11 @@ import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
+
+type OpenAppResult = {
+  result: OpenAppWithDependenciesDAState;
+  appName: string;
+};
 
 @injectable()
 export class SignTypedData {
@@ -136,48 +143,47 @@ export class SignTypedData {
       }
 
       //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
-      const initObservable: Observable<OpenAppWithDependenciesDeviceAction> =
-        from(this.createOpenAppConfig()).pipe(
-          map(
-            (openAppConfig) =>
-              new OpenAppWithDependenciesDeviceAction({
-                input: openAppConfig,
-                inspect: false,
-              }),
-          ),
-        );
+      const initObservable: Observable<{
+        deviceAction: OpenAppWithDependenciesDeviceAction;
+        appName: string;
+      }> = from(this.createOpenAppConfig()).pipe(
+        map((openAppConfig) => ({
+          deviceAction: new OpenAppWithDependenciesDeviceAction({
+            input: openAppConfig,
+            inspect: false,
+          }),
+          appName: openAppConfig.application.name,
+        })),
+      );
 
       const derivationPath = getDerivationPath(selectedAccount);
 
       initObservable
         .pipe(
-          switchMap(
-            (openAppDeviceAction: OpenAppWithDependenciesDeviceAction) => {
-              const openObservable = dmk.executeDeviceAction({
-                sessionId: sessionId,
-                deviceAction: openAppDeviceAction,
-              }).observable;
-              return openObservable;
-            },
-          ),
+          switchMap(({ deviceAction: openAppDeviceAction, appName }) => {
+            const openObservable = dmk.executeDeviceAction({
+              sessionId: sessionId,
+              deviceAction: openAppDeviceAction,
+            }).observable;
+            return openObservable.pipe(map((result) => ({ result, appName })));
+          }),
           filter(
-            (result: OpenAppWithDependenciesDAState) =>
+            ({ result }: OpenAppResult) =>
               result.status !== DeviceActionStatus.Pending ||
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
-          tap((result: OpenAppWithDependenciesDAState) => {
+          tap(({ result }: OpenAppResult) => {
             resultObservable.next(
               this.getTransactionResultForEvent(result, signType),
             );
           }),
-          filter((result: OpenAppWithDependenciesDAState) => {
-            return (
+          filter(
+            ({ result }: OpenAppResult) =>
               result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed
-            );
-          }),
-          switchMap((result: OpenAppWithDependenciesDAState) => {
+              result.status === DeviceActionStatus.Completed,
+          ),
+          switchMap(({ result, appName }: OpenAppResult) => {
             if (result.status === DeviceActionStatus.Error) {
               const err = result.error;
               if (
@@ -186,6 +192,13 @@ export class SignTypedData {
               ) {
                 throw new UserRejectedTransactionError(
                   "User rejected open app",
+                );
+              }
+
+              if (err instanceof OutOfMemoryDAError) {
+                throw new DeviceOutOfStorageError(
+                  "Not enough storage on device to install app",
+                  { appName },
                 );
               }
 
