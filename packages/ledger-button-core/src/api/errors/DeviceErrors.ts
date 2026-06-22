@@ -40,10 +40,10 @@ export class UserRejectedTransactionError extends LedgerButtonError {
   }
 }
 
-export class DeviceOutOfStorageError extends LedgerButtonError<{
+export class DeviceOutOfMemoryError extends LedgerButtonError<{
   appName?: string;
 }> {
   constructor(message: string, context?: { appName?: string }) {
-    super(message, "DeviceOutOfStorageError", context);
+    super(message, "DeviceOutOfMemoryError", context);
   }
 }

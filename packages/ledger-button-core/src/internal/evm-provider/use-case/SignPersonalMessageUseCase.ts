@@ -8,7 +8,7 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { from, map, type Observable, of, switchMap } from "rxjs";
 
-import { DeviceOutOfStorageError } from "../../../api/errors/DeviceErrors.js";
+import { DeviceOutOfMemoryError } from "../../../api/errors/DeviceErrors.js";
 import type {
   SignFlowStatus,
   SignType,
@@ -178,8 +178,8 @@ export class SignPersonalMessageUseCase {
       case DeviceActionStatus.Error: {
         const error =
           state.error instanceof OutOfMemoryDAError
-            ? new DeviceOutOfStorageError(
-                "Not enough storage on device to install app",
+            ? new DeviceOutOfMemoryError(
+                "Not enough memory on device to process the request",
                 { appName },
               )
             : state.error;

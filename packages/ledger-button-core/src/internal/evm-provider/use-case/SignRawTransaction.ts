@@ -30,7 +30,7 @@ import {
 
 import {
   BlindSigningDisabledError,
-  DeviceOutOfStorageError,
+  DeviceOutOfMemoryError,
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../api/errors/DeviceErrors.js";
@@ -216,8 +216,8 @@ export class SignRawTransaction {
               }
 
               if (err instanceof OutOfMemoryDAError) {
-                throw new DeviceOutOfStorageError(
-                  "Not enough storage on device to install app",
+                throw new DeviceOutOfMemoryError(
+                  "Not enough memory on device to process the request",
                   { appName },
                 );
               }
