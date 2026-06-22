@@ -67,6 +67,11 @@ import { evmProviderModuleTypes } from "../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
+type OpenAppResult = {
+  result: OpenAppWithDependenciesDAState;
+  appName: string;
+};
+
 @injectable()
 export class SignTypedData {
   private readonly logger: LoggerPublisher;
@@ -161,28 +166,25 @@ export class SignTypedData {
               sessionId: sessionId,
               deviceAction: openAppDeviceAction,
             }).observable;
-            return openObservable.pipe(
-              map((result) => ({ result, appName })),
-            );
+            return openObservable.pipe(map((result) => ({ result, appName })));
           }),
           filter(
-            ({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) =>
+            ({ result }: OpenAppResult) =>
               result.status !== DeviceActionStatus.Pending ||
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
-          tap(({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
+          tap(({ result }: OpenAppResult) => {
             resultObservable.next(
               this.getTransactionResultForEvent(result, signType),
             );
           }),
-          filter(({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
-            return (
+          filter(
+            ({ result }: OpenAppResult) =>
               result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed
-            );
-          }),
-          switchMap(({ result, appName }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
+              result.status === DeviceActionStatus.Completed,
+          ),
+          switchMap(({ result, appName }: OpenAppResult) => {
             if (result.status === DeviceActionStatus.Error) {
               const err = result.error;
               if (
