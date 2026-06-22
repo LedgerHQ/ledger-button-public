@@ -78,6 +78,11 @@ import {
 } from "./BroadcastTransaction.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
+type OpenAppResult = {
+  result: OpenAppWithDependenciesDAState;
+  appName: string;
+};
+
 @injectable()
 export class SignRawTransaction {
   private readonly logger: LoggerPublisher;
@@ -181,28 +186,25 @@ export class SignRawTransaction {
               sessionId: sessionId,
               deviceAction: openAppDeviceAction,
             }).observable;
-            return openObservable.pipe(
-              map((result) => ({ result, appName })),
-            );
+            return openObservable.pipe(map((result) => ({ result, appName })));
           }),
           filter(
-            ({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) =>
+            ({ result }: OpenAppResult) =>
               result.status !== DeviceActionStatus.Pending ||
               result.intermediateValue?.requiredUserInteraction !==
                 UserInteractionRequired.None,
           ),
-          tap(({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
+          tap(({ result }: OpenAppResult) => {
             resultObservable.next(
               this.getTransactionResultForEvent(result, transaction, signType),
             );
           }),
-          filter(({ result }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
-            return (
+          filter(
+            ({ result }: OpenAppResult) =>
               result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed
-            );
-          }),
-          switchMap(({ result, appName }: { result: OpenAppWithDependenciesDAState; appName: string }) => {
+              result.status === DeviceActionStatus.Completed,
+          ),
+          switchMap(({ result, appName }: OpenAppResult) => {
             if (result.status === DeviceActionStatus.Error) {
               const err = result.error;
               if (
