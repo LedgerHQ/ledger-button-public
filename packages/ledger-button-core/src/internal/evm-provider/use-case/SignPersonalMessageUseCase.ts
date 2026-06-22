@@ -3,10 +3,12 @@ import {
   type DeviceActionState,
   DeviceActionStatus,
   type OpenAppWithDependenciesDAInput,
+  OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
 import { type Factory, inject, injectable } from "inversify";
 import { from, map, type Observable, of, switchMap } from "rxjs";
 
+import { DeviceOutOfStorageError } from "../../../api/errors/DeviceErrors.js";
 import type {
   SignFlowStatus,
   SignType,
@@ -114,7 +116,13 @@ export class SignPersonalMessageUseCase {
           });
 
           return observable.pipe(
-            map((state) => this.toSignFlowStatus(state, signType)),
+            map((state) =>
+              this.toSignFlowStatus(
+                state,
+                signType,
+                openAppConfig.application.name,
+              ),
+            ),
           ) as Observable<SignFlowStatus>;
         }),
       );
@@ -154,6 +162,7 @@ export class SignPersonalMessageUseCase {
       SignPersonalMessageFlowDAIntermediateValue
     >,
     signType: SignType,
+    appName: string,
   ): SignFlowStatus {
     switch (state.status) {
       case DeviceActionStatus.Pending:
@@ -166,8 +175,16 @@ export class SignPersonalMessageUseCase {
           data: { signature: state.output.signature },
         };
 
-      case DeviceActionStatus.Error:
-        return { signType, status: "error", error: state.error };
+      case DeviceActionStatus.Error: {
+        const error =
+          state.error instanceof OutOfMemoryDAError
+            ? new DeviceOutOfStorageError(
+                "Not enough storage on device to install app",
+                { appName },
+              )
+            : state.error;
+        return { signType, status: "error", error };
+      }
 
       default:
         return {
