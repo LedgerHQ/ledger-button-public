@@ -47,34 +47,25 @@ export class DefaultBlockchainProviderManager
       this.providers.set(provider.family, provider);
       provider.injectWalletProviders(coreFacade, dappConfig);
     }
-    this.subscribeToContext();
+    this.contextService.observeContext().subscribe((context) => {
+      this.setSelectedAccount(context.selectedAccount);
+      this.setNetwork(context.chainId);
+    });
   }
 
+  // @todo: this should be filtered by BlockchainFamily
+  // We should forward account change only for the target blockchain
   setSelectedAccount(account: Account | undefined): void {
     for (const provider of this.providers.values()) {
       provider.setSelectedAccount(account);
     }
   }
 
+  // @todo: this should be filtered by BlockchainFamily
+  // chainId should support Solana format as well (string)
   setNetwork(chainId: number): void {
     for (const provider of this.providers.values()) {
       provider.setNetwork(chainId);
     }
-  }
-
-  private subscribeToContext(): void {
-    this.contextService.observeContext().subscribe((context) => {
-      this.pushContextToProviders(context.selectedAccount, context.chainId);
-    });
-    const ctx = this.contextService.getContext();
-    this.pushContextToProviders(ctx.selectedAccount, ctx.chainId);
-  }
-
-  private pushContextToProviders(
-    account: Account | undefined,
-    chainId: number,
-  ): void {
-    this.setSelectedAccount(account);
-    this.setNetwork(chainId);
   }
 }
