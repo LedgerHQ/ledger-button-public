@@ -49,9 +49,9 @@ describe("SolanaBlockchainProvider", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    provider = new SolanaBlockchainProvider();
     core = createMockCore();
     dappConfig = createMockDAppConfig();
+    provider = new SolanaBlockchainProvider(core, dappConfig);
   });
 
   test('family is "solana"', () => {
@@ -60,20 +60,20 @@ describe("SolanaBlockchainProvider", () => {
 
   describe("injectWalletProviders()", () => {
     test("creates LedgerSolanaWallet with core", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       expect(LedgerSolanaWallet).toHaveBeenCalledWith(core);
     });
 
     test("creates SolanaWalletProvider with the LedgerSolanaWallet instance", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       const wallet = vi.mocked(LedgerSolanaWallet).mock.results[0]?.value;
       expect(SolanaWalletProvider).toHaveBeenCalledWith(wallet);
     });
 
     test("calls init() on SolanaWalletProvider", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       const walletProvider =
         vi.mocked(SolanaWalletProvider).mock.results[0]?.value;
@@ -87,7 +87,7 @@ describe("SolanaBlockchainProvider", () => {
     });
 
     test("delegates to LedgerSolanaWallet after injection", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
       const wallet = vi.mocked(LedgerSolanaWallet).mock.results[0]?.value;
 
       provider.setSelectedAccount(undefined);
@@ -102,7 +102,7 @@ describe("SolanaBlockchainProvider", () => {
     });
 
     test("delegates to LedgerSolanaWallet after injection", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
       const wallet = vi.mocked(LedgerSolanaWallet).mock.results[0]?.value;
 
       provider.setNetwork(101);

@@ -91,14 +91,14 @@ describe("DefaultBlockchainProviderManager", () => {
   });
 
   describe("init()", () => {
-    it("creates EvmBlockchainProvider and SolanaBlockchainProvider", () => {
+    it("creates providers with core and dappConfig", () => {
       manager.init(core, dappConfig);
 
-      expect(EvmBlockchainProvider).toHaveBeenCalledOnce();
-      expect(SolanaBlockchainProvider).toHaveBeenCalledOnce();
+      expect(EvmBlockchainProvider).toHaveBeenCalledWith(core, dappConfig);
+      expect(SolanaBlockchainProvider).toHaveBeenCalledWith(core, dappConfig);
     });
 
-    it("wires each provider with core and dappConfig", () => {
+    it("calls injectWalletProviders on each provider", () => {
       manager.init(core, dappConfig);
 
       const evmInstance = vi.mocked(EvmBlockchainProvider).mock.results[0]
@@ -106,14 +106,8 @@ describe("DefaultBlockchainProviderManager", () => {
       const solanaInstance = vi.mocked(SolanaBlockchainProvider).mock.results[0]
         ?.value;
 
-      expect(evmInstance.injectWalletProviders).toHaveBeenCalledWith(
-        core,
-        dappConfig,
-      );
-      expect(solanaInstance.injectWalletProviders).toHaveBeenCalledWith(
-        core,
-        dappConfig,
-      );
+      expect(evmInstance.injectWalletProviders).toHaveBeenCalledOnce();
+      expect(solanaInstance.injectWalletProviders).toHaveBeenCalledOnce();
     });
 
     it("pushes initial context to providers after wiring", () => {

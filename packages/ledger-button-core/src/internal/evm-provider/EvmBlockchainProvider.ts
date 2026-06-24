@@ -13,17 +13,22 @@ import { EvmWalletProvider } from "./EvmWalletProvider.js";
 /**
  * EVM {@link BlockchainProvider}: entry point for the EVM family.
  *
- * Created by {@link BlockchainProviderManager.injectWalletProviders};
- * wiring with core and dApp config happens in {@link injectWalletProviders}.
+ * Created by {@link DefaultBlockchainProviderManager} with core and dApp
+ * config; wiring happens in {@link injectWalletProviders}.
  */
 export class EvmBlockchainProvider implements BlockchainProvider {
   public readonly family: BlockchainFamily = "evm";
   private eip1193Provider?: LedgerEIP1193Provider;
   private walletProvider?: EvmWalletProvider;
 
-  injectWalletProviders(core: CoreFacade, dappConfig: DAppConfigV2): void {
-    const rpcMethods = this.extractRpcMethods(dappConfig);
-    this.eip1193Provider = new LedgerEIP1193Provider(core, () =>
+  constructor(
+    private readonly core: CoreFacade,
+    private readonly dappConfig: DAppConfigV2,
+  ) {}
+
+  injectWalletProviders(): void {
+    const rpcMethods = this.extractRpcMethods(this.dappConfig);
+    this.eip1193Provider = new LedgerEIP1193Provider(this.core, () =>
       Promise.resolve(rpcMethods),
     );
     this.walletProvider = new EvmWalletProvider(this.eip1193Provider);
