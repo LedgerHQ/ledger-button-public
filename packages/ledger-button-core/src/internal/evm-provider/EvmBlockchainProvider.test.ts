@@ -45,9 +45,9 @@ describe("EvmBlockchainProvider", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    provider = new EvmBlockchainProvider();
     core = createMockCore();
     dappConfig = createMockDAppConfig();
+    provider = new EvmBlockchainProvider(core, dappConfig);
   });
 
   test('family is "evm"', () => {
@@ -56,7 +56,7 @@ describe("EvmBlockchainProvider", () => {
 
   describe("injectWalletProviders()", () => {
     test("creates LedgerEIP1193Provider with core and a rpcMethods loader", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       expect(LedgerEIP1193Provider).toHaveBeenCalledWith(
         core,
@@ -65,21 +65,21 @@ describe("EvmBlockchainProvider", () => {
     });
 
     test("rpcMethods loader resolves to undefined when no matching blockchain in config", async () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       const loader = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[1];
       await expect(loader?.()).resolves.toBeUndefined();
     });
 
     test("constructs EvmWalletProvider with the LedgerEIP1193Provider instance", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
       expect(EvmWalletProvider).toHaveBeenCalledWith(inner);
     });
 
     test("calls init() on EvmWalletProvider", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
 
       const walletProvider =
         vi.mocked(EvmWalletProvider).mock.results[0]?.value;
@@ -93,7 +93,7 @@ describe("EvmBlockchainProvider", () => {
     });
 
     test("delegates to LedgerEIP1193Provider after injection", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
       const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
 
       provider.setSelectedAccount(undefined);
@@ -108,7 +108,7 @@ describe("EvmBlockchainProvider", () => {
     });
 
     test("delegates to LedgerEIP1193Provider after injection", () => {
-      provider.injectWalletProviders(core, dappConfig);
+      provider.injectWalletProviders();
       const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
 
       provider.setNetwork(137);

@@ -8,9 +8,9 @@ import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
-import type { BlockchainProvider } from "../model/BlockchainProvider.js";
 import type {
   BlockchainFamily,
+  BlockchainProvider,
   CoreFacade,
 } from "../model/BlockchainProvider.js";
 import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
@@ -39,13 +39,13 @@ export class DefaultBlockchainProviderManager
 
   init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void {
     const providers: BlockchainProvider[] = [
-      new EvmBlockchainProvider(),
-      new SolanaBlockchainProvider(),
+      new EvmBlockchainProvider(coreFacade, dappConfig),
+      new SolanaBlockchainProvider(coreFacade, dappConfig),
     ];
     for (const provider of providers) {
       this.logger.debug("Registering provider", { family: provider.family });
       this.providers.set(provider.family, provider);
-      provider.injectWalletProviders(coreFacade, dappConfig);
+      provider.injectWalletProviders();
     }
     this.contextService.observeContext().subscribe((context) => {
       this.setSelectedAccount(context.selectedAccount);

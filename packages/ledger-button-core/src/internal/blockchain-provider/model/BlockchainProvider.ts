@@ -7,7 +7,6 @@ import type {
 import type { SignedResults } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../account/service/AccountService.js";
-import type { DAppConfigV2 } from "../../dAppConfig/v2/model/dAppConfigV2Types.js";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -91,7 +90,7 @@ export interface BlockchainProvider {
    * Called once by {@link DefaultBlockchainProviderManager} after the dApp
    * config has been fetched.
    */
-  injectWalletProviders(core: CoreFacade, dappConfig: DAppConfigV2): void;
+  injectWalletProviders(): void;
   setSelectedAccount(account: Account | undefined): void;
   setNetwork(chainId: number): void;
 }
