@@ -23,7 +23,7 @@ export type BlockchainFamily = "evm" | "solana";
  * serves and a single `init()` that performs discovery wiring (EIP-6963
  * announce for EVM, `registerWallet` for Solana) and returns a teardown.
  *
- * The provider talks to core only through {@link WalletProviderHost}; it never
+ * The provider talks to core only through {@link CoreFacade}; it never
  * imports `LedgerButtonCore`, which keeps `blockchain-provider` a candidate for
  * extraction into its own package.
  */
@@ -36,7 +36,7 @@ export interface WalletProvider {
 /**
  * Discriminated sign request mirroring the existing EVM signing flows.
  *
- * The provider builds it and hands it to {@link WalletProviderHost.requestSign};
+ * The provider builds it and hands it to {@link CoreFacade.requestSign};
  * core interprets the `kind` to run the matching signing use case.
  */
 export type WalletProviderSignRequest =
@@ -62,31 +62,36 @@ export type { SignedResults };
  * the provider triggers a phase and awaits the result while core owns the UI
  * and device machinery.
  */
-export interface WalletProviderHost {
+export interface CoreFacade {
   /**
    * Backend-backed JSON-RPC transport to the node: reads (`eth_getBalance`,
    * `eth_call`, gas, nonce, ...) AND broadcasting a signed raw tx. Core fills
    * `blockchain` / `chainId` from context; it never interprets the method.
    */
   broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse>;
-  /** Trigger the account-selection phase; the UI is run entirely by core. */
   requestAccount(family: BlockchainFamily): Promise<Account>;
-  /** Trigger the signing phase; the UI + device flow are run entirely by core. */
   requestSign(request: WalletProviderSignRequest): Promise<SignedResults>;
-  /** Provider-initiated chain switch (replaces the public `core.setChainId`). */
   requestSwitchChain(chainId: number): Promise<void>;
-  /** Provider-initiated disconnect (replaces a direct `core.disconnect()`). */
   disconnect(): Promise<void>;
 }
 
 /**
- * Inbound surface core CALLS on a concrete provider to push context. NOT part
- * of the public {@link WalletProvider} blackbox.
+ * Entry point for a concrete blockchain family implementation (EVM, Solana, …).
+ *
+ * Wired once by {@link DefaultBlockchainProviderManager}; core then pushes
+ * selected account / network through the context methods.
  */
-export interface CoreFacingWalletProvider extends WalletProvider {
-  /** Core pushes the freshly selected account (or `undefined` on disconnect). */
+export interface BlockchainProvider {
+  readonly family: BlockchainFamily;
+  /**
+   * Wire the provider with the core host and dApp config and announce it to
+   * the dApp (EIP-6963 / Wallet Standard).
+   *
+   * Called once by {@link DefaultBlockchainProviderManager} after the dApp
+   * config has been fetched.
+   */
+  injectWalletProviders(): void;
   setSelectedAccount(account: Account | undefined): void;
-  /** Core pushes the active chain id. */
   setNetwork(chainId: number): void;
 }
 
@@ -131,13 +136,3 @@ export type ProviderDAppConfig = {
   networks: ProviderNetwork[];
   rpcMethods?: ProviderRpcMethods;
 };
-
-/**
- * Inversify factory keyed by family; resolves the per-family blockchain entry
- * of the dApp config. The config is fetched async and re-fetched after a
- * `disconnect()` recreates the container, so it is a factory rather than a
- * static value.
- */
-export type ProviderDAppConfigFactory = (
-  family: BlockchainFamily,
-) => Promise<ProviderDAppConfig | undefined>;

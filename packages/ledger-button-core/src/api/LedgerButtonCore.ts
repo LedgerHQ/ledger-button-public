@@ -27,12 +27,10 @@ import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/u
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type {
-  WalletNavigationIntent,
-  WalletProvider,
-} from "../internal/blockchain-provider/model/BlockchainProvider.js";
-import { WalletProviderHostService } from "../internal/blockchain-provider/service/WalletProviderHostService.js";
+import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
+import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/BlockchainProvider.js";
+import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
+import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -45,6 +43,8 @@ import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyT
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
 import { dAppConfigV1ModuleTypes } from "../internal/dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../internal/dAppConfig/v1/service/DAppConfigService.js";
+import { dAppConfigV2ModuleTypes } from "../internal/dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
+import { type GetDAppConfigV2UseCase } from "../internal/dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -71,7 +71,7 @@ import {
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
 import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
-import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
+import { JSONRPCCallUseCase } from "../internal/evm-provider/ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -140,11 +140,26 @@ export class LedgerButtonCore {
       .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
       .getDAppConfig();
 
+    const dappConfig = await this.container
+      .get<GetDAppConfigV2UseCase>(
+        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
+      )
+      .execute();
+
     //TODO throw error if dApp config is not found ?
     // Migrate database to latest version
     await this.container
       .get<MigrateDbUseCase>(storageModuleTypes.MigrateDbUseCase)
       .execute();
+
+    const coreFacade = this.container.get<CoreFacadeService>(
+      blockchainProviderModuleTypes.CoreFacadeService,
+    );
+    this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .init(coreFacade, dappConfig);
 
     // Restore selected account from storage
     const selectedAccount = this.container
@@ -519,18 +534,6 @@ export class LedgerButtonCore {
     return this.container
       .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
       .execute(args);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Wallet providers
-  // ---------------------------------------------------------------------------
-
-  getWalletProviders(): WalletProvider[] {
-    return this.container
-      .get<WalletProviderHostService>(
-        blockchainProviderModuleTypes.WalletProviderHostService,
-      )
-      .getWalletProviders();
   }
 
   /** Stream of generic navigation intents emitted by core for the UI to map. */
