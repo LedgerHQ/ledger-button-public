@@ -1,18 +1,19 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { Account } from "../../account/service/AccountService.js";
+import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import type { ContextService } from "../../context/ContextService.js";
+import type { DAppConfigV2 } from "../../dAppConfig/v2/model/dAppConfigV2Types.js";
+import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
+import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
+import type { BlockchainProvider } from "../model/BlockchainProvider.js";
 import type {
   BlockchainFamily,
-  BlockchainProvider,
   CoreFacade,
-} from "./model/BlockchainProvider.js";
-import type { Account } from "../account/service/AccountService.js";
-import { contextModuleTypes } from "../context/contextModuleTypes.js";
-import type { ContextService } from "../context/ContextService.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
-import { EvmBlockchainProvider } from "../evm-provider/EvmBlockchainProvider.js";
-import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainProvider.js";
+} from "../model/BlockchainProvider.js";
+import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
 /**
  * Central registry that creates, wires, and manages blockchain providers.
@@ -21,7 +22,9 @@ import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainPro
  * providers, inject them, and subscribe to context changes.
  */
 @injectable()
-export class BlockchainProviderManager {
+export class DefaultBlockchainProviderManager
+  implements BlockchainProviderManager
+{
   private readonly logger: LoggerPublisher;
   private readonly providers = new Map<BlockchainFamily, BlockchainProvider>();
 

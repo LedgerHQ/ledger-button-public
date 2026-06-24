@@ -79,8 +79,8 @@ export interface CoreFacade {
 /**
  * Entry point for a concrete blockchain family implementation (EVM, Solana, …).
  *
- * Wired once via {@link BlockchainProviderManager.injectWalletProviders}; core
- * then pushes selected account / network through the context methods.
+ * Wired once by {@link DefaultBlockchainProviderManager}; core then pushes
+ * selected account / network through the context methods.
  */
 export interface BlockchainProvider {
   readonly family: BlockchainFamily;
@@ -88,8 +88,8 @@ export interface BlockchainProvider {
    * Wire the provider with the core host and dApp config and announce it to
    * the dApp (EIP-6963 / Wallet Standard).
    *
-   * Called once by {@link BlockchainProviderManager} after the dApp config
-   * has been fetched.
+   * Called once by {@link DefaultBlockchainProviderManager} after the dApp
+   * config has been fetched.
    */
   injectWalletProviders(core: CoreFacade, dappConfig: DAppConfigV2): void;
   setSelectedAccount(account: Account | undefined): void;
