@@ -115,11 +115,6 @@ export function initializeLedgerProvider({
     document.body.appendChild(app);
   }
 
-  // Initialize the wallet providers (one per blockchain family). Each provider
-  // is a blackbox that performs its own discovery announcement (EIP-6963 for
-  // EVM, Wallet Standard for Solana) and returns a teardown function.
-  const providerTeardowns = core.getWalletProviders().map((p) => p.init());
-
   // Bridge: map core's generic navigation intents to the button UI navigation.
   const navigationSubscription = core
     .observeNavigationIntents()
@@ -133,7 +128,6 @@ export function initializeLedgerProvider({
   // Cleanup function
   return () => {
     navigationSubscription.unsubscribe();
-    providerTeardowns.forEach((teardown) => teardown());
 
     if (app.parentNode) {
       app.parentNode.removeChild(app);

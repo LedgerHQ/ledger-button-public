@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { SolanaRemoteDatasource } from "./rpc/datasource/SolanaRemoteDatasource.js";
-import { StubSolanaRemoteDatasource } from "./rpc/datasource/StubSolanaRemoteDatasource.js";
+import { SolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/SolanaRemoteDatasource.js";
+import { StubSolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/StubSolanaRemoteDatasource.js";
 import { createContainer } from "../di.js";
 import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
 

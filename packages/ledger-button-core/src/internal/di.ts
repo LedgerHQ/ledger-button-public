@@ -3,7 +3,7 @@ import { Container } from "inversify";
 import { accountModuleFactory } from "./account/accountModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
 import { balanceModuleFactory } from "./balance/balanceModule.js";
-import { blockchainProviderModuleFactory } from "./blockchain-provider/di/blockchainProviderModule.js";
+import { blockchainProviderModuleFactory } from "./blockchain-provider/blockchainProviderModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { consentModuleFactory } from "./consent/consentModule.js";

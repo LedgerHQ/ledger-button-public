@@ -1,11 +1,11 @@
 import { formatCurrencyUnit } from "@ledgerhq/coin-framework/lib-es/currencies/formatCurrencyUnit";
 import { BigNumber } from "bignumber.js";
 
-import { EVM_NATIVE_DECIMALS } from "../evm-provider/utils/chainUtils.js";
+import { EVM_NATIVE_DECIMALS } from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import {
   isSupportedSolanaCurrency,
   SOLANA_NATIVE_DECIMALS,
-} from "../solana-provider/utils/clusterUtils.js";
+} from "../solana-provider/ledger-solana-wallet/utils/clusterUtils.js";
 
 type CurrencyUnit = {
   name: string;
