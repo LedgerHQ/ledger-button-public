@@ -1,7 +1,9 @@
 import { ContainerModule } from "inversify";
 
-import { BlockchainProviderManager } from "../BlockchainProviderManager.js";
-import { CoreFacadeService } from "../service/CoreFacadeService.js";
+import type { BlockchainProviderManager } from "./service/BlockchainProviderManager.js";
+import type { CoreFacadeService } from "./service/CoreFacadeService.js";
+import { DefaultBlockchainProviderManager } from "./service/DefaultBlockchainProviderManager.js";
+import { DefaultCoreFacadeService } from "./service/DefaultCoreFacadeService.js";
 import { blockchainProviderModuleTypes } from "./blockchainProviderModuleTypes.js";
 
 export function blockchainProviderModuleFactory() {
@@ -9,11 +11,11 @@ export function blockchainProviderModuleFactory() {
     bind<BlockchainProviderManager>(
       blockchainProviderModuleTypes.BlockchainProviderManager,
     )
-      .to(BlockchainProviderManager)
+      .to(DefaultBlockchainProviderManager)
       .inSingletonScope();
 
     bind<CoreFacadeService>(blockchainProviderModuleTypes.CoreFacadeService)
-      .to(CoreFacadeService)
+      .to(DefaultCoreFacadeService)
       .inSingletonScope();
   });
 }

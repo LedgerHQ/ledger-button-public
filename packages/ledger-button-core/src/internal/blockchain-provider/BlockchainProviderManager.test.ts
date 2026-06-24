@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreFacade } from "./model/BlockchainProvider.js";
+import { DefaultBlockchainProviderManager } from "./service/DefaultBlockchainProviderManager.js";
 import type { Account } from "../account/service/AccountService.js";
 import type { ContextService } from "../context/ContextService.js";
 import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { EvmBlockchainProvider } from "../evm-provider/EvmBlockchainProvider.js";
 import { SolanaBlockchainProvider } from "../solana-provider/SolanaBlockchainProvider.js";
-import { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
 vi.mock("../evm-provider/EvmBlockchainProvider.js", () => ({
   EvmBlockchainProvider: vi.fn().mockImplementation(() => ({
@@ -62,8 +62,8 @@ const createMockContextService = (
   onEvent: vi.fn(),
 });
 
-describe("BlockchainProviderManager", () => {
-  let manager: BlockchainProviderManager;
+describe("DefaultBlockchainProviderManager", () => {
+  let manager: DefaultBlockchainProviderManager;
   let core: CoreFacade;
   let dappConfig: DAppConfigV2;
 
@@ -71,7 +71,7 @@ describe("BlockchainProviderManager", () => {
     vi.clearAllMocks();
     const contextService = createMockContextService();
 
-    manager = new BlockchainProviderManager(
+    manager = new DefaultBlockchainProviderManager(
       contextService,
       loggerFactory as any,
     );
@@ -109,7 +109,7 @@ describe("BlockchainProviderManager", () => {
       const account = { currencyId: "ethereum" } as Account;
       const contextService = createMockContextService(account, 137);
 
-      manager = new BlockchainProviderManager(
+      manager = new DefaultBlockchainProviderManager(
         contextService,
         loggerFactory as any,
       );
