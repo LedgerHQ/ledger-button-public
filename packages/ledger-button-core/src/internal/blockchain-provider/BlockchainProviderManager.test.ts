@@ -58,7 +58,18 @@ const createMockContextService = (
   chainId = 1,
 ): ContextService => ({
   getContext: vi.fn().mockReturnValue({ selectedAccount: account, chainId }),
-  observeContext: vi.fn().mockReturnValue({ subscribe: vi.fn() }),
+  observeContext: vi.fn().mockReturnValue({
+    subscribe: vi.fn(
+      (
+        cb: (ctx: {
+          selectedAccount: Account | undefined;
+          chainId: number;
+        }) => void,
+      ) => {
+        cb({ selectedAccount: account, chainId });
+      },
+    ),
+  }),
   onEvent: vi.fn(),
 });
 
