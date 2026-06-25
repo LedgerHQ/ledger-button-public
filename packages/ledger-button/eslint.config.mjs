@@ -20,6 +20,7 @@ export default [
             "storybook",
             "@storybook/web-components",
             "@storybook/web-components-vite",
+            "shadow-dom-testing-library",
           ],
         },
       ],
