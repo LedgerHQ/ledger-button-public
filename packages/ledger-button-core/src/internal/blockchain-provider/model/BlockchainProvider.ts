@@ -33,28 +33,6 @@ export interface WalletProvider {
   init(): () => void;
 }
 
-/**
- * Discriminated sign request mirroring the existing EVM signing flows.
- *
- * The provider builds it and hands it to {@link CoreFacade.requestSign};
- * core interprets the `kind` to run the matching signing use case.
- */
-export type WalletProviderSignRequest =
-  | {
-      kind: "transaction";
-      transaction: Record<string, unknown> | string;
-      method: string;
-      broadcast: boolean;
-    }
-  | {
-      kind: "typedData";
-      payload: [address: string, typedData: unknown, method: string];
-    }
-  | {
-      kind: "personalMessage";
-      payload: [address: string, message: string, method: string];
-    };
-
 export type { SignedResults };
 
 /**
@@ -70,7 +48,6 @@ export interface CoreFacade {
    */
   broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse>;
   requestAccount(family: BlockchainFamily): Promise<Account>;
-  requestSign(request: WalletProviderSignRequest): Promise<SignedResults>;
   requestSwitchChain(chainId: number): Promise<void>;
   disconnect(): Promise<void>;
 }
@@ -96,8 +73,8 @@ export interface BlockchainProvider {
 }
 
 /**
- * Core -> UI navigation intent emitted while core runs `requestAccount` /
- * `requestSign`. The button package maps `name` to its own navigation; the
+ * Core -> UI navigation intent emitted while core runs an account-selection or
+ * sign phase. The button package maps `name` to its own navigation; the
  * `status$` / `finish` / `retry` machinery lives here, not on the provider
  * boundary.
  */

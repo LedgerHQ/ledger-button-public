@@ -4,7 +4,8 @@ import type { Account } from "../../account/service/AccountService.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
 import type { DAppConfigV2 } from "../../dAppConfig/v2/model/dAppConfigV2Types.js";
-import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
+import type { EvmBlockchainProviderFactory } from "../../evm-provider/EvmBlockchainProvider.js";
+import { evmProviderModuleTypes } from "../../evm-provider/evmProviderModuleTypes.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
@@ -31,6 +32,8 @@ export class DefaultBlockchainProviderManager
   constructor(
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
+    @inject(evmProviderModuleTypes.EvmBlockchainProviderFactory)
+    private readonly createEvmBlockchainProvider: EvmBlockchainProviderFactory,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
@@ -39,7 +42,7 @@ export class DefaultBlockchainProviderManager
 
   init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void {
     const providers: BlockchainProvider[] = [
-      new EvmBlockchainProvider(coreFacade, dappConfig),
+      this.createEvmBlockchainProvider(coreFacade, dappConfig),
       new SolanaBlockchainProvider(coreFacade, dappConfig),
     ];
     for (const provider of providers) {

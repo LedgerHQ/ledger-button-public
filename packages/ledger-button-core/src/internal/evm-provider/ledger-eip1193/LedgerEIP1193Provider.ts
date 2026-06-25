@@ -15,6 +15,12 @@
  * @see https://eips.ethereum.org/EIPS/eip-2255
  */
 
+import { type Observable, Subject, type Subscription } from "rxjs";
+
+import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
+import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
+import type { SignTransaction } from "./use-case/SignTransaction.js";
+import type { SignTypedData } from "./use-case/SignTypedData.js";
 import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
 import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
 import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
@@ -40,18 +46,49 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
+  type SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
+import {
+  type SignFlowStatus,
+  type SignType,
+} from "../../../api/model/signing/SignFlowStatus.js";
+import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
+import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
+import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
+import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
 import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
   CoreFacade,
   ProviderRpcMethods,
-  WalletProviderSignRequest,
 } from "../../blockchain-provider/model/BlockchainProvider.js";
+import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
+import type { TrackBroadcastedTransactionUseCase } from "../../pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;
+
+/** EVM sign params accepted by the internal sign flow. */
+type SignFlowParams =
+  | SignTransactionParams
+  | SignRawTransactionParams
+  | SignTypedMessageParams
+  | SignPersonalMessageParams;
+
+/**
+ * EVM-owned collaborators the provider needs to run the complete sign flow
+ * internally. Supplied as plain constructor arguments (no DI decorators) by
+ * {@link EvmBlockchainProvider}, which is built by the EVM factory.
+ */
+export type LedgerEIP1193ProviderDeps = {
+  navigationIntentService: NavigationIntentService;
+  signTransaction: SignTransaction;
+  signRawTransaction: SignRawTransaction;
+  signTypedData: SignTypedData;
+  signPersonalMessage: SignPersonalMessageUseCase;
+  trackBroadcastedTransaction: TrackBroadcastedTransactionUseCase;
+};
 
 export class LedgerEIP1193Provider
   extends EventTarget
@@ -83,6 +120,7 @@ export class LedgerEIP1193Provider
 
   constructor(
     private readonly host: CoreFacade,
+    private readonly deps: LedgerEIP1193ProviderDeps,
     private readonly loadRpcMethods?: RpcMethodsLoader,
   ) {
     super();
@@ -269,22 +307,32 @@ export class LedgerEIP1193Provider
   ): Promise<string> {
     this.assertReadyToSign();
 
-    let transaction: Record<string, unknown> | string;
+    let signParams: SignTransactionParams | SignRawTransactionParams;
+    let runUseCase: () => Observable<SignFlowStatus>;
     if (typeof params[0] === "object") {
-      transaction = params[0] as Record<string, unknown>;
+      signParams = {
+        transaction: params[0] as SignTransactionParams["transaction"],
+        method,
+        broadcast,
+      };
+      const transactionParams = signParams as SignTransactionParams;
+      runUseCase = () => this.deps.signTransaction.execute(transactionParams);
     } else {
-      transaction = params[0] as string;
+      signParams = {
+        transaction: params[0] as string,
+        method,
+        broadcast,
+      };
+      const rawParams = signParams as SignRawTransactionParams;
+      runUseCase = () => this.deps.signRawTransaction.execute(rawParams);
     }
 
-    const request: WalletProviderSignRequest = {
-      kind: "transaction",
-      transaction,
-      method,
-      broadcast,
-    };
-
     try {
-      const result = await this.host.requestSign(request);
+      const result = await this.handleBlockchainRequest(
+        signParams,
+        "transaction",
+        runUseCase,
+      );
       if (isBroadcastedTransactionResult(result)) {
         return result.hash;
       }
@@ -317,7 +365,7 @@ export class LedgerEIP1193Provider
       );
     }
 
-    let payload: [address: string, typedData: unknown, method: string];
+    let payload: SignTypedMessageParams;
     if (typeof params[1] === "string") {
       try {
         const typedData = JSON.parse(params[1] as string) as TypedData;
@@ -330,14 +378,15 @@ export class LedgerEIP1193Provider
         );
       }
     } else {
-      payload = [params[0] as string, params[1], method];
+      payload = [params[0] as string, params[1] as TypedData, method];
     }
 
     try {
-      const result = await this.host.requestSign({
-        kind: "typedData",
+      const result = await this.handleBlockchainRequest(
         payload,
-      });
+        "typed-message",
+        () => this.deps.signTypedData.execute(payload),
+      );
       if (isSignedMessageOrTypedDataResult(result)) {
         return result.signature;
       }
@@ -356,7 +405,7 @@ export class LedgerEIP1193Provider
   ): Promise<string> {
     this.assertReadyToSign();
 
-    let payload: [address: string, message: string, method: string];
+    let payload: SignPersonalMessageParams;
     // CF: https://docs.metamask.io/wallet/reference/json-rpc-methods/personal_sign
     if (method === "personal_sign") {
       const address = params[1] as string;
@@ -368,10 +417,11 @@ export class LedgerEIP1193Provider
     }
 
     try {
-      const result = await this.host.requestSign({
-        kind: "personalMessage",
+      const result = await this.handleBlockchainRequest(
         payload,
-      });
+        "personal-sign",
+        () => this.deps.signPersonalMessage.execute(payload),
+      );
       if (isSignedMessageOrTypedDataResult(result)) {
         return result.signature;
       }
@@ -382,6 +432,90 @@ export class LedgerEIP1193Provider
     } catch (error) {
       throw this.mapErrors(error);
     }
+  }
+
+  /**
+   * Runs the complete EVM sign flow internally: emits a {@link WalletNavigationIntent}
+   * so the UI can render and drive the flow (retry / finish), runs the matching
+   * sign use-case, and resolves the dApp-facing promise with the signed result.
+   *
+   * The promise stays pending across UI retries and only settles when the
+   * use-case emits `success` (resolve) or the user closes the modal (reject with
+   * {@link ModalClosedError}). Each emitted status is forwarded to the UI through
+   * the intent's `status$` stream and to broadcasted-transaction tracking.
+   */
+  private handleBlockchainRequest(
+    params: SignFlowParams,
+    signType: SignType,
+    runUseCase: () => Observable<SignFlowStatus>,
+  ): Promise<SignedResults> {
+    return new Promise<SignedResults>((resolve, reject) => {
+      const status$ = new Subject<SignFlowStatus>();
+      let subscription: Subscription | undefined;
+      let settled = false;
+
+      const onClose = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        cleanup();
+        reject(
+          this.createError(
+            CommonEIP1193ErrorCode.UserRejectedRequest,
+            "User closed the modal",
+          ),
+        );
+      };
+
+      const cleanup = () => {
+        subscription?.unsubscribe();
+        globalThis.removeEventListener?.("ledger-provider-close", onClose);
+      };
+
+      const start = () => {
+        subscription?.unsubscribe();
+        let observable: Observable<SignFlowStatus>;
+        try {
+          observable = runUseCase();
+        } catch (error) {
+          status$.next({ signType, status: "error", error });
+          return;
+        }
+        subscription = observable.subscribe({
+          next: (status) => {
+            void this.deps.trackBroadcastedTransaction.execute(status, params);
+            status$.next(status);
+            if (status.status === "success") {
+              settled = true;
+              globalThis.removeEventListener?.(
+                "ledger-provider-close",
+                onClose,
+              );
+              resolve(status.data);
+            }
+          },
+          error: (error) => {
+            status$.next({ signType, status: "error", error });
+          },
+        });
+      };
+
+      globalThis.addEventListener?.("ledger-provider-close", onClose);
+
+      this.deps.navigationIntentService.emit({
+        name: "signTransaction",
+        params,
+        status$: status$.asObservable(),
+        retry: () => start(),
+        finish: () => {
+          cleanup();
+          status$.complete();
+        },
+      });
+
+      start();
+    });
   }
 
   private async handleSwitchChainId(params: unknown[]): Promise<null> {

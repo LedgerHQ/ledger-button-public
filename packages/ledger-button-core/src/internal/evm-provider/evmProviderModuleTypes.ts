@@ -9,4 +9,5 @@ export const evmProviderModuleTypes = {
   BuildContextModuleUseCase: Symbol.for("BuildContextModuleUseCase"),
   BuildEthSignerUseCase: Symbol.for("BuildEthSignerUseCase"),
   GasFeeEstimationService: Symbol.for("GasFeeEstimationService"),
+  EvmBlockchainProviderFactory: Symbol.for("EvmBlockchainProviderFactory"),
 } as const;

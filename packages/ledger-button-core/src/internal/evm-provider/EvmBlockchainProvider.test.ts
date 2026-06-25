@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
+import {
+  LedgerEIP1193Provider,
+  type LedgerEIP1193ProviderDeps,
+} from "./ledger-eip1193/LedgerEIP1193Provider.js";
 import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
 import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
-import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
+import {
+  EvmBlockchainProvider,
+  type EvmBlockchainProviderDeps,
+} from "./EvmBlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 
 vi.mock("./ledger-eip1193/LedgerEIP1193Provider.js", () => ({
@@ -23,10 +29,19 @@ vi.mock("./EvmWalletProvider.js", () => ({
 const createMockCore = (): CoreFacade => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
-  requestSign: vi.fn(),
   requestSwitchChain: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
 });
+
+const createMockDeps = (): EvmBlockchainProviderDeps =>
+  ({
+    navigationIntentService: { emit: vi.fn(), observe: vi.fn() },
+    signTransaction: { execute: vi.fn() },
+    signRawTransaction: { execute: vi.fn() },
+    signTypedData: { execute: vi.fn() },
+    signPersonalMessage: { execute: vi.fn() },
+    trackBroadcastedTransaction: { execute: vi.fn() },
+  }) as unknown as LedgerEIP1193ProviderDeps;
 
 const createMockDAppConfig = (): DAppConfigV2 =>
   ({
@@ -42,12 +57,14 @@ describe("EvmBlockchainProvider", () => {
   let provider: EvmBlockchainProvider;
   let core: CoreFacade;
   let dappConfig: DAppConfigV2;
+  let deps: EvmBlockchainProviderDeps;
 
   beforeEach(() => {
     vi.clearAllMocks();
     core = createMockCore();
     dappConfig = createMockDAppConfig();
-    provider = new EvmBlockchainProvider(core, dappConfig);
+    deps = createMockDeps();
+    provider = new EvmBlockchainProvider(core, dappConfig, deps);
   });
 
   test('family is "evm"', () => {
@@ -55,11 +72,12 @@ describe("EvmBlockchainProvider", () => {
   });
 
   describe("injectWalletProviders()", () => {
-    test("creates LedgerEIP1193Provider with core and a rpcMethods loader", () => {
+    test("creates LedgerEIP1193Provider with core, deps and a rpcMethods loader", () => {
       provider.injectWalletProviders();
 
       expect(LedgerEIP1193Provider).toHaveBeenCalledWith(
         core,
+        deps,
         expect.any(Function),
       );
     });
@@ -67,7 +85,7 @@ describe("EvmBlockchainProvider", () => {
     test("rpcMethods loader resolves to undefined when no matching blockchain in config", async () => {
       provider.injectWalletProviders();
 
-      const loader = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[1];
+      const loader = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[2];
       await expect(loader?.()).resolves.toBeUndefined();
     });
 

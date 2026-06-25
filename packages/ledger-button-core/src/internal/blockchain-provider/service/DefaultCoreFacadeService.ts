@@ -5,7 +5,6 @@ import type {
   JSONRPCRequest,
   JsonRpcResponse,
 } from "../../../api/model/eip/EIPTypes.js";
-import type { SignedResults } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -17,10 +16,7 @@ import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js";
 import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import type {
-  BlockchainFamily,
-  WalletProviderSignRequest,
-} from "../model/BlockchainProvider.js";
+import type { BlockchainFamily } from "../model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
@@ -104,46 +100,6 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     });
   }
 
-  async requestSign(
-    request: WalletProviderSignRequest,
-  ): Promise<SignedResults> {
-    const params = this.mapSignRequestToNavigationParams(request);
-
-    return new Promise<SignedResults>((resolve, reject) => {
-      const status$ = new Subject<SignFlowStatus>();
-
-      const onSigned = (event: WindowEventMap["ledger-provider-sign"]) => {
-        cleanup();
-        if (event.detail.status === "error") {
-          reject(event.detail.error);
-          return;
-        }
-        resolve(event.detail.data);
-      };
-      const onClose = () => {
-        cleanup();
-        reject(new ModalClosedError("User closed the modal"));
-      };
-      const cleanup = () => {
-        window.removeEventListener("ledger-provider-sign", onSigned);
-        window.removeEventListener("ledger-provider-close", onClose);
-      };
-
-      window.addEventListener("ledger-provider-sign", onSigned, { once: true });
-      window.addEventListener("ledger-provider-close", onClose, { once: true });
-
-      const emit = () =>
-        this._navigationIntentService.emit({
-          name: "signTransaction",
-          params,
-          status$,
-          finish: () => status$.complete(),
-          retry: () => emit(),
-        });
-      emit();
-    });
-  }
-
   async requestSwitchChain(chainId: number): Promise<void> {
     this._contextService.onEvent({ type: "chain_changed", chainId });
   }
@@ -152,32 +108,12 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   async disconnect(): Promise<void> {
     throw new Error("disconnect() not yet extracted from LedgerButtonCore");
   }
-
-  private mapSignRequestToNavigationParams(
-    request: WalletProviderSignRequest,
-  ): unknown {
-    switch (request.kind) {
-      case "transaction":
-        return {
-          transaction: request.transaction,
-          method: request.method,
-          broadcast: request.broadcast,
-        };
-      case "typedData":
-      case "personalMessage":
-        return request.payload;
-    }
-  }
 }
 
 declare global {
   interface WindowEventMap {
     "ledger-provider-account-selected": CustomEvent<
       | { account: Account; status: "success" }
-      | { status: "error"; error: unknown }
-    >;
-    "ledger-provider-sign": CustomEvent<
-      | { status: "success"; data: SignedResults }
       | { status: "error"; error: unknown }
     >;
     "ledger-provider-close": CustomEvent;
