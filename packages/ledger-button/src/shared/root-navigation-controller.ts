@@ -1,8 +1,4 @@
-import {
-  Account,
-  Device,
-  SignTransactionParams,
-} from "@ledgerhq/ledger-wallet-provider-core";
+import { Account, Device } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController } from "lit";
 import { Subscription } from "rxjs";
 
@@ -207,7 +203,6 @@ export class RootNavigationController implements ReactiveController {
           break;
         }
 
-        this.core.setCraftedTransactionParams(params as SignTransactionParams);
         this.navigation.navigateTo(this.destinations.signingFlow);
         break;
       }

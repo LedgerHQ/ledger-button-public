@@ -6,18 +6,17 @@ import {
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
-  isSignedTransactionResult,
   isSignPersonalMessageParams,
   isSignRawTransactionParams,
   isSignTransactionParams,
   type SignedResults,
-  type SignFlowStatus,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
   type UserInteractionNeeded,
   UserRejectedTransactionError,
+  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
@@ -57,11 +56,7 @@ export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
   private transactionSubscription?: Subscription;
   private pendingTxSubscription?: Subscription;
-  private currentTransaction?:
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams;
+  private currentIntent?: WalletNavigationIntent;
   private explorerTemplatePrefetch?: Promise<string | undefined>;
   result?: SignedResults;
 
@@ -111,14 +106,13 @@ export class SignTransactionController implements ReactiveController {
     }
   }
 
-  startSigning(
-    transactionParams:
+  startSigning(intent: WalletNavigationIntent) {
+    this.currentIntent = intent;
+    const transactionParams = intent.params as
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedMessageParams
-      | SignPersonalMessageParams,
-  ) {
-    this.currentTransaction = transactionParams;
+      | SignPersonalMessageParams;
     this.explorerTemplatePrefetch = this.isTransactionParameter(
       transactionParams,
     )
@@ -130,34 +124,16 @@ export class SignTransactionController implements ReactiveController {
     }
     this.clearPendingTxSubscription();
 
-    this.transactionSubscription = this.core.sign(transactionParams).subscribe({
-      next: (result: SignFlowStatus) => {
+    this.transactionSubscription = intent.status$.subscribe({
+      next: (result) => {
         switch (result.status) {
           case "success":
             if (result.data) {
-              if (
-                isSignedTransactionResult(result.data) ||
-                isSignedMessageOrTypedDataResult(result.data)
-              ) {
-                window.dispatchEvent(
-                  new CustomEvent<{ status: "success"; data: SignedResults }>(
-                    "ledger-internal-sign",
-                    {
-                      bubbles: true,
-                      composed: true,
-                      detail: { status: "success", data: result.data },
-                    },
-                  ),
-                );
-              }
-
               void this.handleSignSuccess(result.data);
               break;
             }
             break;
           case "user-interaction-needed": {
-            //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
-            //Interactions: unlock-device, allow-secure-connection, confirm-open-app, sign-transaction, allow-list-apps, web3-checks-opt-in
             const animation = this.mapUserInteractionToDeviceAnimation(
               result.interaction,
             );
@@ -333,17 +309,8 @@ export class SignTransactionController implements ReactiveController {
             },
             cta2: {
               label: lang.error.device.IncorrectSeed.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },
@@ -359,27 +326,19 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.device.BlindSigningDisabled.description,
             cta1: {
               label: lang.error.device.BlindSigningDisabled.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
-                this.startSigning(this.currentTransaction);
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
             cta2: {
               label: lang.error.device.BlindSigningDisabled.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },
@@ -395,11 +354,12 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.network.BroadcastTransactionError.description,
             cta1: {
               label: lang.error.network.BroadcastTransactionError.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
-                this.startSigning(this.currentTransaction);
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
@@ -415,15 +375,12 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.device.ActionRejected.description,
             cta1: {
               label: lang.error.device.ActionRejected.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
+              action: () => {
                 this.state = {
                   screen: "signing",
                   deviceAnimation: "continueOnLedger",
                 };
-                this.startSigning(this.currentTransaction);
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
@@ -464,27 +421,19 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.generic.sign.description,
             cta1: {
               label: lang.error.generic.sign.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
-                this.startSigning(this.currentTransaction);
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
             cta2: {
               label: lang.error.generic.sign.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },
