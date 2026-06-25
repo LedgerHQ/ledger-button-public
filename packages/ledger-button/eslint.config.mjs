@@ -15,7 +15,12 @@ export default [
             "{projectRoot}/eslint.config.{js,cjs,mjs}",
             "{projectRoot}/vite.config.{js,ts,mjs,mts}",
           ],
-          ignoredDependencies: ["vitest"],
+          ignoredDependencies: [
+            "vitest",
+            "storybook",
+            "@storybook/web-components",
+            "@storybook/web-components-vite",
+          ],
         },
       ],
     },
