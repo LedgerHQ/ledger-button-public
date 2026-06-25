@@ -316,9 +316,9 @@
         "cta1": "Tentar Novamente"
       },
       "DeviceOutOfStorage": {
-        "title": "Not enough space for the {AppName} app",
-        "description": "Your {deviceName} is out of storage, so it couldn't install on its own. Free up space in Ledger Wallet, then install the app.",
-        "cta1": "Free up space"
+        "title": "Espaço insuficiente para o aplicativo {AppName}",
+        "description": "Seu {deviceName} está sem espaço de armazenamento, por isso não foi possível instalar automaticamente. Libere espaço na Ledger Wallet, depois instale o aplicativo.",
+        "cta1": "Liberar espaço"
       }
     },
     "ledgerSync": {
