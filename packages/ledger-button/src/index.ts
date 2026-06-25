@@ -121,7 +121,7 @@ export function initializeLedgerProvider({
     .subscribe((intent) => {
       app.navigationIntent(
         intent.name as Parameters<LedgerButtonApp["navigationIntent"]>[0],
-        intent.params,
+        intent,
       );
     });
 
