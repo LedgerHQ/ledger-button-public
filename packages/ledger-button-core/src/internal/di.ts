@@ -24,7 +24,6 @@ import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTr
 import { platformModuleFactory } from "./platform/platformModule.js";
 import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
-import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
@@ -65,7 +64,6 @@ export function createContainer({
     storageModuleFactory({ stub: devConfig.stub.base }),
     consentModuleFactory(),
     networkModuleFactory({ stub: devConfig.stub.base }),
-    transactionModuleFactory({ stub: devConfig.stub.base }),
     transactionHistoryModuleFactory({
       stub: devConfig.stub.transactionHistory,
     }),

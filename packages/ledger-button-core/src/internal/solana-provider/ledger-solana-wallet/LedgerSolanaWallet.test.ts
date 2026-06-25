@@ -26,7 +26,6 @@ const createMockHost = (): {
 } => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
-  requestSign: vi.fn(),
   requestSwitchChain: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
 });

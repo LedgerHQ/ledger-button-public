@@ -4,7 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { CommonEIP1193ErrorCode } from "../../../api/model/eip/EIPTypes.js";
 import { Account } from "../../account/service/AccountService.js";
 import type { CoreFacade } from "../../blockchain-provider/model/BlockchainProvider.js";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+import {
+  LedgerEIP1193Provider,
+  type LedgerEIP1193ProviderDeps,
+} from "./LedgerEIP1193Provider.js";
 
 const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";
 
@@ -28,19 +31,30 @@ const createMockHost = (): {
 } => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
-  requestSign: vi.fn(),
   requestSwitchChain: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
 });
 
+const createMockDeps = (): LedgerEIP1193ProviderDeps =>
+  ({
+    navigationIntentService: { emit: vi.fn(), observe: vi.fn() },
+    signTransaction: { execute: vi.fn() },
+    signRawTransaction: { execute: vi.fn() },
+    signTypedData: { execute: vi.fn() },
+    signPersonalMessage: { execute: vi.fn() },
+    trackBroadcastedTransaction: { execute: vi.fn() },
+  }) as unknown as LedgerEIP1193ProviderDeps;
+
 describe("LedgerEIP1193Provider", () => {
   let provider: LedgerEIP1193Provider;
   let host: ReturnType<typeof createMockHost>;
+  let deps: LedgerEIP1193ProviderDeps;
 
   beforeEach(() => {
     vi.clearAllMocks();
     host = createMockHost();
-    provider = new LedgerEIP1193Provider(host as unknown as CoreFacade);
+    deps = createMockDeps();
+    provider = new LedgerEIP1193Provider(host as unknown as CoreFacade, deps);
   });
 
   afterEach(() => {
@@ -186,6 +200,7 @@ describe("LedgerEIP1193Provider", () => {
       });
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 5 });
@@ -207,6 +222,7 @@ describe("LedgerEIP1193Provider", () => {
       });
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({
@@ -228,6 +244,7 @@ describe("LedgerEIP1193Provider", () => {
         .mockResolvedValue({ local: [], broadcasted: [] });
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
@@ -245,6 +262,7 @@ describe("LedgerEIP1193Provider", () => {
       const loadRpcMethods = vi.fn().mockRejectedValue(new Error("boom"));
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });

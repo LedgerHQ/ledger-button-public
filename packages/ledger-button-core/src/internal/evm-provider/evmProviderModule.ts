@@ -12,6 +12,16 @@ import { SignPersonalMessageUseCase } from "./ledger-eip1193/use-case/SignPerson
 import { SignRawTransaction } from "./ledger-eip1193/use-case/SignRawTransaction.js";
 import { SignTransaction } from "./ledger-eip1193/use-case/SignTransaction.js";
 import { SignTypedData } from "./ledger-eip1193/use-case/SignTypedData.js";
+import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
+import { navigationModuleTypes } from "../navigation/navigationModuleTypes.js";
+import type { NavigationIntentService } from "../navigation/service/NavigationIntentService.js";
+import { pendingTransactionModuleTypes } from "../pending-transaction/pendingTransactionModuleTypes.js";
+import type { TrackBroadcastedTransactionUseCase } from "../pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+import {
+  EvmBlockchainProvider,
+  type EvmBlockchainProviderFactory,
+} from "./EvmBlockchainProvider.js";
 import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
 
 type EvmProviderModuleOptions = {
@@ -46,6 +56,33 @@ export function evmProviderModuleFactory({ stub }: EvmProviderModuleOptions) {
     )
       .to(DefaultGasFeeEstimationService)
       .inSingletonScope();
+
+    bind<EvmBlockchainProviderFactory>(
+      evmProviderModuleTypes.EvmBlockchainProviderFactory,
+    ).toFactory((context) => {
+      return (core: CoreFacade, dappConfig: DAppConfigV2) =>
+        new EvmBlockchainProvider(core, dappConfig, {
+          navigationIntentService: context.get<NavigationIntentService>(
+            navigationModuleTypes.NavigationIntentService,
+          ),
+          signTransaction: context.get<SignTransaction>(
+            evmProviderModuleTypes.SignTransactionUseCase,
+          ),
+          signRawTransaction: context.get<SignRawTransaction>(
+            evmProviderModuleTypes.SignRawTransactionUseCase,
+          ),
+          signTypedData: context.get<SignTypedData>(
+            evmProviderModuleTypes.SignTypedDataUseCase,
+          ),
+          signPersonalMessage: context.get<SignPersonalMessageUseCase>(
+            evmProviderModuleTypes.SignPersonalMessageUseCase,
+          ),
+          trackBroadcastedTransaction:
+            context.get<TrackBroadcastedTransactionUseCase>(
+              pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase,
+            ),
+        });
+    });
 
     if (stub) {
       rebindSync(evmProviderModuleTypes.LedgerRemoteDatasource).to(

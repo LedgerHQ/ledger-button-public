@@ -4,15 +4,10 @@ import { Observable, Subscription, tap } from "rxjs";
 
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
-import { SignPersonalMessageParams } from "./model/index.js";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
-import { SignFlowStatus } from "./model/signing/SignFlowStatus.js";
-import { SignRawTransactionParams } from "./model/signing/SignRawTransactionParams.js";
-import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
-import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import {
@@ -84,22 +79,16 @@ import { NavigationIntentService } from "../internal/navigation/service/Navigati
 import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
 import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
-import { type TrackBroadcastedTransactionUseCase } from "../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
 import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
-import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
-import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
   private container!: Container;
-  private _craftedTransactionParams?:
-    | SignRawTransactionParams
-    | SignTransactionParams;
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
@@ -392,44 +381,6 @@ export class LedgerButtonCore {
     return this.container
       .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
       .execute();
-  }
-
-  // Transaction methods
-  sign(
-    params:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams,
-  ): Observable<SignFlowStatus> {
-    this._logger.debug("Signing transaction", { params });
-    return this.container
-      ?.get<TransactionService>(transactionModuleTypes.TransactionService)
-      .sign(params)
-      .pipe(
-        tap((status) => {
-          this.container
-            .get<TrackBroadcastedTransactionUseCase>(
-              pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase,
-            )
-            .execute(status, params);
-        }),
-      );
-  }
-
-  setCraftedTransactionParams(
-    params: SignRawTransactionParams | SignTransactionParams | undefined,
-  ) {
-    this._logger.debug("Setting crafted transaction params", { params });
-    this._craftedTransactionParams = params;
-  }
-
-  getCraftedTransactionParams():
-    | SignRawTransactionParams
-    | SignTransactionParams
-    | undefined {
-    this._logger.debug("Getting crafted transaction params");
-    return this._craftedTransactionParams;
   }
 
   // Consent methods
