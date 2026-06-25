@@ -830,9 +830,6 @@ importers:
       rxjs:
         specifier: 'catalog:'
         version: 7.8.2
-      shadow-dom-testing-library:
-        specifier: 'catalog:'
-        version: 1.12.0(@testing-library/dom@10.4.0)
     devDependencies:
       '@storybook/web-components':
         specifier: 'catalog:'
@@ -846,6 +843,9 @@ importers:
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.2.1(vite@7.3.3(@types/node@20.19.9)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1))
+      shadow-dom-testing-library:
+        specifier: 'catalog:'
+        version: 1.12.0(@testing-library/dom@10.4.0)
       storybook:
         specifier: 'catalog:'
         version: 9.1.19(@testing-library/dom@10.4.0)(bufferutil@4.1.0)(prettier@3.6.2)(utf-8-validate@6.0.6)(vite@7.3.3(@types/node@20.19.9)(jiti@2.6.1)(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1))
