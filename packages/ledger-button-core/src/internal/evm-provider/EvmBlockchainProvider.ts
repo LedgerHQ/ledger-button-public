@@ -2,12 +2,12 @@ import {
   LedgerEIP1193Provider,
   type LedgerEIP1193ProviderDeps,
 } from "./ledger-eip1193/LedgerEIP1193Provider.js";
-import type { Account } from "../account/service/AccountService.js";
+import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainRpcMethods } from "../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   BlockchainFamily,
   BlockchainProvider,
   CoreFacade,
-  ProviderRpcMethods,
 } from "../blockchain-provider/model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "../blockchain-provider/utils/resolveBlockchainFamily.js";
 import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
@@ -57,7 +57,7 @@ export class EvmBlockchainProvider implements BlockchainProvider {
     this.walletProvider.init();
   }
 
-  setSelectedAccount(account: Account | undefined): void {
+  setSelectedAccount(account: ProviderAccount | undefined): void {
     this.eip1193Provider?.setSelectedAccount(account);
   }
 
@@ -67,7 +67,7 @@ export class EvmBlockchainProvider implements BlockchainProvider {
 
   private extractRpcMethods(
     dappConfig: DAppConfigV2,
-  ): ProviderRpcMethods | undefined {
+  ): BlockchainRpcMethods | undefined {
     const entry = dappConfig.blockchains?.find((blockchain) =>
       blockchain.networks?.some(
         (network) =>

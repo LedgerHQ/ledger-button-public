@@ -1,4 +1,4 @@
-import type { ProviderRpcMethods } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { BlockchainRpcMethods } from "../../../../api/model/dappConfig/BlockchainConfig.js";
 import {
   BROADCASTED_TO_NODE_RPC_METHODS,
   LOCALLY_HANDLED_RPC_METHODS,
@@ -15,7 +15,7 @@ const STATIC_BROADCASTED: ReadonlySet<string> = new Set(
  * Decide how an RPC method should be routed.
  *
  * The static {@link LOCALLY_HANDLED_RPC_METHODS} / {@link BROADCASTED_TO_NODE_RPC_METHODS}
- * lists are the safe baseline. When a per-dApp {@link ProviderRpcMethods} config
+ * lists are the safe baseline. When a per-dApp {@link BlockchainRpcMethods} config
  * is available it *augments* that baseline:
  *
  * - `config.broadcasted` takes precedence and can force a normally-local method
@@ -29,7 +29,7 @@ const STATIC_BROADCASTED: ReadonlySet<string> = new Set(
  */
 export function resolveRpcRoute(
   method: string,
-  rpcMethods?: ProviderRpcMethods,
+  rpcMethods?: BlockchainRpcMethods,
 ): RpcRoute {
   const configLocal = rpcMethods?.local ?? [];
   const configBroadcasted = rpcMethods?.broadcasted ?? [];

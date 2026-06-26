@@ -1,12 +1,13 @@
 import type { Observable } from "rxjs";
 
+import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   JSONRPCRequest,
   JsonRpcResponse,
 } from "../../../api/model/eip/EIPTypes.js";
 import type { SignedResults } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { Account } from "../../account/service/AccountService.js";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -47,7 +48,7 @@ export interface CoreFacade {
    * `blockchain` / `chainId` from context; it never interprets the method.
    */
   broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse>;
-  requestAccount(family: BlockchainFamily): Promise<Account>;
+  requestAccount(family: BlockchainFamily): Promise<ProviderAccount>;
   requestSwitchChain(chainId: number): Promise<void>;
   disconnect(): Promise<void>;
 }
@@ -60,6 +61,7 @@ export interface CoreFacade {
  */
 export interface BlockchainProvider {
   readonly family: BlockchainFamily;
+  readonly dappConfig: BlockchainConfig;
   /**
    * Wire the provider with the core host and dApp config and announce it to
    * the dApp (EIP-6963 / Wallet Standard).
@@ -68,7 +70,7 @@ export interface BlockchainProvider {
    * config has been fetched.
    */
   injectWalletProviders(): void;
-  setSelectedAccount(account: Account | undefined): void;
+  setSelectedAccount(account: ProviderAccount | undefined): void;
   setNetwork(chainId: number): void;
 }
 
@@ -89,27 +91,3 @@ export interface WalletNavigationIntent {
   /** UI asks core to re-run the phase after an error. */
   retry: () => void;
 }
-
-/**
- * Neutral, provider-facing subset of the dApp config. Mirrors the internal
- * `DAppConfigV2Blockchain` but with no core import so the package stays
- * self-contained.
- */
-export type ProviderNetwork = {
-  id: string;
-  currencyId: string;
-  currencyName: string;
-  currencyTicker: string;
-};
-
-export type ProviderRpcMethods = {
-  local: string[];
-  broadcasted: string[];
-};
-
-export type ProviderDAppConfig = {
-  blockchain: string;
-  appName: string;
-  networks: ProviderNetwork[];
-  rpcMethods?: ProviderRpcMethods;
-};

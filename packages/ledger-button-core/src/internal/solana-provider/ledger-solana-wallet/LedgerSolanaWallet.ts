@@ -36,8 +36,8 @@ import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils.js";
+import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
 import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
-import { Account } from "../../account/service/AccountService.js";
 import type {
   BlockchainFamily,
   CoreFacade,
@@ -107,7 +107,7 @@ export class LedgerSolanaWallet implements Wallet {
   readonly icon = getLedgerProviderIcon() as WalletIcon;
 
   private _accounts: readonly WalletAccount[] = [];
-  private _selectedAccount?: Account;
+  private _selectedAccount?: ProviderAccount;
   private readonly _listeners: {
     [E in StandardEventsNames]?: StandardEventsListeners[E][];
   } = {};
@@ -115,7 +115,7 @@ export class LedgerSolanaWallet implements Wallet {
   constructor(private readonly host: CoreFacade) {}
 
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
-  setSelectedAccount(account: Account | undefined): void {
+  setSelectedAccount(account: ProviderAccount | undefined): void {
     this._selectedAccount = account;
     if (!account) {
       void this.disconnect();
@@ -210,7 +210,7 @@ export class LedgerSolanaWallet implements Wallet {
       return inputs.map(() => ({ signature: new Uint8Array(64) }));
     };
 
-  private async resolveSolanaAccount(): Promise<Account> {
+  private async resolveSolanaAccount(): Promise<ProviderAccount> {
     if (
       this._selectedAccount &&
       isSupportedSolanaCurrency(this._selectedAccount.currencyId)
@@ -226,7 +226,7 @@ export class LedgerSolanaWallet implements Wallet {
     return account;
   }
 
-  private toWalletAccount(account: Account): WalletAccount {
+  private toWalletAccount(account: ProviderAccount): WalletAccount {
     const cluster = getClusterFromCurrencyId(account.currencyId);
     return {
       address: account.freshAddress,
