@@ -57,17 +57,17 @@ import type { SignRawTransactionParams } from "../../../api/model/signing/SignRa
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
-import { Account } from "../../account/service/AccountService.js";
+import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   BlockchainFamily,
   CoreFacade,
-  ProviderRpcMethods,
 } from "../../blockchain-provider/model/BlockchainProvider.js";
 import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
-export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;
+export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;
 
 /** EVM sign params accepted by the internal sign flow. */
 type SignFlowParams =
@@ -107,7 +107,7 @@ export class LedgerEIP1193Provider
   private _inFlight = false;
 
   // Per-dApp RPC routing config, lazily loaded once and cached.
-  private _rpcMethods?: ProviderRpcMethods;
+  private _rpcMethods?: BlockchainRpcMethods;
   private _rpcMethodsLoaded = false;
 
   // NOTE: Tracking listeners by function reference
@@ -229,7 +229,7 @@ export class LedgerEIP1193Provider
    * Core pushes the freshly selected account (or `undefined` on disconnect).
    * Emits EIP-1193 `accountsChanged` for switches made directly in the UI.
    */
-  public setSelectedAccount(account: Account | undefined): void {
+  public setSelectedAccount(account: ProviderAccount | undefined): void {
     if (!account) {
       void this.disconnect();
       return;

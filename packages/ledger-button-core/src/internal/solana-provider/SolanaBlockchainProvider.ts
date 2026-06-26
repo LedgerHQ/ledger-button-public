@@ -1,5 +1,5 @@
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
-import type { Account } from "../account/service/AccountService.js";
+import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
 import type {
   BlockchainFamily,
   BlockchainProvider,
@@ -30,7 +30,7 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
     this.walletProvider.init();
   }
 
-  setSelectedAccount(account: Account | undefined): void {
+  setSelectedAccount(account: ProviderAccount | undefined): void {
     this.wallet?.setSelectedAccount(account);
   }
 
