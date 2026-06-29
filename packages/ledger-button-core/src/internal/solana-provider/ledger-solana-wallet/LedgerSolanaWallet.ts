@@ -38,11 +38,9 @@ import {
 } from "./utils/clusterUtils.js";
 import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
 import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
-import type {
-  BlockchainFamily,
-  CoreFacade,
-} from "../../blockchain-provider/model/BlockchainProvider.js";
-import { getLedgerProviderIcon } from "../../provider-registration/ledgerProviderIcon.js";
+import type { CoreFacade } from "../../blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../blockchain-provider/model/types.js";
+import { getLedgerProviderIcon } from "../../blockchain-provider/provider-registration/ledgerProviderIcon.js";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",

@@ -6,7 +6,7 @@ import type {
 } from "../../../../api/model/blockchain/GasFee.js";
 import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
 import { createMockCoreFacade } from "../../../blockchain-provider/__mocks__/coreFacadeMock.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
 
 describe("DefaultGasFeeEstimationService", () => {

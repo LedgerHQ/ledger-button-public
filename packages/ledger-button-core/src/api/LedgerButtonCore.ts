@@ -23,7 +23,7 @@ import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
-import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/BlockchainProvider.js";
+import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/types.js";
 import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";

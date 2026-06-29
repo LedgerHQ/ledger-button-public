@@ -1,11 +1,10 @@
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
+import { isSupportedSolanaCurrency } from "./ledger-solana-wallet/utils/clusterUtils.js";
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
-import type {
-  BlockchainFamily,
-  BlockchainProvider,
-  CoreFacade,
-} from "../blockchain-provider/model/BlockchainProvider.js";
+import type { BlockchainProvider } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../blockchain-provider/model/types.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 /**
@@ -36,5 +35,9 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
 
   setNetwork(chainId: number): void {
     this.wallet?.setNetwork(chainId);
+  }
+
+  isSupportedCurrency(currencyId: string): boolean {
+    return isSupportedSolanaCurrency(currencyId);
   }
 }

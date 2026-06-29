@@ -1,6 +1,8 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BlockchainFamily } from "../../../blockchain-provider/model/types.js";
+import type { BlockchainProviderManager } from "../../../blockchain-provider/service/BlockchainProviderManager.js";
 import type { Config } from "../../../config/model/config.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
@@ -56,10 +58,20 @@ function makeDto(
   };
 }
 
+const EVM_CURRENCIES = new Set(["ethereum", "polygon"]);
+const SOLANA_CURRENCIES = new Set(["solana"]);
+
+function resolveFamilyForTest(currencyId: string): Maybe<BlockchainFamily> {
+  if (EVM_CURRENCIES.has(currencyId)) return Maybe.of("evm");
+  if (SOLANA_CURRENCIES.has(currencyId)) return Maybe.of("solana");
+  return Maybe.empty();
+}
+
 describe("DefaultTransactionHistoryDataSource", () => {
   let dataSource: DefaultTransactionHistoryDataSource;
   let mockNetworkService: NetworkService<unknown>;
   let mockConfig: Config;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
   let mockLoggerFactory: ReturnType<typeof createMockLoggerFactory>;
 
   const mockCoinServiceUrl = "https://coin-service.api.ledger.com";
@@ -79,11 +91,19 @@ describe("DefaultTransactionHistoryDataSource", () => {
       getCoinServiceUrl: vi.fn().mockReturnValue(mockCoinServiceUrl),
     } as unknown as Config;
 
+    mockBlockchainProviderManager = {
+      init: vi.fn(),
+      setSelectedAccount: vi.fn(),
+      setNetwork: vi.fn(),
+      resolveBlockchainFamily: vi.fn(resolveFamilyForTest),
+    };
+
     mockLoggerFactory = createMockLoggerFactory();
 
     dataSource = new DefaultTransactionHistoryDataSource(
       mockNetworkService,
       mockConfig,
+      mockBlockchainProviderManager,
       mockLoggerFactory,
     );
   });

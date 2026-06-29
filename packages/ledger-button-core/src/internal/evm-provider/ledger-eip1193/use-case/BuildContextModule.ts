@@ -5,7 +5,7 @@ import {
 } from "@ledgerhq/context-module";
 import { inject, injectable } from "inversify";
 
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 
 export type BuildContextModuleParams = {

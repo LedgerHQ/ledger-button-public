@@ -5,7 +5,7 @@ import {
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { inject, injectable } from "inversify";
 
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 

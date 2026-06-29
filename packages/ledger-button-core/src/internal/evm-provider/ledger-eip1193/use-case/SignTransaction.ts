@@ -8,7 +8,7 @@ import {
   SignTransactionParams,
   Transaction,
 } from "../../../../api/model/signing/SignTransactionParams.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";

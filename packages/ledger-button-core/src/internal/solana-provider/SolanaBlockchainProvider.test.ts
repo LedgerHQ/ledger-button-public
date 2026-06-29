@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import { createMockCoreFacade } from "../blockchain-provider/__mocks__/coreFacadeMock.js";
-import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../blockchain-provider/model/CoreFacade.js";
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 

@@ -1,23 +1,17 @@
-import { isSupportedEvmCurrency } from "../../evm-provider/ledger-eip1193/utils/chainUtils.js";
-import { isSupportedSolanaCurrency } from "../../solana-provider/ledger-solana-wallet/utils/clusterUtils.js";
-
-/**
- * Predicates that decide whether a `currencyId` is supported by the Coin
- * Service transaction history endpoint. Add a new chain by appending its
- * `isSupported*Currency` check here.
- */
-const SUPPORTED_CURRENCY_CHECKS: ReadonlyArray<(currencyId: string) => boolean> =
-  [isSupportedEvmCurrency, isSupportedSolanaCurrency];
+import type { BlockchainFamily } from "../../blockchain-provider/model/types.js";
 
 /**
  * Resolve the Coin Service network slug for a given `currencyId`.
  *
- * Returns the `currencyId` itself when at least one supported-currency check
- * matches, otherwise `undefined` so callers can surface a typed error.
+ * Support is decided by the caller (via the blockchain provider manager) and
+ * passed in as the resolved {@link BlockchainFamily}; this keeps the helper free
+ * of any family-specific chain tables. Returns the `currencyId` itself when a
+ * provider handles the currency, otherwise `undefined` so callers can surface a
+ * typed error.
  */
-export function resolveNetworkSlug(currencyId: string): string | undefined {
-  const isSupported = SUPPORTED_CURRENCY_CHECKS.some((isSupportedCurrency) =>
-    isSupportedCurrency(currencyId),
-  );
-  return isSupported ? currencyId : undefined;
+export function resolveNetworkSlug(
+  currencyId: string,
+  family: BlockchainFamily | undefined,
+): string | undefined {
+  return family ? currencyId : undefined;
 }
