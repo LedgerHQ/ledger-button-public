@@ -14,11 +14,10 @@ import {
   type SignTypedDataDAState,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
-import { type Factory, inject, injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import {
   BehaviorSubject,
   filter,
-  from,
   map,
   Observable,
   of,
@@ -33,6 +32,13 @@ import {
   UserRejectedTransactionError,
 } from "../../../../api/errors/DeviceErrors.js";
 import {
+  AccountNotSelectedError,
+  DeviceConnectionError,
+} from "../../../../api/errors/DeviceFlowErrors.js";
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
+import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
+import {
   type GetAddressDAState,
   isGetAddressResult,
 } from "../../../../api/model/signing/GetAddress.js";
@@ -45,23 +51,7 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignTypedMessageParams } from "../../../../api/model/signing/SignTypedMessageParams.js";
-import type { Account } from "../../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
-import type { ContextService } from "../../../context/ContextService.js";
-import { DAppConfig } from "../../../dAppConfig/v1/dAppConfigTypes.js";
-import { dAppConfigV1ModuleTypes } from "../../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import { type DAppConfigService } from "../../../dAppConfig/v1/service/DAppConfigService.js";
-import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-} from "../../../device/model/errors.js";
-import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../../event-tracking/eventTrackingModuleTypes.js";
-import { TrackTypedMessageCompleted } from "../../../event-tracking/usecase/TrackTypedMessageCompleted.js";
-import { TrackTypedMessageStarted } from "../../../event-tracking/usecase/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
@@ -74,50 +64,38 @@ type OpenAppResult = {
 
 @injectable()
 export class SignTypedData {
-  private readonly logger: LoggerPublisher;
+  private readonly logger: ProviderLogger;
   private pendingStep = "";
 
   constructor(
-    @inject(loggerModuleTypes.LoggerPublisher)
-    loggerFactory: Factory<LoggerPublisher>,
-    @inject(deviceModuleTypes.DeviceManagementKitService)
-    private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
-    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
-    private readonly dappConfigService: DAppConfigService,
+    @inject(evmProviderModuleTypes.CoreFacade)
+    private readonly core: CoreFacade,
+    @inject(evmProviderModuleTypes.BlockchainConfig)
+    private readonly blockchainConfig: BlockchainConfig,
     @inject(evmProviderModuleTypes.BuildEthSignerUseCase)
     private readonly buildEthSigner: BuildEthSigner,
-    @inject(eventTrackingModuleTypes.TrackTypedMessageStarted)
-    private readonly trackTypedMessageStarted: TrackTypedMessageStarted,
-    @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
-    private readonly trackTypedMessageCompleted: TrackTypedMessageCompleted,
   ) {
-    this.logger = loggerFactory("SignTypedData");
+    this.logger = this.core.getLogger("SignTypedData");
   }
 
-  execute(params: SignTypedMessageParams): Observable<SignFlowStatus> {
+  execute(
+    params: SignTypedMessageParams,
+    selectedAccount: ProviderAccount | undefined,
+  ): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
     const [, typedData] = params;
 
-    this.trackTypedMessageStarted.execute(typedData);
+    this.core.trackTypedMessageStarted(typedData);
 
-    const sessionId = this.deviceManagementKitService.sessionId;
+    const session = this.core.getDeviceSession();
+    const sessionId = session.sessionId;
 
-    if (!sessionId) {
+    if (!sessionId || !session.isConnected) {
       this.logger.error("No device connected");
       throw new DeviceConnectionError(
         "No device connected. Please connect a device first.",
         { type: "not-connected" },
       );
-    }
-
-    const device = this.deviceManagementKitService.connectedDevice;
-    if (!device) {
-      this.logger.error("No connected device found");
-      throw new DeviceConnectionError("No connected device found", {
-        type: "not-connected",
-      });
     }
 
     const signType = "typed-message";
@@ -129,14 +107,11 @@ export class SignTypedData {
     });
 
     try {
-      const dmk = this.deviceManagementKitService.dmk;
+      const dmk = session.dmk;
       const ethSigner = this.buildEthSigner.execute({
         sessionId,
         chain: ContextModuleChainID.Ethereum,
       });
-
-      const selectedAccount: Account | undefined =
-        this.contextService.getContext().selectedAccount;
 
       if (!selectedAccount) {
         throw new AccountNotSelectedError("No account selected");
@@ -146,7 +121,7 @@ export class SignTypedData {
       const initObservable: Observable<{
         deviceAction: OpenAppWithDependenciesDeviceAction;
         appName: string;
-      }> = from(this.createOpenAppConfig()).pipe(
+      }> = of(this.createOpenAppConfig()).pipe(
         map((openAppConfig) => ({
           deviceAction: new OpenAppWithDependenciesDeviceAction({
             input: openAppConfig,
@@ -296,7 +271,7 @@ export class SignTypedData {
             }
 
             // Track typed message flow successfully completed
-            this.trackTypedMessageCompleted.execute(typedData);
+            this.core.trackTypedMessageCompleted(typedData);
 
             return result;
           }),
@@ -315,9 +290,6 @@ export class SignTypedData {
 
       return resultObservable.asObservable();
     } catch (error) {
-      console.error("Failed to sign typed data in SignTypedData", {
-        error,
-      });
       this.logger.error("Failed to sign typed data", { error });
       return of({
         signType,
@@ -327,22 +299,12 @@ export class SignTypedData {
     }
   }
 
-  async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {
-    const dAppConfig: DAppConfig = await this.dappConfigService.getDAppConfig();
-
-    const ethereumAppDependencies = dAppConfig.appDependencies.find(
-      (dep) => dep.blockchain === "ethereum",
-    );
-    if (!ethereumAppDependencies) {
-      throw new Error("Ethereum Blockchain dependencies not found");
-    }
-
+  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
+    const { appName, dependencies } = this.blockchainConfig.appDependencies;
     return {
-      application: { name: ethereumAppDependencies.appName },
-      dependencies: ethereumAppDependencies.dependencies.map((dep) => ({
-        name: dep,
-      })),
-      requireLatestFirmware: false, //TODO add this to the dApp config
+      application: { name: appName },
+      dependencies: dependencies.map((name) => ({ name })),
+      requireLatestFirmware: false,
     };
   }
 
@@ -426,7 +388,6 @@ export class SignTypedData {
             },
           };
         } else {
-          console.debug("Open app completed", { result });
           return {
             signType,
             status: "debugging",
@@ -435,9 +396,6 @@ export class SignTypedData {
         }
       }
       case DeviceActionStatus.Error:
-        console.error("Error signing typed data in SignTypedData", {
-          error: result.error.toString(),
-        });
         return {
           signType,
           status: "error",

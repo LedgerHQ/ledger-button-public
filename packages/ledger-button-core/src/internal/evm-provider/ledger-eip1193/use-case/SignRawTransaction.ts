@@ -16,11 +16,10 @@ import {
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
 import { Signature } from "ethers";
-import { type Factory, inject, injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import {
   BehaviorSubject,
   filter,
-  from,
   map,
   Observable,
   of,
@@ -34,6 +33,14 @@ import {
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../../api/errors/DeviceErrors.js";
+import {
+  AccountNotSelectedError,
+  DeviceConnectionError,
+  SignTransactionError,
+} from "../../../../api/errors/DeviceFlowErrors.js";
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
+import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
 import {
   GetAddressDAState,
   isGetAddressResult,
@@ -49,26 +56,7 @@ import {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../../api/model/signing/SignRawTransactionParams.js";
-import type { Account } from "../../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
-import type { ContextService } from "../../../context/ContextService.js";
-import { DAppConfig } from "../../../dAppConfig/v1/dAppConfigTypes.js";
-import { dAppConfigV1ModuleTypes } from "../../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import { type DAppConfigService } from "../../../dAppConfig/v1/service/DAppConfigService.js";
-import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-  SignTransactionError,
-} from "../../../device/model/errors.js";
-import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../../event-tracking/eventTrackingModuleTypes.js";
-import { TrackTransactionCompleted } from "../../../event-tracking/usecase/TrackTransactionCompleted.js";
-import { TrackTransactionStarted } from "../../../event-tracking/usecase/TrackTransactionStarted.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../../../modal/modalModuleTypes.js";
-import { ModalService } from "../../../modal/service/ModalService.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
@@ -85,51 +73,37 @@ type OpenAppResult = {
 
 @injectable()
 export class SignRawTransaction {
-  private readonly logger: LoggerPublisher;
+  private readonly logger: ProviderLogger;
   private pendingStep = "";
 
   constructor(
-    @inject(loggerModuleTypes.LoggerPublisher)
-    loggerFactory: Factory<LoggerPublisher>,
-    @inject(deviceModuleTypes.DeviceManagementKitService)
-    private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
-    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
-    private readonly dappConfigService: DAppConfigService,
+    @inject(evmProviderModuleTypes.CoreFacade)
+    private readonly core: CoreFacade,
+    @inject(evmProviderModuleTypes.BlockchainConfig)
+    private readonly blockchainConfig: BlockchainConfig,
     @inject(evmProviderModuleTypes.BroadcastTransactionUseCase)
     private readonly broadcastTransactionUseCase: BroadcastTransaction,
     @inject(evmProviderModuleTypes.BuildEthSignerUseCase)
     private readonly buildEthSigner: BuildEthSigner,
-    @inject(eventTrackingModuleTypes.TrackTransactionStarted)
-    private readonly trackTransactionStarted: TrackTransactionStarted,
-    @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
-    private readonly trackTransactionCompleted: TrackTransactionCompleted,
-    @inject(modalModuleTypes.ModalService)
-    private readonly modalService: ModalService,
   ) {
-    this.logger = loggerFactory("SignRawTransaction");
+    this.logger = this.core.getLogger("SignRawTransaction");
   }
 
-  execute(params: SignRawTransactionParams): Observable<SignFlowStatus> {
+  execute(
+    params: SignRawTransactionParams,
+    selectedAccount: ProviderAccount | undefined,
+  ): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
 
-    const sessionId = this.deviceManagementKitService.sessionId;
+    const session = this.core.getDeviceSession();
+    const sessionId = session.sessionId;
 
-    if (!sessionId) {
+    if (!sessionId || !session.isConnected) {
       this.logger.error("No device connected");
       throw new DeviceConnectionError(
         "No device connected. Please connect a device first.",
         { type: "not-connected" },
       );
-    }
-
-    const device = this.deviceManagementKitService.connectedDevice;
-    if (!device) {
-      this.logger.error("No connected device found");
-      throw new DeviceConnectionError("No connected device found", {
-        type: "not-connected",
-      });
     }
 
     const { transaction, broadcast } = params;
@@ -142,7 +116,7 @@ export class SignRawTransaction {
     });
 
     try {
-      const dmk = this.deviceManagementKitService.dmk;
+      const dmk = session.dmk;
       const ethSigner = this.buildEthSigner.execute({
         sessionId,
         chain: ContextModuleChainID.Ethereum,
@@ -153,9 +127,6 @@ export class SignRawTransaction {
         throw Error("Invalid raw transaction format");
       }
 
-      const selectedAccount: Account | undefined =
-        this.contextService.getContext().selectedAccount;
-
       if (!selectedAccount) {
         throw new AccountNotSelectedError("No account selected");
       }
@@ -164,7 +135,7 @@ export class SignRawTransaction {
       const initObservable: Observable<{
         deviceAction: OpenAppWithDependenciesDeviceAction;
         appName: string;
-      }> = from(this.createOpenAppConfig()).pipe(
+      }> = of(this.createOpenAppConfig()).pipe(
         map((openAppConfig) => ({
           deviceAction: new OpenAppWithDependenciesDeviceAction({
             input: openAppConfig,
@@ -176,7 +147,7 @@ export class SignRawTransaction {
 
       const derivationPath = getEvmDerivationPath(selectedAccount);
 
-      this.trackTransactionStarted.execute();
+      this.core.trackTransactionStarted();
 
       initObservable
         .pipe(
@@ -328,7 +299,7 @@ export class SignRawTransaction {
           }),
           switchMap(async (result) => {
             //Broadcast TX
-            if (broadcast && this.modalService.open) {
+            if (broadcast && this.core.isModalOpen()) {
               const broadcastParams: BroadcastTransactionParams = {
                 signature: result.output as Signature,
                 rawTransaction: transaction,
@@ -357,7 +328,7 @@ export class SignRawTransaction {
             ) {
               //Only track completion for broadcasted transactions
               if (isBroadcastedTransactionResult(result)) {
-                this.trackTransactionCompleted.execute(transaction, result);
+                this.core.trackTransactionCompleted(transaction, result);
               }
 
               resultObservable.next(
@@ -390,21 +361,11 @@ export class SignRawTransaction {
     }
   }
 
-  async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {
-    const dAppConfig: DAppConfig = await this.dappConfigService.getDAppConfig();
-
-    const ethereumAppDependencies = dAppConfig.appDependencies.find(
-      (dep) => dep.blockchain === "ethereum",
-    );
-    if (!ethereumAppDependencies) {
-      throw new Error("Ethereum Blockchain dependencies not found");
-    }
-
+  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
+    const { appName, dependencies } = this.blockchainConfig.appDependencies;
     return {
-      application: { name: ethereumAppDependencies.appName },
-      dependencies: ethereumAppDependencies.dependencies.map((dep) => ({
-        name: dep,
-      })),
+      application: { name: appName },
+      dependencies: dependencies.map((name) => ({ name })),
       requireLatestFirmware: false, //TODO add this to the dApp config
     };
   }

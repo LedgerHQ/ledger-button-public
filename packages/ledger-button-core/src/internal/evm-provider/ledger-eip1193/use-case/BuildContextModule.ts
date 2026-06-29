@@ -5,8 +5,8 @@ import {
 } from "@ledgerhq/context-module";
 import { inject, injectable } from "inversify";
 
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 
 export type BuildContextModuleParams = {
   chain: ContextModuleChainID;
@@ -15,15 +15,16 @@ export type BuildContextModuleParams = {
 @injectable()
 export class BuildContextModule {
   constructor(
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
+    @inject(evmProviderModuleTypes.CoreFacade)
+    private readonly core: CoreFacade,
   ) {}
 
   execute({ chain }: BuildContextModuleParams): ContextModule {
+    const { originToken, dAppIdentifier } = this.core.getSdkConfig();
     return new ContextModuleBuilder({
-      originToken: this.config.originToken,
+      originToken,
     })
-      .setAppSource(this.config.dAppIdentifier)
+      .setAppSource(dAppIdentifier)
       .setChain(chain)
       .build();
   }

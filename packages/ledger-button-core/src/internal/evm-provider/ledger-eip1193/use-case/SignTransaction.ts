@@ -1,42 +1,44 @@
-import { type Factory, inject, injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { from, Observable, switchMap } from "rxjs";
 
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
 import { SignFlowStatus } from "../../../../api/model/signing/SignFlowStatus.js";
 import {
   SignTransactionParams,
   Transaction,
 } from "../../../../api/model/signing/SignTransactionParams.js";
-import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
-import { type ContextService } from "../../../context/ContextService.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
 import { SignRawTransaction } from "./SignRawTransaction.js";
+
 @injectable()
 export class SignTransaction {
-  private readonly logger: LoggerPublisher;
+  private readonly logger: ProviderLogger;
 
   constructor(
-    @inject(loggerModuleTypes.LoggerPublisher)
-    loggerFactory: Factory<LoggerPublisher>,
+    @inject(evmProviderModuleTypes.CoreFacade)
+    private readonly core: CoreFacade,
     @inject(evmProviderModuleTypes.GasFeeEstimationService)
     private readonly gasFeeEstimationService: GasFeeEstimationService,
     @inject(evmProviderModuleTypes.SignRawTransactionUseCase)
     private readonly signRawTransaction: SignRawTransaction,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
   ) {
-    this.logger = loggerFactory("SignTransaction");
+    this.logger = this.core.getLogger("SignTransaction");
   }
 
-  execute(params: SignTransactionParams): Observable<SignFlowStatus> {
+  execute(
+    params: SignTransactionParams,
+    selectedAccount: ProviderAccount | undefined,
+    chainId: number,
+  ): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
     const { transaction, broadcast, method } = params;
 
     const initObservable: Observable<Transaction> = from(
-      this.completeTransaction(transaction),
+      this.completeTransaction(transaction, selectedAccount, chainId),
     );
 
     return initObservable.pipe(
@@ -46,24 +48,25 @@ export class SignTransaction {
 
         this.logger.debug("Raw transaction", { rawTransaction });
 
-        return this.signRawTransaction.execute({
-          transaction: rawTransaction,
-          broadcast: broadcast,
-          method: method,
-        });
+        return this.signRawTransaction.execute(
+          {
+            transaction: rawTransaction,
+            broadcast: broadcast,
+            method: method,
+          },
+          selectedAccount,
+        );
       }),
     );
   }
 
   private async addFeesToTransaction(
     transaction: Transaction,
+    selectedAccount: ProviderAccount | undefined,
   ): Promise<Transaction> {
     try {
       const fees = await this.gasFeeEstimationService.getFeesForTransaction({
-        from:
-          transaction.from ||
-          this.contextService.getContext().selectedAccount?.freshAddress ||
-          "", //Should never happen
+        from: transaction.from || selectedAccount?.freshAddress || "", //Should never happen
         to: transaction.to,
         value: transaction.value,
         data: transaction.data,
@@ -88,13 +91,11 @@ export class SignTransaction {
 
   private async addNonceToTransaction(
     transaction: Transaction,
+    selectedAccount: ProviderAccount | undefined,
   ): Promise<Transaction> {
     try {
       const nonce = await this.gasFeeEstimationService.getNonceForTx({
-        from:
-          transaction.from ||
-          this.contextService.getContext().selectedAccount?.freshAddress ||
-          "", //Should never happen
+        from: transaction.from || selectedAccount?.freshAddress || "", //Should never happen
         to: transaction.to,
         value: transaction.value,
         data: transaction.data,
@@ -117,6 +118,8 @@ export class SignTransaction {
 
   private async completeTransaction(
     transaction: Transaction,
+    selectedAccount: ProviderAccount | undefined,
+    chainId: number,
   ): Promise<Transaction> {
     let completedTransaction: Transaction = transaction;
 
@@ -124,7 +127,7 @@ export class SignTransaction {
       this.logger.debug("Chain ID is not set");
       completedTransaction = {
         ...completedTransaction,
-        chainId: this.contextService.getContext().chainId,
+        chainId,
       };
     }
 
@@ -136,14 +139,18 @@ export class SignTransaction {
       this.logger.debug(
         "Gas or max fee per gas or max priority fee per gas is not set",
       );
-      completedTransaction =
-        await this.addFeesToTransaction(completedTransaction);
+      completedTransaction = await this.addFeesToTransaction(
+        completedTransaction,
+        selectedAccount,
+      );
     }
 
     if (!completedTransaction.nonce) {
       this.logger.debug("Nonce is not set");
-      completedTransaction =
-        await this.addNonceToTransaction(completedTransaction);
+      completedTransaction = await this.addNonceToTransaction(
+        completedTransaction,
+        selectedAccount,
+      );
     }
 
     this.logger.debug("Transaction completed", { completedTransaction });
