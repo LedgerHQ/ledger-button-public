@@ -1,4 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
+import { Maybe } from "purify-ts";
 
 import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type { Account } from "../../account/service/AccountService.js";
@@ -9,11 +10,9 @@ import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
-import type {
-  BlockchainFamily,
-  BlockchainProvider,
-  CoreFacade,
-} from "../model/BlockchainProvider.js";
+import type { BlockchainProvider } from "../model/BlockchainProvider.js";
+import type { CoreFacade } from "../model/CoreFacade.js";
+import type { BlockchainFamily } from "../model/types.js";
 import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
 /**
@@ -86,5 +85,14 @@ export class DefaultBlockchainProviderManager
     for (const provider of this.providers.values()) {
       provider.setNetwork(chainId);
     }
+  }
+
+  resolveBlockchainFamily(currencyId: string): Maybe<BlockchainFamily> {
+    for (const provider of this.providers.values()) {
+      if (provider.isSupportedCurrency(currencyId)) {
+        return Maybe.of(provider.family);
+      }
+    }
+    return Maybe.empty();
   }
 }

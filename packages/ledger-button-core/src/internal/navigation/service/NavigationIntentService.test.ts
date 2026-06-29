@@ -1,7 +1,7 @@
 import { EMPTY, type Observable } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "../../blockchain-provider/model/BlockchainProvider.js";
+import type { WalletNavigationIntent } from "../../blockchain-provider/model/types.js";
 import { NavigationIntentService } from "./NavigationIntentService.js";
 
 const createIntent = (

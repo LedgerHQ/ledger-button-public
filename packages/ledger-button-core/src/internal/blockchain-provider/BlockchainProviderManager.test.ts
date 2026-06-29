@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockCoreFacade } from "./__mocks__/coreFacadeMock.js";
-import type { CoreFacade } from "./model/BlockchainProvider.js";
+import type { CoreFacade } from "./model/CoreFacade.js";
 import { DefaultBlockchainProviderManager } from "./service/DefaultBlockchainProviderManager.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import type { Account } from "../account/service/AccountService.js";

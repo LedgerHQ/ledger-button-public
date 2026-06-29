@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import { createMockCoreFacade } from "../blockchain-provider/__mocks__/coreFacadeMock.js";
-import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../blockchain-provider/model/CoreFacade.js";
 import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 

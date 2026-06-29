@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 
 import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import type { CoreFacade } from "../model/BlockchainProvider.js";
+import type { CoreFacade } from "../model/CoreFacade.js";
 
 /** Minimal {@link ProviderLogger} stub for tests. */
 export function createMockProviderLogger(): ProviderLogger {

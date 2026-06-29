@@ -51,7 +51,7 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignTypedMessageParams } from "../../../../api/model/signing/SignTypedMessageParams.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";

@@ -56,7 +56,7 @@ import {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../../api/model/signing/SignRawTransactionParams.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";

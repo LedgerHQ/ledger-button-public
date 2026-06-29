@@ -5,10 +5,8 @@ import type {
   ProviderTransactionInfo,
 } from "../../../../api/model/blockchain/GasFee.js";
 import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
-import type {
-  CoreFacade,
-  ProviderBlockchain,
-} from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
+import type { ProviderBlockchain } from "../../../blockchain-provider/model/types.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
 

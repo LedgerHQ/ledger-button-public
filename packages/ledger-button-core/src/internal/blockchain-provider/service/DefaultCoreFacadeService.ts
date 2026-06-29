@@ -12,11 +12,11 @@ import type {
   JSONRPCRequest,
   JsonRpcResponse,
 } from "../../../api/model/eip/EIPTypes.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import {
   isBroadcastedTransactionResult,
   type SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
+import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../account/service/AccountService.js";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
@@ -43,6 +43,7 @@ import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js
 import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
 import { pendingTransactionModuleTypes } from "../../pending-transaction/pendingTransactionModuleTypes.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+import { blockchainProviderModuleTypes } from "../blockchainProviderModuleTypes.js";
 import type {
   BlockchainFamily,
   ProviderBlockchain,
@@ -50,8 +51,8 @@ import type {
   ProviderSdkConfig,
   ProviderSignParams,
   WalletNavigationIntent,
-} from "../model/BlockchainProvider.js";
-import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
+} from "../model/types.js";
+import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
 @injectable()
@@ -83,6 +84,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _trackTypedMessageCompleted: TrackTypedMessageCompleted,
     @inject(pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase)
     private readonly _trackBroadcastedTransaction: TrackBroadcastedTransactionUseCase,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly _blockchainProviderManager: BlockchainProviderManager,
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly _loggerFactory: Factory<LoggerPublisher>,
   ) {
@@ -116,7 +119,9 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     const selected = this._contextService.getContext().selectedAccount;
     if (
       selected &&
-      resolveBlockchainFamily(selected.currencyId).extract() === family
+      this._blockchainProviderManager
+        .resolveBlockchainFamily(selected.currencyId)
+        .extract() === family
     ) {
       return selected;
     }

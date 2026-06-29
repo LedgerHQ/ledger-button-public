@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 
 import type { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
 import { SignedResults } from "../../../../api/model/signing/SignedTransaction.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getCurrencyIdFromChainId } from "../utils/chainUtils.js";

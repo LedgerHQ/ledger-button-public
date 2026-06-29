@@ -59,10 +59,8 @@ import type { SignRawTransactionParams } from "../../../api/model/signing/SignRa
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
-import type {
-  BlockchainFamily,
-  CoreFacade,
-} from "../../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../blockchain-provider/model/types.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;

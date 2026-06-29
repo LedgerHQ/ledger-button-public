@@ -5,13 +5,12 @@ import type { SignPersonalMessageUseCase } from "./ledger-eip1193/use-case/SignP
 import type { SignRawTransaction } from "./ledger-eip1193/use-case/SignRawTransaction.js";
 import type { SignTransaction } from "./ledger-eip1193/use-case/SignTransaction.js";
 import type { SignTypedData } from "./ledger-eip1193/use-case/SignTypedData.js";
+import { isSupportedEvmCurrency } from "./ledger-eip1193/utils/chainUtils.js";
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
-import type {
-  BlockchainFamily,
-  BlockchainProvider,
-  CoreFacade,
-} from "../blockchain-provider/model/BlockchainProvider.js";
+import type { BlockchainProvider } from "../blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../blockchain-provider/model/types.js";
 import { evmProviderModule } from "./evmProviderModule.js";
 import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
@@ -74,5 +73,9 @@ export class EvmBlockchainProvider implements BlockchainProvider {
 
   setNetwork(chainId: number): void {
     this.eip1193Provider?.setNetwork(chainId);
+  }
+
+  isSupportedCurrency(currencyId: string): boolean {
+    return isSupportedEvmCurrency(currencyId);
   }
 }
