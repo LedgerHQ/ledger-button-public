@@ -63,8 +63,6 @@ import type {
   BlockchainFamily,
   CoreFacade,
 } from "../../blockchain-provider/model/BlockchainProvider.js";
-import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import type { TrackBroadcastedTransactionUseCase } from "../../pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;
@@ -82,12 +80,10 @@ type SignFlowParams =
  * {@link EvmBlockchainProvider}, which is built by the EVM factory.
  */
 export type LedgerEIP1193ProviderDeps = {
-  navigationIntentService: NavigationIntentService;
   signTransaction: SignTransaction;
   signRawTransaction: SignRawTransaction;
   signTypedData: SignTypedData;
   signPersonalMessage: SignPersonalMessageUseCase;
-  trackBroadcastedTransaction: TrackBroadcastedTransactionUseCase;
 };
 
 export class LedgerEIP1193Provider
@@ -96,7 +92,7 @@ export class LedgerEIP1193Provider
 {
   public readonly family: BlockchainFamily = "evm";
   private _isConnected = false;
-  private _selectedAccount: string | null = null;
+  private _selectedAccount: ProviderAccount | null = null;
   private _selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
 
   private _id = 0;
@@ -237,19 +233,19 @@ export class LedgerEIP1193Provider
 
     if (
       this._selectedAccount &&
-      this._selectedAccount === account.freshAddress &&
+      this._selectedAccount.freshAddress === account.freshAddress &&
       this._isConnected
     ) {
       return;
     }
 
     this._isConnected = true;
-    this._selectedAccount = account.freshAddress;
+    this._selectedAccount = account;
     this.dispatchEvent(
       new CustomEvent<string[]>("accountsChanged", {
         bubbles: true,
         composed: true,
-        detail: [this._selectedAccount],
+        detail: [account.freshAddress],
       }),
     );
 
@@ -277,7 +273,7 @@ export class LedgerEIP1193Provider
 
   private async handleAccounts(): Promise<string[]> {
     if (this._selectedAccount) {
-      return [this._selectedAccount];
+      return [this._selectedAccount.freshAddress];
     }
     return [];
   }
@@ -286,7 +282,7 @@ export class LedgerEIP1193Provider
     const account = await this.host.requestAccount("evm");
 
     this._isConnected = true;
-    this._selectedAccount = account.freshAddress;
+    this._selectedAccount = account;
     this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId));
 
     this.dispatchEvent(
@@ -316,7 +312,12 @@ export class LedgerEIP1193Provider
         broadcast,
       };
       const transactionParams = signParams as SignTransactionParams;
-      runUseCase = () => this.deps.signTransaction.execute(transactionParams);
+      runUseCase = () =>
+        this.deps.signTransaction.execute(
+          transactionParams,
+          this._selectedAccount ?? undefined,
+          this._selectedChainId,
+        );
     } else {
       signParams = {
         transaction: params[0] as string,
@@ -324,7 +325,11 @@ export class LedgerEIP1193Provider
         broadcast,
       };
       const rawParams = signParams as SignRawTransactionParams;
-      runUseCase = () => this.deps.signRawTransaction.execute(rawParams);
+      runUseCase = () =>
+        this.deps.signRawTransaction.execute(
+          rawParams,
+          this._selectedAccount ?? undefined,
+        );
     }
 
     try {
@@ -357,7 +362,8 @@ export class LedgerEIP1193Provider
     if (
       typeof params[0] === "string" &&
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      params[0].toLowerCase() !== this._selectedAccount!.toLowerCase()
+      params[0].toLowerCase() !==
+        this._selectedAccount!.freshAddress.toLowerCase()
     ) {
       throw this.createError(
         CommonEIP1193ErrorCode.Unauthorized,
@@ -385,7 +391,11 @@ export class LedgerEIP1193Provider
       const result = await this.handleBlockchainRequest(
         payload,
         "typed-message",
-        () => this.deps.signTypedData.execute(payload),
+        () =>
+          this.deps.signTypedData.execute(
+            payload,
+            this._selectedAccount ?? undefined,
+          ),
       );
       if (isSignedMessageOrTypedDataResult(result)) {
         return result.signature;
@@ -420,7 +430,11 @@ export class LedgerEIP1193Provider
       const result = await this.handleBlockchainRequest(
         payload,
         "personal-sign",
-        () => this.deps.signPersonalMessage.execute(payload),
+        () =>
+          this.deps.signPersonalMessage.execute(
+            payload,
+            this._selectedAccount ?? undefined,
+          ),
       );
       if (isSignedMessageOrTypedDataResult(result)) {
         return result.signature;
@@ -484,7 +498,7 @@ export class LedgerEIP1193Provider
         }
         subscription = observable.subscribe({
           next: (status) => {
-            void this.deps.trackBroadcastedTransaction.execute(status, params);
+            this.host.trackBroadcastedTransaction(status, params);
             status$.next(status);
             if (status.status === "success") {
               settled = true;
@@ -503,7 +517,7 @@ export class LedgerEIP1193Provider
 
       globalThis.addEventListener?.("ledger-provider-close", onClose);
 
-      this.deps.navigationIntentService.emit({
+      this.host.emitNavigationIntent({
         name: "signTransaction",
         params,
         status$: status$.asObservable(),
