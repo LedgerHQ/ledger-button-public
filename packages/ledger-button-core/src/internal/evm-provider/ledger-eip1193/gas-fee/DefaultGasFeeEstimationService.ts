@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 
-import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
 } from "../../../../api/model/blockchain/GasFee.js";
+import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
 import type {
   CoreFacade,
   ProviderBlockchain,

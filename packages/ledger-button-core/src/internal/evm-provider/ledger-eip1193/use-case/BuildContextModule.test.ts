@@ -1,7 +1,7 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Config } from "../../../config/model/config.js";
+import { createMockCoreFacade } from "../../../blockchain-provider/__mocks__/coreFacadeMock.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 const mocks = vi.hoisted(() => ({
@@ -39,15 +39,17 @@ describe("BuildContextModule", () => {
   let useCase: BuildContextModule;
   const fakeContextModule = { id: "context-module" };
 
-  const config = new Config({
-    originToken: "origin-token",
-    dAppIdentifier: "dapp-identifier",
+  const core = createMockCoreFacade({
+    getSdkConfig: () => ({
+      originToken: "origin-token",
+      dAppIdentifier: "dapp-identifier",
+    }),
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.build.mockReturnValue(fakeContextModule);
-    useCase = new BuildContextModule(config);
+    useCase = new BuildContextModule(core);
   });
 
   it("should build a context module wired with the config and chain", () => {
