@@ -4,10 +4,21 @@ export type {
   BlockchainProvider,
   CoreFacade,
   ProviderBlockchain,
+  ProviderDeviceSession,
+  ProviderSdkConfig,
+  ProviderSignParams,
   WalletNavigationIntent,
   WalletProvider,
 } from "../internal/blockchain-provider/model/BlockchainProvider.js";
+export type {
+  ProviderGasFeeEstimation,
+  ProviderTransactionInfo,
+} from "./model/blockchain/GasFee.js";
 export type { ProviderAccount } from "./model/blockchain/ProviderAccount.js";
+export type {
+  ProviderLogData,
+  ProviderLogger,
+} from "./model/blockchain/ProviderLogger.js";
 export type {
   BlockchainAppDependencies,
   BlockchainConfig,
