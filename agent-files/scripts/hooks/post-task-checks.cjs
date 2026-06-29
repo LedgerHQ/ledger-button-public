@@ -92,6 +92,8 @@ async function main() {
       "Post-task checks failed (lint / typecheck / test). " +
       `Projects checked: ${projects.join(", ")}.\n\n` +
       "Please fix the following issues and try again:\n\n" +
+      "When test failures are caused by outdated test code (wrong mocks, stale signatures, missing setup), " +
+      "fix the tests to match the current implementation. Only touch implementation code if the tests reveal a genuine bug.\n\n" +
       output;
     console.log(JSON.stringify({ followup_message: msg }));
   }
