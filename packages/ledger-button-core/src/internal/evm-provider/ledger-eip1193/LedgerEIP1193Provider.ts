@@ -30,8 +30,8 @@ import {
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../api/errors/DeviceErrors.js";
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
 import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
+import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
 import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
@@ -625,12 +625,15 @@ export class LedgerEIP1193Provider
     }
 
     if (route === "broadcasted") {
-      return this.host.broadcastRPC({
-        jsonrpc: "2.0",
-        id: this._id++,
-        method,
-        params,
-      });
+      return this.host.broadcastRPC(
+        {
+          jsonrpc: "2.0",
+          id: this._id++,
+          method,
+          params,
+        },
+        { name: "ethereum", chainId: this._selectedChainId.toString() },
+      );
     }
 
     throw this.createError(
@@ -691,11 +694,5 @@ export class LedgerEIP1193Provider
           error,
         );
     }
-  }
-}
-
-export class ModalClosedError extends LedgerButtonError {
-  constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "ModalClosedError", context);
   }
 }

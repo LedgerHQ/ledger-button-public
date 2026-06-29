@@ -1,6 +1,4 @@
 export const evmProviderModuleTypes = {
-  LedgerRemoteDatasource: Symbol.for("LedgerRemoteDatasource"),
-  JSONRPCCallUseCase: Symbol.for("JSONRPCCallUseCase"),
   SignTransactionUseCase: Symbol.for("SignTransactionUseCase"),
   SignRawTransactionUseCase: Symbol.for("SignRawTransactionUseCase"),
   SignTypedDataUseCase: Symbol.for("SignTypedDataUseCase"),

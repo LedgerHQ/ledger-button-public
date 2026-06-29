@@ -3,6 +3,7 @@ export type {
   BlockchainFamily,
   BlockchainProvider,
   CoreFacade,
+  ProviderBlockchain,
   WalletNavigationIntent,
   WalletProvider,
 } from "../internal/blockchain-provider/model/BlockchainProvider.js";

@@ -1,22 +1,26 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Subject } from "rxjs";
 
+import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
 import type {
   JSONRPCRequest,
   JsonRpcResponse,
 } from "../../../api/model/eip/EIPTypes.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../account/service/AccountService.js";
+import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
+import type { BackendService } from "../../backend/BackendService.js";
+import { isJsonRpcResponse } from "../../backend/types.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
-import { evmProviderModuleTypes } from "../../evm-provider/evmProviderModuleTypes.js";
-import { JSONRPCCallUseCase } from "../../evm-provider/ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
-import { ModalClosedError } from "../../evm-provider/ledger-eip1193/LedgerEIP1193Provider.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js";
 import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import type { BlockchainFamily } from "../model/BlockchainProvider.js";
+import type {
+  BlockchainFamily,
+  ProviderBlockchain,
+} from "../model/BlockchainProvider.js";
 import { resolveBlockchainFamily } from "../utils/resolveBlockchainFamily.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
@@ -29,21 +33,35 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _navigationIntentService: NavigationIntentService,
     @inject(contextModuleTypes.ContextService)
     private readonly _contextService: ContextService,
-    @inject(evmProviderModuleTypes.JSONRPCCallUseCase)
-    private readonly _jsonRpcCallUseCase: JSONRPCCallUseCase,
+    @inject(backendModuleTypes.BackendService)
+    private readonly _backendService: BackendService,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
     this._logger = loggerFactory("CoreFacadeService");
   }
 
-  async broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse> {
-    this._logger.debug("Broadcasting JSON-RPC request", { args });
-    const result = await this._jsonRpcCallUseCase.execute(args);
-    if (!result) {
-      throw new Error("JSON-RPC request returned no result");
-    }
-    return result;
+  async broadcastRPC(
+    args: JSONRPCRequest,
+    blockchain: ProviderBlockchain,
+  ): Promise<JsonRpcResponse> {
+    this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
+    const response = await this._backendService.broadcast({
+      blockchain,
+      rpc: args,
+    });
+    return response.caseOf<JsonRpcResponse>({
+      Right: (result) => {
+        if (isJsonRpcResponse(result)) {
+          return result;
+        }
+        throw new Error("Unexpected broadcast response for JSON-RPC request");
+      },
+      Left: (error) => {
+        this._logger.error("JSON-RPC request failed", { error });
+        throw error;
+      },
+    });
   }
 
   async requestAccount(family: BlockchainFamily): Promise<Account> {

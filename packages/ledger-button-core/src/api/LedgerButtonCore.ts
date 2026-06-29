@@ -65,8 +65,6 @@ import {
 } from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
-import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
-import { JSONRPCCallUseCase } from "../internal/evm-provider/ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -483,8 +481,11 @@ export class LedgerButtonCore {
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container
-      .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
-      .execute(args);
+      .get<CoreFacadeService>(blockchainProviderModuleTypes.CoreFacadeService)
+      .broadcastRPC(args, {
+        name: "ethereum",
+        chainId: this._contextService.getContext().chainId.toString(),
+      });
   }
 
   /** Stream of generic navigation intents emitted by core for the UI to map. */

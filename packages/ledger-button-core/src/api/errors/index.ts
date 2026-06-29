@@ -5,3 +5,4 @@ export * from "./DeviceErrors.js";
 export * from "./LedgerButtonError.js";
 export * from "./LedgerSyncErrors.js";
 export * from "./NetworkErrors.js";
+export * from "./ProviderErrors.js";

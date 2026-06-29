@@ -2,9 +2,6 @@ import { ContainerModule } from "inversify";
 
 import { DefaultGasFeeEstimationService } from "./ledger-eip1193/gas-fee/DefaultGasFeeEstimationService.js";
 import { GasFeeEstimationService } from "./ledger-eip1193/gas-fee/GasFeeEstimationService.js";
-import { LedgerRemoteDatasource } from "./ledger-eip1193/jsonrpc/datasource/LedgerRemoteDatasource.js";
-import { StubLedgerRemoteDatasource } from "./ledger-eip1193/jsonrpc/datasource/StubLedgerRemoteDatasource.js";
-import { JSONRPCCallUseCase } from "./ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
 import { BroadcastTransaction } from "./ledger-eip1193/use-case/BroadcastTransaction.js";
 import { BuildContextModule } from "./ledger-eip1193/use-case/BuildContextModule.js";
 import { BuildEthSigner } from "./ledger-eip1193/use-case/BuildEthSigner.js";
@@ -28,13 +25,8 @@ type EvmProviderModuleOptions = {
   stub?: boolean;
 };
 
-export function evmProviderModuleFactory({ stub }: EvmProviderModuleOptions) {
-  return new ContainerModule(({ bind, rebindSync }) => {
-    bind(evmProviderModuleTypes.LedgerRemoteDatasource).to(
-      LedgerRemoteDatasource,
-    );
-    bind(evmProviderModuleTypes.JSONRPCCallUseCase).to(JSONRPCCallUseCase);
-
+export function evmProviderModuleFactory(_options: EvmProviderModuleOptions) {
+  return new ContainerModule(({ bind }) => {
     bind(evmProviderModuleTypes.SignTransactionUseCase).to(SignTransaction);
     bind(evmProviderModuleTypes.SignRawTransactionUseCase).to(
       SignRawTransaction,
@@ -83,11 +75,5 @@ export function evmProviderModuleFactory({ stub }: EvmProviderModuleOptions) {
             ),
         });
     });
-
-    if (stub) {
-      rebindSync(evmProviderModuleTypes.LedgerRemoteDatasource).to(
-        StubLedgerRemoteDatasource,
-      );
-    }
   });
 }
