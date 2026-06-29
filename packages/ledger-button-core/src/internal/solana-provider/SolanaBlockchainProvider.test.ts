@@ -4,8 +4,9 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
+import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
+import { createMockCoreFacade } from "../blockchain-provider/__mocks__/coreFacadeMock.js";
 import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
@@ -24,32 +25,22 @@ vi.mock("./SolanaWalletProvider.js", () => ({
   })),
 }));
 
-const createMockCore = (): CoreFacade => ({
-  broadcastRPC: vi.fn(),
-  requestAccount: vi.fn(),
-  requestSwitchChain: vi.fn(),
-  disconnect: vi.fn().mockResolvedValue(undefined),
+const createMockBlockchainConfig = (): BlockchainConfig => ({
+  blockchain: "solana",
+  appName: "Solana",
+  networks: [],
+  appDependencies: { appName: "Solana", dependencies: [] },
 });
-
-const createMockDAppConfig = (): DAppConfigV2 =>
-  ({
-    name: "test",
-    liveAppId: "test",
-    domainUrl: "test",
-    referralUrl: "test",
-    blockchains: [],
-    featureFlags: {},
-  }) as DAppConfigV2;
 
 describe("SolanaBlockchainProvider", () => {
   let provider: SolanaBlockchainProvider;
   let core: CoreFacade;
-  let dappConfig: DAppConfigV2;
+  let dappConfig: BlockchainConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    core = createMockCore();
-    dappConfig = createMockDAppConfig();
+    core = createMockCoreFacade();
+    dappConfig = createMockBlockchainConfig();
     provider = new SolanaBlockchainProvider(core, dappConfig);
   });
 

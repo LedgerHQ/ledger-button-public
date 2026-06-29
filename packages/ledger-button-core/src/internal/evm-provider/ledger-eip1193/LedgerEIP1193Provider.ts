@@ -32,6 +32,8 @@ import {
 } from "../../../api/errors/DeviceErrors.js";
 import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
 import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
+import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
@@ -57,8 +59,6 @@ import type { SignRawTransactionParams } from "../../../api/model/signing/SignRa
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
-import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   BlockchainFamily,
   CoreFacade,
@@ -361,9 +361,8 @@ export class LedgerEIP1193Provider
 
     if (
       typeof params[0] === "string" &&
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       params[0].toLowerCase() !==
-        this._selectedAccount!.freshAddress.toLowerCase()
+        this._selectedAccount?.freshAddress.toLowerCase()
     ) {
       throw this.createError(
         CommonEIP1193ErrorCode.Unauthorized,

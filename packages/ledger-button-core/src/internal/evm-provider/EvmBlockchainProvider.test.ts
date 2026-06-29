@@ -1,15 +1,10 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import {
-  LedgerEIP1193Provider,
-  type LedgerEIP1193ProviderDeps,
-} from "./ledger-eip1193/LedgerEIP1193Provider.js";
+import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
+import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
+import { createMockCoreFacade } from "../blockchain-provider/__mocks__/coreFacadeMock.js";
 import type { CoreFacade } from "../blockchain-provider/model/BlockchainProvider.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
-import {
-  EvmBlockchainProvider,
-  type EvmBlockchainProviderDeps,
-} from "./EvmBlockchainProvider.js";
+import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 
 vi.mock("./ledger-eip1193/LedgerEIP1193Provider.js", () => ({
@@ -26,45 +21,54 @@ vi.mock("./EvmWalletProvider.js", () => ({
   })),
 }));
 
-const createMockCore = (): CoreFacade => ({
-  broadcastRPC: vi.fn(),
-  requestAccount: vi.fn(),
-  requestSwitchChain: vi.fn(),
-  disconnect: vi.fn().mockResolvedValue(undefined),
+// Bind stub sign use-cases so the local container resolves without needing the
+// real injectable graph (and decorator metadata) at test time.
+vi.mock("./evmProviderModule.js", async () => {
+  const { ContainerModule } = await import("inversify");
+  const { evmProviderModuleTypes } = await import(
+    "./evmProviderModuleTypes.js"
+  );
+  return {
+    evmProviderModule: () =>
+      new ContainerModule(({ bind }) => {
+        bind(evmProviderModuleTypes.SignTransactionUseCase).toConstantValue({
+          execute: () => undefined,
+        });
+        bind(evmProviderModuleTypes.SignRawTransactionUseCase).toConstantValue({
+          execute: () => undefined,
+        });
+        bind(evmProviderModuleTypes.SignTypedDataUseCase).toConstantValue({
+          execute: () => undefined,
+        });
+        bind(evmProviderModuleTypes.SignPersonalMessageUseCase).toConstantValue(
+          {
+            execute: () => undefined,
+          },
+        );
+      }),
+  };
 });
 
-const createMockDeps = (): EvmBlockchainProviderDeps =>
-  ({
-    navigationIntentService: { emit: vi.fn(), observe: vi.fn() },
-    signTransaction: { execute: vi.fn() },
-    signRawTransaction: { execute: vi.fn() },
-    signTypedData: { execute: vi.fn() },
-    signPersonalMessage: { execute: vi.fn() },
-    trackBroadcastedTransaction: { execute: vi.fn() },
-  }) as unknown as LedgerEIP1193ProviderDeps;
-
-const createMockDAppConfig = (): DAppConfigV2 =>
-  ({
-    name: "test",
-    liveAppId: "test",
-    domainUrl: "test",
-    referralUrl: "test",
-    blockchains: [],
-    featureFlags: {},
-  }) as DAppConfigV2;
+const createMockBlockchainConfig = (
+  rpcMethods?: BlockchainConfig["rpcMethods"],
+): BlockchainConfig => ({
+  blockchain: "evm",
+  appName: "Ethereum",
+  networks: [],
+  rpcMethods,
+  appDependencies: { appName: "Ethereum", dependencies: [] },
+});
 
 describe("EvmBlockchainProvider", () => {
   let provider: EvmBlockchainProvider;
   let core: CoreFacade;
-  let dappConfig: DAppConfigV2;
-  let deps: EvmBlockchainProviderDeps;
+  let dappConfig: BlockchainConfig;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    core = createMockCore();
-    dappConfig = createMockDAppConfig();
-    deps = createMockDeps();
-    provider = new EvmBlockchainProvider(core, dappConfig, deps);
+    core = createMockCoreFacade();
+    dappConfig = createMockBlockchainConfig();
+    provider = new EvmBlockchainProvider(core, dappConfig);
   });
 
   test('family is "evm"', () => {
@@ -72,21 +76,34 @@ describe("EvmBlockchainProvider", () => {
   });
 
   describe("injectWalletProviders()", () => {
-    test("creates LedgerEIP1193Provider with core, deps and a rpcMethods loader", () => {
+    test("creates LedgerEIP1193Provider with core, sign deps and a rpcMethods loader", () => {
       provider.injectWalletProviders();
 
       expect(LedgerEIP1193Provider).toHaveBeenCalledWith(
         core,
-        deps,
+        expect.objectContaining({
+          signTransaction: expect.anything(),
+          signRawTransaction: expect.anything(),
+          signTypedData: expect.anything(),
+          signPersonalMessage: expect.anything(),
+        }),
         expect.any(Function),
       );
     });
 
-    test("rpcMethods loader resolves to undefined when no matching blockchain in config", async () => {
+    test("rpcMethods loader resolves to the config rpcMethods", async () => {
+      const rpcMethods = {
+        local: ["eth_sign"],
+        broadcasted: ["eth_sendRawTransaction"],
+      };
+      provider = new EvmBlockchainProvider(
+        core,
+        createMockBlockchainConfig(rpcMethods),
+      );
       provider.injectWalletProviders();
 
       const loader = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[2];
-      await expect(loader?.()).resolves.toBeUndefined();
+      await expect(loader?.()).resolves.toEqual(rpcMethods);
     });
 
     test("constructs EvmWalletProvider with the LedgerEIP1193Provider instance", () => {

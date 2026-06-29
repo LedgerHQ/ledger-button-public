@@ -1,6 +1,5 @@
 import { ContainerModule } from "inversify";
 
-import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
 import { DefaultGasFeeEstimationService } from "./ledger-eip1193/gas-fee/DefaultGasFeeEstimationService.js";
 import { type GasFeeEstimationService } from "./ledger-eip1193/gas-fee/GasFeeEstimationService.js";
 import { BroadcastTransaction } from "./ledger-eip1193/use-case/BroadcastTransaction.js";
@@ -10,6 +9,7 @@ import { SignPersonalMessageUseCase } from "./ledger-eip1193/use-case/SignPerson
 import { SignRawTransaction } from "./ledger-eip1193/use-case/SignRawTransaction.js";
 import { SignTransaction } from "./ledger-eip1193/use-case/SignTransaction.js";
 import { SignTypedData } from "./ledger-eip1193/use-case/SignTypedData.js";
+import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
 
 /**
  * Local Inversify module for the EVM provider. Loaded into the per-provider
