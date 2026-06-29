@@ -37,6 +37,16 @@ export interface WalletProvider {
 export type { SignedResults };
 
 /**
+ * Target blockchain a provider attaches to a backend JSON-RPC call. The
+ * provider owns this identity (it knows its own chain); core only forwards it
+ * to the backend without interpreting it.
+ */
+export type ProviderBlockchain = {
+  name: string;
+  chainId: string;
+};
+
+/**
  * Outbound port the provider CALLS (provider -> core). Every method is async:
  * the provider triggers a phase and awaits the result while core owns the UI
  * and device machinery.
@@ -44,10 +54,14 @@ export type { SignedResults };
 export interface CoreFacade {
   /**
    * Backend-backed JSON-RPC transport to the node: reads (`eth_getBalance`,
-   * `eth_call`, gas, nonce, ...) AND broadcasting a signed raw tx. Core fills
-   * `blockchain` / `chainId` from context; it never interprets the method.
+   * `eth_call`, gas, nonce, ...) AND broadcasting a signed raw tx. The provider
+   * supplies the target {@link ProviderBlockchain}; core forwards the call to
+   * the backend and never interprets the method.
    */
-  broadcastRPC(args: JSONRPCRequest): Promise<JsonRpcResponse>;
+  broadcastRPC(
+    args: JSONRPCRequest,
+    blockchain: ProviderBlockchain,
+  ): Promise<JsonRpcResponse>;
   requestAccount(family: BlockchainFamily): Promise<ProviderAccount>;
   requestSwitchChain(chainId: number): Promise<void>;
   disconnect(): Promise<void>;

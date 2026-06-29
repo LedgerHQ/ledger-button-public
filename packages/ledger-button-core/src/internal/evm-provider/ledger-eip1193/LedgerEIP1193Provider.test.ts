@@ -147,6 +147,7 @@ describe("LedgerEIP1193Provider", () => {
       expect(result).toBe(response);
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_call" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
 
@@ -212,6 +213,7 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_transactionCount" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
 
@@ -235,6 +237,7 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_chainId" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
 
@@ -271,6 +274,7 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_call" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
   });
