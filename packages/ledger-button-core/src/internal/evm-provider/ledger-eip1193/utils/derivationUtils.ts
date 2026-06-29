@@ -1,4 +1,4 @@
-import { Account } from "../../../account/service/AccountService.js";
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
 
 const EVM_DERIVATION_MODE: Record<string, string> = {
   // MEW legacy derivation for eth
@@ -9,7 +9,7 @@ const EVM_DERIVATION_MODE: Record<string, string> = {
   etcM: "44'/60'/160720'/0'/<account>",
 };
 
-export function getEvmDerivationPath(account: Account): string {
+export function getEvmDerivationPath(account: ProviderAccount): string {
   const index = account.index;
 
   const derivationScheme = EVM_DERIVATION_MODE[account.derivationMode];

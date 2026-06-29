@@ -49,7 +49,6 @@ import {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../../api/model/signing/SignRawTransactionParams.js";
-import { getDerivationPath } from "../../../account/AccountUtils.js";
 import type { Account } from "../../../account/service/AccountService.js";
 import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
 import type { ContextService } from "../../../context/ContextService.js";
@@ -72,6 +71,7 @@ import { modalModuleTypes } from "../../../modal/modalModuleTypes.js";
 import { ModalService } from "../../../modal/service/ModalService.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
+import { getEvmDerivationPath } from "../utils/derivationUtils.js";
 import {
   BroadcastTransaction,
   BroadcastTransactionParams,
@@ -174,7 +174,7 @@ export class SignRawTransaction {
         })),
       );
 
-      const derivationPath = getDerivationPath(selectedAccount);
+      const derivationPath = getEvmDerivationPath(selectedAccount);
 
       this.trackTransactionStarted.execute();
 

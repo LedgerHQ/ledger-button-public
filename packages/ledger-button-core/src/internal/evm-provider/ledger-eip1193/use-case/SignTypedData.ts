@@ -45,7 +45,6 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignTypedMessageParams } from "../../../../api/model/signing/SignTypedMessageParams.js";
-import { getDerivationPath } from "../../../account/AccountUtils.js";
 import type { Account } from "../../../account/service/AccountService.js";
 import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
 import type { ContextService } from "../../../context/ContextService.js";
@@ -65,6 +64,7 @@ import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
+import { getEvmDerivationPath } from "../utils/derivationUtils.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
 type OpenAppResult = {
@@ -156,7 +156,7 @@ export class SignTypedData {
         })),
       );
 
-      const derivationPath = getDerivationPath(selectedAccount);
+      const derivationPath = getEvmDerivationPath(selectedAccount);
 
       initObservable
         .pipe(
