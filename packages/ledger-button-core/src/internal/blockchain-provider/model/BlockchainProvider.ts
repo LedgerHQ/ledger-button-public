@@ -1,6 +1,13 @@
+import type { DeviceManagementKit } from "@ledgerhq/device-management-kit";
+import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import type { Observable } from "rxjs";
 
+import type {
+  ProviderGasFeeEstimation,
+  ProviderTransactionInfo,
+} from "../../../api/model/blockchain/GasFee.js";
 import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
 import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   JSONRPCRequest,
@@ -8,6 +15,10 @@ import type {
 } from "../../../api/model/eip/EIPTypes.js";
 import type { SignedResults } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
+import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
+import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
+import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -47,9 +58,35 @@ export type ProviderBlockchain = {
 };
 
 /**
- * Outbound port the provider CALLS (provider -> core). Every method is async:
- * the provider triggers a phase and awaits the result while core owns the UI
- * and device machinery.
+ * Device handle core exposes to a provider module. `dmk` is the shared
+ * {@link DeviceManagementKit} peer dependency (core owns the connection);
+ * `sessionId` / `isConnected` reflect the currently connected device.
+ */
+export type ProviderDeviceSession = {
+  dmk: DeviceManagementKit;
+  sessionId?: string;
+  isConnected: boolean;
+};
+
+/**
+ * Minimal SDK config a provider needs to build its signer / context module.
+ */
+export type ProviderSdkConfig = {
+  originToken: string;
+  dAppIdentifier: string;
+};
+
+/** Sign-flow params a provider forwards to core for pending-tx tracking. */
+export type ProviderSignParams =
+  | SignTransactionParams
+  | SignRawTransactionParams
+  | SignTypedMessageParams
+  | SignPersonalMessageParams;
+
+/**
+ * Outbound port the provider CALLS (provider -> core). It is the single set of
+ * core capabilities a blockchain provider module depends on; everything else in
+ * core stays private to keep the module a candidate for package extraction.
  */
 export interface CoreFacade {
   /**
@@ -65,6 +102,39 @@ export interface CoreFacade {
   requestAccount(family: BlockchainFamily): Promise<ProviderAccount>;
   requestSwitchChain(chainId: number): Promise<void>;
   disconnect(): Promise<void>;
+
+  /** Scoped logger; `tag` prefixes the provider's log lines. */
+  getLogger(tag: string): ProviderLogger;
+  /** Shared DMK handle + current device session (core owns connection). */
+  getDeviceSession(): ProviderDeviceSession;
+  /** Origin token + dApp identifier needed to build the signer/context. */
+  getSdkConfig(): ProviderSdkConfig;
+  /** Whether the in-flow modal is currently open (broadcast gate). */
+  isModalOpen(): boolean;
+
+  trackTransactionStarted(): void;
+  trackTransactionCompleted(
+    rawTransaction: string,
+    result: SignedResults,
+  ): void;
+  trackTypedMessageStarted(typedData: TypedData): void;
+  trackTypedMessageCompleted(typedData: TypedData): void;
+
+  /**
+   * Gas-fee estimation via the coin-service, when the chain is supported.
+   * Returns `undefined` so the provider can fall back to RPC estimation.
+   */
+  estimateGasFromCoinService(
+    tx: ProviderTransactionInfo,
+  ): Promise<ProviderGasFeeEstimation | undefined>;
+
+  /** Emit a UI navigation intent for the current sign / selection phase. */
+  emitNavigationIntent(intent: WalletNavigationIntent): void;
+  /** Forward a sign-flow status so core can track a broadcasted transaction. */
+  trackBroadcastedTransaction(
+    status: SignFlowStatus,
+    params: ProviderSignParams,
+  ): void;
 }
 
 /**
