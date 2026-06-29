@@ -1,11 +1,11 @@
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   BlockchainFamily,
   BlockchainProvider,
   CoreFacade,
 } from "../blockchain-provider/model/BlockchainProvider.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 /**
@@ -21,7 +21,7 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
 
   constructor(
     private readonly core: CoreFacade,
-    _dappConfig: DAppConfigV2,
+    public readonly dappConfig: BlockchainConfig,
   ) {}
 
   injectWalletProviders(): void {

@@ -1,57 +1,68 @@
-import {
-  LedgerEIP1193Provider,
-  type LedgerEIP1193ProviderDeps,
-} from "./ledger-eip1193/LedgerEIP1193Provider.js";
+import { Container } from "inversify";
+
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
-import type { BlockchainRpcMethods } from "../../api/model/dappConfig/BlockchainConfig.js";
+import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   BlockchainFamily,
   BlockchainProvider,
   CoreFacade,
 } from "../blockchain-provider/model/BlockchainProvider.js";
-import { resolveBlockchainFamily } from "../blockchain-provider/utils/resolveBlockchainFamily.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
-
-/**
- * EVM-owned collaborators the provider needs to run the complete sign flow
- * internally (navigation bridge + sign use-cases + broadcast tracking).
- */
-export type EvmBlockchainProviderDeps = LedgerEIP1193ProviderDeps;
-
-/**
- * Factory that resolves the EVM sign-flow dependencies from DI and builds a
- * fully-wired {@link EvmBlockchainProvider}. Bound in {@link evmProviderModule}
- * and consumed by {@link DefaultBlockchainProviderManager} so the provider can
- * stay a plain (non-injectable) class while still receiving DI-built use-cases.
- */
-export type EvmBlockchainProviderFactory = (
-  core: CoreFacade,
-  dappConfig: DAppConfigV2,
-) => EvmBlockchainProvider;
+import { evmProviderModule } from "./evmProviderModule.js";
+import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
+import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
+import type { SignPersonalMessageUseCase } from "./ledger-eip1193/use-case/SignPersonalMessageUseCase.js";
+import type { SignRawTransaction } from "./ledger-eip1193/use-case/SignRawTransaction.js";
+import type { SignTransaction } from "./ledger-eip1193/use-case/SignTransaction.js";
+import type { SignTypedData } from "./ledger-eip1193/use-case/SignTypedData.js";
 
 /**
  * EVM {@link BlockchainProvider}: entry point for the EVM family.
  *
- * Created by {@link DefaultBlockchainProviderManager} through the EVM factory
- * with core, dApp config and its sign-flow dependencies; wiring happens in
- * {@link injectWalletProviders}.
+ * Owns a self-contained Inversify container that binds the host
+ * {@link CoreFacade} and the per-provider {@link BlockchainConfig} as constants,
+ * then wires every EVM sign-flow collaborator on top of them. Nothing outside
+ * this package is required, which keeps the module a candidate for extraction.
  */
 export class EvmBlockchainProvider implements BlockchainProvider {
   public readonly family: BlockchainFamily = "evm";
+
+  private readonly container: Container;
   private eip1193Provider?: LedgerEIP1193Provider;
   private walletProvider?: EvmWalletProvider;
 
   constructor(
     private readonly core: CoreFacade,
-    private readonly dappConfig: DAppConfigV2,
-    private readonly deps: EvmBlockchainProviderDeps,
-  ) {}
+    public readonly dappConfig: BlockchainConfig,
+  ) {
+    this.container = new Container();
+    this.container
+      .bind<CoreFacade>(evmProviderModuleTypes.CoreFacade)
+      .toConstantValue(this.core);
+    this.container
+      .bind<BlockchainConfig>(evmProviderModuleTypes.BlockchainConfig)
+      .toConstantValue(this.dappConfig);
+    this.container.loadSync(evmProviderModule());
+  }
 
   injectWalletProviders(): void {
-    const rpcMethods = this.extractRpcMethods(this.dappConfig);
-    this.eip1193Provider = new LedgerEIP1193Provider(this.core, this.deps, () =>
-      Promise.resolve(rpcMethods),
+    this.eip1193Provider = new LedgerEIP1193Provider(
+      this.core,
+      {
+        signTransaction: this.container.get<SignTransaction>(
+          evmProviderModuleTypes.SignTransactionUseCase,
+        ),
+        signRawTransaction: this.container.get<SignRawTransaction>(
+          evmProviderModuleTypes.SignRawTransactionUseCase,
+        ),
+        signTypedData: this.container.get<SignTypedData>(
+          evmProviderModuleTypes.SignTypedDataUseCase,
+        ),
+        signPersonalMessage: this.container.get<SignPersonalMessageUseCase>(
+          evmProviderModuleTypes.SignPersonalMessageUseCase,
+        ),
+      },
+      () => Promise.resolve(this.dappConfig.rpcMethods),
     );
     this.walletProvider = new EvmWalletProvider(this.eip1193Provider);
     this.walletProvider.init();
@@ -63,17 +74,5 @@ export class EvmBlockchainProvider implements BlockchainProvider {
 
   setNetwork(chainId: number): void {
     this.eip1193Provider?.setNetwork(chainId);
-  }
-
-  private extractRpcMethods(
-    dappConfig: DAppConfigV2,
-  ): BlockchainRpcMethods | undefined {
-    const entry = dappConfig.blockchains?.find((blockchain) =>
-      blockchain.networks?.some(
-        (network) =>
-          resolveBlockchainFamily(network.currencyId).extract() === "evm",
-      ),
-    );
-    return entry?.rpcMethods;
   }
 }
