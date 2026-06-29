@@ -14,7 +14,6 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../../api/model/signing/SignPersonalMessageParams.js";
-import { getDerivationPath } from "../../../account/AccountUtils.js";
 import type { Account } from "../../../account/service/AccountService.js";
 import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
 import type { ContextService } from "../../../context/ContextService.js";
@@ -27,15 +26,16 @@ import {
   DeviceConnectionError,
 } from "../../../device/model/errors.js";
 import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
-import { SignPersonalMessageFlowDeviceAction } from "../../../device/use-case/device-action/SignPersonalMessageFlowDeviceAction.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction.js";
 import type {
   SignPersonalMessageFlowDAError,
   SignPersonalMessageFlowDAIntermediateValue,
   SignPersonalMessageFlowDAOutput,
-} from "../../../device/use-case/device-action/SignPersonalMessageFlowDeviceActionTypes.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+} from "../device-action/SignPersonalMessageFlowDeviceActionTypes.js";
+import { getEvmDerivationPath } from "../utils/derivationUtils.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 @injectable()
@@ -91,7 +91,7 @@ export class SignPersonalMessageUseCase {
         throw new AccountNotSelectedError("No account selected");
       }
 
-      const derivationPath = getDerivationPath(selectedAccount);
+      const derivationPath = getEvmDerivationPath(selectedAccount);
       const contextModule = this.buildContextModule.execute({
         chain: ContextModuleChainID.Ethereum,
       });
