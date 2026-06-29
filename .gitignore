@@ -62,3 +62,10 @@ storybook-static
 elm-stuff
 
 .env
+.env.local
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Agent tooling worktrees
+agent-files/claude/worktrees/
