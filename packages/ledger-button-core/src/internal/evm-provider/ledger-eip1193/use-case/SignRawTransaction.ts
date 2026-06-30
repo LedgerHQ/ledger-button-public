@@ -34,11 +34,7 @@ import {
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../../api/errors/DeviceErrors.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-  SignTransactionError,
-} from "../../../../api/errors/DeviceFlowErrors.js";
+import { AccountNotSelectedError } from "../../../../api/errors/DeviceFlowErrors.js";
 import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
 import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
 import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
@@ -60,6 +56,7 @@ import { SignRawTransactionParams } from "../../../../api/model/signing/SignRawT
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
+import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import {
   BroadcastTransaction,
   BroadcastTransactionParams,
@@ -95,17 +92,6 @@ export class SignRawTransaction {
   ): Observable<SignFlowStatus> {
     this.logger.info("Starting transaction signing", { params });
 
-    const session = this.core.getDeviceSession();
-    const sessionId = session.sessionId;
-
-    if (!sessionId || !session.isConnected) {
-      this.logger.error("No device connected");
-      throw new DeviceConnectionError(
-        "No device connected. Please connect a device first.",
-        { type: "not-connected" },
-      );
-    }
-
     const { transaction, broadcast } = params;
     const signType = "transaction";
 
@@ -115,250 +101,253 @@ export class SignRawTransaction {
       message: "Initializing transaction signing",
     });
 
-    try {
-      const dmk = session.dmk;
-      const ethSigner = this.buildEthSigner.execute({
-        sessionId,
-        chain: ContextModuleChainID.Ethereum,
-      });
+    waitForDeviceSession(this.core)
+      .pipe(
+        switchMap((session) => {
+          const sessionId = session.sessionId;
+          const dmk = session.dmk;
+          const ethSigner = this.buildEthSigner.execute({
+            sessionId,
+            chain: ContextModuleChainID.Ethereum,
+          });
 
-      const tx = hexaStringToBuffer(transaction);
-      if (!tx) {
-        throw Error("Invalid raw transaction format");
-      }
+          const tx = hexaStringToBuffer(transaction);
+          if (!tx) {
+            throw Error("Invalid raw transaction format");
+          }
 
-      if (!selectedAccount) {
-        throw new AccountNotSelectedError("No account selected");
-      }
+          if (!selectedAccount) {
+            throw new AccountNotSelectedError("No account selected");
+          }
 
-      //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
-      const initObservable: Observable<{
-        deviceAction: OpenAppWithDependenciesDeviceAction;
-        appName: string;
-      }> = of(this.createOpenAppConfig()).pipe(
-        map((openAppConfig) => ({
-          deviceAction: new OpenAppWithDependenciesDeviceAction({
-            input: openAppConfig,
-            inspect: false,
-          }),
-          appName: openAppConfig.application.name,
-        })),
-      );
+          //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
+          const initObservable: Observable<{
+            deviceAction: OpenAppWithDependenciesDeviceAction;
+            appName: string;
+          }> = of(this.createOpenAppConfig()).pipe(
+            map((openAppConfig) => ({
+              deviceAction: new OpenAppWithDependenciesDeviceAction({
+                input: openAppConfig,
+                inspect: false,
+              }),
+              appName: openAppConfig.application.name,
+            })),
+          );
 
-      const derivationPath = getEvmDerivationPath(selectedAccount);
+          const derivationPath = getEvmDerivationPath(selectedAccount);
 
-      this.core.trackTransactionStarted();
+          this.core.trackTransactionStarted();
 
-      initObservable
-        .pipe(
-          switchMap(({ deviceAction: openAppDeviceAction, appName }) => {
-            const openObservable = dmk.executeDeviceAction({
-              sessionId: sessionId,
-              deviceAction: openAppDeviceAction,
-            }).observable;
-            return openObservable.pipe(map((result) => ({ result, appName })));
-          }),
-          filter(
-            ({ result }: OpenAppResult) =>
-              result.status !== DeviceActionStatus.Pending ||
-              result.intermediateValue?.requiredUserInteraction !==
-                UserInteractionRequired.None,
-          ),
-          tap(({ result }: OpenAppResult) => {
+          return initObservable.pipe(
+            switchMap(({ deviceAction: openAppDeviceAction, appName }) => {
+              const openObservable = dmk.executeDeviceAction({
+                sessionId: sessionId,
+                deviceAction: openAppDeviceAction,
+              }).observable;
+              return openObservable.pipe(
+                map((result) => ({ result, appName })),
+              );
+            }),
+            filter(
+              ({ result }: OpenAppResult) =>
+                result.status !== DeviceActionStatus.Pending ||
+                result.intermediateValue?.requiredUserInteraction !==
+                  UserInteractionRequired.None,
+            ),
+            tap(({ result }: OpenAppResult) => {
+              resultObservable.next(
+                this.getTransactionResultForEvent(
+                  result,
+                  transaction,
+                  signType,
+                ),
+              );
+            }),
+            filter(
+              ({ result }: OpenAppResult) =>
+                result.status === DeviceActionStatus.Error ||
+                result.status === DeviceActionStatus.Completed,
+            ),
+            switchMap(({ result, appName }: OpenAppResult) => {
+              if (result.status === DeviceActionStatus.Error) {
+                const err = result.error;
+                if (
+                  err instanceof RefusedByUserDAError ||
+                  (err instanceof GlobalCommandError &&
+                    err.errorCode === "5501")
+                ) {
+                  throw new UserRejectedTransactionError(
+                    "User rejected open app",
+                  );
+                }
+
+                if (err instanceof OutOfMemoryDAError) {
+                  throw new DeviceOutOfMemoryError(
+                    "Not enough memory on device to process the request",
+                    { appName },
+                  );
+                }
+
+                throw new Error("Open app with dependencies failed");
+              }
+
+              const { observable: addressObservable } = ethSigner.getAddress(
+                derivationPath,
+                {
+                  skipOpenApp: true,
+                },
+              );
+
+              return addressObservable.pipe(
+                filter((result: GetAddressDAState) => {
+                  return (
+                    result.status === DeviceActionStatus.Error ||
+                    result.status === DeviceActionStatus.Completed
+                  );
+                }),
+              );
+            }),
+            switchMap((result: GetAddressDAState) => {
+              if (result.status === DeviceActionStatus.Error) {
+                // TODO: Add error code
+                throw result.error;
+              }
+
+              if (
+                result.status === DeviceActionStatus.Completed &&
+                result.output.address.toLowerCase() !==
+                  selectedAccount.freshAddress.toLowerCase()
+              ) {
+                throw new IncorrectSeedError("Address mismatch");
+              }
+
+              resultObservable.next({
+                signType,
+                status: "debugging",
+                message: "Starting Sign Transaction DA",
+              });
+
+              const { observable: signObservable } = ethSigner.signTransaction(
+                derivationPath,
+                tx,
+                {
+                  skipOpenApp: true,
+                },
+              );
+
+              return signObservable.pipe(
+                tap((result: SignTransactionDAState) => {
+                  if (result.status === DeviceActionStatus.Pending) {
+                    this.pendingStep = result.intermediateValue?.step ?? "";
+                  }
+                }),
+              );
+            }),
+            filter(
+              (result: SignTransactionDAState) =>
+                result.status !== DeviceActionStatus.Pending ||
+                result.intermediateValue?.requiredUserInteraction !==
+                  UserInteractionRequired.None,
+            ),
+            tap((result: SignTransactionDAState) => {
+              if (
+                result.status !== DeviceActionStatus.Completed &&
+                result.status !== DeviceActionStatus.Error
+              ) {
+                resultObservable.next(
+                  this.getTransactionResultForEvent(
+                    result,
+                    transaction,
+                    signType,
+                  ),
+                );
+              }
+            }),
+            filter((result: SignTransactionDAState) => {
+              return (
+                result.status === DeviceActionStatus.Error ||
+                result.status === DeviceActionStatus.Completed
+              );
+            }),
+            map((result: SignTransactionDAState) => {
+              if (result.status === DeviceActionStatus.Error) {
+                switch (true) {
+                  case result.error instanceof EthAppCommandError &&
+                    result.error.errorCode === "6a80" &&
+                    this.pendingStep ===
+                      SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
+                    throw new BlindSigningDisabledError(
+                      "Blind signing disabled",
+                    );
+                  case result.error instanceof EthAppCommandError &&
+                    result.error.errorCode === "6985":
+                    throw new UserRejectedTransactionError(
+                      "User rejected transaction",
+                    );
+                  default:
+                    throw result.error;
+                }
+              }
+
+              return result;
+            }),
+            filter((result: SignTransactionDAState) => {
+              return result.status === DeviceActionStatus.Completed;
+            }),
+            switchMap(async (result) => {
+              //Broadcast TX
+              if (broadcast && this.core.isModalOpen()) {
+                const broadcastParams: BroadcastTransactionParams = {
+                  signature: result.output as Signature,
+                  rawTransaction: transaction,
+                };
+                const broadcastResult =
+                  await this.broadcastTransactionUseCase.execute(
+                    broadcastParams,
+                  );
+
+                return broadcastResult;
+              }
+
+              // No Broadcast TX
+              const signedTx = createSignedTransaction(transaction, {
+                r: result.output.r,
+                s: result.output.s,
+                v: result.output.v,
+              } as Signature);
+
+              return signedTx;
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: (result) => {
+          if (
+            isSignedTransactionResult(result) ||
+            isBroadcastedTransactionResult(result)
+          ) {
+            //Only track completion for broadcasted transactions
+            if (isBroadcastedTransactionResult(result)) {
+              this.core.trackTransactionCompleted(transaction, result);
+            }
+
             resultObservable.next(
               this.getTransactionResultForEvent(result, transaction, signType),
             );
-          }),
-          filter(
-            ({ result }: OpenAppResult) =>
-              result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed,
-          ),
-          switchMap(({ result, appName }: OpenAppResult) => {
-            if (result.status === DeviceActionStatus.Error) {
-              const err = result.error;
-              if (
-                err instanceof RefusedByUserDAError ||
-                (err instanceof GlobalCommandError && err.errorCode === "5501")
-              ) {
-                throw new UserRejectedTransactionError(
-                  "User rejected open app",
-                );
-              }
-
-              if (err instanceof OutOfMemoryDAError) {
-                throw new DeviceOutOfMemoryError(
-                  "Not enough memory on device to process the request",
-                  { appName },
-                );
-              }
-
-              throw new Error("Open app with dependencies failed");
-            }
-
-            const { observable: addressObservable } = ethSigner.getAddress(
-              derivationPath,
-              {
-                skipOpenApp: true,
-              },
-            );
-
-            return addressObservable.pipe(
-              filter((result: GetAddressDAState) => {
-                return (
-                  result.status === DeviceActionStatus.Error ||
-                  result.status === DeviceActionStatus.Completed
-                );
-              }),
-            );
-          }),
-          switchMap((result: GetAddressDAState) => {
-            if (result.status === DeviceActionStatus.Error) {
-              // TODO: Add error code
-              throw result.error;
-            }
-
-            if (
-              result.status === DeviceActionStatus.Completed &&
-              result.output.address.toLowerCase() !==
-                selectedAccount.freshAddress.toLowerCase()
-            ) {
-              throw new IncorrectSeedError("Address mismatch");
-            }
-
-            resultObservable.next({
-              signType,
-              status: "debugging",
-              message: "Starting Sign Transaction DA",
-            });
-
-            const { observable: signObservable } = ethSigner.signTransaction(
-              derivationPath,
-              tx,
-              {
-                skipOpenApp: true,
-              },
-            );
-
-            return signObservable.pipe(
-              tap((result: SignTransactionDAState) => {
-                if (result.status === DeviceActionStatus.Pending) {
-                  this.pendingStep = result.intermediateValue?.step ?? "";
-                }
-              }),
-            );
-          }),
-          filter(
-            (result: SignTransactionDAState) =>
-              result.status !== DeviceActionStatus.Pending ||
-              result.intermediateValue?.requiredUserInteraction !==
-                UserInteractionRequired.None,
-          ),
-          tap((result: SignTransactionDAState) => {
-            if (
-              result.status !== DeviceActionStatus.Completed &&
-              result.status !== DeviceActionStatus.Error
-            ) {
-              resultObservable.next(
-                this.getTransactionResultForEvent(
-                  result,
-                  transaction,
-                  signType,
-                ),
-              );
-            }
-          }),
-          filter((result: SignTransactionDAState) => {
-            return (
-              result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed
-            );
-          }),
-          map((result: SignTransactionDAState) => {
-            if (result.status === DeviceActionStatus.Error) {
-              switch (true) {
-                case result.error instanceof EthAppCommandError &&
-                  result.error.errorCode === "6a80" &&
-                  this.pendingStep ===
-                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
-                  throw new BlindSigningDisabledError("Blind signing disabled");
-                case result.error instanceof EthAppCommandError &&
-                  result.error.errorCode === "6985":
-                  throw new UserRejectedTransactionError(
-                    "User rejected transaction",
-                  );
-                default:
-                  throw result.error;
-              }
-            }
-
-            return result;
-          }),
-          filter((result: SignTransactionDAState) => {
-            return result.status === DeviceActionStatus.Completed;
-          }),
-          switchMap(async (result) => {
-            //Broadcast TX
-            if (broadcast && this.core.isModalOpen()) {
-              const broadcastParams: BroadcastTransactionParams = {
-                signature: result.output as Signature,
-                rawTransaction: transaction,
-              };
-              const broadcastResult =
-                await this.broadcastTransactionUseCase.execute(broadcastParams);
-
-              return broadcastResult;
-            }
-
-            // No Broadcast TX
-            const signedTx = createSignedTransaction(transaction, {
-              r: result.output.r,
-              s: result.output.s,
-              v: result.output.v,
-            } as Signature);
-
-            return signedTx;
-          }),
-        )
-        .subscribe({
-          next: (result) => {
-            if (
-              isSignedTransactionResult(result) ||
-              isBroadcastedTransactionResult(result)
-            ) {
-              //Only track completion for broadcasted transactions
-              if (isBroadcastedTransactionResult(result)) {
-                this.core.trackTransactionCompleted(transaction, result);
-              }
-
-              resultObservable.next(
-                this.getTransactionResultForEvent(
-                  result,
-                  transaction,
-                  signType,
-                ),
-              );
-            }
-          },
-          error: (error) => {
-            this.logger.error("Transaction signing failed", { error });
-            resultObservable.next({
-              signType,
-              status: "error",
-              error: error,
-            });
-          },
-        });
-
-      return resultObservable.asObservable();
-    } catch (error) {
-      this.logger.error("Failed to sign transaction", { error });
-      return of({
-        signType,
-        status: "error",
-        error: new SignTransactionError(`Transaction signing failed: ${error}`),
+          }
+        },
+        error: (error) => {
+          this.logger.error("Transaction signing failed", { error });
+          resultObservable.next({
+            signType,
+            status: "error",
+            error: error,
+          });
+        },
       });
-    }
+
+    return resultObservable.asObservable();
   }
 
   createOpenAppConfig(): OpenAppWithDependenciesDAInput {
