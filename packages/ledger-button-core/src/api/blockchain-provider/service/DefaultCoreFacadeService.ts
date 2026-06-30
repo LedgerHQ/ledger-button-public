@@ -175,9 +175,21 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     this._contextService.onEvent({ type: "chain_changed", chainId });
   }
 
-  // TODO: extract disconnect() from LedgerButtonCore in a follow-up
+  private _disconnectHandler?: () => Promise<void>;
+
+  setDisconnectHandler(handler: () => Promise<void>): void {
+    this._disconnectHandler = handler;
+  }
+
   async disconnect(): Promise<void> {
-    throw new Error("disconnect() not yet extracted from LedgerButtonCore");
+    if (!this._disconnectHandler) {
+      this._logger.error(
+        "disconnect() called before a handler was registered by core",
+      );
+      return;
+    }
+    this._logger.debug("Disconnecting session via core handler");
+    await this._disconnectHandler();
   }
 
   getLogger(tag: string): ProviderLogger {

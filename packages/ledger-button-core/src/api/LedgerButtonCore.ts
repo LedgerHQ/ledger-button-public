@@ -112,6 +112,7 @@ export class LedgerButtonCore {
       loggerModuleTypes.LoggerPublisher,
     );
     this._logger = loggerFactory("Ledger Button Core");
+
     this._modalService = this.container.get<ModalService>(
       modalModuleTypes.ModalService,
     );
@@ -121,7 +122,7 @@ export class LedgerButtonCore {
 
   private async initializeContext() {
     this._logger.debug("Initializing context");
-
+    console.log("Initializing context");
     //Fetch dApp config that will be used later for fetching supported blockchains/referral url/etc.
     await this.container
       .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
@@ -133,6 +134,8 @@ export class LedgerButtonCore {
       )
       .execute();
 
+    console.log("dappConfigv2", dappConfig);
+
     //TODO throw error if dApp config is not found ?
     // Migrate database to latest version
     await this.container
@@ -142,6 +145,11 @@ export class LedgerButtonCore {
     const coreFacade = this.container.get<CoreFacadeService>(
       blockchainProviderModuleTypes.CoreFacadeService,
     );
+
+    // Session teardown is owned by core; expose it to the facade so a provider
+    // (e.g. EIP-1193 `disconnect`) can trigger a full disconnect through the port.
+    coreFacade.setDisconnectHandler(() => this.disconnect());
+
     this.container
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
