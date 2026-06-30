@@ -1,6 +1,7 @@
-import { Right } from "purify-ts";
+import { Just, Nothing, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { STORAGE_KEYS } from "../../model/constant.js";
 import {
   createMigrateDbUseCase,
   createMockKeyPairMigrationService,
@@ -43,6 +44,10 @@ describe("MigrateDbUseCase", () => {
       {
         version: 1,
         migrationFunctionName: "migrateToV2" as const,
+      },
+      {
+        version: 2,
+        migrationFunctionName: "migrateToV3" as const,
       },
     ])(
       "should call ${migrationFunctionName} and migrate to version ${version + 1}",
@@ -100,6 +105,47 @@ describe("MigrateDbUseCase", () => {
       expect(mockLogger.info).toHaveBeenCalledWith(
         "Database migrated to version 2",
       );
+    });
+  });
+
+  describe("migrateToV3", () => {
+    const legacyAccount = {
+      address: "0x1234",
+      currencyId: "ethereum",
+      derivationMode: "",
+      index: 0,
+    };
+
+    it("moves the legacy selected account to the per-family record", async () => {
+      mockStorageService.getItem.mockImplementation((key: string) =>
+        key === STORAGE_KEYS.SELECTED_ACCOUNT ? Just(legacyAccount) : Nothing,
+      );
+
+      await migrateDbUseCase["migrateToV3"]();
+
+      expect(mockStorageService.saveItem).toHaveBeenCalledWith(
+        STORAGE_KEYS.SELECTED_ACCOUNTS,
+        { ethereum: legacyAccount },
+      );
+      expect(mockStorageService.removeItem).toHaveBeenCalledWith(
+        STORAGE_KEYS.SELECTED_ACCOUNT,
+      );
+      expect(mockStorageService.setDbVersion).toHaveBeenCalledWith(3);
+      expect(mockLogger.info).toHaveBeenCalledWith(
+        "Database migrated to version 3",
+      );
+    });
+
+    it("only drops the legacy key when there is nothing to migrate", async () => {
+      mockStorageService.getItem.mockReturnValue(Nothing);
+
+      await migrateDbUseCase["migrateToV3"]();
+
+      expect(mockStorageService.saveItem).not.toHaveBeenCalled();
+      expect(mockStorageService.removeItem).toHaveBeenCalledWith(
+        STORAGE_KEYS.SELECTED_ACCOUNT,
+      );
+      expect(mockStorageService.setDbVersion).toHaveBeenCalledWith(3);
     });
   });
 });

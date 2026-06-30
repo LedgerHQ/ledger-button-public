@@ -1,4 +1,4 @@
-import { Right } from "purify-ts";
+import { Nothing, Right } from "purify-ts";
 import { vi } from "vitest";
 
 import type { StorageService } from "../../StorageService.js";
@@ -10,6 +10,8 @@ export const mockKeyPairBuffer = new Uint8Array([1, 2, 3]);
 export const createMockStorageService = () => ({
   getDbVersion: vi.fn(),
   setDbVersion: vi.fn().mockResolvedValue(Right(undefined)),
+  getItem: vi.fn().mockReturnValue(Nothing),
+  saveItem: vi.fn(),
   removeItem: vi.fn(),
   getKeyPair: vi.fn().mockResolvedValue(Right(mockKeyPairBuffer)),
 });

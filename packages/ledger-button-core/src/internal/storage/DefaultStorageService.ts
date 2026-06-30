@@ -7,9 +7,6 @@ import { StorageIDBErrors } from "./model/errors.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import {
-  DEFAULT_BLOCKCHAIN_FAMILY,
-} from "../../api/model/ButtonCoreContext.js";
 import { type Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
@@ -114,15 +111,6 @@ export class DefaultStorageService implements StorageService {
     ).orDefault({});
     for (const [family, dbModel] of Object.entries(stored)) {
       accounts.set(family as BlockchainFamily, this.toAccount(dbModel));
-    }
-
-    // Backward-compat: migrate the legacy single-account key to the default
-    // family if no per-family entry exists for it yet.
-    if (!accounts.has(DEFAULT_BLOCKCHAIN_FAMILY)) {
-      this.getItem<AccountDbModel>(STORAGE_KEYS.SELECTED_ACCOUNT).ifJust(
-        (dbModel) =>
-          accounts.set(DEFAULT_BLOCKCHAIN_FAMILY, this.toAccount(dbModel)),
-      );
     }
 
     return accounts;
