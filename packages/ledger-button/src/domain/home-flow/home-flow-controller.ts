@@ -41,7 +41,7 @@ export class HomeFlowController implements ReactiveController {
       .subscribe((context) => {
         if (context.hasTrackingConsent === undefined) {
           this.state = "consent-analytics";
-        } else if (context.selectedAccount) {
+        } else if (context.selectedAccounts.get("ethereum")) {
           this.state = "ledger-home";
         } else {
           this.navigation.navigateTo(this.destinations.onboardingFlow);
