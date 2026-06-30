@@ -1,15 +1,15 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Maybe } from "purify-ts";
 
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
-import type { Account } from "../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { DAppConfigV2 } from "../../dAppConfig/v2/model/dAppConfigV2Types.js";
-import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
+import type { Account } from "../../../internal/account/service/AccountService.js";
+import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
+import type { ContextService } from "../../../internal/context/ContextService.js";
+import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
+import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
+import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
+import { SolanaBlockchainProvider } from "../../../internal/solana-provider/SolanaBlockchainProvider.js";
+import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig.js";
 import type { BlockchainProvider } from "../model/BlockchainProvider.js";
 import type { CoreFacade } from "../model/CoreFacade.js";
 import type { BlockchainFamily } from "../model/types.js";

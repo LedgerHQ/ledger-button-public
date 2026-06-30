@@ -1,9 +1,9 @@
 import { ethers, Signature } from "ethers";
 import { inject, injectable } from "inversify";
 
+import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import type { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
 import { SignedResults } from "../../../../api/model/signing/SignedTransaction.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getCurrencyIdFromChainId } from "../utils/chainUtils.js";

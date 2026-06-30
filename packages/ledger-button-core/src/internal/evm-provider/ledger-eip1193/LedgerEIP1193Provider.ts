@@ -25,6 +25,8 @@ import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
 import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
 import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
 import { isSupportedChainId } from "./utils/supportedChains.js";
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import {
   BlindSigningDisabledError,
   IncorrectSeedError,
@@ -59,8 +61,6 @@ import type { SignRawTransactionParams } from "../../../api/model/signing/SignRa
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
-import type { CoreFacade } from "../../blockchain-provider/model/CoreFacade.js";
-import type { BlockchainFamily } from "../../blockchain-provider/model/types.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;

@@ -3,7 +3,7 @@ import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 import type {
   BlockchainFamily,
   WalletProvider,
-} from "../blockchain-provider/model/types.js";
+} from "../../api/blockchain-provider/model/types.js";
 
 /**
  * Solana {@link WalletProvider}: registers the {@link LedgerSolanaWallet} via

@@ -1,4 +1,4 @@
-import type { BlockchainFamily } from "../../blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 
 /**
  * Resolve the Coin Service network slug for a given `currencyId`.

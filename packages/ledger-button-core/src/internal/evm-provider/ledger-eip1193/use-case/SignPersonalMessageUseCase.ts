@@ -8,6 +8,7 @@ import {
 import { inject, injectable } from "inversify";
 import { map, type Observable, of, switchMap } from "rxjs";
 
+import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import { DeviceOutOfMemoryError } from "../../../../api/errors/DeviceErrors.js";
 import {
   AccountNotSelectedError,
@@ -21,7 +22,6 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../../api/model/signing/SignPersonalMessageParams.js";
-import type { CoreFacade } from "../../../blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction.js";
 import type {

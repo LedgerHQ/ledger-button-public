@@ -1,5 +1,5 @@
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { ProviderAccount } from "../../model/blockchain/ProviderAccount.js";
+import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig.js";
 import type { BlockchainFamily } from "./types.js";
 
 /**
