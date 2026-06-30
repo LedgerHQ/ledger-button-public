@@ -19,19 +19,23 @@ vi.mock("../../../internal/evm-provider/EvmBlockchainProvider.js", () => ({
   })),
 }));
 
-vi.mock("../../../internal/solana-provider/SolanaBlockchainProvider.js", () => ({
-  SolanaBlockchainProvider: vi.fn().mockImplementation(() => ({
-    family: "solana",
-    injectWalletProviders: vi.fn(),
-    setSelectedAccount: vi.fn(),
-    setNetwork: vi.fn(),
-  })),
-}));
+vi.mock(
+  "../../../internal/solana-provider/SolanaBlockchainProvider.js",
+  () => ({
+    SolanaBlockchainProvider: vi.fn().mockImplementation(() => ({
+      family: "solana",
+      injectWalletProviders: vi.fn(),
+      setSelectedAccount: vi.fn(),
+      setNetwork: vi.fn(),
+    })),
+  }),
+);
 
 const evmConfig: BlockchainConfig = {
   blockchain: "ethereum",
   appName: "Ethereum",
   networks: [],
+  rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "Ethereum", dependencies: [] },
 };
 
@@ -39,6 +43,7 @@ const solanaConfig: BlockchainConfig = {
   blockchain: "solana",
   appName: "Solana",
   networks: [],
+  rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "Solana", dependencies: [] },
 };
 

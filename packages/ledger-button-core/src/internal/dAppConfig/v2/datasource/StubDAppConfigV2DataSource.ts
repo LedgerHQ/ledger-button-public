@@ -96,6 +96,16 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
         },
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
+        },
       },
       {
         blockchain: "solana",
@@ -104,6 +114,16 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
         appDependencies: {
           appName: "Solana",
           dependencies: ["Solana"],
+        },
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
         },
       },
     ],
@@ -145,6 +165,16 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
           dependencies: ["1inch", "Solana"],
           minVersion: ">=1.0.0",
         },
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
+        },
       },
     ],
     featureFlags: {},
@@ -164,6 +194,16 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
         },
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
+        },
       },
     ],
     featureFlags: {},
@@ -182,6 +222,16 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
         appDependencies: {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
+        },
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
         },
       },
     ],

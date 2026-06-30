@@ -29,6 +29,7 @@ const createMockBlockchainConfig = (): BlockchainConfig => ({
   blockchain: "solana",
   appName: "Solana",
   networks: [],
+  rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "Solana", dependencies: [] },
 });
 

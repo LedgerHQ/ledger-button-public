@@ -28,6 +28,6 @@ export type BlockchainConfig = {
   blockchain: string;
   appName: string;
   networks: BlockchainNetwork[];
-  rpcMethods?: BlockchainRpcMethods;
+  rpcMethods: BlockchainRpcMethods;
   appDependencies: BlockchainAppDependencies;
 };
