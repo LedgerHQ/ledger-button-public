@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import { getSelectedAccount } from "../../../../../api/model/ButtonCoreContext.js";
 import type { JSONRPCRequest } from "../../../../../api/model/eip/EIPTypes.js";
 import {
   SolanaJSONRPCRequest,
@@ -68,7 +69,10 @@ export class SolanaRemoteDatasource {
   }
 
   private resolveCluster(): string {
-    const selectedAccount = this.contextService.getContext().selectedAccount;
+    const selectedAccount = getSelectedAccount(
+      this.contextService.getContext(),
+      "solana",
+    );
     if (selectedAccount?.currencyId) {
       return getClusterFromCurrencyId(selectedAccount.currencyId);
     }

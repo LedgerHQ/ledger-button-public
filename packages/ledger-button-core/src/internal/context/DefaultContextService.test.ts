@@ -74,7 +74,7 @@ describe("DefaultContextService", () => {
 
       expect(context).toEqual({
         connectedDevice: undefined,
-        selectedAccount: undefined,
+        selectedAccounts: new Map(),
         trustChainId: undefined,
         applicationPath: undefined,
         chainId: 1,
@@ -106,7 +106,7 @@ describe("DefaultContextService", () => {
         eventArgs: {
           context: {
             connectedDevice: mockDevice,
-            selectedAccount: mockAccount,
+            selectedAccounts: new Map([["ethereum", mockAccount]]),
             trustChainId: mockTrustchain.trustChainId,
             applicationPath: mockTrustchain.applicationPath,
             chainId: 137,
@@ -118,7 +118,7 @@ describe("DefaultContextService", () => {
         },
         expectedContext: {
           connectedDevice: mockDevice,
-          selectedAccount: mockAccount,
+          selectedAccounts: new Map([["ethereum", mockAccount]]),
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 137,
@@ -133,7 +133,7 @@ describe("DefaultContextService", () => {
         eventArgs: { chainId: 42161 },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: 42161,
@@ -145,10 +145,10 @@ describe("DefaultContextService", () => {
       },
       {
         eventType: "account_changed",
-        eventArgs: { account: mockAccountPolygon },
+        eventArgs: { account: mockAccountPolygon, family: "ethereum" },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: mockAccountPolygon,
+          selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.polygon,
@@ -163,7 +163,7 @@ describe("DefaultContextService", () => {
         eventArgs: { account: mockAccountPolygon },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: mockAccountPolygon,
+          selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.polygon,
@@ -178,7 +178,7 @@ describe("DefaultContextService", () => {
         eventArgs: { device: mockDevice },
         expectedContext: {
           connectedDevice: mockDevice,
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: 1,
@@ -199,11 +199,12 @@ describe("DefaultContextService", () => {
           service.onEvent({
             type: "account_changed",
             account: mockAccount,
+            family: "ethereum",
           });
         },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: mockAccount,
+          selectedAccounts: new Map([["ethereum", mockAccount]]),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.ethereum,
@@ -221,7 +222,7 @@ describe("DefaultContextService", () => {
         },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 1,
@@ -239,7 +240,7 @@ describe("DefaultContextService", () => {
             type: "initialize_context",
             context: {
               connectedDevice: mockDevice,
-              selectedAccount: mockAccount,
+              selectedAccounts: new Map([["ethereum", mockAccount]]),
               trustChainId: mockTrustchain.trustChainId,
               applicationPath: mockTrustchain.applicationPath,
               chainId: 137,
@@ -251,7 +252,7 @@ describe("DefaultContextService", () => {
           });
         },
         expectedContext: {
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: undefined,
           connectedDevice: undefined,
           applicationPath: undefined,

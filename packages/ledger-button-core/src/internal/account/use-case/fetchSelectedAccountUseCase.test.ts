@@ -146,7 +146,7 @@ describe("FetchSelectedAccountUseCase", () => {
     describe("when no account is selected in context", () => {
       it("should return Left with NoSelectedAccountError", async () => {
         mockContextService.getContext.mockReturnValue({
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
         });
 
         const result = await useCase.execute();
@@ -163,7 +163,7 @@ describe("FetchSelectedAccountUseCase", () => {
     describe("when selected account is not found in Ledger Sync accounts", () => {
       it("should return Left with AccountNotFoundError", async () => {
         mockContextService.getContext.mockReturnValue({
-          selectedAccount: baseAccount,
+          selectedAccounts: new Map([["ethereum", baseAccount]]),
         });
         mockFetchAccountsUseCase.execute.mockResolvedValue([]);
 
@@ -185,7 +185,7 @@ describe("FetchSelectedAccountUseCase", () => {
     describe("when account is found and hydration succeeds", () => {
       beforeEach(() => {
         mockContextService.getContext.mockReturnValue({
-          selectedAccount: baseAccount,
+          selectedAccounts: new Map([["ethereum", baseAccount]]),
         });
         mockFetchAccountsUseCase.execute.mockResolvedValue([baseAccount]);
         mockHydrateWithBalanceUseCase.execute.mockResolvedValue({
@@ -270,7 +270,7 @@ describe("FetchSelectedAccountUseCase", () => {
     describe("when hydration partially fails", () => {
       beforeEach(() => {
         mockContextService.getContext.mockReturnValue({
-          selectedAccount: baseAccount,
+          selectedAccounts: new Map([["ethereum", baseAccount]]),
         });
         mockFetchAccountsUseCase.execute.mockResolvedValue([baseAccount]);
       });
@@ -337,7 +337,7 @@ describe("FetchSelectedAccountUseCase", () => {
         };
 
         mockContextService.getContext.mockReturnValue({
-          selectedAccount: baseAccount,
+          selectedAccounts: new Map([["ethereum", baseAccount]]),
         });
         mockFetchAccountsUseCase.execute.mockResolvedValue([
           baseAccount,
@@ -381,7 +381,7 @@ describe("FetchSelectedAccountUseCase", () => {
     describe("execution flow verification", () => {
       it("should call all hydration use cases for the same account address", async () => {
         mockContextService.getContext.mockReturnValue({
-          selectedAccount: baseAccount,
+          selectedAccounts: new Map([["ethereum", baseAccount]]),
         });
         mockFetchAccountsUseCase.execute.mockResolvedValue([baseAccount]);
         mockHydrateWithBalanceUseCase.execute.mockResolvedValue(baseAccount);

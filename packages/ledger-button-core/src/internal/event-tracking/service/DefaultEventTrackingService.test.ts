@@ -53,7 +53,7 @@ describe("DefaultEventTrackingService", () => {
     overrides: Partial<ButtonCoreContext> = {},
   ): ButtonCoreContext => ({
     connectedDevice: undefined,
-    selectedAccount: undefined,
+    selectedAccounts: new Map(),
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,

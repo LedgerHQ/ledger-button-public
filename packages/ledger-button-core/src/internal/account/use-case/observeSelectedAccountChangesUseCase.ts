@@ -8,6 +8,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
@@ -33,14 +34,17 @@ export class ObserveSelectedAccountChangesUseCase {
 
   execute(): Observable<DetailedAccount | undefined> {
     return this.contextService.observeContext().pipe(
-      distinctUntilChanged(
-        (a, b) =>
-          a.selectedAccount?.freshAddress === b.selectedAccount?.freshAddress &&
-          a.selectedAccount?.currencyId === b.selectedAccount?.currencyId &&
-          a.preferredFiatCurrency === b.preferredFiatCurrency,
-      ),
+      distinctUntilChanged((a, b) => {
+        const prev = getSelectedAccount(a);
+        const next = getSelectedAccount(b);
+        return (
+          prev?.freshAddress === next?.freshAddress &&
+          prev?.currencyId === next?.currencyId &&
+          a.preferredFiatCurrency === b.preferredFiatCurrency
+        );
+      }),
       switchMap((ctx) => {
-        if (!ctx.selectedAccount) return of(undefined);
+        if (!getSelectedAccount(ctx)) return of(undefined);
         this.logger.debug(
           "Selected account or currency changed, fetching details",
         );

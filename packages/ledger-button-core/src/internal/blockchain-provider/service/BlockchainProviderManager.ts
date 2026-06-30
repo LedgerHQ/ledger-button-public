@@ -7,7 +7,11 @@ import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppCon
 
 export interface BlockchainProviderManager {
   init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void;
-  setSelectedAccount(account: Account | undefined): void;
+  /**
+   * Push the selected account of each blockchain family to its provider. A
+   * provider whose family is absent from the map receives `undefined` (cleared).
+   */
+  setSelectedAccounts(accounts: Map<BlockchainFamily, Account>): void;
   setNetwork(chainId: number): void;
   /**
    * Resolve the {@link BlockchainFamily} a `currencyId` belongs to by asking the

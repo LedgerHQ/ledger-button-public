@@ -93,7 +93,7 @@ describe("DefaultTransactionHistoryDataSource", () => {
 
     mockBlockchainProviderManager = {
       init: vi.fn(),
-      setSelectedAccount: vi.fn(),
+      setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
       resolveBlockchainFamily: vi.fn(resolveFamilyForTest),
     };

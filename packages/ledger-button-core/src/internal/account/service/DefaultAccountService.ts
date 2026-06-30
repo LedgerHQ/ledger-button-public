@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
 import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
 import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
@@ -41,14 +42,15 @@ export class DefaultAccountService implements AccountService {
     this.setAccounts(mappedAccounts);
   }
 
-  selectAccount(account: Account): void {
+  selectAccount(account: Account, family: BlockchainFamily): void {
     const found = this.accounts.find((acc) => acc.id === account.id);
 
     if (found) {
       this.logger.info("Account selected, saving to storage", {
         account: found,
+        family,
       });
-      this.storageService.saveSelectedAccount(found);
+      this.storageService.saveSelectedAccount(found, family);
     }
   }
 

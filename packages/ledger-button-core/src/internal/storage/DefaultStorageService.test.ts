@@ -344,36 +344,52 @@ describe("DefaultStorageService", () => {
 
   describe("Selected Account methods", () => {
     describe("saveSelectedAccount", () => {
-      it("should be able to save and get a selected account", () => {
+      it("should be able to save and get a selected account per family", () => {
         const mockAccount = {
           id: "test-account",
           name: "Test Account",
         } as Account;
-        storageService.saveSelectedAccount(mockAccount);
-        expect(storageService.getSelectedAccount()).toEqual(
-          Maybe.of({
-            id: "",
-            name: "",
-            currencyId: undefined,
-            freshAddress: undefined,
-            seedIdentifier: "",
-            derivationMode: undefined,
-            index: undefined,
-            ticker: "",
-            balance: "",
-            tokens: [],
-          }),
+        storageService.saveSelectedAccount(mockAccount, "ethereum");
+        expect(storageService.getSelectedAccounts()).toEqual(
+          new Map([
+            [
+              "ethereum",
+              {
+                id: "",
+                name: "",
+                currencyId: undefined,
+                freshAddress: undefined,
+                seedIdentifier: "",
+                derivationMode: undefined,
+                index: undefined,
+                ticker: "",
+                balance: "",
+                tokens: [],
+              },
+            ],
+          ]),
         );
       });
 
-      it("should be able to remove a selected account", () => {
+      it("should keep a separate selection per family", () => {
+        const evmAccount = { id: "evm", currencyId: "ethereum" } as Account;
+        const solanaAccount = { id: "sol", currencyId: "solana" } as Account;
+        storageService.saveSelectedAccount(evmAccount, "ethereum");
+        storageService.saveSelectedAccount(solanaAccount, "solana");
+
+        const accounts = storageService.getSelectedAccounts();
+        expect(accounts.get("ethereum")?.currencyId).toBe("ethereum");
+        expect(accounts.get("solana")?.currencyId).toBe("solana");
+      });
+
+      it("should be able to remove the selected accounts", () => {
         const mockAccount = {
           id: "test-account",
           name: "Test Account",
         } as Account;
-        storageService.saveSelectedAccount(mockAccount);
-        storageService.removeSelectedAccount();
-        expect(storageService.getSelectedAccount()).toBe(Nothing);
+        storageService.saveSelectedAccount(mockAccount, "ethereum");
+        storageService.removeSelectedAccounts();
+        expect(storageService.getSelectedAccounts().size).toBe(0);
       });
 
       it("should handle complex account objects", () => {
@@ -390,22 +406,19 @@ describe("DefaultStorageService", () => {
           tokens: [],
         } as Account;
 
-        storageService.saveSelectedAccount(complexAccount);
-        const retrieved = storageService.getSelectedAccount();
-        expect(retrieved).toEqual(
-          Maybe.of({
-            id: "",
-            name: "",
-            index: 0,
-            balance: "",
-            tokens: [],
-            currencyId: "BTC",
-            freshAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
-            seedIdentifier: "",
-            ticker: "",
-            derivationMode: "44'/0'/0'",
-          }),
-        );
+        storageService.saveSelectedAccount(complexAccount, "ethereum");
+        expect(storageService.getSelectedAccounts().get("ethereum")).toEqual({
+          id: "",
+          name: "",
+          index: 0,
+          balance: "",
+          tokens: [],
+          currencyId: "BTC",
+          freshAddress: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+          seedIdentifier: "",
+          ticker: "",
+          derivationMode: "44'/0'/0'",
+        });
       });
     });
   });

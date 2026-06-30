@@ -64,24 +64,29 @@ const createMockDAppConfig = (): DAppConfigV2 =>
 const createMockContextService = (
   account?: Account,
   chainId = 1,
-): ContextService =>
-  ({
-    getContext: vi.fn().mockReturnValue({ selectedAccount: account, chainId }),
+): ContextService => {
+  const selectedAccounts = new Map<string, Account>();
+  if (account) {
+    selectedAccounts.set("ethereum", account);
+  }
+  return {
+    getContext: vi.fn().mockReturnValue({ selectedAccounts, chainId }),
     observeContext: vi.fn().mockReturnValue({
       subscribe: vi.fn(
         (
           cb: (ctx: {
-            selectedAccount: Account | undefined;
+            selectedAccounts: Map<string, Account>;
             chainId: number;
           }) => void,
         ) => {
-          cb({ selectedAccount: account, chainId });
+          cb({ selectedAccounts, chainId });
         },
       ),
     }),
     onEvent: vi.fn(),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }) as any;
+  } as any;
+};
 
 describe("DefaultBlockchainProviderManager", () => {
   let manager: DefaultBlockchainProviderManager;
@@ -144,15 +149,23 @@ describe("DefaultBlockchainProviderManager", () => {
     });
   });
 
-  describe("setSelectedAccount()", () => {
-    it("fans out to every provider", () => {
+  describe("setSelectedAccounts()", () => {
+    it("fans out the per-family account to each provider", () => {
       manager.init(core, dappConfig);
 
-      const account = { currencyId: "ethereum" } as Account;
-      manager.setSelectedAccount(account);
+      const evmAccount = { currencyId: "ethereum" } as Account;
+      const solanaAccount = { currencyId: "solana" } as Account;
+      manager.setSelectedAccounts(
+        new Map([
+          ["ethereum", evmAccount],
+          ["solana", solanaAccount],
+        ]),
+      );
 
-      expect(evmInstance().setSelectedAccount).toHaveBeenCalledWith(account);
-      expect(solanaInstance().setSelectedAccount).toHaveBeenCalledWith(account);
+      expect(evmInstance().setSelectedAccount).toHaveBeenCalledWith(evmAccount);
+      expect(solanaInstance().setSelectedAccount).toHaveBeenCalledWith(
+        solanaAccount,
+      );
     });
   });
 

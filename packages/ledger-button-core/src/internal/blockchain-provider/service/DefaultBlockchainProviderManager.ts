@@ -57,7 +57,7 @@ export class DefaultBlockchainProviderManager
       provider.injectWalletProviders();
     }
     this.contextService.observeContext().subscribe((context) => {
-      this.setSelectedAccount(context.selectedAccount);
+      this.setSelectedAccounts(context.selectedAccounts);
       this.setNetwork(context.chainId);
     });
   }
@@ -72,11 +72,9 @@ export class DefaultBlockchainProviderManager
     );
   }
 
-  // @todo: this should be filtered by BlockchainFamily
-  // We should forward account change only for the target blockchain
-  setSelectedAccount(account: Account | undefined): void {
+  setSelectedAccounts(accounts: Map<BlockchainFamily, Account>): void {
     for (const provider of this.providers.values()) {
-      provider.setSelectedAccount(account);
+      provider.setSelectedAccount(accounts.get(provider.family));
     }
   }
 

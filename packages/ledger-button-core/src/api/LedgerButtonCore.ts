@@ -2,8 +2,15 @@ import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
 import { Observable, Subscription, tap } from "rxjs";
 
-import type { WalletNavigationIntent } from "./blockchain-provider/model/types.js";
-import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
+import type {
+  BlockchainFamily,
+  WalletNavigationIntent,
+} from "./blockchain-provider/model/types.js";
+import {
+  ButtonCoreContext,
+  DEFAULT_BLOCKCHAIN_FAMILY,
+  getSelectedAccount,
+} from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
 import {
   AuthContext,
@@ -150,17 +157,16 @@ export class LedgerButtonCore {
     // (e.g. EIP-1193 `disconnect`) can trigger a full disconnect through the port.
     coreFacade.setDisconnectHandler(() => this.disconnect());
 
-    this.container
-      .get<BlockchainProviderManager>(
+    const blockchainProviderManager =
+      this.container.get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
-      )
-      .init(coreFacade, dappConfig);
+      );
+    blockchainProviderManager.init(coreFacade, dappConfig);
 
-    // Restore selected account from storage
-    const selectedAccount = this.container
+    // Restore selected accounts (one per blockchain family) from storage
+    const selectedAccounts = this.container
       .get<StorageService>(storageModuleTypes.StorageService)
-      .getSelectedAccount()
-      .extract();
+      .getSelectedAccounts();
 
     // Restore trust chain id from storage
     const trustChainId = this.container
@@ -177,8 +183,14 @@ export class LedgerButtonCore {
       await this.disconnect();
     }
 
-    const chainId = selectedAccount
-      ? getChainIdFromCurrencyId(selectedAccount.currencyId)
+    const restoredAccounts = isTrustChainValid
+      ? selectedAccounts
+      : new Map<BlockchainFamily, Account>();
+
+    // chainId tracks the default (ethereum) selection.
+    const defaultAccount = restoredAccounts.get(DEFAULT_BLOCKCHAIN_FAMILY);
+    const chainId = defaultAccount
+      ? getChainIdFromCurrencyId(defaultAccount.currencyId)
       : 1;
 
     const welcomeScreenCompleted = await this.container
@@ -204,7 +216,7 @@ export class LedgerButtonCore {
       type: "initialize_context",
       context: {
         connectedDevice: undefined,
-        selectedAccount: isTrustChainValid ? selectedAccount : undefined,
+        selectedAccounts: restoredAccounts,
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
         chainId: chainId,
@@ -214,6 +226,10 @@ export class LedgerButtonCore {
         preferredFiatCurrency,
       },
     });
+
+    // Attach the restored selection to the blockchain providers so a returning
+    // session is wired up without waiting for a fresh account selection.
+    blockchainProviderManager.setSelectedAccounts(restoredAccounts);
 
     this.container.get<PendingTransactionController>(
       pendingTransactionModuleTypes.PendingTransactionController,
@@ -356,13 +372,16 @@ export class LedgerButtonCore {
   }
 
   selectAccount(account: Account) {
+    const family = this.resolveBlockchainFamily(account.currencyId);
+
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
-      .selectAccount(account);
+      .selectAccount(account, family);
 
     this._contextService.onEvent({
       type: "account_changed",
       account,
+      family,
     });
 
     this.container
@@ -370,8 +389,18 @@ export class LedgerButtonCore {
       .execute(account);
   }
 
-  getSelectedAccount() {
-    return this._contextService.getContext().selectedAccount;
+  /** Default (ethereum) selected account, or for a specific `family`. */
+  getSelectedAccount(family: BlockchainFamily = DEFAULT_BLOCKCHAIN_FAMILY) {
+    return getSelectedAccount(this._contextService.getContext(), family);
+  }
+
+  private resolveBlockchainFamily(currencyId: string): BlockchainFamily {
+    return this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .resolveBlockchainFamily(currencyId)
+      .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
   }
 
   // Device methods
