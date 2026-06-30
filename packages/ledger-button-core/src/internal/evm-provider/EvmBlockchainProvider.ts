@@ -24,7 +24,7 @@ import { EvmWalletProvider } from "./EvmWalletProvider.js";
  * this package is required, which keeps the module a candidate for extraction.
  */
 export class EvmBlockchainProvider implements BlockchainProvider {
-  public readonly family: BlockchainFamily = "evm";
+  public readonly family: BlockchainFamily = "ethereum";
 
   private readonly container: Container;
   private eip1193Provider?: LedgerEIP1193Provider;

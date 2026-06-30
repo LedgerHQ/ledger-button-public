@@ -62,7 +62,7 @@ const EVM_CURRENCIES = new Set(["ethereum", "polygon"]);
 const SOLANA_CURRENCIES = new Set(["solana"]);
 
 function resolveFamilyForTest(currencyId: string): Maybe<BlockchainFamily> {
-  if (EVM_CURRENCIES.has(currencyId)) return Maybe.of("evm");
+  if (EVM_CURRENCIES.has(currencyId)) return Maybe.of("ethereum");
   if (SOLANA_CURRENCIES.has(currencyId)) return Maybe.of("solana");
   return Maybe.empty();
 }

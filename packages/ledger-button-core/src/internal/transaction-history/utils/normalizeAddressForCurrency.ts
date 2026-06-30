@@ -14,5 +14,5 @@ export function normalizeAddressForCurrency(
   address: string,
   family: BlockchainFamily | undefined,
 ): string {
-  return family === "evm" ? address.toLowerCase() : address;
+  return family === "ethereum" ? address.toLowerCase() : address;
 }

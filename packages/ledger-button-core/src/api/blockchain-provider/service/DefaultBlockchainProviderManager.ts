@@ -39,8 +39,9 @@ export class DefaultBlockchainProviderManager
 
   init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void {
     const providers: BlockchainProvider[] = [];
-
-    const evmConfig = this.getBlockchainConfig(dappConfig, "evm");
+    console.log("Initializing blockchain providers");
+    const evmConfig = this.getBlockchainConfig(dappConfig, "ethereum");
+    console.log("evmConfig", evmConfig);
     if (evmConfig) {
       providers.push(new EvmBlockchainProvider(coreFacade, evmConfig));
     }

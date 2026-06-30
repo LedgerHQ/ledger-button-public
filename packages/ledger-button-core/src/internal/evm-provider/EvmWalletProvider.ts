@@ -21,7 +21,7 @@ const LEDGER_ICON_BLACK =
  * {@link EvmBlockchainProvider} and announces it to dApps.
  */
 export class EvmWalletProvider implements WalletProvider {
-  public readonly family: BlockchainFamily = "evm";
+  public readonly family: BlockchainFamily = "ethereum";
 
   constructor(private readonly eip1193Provider: EIP1193Provider) {}
 

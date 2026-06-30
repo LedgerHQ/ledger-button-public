@@ -16,7 +16,7 @@ vi.mock("./ledger-eip1193/LedgerEIP1193Provider.js", () => ({
 
 vi.mock("./EvmWalletProvider.js", () => ({
   EvmWalletProvider: vi.fn().mockImplementation(() => ({
-    family: "evm",
+    family: "ethereum",
     init: vi.fn(() => vi.fn()),
   })),
 }));
@@ -52,7 +52,7 @@ vi.mock("./evmProviderModule.js", async () => {
 const createMockBlockchainConfig = (
   rpcMethods?: BlockchainConfig["rpcMethods"],
 ): BlockchainConfig => ({
-  blockchain: "evm",
+  blockchain: "ethereum",
   appName: "Ethereum",
   networks: [],
   rpcMethods,
@@ -71,8 +71,8 @@ describe("EvmBlockchainProvider", () => {
     provider = new EvmBlockchainProvider(core, dappConfig);
   });
 
-  test('family is "evm"', () => {
-    expect(provider.family).toBe("evm");
+  test('family is "ethereum"', () => {
+    expect(provider.family).toBe("ethereum");
   });
 
   describe("injectWalletProviders()", () => {

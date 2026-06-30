@@ -4,8 +4,8 @@ import { resolveNetworkSlug } from "./resolveNetworkSlug.js";
 
 describe("resolveNetworkSlug", () => {
   it("resolves a currency handled by an EVM provider to its slug", () => {
-    expect(resolveNetworkSlug("ethereum", "evm")).toBe("ethereum");
-    expect(resolveNetworkSlug("polygon", "evm")).toBe("polygon");
+    expect(resolveNetworkSlug("ethereum", "ethereum")).toBe("ethereum");
+    expect(resolveNetworkSlug("polygon", "ethereum")).toBe("polygon");
   });
 
   it("resolves a currency handled by a Solana provider to its slug", () => {
