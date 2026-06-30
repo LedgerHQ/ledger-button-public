@@ -3,7 +3,6 @@ import { Container } from "inversify";
 import { accountModuleFactory } from "./account/accountModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
 import { balanceModuleFactory } from "./balance/balanceModule.js";
-import { blockchainProviderModuleFactory } from "./blockchain-provider/blockchainProviderModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { consentModuleFactory } from "./consent/consentModule.js";
@@ -24,6 +23,7 @@ import { platformModuleFactory } from "./platform/platformModule.js";
 import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
+import { blockchainProviderModuleFactory } from "../api/blockchain-provider/blockchainProviderModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({

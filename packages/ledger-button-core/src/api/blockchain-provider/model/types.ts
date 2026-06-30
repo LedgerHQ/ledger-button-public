@@ -1,12 +1,12 @@
 import type { DeviceManagementKit } from "@ledgerhq/device-management-kit";
 import type { Observable } from "rxjs";
 
-import type { SignedResults } from "../../../api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
-import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import type { SignedResults } from "../../model/signing/SignedTransaction.js";
+import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
+import type { SignPersonalMessageParams } from "../../model/signing/SignPersonalMessageParams.js";
+import type { SignRawTransactionParams } from "../../model/signing/SignRawTransactionParams.js";
+import type { SignTransactionParams } from "../../model/signing/SignTransactionParams.js";
+import type { SignTypedMessageParams } from "../../model/signing/SignTypedMessageParams.js";
 
 /**
  * Blockchain family supported by the wallet provider layer.

@@ -2,6 +2,10 @@ import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
 import { Observable, Subscription, tap } from "rxjs";
 
+import { blockchainProviderModuleTypes } from "./blockchain-provider/blockchainProviderModuleTypes.js";
+import type { WalletNavigationIntent } from "./blockchain-provider/model/types.js";
+import type { BlockchainProviderManager } from "./blockchain-provider/service/BlockchainProviderManager.js";
+import { CoreFacadeService } from "./blockchain-provider/service/CoreFacadeService.js";
 import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
 import {
@@ -22,10 +26,6 @@ import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/u
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
-import type { WalletNavigationIntent } from "../internal/blockchain-provider/model/types.js";
-import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";

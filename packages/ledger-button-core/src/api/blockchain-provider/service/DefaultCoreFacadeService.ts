@@ -2,47 +2,47 @@ import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { Subject } from "rxjs";
 
-import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
+import type { Account } from "../../../internal/account/service/AccountService.js";
+import { backendModuleTypes } from "../../../internal/backend/backendModuleTypes.js";
+import type { BackendService } from "../../../internal/backend/BackendService.js";
+import { isJsonRpcResponse } from "../../../internal/backend/types.js";
+import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
+import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
+import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
+import { configModuleTypes } from "../../../internal/config/configModuleTypes.js";
+import type { Config } from "../../../internal/config/model/config.js";
+import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
+import type { ContextService } from "../../../internal/context/ContextService.js";
+import { deviceModuleTypes } from "../../../internal/device/deviceModuleTypes.js";
+import type { DeviceManagementKitService } from "../../../internal/device/service/DeviceManagementKitService.js";
+import { eventTrackingModuleTypes } from "../../../internal/event-tracking/eventTrackingModuleTypes.js";
+import type { TrackTransactionCompleted } from "../../../internal/event-tracking/usecase/TrackTransactionCompleted.js";
+import type { TrackTransactionStarted } from "../../../internal/event-tracking/usecase/TrackTransactionStarted.js";
+import type { TrackTypedMessageCompleted } from "../../../internal/event-tracking/usecase/TrackTypedMessageCompleted.js";
+import type { TrackTypedMessageStarted } from "../../../internal/event-tracking/usecase/TrackTypedMessageStarted.js";
+import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
+import { modalModuleTypes } from "../../../internal/modal/modalModuleTypes.js";
+import type { ModalService } from "../../../internal/modal/service/ModalService.js";
+import { navigationModuleTypes } from "../../../internal/navigation/navigationModuleTypes.js";
+import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
+import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
+import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+import { ModalClosedError } from "../../errors/ProviderErrors.js";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../../api/model/blockchain/GasFee.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
+} from "../../model/blockchain/GasFee.js";
+import type { ProviderLogger } from "../../model/blockchain/ProviderLogger.js";
 import type {
   JSONRPCRequest,
   JsonRpcResponse,
-} from "../../../api/model/eip/EIPTypes.js";
+} from "../../model/eip/EIPTypes.js";
 import {
   isBroadcastedTransactionResult,
   type SignedResults,
-} from "../../../api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { Account } from "../../account/service/AccountService.js";
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
-import type { BackendService } from "../../backend/BackendService.js";
-import { isJsonRpcResponse } from "../../backend/types.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import { getCoinServiceNetworkName } from "../../balance/constants/networkConstants.js";
-import type { CoinServiceDataSource } from "../../balance/datasource/coinService/CoinServiceDataSource.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import type { Config } from "../../config/model/config.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
-import type { TrackTransactionCompleted } from "../../event-tracking/usecase/TrackTransactionCompleted.js";
-import type { TrackTransactionStarted } from "../../event-tracking/usecase/TrackTransactionStarted.js";
-import type { TrackTypedMessageCompleted } from "../../event-tracking/usecase/TrackTypedMessageCompleted.js";
-import type { TrackTypedMessageStarted } from "../../event-tracking/usecase/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../../modal/modalModuleTypes.js";
-import type { ModalService } from "../../modal/service/ModalService.js";
-import { navigationModuleTypes } from "../../navigation/navigationModuleTypes.js";
-import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import { pendingTransactionModuleTypes } from "../../pending-transaction/pendingTransactionModuleTypes.js";
-import type { TrackBroadcastedTransactionUseCase } from "../../pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+} from "../../model/signing/SignedTransaction.js";
+import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
 import { blockchainProviderModuleTypes } from "../blockchainProviderModuleTypes.js";
 import type {
   BlockchainFamily,
