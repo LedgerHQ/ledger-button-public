@@ -23,7 +23,7 @@ import { platformModuleFactory } from "./platform/platformModule.js";
 import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
-import { blockchainProviderModuleFactory } from "../api/blockchain-provider/blockchainProviderModule.js";
+import { blockchainProviderModuleFactory } from "../internal/blockchain-provider/blockchainProviderModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({

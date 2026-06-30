@@ -1,7 +1,7 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "../../../../api/blockchain-provider/__mocks__/coreFacadeMock.js";
+import { createMockCoreFacade } from "../../../../internal/blockchain-provider/__mocks__/coreFacadeMock.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 

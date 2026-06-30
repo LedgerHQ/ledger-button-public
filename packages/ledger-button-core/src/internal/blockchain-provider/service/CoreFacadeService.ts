@@ -1,4 +1,4 @@
-import type { CoreFacade } from "../model/CoreFacade.js";
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 
 /**
  * DI contract for the Corefacade

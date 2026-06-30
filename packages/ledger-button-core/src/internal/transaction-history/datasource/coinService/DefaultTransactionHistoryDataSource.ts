@@ -1,9 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, type Maybe } from "purify-ts";
 
-import { blockchainProviderModuleTypes } from "../../../../api/blockchain-provider/blockchainProviderModuleTypes.js";
 import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import type { BlockchainProviderManager } from "../../../../api/blockchain-provider/service/BlockchainProviderManager.js";
+import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
