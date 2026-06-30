@@ -50,7 +50,7 @@ vi.mock("./evmProviderModule.js", async () => {
 });
 
 const createMockBlockchainConfig = (
-  rpcMethods?: BlockchainConfig["rpcMethods"],
+  rpcMethods: BlockchainConfig["rpcMethods"] = { local: [], broadcasted: [] },
 ): BlockchainConfig => ({
   blockchain: "ethereum",
   appName: "Ethereum",
