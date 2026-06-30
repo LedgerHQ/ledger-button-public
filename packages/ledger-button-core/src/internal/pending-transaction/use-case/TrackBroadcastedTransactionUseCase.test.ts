@@ -45,12 +45,17 @@ function createMockContextService() {
     observeContext: vi.fn(),
     getContext: vi.fn().mockReturnValue({
       chainId: 1,
-      selectedAccount: {
-        freshAddress: "0x1234",
-        currencyId: "ethereum",
-        ticker: "ETH",
-        name: "Ethereum",
-      },
+      selectedAccounts: new Map([
+        [
+          "ethereum",
+          {
+            freshAddress: "0x1234",
+            currencyId: "ethereum",
+            ticker: "ETH",
+            name: "Ethereum",
+          },
+        ],
+      ]),
     }),
     onEvent: vi.fn(),
   };
@@ -202,7 +207,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
   it("should skip when no selected account", async () => {
     mockContextService.getContext.mockReturnValue({
       chainId: 1,
-      selectedAccount: undefined,
+      selectedAccounts: new Map(),
     });
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
@@ -244,12 +249,17 @@ describe("TrackBroadcastedTransactionUseCase", () => {
   it("should format Solana value using default decimals when CAL fails", async () => {
     mockContextService.getContext.mockReturnValue({
       chainId: 1,
-      selectedAccount: {
-        freshAddress: "So1ana1111",
-        currencyId: "solana",
-        ticker: "SOL",
-        name: "Solana",
-      },
+      selectedAccounts: new Map([
+        [
+          "ethereum",
+          {
+            freshAddress: "So1ana1111",
+            currencyId: "solana",
+            ticker: "SOL",
+            name: "Solana",
+          },
+        ],
+      ]),
     });
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Left(new Error("CAL unavailable")),

@@ -13,7 +13,10 @@ export const INDEXED_DB_VERSION = 3;
 
 const LOCAL_STORAGE_KEYS = {
   PREFIX: "ledger-button",
+  /** Legacy single-account key, kept for backward-compatible reads. */
   SELECTED_ACCOUNT: "selectedAccount",
+  /** Per-family selected accounts: Record<BlockchainFamily, AccountDbModel>. */
+  SELECTED_ACCOUNTS: "selectedAccounts",
   TRUST_CHAIN_ID: "trustChainId",
   TRUST_CHAIN_VALIDITY: "trustChainValidity",
   DB_VERSION: "dbVersion",

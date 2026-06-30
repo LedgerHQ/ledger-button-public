@@ -16,6 +16,7 @@ import type {
   ProviderTransactionInfo,
 } from "../../../api/model/blockchain/GasFee.js";
 import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
+import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import type {
   JSONRPCRequest,
   JsonRpcResponse,
@@ -51,8 +52,6 @@ import { navigationModuleTypes } from "../../../internal/navigation/navigationMo
 import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
 import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
-import { blockchainProviderModuleTypes } from "../blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
 @injectable()
@@ -84,8 +83,6 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _trackTypedMessageCompleted: TrackTypedMessageCompleted,
     @inject(pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase)
     private readonly _trackBroadcastedTransaction: TrackBroadcastedTransactionUseCase,
-    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
-    private readonly _blockchainProviderManager: BlockchainProviderManager,
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly _loggerFactory: Factory<LoggerPublisher>,
   ) {
@@ -116,13 +113,11 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   async requestAccount(family: BlockchainFamily): Promise<Account> {
-    const selected = this._contextService.getContext().selectedAccount;
-    if (
-      selected &&
-      this._blockchainProviderManager
-        .resolveBlockchainFamily(selected.currencyId)
-        .extract() === family
-    ) {
+    const selected = getSelectedAccount(
+      this._contextService.getContext(),
+      family,
+    );
+    if (selected) {
       return selected;
     }
 

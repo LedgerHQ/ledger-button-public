@@ -29,7 +29,7 @@ function createMockContext(
 ): ButtonCoreContext {
   return {
     connectedDevice: undefined,
-    selectedAccount: undefined,
+    selectedAccounts: new Map(),
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,

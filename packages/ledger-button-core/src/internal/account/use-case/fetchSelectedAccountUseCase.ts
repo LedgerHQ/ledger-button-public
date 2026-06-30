@@ -7,6 +7,7 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -90,8 +91,9 @@ export class FetchSelectedAccountUseCase {
     Either<AccountError, { selected: Account; allAccounts: Account[] }>
   > {
     const context = this.contextService.getContext();
+    const selectedAccount = getSelectedAccount(context);
 
-    if (!context.selectedAccount) {
+    if (!selectedAccount) {
       return Left(new NoSelectedAccountError());
     }
 
@@ -100,19 +102,19 @@ export class FetchSelectedAccountUseCase {
     const accounts = await this.fetchAccountsUseCase.execute();
     const account = accounts.find(
       (a) =>
-        a.freshAddress === context.selectedAccount?.freshAddress &&
-        a.currencyId === context.selectedAccount?.currencyId,
+        a.freshAddress === selectedAccount.freshAddress &&
+        a.currencyId === selectedAccount.currencyId,
     );
 
     if (!account) {
       this.logger.error("Selected account not found in Ledger Sync accounts", {
-        address: context.selectedAccount?.freshAddress,
+        address: selectedAccount.freshAddress,
       });
 
       return Left(
         new AccountNotFoundError(
           "Selected account not found in Ledger Sync accounts",
-          { address: context.selectedAccount.freshAddress },
+          { address: selectedAccount.freshAddress },
         ),
       );
     }

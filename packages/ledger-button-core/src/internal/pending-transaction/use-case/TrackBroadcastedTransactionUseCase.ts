@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
 import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
@@ -53,11 +54,12 @@ export class TrackBroadcastedTransactionUseCase {
     if (!isBroadcastedTransactionResult(status.data)) return;
 
     const context = this.contextService.getContext();
-    if (!context.selectedAccount) return;
+    const account = getSelectedAccount(context);
+    if (!account) return;
 
     const tx = await this.buildPendingTransaction(
       status.data.hash,
-      context.selectedAccount,
+      account,
       context.chainId,
       params,
     );
