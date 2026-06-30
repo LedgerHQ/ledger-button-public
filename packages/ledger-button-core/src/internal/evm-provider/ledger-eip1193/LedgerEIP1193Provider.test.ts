@@ -210,7 +210,7 @@ describe("LedgerEIP1193Provider", () => {
         params: [],
       });
 
-      expect(host.requestAccount).toHaveBeenCalledWith("evm");
+      expect(host.requestAccount).toHaveBeenCalledWith("ethereum");
       expect(result).toEqual([EVM_ADDRESS]);
     });
   });

@@ -7,7 +7,7 @@ const SOLANA_BASE58_ADDRESS = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM";
 
 describe("normalizeAddressForCurrency", () => {
   it("lowercases EVM addresses", () => {
-    expect(normalizeAddressForCurrency(EVM_MIXED_CASE_ADDRESS, "evm")).toBe(
+    expect(normalizeAddressForCurrency(EVM_MIXED_CASE_ADDRESS, "ethereum")).toBe(
       EVM_MIXED_CASE_ADDRESS.toLowerCase(),
     );
   });

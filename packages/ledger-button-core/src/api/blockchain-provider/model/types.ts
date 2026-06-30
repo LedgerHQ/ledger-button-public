@@ -14,7 +14,7 @@ import type { SignTypedMessageParams } from "../../model/signing/SignTypedMessag
  * Used by the manager to dispatch to the right provider implementation based on
  * the selected account / currency.
  */
-export type BlockchainFamily = "evm" | "solana";
+export type BlockchainFamily = "ethereum" | "solana";
 
 /**
  * Public, blackbox surface of a wallet provider.

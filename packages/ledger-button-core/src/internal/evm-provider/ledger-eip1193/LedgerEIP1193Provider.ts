@@ -27,13 +27,6 @@ import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
 import { isSupportedChainId } from "./utils/supportedChains.js";
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import {
-  BlindSigningDisabledError,
-  IncorrectSeedError,
-  UserRejectedTransactionError,
-} from "../../../api/errors/DeviceErrors.js";
-import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
-import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
 import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
 import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import {
@@ -88,7 +81,7 @@ export class LedgerEIP1193Provider
   extends EventTarget
   implements EIP1193Provider
 {
-  public readonly family: BlockchainFamily = "evm";
+  public readonly family: BlockchainFamily = "ethereum";
   private _isConnected = false;
   private _selectedAccount: ProviderAccount | null = null;
   private _selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
@@ -277,7 +270,7 @@ export class LedgerEIP1193Provider
   }
 
   private async handleRequestAccounts(): Promise<string[]> {
-    const account = await this.host.requestAccount("evm");
+    const account = await this.host.requestAccount("ethereum");
 
     this._isConnected = true;
     this._selectedAccount = account;
@@ -330,25 +323,21 @@ export class LedgerEIP1193Provider
         );
     }
 
-    try {
-      const result = await this.handleBlockchainRequest(
-        signParams,
-        "transaction",
-        runUseCase,
-      );
-      if (isBroadcastedTransactionResult(result)) {
-        return result.hash;
-      }
-      if (isSignedTransactionResult(result)) {
-        return result.signedRawTransaction;
-      }
-      throw this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Unexpected sign result",
-      );
-    } catch (error) {
-      throw this.mapErrors(error);
+    const result = await this.handleBlockchainRequest(
+      signParams,
+      "transaction",
+      runUseCase,
+    );
+    if (isBroadcastedTransactionResult(result)) {
+      return result.hash;
     }
+    if (isSignedTransactionResult(result)) {
+      return result.signedRawTransaction;
+    }
+    throw this.createError(
+      CommonEIP1193ErrorCode.InternalError,
+      "Unexpected sign result",
+    );
   }
 
   private async handleSignTypedData(
@@ -384,26 +373,22 @@ export class LedgerEIP1193Provider
       payload = [params[0] as string, params[1] as TypedData, method];
     }
 
-    try {
-      const result = await this.handleBlockchainRequest(
-        payload,
-        "typed-message",
-        () =>
-          this.deps.signTypedData.execute(
-            payload,
-            this._selectedAccount ?? undefined,
-          ),
-      );
-      if (isSignedMessageOrTypedDataResult(result)) {
-        return result.signature;
-      }
-      throw this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Unexpected sign result",
-      );
-    } catch (error) {
-      throw this.mapErrors(error);
+    const result = await this.handleBlockchainRequest(
+      payload,
+      "typed-message",
+      () =>
+        this.deps.signTypedData.execute(
+          payload,
+          this._selectedAccount ?? undefined,
+        ),
+    );
+    if (isSignedMessageOrTypedDataResult(result)) {
+      return result.signature;
     }
+    throw this.createError(
+      CommonEIP1193ErrorCode.InternalError,
+      "Unexpected sign result",
+    );
   }
 
   private async handleSignPersonalMessage(
@@ -423,26 +408,22 @@ export class LedgerEIP1193Provider
       payload = [params[0] as string, params[1] as string, method];
     }
 
-    try {
-      const result = await this.handleBlockchainRequest(
-        payload,
-        "personal-sign",
-        () =>
-          this.deps.signPersonalMessage.execute(
-            payload,
-            this._selectedAccount ?? undefined,
-          ),
-      );
-      if (isSignedMessageOrTypedDataResult(result)) {
-        return result.signature;
-      }
-      throw this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Unexpected sign result",
-      );
-    } catch (error) {
-      throw this.mapErrors(error);
+    const result = await this.handleBlockchainRequest(
+      payload,
+      "personal-sign",
+      () =>
+        this.deps.signPersonalMessage.execute(
+          payload,
+          this._selectedAccount ?? undefined,
+        ),
+    );
+    if (isSignedMessageOrTypedDataResult(result)) {
+      return result.signature;
     }
+    throw this.createError(
+      CommonEIP1193ErrorCode.InternalError,
+      "Unexpected sign result",
+    );
   }
 
   /**
@@ -452,7 +433,7 @@ export class LedgerEIP1193Provider
    *
    * The promise stays pending across UI retries and only settles when the
    * use-case emits `success` (resolve) or the user closes the modal (reject with
-   * {@link ModalClosedError}). Each emitted status is forwarded to the UI through
+   * a `ModalClosedError`). Each emitted status is forwarded to the UI through
    * the intent's `status$` stream and to broadcasted-transaction tracking.
    */
   private handleBlockchainRequest(
@@ -666,44 +647,4 @@ export class LedgerEIP1193Provider
     return error;
   }
 
-  private mapErrors(error: unknown) {
-    switch (true) {
-      case error instanceof UserRejectedTransactionError:
-        return this.createError(
-          CommonEIP1193ErrorCode.UserRejectedRequest,
-          "User rejected transaction",
-          error,
-        );
-      case error instanceof BroadcastTransactionError:
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Broadcast transaction failed",
-          error,
-        );
-      case error instanceof BlindSigningDisabledError:
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Blind signing disabled",
-          error,
-        );
-      case error instanceof IncorrectSeedError:
-        return this.createError(
-          CommonEIP1193ErrorCode.Unauthorized,
-          "Address mismatch",
-          error,
-        );
-      case error instanceof ModalClosedError:
-        return this.createError(
-          CommonEIP1193ErrorCode.UserRejectedRequest,
-          "User closed the modal",
-          error,
-        );
-      default:
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Unknown error",
-          error,
-        );
-    }
-  }
 }

@@ -1,25 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "./__mocks__/coreFacadeMock.js";
-import type { CoreFacade } from "./model/CoreFacade.js";
-import { DefaultBlockchainProviderManager } from "./service/DefaultBlockchainProviderManager.js";
-import type { Account } from "../../internal/account/service/AccountService.js";
-import type { ContextService } from "../../internal/context/ContextService.js";
-import type { DAppConfigV2 } from "../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
-import { EvmBlockchainProvider } from "../../internal/evm-provider/EvmBlockchainProvider.js";
-import { SolanaBlockchainProvider } from "../../internal/solana-provider/SolanaBlockchainProvider.js";
-import type { BlockchainConfig } from "../model/dappConfig/BlockchainConfig.js";
+import type { Account } from "../../../internal/account/service/AccountService.js";
+import type { ContextService } from "../../../internal/context/ContextService.js";
+import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
+import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
+import { SolanaBlockchainProvider } from "../../../internal/solana-provider/SolanaBlockchainProvider.js";
+import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig.js";
+import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
+import type { CoreFacade } from "../model/CoreFacade.js";
+import { DefaultBlockchainProviderManager } from "./DefaultBlockchainProviderManager.js";
 
-vi.mock("../../internal/evm-provider/EvmBlockchainProvider.js", () => ({
+vi.mock("../../../internal/evm-provider/EvmBlockchainProvider.js", () => ({
   EvmBlockchainProvider: vi.fn().mockImplementation(() => ({
-    family: "evm",
+    family: "ethereum",
     injectWalletProviders: vi.fn(),
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
   })),
 }));
 
-vi.mock("../../internal/solana-provider/SolanaBlockchainProvider.js", () => ({
+vi.mock("../../../internal/solana-provider/SolanaBlockchainProvider.js", () => ({
   SolanaBlockchainProvider: vi.fn().mockImplementation(() => ({
     family: "solana",
     injectWalletProviders: vi.fn(),
@@ -29,7 +29,7 @@ vi.mock("../../internal/solana-provider/SolanaBlockchainProvider.js", () => ({
 }));
 
 const evmConfig: BlockchainConfig = {
-  blockchain: "evm",
+  blockchain: "ethereum",
   appName: "Ethereum",
   networks: [],
   appDependencies: { appName: "Ethereum", dependencies: [] },
