@@ -533,11 +533,18 @@ export class LedgerButtonCore {
   connectToLedgerSync(): Observable<LedgerSyncAuthenticateResponse> {
     this._logger.debug("Connecting to ledger sync");
 
-    this.container
-      .get<TrackLedgerSyncOpened>(
-        eventTrackingModuleTypes.TrackLedgerSyncOpened,
-      )
-      .execute();
+    // A selected account (for any blockchain family) means onboarding is
+    // already done, so Ledger Sync open / activated events are not tracked.
+    const isOnboarded =
+      this._contextService.getContext().selectedAccounts.size > 0;
+
+    if (!isOnboarded) {
+      this.container
+        .get<TrackLedgerSyncOpened>(
+          eventTrackingModuleTypes.TrackLedgerSyncOpened,
+        )
+        .execute();
+    }
 
     const res = this.container
       .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
@@ -552,6 +559,8 @@ export class LedgerButtonCore {
           trustChainId: res.trustChainId,
           applicationPath: res.applicationPath,
         });
+
+        if (isOnboarded) return;
 
         //TODO move inside context service onEvent
         await this.container
