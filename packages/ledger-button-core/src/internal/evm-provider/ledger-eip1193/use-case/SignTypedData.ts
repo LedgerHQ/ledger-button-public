@@ -32,10 +32,7 @@ import {
   IncorrectSeedError,
   UserRejectedTransactionError,
 } from "../../../../api/errors/DeviceErrors.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-} from "../../../../api/errors/DeviceFlowErrors.js";
+import { AccountNotSelectedError } from "../../../../api/errors/DeviceFlowErrors.js";
 import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
 import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
 import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
@@ -55,6 +52,7 @@ import type { SignTypedMessageParams } from "../../../../api/model/signing/SignT
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
+import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
 type OpenAppResult = {
@@ -87,17 +85,6 @@ export class SignTypedData {
 
     this.core.trackTypedMessageStarted(typedData);
 
-    const session = this.core.getDeviceSession();
-    const sessionId = session.sessionId;
-
-    if (!sessionId || !session.isConnected) {
-      this.logger.error("No device connected");
-      throw new DeviceConnectionError(
-        "No device connected. Please connect a device first.",
-        { type: "not-connected" },
-      );
-    }
-
     const signType = "typed-message";
 
     const resultObservable = new BehaviorSubject<SignFlowStatus>({
@@ -106,197 +93,198 @@ export class SignTypedData {
       message: "Initializing transaction signing",
     });
 
-    try {
-      const dmk = session.dmk;
-      const ethSigner = this.buildEthSigner.execute({
-        sessionId,
-        chain: ContextModuleChainID.Ethereum,
-      });
+    waitForDeviceSession(this.core)
+      .pipe(
+        switchMap((session) => {
+          const sessionId = session.sessionId;
+          const dmk = session.dmk;
+          const ethSigner = this.buildEthSigner.execute({
+            sessionId,
+            chain: ContextModuleChainID.Ethereum,
+          });
 
-      if (!selectedAccount) {
-        throw new AccountNotSelectedError("No account selected");
-      }
+          if (!selectedAccount) {
+            throw new AccountNotSelectedError("No account selected");
+          }
 
-      //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
-      const initObservable: Observable<{
-        deviceAction: OpenAppWithDependenciesDeviceAction;
-        appName: string;
-      }> = of(this.createOpenAppConfig()).pipe(
-        map((openAppConfig) => ({
-          deviceAction: new OpenAppWithDependenciesDeviceAction({
-            input: openAppConfig,
-            inspect: false,
-          }),
-          appName: openAppConfig.application.name,
-        })),
-      );
-
-      const derivationPath = getEvmDerivationPath(selectedAccount);
-
-      initObservable
-        .pipe(
-          switchMap(({ deviceAction: openAppDeviceAction, appName }) => {
-            const openObservable = dmk.executeDeviceAction({
-              sessionId: sessionId,
-              deviceAction: openAppDeviceAction,
-            }).observable;
-            return openObservable.pipe(map((result) => ({ result, appName })));
-          }),
-          filter(
-            ({ result }: OpenAppResult) =>
-              result.status !== DeviceActionStatus.Pending ||
-              result.intermediateValue?.requiredUserInteraction !==
-                UserInteractionRequired.None,
-          ),
-          tap(({ result }: OpenAppResult) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(result, signType),
-            );
-          }),
-          filter(
-            ({ result }: OpenAppResult) =>
-              result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed,
-          ),
-          switchMap(({ result, appName }: OpenAppResult) => {
-            if (result.status === DeviceActionStatus.Error) {
-              const err = result.error;
-              if (
-                err instanceof RefusedByUserDAError ||
-                (err instanceof GlobalCommandError && err.errorCode === "5501")
-              ) {
-                throw new UserRejectedTransactionError(
-                  "User rejected open app",
-                );
-              }
-
-              if (err instanceof OutOfMemoryDAError) {
-                throw new DeviceOutOfMemoryError(
-                  "Not enough memory on device to process the request",
-                  { appName },
-                );
-              }
-
-              throw new Error("Open app with dependencies failed");
-            }
-
-            const { observable: addressObservable } = ethSigner.getAddress(
-              derivationPath,
-              {
-                skipOpenApp: true,
-              },
-            );
-
-            return addressObservable.pipe(
-              filter((result: GetAddressDAState) => {
-                return (
-                  result.status === DeviceActionStatus.Error ||
-                  result.status === DeviceActionStatus.Completed
-                );
+          //Craft from dAppConfig the open app config for the openAppWithDependenciesDA
+          const initObservable: Observable<{
+            deviceAction: OpenAppWithDependenciesDeviceAction;
+            appName: string;
+          }> = of(this.createOpenAppConfig()).pipe(
+            map((openAppConfig) => ({
+              deviceAction: new OpenAppWithDependenciesDeviceAction({
+                input: openAppConfig,
+                inspect: false,
               }),
-            );
-          }),
-          switchMap((result: GetAddressDAState) => {
-            if (result.status === DeviceActionStatus.Error) {
-              throw result.error;
-            }
+              appName: openAppConfig.application.name,
+            })),
+          );
 
-            if (
-              result.status === DeviceActionStatus.Completed &&
-              result.output.address.toLowerCase() !==
-                selectedAccount.freshAddress.toLowerCase()
-            ) {
-              throw new IncorrectSeedError("Address mismatch");
-            }
+          const derivationPath = getEvmDerivationPath(selectedAccount);
 
-            resultObservable.next({
-              signType,
-              status: "debugging",
-              message: "Starting Sign Typed Data DA",
-            });
-
-            const { observable: signObservable } = ethSigner.signTypedData(
-              derivationPath,
-              typedData,
-              {
-                skipOpenApp: true,
-              },
-            );
-
-            return signObservable.pipe(
-              tap((result: SignTypedDataDAState) => {
-                if (result.status === DeviceActionStatus.Pending) {
-                  this.pendingStep = result.intermediateValue?.step ?? "";
-                }
-
+          return initObservable.pipe(
+            switchMap(({ deviceAction: openAppDeviceAction, appName }) => {
+              const openObservable = dmk.executeDeviceAction({
+                sessionId: sessionId,
+                deviceAction: openAppDeviceAction,
+              }).observable;
+              return openObservable.pipe(
+                map((result) => ({ result, appName })),
+              );
+            }),
+            filter(
+              ({ result }: OpenAppResult) =>
+                result.status !== DeviceActionStatus.Pending ||
+                result.intermediateValue?.requiredUserInteraction !==
+                  UserInteractionRequired.None,
+            ),
+            tap(({ result }: OpenAppResult) => {
+              resultObservable.next(
+                this.getTransactionResultForEvent(result, signType),
+              );
+            }),
+            filter(
+              ({ result }: OpenAppResult) =>
+                result.status === DeviceActionStatus.Error ||
+                result.status === DeviceActionStatus.Completed,
+            ),
+            switchMap(({ result, appName }: OpenAppResult) => {
+              if (result.status === DeviceActionStatus.Error) {
+                const err = result.error;
                 if (
-                  result.status !== DeviceActionStatus.Completed &&
-                  result.status !== DeviceActionStatus.Error
+                  err instanceof RefusedByUserDAError ||
+                  (err instanceof GlobalCommandError &&
+                    err.errorCode === "5501")
                 ) {
-                  resultObservable.next(
-                    this.getTransactionResultForEvent(result, signType),
+                  throw new UserRejectedTransactionError(
+                    "User rejected open app",
                   );
                 }
-              }),
-            );
-          }),
-          filter(
-            (result: SignTypedDataDAState) =>
-              result.status !== DeviceActionStatus.Pending ||
-              result.intermediateValue?.requiredUserInteraction !==
-                UserInteractionRequired.None,
-          ),
-          filter((result: SignTypedDataDAState) => {
-            return (
-              result.status === DeviceActionStatus.Error ||
-              result.status === DeviceActionStatus.Completed
-            );
-          }),
-          map((result: SignTypedDataDAState) => {
-            if (result.status === DeviceActionStatus.Error) {
-              switch (true) {
-                case result.error instanceof EthAppCommandError &&
-                  result.error.errorCode === "6a80" &&
-                  this.pendingStep ===
-                    SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
-                  throw new BlindSigningDisabledError("Blind signing disabled");
-                case result.error instanceof EthAppCommandError &&
-                  result.error.errorCode === "6985":
-                  throw new UserRejectedTransactionError(
-                    "User rejected transaction",
+
+                if (err instanceof OutOfMemoryDAError) {
+                  throw new DeviceOutOfMemoryError(
+                    "Not enough memory on device to process the request",
+                    { appName },
                   );
-                default:
-                  throw result.error;
+                }
+
+                throw new Error("Open app with dependencies failed");
               }
-            }
 
-            // Track typed message flow successfully completed
-            this.core.trackTypedMessageCompleted(typedData);
+              const { observable: addressObservable } = ethSigner.getAddress(
+                derivationPath,
+                {
+                  skipOpenApp: true,
+                },
+              );
 
-            return result;
-          }),
-        )
-        .subscribe({
-          next: (result) => {
-            resultObservable.next(
-              this.getTransactionResultForEvent(result, signType),
-            );
-          },
-          error: (error: Error) => {
-            this.logger.error("Typed data signing failed", { error });
-            resultObservable.next({ signType, status: "error", error: error });
-          },
-        });
+              return addressObservable.pipe(
+                filter((result: GetAddressDAState) => {
+                  return (
+                    result.status === DeviceActionStatus.Error ||
+                    result.status === DeviceActionStatus.Completed
+                  );
+                }),
+              );
+            }),
+            switchMap((result: GetAddressDAState) => {
+              if (result.status === DeviceActionStatus.Error) {
+                throw result.error;
+              }
 
-      return resultObservable.asObservable();
-    } catch (error) {
-      this.logger.error("Failed to sign typed data", { error });
-      return of({
-        signType,
-        status: "error",
-        error,
+              if (
+                result.status === DeviceActionStatus.Completed &&
+                result.output.address.toLowerCase() !==
+                  selectedAccount.freshAddress.toLowerCase()
+              ) {
+                throw new IncorrectSeedError("Address mismatch");
+              }
+
+              resultObservable.next({
+                signType,
+                status: "debugging",
+                message: "Starting Sign Typed Data DA",
+              });
+
+              const { observable: signObservable } = ethSigner.signTypedData(
+                derivationPath,
+                typedData,
+                {
+                  skipOpenApp: true,
+                },
+              );
+
+              return signObservable.pipe(
+                tap((result: SignTypedDataDAState) => {
+                  if (result.status === DeviceActionStatus.Pending) {
+                    this.pendingStep = result.intermediateValue?.step ?? "";
+                  }
+
+                  if (
+                    result.status !== DeviceActionStatus.Completed &&
+                    result.status !== DeviceActionStatus.Error
+                  ) {
+                    resultObservable.next(
+                      this.getTransactionResultForEvent(result, signType),
+                    );
+                  }
+                }),
+              );
+            }),
+            filter(
+              (result: SignTypedDataDAState) =>
+                result.status !== DeviceActionStatus.Pending ||
+                result.intermediateValue?.requiredUserInteraction !==
+                  UserInteractionRequired.None,
+            ),
+            filter((result: SignTypedDataDAState) => {
+              return (
+                result.status === DeviceActionStatus.Error ||
+                result.status === DeviceActionStatus.Completed
+              );
+            }),
+            map((result: SignTypedDataDAState) => {
+              if (result.status === DeviceActionStatus.Error) {
+                switch (true) {
+                  case result.error instanceof EthAppCommandError &&
+                    result.error.errorCode === "6a80" &&
+                    this.pendingStep ===
+                      SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK:
+                    throw new BlindSigningDisabledError(
+                      "Blind signing disabled",
+                    );
+                  case result.error instanceof EthAppCommandError &&
+                    result.error.errorCode === "6985":
+                    throw new UserRejectedTransactionError(
+                      "User rejected transaction",
+                    );
+                  default:
+                    throw result.error;
+                }
+              }
+
+              // Track typed message flow successfully completed
+              this.core.trackTypedMessageCompleted(typedData);
+
+              return result;
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: (result) => {
+          resultObservable.next(
+            this.getTransactionResultForEvent(result, signType),
+          );
+        },
+        error: (error: Error) => {
+          this.logger.error("Typed data signing failed", { error });
+          resultObservable.next({ signType, status: "error", error: error });
+        },
       });
-    }
+
+    return resultObservable.asObservable();
   }
 
   createOpenAppConfig(): OpenAppWithDependenciesDAInput {

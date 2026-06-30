@@ -6,14 +6,11 @@ import {
   OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
 import { inject, injectable } from "inversify";
-import { map, type Observable, of, switchMap } from "rxjs";
+import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
 import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import { DeviceOutOfMemoryError } from "../../../../api/errors/DeviceErrors.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-} from "../../../../api/errors/DeviceFlowErrors.js";
+import { AccountNotSelectedError } from "../../../../api/errors/DeviceFlowErrors.js";
 import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
 import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
 import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
@@ -30,6 +27,7 @@ import type {
   SignPersonalMessageFlowDAOutput,
 } from "../device-action/SignPersonalMessageFlowDeviceActionTypes.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
+import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 @injectable()
@@ -53,70 +51,60 @@ export class SignPersonalMessageUseCase {
   ): Observable<SignFlowStatus> {
     this.logger.info("Starting signing message", { params });
 
-    const session = this.core.getDeviceSession();
-    const sessionId = session.sessionId;
-
-    if (!sessionId || !session.isConnected) {
-      this.logger.error("No device connected");
-      throw new DeviceConnectionError(
-        "No device connected. Please connect a device first.",
-        { type: "not-connected" },
-      );
-    }
-
     const [, message] = params;
     const signType: SignType = "personal-sign";
 
-    try {
-      const dmk = session.dmk;
+    return waitForDeviceSession(this.core).pipe(
+      switchMap((session) => {
+        const sessionId = session.sessionId;
+        const dmk = session.dmk;
 
-      if (!selectedAccount) {
-        throw new AccountNotSelectedError("No account selected");
-      }
+        if (!selectedAccount) {
+          throw new AccountNotSelectedError("No account selected");
+        }
 
-      const derivationPath = getEvmDerivationPath(selectedAccount);
-      const contextModule = this.buildContextModule.execute({
-        chain: ContextModuleChainID.Ethereum,
-      });
+        const derivationPath = getEvmDerivationPath(selectedAccount);
+        const contextModule = this.buildContextModule.execute({
+          chain: ContextModuleChainID.Ethereum,
+        });
+        const openAppConfig = this.createOpenAppConfig();
 
-      return of(this.createOpenAppConfig()).pipe(
-        switchMap((openAppConfig) => {
-          const deviceAction = new SignPersonalMessageFlowDeviceAction({
-            input: {
+        const deviceAction = new SignPersonalMessageFlowDeviceAction({
+          input: {
+            signType,
+            derivationPath,
+            message,
+            expectedAddress: selectedAccount.freshAddress,
+            openAppInput: openAppConfig,
+            contextModule,
+          },
+          inspect: false,
+        });
+
+        const { observable } = dmk.executeDeviceAction({
+          sessionId,
+          deviceAction,
+        });
+
+        return observable.pipe(
+          map((state) =>
+            this.toSignFlowStatus(
+              state,
               signType,
-              derivationPath,
-              message,
-              expectedAddress: selectedAccount.freshAddress,
-              openAppInput: openAppConfig,
-              contextModule,
-            },
-            inspect: false,
-          });
-
-          const { observable } = dmk.executeDeviceAction({
-            sessionId,
-            deviceAction,
-          });
-
-          return observable.pipe(
-            map((state) =>
-              this.toSignFlowStatus(
-                state,
-                signType,
-                openAppConfig.application.name,
-              ),
+              openAppConfig.application.name,
             ),
-          ) as Observable<SignFlowStatus>;
-        }),
-      );
-    } catch (error) {
-      this.logger.error("Failed to sign personal message", { error });
-      return of({
-        signType,
-        status: "error" as const,
-        error,
-      });
-    }
+          ),
+        ) as Observable<SignFlowStatus>;
+      }),
+      catchError((error) => {
+        this.logger.error("Failed to sign personal message", { error });
+        return of({
+          signType,
+          status: "error" as const,
+          error,
+        });
+      }),
+    );
   }
 
   createOpenAppConfig(): OpenAppWithDependenciesDAInput {

@@ -12,6 +12,7 @@ import {
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
+import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { SignRawTransaction } from "./SignRawTransaction.js";
 
 @injectable()
@@ -37,11 +38,10 @@ export class SignTransaction {
     this.logger.info("Starting transaction signing", { params });
     const { transaction, broadcast, method } = params;
 
-    const initObservable: Observable<Transaction> = from(
-      this.completeTransaction(transaction, selectedAccount, chainId),
-    );
-
-    return initObservable.pipe(
+    return waitForDeviceSession(this.core).pipe(
+      switchMap(() =>
+        from(this.completeTransaction(transaction, selectedAccount, chainId)),
+      ),
       switchMap((transactionWithFees) => {
         const rawTransaction =
           getRawTransactionFromEipTransaction(transactionWithFees);
