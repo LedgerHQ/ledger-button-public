@@ -248,8 +248,8 @@ export class LedgerEIP1193Provider
     this.setSelectedChainId(chainId);
   }
 
-  private setSelectedChainId(chainId: number) {
-    if (this._selectedChainId === chainId) {
+  private setSelectedChainId(chainId: number, forceAccountChange = false) {
+    if (this._selectedChainId === chainId && !forceAccountChange) {
       return;
     }
     this._selectedChainId = chainId;
@@ -274,7 +274,7 @@ export class LedgerEIP1193Provider
 
     this._isConnected = true;
     this._selectedAccount = account;
-    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId));
+    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId), true);
 
     this.dispatchEvent(
       new CustomEvent<string[]>("accountsChanged", {
@@ -646,5 +646,4 @@ export class LedgerEIP1193Provider
     error.stack = err.stack;
     return error;
   }
-
 }
