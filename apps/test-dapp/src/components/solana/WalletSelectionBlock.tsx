@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 import { Link, Search } from "@ledgerhq/lumen-ui-react/symbols";
 import { useSelectedWalletAccount } from "@solana/react";
@@ -23,6 +23,18 @@ export function WalletSelectionBlock({
 }: WalletSelectionBlockProps) {
   const [, , wallets] = useSelectedWalletAccount();
 
+  // De-duplicate on name: the same wallet can be registered more than once
+  // (e.g. re-announced), which would otherwise list it multiple times.
+  const uniqueWallets = useMemo(() => {
+    const byName = new Map<string, UiWallet>();
+    for (const wallet of wallets) {
+      if (!byName.has(wallet.name)) {
+        byName.set(wallet.name, wallet);
+      }
+    }
+    return [...byName.values()];
+  }, [wallets]);
+
   return (
     <div className="border border-muted rounded-lg overflow-hidden">
       <div className="px-24 py-16 bg-muted">
@@ -33,15 +45,15 @@ export function WalletSelectionBlock({
       </div>
 
       <div className="p-24 bg-canvas space-y-20">
-        {wallets.length > 0 ? (
+        {uniqueWallets.length > 0 ? (
           <div className="space-y-12">
             <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
-              Detected Wallets ({wallets.length})
+              Detected Wallets ({uniqueWallets.length})
             </h4>
             <div className="space-y-10">
-              {wallets.map((wallet) => (
+              {uniqueWallets.map((wallet) => (
                 <WalletRow
-                  key={`${wallet.name}:${wallet.version}`}
+                  key={wallet.name}
                   wallet={wallet}
                   onLog={onLog}
                   onError={onError}
