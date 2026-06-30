@@ -107,13 +107,8 @@ export class LedgerHomeScreen extends LitElement {
     this.navigation.navigateTo(this.destinations.availableNetworks);
   };
 
-  private handleDisconnectClick = async () => {
-    this.dispatchEvent(
-      new CustomEvent("ledger-internal-button-disconnect", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
+  private handleDisconnectClick = () => {
+    this.coreContext.disconnect();
   };
 
   private handleTabChange = (event: CustomEvent<TabChangeEventDetail>) => {
