@@ -47,7 +47,7 @@ describe("FloatingButtonController", () => {
 
     pendingTxSubject = new BehaviorSubject<PendingTransaction[]>([]);
     contextSubject = new BehaviorSubject<Record<string, unknown>>({
-      selectedAccount: account1,
+      selectedAccounts: new Map([["ethereum", account1]]),
     });
 
     core = {
@@ -151,7 +151,7 @@ describe("FloatingButtonController", () => {
       expect(controller.validatedCelebrationOpen).toBe(true);
 
       vi.mocked(core.getSelectedAccount).mockReturnValue(undefined);
-      contextSubject.next({ selectedAccount: null });
+      contextSubject.next({ selectedAccounts: new Map() });
 
       expect(controller.validatedCelebrationOpen).toBe(false);
       expect(controller.validatedCount).toBe(0);
@@ -207,7 +207,7 @@ describe("FloatingButtonController", () => {
       controller.hostConnected();
       expect(controller.pendingTransactionCount).toBe(1);
 
-      contextSubject.next({ selectedAccount: account2 });
+      contextSubject.next({ selectedAccounts: new Map([["ethereum", account2]]) });
 
       expect(controller.pendingTransactionCount).toBe(0);
       expect(controller.validatedCelebrationOpen).toBe(false);
