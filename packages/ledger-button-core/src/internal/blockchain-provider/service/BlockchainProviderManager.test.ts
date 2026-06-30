@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
 import type { ContextService } from "../../../internal/context/ContextService.js";
 import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
 import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
 import { SolanaBlockchainProvider } from "../../../internal/solana-provider/SolanaBlockchainProvider.js";
-import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig.js";
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
-import type { CoreFacade } from "../model/CoreFacade.js";
 import { DefaultBlockchainProviderManager } from "./DefaultBlockchainProviderManager.js";
 
 vi.mock("../../../internal/evm-provider/EvmBlockchainProvider.js", () => ({

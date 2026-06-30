@@ -2,7 +2,7 @@ import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import type { BlockchainProviderManager } from "../../../../api/blockchain-provider/service/BlockchainProviderManager.js";
+import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
 import type { Config } from "../../../config/model/config.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";

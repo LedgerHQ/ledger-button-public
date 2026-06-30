@@ -2,6 +2,29 @@ import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { Subject } from "rxjs";
 
+import type {
+  BlockchainFamily,
+  ProviderBlockchain,
+  ProviderDeviceSession,
+  ProviderSdkConfig,
+  ProviderSignParams,
+  WalletNavigationIntent,
+} from "../../../api/blockchain-provider/model/types.js";
+import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
+import type {
+  ProviderGasFeeEstimation,
+  ProviderTransactionInfo,
+} from "../../../api/model/blockchain/GasFee.js";
+import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
+import type {
+  JSONRPCRequest,
+  JsonRpcResponse,
+} from "../../../api/model/eip/EIPTypes.js";
+import {
+  isBroadcastedTransactionResult,
+  type SignedResults,
+} from "../../../api/model/signing/SignedTransaction.js";
+import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
 import { backendModuleTypes } from "../../../internal/backend/backendModuleTypes.js";
 import type { BackendService } from "../../../internal/backend/BackendService.js";
@@ -28,30 +51,7 @@ import { navigationModuleTypes } from "../../../internal/navigation/navigationMo
 import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
 import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
-import { ModalClosedError } from "../../errors/ProviderErrors.js";
-import type {
-  ProviderGasFeeEstimation,
-  ProviderTransactionInfo,
-} from "../../model/blockchain/GasFee.js";
-import type { ProviderLogger } from "../../model/blockchain/ProviderLogger.js";
-import type {
-  JSONRPCRequest,
-  JsonRpcResponse,
-} from "../../model/eip/EIPTypes.js";
-import {
-  isBroadcastedTransactionResult,
-  type SignedResults,
-} from "../../model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
 import { blockchainProviderModuleTypes } from "../blockchainProviderModuleTypes.js";
-import type {
-  BlockchainFamily,
-  ProviderBlockchain,
-  ProviderDeviceSession,
-  ProviderSdkConfig,
-  ProviderSignParams,
-  WalletNavigationIntent,
-} from "../model/types.js";
 import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 

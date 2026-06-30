@@ -1,9 +1,9 @@
 import type { Maybe } from "purify-ts";
 
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
 import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
-import type { CoreFacade } from "../model/CoreFacade.js";
-import type { BlockchainFamily } from "../model/types.js";
 
 export interface BlockchainProviderManager {
   init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void;
