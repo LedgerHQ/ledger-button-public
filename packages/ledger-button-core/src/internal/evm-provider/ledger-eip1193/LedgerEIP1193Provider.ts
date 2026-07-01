@@ -200,7 +200,7 @@ export class LedgerEIP1193Provider
       this._selectedChainId = 1; // Default to Ethereum mainnet
       this._inFlight = false;
 
-      await this.host.disconnect();
+      await this.host.disconnect(this.family);
 
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {

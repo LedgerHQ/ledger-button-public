@@ -80,6 +80,9 @@ export class DefaultContextService implements ContextService {
       case "hydrated_account":
         this.applyHydratedAccount(event.account);
         break;
+      case "account_disconnected":
+        this.context.selectedAccounts.delete(event.family);
+        break;
       case "device_connected":
         this.context.connectedDevice = event.device;
         break;

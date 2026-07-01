@@ -116,6 +116,14 @@ export class DefaultStorageService implements StorageService {
     return accounts;
   }
 
+  removeSelectedAccount(family: BlockchainFamily): void {
+    const stored = this.getItem<Record<string, AccountDbModel>>(
+      STORAGE_KEYS.SELECTED_ACCOUNTS,
+    ).orDefault({});
+    delete stored[family];
+    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNTS, stored);
+  }
+
   removeSelectedAccounts(): void {
     this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNTS);
     this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNT);

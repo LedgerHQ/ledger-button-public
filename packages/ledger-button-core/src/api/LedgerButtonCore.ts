@@ -25,6 +25,7 @@ import {
   type DetailedAccount,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
+import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
 import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/use-case/observeSelectedAccountChangesUseCase.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
@@ -153,9 +154,9 @@ export class LedgerButtonCore {
       blockchainProviderModuleTypes.CoreFacadeService,
     );
 
-    // Session teardown is owned by core; expose it to the facade so a provider
-    // (e.g. EIP-1193 `disconnect`) can trigger a full disconnect through the port.
-    coreFacade.setDisconnectHandler(() => this.disconnect());
+    // Disconnect is owned by core; expose it to the facade so a provider
+    // (e.g. EIP-1193 `disconnect`) can drop its family through the port.
+    coreFacade.setDisconnectHandler((family) => this.disconnect(family));
 
     const blockchainProviderManager =
       this.container.get<BlockchainProviderManager>(
@@ -266,7 +267,34 @@ export class LedgerButtonCore {
       });
   }
 
-  async disconnect() {
+  /**
+   * Disconnect a blockchain `family`'s selected account. While other families
+   * still have a selected account, only that family's account is removed;
+   * once no selected account remains (or when called with no `family`), the
+   * whole session is reset. Passing no `family` forces a full reset (used for
+   * an expired trust chain or an explicit "log out").
+   */
+  async disconnect(family?: BlockchainFamily) {
+    if (family) {
+      const remaining = new Map(
+        this._contextService.getContext().selectedAccounts,
+      );
+      remaining.delete(family);
+
+      if (remaining.size > 0) {
+        this._logger.debug("Disconnecting account for family", { family });
+        this.container
+          .get<StorageService>(storageModuleTypes.StorageService)
+          .removeSelectedAccount(family);
+        this._contextService.onEvent({ type: "account_disconnected", family });
+        return;
+      }
+    }
+
+    await this.resetSession();
+  }
+
+  private async resetSession() {
     this._logger.debug("Disconnecting from device");
 
     const currentContextService = this._contextService;
@@ -588,6 +616,17 @@ export class LedgerButtonCore {
         accountModuleTypes.ObserveSelectedAccountChangesUseCase,
       )
       .execute();
+  }
+
+  async fetchSelectedAccount(
+    family: BlockchainFamily = DEFAULT_BLOCKCHAIN_FAMILY,
+  ): Promise<DetailedAccount | undefined> {
+    const result = await this.container
+      .get<FetchSelectedAccountUseCase>(
+        accountModuleTypes.FetchSelectedAccountUseCase,
+      )
+      .execute(family);
+    return result.isRight() ? result.unsafeCoerce() : undefined;
   }
 
   observePendingTransactions(): Observable<PendingTransaction[]> {

@@ -28,6 +28,7 @@ export interface StorageService {
     family: BlockchainFamily,
   ): unknown;
   getSelectedAccounts(): Map<BlockchainFamily, Account>;
+  removeSelectedAccount(family: BlockchainFamily): void;
   removeSelectedAccounts(): void;
 
   storeEncryptionKey(encryptionKey: CryptoKey): Promise<void>;

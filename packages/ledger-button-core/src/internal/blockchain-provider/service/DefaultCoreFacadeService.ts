@@ -170,21 +170,23 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     this._contextService.onEvent({ type: "chain_changed", chainId });
   }
 
-  private _disconnectHandler?: () => Promise<void>;
+  private _disconnectHandler?: (family: BlockchainFamily) => Promise<void>;
 
-  setDisconnectHandler(handler: () => Promise<void>): void {
+  setDisconnectHandler(
+    handler: (family: BlockchainFamily) => Promise<void>,
+  ): void {
     this._disconnectHandler = handler;
   }
 
-  async disconnect(): Promise<void> {
+  async disconnect(family: BlockchainFamily): Promise<void> {
     if (!this._disconnectHandler) {
       this._logger.error(
         "disconnect() called before a handler was registered by core",
       );
       return;
     }
-    this._logger.debug("Disconnecting session via core handler");
-    await this._disconnectHandler();
+    this._logger.debug("Disconnecting family via core handler", { family });
+    await this._disconnectHandler(family);
   }
 
   getLogger(tag: string): ProviderLogger {

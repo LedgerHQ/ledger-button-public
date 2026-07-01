@@ -1,14 +1,53 @@
 import type {
+  Account,
+  BlockchainFamily,
+  ButtonCoreContext,
   DetailedAccount,
   PendingTransaction,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
 import type { LanguageContext } from "../../context/language-context.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
+
+function createAccount(overrides: Partial<Account> = {}): Account {
+  return {
+    id: "account-1",
+    currencyId: "ethereum",
+    freshAddress: "0xabc123",
+    seedIdentifier: "seed-1",
+    derivationMode: "",
+    index: 0,
+    name: "Ethereum",
+    ticker: "ETH",
+    balance: "1.5",
+    tokens: [],
+    ...overrides,
+  };
+}
+
+function createContext(
+  overrides: Partial<ButtonCoreContext> = {},
+): ButtonCoreContext {
+  return {
+    connectedDevice: undefined,
+    selectedAccounts: new Map<BlockchainFamily, Account>([
+      [DEFAULT_BLOCKCHAIN_FAMILY, createAccount()],
+    ]),
+    trustChainId: undefined,
+    applicationPath: undefined,
+    chainId: 1,
+    welcomeScreenCompleted: true,
+    hasTrackingConsent: undefined,
+    isMobilePlatform: false,
+    preferredFiatCurrency: "usd",
+    ...overrides,
+  };
+}
 
 function createDetailedAccount(
   overrides: Partial<DetailedAccount> = {},
@@ -55,9 +94,9 @@ describe("LedgerHomeController", () => {
   let host: ReactiveControllerHost;
   let core: CoreContext;
   let languages: LanguageContext;
-  let accountSubject: Subject<DetailedAccount | undefined>;
+  let fetchSelectedAccount: ReturnType<typeof vi.fn>;
   let pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
-  let contextSubject: BehaviorSubject<Record<string, unknown>>;
+  let contextSubject: BehaviorSubject<ButtonCoreContext>;
   const account = createDetailedAccount();
 
   beforeEach(() => {
@@ -68,17 +107,13 @@ describe("LedgerHomeController", () => {
       updateComplete: Promise.resolve(true),
     };
 
-    accountSubject = new Subject<DetailedAccount | undefined>();
     pendingTxSubject = new BehaviorSubject<PendingTransaction[]>([]);
-    contextSubject = new BehaviorSubject<Record<string, unknown>>({
-      preferredFiatCurrency: "usd",
-    });
+    contextSubject = new BehaviorSubject<ButtonCoreContext>(createContext());
+    fetchSelectedAccount = vi.fn().mockResolvedValue(account);
 
     core = {
-      observeSelectedAccountChanges: vi
-        .fn()
-        .mockReturnValue(accountSubject.asObservable()),
       observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
+      fetchSelectedAccount,
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTxSubject.asObservable()),
@@ -95,7 +130,6 @@ describe("LedgerHomeController", () => {
 
   async function connectAndWaitForLoad() {
     controller.hostConnected();
-    accountSubject.next(account);
     await vi.waitFor(() => {
       expect(controller.loading).toBe(false);
     });
@@ -106,7 +140,7 @@ describe("LedgerHomeController", () => {
     it("returns the uppercased currency emitted by context", async () => {
       await connectAndWaitForLoad();
 
-      contextSubject.next({ preferredFiatCurrency: "eur" });
+      contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
 
       expect(controller.preferredCurrency).toBe("EUR");
     });
@@ -114,37 +148,37 @@ describe("LedgerHomeController", () => {
     it("updates when preferredFiatCurrency changes", async () => {
       await connectAndWaitForLoad();
 
-      contextSubject.next({ preferredFiatCurrency: "eur" });
+      contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
       expect(controller.preferredCurrency).toBe("EUR");
 
-      contextSubject.next({ preferredFiatCurrency: "gbp" });
+      contextSubject.next(createContext({ preferredFiatCurrency: "gbp" }));
       expect(controller.preferredCurrency).toBe("GBP");
     });
 
     it("calls requestUpdate when preferredFiatCurrency changes", async () => {
       await connectAndWaitForLoad();
 
-      contextSubject.next({ preferredFiatCurrency: "eur" });
+      contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
 
       expect(host.requestUpdate).toHaveBeenCalled();
     });
   });
 
   describe("account updates", () => {
-    it("sets selectedAccount when observeSelectedAccountChanges emits an account", async () => {
+    it("sets selectedAccount from the context's selected account", async () => {
       controller.hostConnected();
-      accountSubject.next(account);
 
       await vi.waitFor(() => {
         expect(controller.selectedAccount).toEqual(account);
       });
+      expect(fetchSelectedAccount).toHaveBeenCalledWith(
+        DEFAULT_BLOCKCHAIN_FAMILY,
+      );
     });
 
     it("sets loading to false when first account arrives", async () => {
       controller.hostConnected();
       expect(controller.loading).toBe(true);
-
-      accountSubject.next(account);
 
       await vi.waitFor(() => {
         expect(controller.loading).toBe(false);
@@ -152,26 +186,43 @@ describe("LedgerHomeController", () => {
       });
     });
 
-    it("sets selectedAccount to undefined when stream emits undefined", async () => {
+    it("sets selectedAccount to undefined when no account is selected", async () => {
       await connectAndWaitForLoad();
 
-      accountSubject.next(undefined);
+      contextSubject.next(
+        createContext({
+          selectedAccounts: new Map<BlockchainFamily, Account>(),
+        }),
+      );
 
-      expect(controller.selectedAccount).toBeUndefined();
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount).toBeUndefined();
+      });
     });
 
-    it("updates selectedAccount when a new account is emitted", async () => {
+    it("updates selectedAccount when a new account is selected", async () => {
       await connectAndWaitForLoad();
 
       const newAccount = createDetailedAccount({ freshAddress: "0xdef456" });
-      accountSubject.next(newAccount);
+      fetchSelectedAccount.mockResolvedValue(newAccount);
+      contextSubject.next(
+        createContext({
+          selectedAccounts: new Map<BlockchainFamily, Account>([
+            [
+              DEFAULT_BLOCKCHAIN_FAMILY,
+              createAccount({ freshAddress: "0xdef456" }),
+            ],
+          ]),
+        }),
+      );
 
-      expect(controller.selectedAccount?.freshAddress).toBe("0xdef456");
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("0xdef456");
+      });
     });
 
     it("calls requestUpdate when account arrives", async () => {
       controller.hostConnected();
-      accountSubject.next(account);
 
       await vi.waitFor(() => {
         expect(host.requestUpdate).toHaveBeenCalled();
@@ -200,11 +251,13 @@ describe("LedgerHomeController", () => {
           },
         ] as DetailedAccount["transactionHistory"],
       });
+      fetchSelectedAccount.mockResolvedValue(freshAccount);
 
-      await connectAndWaitForLoad();
-      accountSubject.next(freshAccount);
+      controller.hostConnected();
 
-      expect(controller.selectedAccount).toEqual(freshAccount);
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount).toEqual(freshAccount);
+      });
       expect(controller.transactionListItems).toHaveLength(1);
       expect(host.requestUpdate).toHaveBeenCalled();
     });
@@ -292,7 +345,17 @@ describe("LedgerHomeController", () => {
         id: "account-2",
         freshAddress: "0xdef456",
       });
-      accountSubject.next(account2);
+      fetchSelectedAccount.mockResolvedValue(account2);
+      contextSubject.next(
+        createContext({
+          selectedAccounts: new Map<BlockchainFamily, Account>([
+            [
+              DEFAULT_BLOCKCHAIN_FAMILY,
+              createAccount({ freshAddress: "0xdef456" }),
+            ],
+          ]),
+        }),
+      );
 
       await vi.waitFor(() => {
         expect(controller.selectedAccount?.freshAddress).toBe("0xdef456");
@@ -325,13 +388,15 @@ describe("LedgerHomeController", () => {
         ] as DetailedAccount["transactionHistory"],
         transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
       });
+      fetchSelectedAccount.mockResolvedValue(accountWithExplorerUrl);
 
-      await connectAndWaitForLoad();
-      accountSubject.next(accountWithExplorerUrl);
+      controller.hostConnected();
 
-      expect(controller.transactionListItems[0]?.explorerUrl).toBe(
-        "https://etherscan.io/tx/0xabc",
-      );
+      await vi.waitFor(() => {
+        expect(controller.transactionListItems[0]?.explorerUrl).toBe(
+          "https://etherscan.io/tx/0xabc",
+        );
+      });
     });
 
     it("should propagate explorerUrl from pending transactions to the list row", async () => {
