@@ -23,6 +23,11 @@ export type ContextEvent =
       account: Account | DetailedAccount;
     }
   | {
+      type: "account_disconnected";
+      /** Blockchain family whose selected account is being removed. */
+      family: BlockchainFamily;
+    }
+  | {
       type: "device_connected";
       device: Device;
     }

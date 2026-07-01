@@ -39,7 +39,12 @@ export interface CoreFacade {
   ): Promise<JsonRpcResponse>;
   requestAccount(family: BlockchainFamily): Promise<ProviderAccount>;
   requestSwitchChain(chainId: number): Promise<void>;
-  disconnect(): Promise<void>;
+  /**
+   * Disconnect the calling provider's blockchain `family`: core drops that
+   * family's selected account and only tears the whole session down once no
+   * selected account remains.
+   */
+  disconnect(family: BlockchainFamily): Promise<void>;
 
   /** Scoped logger; `tag` prefixes the provider's log lines. */
   getLogger(tag: string): ProviderLogger;

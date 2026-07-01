@@ -1,12 +1,22 @@
 import {
+  type BlockchainFamily,
   buildExplorerTransactionUrl,
+  DEFAULT_BLOCKCHAIN_FAMILY,
   type DetailedAccount,
   formatBalance,
+  getSelectedAccount,
   type PendingTransaction,
   type TransactionHistoryItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-import { distinctUntilChanged, map, Subscription } from "rxjs";
+import {
+  distinctUntilChanged,
+  from,
+  of,
+  Subscription,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
 import { LanguageContext } from "../../context/language-context.js";
@@ -18,9 +28,11 @@ export class LedgerHomeController implements ReactiveController {
   loading = false;
   private preferredFiatCurrency!: string;
   private pendingTransactions: PendingTransaction[] = [];
-  private accountSubscription: Subscription | undefined = undefined;
-  private currencySubscription: Subscription | undefined = undefined;
+  private contextSubscription: Subscription | undefined = undefined;
   private pendingTxSubscription: Subscription | undefined = undefined;
+
+  private selectedBlockchainFamily: BlockchainFamily =
+    DEFAULT_BLOCKCHAIN_FAMILY;
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -61,8 +73,7 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   hostDisconnected() {
-    this.accountSubscription?.unsubscribe();
-    this.currencySubscription?.unsubscribe();
+    this.contextSubscription?.unsubscribe();
     this.pendingTxSubscription?.unsubscribe();
   }
 
@@ -136,25 +147,35 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   private startListeningToContextChanges() {
-    this.accountSubscription?.unsubscribe();
-    this.currencySubscription?.unsubscribe();
+    this.contextSubscription?.unsubscribe();
 
-    this.accountSubscription = this.core
-      .observeSelectedAccountChanges()
+    this.contextSubscription = this.core
+      .observeContext()
+      .pipe(
+        distinctUntilChanged((a, b) => {
+          const prev = getSelectedAccount(a, this.selectedBlockchainFamily);
+          const next = getSelectedAccount(b, this.selectedBlockchainFamily);
+          return (
+            prev?.freshAddress === next?.freshAddress &&
+            prev?.currencyId === next?.currencyId &&
+            a.preferredFiatCurrency === b.preferredFiatCurrency
+          );
+        }),
+        tap((ctx) => {
+          this.preferredFiatCurrency = ctx.preferredFiatCurrency;
+          this.host.requestUpdate();
+        }),
+        switchMap((ctx) =>
+          getSelectedAccount(ctx, this.selectedBlockchainFamily)
+            ? from(
+                this.core.fetchSelectedAccount(this.selectedBlockchainFamily),
+              )
+            : of(undefined),
+        ),
+      )
       .subscribe((account) => {
         this.selectedAccount = account;
         this.loading = false;
-        this.host.requestUpdate();
-      });
-
-    this.currencySubscription = this.core
-      .observeContext()
-      .pipe(
-        map((ctx) => ctx.preferredFiatCurrency),
-        distinctUntilChanged(),
-      )
-      .subscribe((currency) => {
-        this.preferredFiatCurrency = currency;
         this.host.requestUpdate();
       });
   }

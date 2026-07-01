@@ -109,6 +109,7 @@ export class LedgerHomeScreen extends LitElement {
 
   private handleDisconnectClick = () => {
     this.coreContext.disconnect();
+    this.navigation.host.closeModal();
   };
 
   private handleTabChange = (event: CustomEvent<TabChangeEventDetail>) => {
