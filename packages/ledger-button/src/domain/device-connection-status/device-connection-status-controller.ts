@@ -37,11 +37,12 @@ export class DeviceConnectionStatusController {
   }
 
   private async handleSuccessfulConnection() {
-    const craftedTransactionParams =
-      this.coreContext.getCraftedTransactionParams();
+    const hasSigningFlowInHistory = this.navigation.history.some(
+      (destination) => destination.name === "signingFlow",
+    );
 
-    if (craftedTransactionParams) {
-      this.navigation.navigateTo(this.destinations.signTransaction);
+    if (hasSigningFlowInHistory) {
+      this.navigation.navigateTo(this.destinations.signingFlow);
     } else {
       this.navigation.navigateTo(this.destinations.ledgerSync);
     }

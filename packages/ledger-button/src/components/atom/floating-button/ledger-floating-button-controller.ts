@@ -168,7 +168,7 @@ export class FloatingButtonController implements ReactiveController {
 
     this.contextSubscription = this.core.observeContext().subscribe((ctx) => {
       this.updateConnectionState();
-      this.handleSelectedAccountChange(ctx.selectedAccount);
+      this.handleSelectedAccountChange(ctx.selectedAccounts.get("ethereum"));
       this.host.requestUpdate();
     });
   }

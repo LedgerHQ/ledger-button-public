@@ -1,1 +1,4 @@
 pocs/ledger-button-webcomponent-poc/examples/elm
+# Git worktrees created by agent tooling contain full repo copies, which would
+# otherwise register every project twice and break the Nx project graph.
+agent-files/claude/worktrees

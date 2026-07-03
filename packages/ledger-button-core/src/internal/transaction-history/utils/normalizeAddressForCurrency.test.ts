@@ -13,14 +13,14 @@ describe("normalizeAddressForCurrency", () => {
   });
 
   it("preserves Solana base58 addresses untouched", () => {
-    expect(
-      normalizeAddressForCurrency(SOLANA_BASE58_ADDRESS, "solana"),
-    ).toBe(SOLANA_BASE58_ADDRESS);
+    expect(normalizeAddressForCurrency(SOLANA_BASE58_ADDRESS, "solana")).toBe(
+      SOLANA_BASE58_ADDRESS,
+    );
   });
 
-  it("lowercases addresses for unknown currencies", () => {
-    expect(normalizeAddressForCurrency(EVM_MIXED_CASE_ADDRESS, "polygon")).toBe(
-      EVM_MIXED_CASE_ADDRESS.toLowerCase(),
+  it("leaves addresses untouched when the family is unknown", () => {
+    expect(normalizeAddressForCurrency(EVM_MIXED_CASE_ADDRESS, undefined)).toBe(
+      EVM_MIXED_CASE_ADDRESS,
     );
   });
 });

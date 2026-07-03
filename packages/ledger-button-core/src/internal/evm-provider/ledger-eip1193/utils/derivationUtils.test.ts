@@ -1,18 +1,15 @@
-import { Account } from "../../../account/service/AccountService.js";
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
 import { getEvmDerivationPath } from "./derivationUtils.js";
 
-function createAccount(overrides: Partial<Account> = {}): Account {
+function createAccount(
+  overrides: Partial<ProviderAccount> = {},
+): ProviderAccount {
   return {
     id: "account-1",
     currencyId: "ethereum",
     freshAddress: "0x1234567890abcdef1234567890abcdef12345678",
-    seedIdentifier: "seed-1",
     derivationMode: "",
     index: 0,
-    name: "My Ethereum Account",
-    ticker: "ETH",
-    balance: undefined,
-    tokens: [],
     ...overrides,
   };
 }

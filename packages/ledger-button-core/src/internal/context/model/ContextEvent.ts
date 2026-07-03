@@ -1,3 +1,4 @@
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
 import type { Account, DetailedAccount } from "../../account/service/AccountService.js";
 import { Device } from "../../device/model/Device.js";
@@ -14,10 +15,17 @@ export type ContextEvent =
   | {
       type: "account_changed";
       account: Account | DetailedAccount;
+      /** Blockchain family the account belongs to (resolved by core). */
+      family: BlockchainFamily;
     }
   | {
       type: "hydrated_account";
       account: Account | DetailedAccount;
+    }
+  | {
+      type: "account_disconnected";
+      /** Blockchain family whose selected account is being removed. */
+      family: BlockchainFamily;
     }
   | {
       type: "device_connected";

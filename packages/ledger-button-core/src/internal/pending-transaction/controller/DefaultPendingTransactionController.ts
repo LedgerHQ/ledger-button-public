@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, Observable } from "rxjs";
 
+import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import { accountModuleTypes } from "../../account/accountModuleTypes.js";
 import { type FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -60,7 +61,7 @@ export class DefaultPendingTransactionController
     let preferredCurrency: string | undefined;
 
     this.contextService.observeContext().subscribe((context) => {
-      const account = context.selectedAccount;
+      const account = getSelectedAccount(context);
       const isHydrated = account && account.ticker && account.ticker.length > 0;
       if (isHydrated && this.storageService.getAll().length > 0) {
         this.startPolling();
@@ -94,7 +95,7 @@ export class DefaultPendingTransactionController
 
   private async pollTick(): Promise<void> {
     const context = this.contextService.getContext();
-    const account = context.selectedAccount;
+    const account = getSelectedAccount(context);
     if (!account) return;
 
     const pending = this.storageService.getAll();

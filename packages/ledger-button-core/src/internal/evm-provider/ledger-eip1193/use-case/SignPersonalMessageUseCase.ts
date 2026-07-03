@@ -5,152 +5,113 @@ import {
   type OpenAppWithDependenciesDAInput,
   OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
-import { type Factory, inject, injectable } from "inversify";
-import { from, map, type Observable, of, switchMap } from "rxjs";
+import { inject, injectable } from "inversify";
+import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
+import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import { DeviceOutOfMemoryError } from "../../../../api/errors/DeviceErrors.js";
+import { AccountNotSelectedError } from "../../../../api/errors/DeviceFlowErrors.js";
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "../../../../api/model/blockchain/ProviderLogger.js";
+import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
 import type {
   SignFlowStatus,
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../../api/model/signing/SignPersonalMessageParams.js";
-import { getDerivationPath } from "../../../account/AccountUtils.js";
-import type { Account } from "../../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
-import type { ContextService } from "../../../context/ContextService.js";
-import { DAppConfig } from "../../../dAppConfig/v1/dAppConfigTypes.js";
-import { dAppConfigV1ModuleTypes } from "../../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import type { DAppConfigService } from "../../../dAppConfig/v1/service/DAppConfigService.js";
-import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
-import {
-  AccountNotSelectedError,
-  DeviceConnectionError,
-} from "../../../device/model/errors.js";
-import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
-import { SignPersonalMessageFlowDeviceAction } from "../../../device/use-case/device-action/SignPersonalMessageFlowDeviceAction.js";
+import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction.js";
 import type {
   SignPersonalMessageFlowDAError,
   SignPersonalMessageFlowDAIntermediateValue,
   SignPersonalMessageFlowDAOutput,
-} from "../../../device/use-case/device-action/SignPersonalMessageFlowDeviceActionTypes.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+} from "../device-action/SignPersonalMessageFlowDeviceActionTypes.js";
+import { getEvmDerivationPath } from "../utils/derivationUtils.js";
+import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 @injectable()
 export class SignPersonalMessageUseCase {
-  private readonly logger: LoggerPublisher;
+  private readonly logger: ProviderLogger;
 
   constructor(
-    @inject(loggerModuleTypes.LoggerPublisher)
-    loggerFactory: Factory<LoggerPublisher>,
-    @inject(deviceModuleTypes.DeviceManagementKitService)
-    private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(contextModuleTypes.ContextService)
-    private readonly contextService: ContextService,
-    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
-    private readonly dappConfigService: DAppConfigService,
+    @inject(evmProviderModuleTypes.CoreFacade)
+    private readonly core: CoreFacade,
+    @inject(evmProviderModuleTypes.BlockchainConfig)
+    private readonly blockchainConfig: BlockchainConfig,
     @inject(evmProviderModuleTypes.BuildContextModuleUseCase)
     private readonly buildContextModule: BuildContextModule,
   ) {
-    this.logger = loggerFactory("[SignPersonalMessageUseCase]");
+    this.logger = this.core.getLogger("[SignPersonalMessageUseCase]");
   }
 
-  execute(params: SignPersonalMessageParams): Observable<SignFlowStatus> {
+  execute(
+    params: SignPersonalMessageParams,
+    selectedAccount: ProviderAccount | undefined,
+  ): Observable<SignFlowStatus> {
     this.logger.info("Starting signing message", { params });
-
-    const sessionId = this.deviceManagementKitService.sessionId;
-
-    if (!sessionId) {
-      this.logger.error("No device connected");
-      throw new DeviceConnectionError(
-        "No device connected. Please connect a device first.",
-        { type: "not-connected" },
-      );
-    }
-
-    const device = this.deviceManagementKitService.connectedDevice;
-    if (!device) {
-      this.logger.error("No connected device found");
-      throw new DeviceConnectionError("No connected device found", {
-        type: "not-connected",
-      });
-    }
 
     const [, message] = params;
     const signType: SignType = "personal-sign";
 
-    try {
-      const dmk = this.deviceManagementKitService.dmk;
+    return waitForDeviceSession(this.core).pipe(
+      switchMap((session) => {
+        const sessionId = session.sessionId;
+        const dmk = session.dmk;
 
-      const selectedAccount: Account | undefined =
-        this.contextService.getContext().selectedAccount;
+        if (!selectedAccount) {
+          throw new AccountNotSelectedError("No account selected");
+        }
 
-      if (!selectedAccount) {
-        throw new AccountNotSelectedError("No account selected");
-      }
+        const derivationPath = getEvmDerivationPath(selectedAccount);
+        const contextModule = this.buildContextModule.execute({
+          chain: ContextModuleChainID.Ethereum,
+        });
+        const openAppConfig = this.createOpenAppConfig();
 
-      const derivationPath = getDerivationPath(selectedAccount);
-      const contextModule = this.buildContextModule.execute({
-        chain: ContextModuleChainID.Ethereum,
-      });
+        const deviceAction = new SignPersonalMessageFlowDeviceAction({
+          input: {
+            signType,
+            derivationPath,
+            message,
+            expectedAddress: selectedAccount.freshAddress,
+            openAppInput: openAppConfig,
+            contextModule,
+          },
+          inspect: false,
+        });
 
-      return from(this.createOpenAppConfig()).pipe(
-        switchMap((openAppConfig) => {
-          const deviceAction = new SignPersonalMessageFlowDeviceAction({
-            input: {
+        const { observable } = dmk.executeDeviceAction({
+          sessionId,
+          deviceAction,
+        });
+
+        return observable.pipe(
+          map((state) =>
+            this.toSignFlowStatus(
+              state,
               signType,
-              derivationPath,
-              message,
-              expectedAddress: selectedAccount.freshAddress,
-              openAppInput: openAppConfig,
-              contextModule,
-            },
-            inspect: false,
-          });
-
-          const { observable } = dmk.executeDeviceAction({
-            sessionId,
-            deviceAction,
-          });
-
-          return observable.pipe(
-            map((state) =>
-              this.toSignFlowStatus(
-                state,
-                signType,
-                openAppConfig.application.name,
-              ),
+              openAppConfig.application.name,
             ),
-          ) as Observable<SignFlowStatus>;
-        }),
-      );
-    } catch (error) {
-      this.logger.error("Failed to sign personal message", { error });
-      return of({
-        signType,
-        status: "error" as const,
-        error,
-      });
-    }
+          ),
+        ) as Observable<SignFlowStatus>;
+      }),
+      catchError((error) => {
+        this.logger.error("Failed to sign personal message", { error });
+        return of({
+          signType,
+          status: "error" as const,
+          error,
+        });
+      }),
+    );
   }
 
-  async createOpenAppConfig(): Promise<OpenAppWithDependenciesDAInput> {
-    const dAppConfig: DAppConfig = await this.dappConfigService.getDAppConfig();
-
-    const ethereumAppDependencies = dAppConfig.appDependencies.find(
-      (dep) => dep.blockchain === "ethereum",
-    );
-    if (!ethereumAppDependencies) {
-      throw new Error("Ethereum Blockchain dependencies not found");
-    }
-
+  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
+    const { appName, dependencies } = this.blockchainConfig.appDependencies;
     return {
-      application: { name: ethereumAppDependencies.appName },
-      dependencies: ethereumAppDependencies.dependencies.map((dep) => ({
-        name: dep,
-      })),
+      application: { name: appName },
+      dependencies: dependencies.map((name) => ({ name })),
       requireLatestFirmware: false,
     };
   }

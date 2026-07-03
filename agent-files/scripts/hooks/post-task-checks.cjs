@@ -7,6 +7,22 @@ const path = require("path");
 const MAX_LINES = 80;
 const PROJECT_ROOTS = ["packages", "apps"];
 const TARGETS = ["lint", "typecheck", "test"];
+// Manual skip switch: set SKIP_POST_TASK_CHECKS=1 or create the marker file
+// (e.g. while planning, where these checks are noise). Remove it to re-enable.
+const SKIP_MARKER = path.join(
+  process.cwd(),
+  ".cursor",
+  ".skip-post-task-checks",
+);
+
+function checksSkipped() {
+  if (process.env.SKIP_POST_TASK_CHECKS) return true;
+  try {
+    return fs.existsSync(SKIP_MARKER);
+  } catch {
+    return false;
+  }
+}
 
 function readStdin() {
   return new Promise((resolve) => {
@@ -65,6 +81,11 @@ function getChangedProjects() {
 }
 
 async function main() {
+  if (checksSkipped()) {
+    console.log("{}");
+    return;
+  }
+
   const input = JSON.parse(await readStdin());
 
   if (input.status !== "completed") {

@@ -60,20 +60,30 @@ function createMockFetchSelectedAccountUseCase() {
 
 const hydratedContext = {
   chainId: 1,
-  selectedAccount: {
-    freshAddress: "0x1234",
-    currencyId: "ethereum",
-    ticker: "ETH",
-  },
+  selectedAccounts: new Map([
+    [
+      "ethereum",
+      {
+        freshAddress: "0x1234",
+        currencyId: "ethereum",
+        ticker: "ETH",
+      },
+    ],
+  ]),
 };
 
 const skeletonContext = {
   chainId: 1,
-  selectedAccount: {
-    freshAddress: "0x1234",
-    currencyId: "ethereum",
-    ticker: "",
-  },
+  selectedAccounts: new Map([
+    [
+      "ethereum",
+      {
+        freshAddress: "0x1234",
+        currencyId: "ethereum",
+        ticker: "",
+      },
+    ],
+  ]),
 };
 
 function createMockContextService(
@@ -414,7 +424,7 @@ describe("DefaultPendingTransactionController", () => {
 
       mockContextService.getContext.mockReturnValue({
         chainId: 1,
-        selectedAccount: undefined,
+        selectedAccounts: new Map(),
       });
 
       controller.track();

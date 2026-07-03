@@ -15,17 +15,20 @@
  * @see https://eips.ethereum.org/EIPS/eip-2255
  */
 
+import { type Observable, Subject, type Subscription } from "rxjs";
+
+import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
+import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
+import type { SignTransaction } from "./use-case/SignTransaction.js";
+import type { SignTypedData } from "./use-case/SignTypedData.js";
 import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
 import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
 import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
 import { isSupportedChainId } from "./utils/supportedChains.js";
-import {
-  BlindSigningDisabledError,
-  IncorrectSeedError,
-  UserRejectedTransactionError,
-} from "../../../api/errors/DeviceErrors.js";
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
-import { BroadcastTransactionError } from "../../../api/errors/NetworkErrors.js";
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
+import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
@@ -40,26 +43,47 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
+  type SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
+import {
+  type SignFlowStatus,
+  type SignType,
+} from "../../../api/model/signing/SignFlowStatus.js";
+import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
+import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
+import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
+import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
 import { hexToUtf8 } from "../../../api/utils/byteUtils.js";
-import { Account } from "../../account/service/AccountService.js";
-import type {
-  BlockchainFamily,
-  CoreFacade,
-  ProviderRpcMethods,
-  WalletProviderSignRequest,
-} from "../../blockchain-provider/model/BlockchainProvider.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
-export type RpcMethodsLoader = () => Promise<ProviderRpcMethods | undefined>;
+export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;
+
+/** EVM sign params accepted by the internal sign flow. */
+type SignFlowParams =
+  | SignTransactionParams
+  | SignRawTransactionParams
+  | SignTypedMessageParams
+  | SignPersonalMessageParams;
+
+/**
+ * EVM-owned collaborators the provider needs to run the complete sign flow
+ * internally. Supplied as plain constructor arguments (no DI decorators) by
+ * {@link EvmBlockchainProvider}, which is built by the EVM factory.
+ */
+export type LedgerEIP1193ProviderDeps = {
+  signTransaction: SignTransaction;
+  signRawTransaction: SignRawTransaction;
+  signTypedData: SignTypedData;
+  signPersonalMessage: SignPersonalMessageUseCase;
+};
 
 export class LedgerEIP1193Provider
   extends EventTarget
   implements EIP1193Provider
 {
-  public readonly family: BlockchainFamily = "evm";
+  public readonly family: BlockchainFamily = "ethereum";
   private _isConnected = false;
-  private _selectedAccount: string | null = null;
+  private _selectedAccount: ProviderAccount | null = null;
   private _selectedChainId = 1; // Default to Ethereum mainnet, when connected to the provider it is set to network 1
 
   private _id = 0;
@@ -70,7 +94,7 @@ export class LedgerEIP1193Provider
   private _inFlight = false;
 
   // Per-dApp RPC routing config, lazily loaded once and cached.
-  private _rpcMethods?: ProviderRpcMethods;
+  private _rpcMethods?: BlockchainRpcMethods;
   private _rpcMethodsLoaded = false;
 
   // NOTE: Tracking listeners by function reference
@@ -83,6 +107,7 @@ export class LedgerEIP1193Provider
 
   constructor(
     private readonly host: CoreFacade,
+    private readonly deps: LedgerEIP1193ProviderDeps,
     private readonly loadRpcMethods?: RpcMethodsLoader,
   ) {
     super();
@@ -175,7 +200,7 @@ export class LedgerEIP1193Provider
       this._selectedChainId = 1; // Default to Ethereum mainnet
       this._inFlight = false;
 
-      await this.host.disconnect();
+      await this.host.disconnect(this.family);
 
       this.dispatchEvent(
         new CustomEvent<ProviderRpcError>("disconnect", {
@@ -191,7 +216,7 @@ export class LedgerEIP1193Provider
    * Core pushes the freshly selected account (or `undefined` on disconnect).
    * Emits EIP-1193 `accountsChanged` for switches made directly in the UI.
    */
-  public setSelectedAccount(account: Account | undefined): void {
+  public setSelectedAccount(account: ProviderAccount | undefined): void {
     if (!account) {
       void this.disconnect();
       return;
@@ -199,19 +224,19 @@ export class LedgerEIP1193Provider
 
     if (
       this._selectedAccount &&
-      this._selectedAccount === account.freshAddress &&
+      this._selectedAccount.freshAddress === account.freshAddress &&
       this._isConnected
     ) {
       return;
     }
 
     this._isConnected = true;
-    this._selectedAccount = account.freshAddress;
+    this._selectedAccount = account;
     this.dispatchEvent(
       new CustomEvent<string[]>("accountsChanged", {
         bubbles: true,
         composed: true,
-        detail: [this._selectedAccount],
+        detail: [account.freshAddress],
       }),
     );
 
@@ -223,8 +248,8 @@ export class LedgerEIP1193Provider
     this.setSelectedChainId(chainId);
   }
 
-  private setSelectedChainId(chainId: number) {
-    if (this._selectedChainId === chainId) {
+  private setSelectedChainId(chainId: number, forceAccountChange = false) {
+    if (this._selectedChainId === chainId && !forceAccountChange) {
       return;
     }
     this._selectedChainId = chainId;
@@ -239,17 +264,17 @@ export class LedgerEIP1193Provider
 
   private async handleAccounts(): Promise<string[]> {
     if (this._selectedAccount) {
-      return [this._selectedAccount];
+      return [this._selectedAccount.freshAddress];
     }
     return [];
   }
 
   private async handleRequestAccounts(): Promise<string[]> {
-    const account = await this.host.requestAccount("evm");
+    const account = await this.host.requestAccount("ethereum");
 
     this._isConnected = true;
-    this._selectedAccount = account.freshAddress;
-    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId));
+    this._selectedAccount = account;
+    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId), true);
 
     this.dispatchEvent(
       new CustomEvent<string[]>("accountsChanged", {
@@ -269,35 +294,50 @@ export class LedgerEIP1193Provider
   ): Promise<string> {
     this.assertReadyToSign();
 
-    let transaction: Record<string, unknown> | string;
+    let signParams: SignTransactionParams | SignRawTransactionParams;
+    let runUseCase: () => Observable<SignFlowStatus>;
     if (typeof params[0] === "object") {
-      transaction = params[0] as Record<string, unknown>;
+      signParams = {
+        transaction: params[0] as SignTransactionParams["transaction"],
+        method,
+        broadcast,
+      };
+      const transactionParams = signParams as SignTransactionParams;
+      runUseCase = () =>
+        this.deps.signTransaction.execute(
+          transactionParams,
+          this._selectedAccount ?? undefined,
+          this._selectedChainId,
+        );
     } else {
-      transaction = params[0] as string;
+      signParams = {
+        transaction: params[0] as string,
+        method,
+        broadcast,
+      };
+      const rawParams = signParams as SignRawTransactionParams;
+      runUseCase = () =>
+        this.deps.signRawTransaction.execute(
+          rawParams,
+          this._selectedAccount ?? undefined,
+        );
     }
 
-    const request: WalletProviderSignRequest = {
-      kind: "transaction",
-      transaction,
-      method,
-      broadcast,
-    };
-
-    try {
-      const result = await this.host.requestSign(request);
-      if (isBroadcastedTransactionResult(result)) {
-        return result.hash;
-      }
-      if (isSignedTransactionResult(result)) {
-        return result.signedRawTransaction;
-      }
-      throw this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Unexpected sign result",
-      );
-    } catch (error) {
-      throw this.mapErrors(error);
+    const result = await this.handleBlockchainRequest(
+      signParams,
+      "transaction",
+      runUseCase,
+    );
+    if (isBroadcastedTransactionResult(result)) {
+      return result.hash;
     }
+    if (isSignedTransactionResult(result)) {
+      return result.signedRawTransaction;
+    }
+    throw this.createError(
+      CommonEIP1193ErrorCode.InternalError,
+      "Unexpected sign result",
+    );
   }
 
   private async handleSignTypedData(
@@ -308,8 +348,8 @@ export class LedgerEIP1193Provider
 
     if (
       typeof params[0] === "string" &&
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      params[0].toLowerCase() !== this._selectedAccount!.toLowerCase()
+      params[0].toLowerCase() !==
+        this._selectedAccount?.freshAddress.toLowerCase()
     ) {
       throw this.createError(
         CommonEIP1193ErrorCode.Unauthorized,
@@ -317,7 +357,7 @@ export class LedgerEIP1193Provider
       );
     }
 
-    let payload: [address: string, typedData: unknown, method: string];
+    let payload: SignTypedMessageParams;
     if (typeof params[1] === "string") {
       try {
         const typedData = JSON.parse(params[1] as string) as TypedData;
@@ -330,24 +370,25 @@ export class LedgerEIP1193Provider
         );
       }
     } else {
-      payload = [params[0] as string, params[1], method];
+      payload = [params[0] as string, params[1] as TypedData, method];
     }
 
-    try {
-      const result = await this.host.requestSign({
-        kind: "typedData",
-        payload,
-      });
-      if (isSignedMessageOrTypedDataResult(result)) {
-        return result.signature;
-      }
-      throw this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Unexpected sign result",
-      );
-    } catch (error) {
-      throw this.mapErrors(error);
+    const result = await this.handleBlockchainRequest(
+      payload,
+      "typed-message",
+      () =>
+        this.deps.signTypedData.execute(
+          payload,
+          this._selectedAccount ?? undefined,
+        ),
+    );
+    if (isSignedMessageOrTypedDataResult(result)) {
+      return result.signature;
     }
+    throw this.createError(
+      CommonEIP1193ErrorCode.InternalError,
+      "Unexpected sign result",
+    );
   }
 
   private async handleSignPersonalMessage(
@@ -356,7 +397,7 @@ export class LedgerEIP1193Provider
   ): Promise<string> {
     this.assertReadyToSign();
 
-    let payload: [address: string, message: string, method: string];
+    let payload: SignPersonalMessageParams;
     // CF: https://docs.metamask.io/wallet/reference/json-rpc-methods/personal_sign
     if (method === "personal_sign") {
       const address = params[1] as string;
@@ -367,21 +408,106 @@ export class LedgerEIP1193Provider
       payload = [params[0] as string, params[1] as string, method];
     }
 
-    try {
-      const result = await this.host.requestSign({
-        kind: "personalMessage",
-        payload,
-      });
-      if (isSignedMessageOrTypedDataResult(result)) {
-        return result.signature;
-      }
-      throw this.createError(
-        CommonEIP1193ErrorCode.InternalError,
-        "Unexpected sign result",
-      );
-    } catch (error) {
-      throw this.mapErrors(error);
+    const result = await this.handleBlockchainRequest(
+      payload,
+      "personal-sign",
+      () =>
+        this.deps.signPersonalMessage.execute(
+          payload,
+          this._selectedAccount ?? undefined,
+        ),
+    );
+    if (isSignedMessageOrTypedDataResult(result)) {
+      return result.signature;
     }
+    throw this.createError(
+      CommonEIP1193ErrorCode.InternalError,
+      "Unexpected sign result",
+    );
+  }
+
+  /**
+   * Runs the complete EVM sign flow internally: emits a {@link WalletNavigationIntent}
+   * so the UI can render and drive the flow (retry / finish), runs the matching
+   * sign use-case, and resolves the dApp-facing promise with the signed result.
+   *
+   * The promise stays pending across UI retries and only settles when the
+   * use-case emits `success` (resolve) or the user closes the modal (reject with
+   * a `ModalClosedError`). Each emitted status is forwarded to the UI through
+   * the intent's `status$` stream and to broadcasted-transaction tracking.
+   */
+  private handleBlockchainRequest(
+    params: SignFlowParams,
+    signType: SignType,
+    runUseCase: () => Observable<SignFlowStatus>,
+  ): Promise<SignedResults> {
+    return new Promise<SignedResults>((resolve, reject) => {
+      const status$ = new Subject<SignFlowStatus>();
+      let subscription: Subscription | undefined;
+      let settled = false;
+
+      const onClose = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        cleanup();
+        reject(
+          this.createError(
+            CommonEIP1193ErrorCode.UserRejectedRequest,
+            "User closed the modal",
+          ),
+        );
+      };
+
+      const cleanup = () => {
+        subscription?.unsubscribe();
+        globalThis.removeEventListener?.("ledger-provider-close", onClose);
+      };
+
+      const start = () => {
+        subscription?.unsubscribe();
+        let observable: Observable<SignFlowStatus>;
+        try {
+          observable = runUseCase();
+        } catch (error) {
+          status$.next({ signType, status: "error", error });
+          return;
+        }
+        subscription = observable.subscribe({
+          next: (status) => {
+            this.host.trackBroadcastedTransaction(status, params);
+            status$.next(status);
+            if (status.status === "success") {
+              settled = true;
+              globalThis.removeEventListener?.(
+                "ledger-provider-close",
+                onClose,
+              );
+              resolve(status.data);
+            }
+          },
+          error: (error) => {
+            status$.next({ signType, status: "error", error });
+          },
+        });
+      };
+
+      globalThis.addEventListener?.("ledger-provider-close", onClose);
+
+      this.host.emitNavigationIntent({
+        name: "signTransaction",
+        params,
+        status$: status$.asObservable(),
+        retry: () => start(),
+        finish: () => {
+          cleanup();
+          status$.complete();
+        },
+      });
+
+      start();
+    });
   }
 
   private async handleSwitchChainId(params: unknown[]): Promise<null> {
@@ -491,12 +617,15 @@ export class LedgerEIP1193Provider
     }
 
     if (route === "broadcasted") {
-      return this.host.broadcastRPC({
-        jsonrpc: "2.0",
-        id: this._id++,
-        method,
-        params,
-      });
+      return this.host.broadcastRPC(
+        {
+          jsonrpc: "2.0",
+          id: this._id++,
+          method,
+          params,
+        },
+        { name: "ethereum", chainId: this._selectedChainId.toString() },
+      );
     }
 
     throw this.createError(
@@ -516,52 +645,5 @@ export class LedgerEIP1193Provider
     error.data = data;
     error.stack = err.stack;
     return error;
-  }
-
-  private mapErrors(error: unknown) {
-    switch (true) {
-      case error instanceof UserRejectedTransactionError:
-        return this.createError(
-          CommonEIP1193ErrorCode.UserRejectedRequest,
-          "User rejected transaction",
-          error,
-        );
-      case error instanceof BroadcastTransactionError:
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Broadcast transaction failed",
-          error,
-        );
-      case error instanceof BlindSigningDisabledError:
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Blind signing disabled",
-          error,
-        );
-      case error instanceof IncorrectSeedError:
-        return this.createError(
-          CommonEIP1193ErrorCode.Unauthorized,
-          "Address mismatch",
-          error,
-        );
-      case error instanceof ModalClosedError:
-        return this.createError(
-          CommonEIP1193ErrorCode.UserRejectedRequest,
-          "User closed the modal",
-          error,
-        );
-      default:
-        return this.createError(
-          CommonEIP1193ErrorCode.InternalError,
-          "Unknown error",
-          error,
-        );
-    }
-  }
-}
-
-export class ModalClosedError extends LedgerButtonError {
-  constructor(message: string, context?: Record<string, unknown>) {
-    super(message, "ModalClosedError", context);
   }
 }

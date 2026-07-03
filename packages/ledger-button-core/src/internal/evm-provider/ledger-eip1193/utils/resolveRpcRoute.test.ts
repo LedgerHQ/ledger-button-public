@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { ProviderRpcMethods } from "../../../blockchain-provider/model/BlockchainProvider.js";
+import type { BlockchainRpcMethods } from "../../../../api/model/dappConfig/BlockchainConfig.js";
 import { resolveRpcRoute } from "./resolveRpcRoute.js";
 
 describe("resolveRpcRoute", () => {
@@ -21,7 +21,7 @@ describe("resolveRpcRoute", () => {
   });
 
   describe("with dApp config", () => {
-    const config: ProviderRpcMethods = {
+    const config: BlockchainRpcMethods = {
       local: ["custom_localMethod"],
       broadcasted: ["eth_transactionCount", "eth_sendTransaction"],
     };
@@ -49,7 +49,7 @@ describe("resolveRpcRoute", () => {
     });
 
     it("never narrows the baseline (config is additive)", () => {
-      const sparse: ProviderRpcMethods = { local: [], broadcasted: [] };
+      const sparse: BlockchainRpcMethods = { local: [], broadcasted: [] };
       expect(resolveRpcRoute("eth_accounts", sparse)).toBe("local");
       expect(resolveRpcRoute("eth_call", sparse)).toBe("broadcasted");
     });

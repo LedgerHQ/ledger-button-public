@@ -1,7 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "../../../../api/model/ButtonCoreContext.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import type { AccountDbModel } from "../../model/accountDbModel.js";
 import { STORAGE_KEYS } from "../../model/constant.js";
 import { storageModuleTypes } from "../../storageModuleTypes.js";
 import type { StorageService } from "../../StorageService.js";
@@ -34,6 +36,11 @@ export class MigrateDbUseCase {
     if (version === 1) {
       await this.migrateToV2();
       version = 2;
+    }
+
+    if (version === 2) {
+      await this.migrateToV3();
+      version = 3;
     }
 
     this.logger.info(
@@ -81,5 +88,42 @@ export class MigrateDbUseCase {
 
     this.storageService.removeItem(STORAGE_KEYS.DB_VERSION);
     this.logger.info("Database migrated to version 2");
+  }
+
+  /**
+   * The selected account became per blockchain family. Move the legacy single
+   * selected-account entry into the new per-family record under the default
+   * family, then drop the legacy key.
+   */
+  private async migrateToV3(): Promise<void> {
+    this.storageService
+      .getItem<AccountDbModel>(STORAGE_KEYS.SELECTED_ACCOUNT)
+      .ifJust((accountDbModel) => {
+        const accounts = this.storageService
+          .getItem<Record<string, AccountDbModel>>(
+            STORAGE_KEYS.SELECTED_ACCOUNTS,
+          )
+          .orDefault({});
+        if (!(DEFAULT_BLOCKCHAIN_FAMILY in accounts)) {
+          accounts[DEFAULT_BLOCKCHAIN_FAMILY] = accountDbModel;
+          this.storageService.saveItem(STORAGE_KEYS.SELECTED_ACCOUNTS, accounts);
+        }
+      });
+
+    this.storageService.removeItem(STORAGE_KEYS.SELECTED_ACCOUNT);
+
+    const setVersionResult = await this.storageService.setDbVersion(3);
+    if (setVersionResult.isLeft()) {
+      this.logger.error(
+        "Failed to store DB version to already migrated database",
+        {
+          error: setVersionResult.extract(),
+        },
+      );
+      throw new Error(
+        "Failed to store DB version to already migrated database",
+      );
+    }
+    this.logger.info("Database migrated to version 3");
   }
 }

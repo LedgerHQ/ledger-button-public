@@ -73,7 +73,10 @@ export const useProviders = (config: LedgerProviderConfig = DEFAULT_CONFIG) => {
       setProviders((prev) => {
         if (!prev) return [e.detail];
 
-        const found = prev.find((p) => p.info.uuid === e.detail.info.uuid);
+        // De-duplicate on rdns: a wallet keeps a stable rdns across
+        // announcements, while uuid is regenerated each time, so keying on
+        // uuid would list the same provider multiple times.
+        const found = prev.find((p) => p.info.rdns === e.detail.info.rdns);
         if (found) return prev;
 
         return [...prev, { provider: e.detail.provider, info: e.detail.info }];

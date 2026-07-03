@@ -17,8 +17,8 @@ describe("EvmWalletProvider", () => {
     provider = createMockEip1193Provider();
   });
 
-  test('family is "evm"', () => {
-    expect(new EvmWalletProvider(provider).family).toBe("evm");
+  test('family is "ethereum"', () => {
+    expect(new EvmWalletProvider(provider).family).toBe("ethereum");
   });
 
   describe("init()", () => {

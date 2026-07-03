@@ -42,7 +42,7 @@ export class TransactionConfirmationNotifier {
       this.core.observePendingTransactions(),
       this.core.observeContext(),
     ]).subscribe(([pending, context]) => {
-      const account = context.selectedAccount;
+      const account = context.selectedAccounts.get("ethereum");
       const history = this.isDetailedAccount(account)
         ? (account.transactionHistory ?? [])
         : [];

@@ -23,6 +23,9 @@ export class SigningFlow extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
+  @property({ type: Object })
+  params?: unknown;
+
   @consume({ context: coreContext })
   @property({ attribute: false })
   public coreContext!: CoreContext;
@@ -44,6 +47,7 @@ export class SigningFlow extends LitElement {
         <${stateTag}
         .destinations=${this.destinations}
         .navigation=${this.navigation}
+        .params=${this.params}
         ></${stateTag}>
     `;
   }

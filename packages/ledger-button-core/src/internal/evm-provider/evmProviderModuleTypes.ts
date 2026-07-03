@@ -1,6 +1,8 @@
 export const evmProviderModuleTypes = {
-  LedgerRemoteDatasource: Symbol.for("LedgerRemoteDatasource"),
-  JSONRPCCallUseCase: Symbol.for("JSONRPCCallUseCase"),
+  /** The host CoreFacade, bound per-instance in the EVM local container. */
+  CoreFacade: Symbol.for("EvmCoreFacade"),
+  /** The per-provider BlockchainConfig, bound per-instance in the container. */
+  BlockchainConfig: Symbol.for("EvmBlockchainConfig"),
   SignTransactionUseCase: Symbol.for("SignTransactionUseCase"),
   SignRawTransactionUseCase: Symbol.for("SignRawTransactionUseCase"),
   SignTypedDataUseCase: Symbol.for("SignTypedDataUseCase"),

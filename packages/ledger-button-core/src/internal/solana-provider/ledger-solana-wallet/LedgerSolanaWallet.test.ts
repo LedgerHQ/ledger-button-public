@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 import { Account } from "../../account/service/AccountService.js";
-import type { CoreFacade } from "../../blockchain-provider/model/BlockchainProvider.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 // System program id: a valid 32-byte base58 address.
@@ -26,9 +26,32 @@ const createMockHost = (): {
 } => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
-  requestSign: vi.fn(),
   requestSwitchChain: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
+  getLogger: vi.fn(() => ({
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+  })),
+  getDeviceSession: vi.fn(() => ({
+    dmk: {},
+    sessionId: undefined,
+    isConnected: false,
+  })),
+  getSdkConfig: vi.fn(() => ({
+    originToken: "test-origin-token",
+    dAppIdentifier: "test-dapp",
+  })),
+  isModalOpen: vi.fn(() => false),
+  trackTransactionStarted: vi.fn(),
+  trackTransactionCompleted: vi.fn(),
+  trackTypedMessageStarted: vi.fn(),
+  trackTypedMessageCompleted: vi.fn(),
+  estimateGasFromCoinService: vi.fn().mockResolvedValue(undefined),
+  emitNavigationIntent: vi.fn(),
+  trackBroadcastedTransaction: vi.fn(),
 });
 
 describe("LedgerSolanaWallet (connection)", () => {

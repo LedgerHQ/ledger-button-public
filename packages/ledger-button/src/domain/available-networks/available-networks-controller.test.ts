@@ -76,7 +76,7 @@ describe("AvailableNetworksController", () => {
     core = {
       observeContext: vi
         .fn()
-        .mockReturnValue(of({ selectedAccount: { freshAddress: "0xabc123" } })),
+        .mockReturnValue(of({ selectedAccounts: new Map([["ethereum", { freshAddress: "0xabc123" }]]) })),
       observeAccounts: vi
         .fn()
         .mockReturnValue(of([ethAccount, polygonAccount, otherAddressAccount])),
@@ -129,7 +129,7 @@ describe("AvailableNetworksController", () => {
 
   it("should navigate back when no selected address", async () => {
     (core.observeContext as ReturnType<typeof vi.fn>).mockReturnValue(
-      of({ selectedAccount: undefined }),
+      of({ selectedAccounts: new Map() }),
     );
 
     controller.hostConnected();

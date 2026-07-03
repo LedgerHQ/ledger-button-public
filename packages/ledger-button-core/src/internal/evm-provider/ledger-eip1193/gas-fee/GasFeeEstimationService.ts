@@ -1,6 +1,11 @@
-import { GasFeeEstimation, TransactionInfo } from "../../../balance/model/types.js";
+import type {
+  ProviderGasFeeEstimation,
+  ProviderTransactionInfo,
+} from "../../../../api/model/blockchain/GasFee.js";
 
 export interface GasFeeEstimationService {
-  getFeesForTransaction(tx: TransactionInfo): Promise<GasFeeEstimation>;
-  getNonceForTx(tx: TransactionInfo): Promise<string>;
+  getFeesForTransaction(
+    tx: ProviderTransactionInfo,
+  ): Promise<ProviderGasFeeEstimation>;
+  getNonceForTx(tx: ProviderTransactionInfo): Promise<string>;
 }

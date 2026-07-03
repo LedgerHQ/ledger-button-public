@@ -1,9 +1,7 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Config } from "../../../config/model/config.js";
-import { createMockDeviceManagementKitService } from "../../../device/__tests__/mocks.js";
-import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
+import { createMockCoreFacade } from "../../../../internal/blockchain-provider/__mocks__/coreFacadeMock.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
@@ -14,9 +12,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@ledgerhq/device-signer-kit-ethereum", async (importActual) => {
-  const actual = await importActual<
-    typeof import("@ledgerhq/device-signer-kit-ethereum")
-  >();
+  const actual =
+    await importActual<typeof import("@ledgerhq/device-signer-kit-ethereum")>();
 
   class SignerEthBuilder {
     constructor(args: unknown) {
@@ -36,25 +33,26 @@ vi.mock("@ledgerhq/device-signer-kit-ethereum", async (importActual) => {
 
 describe("BuildEthSigner", () => {
   let useCase: BuildEthSigner;
-  let mockDeviceManagementKitService: ReturnType<
-    typeof createMockDeviceManagementKitService
-  >;
   let buildContextModule: { execute: ReturnType<typeof vi.fn> };
 
   const fakeContextModule = { id: "context-module" };
   const fakeSigner = { id: "eth-signer" };
   const fakeDmk = { id: "dmk" };
 
-  const config = new Config({
-    originToken: "origin-token",
-    dAppIdentifier: "dapp-identifier",
+  const core = createMockCoreFacade({
+    getDeviceSession: () => ({
+      dmk: fakeDmk as never,
+      sessionId: undefined,
+      isConnected: true,
+    }),
+    getSdkConfig: () => ({
+      originToken: "origin-token",
+      dAppIdentifier: "dapp-identifier",
+    }),
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockDeviceManagementKitService = createMockDeviceManagementKitService();
-    mockDeviceManagementKitService.dmk = fakeDmk;
 
     mocks.build.mockReturnValue(fakeSigner);
 
@@ -63,8 +61,7 @@ describe("BuildEthSigner", () => {
     };
 
     useCase = new BuildEthSigner(
-      mockDeviceManagementKitService as unknown as DeviceManagementKitService,
-      config,
+      core,
       buildContextModule as unknown as BuildContextModule,
     );
   });
