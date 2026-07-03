@@ -1,5 +1,6 @@
 import { inject, injectable } from "inversify";
 
+import { BlockchainRpcMethods } from "../../../../api/model/dappConfig/BlockchainConfig.js";
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
 import { DAppConfigV2 } from "../model/dAppConfigV2Types.js";
@@ -81,6 +82,33 @@ const SOLANA_MAINNET_NETWORK = {
   currencyTicker: "SOL",
 } as const;
 
+const EVM_DEFAULT_RPC_METHODS: BlockchainRpcMethods = {
+  local: [
+    // Account and chain queries
+    "eth_accounts",
+    "eth_requestAccounts",
+    "eth_chainId",
+    // Signing and transaction operations
+    "eth_sign",
+    "personal_sign",
+    "eth_signTypedData",
+    "eth_signTypedData_v4",
+    "eth_sendTransaction",
+    "eth_signTransaction",
+    "eth_signRawTransaction",
+    "eth_sendRawTransaction",
+    // EIP-specific methods
+    "wallet_switchEthereumChain",
+  ],
+  broadcasted: [
+    "eth_blockNumber",
+    "eth_getBalance",
+    "eth_getCode",
+    "eth_estimateGas",
+    "eth_call",
+  ],
+};
+
 const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
   ledger: {
     name: "Ledger",
@@ -96,16 +124,7 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
         },
-        rpcMethods: {
-          local: [
-            "eth_sendTransaction",
-            "eth_sign",
-            "eth_signTransaction",
-            "eth_signTypedData",
-            "eth_signTypedData_v4",
-          ],
-          broadcasted: ["eth_transactionCount", "eth_call"],
-        },
+        rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
       {
         blockchain: "solana",
@@ -140,16 +159,7 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
         blockchain: "ethereum",
         appName: "1inch",
         networks: [...EVM_DEFAULT_NETWORKS],
-        rpcMethods: {
-          local: [
-            "eth_sendTransaction",
-            "eth_sign",
-            "eth_signTransaction",
-            "eth_signTypedData",
-            "eth_signTypedData_v4",
-          ],
-          broadcasted: ["eth_transactionCount", "eth_call"],
-        },
+        rpcMethods: EVM_DEFAULT_RPC_METHODS,
         appDependencies: {
           appName: "1inch",
           dependencies: ["1inch", "Ethereum"],
@@ -194,16 +204,7 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
         },
-        rpcMethods: {
-          local: [
-            "eth_sendTransaction",
-            "eth_sign",
-            "eth_signTransaction",
-            "eth_signTypedData",
-            "eth_signTypedData_v4",
-          ],
-          broadcasted: ["eth_transactionCount", "eth_call"],
-        },
+        rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
     ],
     featureFlags: {},
@@ -223,16 +224,7 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
           appName: "Ethereum",
           dependencies: ["Ethereum"],
         },
-        rpcMethods: {
-          local: [
-            "eth_sendTransaction",
-            "eth_sign",
-            "eth_signTransaction",
-            "eth_signTypedData",
-            "eth_signTypedData_v4",
-          ],
-          broadcasted: ["eth_transactionCount", "eth_call"],
-        },
+        rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
     ],
     featureFlags: {},
