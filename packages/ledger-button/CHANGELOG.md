@@ -1,3 +1,13 @@
+## 1.3.1 (2026-07-02)
+
+### 🩹 Fixes
+
+- Move Storybook packages to devDependencies and bump to 9.1.19 to clear HIGH security advisories (GHSA-mjf5-7g4m-gx5w, GHSA-8452-54wp-rmv6) for SDK consumers ([30f0bee8](https://github.com/LedgerHQ/ledger-button/commit/30f0bee8))
+
+### ❤️ Thank You
+
+- Pierre Vautherin
+
 ## 1.3.0 (2026-06-01)
 
 ### 🚀 Features
