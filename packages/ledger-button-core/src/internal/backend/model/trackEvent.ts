@@ -13,6 +13,9 @@ export enum EventType {
   TypedMessageFlowCompletion = "typed_message_flow_completion",
   TypedMessageFlowInitialization = "typed_message_flow_initialization",
   ViewTransactionDetailsClicked = "view_transaction_details_clicked",
+  ViewAllTransactionsClicked = "view_all_transactions_clicked",
+  ViewAllTransactionsRedirectConfirmed = "view_all_transactions_redirect_confirmed",
+  ViewAllTransactionsRedirectCancelled = "view_all_transactions_redirect_cancelled",
   WalletActionClicked = "wallet_action_clicked",
   WalletRedirectConfirmed = "wallet_redirect_confirmed",
   WalletRedirectCancelled = "wallet_redirect_cancelled",
@@ -157,6 +160,30 @@ export type ViewTransactionDetailsClickedEventData = BaseEventData & {
   transaction_hash: string;
 };
 
+export type ViewAllTransactionsClickedEventData = BaseEventData & {
+  event_type: "view_all_transactions_clicked";
+  session_id: string;
+  ledger_sync_user_id?: string;
+  currency_id: string;
+  account_address: string;
+};
+
+export type ViewAllTransactionsRedirectConfirmedEventData = BaseEventData & {
+  event_type: "view_all_transactions_redirect_confirmed";
+  session_id: string;
+  ledger_sync_user_id?: string;
+  currency_id: string;
+  account_address: string;
+};
+
+export type ViewAllTransactionsRedirectCancelledEventData = BaseEventData & {
+  event_type: "view_all_transactions_redirect_cancelled";
+  session_id: string;
+  ledger_sync_user_id?: string;
+  currency_id: string;
+  account_address: string;
+};
+
 export type LanguageChangedEventData = BaseEventData & {
   event_type: "language_changed";
   session_id: string;
@@ -186,6 +213,9 @@ export type EventData =
   | TypedMessageFlowCompletionEventData
   | TypedMessageFlowInitializationEventData
   | ViewTransactionDetailsClickedEventData
+  | ViewAllTransactionsClickedEventData
+  | ViewAllTransactionsRedirectConfirmedEventData
+  | ViewAllTransactionsRedirectCancelledEventData
   | WalletActionClickedEventData
   | WalletRedirectConfirmedEventData
   | WalletRedirectCancelledEventData

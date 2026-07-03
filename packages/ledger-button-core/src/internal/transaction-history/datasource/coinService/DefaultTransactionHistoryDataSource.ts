@@ -3,7 +3,6 @@ import { Either, Left } from "purify-ts";
 
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
-import { isSupportedEvmCurrency } from "../../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
@@ -18,6 +17,8 @@ import {
   TransactionHistoryOptions,
   TransactionHistoryPage,
 } from "../../model/transactionHistoryTypes.js";
+import { normalizeAddressForCurrency } from "../../utils/normalizeAddressForCurrency.js";
+import { resolveNetworkSlug } from "../../utils/resolveNetworkSlug.js";
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
@@ -50,7 +51,7 @@ export class DefaultTransactionHistoryDataSource
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryPage>> {
-    const networkSlug = this.resolveNetworkSlug(currencyId);
+    const networkSlug = resolveNetworkSlug(currencyId);
     if (!networkSlug) {
       this.logger.warn("Unsupported currency for transaction history", {
         currencyId,
@@ -83,11 +84,9 @@ export class DefaultTransactionHistoryDataSource
             { address, currencyId, originalError: error.message },
           ),
       )
-      .map((dto) => this.mapDtoToPage(this.dropOperationsWithoutHash(dto)));
-  }
-
-  private resolveNetworkSlug(currencyId: string): string | undefined {
-    return isSupportedEvmCurrency(currencyId) ? currencyId : undefined;
+      .map((dto) =>
+        this.mapDtoToPage(this.dropOperationsWithoutHash(dto), currencyId),
+      );
   }
 
   private buildQueryParams(options?: TransactionHistoryOptions): string {
@@ -136,24 +135,30 @@ export class DefaultTransactionHistoryDataSource
 
   private mapDtoToPage(
     dto: CoinServiceAccountOperationsResponseDto,
+    currencyId: string,
   ): TransactionHistoryPage {
     return {
       items: dto.items
         .slice(0, TRANSACTION_HISTORY_MAX_ITEMS)
-        .map((op) => this.mapDtoToEntry(op)),
+        .map((op) => this.mapDtoToEntry(op, currencyId)),
       nextPageToken: dto.next ?? undefined,
     };
   }
 
   private mapDtoToEntry(
     op: CoinServiceAccountOperationDto,
+    currencyId: string,
   ): TransactionHistoryEntry {
     return {
       hash: op.tx.hash,
       value: this.resolveValue(op),
-      senders: (op.senders ?? []).map((address) => address.toLowerCase()),
-      recipients: (op.recipients ?? []).map((address) => address.toLowerCase()),
-      fee: this.resolveFee(op),
+      senders: (op.senders ?? []).map((address) =>
+        normalizeAddressForCurrency(address, currencyId),
+      ),
+      recipients: (op.recipients ?? []).map((address) =>
+        normalizeAddressForCurrency(address, currencyId),
+      ),
+      fee: this.resolveFee(op, currencyId),
       failed: op.tx?.failed === true,
       blockHeight: op.tx?.block?.height,
       timestamp: this.resolveTimestamp(op),
@@ -187,12 +192,16 @@ export class DefaultTransactionHistoryDataSource
 
   private resolveFee(
     op: CoinServiceAccountOperationDto,
+    currencyId: string,
   ): TransactionHistoryEntryFee | undefined {
     const amount = op.tx?.fees;
     if (!amount || amount === "0") {
       return undefined;
     }
-    const payer = op.tx?.feesPayer?.toLowerCase();
+    const rawPayer = op.tx?.feesPayer;
+    const payer = rawPayer
+      ? normalizeAddressForCurrency(rawPayer, currencyId)
+      : undefined;
     return payer ? { amount, payer } : { amount };
   }
 

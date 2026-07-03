@@ -3,6 +3,7 @@ import { Container } from "inversify";
 import { accountModuleFactory } from "./account/accountModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
 import { balanceModuleFactory } from "./balance/balanceModule.js";
+import { blockchainProviderModuleFactory } from "./blockchain-provider/blockchainProviderModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { consentModuleFactory } from "./consent/consentModule.js";
@@ -17,6 +18,7 @@ import { evmProviderModuleFactory } from "./evm-provider/evmProviderModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
+import { navigationModuleFactory } from "./navigation/navigationModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTransactionModule.js";
 import { platformModuleFactory } from "./platform/platformModule.js";
@@ -69,11 +71,13 @@ export function createContainer({
     }),
     evmProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
     solanaProviderModuleFactory({ stub: devConfig.stub.solanaProvider }),
+    blockchainProviderModuleFactory(),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
     platformModuleFactory(),
     modalModuleFactory(),
+    navigationModuleFactory(),
     contextModuleFactory(),
     pendingTransactionModuleFactory(),
   );

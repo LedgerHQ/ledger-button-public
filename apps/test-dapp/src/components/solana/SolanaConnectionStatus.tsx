@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Tag } from "@ledgerhq/lumen-ui-react";
 import { Copy } from "@ledgerhq/lumen-ui-react/symbols";
-import {
-  useConnection,
-  useWallet,
-} from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { address, lamports } from "@solana/kit";
+import { useSelectedWalletAccount } from "@solana/react";
 
+import { useSolanaChain } from "./solanaChainContext";
 import { type SolanaCluster } from "./solanaCluster";
+
+const LAMPORTS_PER_SOL = 1_000_000_000n;
 
 function CopyableValue({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -50,23 +50,25 @@ interface SolanaConnectionStatusProps {
 export function SolanaConnectionStatus({
   cluster,
 }: SolanaConnectionStatusProps) {
-  const { wallet, publicKey, connected, connecting } = useWallet();
-  const { connection } = useConnection();
+  const [selectedAccount] = useSelectedWalletAccount();
+  const { rpc } = useSolanaChain();
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!publicKey) {
+    if (!selectedAccount) {
       setBalance(null);
       return;
     }
 
     let cancelled = false;
 
-    connection
-      .getBalance(publicKey)
-      .then((lamports) => {
+    rpc
+      .getBalance(address(selectedAccount.address))
+      .send()
+      .then(({ value }) => {
         if (!cancelled) {
-          setBalance(lamports / LAMPORTS_PER_SOL);
+          const sol = Number(value) / Number(lamports(LAMPORTS_PER_SOL));
+          setBalance(sol);
         }
       })
       .catch(() => {
@@ -78,23 +80,9 @@ export function SolanaConnectionStatus({
     return () => {
       cancelled = true;
     };
-  }, [publicKey, connection]);
+  }, [selectedAccount, rpc]);
 
-  if (connecting) {
-    return (
-      <div className="border border-muted rounded-lg p-20 bg-canvas">
-        <div className="flex items-center gap-10 mb-12">
-          <div className="size-10 rounded-full bg-warning animate-pulse" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
-            Status
-          </span>
-        </div>
-        <p className="body-2 text-muted">Connecting to wallet…</p>
-      </div>
-    );
-  }
-
-  if (!wallet) {
+  if (!selectedAccount) {
     return (
       <div className="border border-dashed border-muted rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
@@ -104,7 +92,7 @@ export function SolanaConnectionStatus({
           </span>
         </div>
         <p className="body-2 text-muted">
-          No Solana wallet selected. Pick one from the list to begin.
+          No Solana wallet connected. Connect one from the list to begin.
         </p>
       </div>
     );
@@ -114,46 +102,33 @@ export function SolanaConnectionStatus({
     <div className="border border-active rounded-lg p-20 bg-canvas">
       <div className="flex items-center justify-between mb-14">
         <div className="flex items-center gap-10">
-          <div
-            className={
-              connected
-                ? "size-10 rounded-full bg-success"
-                : "size-10 rounded-full bg-muted"
-            }
-          />
+          <div className="size-10 rounded-full bg-success" />
           <span className="body-2-semi-bold text-muted uppercase tracking-wider">
-            {connected ? "Connected" : "Selected"}
+            Connected
           </span>
         </div>
-        <Tag
-          appearance={connected ? "success" : "gray"}
-          size="sm"
-          label={connected ? "Active" : "Not Connected"}
-        />
+        <Tag appearance="success" size="sm" label="Active" />
       </div>
 
-      <div className="flex items-center gap-12 mb-14">
-        {/* eslint-disable-next-line @next/next/no-img-element -- adapter icons are base64 data URLs */}
-        <img
-          src={wallet.adapter.icon}
-          alt={wallet.adapter.name}
-          className="size-36 rounded-lg"
-        />
-        <div className="flex flex-col gap-2 min-w-0">
+      {selectedAccount.label && (
+        <div className="flex items-center gap-12 mb-14">
+          {selectedAccount.icon && (
+            // eslint-disable-next-line @next/next/no-img-element -- wallet icons are base64 data URLs
+            <img
+              src={selectedAccount.icon}
+              alt={selectedAccount.label}
+              className="size-36 rounded-lg"
+            />
+          )}
           <span className="body-2-semi-bold text-base truncate">
-            {wallet.adapter.name}
-          </span>
-          <span className="body-2 text-muted font-mono truncate">
-            {wallet.readyState}
+            {selectedAccount.label}
           </span>
         </div>
-      </div>
+      )}
 
       <CopyableValue label="Cluster" value={cluster} />
 
-      {publicKey && (
-        <CopyableValue label="Public Key" value={publicKey.toBase58()} />
-      )}
+      <CopyableValue label="Public Key" value={selectedAccount.address} />
 
       {balance !== null && (
         <div className="pt-14 border-t border-muted">

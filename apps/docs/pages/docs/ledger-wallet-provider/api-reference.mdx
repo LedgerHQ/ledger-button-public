@@ -13,7 +13,7 @@ This page describes the public API of `@ledgerhq/ledger-wallet-provider`: the `i
 
 ## `initializeLedgerProvider(options)`
 
-Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Registers the provider with the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) discovery protocol.
+Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Announces the Ledger wallet to every supported chain through its native discovery protocol: EVM dApps via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963), and Solana dApps via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) (discoverable through `@solana/wallet-adapter` and similar libraries).
 
 **Signature**
 
@@ -63,7 +63,7 @@ type InitializeLedgerProviderOptions = {
 
 See [Configuration](./configuration) for the full `options` reference with defaults and examples.
 
-**Returns** a cleanup function. Call it to remove the provider and UI components from the DOM and to deregister the `eip6963:requestProvider` listener.
+**Returns** a cleanup function. Call it to remove the UI components from the DOM and to unregister every chain provider — both the EVM `eip6963:requestProvider` listener and the Solana Wallet Standard wallet.
 
 ```ts
 const cleanup = initializeLedgerProvider({ /* options */ })

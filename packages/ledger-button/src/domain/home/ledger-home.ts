@@ -11,20 +11,23 @@ import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
 } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
-import type {
-  WalletRedirectCancelEventDetail,
-  WalletRedirectConfirmEventDetail,
-} from "../../components/molecule/wallet-redirect-drawer/ledger-wallet-redirect-drawer.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
 } from "../../context/language-context.js";
-import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
+import {
+  buildAccountDeepLink,
+  buildWalletActionDeepLink,
+} from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
+
+type RedirectIntent =
+  | { type: "action"; action: WalletTransactionFeature }
+  | { type: "account"; currency: string; address: string };
 
 const styles = css`
   :host {
@@ -78,7 +81,7 @@ export class LedgerHomeScreen extends LitElement {
   private showRedirectDrawer = false;
 
   @state()
-  private currentAction: WalletTransactionFeature | null = null;
+  private redirectIntent: RedirectIntent | null = null;
 
   controller!: LedgerHomeController;
 
@@ -87,8 +90,6 @@ export class LedgerHomeScreen extends LitElement {
     this.controller = new LedgerHomeController(
       this,
       this.coreContext,
-      this.navigation,
-      this.destinations,
       this.languages,
     );
   }
@@ -123,41 +124,79 @@ export class LedgerHomeScreen extends LitElement {
     event: CustomEvent<WalletActionClickEventDetail>,
   ) => {
     const action = event.detail.action;
-    this.currentAction = action;
+    this.redirectIntent = { type: "action", action };
     this.showRedirectDrawer = true;
 
     void this.coreContext.trackWalletActionClicked(action);
   };
 
-  private handleRedirectConfirm = (
-    event: CustomEvent<WalletRedirectConfirmEventDetail>,
-  ) => {
-    const action = event.detail.action;
+  private handleRedirectConfirm = () => {
+    const intent = this.redirectIntent;
+    if (!intent) return;
 
-    void this.coreContext.trackWalletRedirectConfirmed(action);
+    const partner = this.coreContext.getConfig().dAppIdentifier;
 
-    const deeplink = buildWalletActionDeepLink(
-      action,
-      {
-        currency: this.controller.selectedAccount?.currencyId,
-      },
-      this.coreContext.getConfig().dAppIdentifier,
-    );
+    let deeplink: string;
+    if (intent.type === "action") {
+      void this.coreContext.trackWalletRedirectConfirmed(intent.action);
+      deeplink = buildWalletActionDeepLink(
+        intent.action,
+        {
+          currency: this.controller.selectedAccount?.currencyId,
+        },
+        partner,
+      );
+    } else {
+      void this.coreContext.trackViewAllTransactionsRedirectConfirmed({
+        currencyId: intent.currency,
+        accountAddress: intent.address,
+      });
+      deeplink = buildAccountDeepLink(
+        {
+          currency: intent.currency,
+          address: intent.address,
+        },
+        partner,
+      );
+    }
+
     window.open(deeplink, "_blank", "noopener,noreferrer");
 
     this.showRedirectDrawer = false;
-    this.currentAction = null;
+    this.redirectIntent = null;
   };
 
-  private handleRedirectCancel = (
-    event: CustomEvent<WalletRedirectCancelEventDetail>,
-  ) => {
-    const action = event.detail.action;
+  private handleRedirectCancel = () => {
+    const intent = this.redirectIntent;
 
-    void this.coreContext.trackWalletRedirectCancelled(action);
+    if (intent?.type === "action") {
+      void this.coreContext.trackWalletRedirectCancelled(intent.action);
+    } else if (intent?.type === "account") {
+      void this.coreContext.trackViewAllTransactionsRedirectCancelled({
+        currencyId: intent.currency,
+        accountAddress: intent.address,
+      });
+    }
 
     this.showRedirectDrawer = false;
-    this.currentAction = null;
+    this.redirectIntent = null;
+  };
+
+  private handleViewAllTransactionsClick = () => {
+    const account = this.controller.selectedAccount;
+    if (!account) return;
+
+    void this.coreContext.trackViewAllTransactionsClicked({
+      currencyId: account.currencyId,
+      accountAddress: account.freshAddress,
+    });
+
+    this.redirectIntent = {
+      type: "account",
+      currency: account.currencyId,
+      address: account.freshAddress,
+    };
+    this.showRedirectDrawer = true;
   };
 
   override render() {
@@ -239,6 +278,8 @@ export class LedgerHomeScreen extends LitElement {
                   .transactions=${this.controller.transactionListItems}
                   .pendingTransactions=${this.controller
                     .pendingTransactionListItems}
+                  @view-all-transactions-click=${this
+                    .handleViewAllTransactionsClick}
                 ></transaction-list-screen>`}
           </div>
         </div>
@@ -252,10 +293,12 @@ export class LedgerHomeScreen extends LitElement {
           ></ledger-button>
         </div>
 
-        ${this.showRedirectDrawer && this.currentAction
+        ${this.showRedirectDrawer && this.redirectIntent
           ? html`
               <ledger-wallet-redirect-drawer
-                .action=${this.currentAction}
+                .action=${this.redirectIntent.type === "action"
+                  ? this.redirectIntent.action
+                  : "send"}
                 @wallet-redirect-confirm=${this.handleRedirectConfirm}
                 @wallet-redirect-cancel=${this.handleRedirectCancel}
               ></ledger-wallet-redirect-drawer>

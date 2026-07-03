@@ -227,6 +227,48 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     expect(mockController.track).toHaveBeenCalled();
   });
 
+  it("should format EVM value using default decimals when CAL fails", async () => {
+    mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+      Left(new Error("CAL unavailable")),
+    );
+
+    await useCase.execute(successBroadcastStatus, signTransactionParams);
+
+    // signTransactionParams.transaction.value = "1000000000000000000" (1 ETH)
+    // CAL fails → decimals undefined → formatBalance falls back to EVM_NATIVE_DECIMALS (18)
+    expect(mockStorageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ formattedValue: "1" }),
+    );
+  });
+
+  it("should format Solana value using default decimals when CAL fails", async () => {
+    mockContextService.getContext.mockReturnValue({
+      chainId: 1,
+      selectedAccount: {
+        freshAddress: "So1ana1111",
+        currencyId: "solana",
+        ticker: "SOL",
+        name: "Solana",
+      },
+    });
+    mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+      Left(new Error("CAL unavailable")),
+    );
+
+    const solanaParams: SignTransactionParams = {
+      ...signTransactionParams,
+      transaction: { ...signTransactionParams.transaction, value: "1000000000" },
+    };
+
+    await useCase.execute(successBroadcastStatus, solanaParams);
+
+    // value = "1000000000" (1 SOL in lamports)
+    // CAL fails → decimals undefined → formatBalance falls back to SOLANA_NATIVE_DECIMALS (9)
+    expect(mockStorageService.add).toHaveBeenCalledWith(
+      expect.objectContaining({ formattedValue: "1" }),
+    );
+  });
+
   it("should default value to '0' for raw transaction params", async () => {
     const rawParams: SignRawTransactionParams = {
       transaction: "0xdeadbeef",

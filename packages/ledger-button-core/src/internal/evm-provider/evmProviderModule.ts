@@ -1,15 +1,17 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultGasFeeEstimationService } from "./gas-fee/DefaultGasFeeEstimationService.js";
-import { GasFeeEstimationService } from "./gas-fee/GasFeeEstimationService.js";
-import { LedgerRemoteDatasource } from "./jsonrpc/datasource/LedgerRemoteDatasource.js";
-import { StubLedgerRemoteDatasource } from "./jsonrpc/datasource/StubLedgerRemoteDatasource.js";
-import { JSONRPCCallUseCase } from "./jsonrpc/use-case/JSONRPCRequest.js";
-import { BroadcastTransaction } from "./use-case/BroadcastTransaction.js";
-import { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
-import { SignRawTransaction } from "./use-case/SignRawTransaction.js";
-import { SignTransaction } from "./use-case/SignTransaction.js";
-import { SignTypedData } from "./use-case/SignTypedData.js";
+import { DefaultGasFeeEstimationService } from "./ledger-eip1193/gas-fee/DefaultGasFeeEstimationService.js";
+import { GasFeeEstimationService } from "./ledger-eip1193/gas-fee/GasFeeEstimationService.js";
+import { LedgerRemoteDatasource } from "./ledger-eip1193/jsonrpc/datasource/LedgerRemoteDatasource.js";
+import { StubLedgerRemoteDatasource } from "./ledger-eip1193/jsonrpc/datasource/StubLedgerRemoteDatasource.js";
+import { JSONRPCCallUseCase } from "./ledger-eip1193/jsonrpc/use-case/JSONRPCRequest.js";
+import { BroadcastTransaction } from "./ledger-eip1193/use-case/BroadcastTransaction.js";
+import { BuildContextModule } from "./ledger-eip1193/use-case/BuildContextModule.js";
+import { BuildEthSigner } from "./ledger-eip1193/use-case/BuildEthSigner.js";
+import { SignPersonalMessageUseCase } from "./ledger-eip1193/use-case/SignPersonalMessageUseCase.js";
+import { SignRawTransaction } from "./ledger-eip1193/use-case/SignRawTransaction.js";
+import { SignTransaction } from "./ledger-eip1193/use-case/SignTransaction.js";
+import { SignTypedData } from "./ledger-eip1193/use-case/SignTypedData.js";
 import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
 
 type EvmProviderModuleOptions = {
@@ -34,8 +36,14 @@ export function evmProviderModuleFactory({ stub }: EvmProviderModuleOptions) {
     bind(evmProviderModuleTypes.BroadcastTransactionUseCase).to(
       BroadcastTransaction,
     );
+    bind(evmProviderModuleTypes.BuildContextModuleUseCase).to(
+      BuildContextModule,
+    );
+    bind(evmProviderModuleTypes.BuildEthSignerUseCase).to(BuildEthSigner);
 
-    bind<GasFeeEstimationService>(evmProviderModuleTypes.GasFeeEstimationService)
+    bind<GasFeeEstimationService>(
+      evmProviderModuleTypes.GasFeeEstimationService,
+    )
       .to(DefaultGasFeeEstimationService)
       .inSingletonScope();
 

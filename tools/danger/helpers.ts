@@ -41,7 +41,7 @@ const Branch = (danger: DangerDSLType, fail: FailFn, isFork = false) => ({
   regex: isFork
     ? new RegExp(`^(${BRANCH_PREFIX.join("|")})/.+`, "i")
     : new RegExp(
-        `^(release|chore/backmerge(-.+){0,}|(${BRANCH_PREFIX.join(
+        `^(release|backmerge/v.+|(${BRANCH_PREFIX.join(
           "|",
         )})/(([a-z]{1,})-[0-9]+|noissue|no-issue|issue-[0-9]+)-.+)`,
         "i",

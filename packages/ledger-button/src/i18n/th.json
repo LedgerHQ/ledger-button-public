@@ -207,6 +207,7 @@
     "noTransactions": "ไม่พบธุรกรรม",
     "pendingTransactions": "ธุรกรรมที่ค้างอยู่",
     "viewOnExplorer": "ดูใน Explorer",
+    "viewAllTransactions": "ดูธุรกรรมทั้งหมด",
     "failed": "ล้มเหลว",
     "kinds": {
       "swap": "สวอป",
@@ -309,17 +310,15 @@
         "cta1": "ลองใหม่",
         "cta2": "ปิด"
       },
-      "UserRejectedTransaction": {
-        "title": "ธุรกรรมถูกปฏิเสธ",
-        "description": "คุณได้ปฏิเสธธุรกรรมบน {device} ของคุณ",
-        "cta1": "ปิด",
-        "cta2": "ลองทำธุรกรรมอีกครั้ง"
+      "ActionRejected": {
+        "title": "การดำเนินการถูกปฏิเสธ",
+        "description": "ผู้ใช้ได้ปฏิเสธธุรกรรมบนอุปกรณ์",
+        "cta1": "ลองใหม่"
       },
-      "UserRejectedMessage": {
-        "title": "ข้อความถูกปฏิเสธ",
-        "description": "คุณปฏิเสธการลงนามข้อความบน {device} ของคุณ",
-        "cta1": "ปิด",
-        "cta2": "ลองลงนามในข้อความอีกครั้ง"
+      "DeviceOutOfStorage": {
+        "title": "มีพื้นที่ไม่เพียงพอสำหรับแอป {AppName}",
+        "description": "พื้นที่จัดเก็บใน {deviceName} ของคุณเต็มแล้ว จึงไม่สามารถติดตั้งได้เอง กรุณาเพิ่มพื้นที่ว่างในแอป Ledger Wallet ก่อนแล้วค่อยติดตั้งแอป",
+        "cta1": "เพิ่มพื้นที่ว่าง"
       }
     },
     "ledgerSync": {

@@ -207,6 +207,7 @@
     "noTransactions": "No transactions found",
     "pendingTransactions": "Pending transactions",
     "viewOnExplorer": "View on explorer",
+    "viewAllTransactions": "View all transactions",
     "failed": "Failed",
     "kinds": {
       "swap": "Swap",
@@ -309,17 +310,15 @@
         "cta1": "Retry",
         "cta2": "Close"
       },
-      "UserRejectedTransaction": {
-        "title": "Transaction rejected",
-        "description": "You rejected the transaction on your {device}",
-        "cta1": "Close",
-        "cta2": "Retry transaction"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       },
-      "UserRejectedMessage": {
-        "title": "Message rejected",
-        "description": "You rejected the message signing on your {device}",
-        "cta1": "Close",
-        "cta2": "Retry message signing"
+      "DeviceOutOfStorage": {
+        "title": "Not enough space for the {AppName} app",
+        "description": "Your {deviceName} is out of storage, so it couldn't install on its own. Free up space in Ledger Wallet, then install the app.",
+        "cta1": "Free up space"
       }
     },
     "ledgerSync": {

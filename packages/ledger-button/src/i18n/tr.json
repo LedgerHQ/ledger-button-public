@@ -207,6 +207,7 @@
     "noTransactions": "İşlem bulunamadı",
     "pendingTransactions": "Bekleyen İşlemler",
     "viewOnExplorer": "Tarayıcıda görüntüle",
+    "viewAllTransactions": "Tüm işlemleri görüntüle",
     "failed": "Başarısız",
     "kinds": {
       "swap": "Takas et",
@@ -309,17 +310,15 @@
         "cta1": "Tekrar dene",
         "cta2": "Kapat"
       },
-      "UserRejectedTransaction": {
-        "title": "İşlem reddedildi",
-        "description": "İşlemi {device} üzerinde reddettiniz",
-        "cta1": "Kapat",
-        "cta2": "İşlemi tekrar dene"
+      "ActionRejected": {
+        "title": "Eylem reddedildi",
+        "description": "Kullanıcı, cihazdaki işlemi reddetti.",
+        "cta1": "Tekrar dene"
       },
-      "UserRejectedMessage": {
-        "title": "Mesaj reddedildi",
-        "description": "{device} cihazınızda mesajı imzalamayı reddettiniz",
-        "cta1": "Kapat",
-        "cta2": "Mesaj imzalamayı yeniden dene"
+      "DeviceOutOfStorage": {
+        "title": "{AppName} uygulaması için yeterli alan yok",
+        "description": "{deviceName} cihazınızın depolama alanı doldu, bu yüzden kendi kendine yüklenemedi. Ledger Wallet'ta yer açın, ardından uygulamayı yükleyin.",
+        "cta1": "Yer açın"
       }
     },
     "ledgerSync": {

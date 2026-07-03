@@ -56,6 +56,7 @@ const ERROR_CATEGORY_MAP: Record<TrackedErrorType, string> = {
   LedgerSyncError: "ledgersync",
   LedgerSyncAuthContextMissingError: "ledgersync",
   LedgerSyncNoSessionIdError: "ledgersync",
+  DeviceOutOfMemoryError: "device",
 };
 
 export const categorizeError = (error: Error): string => {

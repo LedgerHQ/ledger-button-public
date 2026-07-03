@@ -2,6 +2,7 @@ import {
   BlindSigningDisabledError,
   BroadcastTransactionError,
   buildExplorerTransactionUrl,
+  DeviceOutOfMemoryError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -407,45 +408,13 @@ export class SignTransactionController implements ReactiveController {
         break;
       }
       case error instanceof UserRejectedTransactionError: {
-        const deviceName = this.getDeviceName();
-        const isTx = this.isTransactionParameter(this.currentTransaction);
         this.state = {
           screen: "error",
           status: {
-            title: isTx
-              ? lang.error.device.UserRejectedTransaction.title
-              : lang.error.device.UserRejectedMessage.title,
-            message: isTx
-              ? lang.error.device.UserRejectedTransaction.description.replace(
-                  "{device}",
-                  deviceName,
-                )
-              : lang.error.device.UserRejectedMessage.description.replace(
-                  "{device}",
-                  deviceName,
-                ),
+            title: lang.error.device.ActionRejected.title,
+            message: lang.error.device.ActionRejected.description,
             cta1: {
-              label: isTx
-                ? lang.error.device.UserRejectedTransaction.cta1
-                : lang.error.device.UserRejectedMessage.cta1,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
-                this.close();
-              },
-            },
-            cta2: {
-              label: isTx
-                ? lang.error.device.UserRejectedTransaction.cta2
-                : lang.error.device.UserRejectedMessage.cta2,
+              label: lang.error.device.ActionRejected.cta1,
               action: async () => {
                 if (!this.currentTransaction) {
                   return;
@@ -456,6 +425,31 @@ export class SignTransactionController implements ReactiveController {
                 };
                 this.startSigning(this.currentTransaction);
                 this.host.requestUpdate();
+              },
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceOutOfMemoryError: {
+        const appName = error.context?.appName ?? "";
+        const deviceName = this.getDeviceName();
+        this.state = {
+          screen: "error",
+          status: {
+            title: lang.error.device.DeviceOutOfStorage.title.replace(
+              "{AppName}",
+              appName,
+            ),
+            message: lang.error.device.DeviceOutOfStorage.description.replace(
+              "{deviceName}",
+              deviceName,
+            ),
+            cta1: {
+              label: lang.error.device.DeviceOutOfStorage.cta1,
+              action: () => {
+                window.open("ledgerlive://myledger");
+                this.close();
               },
             },
           },

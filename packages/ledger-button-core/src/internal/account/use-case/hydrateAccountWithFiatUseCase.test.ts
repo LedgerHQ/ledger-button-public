@@ -148,6 +148,34 @@ describe("HydrateAccountWithFiatUseCase", () => {
           mockCounterValueDataSource.getCounterValues,
         ).not.toHaveBeenCalled();
       });
+
+      it("should still hydrate tokens when native balance is zero", async () => {
+        const accountWithZeroNativeBalanceAndToken: Account = {
+          ...accountWithToken,
+          balance: "0",
+        };
+        const counterValueResult: CounterValueResult[] = [
+          { ledgerId: "ethereum", rate: 2500 },
+          { ledgerId: "ethereum/erc20/usdc", rate: 0.99 },
+        ];
+        mockCounterValueDataSource.getCounterValues.mockResolvedValue(
+          Right(counterValueResult),
+        );
+
+        const result = await useCase.execute(
+          accountWithZeroNativeBalanceAndToken,
+        );
+
+        expect(result.fiatBalance).toEqual({ value: "0.00", currency: "USD" });
+        expect(result.fiatError).toBe(false);
+        expect(result.tokens[0].fiatBalance).toEqual({
+          value: "42570.00",
+          currency: "USD",
+        });
+        expect(
+          mockCounterValueDataSource.getCounterValues,
+        ).toHaveBeenCalledWith(["ethereum", "ethereum/erc20/usdc"], "USD");
+      });
     });
 
     describe("when counter value fetch fails", () => {

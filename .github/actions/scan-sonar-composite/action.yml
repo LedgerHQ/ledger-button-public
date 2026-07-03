@@ -6,6 +6,12 @@ inputs:
     description: "Download coverage artifact from a prior unit-testing job"
     required: false
     default: "false"
+  sonar_token:
+    description: "SonarCloud token used to authenticate the scan"
+    required: true
+  github_token:
+    description: "GitHub token used by the SonarCloud scanner for PR decoration"
+    required: true
 
 runs:
   using: "composite"
@@ -20,5 +26,5 @@ runs:
     - name: SonarCloud Scan
       uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
       env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        SONAR_TOKEN: ${{ inputs.sonar_token }}

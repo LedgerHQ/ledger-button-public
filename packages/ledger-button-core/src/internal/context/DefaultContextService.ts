@@ -11,7 +11,7 @@ import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import {
   getChainIdFromCurrencyId,
   getCurrencyIdFromChainId,
-} from "../evm-provider/utils/chainUtils.js";
+} from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type ContextService } from "./ContextService.js";

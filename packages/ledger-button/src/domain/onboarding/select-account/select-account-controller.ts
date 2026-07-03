@@ -128,7 +128,7 @@ export class SelectAccountController implements ReactiveController {
     let isFirstEmission = true;
 
     this.accountsSubscription = this.core
-      .getAccounts(options)
+      .observeAccounts(options)
       .pipe(
         debounce(() => {
           if (isFirstEmission) {
