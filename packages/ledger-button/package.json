@@ -8,8 +8,7 @@
     "lit": "catalog:",
     "lottie-web": "catalog:",
     "motion": "catalog:",
-    "rxjs": "catalog:",
-    "uuid": "catalog:"
+    "rxjs": "catalog:"
   },
   "devDependencies": {
     "@storybook/web-components": "catalog:",
