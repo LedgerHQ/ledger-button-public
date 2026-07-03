@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 import { CommonEIP1193ErrorCode } from "../../../api/model/eip/EIPTypes.js";
 import { Account } from "../../account/service/AccountService.js";
-import type { CoreFacade } from "../../blockchain-provider/model/BlockchainProvider.js";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+import {
+  LedgerEIP1193Provider,
+  type LedgerEIP1193ProviderDeps,
+} from "./LedgerEIP1193Provider.js";
 
 const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";
 
@@ -28,19 +31,52 @@ const createMockHost = (): {
 } => ({
   broadcastRPC: vi.fn(),
   requestAccount: vi.fn(),
-  requestSign: vi.fn(),
   requestSwitchChain: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
+  getLogger: vi.fn(() => ({
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+  })),
+  getDeviceSession: vi.fn(() => ({
+    dmk: {},
+    sessionId: undefined,
+    isConnected: false,
+  })),
+  getSdkConfig: vi.fn(() => ({
+    originToken: "test-origin-token",
+    dAppIdentifier: "test-dapp",
+  })),
+  isModalOpen: vi.fn(() => false),
+  trackTransactionStarted: vi.fn(),
+  trackTransactionCompleted: vi.fn(),
+  trackTypedMessageStarted: vi.fn(),
+  trackTypedMessageCompleted: vi.fn(),
+  estimateGasFromCoinService: vi.fn().mockResolvedValue(undefined),
+  emitNavigationIntent: vi.fn(),
+  trackBroadcastedTransaction: vi.fn(),
 });
+
+const createMockDeps = (): LedgerEIP1193ProviderDeps =>
+  ({
+    signTransaction: { execute: vi.fn() },
+    signRawTransaction: { execute: vi.fn() },
+    signTypedData: { execute: vi.fn() },
+    signPersonalMessage: { execute: vi.fn() },
+  }) as unknown as LedgerEIP1193ProviderDeps;
 
 describe("LedgerEIP1193Provider", () => {
   let provider: LedgerEIP1193Provider;
   let host: ReturnType<typeof createMockHost>;
+  let deps: LedgerEIP1193ProviderDeps;
 
   beforeEach(() => {
     vi.clearAllMocks();
     host = createMockHost();
-    provider = new LedgerEIP1193Provider(host as unknown as CoreFacade);
+    deps = createMockDeps();
+    provider = new LedgerEIP1193Provider(host as unknown as CoreFacade, deps);
   });
 
   afterEach(() => {
@@ -133,6 +169,7 @@ describe("LedgerEIP1193Provider", () => {
       expect(result).toBe(response);
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_call" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
 
@@ -173,7 +210,7 @@ describe("LedgerEIP1193Provider", () => {
         params: [],
       });
 
-      expect(host.requestAccount).toHaveBeenCalledWith("evm");
+      expect(host.requestAccount).toHaveBeenCalledWith("ethereum");
       expect(result).toEqual([EVM_ADDRESS]);
     });
   });
@@ -186,6 +223,7 @@ describe("LedgerEIP1193Provider", () => {
       });
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 5 });
@@ -197,6 +235,7 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_transactionCount" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
 
@@ -207,6 +246,7 @@ describe("LedgerEIP1193Provider", () => {
       });
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({
@@ -219,6 +259,7 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_chainId" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
 
@@ -228,6 +269,7 @@ describe("LedgerEIP1193Provider", () => {
         .mockResolvedValue({ local: [], broadcasted: [] });
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
@@ -245,6 +287,7 @@ describe("LedgerEIP1193Provider", () => {
       const loadRpcMethods = vi.fn().mockRejectedValue(new Error("boom"));
       const configuredProvider = new LedgerEIP1193Provider(
         host as unknown as CoreFacade,
+        deps,
         loadRpcMethods,
       );
       host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
@@ -253,6 +296,7 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         expect.objectContaining({ method: "eth_call" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
       );
     });
   });

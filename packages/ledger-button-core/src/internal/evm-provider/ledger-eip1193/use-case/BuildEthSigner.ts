@@ -5,10 +5,7 @@ import {
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { inject, injectable } from "inversify";
 
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import { deviceModuleTypes } from "../../../device/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../../../device/service/DeviceManagementKitService.js";
+import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
@@ -20,10 +17,8 @@ export type BuildEthSignerParams = {
 @injectable()
 export class BuildEthSigner {
   constructor(
-    @inject(deviceModuleTypes.DeviceManagementKitService)
-    private readonly deviceManagementKitService: DeviceManagementKitService,
-    @inject(configModuleTypes.Config)
-    private readonly config: Config,
+    @inject(evmProviderModuleTypes.CoreFacade)
+    private readonly core: CoreFacade,
     @inject(evmProviderModuleTypes.BuildContextModuleUseCase)
     private readonly buildContextModule: BuildContextModule,
   ) {}
@@ -32,8 +27,8 @@ export class BuildEthSigner {
     const contextModule = this.buildContextModule.execute({ chain });
 
     return new SignerEthBuilder({
-      dmk: this.deviceManagementKitService.dmk,
-      originToken: this.config.originToken,
+      dmk: this.core.getDeviceSession().dmk,
+      originToken: this.core.getSdkConfig().originToken,
       sessionId,
     })
       .withContextModule(contextModule)

@@ -1,11 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
-import { Either, Just, Maybe, Nothing } from "purify-ts";
+import { Either, Maybe, Nothing } from "purify-ts";
 
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
+import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
 import { type Account } from "../account/service/AccountService.js";
 import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
@@ -89,40 +90,58 @@ export class DefaultStorageService implements StorageService {
       .orDefault(false);
   }
 
-  // Selected Account
-  saveSelectedAccount(selectedAccount: Account): void {
+  // Selected Accounts (one per blockchain family)
+  saveSelectedAccount(selectedAccount: Account, family: BlockchainFamily): void {
     if (!selectedAccount) {
       return;
     }
-    const accountDbModel: AccountDbModel = mapToAccountDbModel(selectedAccount);
-    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNT, accountDbModel);
+    const stored =
+      this.getItem<Record<string, AccountDbModel>>(
+        STORAGE_KEYS.SELECTED_ACCOUNTS,
+      ).orDefault({});
+    stored[family] = mapToAccountDbModel(selectedAccount);
+    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNTS, stored);
   }
 
-  getSelectedAccount(): Maybe<Account> {
-    const accountMaybe = this.getItem<AccountDbModel>(
-      STORAGE_KEYS.SELECTED_ACCOUNT,
-    );
+  getSelectedAccounts(): Map<BlockchainFamily, Account> {
+    const accounts = new Map<BlockchainFamily, Account>();
 
-    return accountMaybe.caseOf({
-      Just: (accountDbModel) => {
-        return Just({
-          id: "",
-          name: "",
-          freshAddress: accountDbModel.address,
-          seedIdentifier: "",
-          derivationMode: accountDbModel.derivationMode,
-          index: accountDbModel.index,
-          currencyId: accountDbModel.currencyId,
-          ticker: "",
-          balance: "",
-          tokens: [],
-        });
-      },
-      Nothing: () => Nothing,
-    });
+    const stored = this.getItem<Record<string, AccountDbModel>>(
+      STORAGE_KEYS.SELECTED_ACCOUNTS,
+    ).orDefault({});
+    for (const [family, dbModel] of Object.entries(stored)) {
+      accounts.set(family as BlockchainFamily, this.toAccount(dbModel));
+    }
+
+    return accounts;
   }
-  removeSelectedAccount(): void {
+
+  removeSelectedAccount(family: BlockchainFamily): void {
+    const stored = this.getItem<Record<string, AccountDbModel>>(
+      STORAGE_KEYS.SELECTED_ACCOUNTS,
+    ).orDefault({});
+    delete stored[family];
+    this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNTS, stored);
+  }
+
+  removeSelectedAccounts(): void {
+    this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNTS);
     this.removeItem(STORAGE_KEYS.SELECTED_ACCOUNT);
+  }
+
+  private toAccount(accountDbModel: AccountDbModel): Account {
+    return {
+      id: "",
+      name: "",
+      freshAddress: accountDbModel.address,
+      seedIdentifier: "",
+      derivationMode: accountDbModel.derivationMode,
+      index: accountDbModel.index,
+      currencyId: accountDbModel.currencyId,
+      ticker: "",
+      balance: "",
+      tokens: [],
+    };
   }
 
   /***  Local Storage Primitives ***/

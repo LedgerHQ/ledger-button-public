@@ -1,20 +1,19 @@
-import { Left, Right } from "purify-ts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
+import type {
+  ProviderGasFeeEstimation,
+  ProviderTransactionInfo,
+} from "../../../../api/model/blockchain/GasFee.js";
 import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
-import { BackendService } from "../../../backend/BackendService.js";
-import { CoinServiceDataSource } from "../../../balance/datasource/coinService/CoinServiceDataSource.js";
-import { TransactionInfo } from "../../../balance/model/types.js";
-import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { createMockCoreFacade } from "../../../../internal/blockchain-provider/__mocks__/coreFacadeMock.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
 
 describe("DefaultGasFeeEstimationService", () => {
   let gasFeeEstimationService: DefaultGasFeeEstimationService;
-  let mockLoggerFactory: () => LoggerPublisher;
-  let mockBackendService: BackendService;
-  let mockCoinServiceDataSource: CoinServiceDataSource;
-  let mockLogger: LoggerPublisher;
+  let core: CoreFacade;
 
-  const mockTx: TransactionInfo = {
+  const mockTx: ProviderTransactionInfo = {
     chainId: "1",
     from: "0x1234567890abcdef1234567890abcdef12345678",
     to: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
@@ -24,32 +23,8 @@ describe("DefaultGasFeeEstimationService", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Mock logger
-    mockLogger = {
-      debug: vi.fn(),
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    } as unknown as LoggerPublisher;
-
-    mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
-
-    // Mock BackendService
-    mockBackendService = {
-      broadcast: vi.fn(),
-    } as unknown as BackendService;
-
-    mockCoinServiceDataSource = {
-      getBalanceForAddressAndCurrencyId: vi.fn(),
-      estimateTransactionFee: vi.fn(),
-    } as unknown as CoinServiceDataSource;
-
-    gasFeeEstimationService = new DefaultGasFeeEstimationService(
-      mockLoggerFactory,
-      mockBackendService,
-      mockCoinServiceDataSource,
-    );
+    core = createMockCoreFacade();
+    gasFeeEstimationService = new DefaultGasFeeEstimationService(core);
   });
 
   describe("getNonceForTx", () => {
@@ -60,23 +35,21 @@ describe("DefaultGasFeeEstimationService", () => {
         result: "0x5",
       };
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockNonceResponse),
-      );
+      vi.mocked(core.broadcastRPC).mockResolvedValue(mockNonceResponse);
 
       const result = await gasFeeEstimationService.getNonceForTx(mockTx);
 
       expect(result).toEqual(mockNonceResponse.result);
       expect(result).toMatch(/^0x[0-9a-f]+$/i);
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "1" },
-        rpc: {
+      expect(core.broadcastRPC).toHaveBeenCalledWith(
+        {
           method: "eth_getTransactionCount",
           params: [mockTx.from, "latest"],
           id: 1,
           jsonrpc: "2.0",
         },
-      });
+        { name: "ethereum", chainId: "1" },
+      );
     });
 
     it("should throw error when nonce is undefined", async () => {
@@ -91,55 +64,26 @@ describe("DefaultGasFeeEstimationService", () => {
   });
 
   describe("getFeesForTransaction", () => {
-    it("should use CoinService for gas fee estimation when network is supported", async () => {
-      const mockCoinServiceResponse = {
-        value: "50000",
-        parameters: {
-          gasLimit: "0xc350",
-          maxFeePerGas: "0x6fc23ac00",
-          maxPriorityFeePerGas: "0x77359400",
-          nextBaseFee: "0x3b9aca00",
-          gasOptions: {},
-        },
+    it("should use CoinService for gas fee estimation when available", async () => {
+      const coinServiceEstimation: ProviderGasFeeEstimation = {
+        gasLimit: "0xc350",
+        maxFeePerGas: "0x6fc23ac00",
+        maxPriorityFeePerGas: "0x77359400",
       };
 
-      vi.spyOn(
-        mockCoinServiceDataSource,
-        "estimateTransactionFee",
-      ).mockResolvedValue(Right(mockCoinServiceResponse));
+      vi.mocked(core.estimateGasFromCoinService).mockResolvedValue(
+        coinServiceEstimation,
+      );
 
       const result =
         await gasFeeEstimationService.getFeesForTransaction(mockTx);
 
-      expect(
-        mockCoinServiceDataSource.estimateTransactionFee,
-      ).toHaveBeenCalledWith(
-        "ethereum",
-        expect.objectContaining({
-          type: "send",
-          sender: mockTx.from,
-          recipient: mockTx.to,
-          amount: mockTx.value,
-          data: mockTx.data,
-        }),
-      );
-
-      expect(result.gasLimit).toEqual(
-        mockCoinServiceResponse.parameters.gasLimit,
-      );
-      expect(result.maxFeePerGas).toEqual(
-        mockCoinServiceResponse.parameters.maxFeePerGas,
-      );
-      expect(result.maxPriorityFeePerGas).toEqual(
-        mockCoinServiceResponse.parameters.maxPriorityFeePerGas,
-      );
+      expect(core.estimateGasFromCoinService).toHaveBeenCalledWith(mockTx);
+      expect(result).toEqual(coinServiceEstimation);
     });
 
-    it("should fallback to RPC method when CoinService fails", async () => {
-      vi.spyOn(
-        mockCoinServiceDataSource,
-        "estimateTransactionFee",
-      ).mockResolvedValue(Left(new Error("CoinService error")));
+    it("should fallback to RPC method when CoinService is unavailable", async () => {
+      vi.mocked(core.estimateGasFromCoinService).mockResolvedValue(undefined);
 
       const mockEstimateGas = 50000;
       const mockBaseFeePerGas = 30000000000;
@@ -159,55 +103,18 @@ describe("DefaultGasFeeEstimationService", () => {
       const result =
         await gasFeeEstimationService.getFeesForTransaction(mockTx);
 
-      expect(
-        mockCoinServiceDataSource.estimateTransactionFee,
-      ).toHaveBeenCalled();
+      expect(core.estimateGasFromCoinService).toHaveBeenCalled();
       expect(gasFeeEstimationService.estimateGas).toHaveBeenCalledWith(mockTx);
       expect(result.gasLimit).toMatch(/^0x[0-9a-f]+$/i);
     });
 
-    it("should use RPC method when network is not supported by CoinService", async () => {
-      const unsupportedTx: TransactionInfo = {
-        ...mockTx,
-        chainId: "999999", // Unsupported network
-      };
-
-      const mockEstimateGas = 50000;
-      const mockBaseFeePerGas = 30000000000;
-      const mockMaxPriorityFeePerGas = 2000000000;
-
-      vi.spyOn(gasFeeEstimationService, "estimateGas").mockResolvedValue(
-        mockEstimateGas,
-      );
-      vi.spyOn(gasFeeEstimationService, "getBaseFeePerGas").mockResolvedValue(
-        mockBaseFeePerGas,
-      );
-      vi.spyOn(
-        gasFeeEstimationService,
-        "getMaxPriorityFeePerGas",
-      ).mockResolvedValue(mockMaxPriorityFeePerGas);
-
-      await gasFeeEstimationService.getFeesForTransaction(unsupportedTx);
-
-      expect(
-        mockCoinServiceDataSource.estimateTransactionFee,
-      ).not.toHaveBeenCalled();
-      expect(gasFeeEstimationService.estimateGas).toHaveBeenCalledWith(
-        unsupportedTx,
-      );
-    });
-
     it("should calculate maxFeePerGas correctly (baseFee * 2 + maxPriorityFee) when using RPC fallback", async () => {
-      // Assert RPC fallback by forcing CoinService to fail
-      vi.spyOn(
-        mockCoinServiceDataSource,
-        "estimateTransactionFee",
-      ).mockResolvedValue(Left(new Error("CoinService error")));
+      vi.mocked(core.estimateGasFromCoinService).mockResolvedValue(undefined);
 
       const mockEstimateGas = 50000;
       const mockBaseFeePerGas = 30000000000; // 30 gwei
       const mockMaxPriorityFeePerGas = 2000000000; // 2 gwei
-      const mockGasLimit = 1.2;
+      const mockGasLimitMultiplier = 1.2;
 
       vi.spyOn(gasFeeEstimationService, "estimateGas").mockResolvedValue(
         mockEstimateGas,
@@ -232,7 +139,9 @@ describe("DefaultGasFeeEstimationService", () => {
       ).toHaveBeenCalledWith(mockTx);
 
       expect(result.gasLimit).toMatch(/^0x[0-9a-f]+$/i);
-      expect(Number(result.gasLimit)).toEqual(mockEstimateGas * mockGasLimit);
+      expect(Number(result.gasLimit)).toEqual(
+        mockEstimateGas * mockGasLimitMultiplier,
+      );
 
       expect(result.maxFeePerGas).toMatch(/^0x[0-9a-f]+$/i);
       expect(Number(result.maxFeePerGas)).toEqual(
@@ -254,28 +163,26 @@ describe("DefaultGasFeeEstimationService", () => {
         result: "0x12a05f200", // 5000000000 in hex
       };
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+      vi.mocked(core.broadcastRPC).mockResolvedValue(mockResponse);
 
       const result =
         await gasFeeEstimationService.getMaxPriorityFeePerGas(mockTx);
 
       expect(result).toEqual(5000000000);
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "1" },
-        rpc: {
+      expect(core.broadcastRPC).toHaveBeenCalledWith(
+        {
           method: "eth_maxPriorityFeePerGas",
-          params: [] as unknown[],
+          params: [],
           id: 1,
           jsonrpc: "2.0",
         },
-      });
+        { name: "ethereum", chainId: "1" },
+      );
     });
 
-    it("should return default value (20000) when backend returns Left", async () => {
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Left(new Error("Backend error")),
+    it("should return default value (20000) when broadcast throws", async () => {
+      vi.mocked(core.broadcastRPC).mockRejectedValue(
+        new Error("Backend error"),
       );
 
       const result =
@@ -284,23 +191,17 @@ describe("DefaultGasFeeEstimationService", () => {
       expect(result).toEqual(20000);
     });
 
-    it("should throw error when response is not successful", async () => {
-      const mockErrorResponse = {
+    it("should return default value (20000) when response is an error response", async () => {
+      vi.mocked(core.broadcastRPC).mockResolvedValue({
         jsonrpc: "2.0",
         id: 1,
-        error: {
-          code: -32000,
-          message: "Error message",
-        },
-      };
+        error: { code: -32000, message: "Error message" },
+      });
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockErrorResponse),
-      );
+      const result =
+        await gasFeeEstimationService.getMaxPriorityFeePerGas(mockTx);
 
-      await expect(
-        gasFeeEstimationService.getMaxPriorityFeePerGas(mockTx),
-      ).rejects.toThrow("Failed to estimate base priority fee per gas");
+      expect(result).toEqual(20000);
     });
   });
 
@@ -315,51 +216,30 @@ describe("DefaultGasFeeEstimationService", () => {
         },
       };
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+      vi.mocked(core.broadcastRPC).mockResolvedValue(mockResponse);
 
       const result = await gasFeeEstimationService.getBaseFeePerGas(mockTx);
 
       expect(result).toEqual(30000000000);
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "1" },
-        rpc: {
+      expect(core.broadcastRPC).toHaveBeenCalledWith(
+        {
           method: "eth_getBlockByNumber",
           params: ["latest", false],
           id: 1,
           jsonrpc: "2.0",
         },
-      });
+        { name: "ethereum", chainId: "1" },
+      );
     });
 
-    it("should return default value (2000000) when backend returns Left", async () => {
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Left(new Error("Backend error")),
+    it("should return default value (2000000) when broadcast throws", async () => {
+      vi.mocked(core.broadcastRPC).mockRejectedValue(
+        new Error("Backend error"),
       );
 
       const result = await gasFeeEstimationService.getBaseFeePerGas(mockTx);
 
       expect(result).toEqual(2000000);
-    });
-
-    it("should throw error when response is not successful", async () => {
-      const mockErrorResponse = {
-        jsonrpc: "2.0",
-        id: 1,
-        error: {
-          code: -32000,
-          message: "Block not found",
-        },
-      };
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockErrorResponse),
-      );
-
-      await expect(
-        gasFeeEstimationService.getBaseFeePerGas(mockTx),
-      ).rejects.toThrow("Failed to estimate base fee per gas");
     });
   });
 
@@ -371,18 +251,16 @@ describe("DefaultGasFeeEstimationService", () => {
         result: "0xc350", // 50000 in hex
       };
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+      vi.mocked(core.broadcastRPC).mockResolvedValue(mockResponse);
 
       const result = await gasFeeEstimationService.estimateGas(mockTx);
 
       expect(result).toEqual(Number(mockResponse.result));
     });
 
-    it("should return default value (90000) when backend returns Left", async () => {
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Left(new Error("Backend error")),
+    it("should return default value (90000) when broadcast throws", async () => {
+      vi.mocked(core.broadcastRPC).mockRejectedValue(
+        new Error("Backend error"),
       );
 
       const result = await gasFeeEstimationService.estimateGas(mockTx);
@@ -391,7 +269,7 @@ describe("DefaultGasFeeEstimationService", () => {
     });
 
     it("should format transaction request correctly", async () => {
-      const customTx: TransactionInfo = {
+      const customTx: ProviderTransactionInfo = {
         chainId: "5",
         from: "0xSender",
         to: "0xReceiver",
@@ -405,15 +283,12 @@ describe("DefaultGasFeeEstimationService", () => {
         result: "0x5208",
       };
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+      vi.mocked(core.broadcastRPC).mockResolvedValue(mockResponse);
 
       await gasFeeEstimationService.estimateGas(customTx);
 
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "5" },
-        rpc: {
+      expect(core.broadcastRPC).toHaveBeenCalledWith(
+        {
           method: "eth_estimateGas",
           params: [
             {
@@ -427,73 +302,20 @@ describe("DefaultGasFeeEstimationService", () => {
           id: 1,
           jsonrpc: "2.0",
         },
-      });
+        { name: "ethereum", chainId: "5" },
+      );
     });
 
-    it("should parse hexadecimal gas estimate to number", async () => {
-      const mockResponse: JsonRpcResponseSuccess = {
+    it("should return default value (90000) when response is an error response", async () => {
+      vi.mocked(core.broadcastRPC).mockResolvedValue({
         jsonrpc: "2.0",
         id: 1,
-        result: "0x186a0", // 100000 in hex
-      };
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+        error: { code: -32000, message: "Execution reverted" },
+      });
 
       const result = await gasFeeEstimationService.estimateGas(mockTx);
 
-      expect(result).toEqual(Number(mockResponse.result));
-    });
-
-    it("should throw error when response is not successful", async () => {
-      const mockErrorResponse = {
-        jsonrpc: "2.0",
-        id: 1,
-        error: {
-          code: -32000,
-          message: "Execution reverted",
-        },
-      };
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockErrorResponse),
-      );
-
-      await expect(gasFeeEstimationService.estimateGas(mockTx)).rejects.toThrow(
-        "Failed to estimate gas",
-      );
-    });
-
-    it("should handle transactions with different value amounts", async () => {
-      const txWithValue: TransactionInfo = {
-        ...mockTx,
-        value: "0xde0b6b3a7640000", // 1 ETH in wei
-      };
-
-      const mockResponse: JsonRpcResponseSuccess = {
-        jsonrpc: "2.0",
-        id: 1,
-        result: "0x5208",
-      };
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
-
-      await gasFeeEstimationService.estimateGas(txWithValue);
-
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          rpc: expect.objectContaining({
-            params: expect.arrayContaining([
-              expect.objectContaining({
-                value: txWithValue.value,
-              }),
-            ]),
-          }),
-        }),
-      );
+      expect(result).toEqual(90000);
     });
   });
 
@@ -505,28 +327,26 @@ describe("DefaultGasFeeEstimationService", () => {
         result: "0xa",
       };
 
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+      vi.mocked(core.broadcastRPC).mockResolvedValue(mockResponse);
 
       const result = await gasFeeEstimationService.getNonce(mockTx);
 
       expect(result).toEqual(mockResponse.result);
       expect(result).toMatch(/^0x[0-9a-f]+$/i);
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "1" },
-        rpc: {
+      expect(core.broadcastRPC).toHaveBeenCalledWith(
+        {
           method: "eth_getTransactionCount",
           params: [mockTx.from, "latest"],
           id: 1,
           jsonrpc: "2.0",
         },
-      });
+        { name: "ethereum", chainId: "1" },
+      );
     });
 
-    it("should return undefined when backend returns Left", async () => {
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Left(new Error("Backend error")),
+    it("should return undefined when broadcast throws", async () => {
+      vi.mocked(core.broadcastRPC).mockRejectedValue(
+        new Error("Backend error"),
       );
 
       const result = await gasFeeEstimationService.getNonce(mockTx);
@@ -534,19 +354,12 @@ describe("DefaultGasFeeEstimationService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("should return undefined when response is not successful", async () => {
-      const mockErrorResponse = {
+    it("should return undefined when response is an error response", async () => {
+      vi.mocked(core.broadcastRPC).mockResolvedValue({
         jsonrpc: "2.0",
         id: 1,
-        error: {
-          code: -32000,
-          message: "Error message",
-        },
-      };
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockErrorResponse),
-      );
+        error: { code: -32000, message: "Error message" },
+      });
 
       const result = await gasFeeEstimationService.getNonce(mockTx);
 
@@ -554,41 +367,15 @@ describe("DefaultGasFeeEstimationService", () => {
     });
 
     it("should return undefined when result is not a string", async () => {
-      const mockResponse = {
+      vi.mocked(core.broadcastRPC).mockResolvedValue({
         jsonrpc: "2.0",
         id: 1,
         result: 123, // number instead of string
-      } as unknown as JsonRpcResponseSuccess;
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
+      } as unknown as JsonRpcResponseSuccess);
 
       const result = await gasFeeEstimationService.getNonce(mockTx);
 
       expect(result).toBeUndefined();
-    });
-
-    it("should call backend with eth_getTransactionCount method", async () => {
-      const mockResponse: JsonRpcResponseSuccess = {
-        jsonrpc: "2.0",
-        id: 1,
-        result: "0x0",
-      };
-
-      vi.spyOn(mockBackendService, "broadcast").mockResolvedValue(
-        Right(mockResponse),
-      );
-
-      await gasFeeEstimationService.getNonce(mockTx);
-
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          rpc: expect.objectContaining({
-            method: "eth_getTransactionCount",
-          }),
-        }),
-      );
     });
   });
 });

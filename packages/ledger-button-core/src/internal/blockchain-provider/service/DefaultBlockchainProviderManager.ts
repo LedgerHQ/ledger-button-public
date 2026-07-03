@@ -1,18 +1,18 @@
 import { type Factory, inject, injectable } from "inversify";
+import { Maybe } from "purify-ts";
 
-import type { Account } from "../../account/service/AccountService.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { DAppConfigV2 } from "../../dAppConfig/v2/model/dAppConfigV2Types.js";
-import { EvmBlockchainProvider } from "../../evm-provider/EvmBlockchainProvider.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { SolanaBlockchainProvider } from "../../solana-provider/SolanaBlockchainProvider.js";
-import type {
-  BlockchainFamily,
-  BlockchainProvider,
-  CoreFacade,
-} from "../model/BlockchainProvider.js";
+import type { BlockchainProvider } from "../../../api/blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
+import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { Account } from "../../../internal/account/service/AccountService.js";
+import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
+import type { ContextService } from "../../../internal/context/ContextService.js";
+import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
+import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
+import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
+import { SolanaBlockchainProvider } from "../../../internal/solana-provider/SolanaBlockchainProvider.js";
 import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
 
 /**
@@ -38,26 +38,43 @@ export class DefaultBlockchainProviderManager
   }
 
   init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void {
-    const providers: BlockchainProvider[] = [
-      new EvmBlockchainProvider(coreFacade, dappConfig),
-      new SolanaBlockchainProvider(coreFacade, dappConfig),
-    ];
+    const providers: BlockchainProvider[] = [];
+    console.log("Initializing blockchain providers");
+    const evmConfig = this.getBlockchainConfig(dappConfig, "ethereum");
+    console.log("evmConfig", evmConfig);
+    if (evmConfig) {
+      providers.push(new EvmBlockchainProvider(coreFacade, evmConfig));
+    }
+
+    const solanaConfig = this.getBlockchainConfig(dappConfig, "solana");
+    if (solanaConfig) {
+      providers.push(new SolanaBlockchainProvider(coreFacade, solanaConfig));
+    }
+
     for (const provider of providers) {
       this.logger.debug("Registering provider", { family: provider.family });
       this.providers.set(provider.family, provider);
       provider.injectWalletProviders();
     }
     this.contextService.observeContext().subscribe((context) => {
-      this.setSelectedAccount(context.selectedAccount);
+      this.setSelectedAccounts(context.selectedAccounts);
       this.setNetwork(context.chainId);
     });
   }
 
-  // @todo: this should be filtered by BlockchainFamily
-  // We should forward account change only for the target blockchain
-  setSelectedAccount(account: Account | undefined): void {
+  /** Per-family slice of the dApp config handed to a single provider module. */
+  private getBlockchainConfig(
+    dappConfig: DAppConfigV2,
+    family: BlockchainFamily,
+  ): BlockchainConfig | undefined {
+    return dappConfig.blockchains?.find(
+      (blockchain) => blockchain.blockchain === family,
+    );
+  }
+
+  setSelectedAccounts(accounts: Map<BlockchainFamily, Account>): void {
     for (const provider of this.providers.values()) {
-      provider.setSelectedAccount(account);
+      provider.setSelectedAccount(accounts.get(provider.family));
     }
   }
 
@@ -67,5 +84,14 @@ export class DefaultBlockchainProviderManager
     for (const provider of this.providers.values()) {
       provider.setNetwork(chainId);
     }
+  }
+
+  resolveBlockchainFamily(currencyId: string): Maybe<BlockchainFamily> {
+    for (const provider of this.providers.values()) {
+      if (provider.isSupportedCurrency(currencyId)) {
+        return Maybe.of(provider.family);
+      }
+    }
+    return Maybe.empty();
   }
 }

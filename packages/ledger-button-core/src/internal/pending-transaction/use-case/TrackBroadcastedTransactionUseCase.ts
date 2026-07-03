@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
 import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
@@ -17,11 +18,11 @@ import { type ContextService } from "../../context/ContextService.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
 import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
+import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
 
 type SignParams =
   | SignTransactionParams
@@ -53,11 +54,12 @@ export class TrackBroadcastedTransactionUseCase {
     if (!isBroadcastedTransactionResult(status.data)) return;
 
     const context = this.contextService.getContext();
-    if (!context.selectedAccount) return;
+    const account = getSelectedAccount(context);
+    if (!account) return;
 
     const tx = await this.buildPendingTransaction(
       status.data.hash,
-      context.selectedAccount,
+      account,
       context.chainId,
       params,
     );

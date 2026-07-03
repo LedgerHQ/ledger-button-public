@@ -2,6 +2,7 @@ import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
 import { UserConsent } from "./model/UserConsent.js";
+import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
 import { Account } from "../account/service/AccountService.js";
 
 export interface StorageService {
@@ -22,9 +23,13 @@ export interface StorageService {
   isTrustChainValid(): boolean;
   removeTrustChainId(): void;
 
-  saveSelectedAccount(selectedAccount: Account): unknown;
-  getSelectedAccount(): Maybe<Account>;
-  removeSelectedAccount(): void;
+  saveSelectedAccount(
+    selectedAccount: Account,
+    family: BlockchainFamily,
+  ): unknown;
+  getSelectedAccounts(): Map<BlockchainFamily, Account>;
+  removeSelectedAccount(family: BlockchainFamily): void;
+  removeSelectedAccounts(): void;
 
   storeEncryptionKey(encryptionKey: CryptoKey): Promise<void>;
   getEncryptionKey(): Promise<Maybe<CryptoKey>>;

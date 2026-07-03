@@ -1,11 +1,10 @@
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
-import type { Account } from "../account/service/AccountService.js";
-import type {
-  BlockchainFamily,
-  BlockchainProvider,
-  CoreFacade,
-} from "../blockchain-provider/model/BlockchainProvider.js";
-import type { DAppConfigV2 } from "../dAppConfig/v2/model/dAppConfigV2Types.js";
+import { isSupportedSolanaCurrency } from "./ledger-solana-wallet/utils/clusterUtils.js";
+import type { BlockchainProvider } from "../../api/blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
+import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
 /**
@@ -21,7 +20,7 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
 
   constructor(
     private readonly core: CoreFacade,
-    _dappConfig: DAppConfigV2,
+    public readonly dappConfig: BlockchainConfig,
   ) {}
 
   injectWalletProviders(): void {
@@ -30,11 +29,15 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
     this.walletProvider.init();
   }
 
-  setSelectedAccount(account: Account | undefined): void {
+  setSelectedAccount(account: ProviderAccount | undefined): void {
     this.wallet?.setSelectedAccount(account);
   }
 
   setNetwork(chainId: number): void {
     this.wallet?.setNetwork(chainId);
+  }
+
+  isSupportedCurrency(currencyId: string): boolean {
+    return isSupportedSolanaCurrency(currencyId);
   }
 }

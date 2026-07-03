@@ -52,7 +52,8 @@ export class AvailableNetworksController implements ReactiveController {
 
     try {
       const currentContext = await firstValueFrom(this.core.observeContext());
-      this.selectedAddress = currentContext.selectedAccount?.freshAddress;
+      this.selectedAddress =
+        currentContext.selectedAccounts.get("ethereum")?.freshAddress;
 
       if (!this.selectedAddress) {
         this.navigation.navigateBack();

@@ -22,7 +22,7 @@ import {
 } from "../../../../api/errors/DeviceErrors.js";
 import type { SignFlowStatus } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { UserInteractionNeeded } from "../../../../api/model/UserInteractionNeeded.js";
-import { getHexaStringFromSignature } from "../../../evm-provider/ledger-eip1193/transaction/TransactionHelper.js";
+import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import {
   type SignPersonalMessageFlowDAError,
   type SignPersonalMessageFlowDAInput,
@@ -283,7 +283,10 @@ export class SignPersonalMessageFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addSignResultToInternalState(event.output, context._internalState),
+                  this.addSignResultToInternalState(
+                    event.output,
+                    context._internalState,
+                  ),
               }),
               target: "CheckSignResult",
             },

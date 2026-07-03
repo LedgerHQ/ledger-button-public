@@ -3,7 +3,6 @@ import { Container } from "inversify";
 import { accountModuleFactory } from "./account/accountModule.js";
 import { backendModuleFactory } from "./backend/backendModule.js";
 import { balanceModuleFactory } from "./balance/balanceModule.js";
-import { blockchainProviderModuleFactory } from "./blockchain-provider/blockchainProviderModule.js";
 import { cloudSyncModuleFactory } from "./cloudsync/cloudsyncModule.js";
 import { configModuleFactory } from "./config/configModule.js";
 import { consentModuleFactory } from "./consent/consentModule.js";
@@ -14,7 +13,6 @@ import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
-import { evmProviderModuleFactory } from "./evm-provider/evmProviderModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
@@ -24,8 +22,8 @@ import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTr
 import { platformModuleFactory } from "./platform/platformModule.js";
 import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
-import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
+import { blockchainProviderModuleFactory } from "../internal/blockchain-provider/blockchainProviderModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({
@@ -65,11 +63,9 @@ export function createContainer({
     storageModuleFactory({ stub: devConfig.stub.base }),
     consentModuleFactory(),
     networkModuleFactory({ stub: devConfig.stub.base }),
-    transactionModuleFactory({ stub: devConfig.stub.base }),
     transactionHistoryModuleFactory({
       stub: devConfig.stub.transactionHistory,
     }),
-    evmProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
     solanaProviderModuleFactory({ stub: devConfig.stub.solanaProvider }),
     blockchainProviderModuleFactory(),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
