@@ -207,6 +207,7 @@
     "noTransactions": "لم يتم العثور على معاملات",
     "pendingTransactions": "معاملات مُعلَّقة",
     "viewOnExplorer": "View on explorer",
+    "viewAllTransactions": "View all transactions",
     "failed": "فشلت",
     "fee": "الرسوم",
     "kinds": {
@@ -309,17 +310,15 @@
         "cta1": "إعادة المحاولة",
         "cta2": "إغلاق"
       },
-      "UserRejectedTransaction": {
-        "title": "تم رفض المعاملة",
-        "description": "لقد قمت برفض المعاملة على جهازك {device}",
-        "cta1": "إغلاق",
-        "cta2": "أعد المحاولة للمعاملة"
+      "ActionRejected": {
+        "title": "Action rejected",
+        "description": "User rejected the transaction on the device.",
+        "cta1": "Retry"
       },
-      "UserRejectedMessage": {
-        "title": "تم رفض الرسالة",
-        "description": "لقد قمت برفض توقيع الرسالة على جهازك {device}",
-        "cta1": "إغلاق",
-        "cta2": "أعد محاولة توقيع الرسالة"
+      "DeviceOutOfStorage": {
+        "title": "Not enough space for the {AppName} app",
+        "description": "Your {deviceName} is out of storage, so it couldn't install on its own. Free up space in Ledger Wallet, then install the app.",
+        "cta1": "Free up space"
       }
     },
     "ledgerSync": {

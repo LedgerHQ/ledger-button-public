@@ -207,6 +207,7 @@
     "noTransactions": "No se encontraron transacciones",
     "pendingTransactions": "Transacciones pendientes",
     "viewOnExplorer": "Ver en el explorador",
+    "viewAllTransactions": "Ver todas las transacciones",
     "failed": "Fallida",
     "kinds": {
       "swap": "Permutas",
@@ -309,17 +310,15 @@
         "cta1": "Reintentar",
         "cta2": "Cerrar"
       },
-      "UserRejectedTransaction": {
-        "title": "Transacción rechazada",
-        "description": "Has rechazado la transacción en tu {device}.",
-        "cta1": "Cerrar",
-        "cta2": "Reintentar transacción"
+      "ActionRejected": {
+        "title": "Acción rechazada",
+        "description": "El usuario rechazó la transacción en el dispositivo.",
+        "cta1": "Reintentar"
       },
-      "UserRejectedMessage": {
-        "title": "Mensaje rechazado",
-        "description": "Has rechazado la firma de mensajes en tu {device}",
-        "cta1": "Cerrar",
-        "cta2": "Reintentar la firma del mensaje"
+      "DeviceOutOfStorage": {
+        "title": "No hay suficiente espacio para la app {AppName}",
+        "description": "Tu {deviceName} se ha quedado sin almacenamiento, por lo que no se ha podido instalar por sí sola. Libera espacio en Ledger Wallet y luego instala la app.",
+        "cta1": "Liberar espacio"
       }
     },
     "ledgerSync": {

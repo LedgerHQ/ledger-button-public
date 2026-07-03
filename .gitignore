@@ -26,6 +26,7 @@ node_modules
 
 # IDE - Cursor
 .cursor/mcp.json
+agent-files/cursor/mcp.json
 
 # misc
 /.sass-cache

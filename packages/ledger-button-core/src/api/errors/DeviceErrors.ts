@@ -39,3 +39,11 @@ export class UserRejectedTransactionError extends LedgerButtonError {
     super(message, "UserRejectedTransactionError", context);
   }
 }
+
+export class DeviceOutOfMemoryError extends LedgerButtonError<{
+  appName?: string;
+}> {
+  constructor(message: string, context?: { appName?: string }) {
+    super(message, "DeviceOutOfMemoryError", context);
+  }
+}

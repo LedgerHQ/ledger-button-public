@@ -49,7 +49,7 @@ export class AccountTokensScreen extends LitElement {
   private renderTokenItem = (token: Token) => {
     return html`
       <ledger-chain-item
-        ledger-id=${token.ticker}
+        ledger-id=${token.ledgerId}
         .title=${token.name}
         .subtitle=${token.ticker}
         .ticker=${token.ticker}

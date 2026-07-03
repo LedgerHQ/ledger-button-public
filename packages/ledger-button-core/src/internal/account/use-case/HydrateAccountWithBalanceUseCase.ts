@@ -3,18 +3,17 @@ import { type Factory, inject, injectable } from "inversify";
 import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import {
   type AccountBalance,
   type TokenBalance,
 } from "../../balance/model/types.js";
 import type { BalanceService } from "../../balance/service/BalanceService.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
-import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
+import { getChainIdFromCurrencyId } from "../../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { Account, Token } from "../service/AccountService.js";
-
-const NATIVE_CURRENCY_DECIMALS = 18;
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {
@@ -27,6 +26,8 @@ export class HydrateAccountWithBalanceUseCase {
     private readonly balanceService: BalanceService,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly calDataSource: CalDataSource,
   ) {
     this.logger = loggerFactory("HydrateAccountWithBalanceUseCase");
   }
@@ -55,14 +56,16 @@ export class HydrateAccountWithBalanceUseCase {
     );
   }
 
-  private formatSuccessfulBalanceResult(
+  private async formatSuccessfulBalanceResult(
     account: Account,
     balanceData: AccountBalance,
-  ): Account {
+  ): Promise<Account> {
+    const decimals = await this.resolveNativeDecimals(account);
     const balance = formatBalance(
       balanceData.nativeBalance.balance,
-      NATIVE_CURRENCY_DECIMALS,
+      decimals,
       account.ticker,
+      account.currencyId,
     );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
 
@@ -93,6 +96,7 @@ export class HydrateAccountWithBalanceUseCase {
   }
 
   private async fetchBalanceFromRpc(account: Account): Promise<string> {
+    const decimals = await this.resolveNativeDecimals(account);
     const chainId = getChainIdFromCurrencyId(account.currencyId);
     const balanceRpcResult = await this.backendService.broadcast({
       blockchain: { name: "ethereum", chainId: chainId.toString() },
@@ -108,15 +112,32 @@ export class HydrateAccountWithBalanceUseCase {
       const extract = balanceRpcResult.extract();
       if ("result" in extract) {
         const balanceHex = extract.result as string;
-        return formatBalance(
-          balanceHex,
-          NATIVE_CURRENCY_DECIMALS,
-          account.ticker,
-        );
+        return formatBalance(balanceHex, decimals, account.ticker, account.currencyId);
       }
     }
 
-    return formatBalance(BigInt(0), NATIVE_CURRENCY_DECIMALS, account.ticker);
+    return formatBalance(BigInt(0), decimals, account.ticker, account.currencyId);
+  }
+
+  private async resolveNativeDecimals(
+    account: Account,
+  ): Promise<number | undefined> {
+    const currencyInformationResult =
+      await this.calDataSource.getCurrencyInformation(account.currencyId);
+
+    if (currencyInformationResult.isRight()) {
+      return currencyInformationResult.extract().decimals;
+    }
+
+    this.logger.warn(
+      "Failed to resolve native decimals from CAL, falling back per-chain",
+      {
+        currencyId: account.currencyId,
+        error: currencyInformationResult.extract(),
+      },
+    );
+
+    return undefined;
   }
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {

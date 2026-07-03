@@ -2,12 +2,10 @@ import "./components/index.js";
 import "./ledger-button-app.js";
 
 import {
-  type EIP6963ProviderInfo,
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
   LedgerEIP1193Provider,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { v4 as uuidv4 } from "uuid";
 
 import { FloatingButtonPosition } from "./components/index.js";
 import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
@@ -77,8 +75,9 @@ export function initializeLedgerProvider({
       devConfig,
     });
   }
+  const coreInstance = core;
 
-  const isSupportedPlatform = core.isSupportedPlatform();
+  const isSupportedPlatform = coreInstance.isSupportedPlatform();
 
   if (!isSupportedPlatform) {
     // NOTE: If the environment is not supported, we don't need to do anything
@@ -87,27 +86,6 @@ export function initializeLedgerProvider({
       // noop
     };
   }
-
-  let icon: string;
-  if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme:dark)").matches
-  ) {
-    //White icon
-    icon =
-      "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMTQ5LjA0IDEwNDkuNDciIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiNGRkZGRkY7fQo8L3N0eWxlPgo8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTkwLjA2LDY2OS4zNXYxOTAuMDZoMjg5LjIydi00Mi4xNEgyMzIuMjFWNjY5LjM1SDE5MC4wNnogTTkxNi44Myw2NjkuMzV2MTQ3LjkySDY2OS43NXY0Mi4xNGgyODkuMjJWNjY5LjM1CglIOTE2LjgzeiBNNDc5LjcsMzgwLjEydjI4OS4yMmgxOTAuMDV2LTM4LjAxSDUyMS44NFYzODAuMTJINDc5Ljd6IE0xOTAuMDYsMTkwLjA2djE5MC4wNmg0Mi4xNFYyMzIuMjFoMjQ3LjA4di00Mi4xNEgxOTAuMDZ6CgkgTTY2OS43NSwxOTAuMDZ2NDIuMTRoMjQ3LjA4djE0Ny45Mmg0Mi4xNFYxOTAuMDZINjY5Ljc1eiIvPgo8L3N2Zz4K";
-  } else {
-    //Black icon
-    icon =
-      "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIzLjAuMSwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMTQ5LjA0IDEwNDkuNDciIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiMwMDAwMDA7fQo8L3N0eWxlPgo8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTkwLjA2LDY2OS4zNXYxOTAuMDZoMjg5LjIydi00Mi4xNEgyMzIuMjFWNjY5LjM1SDE5MC4wNnogTTkxNi44Myw2NjkuMzV2MTQ3LjkySDY2OS43NXY0Mi4xNGgyODkuMjJWNjY5LjM1CglIOTE2LjgzeiBNNDc5LjcsMzgwLjEydjI4OS4yMmgxOTAuMDV2LTM4LjAxSDUyMS44NFYzODAuMTJINDc5Ljd6IE0xOTAuMDYsMTkwLjA2djE5MC4wNmg0Mi4xNFYyMzIuMjFoMjQ3LjA4di00Mi4xNEgxOTAuMDZ6CgkgTTY2OS43NSwxOTAuMDZ2NDIuMTRoMjQ3LjA4djE0Ny45Mmg0Mi4xNFYxOTAuMDZINjY5Ljc1eiIvPgo8L3N2Zz4K";
-  }
-
-  const info: EIP6963ProviderInfo = {
-    uuid: uuidv4(),
-    name: "Ledger Wallet",
-    icon: icon,
-    rdns: "com.ledger.wallet.provider",
-  };
 
   const fontHref =
     "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap";
@@ -119,10 +97,9 @@ export function initializeLedgerProvider({
   }
 
   const app = document.createElement("ledger-button-app") as LedgerButtonApp;
-  app.core = core;
+  app.core = coreInstance;
   app.walletTransactionFeatures = walletTransactionFeatures;
-  app.transactionConfirmationNotification =
-    transactionConfirmationNotification;
+  app.transactionConfirmationNotification = transactionConfirmationNotification;
   app.classList.add("ledger-wallet-provider");
 
   const { floatingButton } = setupFloatingButton(
@@ -138,26 +115,20 @@ export function initializeLedgerProvider({
     document.body.appendChild(app);
   }
 
-  const provider = new LedgerEIP1193Provider(core, app);
-
-  const announceProviderListener = () => {
-    window.dispatchEvent(
-      new CustomEvent("eip6963:announceProvider", {
-        detail: Object.freeze({ info, provider }),
-      }),
-    );
-  };
-
-  window.addEventListener("eip6963:requestProvider", announceProviderListener);
-
-  window.dispatchEvent(
-    new CustomEvent("eip6963:announceProvider", {
-      detail: Object.freeze({ info, provider }),
-    }),
-  );
+  // Bridge: map core's generic navigation intents to the button UI navigation.
+  const navigationSubscription = core
+    .observeNavigationIntents()
+    .subscribe((intent) => {
+      app.navigationIntent(
+        intent.name as Parameters<LedgerButtonApp["navigationIntent"]>[0],
+        intent.params,
+      );
+    });
 
   // Cleanup function
   return () => {
+    navigationSubscription.unsubscribe();
+
     if (app.parentNode) {
       app.parentNode.removeChild(app);
     }
@@ -165,11 +136,6 @@ export function initializeLedgerProvider({
     if (floatingButton && floatingButton.parentNode) {
       floatingButton.parentNode.removeChild(floatingButton);
     }
-
-    window.removeEventListener(
-      "eip6963:requestProvider",
-      announceProviderListener,
-    );
 
     // Reset core so new config can be applied on next initialization
     core = null;
