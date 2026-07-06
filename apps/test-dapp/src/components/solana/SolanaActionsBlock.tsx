@@ -28,6 +28,7 @@ interface SolanaActionsBlockProps {
   isConnected: boolean;
   canSignMessage: boolean;
   canSignTransaction: boolean;
+  canSendTransaction: boolean;
   onSignMessage: (message: string) => Promise<void>;
   onSignTransaction: (values: SolanaTransferValues) => Promise<void>;
   onSendTransaction: (values: SolanaTransferValues) => Promise<void>;
@@ -62,6 +63,7 @@ export function SolanaActionsBlock({
   isConnected,
   canSignMessage,
   canSignTransaction,
+  canSendTransaction,
   onSignMessage,
   onSignTransaction,
   onSendTransaction,
@@ -88,10 +90,7 @@ export function SolanaActionsBlock({
   const modalContent = useMemo(() => {
     const modals: Record<NonNullable<ModalType>, ReactNode> = {
       "sign-message": (
-        <SignSolanaMessageModal
-          onSubmit={onSignMessage}
-          onClose={closeModal}
-        />
+        <SignSolanaMessageModal onSubmit={onSignMessage} onClose={closeModal} />
       ),
       "sign-tx": (
         <SolanaTransferModal
@@ -110,12 +109,18 @@ export function SolanaActionsBlock({
     };
 
     return modalType ? modals[modalType] : null;
-  }, [modalType, closeModal, onSignMessage, onSignTransaction, onSendTransaction]);
+  }, [
+    modalType,
+    closeModal,
+    onSignMessage,
+    onSignTransaction,
+    onSendTransaction,
+  ]);
 
   const renderContent = () => {
     if (!isConnected) {
       return (
-        <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
+        <div className="bg-muted border-muted rounded-lg border border-dashed p-20 text-center">
           <p className="body-2 text-muted">
             Connect a Solana wallet to access signing features.
           </p>
@@ -126,7 +131,7 @@ export function SolanaActionsBlock({
     return (
       <div className="space-y-20">
         <div className="space-y-10">
-          <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
             Solana Actions
           </h4>
           <div className="grid grid-cols-3 gap-10">
@@ -136,12 +141,12 @@ export function SolanaActionsBlock({
                   ? !canSignMessage
                   : action.type === "sign-tx"
                     ? !canSignTransaction
-                    : false;
+                    : !canSendTransaction;
               return (
                 <button
                   key={action.type}
                   disabled={disabled}
-                  className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
                   onClick={() => openModal(action.type)}
                   title={
                     disabled
@@ -149,8 +154,8 @@ export function SolanaActionsBlock({
                       : undefined
                   }
                 >
-                  <span className="mb-6 text-muted">{action.icon}</span>
-                  <span className="body-2-semi-bold text-base text-center leading-tight">
+                  <span className="text-muted mb-6">{action.icon}</span>
+                  <span className="body-2-semi-bold text-center text-base leading-tight">
                     {action.label}
                   </span>
                 </button>
@@ -160,9 +165,9 @@ export function SolanaActionsBlock({
         </div>
 
         {(result || error) && (
-          <div className="pt-16 border-t border-muted space-y-10">
-            <div className="flex justify-between items-center">
-              <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <div className="border-muted space-y-10 border-t pt-16">
+            <div className="flex items-center justify-between">
+              <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
                 Last Result
               </h4>
               <Button appearance="gray" size="sm" onClick={onClearResult}>
@@ -170,13 +175,13 @@ export function SolanaActionsBlock({
               </Button>
             </div>
             {result && (
-              <div className="p-12 bg-success-transparent border border-success rounded-lg break-all">
+              <div className="bg-success-transparent border-success rounded-lg border p-12 break-all">
                 <code className="body-4 font-mono text-base">{result}</code>
               </div>
             )}
             {error && (
-              <div className="p-12 bg-error-transparent border border-error rounded-lg break-all">
-                <code className="body-4 font-mono text-error">{error}</code>
+              <div className="bg-error-transparent border-error rounded-lg border p-12 break-all">
+                <code className="body-4 text-error font-mono">{error}</code>
               </div>
             )}
           </div>
@@ -186,15 +191,15 @@ export function SolanaActionsBlock({
   };
 
   return (
-    <div className="border border-muted rounded-lg overflow-hidden">
-      <div className="px-24 py-16 bg-muted">
-        <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
+    <div className="border-muted overflow-hidden rounded-lg border">
+      <div className="bg-muted px-24 py-16">
+        <h3 className="body-2-semi-bold flex items-center gap-10 text-base">
           <CreditCard size={20} />
           Transactions & Signing
         </h3>
       </div>
 
-      <div className="p-24 bg-canvas">{renderContent()}</div>
+      <div className="bg-canvas p-24">{renderContent()}</div>
 
       <Dialog open={isModalOpen} onOpenChange={(open) => !open && closeModal()}>
         <DialogContent>
