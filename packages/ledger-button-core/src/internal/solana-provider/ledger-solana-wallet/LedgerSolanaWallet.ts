@@ -31,8 +31,12 @@ import {
   type StandardEventsNames,
   type StandardEventsOnMethod,
 } from "@wallet-standard/features";
-import { Subject, type Observable, type Subscription } from "rxjs";
+import { type Observable, Subject, type Subscription } from "rxjs";
 
+import {
+  getClusterFromCurrencyId,
+  isSupportedSolanaCurrency,
+} from "./utils/clusterUtils.js";
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
@@ -45,10 +49,6 @@ import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/
 import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
 import { getLedgerProviderIcon } from "../../../internal/blockchain-provider/wallet-provider/ledgerProviderIcon.js";
 import type { SignSolanaMessage } from "../use-case/SignSolanaMessage.js";
-import {
-  getClusterFromCurrencyId,
-  isSupportedSolanaCurrency,
-} from "./utils/clusterUtils.js";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",
@@ -368,11 +368,7 @@ export class LedgerSolanaWallet implements Wallet {
         addressEncoder.encode(address(account.freshAddress)),
       ),
       chains: [CLUSTER_TO_CHAIN[cluster]],
-      features: [
-        "solana:signMessage",
-        "solana:signTransaction",
-        "solana:signAndSendTransaction",
-      ],
+      features: ["solana:signMessage"],
     };
   }
 

@@ -141,7 +141,7 @@ export class LedgerButtonCore {
 
     const dappConfig = await this.container
       .get<GetDAppConfigV2UseCase>(
-        dappConfigV2ModuleTypes.GetDAppConfigV2UseCase,
+        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
       )
       .execute();
 

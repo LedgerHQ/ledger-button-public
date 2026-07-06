@@ -90,7 +90,9 @@ describe("SignSolanaMessageFlowDeviceAction", () => {
 
       expect(pendingSteps).toContain(SignSolanaMessageFlowDAStep.OPEN_APP);
       expect(pendingSteps).toContain(SignSolanaMessageFlowDAStep.GET_ADDRESS);
-      expect(pendingSteps).toContain(SignSolanaMessageFlowDAStep.VERIFY_ADDRESS);
+      expect(pendingSteps).toContain(
+        SignSolanaMessageFlowDAStep.VERIFY_ADDRESS,
+      );
       expect(pendingSteps).toContain(SignSolanaMessageFlowDAStep.SIGN);
     });
 

@@ -180,6 +180,7 @@ function SolanaPageContent({
                 isConnected={false}
                 canSignMessage={false}
                 canSignTransaction={false}
+                canSendTransaction={false}
                 onSignMessage={async () => undefined}
                 onSignTransaction={async () => undefined}
                 onSendTransaction={async () => undefined}
@@ -235,27 +236,42 @@ interface ConnectedSolanaActionsProps {
   onClearResult: () => void;
 }
 
-function ConnectedSolanaActions({
+type SolanaActionsCallbacks = Omit<
+  ConnectedSolanaActionsProps,
+  "account" | "result" | "error"
+>;
+
+function ConnectedSolanaActions(props: ConnectedSolanaActionsProps) {
+  const { account } = props;
+  const canSignAndSend = account.features.includes(
+    "solana:signAndSendTransaction",
+  );
+  const canSignTransaction = account.features.includes(
+    "solana:signTransaction",
+  );
+
+  if (canSignAndSend) {
+    return <ConnectedSolanaActionsWithSend {...props} />;
+  }
+
+  if (canSignTransaction) {
+    return <ConnectedSolanaActionsWithSignTx {...props} />;
+  }
+
+  return <ConnectedSolanaSignMessageActions {...props} />;
+}
+
+function ConnectedSolanaSignMessageActions({
   account,
   addInfo,
   onResult,
   onError,
+  onClearResult,
   result,
   error,
-  onClearResult,
 }: ConnectedSolanaActionsProps) {
-  const { chain, rpc } = useSolanaChain();
   const signMessage = useSignMessage(account);
-  const transactionSigner = useWalletAccountTransactionSigner(account, chain);
-  const sendingSigner = useWalletAccountTransactionSendingSigner(
-    account,
-    chain,
-  );
-
   const canSignMessage = account.features.includes("solana:signMessage");
-  const canSignTransaction = account.features.includes(
-    "solana:signTransaction",
-  );
 
   const handleSignMessage = useCallback(
     async (message: string) => {
@@ -273,7 +289,183 @@ function ConnectedSolanaActions({
     [signMessage, addInfo, onResult, onError, onClearResult],
   );
 
-  const handleSignTransaction = useCallback(
+  return (
+    <SolanaActionsBlock
+      isConnected
+      canSignMessage={canSignMessage}
+      canSignTransaction={false}
+      canSendTransaction={false}
+      onSignMessage={handleSignMessage}
+      onSignTransaction={async () => undefined}
+      onSendTransaction={async () => undefined}
+      result={result}
+      error={error}
+      onClearResult={onClearResult}
+    />
+  );
+}
+
+function ConnectedSolanaActionsWithSignTx({
+  account,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+  result,
+  error,
+}: ConnectedSolanaActionsProps) {
+  const { chain, rpc } = useSolanaChain();
+  const signMessage = useSignMessage(account);
+  const transactionSigner = useWalletAccountTransactionSigner(account, chain);
+
+  const canSignMessage = account.features.includes("solana:signMessage");
+  const canSignTransaction = account.features.includes(
+    "solana:signTransaction",
+  );
+
+  const handleSignMessage = useSignMessageHandler({
+    signMessage,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const handleSignTransaction = useSignTransactionHandler({
+    rpc,
+    chain,
+    transactionSigner,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  return (
+    <SolanaActionsBlock
+      isConnected
+      canSignMessage={canSignMessage}
+      canSignTransaction={canSignTransaction}
+      canSendTransaction={false}
+      onSignMessage={handleSignMessage}
+      onSignTransaction={handleSignTransaction}
+      onSendTransaction={async () => undefined}
+      result={result}
+      error={error}
+      onClearResult={onClearResult}
+    />
+  );
+}
+
+function ConnectedSolanaActionsWithSend({
+  account,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+  result,
+  error,
+}: ConnectedSolanaActionsProps) {
+  const { chain, rpc } = useSolanaChain();
+  const signMessage = useSignMessage(account);
+  const transactionSigner = useWalletAccountTransactionSigner(account, chain);
+  const sendingSigner = useWalletAccountTransactionSendingSigner(
+    account,
+    chain,
+  );
+
+  const canSignMessage = account.features.includes("solana:signMessage");
+  const canSignTransaction = account.features.includes(
+    "solana:signTransaction",
+  );
+  const canSendTransaction = account.features.includes(
+    "solana:signAndSendTransaction",
+  );
+
+  const handleSignMessage = useSignMessageHandler({
+    signMessage,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const handleSignTransaction = useSignTransactionHandler({
+    rpc,
+    chain,
+    transactionSigner,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const handleSendTransaction = useSendTransactionHandler({
+    rpc,
+    chain,
+    sendingSigner,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  return (
+    <SolanaActionsBlock
+      isConnected
+      canSignMessage={canSignMessage}
+      canSignTransaction={canSignTransaction}
+      canSendTransaction={canSendTransaction}
+      onSignMessage={handleSignMessage}
+      onSignTransaction={handleSignTransaction}
+      onSendTransaction={handleSendTransaction}
+      result={result}
+      error={error}
+      onClearResult={onClearResult}
+    />
+  );
+}
+
+function useSignMessageHandler({
+  signMessage,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  signMessage: ReturnType<typeof useSignMessage>;
+} & SolanaActionsCallbacks) {
+  return useCallback(
+    async (message: string) => {
+      onClearResult();
+      try {
+        addInfo("signMessage", message);
+        const { signature } = await signMessage({
+          message: new TextEncoder().encode(message),
+        });
+        onResult(getBase58Decoder().decode(signature));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [signMessage, addInfo, onResult, onError, onClearResult],
+  );
+}
+
+function useSignTransactionHandler({
+  rpc,
+  chain,
+  transactionSigner,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  rpc: SolanaRpc;
+  chain: SolanaChain;
+  transactionSigner: TransactionSigner;
+} & SolanaActionsCallbacks) {
+  return useCallback(
     async (values: SolanaTransferValues) => {
       onClearResult();
       try {
@@ -293,8 +485,22 @@ function ConnectedSolanaActions({
     },
     [rpc, chain, transactionSigner, addInfo, onResult, onError, onClearResult],
   );
+}
 
-  const handleSendTransaction = useCallback(
+function useSendTransactionHandler({
+  rpc,
+  chain,
+  sendingSigner,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  rpc: SolanaRpc;
+  chain: SolanaChain;
+  sendingSigner: TransactionSigner;
+} & SolanaActionsCallbacks) {
+  return useCallback(
     async (values: SolanaTransferValues) => {
       onClearResult();
       try {
@@ -313,20 +519,6 @@ function ConnectedSolanaActions({
       }
     },
     [rpc, chain, sendingSigner, addInfo, onResult, onError, onClearResult],
-  );
-
-  return (
-    <SolanaActionsBlock
-      isConnected
-      canSignMessage={canSignMessage}
-      canSignTransaction={canSignTransaction}
-      onSignMessage={handleSignMessage}
-      onSignTransaction={handleSignTransaction}
-      onSendTransaction={handleSendTransaction}
-      result={result}
-      error={error}
-      onClearResult={onClearResult}
-    />
   );
 }
 
