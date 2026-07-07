@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Button,
+  SearchInput,
   Select,
   SelectContent,
   SelectItem,
@@ -35,6 +36,15 @@ export function SignRawTransactionModal({
   const [dappsError, setDappsError] = useState<string | null>(null);
   const [selectedDappId, setSelectedDappId] = useState<string>("");
   const [targetContract, setTargetContract] = useState<string | null>(null);
+  const [dappQuery, setDappQuery] = useState("");
+
+  const filteredDapps = useMemo(() => {
+    const query = dappQuery.trim().toLowerCase();
+    if (!query) {
+      return dapps;
+    }
+    return dapps.filter((dapp) => dapp.id.toLowerCase().includes(query));
+  }, [dapps, dappQuery]);
 
   useEffect(() => {
     let cancelled = false;
@@ -123,6 +133,11 @@ export function SignRawTransactionModal({
         <Select
           value={selectedDappId}
           onValueChange={handleSelectDapp}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDappQuery("");
+            }
+          }}
           disabled={isLoadingDapps || dapps.length === 0}
         >
           <SelectTrigger
@@ -133,11 +148,24 @@ export function SignRawTransactionModal({
             }
           />
           <SelectContent>
-            {dapps.map((dapp) => (
-              <SelectItem key={dapp.id} value={dapp.id}>
-                <SelectItemText>{dapp.id}</SelectItemText>
-              </SelectItem>
-            ))}
+            <div className="p-8">
+              <SearchInput
+                placeholder="Search dApps..."
+                value={dappQuery}
+                onChange={(event) => setDappQuery(event.target.value)}
+                onClear={() => setDappQuery("")}
+                onKeyDown={(event) => event.stopPropagation()}
+              />
+            </div>
+            {filteredDapps.length === 0 ? (
+              <p className="body-4 text-muted px-8 py-4">No dApps found</p>
+            ) : (
+              filteredDapps.map((dapp) => (
+                <SelectItem key={dapp.id} value={dapp.id}>
+                  <SelectItemText>{dapp.id}</SelectItemText>
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
         {dappsError && <p className="body-4 text-error">{dappsError}</p>}
