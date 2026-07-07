@@ -11,6 +11,7 @@ export type {
   ProviderDeviceSession,
   ProviderSdkConfig,
   ProviderSignParams,
+  SelectAccountIntentParams,
   WalletNavigationIntent,
   WalletProvider,
 } from "./blockchain-provider/model/types.js";

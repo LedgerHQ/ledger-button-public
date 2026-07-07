@@ -153,11 +153,13 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
 
       this._navigationIntentService.emit({
         name: "selectAccount",
+        params: { family },
         status$,
         finish: () => status$.complete(),
         retry: () =>
           this._navigationIntentService.emit({
             name: "selectAccount",
+            params: { family },
             status$,
             finish: () => status$.complete(),
             retry: () => undefined,
