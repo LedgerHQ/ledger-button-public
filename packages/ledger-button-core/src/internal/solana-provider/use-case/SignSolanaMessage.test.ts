@@ -11,6 +11,10 @@ import { SignSolanaMessage } from "./SignSolanaMessage.js";
 const SOLANA_ADDRESS = "11111111111111111111111111111111";
 const signatureBytes = new Uint8Array(64).fill(3);
 const signatureBase58 = getBase58Decoder().decode(signatureBytes);
+const signedMessageBytes = new Uint8Array([
+  0xff, 0x73, 0x6f, 0x6c, 0x61, 0x6e, 0x61, 0x20, 0x6f, 0x66, 0x66, 0x63, 0x68,
+  0x61, 0x69, 0x6e, 0x01, 0x01, 0x48, 0x69,
+]);
 
 const account = {
   id: "solana:1",
@@ -57,7 +61,10 @@ describe("SignSolanaMessage", () => {
     executeDeviceAction = vi.fn(() => ({
       observable: of({
         status: DeviceActionStatus.Completed,
-        output: { signature: signatureBase58 },
+        output: {
+          signature: signatureBase58,
+          signedMessage: signedMessageBytes,
+        },
       }),
     }));
     core = {
@@ -91,7 +98,7 @@ describe("SignSolanaMessage", () => {
     expect(status).toEqual({
       signType: "solana-message",
       status: "success",
-      data: { signature: signatureBase58 },
+      data: { signature: signatureBase58, signedMessage: signedMessageBytes },
     });
   });
 

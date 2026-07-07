@@ -21,6 +21,7 @@ import {
   setupGetAddressMock,
   setupOpenAppMock,
   setupSignMessageMock,
+  SIGNED_MESSAGE_BYTES,
   VALID_SIGNATURE_BASE58,
 } from "./SignSolanaMessageFlowDeviceAction.mock.js";
 import {
@@ -113,12 +114,13 @@ describe("SignSolanaMessageFlowDeviceAction", () => {
       );
     });
 
-    it("should return the extracted raw signature", async () => {
+    it("should return the extracted raw signature and signed message", async () => {
       const result = await lastValueFrom(observable);
 
       expect(result.status).toBe(DeviceActionStatus.Completed);
       if (result.status === DeviceActionStatus.Completed) {
         expect(result.output.signature).toBe(VALID_SIGNATURE_BASE58);
+        expect(result.output.signedMessage).toEqual(SIGNED_MESSAGE_BYTES);
       }
     });
   });

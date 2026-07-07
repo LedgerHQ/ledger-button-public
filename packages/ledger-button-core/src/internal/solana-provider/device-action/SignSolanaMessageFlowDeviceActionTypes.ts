@@ -27,6 +27,7 @@ export enum SignSolanaMessageFlowDAStep {
 
 export type SignSolanaMessageFlowDAOutput = {
   readonly signature: string;
+  readonly signedMessage: Uint8Array;
 };
 
 export type SignSolanaMessageFlowDAInput = {
@@ -55,4 +56,5 @@ export type SignSolanaMessageFlowDAInternalState = {
   readonly error: (SignSolanaMessageFlowDAError & DmkError) | null;
   readonly address: string | null;
   readonly signature: string | null;
+  readonly signedMessage: Uint8Array | null;
 };

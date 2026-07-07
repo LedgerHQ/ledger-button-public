@@ -114,7 +114,10 @@ export class SignSolanaMessage {
         return {
           signType: SIGN_TYPE,
           status: "success",
-          data: { signature: state.output.signature },
+          data: {
+            signature: state.output.signature,
+            signedMessage: state.output.signedMessage,
+          },
         };
 
       case DeviceActionStatus.Error:
