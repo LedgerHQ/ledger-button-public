@@ -60,3 +60,31 @@ export function extractRawSignatureBase58(envelopeBase58: string): string {
     `Unexpected off-chain message signature payload (${bytes.length} bytes)`,
   );
 }
+
+/**
+ * Extracts the off-chain message (OCM) that was actually signed from a Solana
+ * off-chain message signing envelope.
+ *
+ * The signer kit returns an OCM envelope `[versionByte][signature(64)][ocm...]`
+ * for the V0/V1/Legacy signing modes. The trailing `ocm` bytes are the exact
+ * byte string (preamble + content) that the device ed25519-signed, so a dApp
+ * can verify the signature with `ed25519.verify(signature, signedMessage)`.
+ *
+ * Because these bytes come straight from the envelope, they reflect whichever
+ * version the firmware ended up using (including any V1 -> V0 -> Legacy
+ * fallback), which reconstructing the OCM client-side could not guarantee.
+ */
+export function extractSignedMessage(envelopeBase58: string): Uint8Array {
+  const bytes = new Uint8Array(getBase58Encoder().encode(envelopeBase58));
+
+  if (
+    bytes.length > 1 + SIGNATURE_LENGTH &&
+    bytes[0] === OCM_ENVELOPE_VERSION_BYTE
+  ) {
+    return bytes.slice(1 + SIGNATURE_LENGTH);
+  }
+
+  throw new Error(
+    `Unexpected off-chain message envelope payload (${bytes.length} bytes)`,
+  );
+}

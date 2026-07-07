@@ -214,9 +214,12 @@ export class LedgerSolanaWallet implements Wallet {
     }[] = [];
 
     for (const input of inputs) {
-      const signature = await this.signSolanaMessage(account, input.message);
+      const { signature, signedMessage } = await this.signSolanaMessage(
+        account,
+        input.message,
+      );
       results.push({
-        signedMessage: input.message,
+        signedMessage,
         signature,
         signatureType: "ed25519",
       });
@@ -335,7 +338,7 @@ export class LedgerSolanaWallet implements Wallet {
   private async signSolanaMessage(
     account: ProviderAccount,
     message: Uint8Array,
-  ): Promise<Uint8Array> {
+  ): Promise<{ signature: Uint8Array; signedMessage: Uint8Array }> {
     const params: SignSolanaMessageParams = {
       kind: "solana-message",
       address: account.freshAddress,
@@ -349,12 +352,15 @@ export class LedgerSolanaWallet implements Wallet {
       ),
     );
 
-    if (!isSignedMessageOrTypedDataResult(result)) {
+    if (!isSignedMessageOrTypedDataResult(result) || !result.signedMessage) {
       throw new Error("Unexpected message signing result");
     }
 
     try {
-      return new Uint8Array(base58Encoder.encode(result.signature));
+      return {
+        signature: new Uint8Array(base58Encoder.encode(result.signature)),
+        signedMessage: result.signedMessage,
+      };
     } catch (error) {
       throw new Error("Failed to decode message signature", { cause: error });
     }

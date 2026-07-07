@@ -198,13 +198,21 @@ describe("LedgerSolanaWallet (connection)", () => {
   describe("signMessage", () => {
     const signatureBytes = new Uint8Array(64).fill(7);
     const signatureBase58 = getBase58Decoder().decode(signatureBytes);
+    // The OCM (preamble + content) the device actually signed.
+    const signedMessageBytes = new Uint8Array([
+      0xff, 0x73, 0x6f, 0x6c, 0x61, 0x6e, 0x61, 0x20, 0x6f, 0x66, 0x66, 0x63,
+      0x68, 0x61, 0x69, 0x6e, 0x01, 0x01, 0x48, 0x69,
+    ]);
 
-    it("runs the sign use case through the navigation intent and returns the decoded signature", async () => {
+    it("runs the sign use case through the navigation intent and returns the decoded signature and signed OCM", async () => {
       signSolanaMessage.execute.mockReturnValue(
         of({
           signType: "solana-message",
           status: "success",
-          data: { signature: signatureBase58 },
+          data: {
+            signature: signatureBase58,
+            signedMessage: signedMessageBytes,
+          },
         }),
       );
       const wallet = createWallet();
@@ -234,7 +242,7 @@ describe("LedgerSolanaWallet (connection)", () => {
         },
         createAccount(),
       );
-      expect(result.signedMessage).toBe(message);
+      expect(result.signedMessage).toBe(signedMessageBytes);
       expect(result.signature).toEqual(signatureBytes);
       expect(result.signatureType).toBe("ed25519");
     });

@@ -36,8 +36,27 @@ export function makeInternalApiMock(): InternalApi {
 
 const base58 = (bytes: Uint8Array): string => getBase58Decoder().decode(bytes);
 
-/** A bare 64-byte ed25519 signature, base58 encoded (Raw mode shape). */
-export const VALID_SIGNATURE_BASE58 = base58(new Uint8Array(64).fill(7));
+const SIGNATURE_BYTES = new Uint8Array(64).fill(7);
+
+/** The 64-byte ed25519 signature (base58) the flow should extract. */
+export const VALID_SIGNATURE_BASE58 = base58(SIGNATURE_BYTES);
+
+/**
+ * The OCM (preamble + content) that was actually signed. These are the bytes
+ * the flow should expose as `signedMessage`.
+ */
+export const SIGNED_MESSAGE_BYTES = new Uint8Array([
+  0xff, 0x73, 0x6f, 0x6c, 0x61, 0x6e, 0x61, 0x20, 0x6f, 0x66, 0x66, 0x63, 0x68,
+  0x61, 0x69, 0x6e, 0x01, 0x01, 0x48, 0x69,
+]);
+
+/**
+ * A full OCM envelope `[versionByte(0x01)][signature(64)][ocm...]` as returned
+ * by the signer kit for the V0/V1/Legacy signing modes.
+ */
+export const VALID_ENVELOPE_BASE58 = base58(
+  new Uint8Array([0x01, ...SIGNATURE_BYTES, ...SIGNED_MESSAGE_BYTES]),
+);
 
 /** A payload that is neither a 64-byte signature nor a valid OCM envelope. */
 export const INVALID_SIGNATURE_BASE58 = base58(new Uint8Array(10));
@@ -94,8 +113,7 @@ export function setupGetAddressMock(address?: string, error?: unknown): void {
           },
           done: { type: "final" as const },
         },
-        output: () =>
-          error ? Left(error) : Right(address ?? DEFAULT_ADDRESS),
+        output: () => (error ? Left(error) : Right(address ?? DEFAULT_ADDRESS)),
       }),
     ),
     input: {},
@@ -125,7 +143,7 @@ export function setupSignMessageMock(
         output: () =>
           error
             ? Left(error)
-            : Right({ signature: signature ?? VALID_SIGNATURE_BASE58 }),
+            : Right({ signature: signature ?? VALID_ENVELOPE_BASE58 }),
       }),
     ),
     input: {},

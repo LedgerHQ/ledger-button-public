@@ -23,6 +23,7 @@ import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.j
 import type { UserInteractionNeeded } from "../../../api/model/UserInteractionNeeded.js";
 import {
   extractRawSignatureBase58,
+  extractSignedMessage,
   normalizeSigningError,
 } from "../use-case/solanaSignFlowUtils.js";
 import {
@@ -140,6 +141,7 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
           error: null,
           address: null,
           signature: null,
+          signedMessage: null,
         },
       }),
       states: {
@@ -406,6 +408,7 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
           return {
             ...internalState,
             signature: extractRawSignatureBase58(result.signature),
+            signedMessage: extractSignedMessage(result.signature),
           };
         } catch (e) {
           return {
@@ -451,9 +454,9 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
   }
 
   private buildOutput(internalState: SignSolanaMessageFlowDAInternalState) {
-    const { signature, error } = internalState;
-    if (signature) {
-      return Right({ signature });
+    const { signature, signedMessage, error } = internalState;
+    if (signature && signedMessage) {
+      return Right({ signature, signedMessage });
     }
     return Left(error || new UnknownDAError("No error in final state"));
   }

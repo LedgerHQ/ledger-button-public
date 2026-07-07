@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { UserRejectedTransactionError } from "../../../api/errors/DeviceErrors.js";
 import {
   extractRawSignatureBase58,
+  extractSignedMessage,
   normalizeSigningError,
 } from "./solanaSignFlowUtils.js";
 
@@ -33,6 +34,30 @@ describe("extractRawSignatureBase58", () => {
   it("throws on an unexpected payload length", () => {
     expect(() => extractRawSignatureBase58(base58(new Uint8Array(10)))).toThrow(
       /Unexpected off-chain message signature payload/,
+    );
+  });
+});
+
+describe("extractSignedMessage", () => {
+  it("extracts the signed OCM (trailing bytes) from an envelope [version][sig][ocm]", () => {
+    const ocm = new TextEncoder().encode("solana offchain ocm");
+    const envelope = new Uint8Array(1 + 64 + ocm.length);
+    envelope[0] = 1;
+    envelope.set(signatureBytes, 1);
+    envelope.set(ocm, 1 + 64);
+
+    expect(extractSignedMessage(base58(envelope))).toEqual(ocm);
+  });
+
+  it("throws on a bare 64-byte signature (no OCM present)", () => {
+    expect(() => extractSignedMessage(base58(signatureBytes))).toThrow(
+      /Unexpected off-chain message envelope payload/,
+    );
+  });
+
+  it("throws on an unexpected payload length", () => {
+    expect(() => extractSignedMessage(base58(new Uint8Array(10)))).toThrow(
+      /Unexpected off-chain message envelope payload/,
     );
   });
 });
