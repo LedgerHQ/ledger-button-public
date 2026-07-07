@@ -1,5 +1,4 @@
-const CAL_DAPPS_URL =
-  "https://crypto-assets-service.api.aws.prd.ldg-tech.com/v1/dapps";
+const CAL_DAPPS_URL = "https://global.api.ledger.com/cal/v1/dapps";
 
 const ETHEREUM_MAINNET_ID_PREFIX = "ethereum/";
 const CONTRACT_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/;
@@ -20,13 +19,17 @@ interface CalDappEntry {
  * crypto-assets-service (CAL) and keeps only Ethereum mainnet entries whose
  * contract addresses can be replayed through `eth_signRawTransaction`.
  */
-export async function fetchSupportedDapps(): Promise<SupportedDapp[]> {
+export async function fetchSupportedDapps(
+  apiKey: string,
+): Promise<SupportedDapp[]> {
   const url = new URL(CAL_DAPPS_URL);
   url.searchParams.set("ref", "branch:main");
   url.searchParams.set("output", "id,contracts");
   url.searchParams.set("pageSize", "1000");
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    headers: { "X-Ledger-Client-Origin": apiKey },
+  });
   if (!response.ok) {
     throw new Error(`CAL dapps request failed with status ${response.status}`);
   }
