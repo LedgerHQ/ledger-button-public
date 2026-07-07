@@ -20,11 +20,13 @@ import {
 interface SignRawTransactionModalProps {
   onSubmit: (rawTx: string) => Promise<void>;
   onClose: () => void;
+  apiKey: string;
 }
 
 export function SignRawTransactionModal({
   onSubmit,
   onClose,
+  apiKey,
 }: SignRawTransactionModalProps) {
   const [value, setValue] = useState("");
   const [hash, setHash] = useState<string | null>(null);
@@ -50,7 +52,7 @@ export function SignRawTransactionModal({
     let cancelled = false;
     setIsLoadingDapps(true);
     setDappsError(null);
-    fetchSupportedDapps()
+    fetchSupportedDapps(apiKey)
       .then((result) => {
         if (!cancelled) {
           setDapps(result);
@@ -71,7 +73,7 @@ export function SignRawTransactionModal({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [apiKey]);
 
   const handleFetchRandom = useCallback(async () => {
     setIsFetching(true);
