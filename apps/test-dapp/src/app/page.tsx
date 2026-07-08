@@ -396,6 +396,7 @@ export default function Index() {
               result={result}
               error={error}
               onClearResult={clearResult}
+              apiKey={config.apiKey}
             />
 
             <EventSimulatorBlock
@@ -465,10 +466,7 @@ export default function Index() {
             </span>
           </summary>
           <div className="mt-8 h-[400px]">
-            <TrackingPanel
-              entries={trackingEntries}
-              onClear={clearTracking}
-            />
+            <TrackingPanel entries={trackingEntries} onClear={clearTracking} />
           </div>
         </details>
       </div>
