@@ -1,4 +1,4 @@
-const CAL_DAPPS_URL = "https://global.api.ledger.com/cal/v1/dapps";
+const CAL_DAPPS_URL = "https://crypto-assets-service.api.ledger.com/v1/dapps";
 
 const ETHEREUM_MAINNET_ID_PREFIX = "ethereum/";
 const CONTRACT_ADDRESS_REGEX = /^0x[0-9a-f]{40}$/;
