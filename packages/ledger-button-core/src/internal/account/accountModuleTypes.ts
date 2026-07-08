@@ -14,6 +14,7 @@ export const accountModuleTypes = {
     "HydrateAccountWithBalanceUseCase",
   ),
   FetchAccountsWithFiatUseCase: Symbol.for("FetchAccountsWithFiatUseCase"),
+  FilterAccountsByFamilyUseCase: Symbol.for("FilterAccountsByFamilyUseCase"),
   ObserveAccountsWithFiatUseCase: Symbol.for("ObserveAccountsWithFiatUseCase"),
   ObserveSelectedAccountChangesUseCase: Symbol.for(
     "ObserveSelectedAccountChangesUseCase",

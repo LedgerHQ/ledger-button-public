@@ -1,6 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { map, Observable, Subscription, tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
 import type {
   BlockchainFamily,
@@ -393,25 +393,11 @@ export class LedgerButtonCore {
     forceRefresh?: boolean;
     family?: BlockchainFamily;
   }): Observable<AccountWithFiat[]> {
-    const accounts$ = this.container
+    return this.container
       .get<ObserveAccountsWithFiatUseCase>(
         accountModuleTypes.ObserveAccountsWithFiatUseCase,
       )
       .execute(options);
-
-    const family = options?.family;
-    if (!family) {
-      return accounts$;
-    }
-
-    return accounts$.pipe(
-      map((accounts) =>
-        accounts.filter(
-          (account) =>
-            this.resolveBlockchainFamily(account.currencyId) === family,
-        ),
-      ),
-    );
   }
 
   selectAccount(account: Account) {
