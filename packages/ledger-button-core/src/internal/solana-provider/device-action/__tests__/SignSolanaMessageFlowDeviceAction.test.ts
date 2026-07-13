@@ -38,11 +38,19 @@ vi.mock("@ledgerhq/device-management-kit", async (importOriginal) => {
       makeStateMachine: vi.fn(),
       input: {},
     })),
-    SendCommandInAppDeviceAction: vi.fn(() => ({
+  };
+});
+
+vi.mock("@ledgerhq/device-signer-kit-solana", async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import("@ledgerhq/device-signer-kit-solana")>();
+  return {
+    ...original,
+    GetAddressDeviceActionFactory: vi.fn(() => ({
       makeStateMachine: vi.fn(),
       input: {},
     })),
-    CallTaskInAppDeviceAction: vi.fn(() => ({
+    SignMessageDeviceActionFactory: vi.fn(() => ({
       makeStateMachine: vi.fn(),
       input: {},
     })),

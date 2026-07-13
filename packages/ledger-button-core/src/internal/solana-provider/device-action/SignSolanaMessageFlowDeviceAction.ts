@@ -1,20 +1,17 @@
 import {
-  CallTaskInAppDeviceAction,
   type DeviceActionStateMachine,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
-  SendCommandInAppDeviceAction,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
   XStateDeviceAction,
 } from "@ledgerhq/device-management-kit";
 import {
-  GetPubKeyCommand,
+  GetAddressDeviceActionFactory,
+  SignMessageDeviceActionFactory,
   SignMessageVersion,
 } from "@ledgerhq/device-signer-kit-solana";
-import { APP_NAME as SOLANA_APP_NAME } from "@ledgerhq/device-signer-kit-solana/internal/app-binder/constants.js";
-import { SendSignMessageTask } from "@ledgerhq/device-signer-kit-solana/internal/app-binder/task/SendSignMessageTask.js";
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
 
@@ -70,32 +67,17 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
       inspect: false,
     });
 
-    const getAddressDA = new SendCommandInAppDeviceAction({
-      input: {
-        command: new GetPubKeyCommand({
-          derivationPath: this.input.derivationPath,
-          checkOnDevice: false,
-        }),
-        appName: SOLANA_APP_NAME,
-        skipOpenApp: true,
-        requiredUserInteraction: UserInteractionRequired.None,
-      },
-      inspect: false,
+    const getAddressDA = GetAddressDeviceActionFactory({
+      derivationPath: this.input.derivationPath,
+      checkOnDevice: false,
+      skipOpenApp: true,
     });
 
-    const signMessageDA = new CallTaskInAppDeviceAction({
-      input: {
-        task: (api: InternalApi) =>
-          new SendSignMessageTask(api, {
-            derivationPath: this.input.derivationPath,
-            sendingData: this.input.message,
-            version: SignMessageVersion.V1,
-          }).run(),
-        appName: SOLANA_APP_NAME,
-        skipOpenApp: true,
-        requiredUserInteraction: UserInteractionRequired.SignPersonalMessage,
-      },
-      inspect: false,
+    const signMessageDA = SignMessageDeviceActionFactory({
+      derivationPath: this.input.derivationPath,
+      message: this.input.message,
+      skipOpenApp: true,
+      version: SignMessageVersion.V1,
     });
 
     return setup({
