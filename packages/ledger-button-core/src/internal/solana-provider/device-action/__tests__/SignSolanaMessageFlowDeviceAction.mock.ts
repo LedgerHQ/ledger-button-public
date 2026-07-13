@@ -1,11 +1,13 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
 import {
-  CallTaskInAppDeviceAction,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
-  SendCommandInAppDeviceAction,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
+import {
+  GetAddressDeviceActionFactory,
+  SignMessageDeviceActionFactory,
+} from "@ledgerhq/device-signer-kit-solana";
 import { getBase58Decoder } from "@solana/kit";
 import { Left, Right } from "purify-ts";
 import { type Mock, vi } from "vitest";
@@ -98,7 +100,7 @@ export function setupOpenAppMock(error?: unknown): void {
 }
 
 export function setupGetAddressMock(address?: string, error?: unknown): void {
-  (SendCommandInAppDeviceAction as unknown as Mock).mockImplementation(() => ({
+  (GetAddressDeviceActionFactory as unknown as Mock).mockReturnValue({
     makeStateMachine: vi.fn().mockImplementation(() =>
       createMachine({
         initial: "pending",
@@ -117,14 +119,14 @@ export function setupGetAddressMock(address?: string, error?: unknown): void {
       }),
     ),
     input: {},
-  }));
+  });
 }
 
 export function setupSignMessageMock(
   signature?: string,
   error?: unknown,
 ): void {
-  (CallTaskInAppDeviceAction as unknown as Mock).mockImplementation(() => ({
+  (SignMessageDeviceActionFactory as unknown as Mock).mockReturnValue({
     makeStateMachine: vi.fn().mockImplementation(() =>
       createMachine({
         initial: "pending",
@@ -147,5 +149,5 @@ export function setupSignMessageMock(
       }),
     ),
     input: {},
-  }));
+  });
 }
