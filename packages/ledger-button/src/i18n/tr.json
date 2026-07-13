@@ -298,6 +298,12 @@
         "cta1": "Başka bir cihaz bağlayın",
         "cta2": "Yeni bir Ledger cihazı satın alın"
       },
+      "DeviceNotOnboarded": {
+        "title": "Ledger Device not set-up",
+        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
+        "cta1": "Set up your Ledger Device",
+        "cta2": "Use another Ledger Device"
+      },
       "IncorrectSeed": {
         "title": "Ledger cihazı ile kripto hesabı arasında uyumsuzluk",
         "description": "Devam etmek için bu kripto hesabını yöneten Ledger cihazını bağlayın veya farklı bir hesap seçin.",

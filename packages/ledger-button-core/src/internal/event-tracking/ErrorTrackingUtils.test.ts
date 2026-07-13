@@ -56,6 +56,7 @@ describe("ErrorTrackingUtils", () => {
       ["BlindSigningDisabledError", "blind-signing"],
       ["DeviceConnectionError", "device"],
       ["DeviceNotSupportedError", "device"],
+      ["DeviceNotOnboardedError", "device"],
       ["DeviceDisconnectedError", "device"],
       ["FailToOpenAppError", "device"],
       ["IncorrectSeedError", "device"],

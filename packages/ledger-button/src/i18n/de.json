@@ -298,6 +298,12 @@
         "cta1": "Anderes Gerät verbinden",
         "cta2": "Neues Ledger-Gerät kaufen"
       },
+      "DeviceNotOnboarded": {
+        "title": "Ledger Device not set-up",
+        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
+        "cta1": "Set up your Ledger Device",
+        "cta2": "Use another Ledger Device"
+      },
       "IncorrectSeed": {
         "title": "Inkompatibilität zwischen Ledger-Gerät und Kryptokonto",
         "description": "Zum Fortfahren verbinde das Ledger-Gerät, das dieses Kryptokonto verwaltet, oder wähle ein anderes Konto aus.",

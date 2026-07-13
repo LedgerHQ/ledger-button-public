@@ -127,7 +127,8 @@ export class SelectDeviceScreen extends LitElement {
     return html`
       <div class="flex flex-col gap-12 p-24 pt-0">
         <ledger-status
-          type="error"
+          type=${this.controller.errorData.statusType ?? "error"}
+          ?primary-first=${this.controller.errorData.statusType === "info"}
           title=${this.controller.errorData.title}
           description=${this.controller.errorData.message}
           primary-button-label=${this.controller.errorData.cta1?.label ?? ""}

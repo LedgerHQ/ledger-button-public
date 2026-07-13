@@ -298,6 +298,12 @@
         "cta1": "توصيل جهاز آخر",
         "cta2": "اشترِ جهاز Ledger جديد"
       },
+      "DeviceNotOnboarded": {
+        "title": "Ledger Device not set-up",
+        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
+        "cta1": "Set up your Ledger Device",
+        "cta2": "Use another Ledger Device"
+      },
       "IncorrectSeed": {
         "title": "عدم التوافق بين جهاز Ledger وحساب الأصل المشفر",
         "description": "للمتابعة، قم بتوصيل جهاز Ledger الذي يدير حساب الأصل المشفر هذا، أو اختر حساباً آخر.",

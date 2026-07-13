@@ -7,7 +7,7 @@ import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 
-export type StatusType = "success" | "error";
+export type StatusType = "success" | "error" | "info";
 
 export interface LedgerStatusAttributes {
   type?: StatusType;
@@ -28,6 +28,7 @@ const spotVariants = cva(
       type: {
         success: "text-success",
         error: "text-error",
+        info: "text-base",
       },
     },
     defaultVariants: {
@@ -54,8 +55,31 @@ export class LedgerStatus extends LitElement {
   @property({ type: String, attribute: "secondary-button-label" })
   secondaryButtonLabel = "Secondary action";
 
+  @property({ type: Boolean, attribute: "primary-first" })
+  primaryFirst = false;
+
   private get iconType() {
-    return this.type === "success" ? "checkMarkCircleFill" : "deleteCircleFill";
+    if (this.type === "success") {
+      return "checkMarkCircleFill";
+    }
+
+    if (this.type === "info") {
+      return "info";
+    }
+
+    return "deleteCircleFill";
+  }
+
+  private get statusSpotAriaLabel() {
+    if (this.type === "success") {
+      return "Success";
+    }
+
+    if (this.type === "info") {
+      return "Information";
+    }
+
+    return "Error";
   }
 
   private handlePrimaryAction() {
@@ -121,9 +145,13 @@ export class LedgerStatus extends LitElement {
       return "";
     }
 
+    const buttons = this.primaryFirst
+      ? html`${this.renderPrimaryButton()} ${this.renderSecondaryButton()}`
+      : html`${this.renderSecondaryButton()} ${this.renderPrimaryButton()}`;
+
     return html`
       <div class="flex flex-col gap-16 self-stretch">
-        ${this.renderSecondaryButton()} ${this.renderPrimaryButton()}
+        ${buttons}
       </div>
     `;
   }
@@ -135,7 +163,7 @@ export class LedgerStatus extends LitElement {
           <div
             class=${spotVariants({ type: this.type })}
             role="img"
-            aria-label="${this.type === "success" ? "Success" : "Error"}"
+            aria-label="${this.statusSpotAriaLabel}"
           >
             <ledger-icon
               .type=${this.iconType}
