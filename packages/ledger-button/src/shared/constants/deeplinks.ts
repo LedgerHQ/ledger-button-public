@@ -118,3 +118,14 @@ function appendPartnerTrackingParams(
   url.searchParams.set("deeplinkButtonPartner", partner);
   return url.toString();
 }
+
+/**
+ * URL to download the Ledger Wallet desktop application.
+ */
+export const LEDGER_WALLET_DOWNLOAD_URL =
+  "https://shop.ledger.com/pages/ledger-wallet-download";
+
+/**
+ * Deep link to open Ledger Wallet device management for device setup.
+ */
+export const LEDGER_WALLET_DEVICE_SETUP_DEEPLINK = "ledgerwallet://myledger";

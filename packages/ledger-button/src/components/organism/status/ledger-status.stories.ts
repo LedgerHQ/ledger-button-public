@@ -15,10 +15,10 @@ const meta: Meta = {
   argTypes: {
     type: {
       control: { type: "select" },
-      options: ["success", "error"],
+      options: ["success", "error", "info"],
       description: "The type of status to display",
       table: {
-        type: { summary: "success | error" },
+        type: { summary: "success | error | info" },
         defaultValue: { summary: "success" },
       },
     },
@@ -85,6 +85,27 @@ export const Error: Story = {
     primaryButtonLabel: "Main action",
     secondaryButtonLabel: "Secondary action",
   },
+};
+
+export const Info: Story = {
+  args: {
+    type: "info",
+    title: en.error.device.DeviceNotOnboarded.title,
+    description: en.error.device.DeviceNotOnboarded.description,
+    primaryButtonLabel: en.error.device.DeviceNotOnboarded.cta1,
+    secondaryButtonLabel: en.error.device.DeviceNotOnboarded.cta2,
+    primaryFirst: true,
+  },
+  render: (args) => html`
+    <ledger-status
+      type=${args.type}
+      ?primary-first=${args.primaryFirst}
+      title=${args.title}
+      description=${args.description}
+      primary-button-label=${args.primaryButtonLabel}
+      secondary-button-label=${args.secondaryButtonLabel}
+    ></ledger-status>
+  `,
 };
 
 export const SuccessWithoutSecondaryButton: Story = {

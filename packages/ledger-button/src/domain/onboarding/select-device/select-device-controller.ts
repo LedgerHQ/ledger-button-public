@@ -1,12 +1,15 @@
 import {
   DeviceConnectionError,
   DeviceDisconnectedError,
+  DeviceNotOnboardedError,
   DeviceNotSupportedError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
+import { type StatusType } from "../../../components/organism/status/ledger-status.js";
 import { type CoreContext } from "../../../context/core-context.js";
 import { type LanguageContext } from "../../../context/language-context.js";
+import { LEDGER_WALLET_DEVICE_SETUP_DEEPLINK } from "../../../shared/constants/deeplinks.js";
 import {
   getLedgerNanoSUpgradeUrl,
   getReferralShopUrl,
@@ -16,6 +19,7 @@ export class SelectDeviceController implements ReactiveController {
   errorData?: {
     message: string;
     title: string;
+    statusType?: StatusType;
     cta1?: { label: string; action: () => void | Promise<void> };
     cta2?: { label: string; action: () => void | Promise<void> };
   } = undefined;
@@ -84,6 +88,40 @@ export class SelectDeviceController implements ReactiveController {
                 "_blank",
                 "noopener,noreferrer",
               );
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceNotOnboardedError: {
+        const deviceName = error.context?.modelId
+          ? lang.common.device.model[error.context.modelId]
+          : lang.common.device.model.fallback;
+        const description =
+          lang.error.device.DeviceNotOnboarded.description.replace(
+            "{device}",
+            deviceName,
+          );
+
+        this.errorData = {
+          title: lang.error.device.DeviceNotOnboarded.title,
+          message: description,
+          statusType: "info",
+          cta1: {
+            label: lang.error.device.DeviceNotOnboarded.cta1,
+            action: () => {
+              window.open(
+                LEDGER_WALLET_DEVICE_SETUP_DEEPLINK,
+                "_blank",
+                "noopener,noreferrer",
+              );
+            },
+          },
+          cta2: {
+            label: lang.error.device.DeviceNotOnboarded.cta2,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
             },
           },
         };

@@ -1,6 +1,7 @@
 export type TrackedErrorType =
   | "DeviceConnectionError"
   | "DeviceNotSupportedError"
+  | "DeviceNotOnboardedError"
   | "DeviceDisconnectedError"
   | "SignTransactionError"
   | "FailToOpenAppError"
@@ -23,6 +24,7 @@ export const ERROR_TRACKING_WHITELIST: Set<TrackedErrorType> = new Set([
   "DeviceConnectionError",
   "SignTransactionError",
   "DeviceNotSupportedError",
+  "DeviceNotOnboardedError",
   "DeviceDisconnectedError",
   "UserRejectedTransactionError",
   "LedgerKeyringProtocolError",
