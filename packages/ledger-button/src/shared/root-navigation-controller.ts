@@ -124,7 +124,7 @@ export class RootNavigationController implements ReactiveController {
   }
 
   async computeInitialState() {
-    const selectedAccount = await this.core.getSelectedAccount();
+    const selectedAccount = await this.core.getActiveSelectedAccount();
 
     if (!selectedAccount) {
       this.navigation.navigateTo(this.onboardingDestination);
@@ -174,7 +174,7 @@ export class RootNavigationController implements ReactiveController {
 
     switch (route) {
       case "selectAccount": {
-        if (this.core.getSelectedAccount()) {
+        if (this.core.getActiveSelectedAccount()) {
           this.navigation.navigateTo(this.destinations.home);
           break;
         }
@@ -184,7 +184,7 @@ export class RootNavigationController implements ReactiveController {
       }
 
       case "home": {
-        if (!this.core.getSelectedAccount()) {
+        if (!this.core.getActiveSelectedAccount()) {
           this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
@@ -198,7 +198,7 @@ export class RootNavigationController implements ReactiveController {
         break;
 
       case "signTransaction": {
-        if (!this.core.getSelectedAccount()) {
+        if (!this.core.getActiveSelectedAccount()) {
           this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
@@ -306,6 +306,6 @@ export class RootNavigationController implements ReactiveController {
   }
 
   get selectedAccount() {
-    return this.core.getSelectedAccount();
+    return this.core.getActiveSelectedAccount();
   }
 }
