@@ -249,9 +249,10 @@ describe("TrackBroadcastedTransactionUseCase", () => {
   it("should format Solana value using default decimals when CAL fails", async () => {
     mockContextService.getContext.mockReturnValue({
       chainId: 1,
+      activeFamily: "solana",
       selectedAccounts: new Map([
         [
-          "ethereum",
+          "solana",
           {
             freshAddress: "So1ana1111",
             currencyId: "solana",
@@ -267,7 +268,10 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     const solanaParams: SignTransactionParams = {
       ...signTransactionParams,
-      transaction: { ...signTransactionParams.transaction, value: "1000000000" },
+      transaction: {
+        ...signTransactionParams.transaction,
+        value: "1000000000",
+      },
     };
 
     await useCase.execute(successBroadcastStatus, solanaParams);
