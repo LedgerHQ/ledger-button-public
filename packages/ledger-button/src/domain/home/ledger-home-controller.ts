@@ -1,15 +1,16 @@
 import {
   type BlockchainFamily,
   buildExplorerTransactionUrl,
-  DEFAULT_BLOCKCHAIN_FAMILY,
   type DetailedAccount,
   formatBalance,
-  getSelectedAccount,
+  getActiveFamily,
+  getActiveSelectedAccount,
   type PendingTransaction,
   type TransactionHistoryItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import {
+  concat,
   distinctUntilChanged,
   from,
   of,
@@ -26,13 +27,15 @@ import type { TransactionListItem } from "../transaction-list/transaction-list.j
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
   loading = false;
+  switching = false;
   private preferredFiatCurrency!: string;
   private pendingTransactions: PendingTransaction[] = [];
   private contextSubscription: Subscription | undefined = undefined;
   private pendingTxSubscription: Subscription | undefined = undefined;
-
-  private selectedBlockchainFamily: BlockchainFamily =
-    DEFAULT_BLOCKCHAIN_FAMILY;
+  private readonly accountsByFamily = new Map<
+    BlockchainFamily,
+    DetailedAccount
+  >();
 
   constructor(
     private readonly host: ReactiveControllerHost,
@@ -44,6 +47,18 @@ export class LedgerHomeController implements ReactiveController {
 
   get preferredCurrency(): string {
     return this.preferredFiatCurrency.toUpperCase();
+  }
+
+  get connectedFamilies(): BlockchainFamily[] {
+    return this.core.getConnectedFamilies();
+  }
+
+  get activeFamily(): BlockchainFamily | undefined {
+    return this.core.getActiveFamily();
+  }
+
+  setActiveFamily(family: BlockchainFamily): void {
+    this.core.setActiveFamily(family);
   }
 
   get transactionListItems(): TransactionListItem[] {
@@ -153,9 +168,10 @@ export class LedgerHomeController implements ReactiveController {
       .observeContext()
       .pipe(
         distinctUntilChanged((a, b) => {
-          const prev = getSelectedAccount(a, this.selectedBlockchainFamily);
-          const next = getSelectedAccount(b, this.selectedBlockchainFamily);
+          const prev = getActiveSelectedAccount(a);
+          const next = getActiveSelectedAccount(b);
           return (
+            getActiveFamily(a) === getActiveFamily(b) &&
             prev?.freshAddress === next?.freshAddress &&
             prev?.currencyId === next?.currencyId &&
             a.preferredFiatCurrency === b.preferredFiatCurrency
@@ -165,17 +181,39 @@ export class LedgerHomeController implements ReactiveController {
           this.preferredFiatCurrency = ctx.preferredFiatCurrency;
           this.host.requestUpdate();
         }),
-        switchMap((ctx) =>
-          getSelectedAccount(ctx, this.selectedBlockchainFamily)
-            ? from(
-                this.core.fetchSelectedAccount(this.selectedBlockchainFamily),
-              )
-            : of(undefined),
-        ),
+        switchMap((ctx) => {
+          const activeFamily = getActiveFamily(ctx);
+          if (!activeFamily || !getActiveSelectedAccount(ctx)) {
+            return of(undefined);
+          }
+
+          const fetch$ = from(
+            this.core.fetchSelectedAccount(activeFamily),
+          ).pipe(
+            tap((account) => {
+              if (account) {
+                this.accountsByFamily.set(activeFamily, account);
+              }
+            }),
+          );
+
+          const cached = this.accountsByFamily.get(activeFamily);
+          if (cached) {
+            // Show the cached account instantly, then refresh silently in the background.
+            this.selectedAccount = cached;
+            this.switching = false;
+            return concat(of(cached), fetch$);
+          }
+
+          this.switching = true;
+          this.host.requestUpdate();
+          return fetch$;
+        }),
       )
       .subscribe((account) => {
         this.selectedAccount = account;
         this.loading = false;
+        this.switching = false;
         this.host.requestUpdate();
       });
   }
