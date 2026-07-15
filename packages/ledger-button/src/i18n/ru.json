@@ -299,10 +299,10 @@
         "cta2": "Купите новое устройство Ledger"
       },
       "DeviceNotOnboarded": {
-        "title": "Ledger Device not set-up",
-        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
-        "cta1": "Set up your Ledger Device",
-        "cta2": "Use another Ledger Device"
+        "title": "Устройство Ledger не настроено",
+        "description": "Устройство {device} не настроено. Настройте устройство в Ledger Wallet или используйте другое устройство Ledger.",
+        "cta1": "Настройте устройство Ledger",
+        "cta2": "Использовать другое устройство Ledger"
       },
       "IncorrectSeed": {
         "title": "Несовместимость между устройством Ledger и криптосчётом",
