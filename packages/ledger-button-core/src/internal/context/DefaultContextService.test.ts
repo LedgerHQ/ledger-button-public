@@ -404,6 +404,39 @@ describe("DefaultContextService", () => {
         // downstream `distinctUntilChanged` can detect the change.
         expect(references.at(-1)).not.toBe(references.at(-2));
       });
+
+      it("should not mutate previously emitted snapshots when a later event fires", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        const snapshots: ButtonCoreContext[] = [];
+        const subscription = service
+          .observeContext()
+          .subscribe((ctx) => snapshots.push(ctx));
+
+        // Snapshot observed before the switch: active family is "solana".
+        const before = snapshots.at(-1);
+        expect(before?.activeFamily).toBe("solana");
+
+        service.onEvent({ type: "active_family_changed", family: "ethereum" });
+
+        subscription.unsubscribe();
+
+        // The earlier snapshot must NOT be mutated retroactively by the switch,
+        // otherwise a downstream `distinctUntilChanged` would compare two equal
+        // objects and wrongly suppress the emission.
+        expect(before?.activeFamily).toBe("solana");
+        expect(snapshots.at(-1)?.activeFamily).toBe("ethereum");
+        expect(before).not.toBe(snapshots.at(-1));
+      });
     });
 
     describe("welcome_screen_completed event", () => {

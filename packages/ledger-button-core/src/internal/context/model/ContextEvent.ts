@@ -1,10 +1,10 @@
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
+import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
 import type {
   Account,
   DetailedAccount,
 } from "../../account/service/AccountService.js";
-import { Device } from "../../device/model/Device.js";
+import type { Device } from "../../device/model/Device.js";
 
 export type ContextEvent =
   | {

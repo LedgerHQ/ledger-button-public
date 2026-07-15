@@ -37,7 +37,7 @@ export class DefaultContextService implements ContextService {
 
   private readonly logger: LoggerPublisher;
   private readonly contextSubject: BehaviorSubject<ButtonCoreContext> =
-    new BehaviorSubject<ButtonCoreContext>(this.context);
+    new BehaviorSubject<ButtonCoreContext>(this.snapshot());
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -128,19 +128,22 @@ export class DefaultContextService implements ContextService {
   }
 
   /**
-   * Emit an immutable snapshot of the context. `this.context` is mutated in
-   * place by the handlers above, so re-emitting the same reference would defeat
-   * any `distinctUntilChanged` downstream (previous and next would be the same
-   * mutated object). Rebuilding a fresh object (and a fresh `selectedAccounts`
-   * map) ensures consumers can reliably detect field-level changes such as an
-   * active-family switch.
+   * Emit a fresh, independent snapshot of the context. `this.context` is kept as
+   * the single mutable working copy that the event handlers mutate in place;
+   * emitting a clone (with its own `selectedAccounts` map) rather than
+   * re-emitting `this.context` guarantees previously emitted values are never
+   * mutated retroactively. Downstream `distinctUntilChanged` can therefore
+   * reliably detect field-level changes such as an active-family switch.
    */
   private emitContext(): void {
-    this.context = {
+    this.contextSubject.next(this.snapshot());
+  }
+
+  private snapshot(): ButtonCoreContext {
+    return {
       ...this.context,
       selectedAccounts: new Map(this.context.selectedAccounts),
     };
-    this.contextSubject.next(this.context);
   }
 
   private applySelectedAccount(
