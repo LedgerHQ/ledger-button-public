@@ -38,6 +38,7 @@ function createContext(
     selectedAccounts: new Map<BlockchainFamily, Account>([
       [DEFAULT_BLOCKCHAIN_FAMILY, createAccount()],
     ]),
+    activeFamily: DEFAULT_BLOCKCHAIN_FAMILY,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,

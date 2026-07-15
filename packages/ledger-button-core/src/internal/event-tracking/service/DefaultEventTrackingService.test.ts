@@ -54,6 +54,7 @@ describe("DefaultEventTrackingService", () => {
   ): ButtonCoreContext => ({
     connectedDevice: undefined,
     selectedAccounts: new Map(),
+    activeFamily: undefined,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
@@ -345,7 +346,9 @@ describe("DefaultEventTrackingService", () => {
           "invoicing_transaction_signed",
         );
 
-        await expect(eventTrackingService.trackEvent(event)).resolves.toBeUndefined();
+        await expect(
+          eventTrackingService.trackEvent(event),
+        ).resolves.toBeUndefined();
         expect(mockBackendService.event).toHaveBeenCalledWith(
           event,
           mockConfig.dAppIdentifier,
@@ -363,7 +366,9 @@ describe("DefaultEventTrackingService", () => {
           "invoicing_transaction_signed",
         );
 
-        await expect(eventTrackingService.trackEvent(event)).resolves.toBeUndefined();
+        await expect(
+          eventTrackingService.trackEvent(event),
+        ).resolves.toBeUndefined();
         expect(mockBackendService.event).toHaveBeenCalledWith(
           event,
           mockConfig.dAppIdentifier,
