@@ -1,4 +1,7 @@
-import type { PendingTransaction } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  getActiveSelectedAccount,
+  type PendingTransaction,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
@@ -168,7 +171,7 @@ export class FloatingButtonController implements ReactiveController {
 
     this.contextSubscription = this.core.observeContext().subscribe((ctx) => {
       this.updateConnectionState();
-      this.handleSelectedAccountChange(ctx.selectedAccounts.get("ethereum"));
+      this.handleSelectedAccountChange(getActiveSelectedAccount(ctx));
       this.host.requestUpdate();
     });
   }
@@ -257,7 +260,7 @@ export class FloatingButtonController implements ReactiveController {
   }
 
   private updateConnectionState() {
-    const selectedAccount = this.core.getSelectedAccount();
+    const selectedAccount = this.core.getActiveSelectedAccount();
     const nextConnected =
       selectedAccount !== null && selectedAccount !== undefined;
 

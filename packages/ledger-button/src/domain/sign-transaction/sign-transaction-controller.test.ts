@@ -92,7 +92,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTransactionsSubject.asObservable()),
-      getSelectedAccount: vi.fn().mockReturnValue(undefined),
+      getActiveSelectedAccount: vi.fn().mockReturnValue(undefined),
     } as unknown as CoreContext;
 
     navigation = {

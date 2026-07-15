@@ -56,6 +56,7 @@ describe("FloatingButtonController", () => {
         .fn()
         .mockReturnValue(pendingTxSubject.asObservable()),
       getSelectedAccount: vi.fn().mockReturnValue({ id: "acc-1" }),
+      getActiveSelectedAccount: vi.fn().mockReturnValue({ id: "acc-1" }),
     } as unknown as CoreContext;
 
     controller = new FloatingButtonController(host, core);
@@ -207,7 +208,9 @@ describe("FloatingButtonController", () => {
       controller.hostConnected();
       expect(controller.pendingTransactionCount).toBe(1);
 
-      contextSubject.next({ selectedAccounts: new Map([["ethereum", account2]]) });
+      contextSubject.next({
+        selectedAccounts: new Map([["ethereum", account2]]),
+      });
 
       expect(controller.pendingTransactionCount).toBe(0);
       expect(controller.validatedCelebrationOpen).toBe(false);
@@ -233,6 +236,34 @@ describe("FloatingButtonController", () => {
       expect(controller.pendingTransactionCount).toBe(0);
       expect(controller.validatedCelebrationOpen).toBe(true);
       expect(controller.validatedCount).toBe(1);
+    });
+  });
+
+  describe("connection state (family-agnostic)", () => {
+    it("is connected and shows the button for a solana-only account", () => {
+      const solanaAccount = {
+        freshAddress: "SoLaNa1111",
+        currencyId: "solana",
+      };
+      core.getActiveSelectedAccount = vi.fn().mockReturnValue(solanaAccount);
+      contextSubject.next({
+        selectedAccounts: new Map([["solana", solanaAccount]]),
+      });
+
+      controller.hostConnected();
+
+      expect(controller.isConnected).toBe(true);
+      expect(controller.shouldShow).toBe(true);
+    });
+
+    it("is not connected when no account is selected", () => {
+      core.getActiveSelectedAccount = vi.fn().mockReturnValue(undefined);
+      contextSubject.next({ selectedAccounts: new Map() });
+
+      controller.hostConnected();
+
+      expect(controller.isConnected).toBe(false);
+      expect(controller.shouldShow).toBe(false);
     });
   });
 });

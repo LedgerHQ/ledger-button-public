@@ -194,14 +194,13 @@ export class SelectAccountController implements ReactiveController {
   handleAccountCardClick(account: AccountWithFiat) {
     this.selectAccount(account);
 
-    const selectedAccount = this.core.getSelectedAccount();
     window.dispatchEvent(
       new CustomEvent<{ account: Account; status: "success" }>(
         "ledger-internal-account-selected",
         {
           bubbles: true,
           composed: true,
-          detail: { account: selectedAccount as Account, status: "success" },
+          detail: { account, status: "success" },
         },
       ),
     );
