@@ -22,7 +22,7 @@ import type { LanguageContext } from "../../../context/language-context.js";
 import type { Navigation } from "../../../shared/navigation.js";
 import { SelectAccountScreen } from "./select-account.js";
 
-function createScreen(params?: unknown): SelectAccountScreen {
+function createScreen(params?: WalletNavigationIntent): SelectAccountScreen {
   const screen = new SelectAccountScreen();
   screen.navigation = {} as Navigation;
   (screen as unknown as { coreContext: CoreContext }).coreContext =
