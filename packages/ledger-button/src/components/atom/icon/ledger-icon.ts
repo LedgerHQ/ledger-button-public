@@ -26,6 +26,7 @@ import {
   EnvelopeIcon,
   ErrorIcon,
   ExternalLinkIcon,
+  FeatureFlagsIcon,
   HeadphoneIcon,
   InfoIcon,
   LanguageIcon,
@@ -90,6 +91,7 @@ export interface LedgerIconAttributes {
     | "dollar"
     | "cart"
     | "externalLink"
+    | "featureFlags"
     | "directConnectivity"
     | "clearSigning"
     | "coins"
@@ -161,6 +163,7 @@ export class LedgerIcon extends LitElement {
       dollar: () => DollarIcon,
       cart: () => CartIcon,
       externalLink: () => ExternalLinkIcon,
+      featureFlags: () => FeatureFlagsIcon,
       directConnectivity: () => DirectConnectivityIcon,
       clearSigning: () => ClearSigningIcon,
       coins: () => CoinsIcon,

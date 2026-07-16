@@ -21,6 +21,7 @@ export { default as EarnIcon } from "./earnIcon";
 export { default as EnvelopeIcon } from "./envelopeIcon";
 export { default as ErrorIcon } from "./errorIcon";
 export { default as ExternalLinkIcon } from "./externalLinkIcon";
+export { default as FeatureFlagsIcon } from "./featureFlagsIcon";
 export { default as HeadphoneIcon } from "./headphoneIcon";
 export { default as InfoIcon } from "./infoIcon";
 export { default as LanguageIcon } from "./languageIcon";
