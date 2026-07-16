@@ -1,10 +1,8 @@
 import { inject, injectable } from "inversify";
-import { map, type Observable } from "rxjs";
 
 import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { blockchainProviderModuleTypes } from "../../blockchain-provider/blockchainProviderModuleTypes.js";
 import { type BlockchainProviderManager } from "../../blockchain-provider/service/BlockchainProviderManager.js";
-import type { AccountWithFiat } from "../service/AccountService.js";
 
 @injectable()
 export class FilterAccountsByFamilyUseCase {
@@ -13,20 +11,16 @@ export class FilterAccountsByFamilyUseCase {
     private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {}
 
-  execute(
-    accounts$: Observable<AccountWithFiat[]>,
+  execute<T extends { currencyId: string }>(
+    accounts: T[],
     family?: BlockchainFamily,
-  ): Observable<AccountWithFiat[]> {
+  ): T[] {
     if (!family) {
-      return accounts$;
+      return accounts;
     }
 
-    return accounts$.pipe(
-      map((accounts) =>
-        accounts.filter((account) =>
-          this.belongsToFamily(account.currencyId, family),
-        ),
-      ),
+    return accounts.filter((account) =>
+      this.belongsToFamily(account.currencyId, family),
     );
   }
 
