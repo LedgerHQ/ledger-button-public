@@ -299,10 +299,10 @@
         "cta2": "Yeni bir Ledger cihazı satın alın"
       },
       "DeviceNotOnboarded": {
-        "title": "Ledger Device not set-up",
-        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
-        "cta1": "Set up your Ledger Device",
-        "cta2": "Use another Ledger Device"
+        "title": "Ledger cihaz kurulumu yapılmadı",
+        "description": "{device} cihazınızın kurulumu yapılmadı. Lütfen Ledger Wallet üzerinde cihazınızın kurulumunu yapın veya başka bir Ledger cihazı kullanın.",
+        "cta1": "Ledger cihazını kur",
+        "cta2": "Başka bir Ledger cihazı kullan"
       },
       "IncorrectSeed": {
         "title": "Ledger cihazı ile kripto hesabı arasında uyumsuzluk",

@@ -299,10 +299,10 @@
         "cta2": "购买全新 Ledger 设备"
       },
       "DeviceNotOnboarded": {
-        "title": "Ledger Device not set-up",
-        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
-        "cta1": "Set up your Ledger Device",
-        "cta2": "Use another Ledger Device"
+        "title": "Ledger 设备未设置",
+        "description": "您的 {device} 未设置。请在 Ledger Wallet 上设置您的设备，或使用其他 Ledger 设备。",
+        "cta1": "设置您的 Ledger 设备",
+        "cta2": "使用其他 Ledger 设备"
       },
       "IncorrectSeed": {
         "title": "Ledger 设备和加密货币账户不兼容",

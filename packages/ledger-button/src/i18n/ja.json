@@ -299,10 +299,10 @@
         "cta2": "新しいLedgerデバイスを購入する"
       },
       "DeviceNotOnboarded": {
-        "title": "Ledger Device not set-up",
-        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
-        "cta1": "Set up your Ledger Device",
-        "cta2": "Use another Ledger Device"
+        "title": "Ledgerデバイスが設定されていません",
+        "description": "{device}は、設定されていません。Ledger Walletでデバイスを設定するか、別のLedgerデバイスを使用してください。",
+        "cta1": "Ledgerデバイスのセットアップ",
+        "cta2": "別のLedgerデバイスを使用"
       },
       "IncorrectSeed": {
         "title": "Ledgerデバイスと暗号資産アカウント間の不適合。",
