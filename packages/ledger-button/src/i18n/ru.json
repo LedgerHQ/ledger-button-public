@@ -243,6 +243,15 @@
       "title": "Поддержка",
       "support": "Поддержка",
       "contactUs": "Связаться с нами"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {

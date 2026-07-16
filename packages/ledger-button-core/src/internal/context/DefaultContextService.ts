@@ -31,6 +31,7 @@ export class DefaultContextService implements ContextService {
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
   };
@@ -121,6 +122,9 @@ export class DefaultContextService implements ContextService {
         break;
       case "preferred_fiat_currency_changed":
         this.context.preferredFiatCurrency = event.currency;
+        break;
+      case "developer_mode_enabled":
+        this.context.hasDeveloperMode = true;
         break;
     }
 

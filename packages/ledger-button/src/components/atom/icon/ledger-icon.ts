@@ -15,6 +15,7 @@ import {
   ClearSigningIcon,
   ClockIcon,
   CloseIcon,
+  CodeIcon,
   CoinsIcon,
   DeleteCircleFillIcon,
   DesktopIcon,
@@ -80,6 +81,7 @@ export interface LedgerIconAttributes {
     | "checkMarkCircleFill"
     | "checkmarkCircle"
     | "clock"
+    | "code"
     | "deleteCircleFill"
     | "error"
     | "device"
@@ -150,6 +152,7 @@ export class LedgerIcon extends LitElement {
       checkMarkCircleFill: () => CheckMarkCircleFillIcon,
       checkmarkCircle: () => CheckmarkCircleIcon,
       clock: () => ClockIcon,
+      code: () => CodeIcon,
       deleteCircleFill: () => DeleteCircleFillIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,

@@ -62,4 +62,7 @@ export type ContextEvent =
   | {
       type: "preferred_fiat_currency_changed";
       currency: string;
+    }
+  | {
+      type: "developer_mode_enabled";
     };
