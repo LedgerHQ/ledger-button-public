@@ -1,5 +1,4 @@
 import { Just, type Maybe, Nothing } from "purify-ts";
-import { lastValueFrom, of } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
@@ -47,16 +46,16 @@ const makeManager = (): BlockchainProviderManager =>
   }) as unknown as BlockchainProviderManager;
 
 describe("FilterAccountsByFamilyUseCase", () => {
-  it("should return the stream untouched when no family is provided", async () => {
+  it("should return the list untouched when no family is provided", () => {
     const useCase = new FilterAccountsByFamilyUseCase(makeManager());
     const accounts = [account("a", "ethereum"), account("b", "solana")];
 
-    const result = await lastValueFrom(useCase.execute(of(accounts)));
+    const result = useCase.execute(accounts);
 
     expect(result).toBe(accounts);
   });
 
-  it("should keep only accounts belonging to the requested family", async () => {
+  it("should keep only accounts belonging to the requested family", () => {
     const useCase = new FilterAccountsByFamilyUseCase(makeManager());
     const accounts = [
       account("a", "ethereum"),
@@ -64,20 +63,16 @@ describe("FilterAccountsByFamilyUseCase", () => {
       account("c", "solana"),
     ];
 
-    const result = await lastValueFrom(
-      useCase.execute(of(accounts), "ethereum"),
-    );
+    const result = useCase.execute(accounts, "ethereum");
 
     expect(result.map((a) => a.id)).toEqual(["a", "b"]);
   });
 
-  it("should exclude accounts whose currency cannot be resolved to a family", async () => {
+  it("should exclude accounts whose currency cannot be resolved to a family", () => {
     const useCase = new FilterAccountsByFamilyUseCase(makeManager());
     const accounts = [account("a", "ethereum"), account("b", "bitcoin")];
 
-    const result = await lastValueFrom(
-      useCase.execute(of(accounts), "ethereum"),
-    );
+    const result = useCase.execute(accounts, "ethereum");
 
     expect(result.map((a) => a.id)).toEqual(["a"]);
   });

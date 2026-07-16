@@ -1,9 +1,11 @@
 import { lastValueFrom, toArray } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { Account, AccountService } from "../service/AccountService.js";
 import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
+import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
 function createMockLogger() {
@@ -89,6 +91,9 @@ describe("FetchAccountsWithBalanceUseCase", () => {
   let mockHydrateAccountWithBalanceUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
+  let mockFilterAccountsByFamilyUseCase: {
+    execute: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     mockAccountService = {
@@ -100,16 +105,30 @@ describe("FetchAccountsWithBalanceUseCase", () => {
     mockHydrateAccountWithBalanceUseCase = {
       execute: vi.fn(),
     };
+    mockFilterAccountsByFamilyUseCase = {
+      execute: vi.fn((accounts: Account[], family?: BlockchainFamily) =>
+        family
+          ? accounts.filter((account) => account.currencyId === family)
+          : accounts,
+      ),
+    };
 
     useCase = new FetchAccountsWithBalanceUseCase(
       createMockLoggerFactory(),
       mockAccountService as unknown as AccountService,
       mockFetchAccountsUseCase as unknown as FetchAccountsUseCase,
       mockHydrateAccountWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
+      mockFilterAccountsByFamilyUseCase as unknown as FilterAccountsByFamilyUseCase,
     );
 
     vi.clearAllMocks();
     mockAccountService.getAccounts.mockReturnValue([]);
+    mockFilterAccountsByFamilyUseCase.execute.mockImplementation(
+      (accounts: Account[], family?: BlockchainFamily) =>
+        family
+          ? accounts.filter((account) => account.currencyId === family)
+          : accounts,
+    );
   });
 
   describe("execute", () => {
@@ -284,6 +303,36 @@ describe("FetchAccountsWithBalanceUseCase", () => {
       expect(finalEmission[0].balance).toBe(ETH_BALANCE);
       expect(finalEmission[1].id).toBe(freshAccount2.id);
       expect(finalEmission[1].balance).toBe(USDT_BALANCE);
+    });
+
+    it("should only hydrate accounts of the requested family", async () => {
+      const ethAccount = createMockAccount(mockEthAccountValue);
+      const solAccount = createMockAccount({
+        id: "account-3",
+        name: "sol",
+        currencyId: "solana",
+        ticker: "SOL",
+      });
+
+      mockAccountService.getAccounts.mockReturnValue([ethAccount, solAccount]);
+      mockHydrateAccountWithBalanceUseCase.execute.mockImplementation(
+        async (account: Account) => ({ ...account, balance: ETH_BALANCE }),
+      );
+
+      const emissions = await lastValueFrom(
+        useCase.execute({ family: "ethereum" }).pipe(toArray()),
+      );
+
+      const finalEmission = emissions[emissions.length - 1];
+      expect(finalEmission).toHaveLength(1);
+      expect(finalEmission[0].id).toBe(ethAccount.id);
+      expect(
+        mockHydrateAccountWithBalanceUseCase.execute,
+      ).toHaveBeenCalledTimes(1);
+      expect(mockHydrateAccountWithBalanceUseCase.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ id: ethAccount.id }),
+        true,
+      );
     });
   });
 });

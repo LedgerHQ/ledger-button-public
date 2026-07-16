@@ -2,12 +2,10 @@ import { type Factory } from "inversify";
 import { type Observable, of } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { AccountWithFiat } from "../service/AccountService.js";
 import type { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import type { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
-import type { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase.js";
 import type { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase.js";
 
@@ -33,7 +31,6 @@ type Mocks = {
   fetchAccountsWithBalanceUseCase: { execute: ReturnType<typeof vi.fn> };
   fetchAccountsWithFiatUseCase: { execute: ReturnType<typeof vi.fn> };
   sortAccountsByFiatUseCase: { execute: ReturnType<typeof vi.fn> };
-  filterAccountsByFamilyUseCase: { execute: ReturnType<typeof vi.fn> };
 };
 
 const makeUseCase = (accounts: AccountWithFiat[] = [base]): Mocks => {
@@ -53,19 +50,12 @@ const makeUseCase = (accounts: AccountWithFiat[] = [base]): Mocks => {
   const sortAccountsByFiatUseCase = {
     execute: vi.fn((input$: Observable<AccountWithFiat[]>) => input$),
   };
-  const filterAccountsByFamilyUseCase = {
-    execute: vi.fn(
-      (input$: Observable<AccountWithFiat[]>, _family?: BlockchainFamily) =>
-        input$,
-    ),
-  };
 
   const useCase = new ObserveAccountsWithFiatUseCase(
     loggerFactory,
     fetchAccountsWithBalanceUseCase as unknown as FetchAccountsWithBalanceUseCase,
     fetchAccountsWithFiatUseCase as unknown as FetchAccountsWithFiatUseCase,
     sortAccountsByFiatUseCase as unknown as SortAccountsByFiatUseCase,
-    filterAccountsByFamilyUseCase as unknown as FilterAccountsByFamilyUseCase,
   );
 
   return {
@@ -73,12 +63,11 @@ const makeUseCase = (accounts: AccountWithFiat[] = [base]): Mocks => {
     fetchAccountsWithBalanceUseCase,
     fetchAccountsWithFiatUseCase,
     sortAccountsByFiatUseCase,
-    filterAccountsByFamilyUseCase,
   };
 };
 
 describe("ObserveAccountsWithFiatUseCase", () => {
-  it("builds the account pipeline on first call and forwards the family to the filter", () => {
+  it("builds the account pipeline on first call and forwards the family to the balance fetch", () => {
     const mocks = makeUseCase();
 
     mocks.useCase.execute({ family: "solana" });
@@ -86,13 +75,12 @@ describe("ObserveAccountsWithFiatUseCase", () => {
     expect(mocks.fetchAccountsWithBalanceUseCase.execute).toHaveBeenCalledTimes(
       1,
     );
-    expect(mocks.filterAccountsByFamilyUseCase.execute).toHaveBeenCalledWith(
-      expect.anything(),
-      "solana",
+    expect(mocks.fetchAccountsWithBalanceUseCase.execute).toHaveBeenCalledWith(
+      expect.objectContaining({ family: "solana" }),
     );
   });
 
-  it("reuses the cached stream when called again without forceRefresh", () => {
+  it("reuses the cached stream when called again with the same family", () => {
     const mocks = makeUseCase();
 
     mocks.useCase.execute();
@@ -101,16 +89,25 @@ describe("ObserveAccountsWithFiatUseCase", () => {
     expect(mocks.fetchAccountsWithBalanceUseCase.execute).toHaveBeenCalledTimes(
       1,
     );
-    expect(
-      mocks.filterAccountsByFamilyUseCase.execute,
-    ).toHaveBeenLastCalledWith(expect.anything(), undefined);
   });
 
-  it("rebuilds the pipeline when forceRefresh is set", () => {
+  it("builds a distinct pipeline per family", () => {
     const mocks = makeUseCase();
 
-    mocks.useCase.execute();
-    mocks.useCase.execute({ forceRefresh: true });
+    mocks.useCase.execute({ family: "ethereum" });
+    mocks.useCase.execute({ family: "solana" });
+    mocks.useCase.execute({ family: "ethereum" });
+
+    expect(mocks.fetchAccountsWithBalanceUseCase.execute).toHaveBeenCalledTimes(
+      2,
+    );
+  });
+
+  it("rebuilds all pipelines when forceRefresh is set", () => {
+    const mocks = makeUseCase();
+
+    mocks.useCase.execute({ family: "ethereum" });
+    mocks.useCase.execute({ family: "ethereum", forceRefresh: true });
 
     expect(mocks.fetchAccountsWithBalanceUseCase.execute).toHaveBeenCalledTimes(
       2,

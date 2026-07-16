@@ -8,13 +8,17 @@ import { accountModuleTypes } from "../accountModuleTypes.js";
 import type { AccountWithFiat } from "../service/AccountService.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
-import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
 import { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase.js";
 
 @injectable()
 export class ObserveAccountsWithFiatUseCase {
+  private static readonly ALL_FAMILIES_KEY = "__all__";
+
   private readonly logger: LoggerPublisher;
-  private accounts$: Observable<AccountWithFiat[]> | undefined;
+  private readonly streamsByFamily = new Map<
+    string,
+    Observable<AccountWithFiat[]>
+  >();
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -25,8 +29,6 @@ export class ObserveAccountsWithFiatUseCase {
     private readonly fetchAccountsWithFiatUseCase: FetchAccountsWithFiatUseCase,
     @inject(accountModuleTypes.SortAccountsByFiatUseCase)
     private readonly sortAccountsByFiatUseCase: SortAccountsByFiatUseCase,
-    @inject(accountModuleTypes.FilterAccountsByFamilyUseCase)
-    private readonly filterAccountsByFamilyUseCase: FilterAccountsByFamilyUseCase,
   ) {
     this.logger = loggerFactory("ObserveAccountsWithFiatUseCase");
   }
@@ -35,21 +37,32 @@ export class ObserveAccountsWithFiatUseCase {
     forceRefresh?: boolean;
     family?: BlockchainFamily;
   }): Observable<AccountWithFiat[]> {
-    if (options?.forceRefresh || !this.accounts$) {
-      this.logger.debug("Building account stream", {
-        forceRefresh: options?.forceRefresh,
-      });
-      this.accounts$ = this.buildPipeline(options).pipe(shareReplay(1));
+    if (options?.forceRefresh) {
+      this.streamsByFamily.clear();
     }
 
-    return this.filterAccountsByFamilyUseCase.execute(
-      this.accounts$,
-      options?.family,
-    );
+    const key = this.cacheKey(options?.family);
+    const cached = this.streamsByFamily.get(key);
+    if (cached) {
+      return cached;
+    }
+
+    this.logger.debug("Building account stream", {
+      forceRefresh: options?.forceRefresh,
+      family: options?.family,
+    });
+    const stream = this.buildPipeline(options).pipe(shareReplay(1));
+    this.streamsByFamily.set(key, stream);
+    return stream;
+  }
+
+  private cacheKey(family?: BlockchainFamily): string {
+    return family ?? ObserveAccountsWithFiatUseCase.ALL_FAMILIES_KEY;
   }
 
   private buildPipeline(options?: {
     forceRefresh?: boolean;
+    family?: BlockchainFamily;
   }): Observable<AccountWithFiat[]> {
     return this.sortAccountsByFiatUseCase.execute(
       this.fetchAccountsWithBalanceUseCase
