@@ -4,6 +4,10 @@ import { Either, Maybe, Nothing } from "purify-ts";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBErrors } from "./model/errors.js";
+import {
+  DEFAULT_FEATURE_FLAGS,
+  type FeatureFlags,
+} from "./model/FeatureFlags.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
@@ -91,14 +95,16 @@ export class DefaultStorageService implements StorageService {
   }
 
   // Selected Accounts (one per blockchain family)
-  saveSelectedAccount(selectedAccount: Account, family: BlockchainFamily): void {
+  saveSelectedAccount(
+    selectedAccount: Account,
+    family: BlockchainFamily,
+  ): void {
     if (!selectedAccount) {
       return;
     }
-    const stored =
-      this.getItem<Record<string, AccountDbModel>>(
-        STORAGE_KEYS.SELECTED_ACCOUNTS,
-      ).orDefault({});
+    const stored = this.getItem<Record<string, AccountDbModel>>(
+      STORAGE_KEYS.SELECTED_ACCOUNTS,
+    ).orDefault({});
     stored[family] = mapToAccountDbModel(selectedAccount);
     this.saveItem(STORAGE_KEYS.SELECTED_ACCOUNTS, stored);
   }
@@ -328,5 +334,25 @@ export class DefaultStorageService implements StorageService {
         return Nothing;
       },
     });
+  }
+
+  saveDeveloperMode(): void {
+    this.saveItem(STORAGE_KEYS.HAS_DEVELOPER_MODE, true);
+  }
+
+  hasDeveloperMode(): boolean {
+    return this.getItem<boolean>(STORAGE_KEYS.HAS_DEVELOPER_MODE).orDefault(
+      false,
+    );
+  }
+
+  getFeatureFlags(): FeatureFlags {
+    return this.getItem<FeatureFlags>(STORAGE_KEYS.FEATURE_FLAGS).orDefault(
+      DEFAULT_FEATURE_FLAGS,
+    );
+  }
+
+  saveFeatureFlags(flags: FeatureFlags): void {
+    this.saveItem(STORAGE_KEYS.FEATURE_FLAGS, flags);
   }
 }

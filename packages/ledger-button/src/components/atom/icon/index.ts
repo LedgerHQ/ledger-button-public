@@ -10,6 +10,7 @@ export { default as ChevronRightIcon } from "./chevronRightIcon.js";
 export { default as ClearSigningIcon } from "./clearSigningIcon";
 export { default as ClockIcon } from "./clockIcon";
 export { default as CloseIcon } from "./closeIcon";
+export { default as CodeIcon } from "./codeIcon";
 export { default as CoinsIcon } from "./coinsIcon";
 export { default as DeleteCircleFillIcon } from "./deleteCircleFillIcon";
 export { default as DesktopIcon } from "./desktopIcon";

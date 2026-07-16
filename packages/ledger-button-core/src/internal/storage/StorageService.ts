@@ -1,6 +1,7 @@
 import { Either, Maybe } from "purify-ts";
 
 import { StorageIDBErrors } from "./model/errors.js";
+import type { FeatureFlags } from "./model/FeatureFlags.js";
 import { UserConsent } from "./model/UserConsent.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
 import { Account } from "../account/service/AccountService.js";
@@ -47,4 +48,10 @@ export interface StorageService {
 
   savePreferredFiatCurrency(preferredFiatCurrency: string): Promise<void>;
   getPreferredFiatCurrency(): Promise<Maybe<string>>;
+
+  saveDeveloperMode(): void;
+  hasDeveloperMode(): boolean;
+
+  getFeatureFlags(): FeatureFlags;
+  saveFeatureFlags(flags: FeatureFlags): void;
 }

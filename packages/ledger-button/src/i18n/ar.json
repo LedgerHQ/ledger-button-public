@@ -243,6 +243,15 @@
       "title": "المساعدة والدعم",
       "support": "الدعم",
       "contactUs": "تواصل معنا"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {

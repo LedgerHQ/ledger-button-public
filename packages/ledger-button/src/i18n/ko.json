@@ -243,6 +243,15 @@
       "title": "도움말 및 지원",
       "support": "지원",
       "contactUs": "문의하기"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {

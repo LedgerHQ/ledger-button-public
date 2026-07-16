@@ -90,6 +90,7 @@ import { pendingTransactionModuleTypes } from "../internal/pending-transaction/p
 import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
+import type { FeatureFlags } from "../internal/storage/model/FeatureFlags.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
@@ -208,6 +209,10 @@ export class LedgerButtonCore {
       ? userConsent.extract().consentGiven
       : undefined;
 
+    const hasDeveloperMode = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .hasDeveloperMode();
+
     const isMobilePlatform = this.container
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
@@ -228,6 +233,7 @@ export class LedgerButtonCore {
         chainId: chainId,
         welcomeScreenCompleted,
         hasTrackingConsent,
+        hasDeveloperMode,
         isMobilePlatform,
         preferredFiatCurrency,
       },
@@ -528,6 +534,37 @@ export class LedgerButtonCore {
 
   isWelcomeScreenCompleted(): boolean {
     return this._contextService.getContext().welcomeScreenCompleted;
+  }
+
+  enableDeveloperMode(): void {
+    this._logger.debug("Enabling developer mode");
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveDeveloperMode();
+    this._contextService.onEvent({
+      type: "developer_mode_enabled",
+    });
+  }
+
+  hasDeveloperMode(): boolean {
+    return this._contextService.getContext().hasDeveloperMode;
+  }
+
+  getFeatureFlags(): FeatureFlags {
+    return this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getFeatureFlags();
+  }
+
+  setFeatureFlag(flag: keyof FeatureFlags, enabled: boolean): void {
+    this._logger.debug("Updating feature flag", { flag, enabled });
+    const storageService = this.container.get<StorageService>(
+      storageModuleTypes.StorageService,
+    );
+    storageService.saveFeatureFlags({
+      ...storageService.getFeatureFlags(),
+      [flag]: enabled,
+    });
   }
 
   getPreferredFiatCurrency(): string {

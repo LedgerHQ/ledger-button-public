@@ -243,6 +243,15 @@
       "title": "帮助和支持",
       "support": "客服",
       "contactUs": "联系我们"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature Flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {
