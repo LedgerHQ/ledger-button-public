@@ -299,10 +299,10 @@
         "cta2": "Acheter un appareil Ledger"
       },
       "DeviceNotOnboarded": {
-        "title": "Ledger Device not set-up",
-        "description": "Your {device} isn't set-up. Please set-up your Device on Ledger Wallet or use another Ledger Device.",
-        "cta1": "Set up your Ledger Device",
-        "cta2": "Use another Ledger Device"
+        "title": "Appareil Ledger non configuré",
+        "description": "Votre {device} n’est pas configuré. Veuillez configurer votre appareil via Ledger Wallet ou utiliser un autre appareil Ledger.",
+        "cta1": "Configurer mon appareil",
+        "cta2": "Utiliser un autre appareil"
       },
       "IncorrectSeed": {
         "title": "Incompatibilité entre l’appareil Ledger et le compte crypto",
