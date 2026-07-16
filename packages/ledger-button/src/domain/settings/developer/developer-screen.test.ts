@@ -21,7 +21,7 @@ function createMockDestinations() {
       name: "featureFlags",
       component: "feature-flags-screen",
       canGoBack: true,
-      toolbar: { title: "Feature Flags", canClose: true },
+      toolbar: { title: "Feature flags", canClose: true },
     } as Destination,
   };
 }
@@ -31,7 +31,7 @@ function createMockLanguages() {
     currentTranslation: {
       settings: {
         featureFlags: {
-          title: "Feature Flags",
+          title: "Feature flags",
         },
       },
     },
@@ -65,7 +65,7 @@ describe("DeveloperScreen", () => {
       const rendered = el.render();
       const renderedString = JSON.stringify(rendered);
 
-      expect(renderedString).toContain("Feature Flags");
+      expect(renderedString).toContain("Feature flags");
     });
   });
 

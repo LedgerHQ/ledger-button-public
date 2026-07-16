@@ -47,7 +47,7 @@ function createMockDestinations() {
       name: "featureFlags",
       component: "feature-flags-screen",
       canGoBack: true,
-      toolbar: { title: "Feature Flags", canClose: true },
+      toolbar: { title: "Feature flags", canClose: true },
     } as Destination,
   };
 }
@@ -76,7 +76,7 @@ function createMockLanguages(overrides?: { settings?: unknown }) {
           title: "Developer",
         },
         featureFlags: {
-          title: "Feature Flags",
+          title: "Feature flags",
           solana: {
             title: "Solana",
           },
@@ -169,7 +169,7 @@ describe("SettingsScreen", () => {
       const rendered = el.render();
       const renderedString = JSON.stringify(rendered);
 
-      expect(renderedString).not.toContain("Feature Flags");
+      expect(renderedString).not.toContain("Feature flags");
     });
 
     test("should render the package version footer", () => {

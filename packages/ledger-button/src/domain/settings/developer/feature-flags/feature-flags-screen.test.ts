@@ -24,7 +24,7 @@ function createMockLanguages() {
     currentTranslation: {
       settings: {
         featureFlags: {
-          title: "Feature Flags",
+          title: "Feature flags",
           solana: {
             title: "Solana",
           },

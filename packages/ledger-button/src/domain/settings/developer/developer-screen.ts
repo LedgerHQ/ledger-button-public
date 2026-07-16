@@ -35,7 +35,7 @@ export class DeveloperScreen extends LitElement {
   }
 
   private renderMenuItem(
-    icon: "settingsAlt2",
+    icon: "featureFlags",
     label: string,
     onClick: () => void,
   ) {
@@ -76,8 +76,8 @@ export class DeveloperScreen extends LitElement {
     return html`
       <div class="flex flex-col px-16 py-0">
         ${this.renderMenuItem(
-          "settingsAlt2",
-          settings.featureFlags?.title ?? "Feature Flags",
+          "featureFlags",
+          settings.featureFlags?.title ?? "Feature flags",
           this.handleFeatureFlagsClick,
         )}
       </div>

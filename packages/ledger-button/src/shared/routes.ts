@@ -367,7 +367,7 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       canGoBack: true,
       toolbar: {
         get title() {
-          return t().settings?.featureFlags?.title ?? "Feature Flags";
+          return t().settings?.featureFlags?.title ?? "Feature flags";
         },
         canClose: true,
       },
