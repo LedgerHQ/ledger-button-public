@@ -9,6 +9,9 @@ import type {
 import {
   ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
+  getActiveFamily,
+  getActiveSelectedAccount,
+  getConnectedFamilies,
   getSelectedAccount,
 } from "./model/ButtonCoreContext.js";
 import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
@@ -27,7 +30,6 @@ import {
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
-import type { ObserveSelectedAccountChangesUseCase } from "../internal/account/use-case/observeSelectedAccountChangesUseCase.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
@@ -218,6 +220,9 @@ export class LedgerButtonCore {
       context: {
         connectedDevice: undefined,
         selectedAccounts: restoredAccounts,
+        // Resolution is delegated to getActiveFamily (prefers ethereum, else the
+        // first connected family), keeping this layer free of selection logic.
+        activeFamily: undefined,
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
         chainId: chainId,
@@ -422,6 +427,26 @@ export class LedgerButtonCore {
     return getSelectedAccount(this._contextService.getContext(), family);
   }
 
+  /** Selected account for the currently active family (family-agnostic). */
+  getActiveSelectedAccount() {
+    return getActiveSelectedAccount(this._contextService.getContext());
+  }
+
+  /** The currently active blockchain family, if any. */
+  getActiveFamily(): BlockchainFamily | undefined {
+    return getActiveFamily(this._contextService.getContext());
+  }
+
+  /** All blockchain families that currently have a selected account. */
+  getConnectedFamilies(): BlockchainFamily[] {
+    return getConnectedFamilies(this._contextService.getContext());
+  }
+
+  /** Switch the active family (must already have a selected account). */
+  setActiveFamily(family: BlockchainFamily): void {
+    this._contextService.onEvent({ type: "active_family_changed", family });
+  }
+
   private resolveBlockchainFamily(currencyId: string): BlockchainFamily {
     return this.container
       .get<BlockchainProviderManager>(
@@ -608,14 +633,6 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._contextService.observeContext();
-  }
-
-  observeSelectedAccountChanges(): Observable<DetailedAccount | undefined> {
-    return this.container
-      .get<ObserveSelectedAccountChangesUseCase>(
-        accountModuleTypes.ObserveSelectedAccountChangesUseCase,
-      )
-      .execute();
   }
 
   async fetchSelectedAccount(

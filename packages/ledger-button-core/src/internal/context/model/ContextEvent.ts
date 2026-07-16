@@ -1,7 +1,10 @@
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
-import type { Account, DetailedAccount } from "../../account/service/AccountService.js";
-import { Device } from "../../device/model/Device.js";
+import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
+import type {
+  Account,
+  DetailedAccount,
+} from "../../account/service/AccountService.js";
+import type { Device } from "../../device/model/Device.js";
 
 export type ContextEvent =
   | {
@@ -25,6 +28,11 @@ export type ContextEvent =
   | {
       type: "account_disconnected";
       /** Blockchain family whose selected account is being removed. */
+      family: BlockchainFamily;
+    }
+  | {
+      type: "active_family_changed";
+      /** Blockchain family the user switched to (must already be connected). */
       family: BlockchainFamily;
     }
   | {

@@ -25,6 +25,7 @@ export class DefaultContextService implements ContextService {
   private context: ButtonCoreContext = {
     connectedDevice: undefined,
     selectedAccounts: new Map<BlockchainFamily, Account>(),
+    activeFamily: undefined,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
@@ -36,7 +37,7 @@ export class DefaultContextService implements ContextService {
 
   private readonly logger: LoggerPublisher;
   private readonly contextSubject: BehaviorSubject<ButtonCoreContext> =
-    new BehaviorSubject<ButtonCoreContext>(this.context);
+    new BehaviorSubject<ButtonCoreContext>(this.snapshot());
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -76,12 +77,21 @@ export class DefaultContextService implements ContextService {
       }
       case "account_changed":
         this.applySelectedAccount(event.account, event.family);
+        this.context.activeFamily = event.family;
         break;
       case "hydrated_account":
         this.applyHydratedAccount(event.account);
         break;
+      case "active_family_changed":
+        if (this.context.selectedAccounts.has(event.family)) {
+          this.context.activeFamily = event.family;
+        }
+        break;
       case "account_disconnected":
         this.context.selectedAccounts.delete(event.family);
+        if (this.context.activeFamily === event.family) {
+          this.context.activeFamily = this.firstConnectedFamily();
+        }
         break;
       case "device_connected":
         this.context.connectedDevice = event.device;
@@ -95,6 +105,7 @@ export class DefaultContextService implements ContextService {
         break;
       case "wallet_disconnected":
         this.context.selectedAccounts = new Map<BlockchainFamily, Account>();
+        this.context.activeFamily = undefined;
         this.context.trustChainId = undefined;
         this.context.connectedDevice = undefined;
         this.context.applicationPath = undefined;
@@ -113,7 +124,26 @@ export class DefaultContextService implements ContextService {
         break;
     }
 
-    this.contextSubject.next(this.context);
+    this.emitContext();
+  }
+
+  /**
+   * Emit a fresh, independent snapshot of the context. `this.context` is kept as
+   * the single mutable working copy that the event handlers mutate in place;
+   * emitting a clone (with its own `selectedAccounts` map) rather than
+   * re-emitting `this.context` guarantees previously emitted values are never
+   * mutated retroactively. Downstream `distinctUntilChanged` can therefore
+   * reliably detect field-level changes such as an active-family switch.
+   */
+  private emitContext(): void {
+    this.contextSubject.next(this.snapshot());
+  }
+
+  private snapshot(): ButtonCoreContext {
+    return {
+      ...this.context,
+      selectedAccounts: new Map(this.context.selectedAccounts),
+    };
   }
 
   private applySelectedAccount(
@@ -132,7 +162,8 @@ export class DefaultContextService implements ContextService {
    * (matched by address), defaulting to {@link DEFAULT_BLOCKCHAIN_FAMILY}.
    */
   private applyHydratedAccount(account: Account | DetailedAccount): void {
-    const family = this.findFamilyForAccount(account) ?? DEFAULT_BLOCKCHAIN_FAMILY;
+    const family =
+      this.findFamilyForAccount(account) ?? DEFAULT_BLOCKCHAIN_FAMILY;
     this.applySelectedAccount(account, family);
   }
 
@@ -143,6 +174,13 @@ export class DefaultContextService implements ContextService {
       if (selected.freshAddress === account.freshAddress) {
         return family;
       }
+    }
+    return undefined;
+  }
+
+  private firstConnectedFamily(): BlockchainFamily | undefined {
+    for (const family of this.context.selectedAccounts.keys()) {
+      return family;
     }
     return undefined;
   }
