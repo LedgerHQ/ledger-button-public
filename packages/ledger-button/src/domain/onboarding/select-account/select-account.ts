@@ -38,8 +38,8 @@ export class SelectAccountScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  @property({ type: Object })
-  params?: unknown;
+  @property({ attribute: false })
+  params?: WalletNavigationIntent;
 
   controller!: SelectAccountController;
 
@@ -55,8 +55,7 @@ export class SelectAccountScreen extends LitElement {
   }
 
   private resolveRequestedFamily(): BlockchainFamily | undefined {
-    const intent = this.params as WalletNavigationIntent | undefined;
-    const intentParams = intent?.params as
+    const intentParams = this.params?.params as
       | SelectAccountIntentParams
       | undefined;
     return intentParams?.family;
