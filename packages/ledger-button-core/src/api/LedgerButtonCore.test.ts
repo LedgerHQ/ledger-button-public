@@ -28,7 +28,10 @@ describe("LedgerButtonCore", () => {
   let trackActivated: { execute: ReturnType<typeof vi.fn> };
   let selectedAccounts: Map<BlockchainFamily, Account>;
   let authResponse: unknown;
-  let contextService: { getContext: ReturnType<typeof vi.fn>; onEvent: ReturnType<typeof vi.fn> };
+  let contextService: {
+    getContext: ReturnType<typeof vi.fn>;
+    onEvent: ReturnType<typeof vi.fn>;
+  };
   let storage: {
     removeSelectedAccount: ReturnType<typeof vi.fn>;
     resetStorage: ReturnType<typeof vi.fn>;
@@ -68,7 +71,10 @@ describe("LedgerButtonCore", () => {
       [navigationModuleTypes.NavigationIntentService, { observe: vi.fn() }],
       [ledgerSyncModuleTypes.LedgerSyncService, ledgerSyncService],
       [storageModuleTypes.StorageService, storage],
-      [deviceModuleTypes.DeviceManagementKitService, { dmk: { close: vi.fn() } }],
+      [
+        deviceModuleTypes.DeviceManagementKitService,
+        { dmk: { close: vi.fn() } },
+      ],
       [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
       [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
     ]);
@@ -81,7 +87,9 @@ describe("LedgerButtonCore", () => {
 
     // Skip the heavy async context bootstrap the real constructor kicks off.
     vi.spyOn(
-      LedgerButtonCore.prototype as unknown as { initializeContext: () => void },
+      LedgerButtonCore.prototype as unknown as {
+        initializeContext: () => void;
+      },
       "initializeContext",
     ).mockResolvedValue(undefined as never);
 
@@ -175,6 +183,46 @@ describe("LedgerButtonCore", () => {
 
       expect(storage.resetStorage).toHaveBeenCalledTimes(1);
       expect(storage.removeSelectedAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("active family accessors", () => {
+    it("exposes the connected families from the context", () => {
+      selectedAccounts = new Map([
+        ["ethereum", { currencyId: "ethereum" } as Account],
+        ["solana", { currencyId: "solana" } as Account],
+      ]);
+      const core = createCore();
+
+      expect(core.getConnectedFamilies()).toEqual(["ethereum", "solana"]);
+    });
+
+    it("resolves the active family and its selected account", () => {
+      const solanaAccount = { currencyId: "solana" } as Account;
+      selectedAccounts = new Map([["solana", solanaAccount]]);
+      const core = createCore();
+      contextService.getContext.mockReturnValue({
+        selectedAccounts,
+        activeFamily: "solana",
+      });
+
+      expect(core.getActiveFamily()).toBe("solana");
+      expect(core.getActiveSelectedAccount()).toBe(solanaAccount);
+    });
+
+    it("emits an active_family_changed event when switching families", () => {
+      selectedAccounts = new Map([
+        ["ethereum", { currencyId: "ethereum" } as Account],
+        ["solana", { currencyId: "solana" } as Account],
+      ]);
+      const core = createCore();
+
+      core.setActiveFamily("solana");
+
+      expect(contextService.onEvent).toHaveBeenCalledWith({
+        type: "active_family_changed",
+        family: "solana",
+      });
     });
   });
 });

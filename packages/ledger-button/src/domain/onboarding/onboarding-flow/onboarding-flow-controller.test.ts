@@ -15,6 +15,7 @@ function createMockContext(
   return {
     connectedDevice: undefined,
     selectedAccounts: new Map(),
+    activeFamily: undefined,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
