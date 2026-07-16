@@ -347,9 +347,10 @@ export class DefaultStorageService implements StorageService {
   }
 
   getFeatureFlags(): FeatureFlags {
-    return this.getItem<FeatureFlags>(STORAGE_KEYS.FEATURE_FLAGS).orDefault(
-      DEFAULT_FEATURE_FLAGS,
-    );
+    const stored = this.getItem<Partial<FeatureFlags>>(
+      STORAGE_KEYS.FEATURE_FLAGS,
+    ).orDefault({});
+    return { ...DEFAULT_FEATURE_FLAGS, ...stored };
   }
 
   saveFeatureFlags(flags: FeatureFlags): void {
