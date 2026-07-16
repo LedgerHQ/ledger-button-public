@@ -76,6 +76,18 @@ describe("ButtonCoreContext helpers", () => {
       expect(getActiveSelectedAccount(context)).toBe(solanaAccount);
     });
 
+    it("prefers the ethereum account in the fallback when activeFamily is unset", () => {
+      const context = createContext(
+        [
+          ["solana", solanaAccount],
+          ["ethereum", ethereumAccount],
+        ],
+        undefined,
+      );
+
+      expect(getActiveSelectedAccount(context)).toBe(ethereumAccount);
+    });
+
     it("returns undefined when no account is selected", () => {
       expect(
         getActiveSelectedAccount(createContext([], undefined)),
@@ -94,6 +106,18 @@ describe("ButtonCoreContext helpers", () => {
       const context = createContext([["solana", solanaAccount]], "ethereum");
 
       expect(getActiveFamily(context)).toBe("solana");
+    });
+
+    it("prefers ethereum in the fallback when activeFamily is unset", () => {
+      const context = createContext(
+        [
+          ["solana", solanaAccount],
+          ["ethereum", ethereumAccount],
+        ],
+        undefined,
+      );
+
+      expect(getActiveFamily(context)).toBe("ethereum");
     });
 
     it("returns undefined when nothing is connected", () => {

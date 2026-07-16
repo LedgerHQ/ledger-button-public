@@ -58,21 +58,14 @@ export function getConnectedFamilies(
 export function getActiveSelectedAccount(
   context: ButtonCoreContext,
 ): Account | undefined {
-  if (context.activeFamily) {
-    const active = context.selectedAccounts.get(context.activeFamily);
-    if (active) {
-      return active;
-    }
-  }
-  for (const account of context.selectedAccounts.values()) {
-    return account;
-  }
-  return undefined;
+  const family = getActiveFamily(context);
+  return family ? context.selectedAccounts.get(family) : undefined;
 }
 
 /**
- * Resolve the active family, falling back to the first connected family when
- * `activeFamily` has not been set yet.
+ * Resolve the active family. Falls back, when `activeFamily` is unset or stale,
+ * to the {@link DEFAULT_BLOCKCHAIN_FAMILY} ("ethereum") when it has a selected
+ * account, otherwise to the first connected family.
  */
 export function getActiveFamily(
   context: ButtonCoreContext,
@@ -82,6 +75,9 @@ export function getActiveFamily(
     context.selectedAccounts.has(context.activeFamily)
   ) {
     return context.activeFamily;
+  }
+  if (context.selectedAccounts.has(DEFAULT_BLOCKCHAIN_FAMILY)) {
+    return DEFAULT_BLOCKCHAIN_FAMILY;
   }
   for (const family of context.selectedAccounts.keys()) {
     return family;
