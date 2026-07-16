@@ -196,12 +196,6 @@ export class LedgerButtonCore {
       ? getChainIdFromCurrencyId(defaultAccount.currencyId)
       : 1;
 
-    // Prefer the default (ethereum) family when restored, otherwise fall back
-    // to the first restored family so the UI has an active selection.
-    const activeFamily = restoredAccounts.has(DEFAULT_BLOCKCHAIN_FAMILY)
-      ? DEFAULT_BLOCKCHAIN_FAMILY
-      : restoredAccounts.keys().next().value;
-
     const welcomeScreenCompleted = await this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .isWelcomeScreenCompleted();
@@ -226,7 +220,9 @@ export class LedgerButtonCore {
       context: {
         connectedDevice: undefined,
         selectedAccounts: restoredAccounts,
-        activeFamily,
+        // Resolution is delegated to getActiveFamily (prefers ethereum, else the
+        // first connected family), keeping this layer free of selection logic.
+        activeFamily: undefined,
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
         chainId: chainId,
