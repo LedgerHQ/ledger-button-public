@@ -243,6 +243,15 @@
       "title": "ความช่วยเหลือและการสนับสนุน",
       "support": "การสนับสนุน",
       "contactUs": "ติดต่อเรา"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {

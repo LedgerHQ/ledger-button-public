@@ -25,6 +25,7 @@ export type ButtonCoreContext = {
   chainId: number;
   welcomeScreenCompleted: boolean;
   hasTrackingConsent: boolean | undefined;
+  hasDeveloperMode: boolean;
   isMobilePlatform: boolean;
   preferredFiatCurrency: string;
 };

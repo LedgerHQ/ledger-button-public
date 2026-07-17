@@ -243,6 +243,15 @@
       "title": "Hilfe & Support",
       "support": "Support",
       "contactUs": "Kontakt"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {

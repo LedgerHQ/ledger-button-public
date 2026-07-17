@@ -22,6 +22,8 @@ import "../domain/settings/preferences/preference-language-screen.js";
 import "../domain/settings/preferences/preference-currency-screen.js";
 import "../domain/settings/security/security-screen.js";
 import "../domain/settings/support/support-screen.js";
+import "../domain/settings/developer/developer-screen.js";
+import "../domain/settings/developer/feature-flags/feature-flags-screen.js";
 import "../domain/home-flow/home-flow.js";
 import "../domain/available-networks/available-networks.js";
 
@@ -344,6 +346,28 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       toolbar: {
         get title() {
           return t().settings?.support?.title ?? "Help & Support";
+        },
+        canClose: true,
+      },
+    },
+    developer: {
+      name: "developer",
+      component: "developer-screen",
+      canGoBack: true,
+      toolbar: {
+        get title() {
+          return t().settings?.developer?.title ?? "Developer";
+        },
+        canClose: true,
+      },
+    },
+    featureFlags: {
+      name: "featureFlags",
+      component: "feature-flags-screen",
+      canGoBack: true,
+      toolbar: {
+        get title() {
+          return t().settings?.featureFlags?.title ?? "Feature flags";
         },
         canClose: true,
       },
