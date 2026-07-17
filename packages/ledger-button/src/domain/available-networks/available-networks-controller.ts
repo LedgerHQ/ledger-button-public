@@ -1,9 +1,10 @@
 import "../../shared/root-navigation.js";
 
-import type {
-  Account,
-  AccountWithFiat,
-  Network,
+import {
+  type Account,
+  type AccountWithFiat,
+  getActiveSelectedAccount,
+  type Network,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { firstValueFrom, Subscription } from "rxjs";
@@ -53,7 +54,7 @@ export class AvailableNetworksController implements ReactiveController {
     try {
       const currentContext = await firstValueFrom(this.core.observeContext());
       this.selectedAddress =
-        currentContext.selectedAccounts.get("ethereum")?.freshAddress;
+        getActiveSelectedAccount(currentContext)?.freshAddress;
 
       if (!this.selectedAddress) {
         this.navigation.navigateBack();

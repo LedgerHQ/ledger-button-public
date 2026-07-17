@@ -276,7 +276,7 @@ export class SignTransactionController implements ReactiveController {
     const lang = this.lang.currentTranslation;
     switch (true) {
       case error instanceof IncorrectSeedError: {
-        const selectedAccount = this.core.getSelectedAccount();
+        const selectedAccount = this.core.getActiveSelectedAccount();
         const deviceName = this.getDeviceName();
 
         let accountName = "";
@@ -447,7 +447,7 @@ export class SignTransactionController implements ReactiveController {
   private async prefetchTransactionExplorerUrlTemplate(): Promise<
     string | undefined
   > {
-    const currencyId = this.core.getSelectedAccount()?.currencyId;
+    const currencyId = this.core.getActiveSelectedAccount()?.currencyId;
     if (!currencyId) {
       return undefined;
     }

@@ -1,7 +1,10 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, Observable } from "rxjs";
 
-import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
+import {
+  getActiveFamily,
+  getActiveSelectedAccount,
+} from "../../../api/model/ButtonCoreContext.js";
 import { accountModuleTypes } from "../../account/accountModuleTypes.js";
 import { type FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -61,7 +64,7 @@ export class DefaultPendingTransactionController
     let preferredCurrency: string | undefined;
 
     this.contextService.observeContext().subscribe((context) => {
-      const account = getSelectedAccount(context);
+      const account = getActiveSelectedAccount(context);
       const isHydrated = account && account.ticker && account.ticker.length > 0;
       if (isHydrated && this.storageService.getAll().length > 0) {
         this.startPolling();
@@ -95,7 +98,7 @@ export class DefaultPendingTransactionController
 
   private async pollTick(): Promise<void> {
     const context = this.contextService.getContext();
-    const account = getSelectedAccount(context);
+    const account = getActiveSelectedAccount(context);
     if (!account) return;
 
     const pending = this.storageService.getAll();
@@ -140,7 +143,8 @@ export class DefaultPendingTransactionController
 
   private async refreshSelectedAccount(): Promise<void> {
     this.logger.debug("Refreshing transaction history after confirmation");
-    const result = await this.fetchSelectedAccountUseCase.execute();
+    const family = getActiveFamily(this.contextService.getContext());
+    const result = await this.fetchSelectedAccountUseCase.execute(family);
     if (result.isLeft()) {
       this.logger.warn("Failed to refresh transaction history", {
         error: result.extract(),

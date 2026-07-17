@@ -7,6 +7,7 @@ import type {
 import {
   buildExplorerTransactionUrl,
   formatBalance,
+  getActiveSelectedAccount,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { combineLatest, Subscription } from "rxjs";
 
@@ -42,7 +43,7 @@ export class TransactionConfirmationNotifier {
       this.core.observePendingTransactions(),
       this.core.observeContext(),
     ]).subscribe(([pending, context]) => {
-      const account = context.selectedAccounts.get("ethereum");
+      const account = getActiveSelectedAccount(context);
       const history = this.isDetailedAccount(account)
         ? (account.transactionHistory ?? [])
         : [];
@@ -132,9 +133,10 @@ export class TransactionConfirmationNotifier {
     }
   }
 
-  private detectSwap(
-    items: TransactionHistoryItem[],
-  ): { sentLeg: TransactionHistoryItem; receivedLeg: TransactionHistoryItem } | null {
+  private detectSwap(items: TransactionHistoryItem[]): {
+    sentLeg: TransactionHistoryItem;
+    receivedLeg: TransactionHistoryItem;
+  } | null {
     const successful = items.filter((i) => i.status !== "failed");
     const sentLeg = successful.find((i) => i.direction === "sent");
     const receivedLeg = successful.find((i) => i.direction === "received");
