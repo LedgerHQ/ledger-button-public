@@ -77,6 +77,17 @@ export type ProviderSignParams =
  * `status$` / `finish` / `retry` machinery lives here, not on the provider
  * boundary.
  */
+/**
+ * Payload carried by the `selectAccount` {@link WalletNavigationIntent} when the
+ * selection is triggered by a dApp request. The UI uses `family` to only list
+ * accounts compatible with the requesting blockchain (EVM vs Solana). Absent
+ * when selection is opened manually (floating button), in which case the UI
+ * shows every account.
+ */
+export type SelectAccountIntentParams = {
+  family: BlockchainFamily;
+};
+
 export interface WalletNavigationIntent {
   /** e.g. "selectAccount" | "signTransaction" - mapped to nav by the button. */
   name: string;

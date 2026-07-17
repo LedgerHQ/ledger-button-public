@@ -402,6 +402,7 @@ export class LedgerButtonCore {
 
   observeAccounts(options?: {
     forceRefresh?: boolean;
+    family?: BlockchainFamily;
   }): Observable<AccountWithFiat[]> {
     return this.container
       .get<ObserveAccountsWithFiatUseCase>(
