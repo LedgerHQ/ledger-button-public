@@ -1,5 +1,6 @@
 import type { AccountWithFiat } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
+import { of } from "rxjs";
 
 import type { CoreContext } from "../../../context/core-context.js";
 import type { LanguageContext } from "../../../context/language-context.js";
@@ -87,13 +88,41 @@ describe("SelectAccountController.filteredAccounts", () => {
   });
 
   it.each([
-    { description: "returns all accounts in core order when query is empty", query: "", expected: () => [ethAccount, btcAccount] },
-    { description: "filters by account name", query: "Bitcoin", expected: () => [btcAccount] },
-    { description: "filters by account address", query: "0xabc123", expected: () => [ethAccount] },
-    { description: "filters by account ticker", query: "eth", expected: () => [ethAccount] },
-    { description: "filters by token ticker", query: "usdt", expected: () => [ethAccount] },
-    { description: "filters by token name", query: "Tether", expected: () => [ethAccount] },
-    { description: "returns empty array when no match", query: "DOGE", expected: () => [] },
+    {
+      description: "returns all accounts in core order when query is empty",
+      query: "",
+      expected: () => [ethAccount, btcAccount],
+    },
+    {
+      description: "filters by account name",
+      query: "Bitcoin",
+      expected: () => [btcAccount],
+    },
+    {
+      description: "filters by account address",
+      query: "0xabc123",
+      expected: () => [ethAccount],
+    },
+    {
+      description: "filters by account ticker",
+      query: "eth",
+      expected: () => [ethAccount],
+    },
+    {
+      description: "filters by token ticker",
+      query: "usdt",
+      expected: () => [ethAccount],
+    },
+    {
+      description: "filters by token name",
+      query: "Tether",
+      expected: () => [ethAccount],
+    },
+    {
+      description: "returns empty array when no match",
+      query: "DOGE",
+      expected: () => [],
+    },
   ])("$description", ({ query, expected }) => {
     controller.searchQuery = query;
     expect(controller.filteredAccounts).toEqual(expected());
@@ -216,7 +245,12 @@ describe("SelectAccountController.handleShowTokensClick", () => {
       updateComplete: Promise.resolve(true),
     };
     navigation = { navigateTo: vi.fn() } as unknown as Navigation;
-    controller = new SelectAccountController(host, {} as CoreContext, navigation, mockLang);
+    controller = new SelectAccountController(
+      host,
+      {} as CoreContext,
+      navigation,
+      mockLang,
+    );
   });
 
   it("navigates to the account tokens screen", () => {
@@ -274,7 +308,12 @@ describe("SelectAccountController.handleShowTokensClick", () => {
 
 describe("SelectAccountController.getAccountFiatValue", () => {
   const controller = new SelectAccountController(
-    { addController: vi.fn(), removeController: vi.fn(), requestUpdate: vi.fn(), updateComplete: Promise.resolve(true) },
+    {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+    },
     {} as CoreContext,
     {} as Navigation,
     mockLang,
@@ -427,7 +466,12 @@ describe("SelectAccountController.groupedAccounts", () => {
       fiatBalance: { value: "50.00", currency: "USD" },
     });
 
-    controller.accounts = [ethMainnet, polygon, ethSecondWallet, baseSecondWallet];
+    controller.accounts = [
+      ethMainnet,
+      polygon,
+      ethSecondWallet,
+      baseSecondWallet,
+    ];
 
     expect(controller.groupedAccounts).toEqual([
       {
@@ -569,3 +613,45 @@ describe("SelectAccountController.groupedAccounts", () => {
   });
 });
 
+describe("SelectAccountController.getAccounts family filtering", () => {
+  const createHost = (): ReactiveControllerHost => ({
+    addController: vi.fn(),
+    removeController: vi.fn(),
+    requestUpdate: vi.fn(),
+    updateComplete: Promise.resolve(true),
+  });
+
+  it("forwards the requested family to core.observeAccounts", () => {
+    const observeAccounts = vi.fn().mockReturnValue(of([]));
+    const core = { observeAccounts } as unknown as CoreContext;
+    const controller = new SelectAccountController(
+      createHost(),
+      core,
+      {} as Navigation,
+      mockLang,
+      "solana",
+    );
+
+    controller.getAccounts();
+
+    expect(observeAccounts).toHaveBeenCalledWith({ family: "solana" });
+  });
+
+  it("leaves family undefined when the selection was not scoped to a dApp request", () => {
+    const observeAccounts = vi.fn().mockReturnValue(of([]));
+    const core = { observeAccounts } as unknown as CoreContext;
+    const controller = new SelectAccountController(
+      createHost(),
+      core,
+      {} as Navigation,
+      mockLang,
+    );
+
+    controller.getAccounts({ forceRefresh: true });
+
+    expect(observeAccounts).toHaveBeenCalledWith({
+      forceRefresh: true,
+      family: undefined,
+    });
+  });
+});

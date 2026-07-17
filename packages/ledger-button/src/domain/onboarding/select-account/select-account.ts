@@ -3,6 +3,9 @@ import "../../../components/index.js";
 import {
   Account,
   AccountWithFiat,
+  type BlockchainFamily,
+  type SelectAccountIntentParams,
+  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
@@ -35,6 +38,9 @@ export class SelectAccountScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  @property({ attribute: false })
+  params?: WalletNavigationIntent;
+
   controller!: SelectAccountController;
 
   override connectedCallback() {
@@ -44,7 +50,15 @@ export class SelectAccountScreen extends LitElement {
       this.coreContext,
       this.navigation,
       this.languages,
+      this.resolveRequestedFamily(),
     );
+  }
+
+  private resolveRequestedFamily(): BlockchainFamily | undefined {
+    const intentParams = this.params?.params as
+      | SelectAccountIntentParams
+      | undefined;
+    return intentParams?.family;
   }
 
   private renderAccountCard(account: AccountWithFiat) {
@@ -201,7 +215,7 @@ export class SelectAccountScreen extends LitElement {
 
     return html`
       <div class="flex min-h-px flex-1 flex-col items-center justify-center">
-        <p class="body-1-semi-bold text-base text-center">
+        <p class="body-1-semi-bold text-center text-base">
           ${translations.onboarding.selectAccount.noResults}
         </p>
       </div>

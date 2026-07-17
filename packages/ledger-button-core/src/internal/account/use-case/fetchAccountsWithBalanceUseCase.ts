@@ -11,6 +11,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { accountModuleTypes } from "../accountModuleTypes.js";
@@ -20,6 +21,7 @@ import type {
   AccountUpdate,
 } from "../service/AccountService.js";
 import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
+import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
 @injectable()
@@ -35,11 +37,16 @@ export class FetchAccountsWithBalanceUseCase {
     private readonly fetchAccountsUseCase: FetchAccountsUseCase,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
+    @inject(accountModuleTypes.FilterAccountsByFamilyUseCase)
+    private readonly filterAccountsByFamilyUseCase: FilterAccountsByFamilyUseCase,
   ) {
     this.logger = loggerFactory("FetchAccountsWithBalanceUseCase");
   }
 
-  execute(options?: { forceRefresh?: boolean }): Observable<Account[]> {
+  execute(options?: {
+    forceRefresh?: boolean;
+    family?: BlockchainFamily;
+  }): Observable<Account[]> {
     const existingAccounts = this.accountService.getAccounts();
     const accountsSource = this.shouldFetchFromCloudSync(
       existingAccounts,
@@ -50,8 +57,12 @@ export class FetchAccountsWithBalanceUseCase {
 
     return accountsSource.pipe(
       switchMap((accounts) => {
+        const scopedAccounts = this.filterAccountsByFamilyUseCase.execute(
+          accounts,
+          options?.family,
+        );
         const initialAccounts =
-          this.initializeAccountsWithEmptyBalances(accounts);
+          this.initializeAccountsWithEmptyBalances(scopedAccounts);
 
         if (initialAccounts.length === 0) {
           return of(initialAccounts);
