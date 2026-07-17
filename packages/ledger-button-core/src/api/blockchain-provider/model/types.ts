@@ -72,12 +72,6 @@ export type ProviderSignParams =
   | SignPersonalMessageParams;
 
 /**
- * Core -> UI navigation intent emitted while core runs an account-selection or
- * sign phase. The button package maps `name` to its own navigation; the
- * `status$` / `finish` / `retry` machinery lives here, not on the provider
- * boundary.
- */
-/**
  * Payload carried by the `selectAccount` {@link WalletNavigationIntent} when the
  * selection is triggered by a dApp request. The UI uses `family` to only list
  * accounts compatible with the requesting blockchain (EVM vs Solana). Absent
@@ -88,9 +82,20 @@ export type SelectAccountIntentParams = {
   family: BlockchainFamily;
 };
 
+/**
+ * Core -> UI navigation intent emitted while core runs an account-selection or
+ * sign phase. The button package maps `name` to its own navigation; the
+ * `status$` / `finish` / `retry` machinery lives here, not on the provider
+ * boundary.
+ */
 export interface WalletNavigationIntent {
   /** e.g. "selectAccount" | "signTransaction" - mapped to nav by the button. */
   name: string;
+  /**
+   * Intent-specific payload. For a `selectAccount` request it holds a
+   * {@link SelectAccountIntentParams} (the requested blockchain family); for a
+   * sign phase it holds the transaction/message parameters.
+   */
   params?: unknown;
   /** UI subscribes for live progress (like today's SignFlowStatus). */
   status$: Observable<SignFlowStatus>;

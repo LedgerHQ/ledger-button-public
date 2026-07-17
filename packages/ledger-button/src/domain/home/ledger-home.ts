@@ -2,6 +2,7 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
+import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -28,6 +29,11 @@ import { LedgerHomeController } from "./ledger-home-controller.js";
 type RedirectIntent =
   | { type: "action"; action: WalletTransactionFeature }
   | { type: "account"; currency: string; address: string };
+
+const FAMILY_LABELS: Record<BlockchainFamily, string> = {
+  ethereum: "Ethereum",
+  solana: "Solana",
+};
 
 const styles = css`
   :host {
@@ -115,6 +121,32 @@ export class LedgerHomeScreen extends LitElement {
   private handleTabChange = (event: CustomEvent<TabChangeEventDetail>) => {
     this.activeTab = event.detail.selectedId;
   };
+
+  private handleFamilyTabChange = (
+    event: CustomEvent<TabChangeEventDetail>,
+  ) => {
+    this.controller.setActiveFamily(
+      event.detail.selectedId as BlockchainFamily,
+    );
+  };
+
+  private renderFamilyTabs() {
+    const families = this.controller.connectedFamilies;
+    if (families.length <= 1) {
+      return "";
+    }
+
+    return html`
+      <ledger-tabs
+        .tabs=${families.map((family) => ({
+          id: family,
+          label: FAMILY_LABELS[family] ?? family,
+        }))}
+        .selectedId=${this.controller.activeFamily ?? ""}
+        @tab-change=${this.handleFamilyTabChange}
+      ></ledger-tabs>
+    `;
+  }
 
   private handleWalletActionClick = (
     event: CustomEvent<WalletActionClickEventDetail>,
@@ -210,8 +242,9 @@ export class LedgerHomeScreen extends LitElement {
       `;
     }
     const account = this.controller.selectedAccount;
+    const switching = this.controller.switching;
 
-    if (!account) {
+    if (!switching && !account) {
       this.navigation.navigateTo(this.destinations.onboardingFlow);
       return;
     }
@@ -222,61 +255,10 @@ export class LedgerHomeScreen extends LitElement {
       <div class="relative flex h-full flex-col">
         <div class="scrollbar-custom min-h-0 flex-1 overflow-y-auto">
           <div class="flex flex-col items-stretch gap-12 p-24 pt-0">
-            <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
-              <div class="flex flex-row items-center justify-between">
-                <ledger-account-switch
-                  class="max-w-256"
-                  .account=${account}
-                  @account-switch=${this.handleAccountItemClick}
-                ></ledger-account-switch>
-
-                <ledger-networks
-                  .networks=${account.networks}
-                  @networks-click=${this.handleNetworksClick}
-                ></ledger-networks>
-              </div>
-
-              <ledger-fiat-total
-                .value=${account.totalFiatValue?.value ?? "0"}
-                .currency=${this.controller.preferredCurrency}
-                .locale=${this.languages.locale}
-              ></ledger-fiat-total>
-            </div>
-
-            <ledger-wallet-actions
-              .features=${this.walletTransactionFeatures}
-              @wallet-action-click=${this.handleWalletActionClick}
-            ></ledger-wallet-actions>
-
-            <div class="mt-12">
-              <ledger-tabs
-                .tabs=${[
-                  { id: "tokens", label: lang.home.tabs.tokens },
-                  {
-                    id: "transactions",
-                    label: lang.home.tabs.transactions,
-                    badge:
-                      this.controller.pendingTransactionListItems.length ||
-                      undefined,
-                  },
-                ]}
-                .selectedId=${this.activeTab}
-                @tab-change=${this.handleTabChange}
-              ></ledger-tabs>
-            </div>
-
-            ${this.activeTab === "tokens"
-              ? html`<token-list-screen
-                  .account=${account}
-                  .locale=${this.languages.locale}
-                ></token-list-screen>`
-              : html`<transaction-list-screen
-                  .transactions=${this.controller.transactionListItems}
-                  .pendingTransactions=${this.controller
-                    .pendingTransactionListItems}
-                  @view-all-transactions-click=${this
-                    .handleViewAllTransactionsClick}
-                ></transaction-list-screen>`}
+            ${this.renderFamilyTabs()}
+            ${switching || !account
+              ? this.renderSwitchingLoader()
+              : this.renderAccountContent(account, lang)}
           </div>
         </div>
 
@@ -301,6 +283,79 @@ export class LedgerHomeScreen extends LitElement {
             `
           : ""}
       </div>
+    `;
+  }
+
+  private renderSwitchingLoader() {
+    return html`
+      <div class="flex min-h-256 items-center justify-center">
+        <ledger-lottie
+          animationName="loadingSpinner"
+          .autoplay=${true}
+          .loop=${true}
+          size="large"
+        ></ledger-lottie>
+      </div>
+    `;
+  }
+
+  private renderAccountContent(
+    account: NonNullable<LedgerHomeController["selectedAccount"]>,
+    lang: LanguageContext["currentTranslation"],
+  ) {
+    return html`
+      <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
+        <div class="flex flex-row items-center justify-between">
+          <ledger-account-switch
+            class="max-w-256"
+            .account=${account}
+            @account-switch=${this.handleAccountItemClick}
+          ></ledger-account-switch>
+
+          <ledger-networks
+            .networks=${account.networks}
+            @networks-click=${this.handleNetworksClick}
+          ></ledger-networks>
+        </div>
+
+        <ledger-fiat-total
+          .value=${account.totalFiatValue?.value ?? "0"}
+          .currency=${this.controller.preferredCurrency}
+          .locale=${this.languages.locale}
+        ></ledger-fiat-total>
+      </div>
+
+      <ledger-wallet-actions
+        .features=${this.walletTransactionFeatures}
+        @wallet-action-click=${this.handleWalletActionClick}
+      ></ledger-wallet-actions>
+
+      <div class="mt-12">
+        <ledger-tabs
+          .tabs=${[
+            { id: "tokens", label: lang.home.tabs.tokens },
+            {
+              id: "transactions",
+              label: lang.home.tabs.transactions,
+              badge:
+                this.controller.pendingTransactionListItems.length || undefined,
+            },
+          ]}
+          .selectedId=${this.activeTab}
+          @tab-change=${this.handleTabChange}
+        ></ledger-tabs>
+      </div>
+
+      ${this.activeTab === "tokens"
+        ? html`<token-list-screen
+            .account=${account}
+            .locale=${this.languages.locale}
+          ></token-list-screen>`
+        : html`<transaction-list-screen
+            .transactions=${this.controller.transactionListItems}
+            .pendingTransactions=${this.controller.pendingTransactionListItems}
+            @view-all-transactions-click=${this.handleViewAllTransactionsClick}
+          ></transaction-list-screen>`}
     `;
   }
 }

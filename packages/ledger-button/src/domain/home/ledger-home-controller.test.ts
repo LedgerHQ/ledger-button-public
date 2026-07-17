@@ -368,6 +368,122 @@ describe("LedgerHomeController", () => {
     });
   });
 
+  describe("family switching", () => {
+    const solanaAccount = createDetailedAccount({
+      id: "sol-1",
+      currencyId: "solana",
+      freshAddress: "sol-addr",
+      name: "Solana",
+      ticker: "SOL",
+      networks: [{ id: "solana", name: "Solana", ticker: "SOL" }],
+    });
+
+    function multiFamilyContext(
+      activeFamily: BlockchainFamily,
+    ): ButtonCoreContext {
+      return createContext({
+        activeFamily,
+        selectedAccounts: new Map<BlockchainFamily, Account>([
+          [DEFAULT_BLOCKCHAIN_FAMILY, createAccount()],
+          [
+            "solana",
+            createAccount({
+              id: "sol-1",
+              currencyId: "solana",
+              freshAddress: "sol-addr",
+              name: "Solana",
+              ticker: "SOL",
+            }),
+          ],
+        ]),
+      });
+    }
+
+    it("shows a switching loader while loading a not-yet-cached family", async () => {
+      await connectAndWaitForLoad();
+
+      let resolveSolana!: (value: DetailedAccount) => void;
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        family === "solana"
+          ? new Promise<DetailedAccount>((resolve) => {
+              resolveSolana = resolve;
+            })
+          : Promise.resolve(account),
+      );
+
+      contextSubject.next(multiFamilyContext("solana"));
+
+      expect(controller.switching).toBe(true);
+
+      resolveSolana(solanaAccount);
+
+      await vi.waitFor(() => {
+        expect(controller.switching).toBe(false);
+        expect(controller.selectedAccount?.freshAddress).toBe("sol-addr");
+      });
+    });
+
+    it("switches back to an already-loaded family instantly without a loader", async () => {
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        Promise.resolve(family === "solana" ? solanaAccount : account),
+      );
+
+      await connectAndWaitForLoad();
+
+      contextSubject.next(multiFamilyContext("solana"));
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("sol-addr");
+      });
+
+      fetchSelectedAccount.mockClear();
+
+      contextSubject.next(multiFamilyContext(DEFAULT_BLOCKCHAIN_FAMILY));
+
+      expect(controller.switching).toBe(false);
+      expect(controller.selectedAccount?.freshAddress).toBe("0xabc123");
+
+      expect(fetchSelectedAccount).toHaveBeenCalledWith(
+        DEFAULT_BLOCKCHAIN_FAMILY,
+      );
+    });
+
+    it("refreshes a cached family silently in the background", async () => {
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        Promise.resolve(family === "solana" ? solanaAccount : account),
+      );
+
+      await connectAndWaitForLoad();
+      contextSubject.next(multiFamilyContext("solana"));
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("sol-addr");
+      });
+
+      const refreshedSolana = createDetailedAccount({
+        id: "sol-1",
+        currencyId: "solana",
+        freshAddress: "sol-addr",
+        name: "Solana",
+        ticker: "SOL",
+        balance: "9999",
+        networks: [{ id: "solana", name: "Solana", ticker: "SOL" }],
+      });
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        Promise.resolve(family === "solana" ? refreshedSolana : account),
+      );
+
+      contextSubject.next(multiFamilyContext(DEFAULT_BLOCKCHAIN_FAMILY));
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("0xabc123");
+      });
+
+      contextSubject.next(multiFamilyContext("solana"));
+
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.balance).toBe("9999");
+      });
+    });
+  });
+
   describe("explorer URLs", () => {
     it("should build explorerUrl from the account's per-currency template", async () => {
       const accountWithExplorerUrl = createDetailedAccount({
