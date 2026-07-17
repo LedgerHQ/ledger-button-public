@@ -44,6 +44,7 @@ function createContext(
     chainId: 1,
     welcomeScreenCompleted: true,
     hasTrackingConsent: undefined,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "usd",
     ...overrides,

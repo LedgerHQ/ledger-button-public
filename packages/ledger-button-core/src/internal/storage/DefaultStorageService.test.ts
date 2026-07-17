@@ -577,4 +577,44 @@ describe("DefaultStorageService", () => {
       });
     });
   });
+
+  describe("Developer mode methods", () => {
+    describe("saveDeveloperMode", () => {
+      it("should persist developer mode in local storage", () => {
+        storageService.saveDeveloperMode();
+        expect(storageService.hasDeveloperMode()).toBe(true);
+      });
+    });
+
+    describe("hasDeveloperMode", () => {
+      it("should return false when developer mode has not been enabled", () => {
+        expect(storageService.hasDeveloperMode()).toBe(false);
+      });
+
+      it("should return true when developer mode has been enabled", () => {
+        storageService.saveDeveloperMode();
+        expect(storageService.hasDeveloperMode()).toBe(true);
+      });
+    });
+  });
+
+  describe("Feature flags methods", () => {
+    describe("getFeatureFlags", () => {
+      it("should return default feature flags when none are stored", () => {
+        expect(storageService.getFeatureFlags()).toEqual({ solana: false });
+      });
+
+      it("should return stored feature flags", () => {
+        storageService.saveFeatureFlags({ solana: true });
+        expect(storageService.getFeatureFlags()).toEqual({ solana: true });
+      });
+    });
+
+    describe("saveFeatureFlags", () => {
+      it("should persist feature flags in local storage", () => {
+        storageService.saveFeatureFlags({ solana: true });
+        expect(storageService.getFeatureFlags().solana).toBe(true);
+      });
+    });
+  });
 });

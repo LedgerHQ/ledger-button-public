@@ -60,6 +60,7 @@ describe("DefaultEventTrackingService", () => {
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: false,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
     ...overrides,

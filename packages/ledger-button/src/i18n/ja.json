@@ -243,6 +243,15 @@
       "title": "ヘルプとサポート",
       "support": "サポート",
       "contactUs": "お問い合わせ"
+    },
+    "developer": {
+      "title": "Developer"
+    },
+    "featureFlags": {
+      "title": "Feature flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {

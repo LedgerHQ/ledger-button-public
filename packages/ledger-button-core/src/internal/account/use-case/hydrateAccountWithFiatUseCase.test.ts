@@ -36,6 +36,7 @@ function createMockContext(
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "USD",
     ...overrides,

@@ -33,6 +33,7 @@ function createContext(
     chainId: 1,
     welcomeScreenCompleted: true,
     hasTrackingConsent: true,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "usd",
   };

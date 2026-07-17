@@ -82,6 +82,7 @@ describe("DefaultContextService", () => {
         chainId: 1,
         welcomeScreenCompleted: false,
         hasTrackingConsent: undefined,
+        hasDeveloperMode: false,
         isMobilePlatform: false,
         preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
       });
@@ -114,6 +115,7 @@ describe("DefaultContextService", () => {
             chainId: 137,
             welcomeScreenCompleted: false,
             hasTrackingConsent: false,
+            hasDeveloperMode: false,
             isMobilePlatform: false,
             preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
           },
@@ -126,6 +128,7 @@ describe("DefaultContextService", () => {
           chainId: 137,
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -141,6 +144,7 @@ describe("DefaultContextService", () => {
           chainId: 42161,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -157,6 +161,7 @@ describe("DefaultContextService", () => {
           chainId: chainIdMap.polygon,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -172,6 +177,7 @@ describe("DefaultContextService", () => {
           chainId: chainIdMap.polygon,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -187,6 +193,7 @@ describe("DefaultContextService", () => {
           chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -214,6 +221,7 @@ describe("DefaultContextService", () => {
           chainId: chainIdMap.ethereum,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -232,6 +240,7 @@ describe("DefaultContextService", () => {
           chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -251,6 +260,7 @@ describe("DefaultContextService", () => {
               chainId: 137,
               welcomeScreenCompleted: false,
               hasTrackingConsent: false,
+              hasDeveloperMode: false,
               isMobilePlatform: false,
               preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
             },
@@ -264,6 +274,7 @@ describe("DefaultContextService", () => {
           chainId: 137,
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -446,6 +457,16 @@ describe("DefaultContextService", () => {
         service.onEvent({ type: "welcome_screen_completed" });
 
         expect(service.getContext().welcomeScreenCompleted).toBe(true);
+      });
+    });
+
+    describe("developer_mode_enabled event", () => {
+      it("should set hasDeveloperMode to true", () => {
+        expect(service.getContext().hasDeveloperMode).toBe(false);
+
+        service.onEvent({ type: "developer_mode_enabled" });
+
+        expect(service.getContext().hasDeveloperMode).toBe(true);
       });
     });
 
