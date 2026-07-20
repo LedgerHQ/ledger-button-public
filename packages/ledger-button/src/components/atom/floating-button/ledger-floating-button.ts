@@ -45,17 +45,16 @@ const floatingButtonVariants = cva(
   },
 );
 
-// `z-7732` is a wink to EIP-7732 (https://eips.ethereum.org/EIPS/eip-7732)
-// and intentionally sits one tier above the modal stack:
-//   - `.modal-backdrop`  → z-index 7730
-//   - `.modal-container` → z-index 7731
-//   - this floating btn  → z-index 7732
+// The stack was raised to z-index 10000+ so Ledger UI renders above dApp Morpho (z-index 9999).
+//   - `.modal-backdrop`  → z-index 10000
+//   - `.modal-container` → z-index 10001
+//   - this floating btn  → z-index 10002
 // so that at the end of the morph-close animation the real button can
 // take over the same pixels as the morphed pill underneath.
 // Tailwind offset/size classes below must stay in sync with
 // `FLOATING_BUTTON_SIZE` / `FLOATING_BUTTON_OFFSET` in
 // `floating-button-rect.ts` (h-64/w-64 + right-24/bottom-24/…).
-const positionVariants = cva("fixed z-7732", {
+const positionVariants = cva("fixed z-[10002]", {
   variants: {
     position: {
       "bottom-right": "right-24 bottom-24",
