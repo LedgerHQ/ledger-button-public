@@ -40,7 +40,6 @@ import {
   useSolanaChain,
 } from "../../components/solana/solanaChainContext";
 import { type SolanaChain } from "../../components/solana/solanaCluster";
-import { useProviders } from "../../hooks/useProviders";
 
 const SolanaProviders = dynamic(
   () => import("../../components/solana/SolanaProviders"),
@@ -56,10 +55,9 @@ function nextActivityId(): string {
 export default function SolanaPage() {
   const [cluster, setCluster] = useState<SolanaCluster>(DEFAULT_SOLANA_CLUSTER);
 
-  // Initialize the Ledger provider so it registers itself as a Solana wallet
-  // (via Wallet Standard `registerWallet`) and becomes discoverable on this page
-  // even when the user lands here directly without visiting the EVM page first.
-  useProviders();
+  // The Ledger provider is instantiated once at the app root (<LedgerProvider>
+  // in the layout), so it is already registered as a Solana wallet (via Wallet
+  // Standard `registerWallet`) and discoverable here without re-initializing.
 
   return (
     <SolanaProviders cluster={cluster}>
