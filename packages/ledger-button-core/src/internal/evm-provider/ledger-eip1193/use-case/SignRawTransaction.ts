@@ -53,10 +53,10 @@ import {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import { SignRawTransactionParams } from "../../../../api/model/signing/SignRawTransactionParams.js";
+import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
-import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import {
   BroadcastTransaction,
   BroadcastTransactionParams,
