@@ -9,10 +9,10 @@ import {
   SignTransactionParams,
   Transaction,
 } from "../../../../api/model/signing/SignTransactionParams.js";
+import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
-import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { SignRawTransaction } from "./SignRawTransaction.js";
 
 @injectable()
