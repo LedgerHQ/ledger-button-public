@@ -15,11 +15,7 @@ import {
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
-import {
-  DEFAULT_CONFIG,
-  type LedgerProviderConfig,
-  useProviders,
-} from "../hooks/useProviders";
+import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
 let Provider:
@@ -33,14 +29,15 @@ function nextActivityId(): string {
 }
 
 export default function Index() {
-  const [config, setConfig] = useState<LedgerProviderConfig>(DEFAULT_CONFIG);
   const {
     providers,
     selectedProvider,
     setSelectedProvider,
     isInitialized,
     reinitialize,
-  } = useProviders(config);
+    config,
+    setConfig,
+  } = useProviders();
 
   const { entries: trackingEntries, clearEntries: clearTracking } =
     useTrackingInterceptor();

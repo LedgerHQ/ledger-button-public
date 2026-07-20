@@ -1,4 +1,5 @@
 import { HeaderNav, ThemeToggle } from "../components";
+import { LedgerProvider } from "../components/LedgerProvider";
 import { Providers } from "../components/Providers";
 
 import "./global.css";
@@ -7,7 +8,8 @@ import "@ledgerhq/ledger-wallet-provider/styles.css";
 
 export const metadata = {
   title: "Ledger Button Test dApp",
-  description: "Test EIP-1193 / EIP-6963 and Solana Wallet Standard integrations",
+  description:
+    "Test EIP-1193 / EIP-6963 and Solana Wallet Standard integrations",
 };
 
 export default function RootLayout({
@@ -19,21 +21,23 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <div className="flex flex-col min-h-screen">
-            <header className="flex items-center justify-between px-24 py-12 bg-muted border-b border-muted shrink-0">
-              <div className="flex items-center gap-24">
-                <p className="body-2-semi-bold text-base">
-                  Ledger Button · Test dApp
-                </p>
-                <HeaderNav />
-              </div>
-              <div className="flex items-center gap-12">
-                <ThemeToggle />
-                <div id="floating-button-container"></div>
-              </div>
-            </header>
-            <main className="flex-1 bg-canvas">{children}</main>
-          </div>
+          <LedgerProvider>
+            <div className="flex min-h-screen flex-col">
+              <header className="bg-muted border-muted flex shrink-0 items-center justify-between border-b px-24 py-12">
+                <div className="flex items-center gap-24">
+                  <p className="body-2-semi-bold text-base">
+                    Ledger Button · Test dApp
+                  </p>
+                  <HeaderNav />
+                </div>
+                <div className="flex items-center gap-12">
+                  <ThemeToggle />
+                  <div id="floating-button-container"></div>
+                </div>
+              </header>
+              <main className="bg-canvas flex-1">{children}</main>
+            </div>
+          </LedgerProvider>
         </Providers>
       </body>
     </html>
