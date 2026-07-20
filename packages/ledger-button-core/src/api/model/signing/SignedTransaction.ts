@@ -18,6 +18,12 @@ export interface SignedTransactionResult {
 
 export interface SignedPersonalMessageOrTypedDataResult {
   signature: string;
+  /**
+   * The exact byte string that was signed. For Solana off-chain messages this
+   * is the OCM (preamble + content), which differs from the raw input message,
+   * so consumers can verify the signature against it. Unset for EVM flows.
+   */
+  signedMessage?: Uint8Array;
 }
 
 export function isSignedTransactionResult(

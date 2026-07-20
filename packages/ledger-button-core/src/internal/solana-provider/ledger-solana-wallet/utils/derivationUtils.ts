@@ -1,4 +1,4 @@
-import { Account } from "../../../account/service/AccountService.js";
+import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
 
 // Solana uses Ed25519 keypairs with a coin-type of 501. As per SLIP-0010 all
 // derivation-path indexes are promoted to hardened. Ledger Live derives Solana
@@ -11,7 +11,7 @@ const SOLANA_DERIVATION_MODE: Record<string, string> = {
 
 const DEFAULT_SOLANA_DERIVATION_MODE = "solanaSub";
 
-export function getSolanaDerivationPath(account: Account): string {
+export function getSolanaDerivationPath(account: ProviderAccount): string {
   const index = account.index;
 
   const derivationScheme =
