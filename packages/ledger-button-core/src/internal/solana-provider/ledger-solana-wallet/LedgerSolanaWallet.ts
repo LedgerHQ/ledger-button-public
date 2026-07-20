@@ -33,10 +33,14 @@ import {
 } from "@wallet-standard/features";
 import { type Observable, Subject, type Subscription } from "rxjs";
 
+import { isSignedSolanaTransactionResult } from "./model/SolanaSignedResult.js";
+export type { SolanaSignedResult } from "./model/SolanaSignedResult.js";
+import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
 import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils.js";
+import { attachSolanaSignature } from "./utils/signatureUtils.js";
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
@@ -107,8 +111,9 @@ type SolanaWalletFeatures = StandardConnectFeature &
   StandardEventsFeature &
   SolanaSignFeatures;
 
-type SignSolanaMessageDeps = {
+type LedgerSolanaWalletDeps = {
   signSolanaMessage: SignSolanaMessage;
+  signSolanaTransaction: SignSolanaTransaction;
 };
 
 export class LedgerSolanaWallet implements Wallet {
@@ -125,7 +130,7 @@ export class LedgerSolanaWallet implements Wallet {
 
   constructor(
     private readonly host: CoreFacade,
-    private readonly deps: SignSolanaMessageDeps,
+    private readonly deps: LedgerSolanaWalletDeps,
   ) {}
 
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
@@ -233,9 +238,96 @@ export class LedgerSolanaWallet implements Wallet {
   private readonly signTransaction: SolanaSignTransactionMethod = async (
     ...inputs
   ) => {
-    console.log("[LedgerSolanaWallet] solana:signTransaction", inputs);
-    return inputs.map((input) => ({ signedTransaction: input.transaction }));
+    const account = await this.resolveSolanaAccount();
+
+    // Hardware signing is one confirmation at a time; process sequentially.
+    const results: { signedTransaction: Uint8Array }[] = [];
+    for (const input of inputs) {
+      results.push(await this.runSignTransaction(account, input.transaction));
+    }
+    return results;
   };
+
+  /**
+   * Runs the full Solana sign flow for one transaction: emits a
+   * {@link WalletNavigationIntent} so the UI can render/drive the flow, runs the
+   * {@link SignSolanaTransaction} use-case, and resolves with the reassembled
+   * signed wire transaction. Mirrors the EVM `handleBlockchainRequest`.
+   */
+  private runSignTransaction(
+    account: ProviderAccount,
+    transaction: Uint8Array,
+  ): Promise<{ signedTransaction: Uint8Array }> {
+    return new Promise((resolve, reject) => {
+      const status$ = new Subject<SignFlowStatus>();
+      let subscription: Subscription | undefined;
+      let settled = false;
+
+      const onClose = () => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        cleanup();
+        reject(new Error("User closed the modal"));
+      };
+
+      const cleanup = () => {
+        subscription?.unsubscribe();
+        globalThis.removeEventListener?.("ledger-provider-close", onClose);
+      };
+
+      const start = () => {
+        subscription?.unsubscribe();
+        subscription = this.deps.signSolanaTransaction
+          .execute({ transaction }, account)
+          .subscribe({
+            next: (status) => {
+              status$.next(status);
+              if (status.status === "success") {
+                if (!isSignedSolanaTransactionResult(status.data)) {
+                  return;
+                }
+                settled = true;
+                globalThis.removeEventListener?.(
+                  "ledger-provider-close",
+                  onClose,
+                );
+                resolve({
+                  signedTransaction: attachSolanaSignature(
+                    transaction,
+                    account.freshAddress,
+                    status.data.solanaSignature,
+                  ),
+                });
+              }
+            },
+            error: (error) => {
+              status$.next({
+                signType: "transaction",
+                status: "error",
+                error,
+              });
+            },
+          });
+      };
+
+      globalThis.addEventListener?.("ledger-provider-close", onClose);
+
+      this.host.emitNavigationIntent({
+        name: "signTransaction",
+        params: { family: "solana" },
+        status$: status$.asObservable(),
+        retry: () => start(),
+        finish: () => {
+          cleanup();
+          status$.complete();
+        },
+      });
+
+      start();
+    });
+  }
 
   private readonly signAndSendTransaction: SolanaSignAndSendTransactionMethod =
     async (...inputs) => {
