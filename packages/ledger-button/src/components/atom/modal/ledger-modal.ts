@@ -46,7 +46,7 @@ const styles = css`
     width: 100%;
     height: 100%;
     opacity: 0;
-    z-index: 7730;
+    z-index: 10000;
     background: radial-gradient(
       50% 50% at 50% 50%,
       rgba(102, 102, 102, 0.6) 0%,
@@ -56,7 +56,7 @@ const styles = css`
   }
 
   .modal-container {
-    z-index: 7731;
+    z-index: 10001;
     overflow: hidden;
   }
 
