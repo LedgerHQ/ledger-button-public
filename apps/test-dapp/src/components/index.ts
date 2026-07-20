@@ -3,6 +3,7 @@ export { ConnectionStatus } from "./ConnectionStatus";
 export { type EIPEvent } from "./EventLogBlock";
 export { EventSimulatorBlock } from "./EventSimulatorBlock";
 export { HeaderNav } from "./HeaderNav";
+export { LedgerProvider } from "./LedgerProvider";
 export { Providers } from "./Providers";
 export { ProviderSelectionBlock } from "./ProviderSelectionBlock";
 export { SettingsBlock } from "./SettingsBlock";
