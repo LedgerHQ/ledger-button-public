@@ -1,7 +1,11 @@
 import type { UserInteractionNeeded } from "../UserInteractionNeeded.js";
 import type { SignedResults } from "./SignedTransaction.js";
 
-export type SignType = "transaction" | "typed-message" | "personal-sign";
+export type SignType =
+  | "transaction"
+  | "typed-message"
+  | "personal-sign"
+  | "solana-message";
 
 export type SignFlowStatus =
   | {
