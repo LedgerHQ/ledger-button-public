@@ -29,8 +29,7 @@ export const ReplayableMorph: Story = {
         return;
       }
 
-      const nextRunId =
-        Number(overlay.getAttribute("data-run-id") ?? "0") + 1;
+      const nextRunId = Number(overlay.getAttribute("data-run-id") ?? "0") + 1;
       overlay.setAttribute("data-run-id", String(nextRunId));
       (overlay as HTMLElement & { runId: number }).runId = nextRunId;
     };
@@ -54,7 +53,7 @@ export const ReplayableMorph: Story = {
               height: ${targetRect.height}px;
               border-radius: 9999px;
               background: black;
-              z-index: 7732;
+              z-index: 10002;
             "
           ></div>
 
@@ -82,8 +81,7 @@ export const ReplayableFadeNoMorph: Story = {
         return;
       }
 
-      const nextRunId =
-        Number(overlay.getAttribute("data-run-id") ?? "0") + 1;
+      const nextRunId = Number(overlay.getAttribute("data-run-id") ?? "0") + 1;
       overlay.setAttribute("data-run-id", String(nextRunId));
       (overlay as HTMLElement & { runId: number }).runId = nextRunId;
     };
