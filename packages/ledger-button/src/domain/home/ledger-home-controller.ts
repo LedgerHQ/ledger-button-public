@@ -122,7 +122,7 @@ export class LedgerHomeController implements ReactiveController {
       status: tx.status,
       kind: tx.kind,
       date: date.toISOString().split("T")[0],
-      time: date.toLocaleTimeString("en-GB", {
+      time: date.toLocaleTimeString(this.languages.locale, {
         hour: "2-digit",
         minute: "2-digit",
       }),
@@ -146,7 +146,7 @@ export class LedgerHomeController implements ReactiveController {
       status: "pending",
       kind: "transfer",
       date: date.toISOString().split("T")[0],
-      time: date.toLocaleTimeString("en-GB", {
+      time: date.toLocaleTimeString(this.languages.locale, {
         hour: "2-digit",
         minute: "2-digit",
       }),
