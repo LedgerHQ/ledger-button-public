@@ -54,7 +54,7 @@ const floatingButtonVariants = cva(
 // Tailwind offset/size classes below must stay in sync with
 // `FLOATING_BUTTON_SIZE` / `FLOATING_BUTTON_OFFSET` in
 // `floating-button-rect.ts` (h-64/w-64 + right-24/bottom-24/…).
-const positionVariants = cva("fixed z-10002", {
+const positionVariants = cva("fixed z-[10002]", {
   variants: {
     position: {
       "bottom-right": "right-24 bottom-24",
