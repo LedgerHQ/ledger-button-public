@@ -49,10 +49,10 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignTypedMessageParams } from "../../../../api/model/signing/SignTypedMessageParams.js";
+import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
-import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { BuildEthSigner } from "./BuildEthSigner.js";
 
 type OpenAppResult = {

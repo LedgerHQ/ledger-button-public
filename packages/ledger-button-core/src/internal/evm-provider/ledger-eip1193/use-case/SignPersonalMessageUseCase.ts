@@ -19,6 +19,7 @@ import type {
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../../api/model/signing/SignPersonalMessageParams.js";
+import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction.js";
 import type {
@@ -27,7 +28,6 @@ import type {
   SignPersonalMessageFlowDAOutput,
 } from "../device-action/SignPersonalMessageFlowDeviceActionTypes.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
-import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 
 @injectable()

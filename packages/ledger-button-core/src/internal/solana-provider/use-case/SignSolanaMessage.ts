@@ -16,7 +16,7 @@ import type {
   SignType,
 } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
-import { waitForDeviceSession } from "../../evm-provider/ledger-eip1193/utils/waitForDeviceSession.js";
+import { waitForDeviceSession } from "../../blockchain-provider/utils/waitForDeviceSession.js";
 import { SignSolanaMessageFlowDeviceAction } from "../device-action/SignSolanaMessageFlowDeviceAction.js";
 import type {
   SignSolanaMessageFlowDAError,
