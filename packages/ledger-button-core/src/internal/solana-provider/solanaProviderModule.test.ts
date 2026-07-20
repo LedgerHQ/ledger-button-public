@@ -1,9 +1,24 @@
+import { Container } from "inversify";
 import { describe, expect, it } from "vitest";
 
 import { SolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/SolanaRemoteDatasource.js";
 import { StubSolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/StubSolanaRemoteDatasource.js";
+import { BuildSolanaContextModule } from "./ledger-solana-wallet/use-case/BuildSolanaContextModule.js";
+import { SignSolanaTransaction } from "./ledger-solana-wallet/use-case/SignSolanaTransaction.js";
+import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
+import { createMockCoreFacade } from "../blockchain-provider/__mocks__/coreFacadeMock.js";
 import { createContainer } from "../di.js";
+import { solanaProviderModule } from "./solanaProviderModule.js";
 import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
+
+const createBlockchainConfig = (): BlockchainConfig => ({
+  blockchain: "solana",
+  appName: "Solana",
+  networks: [],
+  rpcMethods: { local: [], broadcasted: [] },
+  appDependencies: { appName: "Solana", dependencies: [] },
+});
 
 describe("solanaProviderModule", () => {
   it("should resolve SolanaRemoteDatasource from the root container", () => {
@@ -67,5 +82,35 @@ describe("solanaProviderModule", () => {
         message: expect.stringContaining("getBalance"),
       },
     });
+  });
+});
+
+describe("solanaProviderModule (per-provider container)", () => {
+  const createLocalContainer = () => {
+    const container = new Container();
+    container
+      .bind<CoreFacade>(solanaProviderModuleTypes.CoreFacade)
+      .toConstantValue(createMockCoreFacade());
+    container
+      .bind<BlockchainConfig>(solanaProviderModuleTypes.BlockchainConfig)
+      .toConstantValue(createBlockchainConfig());
+    container.loadSync(solanaProviderModule());
+    return container;
+  };
+
+  it("resolves the SignSolanaTransaction use-case", () => {
+    expect(
+      createLocalContainer().get<SignSolanaTransaction>(
+        solanaProviderModuleTypes.SignTransactionUseCase,
+      ),
+    ).toBeInstanceOf(SignSolanaTransaction);
+  });
+
+  it("resolves the BuildSolanaContextModule use-case", () => {
+    expect(
+      createLocalContainer().get<BuildSolanaContextModule>(
+        solanaProviderModuleTypes.BuildContextModuleUseCase,
+      ),
+    ).toBeInstanceOf(BuildSolanaContextModule);
   });
 });
