@@ -21,7 +21,7 @@ const styles = css`
   :host {
     position: fixed;
     inset: 0;
-    z-index: 7730;
+    z-index: 10000;
     display: block;
   }
 
@@ -135,7 +135,7 @@ export class ConnectionSuccessOverlay extends LitElement {
               fillColor="currentColor"
             ></ledger-icon>
           </div>
-          <h2 class="text-base heading-3-semi-bold text-center">
+          <h2 class="heading-3-semi-bold text-center text-base">
             ${translations.onboarding.connectionSuccess.title}
           </h2>
         </div>
