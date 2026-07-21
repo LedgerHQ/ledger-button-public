@@ -17,6 +17,7 @@ import type {
   SignFlowStatus,
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
+import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { solanaProviderModuleTypes } from "../../solanaProviderModuleTypes.js";
 import { SignSolanaTransactionFlowDeviceAction } from "../device-action/SignSolanaTransactionFlowDeviceAction.js";
 import type {
@@ -25,7 +26,6 @@ import type {
   SignSolanaTransactionFlowDAOutput,
 } from "../device-action/SignSolanaTransactionFlowDeviceActionTypes.js";
 import { getSolanaDerivationPath } from "../utils/derivationUtils.js";
-import { waitForDeviceSession } from "../utils/waitForDeviceSession.js";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule.js";
 
 export type SignSolanaTransactionParams = {
