@@ -14,6 +14,7 @@ interface SolanaTransferModalProps {
   submitLabel: string;
   defaultRecipient?: string;
   defaultLamports?: number;
+  ownAddress?: string;
 }
 
 export function SolanaTransferModal({
@@ -22,10 +23,21 @@ export function SolanaTransferModal({
   submitLabel,
   defaultRecipient = "",
   defaultLamports = 1000,
+  ownAddress,
 }: SolanaTransferModalProps) {
   const [recipient, setRecipient] = useState(defaultRecipient);
   const [lamports, setLamports] = useState(String(defaultLamports));
   const [error, setError] = useState<string | null>(null);
+
+  const isSelfTransfer =
+    ownAddress !== undefined && recipient.trim() === ownAddress;
+
+  const useOwnAddress = useCallback(() => {
+    if (!ownAddress) {
+      return;
+    }
+    setRecipient(ownAddress);
+  }, [ownAddress]);
 
   const handleSubmit = useCallback(async () => {
     const parsed = Number.parseInt(lamports, 10);
@@ -44,13 +56,32 @@ export function SolanaTransferModal({
 
   return (
     <div className="space-y-16">
-      <TextInput
-        label="Recipient (base58 public key)"
-        type="text"
-        value={recipient}
-        onChange={(e) => setRecipient(e.target.value)}
-        placeholder="e.g. 4Nd1mYf8aRZ…"
-      />
+      <div className="space-y-8">
+        <TextInput
+          label="Recipient (base58 public key)"
+          type="text"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+          placeholder="e.g. 4Nd1mYf8aRZ…"
+        />
+        {ownAddress && (
+          <div className="flex items-center justify-between gap-8">
+            <p className="body-4 text-muted">
+              {isSelfTransfer
+                ? "Self-transfer: recipient is your own address."
+                : "Send to yourself to keep the funds (only the fee is spent)."}
+            </p>
+            <Button
+              appearance="gray"
+              size="sm"
+              onClick={useOwnAddress}
+              disabled={isSelfTransfer}
+            >
+              Use my address
+            </Button>
+          </div>
+        )}
+      </div>
       <TextInput
         label="Amount (lamports)"
         type="number"
@@ -60,11 +91,15 @@ export function SolanaTransferModal({
       />
       <p className="body-4 text-muted">
         1 SOL = 1,000,000,000 lamports. On devnet you can request an airdrop
-        with <span className="font-mono">solana airdrop 1 &lt;pubkey&gt; --url devnet</span>.
+        with{" "}
+        <span className="font-mono">
+          solana airdrop 1 &lt;pubkey&gt; --url devnet
+        </span>
+        .
       </p>
       {error && (
-        <div className="p-12 bg-error-transparent border border-error rounded-lg">
-          <code className="body-4 font-mono text-error">{error}</code>
+        <div className="bg-error-transparent border-error rounded-lg border p-12">
+          <code className="body-4 text-error font-mono">{error}</code>
         </div>
       )}
       <Button appearance="accent" size="md" isFull onClick={handleSubmit}>

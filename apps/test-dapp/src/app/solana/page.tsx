@@ -372,6 +372,7 @@ function ConnectedSolanaActionsWithSignTx({
       canSignTransaction={canSignTransaction}
       canSendTransaction={false}
       canJupiterSwap={canJupiterSwap}
+      ownAddress={account.address}
       onSignMessage={handleSignMessage}
       onSignTransaction={handleSignTransaction}
       onSendTransaction={async () => undefined}
@@ -456,6 +457,7 @@ function ConnectedSolanaActionsWithSend({
       canSignTransaction={canSignTransaction}
       canSendTransaction={canSendTransaction}
       canJupiterSwap={canJupiterSwap}
+      ownAddress={account.address}
       onSignMessage={handleSignMessage}
       onSignTransaction={handleSignTransaction}
       onSendTransaction={handleSendTransaction}
