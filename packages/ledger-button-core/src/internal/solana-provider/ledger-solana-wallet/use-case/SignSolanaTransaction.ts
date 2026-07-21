@@ -17,6 +17,7 @@ import type {
   SignFlowStatus,
   SignType,
 } from "../../../../api/model/signing/SignFlowStatus.js";
+import type { SignSolanaTransactionParams } from "../../../../api/model/signing/solana/SignSolanaTransactionParams.js";
 import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { solanaProviderModuleTypes } from "../../solanaProviderModuleTypes.js";
 import { SignSolanaTransactionFlowDeviceAction } from "../device-action/SignSolanaTransactionFlowDeviceAction.js";
@@ -26,11 +27,8 @@ import type {
   SignSolanaTransactionFlowDAOutput,
 } from "../device-action/SignSolanaTransactionFlowDeviceActionTypes.js";
 import { getSolanaDerivationPath } from "../utils/derivationUtils.js";
+import { getSolanaMessageBytes } from "../utils/transactionUtils.js";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule.js";
-
-export type SignSolanaTransactionParams = {
-  transaction: Uint8Array;
-};
 
 @injectable()
 export class SignSolanaTransaction {
@@ -69,13 +67,18 @@ export class SignSolanaTransaction {
         const contextModule = this.buildContextModule.execute();
         const openAppConfig = this.createOpenAppConfig();
 
+        // Wallet Standard delivers a full wire transaction, but the Ledger
+        // Solana app signs the compiled message only. Strip the signature
+        // envelope so the device does not reject the request with `6a80`.
+        const messageBytes = getSolanaMessageBytes(transaction);
+
         this.core.trackTransactionStarted();
 
         const deviceAction = new SignSolanaTransactionFlowDeviceAction({
           input: {
             signType,
             derivationPath,
-            transaction,
+            transaction: messageBytes,
             expectedAddress: selectedAccount.freshAddress,
             openAppInput: openAppConfig,
             contextModule,
@@ -139,6 +142,12 @@ export class SignSolanaTransaction {
         };
 
       case DeviceActionStatus.Error: {
+        // The device-action error path emits an error status value rather than
+        // throwing, so `catchError` never sees it. Log the raw error here so the
+        // real cause is visible instead of only the generic UI sign message.
+        this.logger.error("Solana transaction signing device action failed", {
+          error: state.error,
+        });
         const error =
           state.error instanceof OutOfMemoryDAError
             ? new DeviceOutOfMemoryError(

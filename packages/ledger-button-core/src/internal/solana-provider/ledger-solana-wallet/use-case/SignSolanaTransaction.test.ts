@@ -32,8 +32,30 @@ const createBlockchainConfig = (): BlockchainConfig => ({
 });
 
 describe("SignSolanaTransaction", () => {
-  const transaction = new Uint8Array([1, 2, 3, 4]);
+  // Minimal but structurally valid legacy compiled message: 3 header bytes, one
+  // account key, a recent blockhash, and zero instructions.
+  const messageBytes = new Uint8Array([
+    1,
+    0,
+    0,
+    1,
+    ...new Uint8Array(32).fill(9),
+    ...new Uint8Array(32).fill(3),
+    0,
+  ]);
+  // Wallet Standard delivers the full wire transaction: a compact-u16 signature
+  // count, one zero-filled signature slot, then the compiled message.
+  const transaction = new Uint8Array([
+    1,
+    ...new Uint8Array(64),
+    ...messageBytes,
+  ]);
   const signature = new Uint8Array(64).fill(7);
+  const params = {
+    kind: "solana-transaction" as const,
+    address: SOLANA_ADDRESS,
+    transaction,
+  };
 
   let executeDeviceAction: ReturnType<typeof vi.fn>;
   let core: CoreFacade;
@@ -70,7 +92,7 @@ describe("SignSolanaTransaction", () => {
     });
 
     const result = await lastValueFrom(
-      createUseCase().execute({ transaction }, createAccount()),
+      createUseCase().execute(params, createAccount()),
     );
 
     expect(result).toEqual({
@@ -79,6 +101,20 @@ describe("SignSolanaTransaction", () => {
       data: { solanaSignature: signature },
     });
     expect(core.trackTransactionStarted).toHaveBeenCalledOnce();
+  });
+
+  it("forwards the compiled message bytes (not the wire transaction) to the device", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: { signature },
+      }),
+    });
+
+    await lastValueFrom(createUseCase().execute(params, createAccount()));
+
+    const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
+    expect(deviceAction.input.transaction).toEqual(messageBytes);
   });
 
   it("forwards the intermediate signFlowStatus while pending", async () => {
@@ -95,7 +131,7 @@ describe("SignSolanaTransaction", () => {
     });
 
     const result = await lastValueFrom(
-      createUseCase().execute({ transaction }, createAccount()),
+      createUseCase().execute(params, createAccount()),
     );
 
     expect(result).toEqual(pendingStatus);
@@ -103,7 +139,7 @@ describe("SignSolanaTransaction", () => {
 
   it("emits an error status when no account is selected", async () => {
     const result = await lastValueFrom(
-      createUseCase().execute({ transaction }, undefined),
+      createUseCase().execute(params, undefined),
     );
 
     expect(result.status).toBe("error");
