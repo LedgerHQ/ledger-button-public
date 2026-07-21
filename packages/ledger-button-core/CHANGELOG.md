@@ -17,7 +17,7 @@
 - Refactor Account handling ([36fac279](https://github.com/LedgerHQ/ledger-button/commit/36fac279))
 - Handle OutOfMemory Error from DMK or unability to install app. ([50a7ee4e](https://github.com/LedgerHQ/ledger-button/commit/50a7ee4e))
 - Add Solana off-chain message signing (solana:signMessage): sign messages through the Solana off-chain message spec envelope (V0) via @ledgerhq/device-signer-kit-solana, wired into the Wallet Standard Ledger Solana wallet and the shared signing modal pipeline ([7fa0e293](https://github.com/LedgerHQ/ledger-button/commit/7fa0e293))
-- Add Solana Wallet Standard connection (connection-only): register a Ledger Solana wallet (standard:connect/disconnect/events + solana:* chains) that is discoverable and connectable by Solana dApps via the Wallet Standard ([f14d1878](https://github.com/LedgerHQ/ledger-button/commit/f14d1878))
+- Add Solana Wallet Standard connection (connection-only): register a Ledger Solana wallet (standard:connect/disconnect/events + solana:\* chains) that is discoverable and connectable by Solana dApps via the Wallet Standard ([f14d1878](https://github.com/LedgerHQ/ledger-button/commit/f14d1878))
 - Add V2 dApp config use case for multi-blockchain support ([e0044442](https://github.com/LedgerHQ/ledger-button/commit/e0044442))
 - Add normalizeAddressForCurrency seam so Solana base58 addresses are preserved while EVM addresses are still lowercased ([de018c90](https://github.com/LedgerHQ/ledger-button/commit/de018c90))
 - Resolve native decimals per-currency via CAL with per-chain fallback (EVM = 18, Solana = 9) ([1410b994](https://github.com/LedgerHQ/ledger-button/commit/1410b994))

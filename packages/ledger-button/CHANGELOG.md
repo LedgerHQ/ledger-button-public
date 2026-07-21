@@ -15,7 +15,7 @@
 - Handle OutOfMemory Error from DMK or unability to install app. ([50a7ee4e](https://github.com/LedgerHQ/ledger-button/commit/50a7ee4e))
 - Display the package version in a footer at the bottom of the Settings screen. The version is read dynamically from package.json so it always reflects the published version. ([11a59958](https://github.com/LedgerHQ/ledger-button/commit/11a59958))
 - Add Solana off-chain message signing (solana:signMessage): sign messages through the Solana off-chain message spec envelope (V0) via @ledgerhq/device-signer-kit-solana, wired into the Wallet Standard Ledger Solana wallet and the shared signing modal pipeline ([7fa0e293](https://github.com/LedgerHQ/ledger-button/commit/7fa0e293))
-- Add Solana Wallet Standard connection (connection-only): register a Ledger Solana wallet (standard:connect/disconnect/events + solana:* chains) that is discoverable and connectable by Solana dApps via the Wallet Standard ([f14d1878](https://github.com/LedgerHQ/ledger-button/commit/f14d1878))
+- Add Solana Wallet Standard connection (connection-only): register a Ledger Solana wallet (standard:connect/disconnect/events + solana:\* chains) that is discoverable and connectable by Solana dApps via the Wallet Standard ([f14d1878](https://github.com/LedgerHQ/ledger-button/commit/f14d1878))
 - Resolve token icons via Ledger CDN and CoinGecko mapping ([3ef3d161](https://github.com/LedgerHQ/ledger-button/commit/3ef3d161))
 - Add a "View all transactions" link at the bottom of the Home transaction history tab that deep-links to the selected account in Ledger Wallet (`ledgerwallet://account`), with `view_all_transactions_clicked` product analytics. ([dfce23a1](https://github.com/LedgerHQ/ledger-button/commit/dfce23a1))
 
