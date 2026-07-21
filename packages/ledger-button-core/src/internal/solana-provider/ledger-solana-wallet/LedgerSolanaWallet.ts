@@ -466,7 +466,7 @@ export class LedgerSolanaWallet implements Wallet {
         addressEncoder.encode(address(account.freshAddress)),
       ),
       chains: [CLUSTER_TO_CHAIN[cluster]],
-      features: ["solana:signMessage"],
+      features: ["solana:signMessage", "solana:signTransaction"],
     };
   }
 

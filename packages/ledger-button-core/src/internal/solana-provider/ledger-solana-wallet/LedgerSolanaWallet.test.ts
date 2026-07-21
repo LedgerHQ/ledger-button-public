@@ -126,7 +126,10 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(accounts).toHaveLength(1);
       expect(accounts[0].address).toBe(SOLANA_ADDRESS);
       expect(accounts[0].chains).toEqual(["solana:mainnet"]);
-      expect(accounts[0].features).toEqual(["solana:signMessage"]);
+      expect(accounts[0].features).toEqual([
+        "solana:signMessage",
+        "solana:signTransaction",
+      ]);
       expect(wallet.accounts).toBe(accounts);
     });
 
