@@ -1,4 +1,8 @@
-import { DEFAULT_LANGUAGE, isLangKey, type LangKey } from "./../constants/languages.js";
+import {
+  DEFAULT_LANGUAGE,
+  isLangKey,
+  type LangKey,
+} from "./../constants/languages.js";
 
 export function capitalizeFirstLetterWhenCased(
   text: string,
@@ -17,6 +21,7 @@ export function capitalizeFirstLetterWhenCased(
 }
 
 export function detectBrowserLanguage(): LangKey {
+  if (typeof navigator === "undefined") return DEFAULT_LANGUAGE;
   const candidates = [
     ...(navigator.languages ?? []),
     navigator.language,
