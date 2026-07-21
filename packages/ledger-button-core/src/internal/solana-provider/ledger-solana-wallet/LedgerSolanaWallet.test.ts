@@ -288,7 +288,11 @@ describe("LedgerSolanaWallet (connection)", () => {
       });
 
       expect(signUseCase.execute).toHaveBeenCalledWith(
-        { transaction },
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
         expect.objectContaining({ freshAddress: SOLANA_ADDRESS }),
       );
       expect(attachSolanaSignature).toHaveBeenCalledWith(
@@ -297,6 +301,55 @@ describe("LedgerSolanaWallet (connection)", () => {
         solanaSignature,
       );
       expect(result.signedTransaction).toEqual(new Uint8Array([9, 9, 9]));
+    });
+
+    it("tracks each sign-flow status with the solana transaction params", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
+        successStatus,
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
+      );
+    });
+
+    it("tracks an error status emitted by the use-case", async () => {
+      const errorStatus: SignFlowStatus = {
+        signType: "transaction",
+        status: "error",
+        error: new Error("sign failed"),
+      };
+      signUseCase.execute.mockReturnValue(of(errorStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      // The sign promise only settles on success or a modal close; an error
+      // status just surfaces in the modal, so start the flow without awaiting
+      // its (never-settling) resolution and let the sync emission be tracked.
+      void wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
+        errorStatus,
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
+      );
     });
 
     it("emits a signTransaction navigation intent", async () => {

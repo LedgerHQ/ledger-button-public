@@ -50,6 +50,7 @@ import {
 } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
+import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
 import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
 import { getLedgerProviderIcon } from "../../../internal/blockchain-provider/wallet-provider/ledgerProviderIcon.js";
 import type { SignSolanaMessage } from "../use-case/SignSolanaMessage.js";
@@ -259,6 +260,11 @@ export class LedgerSolanaWallet implements Wallet {
     transaction: Uint8Array,
   ): Promise<{ signedTransaction: Uint8Array }> {
     return new Promise((resolve, reject) => {
+      const params: SignSolanaTransactionParams = {
+        kind: "solana-transaction",
+        address: account.freshAddress,
+        transaction,
+      };
       const status$ = new Subject<SignFlowStatus>();
       let subscription: Subscription | undefined;
       let settled = false;
@@ -280,9 +286,10 @@ export class LedgerSolanaWallet implements Wallet {
       const start = () => {
         subscription?.unsubscribe();
         subscription = this.deps.signSolanaTransaction
-          .execute({ transaction }, account)
+          .execute(params, account)
           .subscribe({
             next: (status) => {
+              this.host.trackBroadcastedTransaction(status, params);
               status$.next(status);
               if (status.status === "success") {
                 if (!isSignedSolanaTransactionResult(status.data)) {
@@ -303,11 +310,13 @@ export class LedgerSolanaWallet implements Wallet {
               }
             },
             error: (error) => {
-              status$.next({
+              const status: SignFlowStatus = {
                 signType: "transaction",
                 status: "error",
                 error,
-              });
+              };
+              this.host.trackBroadcastedTransaction(status, params);
+              status$.next(status);
             },
           });
       };
@@ -316,7 +325,7 @@ export class LedgerSolanaWallet implements Wallet {
 
       this.host.emitNavigationIntent({
         name: "signTransaction",
-        params: { family: "solana" },
+        params,
         status$: status$.asObservable(),
         retry: () => start(),
         finish: () => {
