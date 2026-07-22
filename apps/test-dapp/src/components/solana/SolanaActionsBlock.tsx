@@ -12,26 +12,31 @@ import {
 import {
   ArrowUpRight,
   CreditCard,
+  Exchange,
   MessageChat,
   Signature,
 } from "@ledgerhq/lumen-ui-react/symbols";
 
 import {
+  JupiterSwapModal,
+  type JupiterSwapValues,
   SignSolanaMessageModal,
   SolanaTransferModal,
   type SolanaTransferValues,
 } from "./modals";
 
-type ModalType = "sign-message" | "sign-tx" | "send-tx" | null;
+type ModalType = "sign-message" | "sign-tx" | "send-tx" | "jupiter-swap" | null;
 
 interface SolanaActionsBlockProps {
   isConnected: boolean;
   canSignMessage: boolean;
   canSignTransaction: boolean;
   canSendTransaction: boolean;
+  canJupiterSwap: boolean;
   onSignMessage: (message: string) => Promise<void>;
   onSignTransaction: (values: SolanaTransferValues) => Promise<void>;
   onSendTransaction: (values: SolanaTransferValues) => Promise<void>;
+  onJupiterSwap: (values: JupiterSwapValues) => Promise<void>;
   result: string | null;
   error: string | null;
   onClearResult: () => void;
@@ -41,12 +46,16 @@ const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
   "sign-message": "Sign Message",
   "sign-tx": "Sign Transaction (SOL transfer)",
   "send-tx": "Send Transaction (SOL transfer)",
+  "jupiter-swap": "Jupiter Swap",
 };
+
+type ActionGroup = "solana" | "jupiter";
 
 interface ActionButton {
   type: NonNullable<ModalType>;
   icon: ReactNode;
   label: string;
+  group: ActionGroup;
 }
 
 const ACTIONS: ActionButton[] = [
@@ -54,9 +63,26 @@ const ACTIONS: ActionButton[] = [
     type: "sign-message",
     icon: <MessageChat size={24} />,
     label: "Sign Message",
+    group: "solana",
   },
-  { type: "sign-tx", icon: <Signature size={24} />, label: "Sign TX" },
-  { type: "send-tx", icon: <ArrowUpRight size={24} />, label: "Send TX" },
+  {
+    type: "sign-tx",
+    icon: <Signature size={24} />,
+    label: "Sign TX",
+    group: "solana",
+  },
+  {
+    type: "send-tx",
+    icon: <ArrowUpRight size={24} />,
+    label: "Send TX",
+    group: "solana",
+  },
+  {
+    type: "jupiter-swap",
+    icon: <Exchange size={24} />,
+    label: "Swap (Jupiter)",
+    group: "jupiter",
+  },
 ];
 
 export function SolanaActionsBlock({
@@ -64,9 +90,11 @@ export function SolanaActionsBlock({
   canSignMessage,
   canSignTransaction,
   canSendTransaction,
+  canJupiterSwap,
   onSignMessage,
   onSignTransaction,
   onSendTransaction,
+  onJupiterSwap,
   result,
   error,
   onClearResult,
@@ -106,6 +134,13 @@ export function SolanaActionsBlock({
           onClose={closeModal}
         />
       ),
+      "jupiter-swap": (
+        <JupiterSwapModal
+          submitLabel="Sign & Execute Swap"
+          onSubmit={onJupiterSwap}
+          onClose={closeModal}
+        />
+      ),
     };
 
     return modalType ? modals[modalType] : null;
@@ -115,6 +150,7 @@ export function SolanaActionsBlock({
     onSignMessage,
     onSignTransaction,
     onSendTransaction,
+    onJupiterSwap,
   ]);
 
   const renderContent = () => {
@@ -128,6 +164,54 @@ export function SolanaActionsBlock({
       );
     }
 
+    const isActionDisabled = (type: NonNullable<ModalType>): boolean => {
+      switch (type) {
+        case "sign-message":
+          return !canSignMessage;
+        case "sign-tx":
+          return !canSignTransaction;
+        case "send-tx":
+          return !canSendTransaction;
+        case "jupiter-swap":
+          return !canJupiterSwap;
+      }
+    };
+
+    const actionTooltip = (
+      type: NonNullable<ModalType>,
+    ): string | undefined => {
+      if (!isActionDisabled(type)) {
+        return undefined;
+      }
+      if (type === "jupiter-swap") {
+        return "Jupiter requires mainnet and the solana:signTransaction feature";
+      }
+      return "This wallet does not support this method";
+    };
+
+    const renderActionButton = (action: ActionButton) => {
+      const disabled = isActionDisabled(action.type);
+      return (
+        <button
+          key={action.type}
+          disabled={disabled}
+          className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          onClick={() => openModal(action.type)}
+          title={actionTooltip(action.type)}
+        >
+          <span className="text-muted mb-6">{action.icon}</span>
+          <span className="body-2-semi-bold text-center text-base leading-tight">
+            {action.label}
+          </span>
+        </button>
+      );
+    };
+
+    const solanaActions = ACTIONS.filter((action) => action.group === "solana");
+    const jupiterActions = ACTIONS.filter(
+      (action) => action.group === "jupiter",
+    );
+
     return (
       <div className="space-y-20">
         <div className="space-y-10">
@@ -135,32 +219,20 @@ export function SolanaActionsBlock({
             Solana Actions
           </h4>
           <div className="grid grid-cols-3 gap-10">
-            {ACTIONS.map((action) => {
-              const disabled =
-                action.type === "sign-message"
-                  ? !canSignMessage
-                  : action.type === "sign-tx"
-                    ? !canSignTransaction
-                    : !canSendTransaction;
-              return (
-                <button
-                  key={action.type}
-                  disabled={disabled}
-                  className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-                  onClick={() => openModal(action.type)}
-                  title={
-                    disabled
-                      ? "This wallet does not support this method"
-                      : undefined
-                  }
-                >
-                  <span className="text-muted mb-6">{action.icon}</span>
-                  <span className="body-2-semi-bold text-center text-base leading-tight">
-                    {action.label}
-                  </span>
-                </button>
-              );
-            })}
+            {solanaActions.map(renderActionButton)}
+          </div>
+        </div>
+
+        <div className="space-y-10">
+          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+            Jupiter API (Swap)
+          </h4>
+          <p className="body-4 text-muted">
+            Swap transactions crafted and broadcast by Jupiter&apos;s Ultra API.
+            Mainnet only.
+          </p>
+          <div className="grid grid-cols-3 gap-10">
+            {jupiterActions.map(renderActionButton)}
           </div>
         </div>
 
