@@ -18,6 +18,7 @@ import {
 import {
   useSelectedWalletAccount,
   useSignMessage,
+  useSignTransaction,
   useWalletAccountTransactionSendingSigner,
   useWalletAccountTransactionSigner,
 } from "@solana/react";
@@ -34,6 +35,13 @@ import {
   SolanaSettingsBlock,
   WalletSelectionBlock,
 } from "../../components/solana";
+import {
+  base64ToBytes,
+  bytesToBase64,
+  executeJupiterUltraOrder,
+  getJupiterUltraOrder,
+  type JupiterSwapValues,
+} from "../../components/solana/jupiter";
 import { type SolanaTransferValues } from "../../components/solana/modals";
 import {
   type SolanaRpc,
@@ -179,9 +187,12 @@ function SolanaPageContent({
                 canSignMessage={false}
                 canSignTransaction={false}
                 canSendTransaction={false}
+                canJupiterSwap={false}
                 onSignMessage={async () => undefined}
                 onSignTransaction={async () => undefined}
                 onSendTransaction={async () => undefined}
+                onJupiterSign={async () => undefined}
+                onJupiterSwap={async () => undefined}
                 result={result}
                 error={error}
                 onClearResult={clearResult}
@@ -293,9 +304,12 @@ function ConnectedSolanaSignMessageActions({
       canSignMessage={canSignMessage}
       canSignTransaction={false}
       canSendTransaction={false}
+      canJupiterSwap={false}
       onSignMessage={handleSignMessage}
       onSignTransaction={async () => undefined}
       onSendTransaction={async () => undefined}
+      onJupiterSign={async () => undefined}
+      onJupiterSwap={async () => undefined}
       result={result}
       error={error}
       onClearResult={onClearResult}
@@ -312,7 +326,7 @@ function ConnectedSolanaActionsWithSignTx({
   result,
   error,
 }: ConnectedSolanaActionsProps) {
-  const { chain, rpc } = useSolanaChain();
+  const { chain, cluster, rpc } = useSolanaChain();
   const signMessage = useSignMessage(account);
   const transactionSigner = useWalletAccountTransactionSigner(account, chain);
 
@@ -320,6 +334,7 @@ function ConnectedSolanaActionsWithSignTx({
   const canSignTransaction = account.features.includes(
     "solana:signTransaction",
   );
+  const canJupiterSwap = cluster === "mainnet" && canSignTransaction;
 
   const handleSignMessage = useSignMessageHandler({
     signMessage,
@@ -339,15 +354,29 @@ function ConnectedSolanaActionsWithSignTx({
     onClearResult,
   });
 
+  const { signOnly: handleJupiterSign, signAndExecute: handleJupiterSwap } =
+    useJupiterSwapHandlers({
+      account,
+      chain,
+      cluster,
+      addInfo,
+      onResult,
+      onError,
+      onClearResult,
+    });
+
   return (
     <SolanaActionsBlock
       isConnected
       canSignMessage={canSignMessage}
       canSignTransaction={canSignTransaction}
       canSendTransaction={false}
+      canJupiterSwap={canJupiterSwap}
       onSignMessage={handleSignMessage}
       onSignTransaction={handleSignTransaction}
       onSendTransaction={async () => undefined}
+      onJupiterSign={handleJupiterSign}
+      onJupiterSwap={handleJupiterSwap}
       result={result}
       error={error}
       onClearResult={onClearResult}
@@ -364,7 +393,7 @@ function ConnectedSolanaActionsWithSend({
   result,
   error,
 }: ConnectedSolanaActionsProps) {
-  const { chain, rpc } = useSolanaChain();
+  const { chain, cluster, rpc } = useSolanaChain();
   const signMessage = useSignMessage(account);
   const transactionSigner = useWalletAccountTransactionSigner(account, chain);
   const sendingSigner = useWalletAccountTransactionSendingSigner(
@@ -379,6 +408,7 @@ function ConnectedSolanaActionsWithSend({
   const canSendTransaction = account.features.includes(
     "solana:signAndSendTransaction",
   );
+  const canJupiterSwap = cluster === "mainnet" && canSignTransaction;
 
   const handleSignMessage = useSignMessageHandler({
     signMessage,
@@ -408,15 +438,29 @@ function ConnectedSolanaActionsWithSend({
     onClearResult,
   });
 
+  const { signOnly: handleJupiterSign, signAndExecute: handleJupiterSwap } =
+    useJupiterSwapHandlers({
+      account,
+      chain,
+      cluster,
+      addInfo,
+      onResult,
+      onError,
+      onClearResult,
+    });
+
   return (
     <SolanaActionsBlock
       isConnected
       canSignMessage={canSignMessage}
       canSignTransaction={canSignTransaction}
       canSendTransaction={canSendTransaction}
+      canJupiterSwap={canJupiterSwap}
       onSignMessage={handleSignMessage}
       onSignTransaction={handleSignTransaction}
       onSendTransaction={handleSendTransaction}
+      onJupiterSign={handleJupiterSign}
+      onJupiterSwap={handleJupiterSwap}
       result={result}
       error={error}
       onClearResult={onClearResult}
@@ -518,6 +562,86 @@ function useSendTransactionHandler({
     },
     [rpc, chain, sendingSigner, addInfo, onResult, onError, onClearResult],
   );
+}
+
+function useJupiterSwapHandlers({
+  account,
+  chain,
+  cluster,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  account: UiWalletAccount;
+  chain: SolanaChain;
+  cluster: SolanaCluster;
+} & SolanaActionsCallbacks) {
+  const signTransaction = useSignTransaction(account, chain);
+
+  const requestOrderAndSign = useCallback(
+    async (values: JupiterSwapValues) => {
+      if (cluster !== "mainnet") {
+        throw new Error("Jupiter swaps are only available on mainnet.");
+      }
+      addInfo("jupiterSwap (requesting order)", values);
+      const order = await getJupiterUltraOrder({
+        ...values,
+        taker: account.address,
+      });
+      if (!order.transaction) {
+        throw new Error("Jupiter returned no transaction for this order.");
+      }
+      addInfo("jupiterSwap (order received)", {
+        requestId: order.requestId,
+        inAmount: order.inAmount,
+        outAmount: order.outAmount,
+      });
+      const { signedTransaction } = await signTransaction({
+        transaction: base64ToBytes(order.transaction),
+      });
+      return { order, signedTransaction };
+    },
+    [signTransaction, account.address, cluster, addInfo],
+  );
+
+  const signOnly = useCallback(
+    async (values: JupiterSwapValues) => {
+      onClearResult();
+      try {
+        const { signedTransaction } = await requestOrderAndSign(values);
+        addInfo("jupiterSwap (signed, not broadcast)", {});
+        onResult(bytesToBase64(signedTransaction));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [requestOrderAndSign, addInfo, onResult, onError, onClearResult],
+  );
+
+  const signAndExecute = useCallback(
+    async (values: JupiterSwapValues) => {
+      onClearResult();
+      try {
+        const { order, signedTransaction } = await requestOrderAndSign(values);
+        addInfo("jupiterSwap (executing)", { requestId: order.requestId });
+        const execResult = await executeJupiterUltraOrder({
+          signedTransaction: bytesToBase64(signedTransaction),
+          requestId: order.requestId,
+        });
+        onResult(
+          execResult.signature
+            ? `https://explorer.solana.com/tx/${execResult.signature}`
+            : JSON.stringify(execResult),
+        );
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [requestOrderAndSign, addInfo, onResult, onError, onClearResult],
+  );
+
+  return { signOnly, signAndExecute };
 }
 
 async function buildTransferMessage(
