@@ -46,7 +46,6 @@ import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-  type SignedResults,
 } from "../../../../api/model/signing/SignedTransaction.js";
 import {
   SignFlowStatus,
@@ -55,6 +54,7 @@ import {
 import { SignRawTransactionParams } from "../../../../api/model/signing/SignRawTransactionParams.js";
 import { waitForDeviceSession } from "../../../blockchain-provider/utils/waitForDeviceSession.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+import type { EvmSignedResult } from "../model/EvmSignedResult.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
 import {
@@ -364,7 +364,7 @@ export class SignRawTransaction {
       | OpenAppWithDependenciesDAState
       | GetAddressDAState
       | SignTransactionDAState
-      | SignedResults,
+      | EvmSignedResult,
     rawTx: string,
     signType: SignType,
   ): SignFlowStatus {

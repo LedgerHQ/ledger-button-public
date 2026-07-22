@@ -3,8 +3,8 @@ import { inject, injectable } from "inversify";
 
 import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import type { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
-import { SignedResults } from "../../../../api/model/signing/SignedTransaction.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
+import type { EvmSignedResult } from "../model/EvmSignedResult.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
 import { getCurrencyIdFromChainId } from "../utils/chainUtils.js";
 
@@ -31,7 +31,7 @@ export class BroadcastTransaction {
     private readonly core: CoreFacade,
   ) {}
 
-  async execute(params: BroadcastTransactionParams): Promise<SignedResults> {
+  async execute(params: BroadcastTransactionParams): Promise<EvmSignedResult> {
     const logger = this.core.getLogger("BroadcastTransaction");
     logger.debug("Transaction to be signed with signature", { params });
 
