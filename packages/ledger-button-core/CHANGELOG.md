@@ -1,3 +1,8 @@
+## 1.3.2 (2026-07-21)
+
+### 🧹 Chores
+
+- Version bump only for @ledgerhq/ledger-wallet-provider-core to align it with other projects; no code changes.
 ## 1.3.1 (2026-07-02)
 
 ### 🩹 Fixes
