@@ -11,7 +11,6 @@ import {
   type EIPEvent,
   EventSimulatorBlock,
   ProviderSelectionBlock,
-  SettingsBlock,
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
@@ -34,9 +33,7 @@ export default function Index() {
     selectedProvider,
     setSelectedProvider,
     isInitialized,
-    reinitialize,
     config,
-    setConfig,
   } = useProviders();
 
   const { entries: trackingEntries, clearEntries: clearTracking } =
@@ -364,13 +361,6 @@ export default function Index() {
           </header>
 
           <div className="flex flex-col gap-20">
-            <SettingsBlock
-              config={config}
-              onConfigChange={setConfig}
-              isProviderInitialized={isInitialized}
-              onReinitialize={reinitialize}
-            />
-
             <ProviderSelectionBlock
               providers={providers}
               selectedProvider={selectedProvider}

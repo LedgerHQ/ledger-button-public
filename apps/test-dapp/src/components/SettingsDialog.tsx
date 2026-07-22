@@ -3,6 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Button,
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
   Select,
   SelectContent,
   SelectItem,
@@ -12,25 +18,21 @@ import {
   Tag,
   TextInput,
 } from "@ledgerhq/lumen-ui-react";
-import {
-  ChevronDown,
-  ChevronRight,
-  Settings,
-} from "@ledgerhq/lumen-ui-react/symbols";
+import { Settings } from "@ledgerhq/lumen-ui-react/symbols";
+import { usePathname } from "next/navigation";
 
 import {
   ALL_WALLET_FEATURES,
   type LedgerProviderConfig,
   type TransactionConfirmationNotification,
+  useProviders,
   type WalletTransactionFeature,
 } from "../hooks/useProviders";
-
-interface SettingsBlockProps {
-  config: LedgerProviderConfig;
-  onConfigChange: (config: LedgerProviderConfig) => void;
-  isProviderInitialized: boolean;
-  onReinitialize: (newConfig?: LedgerProviderConfig) => void;
-}
+import {
+  SOLANA_CLUSTERS,
+  type SolanaCluster,
+  useSolanaClusterConfig,
+} from "./solana";
 
 const DAPP_IDENTIFIERS = [
   { value: "ledger", label: "Ledger" },
@@ -66,13 +68,12 @@ const CONFIRMATION_NOTIFICATION_MODES: {
   { value: "toast", label: "Toast" },
 ];
 
-export function SettingsBlock({
-  config,
-  onConfigChange,
-  isProviderInitialized,
-  onReinitialize,
-}: SettingsBlockProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
+export function SettingsDialog() {
+  const { config, setConfig, isInitialized, reinitialize } = useProviders();
+  const { cluster, setCluster } = useSolanaClusterConfig();
+  const pathname = usePathname() ?? "/";
+  const isSolana = pathname.startsWith("/solana");
+
   const [localConfig, setLocalConfig] = useState<LedgerProviderConfig>(config);
   const [lastAppliedConfig, setLastAppliedConfig] =
     useState<LedgerProviderConfig>(config);
@@ -146,46 +147,35 @@ export function SettingsBlock({
   );
 
   const handleApply = useCallback(() => {
-    onConfigChange(localConfig);
+    setConfig(localConfig);
     setLastAppliedConfig(localConfig);
-    if (isProviderInitialized) {
-      onReinitialize(localConfig);
+    if (isInitialized) {
+      reinitialize(localConfig);
     }
-  }, [localConfig, onConfigChange, isProviderInitialized, onReinitialize]);
+  }, [localConfig, setConfig, isInitialized, reinitialize]);
 
   const hasChanges =
     JSON.stringify(localConfig) !== JSON.stringify(lastAppliedConfig);
 
   return (
-    <div className="border-muted overflow-hidden rounded-lg border border-dashed opacity-80 transition-opacity hover:opacity-100">
-      <div
-        className="hover:bg-muted-transparent flex cursor-pointer items-center justify-between px-24 py-14 transition-colors select-none"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="flex items-center gap-10">
-          <h3 className="body-2-semi-bold text-muted flex items-center gap-10">
-            <Settings size={20} />
-            Provider Configuration
-          </h3>
-          {hasChanges && <Tag appearance="warning" size="sm" label="Unsaved" />}
-          <Tag
-            appearance="gray"
-            size="sm"
-            label={
-              lastAppliedConfig.transactionConfirmationNotification === "toast"
-                ? "Confirm: Toast"
-                : "Confirm: Tooltip"
-            }
-          />
-        </div>
-        <span className="text-muted">
-          {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </span>
-      </div>
-
-      {isExpanded && (
-        <div className="border-muted bg-canvas space-y-16 border-t border-dashed p-24">
-          <div className="grid grid-cols-2 gap-14">
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          appearance="no-background"
+          size="sm"
+          aria-label="Open configuration"
+        >
+          <Settings size={20} />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader
+          appearance="extended"
+          title="Configuration"
+          description="Shared Ledger Button provider settings"
+        />
+        <DialogBody className="space-y-16">
+          <div className="flex flex-col gap-16">
             <div className="flex flex-col gap-10">
               <Select
                 items={DAPP_IDENTIFIERS}
@@ -226,7 +216,7 @@ export function SettingsBlock({
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-14">
+          <div className="flex flex-col gap-16">
             <div className="flex flex-col gap-10">
               <Select
                 items={BUTTON_POSITIONS}
@@ -369,6 +359,32 @@ export function SettingsBlock({
             </div>
           </div>
 
+          {isSolana && (
+            <div className="space-y-10">
+              <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+                Network
+              </h4>
+              <Select
+                value={cluster}
+                onValueChange={(value) => setCluster(value as SolanaCluster)}
+              >
+                <SelectTrigger label="Solana Cluster" />
+                <SelectContent>
+                  {SOLANA_CLUSTERS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <SelectItemText>{option.label}</SelectItemText>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="body-4 text-muted">
+                Switching the cluster reinitializes the Solana RPC connection.
+              </p>
+            </div>
+          )}
+        </DialogBody>
+        <DialogFooter>
+          {hasChanges && <Tag appearance="warning" size="sm" label="Unsaved" />}
           <Button
             appearance={hasChanges ? "accent" : "gray"}
             size="md"
@@ -377,8 +393,8 @@ export function SettingsBlock({
           >
             {hasChanges ? "Apply & Reinitialize" : "No Changes"}
           </Button>
-        </div>
-      )}
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
