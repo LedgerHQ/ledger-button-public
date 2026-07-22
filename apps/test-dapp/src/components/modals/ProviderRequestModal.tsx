@@ -7,6 +7,7 @@ import {
   SelectContent,
   SelectItem,
   SelectItemText,
+  SelectList,
   SelectTrigger,
   TextInput,
 } from "@ledgerhq/lumen-ui-react";
@@ -40,6 +41,11 @@ interface ProviderRequestModalProps {
 
 const CUSTOM_METHOD_VALUE = "__custom__";
 
+const METHOD_ITEMS = [
+  ...PROVIDER_METHODS.map((m) => ({ value: m, label: m })),
+  { value: CUSTOM_METHOD_VALUE, label: "Custom…" },
+];
+
 export function ProviderRequestModal({
   onSubmit,
   onClose,
@@ -63,19 +69,23 @@ export function ProviderRequestModal({
     <div className="space-y-16">
       <div className="space-y-10">
         <Select
+          items={METHOD_ITEMS}
           value={selectValue}
-          onValueChange={(value) => setSelectValue(value)}
+          onValueChange={(value) => {
+            if (value) {
+              setSelectValue(value);
+            }
+          }}
         >
           <SelectTrigger label="Method" />
           <SelectContent>
-            {PROVIDER_METHODS.map((m) => (
-              <SelectItem key={m} value={m}>
-                <SelectItemText>{m}</SelectItemText>
-              </SelectItem>
-            ))}
-            <SelectItem value={CUSTOM_METHOD_VALUE}>
-              <SelectItemText>Custom…</SelectItemText>
-            </SelectItem>
+            <SelectList
+              renderItem={(item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  <SelectItemText>{item.label}</SelectItemText>
+                </SelectItem>
+              )}
+            />
           </SelectContent>
         </Select>
         {isCustom && (
@@ -89,12 +99,12 @@ export function ProviderRequestModal({
       </div>
 
       <div>
-        <label className="block body-4-semi-bold text-muted mb-6">
+        <label className="body-4-semi-bold text-muted mb-6 block">
           Params (JSON array)
         </label>
         <textarea
           ref={paramsRef}
-          className="w-full px-12 py-8 border border-muted rounded-lg body-4 font-mono bg-muted text-base placeholder:text-muted focus:outline-none focus:border-active resize-y"
+          className="border-muted body-4 bg-muted placeholder:text-muted focus:border-active w-full resize-y rounded-lg border px-12 py-8 font-mono text-base focus:outline-none"
           rows={3}
           placeholder="[]"
         />
