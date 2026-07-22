@@ -18,7 +18,8 @@ catalog:
   "@ledgerhq/device-transport-kit-web-ble": 1.3.2
   "@ledgerhq/device-transport-kit-web-hid": 1.2.4
   "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": 0.5.0
-  "@ledgerhq/lumen-design-core": ^0.1.2
+  "@ledgerhq/lumen-design-core": ^0.1.22
+  "@ledgerhq/lumen-ui-react": ^0.1.48
   "@lit/context": 1.1.6
   "@next/eslint-plugin-next": ^15.2.4
   "@nx/devkit": 22.0.1

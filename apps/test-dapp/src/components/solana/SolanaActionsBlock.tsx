@@ -300,7 +300,6 @@ export function SolanaActionsBlock({
       <Dialog open={isModalOpen} onOpenChange={(open) => !open && closeModal()}>
         <DialogContent>
           <DialogHeader
-            appearance="compact"
             title={modalType ? MODAL_TITLES[modalType] : ""}
             onClose={closeModal}
           />

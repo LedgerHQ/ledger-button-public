@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Button,
-  SearchInput,
   Select,
   SelectContent,
+  SelectEmptyState,
   SelectItem,
   SelectItemText,
+  SelectList,
+  SelectSearch,
   SelectTrigger,
 } from "@ledgerhq/lumen-ui-react";
 
@@ -38,15 +40,11 @@ export function SignRawTransactionModal({
   const [dappsError, setDappsError] = useState<string | null>(null);
   const [selectedDappId, setSelectedDappId] = useState<string>("");
   const [targetContract, setTargetContract] = useState<string | null>(null);
-  const [dappQuery, setDappQuery] = useState("");
 
-  const filteredDapps = useMemo(() => {
-    const query = dappQuery.trim().toLowerCase();
-    if (!query) {
-      return dapps;
-    }
-    return dapps.filter((dapp) => dapp.id.toLowerCase().includes(query));
-  }, [dapps, dappQuery]);
+  const dappItems = useMemo(
+    () => dapps.map((dapp) => ({ value: dapp.id, label: dapp.id })),
+    [dapps],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -133,11 +131,11 @@ export function SignRawTransactionModal({
     <div className="space-y-16">
       <div className="space-y-8">
         <Select
+          items={dappItems}
           value={selectedDappId}
-          onValueChange={handleSelectDapp}
-          onOpenChange={(open) => {
-            if (!open) {
-              setDappQuery("");
+          onValueChange={(value) => {
+            if (value) {
+              handleSelectDapp(value);
             }
           }}
           disabled={isLoadingDapps || dapps.length === 0}
@@ -150,24 +148,15 @@ export function SignRawTransactionModal({
             }
           />
           <SelectContent>
-            <div className="p-8">
-              <SearchInput
-                placeholder="Search dApps..."
-                value={dappQuery}
-                onChange={(event) => setDappQuery(event.target.value)}
-                onClear={() => setDappQuery("")}
-                onKeyDown={(event) => event.stopPropagation()}
-              />
-            </div>
-            {filteredDapps.length === 0 ? (
-              <p className="body-4 text-muted px-8 py-4">No dApps found</p>
-            ) : (
-              filteredDapps.map((dapp) => (
-                <SelectItem key={dapp.id} value={dapp.id}>
-                  <SelectItemText>{dapp.id}</SelectItemText>
+            <SelectSearch placeholder="Search dApps..." />
+            <SelectList
+              renderItem={(item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  <SelectItemText>{item.label}</SelectItemText>
                 </SelectItem>
-              ))
-            )}
+              )}
+            />
+            <SelectEmptyState title="No dApps found" />
           </SelectContent>
         </Select>
         {dappsError && <p className="body-4 text-error">{dappsError}</p>}
