@@ -2,7 +2,7 @@
 
 ### 🩹 Fixes
 
-- Fix Morpho UI discrepancy by increasing z-index ([4ad0b165](https://github.com/LedgerHQ/ledger-button/commit/4ad0b165))
+- Fix Morpho UI discrepancy by increasing z-index ([4ad0b165](https://github.com/LedgerHQ/ledger-button-public/commit/4ad0b165))
 
 ### ❤️ Thank You
 
