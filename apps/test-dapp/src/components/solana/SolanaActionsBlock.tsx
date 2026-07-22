@@ -25,7 +25,13 @@ import {
   type SolanaTransferValues,
 } from "./modals";
 
-type ModalType = "sign-message" | "sign-tx" | "send-tx" | "jupiter-swap" | null;
+type ModalType =
+  | "sign-message"
+  | "sign-tx"
+  | "send-tx"
+  | "jupiter-sign"
+  | "jupiter-swap"
+  | null;
 
 interface SolanaActionsBlockProps {
   isConnected: boolean;
@@ -36,6 +42,7 @@ interface SolanaActionsBlockProps {
   onSignMessage: (message: string) => Promise<void>;
   onSignTransaction: (values: SolanaTransferValues) => Promise<void>;
   onSendTransaction: (values: SolanaTransferValues) => Promise<void>;
+  onJupiterSign: (values: JupiterSwapValues) => Promise<void>;
   onJupiterSwap: (values: JupiterSwapValues) => Promise<void>;
   result: string | null;
   error: string | null;
@@ -46,7 +53,8 @@ const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
   "sign-message": "Sign Message",
   "sign-tx": "Sign Transaction (SOL transfer)",
   "send-tx": "Send Transaction (SOL transfer)",
-  "jupiter-swap": "Jupiter Swap",
+  "jupiter-sign": "Jupiter Swap (sign only)",
+  "jupiter-swap": "Jupiter Swap (sign & execute)",
 };
 
 type ActionGroup = "solana" | "jupiter";
@@ -78,9 +86,15 @@ const ACTIONS: ActionButton[] = [
     group: "solana",
   },
   {
+    type: "jupiter-sign",
+    icon: <Signature size={24} />,
+    label: "Sign Swap",
+    group: "jupiter",
+  },
+  {
     type: "jupiter-swap",
     icon: <Exchange size={24} />,
-    label: "Swap (Jupiter)",
+    label: "Sign & Execute",
     group: "jupiter",
   },
 ];
@@ -94,6 +108,7 @@ export function SolanaActionsBlock({
   onSignMessage,
   onSignTransaction,
   onSendTransaction,
+  onJupiterSign,
   onJupiterSwap,
   result,
   error,
@@ -134,6 +149,13 @@ export function SolanaActionsBlock({
           onClose={closeModal}
         />
       ),
+      "jupiter-sign": (
+        <JupiterSwapModal
+          submitLabel="Sign Swap"
+          onSubmit={onJupiterSign}
+          onClose={closeModal}
+        />
+      ),
       "jupiter-swap": (
         <JupiterSwapModal
           submitLabel="Sign & Execute Swap"
@@ -150,6 +172,7 @@ export function SolanaActionsBlock({
     onSignMessage,
     onSignTransaction,
     onSendTransaction,
+    onJupiterSign,
     onJupiterSwap,
   ]);
 
@@ -172,6 +195,7 @@ export function SolanaActionsBlock({
           return !canSignTransaction;
         case "send-tx":
           return !canSendTransaction;
+        case "jupiter-sign":
         case "jupiter-swap":
           return !canJupiterSwap;
       }
@@ -183,7 +207,7 @@ export function SolanaActionsBlock({
       if (!isActionDisabled(type)) {
         return undefined;
       }
-      if (type === "jupiter-swap") {
+      if (type === "jupiter-sign" || type === "jupiter-swap") {
         return "Jupiter requires mainnet and the solana:signTransaction feature";
       }
       return "This wallet does not support this method";
