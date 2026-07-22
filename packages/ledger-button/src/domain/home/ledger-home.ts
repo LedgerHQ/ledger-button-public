@@ -228,23 +228,12 @@ export class LedgerHomeScreen extends LitElement {
   };
 
   override render() {
-    if (this.controller.loading) {
-      return html`
-        <div class="h-full min-h-full overflow-hidden">
-          <ledger-lottie
-            class="animation overflow-hidden"
-            animationName="backgroundFlare"
-            .autoplay=${true}
-            .loop=${true}
-            size="full"
-          ></ledger-lottie>
-        </div>
-      `;
+    if (this.controller.loading || this.controller.switching) {
+      return this.renderBackgroundFlare();
     }
     const account = this.controller.selectedAccount;
-    const switching = this.controller.switching;
 
-    if (!switching && !account) {
+    if (!account) {
       this.navigation.navigateTo(this.destinations.onboardingFlow);
       return;
     }
@@ -256,9 +245,7 @@ export class LedgerHomeScreen extends LitElement {
         <div class="scrollbar-custom min-h-0 flex-1 overflow-y-auto">
           <div class="flex flex-col items-stretch gap-12 p-24 pt-0">
             ${this.renderFamilyTabs()}
-            ${switching || !account
-              ? this.renderSwitchingLoader()
-              : this.renderAccountContent(account, lang)}
+            ${this.renderAccountContent(account, lang)}
           </div>
         </div>
 
@@ -286,14 +273,15 @@ export class LedgerHomeScreen extends LitElement {
     `;
   }
 
-  private renderSwitchingLoader() {
+  private renderBackgroundFlare() {
     return html`
-      <div class="flex min-h-256 items-center justify-center">
+      <div class="h-full min-h-full overflow-hidden">
         <ledger-lottie
-          animationName="loadingSpinner"
+          class="animation overflow-hidden"
+          animationName="backgroundFlare"
           .autoplay=${true}
           .loop=${true}
-          size="large"
+          size="full"
         ></ledger-lottie>
       </div>
     `;
