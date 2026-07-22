@@ -7,11 +7,16 @@ import {
   SelectContent,
   SelectItem,
   SelectItemText,
+  SelectList,
   SelectTrigger,
   Tag,
   TextInput,
 } from "@ledgerhq/lumen-ui-react";
-import { ChevronDown, ChevronRight, Settings } from "@ledgerhq/lumen-ui-react/symbols";
+import {
+  ChevronDown,
+  ChevronRight,
+  Settings,
+} from "@ledgerhq/lumen-ui-react/symbols";
 
 import {
   ALL_WALLET_FEATURES,
@@ -72,10 +77,11 @@ export function SettingsBlock({
   const [lastAppliedConfig, setLastAppliedConfig] =
     useState<LedgerProviderConfig>(config);
   const [customDappId, setCustomDappId] = useState("");
-  const [isCustomDapp, setIsCustomDapp] = useState(() =>
-    !DAPP_IDENTIFIERS.some(
-      (d) => d.value !== "custom" && d.value === config.dAppIdentifier,
-    ),
+  const [isCustomDapp, setIsCustomDapp] = useState(
+    () =>
+      !DAPP_IDENTIFIERS.some(
+        (d) => d.value !== "custom" && d.value === config.dAppIdentifier,
+      ),
   );
 
   const dappSelectValue = isCustomDapp ? "custom" : localConfig.dAppIdentifier;
@@ -151,19 +157,17 @@ export function SettingsBlock({
     JSON.stringify(localConfig) !== JSON.stringify(lastAppliedConfig);
 
   return (
-    <div className="border border-dashed border-muted rounded-lg overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+    <div className="border-muted overflow-hidden rounded-lg border border-dashed opacity-80 transition-opacity hover:opacity-100">
       <div
-        className="flex justify-between items-center px-24 py-14 cursor-pointer select-none hover:bg-muted-transparent transition-colors"
+        className="hover:bg-muted-transparent flex cursor-pointer items-center justify-between px-24 py-14 transition-colors select-none"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-10">
-          <h3 className="flex items-center gap-10 body-2-semi-bold text-muted">
+          <h3 className="body-2-semi-bold text-muted flex items-center gap-10">
             <Settings size={20} />
             Provider Configuration
           </h3>
-          {hasChanges && (
-            <Tag appearance="warning" size="sm" label="Unsaved" />
-          )}
+          {hasChanges && <Tag appearance="warning" size="sm" label="Unsaved" />}
           <Tag
             appearance="gray"
             size="sm"
@@ -180,20 +184,27 @@ export function SettingsBlock({
       </div>
 
       {isExpanded && (
-        <div className="p-24 border-t border-dashed border-muted bg-canvas space-y-16">
+        <div className="border-muted bg-canvas space-y-16 border-t border-dashed p-24">
           <div className="grid grid-cols-2 gap-14">
             <div className="flex flex-col gap-10">
               <Select
+                items={DAPP_IDENTIFIERS}
                 value={dappSelectValue}
-                onValueChange={handleDappSelectChange}
+                onValueChange={(value) => {
+                  if (value) {
+                    handleDappSelectChange(value);
+                  }
+                }}
               >
                 <SelectTrigger label="dApp identifier" />
                 <SelectContent>
-                  {DAPP_IDENTIFIERS.map((dapp) => (
-                    <SelectItem key={dapp.value} value={dapp.value}>
-                      <SelectItemText>{dapp.label}</SelectItemText>
-                    </SelectItem>
-                  ))}
+                  <SelectList
+                    renderItem={(item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        <SelectItemText>{item.label}</SelectItemText>
+                      </SelectItem>
+                    )}
+                  />
                 </SelectContent>
               </Select>
               {dappSelectValue === "custom" && (
@@ -218,19 +229,24 @@ export function SettingsBlock({
           <div className="grid grid-cols-3 gap-14">
             <div className="flex flex-col gap-10">
               <Select
+                items={BUTTON_POSITIONS}
                 value={localConfig.buttonPosition}
-                onValueChange={(value) =>
-                  handleInputChange("buttonPosition", value)
-                }
+                onValueChange={(value) => {
+                  if (value) {
+                    handleInputChange("buttonPosition", value);
+                  }
+                }}
                 disabled={localConfig.hideButton}
               >
                 <SelectTrigger label="Button Position" />
                 <SelectContent>
-                  {BUTTON_POSITIONS.map((pos) => (
-                    <SelectItem key={pos.value} value={pos.value}>
-                      <SelectItemText>{pos.label}</SelectItemText>
-                    </SelectItem>
-                  ))}
+                  <SelectList
+                    renderItem={(item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        <SelectItemText>{item.label}</SelectItemText>
+                      </SelectItem>
+                    )}
+                  />
                 </SelectContent>
               </Select>
               <button
@@ -241,49 +257,63 @@ export function SettingsBlock({
                     hideButton: !prev.hideButton,
                   }))
                 }
-                className={`px-14 py-8 rounded-lg body-2-semi-bold cursor-pointer transition-colors border ${
+                className={`body-2-semi-bold cursor-pointer rounded-lg border px-14 py-8 transition-colors ${
                   !localConfig.hideButton
                     ? "border-active bg-muted-transparent text-base"
                     : "border-muted bg-canvas text-muted"
                 }`}
               >
-                {localConfig.hideButton ? "Floating Button: Off" : "Floating Button: On"}
+                {localConfig.hideButton
+                  ? "Floating Button: Off"
+                  : "Floating Button: On"}
               </button>
             </div>
 
             <Select
+              items={LOG_LEVELS}
               value={localConfig.logLevel}
-              onValueChange={(value) => handleInputChange("logLevel", value)}
+              onValueChange={(value) => {
+                if (value) {
+                  handleInputChange("logLevel", value);
+                }
+              }}
             >
               <SelectTrigger label="Log Level" />
               <SelectContent>
-                {LOG_LEVELS.map((level) => (
-                  <SelectItem key={level.value} value={level.value}>
-                    <SelectItemText>{level.label}</SelectItemText>
-                  </SelectItem>
-                ))}
+                <SelectList
+                  renderItem={(item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      <SelectItemText>{item.label}</SelectItemText>
+                    </SelectItem>
+                  )}
+                />
               </SelectContent>
             </Select>
 
             <Select
+              items={ENVIRONMENTS}
               value={localConfig.environment}
-              onValueChange={(value) =>
-                handleInputChange("environment", value)
-              }
+              onValueChange={(value) => {
+                if (value) {
+                  handleInputChange("environment", value);
+                }
+              }}
             >
               <SelectTrigger label="Environment" />
               <SelectContent>
-                {ENVIRONMENTS.map((env) => (
-                  <SelectItem key={env.value} value={env.value}>
-                    <SelectItemText>{env.label}</SelectItemText>
-                  </SelectItem>
-                ))}
+                <SelectList
+                  renderItem={(item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      <SelectItemText>{item.label}</SelectItemText>
+                    </SelectItem>
+                  )}
+                />
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-10">
-            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+            <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
               Transaction confirmation
             </h4>
             <p className="body-2 text-muted">
@@ -300,7 +330,7 @@ export function SettingsBlock({
                     key={mode.value}
                     type="button"
                     onClick={() => handleConfirmationModeChange(mode.value)}
-                    className={`px-14 py-8 rounded-lg body-2-semi-bold cursor-pointer transition-colors border ${
+                    className={`body-2-semi-bold cursor-pointer rounded-lg border px-14 py-8 transition-colors ${
                       isActive
                         ? "border-active bg-muted-transparent text-base"
                         : "border-muted bg-canvas text-muted"
@@ -314,7 +344,7 @@ export function SettingsBlock({
           </div>
 
           <div className="space-y-10">
-            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+            <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
               Wallet Actions
             </h4>
             <div className="flex flex-wrap gap-8">
@@ -326,7 +356,7 @@ export function SettingsBlock({
                     key={feature}
                     type="button"
                     onClick={() => handleToggleFeature(feature)}
-                    className={`px-14 py-8 rounded-lg body-2-semi-bold capitalize cursor-pointer transition-colors border ${
+                    className={`body-2-semi-bold cursor-pointer rounded-lg border px-14 py-8 capitalize transition-colors ${
                       isActive
                         ? "border-active bg-muted-transparent text-base"
                         : "border-muted bg-canvas text-muted"

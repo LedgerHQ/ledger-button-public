@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@ledgerhq/lumen-design-core": "^0.1.1",
-    "@ledgerhq/lumen-ui-react": "^0.1.2",
+    "@ledgerhq/lumen-design-core": "catalog:",
+    "@ledgerhq/lumen-ui-react": "catalog:",
     "@radix-ui/react-slot": "^1.0.2",
     "@solana-program/system": "catalog:",
     "@solana/kit": "catalog:",
