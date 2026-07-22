@@ -1,3 +1,13 @@
+## 1.3.2 (2026-07-21)
+
+### 🩹 Fixes
+
+- Fix Morpho UI discrepancy by increasing z-index ([4ad0b165](https://github.com/LedgerHQ/ledger-button-public/commit/4ad0b165))
+
+### ❤️ Thank You
+
+- Pierre Vautherin
+
 ## 1.3.1 (2026-07-02)
 
 ### 🩹 Fixes
