@@ -7,6 +7,7 @@ import {
   SelectContent,
   SelectItem,
   SelectItemText,
+  SelectList,
   SelectTrigger,
   TextInput,
 } from "@ledgerhq/lumen-ui-react";
@@ -16,6 +17,11 @@ import {
   JUPITER_TOKENS,
   type JupiterSwapValues,
 } from "../jupiter";
+
+const TOKEN_ITEMS = JUPITER_TOKENS.map((token) => ({
+  value: token.mint,
+  label: token.symbol,
+}));
 
 interface JupiterSwapModalProps {
   onSubmit: (values: JupiterSwapValues) => Promise<void>;
@@ -113,24 +119,36 @@ export function JupiterSwapModal({
       </div>
 
       <div className="grid grid-cols-2 gap-12">
-        <Select value={inputMint} onValueChange={setInputMint}>
+        <Select
+          value={inputMint}
+          onValueChange={(value) => setInputMint(value ?? "")}
+          items={TOKEN_ITEMS}
+        >
           <SelectTrigger label="You pay" />
           <SelectContent>
-            {JUPITER_TOKENS.map((token) => (
-              <SelectItem key={token.mint} value={token.mint}>
-                <SelectItemText>{token.symbol}</SelectItemText>
-              </SelectItem>
-            ))}
+            <SelectList
+              renderItem={(item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  <SelectItemText>{item.label}</SelectItemText>
+                </SelectItem>
+              )}
+            />
           </SelectContent>
         </Select>
-        <Select value={outputMint} onValueChange={setOutputMint}>
+        <Select
+          value={outputMint}
+          onValueChange={(value) => setOutputMint(value ?? "")}
+          items={TOKEN_ITEMS}
+        >
           <SelectTrigger label="You receive" />
           <SelectContent>
-            {JUPITER_TOKENS.map((token) => (
-              <SelectItem key={token.mint} value={token.mint}>
-                <SelectItemText>{token.symbol}</SelectItemText>
-              </SelectItem>
-            ))}
+            <SelectList
+              renderItem={(item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  <SelectItemText>{item.label}</SelectItemText>
+                </SelectItem>
+              )}
+            />
           </SelectContent>
         </Select>
       </div>
