@@ -9,6 +9,8 @@ import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 // System program id: a valid 32-byte base58 address.
 const SOLANA_ADDRESS = "11111111111111111111111111111111";
+// Another valid 32-byte base58 address (SPL Token program id).
+const SOLANA_ADDRESS_2 = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 
 const createAccount = (overrides: Partial<Account> = {}): Account => ({
   id: "solana:1",
@@ -177,6 +179,74 @@ describe("LedgerSolanaWallet (connection)", () => {
       await wallet.features["standard:connect"].connect();
 
       expect(listener).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setSelectedAccount", () => {
+    it("emits a change event with the new account when switching Solana address after connect", async () => {
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+      await wallet.features["standard:connect"].connect();
+
+      const listener = vi.fn();
+      wallet.features["standard:events"].on("change", listener);
+      wallet.setSelectedAccount(
+        createAccount({ id: "solana:2", freshAddress: SOLANA_ADDRESS_2 }),
+      );
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(wallet.accounts).toHaveLength(1);
+      expect(wallet.accounts[0].address).toBe(SOLANA_ADDRESS_2);
+      expect(listener).toHaveBeenCalledWith({ accounts: wallet.accounts });
+    });
+
+    it("does not emit a change event before the dApp has connected", () => {
+      const wallet = createWallet();
+      const listener = vi.fn();
+      wallet.features["standard:events"].on("change", listener);
+
+      wallet.setSelectedAccount(createAccount());
+
+      expect(listener).not.toHaveBeenCalled();
+      expect(wallet.accounts).toEqual([]);
+    });
+
+    it("does not emit a change event when the selected address is unchanged", async () => {
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+      await wallet.features["standard:connect"].connect();
+
+      const listener = vi.fn();
+      wallet.features["standard:events"].on("change", listener);
+      wallet.setSelectedAccount(createAccount());
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it("disconnects the Solana wallet when switching to a non-Solana account", async () => {
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+      await wallet.features["standard:connect"].connect();
+
+      const listener = vi.fn();
+      wallet.features["standard:events"].on("change", listener);
+      wallet.setSelectedAccount(createAccount({ currencyId: "ethereum" }));
+
+      expect(wallet.accounts).toEqual([]);
+      expect(listener).toHaveBeenCalledWith({ accounts: [] });
+    });
+
+    it("disconnects the Solana wallet when the account is cleared", async () => {
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+      await wallet.features["standard:connect"].connect();
+
+      const listener = vi.fn();
+      wallet.features["standard:events"].on("change", listener);
+      wallet.setSelectedAccount(undefined);
+
+      expect(wallet.accounts).toEqual([]);
+      expect(listener).toHaveBeenCalledWith({ accounts: [] });
     });
   });
 
