@@ -132,9 +132,7 @@ export class LedgerButtonApp extends LitElement {
   };
 
   private handleAccountSwitch = () => {
-    this.root.rootNavigationController.navigation.navigateTo(
-      this.root.rootNavigationController.destinations.fetchAccounts,
-    );
+    this.root.rootNavigationController.switchAccount();
   };
 
   private handleFloatingButtonClick = () => {
