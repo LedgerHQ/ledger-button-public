@@ -270,10 +270,23 @@ const hasNoBumpLabel = (danger: DangerDSLType) => {
   return labels.includes("release:no-bump");
 };
 
+const RELEASE_BRANCH_PREFIXES = ["release/", "backmerge/", "hotfix/"];
+
+const isReleaseBranch = (danger: DangerDSLType) => {
+  const branch = danger.github
+    ? danger.github.pr.head.ref
+    : execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+  return RELEASE_BRANCH_PREFIXES.some((prefix) => branch.startsWith(prefix));
+};
+
 export const checkReleasePlanOrNoBumpLabel = (
   danger: DangerDSLType,
   fail: FailFn,
 ) => {
+  if (isReleaseBranch(danger)) {
+    return true;
+  }
+
   const changedFiles = [
     ...danger.git.created_files,
     ...danger.git.modified_files,
