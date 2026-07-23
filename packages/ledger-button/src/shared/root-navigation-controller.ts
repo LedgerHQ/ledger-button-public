@@ -337,6 +337,21 @@ export class RootNavigationController implements ReactiveController {
     this.navigation.navigateTo(this.destinations.settings);
   }
 
+  /**
+   * Open the account picker from the home panel. Unlike a dApp-driven request
+   * this is a manual entry point, but the picker must still be scoped to the
+   * family the user is currently viewing (e.g. only Solana accounts while on
+   * the Solana tab). We therefore carry the active family in the navigation
+   * params so `select-account-screen` filters the list accordingly.
+   */
+  switchAccount() {
+    const family = this.core.getActiveFamily();
+    this.params = family
+      ? { name: "selectAccount", params: { family } }
+      : undefined;
+    this.navigation.navigateTo(this.destinations.fetchAccounts);
+  }
+
   selectAccount(account: Account) {
     this.core.selectAccount(account);
     this.host.requestUpdate();
