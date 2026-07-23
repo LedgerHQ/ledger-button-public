@@ -35,6 +35,7 @@ vi.mock("./routes.js", () => {
       onboardingFlow: make("onboarding-flow"),
       mobileOnboarding: make("mobile-onboarding"),
       signingFlow: make("signing-flow"),
+      fetchAccounts: make("fetch-accounts"),
     }),
     resolveCanGoBack: () => false,
   };
@@ -108,6 +109,75 @@ describe("RootNavigationController active-account accessors", () => {
 
   it("exposes the active selected account via the selectedAccount getter", () => {
     expect(controller.selectedAccount).toBe(ethAccount);
+  });
+});
+
+describe("RootNavigationController switchAccount", () => {
+  let host: NavigationHost;
+  let core: CoreContext;
+  let controller: RootNavigationController;
+
+  function setup(coreOverrides: Partial<CoreContext>) {
+    host = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+      closeModal: vi.fn(),
+    } as unknown as NavigationHost;
+
+    core = {
+      getActiveFamily: vi.fn(() => undefined),
+      observeContext: vi.fn(() => new Subject()),
+      ...coreOverrides,
+    } as unknown as CoreContext;
+
+    controller = new RootNavigationController(
+      host,
+      core,
+      {} as unknown as LanguageContext,
+      document.createElement("div"),
+    );
+    vi.spyOn(controller.navigation, "navigateTo").mockImplementation(
+      () => undefined,
+    );
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("scopes the account picker to the active family", () => {
+    setup({
+      getActiveFamily: vi.fn(
+        () => "solana",
+      ) as unknown as CoreContext["getActiveFamily"],
+    });
+
+    controller.switchAccount();
+
+    expect(controller.params).toEqual({
+      name: "selectAccount",
+      params: { family: "solana" },
+    });
+    expect(controller.navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "fetch-accounts" }),
+    );
+  });
+
+  it("leaves the picker unscoped when there is no active family", () => {
+    setup({
+      getActiveFamily: vi.fn(
+        () => undefined,
+      ) as unknown as CoreContext["getActiveFamily"],
+    });
+
+    controller.switchAccount();
+
+    expect(controller.params).toBeUndefined();
+    expect(controller.navigation.navigateTo).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "fetch-accounts" }),
+    );
   });
 });
 
