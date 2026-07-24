@@ -157,7 +157,6 @@ export function SolanaActionsBlock({
           submitLabel="Send Transaction"
           onSubmit={onSendTransaction}
           onClose={closeModal}
-          defaultRecipient={ownAddress}
           ownAddress={ownAddress}
         />
       ),
