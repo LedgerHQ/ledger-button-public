@@ -247,7 +247,9 @@ export class LedgerSolanaWallet implements Wallet {
     // Hardware signing is one confirmation at a time; process sequentially.
     const results: { signedTransaction: Uint8Array }[] = [];
     for (const input of inputs) {
-      results.push(await this.runSignTransaction(account, input.transaction));
+      results.push(
+        await this.signSolanaTransaction(account, input.transaction),
+      );
     }
     return results;
   };
@@ -258,7 +260,7 @@ export class LedgerSolanaWallet implements Wallet {
    * {@link SignSolanaTransaction} use-case, and resolves with the reassembled
    * signed wire transaction. Mirrors the EVM `handleBlockchainRequest`.
    */
-  private runSignTransaction(
+  private signSolanaTransaction(
     account: ProviderAccount,
     transaction: Uint8Array,
   ): Promise<{ signedTransaction: Uint8Array }> {
@@ -397,7 +399,7 @@ export class LedgerSolanaWallet implements Wallet {
     });
   }
 
-  private async signSolanaMessage(
+  private signSolanaMessage(
     account: ProviderAccount,
     message: Uint8Array,
   ): Promise<{ signature: Uint8Array; signedMessage: Uint8Array }> {
@@ -407,7 +409,7 @@ export class LedgerSolanaWallet implements Wallet {
       message,
     };
 
-    const result = await this.runSignFlow<SignedResults>(
+    return this.runSignFlow(
       params,
       "solana-message",
       () =>
@@ -415,21 +417,14 @@ export class LedgerSolanaWallet implements Wallet {
           params,
           this._selectedAccount ?? undefined,
         ),
-      (data) => data,
+      (data) =>
+        isSignedMessageOrTypedDataResult(data) && data.signedMessage
+          ? {
+              signature: new Uint8Array(base58Encoder.encode(data.signature)),
+              signedMessage: data.signedMessage,
+            }
+          : undefined,
     );
-
-    if (!isSignedMessageOrTypedDataResult(result) || !result.signedMessage) {
-      throw new Error("Unexpected message signing result");
-    }
-
-    try {
-      return {
-        signature: new Uint8Array(base58Encoder.encode(result.signature)),
-        signedMessage: result.signedMessage,
-      };
-    } catch (error) {
-      throw new Error("Failed to decode message signature", { cause: error });
-    }
   }
 
   private toWalletAccount(account: ProviderAccount): WalletAccount {
