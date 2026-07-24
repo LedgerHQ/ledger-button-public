@@ -16,6 +16,7 @@ describe("chainUtils", () => {
       { currencyId: "polygon", chainId: 137 },
       { currencyId: "sonic", chainId: 146 },
       { currencyId: "zksync", chainId: 324 },
+      { currencyId: "robinhood", chainId: 4663 },
     ])(
       "should return chain ID $chainId for $currencyId",
       ({ currencyId, chainId }) => {
@@ -51,6 +52,7 @@ describe("chainUtils", () => {
       "polygon",
       "sonic",
       "zksync",
+      "robinhood",
     ])("should return true for known EVM currency '%s'", (currencyId) => {
       expect(isSupportedEvmCurrency(currencyId)).toBe(true);
     });
