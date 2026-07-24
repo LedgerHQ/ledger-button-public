@@ -54,14 +54,19 @@ export class SignSolanaTransaction {
     const { transaction } = params;
     const signType: SignType = "transaction";
 
+    // Guard before opening a device session: no point waiting for the device
+    // when we already know there is no account to sign with.
+    if (!selectedAccount) {
+      return this.toErrorStatus(
+        new AccountNotSelectedError("No account selected"),
+        signType,
+      );
+    }
+
     return waitForDeviceSession(this.core).pipe(
       switchMap((session) => {
         const sessionId = session.sessionId;
         const dmk = session.dmk;
-
-        if (!selectedAccount) {
-          throw new AccountNotSelectedError("No account selected");
-        }
 
         const derivationPath = getSolanaDerivationPath(selectedAccount);
         const contextModule = this.buildContextModule.execute();
@@ -101,15 +106,16 @@ export class SignSolanaTransaction {
           ),
         ) as Observable<SignFlowStatus>;
       }),
-      catchError((error) => {
-        this.logger.error("Failed to sign Solana transaction", { error });
-        return of({
-          signType,
-          status: "error" as const,
-          error,
-        });
-      }),
+      catchError((error) => this.toErrorStatus(error, signType)),
     );
+  }
+
+  private toErrorStatus(
+    error: unknown,
+    signType: SignType,
+  ): Observable<SignFlowStatus> {
+    this.logger.error("Failed to sign Solana transaction", { error });
+    return of({ signType, status: "error" as const, error });
   }
 
   private createOpenAppConfig(): OpenAppWithDependenciesDAInput {

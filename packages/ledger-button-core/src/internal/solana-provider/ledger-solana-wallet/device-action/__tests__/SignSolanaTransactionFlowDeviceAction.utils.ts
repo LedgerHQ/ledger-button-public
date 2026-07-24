@@ -13,11 +13,11 @@ export type SignSolanaTransactionFlowDAState = DeviceActionState<
   SignSolanaTransactionFlowDAIntermediateValue
 >;
 
-export const executeUntilStep = async <T>(
+export const executeUntilStep = <T>(
   targetStep: number,
   o: Observable<T>,
-): Promise<{ steps: T[]; error?: Error }> =>
-  await new Promise((resolve, reject) => {
+): Promise<{ steps: T[] }> =>
+  new Promise((resolve, reject) => {
     const steps: T[] = [];
     let index = 0;
     let subscription: Subscription | undefined = undefined;
