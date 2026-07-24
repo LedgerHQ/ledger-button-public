@@ -1,11 +1,30 @@
 import { infer as ZodInfer, ZodError } from "zod";
 
-import type {
-  JSONRPCRequest,
-  JsonRpcResponse,
-  JsonRpcResponseSuccess,
-} from "../../api/model/eip/EIPTypes.js";
 import { ConfigResponseSchema } from "./schemas.js";
+
+export type JSONRPCRequest = {
+  readonly jsonrpc: string;
+  readonly id: number;
+  readonly method: string;
+  readonly params: readonly unknown[] | object;
+};
+
+export type JsonRpcResponseSuccess = {
+  id: number;
+  jsonrpc: string;
+  result: string | object;
+};
+
+export type JsonRpcResponseError = {
+  id: number;
+  jsonrpc: string;
+  error: {
+    code: number;
+    message: string;
+  };
+};
+
+export type JsonRpcResponse = JsonRpcResponseSuccess | JsonRpcResponseError;
 
 export type Blockchain = {
   name: string;
@@ -17,32 +36,41 @@ export type BroadcastRequest = {
   rpc: JSONRPCRequest;
 };
 
-export type AlapacaBroadcastResponse = {
+export type AlpacaBroadcastResponse = {
   transactionIdentifier: string;
 };
 
-export type BroadcastResponse = JsonRpcResponse | AlapacaBroadcastResponse;
+export type BroadcastResponse = JsonRpcResponse | AlpacaBroadcastResponse;
 
-export function isJsonRpcResponse(
-  jsonRpc: BroadcastResponse,
-): jsonRpc is JsonRpcResponse {
+export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
   return (
-    "jsonrpc" in jsonRpc &&
-    "id" in jsonRpc &&
-    ("result" in jsonRpc || "error" in jsonRpc)
+    typeof value === "object" &&
+    value !== null &&
+    "jsonrpc" in value &&
+    "id" in value &&
+    ("result" in value || "error" in value)
   );
 }
 
 export function isJsonRpcResponseSuccess(
-  jsonRpc: BroadcastResponse,
-): jsonRpc is JsonRpcResponseSuccess {
-  return "jsonrpc" in jsonRpc && "id" in jsonRpc && "result" in jsonRpc;
+  value: unknown,
+): value is JsonRpcResponseSuccess {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "result" in value &&
+    !("error" in value)
+  );
 }
 
-export function isAlapacaBroadcastResponse(
-  jsonRpc: BroadcastResponse,
-): jsonRpc is AlapacaBroadcastResponse {
-  return "transactionIdentifier" in jsonRpc;
+export function isAlpacaBroadcastResponse(
+  value: unknown,
+): value is AlpacaBroadcastResponse {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "transactionIdentifier" in value
+  );
 }
 
 export type ConfigRequest = {

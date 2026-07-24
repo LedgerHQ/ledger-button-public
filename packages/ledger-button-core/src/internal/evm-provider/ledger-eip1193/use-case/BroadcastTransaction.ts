@@ -2,7 +2,10 @@ import { ethers, Signature } from "ethers";
 import { inject, injectable } from "inversify";
 
 import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
-import type { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
+import {
+  isAlpacaBroadcastResponse,
+  isJsonRpcResponseSuccess,
+} from "../../../../internal/backend/types.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import type { EvmSignedResult } from "../model/EvmSignedResult.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
@@ -12,17 +15,6 @@ export type BroadcastTransactionParams = {
   signature: Signature;
   rawTransaction: string;
 };
-
-function isJsonRpcResponseSuccess(
-  value: unknown,
-): value is JsonRpcResponseSuccess {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "result" in value &&
-    !("error" in value)
-  );
-}
 
 @injectable()
 export class BroadcastTransaction {
@@ -63,16 +55,25 @@ export class BroadcastTransaction {
       { name: "ethereum", chainId: txChainId.toString() },
     );
 
-    if (!isJsonRpcResponseSuccess(response)) {
-      logger.error("Failed to broadcast transaction", { response });
-      throw new Error("Failed to broadcast transaction");
-    }
+    if (isAlpacaBroadcastResponse(response)) {
+      return {
+        hash: response.transactionIdentifier,
+        rawTransaction:
+          params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
+        signedRawTransaction: signedTransaction.signedRawTransaction,
+      };
+    } else {
+      if (!isJsonRpcResponseSuccess(response)) {
+        logger.error("Failed to broadcast transaction", { response });
+        throw new Error("Failed to broadcast transaction");
+      }
 
-    return {
-      hash: response.result as string,
-      rawTransaction:
-        params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
-      signedRawTransaction: signedTransaction.signedRawTransaction,
-    };
+      return {
+        hash: response.result as string,
+        rawTransaction:
+          params.rawTransaction as unknown as Uint8Array<ArrayBufferLike>,
+        signedRawTransaction: signedTransaction.signedRawTransaction,
+      };
+    }
   }
 }
