@@ -10,12 +10,8 @@ import {
 import {
   GetAddressDeviceActionFactory,
   isSolanaAppError,
+  SignTransactionDeviceActionFactory,
 } from "@ledgerhq/device-signer-kit-solana";
-// TODO: replace with public SignTransactionDeviceActionFactory once PR #1652
-// (https://github.com/LedgerHQ/device-sdk-ts/pull/1652) is released. The factory
-// is a thin shim over this internal class, so instantiating it directly is
-// functionally identical and lets us build and test the flow before the bump.
-import { SignTransactionDeviceAction } from "@ledgerhq/device-signer-kit-solana/internal/app-binder/device-action/SignTransactionDeviceAction.js";
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
 
@@ -78,7 +74,7 @@ export class SignSolanaTransactionFlowDeviceAction extends XStateDeviceAction<
       skipOpenApp: true,
     });
 
-    const signTransactionDA = new SignTransactionDeviceAction({
+    const signTransactionDA = SignTransactionDeviceActionFactory({
       input: {
         derivationPath: this.input.derivationPath,
         transaction: this.input.transaction,
