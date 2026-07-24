@@ -6,7 +6,7 @@ import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
 } from "../../../../api/model/blockchain/GasFee.js";
-import { isJsonRpcResponseSuccess } from "../../../../internal/backend/types.js";
+import { isJsonRpcResponseSuccess } from "../../../backend/types.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
 
