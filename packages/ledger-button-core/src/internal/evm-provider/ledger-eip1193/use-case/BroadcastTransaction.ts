@@ -5,7 +5,7 @@ import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreF
 import {
   isAlpacaBroadcastResponse,
   isJsonRpcResponseSuccess,
-} from "../../../../internal/backend/types.js";
+} from "../../../backend/types.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import type { EvmSignedResult } from "../model/EvmSignedResult.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";
