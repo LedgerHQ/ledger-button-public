@@ -23,12 +23,6 @@ import {
 } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
-import { backendModuleTypes } from "../../../internal/backend/backendModuleTypes.js";
-import type { BackendService } from "../../../internal/backend/BackendService.js";
-import {
-  isAlpacaBroadcastResponse,
-  isJsonRpcResponse,
-} from "../../../internal/backend/types.js";
 import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
 import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
 import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
@@ -51,8 +45,14 @@ import { navigationModuleTypes } from "../../../internal/navigation/navigationMo
 import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
 import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
-import type { JSONRPCRequest } from "../../backend/types.js";
-import type { BroadcastResponse } from "../../backend/types.js";
+import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
+import type { BackendService } from "../../backend/BackendService.js";
+import {
+  type BroadcastResponse,
+  isAlpacaBroadcastResponse,
+  isJsonRpcResponse,
+  type JSONRPCRequest,
+} from "../../backend/types.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
 @injectable()

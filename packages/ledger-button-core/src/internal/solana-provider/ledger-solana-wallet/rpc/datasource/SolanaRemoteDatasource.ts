@@ -8,8 +8,10 @@ import {
 } from "../../../../../api/model/solana/SolanaTypes.js";
 import { backendModuleTypes } from "../../../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../../../backend/BackendService.js";
-import type { JSONRPCRequest } from "../../../../backend/types.js";
-import { isJsonRpcResponse } from "../../../../backend/types.js";
+import {
+  isJsonRpcResponse,
+  type JSONRPCRequest,
+} from "../../../../backend/types.js";
 import { contextModuleTypes } from "../../../../context/contextModuleTypes.js";
 import { type ContextService } from "../../../../context/ContextService.js";
 import { loggerModuleTypes } from "../../../../logger/loggerModuleTypes.js";

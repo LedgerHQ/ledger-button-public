@@ -1,7 +1,9 @@
 import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 
-import type { BroadcastResponse } from "../../../internal/backend/types.js";
-import type { JSONRPCRequest } from "../../../internal/backend/types.js";
+import type {
+  BroadcastResponse,
+  JSONRPCRequest,
+} from "../../../internal/backend/types.js";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
