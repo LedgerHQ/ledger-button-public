@@ -5,8 +5,10 @@ import {
   OpenAppWithDependenciesDeviceAction,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
-import { GetAddressDeviceActionFactory } from "@ledgerhq/device-signer-kit-solana";
-import { SignTransactionDeviceAction } from "@ledgerhq/device-signer-kit-solana/internal/app-binder/device-action/SignTransactionDeviceAction.js";
+import {
+  GetAddressDeviceActionFactory,
+  SignTransactionDeviceActionFactory,
+} from "@ledgerhq/device-signer-kit-solana";
 import { Left, Right } from "purify-ts";
 import { type Mock, vi } from "vitest";
 import { assign, createMachine } from "xstate";
@@ -99,7 +101,7 @@ export function setupSignTransactionMock(
   signature?: Uint8Array,
   error?: unknown,
 ): void {
-  (SignTransactionDeviceAction as unknown as Mock).mockImplementation(() => ({
+  (SignTransactionDeviceActionFactory as Mock).mockReturnValue({
     makeStateMachine: vi.fn().mockImplementation(() =>
       createMachine({
         initial: "pending",
@@ -120,5 +122,5 @@ export function setupSignTransactionMock(
       }),
     ),
     input: {},
-  }));
+  });
 }

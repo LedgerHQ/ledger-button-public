@@ -47,18 +47,12 @@ vi.mock("@ledgerhq/device-signer-kit-solana", async (importOriginal) => {
       makeStateMachine: vi.fn(),
       input: {},
     })),
-  };
-});
-
-vi.mock(
-  "@ledgerhq/device-signer-kit-solana/internal/app-binder/device-action/SignTransactionDeviceAction.js",
-  () => ({
-    SignTransactionDeviceAction: vi.fn(() => ({
+    SignTransactionDeviceActionFactory: vi.fn(() => ({
       makeStateMachine: vi.fn(),
       input: {},
     })),
-  }),
-);
+  };
+});
 
 describe("SignSolanaTransactionFlowDeviceAction", () => {
   let apiMock: ReturnType<typeof makeInternalApiMock>;
