@@ -18,6 +18,7 @@ export const SUPPORTED_CHAIN_IDS = [
   "137",
   "146",
   "324",
+  "4663",
 ];
 
 /**
