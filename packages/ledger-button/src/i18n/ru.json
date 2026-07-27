@@ -245,10 +245,10 @@
       "contactUs": "Связаться с нами"
     },
     "developer": {
-      "title": "Developer"
+      "title": "Разработчикам"
     },
     "featureFlags": {
-      "title": "Feature flags",
+      "title": "Фича-флаги (Feature Flags)",
       "solana": {
         "title": "Solana"
       }
