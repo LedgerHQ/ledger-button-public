@@ -245,12 +245,12 @@
       "contactUs": "문의하기"
     },
     "developer": {
-      "title": "Developer"
+      "title": "개발자"
     },
     "featureFlags": {
-      "title": "Feature flags",
+      "title": "기능 플래그",
       "solana": {
-        "title": "Solana"
+        "title": "솔라나"
       }
     }
   },

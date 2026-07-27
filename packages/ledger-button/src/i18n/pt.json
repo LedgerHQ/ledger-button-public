@@ -245,10 +245,10 @@
       "contactUs": "Entre em contato"
     },
     "developer": {
-      "title": "Developer"
+      "title": "Desenvolvedor"
     },
     "featureFlags": {
-      "title": "Feature flags",
+      "title": "Marcadores de Recursos",
       "solana": {
         "title": "Solana"
       }
