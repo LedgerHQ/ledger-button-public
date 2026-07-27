@@ -245,10 +245,10 @@
       "contactUs": "Bize ulaşın"
     },
     "developer": {
-      "title": "Developer"
+      "title": "Geliştiriciler için"
     },
     "featureFlags": {
-      "title": "Feature flags",
+      "title": "Özellik bayrakları",
       "solana": {
         "title": "Solana"
       }

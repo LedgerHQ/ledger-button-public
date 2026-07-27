@@ -245,10 +245,10 @@
       "contactUs": "ติดต่อเรา"
     },
     "developer": {
-      "title": "Developer"
+      "title": "นักพัฒนา"
     },
     "featureFlags": {
-      "title": "Feature flags",
+      "title": "Feature Flags",
       "solana": {
         "title": "Solana"
       }
