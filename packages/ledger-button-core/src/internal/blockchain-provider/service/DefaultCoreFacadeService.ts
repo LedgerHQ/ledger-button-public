@@ -49,7 +49,7 @@ import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import {
   type BroadcastResponse,
-  isAlpacaBroadcastResponse,
+  isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   type JSONRPCRequest,
 } from "../../backend/types.js";
@@ -101,7 +101,10 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     });
     return response.caseOf<BroadcastResponse>({
       Right: (result) => {
-        if (isJsonRpcResponse(result) || isAlpacaBroadcastResponse(result)) {
+        if (
+          isJsonRpcResponse(result) ||
+          isCoinServiceBroadcastResponse(result)
+        ) {
           return result;
         }
         throw new Error("Unexpected broadcast response for JSON-RPC request");
