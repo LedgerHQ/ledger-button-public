@@ -144,23 +144,18 @@
         "projectsRelationship": "fixed"
       }
     },
+    "git": {
+      "commit": true,
+      "commitMessage": "🔖 (release): Changelog for v{version}",
+      "tag": true
+    },
     "version": {
       "fallbackCurrentVersionResolver": "disk",
-      "updateDependents": "always",
-      "git": {
-        "commit": true,
-        "commitMessage": "🔖 (release): Changelog for v{version}",
-        "tag": false
-      }
+      "updateDependents": "always"
     },
     "changelog": {
       "workspaceChangelog": false,
-      "projectChangelogs": true,
-      "git": {
-        "commit": true,
-        "commitMessage": "🔖 (release): Changelog for v{version}",
-        "tag": true
-      }
+      "projectChangelogs": true
     },
     "conventionalCommits": {
       "types": {
