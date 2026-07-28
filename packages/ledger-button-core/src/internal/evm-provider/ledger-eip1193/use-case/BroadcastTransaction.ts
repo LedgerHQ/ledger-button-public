@@ -3,7 +3,7 @@ import { inject, injectable } from "inversify";
 
 import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
 import {
-  isAlpacaBroadcastResponse,
+  isCoinServiceBroadcastResponse,
   isJsonRpcResponseSuccess,
 } from "../../../backend/types.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
@@ -55,7 +55,7 @@ export class BroadcastTransaction {
       { name: "ethereum", chainId: txChainId.toString() },
     );
 
-    if (isAlpacaBroadcastResponse(response)) {
+    if (isCoinServiceBroadcastResponse(response)) {
       return {
         hash: response.transactionIdentifier,
         rawTransaction:

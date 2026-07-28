@@ -36,11 +36,11 @@ export type BroadcastRequest = {
   rpc: JSONRPCRequest;
 };
 
-export type AlpacaBroadcastResponse = {
+export type CoinServiceBroadcastResponse = {
   transactionIdentifier: string;
 };
 
-export type BroadcastResponse = JsonRpcResponse | AlpacaBroadcastResponse;
+export type BroadcastResponse = JsonRpcResponse | CoinServiceBroadcastResponse;
 
 export function isJsonRpcResponse(value: unknown): value is JsonRpcResponse {
   return (
@@ -63,9 +63,9 @@ export function isJsonRpcResponseSuccess(
   );
 }
 
-export function isAlpacaBroadcastResponse(
+export function isCoinServiceBroadcastResponse(
   value: unknown,
-): value is AlpacaBroadcastResponse {
+): value is CoinServiceBroadcastResponse {
   return (
     typeof value === "object" &&
     value !== null &&
