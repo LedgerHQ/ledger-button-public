@@ -17,19 +17,12 @@ import type {
 } from "../../../api/model/blockchain/GasFee.js";
 import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
 import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
-import type {
-  JSONRPCRequest,
-  JsonRpcResponse,
-} from "../../../api/model/eip/EIPTypes.js";
 import {
   isBroadcastedTransactionResult,
   type SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
-import { backendModuleTypes } from "../../../internal/backend/backendModuleTypes.js";
-import type { BackendService } from "../../../internal/backend/BackendService.js";
-import { isJsonRpcResponse } from "../../../internal/backend/types.js";
 import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
 import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
 import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
@@ -52,6 +45,14 @@ import { navigationModuleTypes } from "../../../internal/navigation/navigationMo
 import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
 import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
+import type { BackendService } from "../../backend/BackendService.js";
+import {
+  type BroadcastResponse,
+  isCoinServiceBroadcastResponse,
+  isJsonRpcResponse,
+  type JSONRPCRequest,
+} from "../../backend/types.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
 @injectable()
@@ -92,15 +93,18 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   async broadcastRPC(
     args: JSONRPCRequest,
     blockchain: ProviderBlockchain,
-  ): Promise<JsonRpcResponse> {
+  ): Promise<BroadcastResponse> {
     this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
     const response = await this._backendService.broadcast({
       blockchain,
       rpc: args,
     });
-    return response.caseOf<JsonRpcResponse>({
+    return response.caseOf<BroadcastResponse>({
       Right: (result) => {
-        if (isJsonRpcResponse(result)) {
+        if (
+          isJsonRpcResponse(result) ||
+          isCoinServiceBroadcastResponse(result)
+        ) {
           return result;
         }
         throw new Error("Unexpected broadcast response for JSON-RPC request");

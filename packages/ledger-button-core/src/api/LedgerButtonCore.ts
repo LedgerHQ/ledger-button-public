@@ -14,7 +14,6 @@ import {
   getConnectedFamilies,
   getSelectedAccount,
 } from "./model/ButtonCoreContext.js";
-import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
@@ -31,6 +30,7 @@ import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccounts
 import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
+import type { JSONRPCRequest } from "../internal/backend/types.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
 import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
