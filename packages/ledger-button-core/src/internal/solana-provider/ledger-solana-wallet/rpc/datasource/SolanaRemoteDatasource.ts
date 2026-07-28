@@ -2,14 +2,16 @@ import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
 import { getSelectedAccount } from "../../../../../api/model/ButtonCoreContext.js";
-import type { JSONRPCRequest } from "../../../../../api/model/eip/EIPTypes.js";
 import {
   SolanaJSONRPCRequest,
   SolanaJsonRpcResponse,
 } from "../../../../../api/model/solana/SolanaTypes.js";
 import { backendModuleTypes } from "../../../../backend/backendModuleTypes.js";
 import { type BackendService } from "../../../../backend/BackendService.js";
-import { isJsonRpcResponse } from "../../../../backend/types.js";
+import {
+  isJsonRpcResponse,
+  type JSONRPCRequest,
+} from "../../../../backend/types.js";
 import { contextModuleTypes } from "../../../../context/contextModuleTypes.js";
 import { type ContextService } from "../../../../context/ContextService.js";
 import { loggerModuleTypes } from "../../../../logger/loggerModuleTypes.js";
@@ -64,7 +66,9 @@ export class SolanaRemoteDatasource {
       );
     } catch (error) {
       this.logger.error("Error in Solana JSONRPCRequest", { error });
-      return Left(new Error("Error in Solana JSONRPCRequest", { cause: error }));
+      return Left(
+        new Error("Error in Solana JSONRPCRequest", { cause: error }),
+      );
     }
   }
 

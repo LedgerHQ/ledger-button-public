@@ -8,6 +8,12 @@ export type {
   Network,
   Token,
 } from "../../internal/account/service/AccountService.js";
+export type {
+  JSONRPCRequest,
+  JsonRpcResponse,
+  JsonRpcResponseError,
+  JsonRpcResponseSuccess,
+} from "../../internal/backend/types.js";
 export type { FiatCurrency } from "../../internal/currency/datasource/fiatCurrencyTypes.js";
 export type { PendingTransaction } from "../../internal/pending-transaction/model/PendingTransaction.js";
 export type {

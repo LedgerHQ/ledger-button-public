@@ -6,20 +6,9 @@ import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
 } from "../../../../api/model/blockchain/GasFee.js";
-import { JsonRpcResponseSuccess } from "../../../../api/model/eip/EIPTypes.js";
+import { isJsonRpcResponseSuccess } from "../../../backend/types.js";
 import { evmProviderModuleTypes } from "../../evmProviderModuleTypes.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
-
-function isJsonRpcResponseSuccess(
-  value: unknown,
-): value is JsonRpcResponseSuccess {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "result" in value &&
-    !("error" in value)
-  );
-}
 
 @injectable()
 export class DefaultGasFeeEstimationService implements GasFeeEstimationService {
