@@ -15,11 +15,6 @@ export interface BackendService {
     domain?: string,
   ): Promise<Either<Error, BroadcastResponse>>;
 
-  getConfig(
-    request: ConfigRequest,
-    domain?: string,
-  ): Promise<Either<ConfigResponseError, ConfigResponse>>;
-
   getConfigV2(
     request: ConfigRequest,
     domain?: string,
