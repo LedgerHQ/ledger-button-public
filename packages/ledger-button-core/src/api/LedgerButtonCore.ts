@@ -46,8 +46,8 @@ import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
 import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
 import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
-import { dAppConfigV2ModuleTypes } from "../internal/dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
-import { type GetDAppConfigV2UseCase } from "../internal/dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/dAppConfigModuleTypes.js";
+import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -134,9 +134,7 @@ export class LedgerButtonCore {
     console.log("Initializing context");
 
     const dappConfig = await this.container
-      .get<GetDAppConfigV2UseCase>(
-        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
-      )
+      .get<GetDAppConfigUseCase>(dAppConfigModuleTypes.GetDAppConfigUseCase)
       .execute();
 
     console.log("dappConfigv2", dappConfig);
@@ -376,9 +374,7 @@ export class LedgerButtonCore {
 
   async getReferralUrl() {
     return this.container
-      .get<GetDAppConfigV2UseCase>(
-        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
-      )
+      .get<GetDAppConfigUseCase>(dAppConfigModuleTypes.GetDAppConfigUseCase)
       .execute()
       .then((res) => res.referralUrl);
   }

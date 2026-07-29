@@ -2,8 +2,8 @@ import { type Factory, inject, injectable } from "inversify";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
-import { dAppConfigV2ModuleTypes } from "../../dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
-import { type GetDAppConfigV2UseCase } from "../../dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
+import { type GetDAppConfigUseCase } from "../../dAppConfig/use-case/GetDAppConfigUseCase.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -26,8 +26,8 @@ export class DefaultAccountService implements AccountService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase)
-    private readonly getDAppConfigV2UseCase: GetDAppConfigV2UseCase,
+    @inject(dAppConfigModuleTypes.GetDAppConfigUseCase)
+    private readonly getDAppConfigUseCase: GetDAppConfigUseCase,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
@@ -67,7 +67,7 @@ export class DefaultAccountService implements AccountService {
     cloudSyncData: CloudSyncData,
   ): Promise<Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    const dAppConfig = await this.getDAppConfigV2UseCase.execute();
+    const dAppConfig = await this.getDAppConfigUseCase.execute();
     const supportedNetworks = dAppConfig.blockchains.flatMap(
       (blockchain) => blockchain.networks,
     );
