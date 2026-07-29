@@ -9,7 +9,7 @@ import { consentModuleFactory } from "./consent/consentModule.js";
 import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
 import { currencyModuleFactory } from "./currency/currencyModule.js";
-import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
+import { dAppConfigModuleFactory } from "./dAppConfig/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";

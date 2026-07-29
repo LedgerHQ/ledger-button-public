@@ -4,7 +4,7 @@ import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFaca
 import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
 import type { ContextService } from "../../../internal/context/ContextService.js";
-import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
+import type { DAppConfig } from "../../../internal/dAppConfig/model/dAppConfigTypes.js";
 import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
 import { SolanaBlockchainProvider } from "../../../internal/solana-provider/SolanaBlockchainProvider.js";
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
@@ -56,7 +56,7 @@ const loggerFactory = () =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }) as any;
 
-const createMockDAppConfig = (): DAppConfigV2 =>
+const createMockDAppConfig = (): DAppConfig =>
   ({
     name: "test",
     liveAppId: "test",
@@ -64,7 +64,7 @@ const createMockDAppConfig = (): DAppConfigV2 =>
     referralUrl: "test",
     blockchains: [evmConfig, solanaConfig],
     featureFlags: {},
-  }) as DAppConfigV2;
+  }) as DAppConfig;
 
 const createMockContextService = (
   account?: Account,
@@ -96,7 +96,7 @@ const createMockContextService = (
 describe("DefaultBlockchainProviderManager", () => {
   let manager: DefaultBlockchainProviderManager;
   let core: CoreFacade;
-  let dappConfig: DAppConfigV2;
+  let dappConfig: DAppConfig;
 
   const evmInstance = () =>
     vi.mocked(EvmBlockchainProvider).mock.results[0]?.value as {
