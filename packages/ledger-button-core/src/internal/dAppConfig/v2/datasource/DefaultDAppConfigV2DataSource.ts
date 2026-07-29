@@ -25,16 +25,15 @@ export class DefaultDAppConfigV2DataSource implements DAppConfigV2DataSource {
 
     const dAppIdentifier = this.config.dAppIdentifier;
     // Hits the /v2/config endpoint. For now this default is unused at runtime
-    // (DI wires StubDAppConfigV2DataSource); the call mirrors
-    // DefaultDAppConfigService until the v2 response mapping below is done.
+    // (DI wires StubDAppConfigV2DataSource).
     const config = await this.backendService.getConfigV2({ dAppIdentifier });
 
     if (config.isLeft()) {
       throw new Error("Failed to get DApp config V2");
     }
 
-    // TODO: map the v1 ConfigResponse to the v2 DAppConfigV2 shape once the
-    // backend exposes the v2 endpoint.
+    // TODO: map the backend response to the v2 DAppConfigV2 shape once the
+    // /v2/config response contract is confirmed.
     throw new Error("DefaultDAppConfigV2DataSource not yet implemented");
   }
 }

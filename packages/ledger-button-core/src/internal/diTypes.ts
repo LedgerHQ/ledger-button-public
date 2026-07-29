@@ -18,7 +18,6 @@ export type ContainerOptions = {
       device: boolean;
       web3Provider: boolean;
       solanaProvider: boolean;
-      dAppConfig: boolean;
       transactionHistory: boolean;
     }>;
   };
