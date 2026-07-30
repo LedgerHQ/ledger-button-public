@@ -2,8 +2,8 @@ import { ContainerModule } from "inversify";
 
 import { DAppConfigDataSource } from "./datasource/DAppConfigDataSource.js";
 import { StubDAppConfigDataSource } from "./datasource/StubDAppConfigDataSource.js";
-import { dAppConfigModuleTypes } from "./dAppConfigModuleTypes.js";
 import { GetDAppConfigUseCase } from "./use-case/GetDAppConfigUseCase.js";
+import { dAppConfigModuleTypes } from "./dAppConfigModuleTypes.js";
 
 export function dAppConfigModuleFactory() {
   return new ContainerModule(({ bind }) => {
