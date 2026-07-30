@@ -3,9 +3,16 @@ import type { WalletAccount } from "@wallet-standard/base";
 import { of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
+import { attachSolanaSignature } from "./utils/signatureUtils.js";
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import { Account } from "../../account/service/AccountService.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+
+vi.mock("./utils/signatureUtils.js", () => ({
+  attachSolanaSignature: vi.fn(() => new Uint8Array([9, 9, 9])),
+}));
 
 // System program id: a valid 32-byte base58 address.
 const SOLANA_ADDRESS = "11111111111111111111111111111111";
@@ -59,20 +66,27 @@ const createMockHost = (): {
 
 const stubWalletAccount = { address: SOLANA_ADDRESS } as WalletAccount;
 
+const createMockSignUseCase = (): {
+  execute: ReturnType<typeof vi.fn>;
+} => ({
+  execute: vi.fn(),
+});
+
 describe("LedgerSolanaWallet (connection)", () => {
   let host: ReturnType<typeof createMockHost>;
-  let signSolanaMessage: { execute: ReturnType<typeof vi.fn> };
+  let signSolanaMessage: ReturnType<typeof createMockSignUseCase>;
+  let signUseCase: ReturnType<typeof createMockSignUseCase>;
 
   const createWallet = () =>
     new LedgerSolanaWallet(host as unknown as CoreFacade, {
       signSolanaMessage: signSolanaMessage as never,
+      signSolanaTransaction: signUseCase as unknown as SignSolanaTransaction,
     });
 
   beforeEach(() => {
     host = createMockHost();
-    signSolanaMessage = {
-      execute: vi.fn(),
-    };
+    signSolanaMessage = createMockSignUseCase();
+    signUseCase = createMockSignUseCase();
   });
 
   afterEach(() => {
@@ -112,7 +126,10 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(accounts).toHaveLength(1);
       expect(accounts[0].address).toBe(SOLANA_ADDRESS);
       expect(accounts[0].chains).toEqual(["solana:mainnet"]);
-      expect(accounts[0].features).toEqual(["solana:signMessage"]);
+      expect(accounts[0].features).toEqual([
+        "solana:signMessage",
+        "solana:signTransaction",
+      ]);
       expect(wallet.accounts).toBe(accounts);
     });
 
@@ -245,6 +262,109 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(result.signedMessage).toBe(signedMessageBytes);
       expect(result.signature).toEqual(signatureBytes);
       expect(result.signatureType).toBe("ed25519");
+    });
+  });
+
+  describe("signTransaction", () => {
+    const transaction = new Uint8Array([1, 2, 3, 4]);
+    const solanaSignature = new Uint8Array(64).fill(7);
+
+    const successStatus: SignFlowStatus = {
+      signType: "transaction",
+      status: "success",
+      data: { solanaSignature },
+    };
+
+    it("runs the use-case and returns the reassembled signed transaction", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const [result] = await wallet.features[
+        "solana:signTransaction"
+      ].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(signUseCase.execute).toHaveBeenCalledWith(
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
+        expect.objectContaining({ freshAddress: SOLANA_ADDRESS }),
+      );
+      expect(attachSolanaSignature).toHaveBeenCalledWith(
+        transaction,
+        SOLANA_ADDRESS,
+        solanaSignature,
+      );
+      expect(result.signedTransaction).toEqual(new Uint8Array([9, 9, 9]));
+    });
+
+    it("tracks each sign-flow status with the solana transaction params", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
+        successStatus,
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
+      );
+    });
+
+    it("tracks an error status emitted by the use-case", async () => {
+      const errorStatus: SignFlowStatus = {
+        signType: "transaction",
+        status: "error",
+        error: new Error("sign failed"),
+      };
+      signUseCase.execute.mockReturnValue(of(errorStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      // The sign promise only settles on success or a modal close; an error
+      // status just surfaces in the modal, so start the flow without awaiting
+      // its (never-settling) resolution and let the sync emission be tracked.
+      void wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
+        errorStatus,
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
+      );
+    });
+
+    it("emits a signTransaction navigation intent", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(host.emitNavigationIntent).toHaveBeenCalledWith(
+        expect.objectContaining({ name: "signTransaction" }),
+      );
     });
   });
 });

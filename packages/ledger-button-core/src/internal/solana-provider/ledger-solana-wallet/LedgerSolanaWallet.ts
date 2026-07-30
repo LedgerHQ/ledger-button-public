@@ -33,10 +33,14 @@ import {
 } from "@wallet-standard/features";
 import { type Observable, Subject, type Subscription } from "rxjs";
 
+import { isSignedSolanaTransactionResult } from "./model/SolanaSignedResult.js";
+export type { SolanaSignedResult } from "./model/SolanaSignedResult.js";
+import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
 import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils.js";
+import { attachSolanaSignature } from "./utils/signatureUtils.js";
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
@@ -44,8 +48,12 @@ import {
   isSignedMessageOrTypedDataResult,
   type SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import type {
+  SignFlowStatus,
+  SignType,
+} from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
+import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
 import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
 import { getLedgerProviderIcon } from "../../../internal/blockchain-provider/wallet-provider/ledgerProviderIcon.js";
 import type { SignSolanaMessage } from "../use-case/SignSolanaMessage.js";
@@ -107,8 +115,9 @@ type SolanaWalletFeatures = StandardConnectFeature &
   StandardEventsFeature &
   SolanaSignFeatures;
 
-type SignSolanaMessageDeps = {
+type LedgerSolanaWalletDeps = {
   signSolanaMessage: SignSolanaMessage;
+  signSolanaTransaction: SignSolanaTransaction;
 };
 
 export class LedgerSolanaWallet implements Wallet {
@@ -125,7 +134,7 @@ export class LedgerSolanaWallet implements Wallet {
 
   constructor(
     private readonly host: CoreFacade,
-    private readonly deps: SignSolanaMessageDeps,
+    private readonly deps: LedgerSolanaWalletDeps,
   ) {}
 
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
@@ -233,9 +242,50 @@ export class LedgerSolanaWallet implements Wallet {
   private readonly signTransaction: SolanaSignTransactionMethod = async (
     ...inputs
   ) => {
-    console.log("[LedgerSolanaWallet] solana:signTransaction", inputs);
-    return inputs.map((input) => ({ signedTransaction: input.transaction }));
+    const account = await this.resolveSolanaAccount();
+
+    // Hardware signing is one confirmation at a time; process sequentially.
+    const results: { signedTransaction: Uint8Array }[] = [];
+    for (const input of inputs) {
+      results.push(
+        await this.signSolanaTransaction(account, input.transaction),
+      );
+    }
+    return results;
   };
+
+  /**
+   * Runs the full Solana sign flow for one transaction: emits a
+   * {@link WalletNavigationIntent} so the UI can render/drive the flow, runs the
+   * {@link SignSolanaTransaction} use-case, and resolves with the reassembled
+   * signed wire transaction. Mirrors the EVM `handleBlockchainRequest`.
+   */
+  private signSolanaTransaction(
+    account: ProviderAccount,
+    transaction: Uint8Array,
+  ): Promise<{ signedTransaction: Uint8Array }> {
+    const params: SignSolanaTransactionParams = {
+      kind: "solana-transaction",
+      address: account.freshAddress,
+      transaction,
+    };
+
+    return this.runSignFlow(
+      params,
+      "transaction",
+      () => this.deps.signSolanaTransaction.execute(params, account),
+      (data) =>
+        isSignedSolanaTransactionResult(data)
+          ? {
+              signedTransaction: attachSolanaSignature(
+                transaction,
+                account.freshAddress,
+                data.solanaSignature,
+              ),
+            }
+          : undefined,
+    );
+  }
 
   private readonly signAndSendTransaction: SolanaSignAndSendTransactionMethod =
     async (...inputs) => {
@@ -259,11 +309,27 @@ export class LedgerSolanaWallet implements Wallet {
     return account;
   }
 
-  private handleSignFlow(
-    params: SignSolanaMessageParams,
+  /**
+   * Shared driver for every Solana sign flow (message / transaction). Emits a
+   * {@link WalletNavigationIntent} so the button UI can render and drive the
+   * phase, runs `runUseCase`, forwards each {@link SignFlowStatus} to the modal
+   * (and to core for tracking), and resolves once `mapResult` turns a success
+   * status into a caller-shaped value. Mirrors the EVM `handleBlockchainRequest`.
+   *
+   * The promise only settles on a mapped success or a modal close; error
+   * statuses (thrown synchronously, streamed via rxjs `error`, or emitted as a
+   * `status: "error"` value) surface in the modal so the user can retry.
+   *
+   * @param mapResult maps a success payload to the resolved value, or returns
+   * `undefined` to keep waiting when the payload is not the expected shape.
+   */
+  private runSignFlow<T>(
+    params: SignSolanaMessageParams | SignSolanaTransactionParams,
+    signType: SignType,
     runUseCase: () => Observable<SignFlowStatus>,
-  ): Promise<SignedResults> {
-    return new Promise<SignedResults>((resolve, reject) => {
+    mapResult: (data: SignedResults) => T | undefined,
+  ): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
       const status$ = new Subject<SignFlowStatus>();
       let subscription: Subscription | undefined;
       let settled = false;
@@ -282,39 +348,37 @@ export class LedgerSolanaWallet implements Wallet {
         globalThis.removeEventListener?.("ledger-provider-close", onClose);
       };
 
+      const emitError = (error: unknown) => {
+        const status: SignFlowStatus = { signType, status: "error", error };
+        this.host.trackBroadcastedTransaction(status, params);
+        status$.next(status);
+      };
+
       const start = () => {
         subscription?.unsubscribe();
         let observable: Observable<SignFlowStatus>;
         try {
           observable = runUseCase();
         } catch (error) {
-          status$.next({
-            signType: "solana-message",
-            status: "error",
-            error,
-          });
+          emitError(error);
           return;
         }
         subscription = observable.subscribe({
           next: (status) => {
             this.host.trackBroadcastedTransaction(status, params);
             status$.next(status);
-            if (status.status === "success") {
-              settled = true;
-              globalThis.removeEventListener?.(
-                "ledger-provider-close",
-                onClose,
-              );
-              resolve(status.data);
+            if (status.status !== "success") {
+              return;
             }
+            const result = mapResult(status.data);
+            if (result === undefined) {
+              return;
+            }
+            settled = true;
+            globalThis.removeEventListener?.("ledger-provider-close", onClose);
+            resolve(result);
           },
-          error: (error) => {
-            status$.next({
-              signType: "solana-message",
-              status: "error",
-              error,
-            });
-          },
+          error: emitError,
         });
       };
 
@@ -335,7 +399,7 @@ export class LedgerSolanaWallet implements Wallet {
     });
   }
 
-  private async signSolanaMessage(
+  private signSolanaMessage(
     account: ProviderAccount,
     message: Uint8Array,
   ): Promise<{ signature: Uint8Array; signedMessage: Uint8Array }> {
@@ -345,25 +409,22 @@ export class LedgerSolanaWallet implements Wallet {
       message,
     };
 
-    const result = await this.handleSignFlow(params, () =>
-      this.deps.signSolanaMessage.execute(
-        params,
-        this._selectedAccount ?? undefined,
-      ),
+    return this.runSignFlow(
+      params,
+      "solana-message",
+      () =>
+        this.deps.signSolanaMessage.execute(
+          params,
+          this._selectedAccount ?? undefined,
+        ),
+      (data) =>
+        isSignedMessageOrTypedDataResult(data) && data.signedMessage
+          ? {
+              signature: new Uint8Array(base58Encoder.encode(data.signature)),
+              signedMessage: data.signedMessage,
+            }
+          : undefined,
     );
-
-    if (!isSignedMessageOrTypedDataResult(result) || !result.signedMessage) {
-      throw new Error("Unexpected message signing result");
-    }
-
-    try {
-      return {
-        signature: new Uint8Array(base58Encoder.encode(result.signature)),
-        signedMessage: result.signedMessage,
-      };
-    } catch (error) {
-      throw new Error("Failed to decode message signature", { cause: error });
-    }
   }
 
   private toWalletAccount(account: ProviderAccount): WalletAccount {
@@ -374,7 +435,7 @@ export class LedgerSolanaWallet implements Wallet {
         addressEncoder.encode(address(account.freshAddress)),
       ),
       chains: [CLUSTER_TO_CHAIN[cluster]],
-      features: ["solana:signMessage"],
+      features: ["solana:signMessage", "solana:signTransaction"],
     };
   }
 
