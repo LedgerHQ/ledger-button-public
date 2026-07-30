@@ -50,13 +50,14 @@ describe("SolanaBlockchainProvider", () => {
   });
 
   describe("injectWalletProviders()", () => {
-    test("creates LedgerSolanaWallet with core and sign use case", () => {
+    test("creates LedgerSolanaWallet with core and the sign use-cases", () => {
       provider.injectWalletProviders();
 
       expect(LedgerSolanaWallet).toHaveBeenCalledWith(
         core,
         expect.objectContaining({
           signSolanaMessage: expect.any(Object),
+          signSolanaTransaction: expect.any(Object),
         }),
       );
     });
