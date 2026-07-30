@@ -7,6 +7,7 @@ import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
 import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
+import { formatTitle } from "../../../utils/format-title.js";
 
 export interface LedgerToolbarAttributes {
   title?: string;
@@ -135,7 +136,7 @@ export class LedgerToolbar extends LitElement {
               : this.title
                 ? html`
                     <div class="flex flex-col items-center">
-                      <h2 class="text-base body-2">${this.title}</h2>
+                      <h2 class="text-base body-2">${formatTitle(this.title)}</h2>
                       ${this.subtitle
                         ? html`<span class="text-muted body-3"
                             >${this.subtitle}</span
