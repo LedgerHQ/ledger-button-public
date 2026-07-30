@@ -54,7 +54,6 @@ export function initializeLedgerProvider({
       account: false,
       device: false,
       web3Provider: false,
-      dAppConfig: false,
     },
   },
 }: InitializeLedgerProviderOptions): () => void {

@@ -2,8 +2,8 @@ import { type Factory, inject, injectable } from "inversify";
 
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { DAppConfigDataSource } from "../datasource/DAppConfigDataSource.js";
 import { dAppConfigModuleTypes } from "../dAppConfigModuleTypes.js";
+import type { DAppConfigDataSource } from "../datasource/DAppConfigDataSource.js";
 import { DAppConfig } from "../model/dAppConfigTypes.js";
 
 @injectable()

@@ -68,7 +68,6 @@ export class LedgerButtonPlayground extends LitElement {
           base: true,
           device: false,
           web3Provider: true,
-          dAppConfig: false,
         },
       },
       target: this.app,
