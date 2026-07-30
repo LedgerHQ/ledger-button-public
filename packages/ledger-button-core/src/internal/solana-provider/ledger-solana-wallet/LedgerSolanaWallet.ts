@@ -140,9 +140,30 @@ export class LedgerSolanaWallet implements Wallet {
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
   setSelectedAccount(account: ProviderAccount | undefined): void {
     this._selectedAccount = account;
+
     if (!account) {
       void this.disconnect();
+      return;
     }
+
+    // Nothing to propagate until the dApp has connected (accounts not announced yet).
+    if (this._accounts.length === 0) {
+      return;
+    }
+
+    // Switching to a non-Solana account -> disconnect the Solana dApp.
+    if (!isSupportedSolanaCurrency(account.currencyId)) {
+      void this.disconnect();
+      return;
+    }
+
+    // No actual change -> emit nothing.
+    if (this._accounts[0]?.address === account.freshAddress) {
+      return;
+    }
+
+    this._accounts = [this.toWalletAccount(account)];
+    this.emitChange({ accounts: this._accounts });
   }
 
   /** No-op for Solana today; kept for the BlockchainProvider contract. */
