@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 
 import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
+import type { SignSolanaTransaction } from "./ledger-solana-wallet/use-case/SignSolanaTransaction.js";
 import { isSupportedSolanaCurrency } from "./ledger-solana-wallet/utils/clusterUtils.js";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
 import type { BlockchainProvider } from "../../api/blockchain-provider/model/BlockchainProvider.js";
@@ -15,8 +16,10 @@ import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 /**
  * Solana {@link BlockchainProvider}: entry point for the Solana family.
  *
- * Created by {@link DefaultBlockchainProviderManager} with core and dApp
- * config; wiring happens in {@link injectWalletProviders}.
+ * Owns a self-contained Inversify container that binds the host
+ * {@link CoreFacade} and the per-provider {@link BlockchainConfig} as constants,
+ * then wires the Solana sign-flow collaborators on top of them, mirroring
+ * {@link EvmBlockchainProvider}.
  */
 export class SolanaBlockchainProvider implements BlockchainProvider {
   public readonly family: BlockchainFamily = "solana";
@@ -43,6 +46,9 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
     this.wallet = new LedgerSolanaWallet(this.core, {
       signSolanaMessage: this.container.get<SignSolanaMessage>(
         solanaProviderModuleTypes.SignSolanaMessageUseCase,
+      ),
+      signSolanaTransaction: this.container.get<SignSolanaTransaction>(
+        solanaProviderModuleTypes.SignTransactionUseCase,
       ),
     });
     this.walletProvider = new SolanaWalletProvider(this.wallet);
