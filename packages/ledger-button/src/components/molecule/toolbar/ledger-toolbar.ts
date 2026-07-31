@@ -6,6 +6,7 @@ import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
 import { tailwindElement } from "../../../tailwind-element.js";
+import { formatTitle } from "../../../utils/format-title.js";
 import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
 
 export interface LedgerToolbarAttributes {
@@ -119,7 +120,7 @@ export class LedgerToolbar extends LitElement {
           </div>
         </div>
         <div
-          class="pointer-events-none absolute left-0 right-0 flex items-center justify-center"
+          class="pointer-events-none absolute right-0 left-0 flex items-center justify-center"
         >
           <div class="pointer-events-auto">
             ${this.deviceModelId
@@ -135,7 +136,9 @@ export class LedgerToolbar extends LitElement {
               : this.title
                 ? html`
                     <div class="flex flex-col items-center">
-                      <h2 class="text-base body-2">${this.title}</h2>
+                      <h2 class="body-2 text-base">
+                        ${formatTitle(this.title)}
+                      </h2>
                       ${this.subtitle
                         ? html`<span class="text-muted body-3"
                             >${this.subtitle}</span
@@ -150,9 +153,7 @@ export class LedgerToolbar extends LitElement {
         <div class="flex w-72 items-center justify-end gap-8">
           ${this.showSettings
             ? html`
-                <div
-                  class="flex h-32 w-32 items-center justify-center"
-                >
+                <div class="flex h-32 w-32 items-center justify-center">
                   <ledger-button
                     data-testid="settings-button"
                     .icon=${true}
@@ -165,9 +166,7 @@ export class LedgerToolbar extends LitElement {
                 </div>
               `
             : nothing}
-          <div
-            class="flex h-32 w-32 items-center justify-center"
-          >
+          <div class="flex h-32 w-32 items-center justify-center">
             ${this.canClose
               ? html`
                   <ledger-button
