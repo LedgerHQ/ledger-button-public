@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 
-import { BlockchainRpcMethods } from "../../../../api/model/dappConfig/BlockchainConfig.js";
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import { DAppConfigV2 } from "../model/dAppConfigV2Types.js";
-import { DAppConfigV2DataSource } from "./DAppConfigV2DataSource.js";
+import { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { Config } from "../../config/model/config.js";
+import { DAppConfig } from "../model/dAppConfigTypes.js";
+import { DAppConfigDataSource } from "./DAppConfigDataSource.js";
 
 const EVM_DEFAULT_NETWORKS = [
   {
@@ -109,7 +109,7 @@ const EVM_DEFAULT_RPC_METHODS: BlockchainRpcMethods = {
   ],
 };
 
-const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
+const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
   ledger: {
     name: "Ledger",
     liveAppId: "ledger",
@@ -232,22 +232,22 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
 };
 
 @injectable()
-export class StubDAppConfigV2DataSource implements DAppConfigV2DataSource {
+export class StubDAppConfigDataSource implements DAppConfigDataSource {
   constructor(
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {}
 
-  async getDAppConfig(): Promise<DAppConfigV2> {
+  async getDAppConfig(): Promise<DAppConfig> {
     const dAppIdentifier = this.config.dAppIdentifier;
-    const dAppConfigV2 = STUB_DAPP_CONFIGS_V2[dAppIdentifier];
+    const dAppConfig = STUB_DAPP_CONFIGS[dAppIdentifier];
 
-    if (!dAppConfigV2) {
+    if (!dAppConfig) {
       throw new Error(
-        `No stub dApp config V2 found for dAppIdentifier: ${dAppIdentifier}`,
+        `No stub dApp config found for dAppIdentifier: ${dAppIdentifier}`,
       );
     }
 
-    return dAppConfigV2;
+    return dAppConfig;
   }
 }

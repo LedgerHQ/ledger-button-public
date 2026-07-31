@@ -8,7 +8,7 @@ import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainC
 import type { Account } from "../../../internal/account/service/AccountService.js";
 import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
 import type { ContextService } from "../../../internal/context/ContextService.js";
-import type { DAppConfigV2 } from "../../../internal/dAppConfig/v2/model/dAppConfigV2Types.js";
+import type { DAppConfig } from "../../../internal/dAppConfig/model/dAppConfigTypes.js";
 import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
 import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
@@ -37,7 +37,7 @@ export class DefaultBlockchainProviderManager
     this.logger = loggerFactory("BlockchainProviderManager");
   }
 
-  init(coreFacade: CoreFacade, dappConfig: DAppConfigV2): void {
+  init(coreFacade: CoreFacade, dappConfig: DAppConfig): void {
     const providers: BlockchainProvider[] = [];
     console.log("Initializing blockchain providers");
     const evmConfig = this.getBlockchainConfig(dappConfig, "ethereum");
@@ -64,7 +64,7 @@ export class DefaultBlockchainProviderManager
 
   /** Per-family slice of the dApp config handed to a single provider module. */
   private getBlockchainConfig(
-    dappConfig: DAppConfigV2,
+    dappConfig: DAppConfig,
     family: BlockchainFamily,
   ): BlockchainConfig | undefined {
     return dappConfig.blockchains?.find(
