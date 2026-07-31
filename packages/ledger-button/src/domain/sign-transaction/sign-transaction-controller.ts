@@ -9,11 +9,13 @@ import {
   isSignPersonalMessageParams,
   isSignRawTransactionParams,
   isSignSolanaMessageParams,
+  isSignSolanaTransactionParams,
   isSignTransactionParams,
   type SignedResults,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
   type SignSolanaMessageParams,
+  type SignSolanaTransactionParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
   type UserInteractionNeeded,
@@ -115,7 +117,8 @@ export class SignTransactionController implements ReactiveController {
       | SignRawTransactionParams
       | SignTypedMessageParams
       | SignPersonalMessageParams
-      | SignSolanaMessageParams;
+      | SignSolanaMessageParams
+      | SignSolanaTransactionParams;
     this.explorerTemplatePrefetch = this.isTransactionParameter(
       transactionParams,
     )
@@ -172,6 +175,7 @@ export class SignTransactionController implements ReactiveController {
       | SignTypedMessageParams
       | SignPersonalMessageParams
       | SignSolanaMessageParams
+      | SignSolanaTransactionParams
       | undefined,
   ): boolean {
     if (!transactionParams) {
@@ -187,7 +191,8 @@ export class SignTransactionController implements ReactiveController {
 
     return (
       isSignTransactionParams(transactionParams) ||
-      isSignRawTransactionParams(transactionParams)
+      isSignRawTransactionParams(transactionParams) ||
+      isSignSolanaTransactionParams(transactionParams)
     );
   }
 
