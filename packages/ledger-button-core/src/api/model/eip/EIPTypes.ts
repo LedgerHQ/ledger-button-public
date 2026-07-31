@@ -20,30 +20,10 @@ export type RpcMethods =
   | "personal_sign"
   | "wallet_switchEthereumChain";
 
-export type JSONRPCRequest = {
-  readonly jsonrpc: string;
-  readonly id: number;
+export type RequestArguments = {
   readonly method: RpcMethods;
   readonly params: readonly unknown[] | object;
 };
-
-export type JsonRpcResponseSuccess = {
-  id: number;
-  jsonrpc: string;
-  result: string | object;
-};
-
-export type JsonRpcResponseError = {
-  id: number;
-  jsonrpc: string;
-  error: {
-    code: number;
-    message: string;
-  };
-};
-export type JsonRpcResponse = JsonRpcResponseSuccess | JsonRpcResponseError;
-
-export type RequestArguments = Pick<JSONRPCRequest, "method" | "params">;
 
 export interface ProviderRpcError extends Error {
   code: number;

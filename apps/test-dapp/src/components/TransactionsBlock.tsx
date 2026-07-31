@@ -50,6 +50,7 @@ interface TransactionsBlockProps {
   result: string | null;
   error: string | null;
   onClearResult: () => void;
+  apiKey: string;
 }
 
 const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
@@ -69,17 +70,42 @@ interface ActionButton {
 }
 
 const ACTIONS: ActionButton[] = [
-  { type: "sign-tx", icon: <Signature size={24} />, label: "Sign TX", group: "tx" },
-  { type: "send-tx", icon: <ArrowUpRight size={24} />, label: "Send TX", group: "tx" },
-  { type: "sign-raw-tx", icon: <DocumentCode size={24} />, label: "Sign Raw TX", group: "tx" },
-  { type: "sign-typed-data", icon: <Clip size={24} />, label: "Typed Data", group: "msg" },
+  {
+    type: "sign-tx",
+    icon: <Signature size={24} />,
+    label: "Sign TX",
+    group: "tx",
+  },
+  {
+    type: "send-tx",
+    icon: <ArrowUpRight size={24} />,
+    label: "Send TX",
+    group: "tx",
+  },
+  {
+    type: "sign-raw-tx",
+    icon: <DocumentCode size={24} />,
+    label: "Sign Raw TX",
+    group: "tx",
+  },
+  {
+    type: "sign-typed-data",
+    icon: <Clip size={24} />,
+    label: "Typed Data",
+    group: "msg",
+  },
   {
     type: "sign-personal-message",
     icon: <MessageChat size={24} />,
     label: "Personal Msg",
     group: "msg",
   },
-  { type: "provider-request", icon: <Tools size={24} />, label: "RPC Request", group: "msg" },
+  {
+    type: "provider-request",
+    icon: <Tools size={24} />,
+    label: "RPC Request",
+    group: "msg",
+  },
 ];
 
 export function TransactionsBlock({
@@ -94,6 +120,7 @@ export function TransactionsBlock({
   result,
   error,
   onClearResult,
+  apiKey,
 }: TransactionsBlockProps) {
   const [modalType, setModalType] = useState<ModalType>(null);
 
@@ -114,15 +141,22 @@ export function TransactionsBlock({
   const modalContent = useMemo(() => {
     const modals: Record<NonNullable<ModalType>, ReactNode> = {
       "sign-tx": (
-        <SignTransactionModal onSubmit={onSignTransaction} onClose={closeModal} />
+        <SignTransactionModal
+          onSubmit={onSignTransaction}
+          onClose={closeModal}
+        />
       ),
       "send-tx": (
-        <SendTransactionModal onSubmit={onSendTransaction} onClose={closeModal} />
+        <SendTransactionModal
+          onSubmit={onSendTransaction}
+          onClose={closeModal}
+        />
       ),
       "sign-raw-tx": (
         <SignRawTransactionModal
           onSubmit={onSignRawTransaction}
           onClose={closeModal}
+          apiKey={apiKey}
         />
       ),
       "sign-typed-data": (
@@ -135,7 +169,10 @@ export function TransactionsBlock({
         />
       ),
       "provider-request": (
-        <ProviderRequestModal onSubmit={onProviderRequest} onClose={closeModal} />
+        <ProviderRequestModal
+          onSubmit={onProviderRequest}
+          onClose={closeModal}
+        />
       ),
     };
 
@@ -149,6 +186,7 @@ export function TransactionsBlock({
     onSignTypedData,
     onSignPersonalMessage,
     onProviderRequest,
+    apiKey,
   ]);
 
   const txActions = ACTIONS.filter((a) => a.group === "tx");
@@ -157,20 +195,20 @@ export function TransactionsBlock({
   const renderContent = () => {
     if (!isConnected) {
       return (
-        <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
-            <p className="body-2 text-muted">
-              Connect to a provider to access transaction features.
-            </p>
+        <div className="bg-muted border-muted rounded-lg border border-dashed p-20 text-center">
+          <p className="body-2 text-muted">
+            Connect to a provider to access transaction features.
+          </p>
         </div>
       );
     }
 
     if (!hasAccount) {
       return (
-        <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
-            <p className="body-2 text-muted">
-              Request an account to access transaction features.
-            </p>
+        <div className="bg-muted border-muted rounded-lg border border-dashed p-20 text-center">
+          <p className="body-2 text-muted">
+            Request an account to access transaction features.
+          </p>
         </div>
       );
     }
@@ -178,18 +216,18 @@ export function TransactionsBlock({
     return (
       <div className="space-y-20">
         <div className="space-y-10">
-          <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
             Transactions
           </h4>
           <div className="grid grid-cols-3 gap-10">
             {txActions.map((action) => (
               <button
                 key={action.type}
-                className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px"
+                className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px"
                 onClick={() => openModal(action.type)}
               >
-                <span className="mb-6 text-muted">{action.icon}</span>
-                <span className="body-2-semi-bold text-base text-center leading-tight">
+                <span className="text-muted mb-6">{action.icon}</span>
+                <span className="body-2-semi-bold text-center text-base leading-tight">
                   {action.label}
                 </span>
               </button>
@@ -198,18 +236,18 @@ export function TransactionsBlock({
         </div>
 
         <div className="space-y-10">
-          <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
             Messages & Data
           </h4>
           <div className="grid grid-cols-3 gap-10">
             {msgActions.map((action) => (
               <button
                 key={action.type}
-                className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px"
+                className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px"
                 onClick={() => openModal(action.type)}
               >
-                <span className="mb-6 text-muted">{action.icon}</span>
-                <span className="body-2-semi-bold text-base text-center leading-tight">
+                <span className="text-muted mb-6">{action.icon}</span>
+                <span className="body-2-semi-bold text-center text-base leading-tight">
                   {action.label}
                 </span>
               </button>
@@ -218,9 +256,9 @@ export function TransactionsBlock({
         </div>
 
         {(result || error) && (
-          <div className="pt-16 border-t border-muted space-y-10">
-            <div className="flex justify-between items-center">
-              <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <div className="border-muted space-y-10 border-t pt-16">
+            <div className="flex items-center justify-between">
+              <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
                 Last Result
               </h4>
               <Button appearance="gray" size="sm" onClick={onClearResult}>
@@ -228,17 +266,13 @@ export function TransactionsBlock({
               </Button>
             </div>
             {result && (
-              <div className="p-12 bg-success-transparent border border-success rounded-lg break-all">
-                <code className="body-4 font-mono text-base">
-                  {result}
-                </code>
+              <div className="bg-success-transparent border-success rounded-lg border p-12 break-all">
+                <code className="body-4 font-mono text-base">{result}</code>
               </div>
             )}
             {error && (
-              <div className="p-12 bg-error-transparent border border-error rounded-lg break-all">
-                <code className="body-4 font-mono text-error">
-                  {error}
-                </code>
+              <div className="bg-error-transparent border-error rounded-lg border p-12 break-all">
+                <code className="body-4 text-error font-mono">{error}</code>
               </div>
             )}
           </div>
@@ -248,20 +282,19 @@ export function TransactionsBlock({
   };
 
   return (
-    <div className="border border-muted rounded-lg overflow-hidden">
-      <div className="px-24 py-16 bg-muted">
-        <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
+    <div className="border-muted overflow-hidden rounded-lg border">
+      <div className="bg-muted px-24 py-16">
+        <h3 className="body-2-semi-bold flex items-center gap-10 text-base">
           <CreditCard size={20} />
           Transactions & Signing
         </h3>
       </div>
 
-      <div className="p-24 bg-canvas">{renderContent()}</div>
+      <div className="bg-canvas p-24">{renderContent()}</div>
 
       <Dialog open={isModalOpen} onOpenChange={(open) => !open && closeModal()}>
         <DialogContent>
           <DialogHeader
-            appearance="compact"
             title={modalType ? MODAL_TITLES[modalType] : ""}
             onClose={closeModal}
           />

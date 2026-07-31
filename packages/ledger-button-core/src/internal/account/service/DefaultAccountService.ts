@@ -1,8 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
-import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/service/DAppConfigService.js";
+import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -19,14 +20,13 @@ import {
 export class DefaultAccountService implements AccountService {
   private readonly logger: LoggerPublisher;
   accounts: Account[] = [];
-  selectedAccount: Account | null = null;
 
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(dAppConfigModuleTypes.DAppConfigService)
+    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
     private readonly dAppConfigService: DAppConfigService,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
@@ -42,20 +42,16 @@ export class DefaultAccountService implements AccountService {
     this.setAccounts(mappedAccounts);
   }
 
-  selectAccount(account: Account): void {
+  selectAccount(account: Account, family: BlockchainFamily): void {
     const found = this.accounts.find((acc) => acc.id === account.id);
 
     if (found) {
-      this.selectedAccount = found;
       this.logger.info("Account selected, saving to storage", {
         account: found,
+        family,
       });
-      this.storageService.saveSelectedAccount(found);
+      this.storageService.saveSelectedAccount(found, family);
     }
-  }
-
-  getSelectedAccount(): Account | null {
-    return this.selectedAccount;
   }
 
   getAccounts(): Account[] {

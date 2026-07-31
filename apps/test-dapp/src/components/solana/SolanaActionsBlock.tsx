@@ -12,25 +12,38 @@ import {
 import {
   ArrowUpRight,
   CreditCard,
+  Exchange,
   MessageChat,
   Signature,
 } from "@ledgerhq/lumen-ui-react/symbols";
 
 import {
+  JupiterSwapModal,
+  type JupiterSwapValues,
   SignSolanaMessageModal,
   SolanaTransferModal,
   type SolanaTransferValues,
 } from "./modals";
 
-type ModalType = "sign-message" | "sign-tx" | "send-tx" | null;
+type ModalType =
+  | "sign-message"
+  | "sign-tx"
+  | "send-tx"
+  | "jupiter-sign"
+  | "jupiter-swap"
+  | null;
 
 interface SolanaActionsBlockProps {
   isConnected: boolean;
   canSignMessage: boolean;
   canSignTransaction: boolean;
+  canSendTransaction: boolean;
+  canJupiterSwap: boolean;
   onSignMessage: (message: string) => Promise<void>;
   onSignTransaction: (values: SolanaTransferValues) => Promise<void>;
   onSendTransaction: (values: SolanaTransferValues) => Promise<void>;
+  onJupiterSign: (values: JupiterSwapValues) => Promise<void>;
+  onJupiterSwap: (values: JupiterSwapValues) => Promise<void>;
   result: string | null;
   error: string | null;
   onClearResult: () => void;
@@ -40,12 +53,17 @@ const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
   "sign-message": "Sign Message",
   "sign-tx": "Sign Transaction (SOL transfer)",
   "send-tx": "Send Transaction (SOL transfer)",
+  "jupiter-sign": "Jupiter Swap (sign only)",
+  "jupiter-swap": "Jupiter Swap (sign & execute)",
 };
+
+type ActionGroup = "solana" | "jupiter";
 
 interface ActionButton {
   type: NonNullable<ModalType>;
   icon: ReactNode;
   label: string;
+  group: ActionGroup;
 }
 
 const ACTIONS: ActionButton[] = [
@@ -53,18 +71,45 @@ const ACTIONS: ActionButton[] = [
     type: "sign-message",
     icon: <MessageChat size={24} />,
     label: "Sign Message",
+    group: "solana",
   },
-  { type: "sign-tx", icon: <Signature size={24} />, label: "Sign TX" },
-  { type: "send-tx", icon: <ArrowUpRight size={24} />, label: "Send TX" },
+  {
+    type: "sign-tx",
+    icon: <Signature size={24} />,
+    label: "Sign TX",
+    group: "solana",
+  },
+  {
+    type: "send-tx",
+    icon: <ArrowUpRight size={24} />,
+    label: "Send TX",
+    group: "solana",
+  },
+  {
+    type: "jupiter-sign",
+    icon: <Signature size={24} />,
+    label: "Sign Swap",
+    group: "jupiter",
+  },
+  {
+    type: "jupiter-swap",
+    icon: <Exchange size={24} />,
+    label: "Sign & Execute",
+    group: "jupiter",
+  },
 ];
 
 export function SolanaActionsBlock({
   isConnected,
   canSignMessage,
   canSignTransaction,
+  canSendTransaction,
+  canJupiterSwap,
   onSignMessage,
   onSignTransaction,
   onSendTransaction,
+  onJupiterSign,
+  onJupiterSwap,
   result,
   error,
   onClearResult,
@@ -88,10 +133,7 @@ export function SolanaActionsBlock({
   const modalContent = useMemo(() => {
     const modals: Record<NonNullable<ModalType>, ReactNode> = {
       "sign-message": (
-        <SignSolanaMessageModal
-          onSubmit={onSignMessage}
-          onClose={closeModal}
-        />
+        <SignSolanaMessageModal onSubmit={onSignMessage} onClose={closeModal} />
       ),
       "sign-tx": (
         <SolanaTransferModal
@@ -107,15 +149,37 @@ export function SolanaActionsBlock({
           onClose={closeModal}
         />
       ),
+      "jupiter-sign": (
+        <JupiterSwapModal
+          submitLabel="Sign Swap"
+          onSubmit={onJupiterSign}
+          onClose={closeModal}
+        />
+      ),
+      "jupiter-swap": (
+        <JupiterSwapModal
+          submitLabel="Sign & Execute Swap"
+          onSubmit={onJupiterSwap}
+          onClose={closeModal}
+        />
+      ),
     };
 
     return modalType ? modals[modalType] : null;
-  }, [modalType, closeModal, onSignMessage, onSignTransaction, onSendTransaction]);
+  }, [
+    modalType,
+    closeModal,
+    onSignMessage,
+    onSignTransaction,
+    onSendTransaction,
+    onJupiterSign,
+    onJupiterSwap,
+  ]);
 
   const renderContent = () => {
     if (!isConnected) {
       return (
-        <div className="text-center p-20 bg-muted rounded-lg border border-dashed border-muted">
+        <div className="bg-muted border-muted rounded-lg border border-dashed p-20 text-center">
           <p className="body-2 text-muted">
             Connect a Solana wallet to access signing features.
           </p>
@@ -123,46 +187,83 @@ export function SolanaActionsBlock({
       );
     }
 
+    const isActionDisabled = (type: NonNullable<ModalType>): boolean => {
+      switch (type) {
+        case "sign-message":
+          return !canSignMessage;
+        case "sign-tx":
+          return !canSignTransaction;
+        case "send-tx":
+          return !canSendTransaction;
+        case "jupiter-sign":
+        case "jupiter-swap":
+          return !canJupiterSwap;
+      }
+    };
+
+    const actionTooltip = (
+      type: NonNullable<ModalType>,
+    ): string | undefined => {
+      if (!isActionDisabled(type)) {
+        return undefined;
+      }
+      if (type === "jupiter-sign" || type === "jupiter-swap") {
+        return "Jupiter requires mainnet and the solana:signTransaction feature";
+      }
+      return "This wallet does not support this method";
+    };
+
+    const renderActionButton = (action: ActionButton) => {
+      const disabled = isActionDisabled(action.type);
+      return (
+        <button
+          key={action.type}
+          disabled={disabled}
+          className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          onClick={() => openModal(action.type)}
+          title={actionTooltip(action.type)}
+        >
+          <span className="text-muted mb-6">{action.icon}</span>
+          <span className="body-2-semi-bold text-center text-base leading-tight">
+            {action.label}
+          </span>
+        </button>
+      );
+    };
+
+    const solanaActions = ACTIONS.filter((action) => action.group === "solana");
+    const jupiterActions = ACTIONS.filter(
+      (action) => action.group === "jupiter",
+    );
+
     return (
       <div className="space-y-20">
         <div className="space-y-10">
-          <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
             Solana Actions
           </h4>
           <div className="grid grid-cols-3 gap-10">
-            {ACTIONS.map((action) => {
-              const disabled =
-                action.type === "sign-message"
-                  ? !canSignMessage
-                  : action.type === "sign-tx"
-                    ? !canSignTransaction
-                    : false;
-              return (
-                <button
-                  key={action.type}
-                  disabled={disabled}
-                  className="flex flex-col items-center p-16 bg-muted rounded-lg border border-muted hover:border-base hover:bg-muted-transparent transition-all cursor-pointer hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                  onClick={() => openModal(action.type)}
-                  title={
-                    disabled
-                      ? "This wallet does not support this method"
-                      : undefined
-                  }
-                >
-                  <span className="mb-6 text-muted">{action.icon}</span>
-                  <span className="body-2-semi-bold text-base text-center leading-tight">
-                    {action.label}
-                  </span>
-                </button>
-              );
-            })}
+            {solanaActions.map(renderActionButton)}
+          </div>
+        </div>
+
+        <div className="space-y-10">
+          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+            Jupiter API (Swap)
+          </h4>
+          <p className="body-4 text-muted">
+            Swap transactions crafted and broadcast by Jupiter&apos;s Ultra API.
+            Mainnet only.
+          </p>
+          <div className="grid grid-cols-3 gap-10">
+            {jupiterActions.map(renderActionButton)}
           </div>
         </div>
 
         {(result || error) && (
-          <div className="pt-16 border-t border-muted space-y-10">
-            <div className="flex justify-between items-center">
-              <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <div className="border-muted space-y-10 border-t pt-16">
+            <div className="flex items-center justify-between">
+              <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
                 Last Result
               </h4>
               <Button appearance="gray" size="sm" onClick={onClearResult}>
@@ -170,13 +271,13 @@ export function SolanaActionsBlock({
               </Button>
             </div>
             {result && (
-              <div className="p-12 bg-success-transparent border border-success rounded-lg break-all">
+              <div className="bg-success-transparent border-success rounded-lg border p-12 break-all">
                 <code className="body-4 font-mono text-base">{result}</code>
               </div>
             )}
             {error && (
-              <div className="p-12 bg-error-transparent border border-error rounded-lg break-all">
-                <code className="body-4 font-mono text-error">{error}</code>
+              <div className="bg-error-transparent border-error rounded-lg border p-12 break-all">
+                <code className="body-4 text-error font-mono">{error}</code>
               </div>
             )}
           </div>
@@ -186,20 +287,19 @@ export function SolanaActionsBlock({
   };
 
   return (
-    <div className="border border-muted rounded-lg overflow-hidden">
-      <div className="px-24 py-16 bg-muted">
-        <h3 className="flex items-center gap-10 body-2-semi-bold text-base">
+    <div className="border-muted overflow-hidden rounded-lg border">
+      <div className="bg-muted px-24 py-16">
+        <h3 className="body-2-semi-bold flex items-center gap-10 text-base">
           <CreditCard size={20} />
           Transactions & Signing
         </h3>
       </div>
 
-      <div className="p-24 bg-canvas">{renderContent()}</div>
+      <div className="bg-canvas p-24">{renderContent()}</div>
 
       <Dialog open={isModalOpen} onOpenChange={(open) => !open && closeModal()}>
         <DialogContent>
           <DialogHeader
-            appearance="compact"
             title={modalType ? MODAL_TITLES[modalType] : ""}
             onClose={closeModal}
           />

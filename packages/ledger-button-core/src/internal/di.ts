@@ -13,17 +13,17 @@ import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
-import { evmProviderModuleFactory } from "./evm-provider/evmProviderModule.js";
 import { ledgerSyncModuleFactory } from "./ledgersync/ledgerSyncModule.js";
 import { loggerModuleFactory } from "./logger/loggerModule.js";
 import { modalModuleFactory } from "./modal/modalModule.js";
+import { navigationModuleFactory } from "./navigation/navigationModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTransactionModule.js";
 import { platformModuleFactory } from "./platform/platformModule.js";
 import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
-import { transactionModuleFactory } from "./transaction/transactionModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
+import { blockchainProviderModuleFactory } from "../internal/blockchain-provider/blockchainProviderModule.js";
 import { ContainerOptions } from "./diTypes.js";
 
 export function createContainer({
@@ -63,17 +63,17 @@ export function createContainer({
     storageModuleFactory({ stub: devConfig.stub.base }),
     consentModuleFactory(),
     networkModuleFactory({ stub: devConfig.stub.base }),
-    transactionModuleFactory({ stub: devConfig.stub.base }),
     transactionHistoryModuleFactory({
       stub: devConfig.stub.transactionHistory,
     }),
-    evmProviderModuleFactory({ stub: devConfig.stub.web3Provider }),
     solanaProviderModuleFactory({ stub: devConfig.stub.solanaProvider }),
+    blockchainProviderModuleFactory(),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),
     cloudSyncModuleFactory({ stub: devConfig.stub.base }),
     platformModuleFactory(),
     modalModuleFactory(),
+    navigationModuleFactory(),
     contextModuleFactory(),
     pendingTransactionModuleFactory(),
   );

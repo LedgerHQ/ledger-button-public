@@ -1,9 +1,11 @@
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
+import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
+import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
 import type { Account } from "../account/service/AccountService.js";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import type { Device } from "../device/model/Device.js";
-import * as chainUtils from "../evm-provider/utils/chainUtils.js";
+import * as chainUtils from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { DefaultContextService } from "./DefaultContextService.js";
 
@@ -74,12 +76,13 @@ describe("DefaultContextService", () => {
 
       expect(context).toEqual({
         connectedDevice: undefined,
-        selectedAccount: undefined,
+        selectedAccounts: new Map(),
         trustChainId: undefined,
         applicationPath: undefined,
         chainId: 1,
         welcomeScreenCompleted: false,
         hasTrackingConsent: undefined,
+        hasDeveloperMode: false,
         isMobilePlatform: false,
         preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
       });
@@ -106,24 +109,26 @@ describe("DefaultContextService", () => {
         eventArgs: {
           context: {
             connectedDevice: mockDevice,
-            selectedAccount: mockAccount,
+            selectedAccounts: new Map([["ethereum", mockAccount]]),
             trustChainId: mockTrustchain.trustChainId,
             applicationPath: mockTrustchain.applicationPath,
             chainId: 137,
             welcomeScreenCompleted: false,
             hasTrackingConsent: false,
+            hasDeveloperMode: false,
             isMobilePlatform: false,
             preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
           },
         },
         expectedContext: {
           connectedDevice: mockDevice,
-          selectedAccount: mockAccount,
+          selectedAccounts: new Map([["ethereum", mockAccount]]),
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 137,
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -133,27 +138,30 @@ describe("DefaultContextService", () => {
         eventArgs: { chainId: 42161 },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: 42161,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
       },
       {
         eventType: "account_changed",
-        eventArgs: { account: mockAccountPolygon },
+        eventArgs: { account: mockAccountPolygon, family: "ethereum" },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: mockAccountPolygon,
+          selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
+          activeFamily: "ethereum",
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.polygon,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -163,12 +171,13 @@ describe("DefaultContextService", () => {
         eventArgs: { account: mockAccountPolygon },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: mockAccountPolygon,
+          selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.polygon,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -178,12 +187,13 @@ describe("DefaultContextService", () => {
         eventArgs: { device: mockDevice },
         expectedContext: {
           connectedDevice: mockDevice,
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -199,16 +209,19 @@ describe("DefaultContextService", () => {
           service.onEvent({
             type: "account_changed",
             account: mockAccount,
+            family: "ethereum",
           });
         },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: mockAccount,
+          selectedAccounts: new Map([["ethereum", mockAccount]]),
+          activeFamily: "ethereum",
           trustChainId: undefined,
           applicationPath: undefined,
           chainId: chainIdMap.ethereum,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -221,12 +234,13 @@ describe("DefaultContextService", () => {
         },
         expectedContext: {
           connectedDevice: undefined,
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: mockTrustchain.trustChainId,
           applicationPath: mockTrustchain.applicationPath,
           chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -239,25 +253,28 @@ describe("DefaultContextService", () => {
             type: "initialize_context",
             context: {
               connectedDevice: mockDevice,
-              selectedAccount: mockAccount,
+              selectedAccounts: new Map([["ethereum", mockAccount]]),
+              activeFamily: "ethereum",
               trustChainId: mockTrustchain.trustChainId,
               applicationPath: mockTrustchain.applicationPath,
               chainId: 137,
               welcomeScreenCompleted: false,
               hasTrackingConsent: false,
+              hasDeveloperMode: false,
               isMobilePlatform: false,
               preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
             },
           });
         },
         expectedContext: {
-          selectedAccount: undefined,
+          selectedAccounts: new Map(),
           trustChainId: undefined,
           connectedDevice: undefined,
           applicationPath: undefined,
           chainId: 137,
           welcomeScreenCompleted: false,
           hasTrackingConsent: false,
+          hasDeveloperMode: false,
           isMobilePlatform: false,
           preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
         },
@@ -276,6 +293,163 @@ describe("DefaultContextService", () => {
       expect(service.getContext()).toEqual(event.expectedContext);
     });
 
+    describe("activeFamily", () => {
+      const mockSolanaAccount = {
+        address: "SoLaNaAddResS1111111111111111111111111111111",
+        freshAddress: "SoLaNaAddResS1111111111111111111111111111111",
+        currencyId: "solana",
+        name: "Solana Account",
+      } as unknown as Account;
+
+      it("should set activeFamily to the family of the changed account", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        expect(service.getContext().activeFamily).toBe("solana");
+      });
+
+      it("should update activeFamily to the most recently selected family", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        expect(service.getContext().activeFamily).toBe("solana");
+      });
+
+      it("should switch activeFamily on active_family_changed when the family is connected", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        service.onEvent({ type: "active_family_changed", family: "ethereum" });
+
+        expect(service.getContext().activeFamily).toBe("ethereum");
+      });
+
+      it("should ignore active_family_changed for a family without a selected account", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+
+        service.onEvent({ type: "active_family_changed", family: "solana" });
+
+        expect(service.getContext().activeFamily).toBe("ethereum");
+      });
+
+      it("should fall back to a remaining family when the active one is disconnected", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        service.onEvent({ type: "account_disconnected", family: "solana" });
+
+        expect(service.getContext().activeFamily).toBe("ethereum");
+      });
+
+      it("should clear activeFamily when the last family is disconnected", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        service.onEvent({ type: "account_disconnected", family: "solana" });
+
+        expect(service.getContext().activeFamily).toBeUndefined();
+      });
+
+      it("should emit a distinct snapshot on every event so consumers detect the switch", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        const emissions: BlockchainFamily[] = [];
+        const references: ButtonCoreContext[] = [];
+        const subscription = service.observeContext().subscribe((ctx) => {
+          references.push(ctx);
+          if (ctx.activeFamily) {
+            emissions.push(ctx.activeFamily);
+          }
+        });
+
+        service.onEvent({ type: "active_family_changed", family: "ethereum" });
+
+        subscription.unsubscribe();
+
+        // Last emitted snapshot reflects the switch...
+        expect(emissions.at(-1)).toBe("ethereum");
+        // ...and is a different object reference than the previous one, so a
+        // downstream `distinctUntilChanged` can detect the change.
+        expect(references.at(-1)).not.toBe(references.at(-2));
+      });
+
+      it("should not mutate previously emitted snapshots when a later event fires", () => {
+        service.onEvent({
+          type: "account_changed",
+          account: mockAccount,
+          family: "ethereum",
+        });
+        service.onEvent({
+          type: "account_changed",
+          account: mockSolanaAccount,
+          family: "solana",
+        });
+
+        const snapshots: ButtonCoreContext[] = [];
+        const subscription = service
+          .observeContext()
+          .subscribe((ctx) => snapshots.push(ctx));
+
+        // Snapshot observed before the switch: active family is "solana".
+        const before = snapshots.at(-1);
+        expect(before?.activeFamily).toBe("solana");
+
+        service.onEvent({ type: "active_family_changed", family: "ethereum" });
+
+        subscription.unsubscribe();
+
+        // The earlier snapshot must NOT be mutated retroactively by the switch,
+        // otherwise a downstream `distinctUntilChanged` would compare two equal
+        // objects and wrongly suppress the emission.
+        expect(before?.activeFamily).toBe("solana");
+        expect(snapshots.at(-1)?.activeFamily).toBe("ethereum");
+        expect(before).not.toBe(snapshots.at(-1));
+      });
+    });
+
     describe("welcome_screen_completed event", () => {
       it("should set welcomeScreenCompleted to true", () => {
         expect(service.getContext().welcomeScreenCompleted).toBe(false);
@@ -283,6 +457,16 @@ describe("DefaultContextService", () => {
         service.onEvent({ type: "welcome_screen_completed" });
 
         expect(service.getContext().welcomeScreenCompleted).toBe(true);
+      });
+    });
+
+    describe("developer_mode_enabled event", () => {
+      it("should set hasDeveloperMode to true", () => {
+        expect(service.getContext().hasDeveloperMode).toBe(false);
+
+        service.onEvent({ type: "developer_mode_enabled" });
+
+        expect(service.getContext().hasDeveloperMode).toBe(true);
       });
     });
 

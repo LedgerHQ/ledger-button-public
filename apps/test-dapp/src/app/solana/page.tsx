@@ -3,15 +3,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
 import {
-  useConnection,
-  useWallet,
-} from "@solana/wallet-adapter-react";
+  address,
+  appendTransactionMessageInstruction,
+  createTransactionMessage,
+  getBase58Decoder,
+  getBase64EncodedWireTransaction,
+  pipe,
+  setTransactionMessageFeePayerSigner,
+  setTransactionMessageLifetimeUsingBlockhash,
+  signAndSendTransactionMessageWithSigners,
+  signTransactionMessageWithSigners,
+  type TransactionSigner,
+} from "@solana/kit";
 import {
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
-import bs58 from "bs58";
+  useSelectedWalletAccount,
+  useSignMessage,
+  useSignTransaction,
+  useWalletAccountTransactionSendingSigner,
+  useWalletAccountTransactionSigner,
+} from "@solana/react";
+import { getTransferSolInstruction } from "@solana-program/system";
+import { type UiWalletAccount } from "@wallet-standard/react";
 import dynamic from "next/dynamic";
 
 import { type ActivityEntry, ActivityLog } from "../../components";
@@ -23,7 +35,19 @@ import {
   SolanaSettingsBlock,
   WalletSelectionBlock,
 } from "../../components/solana";
+import {
+  base64ToBytes,
+  bytesToBase64,
+  executeJupiterUltraOrder,
+  getJupiterUltraOrder,
+  type JupiterSwapValues,
+} from "../../components/solana/jupiter";
 import { type SolanaTransferValues } from "../../components/solana/modals";
+import {
+  type SolanaRpc,
+  useSolanaChain,
+} from "../../components/solana/solanaChainContext";
+import { type SolanaChain } from "../../components/solana/solanaCluster";
 
 const SolanaProviders = dynamic(
   () => import("../../components/solana/SolanaProviders"),
@@ -38,6 +62,10 @@ function nextActivityId(): string {
 
 export default function SolanaPage() {
   const [cluster, setCluster] = useState<SolanaCluster>(DEFAULT_SOLANA_CLUSTER);
+
+  // The Ledger provider is instantiated once at the app root (<LedgerProvider>
+  // in the layout), so it is already registered as a Solana wallet (via Wallet
+  // Standard `registerWallet`) and discoverable here without re-initializing.
 
   return (
     <SolanaProviders cluster={cluster}>
@@ -55,14 +83,8 @@ function SolanaPageContent({
   cluster,
   onClusterChange,
 }: SolanaPageContentProps) {
-  const { connection } = useConnection();
-  const {
-    publicKey,
-    connected,
-    signMessage,
-    signTransaction,
-    sendTransaction,
-  } = useWallet();
+  // Safe here because this subtree is rendered inside <SolanaProviders>.
+  const [selectedAccount] = useSelectedWalletAccount();
 
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [result, setResult] = useState<string | null>(null);
@@ -116,10 +138,6 @@ function SolanaPageContent({
     ]);
   }, []);
 
-  const addError = useCallback((message: string) => {
-    setError(message);
-  }, []);
-
   const clearActivity = useCallback(() => {
     setActivity([]);
   }, []);
@@ -129,100 +147,8 @@ function SolanaPageContent({
     setError(null);
   }, []);
 
-  const buildTransferTransaction = useCallback(
-    async ({ recipient, lamports }: SolanaTransferValues) => {
-      if (!publicKey) throw new Error("Wallet not connected");
-      const toPubkey = new PublicKey(recipient);
-      const { blockhash, lastValidBlockHeight } =
-        await connection.getLatestBlockhash();
-      const tx = new Transaction({
-        feePayer: publicKey,
-        blockhash,
-        lastValidBlockHeight,
-      }).add(
-        SystemProgram.transfer({
-          fromPubkey: publicKey,
-          toPubkey,
-          lamports,
-        }),
-      );
-      return tx;
-    },
-    [connection, publicKey],
-  );
-
-  const handleSignMessage = useCallback(
-    async (message: string) => {
-      if (!signMessage) {
-        setError("Selected wallet does not support signMessage");
-        return;
-      }
-      setResult(null);
-      setError(null);
-      try {
-        addInfo("signMessage", message);
-        const bytes = new TextEncoder().encode(message);
-        const signature = await signMessage(bytes);
-        setResult(bs58.encode(signature));
-      } catch (err) {
-        setError((err as Error)?.message ?? String(err));
-      }
-    },
-    [signMessage, addInfo],
-  );
-
-  const handleSignTransaction = useCallback(
-    async (values: SolanaTransferValues) => {
-      if (!signTransaction) {
-        setError("Selected wallet does not support signTransaction");
-        return;
-      }
-      setResult(null);
-      setError(null);
-      try {
-        addInfo("signTransaction (SystemProgram.transfer)", values);
-        const tx = await buildTransferTransaction(values);
-        const signed = await signTransaction(tx);
-        setResult(signed.serialize().toString("base64"));
-      } catch (err) {
-        setError((err as Error)?.message ?? String(err));
-      }
-    },
-    [signTransaction, addInfo, buildTransferTransaction],
-  );
-
-  const handleSendTransaction = useCallback(
-    async (values: SolanaTransferValues) => {
-      setResult(null);
-      setError(null);
-      try {
-        addInfo("sendTransaction (SystemProgram.transfer)", values);
-        const tx = await buildTransferTransaction(values);
-        const signature = await sendTransaction(tx, connection);
-        addInfo(`Sent — signature ${signature.slice(0, 12)}…`);
-        const { blockhash, lastValidBlockHeight } =
-          await connection.getLatestBlockhash();
-        const confirmation = await connection.confirmTransaction({
-          signature,
-          blockhash,
-          lastValidBlockHeight,
-        });
-        if (confirmation.value.err) {
-          throw new Error(JSON.stringify(confirmation.value.err));
-        }
-        setResult(signature);
-      } catch (err) {
-        setError((err as Error)?.message ?? String(err));
-      }
-    },
-    [sendTransaction, connection, addInfo, buildTransferTransaction],
-  );
-
-  const isConnected = connected && publicKey !== null;
-
   const headerSubtitle = useMemo(
-    () =>
-      `Wallet Standard discovery on Solana ${cluster.replace("-beta", " beta")}`,
+    () => `Wallet Standard discovery on Solana ${cluster}`,
     [cluster],
   );
 
@@ -243,19 +169,35 @@ function SolanaPageContent({
               onClusterChange={onClusterChange}
             />
 
-            <WalletSelectionBlock onLog={addInfo} onError={addError} />
+            <WalletSelectionBlock onLog={addInfo} onError={setError} />
 
-            <SolanaActionsBlock
-              isConnected={isConnected}
-              canSignMessage={Boolean(signMessage)}
-              canSignTransaction={Boolean(signTransaction)}
-              onSignMessage={handleSignMessage}
-              onSignTransaction={handleSignTransaction}
-              onSendTransaction={handleSendTransaction}
-              result={result}
-              error={error}
-              onClearResult={clearResult}
-            />
+            {selectedAccount ? (
+              <ConnectedSolanaActions
+                account={selectedAccount}
+                addInfo={addInfo}
+                onResult={setResult}
+                onError={setError}
+                result={result}
+                error={error}
+                onClearResult={clearResult}
+              />
+            ) : (
+              <SolanaActionsBlock
+                isConnected={false}
+                canSignMessage={false}
+                canSignTransaction={false}
+                canSendTransaction={false}
+                canJupiterSwap={false}
+                onSignMessage={async () => undefined}
+                onSignTransaction={async () => undefined}
+                onSendTransaction={async () => undefined}
+                onJupiterSign={async () => undefined}
+                onJupiterSwap={async () => undefined}
+                result={result}
+                error={error}
+                onClearResult={clearResult}
+              />
+            )}
           </div>
         </div>
 
@@ -290,5 +232,438 @@ function SolanaPageContent({
         </details>
       </div>
     </div>
+  );
+}
+
+interface ConnectedSolanaActionsProps {
+  account: UiWalletAccount;
+  addInfo: (label: string, data?: unknown) => void;
+  onResult: (value: string) => void;
+  onError: (message: string) => void;
+  result: string | null;
+  error: string | null;
+  onClearResult: () => void;
+}
+
+type SolanaActionsCallbacks = Omit<
+  ConnectedSolanaActionsProps,
+  "account" | "result" | "error"
+>;
+
+function ConnectedSolanaActions(props: ConnectedSolanaActionsProps) {
+  const { account } = props;
+  const canSignAndSend = account.features.includes(
+    "solana:signAndSendTransaction",
+  );
+  const canSignTransaction = account.features.includes(
+    "solana:signTransaction",
+  );
+
+  if (canSignAndSend) {
+    return <ConnectedSolanaActionsWithSend {...props} />;
+  }
+
+  if (canSignTransaction) {
+    return <ConnectedSolanaActionsWithSignTx {...props} />;
+  }
+
+  return <ConnectedSolanaSignMessageActions {...props} />;
+}
+
+function ConnectedSolanaSignMessageActions({
+  account,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+  result,
+  error,
+}: ConnectedSolanaActionsProps) {
+  const signMessage = useSignMessage(account);
+  const canSignMessage = account.features.includes("solana:signMessage");
+
+  const handleSignMessage = useCallback(
+    async (message: string) => {
+      onClearResult();
+      try {
+        addInfo("signMessage", message);
+        const { signature } = await signMessage({
+          message: new TextEncoder().encode(message),
+        });
+        onResult(getBase58Decoder().decode(signature));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [signMessage, addInfo, onResult, onError, onClearResult],
+  );
+
+  return (
+    <SolanaActionsBlock
+      isConnected
+      canSignMessage={canSignMessage}
+      canSignTransaction={false}
+      canSendTransaction={false}
+      canJupiterSwap={false}
+      onSignMessage={handleSignMessage}
+      onSignTransaction={async () => undefined}
+      onSendTransaction={async () => undefined}
+      onJupiterSign={async () => undefined}
+      onJupiterSwap={async () => undefined}
+      result={result}
+      error={error}
+      onClearResult={onClearResult}
+    />
+  );
+}
+
+function ConnectedSolanaActionsWithSignTx({
+  account,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+  result,
+  error,
+}: ConnectedSolanaActionsProps) {
+  const { chain, cluster, rpc } = useSolanaChain();
+  const signMessage = useSignMessage(account);
+  const transactionSigner = useWalletAccountTransactionSigner(account, chain);
+
+  const canSignMessage = account.features.includes("solana:signMessage");
+  const canSignTransaction = account.features.includes(
+    "solana:signTransaction",
+  );
+  const canJupiterSwap = cluster === "mainnet" && canSignTransaction;
+
+  const handleSignMessage = useSignMessageHandler({
+    signMessage,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const handleSignTransaction = useSignTransactionHandler({
+    rpc,
+    chain,
+    transactionSigner,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const { signOnly: handleJupiterSign, signAndExecute: handleJupiterSwap } =
+    useJupiterSwapHandlers({
+      account,
+      chain,
+      cluster,
+      addInfo,
+      onResult,
+      onError,
+      onClearResult,
+    });
+
+  return (
+    <SolanaActionsBlock
+      isConnected
+      canSignMessage={canSignMessage}
+      canSignTransaction={canSignTransaction}
+      canSendTransaction={false}
+      canJupiterSwap={canJupiterSwap}
+      onSignMessage={handleSignMessage}
+      onSignTransaction={handleSignTransaction}
+      onSendTransaction={async () => undefined}
+      onJupiterSign={handleJupiterSign}
+      onJupiterSwap={handleJupiterSwap}
+      result={result}
+      error={error}
+      onClearResult={onClearResult}
+    />
+  );
+}
+
+function ConnectedSolanaActionsWithSend({
+  account,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+  result,
+  error,
+}: ConnectedSolanaActionsProps) {
+  const { chain, cluster, rpc } = useSolanaChain();
+  const signMessage = useSignMessage(account);
+  const transactionSigner = useWalletAccountTransactionSigner(account, chain);
+  const sendingSigner = useWalletAccountTransactionSendingSigner(
+    account,
+    chain,
+  );
+
+  const canSignMessage = account.features.includes("solana:signMessage");
+  const canSignTransaction = account.features.includes(
+    "solana:signTransaction",
+  );
+  const canSendTransaction = account.features.includes(
+    "solana:signAndSendTransaction",
+  );
+  const canJupiterSwap = cluster === "mainnet" && canSignTransaction;
+
+  const handleSignMessage = useSignMessageHandler({
+    signMessage,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const handleSignTransaction = useSignTransactionHandler({
+    rpc,
+    chain,
+    transactionSigner,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const handleSendTransaction = useSendTransactionHandler({
+    rpc,
+    chain,
+    sendingSigner,
+    addInfo,
+    onResult,
+    onError,
+    onClearResult,
+  });
+
+  const { signOnly: handleJupiterSign, signAndExecute: handleJupiterSwap } =
+    useJupiterSwapHandlers({
+      account,
+      chain,
+      cluster,
+      addInfo,
+      onResult,
+      onError,
+      onClearResult,
+    });
+
+  return (
+    <SolanaActionsBlock
+      isConnected
+      canSignMessage={canSignMessage}
+      canSignTransaction={canSignTransaction}
+      canSendTransaction={canSendTransaction}
+      canJupiterSwap={canJupiterSwap}
+      onSignMessage={handleSignMessage}
+      onSignTransaction={handleSignTransaction}
+      onSendTransaction={handleSendTransaction}
+      onJupiterSign={handleJupiterSign}
+      onJupiterSwap={handleJupiterSwap}
+      result={result}
+      error={error}
+      onClearResult={onClearResult}
+    />
+  );
+}
+
+function useSignMessageHandler({
+  signMessage,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  signMessage: ReturnType<typeof useSignMessage>;
+} & SolanaActionsCallbacks) {
+  return useCallback(
+    async (message: string) => {
+      onClearResult();
+      try {
+        addInfo("signMessage", message);
+        const { signature } = await signMessage({
+          message: new TextEncoder().encode(message),
+        });
+        onResult(getBase58Decoder().decode(signature));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [signMessage, addInfo, onResult, onError, onClearResult],
+  );
+}
+
+function useSignTransactionHandler({
+  rpc,
+  chain,
+  transactionSigner,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  rpc: SolanaRpc;
+  chain: SolanaChain;
+  transactionSigner: TransactionSigner;
+} & SolanaActionsCallbacks) {
+  return useCallback(
+    async (values: SolanaTransferValues) => {
+      onClearResult();
+      try {
+        addInfo("signTransaction (transfer SOL)", values);
+        const message = await buildTransferMessage(
+          rpc,
+          chain,
+          transactionSigner,
+          values,
+        );
+        const signedTransaction =
+          await signTransactionMessageWithSigners(message);
+        onResult(getBase64EncodedWireTransaction(signedTransaction));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [rpc, chain, transactionSigner, addInfo, onResult, onError, onClearResult],
+  );
+}
+
+function useSendTransactionHandler({
+  rpc,
+  chain,
+  sendingSigner,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  rpc: SolanaRpc;
+  chain: SolanaChain;
+  sendingSigner: TransactionSigner;
+} & SolanaActionsCallbacks) {
+  return useCallback(
+    async (values: SolanaTransferValues) => {
+      onClearResult();
+      try {
+        addInfo("sendTransaction (transfer SOL)", values);
+        const message = await buildTransferMessage(
+          rpc,
+          chain,
+          sendingSigner,
+          values,
+        );
+        const signature =
+          await signAndSendTransactionMessageWithSigners(message);
+        onResult(getBase58Decoder().decode(signature));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [rpc, chain, sendingSigner, addInfo, onResult, onError, onClearResult],
+  );
+}
+
+function useJupiterSwapHandlers({
+  account,
+  chain,
+  cluster,
+  addInfo,
+  onResult,
+  onError,
+  onClearResult,
+}: {
+  account: UiWalletAccount;
+  chain: SolanaChain;
+  cluster: SolanaCluster;
+} & SolanaActionsCallbacks) {
+  const signTransaction = useSignTransaction(account, chain);
+
+  const requestOrderAndSign = useCallback(
+    async (values: JupiterSwapValues) => {
+      if (cluster !== "mainnet") {
+        throw new Error("Jupiter swaps are only available on mainnet.");
+      }
+      addInfo("jupiterSwap (requesting order)", values);
+      const order = await getJupiterUltraOrder({
+        ...values,
+        taker: account.address,
+      });
+      if (!order.transaction) {
+        throw new Error("Jupiter returned no transaction for this order.");
+      }
+      addInfo("jupiterSwap (order received)", {
+        requestId: order.requestId,
+        inAmount: order.inAmount,
+        outAmount: order.outAmount,
+      });
+      const { signedTransaction } = await signTransaction({
+        transaction: base64ToBytes(order.transaction),
+      });
+      return { order, signedTransaction };
+    },
+    [signTransaction, account.address, cluster, addInfo],
+  );
+
+  const signOnly = useCallback(
+    async (values: JupiterSwapValues) => {
+      onClearResult();
+      try {
+        const { signedTransaction } = await requestOrderAndSign(values);
+        addInfo("jupiterSwap (signed, not broadcast)", {});
+        onResult(bytesToBase64(signedTransaction));
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [requestOrderAndSign, addInfo, onResult, onError, onClearResult],
+  );
+
+  const signAndExecute = useCallback(
+    async (values: JupiterSwapValues) => {
+      onClearResult();
+      try {
+        const { order, signedTransaction } = await requestOrderAndSign(values);
+        addInfo("jupiterSwap (executing)", { requestId: order.requestId });
+        const execResult = await executeJupiterUltraOrder({
+          signedTransaction: bytesToBase64(signedTransaction),
+          requestId: order.requestId,
+        });
+        onResult(
+          execResult.signature
+            ? `https://explorer.solana.com/tx/${execResult.signature}`
+            : JSON.stringify(execResult),
+        );
+      } catch (err) {
+        onError((err as Error)?.message ?? String(err));
+      }
+    },
+    [requestOrderAndSign, addInfo, onResult, onError, onClearResult],
+  );
+
+  return { signOnly, signAndExecute };
+}
+
+async function buildTransferMessage(
+  rpc: SolanaRpc,
+  chain: SolanaChain,
+  feePayer: TransactionSigner,
+  { recipient, lamports: amount }: SolanaTransferValues,
+) {
+  const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+  return pipe(
+    createTransactionMessage({ version: 0 }),
+    (message) => setTransactionMessageFeePayerSigner(feePayer, message),
+    (message) =>
+      setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, message),
+    (message) =>
+      appendTransactionMessageInstruction(
+        getTransferSolInstruction({
+          source: feePayer,
+          destination: address(recipient),
+          amount: BigInt(amount),
+        }),
+        message,
+      ),
   );
 }

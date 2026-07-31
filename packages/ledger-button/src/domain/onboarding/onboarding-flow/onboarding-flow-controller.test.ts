@@ -14,12 +14,14 @@ function createMockContext(
 ): ButtonCoreContext {
   return {
     connectedDevice: undefined,
-    selectedAccount: undefined,
+    selectedAccounts: new Map(),
+    activeFamily: undefined,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "usd",
     ...overrides,

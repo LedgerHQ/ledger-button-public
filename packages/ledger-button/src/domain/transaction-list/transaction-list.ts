@@ -15,6 +15,8 @@ import {
 } from "../../context/language-context.js";
 import { tailwindElement } from "../../tailwind-element.js";
 
+const TRANSACTION_HISTORY_MAX_ITEMS = 20;
+
 export type TransactionListItem = {
   hash: string;
   type: TransactionType;
@@ -162,6 +164,35 @@ export class TransactionListScreen extends LitElement {
     `;
   }
 
+  private renderViewAllTransactionsLink() {
+    const label =
+      this.languages?.currentTranslation?.transactionList?.viewAllTransactions ??
+      "View all transactions";
+
+    return html`
+      <button
+        class="body-2-semi-bold text-base flex w-full cursor-pointer items-center justify-center gap-8"
+        @click=${this.handleViewAllTransactionsClick}
+      >
+        <span>${label}</span>
+        <ledger-icon
+          type="externalLink"
+          .size=${20}
+          fillColor="currentColor"
+        ></ledger-icon>
+      </button>
+    `;
+  }
+
+  private handleViewAllTransactionsClick() {
+    this.dispatchEvent(
+      new CustomEvent("view-all-transactions-click", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+  }
+
   override render(): TemplateResult {
     const hasPending = this.pendingTransactions.length > 0;
     const hasConfirmed = this.transactions.length > 0;
@@ -173,11 +204,16 @@ export class TransactionListScreen extends LitElement {
     const groupedTransactions = this.groupTransactionsByDate();
 
     return html`
-      <div class="flex flex-col gap-16">
-        ${this.renderPendingSection()}
-        ${groupedTransactions.map((group) =>
-          this.renderTransactionGroup(group),
-        )}
+      <div class="flex flex-col gap-32">
+        <div class="flex flex-col gap-16">
+          ${this.renderPendingSection()}
+          ${groupedTransactions.map((group) =>
+            this.renderTransactionGroup(group),
+          )}
+        </div>
+        ${this.transactions.length >= TRANSACTION_HISTORY_MAX_ITEMS
+          ? this.renderViewAllTransactionsLink()
+          : ""}
       </div>
     `;
   }
@@ -186,5 +222,9 @@ export class TransactionListScreen extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "transaction-list-screen": TransactionListScreen;
+  }
+
+  interface WindowEventMap {
+    "view-all-transactions-click": CustomEvent<void>;
   }
 }

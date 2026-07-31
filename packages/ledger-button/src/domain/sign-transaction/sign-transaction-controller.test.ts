@@ -6,6 +6,7 @@ import type {
   PendingTransaction,
   SignFlowStatus,
   SignTransactionParams,
+  WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject, Subject } from "rxjs";
@@ -45,6 +46,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
   let lang: LanguageContext;
   let signFlowSubject: Subject<SignFlowStatus>;
   let pendingTransactionsSubject: BehaviorSubject<PendingTransaction[]>;
+  let mockIntent: WalletNavigationIntent;
 
   const signParams: SignTransactionParams = {
     method: "eth_sendTransaction",
@@ -78,12 +80,19 @@ describe("SignTransactionController broadcast lifecycle", () => {
     signFlowSubject = new Subject<SignFlowStatus>();
     pendingTransactionsSubject = new BehaviorSubject<PendingTransaction[]>([]);
 
+    mockIntent = {
+      name: "signTransaction",
+      params: signParams,
+      status$: signFlowSubject.asObservable(),
+      finish: vi.fn(),
+      retry: vi.fn(),
+    };
+
     core = {
-      sign: vi.fn().mockReturnValue(signFlowSubject.asObservable()),
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTransactionsSubject.asObservable()),
-      getSelectedAccount: vi.fn().mockReturnValue(undefined),
+      getActiveSelectedAccount: vi.fn().mockReturnValue(undefined),
     } as unknown as CoreContext;
 
     navigation = {
@@ -118,7 +127,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
   });
 
   it("stays processing while hash has not yet entered the pool, then validates after enter+exit", async () => {
-    controller.startSigning(signParams);
+    controller.startSigning(mockIntent);
     signFlowSubject.next(broadcastSuccessResult);
 
     await vi.waitFor(() => {
@@ -151,7 +160,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
   it("stays processing while hash is pending then switches to validated", async () => {
     pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
 
-    controller.startSigning(signParams);
+    controller.startSigning(mockIntent);
     signFlowSubject.next(broadcastSuccessResult);
 
     await vi.waitFor(() => {

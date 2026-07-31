@@ -1,9 +1,10 @@
 import "../../shared/root-navigation.js";
 
-import type {
-  Account,
-  AccountWithFiat,
-  Network,
+import {
+  type Account,
+  type AccountWithFiat,
+  getActiveSelectedAccount,
+  type Network,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { firstValueFrom, Subscription } from "rxjs";
@@ -52,14 +53,15 @@ export class AvailableNetworksController implements ReactiveController {
 
     try {
       const currentContext = await firstValueFrom(this.core.observeContext());
-      this.selectedAddress = currentContext.selectedAccount?.freshAddress;
+      this.selectedAddress =
+        getActiveSelectedAccount(currentContext)?.freshAddress;
 
       if (!this.selectedAddress) {
         this.navigation.navigateBack();
         return;
       }
 
-      this.accountsSubscription = this.core.getAccounts().subscribe({
+      this.accountsSubscription = this.core.observeAccounts().subscribe({
         next: (accounts) => {
           if (this.disconnected) return;
 
@@ -128,7 +130,9 @@ export class AvailableNetworksController implements ReactiveController {
     }
   }
 
-  private sortByFiatValue(networks: NetworkWithBalance[]): NetworkWithBalance[] {
+  private sortByFiatValue(
+    networks: NetworkWithBalance[],
+  ): NetworkWithBalance[] {
     return [...networks].sort((a, b) => {
       const aVal = a.fiatBalance?.value ? parseFloat(a.fiatBalance.value) : 0;
       const bVal = b.fiatBalance?.value ? parseFloat(b.fiatBalance.value) : 0;

@@ -10,6 +10,7 @@ import {
   languages,
   type Translation,
 } from "./constants/languages.js";
+import { detectBrowserLanguage } from "./utils/language-utils.js";
 import { type CoreContext, coreContext } from "./core-context.js";
 
 // The SSOT for language & translations are the local values of the Language context.
@@ -17,7 +18,7 @@ import { type CoreContext, coreContext } from "./core-context.js";
 export class LanguageContext extends EventTarget {
   static readonly LANGUAGE_CHANGE = "languagechange";
 
-  private _currentLanguage: LangKey = DEFAULT_LANGUAGE;
+  private _currentLanguage: LangKey = detectBrowserLanguage();
 
   core?: CoreContext;
 

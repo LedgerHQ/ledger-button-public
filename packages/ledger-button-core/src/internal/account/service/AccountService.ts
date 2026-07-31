@@ -1,3 +1,4 @@
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
 
 export type CloudSyncAccount = {
@@ -76,6 +77,5 @@ export interface AccountService {
   setAccountsFromCloudSyncData(accounts: CloudSyncData): Promise<void>;
   getAccounts(): Account[];
   setAccounts(accounts: Account[]): void;
-  selectAccount(account: Account): void;
-  getSelectedAccount(): Account | null;
+  selectAccount(account: Account, family: BlockchainFamily): void;
 }

@@ -14,7 +14,7 @@
     "transactionConfirmation": {
       "transactionSentTitle": "Gesendet",
       "transactionReceivedTitle": "Empfangen",
-      "transactionFailedTitle": "Transaktion fehlgeschlagen.",
+      "transactionFailedTitle": "Transaktion fehlgeschlagen",
       "transactionSwapTitle": "Transaktion bestätigt",
       "checkOnExplorer": "Transaktion im Explorer prüfen"
     },
@@ -207,6 +207,7 @@
     "noTransactions": "Keine Transaktionen gefunden",
     "pendingTransactions": "Schwebende Transaktionen",
     "viewOnExplorer": "Im Explorer ansehen",
+    "viewAllTransactions": "Alle Transaktionen anzeigen",
     "failed": "Fehlgeschlagen",
     "kinds": {
       "swap": "Swappen",
@@ -242,6 +243,15 @@
       "title": "Hilfe & Support",
       "support": "Support",
       "contactUs": "Kontakt"
+    },
+    "developer": {
+      "title": "Entwickler"
+    },
+    "featureFlags": {
+      "title": "Feature-Flags",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {
@@ -297,6 +307,12 @@
         "cta1": "Anderes Gerät verbinden",
         "cta2": "Neues Ledger-Gerät kaufen"
       },
+      "DeviceNotOnboarded": {
+        "title": "Ledger-Gerät nicht eingerichtet",
+        "description": "Dein {device} ist nicht eingerichtet. Bitte richte dein Gerät in Ledger Wallet ein oder verwende ein anderes Ledger-Gerät.",
+        "cta1": "Ledger-Gerät einrichten",
+        "cta2": "Anderes Ledger-Gerät verwenden"
+      },
       "IncorrectSeed": {
         "title": "Inkompatibilität zwischen Ledger-Gerät und Kryptokonto",
         "description": "Zum Fortfahren verbinde das Ledger-Gerät, das dieses Kryptokonto verwaltet, oder wähle ein anderes Konto aus.",
@@ -309,17 +325,15 @@
         "cta1": "Wiederholen",
         "cta2": "Schließen"
       },
-      "UserRejectedTransaction": {
-        "title": "Transaktion abgelehnt",
-        "description": "Du hast die Transaktion auf deinem {device} abgelehnt",
-        "cta1": "Schließen",
-        "cta2": "Wiederhole die Transaktion"
+      "ActionRejected": {
+        "title": "Aktion abgelehnt",
+        "description": "Der Benutzer hat die Transaktion am Gerät abgelehnt.",
+        "cta1": "Wiederholen"
       },
-      "UserRejectedMessage": {
-        "title": "Nachricht abgelehnt",
-        "description": "Du hasst die Nachrichtensignierung auf deinem {device} abgelehnt.",
-        "cta1": "Schließen",
-        "cta2": "Signierung der Nachricht erneut versuchen"
+      "DeviceOutOfStorage": {
+        "title": "Nicht genug Speicherplatz für die {AppName}-App",
+        "description": "Dein {deviceName} hat keinen Speicherplatz mehr, daher konnte die Installation nicht automatisch erfolgen. Gib Speicherplatz in Ledger Wallet frei und installiere dann die App.",
+        "cta1": "Speicherplatz freigeben"
       }
     },
     "ledgerSync": {

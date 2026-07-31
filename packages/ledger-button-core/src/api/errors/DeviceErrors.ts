@@ -10,6 +10,14 @@ export class DeviceNotSupportedError extends LedgerButtonError<{
   }
 }
 
+export class DeviceNotOnboardedError extends LedgerButtonError<{
+  modelId: DeviceModelId;
+}> {
+  constructor(message: string, context: { modelId: DeviceModelId }) {
+    super(message, "DeviceNotOnboardedError", context);
+  }
+}
+
 export class DeviceDisconnectedError extends LedgerButtonError<{
   deviceModel?: string;
   connectionType?: "bluetooth" | "usb";
@@ -37,5 +45,13 @@ export class BlindSigningDisabledError extends LedgerButtonError {
 export class UserRejectedTransactionError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
     super(message, "UserRejectedTransactionError", context);
+  }
+}
+
+export class DeviceOutOfMemoryError extends LedgerButtonError<{
+  appName?: string;
+}> {
+  constructor(message: string, context?: { appName?: string }) {
+    super(message, "DeviceOutOfMemoryError", context);
   }
 }

@@ -17,12 +17,14 @@ function createMockContext(
 ): ButtonCoreContext {
   return {
     connectedDevice: undefined,
-    selectedAccount: undefined,
+    selectedAccounts: new Map(),
+    activeFamily: undefined,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: undefined,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "USD",
     ...overrides,
@@ -173,7 +175,9 @@ describe("FetchAccountsWithFiatUseCase", () => {
     });
 
     it("should return empty observable when accounts array is empty", async () => {
-      const emissions = await lastValueFrom(useCase.execute([]).pipe(toArray()));
+      const emissions = await lastValueFrom(
+        useCase.execute([]).pipe(toArray()),
+      );
 
       expect(emissions).toEqual([[]]);
       expect(mockHydrateAccountWithFiatUseCase.execute).not.toHaveBeenCalled();
@@ -334,8 +338,12 @@ describe("FetchAccountsWithFiatUseCase", () => {
       const context$ = new BehaviorSubject<ButtonCoreContext>(
         createMockContext({ preferredFiatCurrency: "usd" }),
       );
-      mockContextService.observeContext.mockReturnValue(context$.asObservable());
-      mockContextService.getContext.mockImplementation(() => context$.getValue());
+      mockContextService.observeContext.mockReturnValue(
+        context$.asObservable(),
+      );
+      mockContextService.getContext.mockImplementation(() =>
+        context$.getValue(),
+      );
 
       mockHydrateAccountWithFiatUseCase.execute.mockImplementation(
         async (account: Account) => {
@@ -399,9 +407,9 @@ describe("FetchAccountsWithFiatUseCase", () => {
       );
 
       const emissions = await lastValueFrom(
-        useCase.execute([accountWithoutBalance, accountWithBalance]).pipe(
-          toArray(),
-        ),
+        useCase
+          .execute([accountWithoutBalance, accountWithBalance])
+          .pipe(toArray()),
       );
 
       const finalEmission = emissions[emissions.length - 1];

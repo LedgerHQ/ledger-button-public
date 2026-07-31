@@ -20,6 +20,9 @@ import {
   type TransactionFlowInitializationEventData,
   type TypedMessageFlowCompletionEventData,
   type TypedMessageFlowInitializationEventData,
+  type ViewAllTransactionsClickedEventData,
+  type ViewAllTransactionsRedirectCancelledEventData,
+  type ViewAllTransactionsRedirectConfirmedEventData,
   type ViewTransactionDetailsClickedEventData,
   type WalletActionClickedEventData,
   type WalletActionType,
@@ -283,6 +286,78 @@ export class EventTrackingUtils {
     return {
       name: EventType.ViewTransactionDetailsClicked,
       type: EventType.ViewTransactionDetailsClicked,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsClickedEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsClickedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsClicked,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsClicked,
+      type: EventType.ViewAllTransactionsClicked,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsRedirectConfirmedEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsRedirectConfirmedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsRedirectConfirmed,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsRedirectConfirmed,
+      type: EventType.ViewAllTransactionsRedirectConfirmed,
+      data,
+    };
+  }
+
+  static createViewAllTransactionsRedirectCancelledEvent(
+    params: SessionEventParams & {
+      currencyId: string;
+      accountAddress: string;
+    },
+  ): EventRequest {
+    const data: ViewAllTransactionsRedirectCancelledEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.ViewAllTransactionsRedirectCancelled,
+      session_id: params.sessionId,
+      ledger_sync_user_id: params.trustChainId,
+      currency_id: params.currencyId,
+      account_address: params.accountAddress.toLowerCase(),
+    };
+
+    return {
+      name: EventType.ViewAllTransactionsRedirectCancelled,
+      type: EventType.ViewAllTransactionsRedirectCancelled,
       data,
     };
   }

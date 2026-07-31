@@ -7,6 +7,7 @@ out-tsc
 
 # dependencies
 node_modules
+.pnpm-store
 
 # IDEs and editors
 /.idea
@@ -26,6 +27,7 @@ node_modules
 
 # IDE - Cursor
 .cursor/mcp.json
+agent-files/cursor/mcp.json
 
 # misc
 /.sass-cache
@@ -60,3 +62,10 @@ storybook-static
 elm-stuff
 
 .env
+.env.local
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Agent tooling worktrees
+agent-files/claude/worktrees/

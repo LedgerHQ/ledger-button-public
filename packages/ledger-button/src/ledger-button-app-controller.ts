@@ -20,7 +20,7 @@ export class LedgerButtonAppController implements ReactiveController {
   }
 
   setupSelectedAccount() {
-    const selectedAccount = this.core.getSelectedAccount();
+    const selectedAccount = this.core.getActiveSelectedAccount();
     if (!selectedAccount) return;
 
     window.dispatchEvent(

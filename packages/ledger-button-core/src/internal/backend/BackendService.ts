@@ -20,6 +20,11 @@ export interface BackendService {
     domain?: string,
   ): Promise<Either<ConfigResponseError, ConfigResponse>>;
 
+  getConfigV2(
+    request: ConfigRequest,
+    domain?: string,
+  ): Promise<Either<ConfigResponseError, ConfigResponse>>;
+
   event(
     request: EventRequest,
     domain?: string,

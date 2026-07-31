@@ -2,8 +2,10 @@ import "../../components/index.js";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
+import type { Subscription } from "rxjs";
 
+import PACKAGE from "../../../package.json" with { type: "json" };
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
@@ -12,6 +14,8 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
+
+const DEVELOPER_MODE_CLICKS = 7;
 
 @customElement("settings-screen")
 @tailwindElement()
@@ -30,6 +34,28 @@ export class SettingsScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
+  @state()
+  private hasDeveloperMode = false;
+
+  @state()
+  private versionClickCount = 0;
+
+  private contextSubscription?: Subscription;
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.contextSubscription = this.coreContext
+      .observeContext()
+      .subscribe((context) => {
+        this.hasDeveloperMode = context.hasDeveloperMode;
+      });
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.contextSubscription?.unsubscribe();
+  }
+
   private handlePreferencesClick() {
     this.navigation.navigateTo(this.destinations.preferences);
   }
@@ -42,8 +68,21 @@ export class SettingsScreen extends LitElement {
     this.navigation.navigateTo(this.destinations.support);
   }
 
+  private handleDeveloperClick() {
+    this.navigation.navigateTo(this.destinations.developer);
+  }
+
+  private handleVersionClick() {
+    this.versionClickCount += 1;
+
+    if (this.versionClickCount >= DEVELOPER_MODE_CLICKS) {
+      this.versionClickCount = 0;
+      this.coreContext.enableDeveloperMode();
+    }
+  }
+
   private renderMenuItem(
-    icon: "settingsAlt2" | "shield" | "question",
+    icon: "settingsAlt2" | "shield" | "question" | "code",
     label: string,
     onClick?: () => void,
   ) {
@@ -55,13 +94,15 @@ export class SettingsScreen extends LitElement {
           fillColor="currentColor"
         ></ledger-icon>
 
-        <span class="body-2-semi-bold min-w-0 truncate text-base">${label}</span>
+        <span class="body-2-semi-bold min-w-0 truncate text-base"
+          >${label}</span
+        >
       </div>
       <ledger-icon
         type="chevronRight"
         .size=${16}
         fillColor="currentColor"
-        class="shrink-0 text-muted"
+        class="text-muted shrink-0"
       ></ledger-icon>
     `;
 
@@ -94,23 +135,41 @@ export class SettingsScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col items-start px-16 py-0">
-        ${this.renderMenuItem(
-          "settingsAlt2",
-          settings.preferences?.title ?? "Preferences",
-          this.handlePreferencesClick,
-        )}
-        ${this.renderMenuItem(
-          "shield",
-          settings.securityConfidentiality?.title ??
-            "Security & confidentiality",
-          this.handleSecurityClick,
-        )}
-        ${this.renderMenuItem(
-          "question",
-          settings.support?.title ?? "Help & Support",
-          this.handleHelpSupportClick,
-        )}
+      <div class="flex h-full flex-col">
+        <div class="flex flex-1 flex-col items-start px-16 py-0">
+          ${this.renderMenuItem(
+            "settingsAlt2",
+            settings.preferences?.title ?? "Preferences",
+            this.handlePreferencesClick,
+          )}
+          ${this.renderMenuItem(
+            "shield",
+            settings.securityConfidentiality?.title ??
+              "Security & confidentiality",
+            this.handleSecurityClick,
+          )}
+          ${this.renderMenuItem(
+            "question",
+            settings.support?.title ?? "Help & Support",
+            this.handleHelpSupportClick,
+          )}
+          ${this.hasDeveloperMode
+            ? this.renderMenuItem(
+                "code",
+                settings.developer?.title ?? "Developer",
+                this.handleDeveloperClick,
+              )
+            : null}
+        </div>
+        <div class="flex w-full items-center justify-center p-24">
+          <button
+            type="button"
+            class="body-2 text-muted min-w-0 flex-1 cursor-pointer truncate text-center select-none"
+            @click=${this.handleVersionClick}
+          >
+            v${PACKAGE.version}
+          </button>
+        </div>
       </div>
     `;
   }

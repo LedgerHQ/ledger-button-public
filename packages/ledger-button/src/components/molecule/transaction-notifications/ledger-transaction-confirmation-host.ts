@@ -65,15 +65,22 @@ export class LedgerTransactionConfirmationHost extends LitElement {
   }
 
   private getI18n() {
-    const tx =
-      this.languages?.currentTranslation?.common?.transactionConfirmation;
     return {
-      transactionSentTitle: tx?.transactionSentTitle ?? "Sent",
-      transactionReceivedTitle: tx?.transactionReceivedTitle ?? "Received",
+      transactionSentTitle:
+        this.languages?.currentTranslation?.common?.transactionConfirmation
+          ?.transactionSentTitle ?? "Sent",
+      transactionReceivedTitle:
+        this.languages?.currentTranslation?.common?.transactionConfirmation
+          ?.transactionReceivedTitle ?? "Received",
       transactionFailedTitle:
-        tx?.transactionFailedTitle ?? "Transaction failed",
-      transactionSwapTitle: tx?.transactionSwapTitle ?? "Transaction confirmed",
-      checkOnExplorer: tx?.checkOnExplorer ?? "Check transaction on explorer",
+        this.languages?.currentTranslation?.common?.transactionConfirmation
+          ?.transactionFailedTitle ?? "Transaction failed",
+      transactionSwapTitle:
+        this.languages?.currentTranslation?.common?.transactionConfirmation
+          ?.transactionSwapTitle ?? "Transaction confirmed",
+      checkOnExplorer:
+        this.languages?.currentTranslation?.common?.transactionConfirmation
+          ?.checkOnExplorer ?? "Check transaction on explorer",
     };
   }
 

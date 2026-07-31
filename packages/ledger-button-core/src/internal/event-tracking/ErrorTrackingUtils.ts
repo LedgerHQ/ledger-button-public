@@ -43,6 +43,7 @@ const ERROR_CATEGORY_MAP: Record<TrackedErrorType, string> = {
   BlindSigningDisabledError: "blind-signing",
   DeviceConnectionError: "device",
   DeviceNotSupportedError: "device",
+  DeviceNotOnboardedError: "device",
   DeviceDisconnectedError: "device",
   FailToOpenAppError: "device",
   IncorrectSeedError: "device",
@@ -56,6 +57,7 @@ const ERROR_CATEGORY_MAP: Record<TrackedErrorType, string> = {
   LedgerSyncError: "ledgersync",
   LedgerSyncAuthContextMissingError: "ledgersync",
   LedgerSyncNoSessionIdError: "ledgersync",
+  DeviceOutOfMemoryError: "device",
 };
 
 export const categorizeError = (error: Error): string => {

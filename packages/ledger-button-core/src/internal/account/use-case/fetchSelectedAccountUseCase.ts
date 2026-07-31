@@ -3,10 +3,15 @@ import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 import { lastValueFrom } from "rxjs";
 
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import {
+  DEFAULT_BLOCKCHAIN_FAMILY,
+  getSelectedAccount,
+} from "../../../api/model/ButtonCoreContext.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { contextModuleTypes } from "../../context/contextModuleTypes.js";
@@ -58,8 +63,10 @@ export class FetchSelectedAccountUseCase {
     this.logger = loggerFactory("FetchSelectedAccountUseCase");
   }
 
-  async execute(): Promise<Either<AccountError, DetailedAccount>> {
-    const result = await this.getSelectedAccountFromContext();
+  async execute(
+    family: BlockchainFamily = DEFAULT_BLOCKCHAIN_FAMILY,
+  ): Promise<Either<AccountError, DetailedAccount>> {
+    const result = await this.getSelectedAccountFromContext(family);
 
     if (result.isLeft()) {
       return result;
@@ -86,12 +93,15 @@ export class FetchSelectedAccountUseCase {
     return Right(detailedAccount);
   }
 
-  private async getSelectedAccountFromContext(): Promise<
+  private async getSelectedAccountFromContext(
+    family: BlockchainFamily,
+  ): Promise<
     Either<AccountError, { selected: Account; allAccounts: Account[] }>
   > {
     const context = this.contextService.getContext();
+    const selectedAccount = getSelectedAccount(context, family);
 
-    if (!context.selectedAccount) {
+    if (!selectedAccount) {
       return Left(new NoSelectedAccountError());
     }
 
@@ -100,19 +110,19 @@ export class FetchSelectedAccountUseCase {
     const accounts = await this.fetchAccountsUseCase.execute();
     const account = accounts.find(
       (a) =>
-        a.freshAddress === context.selectedAccount?.freshAddress &&
-        a.currencyId === context.selectedAccount?.currencyId,
+        a.freshAddress === selectedAccount.freshAddress &&
+        a.currencyId === selectedAccount.currencyId,
     );
 
     if (!account) {
       this.logger.error("Selected account not found in Ledger Sync accounts", {
-        address: context.selectedAccount?.freshAddress,
+        address: selectedAccount.freshAddress,
       });
 
       return Left(
         new AccountNotFoundError(
           "Selected account not found in Ledger Sync accounts",
-          { address: context.selectedAccount.freshAddress },
+          { address: selectedAccount.freshAddress },
         ),
       );
     }
@@ -174,7 +184,8 @@ export class FetchSelectedAccountUseCase {
       fiatBalance: withFiat.fiatBalance,
       tokens: withFiat.tokens,
       transactionHistory: withTxHistory.transactionHistory,
-      transactionExplorerUrlTemplate: withTxHistory.transactionExplorerUrlTemplate,
+      transactionExplorerUrlTemplate:
+        withTxHistory.transactionExplorerUrlTemplate,
       totalFiatValue,
       networks,
     };

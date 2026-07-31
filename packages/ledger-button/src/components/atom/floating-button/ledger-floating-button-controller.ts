@@ -1,7 +1,15 @@
+import {
+  getActiveSelectedAccount,
+  type PendingTransaction,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
 import { CoreContext } from "../../../context/core-context.js";
+import {
+  type AccountIdentity,
+  belongsToAccount,
+} from "../../../shared/pending-transaction-account-filter.js";
 import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
 
 const MODAL_OPEN_EVENT = "ledger-core-modal-open";
@@ -34,6 +42,8 @@ export class FloatingButtonController implements ReactiveController {
   private _previousPendingCount: number | undefined;
   private _dismissTimer: ReturnType<typeof setTimeout> | null = null;
   private _postCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private _selectedAccount: AccountIdentity | undefined;
+  private _latestPendingTxs: PendingTransaction[] = [];
 
   constructor(
     host: ReactiveControllerHost,
@@ -159,10 +169,45 @@ export class FloatingButtonController implements ReactiveController {
       this.contextSubscription.unsubscribe();
     }
 
-    this.contextSubscription = this.core.observeContext().subscribe(() => {
+    this.contextSubscription = this.core.observeContext().subscribe((ctx) => {
       this.updateConnectionState();
+      this.handleSelectedAccountChange(getActiveSelectedAccount(ctx));
       this.host.requestUpdate();
     });
+  }
+
+  private handleSelectedAccountChange(
+    nextAccount: AccountIdentity | undefined,
+  ): void {
+    const previous = this._selectedAccount;
+    const identityChanged =
+      previous?.freshAddress !== nextAccount?.freshAddress ||
+      previous?.currencyId !== nextAccount?.currencyId;
+
+    if (!identityChanged) return;
+
+    this._selectedAccount = nextAccount
+      ? {
+          freshAddress: nextAccount.freshAddress,
+          currencyId: nextAccount.currencyId,
+        }
+      : undefined;
+
+    this._previousPendingCount = undefined;
+    this._pendingIncreasedWhileModalOpen = false;
+    this.postClosePendingTooltipOpen = false;
+    this.validatedCelebrationOpen = false;
+    this.validatedCount = 0;
+    this.frozenBadgeCount = null;
+
+    this.pendingTransactionCount = this.countForSelectedAccount(
+      this._latestPendingTxs,
+    );
+  }
+
+  private countForSelectedAccount(txs: PendingTransaction[]): number {
+    return txs.filter((tx) => belongsToAccount(tx, this._selectedAccount))
+      .length;
   }
 
   private subscribeToPendingTransactions() {
@@ -173,7 +218,8 @@ export class FloatingButtonController implements ReactiveController {
     this.pendingTxSubscription = this.core
       .observePendingTransactions()
       .subscribe((txs) => {
-        const nextCount = txs.length;
+        this._latestPendingTxs = txs;
+        const nextCount = this.countForSelectedAccount(txs);
         const previousCount = this._previousPendingCount;
 
         this.pendingTransactionCount = nextCount;
@@ -214,7 +260,7 @@ export class FloatingButtonController implements ReactiveController {
   }
 
   private updateConnectionState() {
-    const selectedAccount = this.core.getSelectedAccount();
+    const selectedAccount = this.core.getActiveSelectedAccount();
     const nextConnected =
       selectedAccount !== null && selectedAccount !== undefined;
 

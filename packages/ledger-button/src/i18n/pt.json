@@ -15,8 +15,8 @@
       "transactionSentTitle": "Enviado",
       "transactionReceivedTitle": "Recebido",
       "transactionFailedTitle": "A transação falhou",
-      "transactionSwapTitle": "Transação confirmada",
-      "checkOnExplorer": "Verificar transação no explorador"
+      "transactionSwapTitle": "A transação foi confirmada",
+      "checkOnExplorer": "Ver transação no explorador"
     },
     "search": {
       "placeholder": "Buscar conta",
@@ -207,6 +207,7 @@
     "noTransactions": "Nenhuma transação encontrada",
     "pendingTransactions": "Transações pendentes",
     "viewOnExplorer": "Ver no explorador",
+    "viewAllTransactions": "Ver todas as transações",
     "failed": "Falha",
     "kinds": {
       "swap": "Trocar",
@@ -242,6 +243,15 @@
       "title": "Ajuda e suporte",
       "support": "Suporte",
       "contactUs": "Entre em contato"
+    },
+    "developer": {
+      "title": "Desenvolvedor"
+    },
+    "featureFlags": {
+      "title": "Marcadores de Recursos",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {
@@ -297,6 +307,12 @@
         "cta1": "Conecte outro dispositivo",
         "cta2": "Compre um novo dispositivo Ledger"
       },
+      "DeviceNotOnboarded": {
+        "title": "Dispositivo Ledger não configurado",
+        "description": "Sua {device} não está configurada. Configure seu dispositivo na Ledger Wallet ou use outro dispositivo Ledger.",
+        "cta1": "Configurar seu dispositivo Ledger",
+        "cta2": "Use outro dispositivo Ledger"
+      },
       "IncorrectSeed": {
         "title": "Incompatibilidade entre o dispositivo Ledger e a conta cripto",
         "description": "Para continuar, conecte o dispositivo Ledger que gerencia esta conta cripto ou escolha uma conta diferente.",
@@ -309,17 +325,15 @@
         "cta1": "Tentar Novamente",
         "cta2": "Fechar"
       },
-      "UserRejectedTransaction": {
-        "title": "Transação rejeitada",
-        "description": "Você rejeitou a transação na sua {device}",
-        "cta1": "Fechar",
-        "cta2": "Tente a transação mais uma vez"
+      "ActionRejected": {
+        "title": "Ação Rejeitada",
+        "description": "O usuário rejeitou a transação no dispositivo.",
+        "cta1": "Tentar Novamente"
       },
-      "UserRejectedMessage": {
-        "title": "Mensagem Rejeitada",
-        "description": "Você rejeitou a assinatura da mensagem em seu {device}",
-        "cta1": "Fechar",
-        "cta2": "Tentar assinar a mensagem novamente"
+      "DeviceOutOfStorage": {
+        "title": "Espaço insuficiente para o aplicativo {AppName}",
+        "description": "Seu {deviceName} está sem espaço de armazenamento, por isso não foi possível instalar automaticamente. Libere espaço na Ledger Wallet, depois instale o aplicativo.",
+        "cta1": "Liberar espaço"
       }
     },
     "ledgerSync": {

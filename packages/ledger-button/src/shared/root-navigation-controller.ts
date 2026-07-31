@@ -1,7 +1,7 @@
 import {
   Account,
+  type BlockchainFamily,
   Device,
-  SignTransactionParams,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController } from "lit";
 import { Subscription } from "rxjs";
@@ -127,8 +127,12 @@ export class RootNavigationController implements ReactiveController {
     return uiModel;
   }
 
-  async computeInitialState() {
-    const selectedAccount = await this.core.getSelectedAccount();
+  async computeInitialState(family?: BlockchainFamily) {
+    // For a family-specific request, only that family's account counts as
+    // "already connected"; otherwise fall back to the active selection.
+    const selectedAccount = family
+      ? this.core.getSelectedAccount(family)
+      : await this.core.getActiveSelectedAccount();
 
     if (!selectedAccount) {
       this.navigation.navigateTo(this.onboardingDestination);
@@ -171,6 +175,29 @@ export class RootNavigationController implements ReactiveController {
     return this.currentScreen?.toolbar.title;
   }
 
+  /**
+   * Extract the target blockchain family from a navigation intent, when the
+   * intent is a family-specific connection request emitted by core. The family
+   * is carried in the intent's `params` ({@link SelectAccountIntentParams}).
+   * Returns `undefined` for generic entry points (e.g. the floating button).
+   */
+  private resolveRequestedFamily(
+    intent: unknown,
+  ): BlockchainFamily | undefined {
+    if (!intent || typeof intent !== "object" || !("params" in intent)) {
+      return undefined;
+    }
+
+    const params = (intent as { params?: unknown }).params;
+    if (params && typeof params === "object" && "family" in params) {
+      const family = (params as { family?: unknown }).family;
+      return typeof family === "string"
+        ? (family as BlockchainFamily)
+        : undefined;
+    }
+    return undefined;
+  }
+
   // NOTE: First Draft of navigationIntent
   // Could be moved to a separate file/controller (maybe navigation ?)
   navigationIntent(route: Destination["name"], params: unknown) {
@@ -178,17 +205,27 @@ export class RootNavigationController implements ReactiveController {
 
     switch (route) {
       case "selectAccount": {
-        if (this.core.getSelectedAccount()) {
+        // A family-specific request (e.g. an EVM `eth_requestAccounts` while
+        // only Solana is connected) must be able to reach the account picker
+        // even though another family already has a selected account. Only a
+        // generic entry point (floating button, no family) short-circuits to
+        // home when any account is connected.
+        const requestedFamily = this.resolveRequestedFamily(params);
+        const alreadyConnected = requestedFamily
+          ? this.core.getSelectedAccount(requestedFamily)
+          : this.core.getActiveSelectedAccount();
+
+        if (alreadyConnected) {
           this.navigation.navigateTo(this.destinations.home);
           break;
         }
 
-        this.computeInitialState();
+        this.computeInitialState(requestedFamily);
         break;
       }
 
       case "home": {
-        if (!this.core.getSelectedAccount()) {
+        if (!this.core.getActiveSelectedAccount()) {
           this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
@@ -202,12 +239,11 @@ export class RootNavigationController implements ReactiveController {
         break;
 
       case "signTransaction": {
-        if (!this.core.getSelectedAccount()) {
+        if (!this.core.getActiveSelectedAccount()) {
           this.navigation.navigateTo(this.onboardingDestination);
           break;
         }
 
-        this.core.setCraftedTransactionParams(params as SignTransactionParams);
         this.navigation.navigateTo(this.destinations.signingFlow);
         break;
       }
@@ -301,6 +337,21 @@ export class RootNavigationController implements ReactiveController {
     this.navigation.navigateTo(this.destinations.settings);
   }
 
+  /**
+   * Open the account picker from the home panel. Unlike a dApp-driven request
+   * this is a manual entry point, but the picker must still be scoped to the
+   * family the user is currently viewing (e.g. only Solana accounts while on
+   * the Solana tab). We therefore carry the active family in the navigation
+   * params so `select-account-screen` filters the list accordingly.
+   */
+  switchAccount() {
+    const family = this.core.getActiveFamily();
+    this.params = family
+      ? { name: "selectAccount", params: { family } }
+      : undefined;
+    this.navigation.navigateTo(this.destinations.fetchAccounts);
+  }
+
   selectAccount(account: Account) {
     this.core.selectAccount(account);
     this.host.requestUpdate();
@@ -311,6 +362,6 @@ export class RootNavigationController implements ReactiveController {
   }
 
   get selectedAccount() {
-    return this.core.getSelectedAccount();
+    return this.core.getActiveSelectedAccount();
   }
 }

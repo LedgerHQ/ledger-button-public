@@ -2,6 +2,7 @@ import "../../components/index.js";
 import "../token-list/token-list.js";
 import "../transaction-list/transaction-list.js";
 
+import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -11,20 +12,28 @@ import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
 } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
-import type {
-  WalletRedirectCancelEventDetail,
-  WalletRedirectConfirmEventDetail,
-} from "../../components/molecule/wallet-redirect-drawer/ledger-wallet-redirect-drawer.js";
 import { CoreContext, coreContext } from "../../context/core-context.js";
 import {
   langContext,
   LanguageContext,
 } from "../../context/language-context.js";
-import { buildWalletActionDeepLink } from "../../shared/constants/deeplinks.js";
+import {
+  buildAccountDeepLink,
+  buildWalletActionDeepLink,
+} from "../../shared/constants/deeplinks.js";
 import { Navigation } from "../../shared/navigation.js";
 import { Destinations } from "../../shared/routes.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
+
+type RedirectIntent =
+  | { type: "action"; action: WalletTransactionFeature }
+  | { type: "account"; currency: string; address: string };
+
+const FAMILY_LABELS: Record<BlockchainFamily, string> = {
+  ethereum: "Ethereum",
+  solana: "Solana",
+};
 
 const styles = css`
   :host {
@@ -78,7 +87,7 @@ export class LedgerHomeScreen extends LitElement {
   private showRedirectDrawer = false;
 
   @state()
-  private currentAction: WalletTransactionFeature | null = null;
+  private redirectIntent: RedirectIntent | null = null;
 
   controller!: LedgerHomeController;
 
@@ -87,8 +96,6 @@ export class LedgerHomeScreen extends LitElement {
     this.controller = new LedgerHomeController(
       this,
       this.coreContext,
-      this.navigation,
-      this.destinations,
       this.languages,
     );
   }
@@ -106,73 +113,123 @@ export class LedgerHomeScreen extends LitElement {
     this.navigation.navigateTo(this.destinations.availableNetworks);
   };
 
-  private handleDisconnectClick = async () => {
-    this.dispatchEvent(
-      new CustomEvent("ledger-internal-button-disconnect", {
-        bubbles: true,
-        composed: true,
-      }),
-    );
+  private handleDisconnectClick = () => {
+    this.coreContext.disconnect();
+    this.navigation.host.closeModal();
   };
 
   private handleTabChange = (event: CustomEvent<TabChangeEventDetail>) => {
     this.activeTab = event.detail.selectedId;
   };
 
+  private handleFamilyTabChange = (
+    event: CustomEvent<TabChangeEventDetail>,
+  ) => {
+    this.controller.setActiveFamily(
+      event.detail.selectedId as BlockchainFamily,
+    );
+  };
+
+  private renderFamilyTabs() {
+    const families = this.controller.connectedFamilies;
+    if (families.length <= 1) {
+      return "";
+    }
+
+    return html`
+      <ledger-tabs
+        .tabs=${families.map((family) => ({
+          id: family,
+          label: FAMILY_LABELS[family] ?? family,
+        }))}
+        .selectedId=${this.controller.activeFamily ?? ""}
+        @tab-change=${this.handleFamilyTabChange}
+      ></ledger-tabs>
+    `;
+  }
+
   private handleWalletActionClick = (
     event: CustomEvent<WalletActionClickEventDetail>,
   ) => {
     const action = event.detail.action;
-    this.currentAction = action;
+    this.redirectIntent = { type: "action", action };
     this.showRedirectDrawer = true;
 
     void this.coreContext.trackWalletActionClicked(action);
   };
 
-  private handleRedirectConfirm = (
-    event: CustomEvent<WalletRedirectConfirmEventDetail>,
-  ) => {
-    const action = event.detail.action;
+  private handleRedirectConfirm = () => {
+    const intent = this.redirectIntent;
+    if (!intent) return;
 
-    void this.coreContext.trackWalletRedirectConfirmed(action);
+    const partner = this.coreContext.getConfig().dAppIdentifier;
 
-    const deeplink = buildWalletActionDeepLink(
-      action,
-      {
-        currency: this.controller.selectedAccount?.currencyId,
-      },
-      this.coreContext.getConfig().dAppIdentifier,
-    );
+    let deeplink: string;
+    if (intent.type === "action") {
+      void this.coreContext.trackWalletRedirectConfirmed(intent.action);
+      deeplink = buildWalletActionDeepLink(
+        intent.action,
+        {
+          currency: this.controller.selectedAccount?.currencyId,
+        },
+        partner,
+      );
+    } else {
+      void this.coreContext.trackViewAllTransactionsRedirectConfirmed({
+        currencyId: intent.currency,
+        accountAddress: intent.address,
+      });
+      deeplink = buildAccountDeepLink(
+        {
+          currency: intent.currency,
+          address: intent.address,
+        },
+        partner,
+      );
+    }
+
     window.open(deeplink, "_blank", "noopener,noreferrer");
 
     this.showRedirectDrawer = false;
-    this.currentAction = null;
+    this.redirectIntent = null;
   };
 
-  private handleRedirectCancel = (
-    event: CustomEvent<WalletRedirectCancelEventDetail>,
-  ) => {
-    const action = event.detail.action;
+  private handleRedirectCancel = () => {
+    const intent = this.redirectIntent;
 
-    void this.coreContext.trackWalletRedirectCancelled(action);
+    if (intent?.type === "action") {
+      void this.coreContext.trackWalletRedirectCancelled(intent.action);
+    } else if (intent?.type === "account") {
+      void this.coreContext.trackViewAllTransactionsRedirectCancelled({
+        currencyId: intent.currency,
+        accountAddress: intent.address,
+      });
+    }
 
     this.showRedirectDrawer = false;
-    this.currentAction = null;
+    this.redirectIntent = null;
+  };
+
+  private handleViewAllTransactionsClick = () => {
+    const account = this.controller.selectedAccount;
+    if (!account) return;
+
+    void this.coreContext.trackViewAllTransactionsClicked({
+      currencyId: account.currencyId,
+      accountAddress: account.freshAddress,
+    });
+
+    this.redirectIntent = {
+      type: "account",
+      currency: account.currencyId,
+      address: account.freshAddress,
+    };
+    this.showRedirectDrawer = true;
   };
 
   override render() {
-    if (this.controller.loading) {
-      return html`
-        <div class="h-full min-h-full overflow-hidden">
-          <ledger-lottie
-            class="animation overflow-hidden"
-            animationName="backgroundFlare"
-            .autoplay=${true}
-            .loop=${true}
-            size="full"
-          ></ledger-lottie>
-        </div>
-      `;
+    if (this.controller.loading || this.controller.switching) {
+      return this.renderBackgroundFlare();
     }
     const account = this.controller.selectedAccount;
 
@@ -187,59 +244,8 @@ export class LedgerHomeScreen extends LitElement {
       <div class="relative flex h-full flex-col">
         <div class="scrollbar-custom min-h-0 flex-1 overflow-y-auto">
           <div class="flex flex-col items-stretch gap-12 p-24 pt-0">
-            <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
-              <div class="flex flex-row items-center justify-between">
-                <ledger-account-switch
-                  class="max-w-256"
-                  .account=${account}
-                  @account-switch=${this.handleAccountItemClick}
-                ></ledger-account-switch>
-
-                <ledger-networks
-                  .networks=${account.networks}
-                  @networks-click=${this.handleNetworksClick}
-                ></ledger-networks>
-              </div>
-
-              <ledger-fiat-total
-                .value=${account.totalFiatValue?.value ?? "0"}
-                .currency=${this.controller.preferredCurrency}
-                .locale=${this.languages.locale}
-              ></ledger-fiat-total>
-            </div>
-
-            <ledger-wallet-actions
-              .features=${this.walletTransactionFeatures}
-              @wallet-action-click=${this.handleWalletActionClick}
-            ></ledger-wallet-actions>
-
-            <div class="mt-12">
-              <ledger-tabs
-                .tabs=${[
-                  { id: "tokens", label: lang.home.tabs.tokens },
-                  {
-                    id: "transactions",
-                    label: lang.home.tabs.transactions,
-                    badge:
-                      this.controller.pendingTransactionListItems.length ||
-                      undefined,
-                  },
-                ]}
-                .selectedId=${this.activeTab}
-                @tab-change=${this.handleTabChange}
-              ></ledger-tabs>
-            </div>
-
-            ${this.activeTab === "tokens"
-              ? html`<token-list-screen
-                  .account=${account}
-                  .locale=${this.languages.locale}
-                ></token-list-screen>`
-              : html`<transaction-list-screen
-                  .transactions=${this.controller.transactionListItems}
-                  .pendingTransactions=${this.controller
-                    .pendingTransactionListItems}
-                ></transaction-list-screen>`}
+            ${this.renderFamilyTabs()}
+            ${this.renderAccountContent(account, lang)}
           </div>
         </div>
 
@@ -252,16 +258,92 @@ export class LedgerHomeScreen extends LitElement {
           ></ledger-button>
         </div>
 
-        ${this.showRedirectDrawer && this.currentAction
+        ${this.showRedirectDrawer && this.redirectIntent
           ? html`
               <ledger-wallet-redirect-drawer
-                .action=${this.currentAction}
+                .action=${this.redirectIntent.type === "action"
+                  ? this.redirectIntent.action
+                  : "send"}
                 @wallet-redirect-confirm=${this.handleRedirectConfirm}
                 @wallet-redirect-cancel=${this.handleRedirectCancel}
               ></ledger-wallet-redirect-drawer>
             `
           : ""}
       </div>
+    `;
+  }
+
+  private renderBackgroundFlare() {
+    return html`
+      <div class="h-full min-h-full overflow-hidden">
+        <ledger-lottie
+          class="animation overflow-hidden"
+          animationName="backgroundFlare"
+          .autoplay=${true}
+          .loop=${true}
+          size="full"
+        ></ledger-lottie>
+      </div>
+    `;
+  }
+
+  private renderAccountContent(
+    account: NonNullable<LedgerHomeController["selectedAccount"]>,
+    lang: LanguageContext["currentTranslation"],
+  ) {
+    return html`
+      <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
+        <div class="flex flex-row items-center justify-between">
+          <ledger-account-switch
+            class="max-w-256"
+            .account=${account}
+            @account-switch=${this.handleAccountItemClick}
+          ></ledger-account-switch>
+
+          <ledger-networks
+            .networks=${account.networks}
+            @networks-click=${this.handleNetworksClick}
+          ></ledger-networks>
+        </div>
+
+        <ledger-fiat-total
+          .value=${account.totalFiatValue?.value ?? "0"}
+          .currency=${this.controller.preferredCurrency}
+          .locale=${this.languages.locale}
+        ></ledger-fiat-total>
+      </div>
+
+      <ledger-wallet-actions
+        .features=${this.walletTransactionFeatures}
+        @wallet-action-click=${this.handleWalletActionClick}
+      ></ledger-wallet-actions>
+
+      <div class="mt-12">
+        <ledger-tabs
+          .tabs=${[
+            { id: "tokens", label: lang.home.tabs.tokens },
+            {
+              id: "transactions",
+              label: lang.home.tabs.transactions,
+              badge:
+                this.controller.pendingTransactionListItems.length || undefined,
+            },
+          ]}
+          .selectedId=${this.activeTab}
+          @tab-change=${this.handleTabChange}
+        ></ledger-tabs>
+      </div>
+
+      ${this.activeTab === "tokens"
+        ? html`<token-list-screen
+            .account=${account}
+            .locale=${this.languages.locale}
+          ></token-list-screen>`
+        : html`<transaction-list-screen
+            .transactions=${this.controller.transactionListItems}
+            .pendingTransactions=${this.controller.pendingTransactionListItems}
+            @view-all-transactions-click=${this.handleViewAllTransactionsClick}
+          ></transaction-list-screen>`}
     `;
   }
 }

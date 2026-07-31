@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { languages } from "../constants/languages.js";
-import { getLanguageDisplayName } from "./language-utils.js";
+import { DEFAULT_LANGUAGE, languages } from "../constants/languages.js";
+import {
+  detectBrowserLanguage,
+  getLanguageDisplayName,
+} from "./language-utils.js";
 
 const expectedDisplayNamesInCatalogOrder: readonly string[] = [
   "English",
@@ -16,6 +19,47 @@ const expectedDisplayNamesInCatalogOrder: readonly string[] = [
   "Português",
   "ไทย",
 ];
+
+describe("detectBrowserLanguage", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function mockNavigator(languages: string[], language: string) {
+    vi.spyOn(navigator, "languages", "get").mockReturnValue(languages);
+    vi.spyOn(navigator, "language", "get").mockReturnValue(language);
+  }
+
+  test("returns the first supported language from navigator.languages", () => {
+    mockNavigator(["fr-FR", "fr", "en-US", "en"], "en-US");
+
+    expect(detectBrowserLanguage()).toBe("fr");
+  });
+
+  test("strips the region subtag before matching (e.g. 'de-DE' → 'de')", () => {
+    mockNavigator(["de-DE"], "de-DE");
+
+    expect(detectBrowserLanguage()).toBe("de");
+  });
+
+  test("falls back to navigator.language when navigator.languages has no match", () => {
+    mockNavigator(["ar-SA"], "ja-JP");
+
+    expect(detectBrowserLanguage()).toBe("ja");
+  });
+
+  test("returns DEFAULT_LANGUAGE when no candidate matches a supported language", () => {
+    mockNavigator(["ar-SA", "ar"], "ar");
+
+    expect(detectBrowserLanguage()).toBe(DEFAULT_LANGUAGE);
+  });
+
+  test("is case-insensitive (e.g. 'FR' is treated as 'fr')", () => {
+    mockNavigator(["FR"], "FR");
+
+    expect(detectBrowserLanguage()).toBe("fr");
+  });
+});
 
 describe("getLanguageDisplayName", () => {
   test("matches expected labels in `languages` catalog order", () => {
