@@ -2,8 +2,8 @@ import { type Factory, inject, injectable } from "inversify";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
-import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
+import { type GetDAppConfigUseCase } from "../../dAppConfig/use-case/GetDAppConfigUseCase.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
@@ -26,8 +26,8 @@ export class DefaultAccountService implements AccountService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
-    private readonly dAppConfigService: DAppConfigService,
+    @inject(dAppConfigModuleTypes.GetDAppConfigUseCase)
+    private readonly getDAppConfigUseCase: GetDAppConfigUseCase,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
@@ -67,20 +67,22 @@ export class DefaultAccountService implements AccountService {
     cloudSyncData: CloudSyncData,
   ): Promise<Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    const supportedBlockchains = (await this.dAppConfigService.getDAppConfig())
-      .supportedBlockchains;
+    const dAppConfig = await this.getDAppConfigUseCase.execute();
+    const supportedNetworks = dAppConfig.blockchains.flatMap(
+      (blockchain) => blockchain.networks,
+    );
 
     const accs = accounts
       .map((account) => {
-        const blockchain = supportedBlockchains.find(
-          (blockchain) => blockchain.currency_id === account.currencyId,
+        const network = supportedNetworks.find(
+          (network) => network.currencyId === account.currencyId,
         );
 
         const name =
           accountNames[account.id] ??
-          `${blockchain?.currency_name} ${account.index + 1}`;
+          `${network?.currencyName} ${account.index + 1}`;
 
-        const ticker = blockchain?.currency_ticker;
+        const ticker = network?.currencyTicker;
         return ticker
           ? ({
               ...account,
@@ -98,7 +100,7 @@ export class DefaultAccountService implements AccountService {
 
     if (accs.length === 0) {
       throw new NoCompatibleAccountsError("No accounts found", {
-        networks: supportedBlockchains.map((network) => network.currency_name),
+        networks: supportedNetworks.map((network) => network.currencyName),
       });
     }
 
