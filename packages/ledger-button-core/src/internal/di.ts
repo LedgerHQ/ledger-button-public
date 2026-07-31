@@ -9,7 +9,7 @@ import { consentModuleFactory } from "./consent/consentModule.js";
 import { contextModuleFactory } from "./context/contextModule.js";
 import { cryptographicModuleFactory } from "./cryptographic/cryptographicModule.js";
 import { currencyModuleFactory } from "./currency/currencyModule.js";
-import { dAppConfigModuleFactory } from "./dAppConfig/di/dAppConfigModule.js";
+import { dAppConfigModuleFactory } from "./dAppConfig/dAppConfigModule.js";
 import { deviceModuleFactory } from "./device/deviceModule.js";
 import { DEFAULT_ERROR_TRACKING_CONFIG } from "./event-tracking/config/ErrorTrackingConfig.js";
 import { eventTrackingModuleFactory } from "./event-tracking/eventTrackingModule.js";
@@ -40,7 +40,6 @@ export function createContainer({
       web3Provider: false,
       solanaProvider: false,
       balance: false,
-      dAppConfig: false,
       transactionHistory: false,
     },
   },
@@ -57,7 +56,7 @@ export function createContainer({
     }),
     accountModuleFactory({ stub: devConfig.stub.account }),
     backendModuleFactory({ stub: devConfig.stub.base }),
-    dAppConfigModuleFactory({ stub: devConfig.stub.dAppConfig }),
+    dAppConfigModuleFactory(),
     deviceModuleFactory({ stub: devConfig.stub.device, dmkConfig }),
     eventTrackingModuleFactory({ stub: devConfig.stub.base }),
     storageModuleFactory({ stub: devConfig.stub.base }),
