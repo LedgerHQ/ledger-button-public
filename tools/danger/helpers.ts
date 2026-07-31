@@ -298,7 +298,7 @@ PRs targeting \`main\` are only allowed from \`release/vX.X.X\` or \`hotfix/*\` 
 
 **Current branch**: \`${headBranch}\`
 
-If this is a release, rename your branch to \`release/vX.X.X\`. If this is a hotfix, rename it to \`hotfix/<description>\`.\
+If this is a release, rename your branch to \`release/vX.X.X\`. If this is a hotfix, rename it to \`hotfix/<jira-or-no-issue>-<description>\`.\
 `);
     return false;
   }

@@ -18,8 +18,14 @@ console.log("PR Actor:", author);
 
 const isBot = checkIfBot(danger.github.pr.user);
 
+// Always enforce base-branch rules, even for bot-authored PRs.
+const baseBranchResult = checkBaseBranch(danger, fail);
+
 if (isBot) {
   console.log("PR Actor is a bot, skipping checks...");
+  if (!baseBranchResult) {
+    exit(1);
+  }
   exit(0);
 }
 
@@ -27,7 +33,7 @@ const results: boolean[] = [];
 
 const fork = isFork(danger.github.pr);
 
-results.push(checkBaseBranch(danger, fail));
+results.push(baseBranchResult);
 
 results.push(checkBranches(danger, fail, fork));
 
