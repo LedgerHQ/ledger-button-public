@@ -32,6 +32,7 @@
 - Fix smartling export ([9d8f1841](https://github.com/LedgerHQ/ledger-button/commit/9d8f1841))
 - Filter pending transactions by selected account ([d769c69a](https://github.com/LedgerHQ/ledger-button/commit/d769c69a))
 - Detect un-onboarded device on connect ([59409cf9](https://github.com/LedgerHQ/ledger-button/commit/59409cf9))
+- Truncate long account name in toolbar to prevent overflow ([6cf5ed38](https://github.com/LedgerHQ/ledger-button/commit/6cf5ed38))
 
 ### ❤️ Thank You
 
