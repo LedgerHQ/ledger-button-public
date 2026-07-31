@@ -2,6 +2,7 @@ import { danger, fail, message } from "danger";
 import { exit } from "process";
 
 import {
+  checkBaseBranch,
   checkBranches,
   checkCommits,
   checkIfBot,
@@ -25,6 +26,8 @@ if (isBot) {
 const results: boolean[] = [];
 
 const fork = isFork(danger.github.pr);
+
+results.push(checkBaseBranch(danger, fail));
 
 results.push(checkBranches(danger, fail, fork));
 
