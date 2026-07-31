@@ -46,22 +46,21 @@ jobs:
 
   checks:
     name: "Health checks"
-    if: github.base_ref != 'main'
     # needs: [danger]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Fetch develop
+      - name: Fetch base branch
         run: |
-          git fetch origin develop
-          git checkout develop
+          git fetch origin ${{ github.base_ref }}
+          git checkout ${{ github.base_ref }}
           git checkout -
       - uses: ./.github/actions/setup-action-composite
       - name: Health checks
         run: |
-          pnpm nx affected -t lint,typecheck,test --base=develop --skip-nx-cache
+          pnpm nx affected -t lint,typecheck,test --base=${{ github.base_ref }} --skip-nx-cache
       - name: Storybook test
         run: |
           pnpm storybook:test
