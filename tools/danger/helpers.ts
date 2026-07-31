@@ -41,7 +41,7 @@ const Branch = (danger: DangerDSLType, fail: FailFn, isFork = false) => ({
   regex: isFork
     ? new RegExp(`^(${BRANCH_PREFIX.join("|")})/.+`, "i")
     : new RegExp(
-        `^(release|chore/backmerge(-.+){0,}|(${BRANCH_PREFIX.join(
+        `^(release|backmerge/v.+|(${BRANCH_PREFIX.join(
           "|",
         )})/(([a-z]{1,})-[0-9]+|noissue|no-issue|issue-[0-9]+)-.+)`,
         "i",
@@ -270,10 +270,23 @@ const hasNoBumpLabel = (danger: DangerDSLType) => {
   return labels.includes("release:no-bump");
 };
 
+const RELEASE_BRANCH_PREFIXES = ["release/", "backmerge/", "hotfix/"];
+
+const isReleaseBranch = (danger: DangerDSLType) => {
+  const branch = danger.github
+    ? danger.github.pr.head.ref
+    : execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+  return RELEASE_BRANCH_PREFIXES.some((prefix) => branch.startsWith(prefix));
+};
+
 export const checkReleasePlanOrNoBumpLabel = (
   danger: DangerDSLType,
   fail: FailFn,
 ) => {
+  if (isReleaseBranch(danger)) {
+    return true;
+  }
+
   const changedFiles = [
     ...danger.git.created_files,
     ...danger.git.modified_files,

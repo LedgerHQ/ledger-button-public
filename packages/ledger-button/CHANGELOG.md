@@ -1,3 +1,48 @@
+## 1.4.0 (2026-07-28)
+
+### 🚀 Features
+
+- Introduce developer mode with Feature Flags selection ([fe0ab709](https://github.com/LedgerHQ/ledger-button/commit/fe0ab709))
+- Add a blockchain-family switcher to the home screen. When more than one family is connected, a tab bar lets the user switch the active family; the selected account is loaded lazily per family, cached for instant switch-back, and refreshed silently in the background. ([8ba1c05e](https://github.com/LedgerHQ/ledger-button/commit/8ba1c05e))
+
+  Also fix connecting a second family: a family-specific connection request (e.g. an EVM `eth_requestAccounts` while only Solana is connected) now reaches the account picker instead of being short-circuited to the home of the already-connected family. Navigation intents carry the requested `family`, and the root navigation checks that specific family rather than any active selection.
+
+- Filter the onboarding account selection by the requesting blockchain family: EVM (`eth_requestAccounts`) and Solana (Wallet Standard `connect`) requests now only list accounts compatible with the requesting dApp, while manual selection still shows every account. ([2a48b78f](https://github.com/LedgerHQ/ledger-button/commit/2a48b78f))
+- Internalize EVM sign flow in EvmBlockchainProvider ([aa1b079c](https://github.com/LedgerHQ/ledger-button/commit/aa1b079c))
+- Implement BlockchainProvider and WalletProvider for EVM and Solana ([c673dd05](https://github.com/LedgerHQ/ledger-button/commit/c673dd05))
+- Add Wallet Providers ([494064ca](https://github.com/LedgerHQ/ledger-button/commit/494064ca))
+- Refactor Account handling ([36fac279](https://github.com/LedgerHQ/ledger-button/commit/36fac279))
+- Handle OutOfMemory Error from DMK or unability to install app. ([50a7ee4e](https://github.com/LedgerHQ/ledger-button/commit/50a7ee4e))
+- Display the package version in a footer at the bottom of the Settings screen. The version is read dynamically from package.json so it always reflects the published version. ([11a59958](https://github.com/LedgerHQ/ledger-button/commit/11a59958))
+- Add Solana off-chain message signing (solana:signMessage): sign messages through the Solana off-chain message spec envelope (V0) via @ledgerhq/device-signer-kit-solana, wired into the Wallet Standard Ledger Solana wallet and the shared signing modal pipeline ([7fa0e293](https://github.com/LedgerHQ/ledger-button/commit/7fa0e293))
+- Add Solana Wallet Standard connection (connection-only): register a Ledger Solana wallet (standard:connect/disconnect/events + solana:\* chains) that is discoverable and connectable by Solana dApps via the Wallet Standard ([f14d1878](https://github.com/LedgerHQ/ledger-button/commit/f14d1878))
+- Resolve token icons via Ledger CDN and CoinGecko mapping ([3ef3d161](https://github.com/LedgerHQ/ledger-button/commit/3ef3d161))
+- Add a "View all transactions" link at the bottom of the Home transaction history tab that deep-links to the selected account in Ledger Wallet (`ledgerwallet://account`), with `view_all_transactions_clicked` product analytics. ([dfce23a1](https://github.com/LedgerHQ/ledger-button/commit/dfce23a1))
+
+### 🩹 Fixes
+
+- Filter the account picker by the active blockchain family when switching account from the home panel ([7fac57d3](https://github.com/LedgerHQ/ledger-button/commit/7fac57d3))
+- Use the full-screen background flare loading animation when switching blockchain family on the home screen ([ab0846d7](https://github.com/LedgerHQ/ledger-button/commit/ab0846d7))
+- Migrate internal and UI consumers to resolve the selected account through the active family. Pending-transaction tracking, transaction notifiers, navigation and the sign flow now rely on `getActiveSelectedAccount`/`getActiveFamily` instead of a hard-coded family, with no behavior change for single-family setups. ([7a2f0a38](https://github.com/LedgerHQ/ledger-button/commit/7a2f0a38))
+- Move Storybook packages to devDependencies and bump to 9.1.19 to clear HIGH security advisories (GHSA-mjf5-7g4m-gx5w, GHSA-8452-54wp-rmv6) for SDK consumers ([7571fbaa](https://github.com/LedgerHQ/ledger-button/commit/7571fbaa))
+- Add DeviceOutOfMemoryError tracking ([e190e94b](https://github.com/LedgerHQ/ledger-button/commit/e190e94b))
+- Make initializeLedgerProvider chain-agnostic: EVM (EIP-6963) and Solana (Wallet Standard) now register through a single, extensible per-chain seam, and the cleanup function fully unregisters every provider — including the Solana wallet, which previously stayed registered after cleanup. ([e5c16b49](https://github.com/LedgerHQ/ledger-button/commit/e5c16b49))
+- Remove hard-coded decimal fallbacks and centralise fallback logic inside formatBalance ([7cc750bd](https://github.com/LedgerHQ/ledger-button/commit/7cc750bd))
+- Handle user rejection during open app phase to show dedicated error screen instead of generic error ([72e96943](https://github.com/LedgerHQ/ledger-button/commit/72e96943))
+- Fix smartling export ([9d8f1841](https://github.com/LedgerHQ/ledger-button/commit/9d8f1841))
+- Filter pending transactions by selected account ([d769c69a](https://github.com/LedgerHQ/ledger-button/commit/d769c69a))
+- Detect un-onboarded device on connect ([59409cf9](https://github.com/LedgerHQ/ledger-button/commit/59409cf9))
+- Truncate long account name in toolbar to prevent overflow ([6cf5ed38](https://github.com/LedgerHQ/ledger-button/commit/6cf5ed38))
+
+### ❤️ Thank You
+
+- Claude Opus 4.8
+- Claude Opus 4.8 (1M context)
+- Cursor @cursoragent
+- Mathieu Bertin
+- pdeville-ledger
+- Pierre Vautherin
+
 ## 1.3.2 (2026-07-21)
 
 ### 🩹 Fixes

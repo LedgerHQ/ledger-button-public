@@ -3,6 +3,7 @@ import "../../../shared/root-navigation.js";
 import type {
   Account,
   AccountWithFiat,
+  BlockchainFamily,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
@@ -102,6 +103,7 @@ export class SelectAccountController implements ReactiveController {
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly lang: LanguageContext,
+    private readonly family?: BlockchainFamily,
   ) {
     this.host.addController(this);
   }
@@ -128,7 +130,7 @@ export class SelectAccountController implements ReactiveController {
     let isFirstEmission = true;
 
     this.accountsSubscription = this.core
-      .getAccounts(options)
+      .observeAccounts({ ...options, family: this.family })
       .pipe(
         debounce(() => {
           if (isFirstEmission) {
@@ -194,14 +196,13 @@ export class SelectAccountController implements ReactiveController {
   handleAccountCardClick(account: AccountWithFiat) {
     this.selectAccount(account);
 
-    const selectedAccount = this.core.getSelectedAccount();
     window.dispatchEvent(
       new CustomEvent<{ account: Account; status: "success" }>(
         "ledger-internal-account-selected",
         {
           bubbles: true,
           composed: true,
-          detail: { account: selectedAccount as Account, status: "success" },
+          detail: { account, status: "success" },
         },
       ),
     );

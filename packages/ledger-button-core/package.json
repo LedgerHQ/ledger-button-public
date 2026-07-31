@@ -5,9 +5,14 @@
     "@ledgerhq/device-management-kit": "catalog:",
     "bignumber.js": "catalog:",
     "@ledgerhq/device-signer-kit-ethereum": "catalog:",
+    "@ledgerhq/device-signer-kit-solana": "catalog:",
     "@ledgerhq/device-transport-kit-web-ble": "catalog:",
     "@ledgerhq/device-transport-kit-web-hid": "catalog:",
     "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "catalog:",
+    "@solana/kit": "catalog:",
+    "@wallet-standard/base": "catalog:",
+    "@wallet-standard/features": "catalog:",
+    "@wallet-standard/wallet": "catalog:",
     "chalk": "catalog:",
     "ethers": "catalog:",
     "inversify": "catalog:",
@@ -42,7 +47,7 @@
   },
   "type": "module",
   "types": "./dist/index.d.ts",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/LedgerHQ/ledger-button-public.git"

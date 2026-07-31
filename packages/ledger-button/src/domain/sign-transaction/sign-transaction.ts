@@ -2,11 +2,12 @@ import "../../components/index.js";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import {
-  type SignedResults,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
+  type SignSolanaMessageParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
+  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement, type PropertyValues } from "lit";
@@ -48,7 +49,7 @@ const styles = css`
   }
 `;
 
-type Params = SignTransactionParams & {
+type Params = {
   broadcast: boolean;
 };
 
@@ -74,7 +75,8 @@ export class SignTransactionScreen extends LitElement {
     | SignTransactionParams
     | SignPersonalMessageParams
     | SignRawTransactionParams
-    | SignTypedMessageParams;
+    | SignTypedMessageParams
+    | SignSolanaMessageParams;
 
   @property({ type: Object })
   params?: unknown;
@@ -95,23 +97,27 @@ export class SignTransactionScreen extends LitElement {
       this.languageContext,
     );
 
-    if (this.isParams(this.params)) {
-      this.broadcast = this.params.broadcast;
-    }
+    const intent = this.params as WalletNavigationIntent | undefined;
 
-    const transactionParams =
-      (this.params as Params) ??
-      this.transactionParams ??
-      this.coreContext.getCraftedTransactionParams();
-
-    if (!transactionParams) {
+    if (!intent) {
       this.controller.state.screen = "error";
       this.requestUpdate();
       return;
     }
 
-    this.transactionParams = transactionParams;
-    this.controller.startSigning(transactionParams);
+    const intentParams = intent.params as Params | undefined;
+    if (intentParams && "broadcast" in intentParams) {
+      this.broadcast = intentParams.broadcast;
+    }
+
+    this.transactionParams = intent.params as
+      | SignTransactionParams
+      | SignPersonalMessageParams
+      | SignRawTransactionParams
+      | SignTypedMessageParams
+      | SignSolanaMessageParams;
+
+    this.controller.startSigning(intent);
   }
 
   override disconnectedCallback() {
@@ -160,15 +166,6 @@ export class SignTransactionScreen extends LitElement {
     );
   }
 
-  private isParams(params: unknown): params is Params {
-    return (
-      typeof params === "object" &&
-      params !== null &&
-      "transaction" in params &&
-      "broadcast" in params
-    );
-  }
-
   private renderSigningState() {
     if (this.controller.state.screen !== "signing") {
       return html``;
@@ -196,7 +193,7 @@ export class SignTransactionScreen extends LitElement {
 
     return html`
       <div
-        class="min-h-200 flex flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
+        class="flex min-h-200 flex-col items-center justify-center gap-24 self-stretch px-24 pb-48"
       >
         <div class="w-208">
           <ledger-device-animation
@@ -204,13 +201,9 @@ export class SignTransactionScreen extends LitElement {
             animation=${deviceAnimation as AnimationKey}
           ></ledger-device-animation>
         </div>
-        <div
-          class="flex flex-col items-center gap-8 self-stretch"
-        >
-          <p class="text-center body-1">${deviceTitle}</p>
-          <p class="text-center text-muted body-2">
-            ${deviceDescription}
-          </p>
+        <div class="flex flex-col items-center gap-8 self-stretch">
+          <p class="body-1 text-center">${deviceTitle}</p>
+          <p class="text-muted body-2 text-center">${deviceDescription}</p>
         </div>
       </div>
     `;
@@ -294,12 +287,5 @@ export class SignTransactionScreen extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     "sign-transaction-screen": SignTransactionScreen;
-  }
-
-  interface WindowEventMap {
-    "ledger-internal-sign": CustomEvent<
-      | { status: "success"; data: SignedResults }
-      | { status: "error"; error: unknown }
-    >;
   }
 }

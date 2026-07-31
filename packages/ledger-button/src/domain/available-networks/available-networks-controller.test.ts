@@ -74,12 +74,12 @@ describe("AvailableNetworksController", () => {
     };
 
     core = {
-      observeContext: vi.fn().mockReturnValue(
-        of({ selectedAccount: { freshAddress: "0xabc123" } }),
-      ),
-      getAccounts: vi.fn().mockReturnValue(
-        of([ethAccount, polygonAccount, otherAddressAccount]),
-      ),
+      observeContext: vi
+        .fn()
+        .mockReturnValue(of({ selectedAccounts: new Map([["ethereum", { freshAddress: "0xabc123" }]]) })),
+      observeAccounts: vi
+        .fn()
+        .mockReturnValue(of([ethAccount, polygonAccount, otherAddressAccount])),
       getCurrencyInfo: vi.fn().mockImplementation((currencyId: string) => {
         const map: Record<string, { name: string; ticker: string }> = {
           ethereum: { name: "Ethereum", ticker: "ETH" },
@@ -108,8 +108,16 @@ describe("AvailableNetworksController", () => {
     await connectAndWaitForLoad();
 
     expect(controller.networks).toEqual([
-      expect.objectContaining({ id: "ethereum", name: "Ethereum", balance: "1.5" }),
-      expect.objectContaining({ id: "polygon", name: "Polygon", balance: "200" }),
+      expect.objectContaining({
+        id: "ethereum",
+        name: "Ethereum",
+        balance: "1.5",
+      }),
+      expect.objectContaining({
+        id: "polygon",
+        name: "Polygon",
+        balance: "200",
+      }),
     ]);
   });
 
@@ -121,17 +129,17 @@ describe("AvailableNetworksController", () => {
 
   it("should navigate back when no selected address", async () => {
     (core.observeContext as ReturnType<typeof vi.fn>).mockReturnValue(
-      of({ selectedAccount: undefined }),
+      of({ selectedAccounts: new Map() }),
     );
 
     controller.hostConnected();
-    await vi.waitFor(() =>
-      expect(navigation.navigateBack).toHaveBeenCalled(),
-    );
+    await vi.waitFor(() => expect(navigation.navigateBack).toHaveBeenCalled());
   });
 
   it("should select the matching account and navigate home", async () => {
-    const mockHost = new (RootNavigationComponent as new () => InstanceType<typeof RootNavigationComponent>)();
+    const mockHost = new (RootNavigationComponent as new () => InstanceType<
+      typeof RootNavigationComponent
+    >)();
     navigation.host = mockHost as unknown as Navigation["host"];
 
     await connectAndWaitForLoad();
@@ -143,12 +151,10 @@ describe("AvailableNetworksController", () => {
 
   it("should stay loading until subscription completes", async () => {
     const subject = new Subject<AccountWithFiat[]>();
-    (core.getAccounts as ReturnType<typeof vi.fn>).mockReturnValue(subject);
+    (core.observeAccounts as ReturnType<typeof vi.fn>).mockReturnValue(subject);
 
     controller.hostConnected();
-    await vi.waitFor(() =>
-      expect(core.getAccounts).toHaveBeenCalled(),
-    );
+    await vi.waitFor(() => expect(core.observeAccounts).toHaveBeenCalled());
 
     subject.next([ethAccount, polygonAccount]);
     expect(controller.loading).toBe(true);
@@ -163,7 +169,9 @@ describe("AvailableNetworksController", () => {
   });
 
   it("should not select when network id is unknown", async () => {
-    const mockHost = new (RootNavigationComponent as new () => InstanceType<typeof RootNavigationComponent>)();
+    const mockHost = new (RootNavigationComponent as new () => InstanceType<
+      typeof RootNavigationComponent
+    >)();
     navigation.host = mockHost as unknown as Navigation["host"];
 
     await connectAndWaitForLoad();

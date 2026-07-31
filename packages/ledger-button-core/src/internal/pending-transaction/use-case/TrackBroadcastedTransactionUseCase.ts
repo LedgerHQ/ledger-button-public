@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import { getActiveSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
 import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
 import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
@@ -9,6 +10,7 @@ import {
   type SignTransactionParams,
 } from "../../../api/model/signing/SignTransactionParams.js";
 import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
+import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
 import { type Account } from "../../account/service/AccountService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
@@ -17,17 +19,18 @@ import { type ContextService } from "../../context/ContextService.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { buildExplorerTransactionUrl } from "../../transaction/utils/buildExplorerTransactionUrl.js";
 import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
+import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
 
 type SignParams =
   | SignTransactionParams
   | SignRawTransactionParams
   | SignTypedMessageParams
-  | SignPersonalMessageParams;
+  | SignPersonalMessageParams
+  | SignSolanaMessageParams;
 
 @injectable()
 export class TrackBroadcastedTransactionUseCase {
@@ -53,11 +56,12 @@ export class TrackBroadcastedTransactionUseCase {
     if (!isBroadcastedTransactionResult(status.data)) return;
 
     const context = this.contextService.getContext();
-    if (!context.selectedAccount) return;
+    const account = getActiveSelectedAccount(context);
+    if (!account) return;
 
     const tx = await this.buildPendingTransaction(
       status.data.hash,
-      context.selectedAccount,
+      account,
       context.chainId,
       params,
     );
@@ -86,7 +90,12 @@ export class TrackBroadcastedTransactionUseCase {
       timestamp: new Date().toISOString(),
       type: "sent",
       value: rawValue,
-      formattedValue: formatBalance(rawValue, decimals, ticker),
+      formattedValue: formatBalance(
+        rawValue,
+        decimals,
+        ticker,
+        account.currencyId,
+      ),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,
@@ -96,22 +105,25 @@ export class TrackBroadcastedTransactionUseCase {
     };
   }
 
-  private async resolveCurrencyMetadata(
-    currencyId: string,
-  ): Promise<{
+  private async resolveCurrencyMetadata(currencyId: string): Promise<{
     ticker: string;
     name: string;
-    decimals: number;
+    decimals: number | undefined;
     transactionExplorerUrlTemplate?: string;
   }> {
     const currencyInfo =
       await this.calDataSource.getCurrencyInformation(currencyId);
 
-    return currencyInfo.caseOf({
+    return currencyInfo.caseOf<{
+      ticker: string;
+      name: string;
+      decimals: number | undefined;
+      transactionExplorerUrlTemplate?: string;
+    }>({
       Left: () => ({
         ticker: currencyId.toUpperCase(),
         name: currencyId,
-        decimals: 18,
+        decimals: undefined,
       }),
       Right: (info) => ({
         ticker: info.ticker,

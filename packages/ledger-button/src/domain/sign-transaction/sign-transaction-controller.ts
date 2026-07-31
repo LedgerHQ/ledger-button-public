@@ -2,21 +2,23 @@ import {
   BlindSigningDisabledError,
   BroadcastTransactionError,
   buildExplorerTransactionUrl,
+  DeviceOutOfMemoryError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
-  isSignedTransactionResult,
   isSignPersonalMessageParams,
   isSignRawTransactionParams,
+  isSignSolanaMessageParams,
   isSignTransactionParams,
   type SignedResults,
-  type SignFlowStatus,
   type SignPersonalMessageParams,
   type SignRawTransactionParams,
+  type SignSolanaMessageParams,
   type SignTransactionParams,
   type SignTypedMessageParams,
   type UserInteractionNeeded,
   UserRejectedTransactionError,
+  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
@@ -56,11 +58,7 @@ export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
   private transactionSubscription?: Subscription;
   private pendingTxSubscription?: Subscription;
-  private currentTransaction?:
-    | SignTransactionParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignPersonalMessageParams;
+  private currentIntent?: WalletNavigationIntent;
   private explorerTemplatePrefetch?: Promise<string | undefined>;
   result?: SignedResults;
 
@@ -110,14 +108,14 @@ export class SignTransactionController implements ReactiveController {
     }
   }
 
-  startSigning(
-    transactionParams:
+  startSigning(intent: WalletNavigationIntent) {
+    this.currentIntent = intent;
+    const transactionParams = intent.params as
       | SignTransactionParams
       | SignRawTransactionParams
       | SignTypedMessageParams
-      | SignPersonalMessageParams,
-  ) {
-    this.currentTransaction = transactionParams;
+      | SignPersonalMessageParams
+      | SignSolanaMessageParams;
     this.explorerTemplatePrefetch = this.isTransactionParameter(
       transactionParams,
     )
@@ -129,34 +127,16 @@ export class SignTransactionController implements ReactiveController {
     }
     this.clearPendingTxSubscription();
 
-    this.transactionSubscription = this.core.sign(transactionParams).subscribe({
-      next: (result: SignFlowStatus) => {
+    this.transactionSubscription = intent.status$.subscribe({
+      next: (result) => {
         switch (result.status) {
           case "success":
             if (result.data) {
-              if (
-                isSignedTransactionResult(result.data) ||
-                isSignedMessageOrTypedDataResult(result.data)
-              ) {
-                window.dispatchEvent(
-                  new CustomEvent<{ status: "success"; data: SignedResults }>(
-                    "ledger-internal-sign",
-                    {
-                      bubbles: true,
-                      composed: true,
-                      detail: { status: "success", data: result.data },
-                    },
-                  ),
-                );
-              }
-
               void this.handleSignSuccess(result.data);
               break;
             }
             break;
           case "user-interaction-needed": {
-            //TODO handle mapping for user interaction needed + update DeviceAnimation component regarding these interactions
-            //Interactions: unlock-device, allow-secure-connection, confirm-open-app, sign-transaction, allow-list-apps, web3-checks-opt-in
             const animation = this.mapUserInteractionToDeviceAnimation(
               result.interaction,
             );
@@ -191,13 +171,17 @@ export class SignTransactionController implements ReactiveController {
       | SignRawTransactionParams
       | SignTypedMessageParams
       | SignPersonalMessageParams
+      | SignSolanaMessageParams
       | undefined,
   ): boolean {
     if (!transactionParams) {
       return false;
     }
 
-    if (isSignPersonalMessageParams(transactionParams)) {
+    if (
+      isSignPersonalMessageParams(transactionParams) ||
+      isSignSolanaMessageParams(transactionParams)
+    ) {
       return false;
     }
 
@@ -299,7 +283,7 @@ export class SignTransactionController implements ReactiveController {
     const lang = this.lang.currentTranslation;
     switch (true) {
       case error instanceof IncorrectSeedError: {
-        const selectedAccount = this.core.getSelectedAccount();
+        const selectedAccount = this.core.getActiveSelectedAccount();
         const deviceName = this.getDeviceName();
 
         let accountName = "";
@@ -332,17 +316,8 @@ export class SignTransactionController implements ReactiveController {
             },
             cta2: {
               label: lang.error.device.IncorrectSeed.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },
@@ -358,27 +333,19 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.device.BlindSigningDisabled.description,
             cta1: {
               label: lang.error.device.BlindSigningDisabled.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
-                this.startSigning(this.currentTransaction);
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
             cta2: {
               label: lang.error.device.BlindSigningDisabled.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },
@@ -394,11 +361,12 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.network.BroadcastTransactionError.description,
             cta1: {
               label: lang.error.network.BroadcastTransactionError.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
-                this.startSigning(this.currentTransaction);
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
@@ -407,55 +375,45 @@ export class SignTransactionController implements ReactiveController {
         break;
       }
       case error instanceof UserRejectedTransactionError: {
-        const deviceName = this.getDeviceName();
-        const isTx = this.isTransactionParameter(this.currentTransaction);
         this.state = {
           screen: "error",
           status: {
-            title: isTx
-              ? lang.error.device.UserRejectedTransaction.title
-              : lang.error.device.UserRejectedMessage.title,
-            message: isTx
-              ? lang.error.device.UserRejectedTransaction.description.replace(
-                  "{device}",
-                  deviceName,
-                )
-              : lang.error.device.UserRejectedMessage.description.replace(
-                  "{device}",
-                  deviceName,
-                ),
+            title: lang.error.device.ActionRejected.title,
+            message: lang.error.device.ActionRejected.description,
             cta1: {
-              label: isTx
-                ? lang.error.device.UserRejectedTransaction.cta1
-                : lang.error.device.UserRejectedMessage.cta1,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
-                this.close();
-              },
-            },
-            cta2: {
-              label: isTx
-                ? lang.error.device.UserRejectedTransaction.cta2
-                : lang.error.device.UserRejectedMessage.cta2,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
+              label: lang.error.device.ActionRejected.cta1,
+              action: () => {
                 this.state = {
                   screen: "signing",
                   deviceAnimation: "continueOnLedger",
                 };
-                this.startSigning(this.currentTransaction);
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
+              },
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceOutOfMemoryError: {
+        const appName = error.context?.appName ?? "";
+        const deviceName = this.getDeviceName();
+        this.state = {
+          screen: "error",
+          status: {
+            title: lang.error.device.DeviceOutOfStorage.title.replace(
+              "{AppName}",
+              appName,
+            ),
+            message: lang.error.device.DeviceOutOfStorage.description.replace(
+              "{deviceName}",
+              deviceName,
+            ),
+            cta1: {
+              label: lang.error.device.DeviceOutOfStorage.cta1,
+              action: () => {
+                window.open("ledgerlive://myledger");
+                this.close();
               },
             },
           },
@@ -470,27 +428,19 @@ export class SignTransactionController implements ReactiveController {
             message: lang.error.generic.sign.description,
             cta1: {
               label: lang.error.generic.sign.cta1,
-              action: async () => {
-                if (!this.currentTransaction) {
-                  return;
-                }
-                this.startSigning(this.currentTransaction);
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
                 this.host.requestUpdate();
               },
             },
             cta2: {
               label: lang.error.generic.sign.cta2,
-              action: async () => {
-                window.dispatchEvent(
-                  new CustomEvent("ledger-internal-sign", {
-                    bubbles: true,
-                    composed: true,
-                    detail: {
-                      status: "error",
-                      error: error,
-                    },
-                  }),
-                );
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },
@@ -504,7 +454,7 @@ export class SignTransactionController implements ReactiveController {
   private async prefetchTransactionExplorerUrlTemplate(): Promise<
     string | undefined
   > {
-    const currencyId = this.core.getSelectedAccount()?.currencyId;
+    const currencyId = this.core.getActiveSelectedAccount()?.currencyId;
     if (!currencyId) {
       return undefined;
     }

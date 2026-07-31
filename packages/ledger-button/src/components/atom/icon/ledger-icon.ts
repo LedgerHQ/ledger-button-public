@@ -15,6 +15,7 @@ import {
   ClearSigningIcon,
   ClockIcon,
   CloseIcon,
+  CodeIcon,
   CoinsIcon,
   DeleteCircleFillIcon,
   DesktopIcon,
@@ -25,6 +26,7 @@ import {
   EnvelopeIcon,
   ErrorIcon,
   ExternalLinkIcon,
+  FeatureFlagsIcon,
   HeadphoneIcon,
   InfoIcon,
   LanguageIcon,
@@ -80,6 +82,7 @@ export interface LedgerIconAttributes {
     | "checkMarkCircleFill"
     | "checkmarkCircle"
     | "clock"
+    | "code"
     | "deleteCircleFill"
     | "error"
     | "device"
@@ -88,6 +91,7 @@ export interface LedgerIconAttributes {
     | "dollar"
     | "cart"
     | "externalLink"
+    | "featureFlags"
     | "directConnectivity"
     | "clearSigning"
     | "coins"
@@ -150,6 +154,7 @@ export class LedgerIcon extends LitElement {
       checkMarkCircleFill: () => CheckMarkCircleFillIcon,
       checkmarkCircle: () => CheckmarkCircleIcon,
       clock: () => ClockIcon,
+      code: () => CodeIcon,
       deleteCircleFill: () => DeleteCircleFillIcon,
       error: () => ErrorIcon,
       device: () => DeviceIcon,
@@ -158,6 +163,7 @@ export class LedgerIcon extends LitElement {
       dollar: () => DollarIcon,
       cart: () => CartIcon,
       externalLink: () => ExternalLinkIcon,
+      featureFlags: () => FeatureFlagsIcon,
       directConnectivity: () => DirectConnectivityIcon,
       clearSigning: () => ClearSigningIcon,
       coins: () => CoinsIcon,

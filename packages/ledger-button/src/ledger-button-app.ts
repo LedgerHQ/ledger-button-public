@@ -7,12 +7,7 @@ import "./shared/routes.js";
 
 import {
   Account,
-  type EvmProviderUI,
-  isBroadcastedTransactionResult,
-  isSignedMessageOrTypedDataResult,
-  isSignedTransactionResult,
   LedgerButtonCore,
-  SignedResults,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -30,7 +25,7 @@ type FloatingButtonPosition = FloatingButtonPositionComponent | false;
 
 @customElement("ledger-button-app")
 @tailwindElement()
-export class LedgerButtonApp extends LitElement implements EvmProviderUI {
+export class LedgerButtonApp extends LitElement {
   @query("#navigation")
   root!: RootNavigationComponent;
 
@@ -65,7 +60,6 @@ export class LedgerButtonApp extends LitElement implements EvmProviderUI {
       "ledger-internal-account-switch",
       this.handleAccountSwitch,
     );
-    window.addEventListener("ledger-internal-sign", this.handleSign);
     window.addEventListener(
       "ledger-internal-floating-button-click",
       this.handleFloatingButtonClick,
@@ -90,7 +84,6 @@ export class LedgerButtonApp extends LitElement implements EvmProviderUI {
       "ledger-internal-account-switch",
       this.handleAccountSwitch,
     );
-    window.removeEventListener("ledger-internal-sign", this.handleSign);
     window.removeEventListener(
       "ledger-internal-floating-button-click",
       this.handleFloatingButtonClick,
@@ -133,58 +126,13 @@ export class LedgerButtonApp extends LitElement implements EvmProviderUI {
     }
   };
 
-  private handleSign = (
-    e: CustomEvent<
-      | { status: "success"; data: SignedResults }
-      | { status: "error"; error: unknown }
-    >,
-  ) => {
-    if (e.detail.status === "error") {
-      window.dispatchEvent(
-        new CustomEvent<{ status: "error"; error: unknown }>(
-          "ledger-provider-sign",
-          {
-            bubbles: true,
-            composed: true,
-            detail: e.detail,
-          },
-        ),
-      );
-      return;
-    }
-
-    if (e.detail.status === "success") {
-      if (
-        isBroadcastedTransactionResult(e.detail.data) ||
-        isSignedTransactionResult(e.detail.data) ||
-        isSignedMessageOrTypedDataResult(e.detail.data)
-      ) {
-        window.dispatchEvent(
-          new CustomEvent<{
-            status: "success";
-            data: SignedResults;
-          }>("ledger-provider-sign", {
-            bubbles: true,
-            composed: true,
-            detail: {
-              status: "success",
-              data: e.detail.data,
-            },
-          }),
-        );
-      }
-    }
-  };
-
   private handleLedgerButtonDisconnect = () => {
     this.disconnect();
     this.root.closeModal();
   };
 
   private handleAccountSwitch = () => {
-    this.root.rootNavigationController.navigation.navigateTo(
-      this.root.rootNavigationController.destinations.fetchAccounts,
-    );
+    this.root.rootNavigationController.switchAccount();
   };
 
   private handleFloatingButtonClick = () => {
@@ -256,16 +204,6 @@ declare global {
     "ledger-provider-account-selected": CustomEvent<
       | { account: Account; status: "success" }
       | { status: "error"; error: unknown }
-    >;
-    "ledger-provider-sign": CustomEvent<
-      | {
-          status: "success";
-          data: SignedResults;
-        }
-      | {
-          status: "error";
-          error: unknown;
-        }
     >;
     "ledger-provider-disconnect": CustomEvent;
   }

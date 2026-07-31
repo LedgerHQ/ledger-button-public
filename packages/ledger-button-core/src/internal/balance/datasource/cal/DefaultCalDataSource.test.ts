@@ -2,7 +2,7 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "../../../config/model/config.js";
-import * as chainUtils from "../../../evm-provider/utils/chainUtils.js";
+import * as chainUtils from "../../../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import type { CalCoinResponse, CalTokenResponse } from "./calTypes.js";
 import { DefaultCalDataSource } from "./DefaultCalDataSource.js";
@@ -214,7 +214,7 @@ describe("DefaultCalDataSource", () => {
       }
     });
 
-    it("should default to 18 decimals when units array is empty", async () => {
+    it("should return Left when units array is empty", async () => {
       const responseWithNoUnits: CalCoinResponse = [
         {
           id: "ethereum",
@@ -229,10 +229,10 @@ describe("DefaultCalDataSource", () => {
 
       const result = await dataSource.getCurrencyInformation(testCurrencyId);
 
-      expect(result.isRight()).toBe(true);
-      if (result.isRight()) {
-        const currencyInfo = result.extract();
-        expect(currencyInfo.decimals).toBe(18);
+      expect(result.isLeft()).toBe(true);
+      if (result.isLeft()) {
+        const error = result.extract() as Error;
+        expect(error.message).toBe("No units found for currency ethereum in Cal");
       }
     });
   });

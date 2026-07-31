@@ -6,9 +6,6 @@ export const accountModuleTypes = {
   ),
   FetchCloudSyncAccountsUseCase: Symbol.for("FetchCloudSyncAccountsUseCase"),
   FetchSelectedAccountUseCase: Symbol.for("FetchSelectedAccountUseCase"),
-  GetDetailedSelectedAccountUseCase: Symbol.for(
-    "GetDetailedSelectedAccountUseCase",
-  ),
   HydrateAccountWithTxHistoryUseCase: Symbol.for(
     "HydrateAccountWithTxHistoryUseCase",
   ),
@@ -17,5 +14,7 @@ export const accountModuleTypes = {
     "HydrateAccountWithBalanceUseCase",
   ),
   FetchAccountsWithFiatUseCase: Symbol.for("FetchAccountsWithFiatUseCase"),
+  FilterAccountsByFamilyUseCase: Symbol.for("FilterAccountsByFamilyUseCase"),
+  ObserveAccountsWithFiatUseCase: Symbol.for("ObserveAccountsWithFiatUseCase"),
   SortAccountsByFiatUseCase: Symbol.for("SortAccountsByFiatUseCase"),
 } as const;

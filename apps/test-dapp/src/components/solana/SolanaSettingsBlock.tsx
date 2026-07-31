@@ -6,6 +6,7 @@ import {
   SelectContent,
   SelectItem,
   SelectItemText,
+  SelectList,
   SelectTrigger,
 } from "@ledgerhq/lumen-ui-react";
 import {
@@ -28,12 +29,12 @@ export function SolanaSettingsBlock({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="border border-dashed border-muted rounded-lg overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+    <div className="border-muted overflow-hidden rounded-lg border border-dashed opacity-80 transition-opacity hover:opacity-100">
       <div
-        className="flex justify-between items-center px-24 py-14 cursor-pointer select-none hover:bg-muted-transparent transition-colors"
+        className="hover:bg-muted-transparent flex cursor-pointer items-center justify-between px-24 py-14 transition-colors select-none"
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <h3 className="flex items-center gap-10 body-2-semi-bold text-muted">
+        <h3 className="body-2-semi-bold text-muted flex items-center gap-10">
           <Settings size={20} />
           Solana Configuration
         </h3>
@@ -43,21 +44,26 @@ export function SolanaSettingsBlock({
       </div>
 
       {isExpanded && (
-        <div className="p-24 border-t border-dashed border-muted bg-canvas">
+        <div className="border-muted bg-canvas border-t border-dashed p-24">
           <div className="grid grid-cols-2 gap-14">
             <Select
+              items={SOLANA_CLUSTERS}
               value={cluster}
-              onValueChange={(value) =>
-                onClusterChange(value as SolanaCluster)
-              }
+              onValueChange={(value) => {
+                if (value) {
+                  onClusterChange(value as SolanaCluster);
+                }
+              }}
             >
               <SelectTrigger label="Cluster" />
               <SelectContent>
-                {SOLANA_CLUSTERS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <SelectItemText>{option.label}</SelectItemText>
-                  </SelectItem>
-                ))}
+                <SelectList
+                  renderItem={(item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      <SelectItemText>{item.label}</SelectItemText>
+                    </SelectItem>
+                  )}
+                />
               </SelectContent>
             </Select>
           </div>

@@ -56,6 +56,7 @@ describe("ErrorTrackingUtils", () => {
       ["BlindSigningDisabledError", "blind-signing"],
       ["DeviceConnectionError", "device"],
       ["DeviceNotSupportedError", "device"],
+      ["DeviceNotOnboardedError", "device"],
       ["DeviceDisconnectedError", "device"],
       ["FailToOpenAppError", "device"],
       ["IncorrectSeedError", "device"],
@@ -69,6 +70,7 @@ describe("ErrorTrackingUtils", () => {
       ["LedgerSyncError", "ledgersync"],
       ["LedgerSyncAuthContextMissingError", "ledgersync"],
       ["LedgerSyncNoSessionIdError", "ledgersync"],
+      ["DeviceOutOfMemoryError", "device"],
       ["SomeRandomError", "unknown"],
       ["Error", "unknown"],
     ])("should categorize %s as %s", (errorName, expectedCategory) => {

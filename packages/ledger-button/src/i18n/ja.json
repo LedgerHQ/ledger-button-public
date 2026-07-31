@@ -207,6 +207,7 @@
     "noTransactions": "トランザクションが見つかりません",
     "pendingTransactions": "保留中のトランザクション",
     "viewOnExplorer": "エクスプローラーで表示",
+    "viewAllTransactions": "すべてのトランザクションを表示",
     "failed": "失敗",
     "kinds": {
       "swap": "スワップ",
@@ -242,6 +243,15 @@
       "title": "ヘルプとサポート",
       "support": "サポート",
       "contactUs": "お問い合わせ"
+    },
+    "developer": {
+      "title": "デベロッパー"
+    },
+    "featureFlags": {
+      "title": "機能フラグ",
+      "solana": {
+        "title": "Solana"
+      }
     }
   },
   "signTransaction": {
@@ -297,6 +307,12 @@
         "cta1": "別のデバイスを接続",
         "cta2": "新しいLedgerデバイスを購入する"
       },
+      "DeviceNotOnboarded": {
+        "title": "Ledgerデバイスが設定されていません",
+        "description": "{device}は、設定されていません。Ledger Walletでデバイスを設定するか、別のLedgerデバイスを使用してください。",
+        "cta1": "Ledgerデバイスのセットアップ",
+        "cta2": "別のLedgerデバイスを使用"
+      },
       "IncorrectSeed": {
         "title": "Ledgerデバイスと暗号資産アカウント間の不適合。",
         "description": "続行するには、この暗号資産アカウントを管理しているLedgerデバイスを接続するか、別のアカウントを選択してください。",
@@ -309,17 +325,15 @@
         "cta1": "再試行",
         "cta2": "閉じる"
       },
-      "UserRejectedTransaction": {
-        "title": "トランザクションが拒否されました",
-        "description": "{device}でトランザクションを拒否しました。",
-        "cta1": "閉じる",
-        "cta2": "トランザクションを再試行"
+      "ActionRejected": {
+        "title": "アクションが拒否されました。",
+        "description": "デバイス上でトランザクションを拒否しました。",
+        "cta1": "再試行"
       },
-      "UserRejectedMessage": {
-        "title": "メッセージが拒否されました",
-        "description": "{device}でメッセージの署名を拒否しました。",
-        "cta1": "閉じる",
-        "cta2": "メッセージの署名を再試行"
+      "DeviceOutOfStorage": {
+        "title": "{AppName}アプリ用の空き容量が不足しています",
+        "description": "{deviceName}のストレージ容量が不足しているため、自動的にインストールできませんでした。Ledger Walletの空き容量を増やしてから、アプリをインストールしてください。",
+        "cta1": "空き容量を増やす"
       }
     },
     "ledgerSync": {

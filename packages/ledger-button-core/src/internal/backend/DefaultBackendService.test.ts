@@ -257,4 +257,29 @@ describe("DefaultBackendService", () => {
       );
     });
   });
+
+  describe("getConfigV2", () => {
+    it("should send config request to the /v2/config endpoint", async () => {
+      const mockConfigResponse = {
+        supportedBlockchains: [],
+        referralUrl: "https://example.com",
+        domainUrl: "https://example.com",
+        appDependencies: [],
+      };
+
+      mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
+
+      await backendService.getConfigV2({ dAppIdentifier: "test-dapp" });
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        "https://test-backend-url.com/v2/config?dAppIdentifier=test-dapp",
+        {
+          headers: {
+            "X-Ledger-Domain": "test-dapp-identifier",
+            "X-Ledger-client-origin": "test-origin-token",
+          },
+        },
+      );
+    });
+  });
 });

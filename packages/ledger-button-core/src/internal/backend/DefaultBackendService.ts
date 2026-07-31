@@ -84,6 +84,32 @@ export class DefaultBackendService implements BackendService {
       );
   }
 
+  async getConfigV2(request: ConfigRequest) {
+    const url = `${this.config.getBackendUrl()}/v2/config?dAppIdentifier=${encodeURIComponent(
+      request.dAppIdentifier,
+    )}`;
+
+    const headers = {
+      "X-Ledger-Domain": this.config.dAppIdentifier, //TODO verify if this is correct
+      "X-Ledger-client-origin": this.config.originToken,
+    };
+
+    const options: NetworkServiceOpts = {
+      headers,
+    };
+
+    const result = await this.networkService.get<ConfigResponse>(url, options);
+
+    return result
+      .mapLeft(
+        (error: Error) => new Error(`Get config V2 failed: ${error.message}`),
+      )
+      .map((res: unknown) => ConfigResponseSchema.safeParse(res))
+      .chain((parsed) =>
+        parsed.success ? Right(parsed.data) : Left(parsed.error),
+      );
+  }
+
   async event(
     request: EventRequest,
     domain = "ledger-button-domain",

@@ -37,7 +37,9 @@ export class HydrateAccountWithFiatUseCase {
 
     const balance = account.balance ?? "0";
     const balanceNum = this.parseBalance(balance);
-    if (Number.isNaN(balanceNum) || balanceNum === 0) {
+    const hasNoNativeBalance = Number.isNaN(balanceNum) || balanceNum === 0;
+
+    if (hasNoNativeBalance && account.tokens.length === 0) {
       return enrichWithLoadingStates({
         ...account,
         fiatBalance: { value: "0.00", currency },
@@ -129,7 +131,13 @@ export class HydrateAccountWithFiatUseCase {
     currency: string,
   ): FiatBalance | undefined {
     const balanceNum = this.parseBalance(balance);
-    if (Number.isNaN(balanceNum) || rate === undefined) {
+    if (Number.isNaN(balanceNum)) {
+      return undefined;
+    }
+    if (balanceNum === 0) {
+      return { value: "0.00", currency };
+    }
+    if (rate === undefined) {
       return undefined;
     }
     const fiatValue = balanceNum * rate;

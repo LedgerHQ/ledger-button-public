@@ -1,33 +1,45 @@
 import {
+  type BlockchainFamily,
   buildExplorerTransactionUrl,
   type DetailedAccount,
   formatBalance,
+  getActiveFamily,
+  getActiveSelectedAccount,
   type PendingTransaction,
   type TransactionHistoryItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-import { Subscription } from "rxjs";
+import {
+  concat,
+  distinctUntilChanged,
+  from,
+  of,
+  Subscription,
+  switchMap,
+  tap,
+} from "rxjs";
 
 import { CoreContext } from "../../context/core-context.js";
 import { LanguageContext } from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
+import { belongsToAccount } from "../../shared/pending-transaction-account-filter.js";
 import type { TransactionListItem } from "../transaction-list/transaction-list.js";
 
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
   loading = false;
+  switching = false;
+  private preferredFiatCurrency!: string;
   private pendingTransactions: PendingTransaction[] = [];
   private contextSubscription: Subscription | undefined = undefined;
   private pendingTxSubscription: Subscription | undefined = undefined;
-  private isConnected = false;
-  private preferredFiatCurrency!: string;
+  private readonly accountsByFamily = new Map<
+    BlockchainFamily,
+    DetailedAccount
+  >();
 
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
-    private readonly navigation: Navigation,
-    private readonly destinations: Destinations,
     private readonly languages: LanguageContext,
   ) {
     this.host.addController(this);
@@ -35,6 +47,18 @@ export class LedgerHomeController implements ReactiveController {
 
   get preferredCurrency(): string {
     return this.preferredFiatCurrency.toUpperCase();
+  }
+
+  get connectedFamilies(): BlockchainFamily[] {
+    return this.core.getConnectedFamilies();
+  }
+
+  get activeFamily(): BlockchainFamily | undefined {
+    return this.core.getActiveFamily();
+  }
+
+  setActiveFamily(family: BlockchainFamily): void {
+    this.core.setActiveFamily(family);
   }
 
   get transactionListItems(): TransactionListItem[] {
@@ -49,39 +73,21 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   get pendingTransactionListItems(): TransactionListItem[] {
-    return this.pendingTransactions.map((tx) => this.mapPendingToListItem(tx));
-  }
-
-  async getSelectedAccount() {
-    this.loading = true;
-    this.host.requestUpdate();
-
-    const result = await this.core.getDetailedSelectedAccount();
-
-    if (!this.isConnected) return;
-
-    result.caseOf({
-      Left: () => {
-        this.selectedAccount = undefined;
-        this.navigation.navigateTo(this.destinations.onboardingFlow);
-      },
-      Right: (account) => {
-        this.selectedAccount = account;
-      },
-    });
-
-    this.loading = false;
-    this.host.requestUpdate();
+    if (!this.selectedAccount) {
+      return [];
+    }
+    return this.pendingTransactions
+      .filter((tx) => belongsToAccount(tx, this.selectedAccount))
+      .map((tx) => this.mapPendingToListItem(tx));
   }
 
   hostConnected() {
-    this.isConnected = true;
+    this.loading = true;
     this.startListeningToContextChanges();
     this.startListeningToPendingTransactions();
   }
 
   hostDisconnected() {
-    this.isConnected = false;
     this.contextSubscription?.unsubscribe();
     this.pendingTxSubscription?.unsubscribe();
   }
@@ -95,9 +101,15 @@ export class LedgerHomeController implements ReactiveController {
       tx.value,
       tx.asset.decimals,
       tx.asset.ticker,
+      tx.asset.ledgerId,
     );
     const formattedFee = tx.fee
-      ? formatBalance(tx.fee.amount, tx.fee.asset.decimals, tx.fee.asset.ticker)
+      ? formatBalance(
+          tx.fee.amount,
+          tx.fee.asset.decimals,
+          tx.fee.asset.ticker,
+          tx.fee.asset.ledgerId,
+        )
       : undefined;
     const isFeesRow = tx.kind === "fees" && !!formattedFee;
     const fiatAmount = (isFeesRow ? tx.fee?.fiatAmount : tx.fiatValue) ?? "";
@@ -110,7 +122,7 @@ export class LedgerHomeController implements ReactiveController {
       status: tx.status,
       kind: tx.kind,
       date: date.toISOString().split("T")[0],
-      time: date.toLocaleTimeString("en-GB", {
+      time: date.toLocaleTimeString(this.languages.locale, {
         hour: "2-digit",
         minute: "2-digit",
       }),
@@ -134,7 +146,7 @@ export class LedgerHomeController implements ReactiveController {
       status: "pending",
       kind: "transfer",
       date: date.toISOString().split("T")[0],
-      time: date.toLocaleTimeString("en-GB", {
+      time: date.toLocaleTimeString(this.languages.locale, {
         hour: "2-digit",
         minute: "2-digit",
       }),
@@ -150,46 +162,60 @@ export class LedgerHomeController implements ReactiveController {
   }
 
   private startListeningToContextChanges() {
-    if (!this.isConnected) return;
-
-    if (this.contextSubscription) {
-      this.contextSubscription.unsubscribe();
-    }
+    this.contextSubscription?.unsubscribe();
 
     this.contextSubscription = this.core
       .observeContext()
-      .subscribe((_context) => {
-        const contextAccount = _context.selectedAccount;
-        const currencyChanged =
-          this.preferredFiatCurrency !== undefined &&
-          this.preferredFiatCurrency !== _context.preferredFiatCurrency;
-        this.preferredFiatCurrency = _context.preferredFiatCurrency;
-
-        if (this.isAccountChanged(contextAccount) || currencyChanged) {
-          this.getSelectedAccount();
-        } else if (this.isDetailedAccount(contextAccount)) {
-          this.selectedAccount = contextAccount;
+      .pipe(
+        distinctUntilChanged((a, b) => {
+          const prev = getActiveSelectedAccount(a);
+          const next = getActiveSelectedAccount(b);
+          return (
+            getActiveFamily(a) === getActiveFamily(b) &&
+            prev?.freshAddress === next?.freshAddress &&
+            prev?.currencyId === next?.currencyId &&
+            a.preferredFiatCurrency === b.preferredFiatCurrency
+          );
+        }),
+        tap((ctx) => {
+          this.preferredFiatCurrency = ctx.preferredFiatCurrency;
           this.host.requestUpdate();
-        }
+        }),
+        switchMap((ctx) => {
+          const activeFamily = getActiveFamily(ctx);
+          if (!activeFamily || !getActiveSelectedAccount(ctx)) {
+            return of(undefined);
+          }
+
+          const fetch$ = from(
+            this.core.fetchSelectedAccount(activeFamily),
+          ).pipe(
+            tap((account) => {
+              if (account) {
+                this.accountsByFamily.set(activeFamily, account);
+              }
+            }),
+          );
+
+          const cached = this.accountsByFamily.get(activeFamily);
+          if (cached) {
+            // Show the cached account instantly, then refresh silently in the background.
+            this.selectedAccount = cached;
+            this.switching = false;
+            return concat(of(cached), fetch$);
+          }
+
+          this.switching = true;
+          this.host.requestUpdate();
+          return fetch$;
+        }),
+      )
+      .subscribe((account) => {
+        this.selectedAccount = account;
+        this.loading = false;
+        this.switching = false;
+        this.host.requestUpdate();
       });
-  }
-
-  private isAccountChanged(contextAccount?: {
-    freshAddress?: string;
-    currencyId?: string;
-  }): boolean {
-    return (
-      contextAccount?.freshAddress !== this.selectedAccount?.freshAddress ||
-      contextAccount?.currencyId !== this.selectedAccount?.currencyId
-    );
-  }
-
-  private isDetailedAccount(account: unknown): account is DetailedAccount {
-    return (
-      !!account &&
-      typeof account === "object" &&
-      "transactionHistory" in account
-    );
   }
 
   private startListeningToPendingTransactions() {

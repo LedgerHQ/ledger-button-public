@@ -1,9 +1,11 @@
 import { type Factory, inject, injectable } from "inversify";
-import { Either, Left } from "purify-ts";
+import { Either, Left, type Maybe } from "purify-ts";
 
+import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
+import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
-import { isSupportedEvmCurrency } from "../../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
@@ -18,6 +20,8 @@ import {
   TransactionHistoryOptions,
   TransactionHistoryPage,
 } from "../../model/transactionHistoryTypes.js";
+import { normalizeAddressForCurrency } from "../../utils/normalizeAddressForCurrency.js";
+import { resolveNetworkSlug } from "../../utils/resolveNetworkSlug.js";
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
@@ -39,6 +43,8 @@ export class DefaultTransactionHistoryDataSource
     private readonly networkService: NetworkService<NetworkServiceOpts>,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
@@ -50,7 +56,9 @@ export class DefaultTransactionHistoryDataSource
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryPage>> {
-    const networkSlug = this.resolveNetworkSlug(currencyId);
+    const family =
+      this.blockchainProviderManager.resolveBlockchainFamily(currencyId);
+    const networkSlug = resolveNetworkSlug(currencyId, family.extract());
     if (!networkSlug) {
       this.logger.warn("Unsupported currency for transaction history", {
         currencyId,
@@ -83,11 +91,9 @@ export class DefaultTransactionHistoryDataSource
             { address, currencyId, originalError: error.message },
           ),
       )
-      .map((dto) => this.mapDtoToPage(this.dropOperationsWithoutHash(dto)));
-  }
-
-  private resolveNetworkSlug(currencyId: string): string | undefined {
-    return isSupportedEvmCurrency(currencyId) ? currencyId : undefined;
+      .map((dto) =>
+        this.mapDtoToPage(this.dropOperationsWithoutHash(dto), family),
+      );
   }
 
   private buildQueryParams(options?: TransactionHistoryOptions): string {
@@ -136,24 +142,30 @@ export class DefaultTransactionHistoryDataSource
 
   private mapDtoToPage(
     dto: CoinServiceAccountOperationsResponseDto,
+    family: Maybe<BlockchainFamily>,
   ): TransactionHistoryPage {
     return {
       items: dto.items
         .slice(0, TRANSACTION_HISTORY_MAX_ITEMS)
-        .map((op) => this.mapDtoToEntry(op)),
+        .map((op) => this.mapDtoToEntry(op, family)),
       nextPageToken: dto.next ?? undefined,
     };
   }
 
   private mapDtoToEntry(
     op: CoinServiceAccountOperationDto,
+    family: Maybe<BlockchainFamily>,
   ): TransactionHistoryEntry {
     return {
       hash: op.tx.hash,
       value: this.resolveValue(op),
-      senders: (op.senders ?? []).map((address) => address.toLowerCase()),
-      recipients: (op.recipients ?? []).map((address) => address.toLowerCase()),
-      fee: this.resolveFee(op),
+      senders: (op.senders ?? []).map((address) =>
+        normalizeAddressForCurrency(address, family.extract()),
+      ),
+      recipients: (op.recipients ?? []).map((address) =>
+        normalizeAddressForCurrency(address, family.extract()),
+      ),
+      fee: this.resolveFee(op, family),
       failed: op.tx?.failed === true,
       blockHeight: op.tx?.block?.height,
       timestamp: this.resolveTimestamp(op),
@@ -187,12 +199,16 @@ export class DefaultTransactionHistoryDataSource
 
   private resolveFee(
     op: CoinServiceAccountOperationDto,
+    family: Maybe<BlockchainFamily>,
   ): TransactionHistoryEntryFee | undefined {
     const amount = op.tx?.fees;
     if (!amount || amount === "0") {
       return undefined;
     }
-    const payer = op.tx?.feesPayer?.toLowerCase();
+    const rawPayer = op.tx?.feesPayer;
+    const payer = rawPayer
+      ? normalizeAddressForCurrency(rawPayer, family.extract())
+      : undefined;
     return payer ? { amount, payer } : { amount };
   }
 

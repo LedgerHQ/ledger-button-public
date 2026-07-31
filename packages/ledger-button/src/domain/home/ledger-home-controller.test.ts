@@ -1,23 +1,53 @@
 import type {
+  Account,
+  BlockchainFamily,
+  ButtonCoreContext,
   DetailedAccount,
   PendingTransaction,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../../context/core-context.js";
 import type { LanguageContext } from "../../context/language-context.js";
-import type { Navigation } from "../../shared/navigation.js";
-import type { Destinations } from "../../shared/routes.js";
 import { LedgerHomeController } from "./ledger-home-controller.js";
 
-function mockRight<T>(value: T) {
+function createAccount(overrides: Partial<Account> = {}): Account {
   return {
-    caseOf: (handlers: { Right: (v: T) => void }) => handlers.Right(value),
-    isRight: () => true,
-    isLeft: () => false,
-    extract: () => value,
+    id: "account-1",
+    currencyId: "ethereum",
+    freshAddress: "0xabc123",
+    seedIdentifier: "seed-1",
+    derivationMode: "",
+    index: 0,
+    name: "Ethereum",
+    ticker: "ETH",
+    balance: "1.5",
+    tokens: [],
+    ...overrides,
+  };
+}
+
+function createContext(
+  overrides: Partial<ButtonCoreContext> = {},
+): ButtonCoreContext {
+  return {
+    connectedDevice: undefined,
+    selectedAccounts: new Map<BlockchainFamily, Account>([
+      [DEFAULT_BLOCKCHAIN_FAMILY, createAccount()],
+    ]),
+    activeFamily: DEFAULT_BLOCKCHAIN_FAMILY,
+    trustChainId: undefined,
+    applicationPath: undefined,
+    chainId: 1,
+    welcomeScreenCompleted: true,
+    hasTrackingConsent: undefined,
+    hasDeveloperMode: false,
+    isMobilePlatform: false,
+    preferredFiatCurrency: "usd",
+    ...overrides,
   };
 }
 
@@ -65,11 +95,10 @@ describe("LedgerHomeController", () => {
   let controller: LedgerHomeController;
   let host: ReactiveControllerHost;
   let core: CoreContext;
-  let navigation: Navigation;
-  let destinations: Destinations;
   let languages: LanguageContext;
+  let fetchSelectedAccount: ReturnType<typeof vi.fn>;
   let pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
-  let contextSubject: BehaviorSubject<Record<string, unknown>>;
+  let contextSubject: BehaviorSubject<ButtonCoreContext>;
   const account = createDetailedAccount();
 
   beforeEach(() => {
@@ -81,31 +110,16 @@ describe("LedgerHomeController", () => {
     };
 
     pendingTxSubject = new BehaviorSubject<PendingTransaction[]>([]);
-    contextSubject = new BehaviorSubject<Record<string, unknown>>({
-      selectedAccount: {
-        freshAddress: "0xabc123",
-        currencyId: "ethereum",
-      },
-      preferredFiatCurrency: "usd",
-    });
+    contextSubject = new BehaviorSubject<ButtonCoreContext>(createContext());
+    fetchSelectedAccount = vi.fn().mockResolvedValue(account);
 
     core = {
       observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
+      fetchSelectedAccount,
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTxSubject.asObservable()),
-      getDetailedSelectedAccount: vi.fn().mockResolvedValue(mockRight(account)),
     } as unknown as CoreContext;
-
-    navigation = {
-      navigateTo: vi.fn(),
-      navigateBack: vi.fn(),
-      host: {},
-    } as unknown as Navigation;
-
-    destinations = {
-      onboardingFlow: { name: "onboarding-flow" },
-    } as unknown as Destinations;
 
     languages = {
       currentTranslation: {
@@ -113,21 +127,14 @@ describe("LedgerHomeController", () => {
       },
     } as unknown as LanguageContext;
 
-    controller = new LedgerHomeController(
-      host,
-      core,
-      navigation,
-      destinations,
-      languages,
-    );
+    controller = new LedgerHomeController(host, core, languages);
   });
 
   async function connectAndWaitForLoad() {
     controller.hostConnected();
     await vi.waitFor(() => {
-      expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
+      expect(controller.loading).toBe(false);
     });
-    (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
     (host.requestUpdate as ReturnType<typeof vi.fn>).mockClear();
   }
 
@@ -135,53 +142,98 @@ describe("LedgerHomeController", () => {
     it("returns the uppercased currency emitted by context", async () => {
       await connectAndWaitForLoad();
 
-      contextSubject.next({
-        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
-        preferredFiatCurrency: "eur",
-      });
+      contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
 
       expect(controller.preferredCurrency).toBe("EUR");
     });
 
-    it("calls getSelectedAccount when preferredFiatCurrency changes", async () => {
+    it("updates when preferredFiatCurrency changes", async () => {
       await connectAndWaitForLoad();
 
-      contextSubject.next({
-        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
-        preferredFiatCurrency: "usd",
-      });
-      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+      contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
+      expect(controller.preferredCurrency).toBe("EUR");
 
-      contextSubject.next({
-        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
-        preferredFiatCurrency: "eur",
-      });
+      contextSubject.next(createContext({ preferredFiatCurrency: "gbp" }));
+      expect(controller.preferredCurrency).toBe("GBP");
+    });
+
+    it("calls requestUpdate when preferredFiatCurrency changes", async () => {
+      await connectAndWaitForLoad();
+
+      contextSubject.next(createContext({ preferredFiatCurrency: "eur" }));
+
+      expect(host.requestUpdate).toHaveBeenCalled();
+    });
+  });
+
+  describe("account updates", () => {
+    it("sets selectedAccount from the context's selected account", async () => {
+      controller.hostConnected();
 
       await vi.waitFor(() => {
-        expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
+        expect(controller.selectedAccount).toEqual(account);
+      });
+      expect(fetchSelectedAccount).toHaveBeenCalledWith(
+        DEFAULT_BLOCKCHAIN_FAMILY,
+      );
+    });
+
+    it("sets loading to false when first account arrives", async () => {
+      controller.hostConnected();
+      expect(controller.loading).toBe(true);
+
+      await vi.waitFor(() => {
+        expect(controller.loading).toBe(false);
+        expect(controller.selectedAccount).toEqual(account);
       });
     });
 
-    it("does not call getSelectedAccount when preferredFiatCurrency stays the same", async () => {
+    it("sets selectedAccount to undefined when no account is selected", async () => {
       await connectAndWaitForLoad();
 
-      contextSubject.next({
-        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
-        preferredFiatCurrency: "usd",
-      });
-      (core.getDetailedSelectedAccount as ReturnType<typeof vi.fn>).mockClear();
+      contextSubject.next(
+        createContext({
+          selectedAccounts: new Map<BlockchainFamily, Account>(),
+        }),
+      );
 
-      contextSubject.next({
-        selectedAccount: { freshAddress: "0xabc123", currencyId: "ethereum" },
-        preferredFiatCurrency: "usd",
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount).toBeUndefined();
       });
+    });
 
-      expect(core.getDetailedSelectedAccount).not.toHaveBeenCalled();
+    it("updates selectedAccount when a new account is selected", async () => {
+      await connectAndWaitForLoad();
+
+      const newAccount = createDetailedAccount({ freshAddress: "0xdef456" });
+      fetchSelectedAccount.mockResolvedValue(newAccount);
+      contextSubject.next(
+        createContext({
+          selectedAccounts: new Map<BlockchainFamily, Account>([
+            [
+              DEFAULT_BLOCKCHAIN_FAMILY,
+              createAccount({ freshAddress: "0xdef456" }),
+            ],
+          ]),
+        }),
+      );
+
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("0xdef456");
+      });
+    });
+
+    it("calls requestUpdate when account arrives", async () => {
+      controller.hostConnected();
+
+      await vi.waitFor(() => {
+        expect(host.requestUpdate).toHaveBeenCalled();
+      });
     });
   });
 
   describe("context-driven account updates", () => {
-    it("should update selectedAccount when context emits a DetailedAccount with transactionHistory", async () => {
+    it("should update selectedAccount with transactionHistory", async () => {
       const freshAccount = createDetailedAccount({
         transactionHistory: [
           {
@@ -201,86 +253,234 @@ describe("LedgerHomeController", () => {
           },
         ] as DetailedAccount["transactionHistory"],
       });
+      fetchSelectedAccount.mockResolvedValue(freshAccount);
 
-      await connectAndWaitForLoad();
+      controller.hostConnected();
 
-      contextSubject.next({
-        selectedAccount: freshAccount,
-        preferredFiatCurrency: "usd",
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount).toEqual(freshAccount);
       });
-
-      expect(controller.selectedAccount).toEqual(freshAccount);
       expect(controller.transactionListItems).toHaveLength(1);
       expect(host.requestUpdate).toHaveBeenCalled();
-    });
-
-    it("should call getSelectedAccount when address changes", async () => {
-      await connectAndWaitForLoad();
-
-      contextSubject.next({
-        selectedAccount: {
-          freshAddress: "0xdifferent",
-          currencyId: "ethereum",
-        },
-        preferredFiatCurrency: "usd",
-      });
-
-      await vi.waitFor(() => {
-        expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
-      });
-    });
-
-    it("should call getSelectedAccount when currencyId changes", async () => {
-      await connectAndWaitForLoad();
-
-      contextSubject.next({
-        selectedAccount: {
-          freshAddress: "0xabc123",
-          currencyId: "polygon",
-        },
-        preferredFiatCurrency: "usd",
-      });
-
-      await vi.waitFor(() => {
-        expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
-      });
-    });
-
-    it("should not call getSelectedAccount when context emits same address and currencyId", async () => {
-      await connectAndWaitForLoad();
-
-      contextSubject.next({
-        selectedAccount: {
-          freshAddress: "0xabc123",
-          currencyId: "ethereum",
-        },
-        preferredFiatCurrency: "usd",
-      });
-
-      expect(core.getDetailedSelectedAccount).not.toHaveBeenCalled();
     });
   });
 
   describe("pending transactions", () => {
-    it("should update pendingTransactionListItems when pending transactions change", () => {
+    it("should update pendingTransactionListItems when pending transactions change", async () => {
       const tx1 = createPendingTx({ hash: "0x111" });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx1]);
 
       expect(controller.pendingTransactionListItems).toHaveLength(1);
       expect(host.requestUpdate).toHaveBeenCalled();
     });
 
-    it("should clear pending list when all are confirmed", () => {
+    it("should clear pending list when all are confirmed", async () => {
       const tx1 = createPendingTx({ hash: "0x111" });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx1]);
       expect(controller.pendingTransactionListItems).toHaveLength(1);
 
       pendingTxSubject.next([]);
       expect(controller.pendingTransactionListItems).toHaveLength(0);
+    });
+
+    it("returns an empty list while no account is selected", () => {
+      const tx = createPendingTx({ hash: "0x111" });
+
+      pendingTxSubject.next([tx]);
+      controller.hostConnected();
+
+      expect(controller.pendingTransactionListItems).toEqual([]);
+    });
+
+    it("hides pending txs whose address differs from the selected account", async () => {
+      const matching = createPendingTx({
+        hash: "0xmine",
+        address: account.freshAddress,
+      });
+      const otherAccount = createPendingTx({
+        hash: "0xtheirs",
+        address: "0xdifferent",
+      });
+
+      await connectAndWaitForLoad();
+      pendingTxSubject.next([matching, otherAccount]);
+
+      expect(controller.pendingTransactionListItems).toHaveLength(1);
+      expect(controller.pendingTransactionListItems[0]?.hash).toBe("0xmine");
+    });
+
+    it("hides pending txs whose currency differs from the selected account", async () => {
+      const sameAddressOtherChain = createPendingTx({
+        hash: "0xother-chain",
+        address: account.freshAddress,
+        ledgerId: "polygon",
+      });
+
+      await connectAndWaitForLoad();
+      pendingTxSubject.next([sameAddressOtherChain]);
+
+      expect(controller.pendingTransactionListItems).toEqual([]);
+    });
+
+    it("re-filters the global pending list when the user switches account", async () => {
+      const txAccount1 = createPendingTx({
+        hash: "0x1",
+        address: "0xabc123",
+        ledgerId: "ethereum",
+      });
+      const txAccount2 = createPendingTx({
+        hash: "0x2",
+        address: "0xdef456",
+        ledgerId: "ethereum",
+      });
+
+      await connectAndWaitForLoad();
+      pendingTxSubject.next([txAccount1, txAccount2]);
+      expect(controller.pendingTransactionListItems).toHaveLength(1);
+      expect(controller.pendingTransactionListItems[0]?.hash).toBe("0x1");
+
+      const account2 = createDetailedAccount({
+        id: "account-2",
+        freshAddress: "0xdef456",
+      });
+      fetchSelectedAccount.mockResolvedValue(account2);
+      contextSubject.next(
+        createContext({
+          selectedAccounts: new Map<BlockchainFamily, Account>([
+            [
+              DEFAULT_BLOCKCHAIN_FAMILY,
+              createAccount({ freshAddress: "0xdef456" }),
+            ],
+          ]),
+        }),
+      );
+
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("0xdef456");
+      });
+
+      expect(controller.pendingTransactionListItems).toHaveLength(1);
+      expect(controller.pendingTransactionListItems[0]?.hash).toBe("0x2");
+    });
+  });
+
+  describe("family switching", () => {
+    const solanaAccount = createDetailedAccount({
+      id: "sol-1",
+      currencyId: "solana",
+      freshAddress: "sol-addr",
+      name: "Solana",
+      ticker: "SOL",
+      networks: [{ id: "solana", name: "Solana", ticker: "SOL" }],
+    });
+
+    function multiFamilyContext(
+      activeFamily: BlockchainFamily,
+    ): ButtonCoreContext {
+      return createContext({
+        activeFamily,
+        selectedAccounts: new Map<BlockchainFamily, Account>([
+          [DEFAULT_BLOCKCHAIN_FAMILY, createAccount()],
+          [
+            "solana",
+            createAccount({
+              id: "sol-1",
+              currencyId: "solana",
+              freshAddress: "sol-addr",
+              name: "Solana",
+              ticker: "SOL",
+            }),
+          ],
+        ]),
+      });
+    }
+
+    it("shows a switching loader while loading a not-yet-cached family", async () => {
+      await connectAndWaitForLoad();
+
+      let resolveSolana!: (value: DetailedAccount) => void;
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        family === "solana"
+          ? new Promise<DetailedAccount>((resolve) => {
+              resolveSolana = resolve;
+            })
+          : Promise.resolve(account),
+      );
+
+      contextSubject.next(multiFamilyContext("solana"));
+
+      expect(controller.switching).toBe(true);
+
+      resolveSolana(solanaAccount);
+
+      await vi.waitFor(() => {
+        expect(controller.switching).toBe(false);
+        expect(controller.selectedAccount?.freshAddress).toBe("sol-addr");
+      });
+    });
+
+    it("switches back to an already-loaded family instantly without a loader", async () => {
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        Promise.resolve(family === "solana" ? solanaAccount : account),
+      );
+
+      await connectAndWaitForLoad();
+
+      contextSubject.next(multiFamilyContext("solana"));
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("sol-addr");
+      });
+
+      fetchSelectedAccount.mockClear();
+
+      contextSubject.next(multiFamilyContext(DEFAULT_BLOCKCHAIN_FAMILY));
+
+      expect(controller.switching).toBe(false);
+      expect(controller.selectedAccount?.freshAddress).toBe("0xabc123");
+
+      expect(fetchSelectedAccount).toHaveBeenCalledWith(
+        DEFAULT_BLOCKCHAIN_FAMILY,
+      );
+    });
+
+    it("refreshes a cached family silently in the background", async () => {
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        Promise.resolve(family === "solana" ? solanaAccount : account),
+      );
+
+      await connectAndWaitForLoad();
+      contextSubject.next(multiFamilyContext("solana"));
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("sol-addr");
+      });
+
+      const refreshedSolana = createDetailedAccount({
+        id: "sol-1",
+        currencyId: "solana",
+        freshAddress: "sol-addr",
+        name: "Solana",
+        ticker: "SOL",
+        balance: "9999",
+        networks: [{ id: "solana", name: "Solana", ticker: "SOL" }],
+      });
+      fetchSelectedAccount.mockImplementation((family: BlockchainFamily) =>
+        Promise.resolve(family === "solana" ? refreshedSolana : account),
+      );
+
+      contextSubject.next(multiFamilyContext(DEFAULT_BLOCKCHAIN_FAMILY));
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.freshAddress).toBe("0xabc123");
+      });
+
+      contextSubject.next(multiFamilyContext("solana"));
+
+      await vi.waitFor(() => {
+        expect(controller.selectedAccount?.balance).toBe("9999");
+      });
     });
   });
 
@@ -306,28 +506,24 @@ describe("LedgerHomeController", () => {
         ] as DetailedAccount["transactionHistory"],
         transactionExplorerUrlTemplate: "https://etherscan.io/tx/${hash}",
       });
+      fetchSelectedAccount.mockResolvedValue(accountWithExplorerUrl);
 
       controller.hostConnected();
-      await vi.waitFor(() => {
-        expect(core.getDetailedSelectedAccount).toHaveBeenCalled();
-      });
-      contextSubject.next({
-        selectedAccount: accountWithExplorerUrl,
-        preferredFiatCurrency: "usd",
-      });
 
-      expect(controller.transactionListItems[0]?.explorerUrl).toBe(
-        "https://etherscan.io/tx/0xabc",
-      );
+      await vi.waitFor(() => {
+        expect(controller.transactionListItems[0]?.explorerUrl).toBe(
+          "https://etherscan.io/tx/0xabc",
+        );
+      });
     });
 
-    it("should propagate explorerUrl from pending transactions to the list row", () => {
+    it("should propagate explorerUrl from pending transactions to the list row", async () => {
       const tx = createPendingTx({
         hash: "0xpending1",
         explorerUrl: "https://etherscan.io/tx/0xpending1",
       });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx]);
 
       expect(controller.pendingTransactionListItems[0]?.explorerUrl).toBe(
@@ -335,10 +531,10 @@ describe("LedgerHomeController", () => {
       );
     });
 
-    it("should leave explorerUrl undefined when upstream did not provide one", () => {
+    it("should leave explorerUrl undefined when upstream did not provide one", async () => {
       const tx = createPendingTx({ hash: "0xnoexplorer" });
 
-      controller.hostConnected();
+      await connectAndWaitForLoad();
       pendingTxSubject.next([tx]);
 
       expect(

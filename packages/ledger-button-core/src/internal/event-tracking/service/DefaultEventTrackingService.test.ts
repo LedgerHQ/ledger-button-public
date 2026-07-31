@@ -53,12 +53,14 @@ describe("DefaultEventTrackingService", () => {
     overrides: Partial<ButtonCoreContext> = {},
   ): ButtonCoreContext => ({
     connectedDevice: undefined,
-    selectedAccount: undefined,
+    selectedAccounts: new Map(),
+    activeFamily: undefined,
     trustChainId: undefined,
     applicationPath: undefined,
     chainId: 1,
     welcomeScreenCompleted: false,
     hasTrackingConsent: false,
+    hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
     ...overrides,
@@ -345,7 +347,9 @@ describe("DefaultEventTrackingService", () => {
           "invoicing_transaction_signed",
         );
 
-        await expect(eventTrackingService.trackEvent(event)).resolves.toBeUndefined();
+        await expect(
+          eventTrackingService.trackEvent(event),
+        ).resolves.toBeUndefined();
         expect(mockBackendService.event).toHaveBeenCalledWith(
           event,
           mockConfig.dAppIdentifier,
@@ -363,7 +367,9 @@ describe("DefaultEventTrackingService", () => {
           "invoicing_transaction_signed",
         );
 
-        await expect(eventTrackingService.trackEvent(event)).resolves.toBeUndefined();
+        await expect(
+          eventTrackingService.trackEvent(event),
+        ).resolves.toBeUndefined();
         expect(mockBackendService.event).toHaveBeenCalledWith(
           event,
           mockConfig.dAppIdentifier,

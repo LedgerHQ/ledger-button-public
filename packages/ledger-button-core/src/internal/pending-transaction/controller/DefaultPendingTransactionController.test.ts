@@ -60,20 +60,30 @@ function createMockFetchSelectedAccountUseCase() {
 
 const hydratedContext = {
   chainId: 1,
-  selectedAccount: {
-    freshAddress: "0x1234",
-    currencyId: "ethereum",
-    ticker: "ETH",
-  },
+  selectedAccounts: new Map([
+    [
+      "ethereum",
+      {
+        freshAddress: "0x1234",
+        currencyId: "ethereum",
+        ticker: "ETH",
+      },
+    ],
+  ]),
 };
 
 const skeletonContext = {
   chainId: 1,
-  selectedAccount: {
-    freshAddress: "0x1234",
-    currencyId: "ethereum",
-    ticker: "",
-  },
+  selectedAccounts: new Map([
+    [
+      "ethereum",
+      {
+        freshAddress: "0x1234",
+        currencyId: "ethereum",
+        ticker: "",
+      },
+    ],
+  ]),
 };
 
 function createMockContextService(
@@ -414,13 +424,64 @@ describe("DefaultPendingTransactionController", () => {
 
       mockContextService.getContext.mockReturnValue({
         chainId: 1,
-        selectedAccount: undefined,
+        selectedAccounts: new Map(),
       });
 
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
       expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("family-agnostic (Solana active)", () => {
+    const solanaContext = {
+      chainId: 1,
+      activeFamily: "solana",
+      selectedAccounts: new Map([
+        [
+          "solana",
+          {
+            freshAddress: "So1ana1111",
+            currencyId: "solana",
+            ticker: "SOL",
+          },
+        ],
+      ]),
+    };
+
+    it("polls and refreshes the active Solana account, not the ethereum default", async () => {
+      const tx = createPendingTx({
+        hash: "0x111",
+        ledgerId: "solana",
+        address: "So1ana1111",
+      });
+      const storageWithData = createMockStorageService();
+      storageWithData._store.push(tx);
+      const solanaCtx = createMockContextService(solanaContext);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0x111", failed: false }]),
+      );
+
+      const solanaController = new DefaultPendingTransactionController(
+        createMockLoggerFactory(),
+        storageWithData,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
+        solanaCtx as unknown as ContextService,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
+      );
+
+      solanaController.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledWith(
+        "solana",
+        "So1ana1111",
+        ["0x111"],
+      );
+      expect(mockFetchSelectedAccount.execute).toHaveBeenCalledWith("solana");
     });
   });
 });

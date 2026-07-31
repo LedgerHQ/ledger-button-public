@@ -6,7 +6,7 @@ import type {
   PendingTransaction,
   TransactionHistoryItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, map } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications.js";
@@ -96,7 +96,15 @@ describe("TransactionConfirmationNotifier", () => {
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingSubject.asObservable()),
-      observeContext: vi.fn().mockReturnValue(contextSubject.asObservable()),
+      observeContext: vi.fn().mockReturnValue(
+          contextSubject.asObservable().pipe(
+            map((c) => ({
+              selectedAccounts: new Map(
+                c.selectedAccount ? [["ethereum", c.selectedAccount]] : [],
+              ),
+            })),
+          ),
+        ),
     };
 
     notifier = new TransactionConfirmationNotifier(
@@ -223,7 +231,15 @@ describe("TransactionConfirmationNotifier", () => {
           .mockReturnValue(pendingSubject.asObservable()),
         observeContext: vi
           .fn()
-          .mockReturnValue(contextSubject.asObservable()),
+          .mockReturnValue(
+          contextSubject.asObservable().pipe(
+            map((c) => ({
+              selectedAccounts: new Map(
+                c.selectedAccount ? [["ethereum", c.selectedAccount]] : [],
+              ),
+            })),
+          ),
+        ),
       };
 
       notifier = new TransactionConfirmationNotifier(

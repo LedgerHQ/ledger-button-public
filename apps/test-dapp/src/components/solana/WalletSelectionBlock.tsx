@@ -1,10 +1,14 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 import { Link, Search } from "@ledgerhq/lumen-ui-react/symbols";
-import { WalletReadyState } from "@solana/wallet-adapter-base";
-import { useWallet,type Wallet } from "@solana/wallet-adapter-react";
+import { useSelectedWalletAccount } from "@solana/react";
+import {
+  type UiWallet,
+  useConnect,
+  useDisconnect,
+} from "@wallet-standard/react";
 
 import { cn } from "../../lib/utils";
 
@@ -13,64 +17,23 @@ interface WalletSelectionBlockProps {
   onError: (message: string) => void;
 }
 
-const READY_STATE_LABEL: Record<WalletReadyState, string> = {
-  [WalletReadyState.Installed]: "Installed",
-  [WalletReadyState.Loadable]: "Loadable",
-  [WalletReadyState.NotDetected]: "Not detected",
-  [WalletReadyState.Unsupported]: "Unsupported",
-};
-
 export function WalletSelectionBlock({
   onLog,
   onError,
 }: WalletSelectionBlockProps) {
-  const {
-    wallets,
-    wallet: selectedWallet,
-    publicKey,
-    connecting,
-    connected,
-    select,
-    connect,
-    disconnect,
-  } = useWallet();
+  const [, , wallets] = useSelectedWalletAccount();
 
-  const handleSelect = useCallback(
-    async (target: Wallet) => {
-      onLog(`Selecting ${target.adapter.name}`);
-      select(target.adapter.name);
-    },
-    [select, onLog],
-  );
-
-  const handleConnect = useCallback(async () => {
-    if (!selectedWallet) return;
-    try {
-      onLog(`Connecting to ${selectedWallet.adapter.name}…`);
-      await connect();
-    } catch (err) {
-      onError((err as Error)?.message ?? String(err));
+  // De-duplicate on name: the same wallet can be registered more than once
+  // (e.g. re-announced), which would otherwise list it multiple times.
+  const uniqueWallets = useMemo(() => {
+    const byName = new Map<string, UiWallet>();
+    for (const wallet of wallets) {
+      if (!byName.has(wallet.name)) {
+        byName.set(wallet.name, wallet);
+      }
     }
-  }, [selectedWallet, connect, onLog, onError]);
-
-  const handleDisconnect = useCallback(async () => {
-    try {
-      await disconnect();
-      onLog("Disconnected");
-    } catch (err) {
-      onError((err as Error)?.message ?? String(err));
-    }
-  }, [disconnect, onLog, onError]);
-
-  const sortedWallets = [...wallets].sort((a, b) => {
-    const order = (w: Wallet) =>
-      w.readyState === WalletReadyState.Installed
-        ? 0
-        : w.readyState === WalletReadyState.Loadable
-          ? 1
-          : 2;
-    return order(a) - order(b);
-  });
+    return [...byName.values()];
+  }, [wallets]);
 
   return (
     <div className="border border-muted rounded-lg overflow-hidden">
@@ -82,76 +45,20 @@ export function WalletSelectionBlock({
       </div>
 
       <div className="p-24 bg-canvas space-y-20">
-        <div className="flex items-center gap-12">
-          <Button
-            appearance="accent"
-            size="md"
-            onClick={handleConnect}
-            disabled={!selectedWallet || connected || connecting}
-          >
-            <Search size={16} />
-            {connecting ? "Connecting…" : "Connect"}
-          </Button>
-          {connected && (
-            <Button appearance="red" size="sm" onClick={handleDisconnect}>
-              Disconnect
-            </Button>
-          )}
-        </div>
-
-        {sortedWallets.length > 0 ? (
+        {uniqueWallets.length > 0 ? (
           <div className="space-y-12">
             <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
-              Detected Wallets ({sortedWallets.length})
+              Detected Wallets ({uniqueWallets.length})
             </h4>
             <div className="space-y-10">
-              {sortedWallets.map((target) => {
-                const isSelected =
-                  selectedWallet?.adapter.name === target.adapter.name;
-                const isConnected = isSelected && publicKey !== null;
-
-                return (
-                  <div
-                    key={target.adapter.name}
-                    className={cn(
-                      "flex justify-between items-center px-16 py-14 border rounded-lg cursor-pointer transition-colors",
-                      isSelected
-                        ? "border-active bg-muted-transparent"
-                        : "border-muted hover:border-base hover:bg-muted-transparent",
-                    )}
-                    onClick={() => handleSelect(target)}
-                  >
-                    <div className="flex items-center gap-12">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- adapter icons are base64 data URLs */}
-                      <img
-                        src={target.adapter.icon}
-                        alt={target.adapter.name}
-                        className="size-36 rounded-lg"
-                      />
-                      <div className="flex flex-col gap-2">
-                        <span className="body-2-semi-bold text-base">
-                          {target.adapter.name}
-                        </span>
-                        <span className="body-4 text-muted font-mono">
-                          {READY_STATE_LABEL[target.readyState]}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      {isConnected && (
-                        <Tag
-                          appearance="success"
-                          size="sm"
-                          label="Connected"
-                        />
-                      )}
-                      {isSelected && !isConnected && (
-                        <Tag appearance="gray" size="sm" label="Selected" />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+              {uniqueWallets.map((wallet) => (
+                <WalletRow
+                  key={wallet.name}
+                  wallet={wallet}
+                  onLog={onLog}
+                  onError={onError}
+                />
+              ))}
             </div>
           </div>
         ) : (
@@ -162,6 +69,102 @@ export function WalletSelectionBlock({
               and refresh.
             </p>
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface WalletRowProps {
+  wallet: UiWallet;
+  onLog: (label: string, data?: unknown) => void;
+  onError: (message: string) => void;
+}
+
+function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
+  const [selectedAccount, setSelectedAccount] = useSelectedWalletAccount();
+  const [isConnecting, connect] = useConnect(wallet);
+  const [isDisconnecting, disconnect] = useDisconnect(wallet);
+
+  const isSelected = Boolean(
+    selectedAccount &&
+      wallet.accounts.some(
+        (account) => account.address === selectedAccount.address,
+      ),
+  );
+
+  const handleConnect = useCallback(async () => {
+    try {
+      onLog(`Connecting to ${wallet.name}…`);
+      const accounts = await connect();
+      const account = accounts[0];
+      if (account) {
+        setSelectedAccount(account);
+        onLog(`Connected ${wallet.name}`, account.address);
+      } else {
+        onError("Wallet returned no accounts");
+      }
+    } catch (err) {
+      onError((err as Error)?.message ?? String(err));
+    }
+  }, [wallet, connect, setSelectedAccount, onLog, onError]);
+
+  const handleDisconnect = useCallback(async () => {
+    try {
+      await disconnect();
+      setSelectedAccount(undefined);
+      onLog(`Disconnected ${wallet.name}`);
+    } catch (err) {
+      onError((err as Error)?.message ?? String(err));
+    }
+  }, [wallet, disconnect, setSelectedAccount, onLog, onError]);
+
+  return (
+    <div
+      className={cn(
+        "flex justify-between items-center px-16 py-14 border rounded-lg transition-colors",
+        isSelected
+          ? "border-active bg-muted-transparent"
+          : "border-muted hover:border-base hover:bg-muted-transparent",
+      )}
+    >
+      <div className="flex items-center gap-12">
+        {/* eslint-disable-next-line @next/next/no-img-element -- wallet icons are base64 data URLs */}
+        <img
+          src={wallet.icon}
+          alt={wallet.name}
+          className="size-36 rounded-lg"
+        />
+        <div className="flex flex-col gap-2">
+          <span className="body-2-semi-bold text-base">{wallet.name}</span>
+          {isSelected && (
+            <span className="body-4 text-muted font-mono">
+              {selectedAccount?.address.slice(0, 8)}…
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center gap-10">
+        {isSelected && <Tag appearance="success" size="sm" label="Connected" />}
+        {isSelected ? (
+          <Button
+            appearance="red"
+            size="sm"
+            onClick={handleDisconnect}
+            disabled={isDisconnecting}
+          >
+            {isDisconnecting ? "Disconnecting…" : "Disconnect"}
+          </Button>
+        ) : (
+          <Button
+            appearance="accent"
+            size="sm"
+            onClick={handleConnect}
+            disabled={isConnecting}
+          >
+            <Search size={16} />
+            {isConnecting ? "Connecting…" : "Connect"}
+          </Button>
         )}
       </div>
     </div>

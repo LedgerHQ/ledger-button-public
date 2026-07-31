@@ -3,7 +3,7 @@ import { type Either, Left, Right } from "purify-ts";
 
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
-import { getChainIdFromCurrencyId } from "../../../evm-provider/utils/chainUtils.js";
+import { getChainIdFromCurrencyId } from "../../../evm-provider/ledger-eip1193/utils/chainUtils.js";
 import { type NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
@@ -75,10 +75,11 @@ export class DefaultCalDataSource implements CalDataSource {
 
     const coin = currencyData[0];
 
-    const decimals =
-      coin.units && coin.units.length > 0
-        ? Math.max(...coin.units.map((u) => u.magnitude))
-        : 18;
+    if (!coin.units || coin.units.length === 0) {
+      return Left(new Error(`No units found for currency ${coin.id} in Cal`));
+    }
+
+    const decimals = Math.max(...coin.units.map((u) => u.magnitude));
 
     return Right({
       id: coin.id,

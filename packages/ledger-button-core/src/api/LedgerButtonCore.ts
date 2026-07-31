@@ -1,35 +1,41 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
-import { Observable, Subscription, switchMap, tap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 
-import { ButtonCoreContext } from "./model/ButtonCoreContext.js";
-import { JSONRPCRequest } from "./model/eip/EIPTypes.js";
-import { SignPersonalMessageParams } from "./model/index.js";
+import type {
+  BlockchainFamily,
+  WalletNavigationIntent,
+} from "./blockchain-provider/model/types.js";
+import {
+  ButtonCoreContext,
+  DEFAULT_BLOCKCHAIN_FAMILY,
+  getActiveFamily,
+  getActiveSelectedAccount,
+  getConnectedFamilies,
+  getSelectedAccount,
+} from "./model/ButtonCoreContext.js";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
-import { SignFlowStatus } from "./model/signing/SignFlowStatus.js";
-import { SignRawTransactionParams } from "./model/signing/SignRawTransactionParams.js";
-import { SignTransactionParams } from "./model/signing/SignTransactionParams.js";
-import { SignTypedMessageParams } from "./model/signing/SignTypedMessageParams.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
 import {
   Account,
   type AccountService,
   type AccountWithFiat,
+  type DetailedAccount,
 } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import { FetchAccountsWithBalanceUseCase } from "../internal/account/use-case/fetchAccountsWithBalanceUseCase.js";
-import { FetchAccountsWithFiatUseCase } from "../internal/account/use-case/fetchAccountsWithFiatUseCase.js";
-import type { GetDetailedSelectedAccountUseCase } from "../internal/account/use-case/getDetailedSelectedAccountUseCase.js";
-import { SortAccountsByFiatUseCase } from "../internal/account/use-case/sortAccountsByFiatUseCase.js";
-import { backendModuleTypes } from "../internal/backend/backendModuleTypes.js";
-import { type BackendService } from "../internal/backend/BackendService.js";
+import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
+import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
+import type { JSONRPCRequest } from "../internal/backend/types.js";
 import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
+import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
+import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
 import { configModuleTypes } from "../internal/config/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
 import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
@@ -40,8 +46,10 @@ import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
 import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
 import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
-import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
-import { type DAppConfigService } from "../internal/dAppConfig/service/DAppConfigService.js";
+import { dAppConfigV1ModuleTypes } from "../internal/dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
+import { type DAppConfigService } from "../internal/dAppConfig/v1/service/DAppConfigService.js";
+import { dAppConfigV2ModuleTypes } from "../internal/dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
+import { type GetDAppConfigV2UseCase } from "../internal/dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
 import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
 import {
   type ConnectionType,
@@ -61,10 +69,12 @@ import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/Tra
 import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
 import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
 import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import {
+  TrackViewAllTransactions,
+  type TrackViewAllTransactionsParams,
+} from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
-import { evmProviderModuleTypes } from "../internal/evm-provider/evmProviderModuleTypes.js";
-import { JSONRPCCallUseCase } from "../internal/evm-provider/jsonrpc/use-case/JSONRPCRequest.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
@@ -72,26 +82,22 @@ import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
+import { navigationModuleTypes } from "../internal/navigation/navigationModuleTypes.js";
+import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService.js";
 import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
 import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
-import { type TrackBroadcastedTransactionUseCase } from "../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
 import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
+import type { FeatureFlags } from "../internal/storage/model/FeatureFlags.js";
 import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
-import { type TransactionService } from "../internal/transaction/service/TransactionService.js";
-import { transactionModuleTypes } from "../internal/transaction/transactionModuleTypes.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
   private container!: Container;
-  private _craftedTransactionParams?:
-    | SignRawTransactionParams
-    | SignTransactionParams;
-  private _pendingAccountId?: string;
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
@@ -99,6 +105,12 @@ export class LedgerButtonCore {
   private get _contextService(): ContextService {
     return this.container.get<ContextService>(
       contextModuleTypes.ContextService,
+    );
+  }
+
+  private get _navigationIntentService(): NavigationIntentService {
+    return this.container.get<NavigationIntentService>(
+      navigationModuleTypes.NavigationIntentService,
     );
   }
 
@@ -111,19 +123,29 @@ export class LedgerButtonCore {
       loggerModuleTypes.LoggerPublisher,
     );
     this._logger = loggerFactory("Ledger Button Core");
+
     this._modalService = this.container.get<ModalService>(
       modalModuleTypes.ModalService,
     );
+
     this.initializeContext();
   }
 
   private async initializeContext() {
     this._logger.debug("Initializing context");
-
+    console.log("Initializing context");
     //Fetch dApp config that will be used later for fetching supported blockchains/referral url/etc.
     await this.container
-      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
       .getDAppConfig();
+
+    const dappConfig = await this.container
+      .get<GetDAppConfigV2UseCase>(
+        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
+      )
+      .execute();
+
+    console.log("dappConfigv2", dappConfig);
 
     //TODO throw error if dApp config is not found ?
     // Migrate database to latest version
@@ -131,11 +153,24 @@ export class LedgerButtonCore {
       .get<MigrateDbUseCase>(storageModuleTypes.MigrateDbUseCase)
       .execute();
 
-    // Restore selected account from storage
-    const selectedAccount = this.container
+    const coreFacade = this.container.get<CoreFacadeService>(
+      blockchainProviderModuleTypes.CoreFacadeService,
+    );
+
+    // Disconnect is owned by core; expose it to the facade so a provider
+    // (e.g. EIP-1193 `disconnect`) can drop its family through the port.
+    coreFacade.setDisconnectHandler((family) => this.disconnect(family));
+
+    const blockchainProviderManager =
+      this.container.get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      );
+    blockchainProviderManager.init(coreFacade, dappConfig);
+
+    // Restore selected accounts (one per blockchain family) from storage
+    const selectedAccounts = this.container
       .get<StorageService>(storageModuleTypes.StorageService)
-      .getSelectedAccount()
-      .extract();
+      .getSelectedAccounts();
 
     // Restore trust chain id from storage
     const trustChainId = this.container
@@ -152,8 +187,14 @@ export class LedgerButtonCore {
       await this.disconnect();
     }
 
-    const chainId = selectedAccount
-      ? getChainIdFromCurrencyId(selectedAccount.currencyId)
+    const restoredAccounts = isTrustChainValid
+      ? selectedAccounts
+      : new Map<BlockchainFamily, Account>();
+
+    // chainId tracks the default (ethereum) selection.
+    const defaultAccount = restoredAccounts.get(DEFAULT_BLOCKCHAIN_FAMILY);
+    const chainId = defaultAccount
+      ? getChainIdFromCurrencyId(defaultAccount.currencyId)
       : 1;
 
     const welcomeScreenCompleted = await this.container
@@ -168,6 +209,10 @@ export class LedgerButtonCore {
       ? userConsent.extract().consentGiven
       : undefined;
 
+    const hasDeveloperMode = this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .hasDeveloperMode();
+
     const isMobilePlatform = this.container
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
       .execute();
@@ -179,16 +224,24 @@ export class LedgerButtonCore {
       type: "initialize_context",
       context: {
         connectedDevice: undefined,
-        selectedAccount: isTrustChainValid ? selectedAccount : undefined,
+        selectedAccounts: restoredAccounts,
+        // Resolution is delegated to getActiveFamily (prefers ethereum, else the
+        // first connected family), keeping this layer free of selection logic.
+        activeFamily: undefined,
         trustChainId: isTrustChainValid ? trustChainId : undefined,
         applicationPath: undefined,
         chainId: chainId,
         welcomeScreenCompleted,
         hasTrackingConsent,
+        hasDeveloperMode,
         isMobilePlatform,
         preferredFiatCurrency,
       },
     });
+
+    // Attach the restored selection to the blockchain providers so a returning
+    // session is wired up without waiting for a fresh account selection.
+    blockchainProviderManager.setSelectedAccounts(restoredAccounts);
 
     this.container.get<PendingTransactionController>(
       pendingTransactionModuleTypes.PendingTransactionController,
@@ -225,10 +278,38 @@ export class LedgerButtonCore {
       });
   }
 
-  async disconnect() {
+  /**
+   * Disconnect a blockchain `family`'s selected account. While other families
+   * still have a selected account, only that family's account is removed;
+   * once no selected account remains (or when called with no `family`), the
+   * whole session is reset. Passing no `family` forces a full reset (used for
+   * an expired trust chain or an explicit "log out").
+   */
+  async disconnect(family?: BlockchainFamily) {
+    if (family) {
+      const remaining = new Map(
+        this._contextService.getContext().selectedAccounts,
+      );
+      remaining.delete(family);
+
+      if (remaining.size > 0) {
+        this._logger.debug("Disconnecting account for family", { family });
+        this.container
+          .get<StorageService>(storageModuleTypes.StorageService)
+          .removeSelectedAccount(family);
+        this._contextService.onEvent({ type: "account_disconnected", family });
+        return;
+      }
+    }
+
+    await this.resetSession();
+  }
+
+  private async resetSession() {
     this._logger.debug("Disconnecting from device");
 
     const currentContextService = this._contextService;
+    const currentNavigationIntentService = this._navigationIntentService;
 
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
@@ -252,8 +333,13 @@ export class LedgerButtonCore {
     this.container
       .rebindSync(contextModuleTypes.ContextService)
       .toConstantValue(currentContextService);
+    // Keep the same navigation-intent stream so the UI bridge subscription
+    // (set up once at bootstrap) survives the container recreation.
+    this.container
+      .rebindSync(navigationModuleTypes.NavigationIntentService)
+      .toConstantValue(currentNavigationIntentService);
 
-    this.initializeContext();
+    void this.initializeContext();
   }
 
   // Device methods
@@ -296,7 +382,7 @@ export class LedgerButtonCore {
 
   async getReferralUrl() {
     return this.container
-      .get<DAppConfigService>(dAppConfigModuleTypes.DAppConfigService)
+      .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
       .getDAppConfig()
       .then((res) => res.referralUrl);
   }
@@ -309,79 +395,72 @@ export class LedgerButtonCore {
   }
 
   async fetchAccountsFromCloudSync(): Promise<Account[]> {
-    this._logger.debug("Fetching accounts from CloudSync");
     return this.container
       .get<FetchAccountsUseCase>(accountModuleTypes.FetchAccountsUseCase)
       .execute();
   }
 
-  getAccounts(options?: {
+  observeAccounts(options?: {
     forceRefresh?: boolean;
+    family?: BlockchainFamily;
   }): Observable<AccountWithFiat[]> {
-    this._logger.debug("Getting accounts with fiat observable", {
-      forceRefresh: options?.forceRefresh ?? false,
-    });
-
     return this.container
-      .get<SortAccountsByFiatUseCase>(
-        accountModuleTypes.SortAccountsByFiatUseCase,
+      .get<ObserveAccountsWithFiatUseCase>(
+        accountModuleTypes.ObserveAccountsWithFiatUseCase,
       )
-      .execute(
-        this.container
-          .get<FetchAccountsWithBalanceUseCase>(
-            accountModuleTypes.FetchAccountsWithBalanceUseCase,
-          )
-          .execute(options)
-          .pipe(
-            switchMap((accounts) =>
-              this.container
-                .get<FetchAccountsWithFiatUseCase>(
-                  accountModuleTypes.FetchAccountsWithFiatUseCase,
-                )
-                .execute(accounts),
-            ),
-          ),
-      );
+      .execute(options);
   }
 
   selectAccount(account: Account) {
-    this._logger.debug("Selecting account", { account });
+    const family = this.resolveBlockchainFamily(account.currencyId);
+
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
-      .selectAccount(account);
+      .selectAccount(account, family);
 
-    const selectedAccount = this.container
-      .get<AccountService>(accountModuleTypes.AccountService)
-      .getSelectedAccount();
+    this._contextService.onEvent({
+      type: "account_changed",
+      account,
+      family,
+    });
 
-    //SHOULD ALWAYS BE TRUE when use here.
-    if (selectedAccount) {
-      this._contextService.onEvent({
-        type: "account_changed",
-        account: selectedAccount,
-      });
-
-      this.container
-        .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
-        .execute(selectedAccount);
-    }
+    this.container
+      .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
+      .execute(account);
   }
 
-  getSelectedAccount() {
-    this._logger.debug("Getting selected account");
-    return this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getSelectedAccount()
-      .extract();
+  /** Default (ethereum) selected account, or for a specific `family`. */
+  getSelectedAccount(family: BlockchainFamily = DEFAULT_BLOCKCHAIN_FAMILY) {
+    return getSelectedAccount(this._contextService.getContext(), family);
   }
 
-  async getDetailedSelectedAccount() {
-    this._logger.debug("Getting detailed selected account");
+  /** Selected account for the currently active family (family-agnostic). */
+  getActiveSelectedAccount() {
+    return getActiveSelectedAccount(this._contextService.getContext());
+  }
+
+  /** The currently active blockchain family, if any. */
+  getActiveFamily(): BlockchainFamily | undefined {
+    return getActiveFamily(this._contextService.getContext());
+  }
+
+  /** All blockchain families that currently have a selected account. */
+  getConnectedFamilies(): BlockchainFamily[] {
+    return getConnectedFamilies(this._contextService.getContext());
+  }
+
+  /** Switch the active family (must already have a selected account). */
+  setActiveFamily(family: BlockchainFamily): void {
+    this._contextService.onEvent({ type: "active_family_changed", family });
+  }
+
+  private resolveBlockchainFamily(currencyId: string): BlockchainFamily {
     return this.container
-      .get<GetDetailedSelectedAccountUseCase>(
-        accountModuleTypes.GetDetailedSelectedAccountUseCase,
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .execute();
+      .resolveBlockchainFamily(currencyId)
+      .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
   }
 
   // Device methods
@@ -397,59 +476,6 @@ export class LedgerButtonCore {
     return this.container
       .get<ListAvailableDevices>(deviceModuleTypes.ListAvailableDevicesUseCase)
       .execute();
-  }
-
-  // Transaction methods
-  sign(
-    params:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams,
-  ): Observable<SignFlowStatus> {
-    this._logger.debug("Signing transaction", { params });
-    return this.container
-      ?.get<TransactionService>(transactionModuleTypes.TransactionService)
-      .sign(params)
-      .pipe(
-        tap((status) => {
-          this.container
-            .get<TrackBroadcastedTransactionUseCase>(
-              pendingTransactionModuleTypes.TrackBroadcastedTransactionUseCase,
-            )
-            .execute(status, params);
-        }),
-      );
-  }
-
-  setCraftedTransactionParams(
-    params: SignRawTransactionParams | SignTransactionParams | undefined,
-  ) {
-    this._logger.debug("Setting crafted transaction params", { params });
-    this._craftedTransactionParams = params;
-  }
-
-  getCraftedTransactionParams():
-    | SignRawTransactionParams
-    | SignTransactionParams
-    | undefined {
-    this._logger.debug("Getting crafted transaction params");
-    return this._craftedTransactionParams;
-  }
-
-  setPendingAccountId(id: string | undefined) {
-    this._logger.debug("Setting pending account id", { id });
-    this._pendingAccountId = id;
-  }
-
-  getPendingAccountId(): string | undefined {
-    this._logger.debug("Getting pending account address");
-    return this._pendingAccountId;
-  }
-
-  clearPendingAccountId() {
-    this._logger.debug("Clearing pending account id");
-    this._pendingAccountId = undefined;
   }
 
   // Consent methods
@@ -511,6 +537,37 @@ export class LedgerButtonCore {
     return this._contextService.getContext().welcomeScreenCompleted;
   }
 
+  enableDeveloperMode(): void {
+    this._logger.debug("Enabling developer mode");
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveDeveloperMode();
+    this._contextService.onEvent({
+      type: "developer_mode_enabled",
+    });
+  }
+
+  hasDeveloperMode(): boolean {
+    return this._contextService.getContext().hasDeveloperMode;
+  }
+
+  getFeatureFlags(): FeatureFlags {
+    return this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getFeatureFlags();
+  }
+
+  setFeatureFlag(flag: keyof FeatureFlags, enabled: boolean): void {
+    this._logger.debug("Updating feature flag", { flag, enabled });
+    const storageService = this.container.get<StorageService>(
+      storageModuleTypes.StorageService,
+    );
+    storageService.saveFeatureFlags({
+      ...storageService.getFeatureFlags(),
+      [flag]: enabled,
+    });
+  }
+
   getPreferredFiatCurrency(): string {
     return (
       this._contextService.getContext().preferredFiatCurrency ??
@@ -552,25 +609,33 @@ export class LedgerButtonCore {
   async jsonRpcRequest(args: JSONRPCRequest) {
     this._logger.debug("JSON RPC request", { args });
     return this.container
-      .get<JSONRPCCallUseCase>(evmProviderModuleTypes.JSONRPCCallUseCase)
-      .execute(args);
+      .get<CoreFacadeService>(blockchainProviderModuleTypes.CoreFacadeService)
+      .broadcastRPC(args, {
+        name: "ethereum",
+        chainId: this._contextService.getContext().chainId.toString(),
+      });
   }
 
-  getBackendService(): BackendService {
-    this._logger.debug("Getting backend service");
-    return this.container.get<BackendService>(
-      backendModuleTypes.BackendService,
-    );
+  /** Stream of generic navigation intents emitted by core for the UI to map. */
+  observeNavigationIntents(): Observable<WalletNavigationIntent> {
+    return this._navigationIntentService.observe();
   }
 
   connectToLedgerSync(): Observable<LedgerSyncAuthenticateResponse> {
     this._logger.debug("Connecting to ledger sync");
 
-    this.container
-      .get<TrackLedgerSyncOpened>(
-        eventTrackingModuleTypes.TrackLedgerSyncOpened,
-      )
-      .execute();
+    // A selected account (for any blockchain family) means onboarding is
+    // already done, so Ledger Sync open / activated events are not tracked.
+    const isOnboarded =
+      this._contextService.getContext().selectedAccounts.size > 0;
+
+    if (!isOnboarded) {
+      this.container
+        .get<TrackLedgerSyncOpened>(
+          eventTrackingModuleTypes.TrackLedgerSyncOpened,
+        )
+        .execute();
+    }
 
     const res = this.container
       .get<LedgerSyncService>(ledgerSyncModuleTypes.LedgerSyncService)
@@ -585,6 +650,8 @@ export class LedgerButtonCore {
           trustChainId: res.trustChainId,
           applicationPath: res.applicationPath,
         });
+
+        if (isOnboarded) return;
 
         //TODO move inside context service onEvent
         await this.container
@@ -604,6 +671,17 @@ export class LedgerButtonCore {
 
   observeContext(): Observable<ButtonCoreContext> {
     return this._contextService.observeContext();
+  }
+
+  async fetchSelectedAccount(
+    family: BlockchainFamily = DEFAULT_BLOCKCHAIN_FAMILY,
+  ): Promise<DetailedAccount | undefined> {
+    const result = await this.container
+      .get<FetchSelectedAccountUseCase>(
+        accountModuleTypes.FetchSelectedAccountUseCase,
+      )
+      .execute(family);
+    return result.isRight() ? result.unsafeCoerce() : undefined;
   }
 
   observePendingTransactions(): Observable<PendingTransaction[]> {
@@ -688,6 +766,36 @@ export class LedgerButtonCore {
         eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
       )
       .execute(transactionHash);
+  }
+
+  async trackViewAllTransactionsClicked(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackClicked(params);
+  }
+
+  async trackViewAllTransactionsRedirectConfirmed(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackRedirectConfirmed(params);
+  }
+
+  async trackViewAllTransactionsRedirectCancelled(
+    params: TrackViewAllTransactionsParams,
+  ): Promise<void> {
+    await this.container
+      .get<TrackViewAllTransactions>(
+        eventTrackingModuleTypes.TrackViewAllTransactions,
+      )
+      .trackRedirectCancelled(params);
   }
 
   async trackLanguageChanged(languageKey: string): Promise<void> {
