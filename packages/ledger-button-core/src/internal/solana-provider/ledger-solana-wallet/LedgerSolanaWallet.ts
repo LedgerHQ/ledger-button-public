@@ -5,13 +5,6 @@
  * it is discoverable and usable by Wallet Standard compatible dApps (e.g. via
  * `@solana/wallet-adapter-react`).
  *
- * Connection-only scope (LBD-581):
- * - `standard:connect` / `standard:disconnect` / `standard:events`
- * - advertises the supported `solana:*` chains
- *
- * Signing features (`solana:signTransaction`, `solana:signMessage`) are added in
- * follow-up tickets (LBD-580 / LBD-582).
- *
  * @see https://github.com/wallet-standard/wallet-standard
  */
 
@@ -231,9 +224,9 @@ export class LedgerSolanaWallet implements Wallet {
     return () => this.off(event, listener);
   };
 
-  // Off-chain message signing (LBD-580). Runs the sign use case inside the
-  // provider and emits a navigation intent so the button UI can drive the
-  // flow, matching the EVM provider's handleBlockchainRequest pattern.
+  // Off-chain message signing. Runs the sign use case inside the provider and
+  // emits a navigation intent so the button UI can drive the flow, matching the
+  // EVM provider's handleBlockchainRequest pattern.
   private readonly signMessage: SolanaSignMessageMethod = async (...inputs) => {
     const account = await this.resolveSolanaAccount();
 
@@ -258,8 +251,6 @@ export class LedgerSolanaWallet implements Wallet {
     return results;
   };
 
-  // Stub signing implementations (real signing arrives with LBD-582).
-  // For now they only log so dApps can discover the features without crashing.
   private readonly signTransaction: SolanaSignTransactionMethod = async (
     ...inputs
   ) => {
