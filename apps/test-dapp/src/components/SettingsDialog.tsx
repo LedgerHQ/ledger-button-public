@@ -170,7 +170,6 @@ export function SettingsDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader
-          appearance="extended"
           title="Configuration"
           description="Shared Ledger Button provider settings"
         />
@@ -365,16 +364,23 @@ export function SettingsDialog() {
                 Network
               </h4>
               <Select
+                items={SOLANA_CLUSTERS}
                 value={cluster}
-                onValueChange={(value) => setCluster(value as SolanaCluster)}
+                onValueChange={(value) => {
+                  if (value) {
+                    setCluster(value as SolanaCluster);
+                  }
+                }}
               >
                 <SelectTrigger label="Solana Cluster" />
                 <SelectContent>
-                  {SOLANA_CLUSTERS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <SelectItemText>{option.label}</SelectItemText>
-                    </SelectItem>
-                  ))}
+                  <SelectList
+                    renderItem={(item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        <SelectItemText>{item.label}</SelectItemText>
+                      </SelectItem>
+                    )}
+                  />
                 </SelectContent>
               </Select>
               <p className="body-4 text-muted">
