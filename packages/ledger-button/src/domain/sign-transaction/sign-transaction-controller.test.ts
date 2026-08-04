@@ -5,6 +5,7 @@
 import type {
   PendingTransaction,
   SignFlowStatus,
+  SignSolanaTransactionParams,
   SignTransactionParams,
   WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
@@ -92,7 +93,8 @@ describe("SignTransactionController broadcast lifecycle", () => {
       observePendingTransactions: vi
         .fn()
         .mockReturnValue(pendingTransactionsSubject.asObservable()),
-      getActiveSelectedAccount: vi.fn().mockReturnValue(undefined),
+      getSelectedAccount: vi.fn().mockReturnValue(undefined),
+      getCurrencyInfo: vi.fn().mockResolvedValue({}),
     } as unknown as CoreContext;
 
     navigation = {
@@ -180,5 +182,35 @@ describe("SignTransactionController broadcast lifecycle", () => {
       }
       expect(controller.state.broadcast?.state).toBe("validated");
     });
+  });
+
+  it("resolves the explorer from the family being signed for, not the active one", async () => {
+    core.getSelectedAccount = vi.fn().mockReturnValue({ currencyId: "solana" });
+    core.getCurrencyInfo = vi.fn().mockResolvedValue({
+      transactionExplorerUrlTemplate: "https://solscan.io/tx/${hash}",
+    });
+
+    const solanaParams: SignSolanaTransactionParams = {
+      kind: "solana-transaction",
+      address: "So1ana1111",
+      transaction: new Uint8Array([1, 2, 3]),
+    };
+
+    controller.startSigning({ ...mockIntent, params: solanaParams });
+    signFlowSubject.next({
+      signType: "transaction",
+      status: "success",
+      data: { hash: "solHash", signature: new Uint8Array() },
+    });
+
+    await vi.waitFor(() => {
+      if (controller.state.screen !== "success") {
+        throw new Error("Expected success state");
+      }
+      expect(controller.state.status.cta2?.label).toBe("View transaction");
+    });
+
+    expect(core.getSelectedAccount).toHaveBeenCalledWith("solana");
+    expect(core.getCurrencyInfo).toHaveBeenCalledWith("solana");
   });
 });
