@@ -418,7 +418,7 @@ describe("DefaultPendingTransactionController", () => {
       expect(mockCheckPendingStatus.execute).toHaveBeenCalledTimes(2);
     });
 
-    it("should skip tick when no selected account", async () => {
+    it("confirms pending transactions using their stored account even without a selected account", async () => {
       const tx = createPendingTx({ hash: "0x111" });
       mockStorageService._store.push(tx);
 
@@ -430,7 +430,11 @@ describe("DefaultPendingTransactionController", () => {
       controller.track();
       await vi.advanceTimersByTimeAsync(10_000);
 
-      expect(mockCheckPendingStatus.execute).not.toHaveBeenCalled();
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledWith(
+        "ethereum",
+        "0x1234",
+        ["0x111"],
+      );
     });
   });
 
@@ -482,6 +486,101 @@ describe("DefaultPendingTransactionController", () => {
         ["0x111"],
       );
       expect(mockFetchSelectedAccount.execute).toHaveBeenCalledWith("solana");
+    });
+
+    it("confirms mixed EVM and Solana pendings each against their own account", async () => {
+      const evmTx = createPendingTx({
+        hash: "0xevm",
+        ledgerId: "ethereum",
+        address: "0x1234",
+      });
+      const solTx = createPendingTx({
+        hash: "0xsol",
+        ledgerId: "solana",
+        address: "So1ana1111",
+      });
+      const storageWithData = createMockStorageService();
+      storageWithData._store.push(evmTx, solTx);
+      const solanaCtx = createMockContextService(solanaContext);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(Right([]));
+
+      const mixedController = new DefaultPendingTransactionController(
+        createMockLoggerFactory(),
+        storageWithData,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
+        solanaCtx as unknown as ContextService,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
+      );
+
+      mixedController.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledWith(
+        "ethereum",
+        "0x1234",
+        ["0xevm"],
+      );
+      expect(mockCheckPendingStatus.execute).toHaveBeenCalledWith(
+        "solana",
+        "So1ana1111",
+        ["0xsol"],
+      );
+    });
+
+    it("refreshes the family of the settled transaction, not the active one", async () => {
+      const mixedContext = {
+        chainId: 1,
+        activeFamily: "ethereum",
+        selectedAccounts: new Map([
+          [
+            "ethereum",
+            {
+              freshAddress: "0x1234",
+              currencyId: "ethereum",
+              ticker: "ETH",
+            },
+          ],
+          [
+            "solana",
+            {
+              freshAddress: "So1ana1111",
+              currencyId: "solana",
+              ticker: "SOL",
+            },
+          ],
+        ]),
+      };
+      const solTx = createPendingTx({
+        hash: "0xsol",
+        ledgerId: "solana",
+        address: "So1ana1111",
+      });
+      const storageWithData = createMockStorageService();
+      storageWithData._store.push(solTx);
+      const mixedCtx = createMockContextService(mixedContext);
+
+      mockCheckPendingStatus.execute.mockResolvedValue(
+        Right([{ hash: "0xsol", failed: false }]),
+      );
+
+      const mixedController = new DefaultPendingTransactionController(
+        createMockLoggerFactory(),
+        storageWithData,
+        mockCheckPendingStatus as unknown as ConfirmPendingTransactionsUseCase,
+        mixedCtx as unknown as ContextService,
+        mockHydrateUseCase as unknown as HydratePendingTransactionsWithFiatUseCase,
+        mockFetchSelectedAccount as unknown as FetchSelectedAccountUseCase,
+      );
+
+      mixedController.track();
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      expect(mockFetchSelectedAccount.execute).toHaveBeenCalledWith("solana");
+      expect(mockFetchSelectedAccount.execute).not.toHaveBeenCalledWith(
+        "ethereum",
+      );
     });
   });
 });

@@ -3,6 +3,7 @@ import {
   BroadcastTransactionError,
   buildExplorerTransactionUrl,
   DeviceOutOfMemoryError,
+  getSignParamsFamily,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -11,13 +12,8 @@ import {
   isSignSolanaMessageParams,
   isSignSolanaTransactionParams,
   isSignTransactionParams,
+  type ProviderSignParams,
   type SignedResults,
-  type SignPersonalMessageParams,
-  type SignRawTransactionParams,
-  type SignSolanaMessageParams,
-  type SignSolanaTransactionParams,
-  type SignTransactionParams,
-  type SignTypedMessageParams,
   type UserInteractionNeeded,
   UserRejectedTransactionError,
   type WalletNavigationIntent,
@@ -112,17 +108,11 @@ export class SignTransactionController implements ReactiveController {
 
   startSigning(intent: WalletNavigationIntent) {
     this.currentIntent = intent;
-    const transactionParams = intent.params as
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams
-      | SignSolanaMessageParams
-      | SignSolanaTransactionParams;
+    const transactionParams = intent.params as ProviderSignParams;
     this.explorerTemplatePrefetch = this.isTransactionParameter(
       transactionParams,
     )
-      ? this.prefetchTransactionExplorerUrlTemplate()
+      ? this.prefetchTransactionExplorerUrlTemplate(transactionParams)
       : undefined;
 
     if (this.transactionSubscription) {
@@ -169,14 +159,7 @@ export class SignTransactionController implements ReactiveController {
   }
 
   private isTransactionParameter(
-    transactionParams:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams
-      | SignSolanaMessageParams
-      | SignSolanaTransactionParams
-      | undefined,
+    transactionParams: ProviderSignParams | undefined,
   ): boolean {
     if (!transactionParams) {
       return false;
@@ -456,10 +439,11 @@ export class SignTransactionController implements ReactiveController {
     }
   }
 
-  private async prefetchTransactionExplorerUrlTemplate(): Promise<
-    string | undefined
-  > {
-    const currencyId = this.core.getActiveSelectedAccount()?.currencyId;
+  private async prefetchTransactionExplorerUrlTemplate(
+    transactionParams: ProviderSignParams,
+  ): Promise<string | undefined> {
+    const family = getSignParamsFamily(transactionParams);
+    const currencyId = this.core.getSelectedAccount(family)?.currencyId;
     if (!currencyId) {
       return undefined;
     }
