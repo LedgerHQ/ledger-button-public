@@ -83,6 +83,7 @@ import { ModalService } from "../internal/modal/service/ModalService.js";
 import { navigationModuleTypes } from "../internal/navigation/navigationModuleTypes.js";
 import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService.js";
 import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
+import { type BroadcastTracking } from "../internal/pending-transaction/model/BroadcastTracking.js";
 import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
 import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
@@ -682,6 +683,18 @@ export class LedgerButtonCore {
         pendingTransactionModuleTypes.PendingTransactionController,
       )
       .observePendingTransactions();
+  }
+
+  /**
+   * Lifecycle of a single broadcasted transaction, from `processing` (once core
+   * has registered it and resolved its explorer link) to `validated`.
+   */
+  observeBroadcastedTransaction(hash: string): Observable<BroadcastTracking> {
+    return this.container
+      .get<PendingTransactionController>(
+        pendingTransactionModuleTypes.PendingTransactionController,
+      )
+      .observeBroadcastedTransaction(hash);
   }
 
   // Config methods

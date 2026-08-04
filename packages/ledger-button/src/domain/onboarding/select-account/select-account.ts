@@ -4,8 +4,6 @@ import {
   Account,
   AccountWithFiat,
   type BlockchainFamily,
-  type SelectAccountIntentParams,
-  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
@@ -17,6 +15,7 @@ import {
   LanguageContext,
 } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
+import { type SelectAccountNavigationParams } from "../../../shared/root-navigation-controller.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatFiatBalance } from "../../../utils/format-fiat.js";
 import {
@@ -39,7 +38,7 @@ export class SelectAccountScreen extends LitElement {
   public languages!: LanguageContext;
 
   @property({ attribute: false })
-  params?: WalletNavigationIntent;
+  params?: SelectAccountNavigationParams;
 
   controller!: SelectAccountController;
 
@@ -54,11 +53,10 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
+  // `params` reaches this screen through the untyped navigation stack, so the
+  // nested access stays optional despite the type.
   private resolveRequestedFamily(): BlockchainFamily | undefined {
-    const intentParams = this.params?.params as
-      | SelectAccountIntentParams
-      | undefined;
-    return intentParams?.family;
+    return this.params?.params?.family;
   }
 
   private renderAccountCard(account: AccountWithFiat) {

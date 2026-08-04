@@ -49,6 +49,7 @@ import {
   type SignFlowStatus,
   type SignType,
 } from "../../api/model/signing/SignFlowStatus.js";
+import { toSignIntentType } from "../../api/model/signing/SignIntentType.js";
 import type { SignPersonalMessageParams } from "../../api/model/signing/SignPersonalMessageParams.js";
 import type { SignRawTransactionParams } from "../../api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../api/model/signing/SignTransactionParams.js";
@@ -327,6 +328,7 @@ export class LedgerEIP1193Provider
       signParams,
       "transaction",
       runUseCase,
+      broadcast,
     );
     if (isBroadcastedTransactionResult(result)) {
       return result.hash;
@@ -440,6 +442,7 @@ export class LedgerEIP1193Provider
     params: SignFlowParams,
     signType: SignType,
     runUseCase: () => Observable<SignFlowStatus>,
+    broadcast = false,
   ): Promise<SignedResults> {
     return new Promise<SignedResults>((resolve, reject) => {
       const status$ = new Subject<SignFlowStatus>();
@@ -497,7 +500,11 @@ export class LedgerEIP1193Provider
 
       this.host.emitNavigationIntent({
         name: "signTransaction",
-        params,
+        params: {
+          family: "ethereum",
+          type: toSignIntentType(signType),
+          broadcast,
+        },
         status$: status$.asObservable(),
         retry: () => start(),
         finish: () => {

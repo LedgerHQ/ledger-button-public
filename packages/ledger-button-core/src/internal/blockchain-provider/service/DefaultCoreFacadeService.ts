@@ -25,6 +25,7 @@ import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.j
 import type { Account } from "../../../internal/account/service/AccountService.js";
 import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
 import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
+import type { CalDataSource } from "../../../internal/balance/datasource/cal/CalDataSource.js";
 import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
 import { configModuleTypes } from "../../../internal/config/configModuleTypes.js";
 import type { Config } from "../../../internal/config/model/config.js";
@@ -77,6 +78,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _modalService: ModalService,
     @inject(balanceModuleTypes.CoinServiceDataSource)
     private readonly _coinServiceDataSource: CoinServiceDataSource,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly _calDataSource: CalDataSource,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly _trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
@@ -277,7 +280,28 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   emitNavigationIntent(intent: WalletNavigationIntent): void {
+    this._warmCurrencyMetadata(intent);
     this._navigationIntentService.emit(intent);
+  }
+
+  /**
+   * A broadcast ends with core resolving currency metadata to build the pending
+   * transaction (formatted value, explorer link). Kicking that lookup off when
+   * the sign phase starts means it runs while the user approves on device, so
+   * the explorer link is ready as soon as the hash is known.
+   */
+  private _warmCurrencyMetadata(intent: WalletNavigationIntent): void {
+    if (intent.name !== "signTransaction" || !intent.params.broadcast) {
+      return;
+    }
+    const account = getSelectedAccount(
+      this._contextService.getContext(),
+      intent.params.family,
+    );
+    if (!account) {
+      return;
+    }
+    void this._calDataSource.getCurrencyInformation(account.currencyId);
   }
 
   trackBroadcastedTransaction(

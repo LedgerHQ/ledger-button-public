@@ -1,6 +1,9 @@
 import "../domain/onboarding/connection-success/connection-success-overlay.js";
 
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  type WalletNavigationIntent,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
@@ -86,7 +89,7 @@ export class RootNavigationComponent
 
   public navigationIntent(
     intent: Destination["name"],
-    params?: unknown,
+    params?: WalletNavigationIntent,
     mode?: ModalMode,
   ) {
     this.rootNavigationController.navigationIntent(intent, params);

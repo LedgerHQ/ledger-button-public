@@ -70,6 +70,7 @@ import type {
   SignFlowStatus,
   SignType,
 } from "../../api/model/signing/SignFlowStatus.js";
+import { toSignIntentType } from "../../api/model/signing/SignIntentType.js";
 import type { SignSolanaMessageParams } from "../../api/model/signing/solana/SignSolanaMessageParams.js";
 import type { SignSolanaTransactionParams } from "../../api/model/signing/solana/SignSolanaTransactionParams.js";
 import type { SolanaCluster } from "../../api/model/solana/SolanaTypes.js";
@@ -549,7 +550,12 @@ export class LedgerSolanaWallet implements Wallet {
 
       this.host.emitNavigationIntent({
         name: "signTransaction",
-        params,
+        params: {
+          family: "solana",
+          type: toSignIntentType(signType),
+          // Solana signing never broadcasts through core today.
+          broadcast: false,
+        },
         status$: status$.asObservable(),
         retry: () => start(),
         finish: () => {
