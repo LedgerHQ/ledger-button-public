@@ -7,6 +7,7 @@ export { LedgerEIP1193Provider } from "../internal/evm-provider/LedgerEIP1193Pro
 // EVM union instead of `never`. Keep one such re-export per family.
 export type { EvmSignedResult } from "../internal/evm-provider/model/EvmSignedResult.js";
 export { isBlockingRequestMethod } from "../internal/evm-provider/utils/isBlockingRequestMethod.js";
+export type { SolanaSignedResult } from "../internal/solana-provider/model/SolanaSignedResult.js";
 export type { BlockchainProvider } from "./blockchain-provider/model/BlockchainProvider.js";
 export type { CoreFacade } from "./blockchain-provider/model/CoreFacade.js";
 export type {

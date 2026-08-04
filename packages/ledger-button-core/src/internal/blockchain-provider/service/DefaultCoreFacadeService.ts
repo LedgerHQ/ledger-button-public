@@ -55,6 +55,9 @@ import {
 } from "../../backend/types.js";
 import type { CoreFacadeService } from "./CoreFacadeService.js";
 
+/** Ledger's public Solana node proxy (`API_SOLANA_PROXY` in ledger-live-common). */
+const SOLANA_LEDGER_NODE_URL = "https://solana.coin.ledger.com";
+
 @injectable()
 export class DefaultCoreFacadeService implements CoreFacadeService {
   private readonly _logger: LoggerPublisher;
@@ -95,6 +98,15 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     blockchain: ProviderBlockchain,
   ): Promise<BroadcastResponse> {
     this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
+
+    // TODO(LBD-712): temporary. The Ledger button backend is not yet ready to
+    // broadcast Solana transactions, so for now we hit Ledger's public Solana
+    // node proxy directly. Remove this branch and route Solana through
+    // `_backendService.broadcast` once the backend supports it.
+    if (blockchain.name === "solana") {
+      return this.broadcastSolanaViaLedgerNode(args);
+    }
+
     const response = await this._backendService.broadcast({
       blockchain,
       rpc: args,
@@ -114,6 +126,31 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
         throw error;
       },
     });
+  }
+
+  /** TODO(LBD-712): temporary, see the branch in {@link broadcastRPC}. */
+  private async broadcastSolanaViaLedgerNode(
+    args: JSONRPCRequest,
+  ): Promise<BroadcastResponse> {
+    const httpResponse = await fetch(SOLANA_LEDGER_NODE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+
+    // The proxy answers rate limits and outages with an HTML body, which would
+    // otherwise fail as an opaque JSON parse error in the sign modal.
+    if (!httpResponse.ok) {
+      throw new Error(
+        `Solana node proxy responded with ${httpResponse.status} ${httpResponse.statusText}`,
+      );
+    }
+
+    const result = (await httpResponse.json()) as unknown;
+    if (isJsonRpcResponse(result) || isCoinServiceBroadcastResponse(result)) {
+      return result;
+    }
+    throw new Error("Unexpected broadcast response for Solana JSON-RPC request");
   }
 
   async requestAccount(family: BlockchainFamily): Promise<Account> {

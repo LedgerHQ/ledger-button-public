@@ -8,7 +8,12 @@
  * @see https://github.com/wallet-standard/wallet-standard
  */
 
-import { address, getAddressEncoder, getBase58Encoder } from "@solana/kit";
+import {
+  address,
+  getAddressEncoder,
+  getBase58Encoder,
+  getBase64Decoder,
+} from "@solana/kit";
 import type { Wallet, WalletAccount, WalletIcon } from "@wallet-standard/base";
 import {
   StandardConnect,
@@ -24,9 +29,27 @@ import {
   type StandardEventsNames,
   type StandardEventsOnMethod,
 } from "@wallet-standard/features";
-import { type Observable, Subject, type Subscription } from "rxjs";
+import { Either, Left, Right } from "purify-ts";
+import {
+  from,
+  map,
+  type Observable,
+  of,
+  Subject,
+  type Subscription,
+  switchMap,
+} from "rxjs";
 
-import { isSignedSolanaTransactionResult } from "./model/SolanaSignedResult.js";
+import {
+  buildSendTransactionRequest,
+  decodeSolanaSignature,
+  extractBroadcastedSignature,
+  type SolanaSendOptions,
+} from "./datasource/rpc/solanaBroadcastUtils.js";
+import {
+  isBroadcastedSolanaTransactionResult,
+  isSignedSolanaTransactionResult,
+} from "./model/SolanaSignedResult.js";
 export type { SolanaSignedResult } from "./model/SolanaSignedResult.js";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
@@ -38,6 +61,7 @@ import { attachSolanaSignature } from "./utils/signatureUtils.js";
 import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "../../api/model/blockchain/ProviderLogger.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedResults,
@@ -67,6 +91,7 @@ const CLUSTER_TO_CHAIN: Record<SolanaCluster, SolanaChain> = {
 
 const addressEncoder = getAddressEncoder();
 const base58Encoder = getBase58Encoder();
+const base64Decoder = getBase64Decoder();
 
 type SolanaSignMessageMethod = (
   ...inputs: readonly { account: WalletAccount; message: Uint8Array }[]
@@ -83,7 +108,11 @@ type SolanaSignTransactionMethod = (
 ) => Promise<readonly { signedTransaction: Uint8Array }[]>;
 
 type SolanaSignAndSendTransactionMethod = (
-  ...inputs: readonly { account: WalletAccount; transaction: Uint8Array }[]
+  ...inputs: readonly {
+    account: WalletAccount;
+    transaction: Uint8Array;
+    options?: SolanaSendOptions;
+  }[]
 ) => Promise<readonly { signature: Uint8Array }[]>;
 
 type SolanaSignFeatures = {
@@ -124,11 +153,15 @@ export class LedgerSolanaWallet implements Wallet {
   private readonly _listeners: {
     [E in StandardEventsNames]?: StandardEventsListeners[E][];
   } = {};
+  private readonly logger: ProviderLogger;
+  private _rpcId = 0;
 
   constructor(
     private readonly host: CoreFacade,
     private readonly deps: LedgerSolanaWalletDeps,
-  ) {}
+  ) {
+    this.logger = this.host.getLogger("[LedgerSolanaWallet]");
+  }
 
   /** Core pushes the freshly selected account (or `undefined` on disconnect). */
   setSelectedAccount(account: ProviderAccount | undefined): void {
@@ -301,9 +334,127 @@ export class LedgerSolanaWallet implements Wallet {
 
   private readonly signAndSendTransaction: SolanaSignAndSendTransactionMethod =
     async (...inputs) => {
-      console.log("[LedgerSolanaWallet] solana:signAndSendTransaction", inputs);
-      return inputs.map(() => ({ signature: new Uint8Array(64) }));
+      const account = await this.resolveSolanaAccount();
+
+      // Hardware signing is one confirmation at a time; process sequentially.
+      const results: { signature: Uint8Array }[] = [];
+      for (const input of inputs) {
+        const signature = await this.signAndBroadcastSolanaTransaction(
+          account,
+          input.transaction,
+          input.options,
+        );
+        results.push({ signature });
+      }
+      return results;
     };
+
+  /**
+   * Signs then broadcasts one transaction, both phases inside {@link runSignFlow}
+   * so a broadcast failure surfaces in the modal (with retry) and a success is
+   * tracked as a pending transaction, mirroring the EVM flow. Resolves with the
+   * raw 64-byte signature.
+   */
+  private signAndBroadcastSolanaTransaction(
+    account: ProviderAccount,
+    transaction: Uint8Array,
+    options?: SolanaSendOptions,
+  ): Promise<Uint8Array> {
+    const params: SignSolanaTransactionParams = {
+      kind: "solana-transaction",
+      address: account.freshAddress,
+      transaction,
+    };
+
+    return this.runSignFlow(
+      params,
+      "transaction",
+      () =>
+        this.deps.signSolanaTransaction.execute(params, account).pipe(
+          switchMap((status): Observable<SignFlowStatus> => {
+            // Only the signed success is swapped for the broadcast.
+            if (
+              status.status !== "success" ||
+              !isSignedSolanaTransactionResult(status.data)
+            ) {
+              return of(status);
+            }
+
+            const signedTransaction = attachSolanaSignature(
+              transaction,
+              account.freshAddress,
+              status.data.solanaSignature,
+            );
+
+            return from(
+              this.broadcastSolanaTransaction(
+                base64Decoder.decode(signedTransaction),
+                options,
+              ),
+            ).pipe(
+              map(
+                (result): SignFlowStatus =>
+                  result.caseOf<SignFlowStatus>({
+                    Left: (error) => ({
+                      signType: "transaction",
+                      status: "error",
+                      error,
+                    }),
+                    Right: ({ hash, signature }) => ({
+                      signType: "transaction",
+                      status: "success",
+                      data: { hash, signature },
+                    }),
+                  }),
+              ),
+            );
+          }),
+        ),
+      (data) =>
+        isBroadcastedSolanaTransactionResult(data) ? data.signature : undefined,
+    );
+  }
+
+  /**
+   * Broadcasts a base64-encoded signed wire transaction through
+   * {@link CoreFacade.broadcastRPC}, which owns the routing: Solana currently
+   * goes to Ledger's public Solana node proxy rather than to the button backend
+   * (see LBD-712). Resolves with the base58 transaction signature, used as the
+   * explorer `hash`, and the raw 64-byte signature.
+   */
+  private async broadcastSolanaTransaction(
+    base64WireTx: string,
+    options?: SolanaSendOptions,
+  ): Promise<Either<Error, { hash: string; signature: Uint8Array }>> {
+    this.logger.info("Broadcasting Solana transaction");
+
+    try {
+      const response = await this.host.broadcastRPC(
+        buildSendTransactionRequest(this._rpcId++, base64WireTx, options),
+        { name: "solana", chainId: "mainnet" },
+      );
+
+      const hash = extractBroadcastedSignature(response);
+
+      if (hash === undefined) {
+        const error =
+          "error" in response
+            ? response.error
+            : { message: "Unknown broadcast error" };
+        this.logger.error("Solana broadcast failed", { error });
+        return Left(new Error(`Solana broadcast failed: ${error.message}`));
+      }
+
+      return Right({ hash, signature: decodeSolanaSignature(hash) });
+    } catch (error) {
+      this.logger.error("Solana broadcast failed", { error });
+      return Left(
+        error instanceof Error
+          ? error
+          : new Error("Solana broadcast failed", { cause: error }),
+      );
+    }
+  }
 
   private async resolveSolanaAccount(): Promise<ProviderAccount> {
     if (
@@ -447,7 +598,11 @@ export class LedgerSolanaWallet implements Wallet {
         addressEncoder.encode(address(account.freshAddress)),
       ),
       chains: [CLUSTER_TO_CHAIN[cluster]],
-      features: ["solana:signMessage", "solana:signTransaction"],
+      features: [
+        "solana:signMessage",
+        "solana:signTransaction",
+        "solana:signAndSendTransaction",
+      ],
     };
   }
 
