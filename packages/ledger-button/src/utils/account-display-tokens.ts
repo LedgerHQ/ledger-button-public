@@ -8,8 +8,8 @@ const NATIVE_CURRENCY_FIAT_THRESHOLD = 0.01;
 /**
  * Returns the tokens to display for an account in the UI.
  *
- * Per spec (LBD-416): the native network currency (e.g. ETH) is included in
- * the display token list when its fiat balance exceeds the threshold. This is
+ * The native network currency (e.g. ETH) is included in the display token
+ * list when its fiat balance exceeds the threshold. This is
  * a presentation-layer concern only — the underlying account.tokens array
  * intentionally contains ERC-20 tokens only.
  */
