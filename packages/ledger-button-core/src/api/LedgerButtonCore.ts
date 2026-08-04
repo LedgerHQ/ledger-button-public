@@ -9,8 +9,10 @@ import type {
 } from "./blockchain-provider/model/types.js";
 import type {
   Account,
+  AccountGroup,
   AccountWithFiat,
   DetailedAccount,
+  Network,
 } from "./model/Account.js";
 import {
   ButtonCoreContext,
@@ -28,7 +30,13 @@ import { accountModuleTypes } from "../internal/account/di/accountModuleTypes.js
 import type { AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
+import type { FindAccountForNetworkUseCase } from "../internal/account/use-case/findAccountForNetworkUseCase.js";
+import type {
+  ObserveAccountGroupsOptions,
+  ObserveAccountGroupsUseCase,
+} from "../internal/account/use-case/observeAccountGroupsUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
+import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import type { JSONRPCRequest } from "../internal/backend/types.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
@@ -408,6 +416,47 @@ export class LedgerButtonCore {
         accountModuleTypes.ObserveAccountsWithFiatUseCase,
       )
       .execute(options);
+  }
+
+  /**
+   * Accounts ready to be listed: grouped by address, sorted by fiat value and
+   * filtered by `searchQuery$`, with the per-account total and display tokens
+   * already computed.
+   */
+  observeAccountGroups(
+    options?: ObserveAccountGroupsOptions,
+  ): Observable<AccountGroup[]> {
+    return this.container
+      .get<ObserveAccountGroupsUseCase>(
+        accountModuleTypes.ObserveAccountGroupsUseCase,
+      )
+      .execute(options);
+  }
+
+  /** Networks available for the address of the currently selected account. */
+  observeNetworksForSelectedAddress(): Observable<Network[]> {
+    return this.container
+      .get<ObserveNetworksForSelectedAddressUseCase>(
+        accountModuleTypes.ObserveNetworksForSelectedAddressUseCase,
+      )
+      .execute();
+  }
+
+  /**
+   * Switch to the account of the currently selected address on another network.
+   * Returns `false` when no such account exists.
+   */
+  selectAccountForNetwork(currencyId: string): boolean {
+    return this.container
+      .get<FindAccountForNetworkUseCase>(
+        accountModuleTypes.FindAccountForNetworkUseCase,
+      )
+      .execute(currencyId)
+      .map((account) => {
+        this.selectAccount(account);
+        return true;
+      })
+      .orDefault(false);
   }
 
   selectAccount(account: Account) {
