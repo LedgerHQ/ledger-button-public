@@ -1,5 +1,6 @@
 export const accountModuleTypes = {
   AccountService: Symbol.for("AccountService"),
+  BuildNetworksUseCase: Symbol.for("BuildNetworksUseCase"),
   FetchAccountsUseCase: Symbol.for("FetchAccountsUseCase"),
   FetchAccountsWithBalanceUseCase: Symbol.for(
     "FetchAccountsWithBalanceUseCase",
