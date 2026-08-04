@@ -32,6 +32,7 @@ export type {
 } from "./model/blockchain/ProviderLogger.js";
 export type {
   BlockchainAppDependencies,
+  BlockchainAppDependency,
   BlockchainConfig,
   BlockchainNetwork,
   BlockchainRpcMethods,

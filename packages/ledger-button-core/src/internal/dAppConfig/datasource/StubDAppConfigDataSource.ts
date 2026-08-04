@@ -122,7 +122,7 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         networks: [...EVM_DEFAULT_NETWORKS],
         appDependencies: {
           appName: "Ethereum",
-          dependencies: ["Ethereum"],
+          dependencies: [{ name: "Ethereum" }],
         },
         rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
@@ -132,7 +132,7 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         networks: [SOLANA_MAINNET_NETWORK],
         appDependencies: {
           appName: "Solana",
-          dependencies: ["Solana"],
+          dependencies: [{ name: "Solana" }],
         },
         rpcMethods: {
           local: [
@@ -162,8 +162,10 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         rpcMethods: EVM_DEFAULT_RPC_METHODS,
         appDependencies: {
           appName: "1inch",
-          dependencies: ["1inch", "Ethereum"],
-          minVersion: ">=1.0.0",
+          dependencies: [
+            { name: "1inch", minVersion: ">=1.0.0" },
+            { name: "Ethereum" },
+          ],
         },
       },
       {
@@ -172,8 +174,10 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         networks: [SOLANA_MAINNET_NETWORK],
         appDependencies: {
           appName: "1inch",
-          dependencies: ["1inch", "Solana"],
-          minVersion: ">=1.0.0",
+          dependencies: [
+            { name: "1inch", minVersion: ">=1.0.0" },
+            { name: "Solana" },
+          ],
         },
         rpcMethods: {
           local: [
@@ -202,7 +206,7 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         networks: [...EVM_DEFAULT_NETWORKS],
         appDependencies: {
           appName: "Ethereum",
-          dependencies: ["Ethereum"],
+          dependencies: [{ name: "Ethereum" }],
         },
         rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
@@ -222,7 +226,7 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         networks: [...EVM_DEFAULT_NETWORKS],
         appDependencies: {
           appName: "Ethereum",
-          dependencies: ["Ethereum"],
+          dependencies: [{ name: "Ethereum" }],
         },
         rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
