@@ -12,6 +12,7 @@ import type { ContextService } from "@internal/context/ContextService.js";
 import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService.js";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 
+import { BuildNetworksUseCase } from "./buildNetworksUseCase.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
@@ -137,7 +138,7 @@ describe("FetchSelectedAccountUseCase", () => {
       mockHydrateWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
       mockHydrateWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
       mockHydrateWithTxHistoryUseCase as unknown as HydrateAccountWithTxHistoryUseCase,
-      mockCalDataSource as unknown as CalDataSource,
+      new BuildNetworksUseCase(mockCalDataSource as unknown as CalDataSource),
     );
 
     vi.clearAllMocks();

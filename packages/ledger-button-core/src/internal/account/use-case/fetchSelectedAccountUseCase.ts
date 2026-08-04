@@ -18,8 +18,6 @@ import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
 } from "@api/model/ButtonCoreContext.js";
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
 import type { ContextService } from "@internal/context/ContextService.js";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
 import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes.js";
@@ -29,6 +27,7 @@ import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.j
 
 import { calculateTotalFiatValue } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
+import type { BuildNetworksUseCase } from "./buildNetworksUseCase.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
@@ -58,8 +57,8 @@ export class FetchSelectedAccountUseCase {
     private readonly hydrateWithFiatUseCase: HydrateAccountWithFiatUseCase,
     @inject(accountModuleTypes.HydrateAccountWithTxHistoryUseCase)
     private readonly hydrateWithTxHistoryUseCase: HydrateAccountWithTxHistoryUseCase,
-    @inject(balanceModuleTypes.CalDataSource)
-    private readonly calDataSource: CalDataSource,
+    @inject(accountModuleTypes.BuildNetworksUseCase)
+    private readonly buildNetworksUseCase: BuildNetworksUseCase,
   ) {
     this.logger = loggerFactory("FetchSelectedAccountUseCase");
   }
@@ -154,23 +153,11 @@ export class FetchSelectedAccountUseCase {
       (a) => a.freshAddress === selectedAccount.freshAddress,
     );
 
-    const networks = await Promise.all(
-      matching.map(async (a) => {
-        const [calResult, withFiat] = await Promise.all([
-          this.calDataSource.getCurrencyInformation(a.currencyId),
-          this.hydrateWithFiatUseCase.execute(a),
-        ]);
-        const info = calResult.isRight() ? calResult.extract() : undefined;
-        return {
-          id: a.currencyId,
-          name: info?.name ?? a.currencyId,
-          ticker: info?.ticker ?? a.ticker,
-          fiatBalance: withFiat.fiatBalance,
-        };
-      }),
+    const withFiat = await Promise.all(
+      matching.map((a) => this.hydrateWithFiatUseCase.execute(a)),
     );
 
-    return networks;
+    return this.buildNetworksUseCase.execute(withFiat);
   }
 
   private mergeHydrations(
