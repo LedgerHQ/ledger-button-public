@@ -299,12 +299,14 @@ describe("TrackBroadcastedTransactionUseCase", () => {
         currencyName: "Solana",
         chainId: 0,
         explorerUrl: "https://solscan.io/tx/0xabc123",
+        value: undefined,
+        formattedValue: undefined,
       }),
     );
     expect(mockController.track).toHaveBeenCalledTimes(1);
   });
 
-  it("should default value to '0' for raw transaction params", async () => {
+  it("should leave the value unset for raw transaction params", async () => {
     const rawParams: SignRawTransactionParams = {
       transaction: "0xdeadbeef",
       method: "eth_sendRawTransaction",
@@ -315,7 +317,8 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     expect(mockStorageService.add).toHaveBeenCalledWith(
       expect.objectContaining({
-        value: "0",
+        value: undefined,
+        formattedValue: undefined,
       }),
     );
   });

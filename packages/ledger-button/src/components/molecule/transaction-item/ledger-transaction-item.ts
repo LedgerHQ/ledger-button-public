@@ -225,6 +225,11 @@ export class LedgerTransactionItem extends LitElement {
       const ticker = this.feeTicker || this.ticker;
       return `-${formatTokenBalance(this.formattedFee, this.locale)} ${ticker}`.trimEnd();
     }
+    // A pending transaction whose amount could not be read shows no amount at
+    // all, rather than a zero that would read as "sent nothing".
+    if (!this.amount) {
+      return "";
+    }
     return `${this.sign}${formatTokenBalance(this.amount, this.locale)} ${this.ticker}`;
   }
 

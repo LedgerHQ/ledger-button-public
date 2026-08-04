@@ -77,9 +77,12 @@ export class TrackBroadcastedTransactionUseCase {
   ): Promise<PendingTransaction> {
     const { ticker, name, decimals, transactionExplorerUrlTemplate } =
       await this.resolveCurrencyMetadata(account.currencyId);
+    // Only structured EVM params carry the amount. A raw EVM transaction or a
+    // serialized Solana one would have to be decoded, so the amount stays unset
+    // rather than being reported as zero.
     const rawValue = isSignTransactionParams(params)
       ? params.transaction.value
-      : "0";
+      : undefined;
 
     return {
       hash,
@@ -88,12 +91,10 @@ export class TrackBroadcastedTransactionUseCase {
       timestamp: new Date().toISOString(),
       type: "sent",
       value: rawValue,
-      formattedValue: formatBalance(
-        rawValue,
-        decimals,
-        ticker,
-        account.currencyId,
-      ),
+      formattedValue:
+        rawValue === undefined
+          ? undefined
+          : formatBalance(rawValue, decimals, ticker, account.currencyId),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,
