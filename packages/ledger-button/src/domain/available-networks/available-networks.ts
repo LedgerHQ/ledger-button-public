@@ -1,5 +1,6 @@
 import "../../components/index.js";
 
+import { type Network } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -12,10 +13,7 @@ import {
 import { Navigation } from "../../shared/navigation.js";
 import { tailwindElement } from "../../tailwind-element.js";
 import { formatTokenBalance } from "../../utils/format-fiat.js";
-import {
-  AvailableNetworksController,
-  type NetworkWithBalance,
-} from "./available-networks-controller.js";
+import { AvailableNetworksController } from "./available-networks-controller.js";
 
 @customElement("available-networks-screen")
 @tailwindElement()
@@ -42,11 +40,11 @@ export class AvailableNetworksScreen extends LitElement {
   @property({ attribute: false })
   public languages!: LanguageContext;
 
-  private handleNetworkClick(network: NetworkWithBalance) {
+  private handleNetworkClick(network: Network) {
     this.controller.selectNetwork(network.id);
   }
 
-  private renderNetworkItem(network: NetworkWithBalance) {
+  private renderNetworkItem(network: Network) {
     return html`
       <ledger-chain-item
         ledger-id=${network.id}
