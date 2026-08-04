@@ -3,19 +3,13 @@ import { describe, expect, it } from "vitest";
 import type { AccountWithFiat } from "@api/model/Account.js";
 
 import {
+  accountMatchesQuery,
+  buildDisplayTokens,
   calculateTotalFiatValue,
-  computeNetworks,
   enrichWithLoadingStates,
+  groupAccountsByAddress,
+  toAccountListItem,
 } from "./accountFiatUtils.js";
-
-const EVM_NETWORK_IDS: Record<string, string> = {
-  ethereum: "1",
-  polygon: "137",
-};
-
-function resolveNetworkId(currencyId: string): string | undefined {
-  return EVM_NETWORK_IDS[currencyId];
-}
 
 function createAccountWithFiat(
   overrides: Partial<AccountWithFiat> = {},
@@ -38,142 +32,6 @@ function createAccountWithFiat(
     ...overrides,
   };
 }
-
-describe("computeNetworks", () => {
-  it("should return single network from account currencyId", () => {
-    const account = createAccountWithFiat({
-      currencyId: "ethereum",
-      fiatBalance: { value: "1000.00", currency: "USD" },
-      tokens: [],
-    });
-    expect(computeNetworks(account, resolveNetworkId)).toEqual([
-      {
-        id: "1",
-        name: "ethereum",
-        fiatBalance: { value: "1000.00", currency: "USD" },
-      },
-    ]);
-  });
-
-  it("should include token fiat in the network total", () => {
-    const account = createAccountWithFiat({
-      currencyId: "ethereum",
-      fiatBalance: { value: "500.00", currency: "USD" },
-      tokens: [
-        {
-          ledgerId: "ethereum/erc20/usd_tether__erc20_",
-          ticker: "USDT",
-          name: "Tether USD",
-          balance: "300",
-          fiatBalance: { value: "300.00", currency: "USD" },
-        },
-      ],
-    });
-    const networks = computeNetworks(account, resolveNetworkId);
-    expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({
-      id: "1",
-      name: "ethereum",
-      fiatBalance: { value: "800.00", currency: "USD" },
-    });
-  });
-
-  it("should sort networks by fiat balance descending", () => {
-    const account = createAccountWithFiat({
-      currencyId: "ethereum",
-      fiatBalance: { value: "100.00", currency: "USD" },
-      tokens: [
-        {
-          ledgerId: "polygon/erc20/usdt",
-          ticker: "USDT",
-          name: "Tether USD",
-          balance: "5000",
-          fiatBalance: { value: "5000.00", currency: "USD" },
-        },
-      ],
-    });
-    const networks = computeNetworks(account, resolveNetworkId);
-    expect(networks[0]).toEqual({
-      id: "137",
-      name: "polygon",
-      fiatBalance: { value: "5000.00", currency: "USD" },
-    });
-    expect(networks[1]).toEqual({
-      id: "1",
-      name: "ethereum",
-      fiatBalance: { value: "100.00", currency: "USD" },
-    });
-  });
-
-  it("should treat tokens without fiatBalance as zero contribution", () => {
-    const account = createAccountWithFiat({
-      currencyId: "ethereum",
-      fiatBalance: { value: "200.00", currency: "USD" },
-      tokens: [
-        {
-          ledgerId: "ethereum/erc20/dai",
-          ticker: "DAI",
-          name: "Dai",
-          balance: "100",
-          fiatBalance: undefined,
-        },
-      ],
-    });
-    const networks = computeNetworks(account, resolveNetworkId);
-    expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({
-      id: "1",
-      name: "ethereum",
-      fiatBalance: { value: "200.00", currency: "USD" },
-    });
-  });
-
-  it("should fall back to account currencyId for tokens without chain prefix", () => {
-    const account = createAccountWithFiat({
-      currencyId: "ethereum",
-      fiatBalance: { value: "100.00", currency: "USD" },
-      tokens: [
-        {
-          ledgerId: "some-opaque-id",
-          ticker: "TKN",
-          name: "Token",
-          balance: "50",
-          fiatBalance: { value: "50.00", currency: "USD" },
-        },
-      ],
-    });
-    const networks = computeNetworks(account, resolveNetworkId);
-    expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({
-      id: "1",
-      name: "ethereum",
-      fiatBalance: { value: "150.00", currency: "USD" },
-    });
-  });
-
-  it("should skip tokens whose chain prefix is not a known EVM currency", () => {
-    const account = createAccountWithFiat({
-      currencyId: "ethereum",
-      fiatBalance: { value: "100.00", currency: "USD" },
-      tokens: [
-        {
-          ledgerId: "bitcoin/some-token",
-          ticker: "TKN",
-          name: "Token",
-          balance: "50",
-          fiatBalance: { value: "50.00", currency: "USD" },
-        },
-      ],
-    });
-    const networks = computeNetworks(account, resolveNetworkId);
-    expect(networks).toHaveLength(1);
-    expect(networks[0]).toEqual({
-      id: "1",
-      name: "ethereum",
-      fiatBalance: { value: "100.00", currency: "USD" },
-    });
-  });
-});
 
 describe("calculateTotalFiatValue", () => {
   it("should return undefined when total is 0 and account has no fiatBalance", () => {
@@ -306,5 +164,166 @@ describe("enrichWithLoadingStates", () => {
       fiatError: true,
     });
     expect(account.fiatLoadingState).toBe("error");
+  });
+});
+
+describe("buildDisplayTokens", () => {
+  const usdt = {
+    ledgerId: "ethereum/erc20/usdt",
+    ticker: "USDT",
+    name: "Tether",
+    balance: "50000000",
+    fiatBalance: { value: "50.00", currency: "USD" },
+  };
+
+  it("should prepend the native currency when its fiat value is above the threshold", () => {
+    const account = createAccountWithFiat({
+      fiatBalance: { value: "1200.00", currency: "USD" },
+      tokens: [usdt],
+    });
+
+    expect(buildDisplayTokens(account)).toEqual([
+      {
+        ledgerId: "ethereum",
+        ticker: "ETH",
+        name: "ETH",
+        balance: "1000000000000000000",
+        fiatBalance: { value: "1200.00", currency: "USD" },
+      },
+      usdt,
+    ]);
+  });
+
+  it("should omit the native currency when its fiat value is at or below the threshold", () => {
+    const account = createAccountWithFiat({
+      fiatBalance: { value: "0.01", currency: "USD" },
+      tokens: [usdt],
+    });
+
+    expect(buildDisplayTokens(account)).toEqual([usdt]);
+  });
+
+  it("should omit the native currency when fiat is not hydrated yet", () => {
+    const account = createAccountWithFiat({
+      fiatBalance: undefined,
+      tokens: [usdt],
+    });
+
+    expect(buildDisplayTokens(account)).toEqual([usdt]);
+  });
+
+  it("should default the native balance to 0 when the balance is unknown", () => {
+    const account = createAccountWithFiat({
+      balance: undefined,
+      fiatBalance: { value: "5.00", currency: "USD" },
+      tokens: [],
+    });
+
+    expect(buildDisplayTokens(account)[0]?.balance).toBe("0");
+  });
+});
+
+describe("accountMatchesQuery", () => {
+  const account = createAccountWithFiat({
+    name: "My Ethereum Account",
+    freshAddress: "0xC5aB1234567890abcdef1234567890abcdefA470",
+    ticker: "ETH",
+    tokens: [
+      {
+        ledgerId: "ethereum/erc20/usdt",
+        ticker: "USDT",
+        name: "Tether",
+        balance: "1",
+        fiatBalance: undefined,
+      },
+    ],
+  });
+
+  it("should match every account on an empty or blank query", () => {
+    expect(accountMatchesQuery(account, "")).toBe(true);
+    expect(accountMatchesQuery(account, "   ")).toBe(true);
+  });
+
+  it("should match on name, address and ticker, case insensitively", () => {
+    expect(accountMatchesQuery(account, "ETHEREUM ACC")).toBe(true);
+    expect(accountMatchesQuery(account, "0xc5ab")).toBe(true);
+    expect(accountMatchesQuery(account, "eth")).toBe(true);
+  });
+
+  it("should match on token ticker and token name", () => {
+    expect(accountMatchesQuery(account, "usdt")).toBe(true);
+    expect(accountMatchesQuery(account, "tether")).toBe(true);
+  });
+
+  it("should not match an unrelated query", () => {
+    expect(accountMatchesQuery(account, "solana")).toBe(false);
+  });
+});
+
+describe("groupAccountsByAddress", () => {
+  function listItem(overrides: Partial<AccountWithFiat>) {
+    return toAccountListItem(createAccountWithFiat(overrides));
+  }
+
+  it("should group accounts sharing the same address", () => {
+    const groups = groupAccountsByAddress([
+      listItem({ id: "a", freshAddress: "0xaaa", currencyId: "ethereum" }),
+      listItem({ id: "b", freshAddress: "0xaaa", currencyId: "polygon" }),
+    ]);
+
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.freshAddress).toBe("0xaaa");
+    expect(groups[0]?.accounts.map((account) => account.id)).toEqual([
+      "a",
+      "b",
+    ]);
+  });
+
+  it("should sort groups by their total fiat value, descending", () => {
+    const groups = groupAccountsByAddress([
+      listItem({
+        freshAddress: "0xsmall",
+        fiatBalance: { value: "10.00", currency: "USD" },
+      }),
+      listItem({
+        freshAddress: "0xbig",
+        fiatBalance: { value: "900.00", currency: "USD" },
+      }),
+    ]);
+
+    expect(groups.map((group) => group.freshAddress)).toEqual([
+      "0xbig",
+      "0xsmall",
+    ]);
+  });
+
+  it("should sum the fiat value of every account in the group", () => {
+    const groups = groupAccountsByAddress([
+      listItem({
+        freshAddress: "0xaaa",
+        fiatBalance: { value: "100.50", currency: "USD" },
+      }),
+      listItem({
+        freshAddress: "0xaaa",
+        fiatBalance: { value: "20.25", currency: "USD" },
+      }),
+    ]);
+
+    expect(groups[0]?.totalFiatValue).toEqual({
+      value: "120.75",
+      currency: "USD",
+    });
+  });
+
+  it("should leave the group total undefined while no account has fiat", () => {
+    const groups = groupAccountsByAddress([
+      listItem({ freshAddress: "0xaaa", fiatBalance: undefined, tokens: [] }),
+    ]);
+
+    expect(groups[0]?.totalFiatValue).toBeUndefined();
+  });
+
+  it("should return an empty array when there is no account", () => {
+    expect(groupAccountsByAddress([])).toEqual([]);
   });
 });
