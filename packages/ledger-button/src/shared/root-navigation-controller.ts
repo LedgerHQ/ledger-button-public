@@ -2,6 +2,8 @@ import {
   Account,
   type BlockchainFamily,
   Device,
+  type SelectAccountNavigationIntent,
+  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController } from "lit";
 import { Subscription } from "rxjs";
@@ -16,6 +18,22 @@ import {
   makeDestinations,
   resolveCanGoBack,
 } from "./routes.js";
+
+/**
+ * Routing payload that scopes the account picker to one blockchain family. It
+ * is either a core `selectAccount` intent or, when the picker is opened from
+ * the home panel, an equivalent payload built locally - hence only the routing
+ * fields, without the sign-flow machinery.
+ */
+export type SelectAccountNavigationParams = Pick<
+  SelectAccountNavigationIntent,
+  "name" | "params"
+>;
+
+/** Anything that can drive `navigationIntent`. */
+export type NavigationIntentParams =
+  | WalletNavigationIntent
+  | SelectAccountNavigationParams;
 
 export type RootNavigationUiModel = {
   title: string | undefined;
@@ -177,30 +195,21 @@ export class RootNavigationController implements ReactiveController {
 
   /**
    * Extract the target blockchain family from a navigation intent, when the
-   * intent is a family-specific connection request emitted by core. The family
-   * is carried in the intent's `params` ({@link SelectAccountIntentParams}).
-   * Returns `undefined` for generic entry points (e.g. the floating button).
+   * intent is a family-specific connection request emitted by core. Returns
+   * `undefined` for generic entry points (e.g. the floating button).
    */
   private resolveRequestedFamily(
-    intent: unknown,
+    intent?: NavigationIntentParams,
   ): BlockchainFamily | undefined {
-    if (!intent || typeof intent !== "object" || !("params" in intent)) {
-      return undefined;
-    }
-
-    const params = (intent as { params?: unknown }).params;
-    if (params && typeof params === "object" && "family" in params) {
-      const family = (params as { family?: unknown }).family;
-      return typeof family === "string"
-        ? (family as BlockchainFamily)
-        : undefined;
-    }
-    return undefined;
+    return intent?.name === "selectAccount" ? intent.params.family : undefined;
   }
 
   // NOTE: First Draft of navigationIntent
   // Could be moved to a separate file/controller (maybe navigation ?)
-  navigationIntent(route: Destination["name"], params: unknown) {
+  navigationIntent(
+    route: Destination["name"],
+    params?: NavigationIntentParams,
+  ) {
     this.params = params ?? undefined;
 
     switch (route) {
@@ -346,9 +355,10 @@ export class RootNavigationController implements ReactiveController {
    */
   switchAccount() {
     const family = this.core.getActiveFamily();
-    this.params = family
+    const params: SelectAccountNavigationParams | undefined = family
       ? { name: "selectAccount", params: { family } }
       : undefined;
+    this.params = params;
     this.navigation.navigateTo(this.destinations.fetchAccounts);
   }
 

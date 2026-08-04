@@ -37,6 +37,7 @@ const makeService = () => {
     {} as never,
     {} as never,
     {} as never,
+    {} as never,
     loggerFactory as never,
   );
 

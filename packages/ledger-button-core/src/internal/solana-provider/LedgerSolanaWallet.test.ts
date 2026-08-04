@@ -315,11 +315,7 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(host.emitNavigationIntent).toHaveBeenCalledWith(
         expect.objectContaining({
           name: "signTransaction",
-          params: {
-            kind: "solana-message",
-            address: SOLANA_ADDRESS,
-            message,
-          },
+          params: { family: "solana", type: "message", broadcast: false },
         }),
       );
       expect(signSolanaMessage.execute).toHaveBeenCalledWith(

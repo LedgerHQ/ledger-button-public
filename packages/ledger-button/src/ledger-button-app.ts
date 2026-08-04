@@ -8,6 +8,7 @@ import "./shared/routes.js";
 import {
   Account,
   LedgerButtonCore,
+  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
@@ -142,7 +143,7 @@ export class LedgerButtonApp extends LitElement {
 
   public navigationIntent(
     intent: Destination["name"],
-    params?: unknown,
+    params?: WalletNavigationIntent,
     mode?: ModalMode,
   ) {
     this.root.navigationIntent(intent, params, mode);

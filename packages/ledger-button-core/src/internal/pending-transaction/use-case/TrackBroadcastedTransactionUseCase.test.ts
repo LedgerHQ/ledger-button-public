@@ -7,7 +7,6 @@ import type { SignTransactionParams } from "../../../api/model/signing/SignTrans
 import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
 import { ContextService } from "../../context/ContextService.js";
 import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
-import type { PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
 import { TrackBroadcastedTransactionUseCase } from "./TrackBroadcastedTransactionUseCase.js";
 
 function createMockLogger() {
@@ -26,18 +25,12 @@ function createMockLoggerFactory() {
   return vi.fn().mockReturnValue(createMockLogger());
 }
 
-function createMockStorageService(): PendingTransactionStorageService {
-  return {
-    add: vi.fn(),
-    getAll: vi.fn().mockReturnValue([]),
-    remove: vi.fn(),
-  };
-}
-
 function createMockController(): PendingTransactionController {
   return {
     track: vi.fn(),
     observePendingTransactions: vi.fn(),
+    registerBroadcastedTransaction: vi.fn(),
+    observeBroadcastedTransaction: vi.fn(),
   };
 }
 
@@ -100,19 +93,16 @@ const signTransactionParams: SignTransactionParams = {
 
 describe("TrackBroadcastedTransactionUseCase", () => {
   let useCase: TrackBroadcastedTransactionUseCase;
-  let mockStorageService: PendingTransactionStorageService;
   let mockController: PendingTransactionController;
   let mockContextService: ReturnType<typeof createMockContextService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
 
   beforeEach(() => {
-    mockStorageService = createMockStorageService();
     mockController = createMockController();
     mockContextService = createMockContextService();
     mockCalDataSource = createMockCalDataSource();
 
     useCase = new TrackBroadcastedTransactionUseCase(
-      mockStorageService,
       mockController,
       mockContextService as unknown as ContextService,
       mockCalDataSource,
@@ -120,7 +110,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     );
   });
 
-  it("awaits CAL before adding to storage", async () => {
+  it("awaits CAL before registering the transaction", async () => {
     let calResolve: () => void = () => undefined;
     mockCalDataSource.getCurrencyInformation.mockReturnValue(
       new Promise((resolve) => {
@@ -142,14 +132,15 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       signTransactionParams,
     );
 
-    expect(mockStorageService.add).not.toHaveBeenCalled();
-    expect(mockController.track).not.toHaveBeenCalled();
+    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
 
     calResolve();
     await executePromise;
 
-    expect(mockStorageService.add).toHaveBeenCalledTimes(1);
-    expect(mockStorageService.add).toHaveBeenCalledWith(
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         hash: "0xabc123",
         chainId: 1,
@@ -162,7 +153,6 @@ describe("TrackBroadcastedTransactionUseCase", () => {
         explorerUrl: "https://etherscan.io/tx/0xabc123",
       }),
     );
-    expect(mockController.track).toHaveBeenCalledTimes(1);
   });
 
   it("should skip non-success statuses", async () => {
@@ -174,8 +164,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(errorStatus, signTransactionParams);
 
-    expect(mockStorageService.add).not.toHaveBeenCalled();
-    expect(mockController.track).not.toHaveBeenCalled();
+    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
   });
 
   it("should skip non-broadcasted results (signed only)", async () => {
@@ -190,7 +179,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(signedOnlyStatus, signTransactionParams);
 
-    expect(mockStorageService.add).not.toHaveBeenCalled();
+    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
   });
 
   it("should skip message signing results", async () => {
@@ -202,7 +191,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(messageStatus, ["0x1234", "hello", "personal_sign"]);
 
-    expect(mockStorageService.add).not.toHaveBeenCalled();
+    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
   });
 
   it("should skip when no selected account", async () => {
@@ -213,7 +202,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    expect(mockStorageService.add).not.toHaveBeenCalled();
+    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
   });
 
   it("should use fallback currency info when CalDataSource fails", async () => {
@@ -223,14 +212,13 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    expect(mockStorageService.add).toHaveBeenCalledWith(
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         ticker: "ETHEREUM",
         currencyName: "ethereum",
         explorerUrl: undefined,
       }),
     );
-    expect(mockController.track).toHaveBeenCalled();
   });
 
   it("should format EVM value using default decimals when CAL fails", async () => {
@@ -242,7 +230,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     // signTransactionParams.transaction.value = "1000000000000000000" (1 ETH)
     // CAL fails → decimals undefined → formatBalance falls back to EVM_NATIVE_DECIMALS (18)
-    expect(mockStorageService.add).toHaveBeenCalledWith(
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ formattedValue: "1" }),
     );
   });
@@ -290,7 +278,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, solanaParams);
 
-    expect(mockStorageService.add).toHaveBeenCalledWith(
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         hash: "0xabc123",
         address: "So1ana1111",
@@ -303,7 +291,6 @@ describe("TrackBroadcastedTransactionUseCase", () => {
         formattedValue: undefined,
       }),
     );
-    expect(mockController.track).toHaveBeenCalledTimes(1);
   });
 
   it("should leave the value unset for raw transaction params", async () => {
@@ -315,7 +302,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, rawParams);
 
-    expect(mockStorageService.add).toHaveBeenCalledWith(
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         value: undefined,
         formattedValue: undefined,

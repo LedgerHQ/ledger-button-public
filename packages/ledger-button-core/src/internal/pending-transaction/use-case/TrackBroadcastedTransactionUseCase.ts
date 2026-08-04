@@ -20,7 +20,6 @@ import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
-import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
 import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
 
 @injectable()
@@ -28,8 +27,6 @@ export class TrackBroadcastedTransactionUseCase {
   private readonly logger: LoggerPublisher;
 
   constructor(
-    @inject(pendingTransactionModuleTypes.PendingTransactionStorageService)
-    private readonly storageService: PendingTransactionStorageService,
     @inject(pendingTransactionModuleTypes.PendingTransactionController)
     private readonly controller: PendingTransactionController,
     @inject(contextModuleTypes.ContextService)
@@ -65,8 +62,7 @@ export class TrackBroadcastedTransactionUseCase {
     );
 
     this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
-    this.storageService.add(tx);
-    this.controller.track();
+    this.controller.registerBroadcastedTransaction(tx);
   }
 
   private async buildPendingTransaction(
