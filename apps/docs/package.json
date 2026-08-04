@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --port 0",
     "build": "next build",
+    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start --port 0",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
@@ -30,6 +31,7 @@
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:react19",
-    "globals": "catalog:"
+    "globals": "catalog:",
+    "pagefind": "catalog:"
   }
 }
