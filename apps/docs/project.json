@@ -5,11 +5,11 @@
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "next build",
+        "command": "next build && pagefind --site .next/server/app --output-path public/_pagefind",
         "cwd": "{projectRoot}"
       },
-      "inputs": ["default", "^production", { "externalDependencies": ["next"] }],
-      "outputs": ["{projectRoot}/.next"],
+      "inputs": ["default", "^production", { "externalDependencies": ["next", "pagefind"] }],
+      "outputs": ["{projectRoot}/.next", "{projectRoot}/public/_pagefind"],
       "dependsOn": ["^build"],
       "cache": true
     },
