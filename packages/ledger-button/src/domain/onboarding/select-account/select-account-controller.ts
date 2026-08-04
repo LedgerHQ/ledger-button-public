@@ -15,6 +15,7 @@ import { LanguageContext } from "../../../context/language-context.js";
 import { Navigation } from "../../../shared/navigation.js";
 import { RootNavigationComponent } from "../../../shared/root-navigation.js";
 import { getDisplayTokens } from "../../../utils/account-display-tokens.js";
+import { formatAddress } from "../../../utils/format-address.js";
 
 export type AccountGroup = {
   freshAddress: string;
@@ -31,7 +32,7 @@ export class SelectAccountController implements ReactiveController {
   }
 
   truncateAddress(address: string): string {
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+    return formatAddress(address);
   }
 
   formatGroupCount(count: number): string {
