@@ -111,7 +111,7 @@ export class SignPersonalMessageUseCase {
     const { appName, dependencies } = this.blockchainConfig.appDependencies;
     return {
       application: { name: appName },
-      dependencies: dependencies.map((name) => ({ name })),
+      dependencies: dependencies.map(({ name }) => ({ name })),
       requireLatestFirmware: false,
     };
   }

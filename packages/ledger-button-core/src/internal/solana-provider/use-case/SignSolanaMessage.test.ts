@@ -34,7 +34,7 @@ const blockchainConfig: BlockchainConfig = {
   appName: "Solana",
   networks: [],
   rpcMethods: { local: [], broadcasted: [] },
-  appDependencies: { appName: "Solana", dependencies: ["Solana"] },
+  appDependencies: { appName: "Solana", dependencies: [{ name: "Solana" }] },
 };
 
 const params = {
