@@ -49,7 +49,7 @@ export class RootNavigationController implements ReactiveController {
   navigation: Navigation;
   isModalOpen = false;
   destinations: Destinations;
-  params?: unknown;
+  params?: NavigationIntentParams;
 
   private hasTrackingConsent?: boolean;
   private welcomeScreenCompleted = false;
