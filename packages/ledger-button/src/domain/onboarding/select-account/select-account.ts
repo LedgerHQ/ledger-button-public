@@ -53,8 +53,7 @@ export class SelectAccountScreen extends LitElement {
     );
   }
 
-  // `params` reaches this screen through the untyped navigation stack, so the
-  // nested access stays optional despite the type.
+  // Nested access stays optional: params may be absent on generic entry points.
   private resolveRequestedFamily(): BlockchainFamily | undefined {
     return this.params?.params?.family;
   }
