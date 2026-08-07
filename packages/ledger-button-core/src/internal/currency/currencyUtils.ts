@@ -5,7 +5,7 @@ import { EVM_NATIVE_DECIMALS } from "../evm-provider/ledger-eip1193/utils/chainU
 import {
   isSupportedSolanaCurrency,
   SOLANA_NATIVE_DECIMALS,
-} from "../solana-provider/ledger-solana-wallet/utils/clusterUtils.js";
+} from "../solana-provider/utils/clusterUtils.js";
 
 type CurrencyUnit = {
   name: string;

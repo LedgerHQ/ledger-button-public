@@ -1,9 +1,9 @@
-import type { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 import type {
   BlockchainFamily,
   WalletProvider,
 } from "../../api/blockchain-provider/model/types.js";
+import type { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 /**
  * Solana {@link WalletProvider}: registers the {@link LedgerSolanaWallet} via
