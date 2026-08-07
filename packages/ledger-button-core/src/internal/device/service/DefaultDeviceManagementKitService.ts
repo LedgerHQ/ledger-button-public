@@ -19,9 +19,9 @@ import { type Factory, inject, injectable } from "inversify";
 import { firstValueFrom } from "rxjs";
 
 import { type DeviceModuleOptions } from "../../diTypes.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
+import { deviceModuleTypes } from "../di/deviceModuleTypes.js";
 import { Device } from "../model/Device.js";
 import { DeviceConnectionError } from "../model/errors.js";
 import { DeviceManagementKitService } from "./DeviceManagementKitService.js";

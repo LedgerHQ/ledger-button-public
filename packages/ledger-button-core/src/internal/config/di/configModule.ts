@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
-import { Config } from "./model/config.js";
-import { type ContainerOptions } from "../diTypes.js";
+import { type ContainerOptions } from "../../diTypes.js";
+import { Config } from "../model/config.js";
 import { configModuleTypes } from "./configModuleTypes.js";
 
 type ConfigModuleOptions = Pick<

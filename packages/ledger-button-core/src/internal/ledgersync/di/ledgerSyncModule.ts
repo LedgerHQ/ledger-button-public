@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultLedgerSyncService } from "./service/DefaultLedgerSyncService.js";
+import { DefaultLedgerSyncService } from "../service/DefaultLedgerSyncService.js";
 import { ledgerSyncModuleTypes } from "./ledgerSyncModuleTypes.js";
 
 type LedgerSyncModuleOptions = {

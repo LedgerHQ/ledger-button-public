@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
+import { configModuleTypes } from "../../../config/di/configModuleTypes.js";
 import type { Config } from "../../../config/model/config.js";
+import { networkModuleTypes } from "../../../network/di/networkModuleTypes.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
-import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import type { CounterValueDataSource } from "./CounterValueDataSource.js";
 import type {

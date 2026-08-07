@@ -1,9 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
+import { backendModuleTypes } from "../../backend/di/backendModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
 import {
   type AccountBalance,
   type TokenBalance,
@@ -11,7 +11,7 @@ import {
 import type { BalanceService } from "../../balance/service/BalanceService.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
 import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { Account, Token } from "../service/AccountService.js";
 

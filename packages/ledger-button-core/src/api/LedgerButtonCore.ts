@@ -19,7 +19,7 @@ import {
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
-import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
+import { accountModuleTypes } from "../internal/account/di/accountModuleTypes.js";
 import {
   Account,
   type AccountService,
@@ -31,24 +31,24 @@ import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/f
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
 import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
 import type { JSONRPCRequest } from "../internal/backend/types.js";
-import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
+import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes.js";
+import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
-import { configModuleTypes } from "../internal/config/configModuleTypes.js";
+import { configModuleTypes } from "../internal/config/di/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
-import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
 import { type ConsentService } from "../internal/consent/ConsentService.js";
-import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
+import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes.js";
 import { ContextService } from "../internal/context/ContextService.js";
+import { contextModuleTypes } from "../internal/context/di/contextModuleTypes.js";
 import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
-import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
 import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
+import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes.js";
 import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
-import { dAppConfigModuleTypes } from "../internal/dAppConfig/dAppConfigModuleTypes.js";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
 import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase.js";
-import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
+import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes.js";
 import {
   type ConnectionType,
   type DeviceManagementKitService,
@@ -59,7 +59,7 @@ import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableD
 import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
-import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
+import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes.js";
 import { TrackCurrencyChanged } from "../internal/event-tracking/usecase/TrackCurrencyChanged.js";
 import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
 import { TrackLanguageChanged } from "../internal/event-tracking/usecase/TrackLanguageChanged.js";
@@ -73,24 +73,24 @@ import {
 } from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
 import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
 import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
-import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
+import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes.js";
 import { LOG_LEVELS } from "../internal/logger/model/constant.js";
 import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
+import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes.js";
 import { ModalService } from "../internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "../internal/navigation/navigationModuleTypes.js";
+import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes.js";
 import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService.js";
 import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
+import { pendingTransactionModuleTypes } from "../internal/pending-transaction/di/pendingTransactionModuleTypes.js";
 import { type BroadcastTracking } from "../internal/pending-transaction/model/BroadcastTracking.js";
 import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
-import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
-import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
+import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes.js";
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
+import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes.js";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags.js";
-import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
 import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
 

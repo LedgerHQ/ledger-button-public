@@ -12,12 +12,12 @@ import {
   switchMap,
 } from "rxjs";
 
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
+import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type {
   Account,
   AccountUpdate,

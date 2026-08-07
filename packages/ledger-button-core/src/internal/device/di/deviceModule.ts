@@ -1,12 +1,12 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultDeviceManagementKitService } from "./service/DefaultDeviceManagementKitService.js";
-import { StubDeviceManagementKitService } from "./service/StubDeviceManagementKitService.js";
-import { ConnectDevice } from "./use-case/ConnectDevice.js";
-import { DisconnectDevice } from "./use-case/DisconnectDevice.js";
-import { ListAvailableDevices } from "./use-case/ListAvailableDevices.js";
-import { SwitchDevice } from "./use-case/SwitchDevice.js";
-import { ContainerOptions } from "../diTypes.js";
+import { ContainerOptions } from "../../diTypes.js";
+import { DefaultDeviceManagementKitService } from "../service/DefaultDeviceManagementKitService.js";
+import { StubDeviceManagementKitService } from "../service/StubDeviceManagementKitService.js";
+import { ConnectDevice } from "../use-case/ConnectDevice.js";
+import { DisconnectDevice } from "../use-case/DisconnectDevice.js";
+import { ListAvailableDevices } from "../use-case/ListAvailableDevices.js";
+import { SwitchDevice } from "../use-case/SwitchDevice.js";
 import { deviceModuleTypes } from "./deviceModuleTypes.js";
 
 type DeviceModuleOptions = Pick<ContainerOptions, "dmkConfig"> & {

@@ -2,9 +2,9 @@ import { type Factory, inject, injectable } from "inversify";
 import { Observable, shareReplay, switchMap } from "rxjs";
 
 import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
+import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type { AccountWithFiat } from "../service/AccountService.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";

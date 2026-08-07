@@ -4,13 +4,13 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { type Factory, inject, injectable } from "inversify";
 
-import { cryptographicModuleTypes } from "../../../cryptographic/cryptographicModuleTypes.js";
+import { cryptographicModuleTypes } from "../../../cryptographic/di/cryptographicModuleTypes.js";
 import type { EncryptKeyPairUseCase } from "../../../cryptographic/usecases/EncryptKeyPairUseCase.js";
 import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
 import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storageModuleTypes.js";
+import { storageModuleTypes } from "../../di/storageModuleTypes.js";
 import type { StorageService } from "../../StorageService.js";
 
 @injectable()

@@ -3,14 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "./blockchain-provider/model/types.js";
 import type { Account } from "../internal/account/service/AccountService.js";
-import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
-import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
-import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
-import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
-import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
-import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
-import { navigationModuleTypes } from "../internal/navigation/navigationModuleTypes.js";
-import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
+import { contextModuleTypes } from "../internal/context/di/contextModuleTypes.js";
+import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes.js";
+import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes.js";
+import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes.js";
+import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes.js";
+import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes.js";
+import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes.js";
+import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes.js";
 import { LedgerButtonCore } from "./LedgerButtonCore.js";
 
 // Mock the DI container factory so the constructor wires our stubs instead of
