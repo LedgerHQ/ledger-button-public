@@ -20,7 +20,7 @@ import { navigationModuleFactory } from "./navigation/navigationModule.js";
 import { networkModuleFactory } from "./network/networkModule.js";
 import { pendingTransactionModuleFactory } from "./pending-transaction/pendingTransactionModule.js";
 import { platformModuleFactory } from "./platform/platformModule.js";
-import { solanaProviderModuleFactory } from "./solana-provider/solanaProviderModule.js";
+import { solanaProviderModuleFactory } from "./solana-provider/di/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/storageModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
 import { blockchainProviderModuleFactory } from "../internal/blockchain-provider/blockchainProviderModule.js";

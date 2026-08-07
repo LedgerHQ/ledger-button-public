@@ -28,28 +28,28 @@ import { type Observable, Subject, type Subscription } from "rxjs";
 
 import { isSignedSolanaTransactionResult } from "./model/SolanaSignedResult.js";
 export type { SolanaSignedResult } from "./model/SolanaSignedResult.js";
+import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
 import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils.js";
 import { attachSolanaSignature } from "./utils/signatureUtils.js";
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
+import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedResults,
-} from "../../../api/model/signing/SignedTransaction.js";
+} from "../../api/model/signing/SignedTransaction.js";
 import type {
   SignFlowStatus,
   SignType,
-} from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
-import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
-import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
-import { getLedgerProviderIcon } from "../../../internal/blockchain-provider/wallet-provider/ledgerProviderIcon.js";
-import type { SignSolanaMessage } from "../use-case/SignSolanaMessage.js";
+} from "../../api/model/signing/SignFlowStatus.js";
+import type { SignSolanaMessageParams } from "../../api/model/signing/solana/SignSolanaMessageParams.js";
+import type { SignSolanaTransactionParams } from "../../api/model/signing/solana/SignSolanaTransactionParams.js";
+import type { SolanaCluster } from "../../api/model/solana/SolanaTypes.js";
+import { getLedgerProviderIcon } from "../blockchain-provider/wallet-provider/ledgerProviderIcon.js";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",
