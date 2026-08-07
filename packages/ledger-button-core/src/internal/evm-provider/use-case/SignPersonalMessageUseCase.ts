@@ -20,13 +20,13 @@ import type {
 } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
 import { waitForDeviceSession } from "../../blockchain-provider/utils/waitForDeviceSession.js";
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction.js";
 import type {
   SignPersonalMessageFlowDAError,
   SignPersonalMessageFlowDAIntermediateValue,
   SignPersonalMessageFlowDAOutput,
 } from "../device-action/SignPersonalMessageFlowDeviceActionTypes.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";
 import { BuildContextModule } from "./BuildContextModule.js";
 

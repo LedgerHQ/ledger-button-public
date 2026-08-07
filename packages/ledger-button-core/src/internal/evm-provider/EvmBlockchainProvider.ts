@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+import { evmProviderModule } from "./di/evmProviderModule.js";
+import { evmProviderModuleTypes } from "./di/evmProviderModuleTypes.js";
 import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
 import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import type { SignTransaction } from "./use-case/SignTransaction.js";
@@ -11,9 +12,8 @@ import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
-import { evmProviderModule } from "./di/evmProviderModule.js";
-import { evmProviderModuleTypes } from "./di/evmProviderModuleTypes.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
+import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
 /**
  * EVM {@link BlockchainProvider}: entry point for the EVM family.
