@@ -16,7 +16,7 @@ import {
   getChainIdFromCurrencyId,
   getCurrencyIdFromChainId,
 } from "../evm-provider/utils/chainUtils.js";
-import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type ContextService } from "./ContextService.js";
 

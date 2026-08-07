@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
 import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { blockchainProviderModuleTypes } from "../../blockchain-provider/blockchainProviderModuleTypes.js";
+import { blockchainProviderModuleTypes } from "../../blockchain-provider/di/blockchainProviderModuleTypes.js";
 import { type BlockchainProviderManager } from "../../blockchain-provider/service/BlockchainProviderManager.js";
 
 @injectable()

@@ -5,7 +5,7 @@ import {
 import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { type Factory, inject, injectable } from "inversify";
 
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
 @injectable()

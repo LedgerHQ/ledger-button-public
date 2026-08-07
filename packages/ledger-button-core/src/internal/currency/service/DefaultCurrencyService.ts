@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import { storageModuleTypes } from "../../storage/di/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { DEFAULT_FIAT_CURRENCY, DEFAULT_SUPPORTED_FIAT_CURRENCIES } from "../constant.js";
-import { currencyModuleTypes } from "../currencyModuleTypes.js";
 import type { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource.js";
 import type { FiatCurrency } from "../datasource/fiatCurrencyTypes.js";
+import { currencyModuleTypes } from "../di/currencyModuleTypes.js";
 import type { CurrencyService } from "./CurrencyService.js";
 
 @injectable()

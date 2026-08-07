@@ -1,9 +1,9 @@
 import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { transactionHistoryModuleTypes } from "../../transaction-history/di/transactionHistoryModuleTypes.js";
 import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";

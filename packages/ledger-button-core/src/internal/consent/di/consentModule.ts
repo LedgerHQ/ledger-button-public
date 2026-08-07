@@ -1,8 +1,8 @@
 import { ContainerModule } from "inversify";
 
+import { ConsentService } from "../ConsentService.js";
+import { DefaultConsentService } from "../DefaultConsentService.js";
 import { consentModuleTypes } from "./consentModuleTypes.js";
-import { ConsentService } from "./ConsentService.js";
-import { DefaultConsentService } from "./DefaultConsentService.js";
 
 export function consentModuleFactory() {
   return new ContainerModule(({ bind }) => {

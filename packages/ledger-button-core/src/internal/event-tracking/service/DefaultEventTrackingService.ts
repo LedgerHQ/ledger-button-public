@@ -1,16 +1,16 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { backendModuleTypes } from "../../backend/di/backendModuleTypes.js";
 import {
   type EventRequest,
   EventType,
 } from "../../backend/model/trackEvent.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { configModuleTypes } from "../../config/di/configModuleTypes.js";
 import type { Config } from "../../config/model/config.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import { generateUUID } from "../utils.js";

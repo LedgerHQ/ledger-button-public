@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
+import { DefaultContextService } from "../DefaultContextService.js";
 import { contextModuleTypes } from "./contextModuleTypes.js";
-import { DefaultContextService } from "./DefaultContextService.js";
 
 export function contextModuleFactory() {
   return new ContainerModule(({ bind }) => {

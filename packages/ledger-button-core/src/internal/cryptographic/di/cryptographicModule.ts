@@ -1,10 +1,10 @@
 import { ContainerModule } from "inversify";
 
-import { DecryptKeyPairUseCase } from "./usecases/DecryptKeyPairUseCase.js";
-import { EncryptKeyPairUseCase } from "./usecases/EncryptKeyPairUseCase.js";
-import { GenerateKeyPairUseCase } from "./usecases/GenerateKeyPairUseCase.js";
-import { GetEncryptionKeyUseCase } from "./usecases/GetEncryptionKey.js";
-import { GetOrCreateKeyPairUseCase } from "./usecases/GetOrCreateKeyPairUseCase.js";
+import { DecryptKeyPairUseCase } from "../usecases/DecryptKeyPairUseCase.js";
+import { EncryptKeyPairUseCase } from "../usecases/EncryptKeyPairUseCase.js";
+import { GenerateKeyPairUseCase } from "../usecases/GenerateKeyPairUseCase.js";
+import { GetEncryptionKeyUseCase } from "../usecases/GetEncryptionKey.js";
+import { GetOrCreateKeyPairUseCase } from "../usecases/GetOrCreateKeyPairUseCase.js";
 import { cryptographicModuleTypes } from "./cryptographicModuleTypes.js";
 
 type CryptographicModuleOptions = {

@@ -23,31 +23,31 @@ import {
 } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
-import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
 import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
 import type { CalDataSource } from "../../../internal/balance/datasource/cal/CalDataSource.js";
 import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
-import { configModuleTypes } from "../../../internal/config/configModuleTypes.js";
+import { balanceModuleTypes } from "../../../internal/balance/di/balanceModuleTypes.js";
+import { configModuleTypes } from "../../../internal/config/di/configModuleTypes.js";
 import type { Config } from "../../../internal/config/model/config.js";
-import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
 import type { ContextService } from "../../../internal/context/ContextService.js";
-import { deviceModuleTypes } from "../../../internal/device/deviceModuleTypes.js";
+import { contextModuleTypes } from "../../../internal/context/di/contextModuleTypes.js";
+import { deviceModuleTypes } from "../../../internal/device/di/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../../internal/device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../../internal/event-tracking/eventTrackingModuleTypes.js";
+import { eventTrackingModuleTypes } from "../../../internal/event-tracking/di/eventTrackingModuleTypes.js";
 import type { TrackTransactionCompleted } from "../../../internal/event-tracking/usecase/TrackTransactionCompleted.js";
 import type { TrackTransactionStarted } from "../../../internal/event-tracking/usecase/TrackTransactionStarted.js";
 import type { TrackTypedMessageCompleted } from "../../../internal/event-tracking/usecase/TrackTypedMessageCompleted.js";
 import type { TrackTypedMessageStarted } from "../../../internal/event-tracking/usecase/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../../internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../../../internal/modal/modalModuleTypes.js";
+import { modalModuleTypes } from "../../../internal/modal/di/modalModuleTypes.js";
 import type { ModalService } from "../../../internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "../../../internal/navigation/navigationModuleTypes.js";
+import { navigationModuleTypes } from "../../../internal/navigation/di/navigationModuleTypes.js";
 import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
-import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
+import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/di/pendingTransactionModuleTypes.js";
 import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
 import type { BackendService } from "../../backend/BackendService.js";
+import { backendModuleTypes } from "../../backend/di/backendModuleTypes.js";
 import {
   type BroadcastResponse,
   isCoinServiceBroadcastResponse,

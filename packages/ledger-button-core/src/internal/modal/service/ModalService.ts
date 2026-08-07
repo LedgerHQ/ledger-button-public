@@ -1,8 +1,8 @@
 import { type Factory, inject, injectable, preDestroy } from "inversify";
 
-import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
+import { eventTrackingModuleTypes } from "../../event-tracking/di/eventTrackingModuleTypes.js";
 import { TrackOpenSession } from "../../event-tracking/usecase/TrackOpenSession.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 
 @injectable()
