@@ -2,11 +2,11 @@ import { DeviceActionStatus } from "@ledgerhq/device-management-kit";
 import { lastValueFrom, of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreFacade } from "../../../../api/blockchain-provider/model/CoreFacade.js";
-import type { ProviderAccount } from "../../../../api/model/blockchain/ProviderAccount.js";
-import type { BlockchainConfig } from "../../../../api/model/dappConfig/BlockchainConfig.js";
-import type { SignFlowStatus } from "../../../../api/model/signing/SignFlowStatus.js";
-import { createMockCoreFacade } from "../../../blockchain-provider/__mocks__/coreFacadeMock.js";
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import { createMockCoreFacade } from "../../blockchain-provider/__mocks__/coreFacadeMock.js";
 import type { BuildSolanaContextModule } from "./BuildSolanaContextModule.js";
 import { SignSolanaTransaction } from "./SignSolanaTransaction.js";
 

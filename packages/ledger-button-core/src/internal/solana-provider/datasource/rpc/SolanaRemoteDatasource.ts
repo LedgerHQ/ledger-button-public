@@ -1,21 +1,21 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { getSelectedAccount } from "../../../../../api/model/ButtonCoreContext.js";
+import { getSelectedAccount } from "../../../../api/model/ButtonCoreContext.js";
 import {
   SolanaJSONRPCRequest,
   SolanaJsonRpcResponse,
-} from "../../../../../api/model/solana/SolanaTypes.js";
-import { backendModuleTypes } from "../../../../backend/backendModuleTypes.js";
-import { type BackendService } from "../../../../backend/BackendService.js";
+} from "../../../../api/model/solana/SolanaTypes.js";
+import { backendModuleTypes } from "../../../backend/backendModuleTypes.js";
+import { type BackendService } from "../../../backend/BackendService.js";
 import {
   isJsonRpcResponse,
   type JSONRPCRequest,
-} from "../../../../backend/types.js";
-import { contextModuleTypes } from "../../../../context/contextModuleTypes.js";
-import { type ContextService } from "../../../../context/ContextService.js";
-import { loggerModuleTypes } from "../../../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../../../logger/service/LoggerPublisher.js";
+} from "../../../backend/types.js";
+import { contextModuleTypes } from "../../../context/contextModuleTypes.js";
+import { type ContextService } from "../../../context/ContextService.js";
+import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
 import {
   DEFAULT_SOLANA_CLUSTER,
   getClusterFromCurrencyId,

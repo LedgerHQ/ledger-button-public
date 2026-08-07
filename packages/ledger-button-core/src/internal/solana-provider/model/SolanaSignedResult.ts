@@ -1,4 +1,4 @@
-import type { SignedPersonalMessageOrTypedDataResult } from "../../../../api/model/signing/SignedTransaction.js";
+import type { SignedPersonalMessageOrTypedDataResult } from "../../../api/model/signing/SignedTransaction.js";
 
 /**
  * Result of a Solana transaction signing flow: the raw 64-byte ed25519
@@ -29,7 +29,7 @@ export function isSignedSolanaTransactionResult(
   );
 }
 
-declare module "../../../../api/model/signing/SignedTransaction.js" {
+declare module "../../../api/model/signing/SignedTransaction.js" {
   interface SignedResultRegistry {
     solana: SolanaSignedResult;
   }

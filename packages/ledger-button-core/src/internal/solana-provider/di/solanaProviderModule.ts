@@ -1,10 +1,10 @@
 import { ContainerModule } from "inversify";
 
-import { SolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/SolanaRemoteDatasource.js";
-import { StubSolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/StubSolanaRemoteDatasource.js";
-import { BuildSolanaContextModule } from "./ledger-solana-wallet/use-case/BuildSolanaContextModule.js";
-import { SignSolanaTransaction } from "./ledger-solana-wallet/use-case/SignSolanaTransaction.js";
-import { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
+import { SolanaRemoteDatasource } from "../datasource/rpc/SolanaRemoteDatasource.js";
+import { StubSolanaRemoteDatasource } from "../datasource/rpc/StubSolanaRemoteDatasource.js";
+import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule.js";
+import { SignSolanaMessage } from "../use-case/SignSolanaMessage.js";
+import { SignSolanaTransaction } from "../use-case/SignSolanaTransaction.js";
 import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
 
 type SolanaProviderModuleOptions = {

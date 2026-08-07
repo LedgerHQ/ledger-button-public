@@ -3,14 +3,14 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { LedgerSolanaWallet } from "./ledger-solana-wallet/LedgerSolanaWallet.js";
 import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import { createMockCoreFacade } from "../../internal/blockchain-provider/__mocks__/coreFacadeMock.js";
+import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
-vi.mock("./ledger-solana-wallet/LedgerSolanaWallet.js", () => ({
+vi.mock("./LedgerSolanaWallet.js", () => ({
   LedgerSolanaWallet: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),

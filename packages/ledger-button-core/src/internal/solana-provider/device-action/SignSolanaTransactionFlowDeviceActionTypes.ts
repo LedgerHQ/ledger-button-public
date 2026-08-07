@@ -14,11 +14,11 @@ import type {
 import type {
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../../../api/errors/DeviceErrors.js";
+} from "../../../api/errors/DeviceErrors.js";
 import type {
   SignFlowStatus,
   SignType,
-} from "../../../../api/model/signing/SignFlowStatus.js";
+} from "../../../api/model/signing/SignFlowStatus.js";
 
 export enum SignSolanaTransactionFlowDAStep {
   OPEN_APP = "open-app",

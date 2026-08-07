@@ -1,14 +1,14 @@
 import { Container } from "inversify";
 import { describe, expect, it } from "vitest";
 
-import { SolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/SolanaRemoteDatasource.js";
-import { StubSolanaRemoteDatasource } from "./ledger-solana-wallet/rpc/datasource/StubSolanaRemoteDatasource.js";
-import { BuildSolanaContextModule } from "./ledger-solana-wallet/use-case/BuildSolanaContextModule.js";
-import { SignSolanaTransaction } from "./ledger-solana-wallet/use-case/SignSolanaTransaction.js";
-import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
-import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
-import { createMockCoreFacade } from "../blockchain-provider/__mocks__/coreFacadeMock.js";
-import { createContainer } from "../di.js";
+import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import { createMockCoreFacade } from "../../blockchain-provider/__mocks__/coreFacadeMock.js";
+import { createContainer } from "../../di.js";
+import { SolanaRemoteDatasource } from "../datasource/rpc/SolanaRemoteDatasource.js";
+import { StubSolanaRemoteDatasource } from "../datasource/rpc/StubSolanaRemoteDatasource.js";
+import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule.js";
+import { SignSolanaTransaction } from "../use-case/SignSolanaTransaction.js";
 import { solanaProviderModule } from "./solanaProviderModule.js";
 import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
 
