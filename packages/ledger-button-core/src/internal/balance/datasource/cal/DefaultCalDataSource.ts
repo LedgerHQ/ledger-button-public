@@ -3,7 +3,7 @@ import { type Either, Left, Right } from "purify-ts";
 
 import { configModuleTypes } from "../../../config/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
-import { getChainIdFromCurrencyId } from "../../../evm-provider/ledger-eip1193/utils/chainUtils.js";
+import { getChainIdFromCurrencyId } from "../../../evm-provider/utils/chainUtils.js";
 import { type NetworkServiceOpts } from "../../../network/model/types.js";
 import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";

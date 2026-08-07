@@ -1,18 +1,18 @@
 import { Container } from "inversify";
 
-import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
-import type { SignPersonalMessageUseCase } from "./ledger-eip1193/use-case/SignPersonalMessageUseCase.js";
-import type { SignRawTransaction } from "./ledger-eip1193/use-case/SignRawTransaction.js";
-import type { SignTransaction } from "./ledger-eip1193/use-case/SignTransaction.js";
-import type { SignTypedData } from "./ledger-eip1193/use-case/SignTypedData.js";
-import { isSupportedEvmCurrency } from "./ledger-eip1193/utils/chainUtils.js";
+import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
+import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
+import type { SignTransaction } from "./use-case/SignTransaction.js";
+import type { SignTypedData } from "./use-case/SignTypedData.js";
+import { isSupportedEvmCurrency } from "./utils/chainUtils.js";
 import type { BlockchainProvider } from "../../api/blockchain-provider/model/BlockchainProvider.js";
 import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
-import { evmProviderModule } from "./evmProviderModule.js";
-import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
+import { evmProviderModule } from "./di/evmProviderModule.js";
+import { evmProviderModuleTypes } from "./di/evmProviderModuleTypes.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 
 /**
