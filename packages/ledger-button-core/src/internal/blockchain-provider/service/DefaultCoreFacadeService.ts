@@ -34,10 +34,10 @@ import { contextModuleTypes } from "../../../internal/context/di/contextModuleTy
 import { deviceModuleTypes } from "../../../internal/device/di/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../../internal/device/service/DeviceManagementKitService.js";
 import { eventTrackingModuleTypes } from "../../../internal/event-tracking/di/eventTrackingModuleTypes.js";
-import type { TrackTransactionCompleted } from "../../../internal/event-tracking/usecase/TrackTransactionCompleted.js";
-import type { TrackTransactionStarted } from "../../../internal/event-tracking/usecase/TrackTransactionStarted.js";
-import type { TrackTypedMessageCompleted } from "../../../internal/event-tracking/usecase/TrackTypedMessageCompleted.js";
-import type { TrackTypedMessageStarted } from "../../../internal/event-tracking/usecase/TrackTypedMessageStarted.js";
+import type { TrackTransactionCompleted } from "../../../internal/event-tracking/use-case/TrackTransactionCompleted.js";
+import type { TrackTransactionStarted } from "../../../internal/event-tracking/use-case/TrackTransactionStarted.js";
+import type { TrackTypedMessageCompleted } from "../../../internal/event-tracking/use-case/TrackTypedMessageCompleted.js";
+import type { TrackTypedMessageStarted } from "../../../internal/event-tracking/use-case/TrackTypedMessageStarted.js";
 import { loggerModuleTypes } from "../../../internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
 import { modalModuleTypes } from "../../../internal/modal/di/modalModuleTypes.js";

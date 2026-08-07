@@ -1,7 +1,7 @@
 import { Just, Nothing, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { STORAGE_KEYS } from "../../model/constant.js";
+import { STORAGE_KEYS } from "../model/constant.js";
 import {
   createMigrateDbUseCase,
   createMockKeyPairMigrationService,
