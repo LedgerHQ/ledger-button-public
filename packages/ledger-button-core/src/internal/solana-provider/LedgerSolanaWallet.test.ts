@@ -5,9 +5,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
 import { attachSolanaSignature } from "./utils/signatureUtils.js";
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import { Account } from "../../account/service/AccountService.js";
+import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
+import type { SignFlowStatus } from "../../api/model/signing/SignFlowStatus.js";
+import { Account } from "../account/service/AccountService.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 vi.mock("./utils/signatureUtils.js", () => ({

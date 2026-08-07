@@ -23,8 +23,8 @@ import type {
   SignSolanaMessageFlowDAIntermediateValue,
   SignSolanaMessageFlowDAOutput,
 } from "../device-action/SignSolanaMessageFlowDeviceActionTypes.js";
-import { getSolanaDerivationPath } from "../ledger-solana-wallet/utils/derivationUtils.js";
-import { solanaProviderModuleTypes } from "../solanaProviderModuleTypes.js";
+import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes.js";
+import { getSolanaDerivationPath } from "../utils/derivationUtils.js";
 
 const SIGN_TYPE: SignType = "solana-message";
 
