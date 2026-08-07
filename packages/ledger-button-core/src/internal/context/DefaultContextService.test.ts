@@ -5,7 +5,7 @@ import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
 import type { Account } from "../account/service/AccountService.js";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import type { Device } from "../device/model/Device.js";
-import * as chainUtils from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
+import * as chainUtils from "../evm-provider/utils/chainUtils.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { DefaultContextService } from "./DefaultContextService.js";
 
