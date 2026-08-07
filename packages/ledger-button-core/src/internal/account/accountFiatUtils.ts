@@ -5,7 +5,7 @@ import type {
   LoadingState,
   Network,
 } from "./service/AccountService.js";
-import { EVM_MAPPING_TABLE } from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
+import { EVM_MAPPING_TABLE } from "../evm-provider/utils/chainUtils.js";
 
 export function computeNetworks(account: AccountWithFiat): Network[] {
   const currency = account.fiatBalance?.currency ?? "USD";

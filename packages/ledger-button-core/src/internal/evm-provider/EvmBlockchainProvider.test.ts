@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { LedgerEIP1193Provider } from "./ledger-eip1193/LedgerEIP1193Provider.js";
 import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
 import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import { createMockCoreFacade } from "../../internal/blockchain-provider/__mocks__/coreFacadeMock.js";
 import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
+import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
-vi.mock("./ledger-eip1193/LedgerEIP1193Provider.js", () => ({
+vi.mock("./LedgerEIP1193Provider.js", () => ({
   LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
@@ -23,10 +23,10 @@ vi.mock("./EvmWalletProvider.js", () => ({
 
 // Bind stub sign use-cases so the local container resolves without needing the
 // real injectable graph (and decorator metadata) at test time.
-vi.mock("./evmProviderModule.js", async () => {
+vi.mock("./di/evmProviderModule.js", async () => {
   const { ContainerModule } = await import("inversify");
   const { evmProviderModuleTypes } = await import(
-    "./evmProviderModuleTypes.js"
+    "./di/evmProviderModuleTypes.js"
   );
   return {
     evmProviderModule: () =>
