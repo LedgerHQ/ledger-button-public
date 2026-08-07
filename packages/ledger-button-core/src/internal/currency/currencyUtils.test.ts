@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { EVM_NATIVE_DECIMALS } from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
+import { EVM_NATIVE_DECIMALS } from "../evm-provider/utils/chainUtils.js";
 import { SOLANA_NATIVE_DECIMALS } from "../solana-provider/utils/clusterUtils.js";
 import { formatBalance, getDefaultDecimals } from "./currencyUtils.js";
 
