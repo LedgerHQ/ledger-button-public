@@ -5,8 +5,8 @@ import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
 } from "../../../api/model/blockchain/GasFee.js";
-import { createMockCoreFacade } from "../../blockchain-provider/__mocks__/coreFacadeMock.js";
 import { JsonRpcResponseSuccess } from "../../backend/types.js";
+import { createMockCoreFacade } from "../../blockchain-provider/__mocks__/coreFacadeMock.js";
 import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
 
 describe("DefaultGasFeeEstimationService", () => {
