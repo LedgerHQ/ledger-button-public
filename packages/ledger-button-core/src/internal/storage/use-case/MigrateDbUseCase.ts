@@ -1,12 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { DEFAULT_BLOCKCHAIN_FAMILY } from "../../../../api/model/ButtonCoreContext.js";
-import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../di/storageModuleTypes.js";
-import type { AccountDbModel } from "../../model/accountDbModel.js";
-import { STORAGE_KEYS } from "../../model/constant.js";
-import type { StorageService } from "../../StorageService.js";
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "../../../api/model/ButtonCoreContext.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { AccountDbModel } from "../model/accountDbModel.js";
+import { STORAGE_KEYS } from "../model/constant.js";
+import { storageModuleTypes } from "../di/storageModuleTypes.js";
+import type { StorageService } from "../StorageService.js";
 import type { KeyPairMigrationService } from "./KeypairMigrationService.js";
 
 @injectable()
