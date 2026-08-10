@@ -3,11 +3,12 @@ title: Get started with Ledger Wallet Provider
 category: how-to
 ---
 
-import { Callout, Steps } from 'nextra/components'
+import { Callout } from 'nextra/components'
+import Link from 'next/link'
 
 # Get started with Ledger Wallet Provider
 
-This guide shows you how to add Ledger Wallet Provider to a web application and request accounts through the EIP-6963 provider discovery protocol.
+This guide shows you how to install and initialize Ledger Wallet Provider. One initialization registers every supported blockchain family. Then follow the guide for your chain.
 
 <Callout type="info">
   **Partner program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
@@ -30,194 +31,68 @@ import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
-  dAppIdentifier: 'my-dapp',        // Your dApp identifier
-  apiKey: 'your-api-key',           // Your Ledger API key
-  loggerLevel: 'info',              // Log level: 'fatal', 'error', 'warn', 'info', 'debug'
-  target: document.body,            // Where to mount the UI (default: document.body)
-  dmkConfig: undefined,             // Device Management Kit configuration (optional)
-  devConfig: {
-    stub: {
-      base: false,          // Set to true to enable base stub mode
-      account: false,       // Set to true to stub account operations
-      device: false,        // Set to true to stub signer interactions
-      web3Provider: false,  // Set to true to stub Web3 provider responses
-      dAppConfig: false,    // Set to true to stub dApp configuration
-    },
-  },
-})
-```
-
-`initializeLedgerProvider` mounts the Ledger UI and announces the Ledger wallet to every supported chain: EVM dApps via the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) discovery protocol, and Solana dApps via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard). It returns a cleanup function — call it when your application unmounts to remove the UI and fully unregister every chain provider.
-
-The example below discovers the provider over EIP-6963 for an EVM dApp. For Solana, see [Solana with Wallet Standard](./solana) — the same `initializeLedgerProvider` call registers Ledger for Wallet Standard discovery (for example via `@solana/wallet-adapter`).
-
-See [Configuration](./configuration) for the full list of available options.
-
-## Discover the provider (EIP-6963)
-
-Listen for provider announcements before dispatching the request event:
-
-```ts
-window.addEventListener('eip6963:announceProvider', (event) => {
-  const { provider, info } = (event as CustomEvent).detail
-  console.log('Ledger provider discovered', info.name)
-  // Store provider for later use
+  dAppIdentifier: 'my-dapp',
+  apiKey: 'your-api-key',
+  loggerLevel: 'info',
 })
 
-window.dispatchEvent(new Event('eip6963:requestProvider'))
+// Call cleanup() when your application unmounts
 ```
 
-## Request accounts
+`initializeLedgerProvider` mounts the Ledger UI and announces the Ledger wallet on every supported family:
 
-```ts
-const accounts = await provider.request({
-  method: 'eth_requestAccounts',
-  params: [],
-})
-```
+- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)
+- **Solana** via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard)
 
-Once users connect their signer through the Ledger Wallet Provider flow, you receive accounts and can start signing transactions or messages.
+It returns a cleanup function — call it when your application unmounts to remove the UI and unregister every chain provider.
 
-## Complete React example
+See [Configuration](./configuration) for the full list of options.
 
-Here's a full working example that demonstrates provider discovery, account connection, and transaction signing:
+## SSR and dynamic imports
+
+The SDK uses browser APIs (`window`, `document`, `CustomEvent`). In SSR frameworks (Next.js, Nuxt, SvelteKit, …), load it only on the client:
 
 ```tsx
-import { useEffect, useState, useCallback } from 'react'
-import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-wallet-provider'
+import { useEffect } from 'react'
 
-function useProviders() {
-  const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([])
-  const [selectedProvider, setSelectedProvider] = useState<EIP6963ProviderDetail | null>(null)
+useEffect(() => {
+  let cleanup: (() => void) | undefined
 
-  const handleAnnounceProvider = useCallback((e: CustomEvent<EIP6963ProviderDetail>) => {
-    setProviders(prev => {
-      const found = prev.find(p => p.info.uuid === e.detail.info.uuid)
-      if (found) return prev
-      return [...prev, e.detail]
+  ;(async () => {
+    await import('@ledgerhq/ledger-wallet-provider/styles.css')
+    const { initializeLedgerProvider } = await import(
+      '@ledgerhq/ledger-wallet-provider'
+    )
+    cleanup = initializeLedgerProvider({
+      dAppIdentifier: 'my-dapp',
+      apiKey: 'your-api-key',
     })
-  }, [])
+  })()
 
-  useEffect(() => {
-    // Dynamic import is required because the library uses browser APIs
-    // and won't work with Server-Side Rendering (SSR)
-    const initializeProvider = async () => {
-      await import('@ledgerhq/ledger-wallet-provider/styles.css')
-      const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider')
-
-      const cleanup = initializeLedgerProvider({
-        dAppIdentifier: 'my-dapp',
-        apiKey: 'your-api-key',
-        loggerLevel: 'info',
-      })
-
-      window.addEventListener('eip6963:announceProvider', handleAnnounceProvider)
-
-      return cleanup
-    }
-
-    let cleanup: (() => void) | undefined
-
-    initializeProvider().then(cleanupFn => {
-      cleanup = cleanupFn
-    })
-
-    return () => {
-      cleanup?.()
-      window.removeEventListener('eip6963:announceProvider', handleAnnounceProvider)
-    }
-  }, [handleAnnounceProvider])
-
-  return { providers, selectedProvider, setSelectedProvider }
-}
-
-function App() {
-  const { providers, selectedProvider, setSelectedProvider } = useProviders()
-  const [account, setAccount] = useState<string | null>(null)
-
-  const connectWallet = async () => {
-    if (!selectedProvider) return
-
-    try {
-      const accounts = await selectedProvider.provider.request({
-        method: 'eth_requestAccounts',
-        params: []
-      })
-      setAccount(accounts[0])
-    } catch (error) {
-      console.error('Failed to connect:', error)
-    }
-  }
-
-  const signTransaction = async (transaction: any) => {
-    if (!selectedProvider) return
-
-    try {
-      const result = await selectedProvider.provider.request({
-        method: 'eth_signTransaction',
-        params: [transaction]
-      })
-      return result
-    } catch (error) {
-      console.error('Failed to sign transaction:', error)
-    }
-  }
-
-  return (
-    <div>
-      {providers.map(provider => (
-        <button
-          key={provider.info.uuid}
-          onClick={() => setSelectedProvider(provider)}
-        >
-          Connect {provider.info.name}
-        </button>
-      ))}
-
-      {selectedProvider && (
-        <button onClick={connectWallet}>
-          Request accounts
-        </button>
-      )}
-
-      {account && <p>Connected: {account}</p>}
-    </div>
-  )
-}
+  return () => cleanup?.()
+}, [])
 ```
 
-<Callout type="info">
-**Why dynamic imports are necessary:**
-- The library uses Web APIs (`window`, `document`, `CustomEvent`) that do not exist in Node.js
-- Direct imports cause build errors in SSR frameworks (Next.js, Nuxt, SvelteKit, etc.)
-- Dynamic imports ensure the code only runs in the browser environment
-</Callout>
+## Choose your chain
 
-## Troubleshooting
+After initialization, integrate discovery and signing for your blockchain:
 
-**The `eip6963:announceProvider` event never fires.**
-Make sure `initializeLedgerProvider` has been called before dispatching `eip6963:requestProvider`. The provider announces itself immediately on initialization and again in response to any subsequent `eip6963:requestProvider` event. If the browser does not support Web HID or Web Bluetooth, the provider is not registered and no announcement is dispatched. Check the [Requirements](./requirements) page and confirm the browser console shows no errors from the SDK.
+<div className="grid md:grid-cols-2 gap-4 mt-8">
+  <Link href="./evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+    <div className="font-semibold mb-2">EVM →</div>
+    <div className="text-sm text-gray-400">EIP-6963 discovery, eth_requestAccounts, message and transaction signing</div>
+  </Link>
 
-**`request()` rejects with error code `-32603` and message "Ledger Provider is busy".**
-A blocking request (signing or account selection) is already in progress. The provider processes one blocking request at a time. Wait for the current request to complete or be rejected before sending another.
+  <Link href="./solana" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+    <div className="font-semibold mb-2">Solana →</div>
+    <div className="text-sm text-gray-400">Wallet Standard connect, signMessage, signTransaction, signAndSendTransaction</div>
+  </Link>
+</div>
 
-**`request()` rejects with error code `4100` ("Unauthorized").**
-`eth_requestAccounts` has not been called yet, or the user disconnected. Call `eth_requestAccounts` first to prompt the user to select an account.
+More blockchain families will follow the same pattern: initialize once, then use the chain-specific guide.
 
 ## Next steps
 
-<Steps>
-
-### Customize your integration
-
-Explore [Configuration](./configuration) options to set up chain support, floating button position, and wallet action buttons.
-
-### Review the API
-
-Read the full list of provider methods, events, and error codes in the [API reference](./api-reference).
-
-### Integrate Solana
-
-Connect and sign through Wallet Standard — see [Solana](./solana).
-
-</Steps>
+- [Configuration](./configuration) — UI position, stubs, environment, and other options
+- [API reference](./api-reference) — `initializeLedgerProvider` and the EVM EIP-1193 provider surface
+- [Package attestation](./package-attestation) — verify npm provenance
