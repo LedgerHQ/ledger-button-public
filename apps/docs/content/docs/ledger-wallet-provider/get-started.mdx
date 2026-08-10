@@ -49,7 +49,7 @@ const cleanup = initializeLedgerProvider({
 
 `initializeLedgerProvider` mounts the Ledger UI and announces the Ledger wallet to every supported chain: EVM dApps via the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) discovery protocol, and Solana dApps via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard). It returns a cleanup function — call it when your application unmounts to remove the UI and fully unregister every chain provider.
 
-The example below discovers the provider over EIP-6963 for an EVM dApp. Solana dApps discover the same wallet automatically through Wallet Standard libraries such as `@solana/wallet-adapter` — no extra wiring required.
+The example below discovers the provider over EIP-6963 for an EVM dApp. For Solana, see [Solana with Wallet Standard](./solana) — the same `initializeLedgerProvider` call registers Ledger for Wallet Standard discovery (for example via `@solana/wallet-adapter`).
 
 See [Configuration](./configuration) for the full list of available options.
 
@@ -215,5 +215,9 @@ Explore [Configuration](./configuration) options to set up chain support, floati
 ### Review the API
 
 Read the full list of provider methods, events, and error codes in the [API reference](./api-reference).
+
+### Integrate Solana
+
+Connect and sign through Wallet Standard — see [Solana](./solana).
 
 </Steps>
