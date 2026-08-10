@@ -52,6 +52,12 @@
   ],
   "references": [
     {
+      "path": "../../packages/ledger-wallet-provider-solana"
+    },
+    {
+      "path": "../../packages/ledger-wallet-provider-evm"
+    },
+    {
       "path": "../../packages/ledger-button"
     }
   ]

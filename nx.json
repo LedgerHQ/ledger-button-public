@@ -1,7 +1,10 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -15,32 +18,48 @@
       "!{projectRoot}/.storybook/**/*",
       "!{projectRoot}/tsconfig.storybook.json"
     ],
-    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
+    "sharedGlobals": [
+      "{workspaceRoot}/.github/workflows/ci.yml"
+    ]
   },
   "neverConnectToCloud": true,
   "targetDefaults": {
     "dev": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false
     },
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "test": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "options": {
-        "args": ["--pass-with-no-tests"]
+        "args": [
+          "--pass-with-no-tests"
+        ]
       }
     },
     "build-storybook": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "test-storybook": {
       "options": {
-        "args": ["--url http://localhost:4200"]
+        "args": [
+          "--url http://localhost:4200"
+        ]
       }
     }
   },
@@ -98,7 +117,9 @@
     },
     {
       "plugin": "@nx/next/plugin",
-      "exclude": ["apps/docs/**/*"],
+      "exclude": [
+        "apps/docs/**/*"
+      ],
       "options": {
         "startTargetName": "start",
         "buildTargetName": "build",
@@ -139,14 +160,16 @@
       "libraries": {
         "projects": [
           "@ledgerhq/ledger-wallet-provider",
-          "@ledgerhq/ledger-wallet-provider-core"
+          "@ledgerhq/ledger-wallet-provider-core",
+          "@ledgerhq/ledger-wallet-provider-evm",
+          "@ledgerhq/ledger-wallet-provider-solana"
         ],
         "projectsRelationship": "fixed"
       }
     },
     "git": {
       "commit": true,
-      "commitMessage": "🔖 (release): Changelog for v{version}",
+      "commitMessage": "\ud83d\udd16 (release): Changelog for v{version}",
       "tag": true
     },
     "version": {

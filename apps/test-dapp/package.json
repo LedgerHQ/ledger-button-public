@@ -20,6 +20,8 @@
   },
   "devDependencies": {
     "@ledgerhq/ledger-wallet-provider": "workspace:*",
+    "@ledgerhq/ledger-wallet-provider-evm": "workspace:*",
+    "@ledgerhq/ledger-wallet-provider-solana": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "postcss": "catalog:",
     "tailwindcss": "catalog:"

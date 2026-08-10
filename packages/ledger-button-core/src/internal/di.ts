@@ -20,7 +20,6 @@ import { navigationModuleFactory } from "./navigation/di/navigationModule.js";
 import { networkModuleFactory } from "./network/di/networkModule.js";
 import { pendingTransactionModuleFactory } from "./pending-transaction/di/pendingTransactionModule.js";
 import { platformModuleFactory } from "./platform/di/platformModule.js";
-import { solanaProviderModuleFactory } from "./solana-provider/di/solanaProviderModule.js";
 import { storageModuleFactory } from "./storage/di/storageModule.js";
 import { transactionHistoryModuleFactory } from "./transaction-history/di/transactionHistoryModule.js";
 import { blockchainProviderModuleFactory } from "../internal/blockchain-provider/di/blockchainProviderModule.js";
@@ -38,7 +37,6 @@ export function createContainer({
       account: false,
       device: false,
       web3Provider: false,
-      solanaProvider: false,
       balance: false,
       transactionHistory: false,
     },
@@ -65,7 +63,6 @@ export function createContainer({
     transactionHistoryModuleFactory({
       stub: devConfig.stub.transactionHistory,
     }),
-    solanaProviderModuleFactory({ stub: devConfig.stub.solanaProvider }),
     blockchainProviderModuleFactory(),
     ledgerSyncModuleFactory({ stub: devConfig.stub.base }),
     cryptographicModuleFactory({ stub: devConfig.stub.base }),

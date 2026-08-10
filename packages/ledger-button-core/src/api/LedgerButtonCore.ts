@@ -158,7 +158,11 @@ export class LedgerButtonCore {
       this.container.get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       );
-    blockchainProviderManager.init(coreFacade, dappConfig);
+    blockchainProviderManager.init(
+      coreFacade,
+      dappConfig,
+      this.opts.blockchainProviderFactories ?? [],
+    );
 
     // Restore selected accounts (one per blockchain family) from storage
     const selectedAccounts = this.container

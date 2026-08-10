@@ -1,4 +1,5 @@
 export * from "./DeviceErrors.js";
+export * from "./DeviceFlowErrors.js";
 export * from "./LedgerButtonError.js";
 export * from "./LedgerSyncErrors.js";
 export * from "./NetworkErrors.js";
