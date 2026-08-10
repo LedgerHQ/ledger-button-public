@@ -3,8 +3,8 @@ import { inject, injectable } from "inversify";
 import { eventTrackingModuleTypes } from "../../event-tracking/di/eventTrackingModuleTypes.js";
 import type { TrackConsentGiven } from "../../event-tracking/use-case/TrackConsentGiven.js";
 import type { TrackConsentRemoved } from "../../event-tracking/use-case/TrackConsentRemoved.js";
-import type { UserConsent } from "../../storage/model/UserConsent.js";
 import { storageModuleTypes } from "../../storage/di/storageModuleTypes.js";
+import type { UserConsent } from "../../storage/model/UserConsent.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import type { ConsentService } from "./ConsentService.js";
 
