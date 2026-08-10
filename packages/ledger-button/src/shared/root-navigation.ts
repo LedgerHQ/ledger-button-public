@@ -17,7 +17,10 @@ import type { WalletTransactionFeature } from "../components/molecule/wallet-act
 import { CoreContext, coreContext } from "../context/core-context.js";
 import { langContext, LanguageContext } from "../context/language-context.js";
 import type { CloseModalOptions, NavigationHost } from "./navigation.js";
-import { RootNavigationController } from "./root-navigation-controller.js";
+import {
+  type NavigationIntentParams,
+  RootNavigationController,
+} from "./root-navigation-controller.js";
 import { Destination } from "./routes.js";
 
 type SuccessOverlayState = {
@@ -86,7 +89,7 @@ export class RootNavigationComponent
 
   public navigationIntent(
     intent: Destination["name"],
-    params?: unknown,
+    params?: NavigationIntentParams,
     mode?: ModalMode,
   ) {
     this.rootNavigationController.navigationIntent(intent, params);

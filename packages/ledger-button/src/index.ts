@@ -118,10 +118,7 @@ export function initializeLedgerProvider({
   const navigationSubscription = core
     .observeNavigationIntents()
     .subscribe((intent) => {
-      app.navigationIntent(
-        intent.name as Parameters<LedgerButtonApp["navigationIntent"]>[0],
-        intent,
-      );
+      app.navigationIntent(intent.name, intent);
     });
 
   // Cleanup function

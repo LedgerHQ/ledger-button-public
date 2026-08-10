@@ -161,12 +161,12 @@ describe("SelectAccountController.truncateAddress", () => {
     {
       description: "returns the full string when exactly 8 characters",
       address: "12345678",
-      expected: "1234...5678",
+      expected: "12345678",
     },
     {
-      description: "handles an address shorter than 8 characters",
+      description: "returns the full string when shorter than 8 characters",
       address: "abcd",
-      expected: "abcd...abcd",
+      expected: "abcd",
     },
   ])("$description", ({ address, expected }) => {
     expect(controller.truncateAddress(address)).toBe(expected);
