@@ -53,6 +53,7 @@ type InitializeLedgerProviderOptions = {
   walletTransactionFeatures?: Array<
     'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'
   >;
+  transactionConfirmationNotification?: 'tooltip' | 'toast';
 
   // Development
   devConfig?: {
@@ -62,7 +63,7 @@ type InitializeLedgerProviderOptions = {
       balance?: boolean;
       device?: boolean;
       web3Provider?: boolean;
-      dAppConfig?: boolean;
+      solanaProvider?: boolean;
       transactionHistory?: boolean;
     };
   };

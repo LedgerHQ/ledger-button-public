@@ -9,7 +9,7 @@ import KeyTakeaway from '../../../components/features/key-takeaway'
 # NPM package attestation verification
 
 <KeyTakeaway>
- ☞   Publish Attestation is enabled for our `ledger-button` package. It links the published package to its source and build instructions, improving supply-chain transparency.
+ ☞   Publish Attestation is enabled for our `@ledgerhq/ledger-wallet-provider` package. It links the published package to its source and build instructions, improving supply-chain transparency.
 </KeyTakeaway>
 
 ## Understanding provenance and attestation
@@ -24,7 +24,7 @@ npm can show two attestations:
 Both are public and help verify origin.  
 
 ### About Sigstore
-npm’s publish attestation is implemented via Sigstore. When Ledger enables publish attestation for `ledger-button`, the registry:
+npm’s publish attestation is implemented via Sigstore. When Ledger enables publish attestation for `@ledgerhq/ledger-wallet-provider`, the registry:
 - Issues a short‑lived certificate that binds the publisher’s identity to the specific release
 - Records the attestation in a public transparency log for tamper‑evidence
 
@@ -48,7 +48,7 @@ This proves who published the package and when, and links the artifact to its so
             {<h3>Trust policy configuration</h3>}  
             With pnpm, verification is part of installation. If a package violates trust policy, install is blocked, thanks to the following setting:
 
-            ```yaml filename="pnpm-workspace.yamls"
+            ```yaml filename="pnpm-workspace.yaml"
             # Block installation if trust level decreases
             trustPolicy: no-downgrade
 
@@ -62,7 +62,7 @@ This proves who published the package and when, and links the artifact to its so
             {<h3>Trust policy exceptions</h3>}   
             Add safe, verified packages to exclusions if needed:
             
-            ```yaml filename="pnpm-workspace.yamls"
+            ```yaml filename="pnpm-workspace.yaml"
             # Block installation if trust level decreases
             trustPolicy: no-downgrade
 
@@ -87,7 +87,7 @@ This proves who published the package and when, and links the artifact to its so
 
         With npm, attestation verification is a separate step after installation.
         ```bash
-        npm install ledger-button
+        npm install @ledgerhq/ledger-wallet-provider
         npm audit signatures  # ← Runs AFTER the package is already installed
         ```
     </Tabs.Tab>
