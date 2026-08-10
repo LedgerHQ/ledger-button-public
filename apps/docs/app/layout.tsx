@@ -9,13 +9,13 @@ import "nextra-theme-docs/style.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Ledger DMK Documentation",
-    template: "%s - Ledger DMK",
+    default: "Ledger Wallet Provider Documentation",
+    template: "%s - Ledger Wallet Provider",
   },
-  description: "Ledger DMK Documentation",
+  description: "Ledger Wallet Provider Documentation",
   openGraph: {
-    title: "Ledger DMK Documentation",
-    description: "Ledger DMK Documentation",
+    title: "Ledger Wallet Provider Documentation",
+    description: "Ledger Wallet Provider Documentation",
   },
 };
 
@@ -31,7 +31,7 @@ const logo = (
       <title>Ledger logo</title>
       <path d="M0 91.6548V128H55.293V119.94H8.05631V91.6548H0ZM138.944 91.6548V119.94H91.707V127.998H147V91.6548H138.944ZM55.3733 36.3452V91.6529H91.707V84.3842H63.4296V36.3452H55.3733ZM0 0V36.3452H8.05631V8.05844H55.293V0H0ZM91.707 0V8.05844H138.944V36.3452H147V0H91.707Z" />
     </svg>
-    <span style={{ marginLeft: "5px" }}>Ledger Device Management Kit</span>
+    <span style={{ marginLeft: "5px" }}>Ledger Wallet Provider</span>
   </div>
 );
 
@@ -70,7 +70,7 @@ const footer = (
       />
     </svg>
     <p style={{ textAlign: "center" }}>
-      Copyright © 2024 Ledger SAS. All rights reserved.
+      Copyright © 2026 Ledger SAS. All rights reserved.
     </p>
   </div>
 );
@@ -90,13 +90,13 @@ export default async function RootLayout({
           navbar={
             <Navbar
               logo={logo}
-              projectLink="https://github.com/LedgerHQ/device-sdk-ts"
+              projectLink="https://github.com/LedgerHQ/ledger-button-public"
               chatLink="https://developers.ledger.com/discord/"
             />
           }
           footer={<Footer>{footer}</Footer>}
           pageMap={pageMap}
-          docsRepositoryBase="https://github.com/LedgerHQ/device-sdk-ts/tree/main/apps/docs"
+          docsRepositoryBase="https://github.com/LedgerHQ/ledger-button-public/tree/develop/apps/docs"
           editLink="Edit this page on GitHub →"
           feedback={{
             content: "Question? Give us feedback →",
