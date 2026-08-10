@@ -90,13 +90,13 @@ export default async function RootLayout({
           navbar={
             <Navbar
               logo={logo}
-              projectLink="https://github.com/LedgerHQ/ledger-button"
+              projectLink="https://github.com/LedgerHQ/ledger-button-public"
               chatLink="https://developers.ledger.com/discord/"
             />
           }
           footer={<Footer>{footer}</Footer>}
           pageMap={pageMap}
-          docsRepositoryBase="https://github.com/LedgerHQ/ledger-button/tree/develop/apps/docs"
+          docsRepositoryBase="https://github.com/LedgerHQ/ledger-button-public/tree/develop/apps/docs"
           editLink="Edit this page on GitHub →"
           feedback={{
             content: "Question? Give us feedback →",
