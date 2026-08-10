@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
+import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
 import { ContextService } from "../../context/ContextService.js";
 import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
 import type { PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
@@ -246,11 +247,20 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     );
   });
 
-  it("should format Solana value using default decimals when CAL fails", async () => {
+  it("scopes a Solana broadcast to the Solana account even when EVM is the active family", async () => {
     mockContextService.getContext.mockReturnValue({
       chainId: 1,
-      activeFamily: "solana",
+      activeFamily: "ethereum",
       selectedAccounts: new Map([
+        [
+          "ethereum",
+          {
+            freshAddress: "0x1234",
+            currencyId: "ethereum",
+            ticker: "ETH",
+            name: "Ethereum",
+          },
+        ],
         [
           "solana",
           {
@@ -263,27 +273,40 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       ]),
     });
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
-      Left(new Error("CAL unavailable")),
+      Right({
+        id: "solana",
+        name: "Solana",
+        ticker: "SOL",
+        decimals: 9,
+        transactionExplorerUrlTemplate: "https://solscan.io/tx/${hash}",
+      }),
     );
 
-    const solanaParams: SignTransactionParams = {
-      ...signTransactionParams,
-      transaction: {
-        ...signTransactionParams.transaction,
-        value: "1000000000",
-      },
+    const solanaParams: SignSolanaTransactionParams = {
+      kind: "solana-transaction",
+      address: "So1ana1111",
+      transaction: new Uint8Array([1, 2, 3]),
     };
 
     await useCase.execute(successBroadcastStatus, solanaParams);
 
-    // value = "1000000000" (1 SOL in lamports)
-    // CAL fails → decimals undefined → formatBalance falls back to SOLANA_NATIVE_DECIMALS (9)
     expect(mockStorageService.add).toHaveBeenCalledWith(
-      expect.objectContaining({ formattedValue: "1" }),
+      expect.objectContaining({
+        hash: "0xabc123",
+        address: "So1ana1111",
+        ledgerId: "solana",
+        ticker: "SOL",
+        currencyName: "Solana",
+        chainId: 0,
+        explorerUrl: "https://solscan.io/tx/0xabc123",
+        value: undefined,
+        formattedValue: undefined,
+      }),
     );
+    expect(mockController.track).toHaveBeenCalledTimes(1);
   });
 
-  it("should default value to '0' for raw transaction params", async () => {
+  it("should leave the value unset for raw transaction params", async () => {
     const rawParams: SignRawTransactionParams = {
       transaction: "0xdeadbeef",
       method: "eth_sendRawTransaction",
@@ -294,7 +317,8 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     expect(mockStorageService.add).toHaveBeenCalledWith(
       expect.objectContaining({
-        value: "0",
+        value: undefined,
+        formattedValue: undefined,
       }),
     );
   });

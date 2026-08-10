@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, Observable } from "rxjs";
 
+import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import {
   getActiveFamily,
   getActiveSelectedAccount,
@@ -14,7 +15,10 @@ import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
-import { type ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
+import {
+  type ConfirmPendingTransactionsUseCase,
+  type SettledPendingTransactionOutcome,
+} from "../use-case/ConfirmPendingTransactionsUseCase.js";
 import { type HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";
 import { type PendingTransactionController } from "./PendingTransactionController.js";
 
@@ -97,43 +101,19 @@ export class DefaultPendingTransactionController
   }
 
   private async pollTick(): Promise<void> {
-    const context = this.contextService.getContext();
-    const account = getActiveSelectedAccount(context);
-    if (!account) return;
-
     const pending = this.storageService.getAll();
     if (pending.length === 0) {
       this.stopPolling();
       return;
     }
 
-    const pendingHashes = pending.map((tx) => tx.hash);
-
-    const result = await this.checkPendingStatus.execute(
-      account.currencyId,
-      account.freshAddress,
-      pendingHashes,
-    );
-
-    if (result.isLeft()) {
-      this.logger.warn("Failed to check pending transactions", {
-        error: result.extract(),
-      });
-      return;
-    }
-
-    const settledOutcomes = result.unsafeCoerce();
-
-    if (settledOutcomes.length > 0) {
-      for (const { hash } of settledOutcomes) {
-        this.storageService.remove(hash);
-      }
-    }
+    const settledOutcomes = await this.confirmPendingByAccount(pending);
+    const settledTxs = this.removeSettled(pending, settledOutcomes);
 
     await this.emitUpdate();
 
-    if (settledOutcomes.length > 0) {
-      this.refreshSelectedAccount();
+    if (settledTxs.length > 0) {
+      void this.refreshSettledAccounts(settledTxs);
     }
 
     if (this.storageService.getAll().length === 0) {
@@ -141,15 +121,124 @@ export class DefaultPendingTransactionController
     }
   }
 
-  private async refreshSelectedAccount(): Promise<void> {
-    this.logger.debug("Refreshing transaction history after confirmation");
-    const family = getActiveFamily(this.contextService.getContext());
-    const result = await this.fetchSelectedAccountUseCase.execute(family);
-    if (result.isLeft()) {
-      this.logger.warn("Failed to refresh transaction history", {
-        error: result.extract(),
-      });
+  private removeSettled(
+    pending: PendingTransaction[],
+    settledOutcomes: SettledPendingTransactionOutcome[],
+  ): PendingTransaction[] {
+    const settledHashes = new Set(settledOutcomes.map(({ hash }) => hash));
+    for (const hash of settledHashes) {
+      this.storageService.remove(hash);
     }
+    return pending.filter((tx) => settledHashes.has(tx.hash));
+  }
+
+  /**
+   * Each pending tx carries the account it was broadcast from, so a mixed
+   * EVM/Solana list is checked against the right explorer for each family.
+   */
+  private async confirmPendingByAccount(
+    pending: PendingTransaction[],
+  ): Promise<SettledPendingTransactionOutcome[]> {
+    const settled: SettledPendingTransactionOutcome[] = [];
+
+    for (const group of this.groupByAccount(pending)) {
+      const result = await this.checkPendingStatus.execute(
+        group.currencyId,
+        group.address,
+        group.hashes,
+      );
+
+      if (result.isLeft()) {
+        this.logger.warn("Failed to check pending transactions", {
+          error: result.extract(),
+          currencyId: group.currencyId,
+        });
+        continue;
+      }
+
+      settled.push(...result.unsafeCoerce());
+    }
+
+    return settled;
+  }
+
+  private groupByAccount(pending: PendingTransaction[]): {
+    currencyId: string;
+    address: string;
+    hashes: string[];
+  }[] {
+    const groups = new Map<
+      string,
+      { currencyId: string; address: string; hashes: string[] }
+    >();
+
+    for (const tx of pending) {
+      const key = `${tx.ledgerId}:${tx.address}`;
+      const group = groups.get(key);
+      if (group) {
+        group.hashes.push(tx.hash);
+      } else {
+        groups.set(key, {
+          currencyId: tx.ledgerId,
+          address: tx.address,
+          hashes: [tx.hash],
+        });
+      }
+    }
+
+    return Array.from(groups.values());
+  }
+
+  /**
+   * Refresh the accounts whose transactions just settled so their balance and
+   * history reflect the confirmation.
+   */
+  private async refreshSettledAccounts(
+    settledTxs: PendingTransaction[],
+  ): Promise<void> {
+    const families = this.resolveSettledFamilies(settledTxs);
+    this.logger.debug("Refreshing transaction history after confirmation", {
+      families,
+    });
+
+    for (const family of families) {
+      const result = await this.fetchSelectedAccountUseCase.execute(family);
+      if (result.isLeft()) {
+        this.logger.warn("Failed to refresh transaction history", {
+          error: result.extract(),
+          family,
+        });
+      }
+    }
+  }
+
+  private resolveSettledFamilies(
+    settledTxs: PendingTransaction[],
+  ): BlockchainFamily[] {
+    const context = this.contextService.getContext();
+    const families = new Set<BlockchainFamily>();
+
+    for (const [family, account] of context.selectedAccounts) {
+      const isSettledAccount = settledTxs.some(
+        (tx) =>
+          tx.ledgerId === account.currencyId &&
+          tx.address === account.freshAddress,
+      );
+      if (isSettledAccount) {
+        families.add(family);
+      }
+    }
+
+    // The settled tx no longer maps to a selected account (the user switched
+    // account while it was pending): fall back to refreshing the active one.
+    if (families.size === 0) {
+      const activeFamily = getActiveFamily(context);
+      if (activeFamily) {
+        families.add(activeFamily);
+      }
+    }
+
+    return Array.from(families);
   }
 
   private async emitCurrentState(): Promise<void> {

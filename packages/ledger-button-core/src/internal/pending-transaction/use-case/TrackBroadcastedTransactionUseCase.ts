@@ -1,17 +1,14 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { getActiveSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
+import type { ProviderSignParams } from "../../../api/blockchain-provider/model/types.js";
+import {
+  DEFAULT_BLOCKCHAIN_FAMILY,
+  getSelectedAccount,
+} from "../../../api/model/ButtonCoreContext.js";
 import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
 import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
-import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import {
-  isSignTransactionParams,
-  type SignTransactionParams,
-} from "../../../api/model/signing/SignTransactionParams.js";
-import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
-import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
+import { getSignParamsFamily } from "../../../api/model/signing/signParamsFamily.js";
+import { isSignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import { type Account } from "../../account/service/AccountService.js";
 import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
@@ -25,14 +22,6 @@ import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
 import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
-
-type SignParams =
-  | SignTransactionParams
-  | SignRawTransactionParams
-  | SignTypedMessageParams
-  | SignPersonalMessageParams
-  | SignSolanaMessageParams
-  | SignSolanaTransactionParams;
 
 @injectable()
 export class TrackBroadcastedTransactionUseCase {
@@ -53,18 +42,25 @@ export class TrackBroadcastedTransactionUseCase {
     this.logger = loggerFactory("[TrackBroadcastedTransactionUseCase]");
   }
 
-  async execute(status: SignFlowStatus, params: SignParams): Promise<void> {
+  async execute(
+    status: SignFlowStatus,
+    params: ProviderSignParams,
+  ): Promise<void> {
     if (status.status !== "success") return;
     if (!isBroadcastedTransactionResult(status.data)) return;
 
     const context = this.contextService.getContext();
-    const account = getActiveSelectedAccount(context);
+    const family = getSignParamsFamily(params);
+    const account = getSelectedAccount(context, family);
     if (!account) return;
+
+    // `context.chainId` is EVM-only; it is meaningless for non-EVM families.
+    const chainId = family === DEFAULT_BLOCKCHAIN_FAMILY ? context.chainId : 0;
 
     const tx = await this.buildPendingTransaction(
       status.data.hash,
       account,
-      context.chainId,
+      chainId,
       params,
     );
 
@@ -77,13 +73,16 @@ export class TrackBroadcastedTransactionUseCase {
     hash: string,
     account: Account,
     chainId: number,
-    params: SignParams,
+    params: ProviderSignParams,
   ): Promise<PendingTransaction> {
     const { ticker, name, decimals, transactionExplorerUrlTemplate } =
       await this.resolveCurrencyMetadata(account.currencyId);
+    // Only structured EVM params carry the amount. A raw EVM transaction or a
+    // serialized Solana one would have to be decoded, so the amount stays unset
+    // rather than being reported as zero.
     const rawValue = isSignTransactionParams(params)
       ? params.transaction.value
-      : "0";
+      : undefined;
 
     return {
       hash,
@@ -92,12 +91,10 @@ export class TrackBroadcastedTransactionUseCase {
       timestamp: new Date().toISOString(),
       type: "sent",
       value: rawValue,
-      formattedValue: formatBalance(
-        rawValue,
-        decimals,
-        ticker,
-        account.currencyId,
-      ),
+      formattedValue:
+        rawValue === undefined
+          ? undefined
+          : formatBalance(rawValue, decimals, ticker, account.currencyId),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,

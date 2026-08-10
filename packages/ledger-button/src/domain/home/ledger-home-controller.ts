@@ -150,7 +150,7 @@ export class LedgerHomeController implements ReactiveController {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      amount: tx.formattedValue,
+      amount: tx.formattedValue ?? "",
       ticker: tx.ticker,
       title: tx.currencyName,
       fiatAmount: tx.fiatValue ?? "",

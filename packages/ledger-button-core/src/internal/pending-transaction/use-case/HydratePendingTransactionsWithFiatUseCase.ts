@@ -131,7 +131,7 @@ export class HydratePendingTransactionsWithFiatUseCase {
         return tx;
       }
 
-      const valueNum = parseFloat(tx.formattedValue);
+      const valueNum = parseFloat(tx.formattedValue ?? "");
       if (Number.isNaN(valueNum)) {
         return tx;
       }

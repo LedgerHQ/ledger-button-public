@@ -72,6 +72,17 @@ describe("ledger-transaction-item", () => {
     expect(label).toBeUndefined();
   });
 
+  it("renders no crypto amount when the amount is unknown", () => {
+    const container = renderItem({
+      amount: "",
+      ticker: "SOL",
+      fiatAmount: "",
+    });
+
+    expect(container.textContent).not.toContain("SOL");
+    expect(container.textContent).not.toContain("0");
+  });
+
   it("renders a static container with no anchor when explorerUrl is missing", () => {
     const container = renderItem();
 
