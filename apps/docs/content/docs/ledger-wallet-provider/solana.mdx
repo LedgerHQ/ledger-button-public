@@ -9,7 +9,7 @@ import { Callout, Steps } from 'nextra/components'
 
 This guide shows how to connect to Ledger Wallet Provider from a Solana dApp and sign messages or transactions through the [Wallet Standard](https://github.com/wallet-standard/wallet-standard).
 
-Ledger Wallet Provider registers a Solana wallet automatically when you call `initializeLedgerProvider`. The same initialization used for EVM (EIP-6963) also announces Ledger on Solana — no Solana-specific setup call is required.
+Ledger Wallet Provider registers a Solana wallet automatically when you call `initializeLedgerProvider`. The same initialization used for EVM also announces Ledger on Solana — no Solana-specific setup call is required.
 
 <Callout type="info">
   Complete [Get started](./get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Then follow this page for Wallet Standard discovery and signing.
@@ -190,7 +190,8 @@ Blocking requests (connect / sign) are handled one at a time. Wait for the curre
 
 ## See also
 
-- [Get started](./get-started) — install and initialize for EVM and Solana
+- [Get started](./get-started) — install and initialize for every chain
+- [EVM](./evm) — EIP-6963 discovery and EIP-1193 signing
 - [Configuration](./configuration) — init options, including `devConfig.stub.solanaProvider`
 - [API reference](./api-reference) — `initializeLedgerProvider` and EVM EIP-1193 surface
 - [Wallet Standard](https://github.com/wallet-standard/wallet-standard) — discovery protocol specification

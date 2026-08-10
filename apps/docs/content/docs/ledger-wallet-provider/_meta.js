@@ -5,6 +5,7 @@ export default {
   },
   overview: "Overview",
   "get-started": "Get Started",
+  evm: "EVM",
   solana: "Solana",
   configuration: "Configuration",
   "package-attestation": "Package Attestation",

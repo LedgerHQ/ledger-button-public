@@ -13,7 +13,7 @@ This page describes the public API of `@ledgerhq/ledger-wallet-provider`: the `i
 
 ## `initializeLedgerProvider(options)`
 
-Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Announces the Ledger wallet to every supported chain through its native discovery protocol: EVM dApps via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963), and Solana dApps via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) (discoverable through `@solana/wallet-adapter` and similar libraries). For Solana connect and signing examples, see [Solana](./solana).
+Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Announces the Ledger wallet to every supported chain through its native discovery protocol: EVM dApps via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963), and Solana dApps via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard). For chain-specific connect and signing examples, see [EVM](./evm) and [Solana](./solana).
 
 **Signature**
 
@@ -82,7 +82,7 @@ cleanup()
 
 Implements the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider JavaScript API for Ledger hardware signers.
 
-You obtain an instance via the `eip6963:announceProvider` event (see [Get started](./get-started)):
+You obtain an instance via the `eip6963:announceProvider` event (see [EVM](./evm)):
 
 ```ts
 window.addEventListener('eip6963:announceProvider', (event: CustomEvent) => {
@@ -200,7 +200,9 @@ Disconnects the provider, clears the selected account and chain, and fires a `di
 
 ## See also
 
-- [Get started](./get-started) — how to initialize the provider and connect accounts
+- [Get started](./get-started) — install and initialize the provider
+- [EVM](./evm) — EIP-6963 discovery and EIP-1193 signing how-to
+- [Solana](./solana) — Wallet Standard connect and signing how-to
 - [Configuration](./configuration) — full `initializeLedgerProvider` options reference
 - [Requirements](./requirements) — browser and platform requirements
 - [EIP-1193 specification](https://eips.ethereum.org/EIPS/eip-1193)
