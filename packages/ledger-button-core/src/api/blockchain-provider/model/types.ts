@@ -3,6 +3,7 @@ import type { Observable } from "rxjs";
 
 import type { SignedResults } from "../../model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
+import type { SignIntentType } from "../../model/signing/SignIntentType.js";
 import type { SignPersonalMessageParams } from "../../model/signing/SignPersonalMessageParams.js";
 import type { SignRawTransactionParams } from "../../model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "../../model/signing/SignTransactionParams.js";
@@ -87,24 +88,52 @@ export type SelectAccountIntentParams = {
 };
 
 /**
- * Core -> UI navigation intent emitted while core runs an account-selection or
- * sign phase. The button package maps `name` to its own navigation; the
- * `status$` / `finish` / `retry` machinery lives here, not on the provider
- * boundary.
+ * Payload carried by the `signTransaction` {@link WalletNavigationIntent}.
+ *
+ * Deliberately a small set of decisions rather than the raw
+ * {@link ProviderSignParams}: everything here is something the provider already
+ * knows when it emits the intent, and the UI would otherwise have to re-derive
+ * it by narrowing an `unknown` payload through the sign-params type guards.
+ *
+ * The raw payload is not carried: pending-transaction tracking receives it
+ * directly through {@link CoreFacade.trackBroadcastedTransaction}, on a path
+ * that does not go through the UI.
  */
-export interface WalletNavigationIntent {
-  /** e.g. "selectAccount" | "signTransaction" - mapped to nav by the button. */
-  name: string;
-  /**
-   * Intent-specific payload. For a `selectAccount` request it holds a
-   * {@link SelectAccountIntentParams} (the requested blockchain family); for a
-   * sign phase it holds the transaction/message parameters.
-   */
-  params?: unknown;
+export type SignIntentParams = {
+  family: BlockchainFamily;
+  /** What the user is approving - drives the success copy. */
+  type: SignIntentType;
+  /** Whether core broadcasts the transaction once signed. */
+  broadcast: boolean;
+};
+
+type WalletNavigationIntentBase = {
   /** UI subscribes for live progress (like today's SignFlowStatus). */
   status$: Observable<SignFlowStatus>;
   /** UI acknowledges success -> core resolves the host promise. */
   finish: () => void;
   /** UI asks core to re-run the phase after an error. */
   retry: () => void;
-}
+};
+
+export type SelectAccountNavigationIntent = WalletNavigationIntentBase & {
+  name: "selectAccount";
+  params: SelectAccountIntentParams;
+};
+
+export type SignNavigationIntent = WalletNavigationIntentBase & {
+  name: "signTransaction";
+  params: SignIntentParams;
+};
+
+/**
+ * Core -> UI navigation intent emitted while core runs an account-selection or
+ * sign phase. The button package maps `name` to its own navigation; the
+ * `status$` / `finish` / `retry` machinery lives here, not on the provider
+ * boundary.
+ *
+ * Discriminated on `name` so the UI reads `params` without casting.
+ */
+export type WalletNavigationIntent =
+  | SelectAccountNavigationIntent
+  | SignNavigationIntent;

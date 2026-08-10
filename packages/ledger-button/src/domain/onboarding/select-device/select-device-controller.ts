@@ -14,6 +14,7 @@ import {
   getLedgerNanoSUpgradeUrl,
   getReferralShopUrl,
 } from "../../../shared/constants/shop-urls.js";
+import { formatDeviceModelName } from "../../../utils/format-device-name.js";
 
 export class SelectDeviceController implements ReactiveController {
   errorData?: {
@@ -56,9 +57,7 @@ export class SelectDeviceController implements ReactiveController {
 
     switch (true) {
       case error instanceof DeviceNotSupportedError: {
-        const deviceName = error.context?.modelId
-          ? lang.common.device.model[error.context.modelId]
-          : lang.common.device.model.fallback;
+        const deviceName = formatDeviceModelName(lang, error.context?.modelId);
 
         const title = lang.error.device.DeviceNotSupported.title.replace(
           "{device}",
@@ -94,9 +93,7 @@ export class SelectDeviceController implements ReactiveController {
         break;
       }
       case error instanceof DeviceNotOnboardedError: {
-        const deviceName = error.context?.modelId
-          ? lang.common.device.model[error.context.modelId]
-          : lang.common.device.model.fallback;
+        const deviceName = formatDeviceModelName(lang, error.context?.modelId);
         const description =
           lang.error.device.DeviceNotOnboarded.description.replace(
             "{device}",

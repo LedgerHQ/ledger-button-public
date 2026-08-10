@@ -1,5 +1,5 @@
 import { type Factory, inject, injectable } from "inversify";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, filter, Observable } from "rxjs";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import {
@@ -12,6 +12,7 @@ import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
 import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { type BroadcastTracking } from "../model/BroadcastTracking.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
@@ -30,6 +31,14 @@ export class DefaultPendingTransactionController
 {
   private readonly logger: LoggerPublisher;
   private readonly pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
+  /**
+   * Per-hash lifecycle. `null` means "not registered yet", which is what lets
+   * a subscriber attach before the transaction reaches the pool.
+   */
+  private readonly broadcastTracking = new Map<
+    string,
+    BehaviorSubject<BroadcastTracking | null>
+  >();
   private pollingInterval: ReturnType<typeof setInterval> | undefined;
 
   constructor(
@@ -62,6 +71,41 @@ export class DefaultPendingTransactionController
 
   observePendingTransactions(): Observable<PendingTransaction[]> {
     return this.pendingTxSubject;
+  }
+
+  registerBroadcastedTransaction(tx: PendingTransaction): void {
+    this.storageService.add(tx);
+    this.broadcastTrackingFor(tx.hash).next({
+      hash: tx.hash,
+      state: "processing",
+      explorerUrl: tx.explorerUrl,
+    });
+    this.track();
+  }
+
+  observeBroadcastedTransaction(hash: string): Observable<BroadcastTracking> {
+    return this.broadcastTrackingFor(hash).pipe(
+      filter((tracking): tracking is BroadcastTracking => tracking !== null),
+    );
+  }
+
+  private broadcastTrackingFor(
+    hash: string,
+  ): BehaviorSubject<BroadcastTracking | null> {
+    const existing = this.broadcastTracking.get(hash);
+    if (existing) {
+      return existing;
+    }
+    const subject = new BehaviorSubject<BroadcastTracking | null>(null);
+    this.broadcastTracking.set(hash, subject);
+    return subject;
+  }
+
+  private settleBroadcastTracking(hash: string): void {
+    const subject = this.broadcastTracking.get(hash);
+    const current = subject?.value;
+    if (!subject || !current) return;
+    subject.next({ ...current, state: "validated" });
   }
 
   private startPollingWhenAccountAvailable(): void {
@@ -128,6 +172,7 @@ export class DefaultPendingTransactionController
     const settledHashes = new Set(settledOutcomes.map(({ hash }) => hash));
     for (const hash of settledHashes) {
       this.storageService.remove(hash);
+      this.settleBroadcastTracking(hash);
     }
     return pending.filter((tx) => settledHashes.has(tx.hash));
   }

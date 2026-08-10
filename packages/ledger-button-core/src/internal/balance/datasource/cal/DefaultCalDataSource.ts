@@ -18,6 +18,16 @@ import {
 
 @injectable()
 export class DefaultCalDataSource implements CalDataSource {
+  /**
+   * Currency metadata is immutable for the lifetime of a session and is read on
+   * several hot paths (account hydration, pending-tx tracking, explorer links),
+   * so in-flight requests are shared rather than duplicated.
+   */
+  private readonly currencyInformationCache = new Map<
+    string,
+    Promise<Either<Error, CurrencyInformation>>
+  >();
+
   constructor(
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<NetworkServiceOpts>,
@@ -57,7 +67,25 @@ export class DefaultCalDataSource implements CalDataSource {
     });
   }
 
-  async getCurrencyInformation(
+  getCurrencyInformation(
+    currencyId: string,
+  ): Promise<Either<Error, CurrencyInformation>> {
+    const cached = this.currencyInformationCache.get(currencyId);
+    if (cached) {
+      return cached;
+    }
+
+    const request = this.fetchCurrencyInformation(currencyId);
+    this.currencyInformationCache.set(currencyId, request);
+    void request.then((result) => {
+      if (result.isLeft()) {
+        this.currencyInformationCache.delete(currencyId);
+      }
+    });
+    return request;
+  }
+
+  private async fetchCurrencyInformation(
     currencyId: string,
   ): Promise<Either<Error, CurrencyInformation>> {
     const requestUrl = `${this.config.getCalUrl()}/v1/coins?id=${currencyId}&output=id,name,ticker,units,network_external_links`;
