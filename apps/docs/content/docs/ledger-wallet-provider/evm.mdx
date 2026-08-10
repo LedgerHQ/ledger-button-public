@@ -9,10 +9,10 @@ import { Callout } from 'nextra/components'
 
 This guide shows how to connect to Ledger Wallet Provider from an EVM dApp and sign messages or transactions through [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) discovery and the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider API.
 
-Ledger Wallet Provider registers an EIP-1193 provider automatically when you call `initializeLedgerProvider`. The same initialization used for Solana also announces Ledger on EVM — no EVM-specific setup call is required.
+Ledger Wallet Provider registers an EIP-1193 provider when you call `initializeLedgerProvider` **and** Ethereum is enabled in your partner dApp configuration (`dAppIdentifier`). No extra EVM-specific setup call is required beyond init.
 
 <Callout type="info">
-  Complete [Get started](./get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Then follow this page for EIP-6963 discovery and signing.
+  Complete [Get started](./get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Confirm with Ledger that Ethereum is enabled for your dApp, then follow this page for EIP-6963 discovery and signing.
 </Callout>
 
 ## Prerequisites
@@ -83,7 +83,7 @@ const account = accounts[0]
 ```
 
 <Callout type="info">
-  **Multi-chain sessions:** One `initializeLedgerProvider` call registers both the EVM EIP-6963 provider and the Solana Wallet Standard wallet. Users can connect on either family from the Ledger UI. Account pickers are filtered by the requesting family (`eth_requestAccounts` only lists EVM-compatible accounts).
+  **Partner configuration:** Which families are registered depends on your dApp config. Ethereum enabled → EIP-6963 / EIP-1193. Solana enabled → Wallet Standard. Both enabled → both surfaces from the same `initializeLedgerProvider` call. Account pickers are filtered by the requesting family (`eth_requestAccounts` only lists EVM-compatible accounts).
 </Callout>
 
 ## Sign a message
@@ -141,7 +141,7 @@ await provider.request({
 
 ## Cleanup
 
-Call the function returned by `initializeLedgerProvider` when your application unmounts. Cleanup removes the Ledger UI and unregisters the EVM EIP-6963 listener (and the Solana Wallet Standard wallet).
+Call the function returned by `initializeLedgerProvider` when your application unmounts. Cleanup removes the Ledger UI and unregisters any providers that were registered for your partner configuration.
 
 ```ts
 const cleanup = initializeLedgerProvider({ /* options */ })
@@ -153,7 +153,7 @@ cleanup()
 ## Troubleshooting
 
 **The `eip6963:announceProvider` event never fires.**
-Confirm `initializeLedgerProvider` ran in the browser before dispatching `eip6963:requestProvider`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no provider is registered — see [Requirements](./requirements).
+Confirm `initializeLedgerProvider` ran in the browser before dispatching `eip6963:requestProvider`, and that Ethereum is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no provider is registered — see [Requirements](./requirements).
 
 **`request()` rejects with error code `4100` ("Unauthorized").**
 Call `eth_requestAccounts` first, or the user disconnected. Request accounts again to reopen the Ledger UI.
@@ -163,7 +163,7 @@ Blocking requests (connect / sign) are handled one at a time. Wait for the curre
 
 ## See also
 
-- [Get started](./get-started) — install and initialize for every chain
+- [Get started](./get-started) — install and initialize (families depend on partner config)
 - [Solana](./solana) — Wallet Standard connect and signing
 - [Configuration](./configuration) — init options
 - [API reference](./api-reference) — full EIP-1193 methods, events, and errors
