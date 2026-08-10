@@ -3,6 +3,7 @@ import "./context/core-context.js";
 import "./context/language-context.js";
 import "./ledger-button-app.js";
 
+import type { BlockchainProviderFactoryRegistration } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   EIP1193Provider,
   EIP6963AnnounceProviderEvent,
@@ -17,6 +18,9 @@ import { initializeLedgerProvider } from "./index.js";
 export class LedgerButtonPlayground extends LitElement {
   @property({ type: String })
   demoMode: "onboarding" | "signTransaction" = "onboarding";
+
+  @property({ attribute: false })
+  blockchainProviderFactories: BlockchainProviderFactoryRegistration[] = [];
 
   @query("#app")
   private app!: HTMLDivElement;
@@ -63,6 +67,7 @@ export class LedgerButtonPlayground extends LitElement {
       dAppIdentifier: "ledger-button-playground",
       apiKey:
         "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
+      blockchainProviderFactories: this.blockchainProviderFactories,
       devConfig: {
         stub: {
           base: true,

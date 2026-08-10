@@ -4,7 +4,6 @@ import "./ledger-button-app.js";
 import {
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
-  LedgerEIP1193Provider,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { FloatingButtonPosition } from "./components/index.js";
@@ -12,14 +11,12 @@ import type { TransactionConfirmationNotification } from "./types/transaction-co
 import { setupFloatingButton } from "./utils/setup-floating-button.js";
 import { LedgerButtonApp } from "./ledger-button-app.js";
 
+export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 export type {
   EIP1193Provider,
   EIP6963ProviderDetail,
   EIP6963ProviderInfo,
 } from "@ledgerhq/ledger-wallet-provider-core";
-
-export { LedgerEIP1193Provider };
-export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 
 import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
 
@@ -48,6 +45,7 @@ export function initializeLedgerProvider({
   floatingButtonTarget,
   walletTransactionFeatures,
   transactionConfirmationNotification = "tooltip",
+  blockchainProviderFactories,
   devConfig = {
     stub: {
       base: false,
@@ -71,6 +69,7 @@ export function initializeLedgerProvider({
       dmkConfig,
       loggerLevel,
       environment,
+      blockchainProviderFactories,
       devConfig,
     });
   }

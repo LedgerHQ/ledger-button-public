@@ -16,7 +16,12 @@
     "types": ["node", "vite/client"],
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "include": ["src/**/*.ts", "src/tailwind-preset.ts", "src/i18n/**/*.json", "src/**/*.json"],
+  "include": [
+    "src/**/*.ts",
+    "src/tailwind-preset.ts",
+    "src/i18n/**/*.json",
+    "src/**/*.json"
+  ],
   "references": [
     {
       "path": "../ledger-button-core/tsconfig.lib.json"

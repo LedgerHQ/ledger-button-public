@@ -1,14 +1,11 @@
 export type { WalletActionType } from "../internal/backend/model/trackEvent.js";
 export type { Device } from "../internal/device/model/Device.js";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
-export { LedgerEIP1193Provider } from "../internal/evm-provider/LedgerEIP1193Provider.js";
-// Load-bearing: re-exporting this pulls the family's `SignedResultRegistry`
-// augmentation into cross-package consumers so `SignedResults` resolves to the
-// EVM union instead of `never`. Keep one such re-export per family.
-export type { EvmSignedResult } from "../internal/evm-provider/model/EvmSignedResult.js";
-export { isBlockingRequestMethod } from "../internal/evm-provider/utils/isBlockingRequestMethod.js";
-export type { SolanaSignedResult } from "../internal/solana-provider/model/SolanaSignedResult.js";
 export type { BlockchainProvider } from "./blockchain-provider/model/BlockchainProvider.js";
+export type {
+  BlockchainProviderFactory,
+  BlockchainProviderFactoryRegistration,
+} from "./blockchain-provider/model/BlockchainProviderFactory.js";
 export type { CoreFacade } from "./blockchain-provider/model/CoreFacade.js";
 export type { CurrencyDescriptor } from "./blockchain-provider/model/CurrencyDescriptor.js";
 export type {
@@ -24,6 +21,11 @@ export type {
   WalletNavigationIntent,
   WalletProvider,
 } from "./blockchain-provider/model/types.js";
+export {
+  type ConnectedDeviceSession,
+  waitForDeviceSession,
+} from "./blockchain-provider/utils/waitForDeviceSession.js";
+export { getLedgerProviderIcon } from "./blockchain-provider/wallet-provider/ledgerProviderIcon.js";
 export * from "./errors/index.js";
 export * from "./LedgerButtonCore.js";
 export type {
