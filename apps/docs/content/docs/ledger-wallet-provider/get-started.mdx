@@ -8,7 +8,7 @@ import Link from 'next/link'
 
 # Get started with Ledger Wallet Provider
 
-This guide shows you how to install and initialize Ledger Wallet Provider. One initialization registers every supported blockchain family. Then follow the guide for your chain.
+This guide shows you how to install and initialize Ledger Wallet Provider. One initialization registers the blockchain families enabled for your partner configuration (`dAppIdentifier`). Then follow the guide for your chain.
 
 <Callout type="info">
   **Partner program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
@@ -39,12 +39,14 @@ const cleanup = initializeLedgerProvider({
 // Call cleanup() when your application unmounts
 ```
 
-`initializeLedgerProvider` mounts the Ledger UI and announces the Ledger wallet on every supported family:
+`initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for the blockchain families enabled in your partner dApp configuration (tied to `dAppIdentifier`):
 
-- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)
-- **Solana** via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard)
+- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) — when Ethereum is enabled
+- **Solana** via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) — when Solana is enabled
 
-It returns a cleanup function — call it when your application unmounts to remove the UI and unregister every chain provider.
+If both families are enabled, both providers are registered from the same init call. If only one is enabled, only that discovery surface is available.
+
+It returns a cleanup function — call it when your application unmounts to remove the UI and unregister any providers that were registered.
 
 See [Configuration](./configuration) for the full list of options.
 
@@ -75,7 +77,7 @@ useEffect(() => {
 
 ## Choose your chain
 
-After initialization, integrate discovery and signing for your blockchain:
+After initialization, integrate discovery and signing for each family enabled in your partner configuration:
 
 <div className="grid md:grid-cols-2 gap-4 mt-8">
   <Link href="./evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
@@ -89,7 +91,7 @@ After initialization, integrate discovery and signing for your blockchain:
   </Link>
 </div>
 
-More blockchain families will follow the same pattern: initialize once, then use the chain-specific guide.
+More blockchain families will follow the same pattern: initialize once, then use the chain-specific guide for each family enabled in your partner configuration.
 
 ## Next steps
 

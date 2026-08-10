@@ -16,7 +16,7 @@ import Link from 'next/link'
 
 Ledger Wallet Provider is a web component SDK that embeds Ledger's official connect flow directly inside your application, enabling direct signer connections and ensuring full access to Ledger's security features like Clear Signing and Transaction Check.
 
-The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and provides a standards-based [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider that works with any JavaScript framework. It announces itself via the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) multi-wallet discovery protocol, so it integrates with any dApp that supports that standard.
+The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and exposes standards-based providers for the blockchain families enabled in your partner configuration — for example an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider announced via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) when Ethereum is enabled, and a [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet when Solana is enabled.
 
 <div className="my-12 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-12">
   <img

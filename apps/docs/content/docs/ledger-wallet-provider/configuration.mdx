@@ -182,7 +182,7 @@ const cleanup = initializeLedgerProvider({ /* options */ })
 cleanup()
 ```
 
-The cleanup function removes the UI, deregisters the `eip6963:requestProvider` listener, and resets the internal provider state so a new configuration can be applied on the next call.
+The cleanup function removes the UI, deregisters any providers that were registered for your partner configuration (for example the EVM `eip6963:requestProvider` listener and/or the Solana Wallet Standard wallet), and resets internal provider state so a new configuration can be applied on the next call.
 
 ## See also
 
