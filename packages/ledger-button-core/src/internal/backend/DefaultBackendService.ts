@@ -3,10 +3,10 @@ import { Either, Left, Right } from "purify-ts";
 
 import type { EventRequest, EventResponse } from "./model/trackEvent.js";
 import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
-import { configModuleTypes } from "../config/configModuleTypes.js";
+import { configModuleTypes } from "../config/di/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
+import { networkModuleTypes } from "../network/di/networkModuleTypes.js";
 import type { NetworkServiceOpts } from "../network/model/types.js";
-import { networkModuleTypes } from "../network/networkModuleTypes.js";
 import type { NetworkService } from "../network/NetworkService.js";
 import type { BackendService } from "./BackendService.js";
 import { ConfigResponseSchema } from "./schemas.js";

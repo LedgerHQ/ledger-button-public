@@ -1,6 +1,6 @@
 import { injectable, multiInject } from "inversify";
 
-import { loggerModuleTypes } from "../loggerModuleTypes.js";
+import { loggerModuleTypes } from "../di/loggerModuleTypes.js";
 import { LOG_LEVELS } from "../model/constant.js";
 import { LogData, LoggerPublisher, LogMessageData } from "./LoggerPublisher.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";

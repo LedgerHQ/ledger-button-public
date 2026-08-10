@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
+import { DefaultBackendService } from "../DefaultBackendService.js";
 import { backendModuleTypes } from "./backendModuleTypes.js";
-import { DefaultBackendService } from "./DefaultBackendService.js";
 
 type BackendModuleOptions = {
   stub?: boolean;

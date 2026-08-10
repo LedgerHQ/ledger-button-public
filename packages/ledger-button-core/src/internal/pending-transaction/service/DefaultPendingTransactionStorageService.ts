@@ -1,6 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
 import { type PendingTransactionStorageService } from "./PendingTransactionStorageService.js";

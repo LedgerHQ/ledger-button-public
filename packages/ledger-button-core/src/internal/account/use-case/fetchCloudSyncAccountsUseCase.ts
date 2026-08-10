@@ -2,13 +2,13 @@ import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 
 import { base64ToArrayBuffer } from "../../../api/utils/base64Utils.js";
-import { cloudSyncModuleTypes } from "../../cloudsync/cloudSyncModuleTypes.js";
+import { cloudSyncModuleTypes } from "../../cloudsync/di/cloudSyncModuleTypes.js";
 import type { CloudSyncService } from "../../cloudsync/service/CloudSyncService.js";
-import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js";
+import { ledgerSyncModuleTypes } from "../../ledgersync/di/ledgerSyncModuleTypes.js";
 import { LedgerSyncAuthContextMissingError } from "../../ledgersync/model/errors.js";
 import type { InternalAuthContext } from "../../ledgersync/model/InternalAuthContext.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type { CloudSyncData } from "../service/AccountService.js";
 

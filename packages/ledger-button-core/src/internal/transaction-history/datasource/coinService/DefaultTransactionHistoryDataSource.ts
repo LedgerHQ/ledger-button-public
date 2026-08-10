@@ -2,14 +2,14 @@ import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, type Maybe } from "purify-ts";
 
 import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/blockchainProviderModuleTypes.js";
+import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
+import { configModuleTypes } from "../../../config/di/configModuleTypes.js";
 import { Config } from "../../../config/model/config.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+import { networkModuleTypes } from "../../../network/di/networkModuleTypes.js";
 import type { NetworkServiceOpts } from "../../../network/model/types.js";
-import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {

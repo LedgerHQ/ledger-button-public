@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { NavigationIntentService } from "./service/NavigationIntentService.js";
+import { NavigationIntentService } from "../service/NavigationIntentService.js";
 import { navigationModuleTypes } from "./navigationModuleTypes.js";
 
 export function navigationModuleFactory() {
