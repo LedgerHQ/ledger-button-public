@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
 import { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { configModuleTypes } from "../../config/di/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { DAppConfig } from "../model/dAppConfigTypes.js";
 import { DAppConfigDataSource } from "./DAppConfigDataSource.js";

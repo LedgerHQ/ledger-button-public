@@ -10,7 +10,7 @@ import { type NetworkServiceOpts } from "./model/types.js";
 import { merge } from "./utils/merge.js";
 import PACKAGE from "../../../package.json" with { type: "json" };
 import { NetworkError } from "../../api/errors/NetworkErrors.js";
-import { configModuleTypes } from "../config/configModuleTypes.js";
+import { configModuleTypes } from "../config/di/configModuleTypes.js";
 import { Config } from "../config/model/config.js";
 import { NetworkService } from "./NetworkService.js";
 

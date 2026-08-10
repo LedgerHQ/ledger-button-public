@@ -12,16 +12,16 @@ import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
 } from "../../../api/model/ButtonCoreContext.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
 import type { ContextService } from "../../context/ContextService.js";
-import { ledgerSyncModuleTypes } from "../../ledgersync/ledgerSyncModuleTypes.js";
+import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
+import { ledgerSyncModuleTypes } from "../../ledgersync/di/ledgerSyncModuleTypes.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { calculateTotalFiatValue } from "../accountFiatUtils.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
+import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type {
   Account,
   AccountWithFiat,

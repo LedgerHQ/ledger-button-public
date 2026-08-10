@@ -10,16 +10,16 @@ import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.j
 import { getSignParamsFamily } from "../../../api/model/signing/signParamsFamily.js";
 import { isSignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
 import { type Account } from "../../account/service/AccountService.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
+import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
+import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
 import { formatBalance } from "../../currency/currencyUtils.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
+import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";
-import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
 import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
 
 @injectable()

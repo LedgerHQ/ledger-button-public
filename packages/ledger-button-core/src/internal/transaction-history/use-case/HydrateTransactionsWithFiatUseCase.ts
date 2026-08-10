@@ -3,9 +3,9 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import type { Either } from "purify-ts";
 
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
 import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import type {
   TransactionHistoryItem,

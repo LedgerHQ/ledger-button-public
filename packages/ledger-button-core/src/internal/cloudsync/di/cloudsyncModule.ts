@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultCloudSyncService } from "./service/DefaultCloudSyncService.js";
+import { DefaultCloudSyncService } from "../service/DefaultCloudSyncService.js";
 import { cloudSyncModuleTypes } from "./cloudSyncModuleTypes.js";
 
 type CloudsyncOptions = {

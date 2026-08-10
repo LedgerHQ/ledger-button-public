@@ -6,11 +6,11 @@ import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFaca
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
 import type { Account } from "../../../internal/account/service/AccountService.js";
-import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
 import type { ContextService } from "../../../internal/context/ContextService.js";
+import { contextModuleTypes } from "../../../internal/context/di/contextModuleTypes.js";
 import type { DAppConfig } from "../../../internal/dAppConfig/model/dAppConfigTypes.js";
 import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";
-import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../../internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
 import { SolanaBlockchainProvider } from "../../../internal/solana-provider/SolanaBlockchainProvider.js";
 import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";

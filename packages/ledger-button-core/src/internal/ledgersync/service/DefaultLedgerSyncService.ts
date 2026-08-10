@@ -36,15 +36,15 @@ import type {
   UserInteractionNeeded,
   UserInteractionNeededResponse,
 } from "../../../api/model/UserInteractionNeeded.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { configModuleTypes } from "../../config/di/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
-import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
+import { cryptographicModuleTypes } from "../../cryptographic/di/cryptographicModuleTypes.js";
 import { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
+import { deviceModuleTypes } from "../../device/di/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import { storageModuleTypes } from "../../storage/di/storageModuleTypes.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
 import { InternalAuthContext } from "../model/InternalAuthContext.js";

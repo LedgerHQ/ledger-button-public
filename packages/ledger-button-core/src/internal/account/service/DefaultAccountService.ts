@@ -2,13 +2,13 @@ import { type Factory, inject, injectable } from "inversify";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
-import { dAppConfigModuleTypes } from "../../dAppConfig/dAppConfigModuleTypes.js";
+import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type GetDAppConfigUseCase } from "../../dAppConfig/use-case/GetDAppConfigUseCase.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
+import { storageModuleTypes } from "../../storage/di/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
+import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase.js";
 import {
   type Account,

@@ -1,14 +1,14 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { Account } from "../../account/service/AccountService.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
+import { configModuleTypes } from "../../config/di/configModuleTypes.js";
 import { type Config } from "../../config/model/config.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";
+import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
 import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { eventTrackingModuleTypes } from "../eventTrackingModuleTypes.js";
+import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes.js";
 import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";
 
