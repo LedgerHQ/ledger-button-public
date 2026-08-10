@@ -1,4 +1,4 @@
-import { getBase58Decoder } from "@solana/kit";
+import { getBase58Decoder, getBase64Decoder } from "@solana/kit";
 import type { WalletAccount } from "@wallet-standard/base";
 import { of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -131,6 +131,7 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(accounts[0].features).toEqual([
         "solana:signMessage",
         "solana:signTransaction",
+        "solana:signAndSendTransaction",
       ]);
       expect(wallet.accounts).toBe(accounts);
     });
@@ -435,6 +436,173 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(host.emitNavigationIntent).toHaveBeenCalledWith(
         expect.objectContaining({ name: "signTransaction" }),
       );
+    });
+  });
+
+  describe("signAndSendTransaction", () => {
+    const transaction = new Uint8Array([1, 2, 3, 4]);
+    const solanaSignature = new Uint8Array(64).fill(7);
+    // attachSolanaSignature is mocked to return this reassembled wire tx.
+    const signedWireTx = new Uint8Array([9, 9, 9]);
+    const signedWireTxBase64 = getBase64Decoder().decode(signedWireTx);
+    const broadcastSignature = new Uint8Array(64).fill(3);
+    const broadcastSignatureBase58 =
+      getBase58Decoder().decode(broadcastSignature);
+
+    const successStatus: SignFlowStatus = {
+      signType: "transaction",
+      status: "success",
+      data: { solanaSignature },
+    };
+
+    const broadcastRequest = (options?: Record<string, unknown>) => ({
+      jsonrpc: "2.0",
+      id: 0,
+      method: "sendTransaction",
+      params: [signedWireTxBase64, { encoding: "base64", ...options }],
+    });
+
+    it("signs then broadcasts the wire transaction via core.broadcastRPC and returns the signature", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const [result] = await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(broadcastRequest(), {
+        name: "solana",
+        chainId: "mainnet",
+      });
+      expect(result.signature).toEqual(broadcastSignature);
+    });
+
+    it("forwards the send options to the sendTransaction envelope", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const options = { skipPreflight: true, maxRetries: 2 };
+      await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+        options,
+      });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        broadcastRequest(options),
+        { name: "solana", chainId: "mainnet" },
+      );
+    });
+
+    it("decodes a coin-service broadcast response", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        transactionIdentifier: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const [result] = await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(result.signature).toEqual(broadcastSignature);
+    });
+
+    it("tracks a broadcasted success status carrying the base58 hash", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
+        {
+          signType: "transaction",
+          status: "success",
+          data: {
+            hash: broadcastSignatureBase58,
+            signature: broadcastSignature,
+          },
+        },
+        {
+          kind: "solana-transaction",
+          address: SOLANA_ADDRESS,
+          transaction,
+        },
+      );
+    });
+
+    it("surfaces a broadcast failure as an error status without settling the promise", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        error: { code: -32002, message: "Transaction simulation failed" },
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      // The promise only settles on a mapped success or a modal close; a
+      // broadcast failure just surfaces in the modal, so start the flow without
+      // awaiting its (never-settling) resolution and let the error be tracked.
+      let settled = false;
+      void wallet.features["solana:signAndSendTransaction"]
+        .signAndSendTransaction({
+          account: {} as never,
+          transaction,
+        })
+        .then(
+          () => (settled = true),
+          () => (settled = true),
+        );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(settled).toBe(false);
+      const [trackedStatus, trackedParams] =
+        host.trackBroadcastedTransaction.mock.calls[0] ?? [];
+      expect(trackedStatus).toMatchObject({
+        signType: "transaction",
+        status: "error",
+      });
+      expect((trackedStatus?.error as Error).message).toBe(
+        "Solana broadcast failed: Transaction simulation failed",
+      );
+      expect(trackedParams).toEqual({
+        kind: "solana-transaction",
+        address: SOLANA_ADDRESS,
+        transaction,
+      });
     });
   });
 });
