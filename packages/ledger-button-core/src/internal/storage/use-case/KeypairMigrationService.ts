@@ -4,14 +4,14 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { type Factory, inject, injectable } from "inversify";
 
-import { cryptographicModuleTypes } from "../../../cryptographic/di/cryptographicModuleTypes.js";
-import type { EncryptKeyPairUseCase } from "../../../cryptographic/usecases/EncryptKeyPairUseCase.js";
-import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
-import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
-import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../di/storageModuleTypes.js";
-import type { StorageService } from "../../StorageService.js";
+import { cryptographicModuleTypes } from "../../cryptographic/di/cryptographicModuleTypes.js";
+import type { EncryptKeyPairUseCase } from "../../cryptographic/use-case/EncryptKeyPairUseCase.js";
+import type { GetEncryptionKeyUseCase } from "../../cryptographic/use-case/GetEncryptionKey.js";
+import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
+import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { storageModuleTypes } from "../di/storageModuleTypes.js";
+import type { StorageService } from "../StorageService.js";
 
 @injectable()
 export class KeyPairMigrationService {

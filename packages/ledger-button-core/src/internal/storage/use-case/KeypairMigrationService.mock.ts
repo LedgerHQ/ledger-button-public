@@ -3,11 +3,11 @@ import type { Factory } from "inversify";
 import { Right } from "purify-ts";
 import { vi } from "vitest";
 
-import type { EncryptKeyPairUseCase } from "../../../cryptographic/usecases/EncryptKeyPairUseCase.js";
-import type { GetEncryptionKeyUseCase } from "../../../cryptographic/usecases/GetEncryptionKey.js";
-import type { GetOrCreateKeyPairUseCase } from "../../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import type { StorageService } from "../../StorageService.js";
+import type { EncryptKeyPairUseCase } from "../../cryptographic/use-case/EncryptKeyPairUseCase.js";
+import type { GetEncryptionKeyUseCase } from "../../cryptographic/use-case/GetEncryptionKey.js";
+import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { StorageService } from "../StorageService.js";
 import { KeyPairMigrationService } from "./KeypairMigrationService.js";
 
 export const mockKeyPairBuffer = new Uint8Array([1, 2, 3, 4, 5]);

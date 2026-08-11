@@ -19,7 +19,7 @@ import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
 import type { AuthContext } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
 import type { UserInteractionNeededResponse } from "../../../api/model/UserInteractionNeeded.js";
 import type { Config } from "../../config/model/config.js";
-import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
+import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import type { StorageService } from "../../storage/StorageService.js";
 import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
