@@ -3,6 +3,20 @@ name: "[CI] Publish Test Extension"
 on:
   push:
     branches: [develop, "release/*"]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build the test-extension from"
+        required: true
+        type: string
+      tag:
+        description: "Release tag"
+        required: true
+        type: string
+      title:
+        description: "Release title"
+        required: true
+        type: string
 
 env:
   FORCE_COLOR: "1"
@@ -13,10 +27,13 @@ jobs:
     permissions:
       contents: write
     env:
-      RELEASE_TAG: ${{ github.ref_name == 'develop' && 'develop-latest' || format('{0}-latest', github.ref_name) }}
-      RELEASE_TITLE: ${{ github.ref_name == 'develop' && 'Test Extension (develop)' || format('Test Extension ({0})', github.ref_name) }}
+      RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.ref_name }}
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || (github.ref_name == 'develop' && 'develop-latest' || format('{0}-latest', github.ref_name)) }}
+      RELEASE_TITLE: ${{ github.event_name == 'workflow_dispatch' && inputs.title || (github.ref_name == 'develop' && 'Test Extension (develop)' || format('Test Extension ({0})', github.ref_name)) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_REF }}
       - uses: ./.github/actions/setup-action-composite
 
       - name: Build extension zip
@@ -32,7 +49,7 @@ jobs:
           gh release create "${{ env.RELEASE_TAG }}" \
             apps/test-extension/test-extension.zip \
             --title "${{ env.RELEASE_TITLE }}" \
-            --notes "Latest test extension build from ${{ github.ref_name }} branch.
+            --notes "Latest test extension build from ${{ env.RELEASE_REF }} branch.
 
           **Commit:** ${{ github.sha }}
           **Updated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" \
