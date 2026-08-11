@@ -7,7 +7,7 @@ import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { getDefaultDecimals } from "@internal/currency/currencyUtils.js";
+import { UNRESOLVED_DECIMALS } from "@internal/currency/currencyUtils.js";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 
@@ -173,11 +173,18 @@ export class FetchTransactionHistoryUseCase {
     });
   }
 
+  /**
+   * CAL metadata has already been consulted by the callers of this helper, so
+   * the remaining fallback is the native decimals of the owning provider.
+   */
   private resolveDecimals(currencyId: string): number {
-    return getDefaultDecimals(currencyId, (id) =>
-      this.blockchainProviderManager
-        .getNativeDecimals(id)
-        .mapOrDefault((decimals) => decimals, undefined),
-    );
+    return this.blockchainProviderManager
+      .getNativeDecimals(currencyId)
+      .orDefaultLazy(() => {
+        this.logger.warn("Unresolved decimals, reporting raw amounts", {
+          currencyId,
+        });
+        return UNRESOLVED_DECIMALS;
+      });
   }
 }

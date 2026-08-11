@@ -163,13 +163,11 @@ export class TransactionConfirmationNotifier {
       sentLeg.value,
       sentLeg.asset.decimals,
       sentLeg.asset.ticker,
-      sentLeg.asset.ledgerId,
     );
     const receivedFormatted = formatBalance(
       receivedLeg.value,
       receivedLeg.asset.decimals,
       receivedLeg.asset.ticker,
-      receivedLeg.asset.ledgerId,
     );
     this.notifications.push({
       variant: "success",
@@ -207,7 +205,6 @@ export class TransactionConfirmationNotifier {
       tx.value,
       tx.asset.decimals,
       tx.asset.ticker,
-      tx.asset.ledgerId,
     );
 
     const title =

@@ -12,6 +12,8 @@ import { getSignParamsFamily } from "@api/model/signing/signParamsFamily.js";
 import { isSignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
 import { type CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { type ContextService } from "@internal/context/ContextService.js";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
 import { formatBalance } from "@internal/currency/currencyUtils.js";
@@ -34,6 +36,8 @@ export class TrackBroadcastedTransactionUseCase {
     private readonly contextService: ContextService,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
@@ -89,9 +93,9 @@ export class TrackBroadcastedTransactionUseCase {
       type: "sent",
       value: rawValue,
       formattedValue:
-        rawValue === undefined
+        rawValue === undefined || decimals === undefined
           ? undefined
-          : formatBalance(rawValue, decimals, ticker, account.currencyId),
+          : formatBalance(rawValue, decimals, ticker),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,
@@ -119,7 +123,7 @@ export class TrackBroadcastedTransactionUseCase {
       Left: () => ({
         ticker: currencyId.toUpperCase(),
         name: currencyId,
-        decimals: undefined,
+        decimals: this.nativeDecimals(currencyId),
       }),
       Right: (info) => ({
         ticker: info.ticker,
@@ -128,5 +132,19 @@ export class TrackBroadcastedTransactionUseCase {
         transactionExplorerUrlTemplate: info.transactionExplorerUrlTemplate,
       }),
     });
+  }
+
+  /** Last-resort decimals when CAL has no metadata for the currency. */
+  private nativeDecimals(currencyId: string): number | undefined {
+    const decimals =
+      this.blockchainProviderManager.getNativeDecimals(currencyId);
+
+    if (decimals.isNothing()) {
+      this.logger.warn("Unresolved decimals, reporting no formatted amount", {
+        currencyId,
+      });
+    }
+
+    return decimals.extract();
   }
 }

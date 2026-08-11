@@ -101,15 +101,9 @@ export class LedgerHomeController implements ReactiveController {
       tx.value,
       tx.asset.decimals,
       tx.asset.ticker,
-      tx.asset.ledgerId,
     );
     const formattedFee = tx.fee
-      ? formatBalance(
-          tx.fee.amount,
-          tx.fee.asset.decimals,
-          tx.fee.asset.ticker,
-          tx.fee.asset.ledgerId,
-        )
+      ? formatBalance(tx.fee.amount, tx.fee.asset.decimals, tx.fee.asset.ticker)
       : undefined;
     const isFeesRow = tx.kind === "fees" && !!formattedFee;
     const fiatAmount = (isFeesRow ? tx.fee?.fiatAmount : tx.fiatValue) ?? "";
