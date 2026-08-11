@@ -10,7 +10,12 @@ import { solanaProviderModule } from "./di/solanaProviderModule.js";
 import { solanaProviderModuleTypes } from "./di/solanaProviderModuleTypes.js";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
-import { isSupportedSolanaCurrency } from "./utils/clusterUtils.js";
+import {
+  isSupportedSolanaCurrency,
+  resolveSolanaCurrencyId,
+  resolveSolanaNetwork,
+  SOLANA_NATIVE_DECIMALS,
+} from "./utils/clusterUtils.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
@@ -66,5 +71,17 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
 
   isSupportedCurrency(currencyId: string): boolean {
     return isSupportedSolanaCurrency(currencyId);
+  }
+
+  getNativeDecimals(_currencyId: string): number {
+    return SOLANA_NATIVE_DECIMALS;
+  }
+
+  resolveNetwork(currencyId: string) {
+    return resolveSolanaNetwork(currencyId);
+  }
+
+  resolveCurrencyId(networkId: string) {
+    return resolveSolanaCurrencyId(networkId);
   }
 }

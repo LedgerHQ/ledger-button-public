@@ -152,4 +152,25 @@ describe("EvmBlockchainProvider", () => {
       expect(inner.setNetwork).toHaveBeenCalledWith(137);
     });
   });
+
+  describe("currency capability", () => {
+    test("isSupportedCurrency returns true for ethereum", () => {
+      expect(provider.isSupportedCurrency("ethereum")).toBe(true);
+    });
+
+    test("getNativeDecimals returns 18", () => {
+      expect(provider.getNativeDecimals("ethereum")).toBe(18);
+    });
+
+    test("resolveNetwork maps ethereum to chain 1", () => {
+      expect(provider.resolveNetwork("ethereum")).toEqual({
+        networkId: "1",
+        blockchainName: "ethereum",
+      });
+    });
+
+    test("resolveCurrencyId maps 137 to polygon", () => {
+      expect(provider.resolveCurrencyId("137")).toBe("polygon");
+    });
+  });
 });

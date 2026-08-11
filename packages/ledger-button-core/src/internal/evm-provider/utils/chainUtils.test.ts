@@ -1,6 +1,8 @@
 import {
   getChainIdFromCurrencyId,
   isSupportedEvmCurrency,
+  resolveEvmCurrencyId,
+  resolveEvmNetwork,
 } from "./chainUtils.js";
 
 describe("chainUtils", () => {
@@ -65,6 +67,29 @@ describe("chainUtils", () => {
       { currencyId: "eth@reum", description: "special characters" },
     ])("should return false for $description", ({ currencyId }) => {
       expect(isSupportedEvmCurrency(currencyId)).toBe(false);
+    });
+  });
+
+  describe("resolveEvmNetwork", () => {
+    it("returns network ref for supported currencies", () => {
+      expect(resolveEvmNetwork("polygon")).toEqual({
+        networkId: "137",
+        blockchainName: "ethereum",
+      });
+    });
+
+    it("returns undefined for unsupported currencies", () => {
+      expect(resolveEvmNetwork("solana")).toBeUndefined();
+    });
+  });
+
+  describe("resolveEvmCurrencyId", () => {
+    it("returns currency id for known chain ids", () => {
+      expect(resolveEvmCurrencyId("1")).toBe("ethereum");
+    });
+
+    it("returns undefined for unknown chain ids", () => {
+      expect(resolveEvmCurrencyId("99999")).toBeUndefined();
     });
   });
 });

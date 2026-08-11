@@ -12,7 +12,12 @@ import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageU
 import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import type { SignTransaction } from "./use-case/SignTransaction.js";
 import type { SignTypedData } from "./use-case/SignTypedData.js";
-import { isSupportedEvmCurrency } from "./utils/chainUtils.js";
+import {
+  EVM_NATIVE_DECIMALS,
+  isSupportedEvmCurrency,
+  resolveEvmCurrencyId,
+  resolveEvmNetwork,
+} from "./utils/chainUtils.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
 
@@ -78,5 +83,17 @@ export class EvmBlockchainProvider implements BlockchainProvider {
 
   isSupportedCurrency(currencyId: string): boolean {
     return isSupportedEvmCurrency(currencyId);
+  }
+
+  getNativeDecimals(_currencyId: string): number {
+    return EVM_NATIVE_DECIMALS;
+  }
+
+  resolveNetwork(currencyId: string) {
+    return resolveEvmNetwork(currencyId);
+  }
+
+  resolveCurrencyId(networkId: string) {
+    return resolveEvmCurrencyId(networkId);
   }
 }

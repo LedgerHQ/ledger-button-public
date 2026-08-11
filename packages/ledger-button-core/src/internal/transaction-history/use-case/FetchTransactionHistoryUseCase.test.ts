@@ -1,7 +1,8 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 
 import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
@@ -33,6 +34,18 @@ function createMockDataSource(): {
 } {
   return {
     getTransactions: vi.fn(),
+  };
+}
+
+function createMockBlockchainProviderManager(): BlockchainProviderManager {
+  return {
+    init: vi.fn(),
+    setSelectedAccounts: vi.fn(),
+    setNetwork: vi.fn(),
+    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
+    resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
+    getNativeDecimals: vi.fn().mockReturnValue(Maybe.empty()),
   };
 }
 
@@ -101,6 +114,7 @@ describe("FetchTransactionHistoryUseCase", () => {
       createMockLoggerFactory(),
       mockDataSource as unknown as TransactionHistoryDataSource,
       mockCalDataSource as unknown as CalDataSource,
+      createMockBlockchainProviderManager(),
     );
 
     vi.clearAllMocks();

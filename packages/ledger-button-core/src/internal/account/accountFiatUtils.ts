@@ -1,3 +1,4 @@
+import type { CurrencyNetworkRef } from "@api/blockchain-provider/model/CurrencyNetworkRef.js";
 import type {
   Account,
   AccountWithFiat,
@@ -6,9 +7,12 @@ import type {
   Network,
 } from "@api/model/Account.js";
 
-import { EVM_MAPPING_TABLE } from "../evm-provider/utils/chainUtils.js";
-
-export function computeNetworks(account: AccountWithFiat): Network[] {
+export function computeNetworks(
+  account: AccountWithFiat,
+  resolveNetwork: (
+    currencyId: string,
+  ) => CurrencyNetworkRef | undefined,
+): Network[] {
   const currency = account.fiatBalance?.currency ?? "USD";
   const nativeFiat = account.fiatBalance?.value
     ? parseFloat(account.fiatBalance.value)
@@ -30,16 +34,15 @@ export function computeNetworks(account: AccountWithFiat): Network[] {
   const networkFiatMap = allEntries.reduce<
     Map<string, { name: string; totalFiat: number }>
   >((acc, [currencyId, fiatValue]) => {
-    const chainId = EVM_MAPPING_TABLE[currencyId];
+    const network = resolveNetwork(currencyId);
 
-    if (chainId === undefined) {
+    if (!network) {
       return acc;
     }
 
-    const chainIdStr = String(chainId);
-    const existing = acc.get(chainIdStr);
+    const existing = acc.get(network.networkId);
 
-    return acc.set(chainIdStr, {
+    return acc.set(network.networkId, {
       name: currencyId,
       totalFiat: (existing?.totalFiat ?? 0) + fiatValue,
     });

@@ -1,11 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { Account } from "@api/model/Account.js";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
 import { type Config } from "@internal/config/model/config.js";
 import { type ContextService } from "@internal/context/ContextService.js";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import { getChainIdFromCurrencyId } from "@internal/evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 
@@ -25,6 +26,8 @@ export class TrackOnboarding {
     private readonly config: Config,
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
     this.logger = loggerFactory("TrackOnboarding UseCase");
   }
@@ -34,7 +37,10 @@ export class TrackOnboarding {
     const trustChainId = this.contextService.getContext().trustChainId;
 
     const { currencyId } = selectedAccount;
-    const chainId = getChainIdFromCurrencyId(currencyId).toString();
+    const chainId = this.blockchainProviderManager
+      .resolveNetwork(currencyId)
+      .map((network) => network.networkId)
+      .orDefault("1");
 
     const event = EventTrackingUtils.createOnboardingEvent({
       dAppId: this.config.dAppIdentifier,
