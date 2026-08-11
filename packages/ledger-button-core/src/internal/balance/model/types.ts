@@ -45,6 +45,6 @@ export class TokenBalance {
   }
 
   get balanceFormatted(): string {
-    return formatBalance(this.balance, this.decimals, this.ticker, this.ledgerId);
+    return formatBalance(this.balance, this.decimals, this.ticker);
   }
 }

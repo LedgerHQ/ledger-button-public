@@ -3,7 +3,6 @@ import { type Factory, inject, injectable } from "inversify";
 import type { Account, Token } from "@api/model/Account.js";
 import type { BackendService } from "@internal/backend/BackendService.js";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
 import {
   type AccountBalance,
@@ -12,7 +11,12 @@ import {
 import type { BalanceService } from "@internal/balance/service/BalanceService.js";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { formatBalance } from "@internal/currency/currencyUtils.js";
+import {
+  formatBalance,
+  UNRESOLVED_DECIMALS,
+} from "@internal/currency/currencyUtils.js";
+import { currencyModuleTypes } from "@internal/currency/di/currencyModuleTypes.js";
+import type { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase.js";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 
@@ -27,8 +31,8 @@ export class HydrateAccountWithBalanceUseCase {
     private readonly balanceService: BalanceService,
     @inject(backendModuleTypes.BackendService)
     private readonly backendService: BackendService,
-    @inject(balanceModuleTypes.CalDataSource)
-    private readonly calDataSource: CalDataSource,
+    @inject(currencyModuleTypes.ResolveCurrencyDecimalsUseCase)
+    private readonly resolveCurrencyDecimals: ResolveCurrencyDecimalsUseCase,
     @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
     private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
@@ -63,14 +67,11 @@ export class HydrateAccountWithBalanceUseCase {
     account: Account,
     balanceData: AccountBalance,
   ): Promise<Account> {
-    const decimals = await this.resolveNativeDecimals(account);
+    const decimals = await this.resolveDecimals(account.currencyId);
     const balance = formatBalance(
       balanceData.nativeBalance.balance,
       decimals,
       account.ticker,
-      account.currencyId,
-      {},
-      this.nativeDecimalsResolver,
     );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
 
@@ -101,7 +102,7 @@ export class HydrateAccountWithBalanceUseCase {
   }
 
   private async fetchBalanceFromRpc(account: Account): Promise<string> {
-    const decimals = await this.resolveNativeDecimals(account);
+    const decimals = await this.resolveDecimals(account.currencyId);
     const network = this.blockchainProviderManager.resolveNetwork(
       account.currencyId,
     );
@@ -123,56 +124,23 @@ export class HydrateAccountWithBalanceUseCase {
       const extract = balanceRpcResult.extract();
       if ("result" in extract) {
         const balanceHex = extract.result as string;
-        return formatBalance(
-          balanceHex,
-          decimals,
-          account.ticker,
-          account.currencyId,
-          {},
-          this.nativeDecimalsResolver,
-        );
+        return formatBalance(balanceHex, decimals, account.ticker);
       }
     }
 
-    return formatBalance(
-      BigInt(0),
-      decimals,
-      account.ticker,
-      account.currencyId,
-      {},
-      this.nativeDecimalsResolver,
-    );
+    return formatBalance(BigInt(0), decimals, account.ticker);
   }
 
-  private async resolveNativeDecimals(
-    account: Account,
-  ): Promise<number | undefined> {
-    const currencyInformationResult =
-      await this.calDataSource.getCurrencyInformation(account.currencyId);
+  private async resolveDecimals(currencyId: string): Promise<number> {
+    const decimals = await this.resolveCurrencyDecimals.execute(currencyId);
 
-    if (currencyInformationResult.isRight()) {
-      return currencyInformationResult.extract().decimals;
-    }
-
-    this.logger.warn(
-      "Failed to resolve native decimals from CAL, falling back per-chain",
-      {
-        currencyId: account.currencyId,
-        error: currencyInformationResult.extract(),
-      },
-    );
-
-    return this.blockchainProviderManager
-      .getNativeDecimals(account.currencyId)
-      .mapOrDefault((decimals) => decimals, undefined);
+    return decimals.orDefaultLazy(() => {
+      this.logger.warn("Unresolved decimals, formatting raw balance", {
+        currencyId,
+      });
+      return UNRESOLVED_DECIMALS;
+    });
   }
-
-  private readonly nativeDecimalsResolver = (
-    currencyId: string,
-  ): number | undefined =>
-    this.blockchainProviderManager
-      .getNativeDecimals(currencyId)
-      .mapOrDefault((decimals) => decimals, undefined);
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {
     return tokenBalances.map((tokenBalance) => ({

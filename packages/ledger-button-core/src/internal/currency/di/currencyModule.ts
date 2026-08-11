@@ -4,6 +4,7 @@ import { DefaultFiatCurrencyDataSource } from "../datasource/DefaultFiatCurrency
 import { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource.js";
 import { CurrencyService } from "../service/CurrencyService.js";
 import { DefaultCurrencyService } from "../service/DefaultCurrencyService.js";
+import { ResolveCurrencyDecimalsUseCase } from "../use-case/ResolveCurrencyDecimalsUseCase.js";
 import { currencyModuleTypes } from "./currencyModuleTypes.js";
 
 export function currencyModuleFactory() {
@@ -14,6 +15,12 @@ export function currencyModuleFactory() {
 
     bind<CurrencyService>(currencyModuleTypes.CurrencyService)
       .to(DefaultCurrencyService)
+      .inSingletonScope();
+
+    bind<ResolveCurrencyDecimalsUseCase>(
+      currencyModuleTypes.ResolveCurrencyDecimalsUseCase,
+    )
+      .to(ResolveCurrencyDecimalsUseCase)
       .inSingletonScope();
   });
 }

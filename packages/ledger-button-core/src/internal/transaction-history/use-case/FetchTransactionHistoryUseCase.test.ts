@@ -45,7 +45,11 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
     resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
     resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
     resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
-    getNativeDecimals: vi.fn().mockReturnValue(Maybe.empty()),
+    getNativeDecimals: vi
+      .fn()
+      .mockImplementation((currencyId: string) =>
+        currencyId === "ethereum" ? Maybe.of(18) : Maybe.empty(),
+      ),
   };
 }
 

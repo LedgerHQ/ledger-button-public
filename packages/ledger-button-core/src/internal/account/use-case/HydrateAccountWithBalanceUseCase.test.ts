@@ -8,6 +8,7 @@ import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTy
 import type { AccountBalance, TokenBalance } from "@internal/balance/model/types.js";
 import type { BalanceService } from "@internal/balance/service/BalanceService.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase.js";
 
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
@@ -141,7 +142,11 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       createMockLoggerFactory(),
       mockBalanceService as unknown as BalanceService,
       mockBackendService as unknown as BackendService,
-      mockCalDataSource as unknown as CalDataSource,
+      new ResolveCurrencyDecimalsUseCase(
+        mockCalDataSource as unknown as CalDataSource,
+        mockBlockchainProviderManager,
+        createMockLoggerFactory(),
+      ),
       mockBlockchainProviderManager,
     );
   });
@@ -432,6 +437,26 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       // resolveNativeDecimals falls back to manager.getNativeDecimals (18)
       expect(result.balance).toBe("1.5");
+    });
+
+    it("should report the raw balance when neither CAL nor a provider resolves decimals", async () => {
+      const mockAccount = createMockAccount({
+        currencyId: "unsupported_chain",
+        ticker: "XYZ",
+      });
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Left(new Error("CAL unavailable")),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Right({
+          nativeBalance: { balance: BigInt("1500000000") },
+          tokenBalances: [],
+        } as AccountBalance),
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1,500,000,000");
     });
 
     it("should resolve decimals from CAL on the RPC fallback path", async () => {

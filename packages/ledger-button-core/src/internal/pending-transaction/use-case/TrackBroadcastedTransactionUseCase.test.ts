@@ -1,10 +1,11 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
 import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
 import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { ContextService } from "@internal/context/ContextService.js";
 
 import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
@@ -71,6 +72,26 @@ function createMockCalDataSource() {
   };
 }
 
+function createMockBlockchainProviderManager(): BlockchainProviderManager {
+  return {
+    init: vi.fn(),
+    setSelectedAccounts: vi.fn(),
+    setNetwork: vi.fn(),
+    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
+    resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
+    getNativeDecimals: vi.fn().mockImplementation((currencyId: string) => {
+      if (currencyId === "solana") {
+        return Maybe.of(9);
+      }
+      if (currencyId === "ethereum") {
+        return Maybe.of(18);
+      }
+      return Maybe.empty();
+    }),
+  };
+}
+
 const successBroadcastStatus: SignFlowStatus = {
   signType: "transaction",
   status: "success",
@@ -97,16 +118,19 @@ describe("TrackBroadcastedTransactionUseCase", () => {
   let mockController: PendingTransactionController;
   let mockContextService: ReturnType<typeof createMockContextService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   beforeEach(() => {
     mockController = createMockController();
     mockContextService = createMockContextService();
     mockCalDataSource = createMockCalDataSource();
+    mockBlockchainProviderManager = createMockBlockchainProviderManager();
 
     useCase = new TrackBroadcastedTransactionUseCase(
       mockController,
       mockContextService as unknown as ContextService,
       mockCalDataSource,
+      mockBlockchainProviderManager,
       createMockLoggerFactory(),
     );
   });
@@ -222,17 +246,34 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     );
   });
 
-  it("should format EVM value using default decimals when CAL fails", async () => {
+  it("should format EVM value using provider native decimals when CAL fails", async () => {
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Left(new Error("CAL unavailable")),
     );
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    // signTransactionParams.transaction.value = "1000000000000000000" (1 ETH)
-    // CAL fails → decimals undefined → formatBalance falls back to EVM_NATIVE_DECIMALS (18)
+    // 1000000000000000000 scaled by the EVM provider's 18 decimals
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ formattedValue: "1" }),
+    );
+  });
+
+  it("should leave the formatted value unset when no source resolves decimals", async () => {
+    mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+      Left(new Error("CAL unavailable")),
+    );
+    vi.mocked(mockBlockchainProviderManager.getNativeDecimals).mockReturnValue(
+      Maybe.empty(),
+    );
+
+    await useCase.execute(successBroadcastStatus, signTransactionParams);
+
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        value: "1000000000000000000",
+        formattedValue: undefined,
+      }),
     );
   });
 
