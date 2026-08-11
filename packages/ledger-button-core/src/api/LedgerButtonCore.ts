@@ -38,8 +38,8 @@ import type { BlockchainProviderManager } from "../internal/blockchain-provider/
 import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
 import { configModuleTypes } from "../internal/config/di/configModuleTypes.js";
 import { Config } from "../internal/config/model/config.js";
-import { type ConsentService } from "../internal/consent/ConsentService.js";
 import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes.js";
+import { type ConsentService } from "../internal/consent/service/ConsentService.js";
 import { ContextService } from "../internal/context/ContextService.js";
 import { contextModuleTypes } from "../internal/context/di/contextModuleTypes.js";
 import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
@@ -60,19 +60,19 @@ import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
 import { createContainer } from "../internal/di.js";
 import { type ContainerOptions } from "../internal/diTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes.js";
-import { TrackCurrencyChanged } from "../internal/event-tracking/usecase/TrackCurrencyChanged.js";
-import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
-import { TrackLanguageChanged } from "../internal/event-tracking/usecase/TrackLanguageChanged.js";
-import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
-import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
-import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
-import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged.js";
+import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick.js";
+import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged.js";
+import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated.js";
+import { TrackLedgerSyncOpened } from "../internal/event-tracking/use-case/TrackLedgerSyncOpened.js";
+import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWallet.js";
+import { TrackOnboarding } from "../internal/event-tracking/use-case/TrackOnboarding.js";
 import {
   TrackViewAllTransactions,
   type TrackViewAllTransactionsParams,
-} from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
-import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
-import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
+} from "../internal/event-tracking/use-case/TrackViewAllTransactions.js";
+import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClick.js";
+import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction.js";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes.js";
 import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
 import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes.js";
@@ -92,7 +92,7 @@ import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupp
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes.js";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags.js";
 import { type StorageService } from "../internal/storage/StorageService.js";
-import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
+import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase.js";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {

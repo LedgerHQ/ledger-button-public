@@ -39,7 +39,7 @@ import type {
 import { configModuleTypes } from "../../config/di/configModuleTypes.js";
 import { Config } from "../../config/model/config.js";
 import { cryptographicModuleTypes } from "../../cryptographic/di/cryptographicModuleTypes.js";
-import { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
+import { GetOrCreateKeyPairUseCase } from "../../cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
 import { deviceModuleTypes } from "../../device/di/deviceModuleTypes.js";
 import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
 import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";

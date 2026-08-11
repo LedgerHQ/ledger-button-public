@@ -1,7 +1,7 @@
 import { Nothing, Right } from "purify-ts";
 import { vi } from "vitest";
 
-import type { StorageService } from "../../StorageService.js";
+import type { StorageService } from "../StorageService.js";
 import type { KeyPairMigrationService } from "./KeypairMigrationService.js";
 import { MigrateDbUseCase } from "./MigrateDbUseCase.js";
 
