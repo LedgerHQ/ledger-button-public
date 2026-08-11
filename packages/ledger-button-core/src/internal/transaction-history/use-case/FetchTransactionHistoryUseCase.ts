@@ -5,6 +5,8 @@ import { Either, Left, Right } from "purify-ts";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
 import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes.js";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { getDefaultDecimals } from "@internal/currency/currencyUtils.js";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
@@ -34,6 +36,8 @@ export class FetchTransactionHistoryUseCase {
     private readonly dataSource: TransactionHistoryDataSource,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
     this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
@@ -65,7 +69,7 @@ export class FetchTransactionHistoryUseCase {
             ledgerId: currencyId,
             name: currencyId,
             ticker: currencyId.toUpperCase(),
-            decimals: getDefaultDecimals(currencyId),
+            decimals: this.resolveDecimals(currencyId),
           }),
           Right: (info) => ({
             ledgerId: info.id,
@@ -157,7 +161,7 @@ export class FetchTransactionHistoryUseCase {
           ledgerId: `${currencyId}/erc20/unknown`,
           name: undefined,
           ticker: "???",
-          decimals: getDefaultDecimals(currencyId),
+          decimals: this.resolveDecimals(currencyId),
         };
       },
       Right: (info: TokenInformation) => ({
@@ -167,5 +171,13 @@ export class FetchTransactionHistoryUseCase {
         decimals: info.decimals,
       }),
     });
+  }
+
+  private resolveDecimals(currencyId: string): number {
+    return getDefaultDecimals(currencyId, (id) =>
+      this.blockchainProviderManager
+        .getNativeDecimals(id)
+        .mapOrDefault((decimals) => decimals, undefined),
+    );
   }
 }

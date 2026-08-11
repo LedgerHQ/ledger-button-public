@@ -10,8 +10,9 @@ import {
   type TokenBalance,
 } from "@internal/balance/model/types.js";
 import type { BalanceService } from "@internal/balance/service/BalanceService.js";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { formatBalance } from "@internal/currency/currencyUtils.js";
-import { getChainIdFromCurrencyId } from "@internal/evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 
@@ -28,6 +29,8 @@ export class HydrateAccountWithBalanceUseCase {
     private readonly backendService: BackendService,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
     this.logger = loggerFactory("HydrateAccountWithBalanceUseCase");
   }
@@ -66,6 +69,8 @@ export class HydrateAccountWithBalanceUseCase {
       decimals,
       account.ticker,
       account.currencyId,
+      {},
+      this.nativeDecimalsResolver,
     );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
 
@@ -97,9 +102,15 @@ export class HydrateAccountWithBalanceUseCase {
 
   private async fetchBalanceFromRpc(account: Account): Promise<string> {
     const decimals = await this.resolveNativeDecimals(account);
-    const chainId = getChainIdFromCurrencyId(account.currencyId);
+    const network = this.blockchainProviderManager.resolveNetwork(
+      account.currencyId,
+    );
+    const chainId = network.map((ref) => ref.networkId).orDefault("1");
+    const blockchainName = network
+      .map((ref) => ref.blockchainName)
+      .orDefault("ethereum");
     const balanceRpcResult = await this.backendService.broadcast({
-      blockchain: { name: "ethereum", chainId: chainId.toString() },
+      blockchain: { name: blockchainName, chainId },
       rpc: {
         method: "eth_getBalance",
         params: [account.freshAddress, "latest"],
@@ -112,11 +123,25 @@ export class HydrateAccountWithBalanceUseCase {
       const extract = balanceRpcResult.extract();
       if ("result" in extract) {
         const balanceHex = extract.result as string;
-        return formatBalance(balanceHex, decimals, account.ticker, account.currencyId);
+        return formatBalance(
+          balanceHex,
+          decimals,
+          account.ticker,
+          account.currencyId,
+          {},
+          this.nativeDecimalsResolver,
+        );
       }
     }
 
-    return formatBalance(BigInt(0), decimals, account.ticker, account.currencyId);
+    return formatBalance(
+      BigInt(0),
+      decimals,
+      account.ticker,
+      account.currencyId,
+      {},
+      this.nativeDecimalsResolver,
+    );
   }
 
   private async resolveNativeDecimals(
@@ -137,8 +162,17 @@ export class HydrateAccountWithBalanceUseCase {
       },
     );
 
-    return undefined;
+    return this.blockchainProviderManager
+      .getNativeDecimals(account.currencyId)
+      .mapOrDefault((decimals) => decimals, undefined);
   }
+
+  private readonly nativeDecimalsResolver = (
+    currencyId: string,
+  ): number | undefined =>
+    this.blockchainProviderManager
+      .getNativeDecimals(currencyId)
+      .mapOrDefault((decimals) => decimals, undefined);
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {
     return tokenBalances.map((tokenBalance) => ({

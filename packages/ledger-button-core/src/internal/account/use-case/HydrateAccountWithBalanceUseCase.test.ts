@@ -1,4 +1,4 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Account } from "@api/model/Account.js";
@@ -7,6 +7,7 @@ import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSour
 import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
 import type { AccountBalance, TokenBalance } from "@internal/balance/model/types.js";
 import type { BalanceService } from "@internal/balance/service/BalanceService.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
@@ -68,6 +69,40 @@ function createCurrencyInformation(
   };
 }
 
+function createMockBlockchainProviderManager(): BlockchainProviderManager {
+  return {
+    init: vi.fn(),
+    setSelectedAccounts: vi.fn(),
+    setNetwork: vi.fn(),
+    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
+    resolveNetwork: vi.fn().mockImplementation((currencyId: string) => {
+      if (currencyId === "solana") {
+        return Maybe.of({
+          networkId: "mainnet",
+          blockchainName: "solana",
+        });
+      }
+      if (currencyId === "polygon") {
+        return Maybe.of({ networkId: "137", blockchainName: "ethereum" });
+      }
+      if (currencyId === "ethereum") {
+        return Maybe.of({ networkId: "1", blockchainName: "ethereum" });
+      }
+      return Maybe.empty();
+    }),
+    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
+    getNativeDecimals: vi.fn().mockImplementation((currencyId: string) => {
+      if (currencyId === "solana") {
+        return Maybe.of(9);
+      }
+      if (currencyId === "ethereum" || currencyId === "polygon") {
+        return Maybe.of(18);
+      }
+      return Maybe.empty();
+    }),
+  };
+}
+
 function createMockAccount(overrides: Partial<Account> = {}): Account {
   return {
     id: "account-1",
@@ -89,6 +124,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
   let mockBalanceService: ReturnType<typeof createMockBalanceService>;
   let mockBackendService: ReturnType<typeof createMockBackendService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,6 +132,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
     mockBalanceService = createMockBalanceService();
     mockBackendService = createMockBackendService();
     mockCalDataSource = createMockCalDataSource();
+    mockBlockchainProviderManager = createMockBlockchainProviderManager();
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Right(createCurrencyInformation()),
     );
@@ -105,6 +142,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       mockBalanceService as unknown as BalanceService,
       mockBackendService as unknown as BackendService,
       mockCalDataSource as unknown as CalDataSource,
+      mockBlockchainProviderManager,
     );
   });
 
@@ -357,7 +395,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to Solana default decimals via formatBalance when CAL fails", async () => {
+    it("should fall back to Solana default decimals via manager when CAL fails", async () => {
       const mockAccount = createMockAccount({
         currencyId: "solana",
         ticker: "SOL",
@@ -374,12 +412,11 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals returns undefined; formatBalance falls back to
-      // SOLANA_NATIVE_DECIMALS (9) via getDefaultDecimals("solana")
+      // resolveNativeDecimals falls back to manager.getNativeDecimals (9)
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to EVM default decimals via formatBalance when CAL fails", async () => {
+    it("should fall back to EVM default decimals via manager when CAL fails", async () => {
       const mockAccount = createMockAccount();
       mockCalDataSource.getCurrencyInformation.mockResolvedValue(
         Left(new Error("CAL unavailable")),
@@ -393,8 +430,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals returns undefined; formatBalance falls back to
-      // EVM_NATIVE_DECIMALS (18) via getDefaultDecimals("ethereum")
+      // resolveNativeDecimals falls back to manager.getNativeDecimals (18)
       expect(result.balance).toBe("1.5");
     });
 

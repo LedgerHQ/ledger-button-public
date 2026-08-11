@@ -1,9 +1,10 @@
 import { inject, injectable } from "inversify";
 import { type Either, Left, Right } from "purify-ts";
 
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
 import { Config } from "@internal/config/model/config.js";
-import { getChainIdFromCurrencyId } from "@internal/evm-provider/utils/chainUtils.js";
 import { networkModuleTypes } from "@internal/network/di/networkModuleTypes.js";
 import { type NetworkServiceOpts } from "@internal/network/model/types.js";
 import type { NetworkService } from "@internal/network/NetworkService.js";
@@ -34,13 +35,18 @@ export class DefaultCalDataSource implements CalDataSource {
     private readonly networkService: NetworkService<NetworkServiceOpts>,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {}
 
   async getTokenInformation(
     tokenAddress: string,
     currencyId: string,
   ): Promise<Either<Error, TokenInformation>> {
-    const chainId = getChainIdFromCurrencyId(currencyId);
+    const chainId = this.blockchainProviderManager
+      .resolveNetwork(currencyId)
+      .map((network) => network.networkId)
+      .orDefault("1");
 
     const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=id,name,decimals,ticker,network_external_links`;
     const getTokenInformationResult: Either<Error, CalTokenResponse> =

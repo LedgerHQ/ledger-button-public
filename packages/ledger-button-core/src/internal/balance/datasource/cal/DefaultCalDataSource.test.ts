@@ -1,8 +1,8 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import type { Config } from "@internal/config/model/config.js";
-import * as chainUtils from "@internal/evm-provider/utils/chainUtils.js";
 import type { NetworkService } from "@internal/network/NetworkService.js";
 
 import type { CalCoinResponse, CalTokenResponse } from "./calTypes.js";
@@ -12,11 +12,12 @@ describe("DefaultCalDataSource", () => {
   let dataSource: DefaultCalDataSource;
   let mockNetworkService: NetworkService<unknown>;
   let mockConfig: Config;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   const mockCalUrl = "https://api.cal.test";
   const testTokenAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
   const testCurrencyId = "ethereum";
-  const testChainId = 1;
+  const testChainId = "1";
   const explorerTemplate = "https://etherscan.io/tx/${hash}";
 
   beforeEach(() => {
@@ -29,11 +30,23 @@ describe("DefaultCalDataSource", () => {
       getCalUrl: vi.fn().mockReturnValue(mockCalUrl),
     } as unknown as Config;
 
-    vi.spyOn(chainUtils, "getChainIdFromCurrencyId").mockReturnValue(
-      testChainId,
-    );
+    mockBlockchainProviderManager = {
+      init: vi.fn(),
+      setSelectedAccounts: vi.fn(),
+      setNetwork: vi.fn(),
+      resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
+      resolveNetwork: vi.fn().mockReturnValue(
+        Maybe.of({ networkId: testChainId, blockchainName: "ethereum" }),
+      ),
+      resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
+      getNativeDecimals: vi.fn().mockReturnValue(Maybe.empty()),
+    };
 
-    dataSource = new DefaultCalDataSource(mockNetworkService, mockConfig);
+    dataSource = new DefaultCalDataSource(
+      mockNetworkService,
+      mockConfig,
+      mockBlockchainProviderManager,
+    );
   });
 
   describe("getTokenInformation", () => {

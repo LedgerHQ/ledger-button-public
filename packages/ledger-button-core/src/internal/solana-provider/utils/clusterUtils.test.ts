@@ -2,6 +2,8 @@ import {
   getClusterFromCurrencyId,
   getCurrencyIdFromCluster,
   isSupportedSolanaCurrency,
+  resolveSolanaCurrencyId,
+  resolveSolanaNetwork,
 } from "./clusterUtils.js";
 
 describe("clusterUtils", () => {
@@ -39,6 +41,29 @@ describe("clusterUtils", () => {
       { currencyId: "", description: "empty string" },
     ])("should return false for $description", ({ currencyId }) => {
       expect(isSupportedSolanaCurrency(currencyId)).toBe(false);
+    });
+  });
+
+  describe("resolveSolanaNetwork", () => {
+    it("returns network ref for solana", () => {
+      expect(resolveSolanaNetwork("solana")).toEqual({
+        networkId: "mainnet",
+        blockchainName: "solana",
+      });
+    });
+
+    it("returns undefined for unsupported currencies", () => {
+      expect(resolveSolanaNetwork("ethereum")).toBeUndefined();
+    });
+  });
+
+  describe("resolveSolanaCurrencyId", () => {
+    it("returns currency id for mainnet", () => {
+      expect(resolveSolanaCurrencyId("mainnet")).toBe("solana");
+    });
+
+    it("returns undefined for unmapped clusters", () => {
+      expect(resolveSolanaCurrencyId("devnet")).toBeUndefined();
     });
   });
 });

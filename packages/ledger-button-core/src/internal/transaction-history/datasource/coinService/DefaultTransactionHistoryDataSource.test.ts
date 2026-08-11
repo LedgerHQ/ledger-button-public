@@ -97,6 +97,9 @@ describe("DefaultTransactionHistoryDataSource", () => {
       setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
       resolveBlockchainFamily: vi.fn(resolveFamilyForTest),
+      resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+      resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
+      getNativeDecimals: vi.fn().mockReturnValue(Maybe.empty()),
     };
 
     mockLoggerFactory = createMockLoggerFactory();

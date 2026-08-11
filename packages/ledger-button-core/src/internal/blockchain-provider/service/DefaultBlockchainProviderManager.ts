@@ -3,6 +3,7 @@ import { Maybe } from "purify-ts";
 
 import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider.js";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { CurrencyNetworkRef } from "@api/blockchain-provider/model/CurrencyNetworkRef.js";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { Account } from "@api/model/Account.js";
 import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
@@ -91,6 +92,35 @@ export class DefaultBlockchainProviderManager
     for (const provider of this.providers.values()) {
       if (provider.isSupportedCurrency(currencyId)) {
         return Maybe.of(provider.family);
+      }
+    }
+    return Maybe.empty();
+  }
+
+  resolveNetwork(currencyId: string): Maybe<CurrencyNetworkRef> {
+    for (const provider of this.providers.values()) {
+      const network = provider.resolveNetwork(currencyId);
+      if (network) {
+        return Maybe.of(network);
+      }
+    }
+    return Maybe.empty();
+  }
+
+  resolveCurrencyId(networkId: string): Maybe<string> {
+    for (const provider of this.providers.values()) {
+      const currencyId = provider.resolveCurrencyId(networkId);
+      if (currencyId) {
+        return Maybe.of(currencyId);
+      }
+    }
+    return Maybe.empty();
+  }
+
+  getNativeDecimals(currencyId: string): Maybe<number> {
+    for (const provider of this.providers.values()) {
+      if (provider.isSupportedCurrency(currencyId)) {
+        return Maybe.of(provider.getNativeDecimals(currencyId));
       }
     }
     return Maybe.empty();

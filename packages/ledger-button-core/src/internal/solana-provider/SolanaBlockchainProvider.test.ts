@@ -108,4 +108,25 @@ describe("SolanaBlockchainProvider", () => {
       expect(wallet.setNetwork).toHaveBeenCalledWith(101);
     });
   });
+
+  describe("currency capability", () => {
+    test("isSupportedCurrency returns true for solana", () => {
+      expect(provider.isSupportedCurrency("solana")).toBe(true);
+    });
+
+    test("getNativeDecimals returns 9", () => {
+      expect(provider.getNativeDecimals("solana")).toBe(9);
+    });
+
+    test("resolveNetwork maps solana to mainnet", () => {
+      expect(provider.resolveNetwork("solana")).toEqual({
+        networkId: "mainnet",
+        blockchainName: "solana",
+      });
+    });
+
+    test("resolveCurrencyId maps mainnet to solana", () => {
+      expect(provider.resolveCurrencyId("mainnet")).toBe("solana");
+    });
+  });
 });
