@@ -8,6 +8,12 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import type {
+  Account,
+  AccountWithFiat,
+  DetailedAccount,
+  Network,
+} from "../../../api/model/Account.js";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
@@ -22,12 +28,6 @@ import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { calculateTotalFiatValue } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
-import type {
-  Account,
-  AccountWithFiat,
-  DetailedAccount,
-  Network,
-} from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";

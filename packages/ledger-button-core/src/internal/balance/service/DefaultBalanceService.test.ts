@@ -1,6 +1,6 @@
 import { Left, Right } from "purify-ts";
 
-import { Account } from "../../account/service/AccountService.js";
+import type { Account } from "../../../api/model/Account.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { CalDataSource } from "../datasource/cal/CalDataSource.js";
 import { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";

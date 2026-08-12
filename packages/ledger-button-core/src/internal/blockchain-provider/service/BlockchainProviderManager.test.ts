@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { Account } from "../../../api/model/Account.js";
 import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
-import type { Account } from "../../../internal/account/service/AccountService.js";
 import type { ContextService } from "../../../internal/context/ContextService.js";
 import type { DAppConfig } from "../../../internal/dAppConfig/model/dAppConfigTypes.js";
 import { EvmBlockchainProvider } from "../../../internal/evm-provider/EvmBlockchainProvider.js";

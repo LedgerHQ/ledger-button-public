@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { Account } from "../../internal/account/service/AccountService.js";
 import type { BlockchainFamily } from "../blockchain-provider/model/types.js";
+import type { Account } from "./Account.js";
 import {
   type ButtonCoreContext,
   getActiveFamily,

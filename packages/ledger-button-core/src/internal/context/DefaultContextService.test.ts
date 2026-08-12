@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
+import type { Account } from "../../api/model/Account.js";
 import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
-import type { Account } from "../account/service/AccountService.js";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import type { Device } from "../device/model/Device.js";
 import * as chainUtils from "../evm-provider/utils/chainUtils.js";

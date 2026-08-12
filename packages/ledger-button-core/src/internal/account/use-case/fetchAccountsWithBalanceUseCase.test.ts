@@ -2,7 +2,8 @@ import { lastValueFrom, toArray } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import type { Account, AccountService } from "../service/AccountService.js";
+import type { Account } from "../../../api/model/Account.js";
+import type { AccountService } from "../service/AccountService.js";
 import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";

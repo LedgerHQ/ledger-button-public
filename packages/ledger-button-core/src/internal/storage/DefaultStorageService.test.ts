@@ -6,7 +6,7 @@ import { STORAGE_KEYS } from "./model/constant.js";
 import { StorageIDBGetError } from "./model/errors.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
-import { type Account } from "../account/service/AccountService.js";
+import type { Account } from "../../api/model/Account.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { DefaultStorageService } from "./DefaultStorageService.js";
 

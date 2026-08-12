@@ -2,6 +2,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, type Maybe } from "purify-ts";
 
 import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
+import type { TransactionDirection } from "../../../../api/model/TransactionHistory.js";
 import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
 import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { configModuleTypes } from "../../../config/di/configModuleTypes.js";
@@ -13,7 +14,6 @@ import type { NetworkServiceOpts } from "../../../network/model/types.js";
 import type { NetworkService } from "../../../network/NetworkService.js";
 import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
 import {
-  TransactionDirection,
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,

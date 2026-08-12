@@ -1,15 +1,13 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { Account } from "../../../api/model/Account.js";
+import type { TransactionHistoryItem } from "../../../api/model/TransactionHistory.js";
 import type { ContextService } from "../../context/ContextService.js";
 import { TransactionHistoryError } from "../../transaction-history/model/TransactionHistoryError.js";
-import type {
-  TransactionHistoryItem,
-  TransactionHistoryResult,
-} from "../../transaction-history/model/transactionHistoryTypes.js";
+import type { TransactionHistoryResult } from "../../transaction-history/model/transactionHistoryTypes.js";
 import type { FetchTransactionHistoryUseCase } from "../../transaction-history/use-case/FetchTransactionHistoryUseCase.js";
 import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/use-case/HydrateTransactionsWithFiatUseCase.js";
-import type { Account } from "../service/AccountService.js";
 import { HydrateAccountWithTxHistoryUseCase } from "./hydrateAccountWithTxHistoryUseCase.js";
 
 function createMockLogger() {

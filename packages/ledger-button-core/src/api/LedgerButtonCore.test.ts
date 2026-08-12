@@ -2,7 +2,7 @@ import { of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "./blockchain-provider/model/types.js";
-import type { Account } from "../internal/account/service/AccountService.js";
+import type { Account } from "./model/Account.js";
 import { contextModuleTypes } from "../internal/context/di/contextModuleTypes.js";
 import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes.js";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes.js";
