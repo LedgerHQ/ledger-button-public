@@ -49,7 +49,7 @@ describe("clusterUtils", () => {
       expect(describeSolanaCurrency("solana")).toEqual({
         currencyId: "solana",
         family: "solana",
-        network: { networkId: "mainnet", blockchainName: "solana" },
+        networkId: "mainnet",
         nativeDecimals: 9,
       });
     });
@@ -64,7 +64,7 @@ describe("clusterUtils", () => {
       expect(describeSolanaNetwork("mainnet")).toEqual({
         currencyId: "solana",
         family: "solana",
-        network: { networkId: "mainnet", blockchainName: "solana" },
+        networkId: "mainnet",
         nativeDecimals: 9,
       });
     });

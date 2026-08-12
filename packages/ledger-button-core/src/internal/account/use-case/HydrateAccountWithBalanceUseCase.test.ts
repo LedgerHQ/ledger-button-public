@@ -76,12 +76,12 @@ const SUPPORTED_CURRENCIES: Record<string, CurrencyDescriptor> = {
   ethereum: aCurrencyDescriptor(),
   polygon: aCurrencyDescriptor({
     currencyId: "polygon",
-    network: { networkId: "137", blockchainName: "ethereum" },
+    networkId: "137",
   }),
   solana: aCurrencyDescriptor({
     currencyId: "solana",
     family: "solana",
-    network: { networkId: "mainnet", blockchainName: "solana" },
+    networkId: "mainnet",
     nativeDecimals: 9,
   }),
 };

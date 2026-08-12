@@ -114,7 +114,7 @@ describe("SolanaBlockchainProvider", () => {
       expect(provider.describeCurrency("solana")).toEqual({
         currencyId: "solana",
         family: "solana",
-        network: { networkId: "mainnet", blockchainName: "solana" },
+        networkId: "mainnet",
         nativeDecimals: 9,
       });
     });

@@ -190,7 +190,7 @@ export class LedgerButtonCore {
       ? blockchainProviderManager
           .describeCurrency(defaultAccount.currencyId)
           .chain((currency) => {
-            const parsed = Number(currency.network.networkId);
+            const parsed = Number(currency.networkId);
             return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
           })
           .orDefault(1)

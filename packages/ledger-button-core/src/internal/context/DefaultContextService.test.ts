@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it, test, vi } from "vitest";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { Account } from "@api/model/Account.js";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
+
 import { aCurrencyDescriptor } from "../blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager.js";
-
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import type { Device } from "../device/model/Device.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
@@ -82,10 +82,7 @@ describe("DefaultContextService", () => {
           ? Maybe.of(
               aCurrencyDescriptor({
                 currencyId,
-                network: {
-                  networkId: String(chainId),
-                  blockchainName: "ethereum",
-                },
+                networkId: String(chainId),
               }),
             )
           : Maybe.empty();
@@ -93,12 +90,7 @@ describe("DefaultContextService", () => {
       describeNetwork: vi.fn().mockImplementation((networkId: string) => {
         const currencyId = currencyIdByChainId[networkId];
         return currencyId
-          ? Maybe.of(
-              aCurrencyDescriptor({
-                currencyId,
-                network: { networkId, blockchainName: "ethereum" },
-              }),
-            )
+          ? Maybe.of(aCurrencyDescriptor({ currencyId, networkId }))
           : Maybe.empty();
       }),
     };

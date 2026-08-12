@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+
 import { ResolveCurrencyDecimalsUseCase } from "./ResolveCurrencyDecimalsUseCase.js";
 
 function createMockLoggerFactory() {
@@ -82,7 +83,7 @@ describe("ResolveCurrencyDecimalsUseCase", () => {
         aCurrencyDescriptor({
           currencyId: "solana",
           family: "solana",
-          network: { networkId: "mainnet", blockchainName: "solana" },
+          networkId: "mainnet",
           nativeDecimals: 9,
         }),
       ),

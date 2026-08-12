@@ -54,7 +54,7 @@ const evmDescriptor = aCurrencyDescriptor();
 const solanaDescriptor = aCurrencyDescriptor({
   currencyId: "solana",
   family: "solana",
-  network: { networkId: "mainnet", blockchainName: "solana" },
+  networkId: "mainnet",
   nativeDecimals: 9,
 });
 

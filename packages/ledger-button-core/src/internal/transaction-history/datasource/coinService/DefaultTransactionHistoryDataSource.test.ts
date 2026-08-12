@@ -2,7 +2,6 @@ import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import type { Config } from "@internal/config/model/config.js";
@@ -75,7 +74,7 @@ function describeCurrencyForTest(
       aCurrencyDescriptor({
         currencyId,
         family: "solana",
-        network: { networkId: "mainnet", blockchainName: "solana" },
+        networkId: "mainnet",
         nativeDecimals: 9,
       }),
     );

@@ -10,8 +10,6 @@ export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet";
 
 export const SOLANA_NATIVE_DECIMALS = 9;
 
-export const SOLANA_BLOCKCHAIN_NAME = "solana";
-
 export const SOLANA_FAMILY: BlockchainFamily = "solana";
 
 export function getClusterFromCurrencyId(currencyId: string): SolanaCluster {
@@ -39,10 +37,7 @@ export function describeSolanaCurrency(
   return {
     currencyId,
     family: SOLANA_FAMILY,
-    network: {
-      networkId: getClusterFromCurrencyId(currencyId),
-      blockchainName: SOLANA_BLOCKCHAIN_NAME,
-    },
+    networkId: getClusterFromCurrencyId(currencyId),
     nativeDecimals: SOLANA_NATIVE_DECIMALS,
   };
 }
