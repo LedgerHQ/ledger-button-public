@@ -8,15 +8,6 @@ export type { FiatCurrency } from "../../internal/currency/datasource/fiatCurren
 export type { BroadcastTracking } from "../../internal/pending-transaction/model/BroadcastTracking.js";
 export type { PendingTransaction } from "../../internal/pending-transaction/model/PendingTransaction.js";
 export type {
-  TransactionDirection,
-  TransactionHistoryItem,
-  TransactionHistoryItemAsset,
-  TransactionHistoryItemFee,
-  TransactionKind,
-  TransactionStatus,
-  TransactionType,
-} from "../../internal/transaction-history/model/transactionHistoryTypes.js";
-export type {
   Account,
   AccountWithFiat,
   DetailedAccount,
@@ -41,4 +32,13 @@ export * from "./signing/SignTypedMessageParams.js";
 export * from "./signing/solana/SignSolanaMessageParams.js";
 export * from "./signing/solana/SignSolanaTransactionParams.js";
 export * from "./solana/SolanaTypes.js";
+export type {
+  TransactionDirection,
+  TransactionHistoryItem,
+  TransactionHistoryItemAsset,
+  TransactionHistoryItemFee,
+  TransactionKind,
+  TransactionStatus,
+  TransactionType,
+} from "./TransactionHistory.js";
 export * from "./UserInteractionNeeded.js";

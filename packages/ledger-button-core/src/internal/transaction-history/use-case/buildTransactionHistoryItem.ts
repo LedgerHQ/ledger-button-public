@@ -1,13 +1,13 @@
 import type {
   TransactionDirection,
-  TransactionHistoryEntry,
   TransactionHistoryItem,
   TransactionHistoryItemAsset,
   TransactionHistoryItemFee,
   TransactionKind,
   TransactionStatus,
   TransactionType,
-} from "../model/transactionHistoryTypes.js";
+} from "../../../api/model/TransactionHistory.js";
+import type { TransactionHistoryEntry } from "../model/transactionHistoryTypes.js";
 
 export type AssetInfo = TransactionHistoryItemAsset;
 
