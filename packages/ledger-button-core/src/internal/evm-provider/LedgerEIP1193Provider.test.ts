@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
+import type { Account } from "../../api/model/Account.js";
 import { CommonEIP1193ErrorCode } from "../../api/model/eip/EIPTypes.js";
-import { Account } from "../account/service/AccountService.js";
 import {
   LedgerEIP1193Provider,
   type LedgerEIP1193ProviderDeps,

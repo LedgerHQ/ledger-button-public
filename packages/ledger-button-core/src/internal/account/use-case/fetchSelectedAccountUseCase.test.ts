@@ -6,11 +6,11 @@ import {
   AccountNotFoundError,
   NoSelectedAccountError,
 } from "../../../api/errors/LedgerSyncErrors.js";
+import type { Account, DetailedAccount } from "../../../api/model/Account.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import type { ContextService } from "../../context/ContextService.js";
 import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, DetailedAccount } from "../service/AccountService.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";

@@ -4,7 +4,7 @@ import type {
   FiatBalance,
   LoadingState,
   Network,
-} from "./service/AccountService.js";
+} from "../../api/model/Account.js";
 import { EVM_MAPPING_TABLE } from "../evm-provider/utils/chainUtils.js";
 
 export function computeNetworks(account: AccountWithFiat): Network[] {
