@@ -49,11 +49,14 @@ export class ResolveCurrencyDecimalsUseCase {
   }
 
   private nativeDecimalsFromProvider(currencyId: string): Maybe<number> {
-    const nativeDecimals =
-      this.blockchainProviderManager.getNativeDecimals(currencyId);
+    const nativeDecimals = this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.nativeDecimals);
 
     if (nativeDecimals.isNothing()) {
-      this.logger.warn("No registered provider claims currency", { currencyId });
+      this.logger.warn("No registered provider claims currency", {
+        currencyId,
+      });
     }
 
     return nativeDecimals;

@@ -2,6 +2,7 @@ import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { ResolveCurrencyDecimalsUseCase } from "./ResolveCurrencyDecimalsUseCase.js";
 
@@ -29,10 +30,8 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
     init: vi.fn(),
     setSelectedAccounts: vi.fn(),
     setNetwork: vi.fn(),
-    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
-    getNativeDecimals: vi.fn().mockReturnValue(Maybe.empty()),
+    describeCurrency: vi.fn().mockReturnValue(Maybe.empty()),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
   };
 }
 
@@ -70,7 +69,7 @@ describe("ResolveCurrencyDecimalsUseCase", () => {
     await useCase.execute("ethereum");
 
     expect(
-      mockBlockchainProviderManager.getNativeDecimals,
+      mockBlockchainProviderManager.describeCurrency,
     ).not.toHaveBeenCalled();
   });
 
@@ -78,14 +77,21 @@ describe("ResolveCurrencyDecimalsUseCase", () => {
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Left(new Error("CAL unavailable")),
     );
-    vi.mocked(mockBlockchainProviderManager.getNativeDecimals).mockReturnValue(
-      Maybe.of(9),
+    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
+      Maybe.of(
+        aCurrencyDescriptor({
+          currencyId: "solana",
+          family: "solana",
+          network: { networkId: "mainnet", blockchainName: "solana" },
+          nativeDecimals: 9,
+        }),
+      ),
     );
 
     const result = await useCase.execute("solana");
 
     expect(result.extract()).toBe(9);
-    expect(mockBlockchainProviderManager.getNativeDecimals).toHaveBeenCalledWith(
+    expect(mockBlockchainProviderManager.describeCurrency).toHaveBeenCalledWith(
       "solana",
     );
   });

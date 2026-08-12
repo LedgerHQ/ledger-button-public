@@ -1,6 +1,7 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import type { Config } from "@internal/config/model/config.js";
 import type { NetworkService } from "@internal/network/NetworkService.js";
@@ -34,12 +35,14 @@ describe("DefaultCalDataSource", () => {
       init: vi.fn(),
       setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
-      resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
-      resolveNetwork: vi.fn().mockReturnValue(
-        Maybe.of({ networkId: testChainId, blockchainName: "ethereum" }),
+      describeCurrency: vi.fn().mockReturnValue(
+        Maybe.of(
+          aCurrencyDescriptor({
+            network: { networkId: testChainId, blockchainName: "ethereum" },
+          }),
+        ),
       ),
-      resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
-      getNativeDecimals: vi.fn().mockReturnValue(Maybe.empty()),
+      describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
     };
 
     dataSource = new DefaultCalDataSource(
@@ -246,7 +249,9 @@ describe("DefaultCalDataSource", () => {
       expect(result.isLeft()).toBe(true);
       if (result.isLeft()) {
         const error = result.extract() as Error;
-        expect(error.message).toBe("No units found for currency ethereum in Cal");
+        expect(error.message).toBe(
+          "No units found for currency ethereum in Cal",
+        );
       }
     });
   });

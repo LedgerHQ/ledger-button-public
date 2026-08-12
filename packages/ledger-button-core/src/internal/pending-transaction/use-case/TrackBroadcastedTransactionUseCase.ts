@@ -136,8 +136,9 @@ export class TrackBroadcastedTransactionUseCase {
 
   /** Last-resort decimals when CAL has no metadata for the currency. */
   private nativeDecimals(currencyId: string): number | undefined {
-    const decimals =
-      this.blockchainProviderManager.getNativeDecimals(currencyId);
+    const decimals = this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.nativeDecimals);
 
     if (decimals.isNothing()) {
       this.logger.warn("Unresolved decimals, reporting no formatted amount", {

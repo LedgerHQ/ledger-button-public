@@ -2,6 +2,7 @@ import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 
 import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
@@ -42,14 +43,14 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
     init: vi.fn(),
     setSelectedAccounts: vi.fn(),
     setNetwork: vi.fn(),
-    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
-    getNativeDecimals: vi
+    describeCurrency: vi
       .fn()
       .mockImplementation((currencyId: string) =>
-        currencyId === "ethereum" ? Maybe.of(18) : Maybe.empty(),
+        currencyId === "ethereum"
+          ? Maybe.of(aCurrencyDescriptor())
+          : Maybe.empty(),
       ),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
   };
 }
 

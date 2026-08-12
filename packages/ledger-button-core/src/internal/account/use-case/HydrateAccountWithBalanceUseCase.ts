@@ -103,9 +103,9 @@ export class HydrateAccountWithBalanceUseCase {
 
   private async fetchBalanceFromRpc(account: Account): Promise<string> {
     const decimals = await this.resolveDecimals(account.currencyId);
-    const network = this.blockchainProviderManager.resolveNetwork(
-      account.currencyId,
-    );
+    const network = this.blockchainProviderManager
+      .describeCurrency(account.currencyId)
+      .map((currency) => currency.network);
     const chainId = network.map((ref) => ref.networkId).orDefault("1");
     const blockchainName = network
       .map((ref) => ref.blockchainName)

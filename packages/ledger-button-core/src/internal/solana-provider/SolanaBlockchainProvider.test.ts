@@ -110,23 +110,21 @@ describe("SolanaBlockchainProvider", () => {
   });
 
   describe("currency capability", () => {
-    test("isSupportedCurrency returns true for solana", () => {
-      expect(provider.isSupportedCurrency("solana")).toBe(true);
-    });
-
-    test("getNativeDecimals returns 9", () => {
-      expect(provider.getNativeDecimals("solana")).toBe(9);
-    });
-
-    test("resolveNetwork maps solana to mainnet", () => {
-      expect(provider.resolveNetwork("solana")).toEqual({
-        networkId: "mainnet",
-        blockchainName: "solana",
+    test("describeCurrency describes an owned currency", () => {
+      expect(provider.describeCurrency("solana")).toEqual({
+        currencyId: "solana",
+        family: "solana",
+        network: { networkId: "mainnet", blockchainName: "solana" },
+        nativeDecimals: 9,
       });
     });
 
-    test("resolveCurrencyId maps mainnet to solana", () => {
-      expect(provider.resolveCurrencyId("mainnet")).toBe("solana");
+    test("describeCurrency returns undefined for another family", () => {
+      expect(provider.describeCurrency("ethereum")).toBeUndefined();
+    });
+
+    test("describeNetwork maps mainnet to solana", () => {
+      expect(provider.describeNetwork("mainnet")?.currencyId).toBe("solana");
     });
   });
 });

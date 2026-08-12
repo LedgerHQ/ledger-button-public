@@ -154,23 +154,21 @@ describe("EvmBlockchainProvider", () => {
   });
 
   describe("currency capability", () => {
-    test("isSupportedCurrency returns true for ethereum", () => {
-      expect(provider.isSupportedCurrency("ethereum")).toBe(true);
-    });
-
-    test("getNativeDecimals returns 18", () => {
-      expect(provider.getNativeDecimals("ethereum")).toBe(18);
-    });
-
-    test("resolveNetwork maps ethereum to chain 1", () => {
-      expect(provider.resolveNetwork("ethereum")).toEqual({
-        networkId: "1",
-        blockchainName: "ethereum",
+    test("describeCurrency describes an owned currency", () => {
+      expect(provider.describeCurrency("ethereum")).toEqual({
+        currencyId: "ethereum",
+        family: "ethereum",
+        network: { networkId: "1", blockchainName: "ethereum" },
+        nativeDecimals: 18,
       });
     });
 
-    test("resolveCurrencyId maps 137 to polygon", () => {
-      expect(provider.resolveCurrencyId("137")).toBe("polygon");
+    test("describeCurrency returns undefined for another family", () => {
+      expect(provider.describeCurrency("solana")).toBeUndefined();
+    });
+
+    test("describeNetwork maps 137 to polygon", () => {
+      expect(provider.describeNetwork("137")?.currencyId).toBe("polygon");
     });
   });
 });

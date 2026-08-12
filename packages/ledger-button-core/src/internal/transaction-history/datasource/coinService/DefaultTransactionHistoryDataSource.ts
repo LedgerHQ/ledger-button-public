@@ -57,8 +57,9 @@ export class DefaultTransactionHistoryDataSource
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryPage>> {
-    const family =
-      this.blockchainProviderManager.resolveBlockchainFamily(currencyId);
+    const family = this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.family);
     const networkSlug = resolveNetworkSlug(currencyId, family.extract());
     if (!networkSlug) {
       this.logger.warn("Unsupported currency for transaction history", {

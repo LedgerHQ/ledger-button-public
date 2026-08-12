@@ -5,6 +5,7 @@ import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
 import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
 import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { ContextService } from "@internal/context/ContextService.js";
 
@@ -77,18 +78,23 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
     init: vi.fn(),
     setSelectedAccounts: vi.fn(),
     setNetwork: vi.fn(),
-    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveNetwork: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
-    getNativeDecimals: vi.fn().mockImplementation((currencyId: string) => {
+    describeCurrency: vi.fn().mockImplementation((currencyId: string) => {
       if (currencyId === "solana") {
-        return Maybe.of(9);
+        return Maybe.of(
+          aCurrencyDescriptor({
+            currencyId,
+            family: "solana",
+            network: { networkId: "mainnet", blockchainName: "solana" },
+            nativeDecimals: 9,
+          }),
+        );
       }
       if (currencyId === "ethereum") {
-        return Maybe.of(18);
+        return Maybe.of(aCurrencyDescriptor());
       }
       return Maybe.empty();
     }),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
   };
 }
 
@@ -157,7 +163,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       signTransactionParams,
     );
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
 
     calResolve();
     await executePromise;
@@ -189,7 +197,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(errorStatus, signTransactionParams);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should skip non-broadcasted results (signed only)", async () => {
@@ -204,7 +214,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(signedOnlyStatus, signTransactionParams);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should skip message signing results", async () => {
@@ -216,7 +228,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(messageStatus, ["0x1234", "hello", "personal_sign"]);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should skip when no selected account", async () => {
@@ -227,7 +241,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should use fallback currency info when CalDataSource fails", async () => {
@@ -263,7 +279,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Left(new Error("CAL unavailable")),
     );
-    vi.mocked(mockBlockchainProviderManager.getNativeDecimals).mockReturnValue(
+    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
       Maybe.empty(),
     );
 

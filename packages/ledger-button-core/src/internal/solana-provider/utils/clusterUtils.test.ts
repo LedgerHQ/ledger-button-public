@@ -1,9 +1,9 @@
 import {
+  describeSolanaCurrency,
+  describeSolanaNetwork,
   getClusterFromCurrencyId,
   getCurrencyIdFromCluster,
   isSupportedSolanaCurrency,
-  resolveSolanaCurrencyId,
-  resolveSolanaNetwork,
 } from "./clusterUtils.js";
 
 describe("clusterUtils", () => {
@@ -44,26 +44,33 @@ describe("clusterUtils", () => {
     });
   });
 
-  describe("resolveSolanaNetwork", () => {
-    it("returns network ref for solana", () => {
-      expect(resolveSolanaNetwork("solana")).toEqual({
-        networkId: "mainnet",
-        blockchainName: "solana",
+  describe("describeSolanaCurrency", () => {
+    it("returns the descriptor for solana", () => {
+      expect(describeSolanaCurrency("solana")).toEqual({
+        currencyId: "solana",
+        family: "solana",
+        network: { networkId: "mainnet", blockchainName: "solana" },
+        nativeDecimals: 9,
       });
     });
 
     it("returns undefined for unsupported currencies", () => {
-      expect(resolveSolanaNetwork("ethereum")).toBeUndefined();
+      expect(describeSolanaCurrency("ethereum")).toBeUndefined();
     });
   });
 
-  describe("resolveSolanaCurrencyId", () => {
-    it("returns currency id for mainnet", () => {
-      expect(resolveSolanaCurrencyId("mainnet")).toBe("solana");
+  describe("describeSolanaNetwork", () => {
+    it("returns the descriptor for mainnet", () => {
+      expect(describeSolanaNetwork("mainnet")).toEqual({
+        currencyId: "solana",
+        family: "solana",
+        network: { networkId: "mainnet", blockchainName: "solana" },
+        nativeDecimals: 9,
+      });
     });
 
     it("returns undefined for unmapped clusters", () => {
-      expect(resolveSolanaCurrencyId("devnet")).toBeUndefined();
+      expect(describeSolanaNetwork("devnet")).toBeUndefined();
     });
   });
 });

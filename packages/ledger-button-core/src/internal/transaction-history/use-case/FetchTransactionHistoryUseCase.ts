@@ -179,7 +179,8 @@ export class FetchTransactionHistoryUseCase {
    */
   private resolveDecimals(currencyId: string): number {
     return this.blockchainProviderManager
-      .getNativeDecimals(currencyId)
+      .describeCurrency(currencyId)
+      .map((currency) => currency.nativeDecimals)
       .orDefaultLazy(() => {
         this.logger.warn("Unresolved decimals, reporting raw amounts", {
           currencyId,

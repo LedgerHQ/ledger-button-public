@@ -1,7 +1,7 @@
 import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
 
-import type { CurrencyNetworkRef } from "./CurrencyNetworkRef.js";
+import type { CurrencyDescriptor } from "./CurrencyDescriptor.js";
 import type { BlockchainFamily } from "./types.js";
 
 /**
@@ -24,15 +24,14 @@ export interface BlockchainProvider {
   setSelectedAccount(account: ProviderAccount | undefined): void;
   setNetwork(chainId: number): void;
   /**
-   * Whether the given Ledger `currencyId` belongs to this provider's family.
-   * Owned by the provider so core never reaches into family-specific chain
-   * tables.
+   * Everything this family knows about a Ledger `currencyId` it owns, or
+   * `undefined` when the currency belongs to another family. Owned by the
+   * provider so core never reaches into family-specific chain tables.
    */
-  isSupportedCurrency(currencyId: string): boolean;
-  /** Native decimals fallback when CAL has no metadata. */
-  getNativeDecimals(currencyId: string): number;
-  /** Map Ledger currencyId → network for CAL / RPC / context. */
-  resolveNetwork(currencyId: string): CurrencyNetworkRef | undefined;
-  /** Inverse map when core only has a numeric/string network id. */
-  resolveCurrencyId(networkId: string): string | undefined;
+  describeCurrency(currencyId: string): CurrencyDescriptor | undefined;
+  /**
+   * Reverse lookup of {@link describeCurrency}, keyed by network id (EVM
+   * chainId as a string, Solana cluster), for when core only has a network id.
+   */
+  describeNetwork(networkId: string): CurrencyDescriptor | undefined;
 }
