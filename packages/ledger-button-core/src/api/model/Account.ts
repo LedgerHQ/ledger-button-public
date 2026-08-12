@@ -1,4 +1,4 @@
-import type { TransactionHistoryItem } from "../../internal/transaction-history/model/transactionHistoryTypes.js";
+import type { TransactionHistoryItem } from "./TransactionHistory.js";
 
 export type CloudSyncAccount = {
   id: string;
