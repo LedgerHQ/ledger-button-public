@@ -4,7 +4,7 @@ import { StorageIDBErrors } from "./model/errors.js";
 import type { FeatureFlags } from "./model/FeatureFlags.js";
 import { UserConsent } from "./model/UserConsent.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import { Account } from "../account/service/AccountService.js";
+import type { Account } from "../../api/model/Account.js";
 
 export interface StorageService {
   setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>>;

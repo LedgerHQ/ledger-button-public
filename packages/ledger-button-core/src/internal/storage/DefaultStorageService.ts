@@ -12,7 +12,7 @@ import {
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
 import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import { type Account } from "../account/service/AccountService.js";
+import type { Account } from "../../api/model/Account.js";
 import { loggerModuleTypes } from "../logger/di/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type StorageService } from "./StorageService.js";

@@ -2,6 +2,7 @@ import { type Factory, inject, injectable } from "inversify";
 
 import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
 import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
+import type { Account } from "../../../api/model/Account.js";
 import { dAppConfigModuleTypes } from "../../dAppConfig/di/dAppConfigModuleTypes.js";
 import { type GetDAppConfigUseCase } from "../../dAppConfig/use-case/GetDAppConfigUseCase.js";
 import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
@@ -10,11 +11,7 @@ import { storageModuleTypes } from "../../storage/di/storageModuleTypes.js";
 import { type StorageService } from "../../storage/StorageService.js";
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase.js";
-import {
-  type Account,
-  type AccountService,
-  type CloudSyncData,
-} from "./AccountService.js";
+import type { AccountService, CloudSyncData } from "./AccountService.js";
 
 @injectable()
 export class DefaultAccountService implements AccountService {

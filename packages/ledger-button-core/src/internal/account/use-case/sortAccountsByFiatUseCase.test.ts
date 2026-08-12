@@ -1,7 +1,7 @@
 import { lastValueFrom, of } from "rxjs";
 import { describe, expect, it } from "vitest";
 
-import type { AccountWithFiat } from "../service/AccountService.js";
+import type { AccountWithFiat } from "../../../api/model/Account.js";
 import { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase.js";
 
 const base: AccountWithFiat = {

@@ -6,6 +6,11 @@ import type {
   BlockchainFamily,
   WalletNavigationIntent,
 } from "./blockchain-provider/model/types.js";
+import type {
+  Account,
+  AccountWithFiat,
+  DetailedAccount,
+} from "./model/Account.js";
 import {
   ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
@@ -20,12 +25,7 @@ import {
 } from "./model/LedgerSyncAuthenticateResponse.js";
 import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/di/accountModuleTypes.js";
-import {
-  Account,
-  type AccountService,
-  type AccountWithFiat,
-  type DetailedAccount,
-} from "../internal/account/service/AccountService.js";
+import type { AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
 import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";

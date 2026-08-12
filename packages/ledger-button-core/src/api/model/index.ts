@@ -1,13 +1,3 @@
-// TODO: Move Account to api model folder
-export type {
-  Account,
-  AccountWithFiat,
-  DetailedAccount,
-  FiatBalance,
-  LoadingState,
-  Network,
-  Token,
-} from "../../internal/account/service/AccountService.js";
 export type {
   JSONRPCRequest,
   JsonRpcResponse,
@@ -26,6 +16,15 @@ export type {
   TransactionStatus,
   TransactionType,
 } from "../../internal/transaction-history/model/transactionHistoryTypes.js";
+export type {
+  Account,
+  AccountWithFiat,
+  DetailedAccount,
+  FiatBalance,
+  LoadingState,
+  Network,
+  Token,
+} from "./Account.js";
 export * from "./ButtonCoreContext.js";
 export * from "./eip/EIPTypes.js";
 export * from "./errors.js";

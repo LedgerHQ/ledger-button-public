@@ -1,6 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { Account } from "../../account/service/AccountService.js";
+import type { Account } from "../../../api/model/Account.js";
 import { configModuleTypes } from "../../config/di/configModuleTypes.js";
 import { type Config } from "../../config/model/config.js";
 import { type ContextService } from "../../context/ContextService.js";
