@@ -8,10 +8,10 @@ import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
 } from "@api/model/ButtonCoreContext.js";
-import { blockchainProviderModuleTypes } from "../blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager.js";
 
 import { type ContextEvent } from "./model/ContextEvent.js";
+import { blockchainProviderModuleTypes } from "../blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager.js";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import { loggerModuleTypes } from "../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
@@ -191,7 +191,7 @@ export class DefaultContextService implements ContextService {
     return this.blockchainProviderManagerFactory()
       .describeCurrency(currencyId)
       .chain((currency) => {
-        const parsed = Number(currency.network.networkId);
+        const parsed = Number(currency.networkId);
         return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
       })
       .orDefault(1);

@@ -45,7 +45,7 @@ export class DefaultCalDataSource implements CalDataSource {
   ): Promise<Either<Error, TokenInformation>> {
     const chainId = this.blockchainProviderManager
       .describeCurrency(currencyId)
-      .map((currency) => currency.network.networkId)
+      .map((currency) => currency.networkId)
       .orDefault("1");
 
     const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=id,name,decimals,ticker,network_external_links`;

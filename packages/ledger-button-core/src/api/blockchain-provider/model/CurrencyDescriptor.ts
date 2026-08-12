@@ -1,4 +1,3 @@
-import type { CurrencyNetworkRef } from "./CurrencyNetworkRef.js";
 import type { BlockchainFamily } from "./types.js";
 
 /**
@@ -8,8 +7,10 @@ import type { BlockchainFamily } from "./types.js";
  */
 export type CurrencyDescriptor = {
   currencyId: string;
+  /** Doubles as the blockchain name the backend expects for RPC calls. */
   family: BlockchainFamily;
-  network: CurrencyNetworkRef;
+  /** Backend / UI network id (EVM chainId as string, Solana cluster, …) */
+  networkId: string;
   /** Native decimals fallback when CAL has no metadata. */
   nativeDecimals: number;
 };

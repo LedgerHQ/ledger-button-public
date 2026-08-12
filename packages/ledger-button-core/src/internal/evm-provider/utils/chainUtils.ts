@@ -3,8 +3,6 @@ import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 
 export const EVM_NATIVE_DECIMALS = 18;
 
-export const EVM_BLOCKCHAIN_NAME = "ethereum";
-
 export const EVM_FAMILY: BlockchainFamily = "ethereum";
 
 export function getChainIdFromCurrencyId(currencyId: string): number {
@@ -30,10 +28,7 @@ export function describeEvmCurrency(
   return {
     currencyId,
     family: EVM_FAMILY,
-    network: {
-      networkId: String(getChainIdFromCurrencyId(currencyId)),
-      blockchainName: EVM_BLOCKCHAIN_NAME,
-    },
+    networkId: String(getChainIdFromCurrencyId(currencyId)),
     nativeDecimals: EVM_NATIVE_DECIMALS,
   };
 }

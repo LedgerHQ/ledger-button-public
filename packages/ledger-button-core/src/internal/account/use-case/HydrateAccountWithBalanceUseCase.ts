@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { Account, Token } from "@api/model/Account.js";
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "@api/model/ButtonCoreContext.js";
 import type { BackendService } from "@internal/backend/BackendService.js";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
@@ -103,13 +104,13 @@ export class HydrateAccountWithBalanceUseCase {
 
   private async fetchBalanceFromRpc(account: Account): Promise<string> {
     const decimals = await this.resolveDecimals(account.currencyId);
-    const network = this.blockchainProviderManager
-      .describeCurrency(account.currencyId)
-      .map((currency) => currency.network);
-    const chainId = network.map((ref) => ref.networkId).orDefault("1");
-    const blockchainName = network
-      .map((ref) => ref.blockchainName)
-      .orDefault("ethereum");
+    const currency = this.blockchainProviderManager.describeCurrency(
+      account.currencyId,
+    );
+    const chainId = currency.map(({ networkId }) => networkId).orDefault("1");
+    const blockchainName = currency
+      .map(({ family }) => family)
+      .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
     const balanceRpcResult = await this.backendService.broadcast({
       blockchain: { name: blockchainName, chainId },
       rpc: {

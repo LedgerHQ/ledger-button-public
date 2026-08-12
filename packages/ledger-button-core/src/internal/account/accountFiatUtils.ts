@@ -1,4 +1,3 @@
-import type { CurrencyNetworkRef } from "@api/blockchain-provider/model/CurrencyNetworkRef.js";
 import type {
   Account,
   AccountWithFiat,
@@ -9,9 +8,7 @@ import type {
 
 export function computeNetworks(
   account: AccountWithFiat,
-  resolveNetwork: (
-    currencyId: string,
-  ) => CurrencyNetworkRef | undefined,
+  resolveNetworkId: (currencyId: string) => string | undefined,
 ): Network[] {
   const currency = account.fiatBalance?.currency ?? "USD";
   const nativeFiat = account.fiatBalance?.value
@@ -34,15 +31,15 @@ export function computeNetworks(
   const networkFiatMap = allEntries.reduce<
     Map<string, { name: string; totalFiat: number }>
   >((acc, [currencyId, fiatValue]) => {
-    const network = resolveNetwork(currencyId);
+    const networkId = resolveNetworkId(currencyId);
 
-    if (!network) {
+    if (!networkId) {
       return acc;
     }
 
-    const existing = acc.get(network.networkId);
+    const existing = acc.get(networkId);
 
-    return acc.set(network.networkId, {
+    return acc.set(networkId, {
       name: currencyId,
       totalFiat: (existing?.totalFiat ?? 0) + fiatValue,
     });

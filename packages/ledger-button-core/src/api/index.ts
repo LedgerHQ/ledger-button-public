@@ -11,7 +11,6 @@ export type { SolanaSignedResult } from "../internal/solana-provider/model/Solan
 export type { BlockchainProvider } from "./blockchain-provider/model/BlockchainProvider.js";
 export type { CoreFacade } from "./blockchain-provider/model/CoreFacade.js";
 export type { CurrencyDescriptor } from "./blockchain-provider/model/CurrencyDescriptor.js";
-export type { CurrencyNetworkRef } from "./blockchain-provider/model/CurrencyNetworkRef.js";
 export type {
   BlockchainFamily,
   ProviderBlockchain,

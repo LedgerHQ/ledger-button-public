@@ -35,13 +35,11 @@ describe("DefaultCalDataSource", () => {
       init: vi.fn(),
       setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
-      describeCurrency: vi.fn().mockReturnValue(
-        Maybe.of(
-          aCurrencyDescriptor({
-            network: { networkId: testChainId, blockchainName: "ethereum" },
-          }),
+      describeCurrency: vi
+        .fn()
+        .mockReturnValue(
+          Maybe.of(aCurrencyDescriptor({ networkId: testChainId })),
         ),
-      ),
       describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
     };
 

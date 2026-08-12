@@ -75,7 +75,7 @@ describe("chainUtils", () => {
       expect(describeEvmCurrency("polygon")).toEqual({
         currencyId: "polygon",
         family: "ethereum",
-        network: { networkId: "137", blockchainName: "ethereum" },
+        networkId: "137",
         nativeDecimals: 18,
       });
     });
@@ -90,7 +90,7 @@ describe("chainUtils", () => {
       expect(describeEvmNetwork("1")).toEqual({
         currencyId: "ethereum",
         family: "ethereum",
-        network: { networkId: "1", blockchainName: "ethereum" },
+        networkId: "1",
         nativeDecimals: 18,
       });
     });

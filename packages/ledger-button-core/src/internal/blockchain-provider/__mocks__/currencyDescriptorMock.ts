@@ -10,7 +10,7 @@ export function aCurrencyDescriptor(
   return {
     currencyId: "ethereum",
     family: "ethereum",
-    network: { networkId: "1", blockchainName: "ethereum" },
+    networkId: "1",
     nativeDecimals: 18,
     ...overrides,
   };

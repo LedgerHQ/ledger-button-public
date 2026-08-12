@@ -84,7 +84,7 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
           aCurrencyDescriptor({
             currencyId,
             family: "solana",
-            network: { networkId: "mainnet", blockchainName: "solana" },
+            networkId: "mainnet",
             nativeDecimals: 9,
           }),
         );
