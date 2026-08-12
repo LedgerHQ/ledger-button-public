@@ -70,7 +70,8 @@ export class DefaultContextService implements ContextService {
           this.context.selectedAccounts.set(DEFAULT_BLOCKCHAIN_FAMILY, {
             ...evmAccount,
             currencyId: this.blockchainProviderManagerFactory()
-              .resolveCurrencyId(String(event.chainId))
+              .describeNetwork(String(event.chainId))
+              .map((currency) => currency.currencyId)
               .orDefault(evmAccount.currencyId),
           });
         }
@@ -188,9 +189,9 @@ export class DefaultContextService implements ContextService {
 
   private resolveNumericChainId(currencyId: string): number {
     return this.blockchainProviderManagerFactory()
-      .resolveNetwork(currencyId)
-      .chain((network) => {
-        const parsed = Number(network.networkId);
+      .describeCurrency(currencyId)
+      .chain((currency) => {
+        const parsed = Number(currency.network.networkId);
         return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
       })
       .orDefault(1);

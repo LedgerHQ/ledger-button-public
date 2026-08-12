@@ -188,12 +188,10 @@ export class LedgerButtonCore {
     const defaultAccount = restoredAccounts.get(DEFAULT_BLOCKCHAIN_FAMILY);
     const chainId = defaultAccount
       ? blockchainProviderManager
-          .resolveNetwork(defaultAccount.currencyId)
-          .chain((network) => {
-            const parsed = Number(network.networkId);
-            return Number.isFinite(parsed)
-              ? Maybe.of(parsed)
-              : Maybe.empty();
+          .describeCurrency(defaultAccount.currencyId)
+          .chain((currency) => {
+            const parsed = Number(currency.network.networkId);
+            return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
           })
           .orDefault(1)
       : 1;
@@ -460,7 +458,8 @@ export class LedgerButtonCore {
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .resolveBlockchainFamily(currencyId)
+      .describeCurrency(currencyId)
+      .map((currency) => currency.family)
       .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
   }
 

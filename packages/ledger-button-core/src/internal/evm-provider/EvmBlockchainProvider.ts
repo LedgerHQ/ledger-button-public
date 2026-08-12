@@ -2,6 +2,7 @@ import { Container } from "inversify";
 
 import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider.js";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
@@ -13,10 +14,9 @@ import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
 import type { SignTransaction } from "./use-case/SignTransaction.js";
 import type { SignTypedData } from "./use-case/SignTypedData.js";
 import {
-  EVM_NATIVE_DECIMALS,
-  isSupportedEvmCurrency,
-  resolveEvmCurrencyId,
-  resolveEvmNetwork,
+  describeEvmCurrency,
+  describeEvmNetwork,
+  EVM_FAMILY,
 } from "./utils/chainUtils.js";
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
@@ -30,7 +30,7 @@ import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
  * this package is required, which keeps the module a candidate for extraction.
  */
 export class EvmBlockchainProvider implements BlockchainProvider {
-  public readonly family: BlockchainFamily = "ethereum";
+  public readonly family: BlockchainFamily = EVM_FAMILY;
 
   private readonly container: Container;
   private eip1193Provider?: LedgerEIP1193Provider;
@@ -81,19 +81,11 @@ export class EvmBlockchainProvider implements BlockchainProvider {
     this.eip1193Provider?.setNetwork(chainId);
   }
 
-  isSupportedCurrency(currencyId: string): boolean {
-    return isSupportedEvmCurrency(currencyId);
+  describeCurrency(currencyId: string): CurrencyDescriptor | undefined {
+    return describeEvmCurrency(currencyId);
   }
 
-  getNativeDecimals(_currencyId: string): number {
-    return EVM_NATIVE_DECIMALS;
-  }
-
-  resolveNetwork(currencyId: string) {
-    return resolveEvmNetwork(currencyId);
-  }
-
-  resolveCurrencyId(networkId: string) {
-    return resolveEvmCurrencyId(networkId);
+  describeNetwork(networkId: string): CurrencyDescriptor | undefined {
+    return describeEvmNetwork(networkId);
   }
 }

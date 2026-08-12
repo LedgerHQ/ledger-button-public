@@ -1,7 +1,7 @@
 import type { Maybe } from "purify-ts";
 
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
-import type { CurrencyNetworkRef } from "@api/blockchain-provider/model/CurrencyNetworkRef.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { Account } from "@api/model/Account.js";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes.js";
@@ -15,21 +15,14 @@ export interface BlockchainProviderManager {
   setSelectedAccounts(accounts: Map<BlockchainFamily, Account>): void;
   setNetwork(chainId: number): void;
   /**
-   * Resolve the {@link BlockchainFamily} a `currencyId` belongs to by asking the
-   * registered providers (each owns its own currency support). Returns
-   * `Nothing` when no configured provider handles the currency.
+   * Describe a Ledger `currencyId` by asking the registered providers, the
+   * first one claiming it answering (each owns its own currency support).
+   * Returns `Nothing` when no configured provider handles the currency.
    */
-  resolveBlockchainFamily(currencyId: string): Maybe<BlockchainFamily>;
+  describeCurrency(currencyId: string): Maybe<CurrencyDescriptor>;
   /**
-   * Resolve network identity for a Ledger `currencyId` via registered providers.
+   * Inverse of {@link describeCurrency}: describe the currency a network id
+   * belongs to.
    */
-  resolveNetwork(currencyId: string): Maybe<CurrencyNetworkRef>;
-  /**
-   * Inverse of {@link resolveNetwork}: map a network id back to a currencyId.
-   */
-  resolveCurrencyId(networkId: string): Maybe<string>;
-  /**
-   * Native decimals fallback owned by the provider that claims `currencyId`.
-   */
-  getNativeDecimals(currencyId: string): Maybe<number>;
+  describeNetwork(networkId: string): Maybe<CurrencyDescriptor>;
 }

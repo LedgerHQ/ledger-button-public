@@ -38,8 +38,8 @@ export class TrackOnboarding {
 
     const { currencyId } = selectedAccount;
     const chainId = this.blockchainProviderManager
-      .resolveNetwork(currencyId)
-      .map((network) => network.networkId)
+      .describeCurrency(currencyId)
+      .map((currency) => currency.network.networkId)
       .orDefault("1");
 
     const event = EventTrackingUtils.createOnboardingEvent({

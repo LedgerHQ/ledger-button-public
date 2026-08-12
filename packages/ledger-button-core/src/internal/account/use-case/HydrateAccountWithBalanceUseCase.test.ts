@@ -1,12 +1,14 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { Account } from "@api/model/Account.js";
 import type { BackendService } from "@internal/backend/BackendService.js";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
 import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
 import type { AccountBalance, TokenBalance } from "@internal/balance/model/types.js";
 import type { BalanceService } from "@internal/balance/service/BalanceService.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase.js";
 
@@ -70,37 +72,29 @@ function createCurrencyInformation(
   };
 }
 
+const SUPPORTED_CURRENCIES: Record<string, CurrencyDescriptor> = {
+  ethereum: aCurrencyDescriptor(),
+  polygon: aCurrencyDescriptor({
+    currencyId: "polygon",
+    network: { networkId: "137", blockchainName: "ethereum" },
+  }),
+  solana: aCurrencyDescriptor({
+    currencyId: "solana",
+    family: "solana",
+    network: { networkId: "mainnet", blockchainName: "solana" },
+    nativeDecimals: 9,
+  }),
+};
+
 function createMockBlockchainProviderManager(): BlockchainProviderManager {
   return {
     init: vi.fn(),
     setSelectedAccounts: vi.fn(),
     setNetwork: vi.fn(),
-    resolveBlockchainFamily: vi.fn().mockReturnValue(Maybe.empty()),
-    resolveNetwork: vi.fn().mockImplementation((currencyId: string) => {
-      if (currencyId === "solana") {
-        return Maybe.of({
-          networkId: "mainnet",
-          blockchainName: "solana",
-        });
-      }
-      if (currencyId === "polygon") {
-        return Maybe.of({ networkId: "137", blockchainName: "ethereum" });
-      }
-      if (currencyId === "ethereum") {
-        return Maybe.of({ networkId: "1", blockchainName: "ethereum" });
-      }
-      return Maybe.empty();
-    }),
-    resolveCurrencyId: vi.fn().mockReturnValue(Maybe.empty()),
-    getNativeDecimals: vi.fn().mockImplementation((currencyId: string) => {
-      if (currencyId === "solana") {
-        return Maybe.of(9);
-      }
-      if (currencyId === "ethereum" || currencyId === "polygon") {
-        return Maybe.of(18);
-      }
-      return Maybe.empty();
-    }),
+    describeCurrency: vi.fn((currencyId: string) =>
+      Maybe.fromNullable(SUPPORTED_CURRENCIES[currencyId]),
+    ),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
   };
 }
 
@@ -313,9 +307,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       mockBalanceService.getBalanceForAccount.mockResolvedValue(
         Left(new Error("Balance service unavailable")),
       );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0x0" }),
-      );
+      mockBackendService.broadcast.mockResolvedValue(Right({ result: "0x0" }));
 
       await useCase.execute(mockAccount);
 
@@ -417,7 +409,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals falls back to manager.getNativeDecimals (9)
+      // resolveNativeDecimals falls back to the descriptor's nativeDecimals (9)
       expect(result.balance).toBe("1.5");
     });
 
@@ -435,7 +427,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals falls back to manager.getNativeDecimals (18)
+      // resolveNativeDecimals falls back to the descriptor's nativeDecimals (18)
       expect(result.balance).toBe("1.5");
     });
 

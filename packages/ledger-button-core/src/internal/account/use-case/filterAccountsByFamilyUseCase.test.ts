@@ -1,8 +1,10 @@
 import { Just, type Maybe, Nothing } from "purify-ts";
 import { describe, expect, it, vi } from "vitest";
 
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { AccountWithFiat } from "@api/model/Account.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 
 import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
@@ -38,12 +40,12 @@ const familyByCurrency: Record<string, BlockchainFamily> = {
 
 const makeManager = (): BlockchainProviderManager =>
   ({
-    resolveBlockchainFamily: vi.fn(
-      (currencyId: string): Maybe<BlockchainFamily> => {
-        const family = familyByCurrency[currencyId];
-        return family ? Just(family) : Nothing;
-      },
-    ),
+    describeCurrency: vi.fn((currencyId: string): Maybe<CurrencyDescriptor> => {
+      const family = familyByCurrency[currencyId];
+      return family
+        ? Just(aCurrencyDescriptor({ currencyId, family }))
+        : Nothing;
+    }),
   }) as unknown as BlockchainProviderManager;
 
 describe("FilterAccountsByFamilyUseCase", () => {
