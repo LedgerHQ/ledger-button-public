@@ -1,6 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 import { type Either } from "purify-ts";
 
+import type {
+  Account,
+  AccountWithFiat,
+  FiatBalance,
+  Token,
+} from "../../../api/model/Account.js";
 import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
 import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
 import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
@@ -9,12 +15,6 @@ import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
 import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
-import type {
-  Account,
-  AccountWithFiat,
-  FiatBalance,
-  Token,
-} from "../service/AccountService.js";
 
 @injectable()
 export class HydrateAccountWithFiatUseCase {

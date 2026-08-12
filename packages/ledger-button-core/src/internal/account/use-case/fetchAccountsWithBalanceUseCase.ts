@@ -12,11 +12,11 @@ import {
 } from "rxjs";
 
 import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
+import type { Account } from "../../../api/model/Account.js";
 import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type {
-  Account,
   AccountService,
   AccountUpdate,
 } from "../service/AccountService.js";

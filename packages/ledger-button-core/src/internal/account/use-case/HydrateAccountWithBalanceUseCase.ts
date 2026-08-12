@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { Account, Token } from "../../../api/model/Account.js";
 import type { BackendService } from "../../backend/BackendService.js";
 import { backendModuleTypes } from "../../backend/di/backendModuleTypes.js";
 import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
@@ -13,7 +14,6 @@ import { formatBalance } from "../../currency/currencyUtils.js";
 import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
 import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
 import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, Token } from "../service/AccountService.js";
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {

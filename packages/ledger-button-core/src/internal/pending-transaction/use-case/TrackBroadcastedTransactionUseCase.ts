@@ -1,6 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { ProviderSignParams } from "../../../api/blockchain-provider/model/types.js";
+import type { Account } from "../../../api/model/Account.js";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
@@ -9,7 +10,6 @@ import { isBroadcastedTransactionResult } from "../../../api/model/signing/Signe
 import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
 import { getSignParamsFamily } from "../../../api/model/signing/signParamsFamily.js";
 import { isSignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import { type Account } from "../../account/service/AccountService.js";
 import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
 import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
 import { type ContextService } from "../../context/ContextService.js";

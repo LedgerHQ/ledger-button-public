@@ -11,6 +11,7 @@ import type {
   WalletNavigationIntent,
 } from "../../../api/blockchain-provider/model/types.js";
 import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
+import type { Account } from "../../../api/model/Account.js";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
@@ -22,7 +23,6 @@ import {
   type SignedResults,
 } from "../../../api/model/signing/SignedTransaction.js";
 import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { Account } from "../../../internal/account/service/AccountService.js";
 import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
 import type { CalDataSource } from "../../../internal/balance/datasource/cal/CalDataSource.js";
 import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
