@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError.js";
 
 export class CoinServiceNetworkError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {

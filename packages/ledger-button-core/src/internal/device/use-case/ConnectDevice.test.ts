@@ -6,7 +6,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   DeviceNotSupportedError,
-} from "../../../api/errors/DeviceErrors.js";
+} from "@api/errors/DeviceErrors.js";
+
 import {
   asMockService,
   createMockDeviceManagementKitService,

@@ -3,10 +3,11 @@ import type { Factory } from "inversify";
 import { Right } from "purify-ts";
 import { vi } from "vitest";
 
-import type { EncryptKeyPairUseCase } from "../../cryptographic/use-case/EncryptKeyPairUseCase.js";
-import type { GetEncryptionKeyUseCase } from "../../cryptographic/use-case/GetEncryptionKey.js";
-import type { GetOrCreateKeyPairUseCase } from "../../cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { EncryptKeyPairUseCase } from "@internal/cryptographic/use-case/EncryptKeyPairUseCase.js";
+import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/GetEncryptionKey.js";
+import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import type { StorageService } from "../StorageService.js";
 import { KeyPairMigrationService } from "./KeypairMigrationService.js";
 

@@ -2,8 +2,9 @@ import { Left, Right } from "purify-ts";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
-import type { ContextService } from "../../context/ContextService.js";
+import type { FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+
 import type { PendingTransaction } from "../model/PendingTransaction.js";
 import type { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
 import type { HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";

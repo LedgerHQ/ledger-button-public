@@ -1,4 +1,5 @@
-import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { BlockchainRpcMethods } from "@api/model/dappConfig/BlockchainConfig.js";
+
 import {
   BROADCASTED_TO_NODE_RPC_METHODS,
   LOCALLY_HANDLED_RPC_METHODS,

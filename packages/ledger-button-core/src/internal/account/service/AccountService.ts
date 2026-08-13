@@ -1,5 +1,5 @@
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import type { Account, CloudSyncAccount } from "../../../api/model/Account.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { Account, CloudSyncAccount } from "@api/model/Account.js";
 
 export type CloudSyncData = {
   accounts: CloudSyncAccount[];

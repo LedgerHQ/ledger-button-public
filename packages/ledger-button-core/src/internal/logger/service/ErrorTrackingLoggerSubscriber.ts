@@ -1,12 +1,13 @@
 import { injectable } from "inversify";
 
-import type { EventRequest } from "../../backend/model/trackEvent.js";
-import type { ErrorTrackingConfig } from "../../event-tracking/config/ErrorTrackingConfig.js";
+import type { EventRequest } from "@internal/backend/model/trackEvent.js";
+import type { ErrorTrackingConfig } from "@internal/event-tracking/config/ErrorTrackingConfig.js";
 import {
   DEFAULT_ERROR_TRACKING_CONFIG,
   shouldTrackError,
-} from "../../event-tracking/config/ErrorTrackingConfig.js";
-import { createErrorEvent } from "../../event-tracking/ErrorTrackingUtils.js";
+} from "@internal/event-tracking/config/ErrorTrackingConfig.js";
+import { createErrorEvent } from "@internal/event-tracking/ErrorTrackingUtils.js";
+
 import { LOG_LEVELS } from "../model/constant.js";
 import { LogData } from "./LoggerPublisher.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";

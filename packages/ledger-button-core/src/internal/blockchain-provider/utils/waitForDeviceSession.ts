@@ -1,7 +1,7 @@
 import { filter, first, map, type Observable, timer } from "rxjs";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import type { ProviderDeviceSession } from "../../../api/blockchain-provider/model/types.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { ProviderDeviceSession } from "@api/blockchain-provider/model/types.js";
 
 /** A device session guaranteed to be connected with a session id. */
 export type ConnectedDeviceSession = ProviderDeviceSession & {

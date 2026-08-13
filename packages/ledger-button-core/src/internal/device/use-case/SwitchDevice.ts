@@ -1,7 +1,8 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { deviceModuleTypes } from "../di/deviceModuleTypes.js";
 import {
   ConnectionType,

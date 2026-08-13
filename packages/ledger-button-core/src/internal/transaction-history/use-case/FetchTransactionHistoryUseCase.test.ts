@@ -1,7 +1,8 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+
 import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
 import type {

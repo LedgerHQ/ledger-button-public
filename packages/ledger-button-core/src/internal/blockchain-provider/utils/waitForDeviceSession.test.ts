@@ -1,7 +1,8 @@
 import { firstValueFrom } from "rxjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { ProviderDeviceSession } from "../../../api/blockchain-provider/model/types.js";
+import type { ProviderDeviceSession } from "@api/blockchain-provider/model/types.js";
+
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
 import { waitForDeviceSession } from "./waitForDeviceSession.js";
 

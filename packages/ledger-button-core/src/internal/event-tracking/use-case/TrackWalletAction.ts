@@ -1,10 +1,11 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { type WalletActionType } from "../../backend/model/trackEvent.js";
-import { configModuleTypes } from "../../config/di/configModuleTypes.js";
-import { type Config } from "../../config/model/config.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { type WalletActionType } from "@internal/backend/model/trackEvent.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
+import { type Config } from "@internal/config/model/config.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes.js";
 import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";

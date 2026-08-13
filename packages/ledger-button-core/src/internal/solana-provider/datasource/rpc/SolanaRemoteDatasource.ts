@@ -1,25 +1,25 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { getSelectedAccount } from "../../../../api/model/ButtonCoreContext.js";
+import { getSelectedAccount } from "@api/model/ButtonCoreContext.js";
 import {
   SolanaJSONRPCRequest,
   SolanaJsonRpcResponse,
-} from "../../../../api/model/solana/SolanaTypes.js";
-import { type BackendService } from "../../../backend/BackendService.js";
-import { backendModuleTypes } from "../../../backend/di/backendModuleTypes.js";
+} from "@api/model/solana/SolanaTypes.js";
+import { type BackendService } from "@internal/backend/BackendService.js";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
 import {
   isJsonRpcResponse,
   type JSONRPCRequest,
-} from "../../../backend/types.js";
-import { type ContextService } from "../../../context/ContextService.js";
-import { contextModuleTypes } from "../../../context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+} from "@internal/backend/types.js";
+import { type ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 import {
   DEFAULT_SOLANA_CLUSTER,
   getClusterFromCurrencyId,
-} from "../../utils/clusterUtils.js";
+} from "@internal/solana-provider/utils/clusterUtils.js";
 
 @injectable()
 export class SolanaRemoteDatasource {

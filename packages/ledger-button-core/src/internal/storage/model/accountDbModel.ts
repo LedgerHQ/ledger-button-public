@@ -1,4 +1,4 @@
-import type { Account } from "../../../api/model/Account.js";
+import type { Account } from "@api/model/Account.js";
 
 export type AccountDbModel = {
   address: string;

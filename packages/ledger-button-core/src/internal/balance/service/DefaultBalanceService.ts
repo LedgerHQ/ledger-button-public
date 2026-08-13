@@ -1,9 +1,10 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import type { Account } from "../../../api/model/Account.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { Account } from "@api/model/Account.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import type { CalDataSource } from "../datasource/cal/CalDataSource.js";
 import type { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";
 import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes.js";

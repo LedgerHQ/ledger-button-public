@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError.js";
 import {
   ErrorOccurredEventData,
   EventRequest,
   EventType,
-} from "../../backend/model/trackEvent.js";
+} from "@internal/backend/model/trackEvent.js";
+
 import { LOG_LEVELS } from "../model/constant.js";
 import { ErrorTrackingLoggerSubscriber } from "./ErrorTrackingLoggerSubscriber.js";
 

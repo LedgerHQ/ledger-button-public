@@ -4,9 +4,10 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "../../../api/blockchain-provider/model/types.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService.js";
+
 import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService.js";
 
 const makeService = () => {

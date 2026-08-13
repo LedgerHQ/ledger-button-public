@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 
-import type { Account } from "../../../api/model/Account.js";
+import type { Account } from "@api/model/Account.js";
+
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type { AccountService } from "../service/AccountService.js";
 import { FetchCloudSyncAccountsUseCase } from "./fetchCloudSyncAccountsUseCase.js";
