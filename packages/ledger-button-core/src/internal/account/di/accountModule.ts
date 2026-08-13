@@ -1,6 +1,7 @@
 import { ContainerModule } from "inversify";
 
-import { type ContainerOptions } from "../../diTypes.js";
+import { type ContainerOptions } from "@internal/diTypes.js";
+
 import { DefaultAccountService } from "../service/DefaultAccountService.js";
 import { FetchAccountsUseCase } from "../use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../use-case/fetchAccountsWithBalanceUseCase.js";

@@ -1,15 +1,16 @@
 import { inject, injectable } from "inversify";
 import { from, Observable, switchMap } from "rxjs";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
+import { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
 import {
   SignTransactionParams,
   Transaction,
-} from "../../../api/model/signing/SignTransactionParams.js";
-import { waitForDeviceSession } from "../../blockchain-provider/utils/waitForDeviceSession.js";
+} from "@api/model/signing/SignTransactionParams.js";
+import { waitForDeviceSession } from "@internal/blockchain-provider/utils/waitForDeviceSession.js";
+
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";

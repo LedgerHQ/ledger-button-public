@@ -1,13 +1,4 @@
 export type {
-  JSONRPCRequest,
-  JsonRpcResponse,
-  JsonRpcResponseError,
-  JsonRpcResponseSuccess,
-} from "../../internal/backend/types.js";
-export type { FiatCurrency } from "../../internal/currency/datasource/fiatCurrencyTypes.js";
-export type { BroadcastTracking } from "../../internal/pending-transaction/model/BroadcastTracking.js";
-export type { PendingTransaction } from "../../internal/pending-transaction/model/PendingTransaction.js";
-export type {
   Account,
   AccountWithFiat,
   DetailedAccount,
@@ -42,3 +33,12 @@ export type {
   TransactionType,
 } from "./TransactionHistory.js";
 export * from "./UserInteractionNeeded.js";
+export type {
+  JSONRPCRequest,
+  JsonRpcResponse,
+  JsonRpcResponseError,
+  JsonRpcResponseSuccess,
+} from "@internal/backend/types.js";
+export type { FiatCurrency } from "@internal/currency/datasource/fiatCurrencyTypes.js";
+export type { BroadcastTracking } from "@internal/pending-transaction/model/BroadcastTracking.js";
+export type { PendingTransaction } from "@internal/pending-transaction/model/PendingTransaction.js";

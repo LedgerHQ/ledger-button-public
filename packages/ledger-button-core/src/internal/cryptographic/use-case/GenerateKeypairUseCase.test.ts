@@ -4,7 +4,8 @@ import {
   NobleCryptoService,
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol");

@@ -1,4 +1,4 @@
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
 
 const EVM_DERIVATION_MODE: Record<string, string> = {
   // MEW legacy derivation for eth

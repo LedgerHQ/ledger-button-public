@@ -1,8 +1,9 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Config } from "../../config/model/config.js";
-import type { NetworkService } from "../../network/NetworkService.js";
+import type { Config } from "@internal/config/model/config.js";
+import type { NetworkService } from "@internal/network/NetworkService.js";
+
 import { DefaultFiatCurrencyDataSource } from "./DefaultFiatCurrencyDataSource.js";
 import type { FiatCurrency } from "./fiatCurrencyTypes.js";
 

@@ -1,5 +1,6 @@
+import { LedgerButtonError } from "@api/errors/LedgerButtonError.js";
+
 import { TrackedErrorType } from "./config/ErrorTrackingConfig.js";
-import { LedgerButtonError } from "../../api/errors/LedgerButtonError.js";
 import {
   ErrorOccurredEventData,
   EventRequest,

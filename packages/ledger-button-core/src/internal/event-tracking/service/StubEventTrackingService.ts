@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 
-import type { EventRequest } from "../../backend/model/trackEvent.js";
+import type { EventRequest } from "@internal/backend/model/trackEvent.js";
+
 import type { EventTrackingService } from "./EventTrackingService.js";
 
 @injectable()

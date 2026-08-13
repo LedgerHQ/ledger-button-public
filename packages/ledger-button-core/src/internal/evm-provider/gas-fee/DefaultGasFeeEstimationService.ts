@@ -1,12 +1,13 @@
 import { inject, injectable } from "inversify";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import type { ProviderBlockchain } from "../../../api/blockchain-provider/model/types.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { ProviderBlockchain } from "@api/blockchain-provider/model/types.js";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../../api/model/blockchain/GasFee.js";
-import { isJsonRpcResponseSuccess } from "../../backend/types.js";
+} from "@api/model/blockchain/GasFee.js";
+import { isJsonRpcResponseSuccess } from "@internal/backend/types.js";
+
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
 

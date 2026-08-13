@@ -1,10 +1,11 @@
 import { Maybe, Nothing } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { TrackConsentGiven } from "../../event-tracking/use-case/TrackConsentGiven.js";
-import type { TrackConsentRemoved } from "../../event-tracking/use-case/TrackConsentRemoved.js";
-import type { UserConsent } from "../../storage/model/UserConsent.js";
-import type { StorageService } from "../../storage/StorageService.js";
+import type { TrackConsentGiven } from "@internal/event-tracking/use-case/TrackConsentGiven.js";
+import type { TrackConsentRemoved } from "@internal/event-tracking/use-case/TrackConsentRemoved.js";
+import type { UserConsent } from "@internal/storage/model/UserConsent.js";
+import type { StorageService } from "@internal/storage/StorageService.js";
+
 import { DefaultConsentService } from "./DefaultConsentService.js";
 
 describe("DefaultConsentService", () => {

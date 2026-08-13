@@ -1,10 +1,11 @@
 import { Container } from "inversify";
 import { describe, expect, it } from "vitest";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
-import { createMockCoreFacade } from "../../blockchain-provider/__mocks__/coreFacadeMock.js";
-import { createContainer } from "../../di.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
+import { createMockCoreFacade } from "@internal/blockchain-provider/__mocks__/coreFacadeMock.js";
+import { createContainer } from "@internal/di.js";
+
 import { SolanaRemoteDatasource } from "../datasource/rpc/SolanaRemoteDatasource.js";
 import { StubSolanaRemoteDatasource } from "../datasource/rpc/StubSolanaRemoteDatasource.js";
 import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule.js";

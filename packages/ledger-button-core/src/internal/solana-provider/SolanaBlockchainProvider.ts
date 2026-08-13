@@ -1,15 +1,16 @@
 import { Container } from "inversify";
 
+import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
+
 import { solanaProviderModule } from "./di/solanaProviderModule.js";
 import { solanaProviderModuleTypes } from "./di/solanaProviderModuleTypes.js";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
 import { isSupportedSolanaCurrency } from "./utils/clusterUtils.js";
-import type { BlockchainProvider } from "../../api/blockchain-provider/model/BlockchainProvider.js";
-import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
-import type { BlockchainConfig } from "../../api/model/dappConfig/BlockchainConfig.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 

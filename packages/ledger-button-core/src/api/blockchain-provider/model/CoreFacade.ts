@@ -1,17 +1,18 @@
 import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 
 import type {
-  BroadcastResponse,
-  JSONRPCRequest,
-} from "../../../internal/backend/types.js";
-import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../model/blockchain/GasFee.js";
-import type { ProviderAccount } from "../../model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "../../model/blockchain/ProviderLogger.js";
-import type { SignedResults } from "../../model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
+} from "@api/model/blockchain/GasFee.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
+import type { SignedResults } from "@api/model/signing/SignedTransaction.js";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+import type {
+  BroadcastResponse,
+  JSONRPCRequest,
+} from "@internal/backend/types.js";
+
 import type {
   BlockchainFamily,
   ProviderBlockchain,

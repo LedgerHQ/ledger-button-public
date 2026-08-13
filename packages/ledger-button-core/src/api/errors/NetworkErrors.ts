@@ -1,4 +1,5 @@
-import { NetworkServiceOpts } from "../../internal/network/model/types.js";
+import { NetworkServiceOpts } from "@internal/network/model/types.js";
+
 import { LedgerButtonError } from "./LedgerButtonError.js";
 
 export class BroadcastTransactionError extends LedgerButtonError<{

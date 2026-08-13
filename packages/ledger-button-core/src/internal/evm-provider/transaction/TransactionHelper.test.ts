@@ -2,7 +2,8 @@ import type { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-e
 import { ethers, Signature } from "ethers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Transaction } from "../../../api/model/signing/SignTransactionParams.js";
+import type { Transaction } from "@api/model/signing/SignTransactionParams.js";
+
 import {
   createSignedTransaction,
   getHexaStringFromSignature,

@@ -5,8 +5,9 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant.js";
 import {
   StorageIDBErrors,

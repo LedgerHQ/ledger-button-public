@@ -1,11 +1,12 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Account } from "../../../api/model/Account.js";
-import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
-import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
+import type { Account } from "@api/model/Account.js";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource.js";
+import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+
 import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
 
 function createMockLogger() {

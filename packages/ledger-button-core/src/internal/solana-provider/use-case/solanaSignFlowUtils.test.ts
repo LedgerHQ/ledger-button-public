@@ -2,7 +2,8 @@ import { SolanaAppCommandError } from "@ledgerhq/device-signer-kit-solana/intern
 import { getBase58Decoder } from "@solana/kit";
 import { describe, expect, it } from "vitest";
 
-import { UserRejectedTransactionError } from "../../../api/errors/DeviceErrors.js";
+import { UserRejectedTransactionError } from "@api/errors/DeviceErrors.js";
+
 import {
   extractRawSignatureBase58,
   extractSignedMessage,
