@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AccountWithFiat } from "@api/model/Account.js";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+
 import { BuildNetworksUseCase } from "./buildNetworksUseCase.js";
 
 function createAccount(

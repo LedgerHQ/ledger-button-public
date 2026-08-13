@@ -5,6 +5,7 @@ import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSour
 import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
 
+
 /**
  * Builds the network breakdown of a single address: one entry per account
  * sharing that address, enriched with CAL metadata and sorted by fiat value.
