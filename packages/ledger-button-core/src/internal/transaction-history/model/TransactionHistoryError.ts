@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError.js";
 
 export type TransactionHistoryErrorContext = {
   address?: string;

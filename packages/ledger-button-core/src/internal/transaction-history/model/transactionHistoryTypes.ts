@@ -1,7 +1,7 @@
 import type {
   TransactionDirection,
   TransactionHistoryItem,
-} from "../../../api/model/TransactionHistory.js";
+} from "@api/model/TransactionHistory.js";
 
 export type TransactionHistoryEntryAsset =
   | { isNative: true }

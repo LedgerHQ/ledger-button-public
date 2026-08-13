@@ -1,4 +1,4 @@
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 
 /**
  * Normalize an address for storage/comparison according to the conventions of

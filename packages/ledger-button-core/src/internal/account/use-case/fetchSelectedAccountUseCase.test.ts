@@ -5,12 +5,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   AccountNotFoundError,
   NoSelectedAccountError,
-} from "../../../api/errors/LedgerSyncErrors.js";
-import type { Account, DetailedAccount } from "../../../api/model/Account.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@api/errors/LedgerSyncErrors.js";
+import type { Account, DetailedAccount } from "@api/model/Account.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
 import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";

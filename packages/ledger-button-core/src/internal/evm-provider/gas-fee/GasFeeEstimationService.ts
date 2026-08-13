@@ -1,7 +1,7 @@
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../../api/model/blockchain/GasFee.js";
+} from "@api/model/blockchain/GasFee.js";
 
 export interface GasFeeEstimationService {
   getFeesForTransaction(

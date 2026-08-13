@@ -1,8 +1,9 @@
 import chalk from "chalk";
 import { inject, injectable } from "inversify";
 
-import { configModuleTypes } from "../../config/di/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
+import { Config } from "@internal/config/model/config.js";
+
 import { LOG_LEVELS, type LogLevel } from "../model/constant.js";
 import { LogData } from "./LoggerPublisher.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";

@@ -1,9 +1,10 @@
 import { Just, type Maybe, Nothing } from "purify-ts";
 import { describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import type { AccountWithFiat } from "../../../api/model/Account.js";
-import type { BlockchainProviderManager } from "../../blockchain-provider/service/BlockchainProviderManager.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { AccountWithFiat } from "@api/model/Account.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+
 import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
 
 const base: AccountWithFiat = {

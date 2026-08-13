@@ -1,8 +1,9 @@
-import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 import type {
   BlockchainFamily,
   WalletProvider,
-} from "../../api/blockchain-provider/model/types.js";
+} from "@api/blockchain-provider/model/types.js";
+
+import { registerWalletStandard } from "./utils/registerWalletStandard.js";
 import type { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 /**

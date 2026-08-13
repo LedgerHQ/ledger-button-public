@@ -1,6 +1,9 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Maybe, Nothing } from "purify-ts";
 
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { Account } from "@api/model/Account.js";
+
 import { storageModuleTypes } from "./di/storageModuleTypes.js";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel.js";
 import { STORAGE_KEYS } from "./model/constant.js";
@@ -11,8 +14,6 @@ import {
 } from "./model/FeatureFlags.js";
 import { type UserConsent } from "./model/UserConsent.js";
 import { type IndexedDbService } from "./service/IndexedDbService.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import type { Account } from "../../api/model/Account.js";
 import { loggerModuleTypes } from "../logger/di/loggerModuleTypes.js";
 import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { type StorageService } from "./StorageService.js";

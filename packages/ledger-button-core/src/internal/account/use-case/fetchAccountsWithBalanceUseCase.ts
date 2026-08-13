@@ -11,10 +11,11 @@ import {
   switchMap,
 } from "rxjs";
 
-import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import type { Account } from "../../../api/model/Account.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { type BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { Account } from "@api/model/Account.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type {
   AccountService,

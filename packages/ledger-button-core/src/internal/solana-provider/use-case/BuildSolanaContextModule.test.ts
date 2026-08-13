@@ -1,7 +1,8 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "../../blockchain-provider/__mocks__/coreFacadeMock.js";
+import { createMockCoreFacade } from "@internal/blockchain-provider/__mocks__/coreFacadeMock.js";
+
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule.js";
 
 const mocks = vi.hoisted(() => ({

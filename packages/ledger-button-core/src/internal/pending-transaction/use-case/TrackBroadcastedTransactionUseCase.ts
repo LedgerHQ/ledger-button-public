@@ -1,22 +1,23 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { ProviderSignParams } from "../../../api/blockchain-provider/model/types.js";
-import type { Account } from "../../../api/model/Account.js";
+import type { ProviderSignParams } from "@api/blockchain-provider/model/types.js";
+import type { Account } from "@api/model/Account.js";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
-} from "../../../api/model/ButtonCoreContext.js";
-import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
-import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import { getSignParamsFamily } from "../../../api/model/signing/signParamsFamily.js";
-import { isSignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
-import { formatBalance } from "../../currency/currencyUtils.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@api/model/ButtonCoreContext.js";
+import { isBroadcastedTransactionResult } from "@api/model/signing/SignedTransaction.js";
+import { type SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+import { getSignParamsFamily } from "@api/model/signing/signParamsFamily.js";
+import { isSignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
+import { type CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import { type ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { formatBalance } from "@internal/currency/currencyUtils.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
 import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";

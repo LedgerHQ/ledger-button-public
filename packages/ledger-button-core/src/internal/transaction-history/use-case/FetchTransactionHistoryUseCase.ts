@@ -2,12 +2,13 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
-import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
-import { getDefaultDecimals } from "../../currency/currencyUtils.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes.js";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import { getDefaultDecimals } from "@internal/currency/currencyUtils.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
 import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes.js";
 import { TransactionHistoryError } from "../model/TransactionHistoryError.js";

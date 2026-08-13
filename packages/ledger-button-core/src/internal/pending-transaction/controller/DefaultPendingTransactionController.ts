@@ -1,17 +1,18 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, filter, Observable } from "rxjs";
 
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import {
   getActiveFamily,
   getActiveSelectedAccount,
-} from "../../../api/model/ButtonCoreContext.js";
-import { accountModuleTypes } from "../../account/di/accountModuleTypes.js";
-import { type FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@api/model/ButtonCoreContext.js";
+import { accountModuleTypes } from "@internal/account/di/accountModuleTypes.js";
+import { type FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase.js";
+import { type ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes.js";
 import { type BroadcastTracking } from "../model/BroadcastTracking.js";
 import { type PendingTransaction } from "../model/PendingTransaction.js";

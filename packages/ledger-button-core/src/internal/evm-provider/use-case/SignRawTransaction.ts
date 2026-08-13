@@ -27,32 +27,30 @@ import {
   tap,
 } from "rxjs";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
 import {
   BlindSigningDisabledError,
   DeviceOutOfMemoryError,
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../../api/errors/DeviceErrors.js";
-import { AccountNotSelectedError } from "../../../api/errors/DeviceFlowErrors.js";
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+} from "@api/errors/DeviceErrors.js";
+import { AccountNotSelectedError } from "@api/errors/DeviceFlowErrors.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
 import {
   GetAddressDAState,
   isGetAddressResult,
-} from "../../../api/model/signing/GetAddress.js";
+} from "@api/model/signing/GetAddress.js";
 import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
-} from "../../../api/model/signing/SignedTransaction.js";
-import {
-  SignFlowStatus,
-  SignType,
-} from "../../../api/model/signing/SignFlowStatus.js";
-import { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import { waitForDeviceSession } from "../../blockchain-provider/utils/waitForDeviceSession.js";
+} from "@api/model/signing/SignedTransaction.js";
+import { SignFlowStatus, SignType } from "@api/model/signing/SignFlowStatus.js";
+import { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
+import { waitForDeviceSession } from "@internal/blockchain-provider/utils/waitForDeviceSession.js";
+
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import type { EvmSignedResult } from "../model/EvmSignedResult.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";

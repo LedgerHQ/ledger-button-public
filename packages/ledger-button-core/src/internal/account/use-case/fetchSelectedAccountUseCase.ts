@@ -3,29 +3,30 @@ import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 import { lastValueFrom } from "rxjs";
 
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import {
   AccountNotFoundError,
   NoSelectedAccountError,
-} from "../../../api/errors/LedgerSyncErrors.js";
+} from "@api/errors/LedgerSyncErrors.js";
 import type {
   Account,
   AccountWithFiat,
   DetailedAccount,
   Network,
-} from "../../../api/model/Account.js";
+} from "@api/model/Account.js";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
-} from "../../../api/model/ButtonCoreContext.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
-import { ledgerSyncModuleTypes } from "../../ledgersync/di/ledgerSyncModuleTypes.js";
-import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@api/model/ButtonCoreContext.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes.js";
+import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { calculateTotalFiatValue } from "../accountFiatUtils.js";
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";

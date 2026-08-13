@@ -1,7 +1,8 @@
 import { injectable } from "inversify";
 import { Observable, of } from "rxjs";
 
-import { LedgerSyncAuthenticateResponse } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
+import { LedgerSyncAuthenticateResponse } from "@api/model/LedgerSyncAuthenticateResponse.js";
+
 import { InternalAuthContext } from "../model/InternalAuthContext.js";
 import { LedgerSyncService } from "./LedgerSyncService.js";
 

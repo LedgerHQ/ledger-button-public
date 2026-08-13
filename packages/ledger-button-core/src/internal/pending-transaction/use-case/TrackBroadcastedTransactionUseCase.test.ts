@@ -1,11 +1,12 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
-import type { SignTransactionParams } from "../../../api/model/signing/SignTransactionParams.js";
-import type { SignSolanaTransactionParams } from "../../../api/model/signing/solana/SignSolanaTransactionParams.js";
-import { ContextService } from "../../context/ContextService.js";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
+import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
+import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams.js";
+import { ContextService } from "@internal/context/ContextService.js";
+
 import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
 import { TrackBroadcastedTransactionUseCase } from "./TrackBroadcastedTransactionUseCase.js";
 

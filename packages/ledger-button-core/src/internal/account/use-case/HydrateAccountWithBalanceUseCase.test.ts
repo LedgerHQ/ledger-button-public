@@ -1,12 +1,13 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Account } from "../../../api/model/Account.js";
-import type { BackendService } from "../../backend/BackendService.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { CurrencyInformation } from "../../balance/datasource/cal/calTypes.js";
-import type { AccountBalance, TokenBalance } from "../../balance/model/types.js";
-import type { BalanceService } from "../../balance/service/BalanceService.js";
+import type { Account } from "@api/model/Account.js";
+import type { BackendService } from "@internal/backend/BackendService.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
+import type { AccountBalance, TokenBalance } from "@internal/balance/model/types.js";
+import type { BalanceService } from "@internal/balance/service/BalanceService.js";
+
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
 function createMockLogger() {

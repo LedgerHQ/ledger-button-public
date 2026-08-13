@@ -2,7 +2,7 @@ import type {
   BroadcastedTransactionResult,
   SignedPersonalMessageOrTypedDataResult,
   SignedTransactionResult,
-} from "../../../api/model/signing/SignedTransaction.js";
+} from "@api/model/signing/SignedTransaction.js";
 
 /**
  * Results the EVM sign flow can emit. Owned by the EVM provider and used by its
@@ -15,7 +15,7 @@ export type EvmSignedResult =
   | SignedTransactionResult
   | SignedPersonalMessageOrTypedDataResult;
 
-declare module "../../../api/model/signing/SignedTransaction.js" {
+declare module "@api/model/signing/SignedTransaction.js" {
   interface SignedResultRegistry {
     evm: EvmSignedResult;
   }

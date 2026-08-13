@@ -1,11 +1,12 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import type { Config } from "../../../config/model/config.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
-import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import type { Config } from "@internal/config/model/config.js";
+import type { NetworkService } from "@internal/network/NetworkService.js";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError.js";
+
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,

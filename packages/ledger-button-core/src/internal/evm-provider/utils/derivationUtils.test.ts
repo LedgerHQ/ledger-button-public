@@ -1,4 +1,5 @@
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+
 import { getEvmDerivationPath } from "./derivationUtils.js";
 
 function createAccount(

@@ -1,27 +1,28 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, type Maybe } from "purify-ts";
 
-import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import type { TransactionDirection } from "../../../../api/model/TransactionHistory.js";
-import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { configModuleTypes } from "../../../config/di/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import { networkModuleTypes } from "../../../network/di/networkModuleTypes.js";
-import type { NetworkServiceOpts } from "../../../network/model/types.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
-import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { TransactionDirection } from "@api/model/TransactionHistory.js";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
+import { Config } from "@internal/config/model/config.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes.js";
+import type { NetworkServiceOpts } from "@internal/network/model/types.js";
+import type { NetworkService } from "@internal/network/NetworkService.js";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError.js";
 import {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,
   TransactionHistoryOptions,
   TransactionHistoryPage,
-} from "../../model/transactionHistoryTypes.js";
-import { normalizeAddressForCurrency } from "../../utils/normalizeAddressForCurrency.js";
-import { resolveNetworkSlug } from "../../utils/resolveNetworkSlug.js";
+} from "@internal/transaction-history/model/transactionHistoryTypes.js";
+import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency.js";
+import { resolveNetworkSlug } from "@internal/transaction-history/utils/resolveNetworkSlug.js";
+
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,

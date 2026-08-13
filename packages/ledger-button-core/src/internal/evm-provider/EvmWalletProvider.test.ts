@@ -3,7 +3,8 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { EIP1193Provider } from "../../api/model/eip/EIPTypes.js";
+import type { EIP1193Provider } from "@api/model/eip/EIPTypes.js";
+
 import { EvmWalletProvider } from "./EvmWalletProvider.js";
 
 const createMockEip1193Provider = (): EIP1193Provider =>

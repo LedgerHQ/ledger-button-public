@@ -1,6 +1,7 @@
 import { ContainerModule } from "inversify";
 
-import { ContainerOptions } from "../../diTypes.js";
+import { ContainerOptions } from "@internal/diTypes.js";
+
 import { DefaultDeviceManagementKitService } from "../service/DefaultDeviceManagementKitService.js";
 import { StubDeviceManagementKitService } from "../service/StubDeviceManagementKitService.js";
 import { ConnectDevice } from "../use-case/ConnectDevice.js";

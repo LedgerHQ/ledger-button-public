@@ -1,13 +1,14 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, Observable } from "rxjs";
 
-import { type ContextEvent } from "./model/ContextEvent.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import type { Account, DetailedAccount } from "../../api/model/Account.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { Account, DetailedAccount } from "@api/model/Account.js";
 import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
-} from "../../api/model/ButtonCoreContext.js";
+} from "@api/model/ButtonCoreContext.js";
+
+import { type ContextEvent } from "./model/ContextEvent.js";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import {
   getChainIdFromCurrencyId,

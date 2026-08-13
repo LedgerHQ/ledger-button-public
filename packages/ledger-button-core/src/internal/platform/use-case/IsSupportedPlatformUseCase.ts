@@ -1,7 +1,8 @@
 import { inject, injectable } from "inversify";
 
-import { deviceModuleTypes } from "../../device/di/deviceModuleTypes.js";
-import { type DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
+import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes.js";
+import { type DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService.js";
+
 import { platformModuleTypes } from "../di/platformModuleTypes.js";
 import { type IsMobileUseCase } from "./IsMobileUseCase.js";
 

@@ -25,31 +25,32 @@ import {
   tap,
 } from "rxjs";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
 import {
   BlindSigningDisabledError,
   DeviceOutOfMemoryError,
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../../api/errors/DeviceErrors.js";
-import { AccountNotSelectedError } from "../../../api/errors/DeviceFlowErrors.js";
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+} from "@api/errors/DeviceErrors.js";
+import { AccountNotSelectedError } from "@api/errors/DeviceFlowErrors.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
 import {
   type GetAddressDAState,
   isGetAddressResult,
-} from "../../../api/model/signing/GetAddress.js";
+} from "@api/model/signing/GetAddress.js";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
-} from "../../../api/model/signing/SignedTransaction.js";
+} from "@api/model/signing/SignedTransaction.js";
 import type {
   SignFlowStatus,
   SignType,
-} from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import { waitForDeviceSession } from "../../blockchain-provider/utils/waitForDeviceSession.js";
+} from "@api/model/signing/SignFlowStatus.js";
+import type { SignTypedMessageParams } from "@api/model/signing/SignTypedMessageParams.js";
+import { waitForDeviceSession } from "@internal/blockchain-provider/utils/waitForDeviceSession.js";
+
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
 import { getEvmDerivationPath } from "../utils/derivationUtils.js";

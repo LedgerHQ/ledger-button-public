@@ -1,4 +1,5 @@
-import { NetworkError } from "../../api/errors/NetworkErrors.js";
+import { NetworkError } from "@api/errors/NetworkErrors.js";
+
 import { Config } from "../config/model/config.js";
 import { DefaultNetworkService } from "./DefaultNetworkService.js";
 

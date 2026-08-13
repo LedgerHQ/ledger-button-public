@@ -2,8 +2,9 @@ import { type Factory } from "inversify";
 import { type Observable, of } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { AccountWithFiat } from "../../../api/model/Account.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { AccountWithFiat } from "@api/model/Account.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import type { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import type { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase.js";

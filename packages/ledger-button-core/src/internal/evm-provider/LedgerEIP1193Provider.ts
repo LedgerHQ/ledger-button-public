@@ -17,18 +17,10 @@
 
 import { type Observable, Subject, type Subscription } from "rxjs";
 
-import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
-import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
-import type { SignTransaction } from "./use-case/SignTransaction.js";
-import type { SignTypedData } from "./use-case/SignTypedData.js";
-import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
-import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
-import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
-import { isSupportedChainId } from "./utils/supportedChains.js";
-import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import type { ProviderAccount } from "../../api/model/blockchain/ProviderAccount.js";
-import type { BlockchainRpcMethods } from "../../api/model/dappConfig/BlockchainConfig.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { BlockchainRpcMethods } from "@api/model/dappConfig/BlockchainConfig.js";
 import {
   CommonEIP1193ErrorCode,
   type EIP1193Provider,
@@ -38,23 +30,32 @@ import {
   type RequestArguments,
   type RpcMethods,
   TypedData,
-} from "../../api/model/eip/EIPTypes.js";
+} from "@api/model/eip/EIPTypes.js";
 import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
   type SignedResults,
-} from "../../api/model/signing/SignedTransaction.js";
+} from "@api/model/signing/SignedTransaction.js";
 import {
   type SignFlowStatus,
   type SignType,
-} from "../../api/model/signing/SignFlowStatus.js";
-import { toSignIntentType } from "../../api/model/signing/SignIntentType.js";
-import type { SignPersonalMessageParams } from "../../api/model/signing/SignPersonalMessageParams.js";
-import type { SignRawTransactionParams } from "../../api/model/signing/SignRawTransactionParams.js";
-import type { SignTransactionParams } from "../../api/model/signing/SignTransactionParams.js";
-import type { SignTypedMessageParams } from "../../api/model/signing/SignTypedMessageParams.js";
-import { hexToUtf8 } from "../../api/utils/byteUtils.js";
+} from "@api/model/signing/SignFlowStatus.js";
+import { toSignIntentType } from "@api/model/signing/SignIntentType.js";
+import type { SignPersonalMessageParams } from "@api/model/signing/SignPersonalMessageParams.js";
+import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
+import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
+import type { SignTypedMessageParams } from "@api/model/signing/SignTypedMessageParams.js";
+import { hexToUtf8 } from "@api/utils/byteUtils.js";
+
+import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
+import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
+import type { SignTransaction } from "./use-case/SignTransaction.js";
+import type { SignTypedData } from "./use-case/SignTypedData.js";
+import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
+import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
+import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
+import { isSupportedChainId } from "./utils/supportedChains.js";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;

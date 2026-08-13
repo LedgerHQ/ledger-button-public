@@ -1,9 +1,10 @@
-import { isSignSolanaMessageParams } from "./solana/SignSolanaMessageParams.js";
-import { isSignSolanaTransactionParams } from "./solana/SignSolanaTransactionParams.js";
 import type {
   BlockchainFamily,
   ProviderSignParams,
-} from "../../blockchain-provider/model/types.js";
+} from "@api/blockchain-provider/model/types.js";
+
+import { isSignSolanaMessageParams } from "./solana/SignSolanaMessageParams.js";
+import { isSignSolanaTransactionParams } from "./solana/SignSolanaTransactionParams.js";
 import { DEFAULT_BLOCKCHAIN_FAMILY } from "../ButtonCoreContext.js";
 
 /**

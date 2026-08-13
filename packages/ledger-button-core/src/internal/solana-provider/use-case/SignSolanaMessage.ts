@@ -6,17 +6,18 @@ import {
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import { AccountNotSelectedError } from "../../../api/errors/DeviceFlowErrors.js";
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import { AccountNotSelectedError } from "@api/errors/DeviceFlowErrors.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
 import type {
   SignFlowStatus,
   SignType,
-} from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
-import { waitForDeviceSession } from "../../blockchain-provider/utils/waitForDeviceSession.js";
+} from "@api/model/signing/SignFlowStatus.js";
+import type { SignSolanaMessageParams } from "@api/model/signing/solana/SignSolanaMessageParams.js";
+import { waitForDeviceSession } from "@internal/blockchain-provider/utils/waitForDeviceSession.js";
+
 import { SignSolanaMessageFlowDeviceAction } from "../device-action/SignSolanaMessageFlowDeviceAction.js";
 import type {
   SignSolanaMessageFlowDAError,

@@ -1,7 +1,8 @@
 import { Just, Left, Nothing, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { StorageService } from "../../storage/StorageService.js";
+import type { StorageService } from "@internal/storage/StorageService.js";
+
 import { DEFAULT_FIAT_CURRENCY, DEFAULT_SUPPORTED_FIAT_CURRENCIES } from "../constant.js";
 import type { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource.js";
 import type { FiatCurrency } from "../datasource/fiatCurrencyTypes.js";

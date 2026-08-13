@@ -1,7 +1,8 @@
 import chalk from "chalk";
 import { MockInstance } from "vitest";
 
-import { Config } from "../../config/model/config.js";
+import { Config } from "@internal/config/model/config.js";
+
 import { LOG_LEVELS } from "../model/constant.js";
 import { ConsoleLoggerSubscriber } from "./ConsoleLoggerSubscriber.js";
 import { LoggerSubscriber } from "./LoggerSubscriber.js";
