@@ -4,7 +4,8 @@ import {
 } from "@ledgerhq/device-management-kit";
 import { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase.js";
 
 vi.mock("@ledgerhq/device-management-kit");

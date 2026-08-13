@@ -6,14 +6,15 @@ import type {
   AccountWithFiat,
   FiatBalance,
   Token,
-} from "../../../api/model/Account.js";
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
-import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
-import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@api/model/Account.js";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource.js";
+import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes.js";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { enrichWithLoadingStates } from "../accountFiatUtils.js";
 
 @injectable()

@@ -1,7 +1,7 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
+import { EventDataSchema } from "@schemas/event-schemas.js";
 import { sha256 } from "ethers";
 
-import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { AccountWithFiat } from "../../api/model/Account.js";
+import type { AccountWithFiat } from "@api/model/Account.js";
+
 import {
   calculateTotalFiatValue,
   computeNetworks,

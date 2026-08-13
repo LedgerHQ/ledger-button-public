@@ -20,7 +20,14 @@
     ],
     "outDir": "dist",
     "rootDir": "../../",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    // `next build` runs its own type check and ignores project references, so it
+    // pulls ledger-button-core sources into this program without their `paths`.
+    "paths": {
+      "@api/*": ["../../packages/ledger-button-core/src/api/*"],
+      "@internal/*": ["../../packages/ledger-button-core/src/internal/*"],
+      "@schemas/*": ["../../packages/ledger-button-core/src/schemas/*"]
+    }
   },
   "include": [
     "../../apps/test-dapp/.next/types/**/*.ts",

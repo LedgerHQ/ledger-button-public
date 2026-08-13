@@ -6,9 +6,10 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { Left, Right } from "purify-ts";
 
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { StorageIDBGetError } from "../../storage/model/errors.js";
-import { StorageService } from "../../storage/StorageService.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { StorageIDBGetError } from "@internal/storage/model/errors.js";
+import { StorageService } from "@internal/storage/StorageService.js";
+
 import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
 import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase.js";
 import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";

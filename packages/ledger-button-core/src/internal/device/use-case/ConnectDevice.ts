@@ -8,9 +8,10 @@ import { type Factory, inject, injectable } from "inversify";
 import {
   DeviceNotOnboardedError,
   DeviceNotSupportedError,
-} from "../../../api/errors/DeviceErrors.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@api/errors/DeviceErrors.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { deviceModuleTypes } from "../di/deviceModuleTypes.js";
 import { Device } from "../model/Device.js";
 import {

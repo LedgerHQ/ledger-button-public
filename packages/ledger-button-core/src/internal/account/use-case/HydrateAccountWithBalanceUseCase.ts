@@ -1,19 +1,19 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { Account, Token } from "../../../api/model/Account.js";
-import type { BackendService } from "../../backend/BackendService.js";
-import { backendModuleTypes } from "../../backend/di/backendModuleTypes.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "../../balance/di/balanceModuleTypes.js";
+import type { Account, Token } from "@api/model/Account.js";
+import type { BackendService } from "@internal/backend/BackendService.js";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
 import {
   type AccountBalance,
   type TokenBalance,
-} from "../../balance/model/types.js";
-import type { BalanceService } from "../../balance/service/BalanceService.js";
-import { formatBalance } from "../../currency/currencyUtils.js";
-import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@internal/balance/model/types.js";
+import type { BalanceService } from "@internal/balance/service/BalanceService.js";
+import { formatBalance } from "@internal/currency/currencyUtils.js";
+import { getChainIdFromCurrencyId } from "@internal/evm-provider/utils/chainUtils.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {

@@ -18,9 +18,10 @@ import { assign, setup } from "xstate";
 import {
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../../api/errors/DeviceErrors.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { UserInteractionNeeded } from "../../../api/model/UserInteractionNeeded.js";
+} from "@api/errors/DeviceErrors.js";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+import type { UserInteractionNeeded } from "@api/model/UserInteractionNeeded.js";
+
 import {
   type SignSolanaTransactionFlowDAError,
   type SignSolanaTransactionFlowDAInput,

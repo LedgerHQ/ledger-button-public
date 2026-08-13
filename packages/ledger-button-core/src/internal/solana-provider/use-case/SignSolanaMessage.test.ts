@@ -3,9 +3,10 @@ import { getBase58Decoder } from "@solana/kit";
 import { lastValueFrom, of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
-import { AccountNotSelectedError } from "../../../api/errors/DeviceFlowErrors.js";
-import type { BlockchainConfig } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import { AccountNotSelectedError } from "@api/errors/DeviceFlowErrors.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
+
 import { SignSolanaMessage } from "./SignSolanaMessage.js";
 
 const SOLANA_ADDRESS = "11111111111111111111111111111111";

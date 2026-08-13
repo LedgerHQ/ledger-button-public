@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService.js";
+
 import type { IsMobileUseCase } from "./IsMobileUseCase.js";
 import { IsSupportedPlatformUseCase } from "./IsSupportedPlatformUseCase.js";
 

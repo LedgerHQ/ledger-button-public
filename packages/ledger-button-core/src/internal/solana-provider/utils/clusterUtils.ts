@@ -1,4 +1,4 @@
-import type { SolanaCluster } from "../../../api/model/solana/SolanaTypes.js";
+import type { SolanaCluster } from "@api/model/solana/SolanaTypes.js";
 
 export const SOLANA_MAPPING_TABLE: Record<string, SolanaCluster> = {
   solana: "mainnet",

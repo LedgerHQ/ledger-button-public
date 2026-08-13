@@ -4,13 +4,14 @@ import { Right } from "purify-ts";
 import {
   CommonSolanaErrorCode,
   SolanaJSONRPCRequest,
-} from "../../../../api/model/solana/SolanaTypes.js";
-import { type BackendService } from "../../../backend/BackendService.js";
-import { backendModuleTypes } from "../../../backend/di/backendModuleTypes.js";
-import { type ContextService } from "../../../context/ContextService.js";
-import { contextModuleTypes } from "../../../context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "../../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
+} from "@api/model/solana/SolanaTypes.js";
+import { type BackendService } from "@internal/backend/BackendService.js";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
+import { type ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { SolanaRemoteDatasource } from "./SolanaRemoteDatasource.js";
 
 @injectable()

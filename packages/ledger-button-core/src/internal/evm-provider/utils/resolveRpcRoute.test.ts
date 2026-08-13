@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { BlockchainRpcMethods } from "../../../api/model/dappConfig/BlockchainConfig.js";
+import type { BlockchainRpcMethods } from "@api/model/dappConfig/BlockchainConfig.js";
+
 import { resolveRpcRoute } from "./resolveRpcRoute.js";
 
 describe("resolveRpcRoute", () => {

@@ -1,4 +1,5 @@
-import type { Account } from "../../../api/model/Account.js";
+import type { Account } from "@api/model/Account.js";
+
 import { getSolanaDerivationPath } from "./derivationUtils.js";
 
 function createAccount(overrides: Partial<Account> = {}): Account {

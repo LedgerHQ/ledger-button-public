@@ -1,7 +1,7 @@
 import { SolanaAppCommandError } from "@ledgerhq/device-signer-kit-solana/internal/app-binder/command/utils/SolanaApplicationErrors.js";
 import { getBase58Decoder, getBase58Encoder } from "@solana/kit";
 
-import { UserRejectedTransactionError } from "../../../api/errors/DeviceErrors.js";
+import { UserRejectedTransactionError } from "@api/errors/DeviceErrors.js";
 
 /**
  * APDU status word returned by the Solana app when the user rejects the

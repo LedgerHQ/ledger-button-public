@@ -1,4 +1,5 @@
-import { InternalAuthContext } from "../../../internal/ledgersync/model/InternalAuthContext.js";
+import { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext.js";
+
 import { CloudSyncData } from "../model/cloudSyncTypes.js";
 
 export interface CloudSyncService {

@@ -3,11 +3,12 @@ import type { WalletAccount } from "@wallet-standard/base";
 import { of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { Account } from "@api/model/Account.js";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
 import { attachSolanaSignature } from "./utils/signatureUtils.js";
-import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade.js";
-import type { Account } from "../../api/model/Account.js";
-import type { SignFlowStatus } from "../../api/model/signing/SignFlowStatus.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 
 vi.mock("./utils/signatureUtils.js", () => ({

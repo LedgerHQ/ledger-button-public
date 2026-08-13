@@ -1,11 +1,12 @@
 import { ethers, Signature } from "ethers";
 import { inject, injectable } from "inversify";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
 import {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponseSuccess,
-} from "../../backend/types.js";
+} from "@internal/backend/types.js";
+
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
 import type { EvmSignedResult } from "../model/EvmSignedResult.js";
 import { createSignedTransaction } from "../transaction/TransactionHelper.js";

@@ -1,4 +1,4 @@
-import type { ProviderAccount } from "../../../api/model/blockchain/ProviderAccount.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
 
 // Solana uses Ed25519 keypairs with a coin-type of 501. As per SLIP-0010 all
 // derivation-path indexes are promoted to hardened. Ledger Live derives Solana

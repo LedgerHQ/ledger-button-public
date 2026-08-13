@@ -1,17 +1,18 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { BackendService } from "../../backend/BackendService.js";
-import { backendModuleTypes } from "../../backend/di/backendModuleTypes.js";
+import type { BackendService } from "@internal/backend/BackendService.js";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
 import {
   type EventRequest,
   EventType,
-} from "../../backend/model/trackEvent.js";
-import { configModuleTypes } from "../../config/di/configModuleTypes.js";
-import type { Config } from "../../config/model/config.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+} from "@internal/backend/model/trackEvent.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
+import type { Config } from "@internal/config/model/config.js";
+import type { ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import { generateUUID } from "../utils.js";
 import type { EventTrackingService } from "./EventTrackingService.js";

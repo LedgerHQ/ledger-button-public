@@ -4,8 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   TransactionHistoryItem,
   TransactionHistoryItemAsset,
-} from "../../../api/model/TransactionHistory.js";
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
+} from "@api/model/TransactionHistory.js";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource.js";
+
 import { HydrateTransactionsWithFiatUseCase } from "./HydrateTransactionsWithFiatUseCase.js";
 
 function createMockLogger() {

@@ -1,11 +1,11 @@
 import { getBase58Encoder } from "@solana/kit";
 
-import type { SolanaJSONRPCRequest } from "../../../../api/model/solana/SolanaTypes.js";
-import type { BroadcastResponse } from "../../../backend/types.js";
+import type { SolanaJSONRPCRequest } from "@api/model/solana/SolanaTypes.js";
+import type { BroadcastResponse } from "@internal/backend/types.js";
 import {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponseSuccess,
-} from "../../../backend/types.js";
+} from "@internal/backend/types.js";
 
 const base58Encoder = getBase58Encoder();
 

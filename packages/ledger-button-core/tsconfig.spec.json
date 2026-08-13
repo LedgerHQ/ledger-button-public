@@ -2,6 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./out-tsc/vitest",
+    "baseUrl": ".",
+    "paths": {
+      "@api/*": ["src/api/*"],
+      "@internal/*": ["src/internal/*"],
+      "@schemas/*": ["src/schemas/*"]
+    },
     "types": [
       "vitest/globals",
       "vitest/importMeta",

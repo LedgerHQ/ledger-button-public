@@ -1,13 +1,14 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { Account } from "../../../api/model/Account.js";
-import { configModuleTypes } from "../../config/di/configModuleTypes.js";
-import { type Config } from "../../config/model/config.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { contextModuleTypes } from "../../context/di/contextModuleTypes.js";
-import { getChainIdFromCurrencyId } from "../../evm-provider/utils/chainUtils.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import type { Account } from "@api/model/Account.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
+import { type Config } from "@internal/config/model/config.js";
+import { type ContextService } from "@internal/context/ContextService.js";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import { getChainIdFromCurrencyId } from "@internal/evm-provider/utils/chainUtils.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes.js";
 import { EventTrackingUtils } from "../EventTrackingUtils.js";
 import type { EventTrackingService } from "../service/EventTrackingService.js";

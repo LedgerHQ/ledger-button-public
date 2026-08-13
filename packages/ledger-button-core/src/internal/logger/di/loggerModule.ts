@@ -1,10 +1,11 @@
 import { ContainerModule, Factory } from "inversify";
 
-import { configModuleTypes } from "../../config/di/configModuleTypes.js";
-import type { Config } from "../../config/model/config.js";
-import type { ErrorTrackingConfig } from "../../event-tracking/config/ErrorTrackingConfig.js";
-import { eventTrackingModuleTypes } from "../../event-tracking/di/eventTrackingModuleTypes.js";
-import type { EventTrackingService } from "../../event-tracking/service/EventTrackingService.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
+import type { Config } from "@internal/config/model/config.js";
+import type { ErrorTrackingConfig } from "@internal/event-tracking/config/ErrorTrackingConfig.js";
+import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes.js";
+import type { EventTrackingService } from "@internal/event-tracking/service/EventTrackingService.js";
+
 import { ConsoleLoggerSubscriber } from "../service/ConsoleLoggerSubscriber.js";
 import { DefaultLoggerPublisher } from "../service/DefaultLoggerPublisher.js";
 import { ErrorTrackingLoggerSubscriber } from "../service/ErrorTrackingLoggerSubscriber.js";

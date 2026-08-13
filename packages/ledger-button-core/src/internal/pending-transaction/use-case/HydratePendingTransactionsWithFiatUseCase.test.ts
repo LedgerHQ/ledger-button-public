@@ -1,7 +1,8 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource.js";
+
 import type { PendingTransaction } from "../model/PendingTransaction.js";
 import { HydratePendingTransactionsWithFiatUseCase } from "./HydratePendingTransactionsWithFiatUseCase.js";
 

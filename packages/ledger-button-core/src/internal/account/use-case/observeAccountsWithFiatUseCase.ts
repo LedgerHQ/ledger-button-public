@@ -1,10 +1,11 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Observable, shareReplay, switchMap } from "rxjs";
 
-import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import type { AccountWithFiat } from "../../../api/model/Account.js";
-import { loggerModuleTypes } from "../../logger/di/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { type BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { AccountWithFiat } from "@api/model/Account.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+
 import { accountModuleTypes } from "../di/accountModuleTypes.js";
 import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";

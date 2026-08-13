@@ -5,7 +5,8 @@ import {
 } from "@ledgerhq/context-module";
 import { inject, injectable } from "inversify";
 
-import type { CoreFacade } from "../../../api/blockchain-provider/model/CoreFacade.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+
 import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes.js";
 
 @injectable()

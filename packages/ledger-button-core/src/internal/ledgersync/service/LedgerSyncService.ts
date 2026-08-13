@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
-import { LedgerSyncAuthenticateResponse } from "../../../api/model/LedgerSyncAuthenticateResponse.js";
+import { LedgerSyncAuthenticateResponse } from "@api/model/LedgerSyncAuthenticateResponse.js";
+
 import { InternalAuthContext } from "../model/InternalAuthContext.js";
 
 export interface LedgerSyncService {

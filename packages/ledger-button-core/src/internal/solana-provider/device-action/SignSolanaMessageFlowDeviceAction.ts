@@ -15,9 +15,10 @@ import {
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
 
-import { IncorrectSeedError } from "../../../api/errors/DeviceErrors.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { UserInteractionNeeded } from "../../../api/model/UserInteractionNeeded.js";
+import { IncorrectSeedError } from "@api/errors/DeviceErrors.js";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+import type { UserInteractionNeeded } from "@api/model/UserInteractionNeeded.js";
+
 import {
   extractRawSignatureBase58,
   extractSignedMessage,

@@ -10,7 +10,8 @@ import { lastValueFrom, type Observable } from "rxjs";
 import {
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "../../../../api/errors/DeviceErrors.js";
+} from "@api/errors/DeviceErrors.js";
+
 import { SignSolanaMessageFlowDeviceAction } from "../SignSolanaMessageFlowDeviceAction.js";
 import { SignSolanaMessageFlowDAStep } from "../SignSolanaMessageFlowDeviceActionTypes.js";
 import {
