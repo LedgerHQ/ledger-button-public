@@ -1,7 +1,8 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import type { Config } from "@internal/config/model/config.js";
 import type { NetworkService } from "@internal/network/NetworkService.js";
@@ -62,9 +63,22 @@ function makeDto(
 const EVM_CURRENCIES = new Set(["ethereum", "polygon"]);
 const SOLANA_CURRENCIES = new Set(["solana"]);
 
-function resolveFamilyForTest(currencyId: string): Maybe<BlockchainFamily> {
-  if (EVM_CURRENCIES.has(currencyId)) return Maybe.of("ethereum");
-  if (SOLANA_CURRENCIES.has(currencyId)) return Maybe.of("solana");
+function describeCurrencyForTest(
+  currencyId: string,
+): Maybe<CurrencyDescriptor> {
+  if (EVM_CURRENCIES.has(currencyId)) {
+    return Maybe.of(aCurrencyDescriptor({ currencyId }));
+  }
+  if (SOLANA_CURRENCIES.has(currencyId)) {
+    return Maybe.of(
+      aCurrencyDescriptor({
+        currencyId,
+        family: "solana",
+        networkId: "mainnet",
+        nativeDecimals: 9,
+      }),
+    );
+  }
   return Maybe.empty();
 }
 
@@ -96,7 +110,8 @@ describe("DefaultTransactionHistoryDataSource", () => {
       init: vi.fn(),
       setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
-      resolveBlockchainFamily: vi.fn(resolveFamilyForTest),
+      describeCurrency: vi.fn(describeCurrencyForTest),
+      describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
     };
 
     mockLoggerFactory = createMockLoggerFactory();

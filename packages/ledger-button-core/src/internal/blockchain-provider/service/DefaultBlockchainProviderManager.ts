@@ -3,6 +3,7 @@ import { Maybe } from "purify-ts";
 
 import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider.js";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { Account } from "@api/model/Account.js";
 import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
@@ -40,9 +41,7 @@ export class DefaultBlockchainProviderManager
 
   init(coreFacade: CoreFacade, dappConfig: DAppConfig): void {
     const providers: BlockchainProvider[] = [];
-    console.log("Initializing blockchain providers");
     const evmConfig = this.getBlockchainConfig(dappConfig, "ethereum");
-    console.log("evmConfig", evmConfig);
     if (evmConfig) {
       providers.push(new EvmBlockchainProvider(coreFacade, evmConfig));
     }
@@ -87,10 +86,25 @@ export class DefaultBlockchainProviderManager
     }
   }
 
-  resolveBlockchainFamily(currencyId: string): Maybe<BlockchainFamily> {
+  describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
+    return this.firstProviderAnswer((provider) =>
+      provider.describeCurrency(currencyId),
+    );
+  }
+
+  describeNetwork(networkId: string): Maybe<CurrencyDescriptor> {
+    return this.firstProviderAnswer((provider) =>
+      provider.describeNetwork(networkId),
+    );
+  }
+
+  private firstProviderAnswer<T>(
+    ask: (provider: BlockchainProvider) => T | undefined,
+  ): Maybe<T> {
     for (const provider of this.providers.values()) {
-      if (provider.isSupportedCurrency(currencyId)) {
-        return Maybe.of(provider.family);
+      const answer = ask(provider);
+      if (answer !== undefined) {
+        return Maybe.of(answer);
       }
     }
     return Maybe.empty();

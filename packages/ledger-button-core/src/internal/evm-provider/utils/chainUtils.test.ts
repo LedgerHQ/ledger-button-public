@@ -1,4 +1,6 @@
 import {
+  describeEvmCurrency,
+  describeEvmNetwork,
   getChainIdFromCurrencyId,
   isSupportedEvmCurrency,
 } from "./chainUtils.js";
@@ -65,6 +67,40 @@ describe("chainUtils", () => {
       { currencyId: "eth@reum", description: "special characters" },
     ])("should return false for $description", ({ currencyId }) => {
       expect(isSupportedEvmCurrency(currencyId)).toBe(false);
+    });
+  });
+
+  describe("describeEvmCurrency", () => {
+    it("returns the descriptor for supported currencies", () => {
+      expect(describeEvmCurrency("polygon")).toEqual({
+        currencyId: "polygon",
+        family: "ethereum",
+        networkId: "137",
+        nativeDecimals: 18,
+      });
+    });
+
+    it("returns undefined for unsupported currencies", () => {
+      expect(describeEvmCurrency("solana")).toBeUndefined();
+    });
+  });
+
+  describe("describeEvmNetwork", () => {
+    it("returns the descriptor for known chain ids", () => {
+      expect(describeEvmNetwork("1")).toEqual({
+        currencyId: "ethereum",
+        family: "ethereum",
+        networkId: "1",
+        nativeDecimals: 18,
+      });
+    });
+
+    it("returns undefined for unknown chain ids", () => {
+      expect(describeEvmNetwork("99999")).toBeUndefined();
+    });
+
+    it("returns undefined for non-numeric network ids", () => {
+      expect(describeEvmNetwork("mainnet")).toBeUndefined();
     });
   });
 });

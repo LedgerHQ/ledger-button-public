@@ -1,11 +1,12 @@
 import { formatCurrencyUnit } from "@ledgerhq/coin-framework/lib-es/currencies/formatCurrencyUnit";
 import { BigNumber } from "bignumber.js";
 
-import { EVM_NATIVE_DECIMALS } from "../evm-provider/utils/chainUtils.js";
-import {
-  isSupportedSolanaCurrency,
-  SOLANA_NATIVE_DECIMALS,
-} from "../solana-provider/utils/clusterUtils.js";
+/**
+ * Magnitude used when no source could resolve a currency's decimals. Renders
+ * the raw on-chain value unscaled, which is preferable to scaling by a guessed
+ * magnitude and reporting a wrong amount.
+ */
+export const UNRESOLVED_DECIMALS = 0;
 
 type CurrencyUnit = {
   name: string;
@@ -19,41 +20,31 @@ export type FormatBalanceOptions = {
   showAllDigits?: boolean;
 };
 
-export function getDefaultDecimals(currencyId: string): number {
-  if (isSupportedSolanaCurrency(currencyId)) {
-    return SOLANA_NATIVE_DECIMALS;
-  }
-  return EVM_NATIVE_DECIMALS;
-}
-
 /**
  * Formats a raw balance value using Ledger's standard currency formatting.
  *
+ * Callers resolve `decimals` beforehand (CAL metadata, then the provider that
+ * owns the currency) so this stays free of any blockchain knowledge.
+ *
  * @param rawBalance - The raw balance value (in smallest unit, e.g., wei for ETH)
- * @param decimals - The number of decimals for the currency. When `undefined`, falls back to chain defaults via `currencyId`.
+ * @param decimals - The number of decimals for the currency
  * @param ticker - The currency ticker symbol (e.g., "ETH", "DAI")
- * @param currencyId - The Ledger currency identifier (e.g., "ethereum", "solana"), used for the decimals fallback
  * @param options - Formatting options
  * @returns The formatted balance string
  *
  * @example
- * formatBalance(BigInt("1000000000000000000"), 18, "ETH", "ethereum") // "1"
+ * formatBalance(BigInt("1000000000000000000"), 18, "ETH") // "1"
  *
  * @example
- * formatBalance(BigInt("93229707264"), 18, "DAI", "ethereum", { disableRounding: true })
+ * formatBalance(BigInt("93229707264"), 18, "DAI", { disableRounding: true })
  * // "0.000000093229707264"
  */
 export function formatBalance(
   rawBalance: bigint | string,
-  decimals: number | undefined,
+  decimals: number,
   ticker: string,
-  currencyId: string,
   options: FormatBalanceOptions = {},
 ): string {
-  if (decimals === undefined) {
-    decimals = getDefaultDecimals(currencyId);
-  }
-
   const unit: CurrencyUnit = {
     name: ticker,
     code: ticker,

@@ -152,4 +152,23 @@ describe("EvmBlockchainProvider", () => {
       expect(inner.setNetwork).toHaveBeenCalledWith(137);
     });
   });
+
+  describe("currency capability", () => {
+    test("describeCurrency describes an owned currency", () => {
+      expect(provider.describeCurrency("ethereum")).toEqual({
+        currencyId: "ethereum",
+        family: "ethereum",
+        networkId: "1",
+        nativeDecimals: 18,
+      });
+    });
+
+    test("describeCurrency returns undefined for another family", () => {
+      expect(provider.describeCurrency("solana")).toBeUndefined();
+    });
+
+    test("describeNetwork maps 137 to polygon", () => {
+      expect(provider.describeNetwork("137")?.currencyId).toBe("polygon");
+    });
+  });
 });

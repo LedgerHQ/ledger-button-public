@@ -1,10 +1,15 @@
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+
 export const EVM_NATIVE_DECIMALS = 18;
 
-export function getChainIdFromCurrencyId(currencyId: string) {
+export const EVM_FAMILY: BlockchainFamily = "ethereum";
+
+export function getChainIdFromCurrencyId(currencyId: string): number {
   return EVM_MAPPING_TABLE[currencyId] ?? 1;
 }
 
-export function getCurrencyIdFromChainId(chainId: number) {
+export function getCurrencyIdFromChainId(chainId: number): string | undefined {
   return Object.keys(EVM_MAPPING_TABLE).find(
     (currencyId) => EVM_MAPPING_TABLE[currencyId] === chainId,
   );
@@ -12,6 +17,31 @@ export function getCurrencyIdFromChainId(chainId: number) {
 
 export function isSupportedEvmCurrency(currencyId: string): boolean {
   return Object.hasOwn(EVM_MAPPING_TABLE, currencyId);
+}
+
+export function describeEvmCurrency(
+  currencyId: string,
+): CurrencyDescriptor | undefined {
+  if (!isSupportedEvmCurrency(currencyId)) {
+    return undefined;
+  }
+  return {
+    currencyId,
+    family: EVM_FAMILY,
+    networkId: String(getChainIdFromCurrencyId(currencyId)),
+    nativeDecimals: EVM_NATIVE_DECIMALS,
+  };
+}
+
+export function describeEvmNetwork(
+  networkId: string,
+): CurrencyDescriptor | undefined {
+  const chainId = Number(networkId);
+  if (!Number.isFinite(chainId)) {
+    return undefined;
+  }
+  const currencyId = getCurrencyIdFromChainId(chainId);
+  return currencyId ? describeEvmCurrency(currencyId) : undefined;
 }
 
 export const EVM_MAPPING_TABLE: Record<string, number> = {

@@ -29,8 +29,8 @@ export class FilterAccountsByFamilyUseCase {
     family: BlockchainFamily,
   ): boolean {
     return this.blockchainProviderManager
-      .resolveBlockchainFamily(currencyId)
-      .map((resolved) => resolved === family)
+      .describeCurrency(currencyId)
+      .map((currency) => currency.family === family)
       .orDefault(false);
   }
 }

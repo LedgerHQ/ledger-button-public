@@ -1,12 +1,14 @@
+import { Maybe } from "purify-ts";
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { Account } from "@api/model/Account.js";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
 
+import { aCurrencyDescriptor } from "../blockchain-provider/__mocks__/currencyDescriptorMock.js";
+import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager.js";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
 import type { Device } from "../device/model/Device.js";
-import * as chainUtils from "../evm-provider/utils/chainUtils.js";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
 import { DefaultContextService } from "./DefaultContextService.js";
 
@@ -19,6 +21,7 @@ describe("DefaultContextService", () => {
     error: ReturnType<typeof vi.fn>;
   };
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   const mockDevice = {
     id: "device-123",
@@ -47,6 +50,13 @@ describe("DefaultContextService", () => {
     optimism: 10,
   };
 
+  const currencyIdByChainId: Record<string, string> = {
+    "1": "ethereum",
+    "137": "polygon",
+    "42161": "arbitrum",
+    "10": "optimism",
+  };
+
   const mockTrustchain = {
     trustChainId: "trustchain-123",
     applicationPath: "/app/path",
@@ -62,12 +72,32 @@ describe("DefaultContextService", () => {
 
     mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
 
-    vi.spyOn(chainUtils, "getChainIdFromCurrencyId").mockImplementation(
-      (currencyId: string) => chainIdMap[currencyId] || 1,
-    );
+    mockBlockchainProviderManager = {
+      init: vi.fn(),
+      setSelectedAccounts: vi.fn(),
+      setNetwork: vi.fn(),
+      describeCurrency: vi.fn().mockImplementation((currencyId: string) => {
+        const chainId = chainIdMap[currencyId];
+        return chainId !== undefined
+          ? Maybe.of(
+              aCurrencyDescriptor({
+                currencyId,
+                networkId: String(chainId),
+              }),
+            )
+          : Maybe.empty();
+      }),
+      describeNetwork: vi.fn().mockImplementation((networkId: string) => {
+        const currencyId = currencyIdByChainId[networkId];
+        return currencyId
+          ? Maybe.of(aCurrencyDescriptor({ currencyId, networkId }))
+          : Maybe.empty();
+      }),
+    };
 
     service = new DefaultContextService(
       mockLoggerFactory as unknown as () => LoggerPublisher,
+      (() => mockBlockchainProviderManager) as never,
     );
   });
 
