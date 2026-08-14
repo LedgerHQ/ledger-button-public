@@ -16,7 +16,7 @@
     "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm provider exec nx build-storybook --quiet && pnpm provider exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm provider exec nx test-storybook\"",
     "test:coverage": "pnpm nx run-many -t test --projects=@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core -- --coverage",
     "plan:check": "pnpm nx release plan:check",
-    "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core",
+    "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana",
     "release": "pnpm nx release"
   },
   "private": true,
