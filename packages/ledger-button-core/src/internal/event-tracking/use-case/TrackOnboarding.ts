@@ -40,7 +40,13 @@ export class TrackOnboarding {
     const chainId = this.blockchainProviderManager
       .describeCurrency(currencyId)
       .map((currency) => currency.networkId)
-      .orDefault("1");
+      .extractNullable();
+
+    if (chainId === null) {
+      this.logger.warn("No currency descriptor for onboarding chain_id", {
+        currencyId,
+      });
+    }
 
     const event = EventTrackingUtils.createOnboardingEvent({
       dAppId: this.config.dAppIdentifier,
