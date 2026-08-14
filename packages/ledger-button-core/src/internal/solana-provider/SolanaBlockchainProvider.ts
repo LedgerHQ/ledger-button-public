@@ -2,6 +2,7 @@ import { Container } from "inversify";
 
 import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider.js";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
 import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
 import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
@@ -10,7 +11,11 @@ import { solanaProviderModule } from "./di/solanaProviderModule.js";
 import { solanaProviderModuleTypes } from "./di/solanaProviderModuleTypes.js";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
-import { isSupportedSolanaCurrency } from "./utils/clusterUtils.js";
+import {
+  describeSolanaCurrency,
+  describeSolanaNetwork,
+  SOLANA_FAMILY,
+} from "./utils/clusterUtils.js";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
 import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
 
@@ -23,7 +28,7 @@ import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
  * {@link EvmBlockchainProvider}.
  */
 export class SolanaBlockchainProvider implements BlockchainProvider {
-  public readonly family: BlockchainFamily = "solana";
+  public readonly family: BlockchainFamily = SOLANA_FAMILY;
 
   private readonly container: Container;
   private wallet?: LedgerSolanaWallet;
@@ -64,7 +69,11 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
     this.wallet?.setNetwork(chainId);
   }
 
-  isSupportedCurrency(currencyId: string): boolean {
-    return isSupportedSolanaCurrency(currencyId);
+  describeCurrency(currencyId: string): CurrencyDescriptor | undefined {
+    return describeSolanaCurrency(currencyId);
+  }
+
+  describeNetwork(networkId: string): CurrencyDescriptor | undefined {
+    return describeSolanaNetwork(networkId);
   }
 }

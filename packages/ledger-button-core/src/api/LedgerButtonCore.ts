@@ -1,5 +1,6 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
+import { Maybe } from "purify-ts";
 import { Observable, Subscription, tap } from "rxjs";
 
 import type {
@@ -23,7 +24,6 @@ import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
 } from "./model/LedgerSyncAuthenticateResponse.js";
-import { getChainIdFromCurrencyId } from "./utils/index.js";
 import { accountModuleTypes } from "../internal/account/di/accountModuleTypes.js";
 import type { AccountService } from "../internal/account/service/AccountService.js";
 import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
@@ -187,7 +187,13 @@ export class LedgerButtonCore {
     // chainId tracks the default (ethereum) selection.
     const defaultAccount = restoredAccounts.get(DEFAULT_BLOCKCHAIN_FAMILY);
     const chainId = defaultAccount
-      ? getChainIdFromCurrencyId(defaultAccount.currencyId)
+      ? blockchainProviderManager
+          .describeCurrency(defaultAccount.currencyId)
+          .chain((currency) => {
+            const parsed = Number(currency.networkId);
+            return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
+          })
+          .orDefault(1)
       : 1;
 
     const welcomeScreenCompleted = await this.container
@@ -452,7 +458,8 @@ export class LedgerButtonCore {
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .resolveBlockchainFamily(currencyId)
+      .describeCurrency(currencyId)
+      .map((currency) => currency.family)
       .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
   }
 

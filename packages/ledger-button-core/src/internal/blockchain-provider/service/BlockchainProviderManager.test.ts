@@ -9,6 +9,7 @@ import { EvmBlockchainProvider } from "@internal/evm-provider/EvmBlockchainProvi
 import { SolanaBlockchainProvider } from "@internal/solana-provider/SolanaBlockchainProvider.js";
 
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
+import { aCurrencyDescriptor } from "../__mocks__/currencyDescriptorMock.js";
 import { DefaultBlockchainProviderManager } from "./DefaultBlockchainProviderManager.js";
 
 vi.mock("@internal/evm-provider/EvmBlockchainProvider.js", () => ({
@@ -17,6 +18,8 @@ vi.mock("@internal/evm-provider/EvmBlockchainProvider.js", () => ({
     injectWalletProviders: vi.fn(),
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
+    describeCurrency: vi.fn().mockReturnValue(undefined),
+    describeNetwork: vi.fn().mockReturnValue(undefined),
   })),
 }));
 
@@ -26,6 +29,8 @@ vi.mock("@internal/solana-provider/SolanaBlockchainProvider.js", () => ({
     injectWalletProviders: vi.fn(),
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
+    describeCurrency: vi.fn().mockReturnValue(undefined),
+    describeNetwork: vi.fn().mockReturnValue(undefined),
   })),
 }));
 
@@ -43,6 +48,22 @@ const solanaConfig: BlockchainConfig = {
   networks: [],
   rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "Solana", dependencies: [] },
+};
+
+const evmDescriptor = aCurrencyDescriptor();
+const solanaDescriptor = aCurrencyDescriptor({
+  currencyId: "solana",
+  family: "solana",
+  networkId: "mainnet",
+  nativeDecimals: 9,
+});
+
+type MockedProvider = {
+  injectWalletProviders: ReturnType<typeof vi.fn>;
+  setSelectedAccount: ReturnType<typeof vi.fn>;
+  setNetwork: ReturnType<typeof vi.fn>;
+  describeCurrency: ReturnType<typeof vi.fn>;
+  describeNetwork: ReturnType<typeof vi.fn>;
 };
 
 const loggerFactory = () =>
@@ -97,17 +118,10 @@ describe("DefaultBlockchainProviderManager", () => {
   let dappConfig: DAppConfig;
 
   const evmInstance = () =>
-    vi.mocked(EvmBlockchainProvider).mock.results[0]?.value as {
-      injectWalletProviders: ReturnType<typeof vi.fn>;
-      setSelectedAccount: ReturnType<typeof vi.fn>;
-      setNetwork: ReturnType<typeof vi.fn>;
-    };
+    vi.mocked(EvmBlockchainProvider).mock.results[0]?.value as MockedProvider;
   const solanaInstance = () =>
-    vi.mocked(SolanaBlockchainProvider).mock.results[0]?.value as {
-      injectWalletProviders: ReturnType<typeof vi.fn>;
-      setSelectedAccount: ReturnType<typeof vi.fn>;
-      setNetwork: ReturnType<typeof vi.fn>;
-    };
+    vi.mocked(SolanaBlockchainProvider).mock.results[0]
+      ?.value as MockedProvider;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -179,6 +193,49 @@ describe("DefaultBlockchainProviderManager", () => {
       manager.setNetwork(137);
 
       expect(evmInstance().setNetwork).toHaveBeenCalledWith(137);
+    });
+  });
+
+  describe("describeCurrency()", () => {
+    it("returns the descriptor of the provider that claims the currency", () => {
+      manager.init(core, dappConfig);
+      solanaInstance().describeCurrency.mockReturnValue(solanaDescriptor);
+
+      expect(manager.describeCurrency("solana").extract()).toEqual(
+        solanaDescriptor,
+      );
+    });
+
+    it("stops at the first provider that answers", () => {
+      manager.init(core, dappConfig);
+      evmInstance().describeCurrency.mockReturnValue(evmDescriptor);
+      solanaInstance().describeCurrency.mockReturnValue(solanaDescriptor);
+
+      expect(manager.describeCurrency("ethereum").extract()).toEqual(
+        evmDescriptor,
+      );
+      expect(solanaInstance().describeCurrency).not.toHaveBeenCalled();
+    });
+
+    it("returns empty when no provider claims the currency", () => {
+      manager.init(core, dappConfig);
+
+      expect(manager.describeCurrency("bitcoin").isNothing()).toBe(true);
+    });
+  });
+
+  describe("describeNetwork()", () => {
+    it("returns the descriptor of the provider that owns the network", () => {
+      manager.init(core, dappConfig);
+      evmInstance().describeNetwork.mockReturnValue(evmDescriptor);
+
+      expect(manager.describeNetwork("1").extract()).toEqual(evmDescriptor);
+    });
+
+    it("returns empty when unknown", () => {
+      manager.init(core, dappConfig);
+
+      expect(manager.describeNetwork("999").isNothing()).toBe(true);
     });
   });
 });

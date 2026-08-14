@@ -8,6 +8,15 @@ import {
   enrichWithLoadingStates,
 } from "./accountFiatUtils.js";
 
+const EVM_NETWORK_IDS: Record<string, string> = {
+  ethereum: "1",
+  polygon: "137",
+};
+
+function resolveNetworkId(currencyId: string): string | undefined {
+  return EVM_NETWORK_IDS[currencyId];
+}
+
 function createAccountWithFiat(
   overrides: Partial<AccountWithFiat> = {},
 ): AccountWithFiat {
@@ -37,8 +46,12 @@ describe("computeNetworks", () => {
       fiatBalance: { value: "1000.00", currency: "USD" },
       tokens: [],
     });
-    expect(computeNetworks(account)).toEqual([
-      { id: "1", name: "ethereum", fiatBalance: { value: "1000.00", currency: "USD" } },
+    expect(computeNetworks(account, resolveNetworkId)).toEqual([
+      {
+        id: "1",
+        name: "ethereum",
+        fiatBalance: { value: "1000.00", currency: "USD" },
+      },
     ]);
   });
 
@@ -56,7 +69,7 @@ describe("computeNetworks", () => {
         },
       ],
     });
-    const networks = computeNetworks(account);
+    const networks = computeNetworks(account, resolveNetworkId);
     expect(networks).toHaveLength(1);
     expect(networks[0]).toEqual({
       id: "1",
@@ -79,7 +92,7 @@ describe("computeNetworks", () => {
         },
       ],
     });
-    const networks = computeNetworks(account);
+    const networks = computeNetworks(account, resolveNetworkId);
     expect(networks[0]).toEqual({
       id: "137",
       name: "polygon",
@@ -106,7 +119,7 @@ describe("computeNetworks", () => {
         },
       ],
     });
-    const networks = computeNetworks(account);
+    const networks = computeNetworks(account, resolveNetworkId);
     expect(networks).toHaveLength(1);
     expect(networks[0]).toEqual({
       id: "1",
@@ -129,7 +142,7 @@ describe("computeNetworks", () => {
         },
       ],
     });
-    const networks = computeNetworks(account);
+    const networks = computeNetworks(account, resolveNetworkId);
     expect(networks).toHaveLength(1);
     expect(networks[0]).toEqual({
       id: "1",
@@ -152,7 +165,7 @@ describe("computeNetworks", () => {
         },
       ],
     });
-    const networks = computeNetworks(account);
+    const networks = computeNetworks(account, resolveNetworkId);
     expect(networks).toHaveLength(1);
     expect(networks[0]).toEqual({
       id: "1",

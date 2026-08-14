@@ -1,12 +1,16 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
 import type { Account } from "@api/model/Account.js";
 import type { BackendService } from "@internal/backend/BackendService.js";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
 import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
 import type { AccountBalance, TokenBalance } from "@internal/balance/model/types.js";
 import type { BalanceService } from "@internal/balance/service/BalanceService.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase.js";
 
 import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
 
@@ -68,6 +72,32 @@ function createCurrencyInformation(
   };
 }
 
+const SUPPORTED_CURRENCIES: Record<string, CurrencyDescriptor> = {
+  ethereum: aCurrencyDescriptor(),
+  polygon: aCurrencyDescriptor({
+    currencyId: "polygon",
+    networkId: "137",
+  }),
+  solana: aCurrencyDescriptor({
+    currencyId: "solana",
+    family: "solana",
+    networkId: "mainnet",
+    nativeDecimals: 9,
+  }),
+};
+
+function createMockBlockchainProviderManager(): BlockchainProviderManager {
+  return {
+    init: vi.fn(),
+    setSelectedAccounts: vi.fn(),
+    setNetwork: vi.fn(),
+    describeCurrency: vi.fn((currencyId: string) =>
+      Maybe.fromNullable(SUPPORTED_CURRENCIES[currencyId]),
+    ),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+  };
+}
+
 function createMockAccount(overrides: Partial<Account> = {}): Account {
   return {
     id: "account-1",
@@ -89,6 +119,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
   let mockBalanceService: ReturnType<typeof createMockBalanceService>;
   let mockBackendService: ReturnType<typeof createMockBackendService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -96,6 +127,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
     mockBalanceService = createMockBalanceService();
     mockBackendService = createMockBackendService();
     mockCalDataSource = createMockCalDataSource();
+    mockBlockchainProviderManager = createMockBlockchainProviderManager();
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Right(createCurrencyInformation()),
     );
@@ -104,7 +136,12 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       createMockLoggerFactory(),
       mockBalanceService as unknown as BalanceService,
       mockBackendService as unknown as BackendService,
-      mockCalDataSource as unknown as CalDataSource,
+      new ResolveCurrencyDecimalsUseCase(
+        mockCalDataSource as unknown as CalDataSource,
+        mockBlockchainProviderManager,
+        createMockLoggerFactory(),
+      ),
+      mockBlockchainProviderManager,
     );
   });
 
@@ -270,9 +307,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       mockBalanceService.getBalanceForAccount.mockResolvedValue(
         Left(new Error("Balance service unavailable")),
       );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0x0" }),
-      );
+      mockBackendService.broadcast.mockResolvedValue(Right({ result: "0x0" }));
 
       await useCase.execute(mockAccount);
 
@@ -357,7 +392,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to Solana default decimals via formatBalance when CAL fails", async () => {
+    it("should fall back to Solana default decimals via manager when CAL fails", async () => {
       const mockAccount = createMockAccount({
         currencyId: "solana",
         ticker: "SOL",
@@ -374,12 +409,11 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals returns undefined; formatBalance falls back to
-      // SOLANA_NATIVE_DECIMALS (9) via getDefaultDecimals("solana")
+      // resolveNativeDecimals falls back to the descriptor's nativeDecimals (9)
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to EVM default decimals via formatBalance when CAL fails", async () => {
+    it("should fall back to EVM default decimals via manager when CAL fails", async () => {
       const mockAccount = createMockAccount();
       mockCalDataSource.getCurrencyInformation.mockResolvedValue(
         Left(new Error("CAL unavailable")),
@@ -393,9 +427,28 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals returns undefined; formatBalance falls back to
-      // EVM_NATIVE_DECIMALS (18) via getDefaultDecimals("ethereum")
+      // resolveNativeDecimals falls back to the descriptor's nativeDecimals (18)
       expect(result.balance).toBe("1.5");
+    });
+
+    it("should report the raw balance when neither CAL nor a provider resolves decimals", async () => {
+      const mockAccount = createMockAccount({
+        currencyId: "unsupported_chain",
+        ticker: "XYZ",
+      });
+      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+        Left(new Error("CAL unavailable")),
+      );
+      mockBalanceService.getBalanceForAccount.mockResolvedValue(
+        Right({
+          nativeBalance: { balance: BigInt("1500000000") },
+          tokenBalances: [],
+        } as AccountBalance),
+      );
+
+      const result = await useCase.execute(mockAccount);
+
+      expect(result.balance).toBe("1,500,000,000");
     });
 
     it("should resolve decimals from CAL on the RPC fallback path", async () => {

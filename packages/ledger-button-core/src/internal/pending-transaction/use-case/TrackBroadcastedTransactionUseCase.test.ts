@@ -1,10 +1,12 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
 import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
 import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
 import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
 import { ContextService } from "@internal/context/ContextService.js";
 
 import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
@@ -71,6 +73,31 @@ function createMockCalDataSource() {
   };
 }
 
+function createMockBlockchainProviderManager(): BlockchainProviderManager {
+  return {
+    init: vi.fn(),
+    setSelectedAccounts: vi.fn(),
+    setNetwork: vi.fn(),
+    describeCurrency: vi.fn().mockImplementation((currencyId: string) => {
+      if (currencyId === "solana") {
+        return Maybe.of(
+          aCurrencyDescriptor({
+            currencyId,
+            family: "solana",
+            networkId: "mainnet",
+            nativeDecimals: 9,
+          }),
+        );
+      }
+      if (currencyId === "ethereum") {
+        return Maybe.of(aCurrencyDescriptor());
+      }
+      return Maybe.empty();
+    }),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+  };
+}
+
 const successBroadcastStatus: SignFlowStatus = {
   signType: "transaction",
   status: "success",
@@ -97,16 +124,19 @@ describe("TrackBroadcastedTransactionUseCase", () => {
   let mockController: PendingTransactionController;
   let mockContextService: ReturnType<typeof createMockContextService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   beforeEach(() => {
     mockController = createMockController();
     mockContextService = createMockContextService();
     mockCalDataSource = createMockCalDataSource();
+    mockBlockchainProviderManager = createMockBlockchainProviderManager();
 
     useCase = new TrackBroadcastedTransactionUseCase(
       mockController,
       mockContextService as unknown as ContextService,
       mockCalDataSource,
+      mockBlockchainProviderManager,
       createMockLoggerFactory(),
     );
   });
@@ -133,7 +163,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       signTransactionParams,
     );
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
 
     calResolve();
     await executePromise;
@@ -165,7 +197,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(errorStatus, signTransactionParams);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should skip non-broadcasted results (signed only)", async () => {
@@ -180,7 +214,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(signedOnlyStatus, signTransactionParams);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should skip message signing results", async () => {
@@ -192,7 +228,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(messageStatus, ["0x1234", "hello", "personal_sign"]);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should skip when no selected account", async () => {
@@ -203,7 +241,9 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    expect(mockController.registerBroadcastedTransaction).not.toHaveBeenCalled();
+    expect(
+      mockController.registerBroadcastedTransaction,
+    ).not.toHaveBeenCalled();
   });
 
   it("should use fallback currency info when CalDataSource fails", async () => {
@@ -222,17 +262,34 @@ describe("TrackBroadcastedTransactionUseCase", () => {
     );
   });
 
-  it("should format EVM value using default decimals when CAL fails", async () => {
+  it("should format EVM value using provider native decimals when CAL fails", async () => {
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Left(new Error("CAL unavailable")),
     );
 
     await useCase.execute(successBroadcastStatus, signTransactionParams);
 
-    // signTransactionParams.transaction.value = "1000000000000000000" (1 ETH)
-    // CAL fails → decimals undefined → formatBalance falls back to EVM_NATIVE_DECIMALS (18)
+    // 1000000000000000000 scaled by the EVM provider's 18 decimals
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({ formattedValue: "1" }),
+    );
+  });
+
+  it("should leave the formatted value unset when no source resolves decimals", async () => {
+    mockCalDataSource.getCurrencyInformation.mockResolvedValue(
+      Left(new Error("CAL unavailable")),
+    );
+    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
+      Maybe.empty(),
+    );
+
+    await useCase.execute(successBroadcastStatus, signTransactionParams);
+
+    expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
+      expect.objectContaining({
+        value: "1000000000000000000",
+        formattedValue: undefined,
+      }),
     );
   });
 
