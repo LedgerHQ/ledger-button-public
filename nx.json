@@ -160,11 +160,19 @@
       "libraries": {
         "projects": [
           "@ledgerhq/ledger-wallet-provider",
-          "@ledgerhq/ledger-wallet-provider-core",
+          "@ledgerhq/ledger-wallet-provider-core"
+        ],
+        "projectsRelationship": "fixed"
+      },
+      "providers": {
+        "projects": [
           "@ledgerhq/ledger-wallet-provider-evm",
           "@ledgerhq/ledger-wallet-provider-solana"
         ],
-        "projectsRelationship": "fixed"
+        "projectsRelationship": "independent",
+        "releaseTag": {
+          "pattern": "{projectName}@{version}"
+        }
       }
     },
     "git": {
