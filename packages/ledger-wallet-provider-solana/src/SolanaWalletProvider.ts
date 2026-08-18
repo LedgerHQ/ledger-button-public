@@ -3,8 +3,8 @@ import type {
   WalletProvider,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { registerWalletStandard } from "./utils/registerWalletStandard.js";
-import type { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import { registerWalletStandard } from "./utils/registerWalletStandard";
+import type { LedgerSolanaWallet } from "./LedgerSolanaWallet";
 
 /**
  * Solana {@link WalletProvider}: registers the {@link LedgerSolanaWallet} via

@@ -11,8 +11,8 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { lastValueFrom, type Observable } from "rxjs";
 
-import { SignSolanaMessageFlowDeviceAction } from "../SignSolanaMessageFlowDeviceAction.js";
-import { SignSolanaMessageFlowDAStep } from "../SignSolanaMessageFlowDeviceActionTypes.js";
+import { SignSolanaMessageFlowDeviceAction } from "../SignSolanaMessageFlowDeviceAction";
+import { SignSolanaMessageFlowDAStep } from "../SignSolanaMessageFlowDeviceActionTypes";
 import {
   DEFAULT_ADDRESS,
   DEFAULT_INPUT,
@@ -23,11 +23,11 @@ import {
   setupSignMessageMock,
   SIGNED_MESSAGE_BYTES,
   VALID_SIGNATURE_BASE58,
-} from "./SignSolanaMessageFlowDeviceAction.mock.js";
+} from "./SignSolanaMessageFlowDeviceAction.mock";
 import {
   executeUntilStep,
   type SignSolanaMessageFlowDAState,
-} from "./SignSolanaMessageFlowDeviceAction.utils.js";
+} from "./SignSolanaMessageFlowDeviceAction.utils";
 
 vi.mock("@ledgerhq/device-management-kit", async (importOriginal) => {
   const original =

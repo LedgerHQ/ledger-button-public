@@ -5,7 +5,7 @@ import type {
   SignSolanaTransactionFlowDAError,
   SignSolanaTransactionFlowDAIntermediateValue,
   SignSolanaTransactionFlowDAOutput,
-} from "../SignSolanaTransactionFlowDeviceActionTypes.js";
+} from "../SignSolanaTransactionFlowDeviceActionTypes";
 
 export type SignSolanaTransactionFlowDAState = DeviceActionState<
   SignSolanaTransactionFlowDAOutput,

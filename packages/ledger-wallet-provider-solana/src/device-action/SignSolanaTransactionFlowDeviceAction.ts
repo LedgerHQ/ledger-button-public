@@ -28,7 +28,7 @@ import {
   type SignSolanaTransactionFlowDAInternalState,
   type SignSolanaTransactionFlowDAOutput,
   SignSolanaTransactionFlowDAStep,
-} from "./SignSolanaTransactionFlowDeviceActionTypes.js";
+} from "./SignSolanaTransactionFlowDeviceActionTypes";
 
 /** User rejection APDU status word on the Solana app. */
 const USER_REJECTION_ERROR_CODE = "6985";
