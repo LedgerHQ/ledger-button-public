@@ -2,8 +2,8 @@ import { cva } from "class-variance-authority";
 import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import { resolveIconUrl } from "./crypto-icon-mapping.js";
+import { tailwindElement } from "../../../tailwind-element";
+import { resolveIconUrl } from "./crypto-icon-mapping";
 
 export type CryptoIconSize = "small" | "medium" | "large";
 export type CryptoIconVariant = "rounded" | "square";

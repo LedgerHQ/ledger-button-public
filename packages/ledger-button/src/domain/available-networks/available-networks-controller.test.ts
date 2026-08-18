@@ -1,14 +1,14 @@
-import type { AccountWithFiat } from "@ledgerhq/ledger-wallet-provider-core";
+import type { Network } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { of, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreContext } from "../../context/core-context.js";
-import type { Navigation } from "../../shared/navigation.js";
-import { RootNavigationComponent } from "../../shared/root-navigation.js";
-import { AvailableNetworksController } from "./available-networks-controller.js";
+import type { CoreContext } from "../../context/core-context";
+import type { Navigation } from "../../shared/navigation";
+import { RootNavigationComponent } from "../../shared/root-navigation";
+import { AvailableNetworksController } from "./available-networks-controller";
 
-vi.mock("../../shared/root-navigation.js", () => {
+vi.mock("../../shared/root-navigation", () => {
   class MockRootNavigationComponent {
     selectAccount = vi.fn();
     navigateToHome = vi.fn();
@@ -16,48 +16,21 @@ vi.mock("../../shared/root-navigation.js", () => {
   return { RootNavigationComponent: MockRootNavigationComponent };
 });
 
-function createAccount(
-  overrides: Partial<AccountWithFiat> = {},
-): AccountWithFiat {
-  return {
-    id: "account-1",
-    currencyId: "ethereum",
-    freshAddress: "0xabc123",
-    seedIdentifier: "seed-1",
-    derivationMode: "",
-    index: 0,
-    name: "Ethereum",
-    ticker: "ETH",
-    balance: "1.5",
-    tokens: [],
-    fiatBalance: { value: "3000.00", currency: "USD" },
-    fiatError: false,
-    balanceLoadingState: "loaded",
-    fiatLoadingState: "loaded",
-    ...overrides,
-  };
-}
-
-const ethAccount = createAccount({
-  id: "eth-1",
-  currencyId: "ethereum",
+const ethereumNetwork: Network = {
+  id: "ethereum",
+  name: "Ethereum",
+  ticker: "ETH",
   balance: "1.5",
   fiatBalance: { value: "3000.00", currency: "USD" },
-});
+};
 
-const polygonAccount = createAccount({
-  id: "polygon-1",
-  currencyId: "polygon",
-  balance: "200",
+const polygonNetwork: Network = {
+  id: "polygon",
+  name: "Polygon",
   ticker: "MATIC",
+  balance: "200",
   fiatBalance: { value: "500.00", currency: "USD" },
-});
-
-const otherAddressAccount = createAccount({
-  id: "bsc-1",
-  currencyId: "bsc",
-  freshAddress: "0xdifferent",
-});
+};
 
 describe("AvailableNetworksController", () => {
   let controller: AvailableNetworksController;
@@ -74,21 +47,10 @@ describe("AvailableNetworksController", () => {
     };
 
     core = {
-      observeContext: vi
+      observeNetworksForSelectedAddress: vi
         .fn()
-        .mockReturnValue(of({ selectedAccounts: new Map([["ethereum", { freshAddress: "0xabc123" }]]) })),
-      observeAccounts: vi
-        .fn()
-        .mockReturnValue(of([ethAccount, polygonAccount, otherAddressAccount])),
-      getCurrencyInfo: vi.fn().mockImplementation((currencyId: string) => {
-        const map: Record<string, { name: string; ticker: string }> = {
-          ethereum: { name: "Ethereum", ticker: "ETH" },
-          polygon: { name: "Polygon", ticker: "MATIC" },
-        };
-        return Promise.resolve(
-          map[currencyId] ?? { name: currencyId, ticker: currencyId },
-        );
-      }),
+        .mockReturnValue(of([ethereumNetwork, polygonNetwork])),
+      selectAccountForNetwork: vi.fn().mockReturnValue(true),
     } as unknown as CoreContext;
 
     navigation = {
@@ -104,39 +66,52 @@ describe("AvailableNetworksController", () => {
     await vi.waitFor(() => expect(controller.loading).toBe(false));
   }
 
-  it("should load networks for the selected address sorted by fiat value", async () => {
+  it("should expose the networks emitted by the core, in order", async () => {
     await connectAndWaitForLoad();
 
-    expect(controller.networks).toEqual([
-      expect.objectContaining({
-        id: "ethereum",
-        name: "Ethereum",
-        balance: "1.5",
-      }),
-      expect.objectContaining({
-        id: "polygon",
-        name: "Polygon",
-        balance: "200",
-      }),
-    ]);
+    expect(controller.networks).toEqual([ethereumNetwork, polygonNetwork]);
   });
 
-  it("should exclude accounts with a different address", async () => {
-    await connectAndWaitForLoad();
-
-    expect(controller.networks.map((n) => n.id)).not.toContain("bsc");
-  });
-
-  it("should navigate back when no selected address", async () => {
-    (core.observeContext as ReturnType<typeof vi.fn>).mockReturnValue(
-      of({ selectedAccounts: new Map() }),
-    );
+  it("should navigate back when the core emits no network", async () => {
+    (
+      core.observeNetworksForSelectedAddress as ReturnType<typeof vi.fn>
+    ).mockReturnValue(of([]));
 
     controller.hostConnected();
+
     await vi.waitFor(() => expect(navigation.navigateBack).toHaveBeenCalled());
+    expect(controller.loading).toBe(true);
   });
 
-  it("should select the matching account and navigate home", async () => {
+  it("should stay loading until the core emits", async () => {
+    const networks$ = new Subject<Network[]>();
+    (
+      core.observeNetworksForSelectedAddress as ReturnType<typeof vi.fn>
+    ).mockReturnValue(networks$);
+
+    controller.hostConnected();
+    expect(controller.loading).toBe(true);
+
+    networks$.next([ethereumNetwork]);
+
+    expect(controller.loading).toBe(false);
+    expect(controller.networks).toEqual([ethereumNetwork]);
+  });
+
+  it("should keep reflecting later emissions", async () => {
+    const networks$ = new Subject<Network[]>();
+    (
+      core.observeNetworksForSelectedAddress as ReturnType<typeof vi.fn>
+    ).mockReturnValue(networks$);
+
+    controller.hostConnected();
+    networks$.next([ethereumNetwork]);
+    networks$.next([ethereumNetwork, polygonNetwork]);
+
+    expect(controller.networks).toHaveLength(2);
+  });
+
+  it("should delegate the account switch to the core and navigate home", async () => {
     const mockHost = new (RootNavigationComponent as new () => InstanceType<
       typeof RootNavigationComponent
     >)();
@@ -145,38 +120,35 @@ describe("AvailableNetworksController", () => {
     await connectAndWaitForLoad();
     controller.selectNetwork("polygon");
 
-    expect(mockHost.selectAccount).toHaveBeenCalledWith(polygonAccount);
+    expect(core.selectAccountForNetwork).toHaveBeenCalledWith("polygon");
     expect(mockHost.navigateToHome).toHaveBeenCalled();
   });
 
-  it("should stay loading until subscription completes", async () => {
-    const subject = new Subject<AccountWithFiat[]>();
-    (core.observeAccounts as ReturnType<typeof vi.fn>).mockReturnValue(subject);
-
-    controller.hostConnected();
-    await vi.waitFor(() => expect(core.observeAccounts).toHaveBeenCalled());
-
-    subject.next([ethAccount, polygonAccount]);
-    expect(controller.loading).toBe(true);
-
-    subject.next([ethAccount, polygonAccount]);
-    expect(controller.loading).toBe(true);
-
-    subject.complete();
-    await vi.waitFor(() => expect(controller.loading).toBe(false));
-
-    expect(controller.networks).toHaveLength(2);
-  });
-
-  it("should not select when network id is unknown", async () => {
+  it("should not navigate when the core has no account for that network", async () => {
     const mockHost = new (RootNavigationComponent as new () => InstanceType<
       typeof RootNavigationComponent
     >)();
     navigation.host = mockHost as unknown as Navigation["host"];
+    (
+      core.selectAccountForNetwork as ReturnType<typeof vi.fn>
+    ).mockReturnValue(false);
 
     await connectAndWaitForLoad();
     controller.selectNetwork("unknown");
 
-    expect(mockHost.selectAccount).not.toHaveBeenCalled();
+    expect(mockHost.navigateToHome).not.toHaveBeenCalled();
+  });
+
+  it("should unsubscribe on disconnect", async () => {
+    const networks$ = new Subject<Network[]>();
+    (
+      core.observeNetworksForSelectedAddress as ReturnType<typeof vi.fn>
+    ).mockReturnValue(networks$);
+
+    controller.hostConnected();
+    expect(networks$.observed).toBe(true);
+
+    controller.hostDisconnected();
+    expect(networks$.observed).toBe(false);
   });
 });

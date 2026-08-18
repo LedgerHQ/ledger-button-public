@@ -7,15 +7,15 @@ import { classMap } from "lit/directives/class-map.js";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
 import {
   ModalAnimationController,
   type ModalMode,
-} from "./modal-animation-controller.js";
-import { ModalFocusController } from "./modal-focus-controller.js";
-import { ModalScrollLockController } from "./modal-scroll-lock-controller.js";
+} from "./modal-animation-controller";
+import { ModalFocusController } from "./modal-focus-controller";
+import { ModalScrollLockController } from "./modal-scroll-lock-controller";
 
 export type { ModalMode };
 

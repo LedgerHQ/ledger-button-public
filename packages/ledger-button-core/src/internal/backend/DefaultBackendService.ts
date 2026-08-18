@@ -1,21 +1,22 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import type { EventRequest, EventResponse } from "./model/trackEvent.js";
-import { BroadcastTransactionError } from "../../api/errors/NetworkErrors.js";
-import { configModuleTypes } from "../config/configModuleTypes.js";
-import { Config } from "../config/model/config.js";
-import type { NetworkServiceOpts } from "../network/model/types.js";
-import { networkModuleTypes } from "../network/networkModuleTypes.js";
-import type { NetworkService } from "../network/NetworkService.js";
-import type { BackendService } from "./BackendService.js";
-import { ConfigResponseSchema } from "./schemas.js";
+import { BroadcastTransactionError } from "@api/errors/NetworkErrors";
+
+import type { EventRequest, EventResponse } from "./model/trackEvent";
+import { configModuleTypes } from "../config/di/configModuleTypes";
+import { Config } from "../config/model/config";
+import { networkModuleTypes } from "../network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "../network/model/types";
+import type { NetworkService } from "../network/NetworkService";
+import type { BackendService } from "./BackendService";
+import { ConfigResponseSchema } from "./schemas";
 import type {
   BroadcastRequest,
   BroadcastResponse,
   ConfigRequest,
   ConfigResponse,
-} from "./types.js";
+} from "./types";
 
 @injectable()
 export class DefaultBackendService implements BackendService {
@@ -56,32 +57,6 @@ export class DefaultBackendService implements BackendService {
         },
       );
     });
-  }
-
-  async getConfig(request: ConfigRequest) {
-    const url = `${this.config.getBackendUrl()}/config?dAppIdentifier=${encodeURIComponent(
-      request.dAppIdentifier,
-    )}`;
-
-    const headers = {
-      "X-Ledger-Domain": this.config.dAppIdentifier, //TODO verify if this is correct
-      "X-Ledger-client-origin": this.config.originToken,
-    };
-
-    const options: NetworkServiceOpts = {
-      headers,
-    };
-
-    const result = await this.networkService.get<ConfigResponse>(url, options);
-
-    return result
-      .mapLeft(
-        (error: Error) => new Error(`Get config failed: ${error.message}`),
-      )
-      .map((res: unknown) => ConfigResponseSchema.safeParse(res))
-      .chain((parsed) =>
-        parsed.success ? Right(parsed.data) : Left(parsed.error),
-      );
   }
 
   async getConfigV2(request: ConfigRequest) {

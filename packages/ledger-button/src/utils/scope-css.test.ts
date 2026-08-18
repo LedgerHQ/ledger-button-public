@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { scopeCssSelectors } from "./scope-css.js";
+import { scopeCssSelectors } from "./scope-css";
 
 describe("scopeCssSelectors", () => {
   describe(":root scoping", () => {

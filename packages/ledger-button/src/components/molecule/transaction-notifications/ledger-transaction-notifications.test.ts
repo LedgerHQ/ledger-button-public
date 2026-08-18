@@ -2,12 +2,12 @@
  * @vitest-environment jsdom
  */
 
-import "../../atom/toast/ledger-toast.js";
-import "./ledger-transaction-notifications.js";
+import "../../atom/toast/ledger-toast";
+import "./ledger-transaction-notifications";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerTransactionNotifications } from "./ledger-transaction-notifications.js";
+import { LedgerTransactionNotifications } from "./ledger-transaction-notifications";
 
 function mountNotifications(): LedgerTransactionNotifications {
   const host = document.createElement(

@@ -2,8 +2,8 @@
  * @vitest-environment jsdom
  */
 
-import "../icon/ledger-icon.js";
-import "./ledger-toast.js";
+import "../icon/ledger-icon";
+import "./ledger-toast";
 
 import {
   afterEach,
@@ -14,12 +14,12 @@ import {
   vi,
 } from "vitest";
 
-import { LedgerIcon } from "../icon/ledger-icon.js";
+import { LedgerIcon } from "../icon/ledger-icon";
 import {
   LedgerToast,
   TOAST_COLLAPSE_DURATION_MS,
   TOAST_FADE_DURATION_MS,
-} from "./ledger-toast.js";
+} from "./ledger-toast";
 
 const PHASE_FALLBACK_BUFFER_MS = 50;
 

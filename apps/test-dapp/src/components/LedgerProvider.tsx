@@ -1,5 +1,9 @@
 "use client";
 
+// Side-effect: SignedResultRegistry augmentations for EVM + Solana
+import "@ledgerhq/ledger-wallet-provider-evm";
+import "@ledgerhq/ledger-wallet-provider-solana";
+
 import {
   createContext,
   type ReactNode,
@@ -10,6 +14,8 @@ import {
   useState,
 } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
+import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
+import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
 
 let LedgerButtonModule:
   | typeof import("@ledgerhq/ledger-wallet-provider")
@@ -125,7 +131,6 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
 
       const disableEventTracking =
         process.env.NEXT_PUBLIC_DISABLE_EVENT_TRACKING === "true";
-      const stubDAppConfig = true;
 
       const cleanup = initializeLedgerProvider({
         target: document.body,
@@ -148,15 +153,17 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         walletTransactionFeatures: configToUse.walletTransactionFeatures,
         transactionConfirmationNotification:
           configToUse.transactionConfirmationNotification,
-        devConfig:
-          disableEventTracking || stubDAppConfig
-            ? {
-                stub: {
-                  base: disableEventTracking,
-                  dAppConfig: stubDAppConfig,
-                },
-              }
-            : undefined,
+        blockchainProviderFactories: [
+          { family: "ethereum", create: createEvmBlockchainProvider },
+          { family: "solana", create: createSolanaBlockchainProvider },
+        ],
+        devConfig: disableEventTracking
+          ? {
+              stub: {
+                base: disableEventTracking,
+              },
+            }
+          : undefined,
       });
 
       cleanupRef.current = cleanup;

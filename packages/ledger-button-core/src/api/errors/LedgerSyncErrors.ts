@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 export class NoCompatibleAccountsError extends LedgerButtonError<{
   networks: string[];

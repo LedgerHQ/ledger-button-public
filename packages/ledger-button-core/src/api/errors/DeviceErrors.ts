@@ -1,6 +1,6 @@
 import { DeviceModelId } from "@ledgerhq/device-management-kit";
 
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 export class DeviceNotSupportedError extends LedgerButtonError<{
   modelId: DeviceModelId;

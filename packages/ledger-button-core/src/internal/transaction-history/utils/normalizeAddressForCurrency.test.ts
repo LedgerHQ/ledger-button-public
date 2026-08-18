@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { normalizeAddressForCurrency } from "./normalizeAddressForCurrency.js";
+import { normalizeAddressForCurrency } from "./normalizeAddressForCurrency";
 
 const EVM_MIXED_CASE_ADDRESS = "0xAbC1234567890aBcDef1234567890ABCDef123456";
 const SOLANA_BASE58_ADDRESS = "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM";

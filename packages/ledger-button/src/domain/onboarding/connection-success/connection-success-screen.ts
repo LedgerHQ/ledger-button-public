@@ -1,4 +1,4 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
@@ -7,9 +7,9 @@ import { customElement, property } from "lit/decorators.js";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { tailwindElement } from "../../../tailwind-element";
 
 /** How long the success screen stays visible before auto-closing. */
 const AUTO_CLOSE_DELAY_MS = 1500;

@@ -1,19 +1,19 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import { consume } from "@lit/context";
 import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import { PreferencesController } from "./preferences-controller.js";
+} from "../../../context/language-context";
+import { getLanguageDisplayName } from "../../../context/utils/language-utils";
+import { Navigation } from "../../../shared/navigation";
+import { Destinations } from "../../../shared/routes";
+import { tailwindElement } from "../../../tailwind-element";
+import { PreferencesController } from "./preferences-controller";
 
 @customElement("preferences-screen")
 @tailwindElement()

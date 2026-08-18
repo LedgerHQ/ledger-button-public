@@ -1,19 +1,19 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement, type PropertyValues } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { animate } from "motion";
 
-import type { FloatingButtonPosition } from "../../../components/atom/floating-button/ledger-floating-button.js";
-import { type AnimationInstance } from "../../../components/atom/modal/animation-types.js";
-import { MorphAnimation } from "../../../components/atom/modal/morph-animation.js";
+import type { FloatingButtonPosition } from "../../../components/atom/floating-button/ledger-floating-button";
+import { type AnimationInstance } from "../../../components/atom/modal/animation-types";
+import { MorphAnimation } from "../../../components/atom/modal/morph-animation";
 import {
   langContext,
   type LanguageContext,
-} from "../../../context/language-context.js";
-import { ANIMATION_DELAY } from "../../../shared/navigation.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { ANIMATION_DELAY } from "../../../shared/navigation";
+import { tailwindElement } from "../../../tailwind-element";
 
 const AUTO_CLOSE_DELAY_MS = 1500;
 

@@ -6,16 +6,16 @@ import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
 import {
   formatFiatValue,
   formatTokenBalance,
-} from "../../../utils/format-fiat.js";
+} from "../../../utils/format-fiat";
 
 const transactionItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
@@ -224,6 +224,11 @@ export class LedgerTransactionItem extends LitElement {
     if (this.isFeesRow) {
       const ticker = this.feeTicker || this.ticker;
       return `-${formatTokenBalance(this.formattedFee, this.locale)} ${ticker}`.trimEnd();
+    }
+    // A pending transaction whose amount could not be read shows no amount at
+    // all, rather than a zero that would read as "sent nothing".
+    if (!this.amount) {
+      return "";
     }
     return `${this.sign}${formatTokenBalance(this.amount, this.locale)} ${this.ticker}`;
   }

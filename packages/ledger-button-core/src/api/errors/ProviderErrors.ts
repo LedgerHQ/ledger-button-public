@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 /**
  * Raised when the user closes the in-flow modal before a provider phase

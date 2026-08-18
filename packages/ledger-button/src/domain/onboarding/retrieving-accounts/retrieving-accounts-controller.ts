@@ -4,11 +4,11 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
-import { type CoreContext } from "../../../context/core-context.js";
-import { LanguageContext } from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-import { type Destinations } from "../../../shared/routes.js";
+import { type CoreContext } from "../../../context/core-context";
+import { LanguageContext } from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { type Destinations } from "../../../shared/routes";
 
 export class RetrievingAccountsController implements ReactiveController {
   errorData?: {

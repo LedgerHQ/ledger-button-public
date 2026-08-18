@@ -1,20 +1,18 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { NoCompatibleAccountsError } from "../../../api/errors/LedgerSyncErrors.js";
-import { dAppConfigV1ModuleTypes } from "../../dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import { type DAppConfigService } from "../../dAppConfig/v1/service/DAppConfigService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import { type StorageService } from "../../storage/StorageService.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
-import type { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase.js";
-import {
-  type Account,
-  type AccountService,
-  type CloudSyncData,
-} from "./AccountService.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import { NoCompatibleAccountsError } from "@api/errors/LedgerSyncErrors";
+import type { Account } from "@api/model/Account";
+import { dAppConfigModuleTypes } from "@internal/dAppConfig/di/dAppConfigModuleTypes";
+import { type GetDAppConfigUseCase } from "@internal/dAppConfig/use-case/GetDAppConfigUseCase";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import { type StorageService } from "@internal/storage/StorageService";
+
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import type { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase";
+import type { AccountService, CloudSyncData } from "./AccountService";
 
 @injectable()
 export class DefaultAccountService implements AccountService {
@@ -26,8 +24,8 @@ export class DefaultAccountService implements AccountService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(dAppConfigV1ModuleTypes.DAppConfigService)
-    private readonly dAppConfigService: DAppConfigService,
+    @inject(dAppConfigModuleTypes.GetDAppConfigUseCase)
+    private readonly getDAppConfigUseCase: GetDAppConfigUseCase,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
@@ -67,20 +65,22 @@ export class DefaultAccountService implements AccountService {
     cloudSyncData: CloudSyncData,
   ): Promise<Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    const supportedBlockchains = (await this.dAppConfigService.getDAppConfig())
-      .supportedBlockchains;
+    const dAppConfig = await this.getDAppConfigUseCase.execute();
+    const supportedNetworks = dAppConfig.blockchains.flatMap(
+      (blockchain) => blockchain.networks,
+    );
 
     const accs = accounts
       .map((account) => {
-        const blockchain = supportedBlockchains.find(
-          (blockchain) => blockchain.currency_id === account.currencyId,
+        const network = supportedNetworks.find(
+          (network) => network.currencyId === account.currencyId,
         );
 
         const name =
           accountNames[account.id] ??
-          `${blockchain?.currency_name} ${account.index + 1}`;
+          `${network?.currencyName} ${account.index + 1}`;
 
-        const ticker = blockchain?.currency_ticker;
+        const ticker = network?.currencyTicker;
         return ticker
           ? ({
               ...account,
@@ -98,7 +98,7 @@ export class DefaultAccountService implements AccountService {
 
     if (accs.length === 0) {
       throw new NoCompatibleAccountsError("No accounts found", {
-        networks: supportedBlockchains.map((network) => network.currency_name),
+        networks: supportedNetworks.map((network) => network.currencyName),
       });
     }
 

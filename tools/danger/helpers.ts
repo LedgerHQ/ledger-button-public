@@ -240,6 +240,8 @@ export const checkTitle = (
 const RELEASABLE_PACKAGE_PATHS = [
   "packages/ledger-button/",
   "packages/ledger-button-core/",
+  "packages/ledger-wallet-provider-evm/",
+  "packages/ledger-wallet-provider-solana/",
 ];
 
 const VERSION_PLAN_PATH_PREFIX = ".nx/version-plans/";
@@ -277,6 +279,33 @@ const isReleaseBranch = (danger: DangerDSLType) => {
     ? danger.github.pr.head.ref
     : execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
   return RELEASE_BRANCH_PREFIXES.some((prefix) => branch.startsWith(prefix));
+};
+
+const ALLOWED_BASE_MAIN_PREFIXES = ["release/v", "hotfix/"];
+
+export const checkBaseBranch = (danger: DangerDSLType, fail: FailFn) => {
+  const baseBranch = danger.github.pr.base.ref;
+  if (baseBranch !== "main") {
+    return true;
+  }
+
+  const headBranch = danger.github.pr.head.ref;
+  const isAllowed = ALLOWED_BASE_MAIN_PREFIXES.some((prefix) =>
+    headBranch.startsWith(prefix),
+  );
+
+  if (!isAllowed) {
+    fail(`\
+PRs targeting \`main\` are only allowed from \`release/vX.X.X\` or \`hotfix/*\` branches.
+
+**Current branch**: \`${headBranch}\`
+
+If this is a release, rename your branch to \`release/vX.X.X\`. If this is a hotfix, rename it to \`hotfix/<jira-or-no-issue>-<description>\`.\
+`);
+    return false;
+  }
+
+  return true;
 };
 
 export const checkReleasePlanOrNoBumpLabel = (

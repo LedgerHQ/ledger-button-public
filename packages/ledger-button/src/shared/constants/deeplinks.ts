@@ -1,4 +1,4 @@
-import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
+import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions";
 
 /**
  * Context for building deep links with pre-filled information.

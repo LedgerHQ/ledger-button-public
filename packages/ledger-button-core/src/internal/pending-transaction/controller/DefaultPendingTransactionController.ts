@@ -1,22 +1,28 @@
 import { type Factory, inject, injectable } from "inversify";
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, filter, Observable } from "rxjs";
 
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import {
   getActiveFamily,
   getActiveSelectedAccount,
-} from "../../../api/model/ButtonCoreContext.js";
-import { accountModuleTypes } from "../../account/accountModuleTypes.js";
-import { type FetchSelectedAccountUseCase } from "../../account/use-case/fetchSelectedAccountUseCase.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { type PendingTransaction } from "../model/PendingTransaction.js";
-import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
-import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
-import { type ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
-import { type HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";
-import { type PendingTransactionController } from "./PendingTransactionController.js";
+} from "@api/model/ButtonCoreContext";
+import { accountModuleTypes } from "@internal/account/di/accountModuleTypes";
+import { type FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase";
+import { type ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes";
+import { type BroadcastTracking } from "../model/BroadcastTracking";
+import { type PendingTransaction } from "../model/PendingTransaction";
+import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService";
+import {
+  type ConfirmPendingTransactionsUseCase,
+  type SettledPendingTransactionOutcome,
+} from "../use-case/ConfirmPendingTransactionsUseCase";
+import { type HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase";
+import { type PendingTransactionController } from "./PendingTransactionController";
 
 const POLLING_INTERVAL_MS = 10_000;
 
@@ -26,6 +32,14 @@ export class DefaultPendingTransactionController
 {
   private readonly logger: LoggerPublisher;
   private readonly pendingTxSubject: BehaviorSubject<PendingTransaction[]>;
+  /**
+   * Per-hash lifecycle. `null` means "not registered yet", which is what lets
+   * a subscriber attach before the transaction reaches the pool.
+   */
+  private readonly broadcastTracking = new Map<
+    string,
+    BehaviorSubject<BroadcastTracking | null>
+  >();
   private pollingInterval: ReturnType<typeof setInterval> | undefined;
 
   constructor(
@@ -58,6 +72,41 @@ export class DefaultPendingTransactionController
 
   observePendingTransactions(): Observable<PendingTransaction[]> {
     return this.pendingTxSubject;
+  }
+
+  registerBroadcastedTransaction(tx: PendingTransaction): void {
+    this.storageService.add(tx);
+    this.broadcastTrackingFor(tx.hash).next({
+      hash: tx.hash,
+      state: "processing",
+      explorerUrl: tx.explorerUrl,
+    });
+    this.track();
+  }
+
+  observeBroadcastedTransaction(hash: string): Observable<BroadcastTracking> {
+    return this.broadcastTrackingFor(hash).pipe(
+      filter((tracking): tracking is BroadcastTracking => tracking !== null),
+    );
+  }
+
+  private broadcastTrackingFor(
+    hash: string,
+  ): BehaviorSubject<BroadcastTracking | null> {
+    const existing = this.broadcastTracking.get(hash);
+    if (existing) {
+      return existing;
+    }
+    const subject = new BehaviorSubject<BroadcastTracking | null>(null);
+    this.broadcastTracking.set(hash, subject);
+    return subject;
+  }
+
+  private settleBroadcastTracking(hash: string): void {
+    const subject = this.broadcastTracking.get(hash);
+    const current = subject?.value;
+    if (!subject || !current) return;
+    subject.next({ ...current, state: "validated" });
   }
 
   private startPollingWhenAccountAvailable(): void {
@@ -97,43 +146,19 @@ export class DefaultPendingTransactionController
   }
 
   private async pollTick(): Promise<void> {
-    const context = this.contextService.getContext();
-    const account = getActiveSelectedAccount(context);
-    if (!account) return;
-
     const pending = this.storageService.getAll();
     if (pending.length === 0) {
       this.stopPolling();
       return;
     }
 
-    const pendingHashes = pending.map((tx) => tx.hash);
-
-    const result = await this.checkPendingStatus.execute(
-      account.currencyId,
-      account.freshAddress,
-      pendingHashes,
-    );
-
-    if (result.isLeft()) {
-      this.logger.warn("Failed to check pending transactions", {
-        error: result.extract(),
-      });
-      return;
-    }
-
-    const settledOutcomes = result.unsafeCoerce();
-
-    if (settledOutcomes.length > 0) {
-      for (const { hash } of settledOutcomes) {
-        this.storageService.remove(hash);
-      }
-    }
+    const settledOutcomes = await this.confirmPendingByAccount(pending);
+    const settledTxs = this.removeSettled(pending, settledOutcomes);
 
     await this.emitUpdate();
 
-    if (settledOutcomes.length > 0) {
-      this.refreshSelectedAccount();
+    if (settledTxs.length > 0) {
+      void this.refreshSettledAccounts(settledTxs);
     }
 
     if (this.storageService.getAll().length === 0) {
@@ -141,15 +166,125 @@ export class DefaultPendingTransactionController
     }
   }
 
-  private async refreshSelectedAccount(): Promise<void> {
-    this.logger.debug("Refreshing transaction history after confirmation");
-    const family = getActiveFamily(this.contextService.getContext());
-    const result = await this.fetchSelectedAccountUseCase.execute(family);
-    if (result.isLeft()) {
-      this.logger.warn("Failed to refresh transaction history", {
-        error: result.extract(),
-      });
+  private removeSettled(
+    pending: PendingTransaction[],
+    settledOutcomes: SettledPendingTransactionOutcome[],
+  ): PendingTransaction[] {
+    const settledHashes = new Set(settledOutcomes.map(({ hash }) => hash));
+    for (const hash of settledHashes) {
+      this.storageService.remove(hash);
+      this.settleBroadcastTracking(hash);
     }
+    return pending.filter((tx) => settledHashes.has(tx.hash));
+  }
+
+  /**
+   * Each pending tx carries the account it was broadcast from, so a mixed
+   * EVM/Solana list is checked against the right explorer for each family.
+   */
+  private async confirmPendingByAccount(
+    pending: PendingTransaction[],
+  ): Promise<SettledPendingTransactionOutcome[]> {
+    const settled: SettledPendingTransactionOutcome[] = [];
+
+    for (const group of this.groupByAccount(pending)) {
+      const result = await this.checkPendingStatus.execute(
+        group.currencyId,
+        group.address,
+        group.hashes,
+      );
+
+      if (result.isLeft()) {
+        this.logger.warn("Failed to check pending transactions", {
+          error: result.extract(),
+          currencyId: group.currencyId,
+        });
+        continue;
+      }
+
+      settled.push(...result.unsafeCoerce());
+    }
+
+    return settled;
+  }
+
+  private groupByAccount(pending: PendingTransaction[]): {
+    currencyId: string;
+    address: string;
+    hashes: string[];
+  }[] {
+    const groups = new Map<
+      string,
+      { currencyId: string; address: string; hashes: string[] }
+    >();
+
+    for (const tx of pending) {
+      const key = `${tx.ledgerId}:${tx.address}`;
+      const group = groups.get(key);
+      if (group) {
+        group.hashes.push(tx.hash);
+      } else {
+        groups.set(key, {
+          currencyId: tx.ledgerId,
+          address: tx.address,
+          hashes: [tx.hash],
+        });
+      }
+    }
+
+    return Array.from(groups.values());
+  }
+
+  /**
+   * Refresh the accounts whose transactions just settled so their balance and
+   * history reflect the confirmation.
+   */
+  private async refreshSettledAccounts(
+    settledTxs: PendingTransaction[],
+  ): Promise<void> {
+    const families = this.resolveSettledFamilies(settledTxs);
+    this.logger.debug("Refreshing transaction history after confirmation", {
+      families,
+    });
+
+    for (const family of families) {
+      const result = await this.fetchSelectedAccountUseCase.execute(family);
+      if (result.isLeft()) {
+        this.logger.warn("Failed to refresh transaction history", {
+          error: result.extract(),
+          family,
+        });
+      }
+    }
+  }
+
+  private resolveSettledFamilies(
+    settledTxs: PendingTransaction[],
+  ): BlockchainFamily[] {
+    const context = this.contextService.getContext();
+    const families = new Set<BlockchainFamily>();
+
+    for (const [family, account] of context.selectedAccounts) {
+      const isSettledAccount = settledTxs.some(
+        (tx) =>
+          tx.ledgerId === account.currencyId &&
+          tx.address === account.freshAddress,
+      );
+      if (isSettledAccount) {
+        families.add(family);
+      }
+    }
+
+    // The settled tx no longer maps to a selected account (the user switched
+    // account while it was pending): fall back to refreshing the active one.
+    if (families.size === 0) {
+      const activeFamily = getActiveFamily(context);
+      if (activeFamily) {
+        families.add(activeFamily);
+      }
+    }
+
+    return Array.from(families);
   }
 
   private async emitCurrentState(): Promise<void> {

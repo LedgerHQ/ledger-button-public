@@ -10,11 +10,11 @@ import {
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { AnimationKey } from "../../../components/molecule/device-animation/device-animation.js";
-import { type CoreContext } from "../../../context/core-context.js";
-import { type LanguageContext } from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { type Destinations } from "../../../shared/routes.js";
+import { AnimationKey } from "../../../components/molecule/device-animation/device-animation";
+import { type CoreContext } from "../../../context/core-context";
+import { type LanguageContext } from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { type Destinations } from "../../../shared/routes";
 
 export class LedgerSyncController implements ReactiveController {
   device?: Device;

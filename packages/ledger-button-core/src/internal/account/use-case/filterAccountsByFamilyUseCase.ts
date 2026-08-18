@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 
-import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { blockchainProviderModuleTypes } from "../../blockchain-provider/blockchainProviderModuleTypes.js";
-import { type BlockchainProviderManager } from "../../blockchain-provider/service/BlockchainProviderManager.js";
+import { type BlockchainFamily } from "@api/blockchain-provider/model/types";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import { type BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 
 @injectable()
 export class FilterAccountsByFamilyUseCase {
@@ -29,8 +29,8 @@ export class FilterAccountsByFamilyUseCase {
     family: BlockchainFamily,
   ): boolean {
     return this.blockchainProviderManager
-      .resolveBlockchainFamily(currencyId)
-      .map((resolved) => resolved === family)
+      .describeCurrency(currencyId)
+      .map((currency) => currency.family === family)
       .orDefault(false);
   }
 }

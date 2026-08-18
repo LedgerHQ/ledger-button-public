@@ -1,15 +1,21 @@
 import { ContainerModule } from "inversify";
 
-import { bindDAppConfigV1 } from "../v1/di/bindDAppConfigV1.js";
-import { bindDAppConfigV2 } from "../v2/di/bindDAppConfigV2.js";
+import { DAppConfigDataSource } from "../datasource/DAppConfigDataSource";
+import { StubDAppConfigDataSource } from "../datasource/StubDAppConfigDataSource";
+import { GetDAppConfigUseCase } from "../use-case/GetDAppConfigUseCase";
+import { dAppConfigModuleTypes } from "./dAppConfigModuleTypes";
 
-type DAppConfigModuleOptions = {
-  stub?: boolean;
-};
+export function dAppConfigModuleFactory() {
+  return new ContainerModule(({ bind }) => {
+    // Only a stub data source exists for now (hardcoded values).
+    // When a real backend implementation lands, swap this to the default
+    // implementation.
+    bind<DAppConfigDataSource>(dAppConfigModuleTypes.DAppConfigDataSource)
+      .to(StubDAppConfigDataSource)
+      .inSingletonScope();
 
-export function dAppConfigModuleFactory({ stub }: DAppConfigModuleOptions) {
-  return new ContainerModule((options) => {
-    bindDAppConfigV1(options, { stub });
-    bindDAppConfigV2(options);
+    bind<GetDAppConfigUseCase>(dAppConfigModuleTypes.GetDAppConfigUseCase)
+      .to(GetDAppConfigUseCase)
+      .inSingletonScope();
   });
 }

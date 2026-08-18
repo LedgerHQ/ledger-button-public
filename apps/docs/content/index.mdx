@@ -1,0 +1,47 @@
+---
+title: Ledger Wallet Provider Documentation
+---
+
+export function Card({ title, description, link }) {
+  return (
+    <div className="card">
+      <h3>{title}</h3>
+      <p>{description}</p>
+      <a href={link} className="btn">
+        Explore
+      </a>
+    </div>
+  );
+}
+
+export function Hero() {
+  return (
+    <div className="hero">
+      <h1>Ledger Wallet Provider Documentation</h1>
+      <p>
+        Seamlessly connect Ledger wallets into your dApp with{" "}
+        <em>Ledger Wallet Provider</em>.
+      </p>
+    </div>
+  );
+}
+
+<Hero />
+
+<div className="card-container">
+  <Card
+    title="Overview"
+    description="What Ledger Wallet Provider is and what you get out of the box."
+    link="/docs/ledger-wallet-provider/overview"
+  />
+  <Card
+    title="Get started"
+    description="Install the SDK, initialize the provider, and connect accounts."
+    link="/docs/ledger-wallet-provider/get-started"
+  />
+  <Card
+    title="API reference"
+    description="initializeLedgerProvider, EIP-1193 methods, events, and errors."
+    link="/docs/ledger-wallet-provider/api-reference"
+  />
+</div>

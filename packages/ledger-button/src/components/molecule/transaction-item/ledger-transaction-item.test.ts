@@ -5,7 +5,7 @@
 import { render } from "lit";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerTransactionItem } from "./ledger-transaction-item.js";
+import { LedgerTransactionItem } from "./ledger-transaction-item";
 
 const EXPLORER_URL =
   "https://etherscan.io/tx/0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";
@@ -70,6 +70,17 @@ describe("ledger-transaction-item", () => {
     );
 
     expect(label).toBeUndefined();
+  });
+
+  it("renders no crypto amount when the amount is unknown", () => {
+    const container = renderItem({
+      amount: "",
+      ticker: "SOL",
+      fiatAmount: "",
+    });
+
+    expect(container.textContent).not.toContain("SOL");
+    expect(container.textContent).not.toContain("0");
   });
 
   it("renders a static container with no anchor when explorerUrl is missing", () => {

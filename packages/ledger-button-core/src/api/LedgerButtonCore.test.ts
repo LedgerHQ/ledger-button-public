@@ -1,17 +1,17 @@
 import { of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "./blockchain-provider/model/types.js";
-import type { Account } from "../internal/account/service/AccountService.js";
-import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
-import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
-import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
-import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
-import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
-import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
-import { navigationModuleTypes } from "../internal/navigation/navigationModuleTypes.js";
-import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
-import { LedgerButtonCore } from "./LedgerButtonCore.js";
+import type { BlockchainFamily } from "./blockchain-provider/model/types";
+import type { Account } from "./model/Account";
+import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
+import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes";
+import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
+import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
+import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes";
+import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes";
+import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes";
+import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
+import { LedgerButtonCore } from "./LedgerButtonCore";
 
 // Mock the DI container factory so the constructor wires our stubs instead of
 // the real graph.
@@ -19,7 +19,7 @@ const hoisted = vi.hoisted(() => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   container: undefined as any,
 }));
-vi.mock("../internal/di.js", () => ({
+vi.mock("../internal/di", () => ({
   createContainer: () => hoisted.container,
 }));
 

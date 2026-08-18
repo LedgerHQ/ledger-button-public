@@ -9,51 +9,56 @@ import type {
   ProviderSdkConfig,
   ProviderSignParams,
   WalletNavigationIntent,
-} from "../../../api/blockchain-provider/model/types.js";
-import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
+} from "@api/blockchain-provider/model/types";
+import { ModalClosedError } from "@api/errors/ProviderErrors";
+import type { Account } from "@api/model/Account";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../../api/model/blockchain/GasFee.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
+} from "@api/model/blockchain/GasFee";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
+import { getSelectedAccount } from "@api/model/ButtonCoreContext";
 import {
   isBroadcastedTransactionResult,
   type SignedResults,
-} from "../../../api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { Account } from "../../../internal/account/service/AccountService.js";
-import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
-import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
-import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
-import { configModuleTypes } from "../../../internal/config/configModuleTypes.js";
-import type { Config } from "../../../internal/config/model/config.js";
-import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
-import type { ContextService } from "../../../internal/context/ContextService.js";
-import { deviceModuleTypes } from "../../../internal/device/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../../../internal/device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../../internal/event-tracking/eventTrackingModuleTypes.js";
-import type { TrackTransactionCompleted } from "../../../internal/event-tracking/usecase/TrackTransactionCompleted.js";
-import type { TrackTransactionStarted } from "../../../internal/event-tracking/usecase/TrackTransactionStarted.js";
-import type { TrackTypedMessageCompleted } from "../../../internal/event-tracking/usecase/TrackTypedMessageCompleted.js";
-import type { TrackTypedMessageStarted } from "../../../internal/event-tracking/usecase/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../../../internal/modal/modalModuleTypes.js";
-import type { ModalService } from "../../../internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "../../../internal/navigation/navigationModuleTypes.js";
-import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
-import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
-import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
-import type { BackendService } from "../../backend/BackendService.js";
+} from "@api/model/signing/SignedTransaction";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type { BackendService } from "@internal/backend/BackendService";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import {
   type BroadcastResponse,
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   type JSONRPCRequest,
-} from "../../backend/types.js";
-import type { CoreFacadeService } from "./CoreFacadeService.js";
+} from "@internal/backend/types";
+import { getCoinServiceNetworkName } from "@internal/balance/constants/networkConstants";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { CoinServiceDataSource } from "@internal/balance/datasource/coinService/CoinServiceDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import type { Config } from "@internal/config/model/config";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
+import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
+import type { TrackTransactionCompleted } from "@internal/event-tracking/use-case/TrackTransactionCompleted";
+import type { TrackTransactionStarted } from "@internal/event-tracking/use-case/TrackTransactionStarted";
+import type { TrackTypedMessageCompleted } from "@internal/event-tracking/use-case/TrackTypedMessageCompleted";
+import type { TrackTypedMessageStarted } from "@internal/event-tracking/use-case/TrackTypedMessageStarted";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { modalModuleTypes } from "@internal/modal/di/modalModuleTypes";
+import type { ModalService } from "@internal/modal/service/ModalService";
+import { navigationModuleTypes } from "@internal/navigation/di/navigationModuleTypes";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
+import { pendingTransactionModuleTypes } from "@internal/pending-transaction/di/pendingTransactionModuleTypes";
+import type { TrackBroadcastedTransactionUseCase } from "@internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase";
+
+import type { CoreFacadeService } from "./CoreFacadeService";
+
+/** Ledger's public Solana node proxy (`API_SOLANA_PROXY` in ledger-live-common). */
+const SOLANA_LEDGER_NODE_URL = "https://solana.coin.ledger.com";
 
 @injectable()
 export class DefaultCoreFacadeService implements CoreFacadeService {
@@ -74,6 +79,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _modalService: ModalService,
     @inject(balanceModuleTypes.CoinServiceDataSource)
     private readonly _coinServiceDataSource: CoinServiceDataSource,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly _calDataSource: CalDataSource,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly _trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
@@ -95,6 +102,15 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     blockchain: ProviderBlockchain,
   ): Promise<BroadcastResponse> {
     this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
+
+    // TODO(LBD-712): temporary. The Ledger button backend is not yet ready to
+    // broadcast Solana transactions, so for now we hit Ledger's public Solana
+    // node proxy directly. Remove this branch and route Solana through
+    // `_backendService.broadcast` once the backend supports it.
+    if (blockchain.name === "solana") {
+      return this.broadcastSolanaViaLedgerNode(args);
+    }
+
     const response = await this._backendService.broadcast({
       blockchain,
       rpc: args,
@@ -114,6 +130,31 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
         throw error;
       },
     });
+  }
+
+  /** TODO(LBD-712): temporary, see the branch in {@link broadcastRPC}. */
+  private async broadcastSolanaViaLedgerNode(
+    args: JSONRPCRequest,
+  ): Promise<BroadcastResponse> {
+    const httpResponse = await fetch(SOLANA_LEDGER_NODE_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+
+    // The proxy answers rate limits and outages with an HTML body, which would
+    // otherwise fail as an opaque JSON parse error in the sign modal.
+    if (!httpResponse.ok) {
+      throw new Error(
+        `Solana node proxy responded with ${httpResponse.status} ${httpResponse.statusText}`,
+      );
+    }
+
+    const result = (await httpResponse.json()) as unknown;
+    if (isJsonRpcResponse(result) || isCoinServiceBroadcastResponse(result)) {
+      return result;
+    }
+    throw new Error("Unexpected broadcast response for Solana JSON-RPC request");
   }
 
   async requestAccount(family: BlockchainFamily): Promise<Account> {
@@ -240,7 +281,28 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   emitNavigationIntent(intent: WalletNavigationIntent): void {
+    this._warmCurrencyMetadata(intent);
     this._navigationIntentService.emit(intent);
+  }
+
+  /**
+   * A broadcast ends with core resolving currency metadata to build the pending
+   * transaction (formatted value, explorer link). Kicking that lookup off when
+   * the sign phase starts means it runs while the user approves on device, so
+   * the explorer link is ready as soon as the hash is known.
+   */
+  private _warmCurrencyMetadata(intent: WalletNavigationIntent): void {
+    if (intent.name !== "signTransaction" || !intent.params.broadcast) {
+      return;
+    }
+    const account = getSelectedAccount(
+      this._contextService.getContext(),
+      intent.params.family,
+    );
+    if (!account) {
+      return;
+    }
+    void this._calDataSource.getCurrencyInformation(account.currencyId);
   }
 
   trackBroadcastedTransaction(

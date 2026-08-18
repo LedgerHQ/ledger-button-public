@@ -2,12 +2,13 @@
  * @vitest-environment jsdom
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "../../../api/blockchain-provider/model/types.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
+import type { ContextService } from "@internal/context/ContextService";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
+
+import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
 
 const makeService = () => {
   const emit = vi.fn();
@@ -27,6 +28,7 @@ const makeService = () => {
   const service = new DefaultCoreFacadeService(
     navigationIntentService,
     contextService,
+    {} as never,
     {} as never,
     {} as never,
     {} as never,
@@ -70,5 +72,60 @@ describe("DefaultCoreFacadeService.requestAccount", () => {
         params: { family: "ethereum" },
       }),
     );
+  });
+});
+
+describe("DefaultCoreFacadeService.broadcastRPC (Solana temporary path)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("broadcasts Solana requests directly to the Ledger Solana node proxy", async () => {
+    const { service } = makeService();
+    const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue(jsonRpcResponse),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const args = {
+      jsonrpc: "2.0",
+      id: 0,
+      method: "sendTransaction",
+      params: ["base64Tx", { encoding: "base64" }],
+    };
+
+    const response = await service.broadcastRPC(args, {
+      name: "solana",
+      chainId: "mainnet",
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith("https://solana.coin.ledger.com", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(args),
+    });
+    expect(response).toEqual(jsonRpcResponse);
+  });
+
+  it("fails with the HTTP status when the Solana node proxy rejects the request", async () => {
+    const { service } = makeService();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 429,
+        statusText: "Too Many Requests",
+        json: vi.fn(),
+      }),
+    );
+
+    await expect(
+      service.broadcastRPC(
+        { jsonrpc: "2.0", id: 0, method: "sendTransaction", params: [] },
+        { name: "solana", chainId: "mainnet" },
+      ),
+    ).rejects.toThrow("Solana node proxy responded with 429 Too Many Requests");
   });
 });

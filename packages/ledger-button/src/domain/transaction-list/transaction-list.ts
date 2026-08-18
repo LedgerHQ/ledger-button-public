@@ -1,4 +1,4 @@
-import "../../components/index.js";
+import "../../components/index";
 
 import { consume } from "@lit/context";
 import { html, LitElement, type TemplateResult } from "lit";
@@ -8,12 +8,12 @@ import type {
   TransactionKind,
   TransactionStatus,
   TransactionType,
-} from "../../components/molecule/transaction-item/ledger-transaction-item.js";
+} from "../../components/molecule/transaction-item/ledger-transaction-item";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { tailwindElement } from "../../tailwind-element.js";
+} from "../../context/language-context";
+import { tailwindElement } from "../../tailwind-element";
 
 const TRANSACTION_HISTORY_MAX_ITEMS = 20;
 

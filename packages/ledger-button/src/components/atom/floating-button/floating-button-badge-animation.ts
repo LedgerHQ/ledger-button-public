@@ -1,6 +1,6 @@
 import { animate, type AnimationOptions } from "motion";
 
-import { type AnimationInstance } from "../modal/animation-types.js";
+import { type AnimationInstance } from "../modal/animation-types";
 
 const ELASTIC_SPRING = {
   type: "spring" as const,
