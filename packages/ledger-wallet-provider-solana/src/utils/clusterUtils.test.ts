@@ -4,7 +4,7 @@ import {
   getClusterFromCurrencyId,
   getCurrencyIdFromCluster,
   isSupportedSolanaCurrency,
-} from "./clusterUtils.js";
+} from "./clusterUtils";
 
 describe("clusterUtils", () => {
   describe("getClusterFromCurrencyId", () => {

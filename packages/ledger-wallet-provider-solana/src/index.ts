@@ -5,10 +5,10 @@ import type {
   CoreFacade,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
+import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
 
-export type { SolanaSignedResult } from "./model/SolanaSignedResult.js";
-export { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
+export type { SolanaSignedResult } from "./model/SolanaSignedResult";
+export { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
 
 /**
  * Factory that creates a Solana {@link BlockchainProvider}. Register with

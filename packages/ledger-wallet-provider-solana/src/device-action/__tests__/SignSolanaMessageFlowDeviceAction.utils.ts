@@ -5,7 +5,7 @@ import type {
   SignSolanaMessageFlowDAError,
   SignSolanaMessageFlowDAIntermediateValue,
   SignSolanaMessageFlowDAOutput,
-} from "../SignSolanaMessageFlowDeviceActionTypes.js";
+} from "../SignSolanaMessageFlowDeviceActionTypes";
 
 export type SignSolanaMessageFlowDAState = DeviceActionState<
   SignSolanaMessageFlowDAOutput,

@@ -11,8 +11,8 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { lastValueFrom, type Observable } from "rxjs";
 
-import { SignSolanaTransactionFlowDeviceAction } from "../SignSolanaTransactionFlowDeviceAction.js";
-import { SignSolanaTransactionFlowDAStep } from "../SignSolanaTransactionFlowDeviceActionTypes.js";
+import { SignSolanaTransactionFlowDeviceAction } from "../SignSolanaTransactionFlowDeviceAction";
+import { SignSolanaTransactionFlowDAStep } from "../SignSolanaTransactionFlowDeviceActionTypes";
 import {
   DEFAULT_ADDRESS,
   DEFAULT_INPUT,
@@ -21,11 +21,11 @@ import {
   setupOpenAppMock,
   setupSignTransactionMock,
   VALID_SIGNATURE,
-} from "./SignSolanaTransactionFlowDeviceAction.mock.js";
+} from "./SignSolanaTransactionFlowDeviceAction.mock";
 import {
   executeUntilStep,
   type SignSolanaTransactionFlowDAState,
-} from "./SignSolanaTransactionFlowDeviceAction.utils.js";
+} from "./SignSolanaTransactionFlowDeviceAction.utils";
 
 vi.mock("@ledgerhq/device-management-kit", async (importOriginal) => {
   const original =

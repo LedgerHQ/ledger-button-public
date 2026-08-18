@@ -5,7 +5,7 @@
 import type { Wallet } from "@wallet-standard/base";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { registerWalletStandard } from "./registerWalletStandard.js";
+import { registerWalletStandard } from "./registerWalletStandard";
 
 const wallet = { name: "Ledger" } as unknown as Wallet;
 

@@ -5,19 +5,19 @@ import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { createMockCoreFacade } from "./__mocks__/coreFacadeMock.js";
-import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
-import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider.js";
-import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
+import { createMockCoreFacade } from "./__mocks__/coreFacadeMock";
+import { LedgerSolanaWallet } from "./LedgerSolanaWallet";
+import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
+import { SolanaWalletProvider } from "./SolanaWalletProvider";
 
-vi.mock("./LedgerSolanaWallet.js", () => ({
+vi.mock("./LedgerSolanaWallet", () => ({
   LedgerSolanaWallet: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
   })),
 }));
 
-vi.mock("./SolanaWalletProvider.js", () => ({
+vi.mock("./SolanaWalletProvider", () => ({
   SolanaWalletProvider: vi.fn().mockImplementation(() => ({
     family: "solana",
     wallet: {},

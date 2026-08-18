@@ -19,16 +19,16 @@ import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
-import { SignSolanaTransactionFlowDeviceAction } from "../device-action/SignSolanaTransactionFlowDeviceAction.js";
+import { SignSolanaTransactionFlowDeviceAction } from "../device-action/SignSolanaTransactionFlowDeviceAction";
 import type {
   SignSolanaTransactionFlowDAError,
   SignSolanaTransactionFlowDAIntermediateValue,
   SignSolanaTransactionFlowDAOutput,
-} from "../device-action/SignSolanaTransactionFlowDeviceActionTypes.js";
-import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes.js";
-import { getSolanaDerivationPath } from "../utils/derivationUtils.js";
-import { getSolanaMessageBytes } from "../utils/transactionUtils.js";
-import { BuildSolanaContextModule } from "./BuildSolanaContextModule.js";
+} from "../device-action/SignSolanaTransactionFlowDeviceActionTypes";
+import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
+import { getSolanaDerivationPath } from "../utils/derivationUtils";
+import { getSolanaMessageBytes } from "../utils/transactionUtils";
+import { BuildSolanaContextModule } from "./BuildSolanaContextModule";
 
 @injectable()
 export class SignSolanaTransaction {
