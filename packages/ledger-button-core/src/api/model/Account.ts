@@ -38,6 +38,17 @@ export type AccountWithFiat = Account & {
   fiatLoadingState: LoadingState;
 };
 
+export type AccountListItem = AccountWithFiat & {
+  totalFiatValue: FiatBalance | undefined;
+  displayTokens: Token[];
+};
+
+export type AccountGroup = {
+  freshAddress: string;
+  totalFiatValue: FiatBalance | undefined;
+  accounts: AccountListItem[];
+};
+
 export type Network = {
   id: string; // currencyId
   name: string;
