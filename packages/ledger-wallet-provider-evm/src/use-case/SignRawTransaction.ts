@@ -53,15 +53,15 @@ import {
   tap,
 } from "rxjs";
 
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import type { EvmSignedResult } from "../model/EvmSignedResult.js";
-import { createSignedTransaction } from "../transaction/TransactionHelper.js";
-import { getEvmDerivationPath } from "../utils/derivationUtils.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import type { EvmSignedResult } from "../model/EvmSignedResult";
+import { createSignedTransaction } from "../transaction/TransactionHelper";
+import { getEvmDerivationPath } from "../utils/derivationUtils";
 import {
   BroadcastTransaction,
   BroadcastTransactionParams,
-} from "./BroadcastTransaction.js";
-import { BuildEthSigner } from "./BuildEthSigner.js";
+} from "./BroadcastTransaction";
+import { BuildEthSigner } from "./BuildEthSigner";
 
 type OpenAppResult = {
   result: OpenAppWithDependenciesDAState;

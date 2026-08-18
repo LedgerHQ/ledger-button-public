@@ -6,8 +6,8 @@ import {
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import { BuildContextModule } from "./BuildContextModule.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import { BuildContextModule } from "./BuildContextModule";
 
 export type BuildEthSignerParams = {
   sessionId: string;

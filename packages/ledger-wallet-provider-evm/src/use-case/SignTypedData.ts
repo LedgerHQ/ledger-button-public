@@ -50,10 +50,10 @@ import {
   tap,
 } from "rxjs";
 
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
-import { getEvmDerivationPath } from "../utils/derivationUtils.js";
-import { BuildEthSigner } from "./BuildEthSigner.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import { getHexaStringFromSignature } from "../transaction/TransactionHelper";
+import { getEvmDerivationPath } from "../utils/derivationUtils";
+import { BuildEthSigner } from "./BuildEthSigner";
 
 type OpenAppResult = {
   result: OpenAppWithDependenciesDAState;

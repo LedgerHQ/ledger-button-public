@@ -6,8 +6,8 @@ import type {
 import { JsonRpcResponseSuccess } from "@ledgerhq/ledger-wallet-provider-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
-import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService.js";
+import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
+import { DefaultGasFeeEstimationService } from "./DefaultGasFeeEstimationService";
 
 describe("DefaultGasFeeEstimationService", () => {
   let gasFeeEstimationService: DefaultGasFeeEstimationService;

@@ -11,8 +11,8 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { lastValueFrom, type Observable } from "rxjs";
 
-import { SignPersonalMessageFlowDeviceAction } from "../SignPersonalMessageFlowDeviceAction.js";
-import { SignPersonalMessageFlowDAStep } from "../SignPersonalMessageFlowDeviceActionTypes.js";
+import { SignPersonalMessageFlowDeviceAction } from "../SignPersonalMessageFlowDeviceAction";
+import { SignPersonalMessageFlowDAStep } from "../SignPersonalMessageFlowDeviceActionTypes";
 import {
   DEFAULT_ADDRESS,
   DEFAULT_INPUT,
@@ -21,11 +21,11 @@ import {
   setupOpenAppMock,
   setupSignMessageMock,
   VALID_SIGNATURE_HEX,
-} from "./SignPersonalMessageFlowDeviceAction.mock.js";
+} from "./SignPersonalMessageFlowDeviceAction.mock";
 import {
   executeUntilStep,
   type SignPersonalMessageFlowDAState,
-} from "./SignPersonalMessageFlowDeviceAction.utils.js";
+} from "./SignPersonalMessageFlowDeviceAction.utils";
 
 vi.mock("@ledgerhq/device-management-kit", async (importOriginal) => {
   const original =

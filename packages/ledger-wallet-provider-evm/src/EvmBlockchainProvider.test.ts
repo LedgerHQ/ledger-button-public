@@ -2,19 +2,19 @@ import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { createMockCoreFacade } from "./__mocks__/coreFacadeMock.js";
-import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
-import { EvmWalletProvider } from "./EvmWalletProvider.js";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+import { createMockCoreFacade } from "./__mocks__/coreFacadeMock";
+import { EvmBlockchainProvider } from "./EvmBlockchainProvider";
+import { EvmWalletProvider } from "./EvmWalletProvider";
+import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
 
-vi.mock("./LedgerEIP1193Provider.js", () => ({
+vi.mock("./LedgerEIP1193Provider", () => ({
   LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
   })),
 }));
 
-vi.mock("./EvmWalletProvider.js", () => ({
+vi.mock("./EvmWalletProvider", () => ({
   EvmWalletProvider: vi.fn().mockImplementation(() => ({
     family: "ethereum",
     init: vi.fn(() => vi.fn()),
@@ -23,10 +23,10 @@ vi.mock("./EvmWalletProvider.js", () => ({
 
 // Bind stub sign use-cases so the local container resolves without needing the
 // real injectable graph (and decorator metadata) at test time.
-vi.mock("./di/evmProviderModule.js", async () => {
+vi.mock("./di/evmProviderModule", async () => {
   const { ContainerModule } = await import("inversify");
   const { evmProviderModuleTypes } = await import(
-    "./di/evmProviderModuleTypes.js"
+    "./di/evmProviderModuleTypes"
   );
   return {
     evmProviderModule: () =>

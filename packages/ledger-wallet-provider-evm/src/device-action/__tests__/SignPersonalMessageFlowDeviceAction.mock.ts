@@ -14,7 +14,7 @@ import { Left, Right } from "purify-ts";
 import { type Mock, vi } from "vitest";
 import { assign, createMachine } from "xstate";
 
-import type { SignPersonalMessageFlowDAInput } from "../SignPersonalMessageFlowDeviceActionTypes.js";
+import type { SignPersonalMessageFlowDAInput } from "../SignPersonalMessageFlowDeviceActionTypes";
 
 export function makeInternalApiMock(): InternalApi {
   const loggerStub = {

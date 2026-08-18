@@ -7,8 +7,8 @@ import type {
 import { isJsonRpcResponseSuccess } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import { GasFeeEstimationService } from "./GasFeeEstimationService.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import { GasFeeEstimationService } from "./GasFeeEstimationService";
 
 @injectable()
 export class DefaultGasFeeEstimationService implements GasFeeEstimationService {

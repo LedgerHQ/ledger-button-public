@@ -5,12 +5,12 @@ import type {
   CoreFacade,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
+import { EvmBlockchainProvider } from "./EvmBlockchainProvider";
 
-export { EvmBlockchainProvider } from "./EvmBlockchainProvider.js";
-export { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
-export type { EvmSignedResult } from "./model/EvmSignedResult.js";
-export { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
+export { EvmBlockchainProvider } from "./EvmBlockchainProvider";
+export { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
+export type { EvmSignedResult } from "./model/EvmSignedResult";
+export { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod";
 
 /**
  * Factory that creates an EVM {@link BlockchainProvider}. Register with

@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   LedgerEIP1193Provider,
   type LedgerEIP1193ProviderDeps,
-} from "./LedgerEIP1193Provider.js";
+} from "./LedgerEIP1193Provider";
 
 const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";
 
