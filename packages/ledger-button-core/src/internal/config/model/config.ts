@@ -4,7 +4,7 @@ import {
   LOG_LEVELS,
   type LogLevel,
   LogLevelKey,
-} from "@internal/logger/model/constant.js";
+} from "@internal/logger/model/constant";
 
 import PACKAGE from "../../../../package.json" with { type: "json" };
 

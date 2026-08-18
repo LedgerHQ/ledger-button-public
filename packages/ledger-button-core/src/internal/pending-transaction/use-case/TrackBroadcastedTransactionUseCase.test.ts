@@ -1,16 +1,16 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
-import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
-import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
-import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { ContextService } from "@internal/context/ContextService.js";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams";
+import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams";
+import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { ContextService } from "@internal/context/ContextService";
 
-import type { PendingTransactionController } from "../controller/PendingTransactionController.js";
-import { TrackBroadcastedTransactionUseCase } from "./TrackBroadcastedTransactionUseCase.js";
+import type { PendingTransactionController } from "../controller/PendingTransactionController";
+import { TrackBroadcastedTransactionUseCase } from "./TrackBroadcastedTransactionUseCase";
 
 function createMockLogger() {
   return {

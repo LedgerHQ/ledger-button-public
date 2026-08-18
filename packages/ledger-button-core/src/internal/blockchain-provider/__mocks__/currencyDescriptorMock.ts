@@ -1,4 +1,4 @@
-import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 
 /**
  * Builds a {@link CurrencyDescriptor} for tests, defaulting to Ethereum

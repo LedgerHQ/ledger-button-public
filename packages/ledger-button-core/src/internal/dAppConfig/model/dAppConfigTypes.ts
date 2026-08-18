@@ -1,4 +1,4 @@
-import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
 
 export type { BlockchainConfig };
 

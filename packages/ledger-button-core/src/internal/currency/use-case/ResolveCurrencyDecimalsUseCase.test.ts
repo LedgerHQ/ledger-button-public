@@ -1,11 +1,11 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 
-import { ResolveCurrencyDecimalsUseCase } from "./ResolveCurrencyDecimalsUseCase.js";
+import { ResolveCurrencyDecimalsUseCase } from "./ResolveCurrencyDecimalsUseCase";
 
 function createMockLoggerFactory() {
   return vi.fn().mockReturnValue({

@@ -1,13 +1,13 @@
 import { inject, injectable } from "inversify";
 
-import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes.js";
-import type { TrackConsentGiven } from "@internal/event-tracking/use-case/TrackConsentGiven.js";
-import type { TrackConsentRemoved } from "@internal/event-tracking/use-case/TrackConsentRemoved.js";
-import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes.js";
-import type { UserConsent } from "@internal/storage/model/UserConsent.js";
-import type { StorageService } from "@internal/storage/StorageService.js";
+import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
+import type { TrackConsentGiven } from "@internal/event-tracking/use-case/TrackConsentGiven";
+import type { TrackConsentRemoved } from "@internal/event-tracking/use-case/TrackConsentRemoved";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { UserConsent } from "@internal/storage/model/UserConsent";
+import type { StorageService } from "@internal/storage/StorageService";
 
-import type { ConsentService } from "./ConsentService.js";
+import type { ConsentService } from "./ConsentService";
 
 @injectable()
 export class DefaultConsentService implements ConsentService {

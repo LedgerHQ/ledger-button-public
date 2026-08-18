@@ -1,7 +1,7 @@
-import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig.js";
-import type { BlockchainProvider } from "./BlockchainProvider.js";
-import type { CoreFacade } from "./CoreFacade.js";
-import type { BlockchainFamily } from "./types.js";
+import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig";
+import type { BlockchainProvider } from "./BlockchainProvider";
+import type { CoreFacade } from "./CoreFacade";
+import type { BlockchainFamily } from "./types";
 
 /**
  * Creates a {@link BlockchainProvider} for one blockchain family from the

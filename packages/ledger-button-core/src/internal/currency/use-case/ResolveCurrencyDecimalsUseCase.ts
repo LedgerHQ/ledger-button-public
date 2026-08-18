@@ -1,12 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 import { type Maybe } from "purify-ts";
 
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 /**
  * Single owner of the decimals fallback chain: CAL metadata first, then the

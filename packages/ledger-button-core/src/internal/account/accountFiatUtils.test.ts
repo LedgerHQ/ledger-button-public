@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { AccountWithFiat } from "@api/model/Account.js";
+import type { AccountWithFiat } from "@api/model/Account";
 
 import {
   accountMatchesQuery,
@@ -9,7 +9,7 @@ import {
   enrichWithLoadingStates,
   groupAccountsByAddress,
   toAccountListItem,
-} from "./accountFiatUtils.js";
+} from "./accountFiatUtils";
 
 function createAccountWithFiat(
   overrides: Partial<AccountWithFiat> = {},

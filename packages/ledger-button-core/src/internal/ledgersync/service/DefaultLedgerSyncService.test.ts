@@ -15,16 +15,16 @@ import pako from "pako";
 import { lastValueFrom, of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, test, vi } from "vitest";
 
-import { LedgerSyncAuthenticationError } from "@api/model/errors.js";
-import type { AuthContext } from "@api/model/LedgerSyncAuthenticateResponse.js";
-import type { UserInteractionNeededResponse } from "@api/model/UserInteractionNeeded.js";
-import type { Config } from "@internal/config/model/config.js";
-import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase.js";
-import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService.js";
-import type { StorageService } from "@internal/storage/StorageService.js";
+import { LedgerSyncAuthenticationError } from "@api/model/errors";
+import type { AuthContext } from "@api/model/LedgerSyncAuthenticateResponse";
+import type { UserInteractionNeededResponse } from "@api/model/UserInteractionNeeded";
+import type { Config } from "@internal/config/model/config";
+import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
+import type { StorageService } from "@internal/storage/StorageService";
 
-import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
-import { DefaultLedgerSyncService } from "./DefaultLedgerSyncService.js";
+import { LedgerSyncAuthContextMissingError } from "../model/errors";
+import { DefaultLedgerSyncService } from "./DefaultLedgerSyncService";
 
 vi.mock(
   "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol",

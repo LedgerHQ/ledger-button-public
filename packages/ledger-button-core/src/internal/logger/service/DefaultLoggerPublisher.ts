@@ -1,9 +1,9 @@
 import { injectable, multiInject } from "inversify";
 
-import { loggerModuleTypes } from "../di/loggerModuleTypes.js";
-import { LOG_LEVELS } from "../model/constant.js";
-import { LogData, LoggerPublisher, LogMessageData } from "./LoggerPublisher.js";
-import { LoggerSubscriber } from "./LoggerSubscriber.js";
+import { loggerModuleTypes } from "../di/loggerModuleTypes";
+import { LOG_LEVELS } from "../model/constant";
+import { LogData, LoggerPublisher, LogMessageData } from "./LoggerPublisher";
+import { LoggerSubscriber } from "./LoggerSubscriber";
 
 @injectable()
 export class DefaultLoggerPublisher implements LoggerPublisher {

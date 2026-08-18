@@ -4,13 +4,13 @@ export {
   type DeviceConnectionErrorType,
   FailToOpenAppError,
   SignTransactionError,
-} from "@api/errors/DeviceFlowErrors.js";
+} from "@api/errors/DeviceFlowErrors";
 
 import type {
   AccountNotSelectedError,
   DeviceConnectionError,
   SignTransactionError,
-} from "@api/errors/DeviceFlowErrors.js";
+} from "@api/errors/DeviceFlowErrors";
 
 export type DeviceServiceErrors =
   | DeviceConnectionError

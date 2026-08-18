@@ -1,5 +1,5 @@
-import { LedgerSyncAuthenticationError } from "./errors.js";
-import { UserInteractionNeededResponse } from "./UserInteractionNeeded.js";
+import { LedgerSyncAuthenticationError } from "./errors";
+import { UserInteractionNeededResponse } from "./UserInteractionNeeded";
 
 export type LedgerSyncAuthenticateResponse =
   | AuthContext

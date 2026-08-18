@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isSignSolanaTransactionParams } from "./SignSolanaTransactionParams.js";
+import { isSignSolanaTransactionParams } from "./SignSolanaTransactionParams";
 
 const ADDRESS = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin";
 

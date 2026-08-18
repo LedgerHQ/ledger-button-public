@@ -6,16 +6,16 @@ import type {
   AccountWithFiat,
   FiatBalance,
   Token,
-} from "@api/model/Account.js";
-import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource.js";
-import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+} from "@api/model/Account";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
+import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { enrichWithLoadingStates } from "../accountFiatUtils.js";
+import { enrichWithLoadingStates } from "../accountFiatUtils";
 
 @injectable()
 export class HydrateAccountWithFiatUseCase {

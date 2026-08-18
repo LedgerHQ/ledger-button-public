@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isSignSolanaMessageParams } from "./SignSolanaMessageParams.js";
+import { isSignSolanaMessageParams } from "./SignSolanaMessageParams";
 
 describe("isSignSolanaMessageParams", () => {
   it("accepts a well-formed Solana message params object", () => {

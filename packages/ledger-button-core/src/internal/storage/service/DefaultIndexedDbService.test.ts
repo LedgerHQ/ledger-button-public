@@ -2,11 +2,11 @@ import "fake-indexeddb/auto";
 
 import { Nothing } from "purify-ts";
 
-import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant.js";
-import { StorageIDBGetError, StorageIDBOpenError } from "../model/errors.js";
-import { DefaultIndexedDbService } from "./DefaultIndexedDbService.js";
+import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant";
+import { StorageIDBGetError, StorageIDBOpenError } from "../model/errors";
+import { DefaultIndexedDbService } from "./DefaultIndexedDbService";
 
 let indexedDbService: DefaultIndexedDbService;
 let mockLogger: LoggerPublisher;

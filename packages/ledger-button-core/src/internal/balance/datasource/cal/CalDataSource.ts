@@ -1,6 +1,6 @@
 import { Either } from "purify-ts";
 
-import { type CurrencyInformation, type TokenInformation } from "./calTypes.js";
+import { type CurrencyInformation, type TokenInformation } from "./calTypes";
 
 export interface CalDataSource {
   getTokenInformation(

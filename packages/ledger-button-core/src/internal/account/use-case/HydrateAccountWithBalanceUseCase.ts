@@ -1,25 +1,25 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { Account, Token } from "@api/model/Account.js";
-import { DEFAULT_BLOCKCHAIN_FAMILY } from "@api/model/ButtonCoreContext.js";
-import type { BackendService } from "@internal/backend/BackendService.js";
-import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import type { Account, Token } from "@api/model/Account";
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "@api/model/ButtonCoreContext";
+import type { BackendService } from "@internal/backend/BackendService";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import {
   type AccountBalance,
   type TokenBalance,
-} from "@internal/balance/model/types.js";
-import type { BalanceService } from "@internal/balance/service/BalanceService.js";
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+} from "@internal/balance/model/types";
+import type { BalanceService } from "@internal/balance/service/BalanceService";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import {
   formatBalance,
   UNRESOLVED_DECIMALS,
-} from "@internal/currency/currencyUtils.js";
-import { currencyModuleTypes } from "@internal/currency/di/currencyModuleTypes.js";
-import type { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+} from "@internal/currency/currencyUtils";
+import { currencyModuleTypes } from "@internal/currency/di/currencyModuleTypes";
+import type { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {

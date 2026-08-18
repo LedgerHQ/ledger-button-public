@@ -3,7 +3,7 @@ import {
   type DiscoveredDevice,
 } from "@ledgerhq/device-management-kit";
 
-import { Device } from "../model/Device.js";
+import { Device } from "../model/Device";
 
 export type ConnectionType = "bluetooth" | "usb" | "";
 

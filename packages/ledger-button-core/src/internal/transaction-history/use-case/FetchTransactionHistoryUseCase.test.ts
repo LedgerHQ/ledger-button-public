@@ -1,18 +1,18 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 
-import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
-import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource";
+import { TransactionHistoryError } from "../model/TransactionHistoryError";
 import type {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryPage,
-} from "../model/transactionHistoryTypes.js";
-import { FetchTransactionHistoryUseCase } from "./FetchTransactionHistoryUseCase.js";
+} from "../model/transactionHistoryTypes";
+import { FetchTransactionHistoryUseCase } from "./FetchTransactionHistoryUseCase";
 
 function createMockLogger() {
   return {

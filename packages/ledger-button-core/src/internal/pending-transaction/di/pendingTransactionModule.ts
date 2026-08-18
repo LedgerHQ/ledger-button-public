@@ -1,11 +1,11 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultPendingTransactionController } from "../controller/DefaultPendingTransactionController.js";
-import { DefaultPendingTransactionStorageService } from "../service/DefaultPendingTransactionStorageService.js";
-import { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase.js";
-import { HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";
-import { TrackBroadcastedTransactionUseCase } from "../use-case/TrackBroadcastedTransactionUseCase.js";
-import { pendingTransactionModuleTypes } from "./pendingTransactionModuleTypes.js";
+import { DefaultPendingTransactionController } from "../controller/DefaultPendingTransactionController";
+import { DefaultPendingTransactionStorageService } from "../service/DefaultPendingTransactionStorageService";
+import { ConfirmPendingTransactionsUseCase } from "../use-case/ConfirmPendingTransactionsUseCase";
+import { HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase";
+import { TrackBroadcastedTransactionUseCase } from "../use-case/TrackBroadcastedTransactionUseCase";
+import { pendingTransactionModuleTypes } from "./pendingTransactionModuleTypes";
 
 export function pendingTransactionModuleFactory() {
   return new ContainerModule(({ bind }) => {

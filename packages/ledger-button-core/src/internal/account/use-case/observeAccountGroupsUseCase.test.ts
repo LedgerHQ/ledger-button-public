@@ -2,11 +2,11 @@ import { type Factory } from "inversify";
 import { BehaviorSubject, firstValueFrom, lastValueFrom, of, toArray } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { AccountGroup, AccountWithFiat } from "@api/model/Account.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { AccountGroup, AccountWithFiat } from "@api/model/Account";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { ObserveAccountGroupsUseCase } from "./observeAccountGroupsUseCase.js";
-import type { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase.js";
+import { ObserveAccountGroupsUseCase } from "./observeAccountGroupsUseCase";
+import type { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase";
 
 function createAccount(
   overrides: Partial<AccountWithFiat> = {},

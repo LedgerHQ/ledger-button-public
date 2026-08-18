@@ -1,9 +1,9 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 import {
   FailedToFetchEncryptedAccountsError,
   NoAccountInSyncError,
   NoCompatibleAccountsError,
-} from "./LedgerSyncErrors.js";
+} from "./LedgerSyncErrors";
 
 describe("LedgerSyncErrors", () => {
   beforeEach(() => {

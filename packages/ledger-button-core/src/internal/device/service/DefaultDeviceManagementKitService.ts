@@ -18,14 +18,14 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { firstValueFrom } from "rxjs";
 
-import { type DeviceModuleOptions } from "@internal/diTypes.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { type DeviceModuleOptions } from "@internal/diTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { deviceModuleTypes } from "../di/deviceModuleTypes.js";
-import { Device } from "../model/Device.js";
-import { DeviceConnectionError } from "../model/errors.js";
-import { DeviceManagementKitService } from "./DeviceManagementKitService.js";
+import { deviceModuleTypes } from "../di/deviceModuleTypes";
+import { Device } from "../model/Device";
+import { DeviceConnectionError } from "../model/errors";
+import { DeviceManagementKitService } from "./DeviceManagementKitService";
 
 export type ConnectionType = "bluetooth" | "usb" | "";
 

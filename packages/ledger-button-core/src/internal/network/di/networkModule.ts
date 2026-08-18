@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultNetworkService } from "../DefaultNetworkService.js";
-import { networkModuleTypes } from "./networkModuleTypes.js";
+import { DefaultNetworkService } from "../DefaultNetworkService";
+import { networkModuleTypes } from "./networkModuleTypes";
 
 type NetworkModuleOptions = {
   stub?: boolean;

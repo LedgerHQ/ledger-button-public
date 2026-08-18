@@ -6,14 +6,14 @@ import { Observable, Subscription, tap } from "rxjs";
 import type {
   BlockchainFamily,
   WalletNavigationIntent,
-} from "./blockchain-provider/model/types.js";
+} from "./blockchain-provider/model/types";
 import type {
   Account,
   AccountGroup,
   AccountWithFiat,
   DetailedAccount,
   Network,
-} from "./model/Account.js";
+} from "./model/Account";
 import {
   ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
@@ -21,86 +21,86 @@ import {
   getActiveSelectedAccount,
   getConnectedFamilies,
   getSelectedAccount,
-} from "./model/ButtonCoreContext.js";
+} from "./model/ButtonCoreContext";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
-} from "./model/LedgerSyncAuthenticateResponse.js";
-import { accountModuleTypes } from "../internal/account/di/accountModuleTypes.js";
-import type { AccountService } from "../internal/account/service/AccountService.js";
-import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
-import type { FindAccountForNetworkUseCase } from "../internal/account/use-case/findAccountForNetworkUseCase.js";
+} from "./model/LedgerSyncAuthenticateResponse";
+import { accountModuleTypes } from "../internal/account/di/accountModuleTypes";
+import type { AccountService } from "../internal/account/service/AccountService";
+import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase";
+import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase";
+import type { FindAccountForNetworkUseCase } from "../internal/account/use-case/findAccountForNetworkUseCase";
 import type {
   ObserveAccountGroupsOptions,
   ObserveAccountGroupsUseCase,
-} from "../internal/account/use-case/observeAccountGroupsUseCase.js";
-import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
-import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase.js";
-import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
-import type { JSONRPCRequest } from "../internal/backend/types.js";
-import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes.js";
-import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
-import { configModuleTypes } from "../internal/config/di/configModuleTypes.js";
-import { Config } from "../internal/config/model/config.js";
-import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes.js";
-import { type ConsentService } from "../internal/consent/service/ConsentService.js";
-import { ContextService } from "../internal/context/ContextService.js";
-import { contextModuleTypes } from "../internal/context/di/contextModuleTypes.js";
-import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
-import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
-import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes.js";
-import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
-import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes.js";
-import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase.js";
-import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes.js";
+} from "../internal/account/use-case/observeAccountGroupsUseCase";
+import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase";
+import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase";
+import { type WalletActionType } from "../internal/backend/model/trackEvent";
+import type { JSONRPCRequest } from "../internal/backend/types";
+import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource";
+import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager";
+import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService";
+import { configModuleTypes } from "../internal/config/di/configModuleTypes";
+import { Config } from "../internal/config/model/config";
+import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes";
+import { type ConsentService } from "../internal/consent/service/ConsentService";
+import { ContextService } from "../internal/context/ContextService";
+import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant";
+import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes";
+import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes";
+import type { CurrencyService } from "../internal/currency/service/CurrencyService";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes";
+import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase";
+import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes";
 import {
   type ConnectionType,
   type DeviceManagementKitService,
-} from "../internal/device/service/DeviceManagementKitService.js";
-import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
-import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
-import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
-import { createContainer } from "../internal/di.js";
-import { type ContainerOptions } from "../internal/diTypes.js";
-import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes.js";
-import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged.js";
-import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick.js";
-import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged.js";
-import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated.js";
-import { TrackLedgerSyncOpened } from "../internal/event-tracking/use-case/TrackLedgerSyncOpened.js";
-import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWallet.js";
-import { TrackOnboarding } from "../internal/event-tracking/use-case/TrackOnboarding.js";
+} from "../internal/device/service/DeviceManagementKitService";
+import { ConnectDevice } from "../internal/device/use-case/ConnectDevice";
+import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice";
+import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices";
+import { SwitchDevice } from "../internal/device/use-case/SwitchDevice";
+import { createContainer } from "../internal/di";
+import { type ContainerOptions } from "../internal/diTypes";
+import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
+import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged";
+import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick";
+import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged";
+import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated";
+import { TrackLedgerSyncOpened } from "../internal/event-tracking/use-case/TrackLedgerSyncOpened";
+import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWallet";
+import { TrackOnboarding } from "../internal/event-tracking/use-case/TrackOnboarding";
 import {
   TrackViewAllTransactions,
   type TrackViewAllTransactionsParams,
-} from "../internal/event-tracking/use-case/TrackViewAllTransactions.js";
-import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClick.js";
-import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction.js";
-import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes.js";
-import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes.js";
-import { LOG_LEVELS } from "../internal/logger/model/constant.js";
-import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes.js";
-import { ModalService } from "../internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes.js";
-import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService.js";
-import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
-import { pendingTransactionModuleTypes } from "../internal/pending-transaction/di/pendingTransactionModuleTypes.js";
-import { type BroadcastTracking } from "../internal/pending-transaction/model/BroadcastTracking.js";
-import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
-import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes.js";
-import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
-import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
-import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes.js";
-import type { FeatureFlags } from "../internal/storage/model/FeatureFlags.js";
-import { type StorageService } from "../internal/storage/StorageService.js";
-import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase.js";
+} from "../internal/event-tracking/use-case/TrackViewAllTransactions";
+import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClick";
+import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction";
+import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
+import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService";
+import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes";
+import { LOG_LEVELS } from "../internal/logger/model/constant";
+import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher";
+import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes";
+import { ModalService } from "../internal/modal/service/ModalService";
+import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes";
+import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService";
+import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController";
+import { pendingTransactionModuleTypes } from "../internal/pending-transaction/di/pendingTransactionModuleTypes";
+import { type BroadcastTracking } from "../internal/pending-transaction/model/BroadcastTracking";
+import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction";
+import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes";
+import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase";
+import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase";
+import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
+import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
+import { type StorageService } from "../internal/storage/StorageService";
+import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {

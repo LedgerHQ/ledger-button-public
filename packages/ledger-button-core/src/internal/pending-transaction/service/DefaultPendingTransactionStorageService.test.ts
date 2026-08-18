@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { PendingTransaction } from "../model/PendingTransaction.js";
-import { DefaultPendingTransactionStorageService } from "./DefaultPendingTransactionStorageService.js";
+import type { PendingTransaction } from "../model/PendingTransaction";
+import { DefaultPendingTransactionStorageService } from "./DefaultPendingTransactionStorageService";
 
 function createMockLogger() {
   return {

@@ -1,18 +1,18 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import type { Config } from "@internal/config/model/config.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
-import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import type { Config } from "@internal/config/model/config";
+import type { NetworkService } from "@internal/network/NetworkService";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
-} from "./coinServiceDtos.js";
-import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource.js";
+} from "./coinServiceDtos";
+import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource";
 
 function createMockLogger() {
   return {

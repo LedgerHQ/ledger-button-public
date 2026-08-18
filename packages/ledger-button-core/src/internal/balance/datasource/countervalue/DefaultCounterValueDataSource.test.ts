@@ -1,14 +1,14 @@
 import { Either, Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Config } from "@internal/config/model/config.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+import type { Config } from "@internal/config/model/config";
+import type { NetworkService } from "@internal/network/NetworkService";
 
 import type {
   CounterValuedResponse,
   CounterValueResult,
-} from "./counterValueTypes.js";
-import { DefaultCounterValueDataSource } from "./DefaultCounterValueDataSource.js";
+} from "./counterValueTypes";
+import { DefaultCounterValueDataSource } from "./DefaultCounterValueDataSource";
 
 const createMockResponse = (
   rates: Record<string, number>,

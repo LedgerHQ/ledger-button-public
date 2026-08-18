@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 class CustomError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {

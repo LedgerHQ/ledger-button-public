@@ -8,18 +8,18 @@ import {
   timer,
 } from "rxjs";
 
-import { type BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { AccountGroup } from "@api/model/Account.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { type BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { AccountGroup } from "@api/model/Account";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import {
   accountMatchesQuery,
   groupAccountsByAddress,
   toAccountListItem,
-} from "../accountFiatUtils.js";
-import { accountModuleTypes } from "../di/accountModuleTypes.js";
-import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase.js";
+} from "../accountFiatUtils";
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase";
 
 export type ObserveAccountGroupsOptions = {
   forceRefresh?: boolean;

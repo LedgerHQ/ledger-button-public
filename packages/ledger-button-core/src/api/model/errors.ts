@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "../errors/LedgerButtonError.js";
+import { LedgerButtonError } from "../errors/LedgerButtonError";
 
 export class LedgerSyncAuthenticationError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
