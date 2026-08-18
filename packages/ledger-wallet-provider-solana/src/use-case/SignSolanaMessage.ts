@@ -45,7 +45,10 @@ export class SignSolanaMessage {
     params: SignSolanaMessageParams,
     selectedAccount: ProviderAccount | undefined,
   ): Observable<SignFlowStatus> {
-    this.logger.info("Starting Solana message signing", { params });
+    this.logger.info("Starting Solana message signing", {
+      address: params.address,
+      messageByteLength: params.message.byteLength,
+    });
 
     return waitForDeviceSession(this.core).pipe(
       switchMap((session) => {
@@ -58,6 +61,16 @@ export class SignSolanaMessage {
 
         const derivationPath = getSolanaDerivationPath(selectedAccount);
         const openAppConfig = this.createOpenAppConfig();
+
+        this.logger.debug("Prepared Solana message signing", {
+          messageByteLength: params.message.byteLength,
+          derivationPath,
+        });
+        this.logger.debug("Starting Solana message device action", {
+          sessionId,
+          appName: openAppConfig.application.name,
+          dependencyCount: openAppConfig.dependencies.length,
+        });
 
         const deviceAction = new SignSolanaMessageFlowDeviceAction({
           input: {
@@ -110,7 +123,11 @@ export class SignSolanaMessage {
       case DeviceActionStatus.Pending:
         return state.intermediateValue.signFlowStatus;
 
-      case DeviceActionStatus.Completed:
+      case DeviceActionStatus.Completed: {
+        this.logger.debug("Solana message signing completed", {
+          signatureLength: state.output.signature.length,
+          signedMessageByteLength: state.output.signedMessage.byteLength,
+        });
         return {
           signType: SIGN_TYPE,
           status: "success",
@@ -119,9 +136,16 @@ export class SignSolanaMessage {
             signedMessage: state.output.signedMessage,
           },
         };
+      }
 
-      case DeviceActionStatus.Error:
+      case DeviceActionStatus.Error: {
+        // Same as transaction signing: device-action errors emit a status value
+        // rather than throwing, so `catchError` never sees them.
+        this.logger.error("Solana message signing device action failed", {
+          error: state.error,
+        });
         return { signType: SIGN_TYPE, status: "error", error: state.error };
+      }
 
       default:
         return {
