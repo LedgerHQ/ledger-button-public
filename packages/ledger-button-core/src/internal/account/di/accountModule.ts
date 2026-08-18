@@ -3,6 +3,7 @@ import { ContainerModule } from "inversify";
 import { type ContainerOptions } from "@internal/diTypes.js";
 
 import { DefaultAccountService } from "../service/DefaultAccountService.js";
+import { BuildNetworksUseCase } from "../use-case/buildNetworksUseCase.js";
 import { FetchAccountsUseCase } from "../use-case/fetchAccountsUseCase.js";
 import { FetchAccountsWithBalanceUseCase } from "../use-case/fetchAccountsWithBalanceUseCase.js";
 import { FetchAccountsWithFiatUseCase } from "../use-case/fetchAccountsWithFiatUseCase.js";
@@ -51,6 +52,9 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     bind(accountModuleTypes.FilterAccountsByFamilyUseCase).to(
       FilterAccountsByFamilyUseCase,
     );
+    bind(accountModuleTypes.BuildNetworksUseCase)
+      .to(BuildNetworksUseCase)
+      .inSingletonScope();
     bind(accountModuleTypes.ObserveAccountsWithFiatUseCase)
       .to(ObserveAccountsWithFiatUseCase)
       .inSingletonScope();

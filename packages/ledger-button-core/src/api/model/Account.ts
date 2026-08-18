@@ -53,6 +53,7 @@ export type Network = {
   id: string; // currencyId
   name: string;
   ticker?: string;
+  balance?: string;
   fiatBalance?: FiatBalance;
 };
 
