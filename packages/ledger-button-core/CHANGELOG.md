@@ -2,7 +2,7 @@
 
 ### 🩹 Fixes
 
-- Add dApp Rango in stub config ([9a08f339](https://github.com/LedgerHQ/ledger-button/commit/9a08f339))
+- Add dApp Rango in stub config ([9a08f339](https://github.com/LedgerHQ/ledger-button-public/commit/9a08f339))
 
 ### ❤️ Thank You
 
