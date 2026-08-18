@@ -1,14 +1,14 @@
 import { ContainerModule } from "inversify";
 
-import { CalDataSource } from "../datasource/cal/CalDataSource.js";
-import { DefaultCalDataSource } from "../datasource/cal/DefaultCalDataSource.js";
-import { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";
-import { DefaultCoinServiceDataSource } from "../datasource/coinService/DefaultCoinServiceDataSource.js";
-import { CounterValueDataSource } from "../datasource/countervalue/CounterValueDataSource.js";
-import { DefaultCounterValueDataSource } from "../datasource/countervalue/DefaultCounterValueDataSource.js";
-import { BalanceService } from "../service/BalanceService.js";
-import { DefaultBalanceService } from "../service/DefaultBalanceService.js";
-import { balanceModuleTypes } from "./balanceModuleTypes.js";
+import { CalDataSource } from "../datasource/cal/CalDataSource";
+import { DefaultCalDataSource } from "../datasource/cal/DefaultCalDataSource";
+import { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource";
+import { DefaultCoinServiceDataSource } from "../datasource/coinService/DefaultCoinServiceDataSource";
+import { CounterValueDataSource } from "../datasource/countervalue/CounterValueDataSource";
+import { DefaultCounterValueDataSource } from "../datasource/countervalue/DefaultCounterValueDataSource";
+import { BalanceService } from "../service/BalanceService";
+import { DefaultBalanceService } from "../service/DefaultBalanceService";
+import { balanceModuleTypes } from "./balanceModuleTypes";
 
 type BalanceModuleOptions = {
   stub?: boolean;

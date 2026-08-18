@@ -4,13 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   FailedToFetchEncryptedAccountsError,
   NoAccountInSyncError,
-} from "@api/errors/LedgerSyncErrors.js";
-import type { Config } from "@internal/config/model/config.js";
-import type { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+} from "@api/errors/LedgerSyncErrors";
+import type { Config } from "@internal/config/model/config";
+import type { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext";
+import type { NetworkService } from "@internal/network/NetworkService";
 
-import type { CloudSyncData } from "../model/cloudSyncTypes.js";
-import { DefaultCloudSyncService } from "./DefaultCloudSyncService.js";
+import type { CloudSyncData } from "../model/cloudSyncTypes";
+import { DefaultCloudSyncService } from "./DefaultCloudSyncService";
 
 describe("DefaultCloudSyncService", () => {
   let cloudSyncService: DefaultCloudSyncService;

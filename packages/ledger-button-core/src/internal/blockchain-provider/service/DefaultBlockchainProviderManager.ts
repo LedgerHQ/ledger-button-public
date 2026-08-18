@@ -1,20 +1,20 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Maybe } from "purify-ts";
 
-import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider.js";
-import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory.js";
-import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
-import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { Account } from "@api/model/Account.js";
-import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider";
+import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import type { BlockchainProviderManager } from "./BlockchainProviderManager.js";
+import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 
 /**
  * Central registry that creates, wires, and manages blockchain providers.

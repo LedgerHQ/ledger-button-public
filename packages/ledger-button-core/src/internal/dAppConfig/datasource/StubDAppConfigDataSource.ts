@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 
-import { BlockchainRpcMethods } from "@api/model/dappConfig/BlockchainConfig.js";
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import { Config } from "@internal/config/model/config.js";
+import { BlockchainRpcMethods } from "@api/model/dappConfig/BlockchainConfig";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
 
-import { DAppConfig } from "../model/dAppConfigTypes.js";
-import { DAppConfigDataSource } from "./DAppConfigDataSource.js";
+import { DAppConfig } from "../model/dAppConfigTypes";
+import { DAppConfigDataSource } from "./DAppConfigDataSource";
 
 const EVM_DEFAULT_NETWORKS = [
   {

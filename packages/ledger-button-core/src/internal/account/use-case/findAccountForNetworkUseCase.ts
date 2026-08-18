@@ -1,13 +1,13 @@
 import { inject, injectable } from "inversify";
 import { Maybe } from "purify-ts";
 
-import type { Account } from "@api/model/Account.js";
-import { getActiveSelectedAccount } from "@api/model/ButtonCoreContext.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
+import type { Account } from "@api/model/Account";
+import { getActiveSelectedAccount } from "@api/model/ButtonCoreContext";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 
-import { accountModuleTypes } from "../di/accountModuleTypes.js";
-import type { AccountService } from "../service/AccountService.js";
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import type { AccountService } from "../service/AccountService";
 
 /**
  * Resolves the account behind a network entry: same address as the currently

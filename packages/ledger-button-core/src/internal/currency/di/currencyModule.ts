@@ -1,11 +1,11 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultFiatCurrencyDataSource } from "../datasource/DefaultFiatCurrencyDataSource.js";
-import { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource.js";
-import { CurrencyService } from "../service/CurrencyService.js";
-import { DefaultCurrencyService } from "../service/DefaultCurrencyService.js";
-import { ResolveCurrencyDecimalsUseCase } from "../use-case/ResolveCurrencyDecimalsUseCase.js";
-import { currencyModuleTypes } from "./currencyModuleTypes.js";
+import { DefaultFiatCurrencyDataSource } from "../datasource/DefaultFiatCurrencyDataSource";
+import { FiatCurrencyDataSource } from "../datasource/FiatCurrencyDataSource";
+import { CurrencyService } from "../service/CurrencyService";
+import { DefaultCurrencyService } from "../service/DefaultCurrencyService";
+import { ResolveCurrencyDecimalsUseCase } from "../use-case/ResolveCurrencyDecimalsUseCase";
+import { currencyModuleTypes } from "./currencyModuleTypes";
 
 export function currencyModuleFactory() {
   return new ContainerModule(({ bind }) => {

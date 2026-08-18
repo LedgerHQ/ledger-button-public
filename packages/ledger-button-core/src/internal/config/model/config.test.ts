@@ -1,4 +1,4 @@
-import { Config } from "./config.js";
+import { Config } from "./config";
 
 describe("Config", () => {
   describe("environment and ledger keyring protocol configuration", () => {

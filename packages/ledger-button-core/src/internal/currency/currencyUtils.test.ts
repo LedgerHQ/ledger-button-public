@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatBalance, UNRESOLVED_DECIMALS } from "./currencyUtils.js";
+import { formatBalance, UNRESOLVED_DECIMALS } from "./currencyUtils";
 
 describe("formatBalance", () => {
   describe("basic formatting", () => {

@@ -1,17 +1,17 @@
 import { type Factory, inject, injectable } from "inversify";
 import { lastValueFrom } from "rxjs";
 
-import { base64ToArrayBuffer } from "@api/utils/base64Utils.js";
-import { cloudSyncModuleTypes } from "@internal/cloudsync/di/cloudSyncModuleTypes.js";
-import type { CloudSyncService } from "@internal/cloudsync/service/CloudSyncService.js";
-import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes.js";
-import { LedgerSyncAuthContextMissingError } from "@internal/ledgersync/model/errors.js";
-import type { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext.js";
-import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { base64ToArrayBuffer } from "@api/utils/base64Utils";
+import { cloudSyncModuleTypes } from "@internal/cloudsync/di/cloudSyncModuleTypes";
+import type { CloudSyncService } from "@internal/cloudsync/service/CloudSyncService";
+import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes";
+import { LedgerSyncAuthContextMissingError } from "@internal/ledgersync/model/errors";
+import type { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext";
+import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import type { CloudSyncData } from "../service/AccountService.js";
+import type { CloudSyncData } from "../service/AccountService";
 
 @injectable()
 export class FetchCloudSyncAccountsUseCase {

@@ -6,9 +6,9 @@ import type {
   TransactionKind,
   TransactionStatus,
   TransactionType,
-} from "@api/model/TransactionHistory.js";
+} from "@api/model/TransactionHistory";
 
-import type { TransactionHistoryEntry } from "../model/transactionHistoryTypes.js";
+import type { TransactionHistoryEntry } from "../model/transactionHistoryTypes";
 
 export type AssetInfo = TransactionHistoryItemAsset;
 

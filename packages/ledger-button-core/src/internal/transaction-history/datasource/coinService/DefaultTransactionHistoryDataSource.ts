@@ -1,33 +1,33 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, type Maybe } from "purify-ts";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { TransactionDirection } from "@api/model/TransactionHistory.js";
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import { Config } from "@internal/config/model/config.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
-import { networkModuleTypes } from "@internal/network/di/networkModuleTypes.js";
-import type { NetworkServiceOpts } from "@internal/network/model/types.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
-import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { TransactionDirection } from "@api/model/TransactionHistory";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 import {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,
   TransactionHistoryOptions,
   TransactionHistoryPage,
-} from "@internal/transaction-history/model/transactionHistoryTypes.js";
-import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency.js";
-import { resolveNetworkSlug } from "@internal/transaction-history/utils/resolveNetworkSlug.js";
+} from "@internal/transaction-history/model/transactionHistoryTypes";
+import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
+import { resolveNetworkSlug } from "@internal/transaction-history/utils/resolveNetworkSlug";
 
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
-} from "./coinServiceDtos.js";
-import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource.js";
+} from "./coinServiceDtos";
+import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource";
 
 const EPOCH_ISO = new Date(0).toISOString();
 const FEES_OPERATION_SUFFIX = "-FEES";

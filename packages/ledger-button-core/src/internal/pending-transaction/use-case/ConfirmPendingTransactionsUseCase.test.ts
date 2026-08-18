@@ -1,13 +1,13 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError.js";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 import type {
   TransactionHistoryEntry,
   TransactionHistoryPage,
-} from "@internal/transaction-history/model/transactionHistoryTypes.js";
+} from "@internal/transaction-history/model/transactionHistoryTypes";
 
-import { ConfirmPendingTransactionsUseCase } from "./ConfirmPendingTransactionsUseCase.js";
+import { ConfirmPendingTransactionsUseCase } from "./ConfirmPendingTransactionsUseCase";
 
 function makeEntry(
   hash: string,

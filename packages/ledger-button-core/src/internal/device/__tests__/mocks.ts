@@ -6,8 +6,8 @@ import {
 } from "@ledgerhq/device-management-kit";
 import { vi } from "vitest";
 
-import { Device } from "../model/Device.js";
-import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import { Device } from "../model/Device";
+import type { DeviceManagementKitService } from "../service/DeviceManagementKitService";
 
 export function createMockDeviceManagementKit(): DeviceManagementKit {
   return {

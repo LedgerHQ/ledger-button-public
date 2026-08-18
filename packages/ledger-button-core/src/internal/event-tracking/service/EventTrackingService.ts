@@ -1,4 +1,4 @@
-import type { EventRequest } from "@internal/backend/model/trackEvent.js";
+import type { EventRequest } from "@internal/backend/model/trackEvent";
 
 export interface EventTrackingService {
   getSessionId(): string;

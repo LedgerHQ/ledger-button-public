@@ -1,15 +1,15 @@
 import { Just, Nothing } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Account } from "@api/model/Account.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import type { Config } from "@internal/config/model/config.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { Account } from "@api/model/Account";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import type { Config } from "@internal/config/model/config";
+import type { ContextService } from "@internal/context/ContextService";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import type { EventTrackingService } from "../service/EventTrackingService.js";
-import { TrackOnboarding } from "./TrackOnboarding.js";
+import type { EventTrackingService } from "../service/EventTrackingService";
+import { TrackOnboarding } from "./TrackOnboarding";
 
 const selectedAccount: Account = {
   id: "acc-1",

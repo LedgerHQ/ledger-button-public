@@ -1,7 +1,7 @@
 import { Just, Nothing, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { STORAGE_KEYS } from "../model/constant.js";
+import { STORAGE_KEYS } from "../model/constant";
 import {
   createMigrateDbUseCase,
   createMockKeyPairMigrationService,
@@ -9,7 +9,7 @@ import {
   createMockLoggerFactory,
   createMockStorageService,
   mockKeyPairBuffer,
-} from "./MigrateDbUseCase.mock.js";
+} from "./MigrateDbUseCase.mock";
 
 describe("MigrateDbUseCase", () => {
   let migrateDbUseCase: ReturnType<typeof createMigrateDbUseCase>;

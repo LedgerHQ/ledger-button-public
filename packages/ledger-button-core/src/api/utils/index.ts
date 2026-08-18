@@ -1,4 +1,4 @@
-export * from "./byteUtils.js";
-export { calculateTotalFiatValue } from "@internal/account/accountFiatUtils.js";
-export { formatBalance } from "@internal/currency/currencyUtils.js";
-export { buildExplorerTransactionUrl } from "@internal/pending-transaction/utils/buildExplorerTransactionUrl.js";
+export * from "./byteUtils";
+export { calculateTotalFiatValue } from "@internal/account/accountFiatUtils";
+export { formatBalance } from "@internal/currency/currencyUtils";
+export { buildExplorerTransactionUrl } from "@internal/pending-transaction/utils/buildExplorerTransactionUrl";

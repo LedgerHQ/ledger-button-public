@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 
-import type { AccountWithFiat, Network } from "@api/model/Account.js";
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
+import type { AccountWithFiat, Network } from "@api/model/Account";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 
 
 /**

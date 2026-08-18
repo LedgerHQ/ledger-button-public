@@ -2,28 +2,28 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { UNRESOLVED_DECIMALS } from "@internal/currency/currencyUtils.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { UNRESOLVED_DECIMALS } from "@internal/currency/currencyUtils";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
-import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes.js";
-import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource";
+import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes";
+import { TransactionHistoryError } from "../model/TransactionHistoryError";
 import {
   TransactionHistoryEntry,
   TransactionHistoryOptions,
   TransactionHistoryPage,
   TransactionHistoryResult,
-} from "../model/transactionHistoryTypes.js";
+} from "../model/transactionHistoryTypes";
 import {
   AssetInfo,
   buildTransactionHistoryItem,
-} from "./buildTransactionHistoryItem.js";
+} from "./buildTransactionHistoryItem";
 
 @injectable()
 export class FetchTransactionHistoryUseCase {

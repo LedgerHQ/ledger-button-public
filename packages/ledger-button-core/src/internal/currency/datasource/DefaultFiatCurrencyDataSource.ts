@@ -2,14 +2,14 @@ import { inject, injectable } from "inversify";
 import type { Either } from "purify-ts";
 import { Left, Right } from "purify-ts";
 
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import { Config } from "@internal/config/model/config.js";
-import { networkModuleTypes } from "@internal/network/di/networkModuleTypes.js";
-import type { NetworkServiceOpts } from "@internal/network/model/types.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
 
-import type { FiatCurrencyDataSource } from "./FiatCurrencyDataSource.js";
-import type { FiatCurrency } from "./fiatCurrencyTypes.js";
+import type { FiatCurrencyDataSource } from "./FiatCurrencyDataSource";
+import type { FiatCurrency } from "./fiatCurrencyTypes";
 
 @injectable()
 export class DefaultFiatCurrencyDataSource implements FiatCurrencyDataSource {

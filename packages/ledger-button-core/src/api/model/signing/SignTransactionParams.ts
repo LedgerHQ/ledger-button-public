@@ -1,6 +1,6 @@
 //EIP-1193 Transaction Object from eth_signTransaction/eth_sendTransaction
 
-import { RpcMethods } from "../eip/EIPTypes.js";
+import { RpcMethods } from "../eip/EIPTypes";
 
 //see: https://ethereum.org/developers/docs/apis/json-rpc/#eth_signtransaction
 export type Transaction = {

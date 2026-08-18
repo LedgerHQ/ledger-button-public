@@ -1,4 +1,4 @@
-import type { BlockchainFamily } from "./types.js";
+import type { BlockchainFamily } from "./types";
 
 /**
  * Everything a blockchain family knows about a Ledger `currencyId` it owns,

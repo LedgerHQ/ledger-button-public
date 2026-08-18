@@ -1,5 +1,5 @@
-import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 
 /**
  * DI contract for the Corefacade

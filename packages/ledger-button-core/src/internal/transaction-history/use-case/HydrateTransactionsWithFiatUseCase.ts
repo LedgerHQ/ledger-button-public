@@ -6,11 +6,11 @@ import type { Either } from "purify-ts";
 import type {
   TransactionHistoryItem,
   TransactionHistoryItemFee,
-} from "@api/model/TransactionHistory.js";
-import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+} from "@api/model/TransactionHistory";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 type DateRange = {
   minDate: string;

@@ -5,13 +5,13 @@ import type {
   Account,
   AccountWithFiat,
   FiatBalance,
-} from "@api/model/Account.js";
-import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
-import type { ContextService } from "@internal/context/ContextService.js";
+} from "@api/model/Account";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+import type { ContextService } from "@internal/context/ContextService";
 
-import { enrichWithLoadingStates } from "../accountFiatUtils.js";
-import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
-import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
+import { enrichWithLoadingStates } from "../accountFiatUtils";
+import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase";
+import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 
 function createMockContext(
   overrides: Partial<ButtonCoreContext> = {},

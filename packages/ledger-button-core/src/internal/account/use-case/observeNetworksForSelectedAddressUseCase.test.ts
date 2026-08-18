@@ -1,18 +1,18 @@
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type {
   Account,
   AccountWithFiat,
   Network,
-} from "@api/model/Account.js";
-import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
-import type { ContextService } from "@internal/context/ContextService.js";
+} from "@api/model/Account";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+import type { ContextService } from "@internal/context/ContextService";
 
-import type { BuildNetworksUseCase } from "./buildNetworksUseCase.js";
-import type { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase.js";
-import { ObserveNetworksForSelectedAddressUseCase } from "./observeNetworksForSelectedAddressUseCase.js";
+import type { BuildNetworksUseCase } from "./buildNetworksUseCase";
+import type { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase";
+import { ObserveNetworksForSelectedAddressUseCase } from "./observeNetworksForSelectedAddressUseCase";
 
 function createAccount(
   overrides: Partial<AccountWithFiat> = {},

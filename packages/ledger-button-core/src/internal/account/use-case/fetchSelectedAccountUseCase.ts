@@ -3,38 +3,38 @@ import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 import { lastValueFrom } from "rxjs";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import {
   AccountNotFoundError,
   NoSelectedAccountError,
-} from "@api/errors/LedgerSyncErrors.js";
+} from "@api/errors/LedgerSyncErrors";
 import type {
   Account,
   AccountWithFiat,
   DetailedAccount,
   Network,
-} from "@api/model/Account.js";
+} from "@api/model/Account";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
-} from "@api/model/ButtonCoreContext.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes.js";
-import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+} from "@api/model/ButtonCoreContext";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { ledgerSyncModuleTypes } from "@internal/ledgersync/di/ledgerSyncModuleTypes";
+import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { calculateTotalFiatValue } from "../accountFiatUtils.js";
-import { accountModuleTypes } from "../di/accountModuleTypes.js";
-import type { BuildNetworksUseCase } from "./buildNetworksUseCase.js";
-import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
-import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
-import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
+import { calculateTotalFiatValue } from "../accountFiatUtils";
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import type { BuildNetworksUseCase } from "./buildNetworksUseCase";
+import type { FetchAccountsUseCase } from "./fetchAccountsUseCase";
+import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";
+import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 import type {
   AccountWithTransactionHistory,
   HydrateAccountWithTxHistoryUseCase,
-} from "./hydrateAccountWithTxHistoryUseCase.js";
+} from "./hydrateAccountWithTxHistoryUseCase";
 
 export type AccountError = NoSelectedAccountError | AccountNotFoundError;
 

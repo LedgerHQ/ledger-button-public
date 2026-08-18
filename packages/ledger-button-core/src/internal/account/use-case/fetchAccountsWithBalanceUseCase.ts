@@ -11,19 +11,19 @@ import {
   switchMap,
 } from "rxjs";
 
-import { type BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { Account } from "@api/model/Account.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { type BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { accountModuleTypes } from "../di/accountModuleTypes.js";
+import { accountModuleTypes } from "../di/accountModuleTypes";
 import type {
   AccountService,
   AccountUpdate,
-} from "../service/AccountService.js";
-import { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
-import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
-import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
+} from "../service/AccountService";
+import { FetchAccountsUseCase } from "./fetchAccountsUseCase";
+import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase";
+import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";
 
 @injectable()
 export class FetchAccountsWithBalanceUseCase {

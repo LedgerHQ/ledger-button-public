@@ -1,11 +1,11 @@
 import { ContainerModule } from "inversify";
 
-import { DecryptKeyPairUseCase } from "../use-case/DecryptKeyPairUseCase.js";
-import { EncryptKeyPairUseCase } from "../use-case/EncryptKeyPairUseCase.js";
-import { GenerateKeyPairUseCase } from "../use-case/GenerateKeyPairUseCase.js";
-import { GetEncryptionKeyUseCase } from "../use-case/GetEncryptionKey.js";
-import { GetOrCreateKeyPairUseCase } from "../use-case/GetOrCreateKeyPairUseCase.js";
-import { cryptographicModuleTypes } from "./cryptographicModuleTypes.js";
+import { DecryptKeyPairUseCase } from "../use-case/DecryptKeyPairUseCase";
+import { EncryptKeyPairUseCase } from "../use-case/EncryptKeyPairUseCase";
+import { GenerateKeyPairUseCase } from "../use-case/GenerateKeyPairUseCase";
+import { GetEncryptionKeyUseCase } from "../use-case/GetEncryptionKey";
+import { GetOrCreateKeyPairUseCase } from "../use-case/GetOrCreateKeyPairUseCase";
+import { cryptographicModuleTypes } from "./cryptographicModuleTypes";
 
 type CryptographicModuleOptions = {
   stub?: boolean;

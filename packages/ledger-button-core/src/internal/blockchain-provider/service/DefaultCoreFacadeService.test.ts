@@ -4,11 +4,11 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
+import type { ContextService } from "@internal/context/ContextService";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
 
-import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService.js";
+import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
 
 const makeService = () => {
   const emit = vi.fn();

@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   DeviceNotSupportedError,
-} from "@api/errors/DeviceErrors.js";
+} from "@api/errors/DeviceErrors";
 
 import {
   asMockService,
@@ -14,8 +14,8 @@ import {
   createMockLoggerFactory,
   mockNanoSDevice,
   mockUsbDevice,
-} from "../__tests__/mocks.js";
-import { ConnectDevice } from "./ConnectDevice.js";
+} from "../__tests__/mocks";
+import { ConnectDevice } from "./ConnectDevice";
 
 function mockOnboardedOsVersionResult(isOnboarded: boolean) {
   return {

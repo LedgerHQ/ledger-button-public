@@ -1,17 +1,17 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import type { Config } from "@internal/config/model/config.js";
-import { networkModuleTypes } from "@internal/network/di/networkModuleTypes.js";
-import type { NetworkServiceOpts } from "@internal/network/model/types.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import type { Config } from "@internal/config/model/config";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
 
-import type { CounterValueDataSource } from "./CounterValueDataSource.js";
+import type { CounterValueDataSource } from "./CounterValueDataSource";
 import type {
   CounterValuedResponse,
   CounterValueResult,
-} from "./counterValueTypes.js";
+} from "./counterValueTypes";
 @injectable()
 export class DefaultCounterValueDataSource implements CounterValueDataSource {
   constructor(

@@ -1,10 +1,10 @@
 import { firstValueFrom } from "rxjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "@internal/blockchain-provider/__mocks__/coreFacadeMock.js";
+import { createMockCoreFacade } from "@internal/blockchain-provider/__mocks__/coreFacadeMock";
 
-import type { ProviderDeviceSession } from "../model/types.js";
-import { waitForDeviceSession } from "./waitForDeviceSession.js";
+import type { ProviderDeviceSession } from "../model/types";
+import { waitForDeviceSession } from "./waitForDeviceSession";
 
 const notConnected: ProviderDeviceSession = {
   dmk: {} as never,

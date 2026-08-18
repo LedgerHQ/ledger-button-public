@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { Account } from "@api/model/Account.js";
-import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
-import type { ContextService } from "@internal/context/ContextService.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+import type { ContextService } from "@internal/context/ContextService";
 
-import type { AccountService } from "../service/AccountService.js";
-import { FindAccountForNetworkUseCase } from "./findAccountForNetworkUseCase.js";
+import type { AccountService } from "../service/AccountService";
+import { FindAccountForNetworkUseCase } from "./findAccountForNetworkUseCase";
 
 function createAccount(overrides: Partial<Account> = {}): Account {
   return {

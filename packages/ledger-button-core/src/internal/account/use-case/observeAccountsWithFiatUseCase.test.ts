@@ -2,13 +2,13 @@ import { type Factory } from "inversify";
 import { type Observable, of } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { AccountWithFiat } from "@api/model/Account.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { AccountWithFiat } from "@api/model/Account";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import type { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
-import type { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
-import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase.js";
-import type { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase.js";
+import type { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase";
+import type { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase";
+import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase";
+import type { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase";
 
 const base: AccountWithFiat = {
   id: "a",

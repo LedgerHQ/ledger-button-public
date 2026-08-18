@@ -1,4 +1,4 @@
-import type { SignType } from "./SignFlowStatus.js";
+import type { SignType } from "./SignFlowStatus";
 
 /**
  * What the user is being asked to approve, as surfaced to the UI.

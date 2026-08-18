@@ -1,9 +1,9 @@
 import { Nothing, Right } from "purify-ts";
 import { vi } from "vitest";
 
-import type { StorageService } from "../StorageService.js";
-import type { KeyPairMigrationService } from "./KeypairMigrationService.js";
-import { MigrateDbUseCase } from "./MigrateDbUseCase.js";
+import type { StorageService } from "../StorageService";
+import type { KeyPairMigrationService } from "./KeypairMigrationService";
+import { MigrateDbUseCase } from "./MigrateDbUseCase";
 
 export const mockKeyPairBuffer = new Uint8Array([1, 2, 3]);
 

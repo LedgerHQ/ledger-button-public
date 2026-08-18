@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isSignTypedMessageParams } from "./SignTypedMessageParams.js";
+import { isSignTypedMessageParams } from "./SignTypedMessageParams";
 
 describe("isSignTypedMessageParams", () => {
   const validTypedData = {

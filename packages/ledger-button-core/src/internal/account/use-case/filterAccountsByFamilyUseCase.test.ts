@@ -1,13 +1,13 @@
 import { Just, type Maybe, Nothing } from "purify-ts";
 import { describe, expect, it, vi } from "vitest";
 
-import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { AccountWithFiat } from "@api/model/Account.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { AccountWithFiat } from "@api/model/Account";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 
-import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase.js";
+import { FilterAccountsByFamilyUseCase } from "./filterAccountsByFamilyUseCase";
 
 const base: AccountWithFiat = {
   id: "",
