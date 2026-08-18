@@ -1,3 +1,13 @@
+## 1.4.2 (2026-08-18)
+
+### 🩹 Fixes
+
+- Update Rango dApp identifier ([d9a2924d](https://github.com/LedgerHQ/ledger-button/commit/d9a2924d))
+
+### ❤️ Thank You
+
+- Pierre Vautherin
+
 ## 1.4.1 (2026-08-18)
 
 ### 🩹 Fixes
