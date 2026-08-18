@@ -431,7 +431,11 @@ export class LedgerSolanaWallet implements Wallet {
     this.logger.info("Broadcasting Solana transaction");
     this.logger.debug("Solana broadcast payload", {
       base64WireTxLength: base64WireTx.length,
-      options,
+      commitment: options?.commitment,
+      skipPreflight: options?.skipPreflight,
+      preflightCommitment: options?.preflightCommitment,
+      maxRetries: options?.maxRetries,
+      minContextSlot: options?.minContextSlot,
     });
 
     try {

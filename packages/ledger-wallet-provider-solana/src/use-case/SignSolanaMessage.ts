@@ -46,7 +46,6 @@ export class SignSolanaMessage {
     selectedAccount: ProviderAccount | undefined,
   ): Observable<SignFlowStatus> {
     this.logger.info("Starting Solana message signing", {
-      address: params.address,
       messageByteLength: params.message.byteLength,
     });
 
@@ -63,11 +62,11 @@ export class SignSolanaMessage {
         const openAppConfig = this.createOpenAppConfig();
 
         this.logger.debug("Prepared Solana message signing", {
+          address: params.address,
           messageByteLength: params.message.byteLength,
           derivationPath,
         });
         this.logger.debug("Starting Solana message device action", {
-          sessionId,
           appName: openAppConfig.application.name,
           dependencyCount: openAppConfig.dependencies.length,
         });
@@ -125,7 +124,7 @@ export class SignSolanaMessage {
 
       case DeviceActionStatus.Completed: {
         this.logger.debug("Solana message signing completed", {
-          signatureLength: state.output.signature.length,
+          signatureCharLength: state.output.signature.length,
           signedMessageByteLength: state.output.signedMessage.byteLength,
         });
         return {
