@@ -229,6 +229,26 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
     ],
     featureFlags: {},
   },
+  rango: {
+    name: "Rango Exchange",
+    liveAppId: "rango-exchange",
+    domainUrl: "https://rango.exchange",
+    referralUrl:
+      "https://shop.ledger.com/pages/hardware-wallets-comparison?utm_source=rango-exchange&utm_medium=partner&utm_campaign=26-02-Ledger_Button-ALL-Traffic-Partnership&utm_content=msg_buy_ledger_button_rango-exchange",
+    blockchains: [
+      {
+        blockchain: "ethereum",
+        appName: "Ethereum",
+        networks: [...EVM_DEFAULT_NETWORKS],
+        appDependencies: {
+          appName: "Ethereum",
+          dependencies: ["Ethereum"],
+        },
+        rpcMethods: EVM_DEFAULT_RPC_METHODS,
+      },
+    ],
+    featureFlags: {},
+  },
 };
 
 @injectable()
