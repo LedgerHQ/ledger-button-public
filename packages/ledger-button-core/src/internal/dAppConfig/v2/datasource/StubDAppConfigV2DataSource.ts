@@ -229,7 +229,7 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
     ],
     featureFlags: {},
   },
-  rango: {
+  "rango-exchange": {
     name: "Rango Exchange",
     liveAppId: "rango-exchange",
     domainUrl: "https://rango.exchange",
