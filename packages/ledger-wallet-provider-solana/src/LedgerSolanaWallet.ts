@@ -519,7 +519,7 @@ export class LedgerSolanaWallet implements Wallet {
           return;
         }
         settled = true;
-        this.logger.debug("Solana sign flow cancelled by user", {
+        this.logger.debug("User closed the modal", {
           kind: params.kind,
           signType,
         });
