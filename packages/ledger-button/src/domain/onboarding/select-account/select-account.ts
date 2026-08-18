@@ -2,8 +2,10 @@ import "../../../components/index.js";
 
 import {
   Account,
-  AccountWithFiat,
+  type AccountGroup,
+  type AccountListItem,
   type BlockchainFamily,
+  type FiatBalance,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
@@ -18,10 +20,7 @@ import { Navigation } from "../../../shared/navigation.js";
 import { type SelectAccountNavigationParams } from "../../../shared/root-navigation-controller.js";
 import { tailwindElement } from "../../../tailwind-element.js";
 import { formatFiatBalance } from "../../../utils/format-fiat.js";
-import {
-  type AccountGroup,
-  SelectAccountController,
-} from "./select-account-controller.js";
+import { SelectAccountController } from "./select-account-controller.js";
 
 @customElement("select-account-screen")
 @tailwindElement()
@@ -58,12 +57,11 @@ export class SelectAccountScreen extends LitElement {
     return this.params?.params?.family;
   }
 
-  private renderAccountCard(account: AccountWithFiat) {
+  private renderAccountCard(account: AccountListItem) {
     const isBalanceLoading = this.controller.isAccountBalanceLoading(account);
     const isBalanceError = this.controller.hasAccountBalanceError(account);
     const isFiatLoading = this.controller.isAccountFiatLoading(account);
     const isFiatError = this.controller.hasAccountFiatError(account);
-    const fiatBalance = this.controller.getAccountFiatValue(account);
 
     return html`
       <div
@@ -96,7 +94,7 @@ export class SelectAccountScreen extends LitElement {
             isBalanceError,
             isFiatLoading,
             isFiatError,
-            fiatBalance,
+            fiatBalance: account.totalFiatValue,
           })}
         </div>
       </div>
@@ -104,7 +102,7 @@ export class SelectAccountScreen extends LitElement {
   }
 
   private renderAccountCardTokenInfo(
-    account: AccountWithFiat,
+    account: AccountListItem,
     isBalanceLoading: boolean,
   ) {
     if (isBalanceLoading) {
@@ -113,7 +111,7 @@ export class SelectAccountScreen extends LitElement {
       ></ledger-skeleton>`;
     }
 
-    const displayTokens = this.controller.getDisplayTokens(account);
+    const displayTokens = account.displayTokens;
 
     if (displayTokens.length > 0) {
       return html`<button
@@ -140,7 +138,7 @@ export class SelectAccountScreen extends LitElement {
     isBalanceError: boolean;
     isFiatLoading: boolean;
     isFiatError: boolean;
-    fiatBalance: ReturnType<SelectAccountController["getAccountFiatValue"]>;
+    fiatBalance: FiatBalance | undefined;
   }) {
     if (params.isBalanceLoading || params.isFiatLoading) {
       return html`<ledger-skeleton
@@ -203,10 +201,7 @@ export class SelectAccountScreen extends LitElement {
   private renderNoResults() {
     const translations = this.languages.currentTranslation;
 
-    if (
-      this.controller.groupedAccounts.length > 0 ||
-      !this.controller.searchQuery
-    ) {
+    if (this.controller.groups.length > 0 || !this.controller.searchQuery) {
       return nothing;
     }
 
@@ -278,9 +273,7 @@ export class SelectAccountScreen extends LitElement {
     return html`
       <div class="flex h-full flex-col gap-12 p-24 pt-0">
         ${this.renderSearchHeader()}
-        ${this.controller.groupedAccounts.map((group) =>
-          this.renderGroup(group),
-        )}
+        ${this.controller.groups.map((group) => this.renderGroup(group))}
         ${this.renderNoResults()}
       </div>
       ${this.renderBalanceLoadingFooter()}
