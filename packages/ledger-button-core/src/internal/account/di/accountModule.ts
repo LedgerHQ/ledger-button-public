@@ -10,10 +10,13 @@ import { FetchAccountsWithFiatUseCase } from "../use-case/fetchAccountsWithFiatU
 import { FetchCloudSyncAccountsUseCase } from "../use-case/fetchCloudSyncAccountsUseCase.js";
 import { FetchSelectedAccountUseCase } from "../use-case/fetchSelectedAccountUseCase.js";
 import { FilterAccountsByFamilyUseCase } from "../use-case/filterAccountsByFamilyUseCase.js";
+import { FindAccountForNetworkUseCase } from "../use-case/findAccountForNetworkUseCase.js";
 import { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase.js";
 import { HydrateAccountWithFiatUseCase } from "../use-case/hydrateAccountWithFiatUseCase.js";
 import { HydrateAccountWithTxHistoryUseCase } from "../use-case/hydrateAccountWithTxHistoryUseCase.js";
+import { ObserveAccountGroupsUseCase } from "../use-case/observeAccountGroupsUseCase.js";
 import { ObserveAccountsWithFiatUseCase } from "../use-case/observeAccountsWithFiatUseCase.js";
+import { ObserveNetworksForSelectedAddressUseCase } from "../use-case/observeNetworksForSelectedAddressUseCase.js";
 import { SortAccountsByFiatUseCase } from "../use-case/sortAccountsByFiatUseCase.js";
 import { accountModuleTypes } from "./accountModuleTypes.js";
 
@@ -52,12 +55,21 @@ export function accountModuleFactory(_args: AccountModuleOptions) {
     bind(accountModuleTypes.FilterAccountsByFamilyUseCase).to(
       FilterAccountsByFamilyUseCase,
     );
+    bind(accountModuleTypes.FindAccountForNetworkUseCase).to(
+      FindAccountForNetworkUseCase,
+    );
     bind(accountModuleTypes.BuildNetworksUseCase)
       .to(BuildNetworksUseCase)
+      .inSingletonScope();
+    bind(accountModuleTypes.ObserveAccountGroupsUseCase)
+      .to(ObserveAccountGroupsUseCase)
       .inSingletonScope();
     bind(accountModuleTypes.ObserveAccountsWithFiatUseCase)
       .to(ObserveAccountsWithFiatUseCase)
       .inSingletonScope();
+    bind(accountModuleTypes.ObserveNetworksForSelectedAddressUseCase).to(
+      ObserveNetworksForSelectedAddressUseCase,
+    );
     bind(accountModuleTypes.SortAccountsByFiatUseCase).to(
       SortAccountsByFiatUseCase,
     );
