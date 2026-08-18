@@ -34,10 +34,17 @@ export type {
 } from "./TransactionHistory.js";
 export * from "./UserInteractionNeeded.js";
 export type {
+  BroadcastResponse,
+  CoinServiceBroadcastResponse,
   JSONRPCRequest,
   JsonRpcResponse,
   JsonRpcResponseError,
   JsonRpcResponseSuccess,
+} from "@internal/backend/types.js";
+export {
+  isCoinServiceBroadcastResponse,
+  isJsonRpcResponse,
+  isJsonRpcResponseSuccess,
 } from "@internal/backend/types.js";
 export type { FiatCurrency } from "@internal/currency/datasource/fiatCurrencyTypes.js";
 export type { BroadcastTracking } from "@internal/pending-transaction/model/BroadcastTracking.js";

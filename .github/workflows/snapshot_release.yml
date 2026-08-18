@@ -49,7 +49,7 @@ jobs:
         run: pnpm nx run ldb-tools:canonicalize
 
       - name: Build libraries
-        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core
+        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana
 
       - name: Prepare dist directory
         run: pnpm nx run ldb-tools:pack

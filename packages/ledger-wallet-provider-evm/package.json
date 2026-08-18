@@ -1,0 +1,44 @@
+{
+  "dependencies": {
+    "@ledgerhq/context-module": "catalog:",
+    "@ledgerhq/device-management-kit": "catalog:",
+    "@ledgerhq/device-signer-kit-ethereum": "catalog:",
+    "ethers": "catalog:",
+    "inversify": "catalog:",
+    "purify-ts": "catalog:",
+    "rxjs": "catalog:",
+    "vitest": "catalog:",
+    "xstate": "catalog:"
+  },
+  "exports": {
+    ".": {
+      "@ledgerhq/ledger-button-workspace": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "name": "@ledgerhq/ledger-wallet-provider-evm",
+  "peerDependencies": {
+    "@ledgerhq/ledger-wallet-provider-core": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LedgerHQ/ledger-button-public.git"
+  },
+  "devDependencies": {
+    "@ledgerhq/ledger-wallet-provider-core": "workspace:*"
+  }
+}
