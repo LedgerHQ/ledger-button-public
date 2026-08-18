@@ -50,7 +50,6 @@ export class SignSolanaTransaction {
     selectedAccount: ProviderAccount | undefined,
   ): Observable<SignFlowStatus> {
     this.logger.info("Starting Solana transaction signing", {
-      address: params.address,
       transactionByteLength: params.transaction.byteLength,
     });
 
@@ -81,11 +80,11 @@ export class SignSolanaTransaction {
         const messageBytes = getSolanaMessageBytes(transaction);
 
         this.logger.debug("Prepared Solana message bytes", {
+          address: params.address,
           messageByteLength: messageBytes.byteLength,
           derivationPath,
         });
         this.logger.debug("Starting Solana transaction device action", {
-          sessionId,
           appName: openAppConfig.application.name,
           dependencyCount: openAppConfig.dependencies.length,
         });
