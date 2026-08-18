@@ -1,12 +1,12 @@
 import { animate, Easing } from "motion";
 
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
-import { type AnimationInstance } from "./animation-types.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
+import { type AnimationInstance } from "./animation-types";
 import {
   cubicBezier,
   getMorphControlPoints,
   type MorphControlPoints,
-} from "./morph-path.js";
+} from "./morph-path";
 
 // Debug helper: multiply every phase duration to slow the whole animation
 // down for easier inspection. Set to 1 for normal playback.

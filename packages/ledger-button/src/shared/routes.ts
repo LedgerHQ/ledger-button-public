@@ -1,37 +1,37 @@
-import "../domain/onboarding/select-device/select-device.js";
-import "../domain/onboarding/ledger-sync/ledger-sync.js";
-import "../domain/onboarding/retrieving-accounts/retrieving-accounts.js";
-import "../domain/onboarding/select-account/select-account.js";
-import "../domain/onboarding/welcome/welcome-screen.js";
-import "../domain/onboarding/consent-prompt/consent-analytics-screen.js";
-import "../domain/sign-transaction/sign-transaction.js";
-import "../domain/home/ledger-home.js";
-import "../domain/device-switch/device-switch.js";
-import "../domain/device-connection-status/device-connection-status.js";
-import "../domain/onboarding/turn-on-sync/turn-on-sync.js";
-import "../domain/onboarding/onboarding-flow/onboarding-flow.js";
-import "../domain/signing-flow/signing-flow.js";
-import "../domain/account-tokens/account-tokens.js";
-import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop.js";
-import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile.js";
-import "../domain/onboarding/connection-success/connection-success-screen.js";
-import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen.js";
-import "../domain/settings/settings-screen.js";
-import "../domain/settings/preferences/preferences-screen.js";
-import "../domain/settings/preferences/preference-language-screen.js";
-import "../domain/settings/preferences/preference-currency-screen.js";
-import "../domain/settings/security/security-screen.js";
-import "../domain/settings/support/support-screen.js";
-import "../domain/settings/developer/developer-screen.js";
-import "../domain/settings/developer/feature-flags/feature-flags-screen.js";
-import "../domain/home-flow/home-flow.js";
-import "../domain/available-networks/available-networks.js";
+import "../domain/onboarding/select-device/select-device";
+import "../domain/onboarding/ledger-sync/ledger-sync";
+import "../domain/onboarding/retrieving-accounts/retrieving-accounts";
+import "../domain/onboarding/select-account/select-account";
+import "../domain/onboarding/welcome/welcome-screen";
+import "../domain/onboarding/consent-prompt/consent-analytics-screen";
+import "../domain/sign-transaction/sign-transaction";
+import "../domain/home/ledger-home";
+import "../domain/device-switch/device-switch";
+import "../domain/device-connection-status/device-connection-status";
+import "../domain/onboarding/turn-on-sync/turn-on-sync";
+import "../domain/onboarding/onboarding-flow/onboarding-flow";
+import "../domain/signing-flow/signing-flow";
+import "../domain/account-tokens/account-tokens";
+import "../domain/onboarding/turn-on-sync-desktop/turn-on-sync-desktop";
+import "../domain/onboarding/turn-on-sync-mobile/turn-on-sync-mobile";
+import "../domain/onboarding/connection-success/connection-success-screen";
+import "../domain/onboarding/mobile-onboarding/mobile-onboarding-screen";
+import "../domain/settings/settings-screen";
+import "../domain/settings/preferences/preferences-screen";
+import "../domain/settings/preferences/preference-language-screen";
+import "../domain/settings/preferences/preference-currency-screen";
+import "../domain/settings/security/security-screen";
+import "../domain/settings/support/support-screen";
+import "../domain/settings/developer/developer-screen";
+import "../domain/settings/developer/feature-flags/feature-flags-screen";
+import "../domain/home-flow/home-flow";
+import "../domain/available-networks/available-networks";
 
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import { CoreContext } from "../context/core-context.js";
-import { LanguageContext } from "../context/language-context.js";
+import { CoreContext } from "../context/core-context";
+import { LanguageContext } from "../context/language-context";
 
 @customElement("ledger-button-404")
 export class LedgerButton404 extends LitElement {

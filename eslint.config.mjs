@@ -107,6 +107,32 @@ export default [
     },
   },
   {
+    files: [
+      "packages/ledger-button/src/**/*.{ts,tsx}",
+      "packages/ledger-wallet-provider-evm/src/**/*.{ts,tsx}",
+      "packages/ledger-wallet-provider-solana/src/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["src/**"],
+              message:
+                "Import paths should not start with 'src/'. Use relative imports instead.",
+            },
+            {
+              regex: "^\\..*\\.js$",
+              message:
+                "Omit the .js extension on relative imports; this package uses moduleResolution: bundler.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["packages/ledger-button-core/src/**/*.ts"],
     rules: {
       "no-restricted-imports": [
@@ -126,6 +152,11 @@ export default [
               ],
               message:
                 "Use the '@api/*', '@internal/*' or '@schemas/*' aliases instead of climbing out of the current directory.",
+            },
+            {
+              regex: "^(\\.{1,2}/|@api/|@internal/|@schemas/).+\\.js$",
+              message:
+                "Omit the .js extension on relative and aliased imports; this package uses moduleResolution: bundler.",
             },
           ],
         },

@@ -5,8 +5,8 @@ import "../../atom/chip/ledger-chip";
 import { css, html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import { formatTitle } from "../../../utils/format-title.js";
+import { tailwindElement } from "../../../tailwind-element";
+import { formatTitle } from "../../../utils/format-title";
 import { type DeviceModelId } from "../../atom/icon/device-icon/device-icon";
 
 export interface LedgerToolbarAttributes {

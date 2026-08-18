@@ -1,4 +1,4 @@
-import "../../components/index.js";
+import "../../components/index";
 
 import {
   Account,
@@ -12,14 +12,14 @@ import { customElement, property } from "lit/decorators.js";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { tailwindElement } from "../../tailwind-element.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { tailwindElement } from "../../tailwind-element";
 import {
   formatFiatBalance,
   formatTokenBalance,
-} from "../../utils/format-fiat.js";
-import { AccountTokenController } from "./account-token-controller.js";
+} from "../../utils/format-fiat";
+import { AccountTokenController } from "./account-token-controller";
 
 @customElement("account-tokens-screen")
 @tailwindElement()

@@ -1,5 +1,5 @@
 import "./transaction-list";
-import "../../components/index.js";
+import "../../components/index";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";

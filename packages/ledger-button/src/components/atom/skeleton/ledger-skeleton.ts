@@ -1,7 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
+import { tailwindElement } from "../../../tailwind-element";
 
 const styles = css`
   :host {

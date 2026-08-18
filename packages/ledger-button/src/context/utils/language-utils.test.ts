@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { DEFAULT_LANGUAGE, languages } from "../constants/languages.js";
+import { DEFAULT_LANGUAGE, languages } from "../constants/languages";
 import {
   detectBrowserLanguage,
   getLanguageDisplayName,
-} from "./language-utils.js";
+} from "./language-utils";
 
 const expectedDisplayNamesInCatalogOrder: readonly string[] = [
   "English",

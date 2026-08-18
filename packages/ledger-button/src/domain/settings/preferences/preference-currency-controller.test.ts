@@ -2,7 +2,7 @@ import type { FiatCurrency } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PreferenceCurrencyController } from "./preference-currency-controller.js";
+import { PreferenceCurrencyController } from "./preference-currency-controller";
 
 const MOCK_CURRENCIES: FiatCurrency[] = [
   { code: "USD", name: "US Dollar" },

@@ -4,11 +4,11 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../../components/index.js", () => ({}));
+vi.mock("../../../components/index", () => ({}));
 
 const controllerConstructor = vi.fn();
 
-vi.mock("./select-account-controller.js", () => ({
+vi.mock("./select-account-controller", () => ({
   SelectAccountController: class {
     constructor(...args: unknown[]) {
       controllerConstructor(...args);
@@ -16,11 +16,11 @@ vi.mock("./select-account-controller.js", () => ({
   },
 }));
 
-import type { CoreContext } from "../../../context/core-context.js";
-import type { LanguageContext } from "../../../context/language-context.js";
-import type { Navigation } from "../../../shared/navigation.js";
-import type { SelectAccountNavigationParams } from "../../../shared/root-navigation-controller.js";
-import { SelectAccountScreen } from "./select-account.js";
+import type { CoreContext } from "../../../context/core-context";
+import type { LanguageContext } from "../../../context/language-context";
+import type { Navigation } from "../../../shared/navigation";
+import type { SelectAccountNavigationParams } from "../../../shared/root-navigation-controller";
+import { SelectAccountScreen } from "./select-account";
 
 function createScreen(
   params?: SelectAccountNavigationParams,

@@ -1,28 +1,28 @@
-import "./components/index.js";
-import "./ledger-button-app.js";
+import "./components/index";
+import "./ledger-button-app";
 
 import {
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { FloatingButtonPosition } from "./components/index.js";
-import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
-import { setupFloatingButton } from "./utils/setup-floating-button.js";
-import { LedgerButtonApp } from "./ledger-button-app.js";
+import { FloatingButtonPosition } from "./components/index";
+import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification";
+import { setupFloatingButton } from "./utils/setup-floating-button";
+import { LedgerButtonApp } from "./ledger-button-app";
 
-export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
+export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
 export type {
   EIP1193Provider,
   EIP6963ProviderDetail,
   EIP6963ProviderInfo,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
 
 let core: LedgerButtonCore | null = null;
 
-export type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
+export type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification";
 
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;

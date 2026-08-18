@@ -1,11 +1,11 @@
-import "../../atom/button/ledger-button.js";
+import "../../atom/button/ledger-button";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
+import { tailwindElement } from "../../../tailwind-element";
 
 const connectionItemVariants = cva(
   [

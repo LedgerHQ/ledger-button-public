@@ -1,7 +1,7 @@
-import "./components/index.js";
-import "./context/core-context.js";
-import "./context/language-context.js";
-import "./ledger-button-app.js";
+import "./components/index";
+import "./context/core-context";
+import "./context/language-context";
+import "./ledger-button-app";
 
 import type { BlockchainProviderFactoryRegistration } from "@ledgerhq/ledger-wallet-provider-core";
 import {
@@ -12,7 +12,7 @@ import {
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-import { initializeLedgerProvider } from "./index.js";
+import { initializeLedgerProvider } from "./index";
 
 @customElement("ledger-button-playground")
 export class LedgerButtonPlayground extends LitElement {
