@@ -139,18 +139,24 @@ Special case for commit messages coming from a pull request merge:
   },
 
   getCommits: () => {
+    const currentBranch = Branch(danger, fail, fork).getBranch();
+    const isBackmergeBranch = currentBranch.startsWith("backmerge/v");
+    const isMergeCommit = (message: string) => message.startsWith("Merge ");
+
     if (danger.github) {
-      return danger.github.commits.map(({ commit }) => commit.message);
+      return danger.github.commits
+        .map(({ commit }) => commit.message)
+        .filter((message) => !isBackmergeBranch || !isMergeCommit(message));
     }
 
-    const currentBranch = Branch(danger, fail, fork).getBranch();
     return execFileSync("/usr/bin/git", [
       "log",
       `origin/develop..${currentBranch}`,
       "--pretty=format:%s",
     ])
       .toString()
-      .split("\n");
+      .split("\n")
+      .filter((message) => !isBackmergeBranch || !isMergeCommit(message));
   },
 });
 
