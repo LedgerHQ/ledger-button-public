@@ -27,8 +27,19 @@ em {
 }
 
 /* Cards */
+.card-section {
+  margin: 48px 0;
+}
+
+.card-section-title {
+  text-align: center;
+  font-size: 1.6em;
+  margin-bottom: 24px;
+}
+
 .card-container {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   margin: 40px 0;
 }
