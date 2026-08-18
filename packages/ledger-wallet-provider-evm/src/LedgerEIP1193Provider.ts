@@ -47,14 +47,14 @@ import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { hexToUtf8 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type Observable, Subject, type Subscription } from "rxjs";
 
-import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
-import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
-import type { SignTransaction } from "./use-case/SignTransaction.js";
-import type { SignTypedData } from "./use-case/SignTypedData.js";
-import { getChainIdFromCurrencyId } from "./utils/chainUtils.js";
-import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod.js";
-import { resolveRpcRoute } from "./utils/resolveRpcRoute.js";
-import { isSupportedChainId } from "./utils/supportedChains.js";
+import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase";
+import type { SignRawTransaction } from "./use-case/SignRawTransaction";
+import type { SignTransaction } from "./use-case/SignTransaction";
+import type { SignTypedData } from "./use-case/SignTypedData";
+import { getChainIdFromCurrencyId } from "./utils/chainUtils";
+import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod";
+import { resolveRpcRoute } from "./utils/resolveRpcRoute";
+import { isSupportedChainId } from "./utils/supportedChains";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;

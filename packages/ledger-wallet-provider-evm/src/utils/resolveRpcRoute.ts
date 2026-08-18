@@ -3,7 +3,7 @@ import type { BlockchainRpcMethods } from "@ledgerhq/ledger-wallet-provider-core
 import {
   BROADCASTED_TO_NODE_RPC_METHODS,
   LOCALLY_HANDLED_RPC_METHODS,
-} from "./supportedRpcMethods.js";
+} from "./supportedRpcMethods";
 
 export type RpcRoute = "local" | "broadcasted" | "unsupported";
 

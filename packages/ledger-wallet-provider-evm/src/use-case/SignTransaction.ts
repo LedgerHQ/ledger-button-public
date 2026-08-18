@@ -10,10 +10,10 @@ import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { from, Observable, switchMap } from "rxjs";
 
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
-import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper.js";
-import { SignRawTransaction } from "./SignRawTransaction.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService";
+import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper";
+import { SignRawTransaction } from "./SignRawTransaction";
 
 @injectable()
 export class SignTransaction {

@@ -6,10 +6,10 @@ import {
 import { ethers, Signature } from "ethers";
 import { inject, injectable } from "inversify";
 
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import type { EvmSignedResult } from "../model/EvmSignedResult.js";
-import { createSignedTransaction } from "../transaction/TransactionHelper.js";
-import { getCurrencyIdFromChainId } from "../utils/chainUtils.js";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import type { EvmSignedResult } from "../model/EvmSignedResult";
+import { createSignedTransaction } from "../transaction/TransactionHelper";
+import { getCurrencyIdFromChainId } from "../utils/chainUtils";
 
 export type BroadcastTransactionParams = {
   signature: Signature;

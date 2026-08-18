@@ -1,15 +1,15 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultGasFeeEstimationService } from "../gas-fee/DefaultGasFeeEstimationService.js";
-import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService.js";
-import { BroadcastTransaction } from "../use-case/BroadcastTransaction.js";
-import { BuildContextModule } from "../use-case/BuildContextModule.js";
-import { BuildEthSigner } from "../use-case/BuildEthSigner.js";
-import { SignPersonalMessageUseCase } from "../use-case/SignPersonalMessageUseCase.js";
-import { SignRawTransaction } from "../use-case/SignRawTransaction.js";
-import { SignTransaction } from "../use-case/SignTransaction.js";
-import { SignTypedData } from "../use-case/SignTypedData.js";
-import { evmProviderModuleTypes } from "./evmProviderModuleTypes.js";
+import { DefaultGasFeeEstimationService } from "../gas-fee/DefaultGasFeeEstimationService";
+import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService";
+import { BroadcastTransaction } from "../use-case/BroadcastTransaction";
+import { BuildContextModule } from "../use-case/BuildContextModule";
+import { BuildEthSigner } from "../use-case/BuildEthSigner";
+import { SignPersonalMessageUseCase } from "../use-case/SignPersonalMessageUseCase";
+import { SignRawTransaction } from "../use-case/SignRawTransaction";
+import { SignTransaction } from "../use-case/SignTransaction";
+import { SignTypedData } from "../use-case/SignTypedData";
+import { evmProviderModuleTypes } from "./evmProviderModuleTypes";
 
 /**
  * Local Inversify module for the EVM provider. Loaded into the per-provider

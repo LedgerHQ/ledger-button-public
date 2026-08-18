@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import {
   isSupportedRpcMethod,
   SUPPORTED_RPC_METHODS,
-} from "./supportedRpcMethods.js";
+} from "./supportedRpcMethods";
 
 describe("supportedRpcMethods", () => {
   describe("isSupportedRpcMethod", () => {

@@ -1,7 +1,7 @@
 import type { BlockchainRpcMethods } from "@ledgerhq/ledger-wallet-provider-core";
 import { describe, expect, it } from "vitest";
 
-import { resolveRpcRoute } from "./resolveRpcRoute.js";
+import { resolveRpcRoute } from "./resolveRpcRoute";
 
 describe("resolveRpcRoute", () => {
   describe("without dApp config", () => {

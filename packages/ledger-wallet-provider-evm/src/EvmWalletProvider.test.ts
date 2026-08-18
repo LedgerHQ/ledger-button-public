@@ -4,7 +4,7 @@
 import type { EIP1193Provider } from "@ledgerhq/ledger-wallet-provider-core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { EvmWalletProvider } from "./EvmWalletProvider.js";
+import { EvmWalletProvider } from "./EvmWalletProvider";
 
 const createMockEip1193Provider = (): EIP1193Provider =>
   ({}) as EIP1193Provider;

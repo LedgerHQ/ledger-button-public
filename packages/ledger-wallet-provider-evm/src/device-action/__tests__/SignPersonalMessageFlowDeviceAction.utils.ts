@@ -5,7 +5,7 @@ import type {
   SignPersonalMessageFlowDAError,
   SignPersonalMessageFlowDAIntermediateValue,
   SignPersonalMessageFlowDAOutput,
-} from "../SignPersonalMessageFlowDeviceActionTypes.js";
+} from "../SignPersonalMessageFlowDeviceActionTypes";
 
 export type SignPersonalMessageFlowDAState = DeviceActionState<
   SignPersonalMessageFlowDAOutput,
