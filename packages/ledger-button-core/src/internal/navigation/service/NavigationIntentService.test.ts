@@ -1,9 +1,9 @@
 import { EMPTY, type Observable } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
 
-import { NavigationIntentService } from "./NavigationIntentService.js";
+import { NavigationIntentService } from "./NavigationIntentService";
 
 const createSelectAccountIntent = (): WalletNavigationIntent => ({
   name: "selectAccount",

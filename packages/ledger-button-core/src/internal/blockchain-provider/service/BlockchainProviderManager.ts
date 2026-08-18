@@ -1,11 +1,11 @@
 import type { Maybe } from "purify-ts";
 
-import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory.js";
-import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade.js";
-import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { Account } from "@api/model/Account.js";
-import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes.js";
+import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory";
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
 
 export interface BlockchainProviderManager {
   init(

@@ -1,4 +1,4 @@
-import "../../components/index.js";
+import "../../components/index";
 import "../onboarding/ledger-sync/ledger-sync";
 
 import { type SignNavigationIntent } from "@ledgerhq/ledger-wallet-provider-core";
@@ -6,18 +6,18 @@ import { consume } from "@lit/context";
 import { css, html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { type ModalGradient } from "../../components/atom/modal/ledger-modal.js";
-import { AnimationKey } from "../../components/index.js";
-import { type StatusType } from "../../components/organism/status/ledger-status.js";
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import { type ModalGradient } from "../../components/atom/modal/ledger-modal";
+import { AnimationKey } from "../../components/index";
+import { type StatusType } from "../../components/organism/status/ledger-status";
+import { CoreContext, coreContext } from "../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { tailwindElement } from "../../tailwind-element.js";
-import { SignTransactionController } from "./sign-transaction-controller.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
+import { tailwindElement } from "../../tailwind-element";
+import { SignTransactionController } from "./sign-transaction-controller";
 
 const styles = css`
   :host {

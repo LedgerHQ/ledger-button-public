@@ -1,9 +1,9 @@
 import { Just, Nothing } from "purify-ts";
 
-import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
-import { StorageService } from "@internal/storage/StorageService.js";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { StorageService } from "@internal/storage/StorageService";
 
-import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
+import { GetEncryptionKeyUseCase } from "./GetEncryptionKey";
 
 const GENERATE_KEY_PARAMS = {
   algorithm: {

@@ -4,8 +4,8 @@ import {
   asMockService,
   createMockDeviceManagementKitService,
   createMockLoggerFactory,
-} from "../__tests__/mocks.js";
-import { SwitchDevice } from "./SwitchDevice.js";
+} from "../__tests__/mocks";
+import { SwitchDevice } from "./SwitchDevice";
 
 describe("SwitchDevice", () => {
   let switchDevice: SwitchDevice;

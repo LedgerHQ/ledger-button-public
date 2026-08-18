@@ -6,7 +6,7 @@ import {
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 
-import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes.js";
+import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
 
 @injectable()
 export class BuildSolanaContextModule {

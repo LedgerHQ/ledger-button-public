@@ -7,7 +7,7 @@ import {
   createSignedTransaction,
   getHexaStringFromSignature,
   getRawTransactionFromEipTransaction,
-} from "./TransactionHelper.js";
+} from "./TransactionHelper";
 
 describe("TransactionHelper", () => {
   const validTx = ethers.Transaction.from({

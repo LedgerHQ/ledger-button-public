@@ -6,9 +6,9 @@ import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
 import { lastValueFrom, of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
-import type { BuildSolanaContextModule } from "./BuildSolanaContextModule.js";
-import { SignSolanaTransaction } from "./SignSolanaTransaction.js";
+import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
+import type { BuildSolanaContextModule } from "./BuildSolanaContextModule";
+import { SignSolanaTransaction } from "./SignSolanaTransaction";
 
 const SOLANA_ADDRESS = "11111111111111111111111111111111";
 

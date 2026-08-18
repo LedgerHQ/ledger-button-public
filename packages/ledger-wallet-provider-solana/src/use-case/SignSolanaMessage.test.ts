@@ -6,7 +6,7 @@ import { getBase58Decoder } from "@solana/kit";
 import { lastValueFrom, of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SignSolanaMessage } from "./SignSolanaMessage.js";
+import { SignSolanaMessage } from "./SignSolanaMessage";
 
 const SOLANA_ADDRESS = "11111111111111111111111111111111";
 const signatureBytes = new Uint8Array(64).fill(3);

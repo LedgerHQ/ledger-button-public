@@ -1,8 +1,8 @@
 import { Either } from "purify-ts";
 
-import type { Account } from "@api/model/Account.js";
+import type { Account } from "@api/model/Account";
 
-import { type AccountBalance } from "../model/types.js";
+import { type AccountBalance } from "../model/types";
 
 export interface BalanceService {
   getBalanceForAccount(

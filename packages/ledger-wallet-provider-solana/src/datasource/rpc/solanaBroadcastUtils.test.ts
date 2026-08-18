@@ -4,7 +4,7 @@ import {
   buildSendTransactionRequest,
   decodeSolanaSignature,
   extractBroadcastedSignature,
-} from "./solanaBroadcastUtils.js";
+} from "./solanaBroadcastUtils";
 
 describe("buildSendTransactionRequest", () => {
   it("wraps the wire transaction in a base64 sendTransaction request", () => {

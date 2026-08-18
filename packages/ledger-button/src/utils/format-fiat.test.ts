@@ -1,12 +1,12 @@
 import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_LOCALE } from "../context/constants/languages.js";
+import { DEFAULT_LOCALE } from "../context/constants/languages";
 import {
   formatFiatBalance,
   formatFiatValue,
   formatTokenBalance,
-} from "./format-fiat.js";
+} from "./format-fiat";
 
 describe("formatFiatValue", () => {
   describe("ISO 4217 currency codes (en-US)", () => {

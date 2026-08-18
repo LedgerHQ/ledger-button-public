@@ -6,11 +6,11 @@ import type { WalletAccount } from "@wallet-standard/base";
 import { of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
-import { attachSolanaSignature } from "./utils/signatureUtils.js";
-import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
+import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
+import { attachSolanaSignature } from "./utils/signatureUtils";
+import { LedgerSolanaWallet } from "./LedgerSolanaWallet";
 
-vi.mock("./utils/signatureUtils.js", () => ({
+vi.mock("./utils/signatureUtils", () => ({
   attachSolanaSignature: vi.fn(() => new Uint8Array([9, 9, 9])),
 }));
 

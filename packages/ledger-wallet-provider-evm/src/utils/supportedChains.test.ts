@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isSupportedChainId } from "./supportedChains.js";
+import { isSupportedChainId } from "./supportedChains";
 
 describe("supportedChains", () => {
   describe("isSupportedChainId", () => {

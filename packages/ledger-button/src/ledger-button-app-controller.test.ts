@@ -8,7 +8,7 @@ import type {
 import type { ReactiveControllerHost } from "lit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
+import { LedgerButtonAppController } from "./ledger-button-app-controller";
 
 describe("LedgerButtonAppController", () => {
   let host: ReactiveControllerHost;

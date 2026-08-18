@@ -1,10 +1,10 @@
 import { ContainerModule, type Factory } from "inversify";
 
-import type { BlockchainProviderManager } from "../service/BlockchainProviderManager.js";
-import type { CoreFacadeService } from "../service/CoreFacadeService.js";
-import { DefaultBlockchainProviderManager } from "../service/DefaultBlockchainProviderManager.js";
-import { DefaultCoreFacadeService } from "../service/DefaultCoreFacadeService.js";
-import { blockchainProviderModuleTypes } from "./blockchainProviderModuleTypes.js";
+import type { BlockchainProviderManager } from "../service/BlockchainProviderManager";
+import type { CoreFacadeService } from "../service/CoreFacadeService";
+import { DefaultBlockchainProviderManager } from "../service/DefaultBlockchainProviderManager";
+import { DefaultCoreFacadeService } from "../service/DefaultCoreFacadeService";
+import { blockchainProviderModuleTypes } from "./blockchainProviderModuleTypes";
 
 export function blockchainProviderModuleFactory() {
   return new ContainerModule(({ bind }) => {

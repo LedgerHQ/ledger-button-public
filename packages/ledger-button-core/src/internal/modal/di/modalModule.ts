@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 
-import { ModalService } from "../service/ModalService.js";
-import { modalModuleTypes } from "./modalModuleTypes.js";
+import { ModalService } from "../service/ModalService";
+import { modalModuleTypes } from "./modalModuleTypes";
 
 export function modalModuleFactory() {
   return new ContainerModule(({ bind }) => {

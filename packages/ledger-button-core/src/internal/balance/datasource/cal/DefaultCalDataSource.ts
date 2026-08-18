@@ -1,22 +1,22 @@
 import { inject, injectable } from "inversify";
 import { type Either, Left, Right } from "purify-ts";
 
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import { Config } from "@internal/config/model/config.js";
-import { networkModuleTypes } from "@internal/network/di/networkModuleTypes.js";
-import { type NetworkServiceOpts } from "@internal/network/model/types.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import { type NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
 
-import { type CalDataSource } from "./CalDataSource.js";
+import { type CalDataSource } from "./CalDataSource";
 import {
   type CalCoinResponse,
   type CalNetworkExternalLinks,
   type CalTokenResponse,
   type CurrencyInformation,
   type TokenInformation,
-} from "./calTypes.js";
+} from "./calTypes";
 
 @injectable()
 export class DefaultCalDataSource implements CalDataSource {

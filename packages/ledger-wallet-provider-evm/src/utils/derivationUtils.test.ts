@@ -1,6 +1,6 @@
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { getEvmDerivationPath } from "./derivationUtils.js";
+import { getEvmDerivationPath } from "./derivationUtils";
 
 function createAccount(
   overrides: Partial<ProviderAccount> = {},

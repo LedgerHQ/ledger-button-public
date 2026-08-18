@@ -1,13 +1,13 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { type CoreContext } from "../../../context/core-context.js";
+import { type CoreContext } from "../../../context/core-context";
 import {
   type LangKey,
   LanguageContext,
   languages,
-} from "../../../context/language-context.js";
-import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
-import { Navigation } from "../../../shared/navigation.js";
+} from "../../../context/language-context";
+import { getLanguageDisplayName } from "../../../context/utils/language-utils";
+import { Navigation } from "../../../shared/navigation";
 
 export type LanguageOption = {
   key: LangKey;

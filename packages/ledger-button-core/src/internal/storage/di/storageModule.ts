@@ -1,10 +1,10 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultStorageService } from "../DefaultStorageService.js";
-import { DefaultIndexedDbService } from "../service/DefaultIndexedDbService.js";
-import { KeyPairMigrationService } from "../use-case/KeypairMigrationService.js";
-import { MigrateDbUseCase } from "../use-case/MigrateDbUseCase.js";
-import { storageModuleTypes } from "./storageModuleTypes.js";
+import { DefaultStorageService } from "../DefaultStorageService";
+import { DefaultIndexedDbService } from "../service/DefaultIndexedDbService";
+import { KeyPairMigrationService } from "../use-case/KeypairMigrationService";
+import { MigrateDbUseCase } from "../use-case/MigrateDbUseCase";
+import { storageModuleTypes } from "./storageModuleTypes";
 
 type StorageModuleOptions = {
   stub?: boolean;

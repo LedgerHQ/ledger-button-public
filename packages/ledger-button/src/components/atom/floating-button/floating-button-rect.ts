@@ -1,4 +1,4 @@
-import type { FloatingButtonPosition } from "./ledger-floating-button.js";
+import type { FloatingButtonPosition } from "./ledger-floating-button";
 
 /**
  * Pixel size of the circular floating button. Must stay in sync with the

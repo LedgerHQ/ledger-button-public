@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 
-import { type BroadcastTracking } from "../model/BroadcastTracking.js";
-import { type PendingTransaction } from "../model/PendingTransaction.js";
+import { type BroadcastTracking } from "../model/BroadcastTracking";
+import { type PendingTransaction } from "../model/PendingTransaction";
 
 export interface PendingTransactionController {
   track(): void;

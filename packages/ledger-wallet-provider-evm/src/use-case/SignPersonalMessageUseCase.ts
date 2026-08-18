@@ -20,15 +20,15 @@ import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
-import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction.js";
+import { SignPersonalMessageFlowDeviceAction } from "../device-action/SignPersonalMessageFlowDeviceAction";
 import type {
   SignPersonalMessageFlowDAError,
   SignPersonalMessageFlowDAIntermediateValue,
   SignPersonalMessageFlowDAOutput,
-} from "../device-action/SignPersonalMessageFlowDeviceActionTypes.js";
-import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes.js";
-import { getEvmDerivationPath } from "../utils/derivationUtils.js";
-import { BuildContextModule } from "./BuildContextModule.js";
+} from "../device-action/SignPersonalMessageFlowDeviceActionTypes";
+import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import { getEvmDerivationPath } from "../utils/derivationUtils";
+import { BuildContextModule } from "./BuildContextModule";
 
 @injectable()
 export class SignPersonalMessageUseCase {

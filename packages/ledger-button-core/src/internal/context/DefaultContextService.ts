@@ -2,20 +2,20 @@ import { type Factory, inject, injectable } from "inversify";
 import { Maybe } from "purify-ts";
 import { BehaviorSubject, Observable } from "rxjs";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { Account, DetailedAccount } from "@api/model/Account.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account, DetailedAccount } from "@api/model/Account";
 import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
-} from "@api/model/ButtonCoreContext.js";
+} from "@api/model/ButtonCoreContext";
 
-import { type ContextEvent } from "./model/ContextEvent.js";
-import { blockchainProviderModuleTypes } from "../blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager.js";
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
-import { loggerModuleTypes } from "../logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { type ContextService } from "./ContextService.js";
+import { type ContextEvent } from "./model/ContextEvent";
+import { blockchainProviderModuleTypes } from "../blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager";
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
+import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { type ContextService } from "./ContextService";
 
 @injectable()
 export class DefaultContextService implements ContextService {

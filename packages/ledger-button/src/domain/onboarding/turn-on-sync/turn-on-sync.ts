@@ -2,17 +2,17 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { PlatformItemClickEventDetail } from "../../../components/molecule/platform-item/ledger-platform-item.js";
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { PlatformItemClickEventDetail } from "../../../components/molecule/platform-item/ledger-platform-item";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { Destinations } from "../../../shared/routes";
+import { tailwindElement } from "../../../tailwind-element";
 import banner from "./banner.png";
-import { TurnOnSyncController } from "./turn-on-sync-controller.js";
+import { TurnOnSyncController } from "./turn-on-sync-controller";
 
 @customElement("turn-on-sync-screen")
 @tailwindElement()

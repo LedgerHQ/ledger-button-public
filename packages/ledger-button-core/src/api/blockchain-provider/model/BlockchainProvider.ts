@@ -1,8 +1,8 @@
-import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
-import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
 
-import type { CurrencyDescriptor } from "./CurrencyDescriptor.js";
-import type { BlockchainFamily } from "./types.js";
+import type { CurrencyDescriptor } from "./CurrencyDescriptor";
+import type { BlockchainFamily } from "./types";
 
 /**
  * Entry point for a concrete blockchain family implementation (EVM, Solana, …).

@@ -1,10 +1,10 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { AccountWithFiat } from "@api/model/Account.js";
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
+import type { AccountWithFiat } from "@api/model/Account";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
 
-import { BuildNetworksUseCase } from "./buildNetworksUseCase.js";
+import { BuildNetworksUseCase } from "./buildNetworksUseCase";
 
 function createAccount(
   overrides: Partial<AccountWithFiat> = {},

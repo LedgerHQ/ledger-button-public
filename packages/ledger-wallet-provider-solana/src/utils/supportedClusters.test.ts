@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isSupportedCluster, SUPPORTED_CLUSTERS } from "./supportedClusters.js";
+import { isSupportedCluster, SUPPORTED_CLUSTERS } from "./supportedClusters";
 
 describe("supportedClusters", () => {
   describe("isSupportedCluster", () => {

@@ -1,16 +1,16 @@
 import { Maybe } from "purify-ts";
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
-import type { Account } from "@api/model/Account.js";
-import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
 
-import { aCurrencyDescriptor } from "../blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager.js";
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
-import type { Device } from "../device/model/Device.js";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { DefaultContextService } from "./DefaultContextService.js";
+import { aCurrencyDescriptor } from "../blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager";
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
+import type { Device } from "../device/model/Device";
+import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { DefaultContextService } from "./DefaultContextService";
 
 describe("DefaultContextService", () => {
   let service: DefaultContextService;

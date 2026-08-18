@@ -4,10 +4,10 @@ import {
   type EventRequest,
   type EventResponse,
   EventType,
-} from "./model/trackEvent.js";
-import type { NetworkService } from "../network/NetworkService.js";
-import { DefaultBackendService } from "./DefaultBackendService.js";
-import type { BroadcastRequest } from "./types.js";
+} from "./model/trackEvent";
+import type { NetworkService } from "../network/NetworkService";
+import { DefaultBackendService } from "./DefaultBackendService";
+import type { BroadcastRequest } from "./types";
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;

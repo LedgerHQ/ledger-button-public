@@ -22,7 +22,7 @@ import {
   extractRawSignatureBase58,
   extractSignedMessage,
   normalizeSigningError,
-} from "../use-case/solanaSignFlowUtils.js";
+} from "../use-case/solanaSignFlowUtils";
 import {
   type SignSolanaMessageFlowDAError,
   type SignSolanaMessageFlowDAInput,
@@ -30,7 +30,7 @@ import {
   type SignSolanaMessageFlowDAInternalState,
   type SignSolanaMessageFlowDAOutput,
   SignSolanaMessageFlowDAStep,
-} from "./SignSolanaMessageFlowDeviceActionTypes.js";
+} from "./SignSolanaMessageFlowDeviceActionTypes";
 
 type ChildDASnapshotContext = {
   readonly intermediateValue: {

@@ -16,7 +16,7 @@ import {
   createMockStorageService,
   mockEncryptedKeyPair,
   mockKeyPairBuffer,
-} from "./KeypairMigrationService.mock.js";
+} from "./KeypairMigrationService.mock";
 
 vi.mock("@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol", () => ({
   Curve: {

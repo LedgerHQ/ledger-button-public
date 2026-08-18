@@ -1,28 +1,28 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, filter, Observable } from "rxjs";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import {
   getActiveFamily,
   getActiveSelectedAccount,
-} from "@api/model/ButtonCoreContext.js";
-import { accountModuleTypes } from "@internal/account/di/accountModuleTypes.js";
-import { type FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase.js";
-import { type ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+} from "@api/model/ButtonCoreContext";
+import { accountModuleTypes } from "@internal/account/di/accountModuleTypes";
+import { type FetchSelectedAccountUseCase } from "@internal/account/use-case/fetchSelectedAccountUseCase";
+import { type ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes.js";
-import { type BroadcastTracking } from "../model/BroadcastTracking.js";
-import { type PendingTransaction } from "../model/PendingTransaction.js";
-import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
+import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes";
+import { type BroadcastTracking } from "../model/BroadcastTracking";
+import { type PendingTransaction } from "../model/PendingTransaction";
+import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService";
 import {
   type ConfirmPendingTransactionsUseCase,
   type SettledPendingTransactionOutcome,
-} from "../use-case/ConfirmPendingTransactionsUseCase.js";
-import { type HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase.js";
-import { type PendingTransactionController } from "./PendingTransactionController.js";
+} from "../use-case/ConfirmPendingTransactionsUseCase";
+import { type HydratePendingTransactionsWithFiatUseCase } from "../use-case/HydratePendingTransactionsWithFiatUseCase";
+import { type PendingTransactionController } from "./PendingTransactionController";
 
 const POLLING_INTERVAL_MS = 10_000;
 

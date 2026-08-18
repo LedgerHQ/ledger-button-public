@@ -1,12 +1,12 @@
 import { of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CloudSyncService } from "@internal/cloudsync/service/CloudSyncService.js";
-import { LedgerSyncAuthContextMissingError } from "@internal/ledgersync/model/errors.js";
-import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService.js";
+import type { CloudSyncService } from "@internal/cloudsync/service/CloudSyncService";
+import { LedgerSyncAuthContextMissingError } from "@internal/ledgersync/model/errors";
+import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService";
 
-import type { CloudSyncData } from "../service/AccountService.js";
-import { FetchCloudSyncAccountsUseCase } from "./fetchCloudSyncAccountsUseCase.js";
+import type { CloudSyncData } from "../service/AccountService";
+import { FetchCloudSyncAccountsUseCase } from "./fetchCloudSyncAccountsUseCase";
 
 function createMockLogger() {
   return {

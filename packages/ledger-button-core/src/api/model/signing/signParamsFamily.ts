@@ -1,11 +1,11 @@
 import type {
   BlockchainFamily,
   ProviderSignParams,
-} from "@api/blockchain-provider/model/types.js";
+} from "@api/blockchain-provider/model/types";
 
-import { isSignSolanaMessageParams } from "./solana/SignSolanaMessageParams.js";
-import { isSignSolanaTransactionParams } from "./solana/SignSolanaTransactionParams.js";
-import { DEFAULT_BLOCKCHAIN_FAMILY } from "../ButtonCoreContext.js";
+import { isSignSolanaMessageParams } from "./solana/SignSolanaMessageParams";
+import { isSignSolanaTransactionParams } from "./solana/SignSolanaTransactionParams";
+import { DEFAULT_BLOCKCHAIN_FAMILY } from "../ButtonCoreContext";
 
 /**
  * Blockchain family a sign request belongs to, derived from the params

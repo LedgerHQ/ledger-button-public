@@ -5,10 +5,10 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant.js";
+import { INDEXED_DB_VERSION, STORAGE_KEYS } from "../model/constant";
 import {
   StorageIDBErrors,
   StorageIDBGetError,
@@ -16,9 +16,9 @@ import {
   StorageIDBOpenError,
   StorageIDBRemoveError,
   StorageIDBStoreError,
-} from "../model/errors.js";
-import { type UserConsent } from "../model/UserConsent.js";
-import { type IndexedDbService } from "./IndexedDbService.js";
+} from "../model/errors";
+import { type UserConsent } from "../model/UserConsent";
+import { type IndexedDbService } from "./IndexedDbService";
 
 @injectable()
 export class DefaultIndexedDbService implements IndexedDbService {

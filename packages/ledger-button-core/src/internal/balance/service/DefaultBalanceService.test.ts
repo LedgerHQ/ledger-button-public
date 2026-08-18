@@ -1,13 +1,13 @@
 import { Left, Right } from "purify-ts";
 
-import type { Account } from "@api/model/Account.js";
-import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { Account } from "@api/model/Account";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { CalDataSource } from "../datasource/cal/CalDataSource.js";
-import { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";
-import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes.js";
-import { TokenBalance } from "../model/types.js";
-import { DefaultBalanceService } from "./DefaultBalanceService.js";
+import { CalDataSource } from "../datasource/cal/CalDataSource";
+import { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource";
+import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes";
+import { TokenBalance } from "../model/types";
+import { DefaultBalanceService } from "./DefaultBalanceService";
 
 describe("DefaultBalanceService", () => {
   let balanceService: DefaultBalanceService;

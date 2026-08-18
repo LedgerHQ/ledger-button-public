@@ -2,8 +2,8 @@ import { cva } from "class-variance-authority";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import type { ModalGradient } from "./ledger-modal.js";
+import { tailwindElement } from "../../../tailwind-element";
+import type { ModalGradient } from "./ledger-modal";
 
 const gradientOverlayVariants = cva(
   "pointer-events-none absolute inset-0",

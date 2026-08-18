@@ -1,4 +1,4 @@
-import type { SignedResults } from "./SignedTransaction.js";
+import type { SignedResults } from "./SignedTransaction";
 
 /**
  * Compile-time sanity check: {@link SignedResults} must never collapse to

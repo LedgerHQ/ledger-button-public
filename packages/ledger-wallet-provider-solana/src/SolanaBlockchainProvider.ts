@@ -6,17 +6,17 @@ import type { CurrencyDescriptor } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import { Container } from "inversify";
 
-import { solanaProviderModule } from "./di/solanaProviderModule.js";
-import { solanaProviderModuleTypes } from "./di/solanaProviderModuleTypes.js";
-import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
-import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
+import { solanaProviderModule } from "./di/solanaProviderModule";
+import { solanaProviderModuleTypes } from "./di/solanaProviderModuleTypes";
+import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
+import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import {
   describeSolanaCurrency,
   describeSolanaNetwork,
   SOLANA_FAMILY,
-} from "./utils/clusterUtils.js";
-import { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
-import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
+} from "./utils/clusterUtils";
+import { LedgerSolanaWallet } from "./LedgerSolanaWallet";
+import { SolanaWalletProvider } from "./SolanaWalletProvider";
 
 /**
  * Solana {@link BlockchainProvider}: entry point for the Solana family.

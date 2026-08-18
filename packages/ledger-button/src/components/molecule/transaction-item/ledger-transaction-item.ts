@@ -6,16 +6,16 @@ import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
 import {
   formatFiatValue,
   formatTokenBalance,
-} from "../../../utils/format-fiat.js";
+} from "../../../utils/format-fiat";
 
 const transactionItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",

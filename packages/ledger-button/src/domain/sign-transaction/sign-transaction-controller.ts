@@ -13,13 +13,13 @@ import {
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { AnimationKey } from "../../components/index.js";
-import { type CoreContext } from "../../context/core-context.js";
-import { LanguageContext } from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { RootNavigationComponent } from "../../shared/root-navigation.js";
-import { formatAddress } from "../../utils/format-address.js";
-import { formatDeviceModelName } from "../../utils/format-device-name.js";
+import { AnimationKey } from "../../components/index";
+import { type CoreContext } from "../../context/core-context";
+import { LanguageContext } from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { RootNavigationComponent } from "../../shared/root-navigation";
+import { formatAddress } from "../../utils/format-address";
+import { formatDeviceModelName } from "../../utils/format-device-name";
 
 export type ScreenState =
   | {

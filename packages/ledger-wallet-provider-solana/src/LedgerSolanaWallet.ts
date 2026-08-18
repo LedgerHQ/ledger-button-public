@@ -45,12 +45,12 @@ import {
   decodeSolanaSignature,
   extractBroadcastedSignature,
   type SolanaSendOptions,
-} from "./datasource/rpc/solanaBroadcastUtils.js";
+} from "./datasource/rpc/solanaBroadcastUtils";
 import {
   isBroadcastedSolanaTransactionResult,
   isSignedSolanaTransactionResult,
-} from "./model/SolanaSignedResult.js";
-export type { SolanaSignedResult } from "./model/SolanaSignedResult.js";
+} from "./model/SolanaSignedResult";
+export type { SolanaSignedResult } from "./model/SolanaSignedResult";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
@@ -69,13 +69,13 @@ import {
 import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { getLedgerProviderIcon } from "@ledgerhq/ledger-wallet-provider-core";
 
-import type { SignSolanaMessage } from "./use-case/SignSolanaMessage.js";
-import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction.js";
+import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
+import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import {
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
-} from "./utils/clusterUtils.js";
-import { attachSolanaSignature } from "./utils/signatureUtils.js";
+} from "./utils/clusterUtils";
+import { attachSolanaSignature } from "./utils/signatureUtils";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",

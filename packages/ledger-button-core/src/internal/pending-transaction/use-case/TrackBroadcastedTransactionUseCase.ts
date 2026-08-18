@@ -1,29 +1,29 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { ProviderSignParams } from "@api/blockchain-provider/model/types.js";
-import type { Account } from "@api/model/Account.js";
+import type { ProviderSignParams } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
   getSelectedAccount,
-} from "@api/model/ButtonCoreContext.js";
-import { isBroadcastedTransactionResult } from "@api/model/signing/SignedTransaction.js";
-import { type SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
-import { getSignParamsFamily } from "@api/model/signing/signParamsFamily.js";
-import { isSignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
-import { type CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { type ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import { formatBalance } from "@internal/currency/currencyUtils.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+} from "@api/model/ButtonCoreContext";
+import { isBroadcastedTransactionResult } from "@api/model/signing/SignedTransaction";
+import { type SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import { getSignParamsFamily } from "@api/model/signing/signParamsFamily";
+import { isSignTransactionParams } from "@api/model/signing/SignTransactionParams";
+import { type CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { type ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { formatBalance } from "@internal/currency/currencyUtils";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
-import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes.js";
-import { type PendingTransaction } from "../model/PendingTransaction.js";
-import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
+import { type PendingTransactionController } from "../controller/PendingTransactionController";
+import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes";
+import { type PendingTransaction } from "../model/PendingTransaction";
+import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl";
 
 @injectable()
 export class TrackBroadcastedTransactionUseCase {

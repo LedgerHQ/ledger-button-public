@@ -1,9 +1,9 @@
-import "./components/index.js";
-import "./components/molecule/transaction-notifications/ledger-transaction-confirmation-host.js";
-import "./shared/root-navigation.js";
-import "./context/language-context.js";
-import "./context/core-context.js";
-import "./shared/routes.js";
+import "./components/index";
+import "./components/molecule/transaction-notifications/ledger-transaction-confirmation-host";
+import "./shared/root-navigation";
+import "./context/language-context";
+import "./context/core-context";
+import "./shared/routes";
 
 import {
   Account,
@@ -13,14 +13,14 @@ import {
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button.js";
-import { ModalMode } from "./components/index.js";
-import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
-import { RootNavigationComponent } from "./shared/root-navigation.js";
-import { Destination } from "./shared/routes.js";
-import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
-import { LedgerButtonAppController } from "./ledger-button-app-controller.js";
-import { tailwindElement } from "./tailwind-element.js";
+import type { FloatingButtonPosition as FloatingButtonPositionComponent } from "./components/atom/floating-button/ledger-floating-button";
+import { ModalMode } from "./components/index";
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
+import { RootNavigationComponent } from "./shared/root-navigation";
+import { Destination } from "./shared/routes";
+import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification";
+import { LedgerButtonAppController } from "./ledger-button-app-controller";
+import { tailwindElement } from "./tailwind-element";
 
 type FloatingButtonPosition = FloatingButtonPositionComponent | false;
 

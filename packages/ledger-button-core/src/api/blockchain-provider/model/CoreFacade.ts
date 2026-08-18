@@ -3,15 +3,15 @@ import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "@api/model/blockchain/GasFee.js";
-import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
-import type { SignedResults } from "@api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
+} from "@api/model/blockchain/GasFee";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
+import type { SignedResults } from "@api/model/signing/SignedTransaction";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type {
   BroadcastResponse,
   JSONRPCRequest,
-} from "@internal/backend/types.js";
+} from "@internal/backend/types";
 
 import type {
   BlockchainFamily,
@@ -20,7 +20,7 @@ import type {
   ProviderSdkConfig,
   ProviderSignParams,
   WalletNavigationIntent,
-} from "./types.js";
+} from "./types";
 
 /**
  * Outbound port the provider CALLS (provider -> core). It is the single set of

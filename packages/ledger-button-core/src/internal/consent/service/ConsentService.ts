@@ -1,4 +1,4 @@
-import { UserConsent } from "@internal/storage/model/UserConsent.js";
+import { UserConsent } from "@internal/storage/model/UserConsent";
 
 export interface ConsentService {
   hasConsent(): Promise<boolean>;

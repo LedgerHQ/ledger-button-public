@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { isBlockingRequestMethod } from "./isBlockingRequestMethod.js";
+import { isBlockingRequestMethod } from "./isBlockingRequestMethod";
 
 describe("isBlockingRequestMethod", () => {
   test.each([
