@@ -88,10 +88,10 @@ async function bumpSnapshot(tag = "develop", bumpType = "patch") {
     console.log("");
 
     // Run nx release version with prerelease specifier and snapshot tag
-    // Use the "libraries" release group configured in nx.json
-    // This will bump all public packages in the release group and apply the snapshot tag
+    // Use the "libraries" and "providers" release groups configured in nx.json
+    // This will bump all public packages in those groups and apply the snapshot tag
     // We disable git commit and tag to match the original behavior
-    await $`pnpm nx release version ${prereleaseSpecifier} --preid ${tag} --groups libraries --git-commit=false --git-tag=false`;
+    await $`pnpm nx release version ${prereleaseSpecifier} --preid ${tag} --groups libraries,providers --git-commit=false --git-tag=false`;
 
     console.log("");
     console.log(chalk.green(`✅ Snapshot versions bumped successfully`));

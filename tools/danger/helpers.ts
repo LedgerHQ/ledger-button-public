@@ -240,6 +240,8 @@ export const checkTitle = (
 const RELEASABLE_PACKAGE_PATHS = [
   "packages/ledger-button/",
   "packages/ledger-button-core/",
+  "packages/ledger-wallet-provider-evm/",
+  "packages/ledger-wallet-provider-solana/",
 ];
 
 const VERSION_PLAN_PATH_PREFIX = ".nx/version-plans/";
