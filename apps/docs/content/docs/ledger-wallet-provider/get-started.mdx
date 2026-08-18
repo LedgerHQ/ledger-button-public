@@ -8,7 +8,7 @@ import Link from 'next/link'
 
 # Get started with Ledger Wallet Provider
 
-This guide shows you how to install and initialize Ledger Wallet Provider. One initialization registers the blockchain families enabled for your partner configuration (`dAppIdentifier`). Then follow the guide for your chain.
+This guide shows you how to install and initialize Ledger Wallet Provider. You install the UI package plus a family package for each chain you support, then pass those factories to one `initializeLedgerProvider` call. The SDK registers only the families that are also enabled in your partner configuration (`dAppIdentifier`). Then follow the guide for your chain.
 
 <Callout type="info">
   **Partner program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
@@ -18,33 +18,43 @@ Before you start, check the [Requirements](./requirements) to confirm your targe
 
 ## Install the SDK
 
+Install the UI package and a family package for each chain you support:
+
 ```bash
 npm install @ledgerhq/ledger-wallet-provider
+npm install @ledgerhq/ledger-wallet-provider-evm      # EVM (EIP-6963 / EIP-1193)
+npm install @ledgerhq/ledger-wallet-provider-solana   # Solana (Wallet Standard)
 ```
 
-You can also install with `yarn` or `pnpm`.
+You can also install with `yarn` or `pnpm`. Skip a family package if you do not support that chain.
 
 ## Initialize the provider
 
 ```ts
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
+import { createEvmBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-evm'
+import { createSolanaBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-solana'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
   dAppIdentifier: 'my-dapp',
   apiKey: 'your-api-key',
   loggerLevel: 'info',
+  blockchainProviderFactories: [
+    { family: 'ethereum', create: createEvmBlockchainProvider },
+    { family: 'solana', create: createSolanaBlockchainProvider },
+  ],
 })
 
 // Call cleanup() when your application unmounts
 ```
 
-`initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for the blockchain families enabled in your partner dApp configuration (tied to `dAppIdentifier`):
+Pass a factory for each family you installed. `initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for families that appear in **both** `blockchainProviderFactories` and your partner dApp configuration (tied to `dAppIdentifier`):
 
-- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) — when Ethereum is enabled
-- **Solana** via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) — when Solana is enabled
+- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) — when you pass the EVM factory and Ethereum is enabled
+- **Solana** via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) — when you pass the Solana factory and Solana is enabled
 
-If both families are enabled, both providers are registered from the same init call. If only one is enabled, only that discovery surface is available.
+If both factories are passed and both families are enabled, both providers are registered from the same init call. Without `blockchainProviderFactories`, no chain provider is registered.
 
 It returns a cleanup function — call it when your application unmounts to remove the UI and unregister any providers that were registered.
 
@@ -62,12 +72,22 @@ useEffect(() => {
 
   ;(async () => {
     await import('@ledgerhq/ledger-wallet-provider/styles.css')
-    const { initializeLedgerProvider } = await import(
-      '@ledgerhq/ledger-wallet-provider'
-    )
+    const [
+      { initializeLedgerProvider },
+      { createEvmBlockchainProvider },
+      { createSolanaBlockchainProvider },
+    ] = await Promise.all([
+      import('@ledgerhq/ledger-wallet-provider'),
+      import('@ledgerhq/ledger-wallet-provider-evm'),
+      import('@ledgerhq/ledger-wallet-provider-solana'),
+    ])
     cleanup = initializeLedgerProvider({
       dAppIdentifier: 'my-dapp',
       apiKey: 'your-api-key',
+      blockchainProviderFactories: [
+        { family: 'ethereum', create: createEvmBlockchainProvider },
+        { family: 'solana', create: createSolanaBlockchainProvider },
+      ],
     })
   })()
 
@@ -77,7 +97,7 @@ useEffect(() => {
 
 ## Choose your chain
 
-After initialization, integrate discovery and signing for each family enabled in your partner configuration:
+After initialization, integrate discovery and signing for each family you registered and that is enabled in your partner configuration:
 
 <div className="grid md:grid-cols-2 gap-4 mt-8">
   <Link href="./blockchains/evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
@@ -91,10 +111,10 @@ After initialization, integrate discovery and signing for each family enabled in
   </Link>
 </div>
 
-More blockchain families will follow the same pattern: initialize once, then use the chain-specific guide for each family enabled in your partner configuration.
+More blockchain families will follow the same pattern: install the family package, pass its factory, then use the chain-specific guide.
 
 ## Next steps
 
 - [Configuration](./configuration) — UI position, stubs, environment, and other options
-- [API reference](./api-reference) — `initializeLedgerProvider` and the EVM EIP-1193 provider surface
+- [API reference](./api-reference) — `initializeLedgerProvider`, `blockchainProviderFactories`, and the EVM EIP-1193 provider surface
 - [Package attestation](./package-attestation) — verify npm provenance

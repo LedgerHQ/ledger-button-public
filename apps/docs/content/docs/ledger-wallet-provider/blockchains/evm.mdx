@@ -9,27 +9,31 @@ import { Callout } from 'nextra/components'
 
 This guide shows how to connect to Ledger Wallet Provider from an EVM dApp and sign messages or transactions through [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) discovery and the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider API.
 
-Ledger Wallet Provider registers an EIP-1193 provider when you call `initializeLedgerProvider` **and** Ethereum is enabled in your partner dApp configuration (`dAppIdentifier`). No extra EVM-specific setup call is required beyond init.
+Ledger Wallet Provider registers an EIP-1193 provider when you call `initializeLedgerProvider` with the EVM factory **and** Ethereum is enabled in your partner dApp configuration (`dAppIdentifier`).
 
 <Callout type="info">
-  Complete [Get started](../get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Confirm with Ledger that Ethereum is enabled for your dApp, then follow this page for EIP-6963 discovery and signing.
+  Complete [Get started](../get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Install `@ledgerhq/ledger-wallet-provider-evm`, pass `createEvmBlockchainProvider`, and confirm with Ledger that Ethereum is enabled for your dApp. Then follow this page for EIP-6963 discovery and signing.
 </Callout>
 
 ## Prerequisites
 
 ```bash
-npm install @ledgerhq/ledger-wallet-provider
+npm install @ledgerhq/ledger-wallet-provider @ledgerhq/ledger-wallet-provider-evm
 ```
 
 Initialize once at application startup (see [Get started](../get-started) and [Configuration](../configuration)):
 
 ```ts
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
+import { createEvmBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-evm'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
   dAppIdentifier: 'my-dapp',
   apiKey: 'your-api-key',
+  blockchainProviderFactories: [
+    { family: 'ethereum', create: createEvmBlockchainProvider },
+  ],
 })
 
 // Call cleanup() when your app unmounts to unregister the EVM provider too.
@@ -83,7 +87,7 @@ const account = accounts[0]
 ```
 
 <Callout type="info">
-  **Partner configuration:** Which families are registered depends on your dApp config. Ethereum enabled → EIP-6963 / EIP-1193. Solana enabled → Wallet Standard. Both enabled → both surfaces from the same `initializeLedgerProvider` call. Account pickers are filtered by the requesting family (`eth_requestAccounts` only lists EVM-compatible accounts).
+  **Registration:** A family is registered only when you pass its factory **and** it is enabled in your dApp config. EVM factory + Ethereum enabled → EIP-6963 / EIP-1193. Solana factory + Solana enabled → Wallet Standard. Both → both surfaces from the same `initializeLedgerProvider` call. Account pickers are filtered by the requesting family (`eth_requestAccounts` only lists EVM-compatible accounts).
 </Callout>
 
 ## Sign a message
@@ -153,7 +157,7 @@ cleanup()
 ## Troubleshooting
 
 **The `eip6963:announceProvider` event never fires.**
-Confirm `initializeLedgerProvider` ran in the browser before dispatching `eip6963:requestProvider`, and that Ethereum is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no provider is registered — see [Requirements](../requirements).
+Confirm `initializeLedgerProvider` ran in the browser before dispatching `eip6963:requestProvider`, that you passed `createEvmBlockchainProvider`, and that Ethereum is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no provider is registered — see [Requirements](../requirements).
 
 **`request()` rejects with error code `4100` ("Unauthorized").**
 Call `eth_requestAccounts` first, or the user disconnected. Request accounts again to reopen the Ledger UI.
@@ -163,7 +167,7 @@ Blocking requests (connect / sign) are handled one at a time. Wait for the curre
 
 ## See also
 
-- [Get started](../get-started) — install and initialize (families depend on partner config)
+- [Get started](../get-started) — install family packages and pass `blockchainProviderFactories`
 - [Solana](./solana) — Wallet Standard connect and signing
 - [Configuration](../configuration) — init options
 - [API reference](../api-reference) — full EIP-1193 methods, events, and errors

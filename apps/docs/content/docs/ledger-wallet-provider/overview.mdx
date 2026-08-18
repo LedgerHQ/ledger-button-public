@@ -16,7 +16,7 @@ import Link from 'next/link'
 
 Ledger Wallet Provider is a web component SDK that embeds Ledger's official connect flow directly inside your application, enabling direct signer connections and ensuring full access to Ledger's security features like Clear Signing and Transaction Check.
 
-The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and exposes standards-based providers for the blockchain families enabled in your partner configuration — for example an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider announced via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) when Ethereum is enabled, and a [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet when Solana is enabled.
+The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and exposes standards-based providers for the blockchain families you register. Install `@ledgerhq/ledger-wallet-provider-evm` and/or `@ledgerhq/ledger-wallet-provider-solana`, pass their factories to `initializeLedgerProvider`, and the SDK announces only the families also enabled in your partner configuration — an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) for Ethereum, and a [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet for Solana.
 
 <div className="my-12 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-12">
   <img
@@ -78,7 +78,7 @@ The SDK runs entirely in the browser. It does not support server-side rendering 
 
   <Link href="./get-started" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
     <div className="font-semibold mb-2">Get started →</div>
-    <div className="text-sm text-gray-400">Install the SDK and initialize Ledger Wallet Provider</div>
+    <div className="text-sm text-gray-400">Install the SDK and family packages, then initialize Ledger Wallet Provider</div>
   </Link>
 
   <Link href="./blockchains/evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
