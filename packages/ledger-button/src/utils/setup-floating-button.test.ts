@@ -4,8 +4,8 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { LedgerButtonApp } from "../ledger-button-app.js";
-import { setupFloatingButton } from "./setup-floating-button.js";
+import type { LedgerButtonApp } from "../ledger-button-app";
+import { setupFloatingButton } from "./setup-floating-button";
 
 describe("setupFloatingButton", () => {
   let mockApp: LedgerButtonApp;

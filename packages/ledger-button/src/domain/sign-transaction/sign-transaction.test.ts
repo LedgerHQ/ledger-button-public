@@ -4,12 +4,12 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../components/index.js", () => ({}));
+vi.mock("../../components/index", () => ({}));
 vi.mock("../onboarding/ledger-sync/ledger-sync", () => ({}));
 
-import type { ModalGradient } from "../../components/atom/modal/ledger-modal.js";
-import { SignTransactionScreen } from "./sign-transaction.js";
-import type { SignTransactionController } from "./sign-transaction-controller.js";
+import type { ModalGradient } from "../../components/atom/modal/ledger-modal";
+import { SignTransactionScreen } from "./sign-transaction";
+import type { SignTransactionController } from "./sign-transaction-controller";
 
 type ControllerStub = Pick<SignTransactionController, "state">;
 

@@ -1,7 +1,7 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { CoreContext } from "../context/core-context.js";
-import { Destination, resolveCanGoBack } from "./routes.js";
+import { CoreContext } from "../context/core-context";
+import { Destination, resolveCanGoBack } from "./routes";
 
 export const ANIMATION_DELAY = 300;
 

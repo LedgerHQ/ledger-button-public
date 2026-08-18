@@ -1,7 +1,7 @@
 import type { ReactiveControllerHost } from "lit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { BadgeAnimationController } from "./floating-button-badge-animation-controller.js";
+import { BadgeAnimationController } from "./floating-button-badge-animation-controller";
 
 type BadgeState = {
   celebration: boolean;

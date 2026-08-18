@@ -3,12 +3,12 @@ import type { ReactiveControllerHost } from "lit";
 import { of, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreContext } from "../../context/core-context.js";
-import type { Navigation } from "../../shared/navigation.js";
-import { RootNavigationComponent } from "../../shared/root-navigation.js";
-import { AvailableNetworksController } from "./available-networks-controller.js";
+import type { CoreContext } from "../../context/core-context";
+import type { Navigation } from "../../shared/navigation";
+import { RootNavigationComponent } from "../../shared/root-navigation";
+import { AvailableNetworksController } from "./available-networks-controller";
 
-vi.mock("../../shared/root-navigation.js", () => {
+vi.mock("../../shared/root-navigation", () => {
   class MockRootNavigationComponent {
     selectAccount = vi.fn();
     navigateToHome = vi.fn();

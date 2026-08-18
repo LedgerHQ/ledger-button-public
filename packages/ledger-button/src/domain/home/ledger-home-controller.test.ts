@@ -10,9 +10,9 @@ import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreContext } from "../../context/core-context.js";
-import type { LanguageContext } from "../../context/language-context.js";
-import { LedgerHomeController } from "./ledger-home-controller.js";
+import type { CoreContext } from "../../context/core-context";
+import type { LanguageContext } from "../../context/language-context";
+import { LedgerHomeController } from "./ledger-home-controller";
 
 function createAccount(overrides: Partial<Account> = {}): Account {
   return {

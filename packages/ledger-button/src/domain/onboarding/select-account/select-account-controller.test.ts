@@ -5,10 +5,10 @@ import type {
 import type { ReactiveControllerHost } from "lit";
 import { of, Subject } from "rxjs";
 
-import type { CoreContext } from "../../../context/core-context.js";
-import type { LanguageContext } from "../../../context/language-context.js";
-import type { Navigation } from "../../../shared/navigation.js";
-import { SelectAccountController } from "./select-account-controller.js";
+import type { CoreContext } from "../../../context/core-context";
+import type { LanguageContext } from "../../../context/language-context";
+import type { Navigation } from "../../../shared/navigation";
+import { SelectAccountController } from "./select-account-controller";
 
 const mockLang = {
   currentTranslation: {

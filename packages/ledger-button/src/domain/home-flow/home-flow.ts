@@ -1,21 +1,21 @@
-import "../../components/index.js";
-import "../onboarding/consent-prompt/consent-analytics-screen.js";
-import "../home/ledger-home.js";
+import "../../components/index";
+import "../onboarding/consent-prompt/consent-analytics-screen";
+import "../home/ledger-home";
 
 import { consume } from "@lit/context";
 import { css, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import type { WalletTransactionFeature } from "../../components/molecule/wallet-actions/ledger-wallet-actions";
+import { CoreContext, coreContext } from "../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { HomeFlowController } from "./home-flow-controller.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
+import { HomeFlowController } from "./home-flow-controller";
 
 @customElement("home-flow")
 export class HomeFlow extends LitElement {

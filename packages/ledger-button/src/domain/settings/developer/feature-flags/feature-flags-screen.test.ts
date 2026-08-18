@@ -4,9 +4,9 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../../../components/index.js", () => ({}));
+vi.mock("../../../../components/index", () => ({}));
 
-import { FeatureFlagsScreen } from "./feature-flags-screen.js";
+import { FeatureFlagsScreen } from "./feature-flags-screen";
 
 function createMockCore(overrides?: { solana?: boolean }) {
   const featureFlags = { solana: overrides?.solana ?? false };

@@ -1,8 +1,8 @@
 import type { FiatCurrency } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { type CoreContext } from "../../../context/core-context.js";
-import { Navigation } from "../../../shared/navigation.js";
+import { type CoreContext } from "../../../context/core-context";
+import { Navigation } from "../../../shared/navigation";
 
 export class PreferenceCurrencyController {
   constructor(

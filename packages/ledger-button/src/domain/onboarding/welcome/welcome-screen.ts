@@ -1,19 +1,19 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
-import { LedgerIconAttributes } from "../../../components/atom/icon/ledger-icon.js";
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { LedgerIconAttributes } from "../../../components/atom/icon/ledger-icon";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { Destinations } from "../../../shared/routes";
+import { tailwindElement } from "../../../tailwind-element";
 
 const MODAL_HEIGHT_COLLAPSED = "820px";
 const MODAL_HEIGHT_EXPANDED = "1020px";

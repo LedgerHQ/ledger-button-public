@@ -11,13 +11,13 @@ import {
   vi,
 } from "vitest";
 
-vi.mock("../../../components/index.js", () => ({}));
+vi.mock("../../../components/index", () => ({}));
 
 import {
   CONTACT_US_URL,
   SUPPORT_URL,
-} from "../../../shared/constants/support-urls.js";
-import { SupportScreen } from "./support-screen.js";
+} from "../../../shared/constants/support-urls";
+import { SupportScreen } from "./support-screen";
 
 function createMockLanguages() {
   return {

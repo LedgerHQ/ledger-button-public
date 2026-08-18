@@ -6,7 +6,7 @@ export { default as CheckIcon } from "./checkIcon";
 export { default as CheckMarkCircleFillIcon } from "./checkMarkCircleFillIcon";
 export { default as CheckmarkCircleIcon } from "./checkmarkCircleIcon";
 export { default as ChevronDownIcon } from "./chevronDownIcon";
-export { default as ChevronRightIcon } from "./chevronRightIcon.js";
+export { default as ChevronRightIcon } from "./chevronRightIcon";
 export { default as ClearSigningIcon } from "./clearSigningIcon";
 export { default as ClockIcon } from "./clockIcon";
 export { default as CloseIcon } from "./closeIcon";

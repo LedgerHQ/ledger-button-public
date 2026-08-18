@@ -1,8 +1,8 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-import { Destinations } from "../../../shared/routes.js";
+import { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { Destinations } from "../../../shared/routes";
 
 export class TurnOnSyncDesktopController implements ReactiveController {
   host: ReactiveControllerHost;

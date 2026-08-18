@@ -1,4 +1,4 @@
-import type { Translation } from "../context/constants/languages.js";
+import type { Translation } from "../context/constants/languages";
 
 type DeviceModelCopy = Translation["common"]["device"]["model"];
 
