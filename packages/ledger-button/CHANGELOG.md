@@ -1,7 +1,8 @@
 ## 1.4.1 (2026-08-18)
 
-This was a version bump only for @ledgerhq/ledger-wallet-provider to align it with other projects, there were no code changes.
+### 🧹 Chores
 
+- Version bump only for @ledgerhq/ledger-wallet-provider to align with @ledgerhq/ledger-wallet-provider-core 1.4.1; no functional changes in this package.
 ## 1.4.0 (2026-07-28)
 
 ### 🚀 Features
