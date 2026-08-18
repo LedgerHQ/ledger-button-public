@@ -49,7 +49,10 @@ export class SignSolanaTransaction {
     params: SignSolanaTransactionParams,
     selectedAccount: ProviderAccount | undefined,
   ): Observable<SignFlowStatus> {
-    this.logger.info("Starting Solana transaction signing");
+    this.logger.info("Starting Solana transaction signing", {
+      address: params.address,
+      transactionByteLength: params.transaction.byteLength,
+    });
 
     const { transaction } = params;
     const signType: SignType = "transaction";
@@ -76,6 +79,16 @@ export class SignSolanaTransaction {
         // Solana app signs the compiled message only. Strip the signature
         // envelope so the device does not reject the request with `6a80`.
         const messageBytes = getSolanaMessageBytes(transaction);
+
+        this.logger.debug("Prepared Solana message bytes", {
+          messageByteLength: messageBytes.byteLength,
+          derivationPath,
+        });
+        this.logger.debug("Starting Solana transaction device action", {
+          sessionId,
+          appName: openAppConfig.application.name,
+          dependencyCount: openAppConfig.dependencies.length,
+        });
 
         this.core.trackTransactionStarted();
 
@@ -140,12 +153,16 @@ export class SignSolanaTransaction {
       case DeviceActionStatus.Pending:
         return state.intermediateValue.signFlowStatus;
 
-      case DeviceActionStatus.Completed:
+      case DeviceActionStatus.Completed: {
+        this.logger.debug("Solana transaction signing completed", {
+          signatureByteLength: state.output.signature.byteLength,
+        });
         return {
           signType,
           status: "success",
           data: { solanaSignature: state.output.signature },
         };
+      }
 
       case DeviceActionStatus.Error: {
         // The device-action error path emits an error status value rather than

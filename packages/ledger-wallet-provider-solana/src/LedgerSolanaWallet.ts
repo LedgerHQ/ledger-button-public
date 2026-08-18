@@ -429,6 +429,10 @@ export class LedgerSolanaWallet implements Wallet {
     options?: SolanaSendOptions,
   ): Promise<Either<Error, { hash: string; signature: Uint8Array }>> {
     this.logger.info("Broadcasting Solana transaction");
+    this.logger.debug("Solana broadcast payload", {
+      base64WireTxLength: base64WireTx.length,
+      options,
+    });
 
     try {
       const response = await this.host.broadcastRPC(
@@ -447,6 +451,7 @@ export class LedgerSolanaWallet implements Wallet {
         return Left(new Error(`Solana broadcast failed: ${error.message}`));
       }
 
+      this.logger.info("Solana broadcast succeeded", { hash });
       return Right({ hash, signature: decodeSolanaSignature(hash) });
     } catch (error) {
       this.logger.error("Solana broadcast failed", { error });
@@ -499,11 +504,21 @@ export class LedgerSolanaWallet implements Wallet {
       let subscription: Subscription | undefined;
       let settled = false;
 
+      this.logger.debug("Starting Solana sign flow", {
+        kind: params.kind,
+        signType,
+        address: params.address,
+      });
+
       const onClose = () => {
         if (settled) {
           return;
         }
         settled = true;
+        this.logger.debug("Solana sign flow cancelled by user", {
+          kind: params.kind,
+          signType,
+        });
         cleanup();
         reject(new Error("User closed the modal"));
       };
