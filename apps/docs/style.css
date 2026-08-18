@@ -5,12 +5,14 @@
 }
 
 .hero {
-  padding: 60px 20px;
+  padding: 48px 20px;
   text-align: center;
-  height: 60vh;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
 .hero h1 {
@@ -28,6 +30,7 @@ em {
 
 /* Cards */
 .card-section {
+  width: 100%;
   margin: 48px 0;
 }
 
