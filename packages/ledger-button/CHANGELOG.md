@@ -1,3 +1,7 @@
+## 1.4.1 (2026-08-18)
+
+This was a version bump only for @ledgerhq/ledger-wallet-provider to align it with other projects, there were no code changes.
+
 ## 1.4.0 (2026-07-28)
 
 ### 🚀 Features
