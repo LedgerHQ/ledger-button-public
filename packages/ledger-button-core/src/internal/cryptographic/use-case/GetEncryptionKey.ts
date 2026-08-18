@@ -1,9 +1,9 @@
 import { type Factory, inject } from "inversify";
 
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes.js";
-import type { StorageService } from "@internal/storage/StorageService.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { StorageService } from "@internal/storage/StorageService";
 
 export class GetEncryptionKeyUseCase {
   private logger: LoggerPublisher;

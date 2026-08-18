@@ -19,10 +19,10 @@ import {
   tap,
 } from "rxjs";
 
-import { CoreContext } from "../../context/core-context.js";
-import { LanguageContext } from "../../context/language-context.js";
-import { belongsToAccount } from "../../shared/pending-transaction-account-filter.js";
-import type { TransactionListItem } from "../transaction-list/transaction-list.js";
+import { CoreContext } from "../../context/core-context";
+import { LanguageContext } from "../../context/language-context";
+import { belongsToAccount } from "../../shared/pending-transaction-account-filter";
+import type { TransactionListItem } from "../transaction-list/transaction-list";
 
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;

@@ -3,11 +3,11 @@
  */
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { registerWalletStandard } from "./utils/registerWalletStandard.js";
-import type { LedgerSolanaWallet } from "./LedgerSolanaWallet.js";
-import { SolanaWalletProvider } from "./SolanaWalletProvider.js";
+import { registerWalletStandard } from "./utils/registerWalletStandard";
+import type { LedgerSolanaWallet } from "./LedgerSolanaWallet";
+import { SolanaWalletProvider } from "./SolanaWalletProvider";
 
-vi.mock("./utils/registerWalletStandard.js", () => ({
+vi.mock("./utils/registerWalletStandard", () => ({
   registerWalletStandard: vi.fn().mockReturnValue(vi.fn()),
 }));
 

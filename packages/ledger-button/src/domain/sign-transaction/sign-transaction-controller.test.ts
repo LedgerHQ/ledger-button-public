@@ -11,13 +11,13 @@ import type { ReactiveControllerHost } from "lit";
 import { Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../components/index.js", () => ({}));
+vi.mock("../../components/index", () => ({}));
 vi.mock("../onboarding/ledger-sync/ledger-sync", () => ({}));
 
-import type { CoreContext } from "../../context/core-context.js";
-import type { LanguageContext } from "../../context/language-context.js";
-import type { Navigation } from "../../shared/navigation.js";
-import { SignTransactionController } from "./sign-transaction-controller.js";
+import type { CoreContext } from "../../context/core-context";
+import type { LanguageContext } from "../../context/language-context";
+import type { Navigation } from "../../shared/navigation";
+import { SignTransactionController } from "./sign-transaction-controller";
 
 describe("SignTransactionController broadcast lifecycle", () => {
   let controller: SignTransactionController;

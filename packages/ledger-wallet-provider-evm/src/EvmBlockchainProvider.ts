@@ -6,19 +6,19 @@ import type { CurrencyDescriptor } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import { Container } from "inversify";
 
-import { evmProviderModule } from "./di/evmProviderModule.js";
-import { evmProviderModuleTypes } from "./di/evmProviderModuleTypes.js";
-import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase.js";
-import type { SignRawTransaction } from "./use-case/SignRawTransaction.js";
-import type { SignTransaction } from "./use-case/SignTransaction.js";
-import type { SignTypedData } from "./use-case/SignTypedData.js";
+import { evmProviderModule } from "./di/evmProviderModule";
+import { evmProviderModuleTypes } from "./di/evmProviderModuleTypes";
+import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase";
+import type { SignRawTransaction } from "./use-case/SignRawTransaction";
+import type { SignTransaction } from "./use-case/SignTransaction";
+import type { SignTypedData } from "./use-case/SignTypedData";
 import {
   describeEvmCurrency,
   describeEvmNetwork,
   EVM_FAMILY,
-} from "./utils/chainUtils.js";
-import { EvmWalletProvider } from "./EvmWalletProvider.js";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider.js";
+} from "./utils/chainUtils";
+import { EvmWalletProvider } from "./EvmWalletProvider";
+import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
 
 /**
  * EVM {@link BlockchainProvider}: entry point for the EVM family.

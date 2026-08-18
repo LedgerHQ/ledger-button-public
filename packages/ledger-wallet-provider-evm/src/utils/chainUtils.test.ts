@@ -3,7 +3,7 @@ import {
   describeEvmNetwork,
   getChainIdFromCurrencyId,
   isSupportedEvmCurrency,
-} from "./chainUtils.js";
+} from "./chainUtils";
 
 describe("chainUtils", () => {
   describe("getChainIdFromCurrencyId", () => {

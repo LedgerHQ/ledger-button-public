@@ -1,24 +1,24 @@
 import { ContainerModule } from "inversify";
 
-import { type ContainerOptions } from "@internal/diTypes.js";
+import { type ContainerOptions } from "@internal/diTypes";
 
-import { DefaultAccountService } from "../service/DefaultAccountService.js";
-import { BuildNetworksUseCase } from "../use-case/buildNetworksUseCase.js";
-import { FetchAccountsUseCase } from "../use-case/fetchAccountsUseCase.js";
-import { FetchAccountsWithBalanceUseCase } from "../use-case/fetchAccountsWithBalanceUseCase.js";
-import { FetchAccountsWithFiatUseCase } from "../use-case/fetchAccountsWithFiatUseCase.js";
-import { FetchCloudSyncAccountsUseCase } from "../use-case/fetchCloudSyncAccountsUseCase.js";
-import { FetchSelectedAccountUseCase } from "../use-case/fetchSelectedAccountUseCase.js";
-import { FilterAccountsByFamilyUseCase } from "../use-case/filterAccountsByFamilyUseCase.js";
-import { FindAccountForNetworkUseCase } from "../use-case/findAccountForNetworkUseCase.js";
-import { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase.js";
-import { HydrateAccountWithFiatUseCase } from "../use-case/hydrateAccountWithFiatUseCase.js";
-import { HydrateAccountWithTxHistoryUseCase } from "../use-case/hydrateAccountWithTxHistoryUseCase.js";
-import { ObserveAccountGroupsUseCase } from "../use-case/observeAccountGroupsUseCase.js";
-import { ObserveAccountsWithFiatUseCase } from "../use-case/observeAccountsWithFiatUseCase.js";
-import { ObserveNetworksForSelectedAddressUseCase } from "../use-case/observeNetworksForSelectedAddressUseCase.js";
-import { SortAccountsByFiatUseCase } from "../use-case/sortAccountsByFiatUseCase.js";
-import { accountModuleTypes } from "./accountModuleTypes.js";
+import { DefaultAccountService } from "../service/DefaultAccountService";
+import { BuildNetworksUseCase } from "../use-case/buildNetworksUseCase";
+import { FetchAccountsUseCase } from "../use-case/fetchAccountsUseCase";
+import { FetchAccountsWithBalanceUseCase } from "../use-case/fetchAccountsWithBalanceUseCase";
+import { FetchAccountsWithFiatUseCase } from "../use-case/fetchAccountsWithFiatUseCase";
+import { FetchCloudSyncAccountsUseCase } from "../use-case/fetchCloudSyncAccountsUseCase";
+import { FetchSelectedAccountUseCase } from "../use-case/fetchSelectedAccountUseCase";
+import { FilterAccountsByFamilyUseCase } from "../use-case/filterAccountsByFamilyUseCase";
+import { FindAccountForNetworkUseCase } from "../use-case/findAccountForNetworkUseCase";
+import { HydrateAccountWithBalanceUseCase } from "../use-case/HydrateAccountWithBalanceUseCase";
+import { HydrateAccountWithFiatUseCase } from "../use-case/hydrateAccountWithFiatUseCase";
+import { HydrateAccountWithTxHistoryUseCase } from "../use-case/hydrateAccountWithTxHistoryUseCase";
+import { ObserveAccountGroupsUseCase } from "../use-case/observeAccountGroupsUseCase";
+import { ObserveAccountsWithFiatUseCase } from "../use-case/observeAccountsWithFiatUseCase";
+import { ObserveNetworksForSelectedAddressUseCase } from "../use-case/observeNetworksForSelectedAddressUseCase";
+import { SortAccountsByFiatUseCase } from "../use-case/sortAccountsByFiatUseCase";
+import { accountModuleTypes } from "./accountModuleTypes";
 
 type AccountModuleOptions = Pick<ContainerOptions, "loggerLevel"> & {
   stub?: boolean;

@@ -1,15 +1,15 @@
 import type { DeviceManagementKit } from "@ledgerhq/device-management-kit";
 import type { Observable } from "rxjs";
 
-import type { SignedResults } from "@api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
-import type { SignIntentType } from "@api/model/signing/SignIntentType.js";
-import type { SignPersonalMessageParams } from "@api/model/signing/SignPersonalMessageParams.js";
-import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams.js";
-import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams.js";
-import type { SignTypedMessageParams } from "@api/model/signing/SignTypedMessageParams.js";
-import type { SignSolanaMessageParams } from "@api/model/signing/solana/SignSolanaMessageParams.js";
-import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams.js";
+import type { SignedResults } from "@api/model/signing/SignedTransaction";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type { SignIntentType } from "@api/model/signing/SignIntentType";
+import type { SignPersonalMessageParams } from "@api/model/signing/SignPersonalMessageParams";
+import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams";
+import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams";
+import type { SignTypedMessageParams } from "@api/model/signing/SignTypedMessageParams";
+import type { SignSolanaMessageParams } from "@api/model/signing/solana/SignSolanaMessageParams";
+import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams";
 
 /**
  * Blockchain family supported by the wallet provider layer.

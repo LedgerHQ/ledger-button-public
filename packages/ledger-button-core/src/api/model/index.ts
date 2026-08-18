@@ -8,23 +8,23 @@ export type {
   LoadingState,
   Network,
   Token,
-} from "./Account.js";
-export * from "./ButtonCoreContext.js";
-export * from "./eip/EIPTypes.js";
-export * from "./errors.js";
-export * from "./LedgerSyncAuthenticateResponse.js";
-export * from "./signing/GetAddress.js";
-export * from "./signing/SignedTransaction.js";
-export * from "./signing/SignFlowStatus.js";
-export * from "./signing/SignIntentType.js";
-export * from "./signing/signParamsFamily.js";
-export * from "./signing/SignPersonalMessageParams.js";
-export * from "./signing/SignRawTransactionParams.js";
-export * from "./signing/SignTransactionParams.js";
-export * from "./signing/SignTypedMessageParams.js";
-export * from "./signing/solana/SignSolanaMessageParams.js";
-export * from "./signing/solana/SignSolanaTransactionParams.js";
-export * from "./solana/SolanaTypes.js";
+} from "./Account";
+export * from "./ButtonCoreContext";
+export * from "./eip/EIPTypes";
+export * from "./errors";
+export * from "./LedgerSyncAuthenticateResponse";
+export * from "./signing/GetAddress";
+export * from "./signing/SignedTransaction";
+export * from "./signing/SignFlowStatus";
+export * from "./signing/SignIntentType";
+export * from "./signing/signParamsFamily";
+export * from "./signing/SignPersonalMessageParams";
+export * from "./signing/SignRawTransactionParams";
+export * from "./signing/SignTransactionParams";
+export * from "./signing/SignTypedMessageParams";
+export * from "./signing/solana/SignSolanaMessageParams";
+export * from "./signing/solana/SignSolanaTransactionParams";
+export * from "./solana/SolanaTypes";
 export type {
   TransactionDirection,
   TransactionHistoryItem,
@@ -33,8 +33,8 @@ export type {
   TransactionKind,
   TransactionStatus,
   TransactionType,
-} from "./TransactionHistory.js";
-export * from "./UserInteractionNeeded.js";
+} from "./TransactionHistory";
+export * from "./UserInteractionNeeded";
 export type {
   BroadcastResponse,
   CoinServiceBroadcastResponse,
@@ -42,12 +42,12 @@ export type {
   JsonRpcResponse,
   JsonRpcResponseError,
   JsonRpcResponseSuccess,
-} from "@internal/backend/types.js";
+} from "@internal/backend/types";
 export {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
-} from "@internal/backend/types.js";
-export type { FiatCurrency } from "@internal/currency/datasource/fiatCurrencyTypes.js";
-export type { BroadcastTracking } from "@internal/pending-transaction/model/BroadcastTracking.js";
-export type { PendingTransaction } from "@internal/pending-transaction/model/PendingTransaction.js";
+} from "@internal/backend/types";
+export type { FiatCurrency } from "@internal/currency/datasource/fiatCurrencyTypes";
+export type { BroadcastTracking } from "@internal/pending-transaction/model/BroadcastTracking";
+export type { PendingTransaction } from "@internal/pending-transaction/model/PendingTransaction";

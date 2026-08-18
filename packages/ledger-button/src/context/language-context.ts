@@ -9,9 +9,9 @@ import {
   type LangKey,
   languages,
   type Translation,
-} from "./constants/languages.js";
-import { detectBrowserLanguage } from "./utils/language-utils.js";
-import { type CoreContext, coreContext } from "./core-context.js";
+} from "./constants/languages";
+import { detectBrowserLanguage } from "./utils/language-utils";
+import { type CoreContext, coreContext } from "./core-context";
 
 // The SSOT for language & translations are the local values of the Language context.
 // The user language preference is stored in the IndexedDB via the core context and retrieved on mount.
@@ -94,4 +94,4 @@ export {
   type LangKey,
   languages,
   type Translation,
-} from "./constants/languages.js";
+} from "./constants/languages";

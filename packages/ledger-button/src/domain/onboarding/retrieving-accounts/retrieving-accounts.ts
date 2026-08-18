@@ -1,19 +1,19 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { StatusType } from "../../../components/organism/status/ledger-status.js";
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { StatusType } from "../../../components/organism/status/ledger-status";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import { RetrievingAccountsController } from "./retrieving-accounts-controller.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { Destinations } from "../../../shared/routes";
+import { tailwindElement } from "../../../tailwind-element";
+import { RetrievingAccountsController } from "./retrieving-accounts-controller";
 
 const styles = css`
   :host {

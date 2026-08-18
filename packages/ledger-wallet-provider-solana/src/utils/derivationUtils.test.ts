@@ -1,6 +1,6 @@
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { getSolanaDerivationPath } from "./derivationUtils.js";
+import { getSolanaDerivationPath } from "./derivationUtils";
 
 function createAccount(overrides: Partial<Account> = {}): Account {
   return {

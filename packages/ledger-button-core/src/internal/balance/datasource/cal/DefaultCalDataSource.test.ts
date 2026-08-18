@@ -1,13 +1,13 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import type { Config } from "@internal/config/model/config.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import type { Config } from "@internal/config/model/config";
+import type { NetworkService } from "@internal/network/NetworkService";
 
-import type { CalCoinResponse, CalTokenResponse } from "./calTypes.js";
-import { DefaultCalDataSource } from "./DefaultCalDataSource.js";
+import type { CalCoinResponse, CalTokenResponse } from "./calTypes";
+import { DefaultCalDataSource } from "./DefaultCalDataSource";
 
 describe("DefaultCalDataSource", () => {
   let dataSource: DefaultCalDataSource;

@@ -1,19 +1,19 @@
-import "../../components/index.js";
+import "../../components/index";
 
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import type { ConnectionItemClickEventDetail } from "../../components/molecule/connection-item/ledger-connection-item.js";
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import type { ConnectionItemClickEventDetail } from "../../components/molecule/connection-item/ledger-connection-item";
+import { CoreContext, coreContext } from "../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destination, Destinations } from "../../shared/routes.js";
-import { tailwindElement } from "../../tailwind-element.js";
-import { DeviceSwitchController } from "./device-switch-controller.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { Destination, Destinations } from "../../shared/routes";
+import { tailwindElement } from "../../tailwind-element";
+import { DeviceSwitchController } from "./device-switch-controller";
 
 const styles = css`
   :host {

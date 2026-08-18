@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { IsLedgerLiveMobileUseCase } from "./IsLedgerLiveMobileUseCase.js";
+import { IsLedgerLiveMobileUseCase } from "./IsLedgerLiveMobileUseCase";
 
 describe("IsLedgerLiveMobileUseCase", () => {
   let useCase: IsLedgerLiveMobileUseCase;

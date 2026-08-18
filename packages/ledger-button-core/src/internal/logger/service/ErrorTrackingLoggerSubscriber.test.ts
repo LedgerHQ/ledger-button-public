@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerButtonError } from "@api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError";
 import {
   ErrorOccurredEventData,
   EventRequest,
   EventType,
-} from "@internal/backend/model/trackEvent.js";
+} from "@internal/backend/model/trackEvent";
 
-import { LOG_LEVELS } from "../model/constant.js";
-import { ErrorTrackingLoggerSubscriber } from "./ErrorTrackingLoggerSubscriber.js";
+import { LOG_LEVELS } from "../model/constant";
+import { ErrorTrackingLoggerSubscriber } from "./ErrorTrackingLoggerSubscriber";
 
 describe("ErrorTrackingLoggerSubscriber", () => {
   let subscriber: ErrorTrackingLoggerSubscriber;

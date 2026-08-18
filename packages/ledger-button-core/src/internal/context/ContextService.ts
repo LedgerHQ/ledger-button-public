@@ -1,8 +1,8 @@
 import { Observable } from "rxjs";
 
-import type { ButtonCoreContext } from "@api/model/ButtonCoreContext.js";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
 
-import { type ContextEvent } from "./model/ContextEvent.js";
+import { type ContextEvent } from "./model/ContextEvent";
 
 export interface ContextService {
   observeContext(): Observable<ButtonCoreContext>;

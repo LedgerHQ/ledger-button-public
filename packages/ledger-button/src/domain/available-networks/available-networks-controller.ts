@@ -1,12 +1,12 @@
-import "../../shared/root-navigation.js";
+import "../../shared/root-navigation";
 
 import { type Network } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { CoreContext } from "../../context/core-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { RootNavigationComponent } from "../../shared/root-navigation.js";
+import { CoreContext } from "../../context/core-context";
+import { Navigation } from "../../shared/navigation";
+import { RootNavigationComponent } from "../../shared/root-navigation";
 
 export class AvailableNetworksController implements ReactiveController {
   networks: Network[] = [];

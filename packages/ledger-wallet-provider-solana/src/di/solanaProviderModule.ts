@@ -1,9 +1,9 @@
 import { ContainerModule } from "inversify";
 
-import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule.js";
-import { SignSolanaMessage } from "../use-case/SignSolanaMessage.js";
-import { SignSolanaTransaction } from "../use-case/SignSolanaTransaction.js";
-import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
+import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule";
+import { SignSolanaMessage } from "../use-case/SignSolanaMessage";
+import { SignSolanaTransaction } from "../use-case/SignSolanaTransaction";
+import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes";
 
 /**
  * Local Inversify module for the Solana provider. Loaded into the per-provider

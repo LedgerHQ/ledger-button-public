@@ -1,18 +1,18 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor.js";
-import type { Account } from "@api/model/Account.js";
-import type { BackendService } from "@internal/backend/BackendService.js";
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes.js";
-import type { AccountBalance, TokenBalance } from "@internal/balance/model/types.js";
-import type { BalanceService } from "@internal/balance/service/BalanceService.js";
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock.js";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import type { Account } from "@api/model/Account";
+import type { BackendService } from "@internal/backend/BackendService";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes";
+import type { AccountBalance, TokenBalance } from "@internal/balance/model/types";
+import type { BalanceService } from "@internal/balance/service/BalanceService";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase";
 
-import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
+import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";
 
 function createMockLogger() {
   return {

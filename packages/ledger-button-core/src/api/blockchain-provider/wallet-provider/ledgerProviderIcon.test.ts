@@ -4,7 +4,7 @@
 
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { getLedgerProviderIcon } from "./ledgerProviderIcon.js";
+import { getLedgerProviderIcon } from "./ledgerProviderIcon";
 
 const decodeIconSvg = (dataUri: string): string => {
   const base64 = dataUri.split(",")[1];

@@ -1,11 +1,11 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either } from "purify-ts";
 
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
-import { type TransactionHistoryDataSource } from "@internal/transaction-history/datasource/coinService/TransactionHistoryDataSource.js";
-import { transactionHistoryModuleTypes } from "@internal/transaction-history/di/transactionHistoryModuleTypes.js";
-import type { TransactionHistoryPage } from "@internal/transaction-history/model/transactionHistoryTypes.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { type TransactionHistoryDataSource } from "@internal/transaction-history/datasource/coinService/TransactionHistoryDataSource";
+import { transactionHistoryModuleTypes } from "@internal/transaction-history/di/transactionHistoryModuleTypes";
+import type { TransactionHistoryPage } from "@internal/transaction-history/model/transactionHistoryTypes";
 
 export type SettledPendingTransactionOutcome = {
   hash: string;

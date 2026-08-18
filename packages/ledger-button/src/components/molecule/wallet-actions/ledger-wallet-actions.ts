@@ -1,4 +1,4 @@
-import "../../atom/icon/ledger-icon.js";
+import "../../atom/icon/ledger-icon";
 
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
@@ -7,8 +7,8 @@ import { customElement, property } from "lit/decorators.js";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
 
 export type WalletTransactionFeature =
   | "send"

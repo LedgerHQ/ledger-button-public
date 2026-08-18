@@ -6,7 +6,7 @@ import type {
   FiatBalance,
   LoadingState,
   Token,
-} from "@api/model/Account.js";
+} from "@api/model/Account";
 
 const NATIVE_CURRENCY_FIAT_THRESHOLD = 0.01;
 

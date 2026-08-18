@@ -22,7 +22,7 @@ import {
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
 
-import { getHexaStringFromSignature } from "../transaction/TransactionHelper.js";
+import { getHexaStringFromSignature } from "../transaction/TransactionHelper";
 import {
   type SignPersonalMessageFlowDAError,
   type SignPersonalMessageFlowDAInput,
@@ -30,7 +30,7 @@ import {
   type SignPersonalMessageFlowDAInternalState,
   type SignPersonalMessageFlowDAOutput,
   SignPersonalMessageFlowDAStep,
-} from "./SignPersonalMessageFlowDeviceActionTypes.js";
+} from "./SignPersonalMessageFlowDeviceActionTypes";
 
 type ChildDASnapshotContext = {
   readonly intermediateValue: {

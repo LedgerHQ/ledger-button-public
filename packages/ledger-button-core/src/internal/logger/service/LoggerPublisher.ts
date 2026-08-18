@@ -1,4 +1,4 @@
-import { LoggerSubscriber } from "./LoggerSubscriber.js";
+import { LoggerSubscriber } from "./LoggerSubscriber";
 
 export type LogMessageData = Record<string, unknown>;
 

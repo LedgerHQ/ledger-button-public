@@ -1,6 +1,6 @@
-import { CoreContext } from "../../context/core-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
+import { CoreContext } from "../../context/core-context";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
 
 export class DeviceConnectionStatusController {
   constructor(

@@ -1,6 +1,6 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { type CoreContext } from "../../../context/core-context.js";
+import { type CoreContext } from "../../../context/core-context";
 
 export class PreferencesController {
   constructor(

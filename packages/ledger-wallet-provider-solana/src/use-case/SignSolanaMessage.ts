@@ -17,14 +17,14 @@ import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
-import { SignSolanaMessageFlowDeviceAction } from "../device-action/SignSolanaMessageFlowDeviceAction.js";
+import { SignSolanaMessageFlowDeviceAction } from "../device-action/SignSolanaMessageFlowDeviceAction";
 import type {
   SignSolanaMessageFlowDAError,
   SignSolanaMessageFlowDAIntermediateValue,
   SignSolanaMessageFlowDAOutput,
-} from "../device-action/SignSolanaMessageFlowDeviceActionTypes.js";
-import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes.js";
-import { getSolanaDerivationPath } from "../utils/derivationUtils.js";
+} from "../device-action/SignSolanaMessageFlowDeviceActionTypes";
+import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
+import { getSolanaDerivationPath } from "../utils/derivationUtils";
 
 const SIGN_TYPE: SignType = "solana-message";
 

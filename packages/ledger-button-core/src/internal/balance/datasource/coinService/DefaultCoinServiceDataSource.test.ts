@@ -1,15 +1,15 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Config } from "@internal/config/model/config.js";
-import type { NetworkService } from "@internal/network/NetworkService.js";
+import type { Config } from "@internal/config/model/config";
+import type { NetworkService } from "@internal/network/NetworkService";
 
 import type {
   CoinServiceBalanceDto,
   CoinServiceFeeEstimationResponse,
   CoinServiceTransactionIntent,
-} from "./coinServiceTypes.js";
-import { DefaultCoinServiceDataSource } from "./DefaultCoinServiceDataSource.js";
+} from "./coinServiceTypes";
+import { DefaultCoinServiceDataSource } from "./DefaultCoinServiceDataSource";
 
 describe("DefaultCoinServiceDataSource", () => {
   let dataSource: DefaultCoinServiceDataSource;

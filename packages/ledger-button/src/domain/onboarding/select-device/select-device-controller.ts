@@ -6,15 +6,15 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
-import { type StatusType } from "../../../components/organism/status/ledger-status.js";
-import { type CoreContext } from "../../../context/core-context.js";
-import { type LanguageContext } from "../../../context/language-context.js";
-import { LEDGER_WALLET_DEVICE_SETUP_DEEPLINK } from "../../../shared/constants/deeplinks.js";
+import { type StatusType } from "../../../components/organism/status/ledger-status";
+import { type CoreContext } from "../../../context/core-context";
+import { type LanguageContext } from "../../../context/language-context";
+import { LEDGER_WALLET_DEVICE_SETUP_DEEPLINK } from "../../../shared/constants/deeplinks";
 import {
   getLedgerNanoSUpgradeUrl,
   getReferralShopUrl,
-} from "../../../shared/constants/shop-urls.js";
-import { formatDeviceModelName } from "../../../utils/format-device-name.js";
+} from "../../../shared/constants/shop-urls";
+import { formatDeviceModelName } from "../../../utils/format-device-name";
 
 export class SelectDeviceController implements ReactiveController {
   errorData?: {

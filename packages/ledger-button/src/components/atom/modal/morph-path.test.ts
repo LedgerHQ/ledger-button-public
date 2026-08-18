@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
 
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
 import {
   cubicBezier,
   getMorphControlPoints,
   isCorner,
   MORPH_OVERSHOOT,
   type Point,
-} from "./morph-path.js";
+} from "./morph-path";
 
 const EPSILON = 1e-9;
 

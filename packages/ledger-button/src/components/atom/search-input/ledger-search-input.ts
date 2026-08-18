@@ -6,8 +6,8 @@ import { classMap } from "lit/directives/class-map.js";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
 
 export interface LedgerSearchInputAttributes {
   placeholder: string;

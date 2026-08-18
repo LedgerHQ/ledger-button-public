@@ -7,7 +7,7 @@ import {
   extractRawSignatureBase58,
   extractSignedMessage,
   normalizeSigningError,
-} from "./solanaSignFlowUtils.js";
+} from "./solanaSignFlowUtils";
 
 const base58 = (bytes: Uint8Array): string => getBase58Decoder().decode(bytes);
 

@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
 
-import { type BackendService } from "@internal/backend/BackendService.js";
-import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import { Config } from "@internal/config/model/config.js";
+import { type BackendService } from "@internal/backend/BackendService";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
 
-import { DAppConfig } from "../model/dAppConfigTypes.js";
-import { DAppConfigDataSource } from "./DAppConfigDataSource.js";
+import { DAppConfig } from "../model/dAppConfigTypes";
+import { DAppConfigDataSource } from "./DAppConfigDataSource";
 
 @injectable()
 export class DefaultDAppConfigDataSource implements DAppConfigDataSource {

@@ -7,7 +7,7 @@ import type {
   ConfigRequest,
   ConfigResponse,
   ConfigResponseError,
-} from "./types.js";
+} from "./types";
 export interface BackendService {
   broadcast(
     request: BroadcastRequest,

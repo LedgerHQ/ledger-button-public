@@ -6,16 +6,16 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import { type Factory, inject, injectable } from "inversify";
 
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes.js";
-import type { StorageService } from "@internal/storage/StorageService.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { StorageService } from "@internal/storage/StorageService";
 
-import { cryptographicModuleTypes } from "../di/cryptographicModuleTypes.js";
-import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
-import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase.js";
-import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase.js";
-import { GetEncryptionKeyUseCase } from "./GetEncryptionKey.js";
+import { cryptographicModuleTypes } from "../di/cryptographicModuleTypes";
+import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase";
+import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase";
+import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase";
+import { GetEncryptionKeyUseCase } from "./GetEncryptionKey";
 
 @injectable()
 export class GetOrCreateKeyPairUseCase {

@@ -9,53 +9,53 @@ import type {
   ProviderSdkConfig,
   ProviderSignParams,
   WalletNavigationIntent,
-} from "@api/blockchain-provider/model/types.js";
-import { ModalClosedError } from "@api/errors/ProviderErrors.js";
-import type { Account } from "@api/model/Account.js";
+} from "@api/blockchain-provider/model/types";
+import { ModalClosedError } from "@api/errors/ProviderErrors";
+import type { Account } from "@api/model/Account";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "@api/model/blockchain/GasFee.js";
-import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger.js";
-import { getSelectedAccount } from "@api/model/ButtonCoreContext.js";
+} from "@api/model/blockchain/GasFee";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
+import { getSelectedAccount } from "@api/model/ButtonCoreContext";
 import {
   isBroadcastedTransactionResult,
   type SignedResults,
-} from "@api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus.js";
-import type { BackendService } from "@internal/backend/BackendService.js";
-import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes.js";
+} from "@api/model/signing/SignedTransaction";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type { BackendService } from "@internal/backend/BackendService";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import {
   type BroadcastResponse,
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   type JSONRPCRequest,
-} from "@internal/backend/types.js";
-import { getCoinServiceNetworkName } from "@internal/balance/constants/networkConstants.js";
-import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource.js";
-import type { CoinServiceDataSource } from "@internal/balance/datasource/coinService/CoinServiceDataSource.js";
-import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes.js";
-import { configModuleTypes } from "@internal/config/di/configModuleTypes.js";
-import type { Config } from "@internal/config/model/config.js";
-import type { ContextService } from "@internal/context/ContextService.js";
-import { contextModuleTypes } from "@internal/context/di/contextModuleTypes.js";
-import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes.js";
-import type { TrackTransactionCompleted } from "@internal/event-tracking/use-case/TrackTransactionCompleted.js";
-import type { TrackTransactionStarted } from "@internal/event-tracking/use-case/TrackTransactionStarted.js";
-import type { TrackTypedMessageCompleted } from "@internal/event-tracking/use-case/TrackTypedMessageCompleted.js";
-import type { TrackTypedMessageStarted } from "@internal/event-tracking/use-case/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes.js";
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "@internal/modal/di/modalModuleTypes.js";
-import type { ModalService } from "@internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "@internal/navigation/di/navigationModuleTypes.js";
-import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService.js";
-import { pendingTransactionModuleTypes } from "@internal/pending-transaction/di/pendingTransactionModuleTypes.js";
-import type { TrackBroadcastedTransactionUseCase } from "@internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
+} from "@internal/backend/types";
+import { getCoinServiceNetworkName } from "@internal/balance/constants/networkConstants";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { CoinServiceDataSource } from "@internal/balance/datasource/coinService/CoinServiceDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import type { Config } from "@internal/config/model/config";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
+import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
+import type { TrackTransactionCompleted } from "@internal/event-tracking/use-case/TrackTransactionCompleted";
+import type { TrackTransactionStarted } from "@internal/event-tracking/use-case/TrackTransactionStarted";
+import type { TrackTypedMessageCompleted } from "@internal/event-tracking/use-case/TrackTypedMessageCompleted";
+import type { TrackTypedMessageStarted } from "@internal/event-tracking/use-case/TrackTypedMessageStarted";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { modalModuleTypes } from "@internal/modal/di/modalModuleTypes";
+import type { ModalService } from "@internal/modal/service/ModalService";
+import { navigationModuleTypes } from "@internal/navigation/di/navigationModuleTypes";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
+import { pendingTransactionModuleTypes } from "@internal/pending-transaction/di/pendingTransactionModuleTypes";
+import type { TrackBroadcastedTransactionUseCase } from "@internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase";
 
-import type { CoreFacadeService } from "./CoreFacadeService.js";
+import type { CoreFacadeService } from "./CoreFacadeService";
 
 /** Ledger's public Solana node proxy (`API_SOLANA_PROXY` in ledger-live-common). */
 const SOLANA_LEDGER_NODE_URL = "https://solana.coin.ledger.com";

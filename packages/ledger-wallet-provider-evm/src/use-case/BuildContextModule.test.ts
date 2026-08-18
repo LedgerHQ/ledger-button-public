@@ -1,8 +1,8 @@
 import { ContextModuleChainID } from "@ledgerhq/context-module";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
-import { BuildContextModule } from "./BuildContextModule.js";
+import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
+import { BuildContextModule } from "./BuildContextModule";
 
 const mocks = vi.hoisted(() => ({
   builderConstructor: vi.fn(),

@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { map, type Observable } from "rxjs";
 
-import type { AccountWithFiat } from "@api/model/Account.js";
+import type { AccountWithFiat } from "@api/model/Account";
 
 @injectable()
 export class SortAccountsByFiatUseCase {

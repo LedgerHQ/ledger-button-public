@@ -1,4 +1,4 @@
-import "../../../shared/root-navigation.js";
+import "../../../shared/root-navigation";
 
 import type {
   Account,
@@ -10,11 +10,11 @@ import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
 import { BehaviorSubject } from "rxjs";
 
-import { CoreContext } from "../../../context/core-context.js";
-import { LanguageContext } from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-import { formatAddress } from "../../../utils/format-address.js";
+import { CoreContext } from "../../../context/core-context";
+import { LanguageContext } from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { formatAddress } from "../../../utils/format-address";
 
 export class SelectAccountController implements ReactiveController {
   groups: AccountGroup[] = [];

@@ -1,8 +1,8 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
 
-import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher.js";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase.js";
+import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase";
 
 vi.mock("@ledgerhq/device-management-kit");
 

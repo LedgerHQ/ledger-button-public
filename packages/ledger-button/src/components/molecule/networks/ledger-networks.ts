@@ -1,4 +1,4 @@
-import "../../../components/atom/crypto-icon-group/ledger-crypto-icon-group.js";
+import "../../../components/atom/crypto-icon-group/ledger-crypto-icon-group";
 
 import type { Network } from "@ledgerhq/ledger-wallet-provider-core";
 import { cva } from "class-variance-authority";
@@ -6,7 +6,7 @@ import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
+import { tailwindElement } from "../../../tailwind-element";
 
 const MAX_VISIBLE_NETWORKS = 3;
 

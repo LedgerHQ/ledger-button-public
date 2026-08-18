@@ -8,16 +8,16 @@ import {
 import { ReactiveController } from "lit";
 import { Subscription } from "rxjs";
 
-import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon.js";
-import { CoreContext } from "../context/core-context.js";
-import { LanguageContext } from "../context/language-context.js";
-import { Navigation, NavigationHost } from "./navigation.js";
+import type { DeviceModelId } from "../components/atom/icon/device-icon/device-icon";
+import { CoreContext } from "../context/core-context";
+import { LanguageContext } from "../context/language-context";
+import { Navigation, NavigationHost } from "./navigation";
 import {
   Destination,
   Destinations,
   makeDestinations,
   resolveCanGoBack,
-} from "./routes.js";
+} from "./routes";
 
 /**
  * Routing payload that scopes the account picker to one blockchain family. It

@@ -1,7 +1,7 @@
 import { Either, Maybe } from "purify-ts";
 
-import { StorageIDBErrors } from "../model/errors.js";
-import { type UserConsent } from "../model/UserConsent.js";
+import { StorageIDBErrors } from "../model/errors";
+import { type UserConsent } from "../model/UserConsent";
 
 export interface IndexedDbService {
   initIdb(): Promise<Either<StorageIDBErrors, IDBDatabase>>;

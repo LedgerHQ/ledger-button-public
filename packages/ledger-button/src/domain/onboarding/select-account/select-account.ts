@@ -1,4 +1,4 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import {
   Account,
@@ -11,16 +11,16 @@ import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { type SelectAccountNavigationParams } from "../../../shared/root-navigation-controller.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import { formatFiatBalance } from "../../../utils/format-fiat.js";
-import { SelectAccountController } from "./select-account-controller.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { type SelectAccountNavigationParams } from "../../../shared/root-navigation-controller";
+import { tailwindElement } from "../../../tailwind-element";
+import { formatFiatBalance } from "../../../utils/format-fiat";
+import { SelectAccountController } from "./select-account-controller";
 
 @customElement("select-account-screen")
 @tailwindElement()

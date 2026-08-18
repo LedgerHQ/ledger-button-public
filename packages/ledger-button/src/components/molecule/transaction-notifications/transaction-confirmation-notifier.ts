@@ -11,7 +11,7 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { combineLatest, Subscription } from "rxjs";
 
-import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications.js";
+import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications";
 
 export type TransactionConfirmationI18n = {
   transactionSentTitle: string;

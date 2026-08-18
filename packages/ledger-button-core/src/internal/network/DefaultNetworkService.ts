@@ -1,19 +1,19 @@
 import { inject, injectable } from "inversify";
 import { Either, EitherAsync } from "purify-ts";
 
-import { NetworkError } from "@api/errors/NetworkErrors.js";
+import { NetworkError } from "@api/errors/NetworkErrors";
 
 import {
   DEFAULT_HEADERS,
   LEDGER_CLIENT_VERSION_HEADER,
   LEDGER_ORIGIN_TOKEN_HEADER,
-} from "./model/constant.js";
-import { type NetworkServiceOpts } from "./model/types.js";
-import { merge } from "./utils/merge.js";
+} from "./model/constant";
+import { type NetworkServiceOpts } from "./model/types";
+import { merge } from "./utils/merge";
 import PACKAGE from "../../../package.json" with { type: "json" };
-import { configModuleTypes } from "../config/di/configModuleTypes.js";
-import { Config } from "../config/model/config.js";
-import { NetworkService } from "./NetworkService.js";
+import { configModuleTypes } from "../config/di/configModuleTypes";
+import { Config } from "../config/model/config";
+import { NetworkService } from "./NetworkService";
 
 @injectable()
 export class DefaultNetworkService

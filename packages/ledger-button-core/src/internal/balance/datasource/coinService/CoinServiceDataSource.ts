@@ -4,7 +4,7 @@ import {
   CoinServiceBalance,
   CoinServiceFeeEstimationResponse,
   CoinServiceTransactionIntent,
-} from "./coinServiceTypes.js";
+} from "./coinServiceTypes";
 
 export interface CoinServiceDataSource {
   getBalanceForAddressAndCurrencyId(

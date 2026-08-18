@@ -5,11 +5,11 @@ import type {
 import { Container } from "inversify";
 import { describe, expect, it } from "vitest";
 
-import { createMockCoreFacade } from "../__mocks__/coreFacadeMock.js";
-import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule.js";
-import { SignSolanaTransaction } from "../use-case/SignSolanaTransaction.js";
-import { solanaProviderModule } from "./solanaProviderModule.js";
-import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes.js";
+import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
+import { BuildSolanaContextModule } from "../use-case/BuildSolanaContextModule";
+import { SignSolanaTransaction } from "../use-case/SignSolanaTransaction";
+import { solanaProviderModule } from "./solanaProviderModule";
+import { solanaProviderModuleTypes } from "./solanaProviderModuleTypes";
 
 const createBlockchainConfig = (): BlockchainConfig => ({
   blockchain: "solana",

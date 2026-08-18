@@ -8,7 +8,7 @@ import {
   ViewAllTransactionsRedirectCancelledEventSchema,
   ViewAllTransactionsRedirectConfirmedEventSchema,
   ViewTransactionDetailsClickedEventSchema,
-} from "./event-schemas.js";
+} from "./event-schemas";
 
 describe("Event Schema Validation", () => {
   describe("InvoicingTransactionSignedEventSchema", () => {

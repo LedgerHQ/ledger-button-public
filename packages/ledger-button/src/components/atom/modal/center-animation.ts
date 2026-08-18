@@ -1,10 +1,10 @@
 import { animate } from "motion";
 
-import { ANIMATION_DELAY } from "../../../shared/navigation.js";
+import { ANIMATION_DELAY } from "../../../shared/navigation";
 import {
   type AnimationInstance,
   type ContainerAnimation,
-} from "./animation-types.js";
+} from "./animation-types";
 
 export class CenterAnimation implements ContainerAnimation {
   private animation: AnimationInstance | null = null;

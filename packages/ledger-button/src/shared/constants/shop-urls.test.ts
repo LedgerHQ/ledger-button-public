@@ -5,7 +5,7 @@ import {
   getLedgerWalletDownloadUrl,
   getReferralShopUrl,
   getShopUrl,
-} from "./shop-urls.js";
+} from "./shop-urls";
 
 describe("getShopUrl", () => {
   describe("page URLs", () => {

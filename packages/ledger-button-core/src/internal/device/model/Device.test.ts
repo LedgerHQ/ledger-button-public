@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import {
   createMockConnectedDevice,
   mockConnectedDevice,
-} from "../__tests__/mocks.js";
-import { Device } from "./Device.js";
+} from "../__tests__/mocks";
+import { Device } from "./Device";
 
 describe("Device", () => {
   describe("getters", () => {

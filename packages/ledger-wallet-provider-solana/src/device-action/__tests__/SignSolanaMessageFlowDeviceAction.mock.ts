@@ -13,7 +13,7 @@ import { Left, Right } from "purify-ts";
 import { type Mock, vi } from "vitest";
 import { assign, createMachine } from "xstate";
 
-import type { SignSolanaMessageFlowDAInput } from "../SignSolanaMessageFlowDeviceActionTypes.js";
+import type { SignSolanaMessageFlowDAInput } from "../SignSolanaMessageFlowDeviceActionTypes";
 
 export function makeInternalApiMock(): InternalApi {
   const loggerStub = {
