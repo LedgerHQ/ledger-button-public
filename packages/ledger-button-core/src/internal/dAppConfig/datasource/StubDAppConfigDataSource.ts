@@ -247,7 +247,7 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
         networks: [...EVM_DEFAULT_NETWORKS],
         appDependencies: {
           appName: "Ethereum",
-          dependencies: ["Ethereum"],
+          dependencies: [{ name: "Ethereum" }],
         },
         rpcMethods: EVM_DEFAULT_RPC_METHODS,
       },
