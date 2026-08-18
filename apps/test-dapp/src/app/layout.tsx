@@ -1,6 +1,7 @@
-import { HeaderNav, ThemeToggle } from "../components";
+import { HeaderNav, SettingsDialog, ThemeToggle } from "../components";
 import { LedgerProvider } from "../components/LedgerProvider";
 import { Providers } from "../components/Providers";
+import { SolanaClusterProvider } from "../components/solana";
 
 import "./global.css";
 // eslint-disable-next-line @nx/enforce-module-boundaries -- CSS must be loaded statically
@@ -22,21 +23,24 @@ export default function RootLayout({
       <body>
         <Providers>
           <LedgerProvider>
-            <div className="flex min-h-screen flex-col">
-              <header className="bg-muted border-muted flex shrink-0 items-center justify-between border-b px-24 py-12">
-                <div className="flex items-center gap-24">
-                  <p className="body-2-semi-bold text-base">
-                    Ledger Button · Test dApp
-                  </p>
-                  <HeaderNav />
-                </div>
-                <div className="flex items-center gap-12">
-                  <ThemeToggle />
-                  <div id="floating-button-container"></div>
-                </div>
-              </header>
-              <main className="bg-canvas flex-1">{children}</main>
-            </div>
+            <SolanaClusterProvider>
+              <div className="flex min-h-screen flex-col">
+                <header className="bg-muted border-muted flex shrink-0 items-center justify-between border-b px-24 py-12">
+                  <div className="flex items-center gap-24">
+                    <p className="body-2-semi-bold text-base">
+                      Ledger Button · Test dApp
+                    </p>
+                    <HeaderNav />
+                  </div>
+                  <div className="flex items-center gap-12">
+                    <SettingsDialog />
+                    <ThemeToggle />
+                    <div id="floating-button-container"></div>
+                  </div>
+                </header>
+                <main className="bg-canvas flex-1">{children}</main>
+              </div>
+            </SolanaClusterProvider>
           </LedgerProvider>
         </Providers>
       </body>

@@ -1,19 +1,19 @@
-import "../onboarding/select-device/select-device.js";
-import "../sign-transaction/sign-transaction.js";
+import "../onboarding/select-device/select-device";
+import "../sign-transaction/sign-transaction";
 
 import { consume } from "@lit/context";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import { CoreContext, coreContext } from "../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { SigningFlowController } from "./signing-flow-controller.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
+import { SigningFlowController } from "./signing-flow-controller";
 
 @customElement("signing-flow")
 export class SigningFlow extends LitElement {

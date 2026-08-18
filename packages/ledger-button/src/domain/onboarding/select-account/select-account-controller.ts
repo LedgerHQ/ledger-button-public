@@ -1,37 +1,32 @@
-import "../../../shared/root-navigation.js";
+import "../../../shared/root-navigation";
 
 import type {
   Account,
-  AccountWithFiat,
+  AccountGroup,
+  AccountListItem,
   BlockchainFamily,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
-import { of, timer } from "rxjs";
-import { debounce } from "rxjs/operators";
+import { BehaviorSubject } from "rxjs";
 
-import { CoreContext } from "../../../context/core-context.js";
-import { LanguageContext } from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-import { getDisplayTokens } from "../../../utils/account-display-tokens.js";
-
-export type AccountGroup = {
-  freshAddress: string;
-  accounts: AccountWithFiat[];
-};
+import { CoreContext } from "../../../context/core-context";
+import { LanguageContext } from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { formatAddress } from "../../../utils/format-address";
 
 export class SelectAccountController implements ReactiveController {
-  accounts: AccountWithFiat[] = [];
-  searchQuery = "";
-  private accountsSubscription?: Subscription;
+  groups: AccountGroup[] = [];
+  private readonly searchQuery$ = new BehaviorSubject("");
+  private groupsSubscription?: Subscription;
 
-  getDisplayTokens(account: AccountWithFiat) {
-    return getDisplayTokens(account);
+  get searchQuery(): string {
+    return this.searchQuery$.value;
   }
 
   truncateAddress(address: string): string {
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+    return formatAddress(address);
   }
 
   formatGroupCount(count: number): string {
@@ -48,54 +43,10 @@ export class SelectAccountController implements ReactiveController {
       : t.tokenCountOther.replace("{count}", String(count));
   }
 
-  get groupedAccounts(): AccountGroup[] {
-    const map = new Map<string, AccountWithFiat[]>();
-    const totalBalances = new Map<string, number>();
-
-    for (const account of this.filteredAccounts) {
-      const group = map.get(account.freshAddress) ?? [];
-      group.push(account);
-      map.set(account.freshAddress, group);
-
-      const totalBalance = totalBalances.get(account.freshAddress) ?? 0;
-      const accountFiat = this.getAccountFiatValue(account);
-      totalBalances.set(
-        account.freshAddress,
-        totalBalance + parseFloat(accountFiat?.value ?? "0"),
-      );
-    }
-
-    return Array.from(map.entries())
-      .sort(
-        ([a], [b]) => (totalBalances.get(b) ?? 0) - (totalBalances.get(a) ?? 0),
-      )
-      .map(([freshAddress, accounts]) => ({
-        freshAddress,
-        accounts,
-      }));
-  }
-
-  get filteredAccounts(): AccountWithFiat[] {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (!query) {
-      return [...this.accounts];
-    }
-
-    return this.accounts.filter(
-      (account) =>
-        account.name.toLowerCase().includes(query) ||
-        account.freshAddress.toLowerCase().includes(query) ||
-        account.ticker.toLowerCase().includes(query) ||
-        account.tokens.some(
-          (token) =>
-            token.ticker.toLowerCase().includes(query) ||
-            token.name.toLowerCase().includes(query),
-        ),
-    );
-  }
-
   get isBalanceLoading(): boolean {
-    return this.accounts.some((account) => account.balance === undefined);
+    return this.groups.some((group) =>
+      group.accounts.some((account) => account.balance === undefined),
+    );
   }
 
   constructor(
@@ -113,36 +64,28 @@ export class SelectAccountController implements ReactiveController {
   }
 
   hostDisconnected() {
-    if (this.accountsSubscription) {
-      this.accountsSubscription.unsubscribe();
-      this.accountsSubscription = undefined;
+    if (this.groupsSubscription) {
+      this.groupsSubscription.unsubscribe();
+      this.groupsSubscription = undefined;
     }
   }
 
   getAccounts(options?: { forceRefresh?: boolean }) {
-    if (this.accountsSubscription) {
-      this.accountsSubscription.unsubscribe();
+    if (this.groupsSubscription) {
+      this.groupsSubscription.unsubscribe();
     }
 
     this.host.requestUpdate();
 
-    // Emit the first batch immediately so accounts appear before balances load
-    let isFirstEmission = true;
-
-    this.accountsSubscription = this.core
-      .observeAccounts({ ...options, family: this.family })
-      .pipe(
-        debounce(() => {
-          if (isFirstEmission) {
-            isFirstEmission = false;
-            return of(0);
-          }
-          return timer(200);
-        }),
-      )
+    this.groupsSubscription = this.core
+      .observeAccountGroups({
+        ...options,
+        family: this.family,
+        searchQuery$: this.searchQuery$,
+      })
       .subscribe({
-        next: (accounts) => {
-          this.accounts = accounts;
+        next: (groups) => {
+          this.groups = groups;
           this.host.requestUpdate();
         },
         error: (error) => {
@@ -155,35 +98,20 @@ export class SelectAccountController implements ReactiveController {
       });
   }
 
-  isAccountBalanceLoading(account: AccountWithFiat): boolean {
+  isAccountBalanceLoading(account: AccountListItem): boolean {
     return account.balanceLoadingState === "loading";
   }
 
-  hasAccountBalanceError(account: AccountWithFiat): boolean {
+  hasAccountBalanceError(account: AccountListItem): boolean {
     return account.balanceLoadingState === "error";
   }
 
-  isAccountFiatLoading(account: AccountWithFiat): boolean {
+  isAccountFiatLoading(account: AccountListItem): boolean {
     return account.fiatLoadingState === "loading";
   }
 
-  hasAccountFiatError(account: AccountWithFiat): boolean {
+  hasAccountFiatError(account: AccountListItem): boolean {
     return account.fiatLoadingState === "error";
-  }
-
-  getAccountFiatValue(account: AccountWithFiat) {
-    if (!account.fiatBalance) return undefined;
-
-    const nativeFiat = parseFloat(account.fiatBalance.value);
-    const tokensFiat = account.tokens.reduce((sum, token) => {
-      if (!token.fiatBalance?.value) return sum;
-      return sum + parseFloat(token.fiatBalance.value);
-    }, 0);
-
-    return {
-      value: (nativeFiat + tokensFiat).toFixed(2),
-      currency: account.fiatBalance.currency,
-    };
   }
 
   selectAccount(account: Account) {
@@ -193,7 +121,7 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  handleAccountCardClick(account: AccountWithFiat) {
+  handleAccountCardClick(account: AccountListItem) {
     this.selectAccount(account);
 
     window.dispatchEvent(
@@ -209,7 +137,7 @@ export class SelectAccountController implements ReactiveController {
     this.close();
   }
 
-  handleShowTokensClick(account: AccountWithFiat) {
+  handleShowTokensClick(account: AccountListItem) {
     this.navigation.navigateTo({
       name: "accountTokens",
       component: "account-tokens-screen",
@@ -224,12 +152,12 @@ export class SelectAccountController implements ReactiveController {
   }
 
   handleSearchInput(event: CustomEvent<{ value: string }>) {
-    this.searchQuery = event.detail.value;
+    this.searchQuery$.next(event.detail.value);
     this.host.requestUpdate();
   }
 
   handleSearchClear() {
-    this.searchQuery = "";
+    this.searchQuery$.next("");
     this.host.requestUpdate();
   }
 

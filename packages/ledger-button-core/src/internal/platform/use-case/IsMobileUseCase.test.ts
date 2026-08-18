@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { IsMobileUseCase } from "./IsMobileUseCase.js";
+import { IsMobileUseCase } from "./IsMobileUseCase";
 
 describe("IsMobileUseCase", () => {
   let useCase: IsMobileUseCase;

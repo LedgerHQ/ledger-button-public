@@ -1,4 +1,4 @@
-import { formatBalance } from "../../currency/currencyUtils.js";
+import { formatBalance } from "@internal/currency/currencyUtils";
 
 export type AccountBalance = {
   nativeBalance: NativeBalance;
@@ -45,6 +45,6 @@ export class TokenBalance {
   }
 
   get balanceFormatted(): string {
-    return formatBalance(this.balance, this.decimals, this.ticker, this.ledgerId);
+    return formatBalance(this.balance, this.decimals, this.ticker);
   }
 }

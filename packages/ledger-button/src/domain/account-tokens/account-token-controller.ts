@@ -1,6 +1,6 @@
 import {
   Account,
-  AccountWithFiat,
+  AccountListItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 
@@ -8,12 +8,12 @@ import { Navigation } from "../../shared/navigation";
 import { RootNavigationComponent } from "../../shared/root-navigation";
 
 export class AccountTokenController implements ReactiveController {
-  account: AccountWithFiat | null;
+  account: AccountListItem | null;
 
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly navigation: Navigation,
-    staleAccount?: AccountWithFiat,
+    staleAccount?: AccountListItem,
   ) {
     this.account = staleAccount ?? null;
     this.host.addController(this);

@@ -1,9 +1,9 @@
 import { type Factory, inject, injectable, preDestroy } from "inversify";
 
-import { eventTrackingModuleTypes } from "../../event-tracking/eventTrackingModuleTypes.js";
-import { TrackOpenSession } from "../../event-tracking/usecase/TrackOpenSession.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
+import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
+import { TrackOpenSession } from "@internal/event-tracking/use-case/TrackOpenSession";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 @injectable()
 export class ModalService {

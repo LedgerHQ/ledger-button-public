@@ -5,6 +5,8 @@ import { html } from "lit";
 
 const meta: Meta = {
   title: "Demo/LedgerButtonPlayground",
+  // Factories are supplied by the host in real apps; the playground story runs
+  // without family packages so the UI package stays free of -evm/-solana deps.
   render: () => html` <ledger-button-playground></ledger-button-playground> `,
 };
 

@@ -10,9 +10,9 @@ import {
   createMockLoggerFactory,
   mockConnectedDevice,
   mockDiscoveredDevice,
-} from "../__tests__/mocks.js";
-import { DeviceConnectionError } from "../model/errors.js";
-import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService.js";
+} from "../__tests__/mocks";
+import { DeviceConnectionError } from "../model/errors";
+import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService";
 
 vi.mock("@ledgerhq/device-management-kit", async () => {
   const actual = await vi.importActual("@ledgerhq/device-management-kit");

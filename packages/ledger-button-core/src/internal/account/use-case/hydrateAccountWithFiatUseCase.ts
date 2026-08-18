@@ -1,20 +1,21 @@
 import { type Factory, inject, injectable } from "inversify";
 import { type Either } from "purify-ts";
 
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
-import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { enrichWithLoadingStates } from "../accountFiatUtils.js";
 import type {
   Account,
   AccountWithFiat,
   FiatBalance,
   Token,
-} from "../service/AccountService.js";
+} from "@api/model/Account";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
+import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { enrichWithLoadingStates } from "../accountFiatUtils";
 
 @injectable()
 export class HydrateAccountWithFiatUseCase {

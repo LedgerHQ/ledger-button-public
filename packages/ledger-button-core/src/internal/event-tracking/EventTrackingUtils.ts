@@ -1,7 +1,7 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
+import { EventDataSchema } from "@schemas/event-schemas";
 import { sha256 } from "ethers";
 
-import { EventDataSchema } from "../../schemas/event-schemas.js";
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
@@ -28,8 +28,8 @@ import {
   type WalletActionType,
   type WalletRedirectCancelledEventData,
   type WalletRedirectConfirmedEventData,
-} from "../backend/model/trackEvent.js";
-import { generateUUID } from "./utils.js";
+} from "../backend/model/trackEvent";
+import { generateUUID } from "./utils";
 
 export function normalizeTransactionHash(hash: string): string {
   return hash.toLowerCase().replace(/^0x/, "");

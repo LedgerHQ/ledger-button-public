@@ -6,6 +6,16 @@ import dts from "vite-plugin-dts";
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/packages/ledger-button-core",
+  // Mirrors the `paths` of tsconfig.lib.json. vite-plugin-dts reads these
+  // aliases to rewrite them back to relative paths in the emitted declarations,
+  // so they must stay in sync with the tsconfig.
+  resolve: {
+    alias: {
+      "@api": path.resolve(__dirname, "src/api"),
+      "@internal": path.resolve(__dirname, "src/internal"),
+      "@schemas": path.resolve(__dirname, "src/schemas"),
+    },
+  },
   plugins: [
     dts({
       entryRoot: "src",

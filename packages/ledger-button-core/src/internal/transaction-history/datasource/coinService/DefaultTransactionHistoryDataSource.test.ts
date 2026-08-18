@@ -1,16 +1,18 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import type { Config } from "../../../config/model/config.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
-import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import type { Config } from "@internal/config/model/config";
+import type { NetworkService } from "@internal/network/NetworkService";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
+
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
-} from "./coinServiceDtos.js";
-import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource.js";
+} from "./coinServiceDtos";
+import { DefaultTransactionHistoryDataSource } from "./DefaultTransactionHistoryDataSource";
 
 function createMockLogger() {
   return {
@@ -61,9 +63,22 @@ function makeDto(
 const EVM_CURRENCIES = new Set(["ethereum", "polygon"]);
 const SOLANA_CURRENCIES = new Set(["solana"]);
 
-function resolveFamilyForTest(currencyId: string): Maybe<BlockchainFamily> {
-  if (EVM_CURRENCIES.has(currencyId)) return Maybe.of("ethereum");
-  if (SOLANA_CURRENCIES.has(currencyId)) return Maybe.of("solana");
+function describeCurrencyForTest(
+  currencyId: string,
+): Maybe<CurrencyDescriptor> {
+  if (EVM_CURRENCIES.has(currencyId)) {
+    return Maybe.of(aCurrencyDescriptor({ currencyId }));
+  }
+  if (SOLANA_CURRENCIES.has(currencyId)) {
+    return Maybe.of(
+      aCurrencyDescriptor({
+        currencyId,
+        family: "solana",
+        networkId: "mainnet",
+        nativeDecimals: 9,
+      }),
+    );
+  }
   return Maybe.empty();
 }
 
@@ -95,7 +110,8 @@ describe("DefaultTransactionHistoryDataSource", () => {
       init: vi.fn(),
       setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
-      resolveBlockchainFamily: vi.fn(resolveFamilyForTest),
+      describeCurrency: vi.fn(describeCurrencyForTest),
+      describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
     };
 
     mockLoggerFactory = createMockLoggerFactory();

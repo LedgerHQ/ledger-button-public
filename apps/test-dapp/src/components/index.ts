@@ -6,7 +6,7 @@ export { HeaderNav } from "./HeaderNav";
 export { LedgerProvider } from "./LedgerProvider";
 export { Providers } from "./Providers";
 export { ProviderSelectionBlock } from "./ProviderSelectionBlock";
-export { SettingsBlock } from "./SettingsBlock";
+export { SettingsDialog } from "./SettingsDialog";
 export { ThemeToggle } from "./ThemeToggle";
 export { TrackingPanel } from "./TrackingPanel";
 export { TransactionsBlock } from "./TransactionsBlock";

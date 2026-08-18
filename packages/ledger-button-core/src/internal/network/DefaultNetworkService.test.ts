@@ -1,6 +1,7 @@
-import { NetworkError } from "../../api/errors/NetworkErrors.js";
-import { Config } from "../config/model/config.js";
-import { DefaultNetworkService } from "./DefaultNetworkService.js";
+import { NetworkError } from "@api/errors/NetworkErrors";
+
+import { Config } from "../config/model/config";
+import { DefaultNetworkService } from "./DefaultNetworkService";
 
 describe("DefaultNetworkService", () => {
   let networkService: DefaultNetworkService;

@@ -1,9 +1,9 @@
 import type { ReactiveControllerHost } from "lit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { languages } from "../../../context/language-context.js";
-import { getLanguageDisplayName } from "../../../context/utils/language-utils.js";
-import { PreferenceLanguageController } from "./preference-language-controller.js";
+import { languages } from "../../../context/language-context";
+import { getLanguageDisplayName } from "../../../context/utils/language-utils";
+import { PreferenceLanguageController } from "./preference-language-controller";
 
 function createMockHost(): ReactiveControllerHost {
   return {

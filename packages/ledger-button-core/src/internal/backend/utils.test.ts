@@ -2,7 +2,7 @@ import {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
-} from "./utils.js";
+} from "./utils";
 
 describe("isJsonRpcResponse", () => {
   it("should return true for a success response", () => {

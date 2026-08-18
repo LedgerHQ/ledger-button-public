@@ -1,7 +1,7 @@
-import "./turn-on-sync.js";
-import "../../../context/core-context.js";
-import "../../../context/language-context.js";
-import "../../../components/index.js";
+import "./turn-on-sync";
+import "../../../context/core-context";
+import "../../../context/language-context";
+import "../../../components/index";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";

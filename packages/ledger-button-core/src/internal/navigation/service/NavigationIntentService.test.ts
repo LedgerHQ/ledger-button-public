@@ -1,15 +1,21 @@
 import { EMPTY, type Observable } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "../../../api/blockchain-provider/model/types.js";
-import { NavigationIntentService } from "./NavigationIntentService.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
 
-const createIntent = (
-  name: string,
-  params?: unknown,
-): WalletNavigationIntent => ({
-  name,
-  params,
+import { NavigationIntentService } from "./NavigationIntentService";
+
+const createSelectAccountIntent = (): WalletNavigationIntent => ({
+  name: "selectAccount",
+  params: { family: "ethereum" },
+  status$: EMPTY as Observable<never>,
+  finish: vi.fn(),
+  retry: vi.fn(),
+});
+
+const createSignIntent = (): WalletNavigationIntent => ({
+  name: "signTransaction",
+  params: { family: "ethereum", type: "transaction", broadcast: true },
   status$: EMPTY as Observable<never>,
   finish: vi.fn(),
   retry: vi.fn(),
@@ -21,7 +27,7 @@ describe("NavigationIntentService", () => {
     const received: WalletNavigationIntent[] = [];
     service.observe().subscribe((intent) => received.push(intent));
 
-    const intent = createIntent("selectAccount");
+    const intent = createSelectAccountIntent();
     service.emit(intent);
 
     expect(received).toEqual([intent]);
@@ -29,7 +35,7 @@ describe("NavigationIntentService", () => {
 
   it("does not replay intents emitted before subscription", () => {
     const service = new NavigationIntentService();
-    service.emit(createIntent("signTransaction"));
+    service.emit(createSignIntent());
 
     const received: WalletNavigationIntent[] = [];
     service.observe().subscribe((intent) => received.push(intent));
@@ -44,7 +50,7 @@ describe("NavigationIntentService", () => {
     service.observe().subscribe(a);
     service.observe().subscribe(b);
 
-    const intent = createIntent("selectAccount");
+    const intent = createSelectAccountIntent();
     service.emit(intent);
 
     expect(a).toHaveBeenCalledWith(intent);

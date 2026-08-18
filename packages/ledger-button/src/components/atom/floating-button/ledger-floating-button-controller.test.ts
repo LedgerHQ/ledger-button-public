@@ -6,8 +6,8 @@ import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreContext } from "../../../context/core-context.js";
-import { FloatingButtonController } from "./ledger-floating-button-controller.js";
+import type { CoreContext } from "../../../context/core-context";
+import { FloatingButtonController } from "./ledger-floating-button-controller";
 
 function createPendingTx(
   overrides: Partial<PendingTransaction> = {},

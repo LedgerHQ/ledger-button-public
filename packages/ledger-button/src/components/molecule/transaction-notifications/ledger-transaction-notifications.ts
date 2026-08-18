@@ -4,8 +4,8 @@ import { css, html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import type { ToastVariant } from "../../atom/toast/ledger-toast.js";
+import { tailwindElement } from "../../../tailwind-element";
+import type { ToastVariant } from "../../atom/toast/ledger-toast";
 
 export interface TransactionNotification {
   id: string;

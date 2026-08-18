@@ -1,24 +1,21 @@
 import { type Factory, inject, injectable } from "inversify";
+import { Maybe } from "purify-ts";
 import { BehaviorSubject, Observable } from "rxjs";
 
-import { type ContextEvent } from "./model/ContextEvent.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account, DetailedAccount } from "@api/model/Account";
 import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
-} from "../../api/model/ButtonCoreContext.js";
-import {
-  type Account,
-  type DetailedAccount,
-} from "../account/service/AccountService.js";
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
-import {
-  getChainIdFromCurrencyId,
-  getCurrencyIdFromChainId,
-} from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
-import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { type ContextService } from "./ContextService.js";
+} from "@api/model/ButtonCoreContext";
+
+import { type ContextEvent } from "./model/ContextEvent";
+import { blockchainProviderModuleTypes } from "../blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager";
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
+import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { type ContextService } from "./ContextService";
 
 @injectable()
 export class DefaultContextService implements ContextService {
@@ -43,6 +40,8 @@ export class DefaultContextService implements ContextService {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManagerFactory)
+    private readonly blockchainProviderManagerFactory: Factory<BlockchainProviderManager>,
   ) {
     this.logger = this.loggerFactory("Context Service");
   }
@@ -70,8 +69,10 @@ export class DefaultContextService implements ContextService {
         if (evmAccount) {
           this.context.selectedAccounts.set(DEFAULT_BLOCKCHAIN_FAMILY, {
             ...evmAccount,
-            currencyId:
-              getCurrencyIdFromChainId(event.chainId) ?? evmAccount.currencyId,
+            currencyId: this.blockchainProviderManagerFactory()
+              .describeNetwork(String(event.chainId))
+              .map((currency) => currency.currencyId)
+              .orDefault(evmAccount.currencyId),
           });
         }
         break;
@@ -157,7 +158,7 @@ export class DefaultContextService implements ContextService {
     this.context.selectedAccounts.set(family, account);
     // chainId tracks the default (ethereum) selection only.
     if (family === DEFAULT_BLOCKCHAIN_FAMILY) {
-      this.context.chainId = getChainIdFromCurrencyId(account.currencyId);
+      this.context.chainId = this.resolveNumericChainId(account.currencyId);
     }
   }
 
@@ -183,9 +184,16 @@ export class DefaultContextService implements ContextService {
   }
 
   private firstConnectedFamily(): BlockchainFamily | undefined {
-    for (const family of this.context.selectedAccounts.keys()) {
-      return family;
-    }
-    return undefined;
+    return this.context.selectedAccounts.keys().next().value;
+  }
+
+  private resolveNumericChainId(currencyId: string): number {
+    return this.blockchainProviderManagerFactory()
+      .describeCurrency(currencyId)
+      .chain((currency) => {
+        const parsed = Number(currency.networkId);
+        return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
+      })
+      .orDefault(1);
   }
 }

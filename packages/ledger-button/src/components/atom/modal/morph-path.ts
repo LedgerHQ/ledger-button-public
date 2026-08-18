@@ -1,4 +1,4 @@
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
 
 export type Point = { x: number; y: number };
 

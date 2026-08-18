@@ -1,19 +1,20 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { Account } from "../../../internal/account/service/AccountService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { balanceModuleTypes } from "../balanceModuleTypes.js";
-import type { CalDataSource } from "../datasource/cal/CalDataSource.js";
-import type { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource.js";
-import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes.js";
+import type { Account } from "@api/model/Account";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import type { CalDataSource } from "../datasource/cal/CalDataSource";
+import type { CoinServiceDataSource } from "../datasource/coinService/CoinServiceDataSource";
+import { CoinServiceBalance } from "../datasource/coinService/coinServiceTypes";
+import { balanceModuleTypes } from "../di/balanceModuleTypes";
 import {
   type AccountBalance,
   type NativeBalance,
   TokenBalance,
-} from "../model/types.js";
-import { type BalanceService } from "./BalanceService.js";
+} from "../model/types";
+import { type BalanceService } from "./BalanceService";
 
 @injectable()
 export class DefaultBalanceService implements BalanceService {

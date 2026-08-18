@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError";
 
 export class StorageIDBOpenError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {

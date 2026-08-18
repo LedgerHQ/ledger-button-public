@@ -1,7 +1,7 @@
 import {
   DEFAULT_LANGUAGE,
   type LangKey,
-} from "../../context/constants/languages.js";
+} from "../../context/constants/languages";
 
 const LEDGER_SHOP_BASE_URL = "https://shop.ledger.com";
 

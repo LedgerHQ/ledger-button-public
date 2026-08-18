@@ -2,8 +2,8 @@ import { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
 
 export class HomeFlowController implements ReactiveController {
   host: ReactiveControllerHost;

@@ -1,6 +1,6 @@
-import "../../atom/button/ledger-button.js";
-import "../../atom/drawer/ledger-drawer.js";
-import "../../atom/icon/ledger-icon.js";
+import "../../atom/button/ledger-button";
+import "../../atom/drawer/ledger-drawer";
+import "../../atom/icon/ledger-icon";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
@@ -9,11 +9,11 @@ import { customElement, property, query } from "lit/decorators.js";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { getLedgerWalletDownloadUrl } from "../../../shared/constants/shop-urls.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import type { LedgerDrawer } from "../../atom/drawer/ledger-drawer.js";
-import type { WalletTransactionFeature } from "../wallet-actions/ledger-wallet-actions.js";
+} from "../../../context/language-context";
+import { getLedgerWalletDownloadUrl } from "../../../shared/constants/shop-urls";
+import { tailwindElement } from "../../../tailwind-element";
+import type { LedgerDrawer } from "../../atom/drawer/ledger-drawer";
+import type { WalletTransactionFeature } from "../wallet-actions/ledger-wallet-actions";
 
 export type WalletRedirectConfirmEventDetail = {
   action: WalletTransactionFeature;

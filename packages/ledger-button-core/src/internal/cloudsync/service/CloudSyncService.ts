@@ -1,5 +1,6 @@
-import { InternalAuthContext } from "../../../internal/ledgersync/model/InternalAuthContext.js";
-import { CloudSyncData } from "../model/cloudSyncTypes.js";
+import { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext";
+
+import { CloudSyncData } from "../model/cloudSyncTypes";
 
 export interface CloudSyncService {
   fetchEncryptedAccounts(

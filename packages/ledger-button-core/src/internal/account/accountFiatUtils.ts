@@ -1,58 +1,14 @@
 import type {
   Account,
+  AccountGroup,
+  AccountListItem,
   AccountWithFiat,
   FiatBalance,
   LoadingState,
-  Network,
-} from "./service/AccountService.js";
-import { EVM_MAPPING_TABLE } from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
+  Token,
+} from "@api/model/Account";
 
-export function computeNetworks(account: AccountWithFiat): Network[] {
-  const currency = account.fiatBalance?.currency ?? "USD";
-  const nativeFiat = account.fiatBalance?.value
-    ? parseFloat(account.fiatBalance.value)
-    : 0;
-
-  const allEntries: [string, number][] = [
-    [account.currencyId, nativeFiat],
-    ...account.tokens.map((token): [string, number] => {
-      const chainCurrencyId = token.ledgerId.includes("/")
-        ? (token.ledgerId.split("/")[0] ?? account.currencyId)
-        : account.currencyId;
-      const tokenFiat = token.fiatBalance?.value
-        ? parseFloat(token.fiatBalance.value)
-        : 0;
-      return [chainCurrencyId, tokenFiat];
-    }),
-  ];
-
-  const networkFiatMap = allEntries.reduce<
-    Map<string, { name: string; totalFiat: number }>
-  >((acc, [currencyId, fiatValue]) => {
-    const chainId = EVM_MAPPING_TABLE[currencyId];
-
-    if (chainId === undefined) {
-      return acc;
-    }
-
-    const chainIdStr = String(chainId);
-    const existing = acc.get(chainIdStr);
-
-    return acc.set(chainIdStr, {
-      name: currencyId,
-      totalFiat: (existing?.totalFiat ?? 0) + fiatValue,
-    });
-  }, new Map());
-
-  return Array.from(networkFiatMap.entries())
-    .sort((a, b) => b[1].totalFiat - a[1].totalFiat)
-    .map(([id, { name, totalFiat }]) => ({
-      id,
-      name,
-      fiatBalance:
-        totalFiat > 0 ? { value: totalFiat.toFixed(2), currency } : undefined,
-    }));
-}
+const NATIVE_CURRENCY_FIAT_THRESHOLD = 0.01;
 
 export function enrichWithLoadingStates(
   account: Account & { fiatBalance?: FiatBalance; fiatError?: boolean },
@@ -100,4 +56,101 @@ export function calculateTotalFiatValue(
     value: totalValue.toFixed(2),
     currency,
   };
+}
+
+/**
+ * The native network currency (e.g. ETH) is part of the displayed token list
+ * only when its fiat balance exceeds the threshold. The underlying
+ * `account.tokens` array intentionally contains ERC-20 tokens only.
+ */
+export function buildDisplayTokens(account: AccountWithFiat): Token[] {
+  const fiatValue = parseFloat(account.fiatBalance?.value ?? "0");
+
+  if (fiatValue <= NATIVE_CURRENCY_FIAT_THRESHOLD) {
+    return account.tokens;
+  }
+
+  const nativeToken: Token = {
+    ledgerId: account.currencyId,
+    ticker: account.ticker,
+    name: account.ticker,
+    balance: account.balance ?? "0",
+    fiatBalance: account.fiatBalance,
+  };
+
+  return [nativeToken, ...account.tokens];
+}
+
+export function accountMatchesQuery(
+  account: AccountWithFiat,
+  query: string,
+): boolean {
+  const normalized = query.toLowerCase().trim();
+
+  if (!normalized) {
+    return true;
+  }
+
+  return (
+    account.name.toLowerCase().includes(normalized) ||
+    account.freshAddress.toLowerCase().includes(normalized) ||
+    account.ticker.toLowerCase().includes(normalized) ||
+    account.tokens.some(
+      (token) =>
+        token.ticker.toLowerCase().includes(normalized) ||
+        token.name.toLowerCase().includes(normalized),
+    )
+  );
+}
+
+export function toAccountListItem(account: AccountWithFiat): AccountListItem {
+  return {
+    ...account,
+    totalFiatValue: calculateTotalFiatValue(account),
+    displayTokens: buildDisplayTokens(account),
+  };
+}
+
+export function groupAccountsByAddress(
+  accounts: AccountListItem[],
+): AccountGroup[] {
+  const groups = new Map<string, AccountListItem[]>();
+  const totals = new Map<string, number>();
+
+  for (const account of accounts) {
+    const group = groups.get(account.freshAddress) ?? [];
+    group.push(account);
+    groups.set(account.freshAddress, group);
+
+    const total = totals.get(account.freshAddress) ?? 0;
+    totals.set(
+      account.freshAddress,
+      total + parseFloat(account.totalFiatValue?.value ?? "0"),
+    );
+  }
+
+  return Array.from(groups.entries())
+    .sort(([a], [b]) => (totals.get(b) ?? 0) - (totals.get(a) ?? 0))
+    .map(([freshAddress, groupAccounts]) => ({
+      freshAddress,
+      totalFiatValue: buildGroupTotal(
+        groupAccounts,
+        totals.get(freshAddress) ?? 0,
+      ),
+      accounts: groupAccounts,
+    }));
+}
+
+function buildGroupTotal(
+  accounts: AccountListItem[],
+  total: number,
+): FiatBalance | undefined {
+  const currency = accounts.find((account) => account.totalFiatValue)
+    ?.totalFiatValue?.currency;
+
+  if (!currency) {
+    return undefined;
+  }
+
+  return { value: total.toFixed(2), currency };
 }

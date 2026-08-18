@@ -1,11 +1,11 @@
 import { animate } from "motion";
 
-import { ANIMATION_DELAY } from "../../../shared/navigation.js";
+import { ANIMATION_DELAY } from "../../../shared/navigation";
 import {
   type AnimationInstance,
   type ContainerAnimation,
   SPRING_CONFIG,
-} from "./animation-types.js";
+} from "./animation-types";
 
 export class SlideUpAnimation implements ContainerAnimation {
   private animation: AnimationInstance | null = null;

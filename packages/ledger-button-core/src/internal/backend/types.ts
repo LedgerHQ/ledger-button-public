@@ -1,6 +1,6 @@
 import { infer as ZodInfer, ZodError } from "zod";
 
-import { ConfigResponseSchema } from "./schemas.js";
+import { ConfigResponseSchema } from "./schemas";
 
 export type JSONRPCRequest = {
   readonly jsonrpc: string;
@@ -46,7 +46,7 @@ export {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   isJsonRpcResponseSuccess,
-} from "./utils.js";
+} from "./utils";
 
 export type ConfigRequest = {
   dAppIdentifier: string;

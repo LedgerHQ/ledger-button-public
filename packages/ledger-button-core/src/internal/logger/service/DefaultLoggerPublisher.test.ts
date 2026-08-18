@@ -1,7 +1,7 @@
-import { LOG_LEVELS } from "../model/constant.js";
-import { DefaultLoggerPublisher } from "./DefaultLoggerPublisher.js";
-import { LoggerPublisher } from "./LoggerPublisher.js";
-import { LoggerSubscriber } from "./LoggerSubscriber.js";
+import { LOG_LEVELS } from "../model/constant";
+import { DefaultLoggerPublisher } from "./DefaultLoggerPublisher";
+import { LoggerPublisher } from "./LoggerPublisher";
+import { LoggerSubscriber } from "./LoggerSubscriber";
 
 let publisher: LoggerPublisher;
 let subscriber: LoggerSubscriber;

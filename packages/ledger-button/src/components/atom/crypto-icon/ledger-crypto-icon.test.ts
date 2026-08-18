@@ -4,14 +4,14 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("./crypto-icon-mapping.js", () => ({
+vi.mock("./crypto-icon-mapping", () => ({
   resolveIconUrl: vi.fn(),
 }));
 
-import "./ledger-crypto-icon.js";
+import "./ledger-crypto-icon";
 
-import { resolveIconUrl } from "./crypto-icon-mapping.js";
-import { LedgerCryptoIcon } from "./ledger-crypto-icon.js";
+import { resolveIconUrl } from "./crypto-icon-mapping";
+import { LedgerCryptoIcon } from "./ledger-crypto-icon";
 
 const resolveIconUrlMock = vi.mocked(resolveIconUrl);
 

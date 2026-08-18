@@ -1,7 +1,7 @@
-import type { DeviceModelId } from "../../components/atom/icon/device-icon/device-icon.js";
-import type { CoreContext } from "../../context/core-context.js";
-import type { Navigation } from "../../shared/navigation.js";
-import type { Destinations } from "../../shared/routes.js";
+import type { DeviceModelId } from "../../components/atom/icon/device-icon/device-icon";
+import type { CoreContext } from "../../context/core-context";
+import type { Navigation } from "../../shared/navigation";
+import type { Destinations } from "../../shared/routes";
 
 export class DeviceSwitchController {
   constructor(

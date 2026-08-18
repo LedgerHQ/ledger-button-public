@@ -1,8 +1,8 @@
-import "../../components/index.js";
+import "../../components/index";
 
 import {
   Account,
-  AccountWithFiat,
+  AccountListItem,
   Token,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
@@ -12,15 +12,14 @@ import { customElement, property } from "lit/decorators.js";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { tailwindElement } from "../../tailwind-element.js";
-import { getDisplayTokens } from "../../utils/account-display-tokens.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { tailwindElement } from "../../tailwind-element";
 import {
   formatFiatBalance,
   formatTokenBalance,
-} from "../../utils/format-fiat.js";
-import { AccountTokenController } from "./account-token-controller.js";
+} from "../../utils/format-fiat";
+import { AccountTokenController } from "./account-token-controller";
 
 @customElement("account-tokens-screen")
 @tailwindElement()
@@ -29,7 +28,7 @@ export class AccountTokensScreen extends LitElement {
   navigation!: Navigation;
 
   @property({ type: Object })
-  screenData?: AccountWithFiat;
+  screenData?: AccountListItem;
 
   controller!: AccountTokenController;
 
@@ -78,8 +77,8 @@ export class AccountTokensScreen extends LitElement {
     `;
   }
 
-  private renderTokenList(account: AccountWithFiat) {
-    const displayTokens = getDisplayTokens(account);
+  private renderTokenList(account: AccountListItem) {
+    const displayTokens = account.displayTokens;
 
     if (displayTokens.length > 0) {
       return displayTokens.map(this.renderTokenItem);

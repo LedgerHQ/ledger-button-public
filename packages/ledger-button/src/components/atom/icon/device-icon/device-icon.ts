@@ -3,11 +3,11 @@ import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../../tailwind-element.js";
-import apexp from "./apexp.js";
-import flex from "./flex.js";
-import nano from "./nano.js";
-import stax from "./stax.js";
+import { tailwindElement } from "../../../../tailwind-element";
+import apexp from "./apexp";
+import flex from "./flex";
+import nano from "./nano";
+import stax from "./stax";
 
 export type DeviceModelId =
   | "stax"

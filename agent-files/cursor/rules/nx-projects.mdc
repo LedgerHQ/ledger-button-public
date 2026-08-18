@@ -13,6 +13,8 @@ Workspace: pnpm + Nx 22.0.1. Globs from `pnpm-workspace.yaml`: `packages/*`, `ap
 | --- | --- | --- | --- |
 | `@ledgerhq/ledger-wallet-provider` | `packages/ledger-button` | library | `build` (custom: vite + tailwind + scope-css), `test`, `typecheck`, `lint`, `dev` |
 | `@ledgerhq/ledger-wallet-provider-core` | `packages/ledger-button-core` | library | `build`, `test`, `typecheck`, `lint` |
+| `@ledgerhq/ledger-wallet-provider-evm` | `packages/ledger-wallet-provider-evm` | library | `build`, `test`, `typecheck`, `lint` |
+| `@ledgerhq/ledger-wallet-provider-solana` | `packages/ledger-wallet-provider-solana` | library | `build`, `test`, `typecheck`, `lint` |
 | `@ledgerhq/ledger-wallet-provider-docs` | `apps/docs` | Next.js app | `build`, `dev`, `start`, `typecheck`, `lint` |
 | `@ledgerhq/test-dapp` | `apps/test-dapp` | Next.js app | `build`, `dev`, `start`, `typecheck`, `lint` |
 | `@ledgerhq/test-extension` | `apps/test-extension` | Vite app | `build`, `lint` (no `test` target) |

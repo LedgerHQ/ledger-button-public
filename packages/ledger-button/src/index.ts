@@ -1,31 +1,28 @@
-import "./components/index.js";
-import "./ledger-button-app.js";
+import "./components/index";
+import "./ledger-button-app";
 
 import {
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
-  LedgerEIP1193Provider,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { FloatingButtonPosition } from "./components/index.js";
-import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
-import { setupFloatingButton } from "./utils/setup-floating-button.js";
-import { LedgerButtonApp } from "./ledger-button-app.js";
+import { FloatingButtonPosition } from "./components/index";
+import type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification";
+import { setupFloatingButton } from "./utils/setup-floating-button";
+import { LedgerButtonApp } from "./ledger-button-app";
 
+export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
 export type {
   EIP1193Provider,
   EIP6963ProviderDetail,
   EIP6963ProviderInfo,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
-export { LedgerEIP1193Provider };
-export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
-
-import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions.js";
+import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
 
 let core: LedgerButtonCore | null = null;
 
-export type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification.js";
+export type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification";
 
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
   target?: HTMLElement;
@@ -48,13 +45,13 @@ export function initializeLedgerProvider({
   floatingButtonTarget,
   walletTransactionFeatures,
   transactionConfirmationNotification = "tooltip",
+  blockchainProviderFactories,
   devConfig = {
     stub: {
       base: false,
       account: false,
       device: false,
       web3Provider: false,
-      dAppConfig: false,
     },
   },
 }: InitializeLedgerProviderOptions): () => void {
@@ -72,6 +69,7 @@ export function initializeLedgerProvider({
       dmkConfig,
       loggerLevel,
       environment,
+      blockchainProviderFactories,
       devConfig,
     });
   }
@@ -119,10 +117,7 @@ export function initializeLedgerProvider({
   const navigationSubscription = core
     .observeNavigationIntents()
     .subscribe((intent) => {
-      app.navigationIntent(
-        intent.name as Parameters<LedgerButtonApp["navigationIntent"]>[0],
-        intent,
-      );
+      app.navigationIntent(intent.name, intent);
     });
 
   // Cleanup function

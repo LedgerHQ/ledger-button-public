@@ -1,8 +1,8 @@
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import { formatFiatValue } from "../../../utils/format-fiat.js";
+import { tailwindElement } from "../../../tailwind-element";
+import { formatFiatValue } from "../../../utils/format-fiat";
 
 @customElement("ledger-fiat-total")
 @tailwindElement()

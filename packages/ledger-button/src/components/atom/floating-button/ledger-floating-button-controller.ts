@@ -5,12 +5,12 @@ import {
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { CoreContext } from "../../../context/core-context.js";
+import { CoreContext } from "../../../context/core-context";
 import {
   type AccountIdentity,
   belongsToAccount,
-} from "../../../shared/pending-transaction-account-filter.js";
-import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
+} from "../../../shared/pending-transaction-account-filter";
+import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification";
 
 const MODAL_OPEN_EVENT = "ledger-core-modal-open";
 const MODAL_CLOSE_EVENT = "ledger-core-modal-close";

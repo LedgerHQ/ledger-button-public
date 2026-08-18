@@ -1,87 +1,89 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { getActiveSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
-import { isBroadcastedTransactionResult } from "../../../api/model/signing/SignedTransaction.js";
-import { type SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { SignPersonalMessageParams } from "../../../api/model/signing/SignPersonalMessageParams.js";
-import type { SignRawTransactionParams } from "../../../api/model/signing/SignRawTransactionParams.js";
+import type { ProviderSignParams } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
 import {
-  isSignTransactionParams,
-  type SignTransactionParams,
-} from "../../../api/model/signing/SignTransactionParams.js";
-import type { SignTypedMessageParams } from "../../../api/model/signing/SignTypedMessageParams.js";
-import type { SignSolanaMessageParams } from "../../../api/model/signing/solana/SignSolanaMessageParams.js";
-import { type Account } from "../../account/service/AccountService.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import { type CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { formatBalance } from "../../currency/currencyUtils.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { type PendingTransactionController } from "../controller/PendingTransactionController.js";
-import { type PendingTransaction } from "../model/PendingTransaction.js";
-import { pendingTransactionModuleTypes } from "../pendingTransactionModuleTypes.js";
-import { type PendingTransactionStorageService } from "../service/PendingTransactionStorageService.js";
-import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl.js";
+  DEFAULT_BLOCKCHAIN_FAMILY,
+  getSelectedAccount,
+} from "@api/model/ButtonCoreContext";
+import { isBroadcastedTransactionResult } from "@api/model/signing/SignedTransaction";
+import { type SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import { getSignParamsFamily } from "@api/model/signing/signParamsFamily";
+import { isSignTransactionParams } from "@api/model/signing/SignTransactionParams";
+import { type CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { type ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { formatBalance } from "@internal/currency/currencyUtils";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-type SignParams =
-  | SignTransactionParams
-  | SignRawTransactionParams
-  | SignTypedMessageParams
-  | SignPersonalMessageParams
-  | SignSolanaMessageParams;
+import { type PendingTransactionController } from "../controller/PendingTransactionController";
+import { pendingTransactionModuleTypes } from "../di/pendingTransactionModuleTypes";
+import { type PendingTransaction } from "../model/PendingTransaction";
+import { buildExplorerTransactionUrl } from "../utils/buildExplorerTransactionUrl";
 
 @injectable()
 export class TrackBroadcastedTransactionUseCase {
   private readonly logger: LoggerPublisher;
 
   constructor(
-    @inject(pendingTransactionModuleTypes.PendingTransactionStorageService)
-    private readonly storageService: PendingTransactionStorageService,
     @inject(pendingTransactionModuleTypes.PendingTransactionController)
     private readonly controller: PendingTransactionController,
     @inject(contextModuleTypes.ContextService)
     private readonly contextService: ContextService,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
   ) {
     this.logger = loggerFactory("[TrackBroadcastedTransactionUseCase]");
   }
 
-  async execute(status: SignFlowStatus, params: SignParams): Promise<void> {
+  async execute(
+    status: SignFlowStatus,
+    params: ProviderSignParams,
+  ): Promise<void> {
     if (status.status !== "success") return;
     if (!isBroadcastedTransactionResult(status.data)) return;
 
     const context = this.contextService.getContext();
-    const account = getActiveSelectedAccount(context);
+    const family = getSignParamsFamily(params);
+    const account = getSelectedAccount(context, family);
     if (!account) return;
+
+    // `context.chainId` is EVM-only; it is meaningless for non-EVM families.
+    const chainId = family === DEFAULT_BLOCKCHAIN_FAMILY ? context.chainId : 0;
 
     const tx = await this.buildPendingTransaction(
       status.data.hash,
       account,
-      context.chainId,
+      chainId,
       params,
     );
 
     this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
-    this.storageService.add(tx);
-    this.controller.track();
+    this.controller.registerBroadcastedTransaction(tx);
   }
 
   private async buildPendingTransaction(
     hash: string,
     account: Account,
     chainId: number,
-    params: SignParams,
+    params: ProviderSignParams,
   ): Promise<PendingTransaction> {
     const { ticker, name, decimals, transactionExplorerUrlTemplate } =
       await this.resolveCurrencyMetadata(account.currencyId);
+    // Only structured EVM params carry the amount. A raw EVM transaction or a
+    // serialized Solana one would have to be decoded, so the amount stays unset
+    // rather than being reported as zero.
     const rawValue = isSignTransactionParams(params)
       ? params.transaction.value
-      : "0";
+      : undefined;
 
     return {
       hash,
@@ -90,12 +92,10 @@ export class TrackBroadcastedTransactionUseCase {
       timestamp: new Date().toISOString(),
       type: "sent",
       value: rawValue,
-      formattedValue: formatBalance(
-        rawValue,
-        decimals,
-        ticker,
-        account.currencyId,
-      ),
+      formattedValue:
+        rawValue === undefined || decimals === undefined
+          ? undefined
+          : formatBalance(rawValue, decimals, ticker),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,
@@ -123,7 +123,7 @@ export class TrackBroadcastedTransactionUseCase {
       Left: () => ({
         ticker: currencyId.toUpperCase(),
         name: currencyId,
-        decimals: undefined,
+        decimals: this.nativeDecimals(currencyId),
       }),
       Right: (info) => ({
         ticker: info.ticker,
@@ -132,5 +132,20 @@ export class TrackBroadcastedTransactionUseCase {
         transactionExplorerUrlTemplate: info.transactionExplorerUrlTemplate,
       }),
     });
+  }
+
+  /** Last-resort decimals when CAL has no metadata for the currency. */
+  private nativeDecimals(currencyId: string): number | undefined {
+    const decimals = this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.nativeDecimals);
+
+    if (decimals.isNothing()) {
+      this.logger.warn("Unresolved decimals, reporting no formatted amount", {
+        currencyId,
+      });
+    }
+
+    return decimals.extract();
   }
 }

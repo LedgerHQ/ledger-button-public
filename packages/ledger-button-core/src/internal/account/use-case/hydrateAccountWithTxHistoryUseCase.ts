@@ -1,15 +1,15 @@
 import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { transactionHistoryModuleTypes } from "../../transaction-history/di/transactionHistoryModuleTypes.js";
-import type { TransactionHistoryItem } from "../../transaction-history/model/transactionHistoryTypes.js";
-import type { FetchTransactionHistoryUseCase } from "../../transaction-history/use-case/FetchTransactionHistoryUseCase.js";
-import type { HydrateTransactionsWithFiatUseCase } from "../../transaction-history/use-case/HydrateTransactionsWithFiatUseCase.js";
-import type { Account } from "../service/AccountService.js";
+import type { Account } from "@api/model/Account";
+import type { TransactionHistoryItem } from "@api/model/TransactionHistory";
+import { type ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { transactionHistoryModuleTypes } from "@internal/transaction-history/di/transactionHistoryModuleTypes";
+import type { FetchTransactionHistoryUseCase } from "@internal/transaction-history/use-case/FetchTransactionHistoryUseCase";
+import type { HydrateTransactionsWithFiatUseCase } from "@internal/transaction-history/use-case/HydrateTransactionsWithFiatUseCase";
 
 export type AccountWithTransactionHistory = Account & {
   transactionHistory: TransactionHistoryItem[] | undefined;

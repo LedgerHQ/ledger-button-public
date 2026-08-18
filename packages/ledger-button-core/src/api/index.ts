@@ -1,14 +1,13 @@
-export type { WalletActionType } from "../internal/backend/model/trackEvent.js";
-export type { Device } from "../internal/device/model/Device.js";
-export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService.js";
-export { LedgerEIP1193Provider } from "../internal/evm-provider/ledger-eip1193/LedgerEIP1193Provider.js";
-// Load-bearing: re-exporting this pulls the family's `SignedResultRegistry`
-// augmentation into cross-package consumers so `SignedResults` resolves to the
-// EVM union instead of `never`. Keep one such re-export per family.
-export type { EvmSignedResult } from "../internal/evm-provider/ledger-eip1193/model/EvmSignedResult.js";
-export { isBlockingRequestMethod } from "../internal/evm-provider/ledger-eip1193/utils/isBlockingRequestMethod.js";
-export type { BlockchainProvider } from "./blockchain-provider/model/BlockchainProvider.js";
-export type { CoreFacade } from "./blockchain-provider/model/CoreFacade.js";
+export type { WalletActionType } from "../internal/backend/model/trackEvent";
+export type { Device } from "../internal/device/model/Device";
+export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService";
+export type { BlockchainProvider } from "./blockchain-provider/model/BlockchainProvider";
+export type {
+  BlockchainProviderFactory,
+  BlockchainProviderFactoryRegistration,
+} from "./blockchain-provider/model/BlockchainProviderFactory";
+export type { CoreFacade } from "./blockchain-provider/model/CoreFacade";
+export type { CurrencyDescriptor } from "./blockchain-provider/model/CurrencyDescriptor";
 export type {
   BlockchainFamily,
   ProviderBlockchain,
@@ -16,26 +15,35 @@ export type {
   ProviderSdkConfig,
   ProviderSignParams,
   SelectAccountIntentParams,
+  SelectAccountNavigationIntent,
+  SignIntentParams,
+  SignNavigationIntent,
   WalletNavigationIntent,
   WalletProvider,
-} from "./blockchain-provider/model/types.js";
-export * from "./errors/index.js";
-export * from "./LedgerButtonCore.js";
+} from "./blockchain-provider/model/types";
+export {
+  type ConnectedDeviceSession,
+  waitForDeviceSession,
+} from "./blockchain-provider/utils/waitForDeviceSession";
+export { getLedgerProviderIcon } from "./blockchain-provider/wallet-provider/ledgerProviderIcon";
+export * from "./errors/index";
+export * from "./LedgerButtonCore";
 export type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "./model/blockchain/GasFee.js";
-export type { ProviderAccount } from "./model/blockchain/ProviderAccount.js";
+} from "./model/blockchain/GasFee";
+export type { ProviderAccount } from "./model/blockchain/ProviderAccount";
 export type {
   ProviderLogData,
   ProviderLogger,
-} from "./model/blockchain/ProviderLogger.js";
+} from "./model/blockchain/ProviderLogger";
 export type {
   BlockchainAppDependencies,
+  BlockchainAppDependency,
   BlockchainConfig,
   BlockchainNetwork,
   BlockchainRpcMethods,
-} from "./model/dappConfig/BlockchainConfig.js";
-export * from "./model/index.js";
-export * from "./utils/index.js";
+} from "./model/dappConfig/BlockchainConfig";
+export * from "./model/index";
+export * from "./utils/index";
 export { type DiscoveredDevice } from "@ledgerhq/device-management-kit";

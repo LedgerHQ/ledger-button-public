@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
 import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
 import { ethers } from "ethers";
 
@@ -11,16 +12,13 @@ import {
   type EIPEvent,
   EventSimulatorBlock,
   ProviderSelectionBlock,
-  SettingsBlock,
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
 import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
-let Provider:
-  | typeof import("@ledgerhq/ledger-wallet-provider").LedgerEIP1193Provider
-  | null = null;
+const Provider = LedgerEIP1193Provider;
 
 let activityCounter = 0;
 function nextActivityId(): string {
@@ -34,9 +32,7 @@ export default function Index() {
     selectedProvider,
     setSelectedProvider,
     isInitialized,
-    reinitialize,
     config,
-    setConfig,
   } = useProviders();
 
   const { entries: trackingEntries, clearEntries: clearTracking } =
@@ -51,13 +47,6 @@ export default function Index() {
   const prevResultRef = useRef<string | null>(null);
   const prevErrorRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    import("@ledgerhq/ledger-wallet-provider").then((module) => {
-      Provider = module.LedgerEIP1193Provider;
-    });
-  }, []);
 
   useEffect(() => {
     if (result && result !== prevResultRef.current) {
@@ -364,13 +353,6 @@ export default function Index() {
           </header>
 
           <div className="flex flex-col gap-20">
-            <SettingsBlock
-              config={config}
-              onConfigChange={setConfig}
-              isProviderInitialized={isInitialized}
-              onReinitialize={reinitialize}
-            />
-
             <ProviderSelectionBlock
               providers={providers}
               selectedProvider={selectedProvider}

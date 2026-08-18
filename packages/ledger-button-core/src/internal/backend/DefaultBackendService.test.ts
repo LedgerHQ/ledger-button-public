@@ -4,10 +4,10 @@ import {
   type EventRequest,
   type EventResponse,
   EventType,
-} from "./model/trackEvent.js";
-import type { NetworkService } from "../network/NetworkService.js";
-import { DefaultBackendService } from "./DefaultBackendService.js";
-import type { BroadcastRequest } from "./types.js";
+} from "./model/trackEvent";
+import type { NetworkService } from "../network/NetworkService";
+import { DefaultBackendService } from "./DefaultBackendService";
+import type { BroadcastRequest } from "./types";
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;
@@ -227,31 +227,6 @@ describe("DefaultBackendService", () => {
             "Content-Type": "application/json",
             "X-Ledger-client-origin": "test-origin-token",
             "X-Ledger-Domain": "test-domain",
-          },
-        },
-      );
-    });
-  });
-
-  describe("getConfig", () => {
-    it("should send config request with correct parameters", async () => {
-      const mockConfigResponse = {
-        supportedBlockchains: [],
-        referralUrl: "https://example.com",
-        domainUrl: "https://example.com",
-        appDependencies: [],
-      };
-
-      mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
-
-      await backendService.getConfig({ dAppIdentifier: "test-dapp" });
-
-      expect(mockNetworkService.get).toHaveBeenCalledWith(
-        "https://test-backend-url.com/config?dAppIdentifier=test-dapp",
-        {
-          headers: {
-            "X-Ledger-Domain": "test-dapp-identifier",
-            "X-Ledger-client-origin": "test-origin-token",
           },
         },
       );

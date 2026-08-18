@@ -1,4 +1,4 @@
-import "../../components/index.js";
+import "../../components/index";
 
 import type {
   DetailedAccount,
@@ -7,11 +7,11 @@ import type {
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../tailwind-element.js";
+import { tailwindElement } from "../../tailwind-element";
 import {
   formatFiatBalance,
   formatTokenBalance,
-} from "../../utils/format-fiat.js";
+} from "../../utils/format-fiat";
 
 @customElement("token-list-screen")
 @tailwindElement()
