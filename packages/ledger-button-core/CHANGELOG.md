@@ -1,3 +1,23 @@
+## 1.4.2 (2026-08-18)
+
+### 🩹 Fixes
+
+- Update Rango dApp identifier ([d9a2924d](https://github.com/LedgerHQ/ledger-button/commit/d9a2924d))
+
+### ❤️ Thank You
+
+- Pierre Vautherin
+
+## 1.4.1 (2026-08-18)
+
+### 🩹 Fixes
+
+- Add dApp Rango in stub config ([9a08f339](https://github.com/LedgerHQ/ledger-button-public/commit/9a08f339))
+
+### ❤️ Thank You
+
+- Pierre Vautherin
+
 ## 1.4.0 (2026-07-28)
 
 ### 🚀 Features
