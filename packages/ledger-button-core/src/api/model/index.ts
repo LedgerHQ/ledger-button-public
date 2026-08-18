@@ -1,5 +1,7 @@
 export type {
   Account,
+  AccountGroup,
+  AccountListItem,
   AccountWithFiat,
   DetailedAccount,
   FiatBalance,
