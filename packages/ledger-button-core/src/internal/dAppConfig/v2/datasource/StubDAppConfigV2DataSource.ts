@@ -230,8 +230,8 @@ const STUB_DAPP_CONFIGS_V2: Record<string, DAppConfigV2> = {
     featureFlags: {},
   },
   rango: {
-    name: "Rango",
-    liveAppId: "rango",
+    name: "Rango Exchange",
+    liveAppId: "rango-exchange",
     domainUrl: "https://rango.exchange",
     referralUrl:
       "https://shop.ledger.com/pages/hardware-wallets-comparison?utm_source=rango-exchange&utm_medium=partner&utm_campaign=26-02-Ledger_Button-ALL-Traffic-Partnership&utm_content=msg_buy_ledger_button_rango-exchange",
