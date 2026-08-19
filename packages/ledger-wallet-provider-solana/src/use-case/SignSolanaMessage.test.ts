@@ -113,10 +113,11 @@ describe("SignSolanaMessage", () => {
   });
 
   it("maps a device-action error state to an error status", async () => {
+    const deviceError = new Error("device error");
     executeDeviceAction.mockReturnValue({
       observable: of({
         status: DeviceActionStatus.Error,
-        error: new Error("device error"),
+        error: deviceError,
       }),
     });
 
@@ -125,5 +126,9 @@ describe("SignSolanaMessage", () => {
     );
 
     expect(status.status).toBe("error");
+    expect(logger.error).toHaveBeenCalledWith(
+      "Solana message signing device action failed",
+      { error: deviceError },
+    );
   });
 });
