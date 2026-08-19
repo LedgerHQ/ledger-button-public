@@ -927,9 +927,6 @@ importers:
       rxjs:
         specifier: 'catalog:'
         version: 7.8.2
-      vitest:
-        specifier: 'catalog:'
-        version: 3.2.6(@types/debug@4.1.12)(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@20.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jiti@2.6.1)(jsdom@22.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1)
       xstate:
         specifier: 'catalog:'
         version: 5.19.2
@@ -940,6 +937,9 @@ importers:
       '@types/pako':
         specifier: 'catalog:'
         version: 2.0.4
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/debug@4.1.12)(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@20.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jiti@2.6.1)(jsdom@22.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1)
 
   packages/ledger-wallet-provider-evm:
     dependencies:
@@ -964,9 +964,6 @@ importers:
       rxjs:
         specifier: 'catalog:'
         version: 7.8.2
-      vitest:
-        specifier: 'catalog:'
-        version: 3.2.6(@types/debug@4.1.12)(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@20.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jiti@2.6.1)(jsdom@22.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1)
       xstate:
         specifier: 'catalog:'
         version: 5.19.2
@@ -974,6 +971,9 @@ importers:
       '@ledgerhq/ledger-wallet-provider-core':
         specifier: workspace:*
         version: link:../ledger-button-core
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/debug@4.1.12)(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@20.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jiti@2.6.1)(jsdom@22.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1)
 
   packages/ledger-wallet-provider-solana:
     dependencies:
@@ -1007,9 +1007,6 @@ importers:
       rxjs:
         specifier: 'catalog:'
         version: 7.8.2
-      vitest:
-        specifier: 'catalog:'
-        version: 3.2.6(@types/debug@4.1.12)(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@20.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jiti@2.6.1)(jsdom@22.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1)
       xstate:
         specifier: 'catalog:'
         version: 5.19.2
@@ -1017,6 +1014,9 @@ importers:
       '@ledgerhq/ledger-wallet-provider-core':
         specifier: workspace:*
         version: link:../ledger-button-core
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/debug@4.1.12)(@types/node@20.19.9)(@vitest/ui@3.2.4)(happy-dom@20.10.2(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jiti@2.6.1)(jsdom@22.1.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(less@4.4.0)(lightningcss@1.31.1)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.8.1)
 
 packages:
 

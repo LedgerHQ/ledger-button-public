@@ -14,12 +14,12 @@
     "purify-ts": "catalog:",
     "reflect-metadata": "catalog:",
     "rxjs": "catalog:",
-    "vitest": "catalog:",
     "xstate": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/pako": "catalog:"
+    "@types/pako": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": {

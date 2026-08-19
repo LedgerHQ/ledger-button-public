@@ -10,7 +10,6 @@
     "inversify": "catalog:",
     "purify-ts": "catalog:",
     "rxjs": "catalog:",
-    "vitest": "catalog:",
     "xstate": "catalog:"
   },
   "exports": {
@@ -42,6 +41,7 @@
     "url": "https://github.com/LedgerHQ/ledger-button-public.git"
   },
   "devDependencies": {
-    "@ledgerhq/ledger-wallet-provider-core": "workspace:*"
+    "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
+    "vitest": "catalog:"
   }
 }
