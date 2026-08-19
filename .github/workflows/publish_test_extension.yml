@@ -35,7 +35,7 @@ jobs:
     env:
       RELEASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.ref_name }}
       RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.event_name == 'pull_request' && format('pr-{0}-latest', github.event.pull_request.number) || (github.ref_name == 'develop' && 'develop-latest' || format('{0}-latest', github.ref_name)) }}
-      RELEASE_TITLE: ${{ github.event_name == 'workflow_dispatch' && inputs.title || github.event_name == 'pull_request' && format('Test Extension (PR #{0})', github.event.pull_request.number) || (github.ref_name == 'develop' && 'Test Extension (develop)' || format('Test Extension ({0})', github.ref_name)) }}
+      RELEASE_TITLE: "${{ github.event_name == 'workflow_dispatch' && inputs.title || github.event_name == 'pull_request' && format('Test Extension (PR #{0})', github.event.pull_request.number) || (github.ref_name == 'develop' && 'Test Extension (develop)' || format('Test Extension ({0})', github.ref_name)) }}"
     steps:
       - uses: actions/checkout@v4
         with:
