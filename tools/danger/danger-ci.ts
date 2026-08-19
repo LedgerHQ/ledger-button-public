@@ -2,7 +2,6 @@ import { danger, fail, message } from "danger";
 import { exit } from "process";
 
 import {
-  checkBaseBranch,
   checkBranches,
   checkCommits,
   checkIfBot,
@@ -16,14 +15,15 @@ import {
 const author = getAuthor(danger);
 console.log("PR Actor:", author);
 
+const fork = isFork(danger.github.pr);
 const isBot = checkIfBot(danger.github.pr.user);
 
-// Always enforce base-branch rules, even for bot-authored PRs.
-const baseBranchResult = checkBaseBranch(danger, fail);
+// Always enforce branch naming for the PR base, even for bot-authored PRs.
+const branchResult = checkBranches(danger, fail, fork);
 
 if (isBot) {
-  console.log("PR Actor is a bot, skipping checks...");
-  if (!baseBranchResult) {
+  console.log("PR Actor is a bot, skipping remaining checks...");
+  if (!branchResult) {
     exit(1);
   }
   exit(0);
@@ -31,11 +31,7 @@ if (isBot) {
 
 const results: boolean[] = [];
 
-const fork = isFork(danger.github.pr);
-
-results.push(baseBranchResult);
-
-results.push(checkBranches(danger, fail, fork));
+results.push(branchResult);
 
 results.push(checkCommits(danger, fail, fork));
 

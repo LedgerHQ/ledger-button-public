@@ -25,6 +25,14 @@ export const BRANCH_PREFIX = [
   "refactor",
 ];
 
+/** Head branches allowed for PRs targeting `main`. */
+export const ALLOWED_BASE_MAIN_PREFIXES = ["release/v", "hotfix/v"] as const;
+
+const BACKMERGE_PREFIX = "backmerge/v";
+
+const TICKET_BRANCH_SUFFIX =
+  "(([a-z]{1,})-[0-9]+|noissue|no-issue|issue-[0-9]+)-.+";
+
 export const checkIfBot = (user: GitHubPRDSL["user"]) => user.type === "Bot";
 
 export const getAuthor = (danger: DangerDSLType) => {
@@ -37,76 +45,134 @@ export const getAuthor = (danger: DangerDSLType) => {
 
 export const isFork = (pr: GitHubPRDSL) => pr?.head?.repo?.fork ?? false;
 
-const Branch = (danger: DangerDSLType, fail: FailFn, isFork = false) => ({
-  regex: isFork
+const getHeadBranch = (danger: DangerDSLType): string => {
+  if (danger.github) {
+    return danger.github.pr.head.ref;
+  }
+
+  return execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+};
+
+const getBaseBranch = (danger: DangerDSLType): string | undefined => {
+  if (danger.github) {
+    return danger.github.pr.base.ref;
+  }
+
+  return undefined;
+};
+
+const developBranchRegex = (fork: boolean): RegExp =>
+  fork
     ? new RegExp(`^(${BRANCH_PREFIX.join("|")})/.+`, "i")
     : new RegExp(
-        `^(release|backmerge/v.+|(${BRANCH_PREFIX.join(
-          "|",
-        )})/(([a-z]{1,})-[0-9]+|noissue|no-issue|issue-[0-9]+)-.+)`,
+        `^(${BACKMERGE_PREFIX}.+|(${BRANCH_PREFIX.join("|")})/${TICKET_BRANCH_SUFFIX})`,
         "i",
-      ),
+      );
 
-  getBranch: () => {
-    if (danger.github) {
-      return danger.github.pr.head.ref;
-    }
+const matchesMainBranchPrefix = (branch: string): boolean =>
+  ALLOWED_BASE_MAIN_PREFIXES.some((prefix) => branch.startsWith(prefix));
 
-    return execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-  },
+const matchesDevelopBranchName = (branch: string, fork: boolean): boolean =>
+  developBranchRegex(fork).test(branch);
 
-  fail(currentBranch: string) {
-    return isFork
-      ? fail(`\
+const failMainBranchName = (fail: FailFn, currentBranch: string): void => {
+  fail(`\
+PRs targeting \`main\` are only allowed from branches starting with: ${ALLOWED_BASE_MAIN_PREFIXES.map((prefix) => `\`${prefix}*\``).join(" or ")}.
+
+**Current branch**: \`${currentBranch}\`
+
+Examples: \`release/v1.4.0\`, \`hotfix/v1.4.1\`\
+`);
+};
+
+const failDevelopBranchName = (
+  fail: FailFn,
+  currentBranch: string,
+  fork: boolean,
+): void => {
+  const regex = developBranchRegex(fork);
+
+  if (fork) {
+    fail(`\
 Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong branch name**: \`${currentBranch}\`
 
-ℹ️ Regex to match: \`${this.regex}\`
+ℹ️ Regex to match: \`${regex}\`
 
-- Rules:
+- Rules (PRs targeting \`develop\`):
   - Must start with a type (${BRANCH_PREFIX.join(", ")})
   - Followed by a SLASH ("/")
   - Followed by a description
 
 ℹ️ Example: \`feat/my-feature\`\
-`)
-      : fail(`\
+`);
+    return;
+  }
+
+  fail(`\
 Please fix the PR branch name to match the convention, see [CONTRIBUTING.md](https://github.com/LedgerHQ/ledger-button/blob/develop/CONTRIBUTING.md).
 
 **Wrong branch name**: \`${currentBranch}\`
 
-ℹ️ Regex to match: \`${this.regex}\`
+ℹ️ Regex to match: \`${regex}\`
 
-- Rules:
-  - Must start with a type (${BRANCH_PREFIX.join(", ")})
-  - Followed by a SLASH ("/")
-  - Followed by a JIRA issue number (bttn-1234) or "no-issue" or "issue-1234" if fixing a Github issue
-  - Followed by a DASH ("-")
-  - Followed by a description
+- Rules (PRs targeting \`develop\`):
+  - \`backmerge/vX.X.X\`, or
+  - a type (${BRANCH_PREFIX.join(", ")}) / ticket / description
+    - ticket: jira (\`lbd-123\`), \`no-issue\`, or \`issue-123\`
 
-ℹ️ Example: \`feat/bttn-1234-my-feature\`\
+ℹ️ Examples: \`feat/lbd-1234-my-feature\`, \`backmerge/v1.4.2\`
+
+PRs to \`main\` must use \`release/v*\` or \`hotfix/v*\` instead.\
 `);
-  },
-});
+};
 
+/**
+ * Enforces head branch naming based on the PR base:
+ * - `main` → must start with {@link ALLOWED_BASE_MAIN_PREFIXES}
+ * - anything else (typically `develop`) → {@link BRANCH_PREFIX} (+ ticket) or `backmerge/v*`
+ *
+ * Local runs (no GitHub PR context) accept either rule set.
+ */
 export const checkBranches = (
   danger: DangerDSLType,
   fail: FailFn,
   fork = false,
 ) => {
-  const config = Branch(danger, fail, fork);
-  const currentBranch = config.getBranch();
+  const currentBranch = getHeadBranch(danger);
+  const baseBranch = getBaseBranch(danger);
   console.log("Current branch:", currentBranch);
-  if (!config.regex.test(currentBranch)) {
-    config.fail(currentBranch);
+  console.log("Base branch:", baseBranch ?? "(local)");
+
+  if (baseBranch === "main") {
+    if (!matchesMainBranchPrefix(currentBranch)) {
+      failMainBranchName(fail, currentBranch);
+      return false;
+    }
+    return true;
+  }
+
+  if (baseBranch === undefined) {
+    const allowedLocally =
+      matchesDevelopBranchName(currentBranch, fork) ||
+      matchesMainBranchPrefix(currentBranch);
+    if (!allowedLocally) {
+      failDevelopBranchName(fail, currentBranch, fork);
+      return false;
+    }
+    return true;
+  }
+
+  if (!matchesDevelopBranchName(currentBranch, fork)) {
+    failDevelopBranchName(fail, currentBranch, fork);
     return false;
   }
 
   return true;
 };
 
-const Commits = (danger: DangerDSLType, fail: FailFn, fork = false) => ({
+const Commits = (danger: DangerDSLType, fail: FailFn, _fork = false) => ({
   regex: /^.+\s\(([a-zA-Z]+-?){1,}\)(\s\[(NO-ISSUE|([A-Z]+-\d+))\])?: [A-Z].*/,
 
   fail(wrongCommits: string[]) {
@@ -139,8 +205,8 @@ Special case for commit messages coming from a pull request merge:
   },
 
   getCommits: () => {
-    const currentBranch = Branch(danger, fail, fork).getBranch();
-    const isBackmergeBranch = currentBranch.startsWith("backmerge/v");
+    const currentBranch = getHeadBranch(danger);
+    const isBackmergeBranch = currentBranch.startsWith(BACKMERGE_PREFIX);
     const isMergeCommit = (message: string) => message.startsWith("Merge ");
 
     if (danger.github) {
@@ -278,40 +344,16 @@ const hasNoBumpLabel = (danger: DangerDSLType) => {
   return labels.includes("release:no-bump");
 };
 
-const RELEASE_BRANCH_PREFIXES = ["release/", "backmerge/", "hotfix/"];
+const VERSION_PLAN_EXEMPT_PREFIXES = [
+  ...ALLOWED_BASE_MAIN_PREFIXES,
+  BACKMERGE_PREFIX,
+] as const;
 
 const isReleaseBranch = (danger: DangerDSLType) => {
-  const branch = danger.github
-    ? danger.github.pr.head.ref
-    : execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
-  return RELEASE_BRANCH_PREFIXES.some((prefix) => branch.startsWith(prefix));
-};
-
-const ALLOWED_BASE_MAIN_PREFIXES = ["release/v", "hotfix/"];
-
-export const checkBaseBranch = (danger: DangerDSLType, fail: FailFn) => {
-  const baseBranch = danger.github.pr.base.ref;
-  if (baseBranch !== "main") {
-    return true;
-  }
-
-  const headBranch = danger.github.pr.head.ref;
-  const isAllowed = ALLOWED_BASE_MAIN_PREFIXES.some((prefix) =>
-    headBranch.startsWith(prefix),
+  const branch = getHeadBranch(danger);
+  return VERSION_PLAN_EXEMPT_PREFIXES.some((prefix) =>
+    branch.startsWith(prefix),
   );
-
-  if (!isAllowed) {
-    fail(`\
-PRs targeting \`main\` are only allowed from \`release/vX.X.X\` or \`hotfix/*\` branches.
-
-**Current branch**: \`${headBranch}\`
-
-If this is a release, rename your branch to \`release/vX.X.X\`. If this is a hotfix, rename it to \`hotfix/<jira-or-no-issue>-<description>\`.\
-`);
-    return false;
-  }
-
-  return true;
 };
 
 export const checkReleasePlanOrNoBumpLabel = (
