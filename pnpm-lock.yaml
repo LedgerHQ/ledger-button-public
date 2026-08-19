@@ -888,9 +888,6 @@ importers:
       '@ledgerhq/coin-framework':
         specifier: 'catalog:'
         version: 5.8.0(react@19.2.8)
-      '@ledgerhq/context-module':
-        specifier: 'catalog:'
-        version: 0.0.0-develop-20260819092631(@ledgerhq/device-management-kit@0.0.0-develop-20260819092631(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@ledgerhq/device-management-kit':
         specifier: 'catalog:'
         version: 0.0.0-develop-20260819092631(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
