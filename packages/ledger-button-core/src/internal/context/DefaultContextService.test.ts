@@ -1,12 +1,9 @@
-import { Maybe } from "purify-ts";
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
 
-import { aCurrencyDescriptor } from "../blockchain-provider/__mocks__/currencyDescriptorMock";
-import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
 import type { Device } from "../device/model/Device";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
@@ -21,7 +18,6 @@ describe("DefaultContextService", () => {
     error: ReturnType<typeof vi.fn>;
   };
   let mockLoggerFactory: ReturnType<typeof vi.fn>;
-  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   const mockDevice = {
     id: "device-123",
@@ -50,13 +46,6 @@ describe("DefaultContextService", () => {
     optimism: 10,
   };
 
-  const currencyIdByChainId: Record<string, string> = {
-    "1": "ethereum",
-    "137": "polygon",
-    "42161": "arbitrum",
-    "10": "optimism",
-  };
-
   const mockTrustchain = {
     trustChainId: "trustchain-123",
     applicationPath: "/app/path",
@@ -72,32 +61,8 @@ describe("DefaultContextService", () => {
 
     mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
 
-    mockBlockchainProviderManager = {
-      init: vi.fn(),
-      setSelectedAccounts: vi.fn(),
-      setNetwork: vi.fn(),
-      describeCurrency: vi.fn().mockImplementation((currencyId: string) => {
-        const chainId = chainIdMap[currencyId];
-        return chainId !== undefined
-          ? Maybe.of(
-              aCurrencyDescriptor({
-                currencyId,
-                networkId: String(chainId),
-              }),
-            )
-          : Maybe.empty();
-      }),
-      describeNetwork: vi.fn().mockImplementation((networkId: string) => {
-        const currencyId = currencyIdByChainId[networkId];
-        return currencyId
-          ? Maybe.of(aCurrencyDescriptor({ currencyId, networkId }))
-          : Maybe.empty();
-      }),
-    };
-
     service = new DefaultContextService(
       mockLoggerFactory as unknown as () => LoggerPublisher,
-      (() => mockBlockchainProviderManager) as never,
     );
   });
 
@@ -182,7 +147,11 @@ describe("DefaultContextService", () => {
       },
       {
         eventType: "account_changed",
-        eventArgs: { account: mockAccountPolygon, family: "ethereum" },
+        eventArgs: {
+          account: mockAccountPolygon,
+          family: "ethereum",
+          chainId: chainIdMap.polygon,
+        },
         expectedContext: {
           connectedDevice: undefined,
           selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
@@ -198,6 +167,7 @@ describe("DefaultContextService", () => {
         },
       },
       {
+        // hydrated_account updates the account data only — chainId is unchanged
         eventType: "hydrated_account",
         eventArgs: { account: mockAccountPolygon },
         expectedContext: {
@@ -205,7 +175,7 @@ describe("DefaultContextService", () => {
           selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
           trustChainId: undefined,
           applicationPath: undefined,
-          chainId: chainIdMap.polygon,
+          chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           hasDeveloperMode: false,
@@ -241,6 +211,7 @@ describe("DefaultContextService", () => {
             type: "account_changed",
             account: mockAccount,
             family: "ethereum",
+            chainId: chainIdMap.ethereum,
           });
         },
         expectedContext: {
@@ -337,6 +308,7 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         expect(service.getContext().activeFamily).toBe("solana");
@@ -347,11 +319,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         expect(service.getContext().activeFamily).toBe("solana");
@@ -362,11 +336,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         service.onEvent({ type: "active_family_changed", family: "ethereum" });
@@ -379,6 +355,7 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
 
         service.onEvent({ type: "active_family_changed", family: "solana" });
@@ -391,11 +368,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         service.onEvent({ type: "account_disconnected", family: "solana" });
@@ -408,6 +387,7 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         service.onEvent({ type: "account_disconnected", family: "solana" });
@@ -420,11 +400,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         const emissions: BlockchainFamily[] = [];
@@ -452,11 +434,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         const snapshots: ButtonCoreContext[] = [];

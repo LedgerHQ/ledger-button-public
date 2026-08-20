@@ -102,10 +102,9 @@ describe("DefaultBlockchainProviderManager", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const contextService = createMockContextService();
 
     manager = new DefaultBlockchainProviderManager(
-      contextService,
+      createMockContextService() as never,
       loggerFactory as never,
     );
     core = createMockCoreFacade();
@@ -149,14 +148,12 @@ describe("DefaultBlockchainProviderManager", () => {
 
     it("pushes initial context to providers after wiring", () => {
       const account = { currencyId: "ethereum" } as Account;
-      const contextService = createMockContextService(account, 137);
-
-      manager = new DefaultBlockchainProviderManager(
-        contextService,
+      const managerWithContext = new DefaultBlockchainProviderManager(
+        createMockContextService(account, 137) as never,
         loggerFactory as never,
       );
 
-      manager.init(core, dappConfig, factories);
+      managerWithContext.init(core, dappConfig, factories);
 
       expect(evmProvider.setSelectedAccount).toHaveBeenCalledWith(account);
       expect(evmProvider.setNetwork).toHaveBeenCalledWith(137);

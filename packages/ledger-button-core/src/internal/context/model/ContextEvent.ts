@@ -11,12 +11,14 @@ export type ContextEvent =
   | {
       type: "chain_changed";
       chainId: number;
+      currencyId?: string;
     }
   | {
       type: "account_changed";
       account: Account | DetailedAccount;
       /** Blockchain family the account belongs to (resolved by core). */
       family: BlockchainFamily;
+      chainId: number;
     }
   | {
       type: "hydrated_account";
