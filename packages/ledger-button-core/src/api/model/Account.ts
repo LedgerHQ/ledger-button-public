@@ -55,6 +55,7 @@ export type Network = {
   ticker?: string;
   balance?: string;
   fiatBalance?: FiatBalance;
+  totalFiatBalance?: FiatBalance;
 };
 
 export type DetailedAccount = Account & {
