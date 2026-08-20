@@ -12,7 +12,10 @@ import {
 } from "../../context/language-context";
 import { Navigation } from "../../shared/navigation";
 import { tailwindElement } from "../../tailwind-element";
-import { formatTokenBalance } from "../../utils/format-fiat";
+import {
+  formatFiatBalance,
+  formatTokenBalance,
+} from "../../utils/format-fiat";
 import { AvailableNetworksController } from "./available-networks-controller";
 
 @customElement("available-networks-screen")
@@ -50,7 +53,13 @@ export class AvailableNetworksScreen extends LitElement {
         ledger-id=${network.id}
         ticker=${network.ticker ?? ""}
         .title=${network.name}
-        .value=${network.balance ? formatTokenBalance(network.balance, this.languages.locale) : ""}
+        .value=${network.balance
+          ? formatTokenBalance(network.balance, this.languages.locale)
+          : ""}
+        .fiatValue=${formatFiatBalance(
+          network.totalFiatBalance,
+          this.languages.locale,
+        )}
         .isClickable=${true}
         type="network"
         iconVariant="square"

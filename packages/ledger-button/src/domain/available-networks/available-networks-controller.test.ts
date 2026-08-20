@@ -22,6 +22,7 @@ const ethereumNetwork: Network = {
   ticker: "ETH",
   balance: "1.5",
   fiatBalance: { value: "3000.00", currency: "USD" },
+  totalFiatBalance: { value: "3000.00", currency: "USD" },
 };
 
 const polygonNetwork: Network = {
@@ -30,6 +31,7 @@ const polygonNetwork: Network = {
   ticker: "MATIC",
   balance: "200",
   fiatBalance: { value: "500.00", currency: "USD" },
+  totalFiatBalance: { value: "500.00", currency: "USD" },
 };
 
 describe("AvailableNetworksController", () => {
