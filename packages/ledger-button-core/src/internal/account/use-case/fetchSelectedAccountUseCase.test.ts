@@ -92,7 +92,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
-    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } }],
+    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } }],
   };
 
   beforeEach(() => {
@@ -222,7 +222,7 @@ describe("FetchSelectedAccountUseCase", () => {
             hydratedAccount.transactionHistory,
           );
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } },
           ]);
         });
       });
@@ -370,8 +370,8 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(result.isRight()).toBe(true);
         result.map((account) => {
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
-            { id: "polygon", name: "Polygon", ticker: "POLYGON", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "polygon", name: "Polygon", ticker: "POLYGON", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } },
           ]);
           expect(account.networks).not.toContainEqual(
             expect.objectContaining({ id: "bsc" }),
