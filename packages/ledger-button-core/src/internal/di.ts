@@ -28,6 +28,7 @@ import { ContainerOptions } from "./diTypes";
 export function createContainer({
   loggerLevel = "info",
   dmkConfig,
+  dmkLogLevel = "error",
   apiKey,
   dAppIdentifier,
   environment = "production",
@@ -55,7 +56,11 @@ export function createContainer({
     accountModuleFactory({ stub: devConfig.stub.account }),
     backendModuleFactory({ stub: devConfig.stub.base }),
     dAppConfigModuleFactory(),
-    deviceModuleFactory({ stub: devConfig.stub.device, dmkConfig }),
+    deviceModuleFactory({
+      stub: devConfig.stub.device,
+      dmkConfig,
+      dmkLogLevel,
+    }),
     eventTrackingModuleFactory({ stub: devConfig.stub.base }),
     storageModuleFactory({ stub: devConfig.stub.base }),
     consentModuleFactory(),

@@ -1,4 +1,5 @@
 import {
+  ConsoleLogger,
   DeviceManagementKit,
   DiscoveredDevice,
   NoAccessibleDeviceError,
@@ -34,7 +35,11 @@ vi.mock("@ledgerhq/device-management-kit", async () => {
     })),
     ConsoleLogger: vi.fn(),
     LogLevel: {
+      Fatal: "Fatal",
       Error: "Error",
+      Warning: "Warning",
+      Info: "Info",
+      Debug: "Debug",
     },
   };
 });
@@ -47,7 +52,11 @@ describe("DefaultDeviceManagementKitService", () => {
   beforeEach(() => {
     mockLoggerFactory = createMockLoggerFactory();
 
-    service = new DefaultDeviceManagementKitService(mockLoggerFactory, {});
+    service = new DefaultDeviceManagementKitService(
+      mockLoggerFactory,
+      {},
+      "error",
+    );
 
     mockDmk = service.dmk;
 
@@ -60,6 +69,25 @@ describe("DefaultDeviceManagementKitService", () => {
       expect(service.sessionId).toBeUndefined();
       expect(service.connectedDevice).toBeUndefined();
     });
+
+    it.each([
+      { dmkLogLevel: "fatal" as const, expected: "Fatal" },
+      { dmkLogLevel: "error" as const, expected: "Error" },
+      { dmkLogLevel: "warn" as const, expected: "Warning" },
+      { dmkLogLevel: "info" as const, expected: "Info" },
+      { dmkLogLevel: "debug" as const, expected: "Debug" },
+    ])(
+      "should construct ConsoleLogger with $expected when dmkLogLevel is $dmkLogLevel",
+      ({ dmkLogLevel, expected }) => {
+        new DefaultDeviceManagementKitService(
+          mockLoggerFactory,
+          {},
+          dmkLogLevel,
+        );
+
+        expect(ConsoleLogger).toHaveBeenCalledWith(expected);
+      },
+    );
   });
 
   describe("connectToDevice", () => {
