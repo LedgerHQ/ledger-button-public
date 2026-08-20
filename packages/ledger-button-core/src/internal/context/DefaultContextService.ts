@@ -1,5 +1,4 @@
 import { type Factory, inject, injectable } from "inversify";
-import { Maybe } from "purify-ts";
 import { BehaviorSubject, Observable } from "rxjs";
 
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
@@ -10,8 +9,6 @@ import {
 } from "@api/model/ButtonCoreContext";
 
 import { type ContextEvent } from "./model/ContextEvent";
-import { blockchainProviderModuleTypes } from "../blockchain-provider/di/blockchainProviderModuleTypes";
-import type { BlockchainProviderManager } from "../blockchain-provider/service/BlockchainProviderManager";
 import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
 import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
@@ -40,8 +37,6 @@ export class DefaultContextService implements ContextService {
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     private readonly loggerFactory: Factory<LoggerPublisher>,
-    @inject(blockchainProviderModuleTypes.BlockchainProviderManagerFactory)
-    private readonly blockchainProviderManagerFactory: Factory<BlockchainProviderManager>,
   ) {
     this.logger = this.loggerFactory("Context Service");
   }
@@ -66,19 +61,19 @@ export class DefaultContextService implements ContextService {
         const evmAccount = this.context.selectedAccounts.get(
           DEFAULT_BLOCKCHAIN_FAMILY,
         );
-        if (evmAccount) {
+        if (evmAccount && event.currencyId) {
           this.context.selectedAccounts.set(DEFAULT_BLOCKCHAIN_FAMILY, {
             ...evmAccount,
-            currencyId: this.blockchainProviderManagerFactory()
-              .describeNetwork(String(event.chainId))
-              .map((currency) => currency.currencyId)
-              .orDefault(evmAccount.currencyId),
+            currencyId: event.currencyId,
           });
         }
         break;
       }
       case "account_changed":
-        this.applySelectedAccount(event.account, event.family);
+        this.context.selectedAccounts.set(event.family, event.account);
+        if (event.family === DEFAULT_BLOCKCHAIN_FAMILY) {
+          this.context.chainId = event.chainId;
+        }
         this.context.activeFamily = event.family;
         break;
       case "hydrated_account":
@@ -151,17 +146,6 @@ export class DefaultContextService implements ContextService {
     };
   }
 
-  private applySelectedAccount(
-    account: Account | DetailedAccount,
-    family: BlockchainFamily,
-  ): void {
-    this.context.selectedAccounts.set(family, account);
-    // chainId tracks the default (ethereum) selection only.
-    if (family === DEFAULT_BLOCKCHAIN_FAMILY) {
-      this.context.chainId = this.resolveNumericChainId(account.currencyId);
-    }
-  }
-
   /**
    * Re-apply a freshly hydrated account to the family that currently holds it
    * (matched by address), defaulting to {@link DEFAULT_BLOCKCHAIN_FAMILY}.
@@ -169,7 +153,7 @@ export class DefaultContextService implements ContextService {
   private applyHydratedAccount(account: Account | DetailedAccount): void {
     const family =
       this.findFamilyForAccount(account) ?? DEFAULT_BLOCKCHAIN_FAMILY;
-    this.applySelectedAccount(account, family);
+    this.context.selectedAccounts.set(family, account);
   }
 
   private findFamilyForAccount(
@@ -187,13 +171,4 @@ export class DefaultContextService implements ContextService {
     return this.context.selectedAccounts.keys().next().value;
   }
 
-  private resolveNumericChainId(currencyId: string): number {
-    return this.blockchainProviderManagerFactory()
-      .describeCurrency(currencyId)
-      .chain((currency) => {
-        const parsed = Number(currency.networkId);
-        return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
-      })
-      .orDefault(1);
-  }
 }

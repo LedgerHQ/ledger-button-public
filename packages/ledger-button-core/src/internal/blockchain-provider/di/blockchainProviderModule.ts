@@ -1,4 +1,4 @@
-import { ContainerModule, type Factory } from "inversify";
+import { ContainerModule } from "inversify";
 
 import type { BlockchainProviderManager } from "../service/BlockchainProviderManager";
 import type { CoreFacadeService } from "../service/CoreFacadeService";
@@ -13,15 +13,6 @@ export function blockchainProviderModuleFactory() {
     )
       .to(DefaultBlockchainProviderManager)
       .inSingletonScope();
-
-    bind<Factory<BlockchainProviderManager>>(
-      blockchainProviderModuleTypes.BlockchainProviderManagerFactory,
-    ).toFactory((context) => {
-      return () =>
-        context.get<BlockchainProviderManager>(
-          blockchainProviderModuleTypes.BlockchainProviderManager,
-        );
-    });
 
     bind<CoreFacadeService>(blockchainProviderModuleTypes.CoreFacadeService)
       .to(DefaultCoreFacadeService)

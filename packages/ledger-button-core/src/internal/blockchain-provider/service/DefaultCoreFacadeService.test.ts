@@ -2,14 +2,23 @@
  * @vitest-environment jsdom
  */
 
+import { Maybe } from "purify-ts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import type { ContextService } from "@internal/context/ContextService";
+import { createMockLoggerFactory } from "@internal/device/__tests__/mocks";
 import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
 
 import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
 
+/**
+ * Build a DefaultCoreFacadeService with the minimum viable mocks. Only the
+ * dependencies exercised by these tests need real values; the rest are left as
+ * empty stubs so that adding or reordering constructor params doesn't break
+ * every unrelated slot.
+ */
 const makeService = () => {
   const emit = vi.fn();
   const navigationIntentService = {
@@ -17,32 +26,31 @@ const makeService = () => {
   } as unknown as NavigationIntentService;
   const contextService = {
     getContext: vi.fn().mockReturnValue({ selectedAccounts: new Map() }),
+    onEvent: vi.fn(),
   } as unknown as ContextService;
-  const loggerFactory = () => ({
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  });
-
+  const blockchainProviderManager = {
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+  } as unknown as BlockchainProviderManager;
+  const stub = {} as never;
   const service = new DefaultCoreFacadeService(
     navigationIntentService,
     contextService,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    loggerFactory as never,
+    blockchainProviderManager,
+    stub, // BackendService
+    stub, // DeviceManagementKitService
+    stub, // Config
+    stub, // ModalService
+    stub, // CoinServiceDataSource
+    stub, // CalDataSource
+    stub, // TrackTransactionStarted
+    stub, // TrackTransactionCompleted
+    stub, // TrackTypedMessageStarted
+    stub, // TrackTypedMessageCompleted
+    stub, // TrackBroadcastedTransactionUseCase
+    createMockLoggerFactory() as never,
   );
 
-  return { service, emit };
+  return { service, emit, contextService, blockchainProviderManager };
 };
 
 describe("DefaultCoreFacadeService.requestAccount", () => {
