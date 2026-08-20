@@ -55,6 +55,8 @@ import type { NavigationIntentService } from "@internal/navigation/service/Navig
 import { pendingTransactionModuleTypes } from "@internal/pending-transaction/di/pendingTransactionModuleTypes";
 import type { TrackBroadcastedTransactionUseCase } from "@internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase";
 
+import { blockchainProviderModuleTypes } from "../di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 import type { CoreFacadeService } from "./CoreFacadeService";
 
 /** Ledger's public Solana node proxy (`API_SOLANA_PROXY` in ledger-live-common). */
@@ -69,6 +71,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _navigationIntentService: NavigationIntentService,
     @inject(contextModuleTypes.ContextService)
     private readonly _contextService: ContextService,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly _blockchainProviderManager: BlockchainProviderManager,
     @inject(backendModuleTypes.BackendService)
     private readonly _backendService: BackendService,
     @inject(deviceModuleTypes.DeviceManagementKitService)
@@ -154,7 +158,9 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     if (isJsonRpcResponse(result) || isCoinServiceBroadcastResponse(result)) {
       return result;
     }
-    throw new Error("Unexpected broadcast response for Solana JSON-RPC request");
+    throw new Error(
+      "Unexpected broadcast response for Solana JSON-RPC request",
+    );
   }
 
   async requestAccount(family: BlockchainFamily): Promise<Account> {
@@ -214,7 +220,11 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   async requestSwitchChain(chainId: number): Promise<void> {
-    this._contextService.onEvent({ type: "chain_changed", chainId });
+    const currencyId = this._blockchainProviderManager
+      .describeNetwork(String(chainId))
+      .map((c) => c.currencyId)
+      .extract();
+    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
   }
 
   private _disconnectHandler?: (family: BlockchainFamily) => Promise<void>;

@@ -140,13 +140,10 @@ export class LedgerButtonCore {
 
   private async initializeContext() {
     this._logger.debug("Initializing context");
-    console.log("Initializing context");
 
     const dappConfig = await this.container
       .get<GetDAppConfigUseCase>(dAppConfigModuleTypes.GetDAppConfigUseCase)
       .execute();
-
-    console.log("dappConfigv2", dappConfig);
 
     //TODO throw error if dApp config is not found ?
     // Migrate database to latest version
@@ -464,7 +461,7 @@ export class LedgerButtonCore {
   }
 
   selectAccount(account: Account) {
-    const family = this.resolveBlockchainFamily(account.currencyId);
+    const { family, chainId } = this.resolveFamilyAndChainId(account.currencyId);
 
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -474,6 +471,7 @@ export class LedgerButtonCore {
       type: "account_changed",
       account,
       family,
+      chainId,
     });
 
     this.container
@@ -506,14 +504,24 @@ export class LedgerButtonCore {
     this._contextService.onEvent({ type: "active_family_changed", family });
   }
 
-  private resolveBlockchainFamily(currencyId: string): BlockchainFamily {
-    return this.container
+  private resolveFamilyAndChainId(currencyId: string): {
+    family: BlockchainFamily;
+    chainId: number;
+  } {
+    const descriptor = this.container
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .describeCurrency(currencyId)
-      .map((currency) => currency.family)
-      .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
+      .describeCurrency(currencyId);
+    return {
+      family: descriptor.map((c) => c.family).orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
+      chainId: descriptor
+        .chain((c) => {
+          const parsed = Number(c.networkId);
+          return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
+        })
+        .orDefault(1),
+    };
   }
 
   // Device methods
@@ -781,10 +789,14 @@ export class LedgerButtonCore {
   }
 
   setChainId(chainId: number) {
-    this._contextService.onEvent({
-      type: "chain_changed",
-      chainId,
-    });
+    const currencyId = this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .describeNetwork(String(chainId))
+      .map((c) => c.currencyId)
+      .extract();
+    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
   }
 
   getChainId(): number {
