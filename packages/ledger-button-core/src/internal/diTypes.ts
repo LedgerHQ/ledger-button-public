@@ -10,6 +10,7 @@ export type ContainerOptions = {
   dAppIdentifier?: string;
   dmkConfig?: DeviceModuleOptions;
   loggerLevel?: LogLevelKey;
+  dmkLogLevel?: LogLevelKey;
   environment?: "staging" | "production";
   /**
    * Host-supplied factories that create blockchain providers. Required for any
