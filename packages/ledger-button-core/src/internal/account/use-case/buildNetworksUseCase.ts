@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 
-import type { AccountWithFiat, Network } from "@api/model/Account";
+import type { AccountWithFiat, FiatBalance, Network } from "@api/model/Account";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
 import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
@@ -28,7 +28,7 @@ export class BuildNetworksUseCase {
       accounts.map((account) => this.toNetwork(account)),
     );
 
-    return this.sortByFiatValue(networks);
+    return this.sortByTotalFiatValue(networks);
   }
 
   private async toNetwork(account: AccountWithFiat): Promise<Network> {
@@ -40,6 +40,29 @@ export class BuildNetworksUseCase {
       ticker: info?.ticker ?? account.ticker,
       balance: account.balance,
       fiatBalance: account.fiatBalance,
+      totalFiatBalance: this.computeTotalFiatBalance(account),
+    };
+  }
+
+  private toFiniteFloat(value: string): number {
+    const parsed = parseFloat(value);
+    return isFinite(parsed) ? parsed : 0;
+  }
+
+  private computeTotalFiatBalance(
+    account: AccountWithFiat,
+  ): FiatBalance | undefined {
+    if (!account.fiatBalance) return undefined;
+
+    const nativeFiat = this.toFiniteFloat(account.fiatBalance.value);
+    const tokensFiat = account.tokens.reduce((sum, token) => {
+      if (!token.fiatBalance?.value) return sum;
+      return sum + this.toFiniteFloat(token.fiatBalance.value);
+    }, 0);
+
+    return {
+      value: (nativeFiat + tokensFiat).toFixed(2),
+      currency: account.fiatBalance.currency,
     };
   }
 
@@ -57,10 +80,14 @@ export class BuildNetworksUseCase {
     return info;
   }
 
-  private sortByFiatValue(networks: Network[]): Network[] {
+  private sortByTotalFiatValue(networks: Network[]): Network[] {
     return [...networks].sort((a, b) => {
-      const aFiat = parseFloat(a.fiatBalance?.value ?? "0");
-      const bFiat = parseFloat(b.fiatBalance?.value ?? "0");
+      const aFiat = a.totalFiatBalance?.value
+        ? this.toFiniteFloat(a.totalFiatBalance.value)
+        : 0;
+      const bFiat = b.totalFiatBalance?.value
+        ? this.toFiniteFloat(b.totalFiatBalance.value)
+        : 0;
       return bFiat - aFiat;
     });
   }
