@@ -1,0 +1,201 @@
+---
+title: Solana with Wallet Standard
+category: how-to
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Solana with Wallet Standard
+
+This guide shows how to connect to Ledger Wallet Provider from a Solana dApp and sign messages or transactions through the [Wallet Standard](https://github.com/wallet-standard/wallet-standard).
+
+Ledger Wallet Provider registers a Solana Wallet Standard wallet when you call `initializeLedgerProvider` with the Solana factory **and** Solana is enabled in your partner dApp configuration (`dAppIdentifier`).
+
+<Callout type="info">
+  Complete [Get started](../get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Install `@ledgerhq/ledger-wallet-provider-solana`, pass `createSolanaBlockchainProvider`, and confirm with Ledger that Solana is enabled for your dApp. Then follow this page for Wallet Standard discovery and signing.
+</Callout>
+
+## Prerequisites
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider @ledgerhq/ledger-wallet-provider-solana
+```
+
+Initialize once at application startup (see [Get started](../get-started) and [Configuration](../configuration)):
+
+```ts
+import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
+import { createSolanaBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-solana'
+import '@ledgerhq/ledger-wallet-provider/styles.css'
+
+const cleanup = initializeLedgerProvider({
+  dAppIdentifier: 'my-dapp',
+  apiKey: 'your-api-key',
+  blockchainProviderFactories: [
+    { family: 'solana', create: createSolanaBlockchainProvider },
+  ],
+})
+
+// Call cleanup() when your app unmounts to unregister the Solana wallet too.
+```
+
+Optional Solana packages for discovery and React hooks:
+
+```bash
+npm install @wallet-standard/app
+# React helpers (optional):
+npm install @solana/react @wallet-standard/react
+```
+
+Libraries such as `@solana/wallet-adapter` also discover Wallet Standard wallets with no extra Ledger wiring.
+
+## Supported features
+
+After connection, the Ledger Solana wallet exposes:
+
+| Feature | Purpose |
+|---------|---------|
+| `standard:connect` / `standard:disconnect` | Connect and disconnect accounts |
+| `standard:events` | Listen for account / feature changes |
+| `solana:signMessage` | Sign an off-chain message (ed25519) |
+| `solana:signTransaction` | Sign a serialized transaction without broadcasting |
+| `solana:signAndSendTransaction` | Sign and submit a transaction |
+
+Supported transaction versions: `legacy` and `0` (versioned).
+
+## Discover and connect
+
+List Wallet Standard wallets and connect to Ledger:
+
+```ts
+import { getWallets } from '@wallet-standard/app'
+
+const { get } = getWallets()
+
+function findLedgerWallet() {
+  return get().find((wallet) =>
+    wallet.chains.some((chain) => chain.startsWith('solana:')) &&
+    wallet.name.toLowerCase().includes('ledger'),
+  )
+}
+
+const wallet = findLedgerWallet()
+if (!wallet) {
+  throw new Error('Ledger Solana wallet not found. Call initializeLedgerProvider first.')
+}
+
+const connect = wallet.features['standard:connect']
+if (!connect) {
+  throw new Error('Wallet does not support standard:connect')
+}
+
+const { accounts } = await connect.connect()
+const account = accounts[0]
+```
+
+With React, `@solana/react` / `@wallet-standard/react` helpers (`useConnect`, `useSelectedWalletAccount`, …) wrap the same Wallet Standard APIs.
+
+<Callout type="info">
+  **Registration:** A family is registered only when you pass its factory **and** it is enabled in your dApp config. Solana factory + Solana enabled → Wallet Standard. EVM factory + Ethereum enabled → EIP-6963 / EIP-1193. Both → both surfaces from the same `initializeLedgerProvider` call. Account pickers are filtered by the requesting family (Solana connect only lists Solana-compatible accounts).
+</Callout>
+
+## Sign a message
+
+```ts
+const signMessageFeature = wallet.features['solana:signMessage']
+if (!signMessageFeature) {
+  throw new Error('Wallet does not support solana:signMessage')
+}
+
+const message = new TextEncoder().encode('Hello from my Solana dApp')
+
+const [result] = await signMessageFeature.signMessage({
+  account,
+  message,
+})
+
+// result.signedMessage — bytes that were signed
+// result.signature — ed25519 signature bytes
+```
+
+React equivalent with `@solana/react`:
+
+```tsx
+import { useSignMessage } from '@solana/react'
+
+const signMessage = useSignMessage(account)
+
+const { signature } = await signMessage({
+  message: new TextEncoder().encode('Hello from my Solana dApp'),
+})
+```
+
+Signing opens the Ledger Wallet Provider UI so the user can confirm on their device.
+
+## Sign a transaction
+
+Build and serialize a Solana transaction with your preferred toolkit (`@solana/kit`, `@solana/web3.js`, …), then pass the serialized bytes:
+
+```ts
+const signTransactionFeature = wallet.features['solana:signTransaction']
+if (!signTransactionFeature) {
+  throw new Error('Wallet does not support solana:signTransaction')
+}
+
+// `serializedTransaction` is a Uint8Array (wire format)
+const [signed] = await signTransactionFeature.signTransaction({
+  account,
+  transaction: serializedTransaction,
+  chain: 'solana:mainnet', // or solana:devnet / solana:testnet
+})
+
+// signed.signedTransaction — signed wire bytes (you broadcast yourself)
+```
+
+## Sign and send a transaction
+
+```ts
+const signAndSendFeature = wallet.features['solana:signAndSendTransaction']
+if (!signAndSendFeature) {
+  throw new Error('Wallet does not support solana:signAndSendTransaction')
+}
+
+const [sent] = await signAndSendFeature.signAndSendTransaction({
+  account,
+  transaction: serializedTransaction,
+  chain: 'solana:mainnet',
+  options: { skipPreflight: false },
+})
+
+// sent.signature — base58 transaction signature
+```
+
+## Cleanup
+
+Call the function returned by `initializeLedgerProvider` when your application unmounts. Cleanup removes the Ledger UI and unregisters any providers that were registered for your partner configuration.
+
+```ts
+const cleanup = initializeLedgerProvider({ /* options */ })
+
+// Later:
+cleanup()
+```
+
+## Troubleshooting
+
+**Ledger does not appear in the wallet list.**
+Confirm `initializeLedgerProvider` ran in the browser before you query wallets, that you passed `createSolanaBlockchainProvider`, and that Solana is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no Solana wallet is registered — see [Requirements](../requirements).
+
+**Connect returns no accounts.**
+The user cancelled the flow, or no Solana account is available on the device for the requested cluster. Retry `standard:connect` after the user finishes onboarding in the Ledger UI.
+
+**Signing fails while another flow is open.**
+Blocking requests (connect / sign) are handled one at a time. Wait for the current Ledger UI flow to finish before starting another.
+
+## See also
+
+- [Get started](../get-started) — install family packages and pass `blockchainProviderFactories`
+- [EVM](./evm) — EIP-6963 discovery and EIP-1193 signing
+- [Configuration](../configuration) — init options, including `blockchainProviderFactories`
+- [API reference](../api-reference) — `initializeLedgerProvider` and EVM EIP-1193 surface
+- [Wallet Standard](https://github.com/wallet-standard/wallet-standard) — discovery protocol specification

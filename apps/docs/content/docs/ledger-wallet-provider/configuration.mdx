@@ -19,6 +19,7 @@ This page describes all available configuration options for `initializeLedgerPro
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // Log verbosity (default: 'info')
   environment?: 'staging' | 'production';             // Target Ledger backend environment
   dmkConfig?: DeviceModuleOptions;                    // Device Management Kit configuration (optional)
+  blockchainProviderFactories?: BlockchainProviderFactoryRegistration[]; // Family factories to register (required for EVM / Solana)
 
   // UI options
   target?: HTMLElement;                               // Where to mount the UI (default: document.body)
@@ -42,7 +43,7 @@ This page describes all available configuration options for `initializeLedgerPro
 }
 ```
 
-All options are optional.
+All options are optional. Pass `blockchainProviderFactories` for any chain provider to load.
 
 ## Parameter details
 
@@ -53,6 +54,34 @@ Your Ledger API key. Required for production use.
 ### `dAppIdentifier`
 
 Your dApp identifier. This lets Ledger validate the integration and enable remote services.
+
+### `blockchainProviderFactories`
+
+Host-supplied factories that create blockchain providers. Required for any family to load — the UI package never imports family packages itself.
+
+Install the family package, import its factory, and register it against the family it serves:
+
+```ts
+import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
+import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
+import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
+
+initializeLedgerProvider({
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+  blockchainProviderFactories: [
+    { family: "ethereum", create: createEvmBlockchainProvider },
+    { family: "solana", create: createSolanaBlockchainProvider },
+  ],
+});
+```
+
+| Family | Package | Factory |
+|--------|---------|---------|
+| `ethereum` | `@ledgerhq/ledger-wallet-provider-evm` | `createEvmBlockchainProvider` |
+| `solana` | `@ledgerhq/ledger-wallet-provider-solana` | `createSolanaBlockchainProvider` |
+
+A factory is skipped when that family is not enabled in your partner dApp configuration. If you omit `blockchainProviderFactories` (or pass an empty array), no EVM or Solana provider is registered.
 
 ### `loggerLevel`
 
@@ -70,7 +99,7 @@ Target element to mount the Ledger Wallet Provider UI. Defaults to `document.bod
 
 Hides the floating Ledger button entirely. Defaults to `false`.
 
-When set to `true`, the floating button is not rendered on screen or inside a `floatingButtonTarget`. The Ledger UI (modal, side panel) is still mounted and the EIP-1193 provider is still registered — this is useful when you want to drive the flow exclusively from your own UI through the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) provider.
+When set to `true`, the floating button is not rendered on screen or inside a `floatingButtonTarget`. The Ledger UI (modal, side panel) is still mounted and any providers you registered via `blockchainProviderFactories` are still announced — this is useful when you want to drive the flow exclusively from your own UI (for example through the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) provider).
 
 ```javascript
 initializeLedgerProvider({
@@ -182,10 +211,10 @@ const cleanup = initializeLedgerProvider({ /* options */ })
 cleanup()
 ```
 
-The cleanup function removes the UI, deregisters the `eip6963:requestProvider` listener, and resets the internal provider state so a new configuration can be applied on the next call.
+The cleanup function removes the UI, deregisters any providers that were registered for your partner configuration (for example the EVM `eip6963:requestProvider` listener and/or the Solana Wallet Standard wallet), and resets internal provider state so a new configuration can be applied on the next call.
 
 ## See also
 
 - [Get started](./get-started) — install the SDK and run your first integration
-- [API reference](./api-reference) — `initializeLedgerProvider` function signature and `LedgerEIP1193Provider` methods
+- [API reference](./api-reference) — `initializeLedgerProvider` function signature and `LedgerEIP1193Provider` (from `@ledgerhq/ledger-wallet-provider-evm`)
 - [Requirements](./requirements) — browser and platform requirements

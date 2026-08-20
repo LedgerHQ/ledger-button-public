@@ -7,13 +7,13 @@ import { Callout } from 'nextra/components'
 
 # API reference
 
-This page describes the public API of `@ledgerhq/ledger-wallet-provider`: the `initializeLedgerProvider` function and the `LedgerEIP1193Provider` class.
+This page describes the public API of Ledger Wallet Provider: `initializeLedgerProvider` from `@ledgerhq/ledger-wallet-provider`, and `LedgerEIP1193Provider` from `@ledgerhq/ledger-wallet-provider-evm`.
 
 ---
 
 ## `initializeLedgerProvider(options)`
 
-Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Announces the Ledger wallet to every supported chain through its native discovery protocol: EVM dApps via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963), and Solana dApps via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) (discoverable through `@solana/wallet-adapter` and similar libraries).
+Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Registers blockchain providers for each factory you pass in `blockchainProviderFactories` that is also enabled in your partner dApp configuration (`dAppIdentifier`): EVM factory + Ethereum enabled → [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193); Solana factory + Solana enabled → [Wallet Standard](https://github.com/wallet-standard/wallet-standard). Without factories, no chain provider is registered. For chain-specific connect and signing examples, see [EVM](./blockchains/evm) and [Solana](./blockchains/solana).
 
 **Signature**
 
@@ -22,6 +22,13 @@ function initializeLedgerProvider(
   options: InitializeLedgerProviderOptions
 ): () => void
 
+type BlockchainFamily = 'ethereum' | 'solana'
+
+type BlockchainProviderFactoryRegistration = {
+  family: BlockchainFamily
+  create: (core: CoreFacade, config: BlockchainConfig) => BlockchainProvider
+}
+
 type InitializeLedgerProviderOptions = {
   // Core
   apiKey?: string;
@@ -29,6 +36,7 @@ type InitializeLedgerProviderOptions = {
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';
   environment?: 'staging' | 'production';
   dmkConfig?: DeviceModuleOptions;
+  blockchainProviderFactories?: BlockchainProviderFactoryRegistration[];
 
   // UI
   target?: HTMLElement;
@@ -63,7 +71,7 @@ type InitializeLedgerProviderOptions = {
 
 See [Configuration](./configuration) for the full `options` reference with defaults and examples.
 
-**Returns** a cleanup function. Call it to remove the UI components from the DOM and to unregister every chain provider — both the EVM `eip6963:requestProvider` listener and the Solana Wallet Standard wallet.
+**Returns** a cleanup function. Call it to remove the UI components from the DOM and to unregister any providers that were registered for your partner configuration (for example the EVM `eip6963:requestProvider` listener and/or the Solana Wallet Standard wallet).
 
 ```ts
 const cleanup = initializeLedgerProvider({ /* options */ })
@@ -80,9 +88,9 @@ cleanup()
 
 ## `LedgerEIP1193Provider`
 
-Implements the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider JavaScript API for Ledger hardware signers.
+Implements the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider JavaScript API for Ledger hardware signers. Import it from `@ledgerhq/ledger-wallet-provider-evm` (it is no longer re-exported from `@ledgerhq/ledger-wallet-provider`).
 
-You obtain an instance via the `eip6963:announceProvider` event (see [Get started](./get-started)):
+You obtain an instance via the `eip6963:announceProvider` event (see [EVM](./blockchains/evm)):
 
 ```ts
 window.addEventListener('eip6963:announceProvider', (event: CustomEvent) => {
@@ -200,7 +208,9 @@ Disconnects the provider, clears the selected account and chain, and fires a `di
 
 ## See also
 
-- [Get started](./get-started) — how to initialize the provider and connect accounts
+- [Get started](./get-started) — install and initialize the provider
+- [EVM](./blockchains/evm) — EIP-6963 discovery and EIP-1193 signing how-to
+- [Solana](./blockchains/solana) — Wallet Standard connect and signing how-to
 - [Configuration](./configuration) — full `initializeLedgerProvider` options reference
 - [Requirements](./requirements) — browser and platform requirements
 - [EIP-1193 specification](https://eips.ethereum.org/EIPS/eip-1193)
