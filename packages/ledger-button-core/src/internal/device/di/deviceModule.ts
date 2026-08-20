@@ -10,13 +10,21 @@ import { ListAvailableDevices } from "../use-case/ListAvailableDevices";
 import { SwitchDevice } from "../use-case/SwitchDevice";
 import { deviceModuleTypes } from "./deviceModuleTypes";
 
-type DeviceModuleOptions = Pick<ContainerOptions, "dmkConfig"> & {
+type DeviceModuleOptions = Pick<
+  ContainerOptions,
+  "dmkConfig" | "dmkLogLevel"
+> & {
   stub?: boolean;
 };
 
-export function deviceModuleFactory({ stub, dmkConfig }: DeviceModuleOptions) {
+export function deviceModuleFactory({
+  stub,
+  dmkConfig,
+  dmkLogLevel = "error",
+}: DeviceModuleOptions) {
   return new ContainerModule(({ bind, rebindSync }) => {
     bind(deviceModuleTypes.DmkConfig).toConstantValue(dmkConfig);
+    bind(deviceModuleTypes.DmkLogLevel).toConstantValue(dmkLogLevel);
 
     bind(deviceModuleTypes.DeviceManagementKitService)
       .to(DefaultDeviceManagementKitService)
