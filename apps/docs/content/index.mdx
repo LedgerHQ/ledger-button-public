@@ -28,20 +28,34 @@ export function Hero() {
 
 <Hero />
 
-<div className="card-container">
-  <Card
-    title="Overview"
-    description="What Ledger Wallet Provider is and what you get out of the box."
-    link="/docs/ledger-wallet-provider/overview"
-  />
-  <Card
-    title="Get started"
-    description="Install the SDK, initialize the provider, and connect accounts."
-    link="/docs/ledger-wallet-provider/get-started"
-  />
-  <Card
-    title="API reference"
-    description="initializeLedgerProvider, EIP-1193 methods, events, and errors."
-    link="/docs/ledger-wallet-provider/api-reference"
-  />
-</div>
+<section className="card-section">
+  <h2 className="card-section-title">Introduction</h2>
+  <div className="card-container">
+    <Card
+      title="Overview"
+      description="What Ledger Wallet Provider is and what you get out of the box."
+      link="/docs/ledger-wallet-provider/overview"
+    />
+    <Card
+      title="Get started"
+      description="Install the SDK and family packages, then initialize Ledger Wallet Provider for the chains you support."
+      link="/docs/ledger-wallet-provider/get-started"
+    />
+  </div>
+</section>
+
+<section className="card-section">
+  <h2 className="card-section-title">Blockchains</h2>
+  <div className="card-container">
+    <Card
+      title="EVM"
+      description="EIP-6963 discovery and EIP-1193 connect, sign, and send."
+      link="/docs/ledger-wallet-provider/blockchains/evm"
+    />
+    <Card
+      title="Solana"
+      description="Wallet Standard connect, signMessage, and signTransaction."
+      link="/docs/ledger-wallet-provider/blockchains/solana"
+    />
+  </div>
+</section>
