@@ -132,6 +132,12 @@ export class RootNavigationComponent
     this.ledgerModal.closeModal();
   }
 
+  private handleToolbarClose(): void {
+    const isConnectionSuccess =
+      this.rootNavigationController.currentScreen?.name === "connectionSuccess";
+    this.closeModal(isConnectionSuccess ? { morph: true } : undefined);
+  }
+
   public presentConnectionSuccessOverlay(): void {
     if (this.successOverlayState) {
       return;
@@ -298,7 +304,7 @@ export class RootNavigationComponent
             .showSettings=${uiModel.showSettings}
             .showLogo=${uiModel.showLogo}
             deviceModelId=${ifDefined(uiModel.deviceModelId)}
-            @ledger-toolbar-close=${this.closeModal}
+            @ledger-toolbar-close=${this.handleToolbarClose}
             @ledger-toolbar-go-back-click=${this.goBack}
             @ledger-toolbar-chip-click=${this.handleChipClick}
             @ledger-toolbar-settings-click=${this.handleSettingsClick}
