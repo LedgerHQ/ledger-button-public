@@ -10,7 +10,6 @@ export type {
   Token,
 } from "./Account";
 export * from "./ButtonCoreContext";
-export * from "./eip/EIPTypes";
 export * from "./errors";
 export * from "./LedgerSyncAuthenticateResponse";
 export * from "./signing/SignedTransaction";

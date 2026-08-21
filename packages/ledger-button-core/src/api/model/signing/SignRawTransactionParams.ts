@@ -1,4 +1,4 @@
-import { RpcMethods } from "../eip/EIPTypes";
+import { RpcMethods } from "./RpcMethods";
 
 export interface SignRawTransactionParams {
   transaction: string;
