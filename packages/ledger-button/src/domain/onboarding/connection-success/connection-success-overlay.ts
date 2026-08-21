@@ -135,9 +135,14 @@ export class ConnectionSuccessOverlay extends LitElement {
               fillColor="currentColor"
             ></ledger-icon>
           </div>
-          <h2 class="heading-3-semi-bold text-center text-base">
-            ${translations.onboarding.connectionSuccess.title}
-          </h2>
+          <div class="flex flex-col gap-8 text-center">
+            <h2 class="heading-3-semi-bold text-base">
+              ${translations.onboarding.connectionSuccess.title}
+            </h2>
+            <p class="text-muted body-2">
+              ${translations.onboarding.connectionSuccess.subtitle}
+            </p>
+          </div>
         </div>
       </div>
     `;

@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "연결되었습니다",
+      "subtitle": "You can now make your first transaction with the benefit of Ledger's Transaction Check and Clear Signing.",
       "close": "닫기"
     },
     "turnOnSync": {
