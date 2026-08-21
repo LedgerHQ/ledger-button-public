@@ -24,16 +24,6 @@ import type { SignRawTransactionParams } from "@ledgerhq/ledger-wallet-provider-
 import type { SignTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignTypedMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
 import {
-  CommonEIP1193ErrorCode,
-  type EIP1193Provider,
-  type ProviderConnectInfo,
-  type ProviderEvent,
-  type ProviderRpcError,
-  type RequestArguments,
-  type RpcMethods,
-  TypedData,
-} from "@ledgerhq/ledger-wallet-provider-core";
-import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
@@ -47,6 +37,16 @@ import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { hexToUtf8 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type Observable, Subject, type Subscription } from "rxjs";
 
+import {
+  CommonEIP1193ErrorCode,
+  type EIP1193Provider,
+  type ProviderConnectInfo,
+  type ProviderEvent,
+  type ProviderRpcError,
+  type RequestArguments,
+  type RpcMethods,
+  TypedData,
+} from "./model/EIPTypes";
 import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase";
 import type { SignRawTransaction } from "./use-case/SignRawTransaction";
 import type { SignTransaction } from "./use-case/SignTransaction";

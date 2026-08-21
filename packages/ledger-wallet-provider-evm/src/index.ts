@@ -9,6 +9,7 @@ import { EvmBlockchainProvider } from "./EvmBlockchainProvider";
 
 export { EvmBlockchainProvider } from "./EvmBlockchainProvider";
 export { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
+export * from "./model/EIPTypes";
 export type { EvmSignedResult } from "./model/EvmSignedResult";
 export {
   type GetAddressDAState,

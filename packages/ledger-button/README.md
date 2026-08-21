@@ -68,7 +68,7 @@ window.dispatchEvent(new Event('eip6963:requestProvider'));
 
 ```tsx
 import { useEffect, useState, useCallback } from 'react';
-import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-wallet-provider';
+import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-wallet-provider-evm';
 
 function useProviders() {
   const [providers, setProviders] = useState<EIP6963ProviderDetail[]>([]);
