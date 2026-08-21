@@ -27,10 +27,6 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import {
-  GetAddressDAState,
-  isGetAddressResult,
-} from "@ledgerhq/ledger-wallet-provider-core";
-import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
   isSignedTransactionResult,
@@ -55,6 +51,10 @@ import {
 
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
 import type { EvmSignedResult } from "../model/EvmSignedResult";
+import {
+  GetAddressDAState,
+  isGetAddressResult,
+} from "../model/GetAddress";
 import { createSignedTransaction } from "../transaction/TransactionHelper";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import {

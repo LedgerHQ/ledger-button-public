@@ -13,7 +13,6 @@ export * from "./ButtonCoreContext";
 export * from "./eip/EIPTypes";
 export * from "./errors";
 export * from "./LedgerSyncAuthenticateResponse";
-export * from "./signing/GetAddress";
 export * from "./signing/SignedTransaction";
 export * from "./signing/SignFlowStatus";
 export * from "./signing/SignIntentType";
