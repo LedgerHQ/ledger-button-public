@@ -7,6 +7,8 @@ import { animate } from "motion";
 
 import type { FloatingButtonPosition } from "../../../components/atom/floating-button/ledger-floating-button";
 import { type AnimationInstance } from "../../../components/atom/modal/animation-types";
+import { ModalFocusController } from "../../../components/atom/modal/modal-focus-controller";
+import { ModalScrollLockController } from "../../../components/atom/modal/modal-scroll-lock-controller";
 import { MorphAnimation } from "../../../components/atom/modal/morph-animation";
 import {
   langContext,
@@ -14,6 +16,9 @@ import {
 } from "../../../context/language-context";
 import { ANIMATION_DELAY } from "../../../shared/navigation";
 import { tailwindElement } from "../../../tailwind-element";
+
+const CONNECTION_SUCCESS_TITLE_ID = "connection-success-overlay-title";
+const CONNECTION_SUCCESS_SUBTITLE_ID = "connection-success-overlay-subtitle";
 
 const styles = css`
   :host {
@@ -73,6 +78,8 @@ export class ConnectionSuccessOverlay extends LitElement {
   private readonly containerElement!: HTMLElement;
 
   private readonly morphAnimation = new MorphAnimation();
+  private readonly focusController = new ModalFocusController(this);
+  private readonly scrollLockController = new ModalScrollLockController(this);
   private backdropAnimation: AnimationInstance | null = null;
   private containerAnimation: AnimationInstance | null = null;
   private isClosing = false;
@@ -114,6 +121,10 @@ export class ConnectionSuccessOverlay extends LitElement {
       <div class="connection-success-overlay__backdrop"></div>
       <div
         class="connection-success-overlay__container bg-canvas-sheet rounded-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby=${CONNECTION_SUCCESS_TITLE_ID}
+        aria-describedby=${CONNECTION_SUCCESS_SUBTITLE_ID}
       >
         <div
           class="bg-gradient-success pointer-events-none absolute inset-0"
@@ -145,10 +156,16 @@ export class ConnectionSuccessOverlay extends LitElement {
               ></ledger-icon>
             </div>
             <div class="flex w-full flex-col gap-8 text-center">
-              <h2 class="heading-3-semi-bold text-base">
+              <h2
+                id=${CONNECTION_SUCCESS_TITLE_ID}
+                class="heading-3-semi-bold text-base"
+              >
                 ${translations.onboarding.connectionSuccess.title}
               </h2>
-              <p class="text-muted body-2">
+              <p
+                id=${CONNECTION_SUCCESS_SUBTITLE_ID}
+                class="text-muted body-2"
+              >
                 ${translations.onboarding.connectionSuccess.subtitle}
               </p>
             </div>
@@ -188,6 +205,7 @@ export class ConnectionSuccessOverlay extends LitElement {
     }
 
     this.isClosing = true;
+    this.focusController.deactivate();
     this.cancelAnimations();
     const runToken = this.activeRunToken;
 
@@ -231,6 +249,8 @@ export class ConnectionSuccessOverlay extends LitElement {
       return;
     }
 
+    this.scrollLockController.unlock();
+
     this.dispatchEvent(
       new CustomEvent("connection-success-overlay-finished", {
         bubbles: true,
@@ -267,6 +287,15 @@ export class ConnectionSuccessOverlay extends LitElement {
     }
 
     this.animateIn();
+    this.activateFocusTrap();
+  }
+
+  private activateFocusTrap(): void {
+    this.scrollLockController.lock();
+    this.focusController.deactivate();
+    this.focusController.activate(this.containerElement, () => {
+      void this.closeOverlay();
+    });
   }
 
   private resetVisualState(): void {
