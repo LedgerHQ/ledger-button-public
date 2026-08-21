@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
-import { CommonEIP1193ErrorCode } from "@ledgerhq/ledger-wallet-provider-core";
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { CommonEIP1193ErrorCode } from "./model/EIPTypes";
 import {
   LedgerEIP1193Provider,
   type LedgerEIP1193ProviderDeps,

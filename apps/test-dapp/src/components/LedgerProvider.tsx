@@ -13,7 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
+import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider-evm";
 import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
 import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
 

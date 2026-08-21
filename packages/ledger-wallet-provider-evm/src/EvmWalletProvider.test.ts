@@ -1,9 +1,9 @@
 /**
  * @vitest-environment jsdom
  */
-import type { EIP1193Provider } from "@ledgerhq/ledger-wallet-provider-core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import type { EIP1193Provider } from "./model/EIPTypes";
 import { EvmWalletProvider } from "./EvmWalletProvider";
 
 const createMockEip1193Provider = (): EIP1193Provider =>
