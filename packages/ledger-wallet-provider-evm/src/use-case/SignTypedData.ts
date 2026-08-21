@@ -31,10 +31,6 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import {
-  type GetAddressDAState,
-  isGetAddressResult,
-} from "@ledgerhq/ledger-wallet-provider-core";
-import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
 } from "@ledgerhq/ledger-wallet-provider-core";
@@ -51,6 +47,10 @@ import {
 } from "rxjs";
 
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import {
+  type GetAddressDAState,
+  isGetAddressResult,
+} from "../model/GetAddress";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import { BuildEthSigner } from "./BuildEthSigner";

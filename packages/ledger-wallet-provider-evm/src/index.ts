@@ -10,6 +10,10 @@ import { EvmBlockchainProvider } from "./EvmBlockchainProvider";
 export { EvmBlockchainProvider } from "./EvmBlockchainProvider";
 export { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
 export type { EvmSignedResult } from "./model/EvmSignedResult";
+export {
+  type GetAddressDAState,
+  isGetAddressResult,
+} from "./model/GetAddress";
 export { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod";
 
 /**
