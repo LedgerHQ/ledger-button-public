@@ -1,7 +1,5 @@
 //EIP-1193 Transaction Object from eth_signTransaction/eth_sendTransaction
 
-import { RpcMethods } from "./RpcMethods";
-
 //see: https://ethereum.org/developers/docs/apis/json-rpc/#eth_signtransaction
 export type Transaction = {
   chainId: number;
@@ -18,7 +16,7 @@ export type Transaction = {
 
 export interface SignTransactionParams {
   transaction: Transaction;
-  method: RpcMethods;
+  method: string;
   broadcast: boolean;
 }
 
