@@ -4,15 +4,21 @@ import "./context/language-context";
 import "./ledger-button-app";
 
 import type { BlockchainProviderFactoryRegistration } from "@ledgerhq/ledger-wallet-provider-core";
-import {
-  EIP1193Provider,
-  EIP6963AnnounceProviderEvent,
-  EIP6963RequestProviderEvent,
-} from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
 import { initializeLedgerProvider } from "./index";
+
+type PlaygroundEIP1193Provider = {
+  request(args: {
+    readonly method: string;
+    readonly params: readonly unknown[] | object;
+  }): Promise<unknown>;
+};
+
+type PlaygroundEIP6963AnnounceProviderEvent = CustomEvent<{
+  provider: PlaygroundEIP1193Provider;
+}>;
 
 @customElement("ledger-button-playground")
 export class LedgerButtonPlayground extends LitElement {
@@ -26,7 +32,7 @@ export class LedgerButtonPlayground extends LitElement {
   private app!: HTMLDivElement;
 
   @property({ attribute: false })
-  private web3Provider?: EIP1193Provider;
+  private web3Provider?: PlaygroundEIP1193Provider;
 
   selectedAccount?: string;
 
@@ -40,7 +46,7 @@ export class LedgerButtonPlayground extends LitElement {
   }
 
   handleAnnounceProvider = (e: Event) => {
-    const { provider /*, info */ } = (e as EIP6963AnnounceProviderEvent).detail;
+    const { provider } = (e as PlaygroundEIP6963AnnounceProviderEvent).detail;
     this.web3Provider = provider;
   };
 
@@ -58,7 +64,7 @@ export class LedgerButtonPlayground extends LitElement {
       new Event("eip6963:requestProvider", {
         bubbles: true,
         composed: true,
-      }) as EIP6963RequestProviderEvent,
+      }),
     );
   }
 

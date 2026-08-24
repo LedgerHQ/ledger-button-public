@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider";
+import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider-evm";
 import { Tag } from "@ledgerhq/lumen-ui-react";
 import { Copy } from "@ledgerhq/lumen-ui-react/symbols";
 
