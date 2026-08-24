@@ -27,6 +27,7 @@ This page describes all available configuration options for `initializeLedgerPro
   floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
   floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
   walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
+  transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
 
   // Development options
   devConfig?: {
@@ -36,7 +37,7 @@ This page describes all available configuration options for `initializeLedgerPro
       balance?: boolean;           // Stub account balances (default: false)
       device?: boolean;            // Stub signer interactions (default: false)
       web3Provider?: boolean;      // Stub Web3 provider responses (default: false)
-      dAppConfig?: boolean;        // Stub dApp configuration (default: false)
+      solanaProvider?: boolean;    // Stub Solana provider responses (default: false)
       transactionHistory?: boolean; // Stub transaction history (default: false)
     };
   };
@@ -165,6 +166,22 @@ Available features:
 
 If not specified, the action buttons section is not displayed.
 
+### `transactionConfirmationNotification`
+
+Controls how transaction confirmation feedback is shown after a signing flow. Default is `'tooltip'`.
+
+Accepted values:
+
+- `'tooltip'` — show confirmation on the floating button (badge / tooltip)
+- `'toast'` — show confirmation as a toast notification
+
+```javascript
+initializeLedgerProvider({
+  transactionConfirmationNotification: "toast",
+  // ...
+});
+```
+
 ### `dmkConfig`
 
 Device Management Kit configuration (optional). Passes custom device policies to the underlying Device Management Kit.
@@ -180,7 +197,7 @@ Toggles local stub modes so you can simulate accounts, balances, devices, and We
 | `balance` | `false` | Account balances |
 | `device` | `false` | Signer interactions |
 | `web3Provider` | `false` | Web3 provider responses |
-| `dAppConfig` | `false` | dApp configuration |
+| `solanaProvider` | `false` | Solana provider responses |
 | `transactionHistory` | `false` | Transaction history |
 
 ```javascript
@@ -192,7 +209,7 @@ const cleanup = initializeLedgerProvider({
       balance: true,
       device: true,
       web3Provider: true,
-      dAppConfig: true,
+      solanaProvider: true,
     },
   },
   dAppIdentifier: "my-dapp",
