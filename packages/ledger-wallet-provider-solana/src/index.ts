@@ -8,6 +8,14 @@ import type {
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
 
 export type { SolanaSignedResult } from "./model/SolanaSignedResult";
+export {
+  CommonSolanaErrorCode,
+  type SolanaCluster,
+  type SolanaJSONRPCRequest,
+  type SolanaJsonRpcResponse,
+  type SolanaJsonRpcResponseError,
+  type SolanaJsonRpcResponseSuccess,
+} from "./model/SolanaTypes";
 export { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
 
 /**
