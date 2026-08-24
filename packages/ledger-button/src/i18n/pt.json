@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Agora você está conectado",
+      "subtitle": "You can now make your first transaction with the benefit of Ledger's Transaction Check and Clear Signing.",
       "close": "Fechar"
     },
     "turnOnSync": {
