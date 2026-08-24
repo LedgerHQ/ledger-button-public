@@ -389,7 +389,8 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       skipHistory: true,
       toolbar: {
         title: "",
-        canClose: false,
+        canClose: true,
+        showLogo: true,
       },
     },
     notFound: {

@@ -7,6 +7,8 @@ import { animate } from "motion";
 
 import type { FloatingButtonPosition } from "../../../components/atom/floating-button/ledger-floating-button";
 import { type AnimationInstance } from "../../../components/atom/modal/animation-types";
+import { ModalFocusController } from "../../../components/atom/modal/modal-focus-controller";
+import { ModalScrollLockController } from "../../../components/atom/modal/modal-scroll-lock-controller";
 import { MorphAnimation } from "../../../components/atom/modal/morph-animation";
 import {
   langContext,
@@ -15,7 +17,8 @@ import {
 import { ANIMATION_DELAY } from "../../../shared/navigation";
 import { tailwindElement } from "../../../tailwind-element";
 
-const AUTO_CLOSE_DELAY_MS = 1500;
+const CONNECTION_SUCCESS_TITLE_ID = "connection-success-overlay-title";
+const CONNECTION_SUCCESS_SUBTITLE_ID = "connection-success-overlay-subtitle";
 
 const styles = css`
   :host {
@@ -75,9 +78,10 @@ export class ConnectionSuccessOverlay extends LitElement {
   private readonly containerElement!: HTMLElement;
 
   private readonly morphAnimation = new MorphAnimation();
+  private readonly focusController = new ModalFocusController(this);
+  private readonly scrollLockController = new ModalScrollLockController(this);
   private backdropAnimation: AnimationInstance | null = null;
   private containerAnimation: AnimationInstance | null = null;
-  private autoCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private isClosing = false;
   private pendingStart = true;
   private activeRunToken = 0;
@@ -90,7 +94,6 @@ export class ConnectionSuccessOverlay extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this.activeRunToken += 1;
-    this.cancelAutoClose();
     this.cancelAnimations();
   }
 
@@ -118,26 +121,61 @@ export class ConnectionSuccessOverlay extends LitElement {
       <div class="connection-success-overlay__backdrop"></div>
       <div
         class="connection-success-overlay__container bg-canvas-sheet rounded-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby=${CONNECTION_SUCCESS_TITLE_ID}
+        aria-describedby=${CONNECTION_SUCCESS_SUBTITLE_ID}
       >
         <div
           class="bg-gradient-success pointer-events-none absolute inset-0"
           aria-hidden="true"
         ></div>
-        <div
-          class="relative flex h-full flex-col items-center justify-center gap-24 p-24"
-        >
-          <div
-            class="bg-muted-transparent text-success flex h-72 w-72 items-center justify-center rounded-full"
-          >
-            <ledger-icon
-              type="checkMarkCircleFill"
-              size="40"
-              fillColor="currentColor"
-            ></ledger-icon>
+        <div class="relative flex h-full flex-col gap-32 p-24">
+          <div class="flex w-full shrink-0 items-center justify-between">
+            <div class="flex h-32 w-32 items-center justify-center">
+              <ledger-icon type="ledger" .size=${24}></ledger-icon>
+            </div>
+            <div class="flex h-32 w-32 items-center justify-center">
+              <ledger-button
+                .icon=${true}
+                variant="noBackground"
+                iconType="close"
+                size="xs"
+                @click=${this.handleClose}
+              ></ledger-button>
+            </div>
           </div>
-          <h2 class="heading-3-semi-bold text-center text-base">
-            ${translations.onboarding.connectionSuccess.title}
-          </h2>
+          <div class="flex flex-1 flex-col items-center justify-center gap-24">
+            <div
+              class="bg-muted-transparent text-success flex h-72 w-72 items-center justify-center rounded-full p-12"
+            >
+              <ledger-icon
+                type="checkMarkCircleFill"
+                size="40"
+                fillColor="currentColor"
+              ></ledger-icon>
+            </div>
+            <div class="flex w-full flex-col gap-8 text-center">
+              <h2
+                id=${CONNECTION_SUCCESS_TITLE_ID}
+                class="heading-3-semi-bold text-base"
+              >
+                ${translations.onboarding.connectionSuccess.title}
+              </h2>
+              <p
+                id=${CONNECTION_SUCCESS_SUBTITLE_ID}
+                class="text-muted body-2"
+              >
+                ${translations.onboarding.connectionSuccess.subtitle}
+              </p>
+            </div>
+          </div>
+          <ledger-button
+            variant="primary"
+            size="full"
+            .label=${translations.onboarding.connectionSuccess.close}
+            @click=${this.handleClose}
+          ></ledger-button>
         </div>
       </div>
     `;
@@ -157,19 +195,8 @@ export class ConnectionSuccessOverlay extends LitElement {
     );
   }
 
-  private scheduleAutoClose(): void {
-    this.cancelAutoClose();
-    this.autoCloseTimer = setTimeout(() => {
-      this.autoCloseTimer = null;
-      void this.closeOverlay();
-    }, AUTO_CLOSE_DELAY_MS);
-  }
-
-  private cancelAutoClose(): void {
-    if (this.autoCloseTimer !== null) {
-      clearTimeout(this.autoCloseTimer);
-      this.autoCloseTimer = null;
-    }
+  private handleClose(): void {
+    void this.closeOverlay();
   }
 
   private async closeOverlay(): Promise<void> {
@@ -178,6 +205,7 @@ export class ConnectionSuccessOverlay extends LitElement {
     }
 
     this.isClosing = true;
+    this.focusController.deactivate();
     this.cancelAnimations();
     const runToken = this.activeRunToken;
 
@@ -221,6 +249,8 @@ export class ConnectionSuccessOverlay extends LitElement {
       return;
     }
 
+    this.scrollLockController.unlock();
+
     this.dispatchEvent(
       new CustomEvent("connection-success-overlay-finished", {
         bubbles: true,
@@ -241,7 +271,6 @@ export class ConnectionSuccessOverlay extends LitElement {
     this.activeRunToken += 1;
     const runToken = this.activeRunToken;
 
-    this.cancelAutoClose();
     this.cancelAnimations();
     this.isClosing = false;
     this.resetVisualState();
@@ -258,7 +287,15 @@ export class ConnectionSuccessOverlay extends LitElement {
     }
 
     this.animateIn();
-    this.scheduleAutoClose();
+    this.activateFocusTrap();
+  }
+
+  private activateFocusTrap(): void {
+    this.scrollLockController.lock();
+    this.focusController.deactivate();
+    this.focusController.activate(this.containerElement, () => {
+      void this.closeOverlay();
+    });
   }
 
   private resetVisualState(): void {

@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "คุณได้เชื่อมต่อแล้ว",
+      "subtitle": "You can now make your first transaction with the benefit of Ledger's Transaction Check and Clear Signing.",
       "close": "ปิด"
     },
     "turnOnSync": {
