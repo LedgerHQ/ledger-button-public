@@ -10,6 +10,16 @@ export const SOLANA_MAPPING_TABLE: Record<string, SolanaCluster> = {
 
 export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet";
 
+/**
+ * Solana itself has no numeric chain id — CAIP-2 identifies a cluster by its
+ * genesis hash — so the button backend expects ids of its own in
+ * `blockchain.chainId`. Only the clusters exposed by
+ * {@link SOLANA_MAPPING_TABLE} are mapped.
+ */
+const SOLANA_BACKEND_CHAIN_IDS: Partial<Record<SolanaCluster, string>> = {
+  mainnet: "900",
+};
+
 export const SOLANA_NATIVE_DECIMALS = 9;
 
 export const SOLANA_FAMILY: BlockchainFamily = "solana";
@@ -28,6 +38,13 @@ export function getCurrencyIdFromCluster(
 
 export function isSupportedSolanaCurrency(currencyId: string): boolean {
   return Object.hasOwn(SOLANA_MAPPING_TABLE, currencyId);
+}
+
+/** `undefined` when the cluster has no backend chain id yet. */
+export function getBackendChainIdFromCurrencyId(
+  currencyId: string,
+): string | undefined {
+  return SOLANA_BACKEND_CHAIN_IDS[getClusterFromCurrencyId(currencyId)];
 }
 
 export function describeSolanaCurrency(

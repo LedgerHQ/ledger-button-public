@@ -107,13 +107,15 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   ): Promise<BroadcastResponse> {
     this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
 
-    // TODO(LBD-712): temporary. The Ledger button backend is not yet ready to
-    // broadcast Solana transactions, so for now we hit Ledger's public Solana
-    // node proxy directly. Remove this branch and route Solana through
-    // `_backendService.broadcast` once the backend supports it.
-    if (blockchain.name === "solana") {
-      return this.broadcastSolanaViaLedgerNode(args);
-    }
+    // TODO(LBD-712): production backend is not ready for Solana yet. Staging
+    // (`ledgerb.api.ledger-test.com/broadcast`) is; drop this branch once
+    // production supports it too.
+    // if (
+    //   blockchain.name === "solana" &&
+    //   this._config.environment === "production"
+    // ) {
+    //   return this.broadcastSolanaViaLedgerNode(args);
+    // }
 
     const response = await this._backendService.broadcast({
       blockchain,
@@ -224,7 +226,11 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
       .describeNetwork(String(chainId))
       .map((c) => c.currencyId)
       .extract();
-    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
+    this._contextService.onEvent({
+      type: "chain_changed",
+      chainId,
+      currencyId,
+    });
   }
 
   private _disconnectHandler?: (family: BlockchainFamily) => Promise<void>;

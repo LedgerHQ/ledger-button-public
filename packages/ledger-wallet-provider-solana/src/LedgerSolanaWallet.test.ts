@@ -477,7 +477,7 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(broadcastRequest(), {
         name: "solana",
-        chainId: "mainnet",
+        chainId: "900",
       });
       expect(result.signature).toEqual(broadcastSignature);
     });
@@ -503,7 +503,7 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(host.broadcastRPC).toHaveBeenCalledWith(
         broadcastRequest(options),
-        { name: "solana", chainId: "mainnet" },
+        { name: "solana", chainId: "900" },
       );
     });
 

@@ -2,16 +2,23 @@
  * @vitest-environment jsdom
  */
 
-import { Maybe } from "purify-ts";
+import { Maybe, Right } from "purify-ts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
+import type { BackendService } from "@internal/backend/BackendService";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import type { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/ContextService";
 import { createMockLoggerFactory } from "@internal/device/__tests__/mocks";
 import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
 
 import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
+
+type MakeServiceOpts = {
+  environment?: Config["environment"];
+  backendService?: BackendService;
+};
 
 /**
  * Build a DefaultCoreFacadeService with the minimum viable mocks. Only the
@@ -19,7 +26,7 @@ import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
  * empty stubs so that adding or reordering constructor params doesn't break
  * every unrelated slot.
  */
-const makeService = () => {
+const makeService = (opts: MakeServiceOpts = {}) => {
   const emit = vi.fn();
   const navigationIntentService = {
     emit,
@@ -32,13 +39,17 @@ const makeService = () => {
     describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
   } as unknown as BlockchainProviderManager;
   const stub = {} as never;
+  const backendService = (opts.backendService ?? stub) as BackendService;
+  const config = {
+    environment: opts.environment ?? "production",
+  } as Config;
   const service = new DefaultCoreFacadeService(
     navigationIntentService,
     contextService,
     blockchainProviderManager,
-    stub, // BackendService
+    backendService,
     stub, // DeviceManagementKitService
-    stub, // Config
+    config,
     stub, // ModalService
     stub, // CoinServiceDataSource
     stub, // CalDataSource
@@ -83,13 +94,35 @@ describe("DefaultCoreFacadeService.requestAccount", () => {
   });
 });
 
-describe("DefaultCoreFacadeService.broadcastRPC (Solana temporary path)", () => {
+describe("DefaultCoreFacadeService.broadcastRPC (Solana)", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("broadcasts Solana requests directly to the Ledger Solana node proxy", async () => {
-    const { service } = makeService();
+  it("broadcasts Solana requests through the button backend on staging", async () => {
+    const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
+    const broadcast = vi.fn().mockResolvedValue(Right(jsonRpcResponse));
+    const { service } = makeService({
+      environment: "staging",
+      backendService: { broadcast } as unknown as BackendService,
+    });
+
+    const args = {
+      jsonrpc: "2.0",
+      id: 0,
+      method: "sendTransaction",
+      params: ["base64Tx", { encoding: "base64" }],
+    };
+    const blockchain = { name: "solana", chainId: "900" };
+
+    const response = await service.broadcastRPC(args, blockchain);
+
+    expect(broadcast).toHaveBeenCalledWith({ blockchain, rpc: args });
+    expect(response).toEqual(jsonRpcResponse);
+  });
+
+  it("broadcasts Solana requests to the Ledger node proxy on production", async () => {
+    const { service } = makeService({ environment: "production" });
     const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -118,7 +151,7 @@ describe("DefaultCoreFacadeService.broadcastRPC (Solana temporary path)", () => 
   });
 
   it("fails with the HTTP status when the Solana node proxy rejects the request", async () => {
-    const { service } = makeService();
+    const { service } = makeService({ environment: "production" });
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({

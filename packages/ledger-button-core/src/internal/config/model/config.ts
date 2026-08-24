@@ -70,8 +70,8 @@ export class Config {
 
   getBackendUrl(): string {
     return this.environment === "production"
-      ? "https://ledgerb.api.ledger.com"
-      : "https://ledgerb.aws.stg.ldg-tech.com";
+      ? "https://ledgerb.api.ledger-test.com"
+      : "https://ledgerb.api.ledger-test.com";
   }
 
   getCounterValueUrl(): string {
