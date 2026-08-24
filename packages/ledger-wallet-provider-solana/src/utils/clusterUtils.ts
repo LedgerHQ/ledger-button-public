@@ -1,8 +1,9 @@
 import type {
   BlockchainFamily,
   CurrencyDescriptor,
-  SolanaCluster,
 } from "@ledgerhq/ledger-wallet-provider-core";
+
+import type { SolanaCluster } from "../model/SolanaTypes";
 
 export const SOLANA_MAPPING_TABLE: Record<string, SolanaCluster> = {
   solana: "mainnet",

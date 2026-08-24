@@ -61,7 +61,6 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignSolanaMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignSolanaTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SolanaCluster } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedResults,
@@ -69,6 +68,7 @@ import {
 import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { getLedgerProviderIcon } from "@ledgerhq/ledger-wallet-provider-core";
 
+import type { SolanaCluster } from "./model/SolanaTypes";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import {
