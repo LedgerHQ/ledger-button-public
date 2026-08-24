@@ -1,8 +1,8 @@
-export interface SignRawTransactionParams {
+export type SignRawTransactionParams = {
   transaction: string;
   method: string;
   broadcast: boolean;
-}
+};
 
 export function isSignRawTransactionParams(
   params: unknown,

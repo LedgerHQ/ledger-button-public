@@ -13,7 +13,6 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignPersonalMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
 import { DeviceOutOfMemoryError } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
@@ -27,6 +26,7 @@ import type {
   SignPersonalMessageFlowDAOutput,
 } from "../device-action/SignPersonalMessageFlowDeviceActionTypes";
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import type { SignPersonalMessageParams } from "../model/SignPersonalMessageParams";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import { BuildContextModule } from "./BuildContextModule";
 

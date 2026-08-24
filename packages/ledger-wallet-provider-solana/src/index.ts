@@ -7,6 +7,14 @@ import type {
 
 import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
 
+export {
+  isSignSolanaMessageParams,
+  type SignSolanaMessageParams,
+} from "./model/SignSolanaMessageParams";
+export {
+  isSignSolanaTransactionParams,
+  type SignSolanaTransactionParams,
+} from "./model/SignSolanaTransactionParams";
 export type { SolanaSignedResult } from "./model/SolanaSignedResult";
 export {
   CommonSolanaErrorCode,

@@ -15,13 +15,6 @@ export * from "./LedgerSyncAuthenticateResponse";
 export * from "./signing/SignedTransaction";
 export * from "./signing/SignFlowStatus";
 export * from "./signing/SignIntentType";
-export * from "./signing/signParamsFamily";
-export * from "./signing/SignPersonalMessageParams";
-export * from "./signing/SignRawTransactionParams";
-export * from "./signing/SignTransactionParams";
-export * from "./signing/SignTypedMessageParams";
-export * from "./signing/solana/SignSolanaMessageParams";
-export * from "./signing/solana/SignSolanaTransactionParams";
 export type {
   TransactionDirection,
   TransactionHistoryItem,

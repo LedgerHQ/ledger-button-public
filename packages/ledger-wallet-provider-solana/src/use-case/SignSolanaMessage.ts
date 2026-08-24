@@ -11,7 +11,6 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignSolanaMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
@@ -24,6 +23,7 @@ import type {
   SignSolanaMessageFlowDAOutput,
 } from "../device-action/SignSolanaMessageFlowDeviceActionTypes";
 import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
+import type { SignSolanaMessageParams } from "../model/SignSolanaMessageParams";
 import { getSolanaDerivationPath } from "../utils/derivationUtils";
 
 const SIGN_TYPE: SignType = "solana-message";

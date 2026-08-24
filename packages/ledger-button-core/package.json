@@ -3,7 +3,6 @@
     "@ledgerhq/coin-framework": "catalog:",
     "@ledgerhq/device-management-kit": "catalog:",
     "bignumber.js": "catalog:",
-    "@ledgerhq/device-signer-kit-ethereum": "catalog:",
     "@ledgerhq/device-transport-kit-web-ble": "catalog:",
     "@ledgerhq/device-transport-kit-web-hid": "catalog:",
     "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": "catalog:",

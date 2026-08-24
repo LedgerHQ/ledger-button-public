@@ -59,8 +59,6 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignSolanaMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignSolanaTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   isSignedMessageOrTypedDataResult,
   type SignedResults,
@@ -68,6 +66,8 @@ import {
 import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { getLedgerProviderIcon } from "@ledgerhq/ledger-wallet-provider-core";
 
+import type { SignSolanaMessageParams } from "./model/SignSolanaMessageParams";
+import type { SignSolanaTransactionParams } from "./model/SignSolanaTransactionParams";
 import type { SolanaCluster } from "./model/SolanaTypes";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
@@ -534,7 +534,9 @@ export class LedgerSolanaWallet implements Wallet {
 
       const emitError = (error: unknown) => {
         const status: SignFlowStatus = { signType, status: "error", error };
-        this.host.trackBroadcastedTransaction(status, params);
+        this.host.trackBroadcastedTransaction(status, {
+          family: this.family,
+        });
         status$.next(status);
       };
 
@@ -549,7 +551,9 @@ export class LedgerSolanaWallet implements Wallet {
         }
         subscription = observable.subscribe({
           next: (status) => {
-            this.host.trackBroadcastedTransaction(status, params);
+            this.host.trackBroadcastedTransaction(status, {
+              family: this.family,
+            });
             status$.next(status);
             if (status.status !== "success") {
               return;

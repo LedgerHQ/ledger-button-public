@@ -1,10 +1,8 @@
 import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BroadcastedTransactionMetadata } from "@api/blockchain-provider/model/types";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
-import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams";
-import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams";
-import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams";
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { ContextService } from "@internal/context/ContextService";
@@ -108,15 +106,9 @@ const successBroadcastStatus: SignFlowStatus = {
   },
 };
 
-const signTransactionParams: SignTransactionParams = {
-  transaction: {
-    chainId: 1,
-    data: "0x",
-    to: "0x5678",
-    value: "1000000000000000000",
-  },
-  method: "eth_sendTransaction",
-  broadcast: true,
+const ethereumMetadata: BroadcastedTransactionMetadata = {
+  family: "ethereum",
+  value: "1000000000000000000",
 };
 
 describe("TrackBroadcastedTransactionUseCase", () => {
@@ -160,7 +152,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
 
     const executePromise = useCase.execute(
       successBroadcastStatus,
-      signTransactionParams,
+      ethereumMetadata,
     );
 
     expect(
@@ -195,7 +187,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       error: new Error("failed"),
     };
 
-    await useCase.execute(errorStatus, signTransactionParams);
+    await useCase.execute(errorStatus, ethereumMetadata);
 
     expect(
       mockController.registerBroadcastedTransaction,
@@ -212,7 +204,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       },
     };
 
-    await useCase.execute(signedOnlyStatus, signTransactionParams);
+    await useCase.execute(signedOnlyStatus, ethereumMetadata);
 
     expect(
       mockController.registerBroadcastedTransaction,
@@ -226,7 +218,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       data: { signature: "0xsig" },
     };
 
-    await useCase.execute(messageStatus, ["0x1234", "hello", "personal_sign"]);
+    await useCase.execute(messageStatus, { family: "ethereum" });
 
     expect(
       mockController.registerBroadcastedTransaction,
@@ -239,7 +231,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       selectedAccounts: new Map(),
     });
 
-    await useCase.execute(successBroadcastStatus, signTransactionParams);
+    await useCase.execute(successBroadcastStatus, ethereumMetadata);
 
     expect(
       mockController.registerBroadcastedTransaction,
@@ -251,7 +243,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       Left(new Error("CAL unavailable")),
     );
 
-    await useCase.execute(successBroadcastStatus, signTransactionParams);
+    await useCase.execute(successBroadcastStatus, ethereumMetadata);
 
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -267,7 +259,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       Left(new Error("CAL unavailable")),
     );
 
-    await useCase.execute(successBroadcastStatus, signTransactionParams);
+    await useCase.execute(successBroadcastStatus, ethereumMetadata);
 
     // 1000000000000000000 scaled by the EVM provider's 18 decimals
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
@@ -283,7 +275,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       Maybe.empty(),
     );
 
-    await useCase.execute(successBroadcastStatus, signTransactionParams);
+    await useCase.execute(successBroadcastStatus, ethereumMetadata);
 
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -328,13 +320,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
       }),
     );
 
-    const solanaParams: SignSolanaTransactionParams = {
-      kind: "solana-transaction",
-      address: "So1ana1111",
-      transaction: new Uint8Array([1, 2, 3]),
-    };
-
-    await useCase.execute(successBroadcastStatus, solanaParams);
+    await useCase.execute(successBroadcastStatus, { family: "solana" });
 
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -352,13 +338,7 @@ describe("TrackBroadcastedTransactionUseCase", () => {
   });
 
   it("should leave the value unset for raw transaction params", async () => {
-    const rawParams: SignRawTransactionParams = {
-      transaction: "0xdeadbeef",
-      method: "eth_sendRawTransaction",
-      broadcast: true,
-    };
-
-    await useCase.execute(successBroadcastStatus, rawParams);
+    await useCase.execute(successBroadcastStatus, { family: "ethereum" });
 
     expect(mockController.registerBroadcastedTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
