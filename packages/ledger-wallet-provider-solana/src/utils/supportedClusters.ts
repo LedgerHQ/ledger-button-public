@@ -1,4 +1,4 @@
-import type { SolanaCluster } from "@ledgerhq/ledger-wallet-provider-core";
+import type { SolanaCluster } from "../model/SolanaTypes";
 
 export const SUPPORTED_CLUSTERS: SolanaCluster[] = [
   "devnet",
