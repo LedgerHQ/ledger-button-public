@@ -1,5 +1,3 @@
-import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
-
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
@@ -15,10 +13,10 @@ import type {
 
 import type {
   BlockchainFamily,
+  BroadcastedTransactionMetadata,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
-  ProviderSignParams,
   WalletNavigationIntent,
 } from "./types";
 
@@ -61,8 +59,10 @@ export interface CoreFacade {
     rawTransaction: string,
     result: SignedResults,
   ): void;
-  trackTypedMessageStarted(typedData: TypedData): void;
-  trackTypedMessageCompleted(typedData: TypedData): void;
+  /** Track an opaque provider-owned message payload without interpreting it. */
+  trackTypedMessageStarted(typedData: unknown): void;
+  /** Track an opaque provider-owned message payload without interpreting it. */
+  trackTypedMessageCompleted(typedData: unknown): void;
 
   /**
    * Gas-fee estimation via the coin-service, when the chain is supported.
@@ -77,6 +77,6 @@ export interface CoreFacade {
   /** Forward a sign-flow status so core can track a broadcasted transaction. */
   trackBroadcastedTransaction(
     status: SignFlowStatus,
-    params: ProviderSignParams,
+    metadata: BroadcastedTransactionMetadata,
   ): void;
 }

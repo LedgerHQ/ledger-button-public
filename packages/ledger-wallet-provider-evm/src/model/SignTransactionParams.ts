@@ -14,11 +14,11 @@ export type Transaction = {
   nonce?: string;
 };
 
-export interface SignTransactionParams {
+export type SignTransactionParams = {
   transaction: Transaction;
   method: string;
   broadcast: boolean;
-}
+};
 
 export function isSignTransactionParams(
   params: unknown,

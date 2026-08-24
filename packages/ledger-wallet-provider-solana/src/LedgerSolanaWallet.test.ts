@@ -370,7 +370,7 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect(result.signedTransaction).toEqual(new Uint8Array([9, 9, 9]));
     });
 
-    it("tracks each sign-flow status with the solana transaction params", async () => {
+    it("tracks each sign-flow status with neutral Solana metadata", async () => {
       signUseCase.execute.mockReturnValue(of(successStatus));
       const wallet = createWallet();
       wallet.setSelectedAccount(createAccount());
@@ -382,11 +382,7 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
         successStatus,
-        {
-          kind: "solana-transaction",
-          address: SOLANA_ADDRESS,
-          transaction,
-        },
+        { family: "solana" },
       );
     });
 
@@ -411,11 +407,7 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
         errorStatus,
-        {
-          kind: "solana-transaction",
-          address: SOLANA_ADDRESS,
-          transaction,
-        },
+        { family: "solana" },
       );
     });
 
@@ -551,11 +543,7 @@ describe("LedgerSolanaWallet (connection)", () => {
             signature: broadcastSignature,
           },
         },
-        {
-          kind: "solana-transaction",
-          address: SOLANA_ADDRESS,
-          transaction,
-        },
+        { family: "solana" },
       );
     });
 
@@ -594,11 +582,7 @@ describe("LedgerSolanaWallet (connection)", () => {
       expect((trackedStatus?.error as Error).message).toBe(
         "Solana broadcast failed: Transaction simulation failed",
       );
-      expect(trackedParams).toEqual({
-        kind: "solana-transaction",
-        address: SOLANA_ADDRESS,
-        transaction,
-      });
+      expect(trackedParams).toEqual({ family: "solana" });
     });
   });
 });

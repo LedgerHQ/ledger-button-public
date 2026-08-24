@@ -1,6 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import type { ProviderSignParams } from "@api/blockchain-provider/model/types";
+import type { BroadcastedTransactionMetadata } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 import {
   DEFAULT_BLOCKCHAIN_FAMILY,
@@ -8,8 +8,6 @@ import {
 } from "@api/model/ButtonCoreContext";
 import { isBroadcastedTransactionResult } from "@api/model/signing/SignedTransaction";
 import { type SignFlowStatus } from "@api/model/signing/SignFlowStatus";
-import { getSignParamsFamily } from "@api/model/signing/signParamsFamily";
-import { isSignTransactionParams } from "@api/model/signing/SignTransactionParams";
 import { type CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
@@ -46,13 +44,13 @@ export class TrackBroadcastedTransactionUseCase {
 
   async execute(
     status: SignFlowStatus,
-    params: ProviderSignParams,
+    metadata: BroadcastedTransactionMetadata,
   ): Promise<void> {
     if (status.status !== "success") return;
     if (!isBroadcastedTransactionResult(status.data)) return;
 
     const context = this.contextService.getContext();
-    const family = getSignParamsFamily(params);
+    const { family, value } = metadata;
     const account = getSelectedAccount(context, family);
     if (!account) return;
 
@@ -63,7 +61,7 @@ export class TrackBroadcastedTransactionUseCase {
       status.data.hash,
       account,
       chainId,
-      params,
+      value,
     );
 
     this.logger.debug("Tracking broadcasted transaction", { hash: tx.hash });
@@ -74,28 +72,21 @@ export class TrackBroadcastedTransactionUseCase {
     hash: string,
     account: Account,
     chainId: number,
-    params: ProviderSignParams,
+    value: string | undefined,
   ): Promise<PendingTransaction> {
     const { ticker, name, decimals, transactionExplorerUrlTemplate } =
       await this.resolveCurrencyMetadata(account.currencyId);
-    // Only structured EVM params carry the amount. A raw EVM transaction or a
-    // serialized Solana one would have to be decoded, so the amount stays unset
-    // rather than being reported as zero.
-    const rawValue = isSignTransactionParams(params)
-      ? params.transaction.value
-      : undefined;
-
     return {
       hash,
       chainId,
       address: account.freshAddress,
       timestamp: new Date().toISOString(),
       type: "sent",
-      value: rawValue,
+      value,
       formattedValue:
-        rawValue === undefined || decimals === undefined
+        value === undefined || decimals === undefined
           ? undefined
-          : formatBalance(rawValue, decimals, ticker),
+          : formatBalance(value, decimals, ticker),
       ticker,
       currencyName: name,
       ledgerId: account.currencyId,

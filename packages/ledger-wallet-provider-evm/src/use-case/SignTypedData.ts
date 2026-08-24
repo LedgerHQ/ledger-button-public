@@ -22,7 +22,6 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignTypedMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   BlindSigningDisabledError,
   DeviceOutOfMemoryError,
@@ -51,6 +50,7 @@ import {
   type GetAddressDAState,
   isGetAddressResult,
 } from "../model/GetAddress";
+import type { SignTypedMessageParams } from "../model/SignTypedMessageParams";
 import { getHexaStringFromSignature } from "../transaction/TransactionHelper";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import { BuildEthSigner } from "./BuildEthSigner";

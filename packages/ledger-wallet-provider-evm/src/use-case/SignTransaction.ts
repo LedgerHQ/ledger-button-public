@@ -2,16 +2,16 @@ import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderLogger } from "@ledgerhq/ledger-wallet-provider-core";
 import { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
-import {
-  SignTransactionParams,
-  Transaction,
-} from "@ledgerhq/ledger-wallet-provider-core";
 import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { from, Observable, switchMap } from "rxjs";
 
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
 import { type GasFeeEstimationService } from "../gas-fee/GasFeeEstimationService";
+import type {
+  SignTransactionParams,
+  Transaction,
+} from "../model/SignTransactionParams";
 import { getRawTransactionFromEipTransaction } from "../transaction/TransactionHelper";
 import { SignRawTransaction } from "./SignRawTransaction";
 
