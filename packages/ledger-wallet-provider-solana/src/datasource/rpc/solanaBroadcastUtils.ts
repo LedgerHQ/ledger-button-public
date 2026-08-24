@@ -1,10 +1,11 @@
-import type { SolanaJSONRPCRequest } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BroadcastResponse } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   isCoinServiceBroadcastResponse,
   isJsonRpcResponseSuccess,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { getBase58Encoder } from "@solana/kit";
+
+import type { SolanaJSONRPCRequest } from "../../model/SolanaTypes";
 
 const base58Encoder = getBase58Encoder();
 

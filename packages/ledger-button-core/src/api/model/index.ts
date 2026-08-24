@@ -24,7 +24,6 @@ export * from "./signing/SignTransactionParams";
 export * from "./signing/SignTypedMessageParams";
 export * from "./signing/solana/SignSolanaMessageParams";
 export * from "./signing/solana/SignSolanaTransactionParams";
-export * from "./solana/SolanaTypes";
 export type {
   TransactionDirection,
   TransactionHistoryItem,
