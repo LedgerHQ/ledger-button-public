@@ -195,7 +195,7 @@ export class LedgerTransactionItem extends LitElement {
 
   private get iconSpotClasses() {
     return {
-      "flex h-48 w-48 items-center justify-center rounded-full": true,
+      "flex h-48 w-48 min-w-48 items-center justify-center rounded-full": true,
       "bg-error": this.isFailed,
       "bg-muted-transparent": !this.isFailed,
     };
