@@ -12,11 +12,6 @@ import { setupFloatingButton } from "./utils/setup-floating-button";
 import { LedgerButtonApp } from "./ledger-button-app";
 
 export type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
-export type {
-  EIP1193Provider,
-  EIP6963ProviderDetail,
-  EIP6963ProviderInfo,
-} from "@ledgerhq/ledger-wallet-provider-core";
 
 import type { WalletTransactionFeature } from "./components/molecule/wallet-actions/ledger-wallet-actions";
 

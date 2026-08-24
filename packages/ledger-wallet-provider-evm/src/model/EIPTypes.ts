@@ -120,6 +120,7 @@ export type TypedData = {
   domain: Record<string, unknown>;
   message: Record<string, unknown>;
 };
+
 export interface EthSignTypedDataParams {
   address: string;
   typedData: TypedData;
