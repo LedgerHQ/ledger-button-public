@@ -1,8 +1,8 @@
 import type { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
-import type { Transaction } from "@ledgerhq/ledger-wallet-provider-core";
 import { ethers, Signature } from "ethers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { Transaction } from "../model/SignTransactionParams";
 import {
   createSignedTransaction,
   getHexaStringFromSignature,

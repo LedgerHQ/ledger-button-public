@@ -1,4 +1,3 @@
-import { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
@@ -28,7 +27,7 @@ export class TrackTypedMessageStarted {
     this.logger = loggerFactory("TrackTypedMessageStarted UseCase");
   }
 
-  async execute(typedData: TypedData): Promise<void> {
+  async execute(typedData: unknown): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
 
     const typedMessageHash = stringToSha256(JSON.stringify(typedData));

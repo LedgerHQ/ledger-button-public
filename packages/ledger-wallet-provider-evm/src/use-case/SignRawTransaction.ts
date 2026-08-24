@@ -35,7 +35,6 @@ import {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { SignRawTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
 import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
 import { Signature } from "ethers";
 import { inject, injectable } from "inversify";
@@ -55,6 +54,7 @@ import {
   GetAddressDAState,
   isGetAddressResult,
 } from "../model/GetAddress";
+import type { SignRawTransactionParams } from "../model/SignRawTransactionParams";
 import { createSignedTransaction } from "../transaction/TransactionHelper";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import {

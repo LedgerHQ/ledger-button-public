@@ -1,9 +1,7 @@
 /**
  * Parameters for the Solana off-chain message signing flow (`solana:signMessage`).
  *
- * Unlike the EVM signing params (positional tuples), this is a tagged object so
- * it can be reliably discriminated from the array-based EVM params in the
- * `TransactionService` routing switch.
+ * Tagged object so it can be discriminated from the Solana transaction params.
  */
 export type SignSolanaMessageParams = {
   kind: "solana-message";

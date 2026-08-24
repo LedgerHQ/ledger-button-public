@@ -1,7 +1,8 @@
 import { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
 import type { SignedTransactionResult } from "@ledgerhq/ledger-wallet-provider-core";
-import type { Transaction } from "@ledgerhq/ledger-wallet-provider-core";
 import { ethers, Signature, TransactionLike } from "ethers";
+
+import type { Transaction } from "../model/SignTransactionParams";
 
 export function createSignedTransaction(
   rawTransaction: string,
@@ -18,7 +19,9 @@ export function createSignedTransaction(
   };
 }
 
-export function getRawTransactionFromEipTransaction(transaction: Transaction) {
+export function getRawTransactionFromEipTransaction(
+  transaction: Transaction,
+) {
   const sanitizedTransaction: TransactionLike = {
     chainId: transaction["chainId"],
     to: transaction["to"],
