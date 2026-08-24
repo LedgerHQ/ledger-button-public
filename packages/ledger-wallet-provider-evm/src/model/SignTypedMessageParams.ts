@@ -1,4 +1,4 @@
-import { type TypedData } from "@ledgerhq/device-signer-kit-ethereum";
+import type { TypedData } from "./EIPTypes";
 
 export type SignTypedMessageParams = [string, TypedData, string];
 

@@ -19,10 +19,6 @@ import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainRpcMethods } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignPersonalMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignRawTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignTypedMessageParams } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   isBroadcastedTransactionResult,
   isSignedMessageOrTypedDataResult,
@@ -47,6 +43,13 @@ import {
   type RpcMethods,
   TypedData,
 } from "./model/EIPTypes";
+import type { SignPersonalMessageParams } from "./model/SignPersonalMessageParams";
+import type { SignRawTransactionParams } from "./model/SignRawTransactionParams";
+import {
+  isSignTransactionParams,
+  type SignTransactionParams,
+} from "./model/SignTransactionParams";
+import type { SignTypedMessageParams } from "./model/SignTypedMessageParams";
 import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageUseCase";
 import type { SignRawTransaction } from "./use-case/SignRawTransaction";
 import type { SignTransaction } from "./use-case/SignTransaction";
@@ -479,7 +482,12 @@ export class LedgerEIP1193Provider
         }
         subscription = observable.subscribe({
           next: (status) => {
-            this.host.trackBroadcastedTransaction(status, params);
+            this.host.trackBroadcastedTransaction(status, {
+              family: this.family,
+              value: isSignTransactionParams(params)
+                ? params.transaction.value
+                : undefined,
+            });
             status$.next(status);
             if (status.status === "success") {
               settled = true;

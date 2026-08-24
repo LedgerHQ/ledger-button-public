@@ -4,12 +4,6 @@ import type { Observable } from "rxjs";
 import type { SignedResults } from "@api/model/signing/SignedTransaction";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type { SignIntentType } from "@api/model/signing/SignIntentType";
-import type { SignPersonalMessageParams } from "@api/model/signing/SignPersonalMessageParams";
-import type { SignRawTransactionParams } from "@api/model/signing/SignRawTransactionParams";
-import type { SignTransactionParams } from "@api/model/signing/SignTransactionParams";
-import type { SignTypedMessageParams } from "@api/model/signing/SignTypedMessageParams";
-import type { SignSolanaMessageParams } from "@api/model/signing/solana/SignSolanaMessageParams";
-import type { SignSolanaTransactionParams } from "@api/model/signing/solana/SignSolanaTransactionParams";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -67,14 +61,17 @@ export type ProviderSdkConfig = {
   dAppIdentifier: string;
 };
 
-/** Sign-flow params a provider forwards to core for pending-tx tracking. */
-export type ProviderSignParams =
-  | SignTransactionParams
-  | SignRawTransactionParams
-  | SignTypedMessageParams
-  | SignPersonalMessageParams
-  | SignSolanaMessageParams
-  | SignSolanaTransactionParams;
+/**
+ * Chain-neutral metadata a provider supplies when core tracks a broadcast.
+ *
+ * Providers own and interpret their signing payloads. Core only needs the
+ * family that selected the account and, when readily available, the native
+ * amount used to render the pending transaction.
+ */
+export type BroadcastedTransactionMetadata = {
+  family: BlockchainFamily;
+  value?: string;
+};
 
 /**
  * Payload carried by the `selectAccount` {@link WalletNavigationIntent} when the
@@ -90,14 +87,14 @@ export type SelectAccountIntentParams = {
 /**
  * Payload carried by the `signTransaction` {@link WalletNavigationIntent}.
  *
- * Deliberately a small set of decisions rather than the raw
- * {@link ProviderSignParams}: everything here is something the provider already
- * knows when it emits the intent, and the UI would otherwise have to re-derive
- * it by narrowing an `unknown` payload through the sign-params type guards.
+ * Deliberately a small set of decisions rather than the provider's raw
+ * signing payload: everything here is something the provider already knows
+ * when it emits the intent.
  *
- * The raw payload is not carried: pending-transaction tracking receives it
- * directly through {@link CoreFacade.trackBroadcastedTransaction}, on a path
- * that does not go through the UI.
+ * The raw payload is not carried. Pending-transaction tracking receives
+ * chain-neutral {@link BroadcastedTransactionMetadata} through
+ * {@link CoreFacade.trackBroadcastedTransaction}, on a path that does not
+ * go through the UI.
  */
 export type SignIntentParams = {
   family: BlockchainFamily;

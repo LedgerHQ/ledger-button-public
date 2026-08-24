@@ -12,7 +12,6 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import type { SignSolanaTransactionParams } from "@ledgerhq/ledger-wallet-provider-core";
 import { DeviceOutOfMemoryError } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
@@ -26,6 +25,7 @@ import type {
   SignSolanaTransactionFlowDAOutput,
 } from "../device-action/SignSolanaTransactionFlowDeviceActionTypes";
 import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
+import type { SignSolanaTransactionParams } from "../model/SignSolanaTransactionParams";
 import { getSolanaDerivationPath } from "../utils/derivationUtils";
 import { getSolanaMessageBytes } from "../utils/transactionUtils";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule";

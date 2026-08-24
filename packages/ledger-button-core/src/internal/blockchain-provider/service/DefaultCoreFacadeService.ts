@@ -1,13 +1,12 @@
-import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { Subject } from "rxjs";
 
 import type {
   BlockchainFamily,
+  BroadcastedTransactionMetadata,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
-  ProviderSignParams,
   WalletNavigationIntent,
 } from "@api/blockchain-provider/model/types";
 import { ModalClosedError } from "@api/errors/ProviderErrors";
@@ -282,11 +281,11 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     }
   }
 
-  trackTypedMessageStarted(typedData: TypedData): void {
+  trackTypedMessageStarted(typedData: unknown): void {
     void this._trackTypedMessageStarted.execute(typedData);
   }
 
-  trackTypedMessageCompleted(typedData: TypedData): void {
+  trackTypedMessageCompleted(typedData: unknown): void {
     void this._trackTypedMessageCompleted.execute(typedData);
   }
 
@@ -317,9 +316,9 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
 
   trackBroadcastedTransaction(
     status: SignFlowStatus,
-    params: ProviderSignParams,
+    metadata: BroadcastedTransactionMetadata,
   ): void {
-    void this._trackBroadcastedTransaction.execute(status, params);
+    void this._trackBroadcastedTransaction.execute(status, metadata);
   }
 
   async estimateGasFromCoinService(

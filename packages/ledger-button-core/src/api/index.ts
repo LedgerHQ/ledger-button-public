@@ -10,10 +10,10 @@ export type { CoreFacade } from "./blockchain-provider/model/CoreFacade";
 export type { CurrencyDescriptor } from "./blockchain-provider/model/CurrencyDescriptor";
 export type {
   BlockchainFamily,
+  BroadcastedTransactionMetadata,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
-  ProviderSignParams,
   SelectAccountIntentParams,
   SelectAccountNavigationIntent,
   SignIntentParams,

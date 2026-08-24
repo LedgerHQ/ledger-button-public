@@ -1,9 +1,8 @@
 /**
  * Parameters for the Solana transaction signing flow (`solana:signTransaction`).
  *
- * Tagged object mirroring {@link SignSolanaMessageParams} so a provider can
- * forward it to core for pending-tx tracking and the button UI can discriminate
- * it from the array-based EVM params and the Solana message params.
+ * Tagged object mirroring {@link SignSolanaMessageParams} so it can be
+ * discriminated from the Solana message params.
  */
 export type SignSolanaTransactionParams = {
   kind: "solana-transaction";
