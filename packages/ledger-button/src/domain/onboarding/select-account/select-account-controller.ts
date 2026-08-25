@@ -45,7 +45,9 @@ export class SelectAccountController implements ReactiveController {
 
   get isBalanceLoading(): boolean {
     return this.groups.some((group) =>
-      group.accounts.some((account) => account.balance === undefined),
+      group.accounts.some(
+        (account) => account.balanceLoadingState === "loading",
+      ),
     );
   }
 

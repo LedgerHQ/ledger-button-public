@@ -148,6 +148,18 @@ describe("enrichWithLoadingStates", () => {
     expect(account.balanceLoadingState).toBe("loading");
   });
 
+  it("should set balance and fiat loading states to loaded when balance is unavailable", () => {
+    const account = enrichWithLoadingStates({
+      ...createAccountWithFiat(),
+      balance: undefined,
+      balanceUnavailable: true,
+      fiatBalance: undefined,
+      fiatError: false,
+    });
+    expect(account.balanceLoadingState).toBe("loaded");
+    expect(account.fiatLoadingState).toBe("loaded");
+  });
+
   it("should set fiatLoadingState to loaded when fiatBalance is defined", () => {
     const account = enrichWithLoadingStates({
       ...createAccountWithFiat(),

@@ -13,11 +13,14 @@ const NATIVE_CURRENCY_FIAT_THRESHOLD = 0.01;
 export function enrichWithLoadingStates(
   account: Account & { fiatBalance?: FiatBalance; fiatError?: boolean },
 ): AccountWithFiat {
-  const balanceLoadingState: LoadingState =
-    account.balance !== undefined ? "loaded" : "loading";
+  const nativeBalanceSettled =
+    account.balance !== undefined || account.balanceUnavailable === true;
+  const balanceLoadingState: LoadingState = nativeBalanceSettled
+    ? "loaded"
+    : "loading";
   const fiatLoadingState: LoadingState = account.fiatError
     ? "error"
-    : account.fiatBalance !== undefined
+    : account.fiatBalance !== undefined || account.balanceUnavailable === true
       ? "loaded"
       : "loading";
 

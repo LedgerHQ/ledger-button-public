@@ -36,6 +36,14 @@ export class HydrateAccountWithFiatUseCase {
     const currency = this.contextService.getContext().preferredFiatCurrency;
     this.logHydrationStart(account);
 
+    if (account.balanceUnavailable) {
+      return enrichWithLoadingStates({
+        ...account,
+        fiatBalance: undefined,
+        fiatError: false,
+      });
+    }
+
     const balance = account.balance ?? "0";
     const balanceNum = this.parseBalance(balance);
     const hasNoNativeBalance = Number.isNaN(balanceNum) || balanceNum === 0;

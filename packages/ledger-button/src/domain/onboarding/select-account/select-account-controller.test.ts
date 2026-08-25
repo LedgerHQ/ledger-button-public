@@ -190,7 +190,12 @@ describe("SelectAccountController loading state", () => {
   it("reports loading while an account has no balance yet", () => {
     const { controller } = createController();
     controller.groups = [
-      createGroup([createAccount({ balance: undefined })]),
+      createGroup([
+        createAccount({
+          balance: undefined,
+          balanceLoadingState: "loading",
+        }),
+      ]),
       createGroup([createAccount({ balance: "1" })]),
     ];
 
@@ -200,6 +205,21 @@ describe("SelectAccountController loading state", () => {
   it("reports loaded once every account has a balance", () => {
     const { controller } = createController();
     controller.groups = [createGroup([createAccount({ balance: "1" })])];
+
+    expect(controller.isBalanceLoading).toBe(false);
+  });
+
+  it("does not report loading when balance is unavailable after hydration", () => {
+    const { controller } = createController();
+    controller.groups = [
+      createGroup([
+        createAccount({
+          balance: undefined,
+          balanceUnavailable: true,
+          balanceLoadingState: "loaded",
+        }),
+      ]),
+    ];
 
     expect(controller.isBalanceLoading).toBe(false);
   });
