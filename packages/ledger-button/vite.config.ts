@@ -4,6 +4,7 @@ import * as path from "path";
 import { defineConfig, type PluginOption } from "vite";
 import dts from "vite-plugin-dts";
 
+import { bundleAnalyzer } from "../../tools/vite/bundle-analyzer";
 import { externalizeDeps } from "../../tools/vite/externalize-deps";
 
 export default defineConfig(() => ({
@@ -16,6 +17,7 @@ export default defineConfig(() => ({
       entryRoot: "src",
       tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
     }),
+    bundleAnalyzer(__dirname),
   ] as PluginOption[],
   // Uncomment this if you are using workers.
   // worker: {
