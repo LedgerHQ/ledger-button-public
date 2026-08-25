@@ -1,6 +1,7 @@
 import {
   describeSolanaCurrency,
   describeSolanaNetwork,
+  getBackendChainIdFromCurrencyId,
   getClusterFromCurrencyId,
   getCurrencyIdFromCluster,
   isSupportedSolanaCurrency,
@@ -41,6 +42,12 @@ describe("clusterUtils", () => {
       { currencyId: "", description: "empty string" },
     ])("should return false for $description", ({ currencyId }) => {
       expect(isSupportedSolanaCurrency(currencyId)).toBe(false);
+    });
+  });
+
+  describe("getBackendChainIdFromCurrencyId", () => {
+    it("returns the backend chain id for solana mainnet", () => {
+      expect(getBackendChainIdFromCurrencyId("solana")).toBe("900");
     });
   });
 

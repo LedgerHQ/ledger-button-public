@@ -72,6 +72,7 @@ import type { SolanaCluster } from "./model/SolanaTypes";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import {
+  getBackendChainIdFromCurrencyId,
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
 } from "./utils/clusterUtils";
@@ -390,6 +391,7 @@ export class LedgerSolanaWallet implements Wallet {
 
             return from(
               this.broadcastSolanaTransaction(
+                account,
                 base64Decoder.decode(signedTransaction),
                 options,
               ),
@@ -419,15 +421,27 @@ export class LedgerSolanaWallet implements Wallet {
 
   /**
    * Broadcasts a base64-encoded signed wire transaction through
-   * {@link CoreFacade.broadcastRPC}, which owns the routing: Solana currently
-   * goes to Ledger's public Solana node proxy rather than to the button backend
-   * (see LBD-712). Resolves with the base58 transaction signature, used as the
-   * explorer `hash`, and the raw 64-byte signature.
+   * {@link CoreFacade.broadcastRPC} (`/broadcast`). Resolves with the base58
+   * transaction signature, used as the explorer `hash`, and the raw 64-byte
+   * signature.
    */
   private async broadcastSolanaTransaction(
+    account: ProviderAccount,
     base64WireTx: string,
     options?: SolanaSendOptions,
   ): Promise<Either<Error, { hash: string; signature: Uint8Array }>> {
+    const chainId = getBackendChainIdFromCurrencyId(account.currencyId);
+    if (!chainId) {
+      this.logger.error("No Solana chain id for currency", {
+        currencyId: account.currencyId,
+      });
+      return Left(
+        new Error(
+          `Solana broadcast failed: no chain id for ${account.currencyId}`,
+        ),
+      );
+    }
+
     this.logger.info("Broadcasting Solana transaction");
     this.logger.debug("Solana broadcast payload", {
       base64WireTxLength: base64WireTx.length,
@@ -441,7 +455,7 @@ export class LedgerSolanaWallet implements Wallet {
     try {
       const response = await this.host.broadcastRPC(
         buildSendTransactionRequest(this._rpcId++, base64WireTx, options),
-        { name: "solana", chainId: "mainnet" },
+        { name: "solana", chainId },
       );
 
       const hash = extractBroadcastedSignature(response);

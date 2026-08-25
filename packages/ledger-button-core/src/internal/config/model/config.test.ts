@@ -71,6 +71,24 @@ describe("Config", () => {
   });
 
   describe("existing functionality", () => {
+    it("should point backend URLs at the matching environment host", () => {
+      const production = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+        environment: "production",
+      });
+      expect(production.getBackendUrl()).toBe("https://ledgerb.api.ledger.com");
+
+      const staging = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+        environment: "staging",
+      });
+      expect(staging.getBackendUrl()).toBe(
+        "https://ledgerb.api.ledger-test.com",
+      );
+    });
+
     it("should maintain existing configuration options", () => {
       const config = new Config({
         originToken: "custom-token",
