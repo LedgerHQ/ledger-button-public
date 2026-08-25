@@ -3,7 +3,7 @@
  */
 
 import { Maybe, Right } from "purify-ts";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
 import type { BackendService } from "@internal/backend/BackendService";
@@ -95,78 +95,28 @@ describe("DefaultCoreFacadeService.requestAccount", () => {
 });
 
 describe("DefaultCoreFacadeService.broadcastRPC (Solana)", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
+  it.each(["staging", "production"] as const)(
+    "broadcasts Solana requests through the button backend on %s",
+    async (environment) => {
+      const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
+      const broadcast = vi.fn().mockResolvedValue(Right(jsonRpcResponse));
+      const { service } = makeService({
+        environment,
+        backendService: { broadcast } as unknown as BackendService,
+      });
 
-  it("broadcasts Solana requests through the button backend on staging", async () => {
-    const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
-    const broadcast = vi.fn().mockResolvedValue(Right(jsonRpcResponse));
-    const { service } = makeService({
-      environment: "staging",
-      backendService: { broadcast } as unknown as BackendService,
-    });
+      const args = {
+        jsonrpc: "2.0",
+        id: 0,
+        method: "sendTransaction",
+        params: ["base64Tx", { encoding: "base64" }],
+      };
+      const blockchain = { name: "solana", chainId: "900" };
 
-    const args = {
-      jsonrpc: "2.0",
-      id: 0,
-      method: "sendTransaction",
-      params: ["base64Tx", { encoding: "base64" }],
-    };
-    const blockchain = { name: "solana", chainId: "900" };
+      const response = await service.broadcastRPC(args, blockchain);
 
-    const response = await service.broadcastRPC(args, blockchain);
-
-    expect(broadcast).toHaveBeenCalledWith({ blockchain, rpc: args });
-    expect(response).toEqual(jsonRpcResponse);
-  });
-
-  it("broadcasts Solana requests to the Ledger node proxy on production", async () => {
-    const { service } = makeService({ environment: "production" });
-    const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: vi.fn().mockResolvedValue(jsonRpcResponse),
-    });
-    vi.stubGlobal("fetch", fetchMock);
-
-    const args = {
-      jsonrpc: "2.0",
-      id: 0,
-      method: "sendTransaction",
-      params: ["base64Tx", { encoding: "base64" }],
-    };
-
-    const response = await service.broadcastRPC(args, {
-      name: "solana",
-      chainId: "mainnet",
-    });
-
-    expect(fetchMock).toHaveBeenCalledWith("https://solana.coin.ledger.com", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(args),
-    });
-    expect(response).toEqual(jsonRpcResponse);
-  });
-
-  it("fails with the HTTP status when the Solana node proxy rejects the request", async () => {
-    const { service } = makeService({ environment: "production" });
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: false,
-        status: 429,
-        statusText: "Too Many Requests",
-        json: vi.fn(),
-      }),
-    );
-
-    await expect(
-      service.broadcastRPC(
-        { jsonrpc: "2.0", id: 0, method: "sendTransaction", params: [] },
-        { name: "solana", chainId: "mainnet" },
-      ),
-    ).rejects.toThrow("Solana node proxy responded with 429 Too Many Requests");
-  });
+      expect(broadcast).toHaveBeenCalledWith({ blockchain, rpc: args });
+      expect(response).toEqual(jsonRpcResponse);
+    },
+  );
 });

@@ -421,10 +421,9 @@ export class LedgerSolanaWallet implements Wallet {
 
   /**
    * Broadcasts a base64-encoded signed wire transaction through
-   * {@link CoreFacade.broadcastRPC}, which owns the routing: staging uses the
-   * button backend, production still hits Ledger's public Solana node proxy
-   * (see LBD-712). Resolves with the base58 transaction signature, used as the
-   * explorer `hash`, and the raw 64-byte signature.
+   * {@link CoreFacade.broadcastRPC} (`/broadcast`). Resolves with the base58
+   * transaction signature, used as the explorer `hash`, and the raw 64-byte
+   * signature.
    */
   private async broadcastSolanaTransaction(
     account: ProviderAccount,
