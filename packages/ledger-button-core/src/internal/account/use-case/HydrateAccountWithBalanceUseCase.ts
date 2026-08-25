@@ -1,17 +1,12 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { Account, Token } from "@api/model/Account";
-import { DEFAULT_BLOCKCHAIN_FAMILY } from "@api/model/ButtonCoreContext";
-import type { BackendService } from "@internal/backend/BackendService";
-import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import {
   type AccountBalance,
   type TokenBalance,
 } from "@internal/balance/model/types";
 import type { BalanceService } from "@internal/balance/service/BalanceService";
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import {
   formatBalance,
   UNRESOLVED_DECIMALS,
@@ -30,12 +25,8 @@ export class HydrateAccountWithBalanceUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(balanceModuleTypes.BalanceService)
     private readonly balanceService: BalanceService,
-    @inject(backendModuleTypes.BackendService)
-    private readonly backendService: BackendService,
     @inject(currencyModuleTypes.ResolveCurrencyDecimalsUseCase)
     private readonly resolveCurrencyDecimals: ResolveCurrencyDecimalsUseCase,
-    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
-    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
     this.logger = loggerFactory("HydrateAccountWithBalanceUseCase");
   }
@@ -82,54 +73,27 @@ export class HydrateAccountWithBalanceUseCase {
       tokenCount: tokens.length,
     });
 
-    return { ...account, balance, tokens };
+    return { ...account, balance, tokens, balanceUnavailable: false };
   }
 
-  private async handleBalanceServiceFailure(
+  private handleBalanceServiceFailure(
     account: Account,
     error: Error,
-  ): Promise<Account> {
+  ): Account {
     this.logger.warn(
-      "Failed to fetch balance from balance service (CoinService), falling back to RPC node",
+      "Failed to fetch balance from balance service (CoinService)",
       {
         error,
         address: account.freshAddress,
       },
     );
 
-    const balance = await this.fetchBalanceFromRpc(account);
-
-    return { ...account, balance, tokens: [] };
-  }
-
-  private async fetchBalanceFromRpc(account: Account): Promise<string> {
-    const decimals = await this.resolveDecimals(account.currencyId);
-    const currency = this.blockchainProviderManager.describeCurrency(
-      account.currencyId,
-    );
-    const chainId = currency.map(({ networkId }) => networkId).orDefault("1");
-    const blockchainName = currency
-      .map(({ family }) => family)
-      .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
-    const balanceRpcResult = await this.backendService.broadcast({
-      blockchain: { name: blockchainName, chainId },
-      rpc: {
-        method: "eth_getBalance",
-        params: [account.freshAddress, "latest"],
-        id: 1,
-        jsonrpc: "2.0",
-      },
-    });
-
-    if (balanceRpcResult.isRight()) {
-      const extract = balanceRpcResult.extract();
-      if ("result" in extract) {
-        const balanceHex = extract.result as string;
-        return formatBalance(balanceHex, decimals, account.ticker);
-      }
-    }
-
-    return formatBalance(BigInt(0), decimals, account.ticker);
+    return {
+      ...account,
+      balance: undefined,
+      tokens: [],
+      balanceUnavailable: true,
+    };
   }
 
   private async resolveDecimals(currencyId: string): Promise<number> {
