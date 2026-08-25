@@ -4,6 +4,8 @@ import * as path from "path";
 import { defineConfig, type PluginOption } from "vite";
 import dts from "vite-plugin-dts";
 
+import { externalizeDeps } from "../../tools/vite/externalize-deps";
+
 export default defineConfig(() => ({
   assetsInclude: ["**/*.png", "**/*.svg", "**/*.jpg", "**/*.jpeg", "**/*.gif"],
   root: __dirname,
@@ -38,8 +40,9 @@ export default defineConfig(() => ({
       formats: ["es" as const],
     },
     rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: [],
+      // Every runtime dependency stays external so consumers resolve a single
+      // copy of it. See tools/vite/externalize-deps.ts.
+      external: externalizeDeps(path.join(__dirname, "package.json")),
     },
   },
   test: {

@@ -44,6 +44,19 @@ jobs:
       - name: Check version plans
         run: pnpm nx release plan:check
 
+  bundles:
+    name: "Bundle externals"
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-action-composite
+      - name: Build libraries
+        run: |
+          pnpm nx run-many -t build --projects=@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core,@ledgerhq/ledger-wallet-provider-evm,@ledgerhq/ledger-wallet-provider-solana
+      - name: Check bundles keep their dependencies external
+        run: |
+          pnpm check:bundles
+
   checks:
     name: "Health checks"
     # needs: [danger]

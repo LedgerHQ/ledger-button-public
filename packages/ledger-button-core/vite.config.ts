@@ -3,19 +3,21 @@ import * as path from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
+import { externalizeDeps } from "../../tools/vite/externalize-deps";
+
+// Mirrors the `paths` of tsconfig.lib.json. vite-plugin-dts reads these
+// aliases to rewrite them back to relative paths in the emitted declarations,
+// so they must stay in sync with the tsconfig.
+const alias = {
+  "@api": path.resolve(__dirname, "src/api"),
+  "@internal": path.resolve(__dirname, "src/internal"),
+  "@schemas": path.resolve(__dirname, "src/schemas"),
+};
+
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/packages/ledger-button-core",
-  // Mirrors the `paths` of tsconfig.lib.json. vite-plugin-dts reads these
-  // aliases to rewrite them back to relative paths in the emitted declarations,
-  // so they must stay in sync with the tsconfig.
-  resolve: {
-    alias: {
-      "@api": path.resolve(__dirname, "src/api"),
-      "@internal": path.resolve(__dirname, "src/internal"),
-      "@schemas": path.resolve(__dirname, "src/schemas"),
-    },
-  },
+  resolve: { alias },
   plugins: [
     dts({
       entryRoot: "src",
@@ -45,8 +47,12 @@ export default defineConfig(() => ({
       formats: ["es" as const],
     },
     rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: [],
+      // Every runtime dependency stays external so consumers resolve a single
+      // copy of it. See tools/vite/externalize-deps.ts.
+      external: externalizeDeps(
+        path.join(__dirname, "package.json"),
+        Object.keys(alias),
+      ),
     },
   },
   test: {
