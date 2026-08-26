@@ -45,17 +45,52 @@ jobs:
         run: pnpm nx release plan:check
 
   bundles:
-    name: "Bundle externals"
+    name: "Bundles"
+    if: github.base_ref != 'main'
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      LIBRARIES: "@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core,@ledgerhq/ledger-wallet-provider-evm,@ledgerhq/ledger-wallet-provider-solana"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/setup-action-composite
-      - name: Build libraries
+        with:
+          playwright: "false"
+      - name: Build and measure this branch
         run: |
-          pnpm nx run-many -t build --projects=@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core,@ledgerhq/ledger-wallet-provider-evm,@ledgerhq/ledger-wallet-provider-solana
+          pnpm nx run-many -t build --projects=$LIBRARIES
+          node tools/scripts/report-bundle-sizes.mjs measure > "$RUNNER_TEMP/head-sizes.json"
       - name: Check bundles keep their dependencies external
         run: |
           pnpm check:bundles
+      # Measured from a worktree so the base build cannot disturb this checkout,
+      # with this branch's script since the base may not have it yet.
+      - name: Build and measure the base branch
+        run: |
+          git worktree add "$RUNNER_TEMP/base" "origin/$GITHUB_BASE_REF"
+          cd "$RUNNER_TEMP/base"
+          pnpm install --frozen-lockfile
+          pnpm nx run-many -t build --projects=$LIBRARIES
+          cd "$GITHUB_WORKSPACE"
+          node tools/scripts/report-bundle-sizes.mjs measure "$RUNNER_TEMP/base" > "$RUNNER_TEMP/base-sizes.json"
+      - name: Post the report
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          node tools/scripts/report-bundle-sizes.mjs compare \
+            "$RUNNER_TEMP/base-sizes.json" "$RUNNER_TEMP/head-sizes.json" > "$RUNNER_TEMP/report.md"
+          comment_id=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" \
+            --jq 'map(select(.body | startswith("<!-- bundle-size-report -->"))) | first | .id // empty')
+          if [ -n "$comment_id" ]; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$comment_id" -F body=@"$RUNNER_TEMP/report.md"
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" -F body=@"$RUNNER_TEMP/report.md"
+          fi
 
   checks:
     name: "Health checks"
