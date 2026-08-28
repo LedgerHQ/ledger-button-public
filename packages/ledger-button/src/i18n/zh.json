@@ -141,7 +141,7 @@
     },
     "connectionSuccess": {
       "title": "您已成功连接",
-      "subtitle": "You can now make your first transaction with the benefit of Ledger's Transaction Check and Clear Signing.",
+      "subtitle": "现在，您可以在 Ledger Transaction Check 交易检查和 Clear Signing 透明签名功能的保障下完成第一笔交易。",
       "close": "关闭"
     },
     "turnOnSync": {
