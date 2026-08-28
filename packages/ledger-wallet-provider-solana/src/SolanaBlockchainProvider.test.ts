@@ -14,6 +14,7 @@ vi.mock("./LedgerSolanaWallet", () => ({
   LedgerSolanaWallet: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
+    disconnect: vi.fn().mockResolvedValue(undefined),
   })),
 }));
 
@@ -124,6 +125,21 @@ describe("SolanaBlockchainProvider", () => {
 
     test("describeNetwork maps mainnet to solana", () => {
       expect(provider.describeNetwork("mainnet")?.currencyId).toBe("solana");
+    });
+  });
+
+  describe("disconnect()", () => {
+    test("is a no-op before injectWalletProviders", async () => {
+      await expect(provider.disconnect()).resolves.toBeUndefined();
+    });
+
+    test("delegates to LedgerSolanaWallet after injection", async () => {
+      provider.injectWalletProviders();
+      const wallet = vi.mocked(LedgerSolanaWallet).mock.results[0]?.value;
+
+      await provider.disconnect();
+
+      expect(wallet.disconnect).toHaveBeenCalledOnce();
     });
   });
 });

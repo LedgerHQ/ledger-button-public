@@ -84,6 +84,7 @@ const createMockContextService = (
 const createMockProvider = (family: "ethereum" | "solana") => ({
   family,
   injectWalletProviders: vi.fn(),
+  disconnect: vi.fn().mockResolvedValue(undefined),
   setSelectedAccount: vi.fn(),
   setNetwork: vi.fn(),
   describeCurrency: vi.fn().mockReturnValue(undefined),

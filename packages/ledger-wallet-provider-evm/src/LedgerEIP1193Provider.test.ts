@@ -312,10 +312,16 @@ describe("LedgerEIP1193Provider", () => {
       expect(listener).toHaveBeenCalledWith([EVM_ADDRESS]);
     });
 
-    it("should disconnect when undefined is pushed", () => {
+    it("should notify the dApp without calling host.disconnect when undefined is pushed", () => {
+      const listener = vi.fn();
+      provider.on("disconnect", listener);
       provider.setSelectedAccount(createAccount());
+
       provider.setSelectedAccount(undefined);
+
       expect(provider.isConnected()).toBe(false);
+      expect(listener).toHaveBeenCalledOnce();
+      expect(host.disconnect).not.toHaveBeenCalled();
     });
 
     it("should emit chainChanged when the network changes", () => {
@@ -341,7 +347,7 @@ describe("LedgerEIP1193Provider", () => {
 
       await provider.disconnect();
 
-      expect(host.disconnect).toHaveBeenCalled();
+      expect(host.disconnect).toHaveBeenCalledWith("ethereum");
       expect(provider.isConnected()).toBe(false);
       expect(listener.mock.calls[0][0]).toHaveProperty("code", 1000);
       expect(listener.mock.calls[0][0]).toHaveProperty(
