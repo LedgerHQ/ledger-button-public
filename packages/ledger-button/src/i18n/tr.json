@@ -141,7 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Şimdi bağlandınız",
-      "subtitle": "You can now make your first transaction with the benefit of Ledger's Transaction Check and Clear Signing.",
+      "subtitle": "Artık Ledger'ın Transaction Check (İşlem Denetimi) ve Şeffaf İmzalama özelliklerinden yararlanarak ilk işleminizi gerçekleştirebilirsiniz.",
       "close": "Kapat"
     },
     "turnOnSync": {
