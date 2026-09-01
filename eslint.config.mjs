@@ -1,4 +1,5 @@
 import nx from "@nx/eslint-plugin";
+import importPlugin from "eslint-plugin-import";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default [
@@ -29,6 +30,8 @@ export default [
           // are internal to that project rather than cross-project dependencies.
           allow: [
             "^.*/eslint(\\.base)?\\.config\\.[cm]?js$",
+            // Build-time helpers shared by the packages' vite configs.
+            "^(\\.\\./)+tools/.*$",
             "@api/**",
             "@internal/**",
             "@schemas/**",
@@ -128,6 +131,32 @@ export default [
                 "Omit the .js extension on relative imports; this package uses moduleResolution: bundler.",
             },
           ],
+        },
+      ],
+    },
+  },
+  {
+    // Library builds keep every runtime dependency external, so an import that
+    // is not declared in the package's own manifest resolves to nothing on the
+    // consumer side.
+    files: ["packages/*/src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      "**/*.spec.{ts,tsx}",
+      "**/*.stories.{ts,tsx}",
+      "**/__mocks__/**",
+      "**/__tests__/**",
+    ],
+    plugins: {
+      import: importPlugin,
+    },
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: false,
+          optionalDependencies: false,
+          peerDependencies: true,
         },
       ],
     },

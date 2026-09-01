@@ -51,6 +51,9 @@ jobs:
       - name: Build libraries
         run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana
 
+      - name: Check bundle externals
+        run: pnpm check:bundles
+
       - name: Prepare dist directory
         run: pnpm nx run ldb-tools:pack
 

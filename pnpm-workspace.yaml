@@ -105,6 +105,7 @@ catalog:
   purify-ts: 2.1.0
   react-medium-image-zoom: 5.1.8
   reflect-metadata: ^0.2.2
+  rollup-plugin-visualizer: ^7.1.1
   rxjs: 7.8.2
   semver: ^7.6.0
   shadow-dom-testing-library: ^1.12.0

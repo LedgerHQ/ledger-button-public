@@ -7,7 +7,9 @@
     "class-variance-authority": "catalog:",
     "lit": "catalog:",
     "lottie-web": "catalog:",
-    "motion": "catalog:",
+    "motion": "catalog:"
+  },
+  "peerDependencies": {
     "rxjs": "catalog:"
   },
   "devDependencies": {
