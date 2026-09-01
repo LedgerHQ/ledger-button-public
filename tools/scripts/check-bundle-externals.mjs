@@ -18,6 +18,17 @@ const WORKSPACE_ROOT = resolve(
 );
 const PACKAGES_DIR = join(WORKSPACE_ROOT, "packages");
 
+/**
+ * The four library packages that must always be built before this script runs.
+ * A missing dist/index.js in any of these is an error, not a skip.
+ */
+const REQUIRED_PACKAGES = [
+  "ledger-button",
+  "ledger-button-core",
+  "ledger-wallet-provider-evm",
+  "ledger-wallet-provider-solana",
+];
+
 /** Strings that only exist in a dependency's own source code. */
 const INLINE_MARKERS = [
   { name: "rxjs", marker: "where a stream was expected" },
@@ -52,18 +63,26 @@ function bareSpecifiersOf(bundle) {
   return [...specifiers];
 }
 
-function checkPackage(packageDir) {
+function checkPackage(packageDir, required) {
   const bundlePath = join(packageDir, "dist", "index.js");
   const manifestPath = join(packageDir, "package.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
 
   let bundle;
   try {
     bundle = readFileSync(bundlePath, "utf-8");
   } catch {
+    if (required) {
+      return {
+        errors: [
+          `dist/index.js is missing; build ${manifest.name ?? packageDir} before running this check`,
+        ],
+        name: manifest.name,
+      };
+    }
     return { skipped: true, errors: [] };
   }
 
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
   const declared = new Set([
     ...Object.keys(manifest.dependencies ?? {}),
     ...Object.keys(manifest.peerDependencies ?? {}),
@@ -93,7 +112,10 @@ function checkPackage(packageDir) {
 const results = readdirSync(PACKAGES_DIR)
   .map((entry) => join(PACKAGES_DIR, entry))
   .filter((packageDir) => statSync(packageDir).isDirectory())
-  .map((packageDir) => ({ packageDir, ...checkPackage(packageDir) }));
+  .map((packageDir) => ({
+    packageDir,
+    ...checkPackage(packageDir, REQUIRED_PACKAGES.includes(packageDir.split("/").at(-1))),
+  }));
 
 const checked = results.filter((result) => !result.skipped);
 const failed = checked.filter((result) => result.errors.length > 0);
@@ -102,11 +124,6 @@ for (const { name, errors } of failed) {
   for (const error of errors) {
     console.error(`✖ ${name}: ${error}`);
   }
-}
-
-if (checked.length === 0) {
-  console.error("No built package found; run the builds first.");
-  process.exit(1);
 }
 
 if (failed.length > 0) {
