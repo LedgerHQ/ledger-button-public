@@ -3,6 +3,9 @@ import * as path from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
+import { bundleAnalyzer } from "../../tools/vite/bundle-analyzer";
+import { externalizeDeps } from "../../tools/vite/externalize-deps";
+
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: "../../node_modules/.vite/packages/ledger-wallet-provider-evm",
@@ -11,6 +14,7 @@ export default defineConfig(() => ({
       entryRoot: "src",
       tsconfigPath: path.join(__dirname, "tsconfig.lib.json"),
     }),
+    bundleAnalyzer(__dirname),
   ],
   // Uncomment this if you are using workers.
   // worker: {
@@ -35,8 +39,9 @@ export default defineConfig(() => ({
       formats: ["es" as const],
     },
     rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: [],
+      // Every runtime dependency stays external so consumers resolve a single
+      // copy of it. See tools/vite/externalize-deps.ts.
+      external: externalizeDeps(path.join(__dirname, "package.json")),
     },
   },
   test: {

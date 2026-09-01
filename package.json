@@ -16,7 +16,9 @@
     "storybook:test": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"pnpm provider exec nx build-storybook --quiet && pnpm provider exec http-server storybook-static -p 4200 --silent\" \"wait-on tcp:4200 && pnpm provider exec nx test-storybook\"",
     "test:coverage": "pnpm nx run-many -t test --projects=@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core -- --coverage",
     "plan:check": "pnpm nx release plan:check",
-    "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana",
+    "check:bundles": "node tools/scripts/check-bundle-externals.mjs",
+    "analyze": "ANALYZE=1 pnpm nx run-many -t build --projects=@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core,@ledgerhq/ledger-wallet-provider-evm,@ledgerhq/ledger-wallet-provider-solana --skip-nx-cache",
+    "prerelease": "pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana && pnpm check:bundles",
     "release": "pnpm nx release"
   },
   "private": true,
@@ -84,6 +86,7 @@
     "postcss": "catalog:",
     "prettier": "catalog:",
     "prettier-plugin-tailwindcss": "catalog:",
+    "rollup-plugin-visualizer": "catalog:",
     "shadow-dom-testing-library": "catalog:",
     "storybook": "catalog:",
     "swc-loader": "catalog:",

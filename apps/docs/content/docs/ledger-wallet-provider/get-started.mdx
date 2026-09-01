@@ -28,6 +28,10 @@ npm install @ledgerhq/ledger-wallet-provider-solana   # Solana (Wallet Standard)
 
 You can also install with `yarn` or `pnpm`. Skip a family package if you do not support that chain.
 
+<Callout type="info">
+  The family packages declare `rxjs`, `xstate`, `purify-ts` and `@ledgerhq/device-management-kit` as peer dependencies, so they share a single instance with the UI package. npm 7+, pnpm and Yarn Berry install them for you; on Yarn 1, add them explicitly.
+</Callout>
+
 ## Initialize the provider
 
 ```ts
