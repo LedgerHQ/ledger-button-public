@@ -1,8 +1,6 @@
 import { inject, injectable } from "inversify";
 import { type Either, Left, Right } from "purify-ts";
 
-import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
@@ -35,20 +33,13 @@ export class DefaultCalDataSource implements CalDataSource {
     private readonly networkService: NetworkService<NetworkServiceOpts>,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
-    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
-    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {}
 
   async getTokenInformation(
     tokenAddress: string,
     currencyId: string,
   ): Promise<Either<Error, TokenInformation>> {
-    const chainId = this.blockchainProviderManager
-      .describeCurrency(currencyId)
-      .map((currency) => currency.networkId)
-      .orDefault("1");
-
-    const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=id,name,decimals,ticker,network_external_links`;
+    const requestUrl = this.buildTokenRequestUrl(tokenAddress, currencyId);
     const getTokenInformationResult: Either<Error, CalTokenResponse> =
       await this.networkService.get(requestUrl);
 
@@ -90,6 +81,13 @@ export class DefaultCalDataSource implements CalDataSource {
       }
     });
     return request;
+  }
+
+  private buildTokenRequestUrl(
+    tokenAddress: string,
+    currencyId: string,
+  ): string {
+    return `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&network=${currencyId}&output=id,name,decimals,ticker,network_external_links`;
   }
 
   private async fetchCurrencyInformation(
