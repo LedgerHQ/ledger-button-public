@@ -1,20 +1,26 @@
 ---
-title: Get started with Ledger Wallet Provider
+title: Get started — Multi-blockchain
 category: how-to
 ---
 
-import { Callout } from 'nextra/components'
-import Link from 'next/link'
+import { Callout } from "nextra/components";
+import Link from "next/link";
 
-# Get started with Ledger Wallet Provider
+# Get started — v2 (Multi-blockchain)
 
-This guide shows you how to install and initialize Ledger Wallet Provider. You install the UI package plus a family package for each chain you support, then pass those factories to one `initializeLedgerProvider` call. The SDK registers only the families that are also enabled in your partner configuration (`dAppIdentifier`). Then follow the guide for your chain.
+<Callout type="warning">
+  **v2 is coming soon.** This page documents the upcoming multi-blockchain API.
+  For the current stable release, see [v1](./v1).
+</Callout>
 
+This guide shows how to install and initialize Ledger Wallet Provider with support for **multiple blockchain families** (EVM and Solana). Install the UI package plus a family package for each chain you support, then pass those factories to `initializeLedgerProvider`. The SDK registers only the families that are enabled in your partner configuration (`dAppIdentifier`).
+
+{/* prettier-ignore */}
 <Callout type="info">
   **Partner program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
 </Callout>
 
-Before you start, check the [Requirements](./requirements) to confirm your target browsers support Web HID and Web Bluetooth.
+Before you start, check the [Requirements](../requirements) to confirm your target browsers support Web HID and Web Bluetooth.
 
 ## Install the SDK
 
@@ -27,10 +33,6 @@ npm install @ledgerhq/ledger-wallet-provider-solana   # Solana (Wallet Standard)
 ```
 
 You can also install with `yarn` or `pnpm`. Skip a family package if you do not support that chain.
-
-<Callout type="info">
-  The family packages declare `rxjs`, `xstate`, `purify-ts` and `@ledgerhq/device-management-kit` as peer dependencies, so they share a single instance with the UI package. npm 7+, pnpm and Yarn Berry install them for you; on Yarn 1, add them explicitly.
-</Callout>
 
 ## Initialize the provider
 
@@ -53,16 +55,14 @@ const cleanup = initializeLedgerProvider({
 // Call cleanup() when your application unmounts
 ```
 
-Pass a factory for each family you installed. `initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for families that appear in **both** `blockchainProviderFactories` and your partner dApp configuration (tied to `dAppIdentifier`):
+Pass a factory for each supported blockchain family. `initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for families that appear in **both** `blockchainProviderFactories` and your partner dApp configuration (tied to `dAppIdentifier`):
 
-- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) — when you pass the EVM factory and Ethereum is enabled
-- **Solana** via the [Wallet Standard](https://github.com/wallet-standard/wallet-standard) — when you pass the Solana factory and Solana is enabled
+- **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)
+- **Solana** via [Wallet Standard](https://github.com/wallet-standard/wallet-standard)
 
-If both factories are passed and both families are enabled, both providers are registered from the same init call. Without `blockchainProviderFactories`, no chain provider is registered.
+It returns a cleanup function — call it when your application unmounts to remove the UI and unregister the providers.
 
-It returns a cleanup function — call it when your application unmounts to remove the UI and unregister any providers that were registered.
-
-See [Configuration](./configuration) for the full list of options.
+See [Configuration](../configuration) for the full list of options.
 
 ## SSR and dynamic imports
 
@@ -101,15 +101,16 @@ useEffect(() => {
 
 ## Choose your chain
 
-After initialization, integrate discovery and signing for each family you registered and that is enabled in your partner configuration:
+After initialization, integrate discovery and signing for each supported blockchain family.
+The blockchain family needs to be enabled in your partner configuration:
 
 <div className="grid md:grid-cols-2 gap-4 mt-8">
-  <Link href="./blockchains/evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+  <Link href="../blockchains/evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
     <div className="font-semibold mb-2">EVM →</div>
     <div className="text-sm text-gray-400">EIP-6963 discovery, eth_requestAccounts, message and transaction signing</div>
   </Link>
 
-  <Link href="./blockchains/solana" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
+  <Link href="../blockchains/solana" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
     <div className="font-semibold mb-2">Solana →</div>
     <div className="text-sm text-gray-400">Wallet Standard connect, signMessage, signTransaction, signAndSendTransaction</div>
   </Link>
@@ -119,6 +120,6 @@ More blockchain families will follow the same pattern: install the family packag
 
 ## Next steps
 
-- [Configuration](./configuration) — UI position, stubs, environment, and other options
-- [API reference](./api-reference) — `initializeLedgerProvider`, `blockchainProviderFactories`, and the EVM EIP-1193 provider surface
-- [Package attestation](./package-attestation) — verify npm provenance
+- [Configuration](../configuration) — UI position, environment, and other options
+- [API reference](../api-reference) — `initializeLedgerProvider`, `blockchainProviderFactories`, and the EVM EIP-1193 provider surface
+- [Package attestation](../package-attestation) — verify npm provenance

@@ -1,4 +1,4 @@
 export default {
   evm: "EVM",
-  solana: "Solana",
+  solana: "Solana (coming soon)",
 };
