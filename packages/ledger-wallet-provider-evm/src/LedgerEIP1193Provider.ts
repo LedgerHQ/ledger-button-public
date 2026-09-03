@@ -198,22 +198,38 @@ export class LedgerEIP1193Provider
     message = "Provider disconnected",
     data?: unknown,
   ): Promise<void> {
-    if (this._isConnected) {
-      this._isConnected = false;
-      this._selectedAccount = null;
-      this._selectedChainId = 1; // Default to Ethereum mainnet
-      this._inFlight = false;
-
-      await this.host.disconnect(this.family);
-
-      this.dispatchEvent(
-        new CustomEvent<ProviderRpcError>("disconnect", {
-          bubbles: true,
-          composed: true,
-          detail: this.createError(code, message, data),
-        }),
-      );
+    if (!this.clearConnectionState()) {
+      return;
     }
+
+    await this.host.disconnect(this.family);
+    this.dispatchDisconnectEvent(code, message, data);
+  }
+
+  private clearConnectionState(): boolean {
+    if (!this._isConnected) {
+      return false;
+    }
+
+    this._isConnected = false;
+    this._selectedAccount = null;
+    this._selectedChainId = 1; // Default to Ethereum mainnet
+    this._inFlight = false;
+    return true;
+  }
+
+  private dispatchDisconnectEvent(
+    code = 1000,
+    message = "Provider disconnected",
+    data?: unknown,
+  ): void {
+    this.dispatchEvent(
+      new CustomEvent<ProviderRpcError>("disconnect", {
+        bubbles: true,
+        composed: true,
+        detail: this.createError(code, message, data),
+      }),
+    );
   }
 
   /**
@@ -222,7 +238,9 @@ export class LedgerEIP1193Provider
    */
   public setSelectedAccount(account: ProviderAccount | undefined): void {
     if (!account) {
-      void this.disconnect();
+      if (this.clearConnectionState()) {
+        this.dispatchDisconnectEvent();
+      }
       return;
     }
 

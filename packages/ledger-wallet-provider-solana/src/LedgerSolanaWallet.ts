@@ -75,6 +75,7 @@ import {
   getBackendChainIdFromCurrencyId,
   getClusterFromCurrencyId,
   isSupportedSolanaCurrency,
+  SOLANA_FAMILY,
 } from "./utils/clusterUtils";
 import { attachSolanaSignature } from "./utils/signatureUtils";
 
@@ -171,7 +172,7 @@ export class LedgerSolanaWallet implements Wallet {
     this._selectedAccount = account;
 
     if (!account) {
-      void this.disconnect();
+      this.clearAnnouncedAccounts();
       return;
     }
 
@@ -182,7 +183,7 @@ export class LedgerSolanaWallet implements Wallet {
 
     // Switching to a non-Solana account -> disconnect the Solana dApp.
     if (!isSupportedSolanaCurrency(account.currencyId)) {
-      void this.disconnect();
+      this.clearAnnouncedAccounts();
       return;
     }
 
@@ -242,13 +243,21 @@ export class LedgerSolanaWallet implements Wallet {
     return { accounts: this._accounts };
   };
 
-  private readonly disconnect: StandardDisconnectMethod = async () => {
+  readonly disconnect: StandardDisconnectMethod = async () => {
+    if (this._accounts.length === 0) {
+      return;
+    }
+    this.clearAnnouncedAccounts();
+    await this.host.disconnect(SOLANA_FAMILY);
+  };
+
+  private clearAnnouncedAccounts(): void {
     if (this._accounts.length === 0) {
       return;
     }
     this._accounts = [];
     this.emitChange({ accounts: this._accounts });
-  };
+  }
 
   private readonly on: StandardEventsOnMethod = (event, listener) => {
     const listeners = this._listeners[event];
