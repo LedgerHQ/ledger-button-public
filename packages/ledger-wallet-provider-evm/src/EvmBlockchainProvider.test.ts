@@ -11,6 +11,7 @@ vi.mock("./LedgerEIP1193Provider", () => ({
   LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({
     setSelectedAccount: vi.fn(),
     setNetwork: vi.fn(),
+    disconnect: vi.fn().mockResolvedValue(undefined),
   })),
 }));
 
@@ -168,6 +169,21 @@ describe("EvmBlockchainProvider", () => {
 
     test("describeNetwork maps 137 to polygon", () => {
       expect(provider.describeNetwork("137")?.currencyId).toBe("polygon");
+    });
+  });
+
+  describe("disconnect()", () => {
+    test("is a no-op before injectWalletProviders", async () => {
+      await expect(provider.disconnect()).resolves.toBeUndefined();
+    });
+
+    test("delegates to LedgerEIP1193Provider after injection", async () => {
+      provider.injectWalletProviders();
+      const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
+
+      await provider.disconnect();
+
+      expect(inner.disconnect).toHaveBeenCalledOnce();
     });
   });
 });

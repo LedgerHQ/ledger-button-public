@@ -60,6 +60,10 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
     this.walletProvider.init();
   }
 
+  async disconnect(): Promise<void> {
+    await this.wallet?.disconnect();
+  }
+
   setSelectedAccount(account: ProviderAccount | undefined): void {
     this.wallet?.setSelectedAccount(account);
   }

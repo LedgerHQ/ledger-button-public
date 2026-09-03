@@ -72,6 +72,10 @@ export class EvmBlockchainProvider implements BlockchainProvider {
     this.walletProvider.init();
   }
 
+  async disconnect(): Promise<void> {
+    await this.eip1193Provider?.disconnect();
+  }
+
   setSelectedAccount(account: ProviderAccount | undefined): void {
     this.eip1193Provider?.setSelectedAccount(account);
   }

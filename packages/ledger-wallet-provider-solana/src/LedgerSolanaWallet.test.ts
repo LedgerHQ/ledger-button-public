@@ -252,6 +252,7 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(wallet.accounts).toEqual([]);
       expect(listener).toHaveBeenCalledWith({ accounts: [] });
+      expect(host.disconnect).not.toHaveBeenCalled();
     });
 
     it("disconnects the Solana wallet when the account is cleared", async () => {
@@ -265,11 +266,12 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(wallet.accounts).toEqual([]);
       expect(listener).toHaveBeenCalledWith({ accounts: [] });
+      expect(host.disconnect).not.toHaveBeenCalled();
     });
   });
 
   describe("disconnect", () => {
-    it("clears the connected accounts and emits a change event", async () => {
+    it("clears the connected accounts, emits a change event, and notifies core", async () => {
       const wallet = createWallet();
       wallet.setSelectedAccount(createAccount());
       await wallet.features["standard:connect"].connect();
@@ -280,6 +282,18 @@ describe("LedgerSolanaWallet (connection)", () => {
 
       expect(wallet.accounts).toEqual([]);
       expect(listener).toHaveBeenCalledWith({ accounts: [] });
+      expect(host.disconnect).toHaveBeenCalledWith("solana");
+    });
+
+    it("does not call host.disconnect a second time when already disconnected", async () => {
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+      await wallet.features["standard:connect"].connect();
+
+      await wallet.features["standard:disconnect"].disconnect();
+      await wallet.features["standard:disconnect"].disconnect();
+
+      expect(host.disconnect).toHaveBeenCalledTimes(1);
     });
   });
 

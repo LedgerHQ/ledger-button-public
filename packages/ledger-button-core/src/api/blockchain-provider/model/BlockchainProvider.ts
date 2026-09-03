@@ -21,6 +21,11 @@ export interface BlockchainProvider {
    * config has been fetched.
    */
   injectWalletProviders(): void;
+  /**
+   * dApp-initiated disconnect for this family: clear local wallet state,
+   * notify the dApp, and ask core to drop the family's selected account.
+   */
+  disconnect(): Promise<void>;
   setSelectedAccount(account: ProviderAccount | undefined): void;
   setNetwork(chainId: number): void;
   /**
