@@ -18,7 +18,7 @@ This page covers the breaking changes introduced in **2.0.0** and explains how t
 
 ### `blockchainProviderFactories` is now required for EVM
 
-In 1.x, the EVM provider was registered automatically when `initializeLedgerProvider` was called, even without passing `blockchainProviderFactories`. Starting from **1.4.0** (and mandatory in 2.0.0), you must pass the EVM factory explicitly. This makes the SDK chain-agnostic and lets you control exactly which families are loaded.
+In 1.x, the EVM provider was registered automatically when `initializeLedgerProvider` was called, even without passing `blockchainProviderFactories`. Starting from **2.0.0**, you must pass the EVM factory explicitly. This makes the SDK chain-agnostic and lets you control exactly which families are loaded.
 
 **Before (1.x.x and earlier)**
 

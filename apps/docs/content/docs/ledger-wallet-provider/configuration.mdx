@@ -45,7 +45,7 @@ export const DevBadge = () => (
   </span>
 );
 
-export const v2Badge = () => (
+export const V2Badge = () => (
   <span
     style={{
       marginLeft: "0.4rem",
@@ -107,9 +107,11 @@ Your Ledger API key. Get it by enrolling in Ledger's partner program.
 
 Your dApp identifier. This lets Ledger validate the integration and enable remote services. Your partner configuration determines which blockchain families are available to your dApp — you can then choose which ones to register via `blockchainProviderFactories`.
 
-### `blockchainProviderFactories` <Required /> <v2Badge />
+### `blockchainProviderFactories` <Required /> <V2Badge />
 
-The blockchain families your dApp wants to enable. Each entry pairs a family identifier with its provider factory, sourced from the corresponding family package. Families not listed here are never loaded, regardless of what your partner configuration allows. **Available from v2+ only.** Not present in the v1 API.
+**Available from v2+ only.** Not present in the v1 API.
+
+The blockchain families your dApp wants to enable. Each entry pairs a family identifier with its provider factory, sourced from the corresponding family package. Families not listed here are never loaded, regardless of what your partner configuration allows.
 
 Install the family package, import its factory, and pass it here:
 
