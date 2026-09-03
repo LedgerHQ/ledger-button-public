@@ -1,0 +1,141 @@
+---
+title: Migration guide — 1.x → 2.0.0
+category: how-to
+---
+
+import { Callout, Steps } from "nextra/components";
+
+# Migration guide — 1.x → 2.0.0
+
+This page covers the breaking changes introduced in **2.0.0** and explains how to update your integration from 1.x.
+
+<Callout type="warning">
+  **2.0.0 is not yet released.** This guide documents the planned breaking
+  changes so you can prepare your integration in advance.
+</Callout>
+
+## What changed
+
+### `blockchainProviderFactories` is now required for EVM
+
+In 1.x, the EVM provider was registered automatically when `initializeLedgerProvider` was called, even without passing `blockchainProviderFactories`. Starting from **1.4.0** (and mandatory in 2.0.0), you must pass the EVM factory explicitly. This makes the SDK chain-agnostic and lets you control exactly which families are loaded.
+
+**Before (1.x.x and earlier)**
+
+```ts
+// EVM provider was registered automatically — no factory needed
+import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
+
+initializeLedgerProvider({
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+});
+```
+
+**After (2.x.x+)**
+
+```ts
+import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
+import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
+
+initializeLedgerProvider({
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+  blockchainProviderFactories: [
+    { family: "ethereum", create: createEvmBlockchainProvider },
+  ],
+});
+```
+
+**Why:** The `blockchainProviderFactories` pattern enables multi-chain support (EVM + Solana) from the same call and lets bundlers tree-shake chain packages you do not use.
+
+---
+
+### `LedgerEIP1193Provider` is no longer re-exported from the main package
+
+In earlier 1.x versions, `LedgerEIP1193Provider` was re-exported from `@ledgerhq/ledger-wallet-provider`. It is now only available from `@ledgerhq/ledger-wallet-provider-evm`.
+
+**Before**
+
+```ts
+import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider";
+```
+
+**After**
+
+```ts
+import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
+```
+
+---
+
+## Step-by-step migration
+
+<Steps>
+
+### Install the EVM package
+
+If you do not already have it:
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider-evm
+```
+
+### Pass `blockchainProviderFactories`
+
+Update your `initializeLedgerProvider` call to include the EVM factory:
+
+```ts
+import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
+
+initializeLedgerProvider({
+  // ...existing options...
+  blockchainProviderFactories: [
+    { family: "ethereum", create: createEvmBlockchainProvider },
+  ],
+});
+```
+
+### Update `LedgerEIP1193Provider` imports
+
+Search your codebase for `import.*LedgerEIP1193Provider.*ledger-wallet-provider` and change the import source:
+
+```ts
+// Before
+import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider";
+
+// After
+import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
+```
+
+### (Optional) Add Solana
+
+If you want to enable Solana in the same call:
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider-solana
+```
+
+```ts
+import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
+
+initializeLedgerProvider({
+  // ...
+  blockchainProviderFactories: [
+    { family: "ethereum", create: createEvmBlockchainProvider },
+    { family: "solana", create: createSolanaBlockchainProvider },
+  ],
+});
+```
+
+See [Get started — Multi-blockchain](./get-started/v2) for the full guide.
+
+</Steps>
+
+## See also
+
+- [Get started — EVM only](./get-started/v1) — EVM-only integration guide (v1 pattern)
+- [Get started — Multi-blockchain](./get-started/v2) — Multi-chain integration guide (v2 pattern)
+- [Configuration](./configuration) — full options reference with Required / Optional / Deprecated badges
+- [EVM](./blockchains/evm) — EIP-6963 discovery and EIP-1193 signing
+- [Solana](./blockchains/solana) — Wallet Standard connect and signing

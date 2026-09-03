@@ -3,20 +3,21 @@ title: Ledger Wallet Provider
 category: explanation
 ---
 
-import { Callout } from 'nextra/components'
-import Link from 'next/link'
+import { Callout } from "nextra/components";
+import Link from "next/link";
 
 # Ledger Wallet Provider
 
-<div className="text-lg text-gray-600 dark:text-gray-400 mt-4 mb-8">
-  Give your users a first-party Ledger experience inside your application with secure signer pairing, Clear Signing, and Transaction Check built in.
+<div className="mt-4 mb-8 text-lg text-gray-600 dark:text-gray-400">
+  Give your users a first-party Ledger experience inside your application with
+  secure signer pairing, Clear Signing, and Transaction Check built in.
 </div>
 
 ## What is Ledger Wallet Provider
 
 Ledger Wallet Provider is a web component SDK that embeds Ledger's official connect flow directly inside your application, enabling direct signer connections and ensuring full access to Ledger's security features like Clear Signing and Transaction Check.
 
-The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and exposes standards-based providers for the blockchain families you register. Install `@ledgerhq/ledger-wallet-provider-evm` and/or `@ledgerhq/ledger-wallet-provider-solana`, pass their factories to `initializeLedgerProvider`, and the SDK announces only the families also enabled in your partner configuration — an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) for Ethereum, and a [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet for Solana.
+The SDK handles USB and Bluetooth connections, automatically enables Clear Signing and Transaction Check, and exposes standards-based providers for the blockchain families you register. The main package is [`@ledgerhq/ledger-wallet-provider`](https://www.npmjs.com/package/@ledgerhq/ledger-wallet-provider), initialized via `initializeLedgerProvider`. After initialization, the SDK announces the blockchain families enabled in your partner configuration — an [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) for Ethereum, and/or a [Wallet Standard](https://github.com/wallet-standard/wallet-standard) wallet for Solana (v2+).
 
 <div className="my-12 flex flex-col items-center justify-center gap-8 md:flex-row md:gap-12">
   <img
@@ -33,33 +34,41 @@ The SDK handles USB and Bluetooth connections, automatically enables Clear Signi
 
 ## What you get with Ledger Wallet Provider
 
-<div className="grid md:grid-cols-2 gap-4 my-8">
+<div className="my-8 grid gap-4 md:grid-cols-2">
   <div className="flex items-start gap-3">
-    <span className="text-emerald-500 mt-1">✓</span>
+    <span className="mt-1 text-emerald-500">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Built-in security</div>
-      <div className="text-sm text-gray-400 mt-1">Clear Signing and Transaction Check enabled automatically</div>
+      <div className="font-semibold text-gray-200">Built-in security</div>
+      <div className="mt-1 text-sm text-gray-400">
+        Clear Signing and Transaction Check enabled automatically
+      </div>
     </div>
   </div>
   <div className="flex items-start gap-3">
-    <span className="text-emerald-500 mt-1">✓</span>
+    <span className="mt-1 text-emerald-500">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Complete user flow</div>
-      <div className="text-sm text-gray-400 mt-1">Handles signer pairing, account selection, and connection state</div>
+      <div className="font-semibold text-gray-200">Complete user flow</div>
+      <div className="mt-1 text-sm text-gray-400">
+        Handles signer pairing, account selection, and connection state
+      </div>
     </div>
   </div>
   <div className="flex items-start gap-3">
-    <span className="text-emerald-500 mt-1">✓</span>
+    <span className="mt-1 text-emerald-500">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Standard integration</div>
-      <div className="text-sm text-gray-400 mt-1">EIP-1193 provider works with any JavaScript framework</div>
+      <div className="font-semibold text-gray-200">Standard integration</div>
+      <div className="mt-1 text-sm text-gray-400">
+        EIP-1193 provider works with any JavaScript framework
+      </div>
     </div>
   </div>
   <div className="flex items-start gap-3">
-    <span className="text-emerald-500 mt-1">✓</span>
+    <span className="mt-1 text-emerald-500">✓</span>
     <div>
-      <div className="text-gray-200 font-semibold">Managed transports</div>
-      <div className="text-sm text-gray-400 mt-1">Ledger maintains USB and Bluetooth connection layers</div>
+      <div className="font-semibold text-gray-200">Managed transports</div>
+      <div className="mt-1 text-sm text-gray-400">
+        Ledger maintains USB and Bluetooth connection layers
+      </div>
     </div>
   </div>
 </div>
@@ -76,25 +85,45 @@ The SDK runs entirely in the browser. It does not support server-side rendering 
     <div className="text-sm text-gray-400">Check browser and platform requirements before you start</div>
   </Link>
 
-  <Link href="./get-started" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
-    <div className="font-semibold mb-2">Get started →</div>
-    <div className="text-sm text-gray-400">Install the SDK and family packages, then initialize Ledger Wallet Provider</div>
-  </Link>
+<Link
+  href="./get-started/v2"
+  className="block rounded-lg border border-gray-700 p-6 transition-colors hover:border-gray-600"
+>
+  <div className="mb-2 font-semibold">Get started →</div>
+  <div className="text-sm text-gray-400">
+    Install the SDK and family packages, then initialize Ledger Wallet Provider
+  </div>
+</Link>
 
-  <Link href="./blockchains/evm" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
-    <div className="font-semibold mb-2">EVM →</div>
-    <div className="text-sm text-gray-400">Connect and sign with EIP-6963 / EIP-1193</div>
-  </Link>
+<Link
+  href="./blockchains/evm"
+  className="block rounded-lg border border-gray-700 p-6 transition-colors hover:border-gray-600"
+>
+  <div className="mb-2 font-semibold">EVM →</div>
+  <div className="text-sm text-gray-400">
+    Connect and sign with EIP-6963 / EIP-1193
+  </div>
+</Link>
 
-  <Link href="./blockchains/solana" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
-    <div className="font-semibold mb-2">Solana →</div>
-    <div className="text-sm text-gray-400">Connect and sign with Wallet Standard</div>
-  </Link>
+<Link
+  href="./blockchains/solana"
+  className="block rounded-lg border border-gray-700 p-6 transition-colors hover:border-gray-600"
+>
+  <div className="mb-2 font-semibold">Solana (v2+) →</div>
+  <div className="text-sm text-gray-400">
+    Connect and sign with Wallet Standard
+  </div>
+</Link>
 
-  <Link href="./configuration" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
-    <div className="font-semibold mb-2">Configuration →</div>
-    <div className="text-sm text-gray-400">Explore all initialization options</div>
-  </Link>
+<Link
+  href="./configuration"
+  className="block rounded-lg border border-gray-700 p-6 transition-colors hover:border-gray-600"
+>
+  <div className="mb-2 font-semibold">Configuration →</div>
+  <div className="text-sm text-gray-400">
+    Explore all initialization options
+  </div>
+</Link>
 
   <Link href="./api-reference" className="block p-6 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors">
     <div className="font-semibold mb-2">API reference →</div>

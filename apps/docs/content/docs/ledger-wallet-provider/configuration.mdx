@@ -5,21 +5,79 @@ category: reference
 
 import { Callout } from "nextra/components";
 
+export const Required = () => (
+  <span
+    style={{
+      marginLeft: "0.4rem",
+      display: "inline-block",
+      verticalAlign: "middle",
+      backgroundColor: "#dc2626",
+      color: "#fff",
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      lineHeight: 1,
+      padding: "0.2em 0.45em",
+      borderRadius: "3px",
+      letterSpacing: "0.01em",
+    }}
+  >
+    required
+  </span>
+);
+
+export const DevBadge = () => (
+  <span
+    style={{
+      marginLeft: "0.4rem",
+      display: "inline-block",
+      verticalAlign: "middle",
+      backgroundColor: "#f59e0b",
+      color: "#fff",
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      lineHeight: 1,
+      padding: "0.2em 0.45em",
+      borderRadius: "3px",
+      letterSpacing: "0.01em",
+    }}
+  >
+    dev only
+  </span>
+);
+
+export const v2Badge = () => (
+  <span
+    style={{
+      marginLeft: "0.4rem",
+      display: "inline-block",
+      verticalAlign: "middle",
+      backgroundColor: "#0ea5e9",
+      color: "#fff",
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      lineHeight: 1,
+      padding: "0.2em 0.45em",
+      borderRadius: "3px",
+      letterSpacing: "0.01em",
+    }}
+  >
+    v2
+  </span>
+);
+
 # Configuration
 
-This page describes all available configuration options for `initializeLedgerProvider`. See [Get started](./get-started) for usage and [API reference](./api-reference) for the function signature.
+This page describes all available configuration options for `initializeLedgerProvider`. See [Get started](./get-started/v2) for usage and [API reference](./api-reference) for the function signature.
 
 ## Configuration options
 
 ```typescript
 {
   // Core options
-  apiKey?: string;                                    // Your Ledger API key
-  dAppIdentifier?: string;                            // Your dApp identifier
-  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // Log verbosity (default: 'info')
-  environment?: 'staging' | 'production';             // Target Ledger backend environment
-  dmkConfig?: DeviceModuleOptions;                    // Device Management Kit configuration (optional)
-  blockchainProviderFactories?: BlockchainProviderFactoryRegistration[]; // Family factories to register (required for EVM / Solana)
+  apiKey: string;                                    // Your Ledger API key
+  dAppIdentifier: string;                            // Your dApp identifier
+  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
+  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // Blockchain families to register
 
   // UI options
   target?: HTMLElement;                               // Where to mount the UI (default: document.body)
@@ -29,38 +87,31 @@ This page describes all available configuration options for `initializeLedgerPro
   walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
   transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
 
-  // Development options
+  // Dev/debug options — not for production use
+  environment?: 'staging' | 'production';             // Target Ledger backend environment
+  dmkConfig?: DeviceModuleOptions;                    // Override Device Management Kit endpoints
   devConfig?: {
-    stub?: {
-      base?: boolean;              // Enable base stub mode (default: false)
-      account?: boolean;           // Stub account operations (default: false)
-      balance?: boolean;           // Stub account balances (default: false)
-      device?: boolean;            // Stub signer interactions (default: false)
-      web3Provider?: boolean;      // Stub Web3 provider responses (default: false)
-      solanaProvider?: boolean;    // Stub Solana provider responses (default: false)
-      transactionHistory?: boolean; // Stub transaction history (default: false)
-    };
-  };
-}
+    stub?: // Your stub here
+  }
 ```
-
-All options are optional. Pass `blockchainProviderFactories` for any chain provider to load.
 
 ## Parameter details
 
-### `apiKey`
+All parameters not noted as required are optional.
 
-Your Ledger API key. Required for production use.
+### `apiKey` <Required />
 
-### `dAppIdentifier`
+Your Ledger API key. Get it by enrolling in Ledger's partner program.
 
-Your dApp identifier. This lets Ledger validate the integration and enable remote services.
+### `dAppIdentifier` <Required />
 
-### `blockchainProviderFactories`
+Your dApp identifier. This lets Ledger validate the integration and enable remote services. Your partner configuration determines which blockchain families are available to your dApp — you can then choose which ones to register via `blockchainProviderFactories`.
 
-Host-supplied factories that create blockchain providers. Required for any family to load — the UI package never imports family packages itself.
+### `blockchainProviderFactories` <Required /> <v2Badge />
 
-Install the family package, import its factory, and register it against the family it serves:
+The blockchain families your dApp wants to enable. Each entry pairs a family identifier with its provider factory, sourced from the corresponding family package. Families not listed here are never loaded, regardless of what your partner configuration allows. **Available from v2+ only.** Not present in the v1 API.
+
+Install the family package, import its factory, and pass it here:
 
 ```ts
 import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
@@ -77,20 +128,14 @@ initializeLedgerProvider({
 });
 ```
 
-| Family | Package | Factory |
-|--------|---------|---------|
-| `ethereum` | `@ledgerhq/ledger-wallet-provider-evm` | `createEvmBlockchainProvider` |
-| `solana` | `@ledgerhq/ledger-wallet-provider-solana` | `createSolanaBlockchainProvider` |
-
-A factory is skipped when that family is not enabled in your partner dApp configuration. If you omit `blockchainProviderFactories` (or pass an empty array), no EVM or Solana provider is registered.
+| Family     | Package                                   | Factory                          |
+| ---------- | ----------------------------------------- | -------------------------------- |
+| `ethereum` | `@ledgerhq/ledger-wallet-provider-evm`    | `createEvmBlockchainProvider`    |
+| `solana`   | `@ledgerhq/ledger-wallet-provider-solana` | `createSolanaBlockchainProvider` |
 
 ### `loggerLevel`
 
 Log verbosity. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`. Default is `'info'`.
-
-### `environment`
-
-Target Ledger backend environment. Accepted values: `'staging'`, `'production'`.
 
 ### `target`
 
@@ -110,7 +155,8 @@ initializeLedgerProvider({
 ```
 
 <Callout type="info">
-  When `hideButton` is `true`, `floatingButtonPosition` and `floatingButtonTarget` have no effect.
+  When `hideButton` is `true`, `floatingButtonPosition` and
+  `floatingButtonTarget` have no effect.
 </Callout>
 
 ### `floatingButtonPosition`
@@ -182,41 +228,17 @@ initializeLedgerProvider({
 });
 ```
 
-### `dmkConfig`
+### `environment` <DevBadge />
 
-Device Management Kit configuration (optional). Passes custom device policies to the underlying Device Management Kit.
+Target Ledger backend environment.
 
-### `devConfig.stub`
+### `dmkConfig` <DevBadge />
+
+Advanced escape hatch for overriding the underlying [Device Management Kit](https://github.com/LedgerHQ/device-sdk-ts) configuration — API base URLs, WebSocket endpoint, provider, etc. Leave unset unless Ledger has explicitly instructed you to override a specific field.
+
+### `devConfig.stub` <DevBadge />
 
 Toggles local stub modes so you can simulate accounts, balances, devices, and Web3 flows during development without a physical signer.
-
-| Field | Default | Stubs |
-|-------|---------|-------|
-| `base` | `false` | Base stub mode |
-| `account` | `false` | Account operations |
-| `balance` | `false` | Account balances |
-| `device` | `false` | Signer interactions |
-| `web3Provider` | `false` | Web3 provider responses |
-| `solanaProvider` | `false` | Solana provider responses |
-| `transactionHistory` | `false` | Transaction history |
-| `dAppConfig` | `false` | Partner dApp configuration (networks, referral URL, app dependencies) |
-
-```javascript
-const cleanup = initializeLedgerProvider({
-  devConfig: {
-    stub: {
-      base: true,
-      account: true,
-      balance: true,
-      device: true,
-      web3Provider: true,
-      solanaProvider: true,
-    },
-  },
-  dAppIdentifier: "my-dapp",
-  apiKey: "your-api-key",
-});
-```
 
 ## Return value
 
@@ -233,6 +255,6 @@ The cleanup function removes the UI, deregisters any providers that were registe
 
 ## See also
 
-- [Get started](./get-started) — install the SDK and run your first integration
+- [Get started](./get-started/v2) — install the SDK and run your first integration
 - [API reference](./api-reference) — `initializeLedgerProvider` function signature and `LedgerEIP1193Provider` (from `@ledgerhq/ledger-wallet-provider-evm`)
 - [Requirements](./requirements) — browser and platform requirements
