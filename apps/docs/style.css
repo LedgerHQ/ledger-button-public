@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 /* Scan MDX content files so all inline className utilities are included */
-@source "../content/**/*.mdx";
-@source "../app/**/*.{tsx,ts,jsx,js}";
-@source "../components/**/*.{tsx,ts,jsx,js}";
+@source "./content/**/*.mdx";
+@source "./app/**/*.{tsx,ts,jsx,js}";
+@source "./components/**/*.{tsx,ts,jsx,js}";
 
 /* Hero Section */
 
