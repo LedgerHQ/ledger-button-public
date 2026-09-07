@@ -18,8 +18,8 @@ catalog:
   "@ledgerhq/device-transport-kit-web-ble": 1.3.2
   "@ledgerhq/device-transport-kit-web-hid": 1.2.4
   "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol": 0.5.0
-  "@ledgerhq/lumen-design-core": ^0.1.22
-  "@ledgerhq/lumen-ui-react": ^0.1.48
+  "@ledgerhq/lumen-design-core": ^0.1.28
+  "@ledgerhq/lumen-ui-react": ^0.1.57
   "@lit/context": 1.1.6
   "@next/eslint-plugin-next": ^15.2.4
   "@nx/devkit": 22.0.1
@@ -47,9 +47,9 @@ catalog:
   "@swc/cli": ~0.6.0
   "@swc/core": ~1.5.7
   "@swc/helpers": ~0.5.11
-  "@tailwindcss/cli": ^4.1.17
-  "@tailwindcss/postcss": ^4.1.17
-  "@tailwindcss/vite": ^4.1.17
+  "@tailwindcss/cli": ^4.3.3
+  "@tailwindcss/postcss": ^4.3.3
+  "@tailwindcss/vite": ^4.3.3
   "@testing-library/dom": 10.4.0
   "@testing-library/react": 16.1.0
   "@types/jsonwebtoken": ^9.0.9
@@ -112,7 +112,7 @@ catalog:
   storybook: 9.1.19
   swc-loader: 0.1.15
   tailwind-merge: ^1.14.0
-  tailwindcss: ^4.1.17
+  tailwindcss: ^4.3.3
   ts-jest: ^29.1.0
   ts-node: 10.9.1
   tsc-alias: ^1.8.10
