@@ -30,17 +30,19 @@ export const eventTrackingModuleFactory = ({
   stub = false,
 }: EventTrackingModuleFactoryOptions = {}) => {
   return new ContainerModule(({ bind }) => {
+    // Only the service implementation varies between stub and real mode.
+    // All use cases are always bound because non-stubbed services (e.g.
+    // ModalService) inject them directly — leaving them unbound in stub mode
+    // causes an Inversify "no bindings found" error even when tracking is off.
     if (stub) {
       bind<EventTrackingService>(eventTrackingModuleTypes.EventTrackingService)
         .to(StubEventTrackingService)
         .inSingletonScope();
-
-      return;
+    } else {
+      bind<EventTrackingService>(eventTrackingModuleTypes.EventTrackingService)
+        .to(DefaultEventTrackingService)
+        .inSingletonScope();
     }
-
-    bind<EventTrackingService>(eventTrackingModuleTypes.EventTrackingService)
-      .to(DefaultEventTrackingService)
-      .inSingletonScope();
 
     bind<TrackConsentGiven>(eventTrackingModuleTypes.TrackConsentGiven).to(
       TrackConsentGiven,
