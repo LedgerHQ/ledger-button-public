@@ -1,8 +1,6 @@
-import { Left, Maybe, Right } from "purify-ts";
+import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
-import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import type { Config } from "@internal/config/model/config";
 import type { NetworkService } from "@internal/network/NetworkService";
 
@@ -13,12 +11,10 @@ describe("DefaultCalDataSource", () => {
   let dataSource: DefaultCalDataSource;
   let mockNetworkService: NetworkService<unknown>;
   let mockConfig: Config;
-  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   const mockCalUrl = "https://api.cal.test";
   const testTokenAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
   const testCurrencyId = "ethereum";
-  const testChainId = "1";
   const explorerTemplate = "https://etherscan.io/tx/${hash}";
 
   beforeEach(() => {
@@ -31,23 +27,7 @@ describe("DefaultCalDataSource", () => {
       getCalUrl: vi.fn().mockReturnValue(mockCalUrl),
     } as unknown as Config;
 
-    mockBlockchainProviderManager = {
-      init: vi.fn(),
-      setSelectedAccounts: vi.fn(),
-      setNetwork: vi.fn(),
-      describeCurrency: vi
-        .fn()
-        .mockReturnValue(
-          Maybe.of(aCurrencyDescriptor({ networkId: testChainId })),
-        ),
-      describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
-    };
-
-    dataSource = new DefaultCalDataSource(
-      mockNetworkService,
-      mockConfig,
-      mockBlockchainProviderManager,
-    );
+    dataSource = new DefaultCalDataSource(mockNetworkService, mockConfig);
   });
 
   describe("getTokenInformation", () => {
@@ -73,7 +53,7 @@ describe("DefaultCalDataSource", () => {
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&chain_id=${testChainId}&output=id,name,decimals,ticker,network_external_links`,
+        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&network=${testCurrencyId}&output=id,name,decimals,ticker,network_external_links`,
       );
 
       expect(result.isRight()).toBe(true);
@@ -89,6 +69,47 @@ describe("DefaultCalDataSource", () => {
         });
       }
     });
+
+    it.each([
+      {
+        currencyId: "ethereum",
+        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0xdAC17F958D2ee523a2206206994597C13D831ec7&network=ethereum&output=id,name,decimals,ticker,network_external_links`,
+      },
+      {
+        currencyId: "base",
+        address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&network=base&output=id,name,decimals,ticker,network_external_links`,
+      },
+      {
+        currencyId: "polygon",
+        address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&network=polygon&output=id,name,decimals,ticker,network_external_links`,
+      },
+      {
+        currencyId: "solana",
+        address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&network=solana&output=id,name,decimals,ticker,network_external_links`,
+      },
+    ])(
+      "builds CAL URL with network=$currencyId",
+      async ({ currencyId, address, expectedUrl }) => {
+        vi.mocked(mockNetworkService.get).mockResolvedValue(
+          Right([
+            {
+              id: `${currencyId}/token/test`,
+              decimals: 6,
+              ticker: "TEST",
+              name: "Test Token",
+            },
+          ] satisfies CalTokenResponse),
+        );
+
+        await dataSource.getTokenInformation(address, currencyId);
+
+        expect(mockNetworkService.get).toHaveBeenCalledWith(expectedUrl);
+      },
+    );
 
     it("maps transactionExplorerUrlTemplate to undefined when CAL returns no network_external_links", async () => {
       vi.mocked(mockNetworkService.get).mockResolvedValue(
