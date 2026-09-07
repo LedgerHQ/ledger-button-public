@@ -21,6 +21,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.d.ts",
     "**/*.js",
     "**/*.jsx",
     "tailwind.config.js"
