@@ -40,6 +40,7 @@
     "@nx/react": "catalog:",
     "@nx/storybook": "catalog:",
     "@nx/vite": "catalog:",
+    "@nx/vitest": "catalog:",
     "@nx/web": "catalog:",
     "@playwright/test": "catalog:",
     "@storybook/addon-coverage": "catalog:",

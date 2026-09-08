@@ -7,7 +7,7 @@ alwaysApply: true
 
 Use this table for routine `build` / `lint` / `test` / `typecheck` / `dev` work. Do **not** call `nx_project_details`, `nx_workspace`, or `nx show project` first — just run the target.
 
-Workspace: pnpm + Nx 22.0.1. Globs from `pnpm-workspace.yaml`: `packages/*`, `apps/*`. Targets are inferred by the `@nx/vite`, `@nx/js/typescript`, `@nx/next`, `@nx/jest`, `@nx/eslint` plugins in `nx.json`, plus per-project `project.json` overrides.
+Workspace: pnpm + Nx 23.2.0. Globs from `pnpm-workspace.yaml`: `packages/*`, `apps/*`. Targets are inferred by the `@nx/vite`, `@nx/vitest`, `@nx/js/typescript`, `@nx/next`, `@nx/jest`, `@nx/eslint` plugins in `nx.json`, plus per-project `project.json` overrides.
 
 | Package name | Path | Type | Available routine targets |
 | --- | --- | --- | --- |
