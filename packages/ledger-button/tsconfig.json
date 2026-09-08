@@ -4,9 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../ledger-button-core"
-    },
-    {
       "path": "./tsconfig.lib.json"
     },
     {
