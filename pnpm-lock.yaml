@@ -379,8 +379,8 @@ catalogs:
       specifier: 5.19.2
       version: 5.19.2
     zod:
-      specifier: ^4.1.5
-      version: 4.1.5
+      specifier: 4.3.6
+      version: 4.3.6
     zx:
       specifier: ^8.1.7
       version: 8.8.5
@@ -941,7 +941,7 @@ importers:
         version: 5.19.2
       zod:
         specifier: 'catalog:'
-        version: 4.1.5
+        version: 4.3.6
     devDependencies:
       '@types/pako':
         specifier: 'catalog:'
@@ -12954,9 +12954,6 @@ packages:
 
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
-  zod@4.1.5:
-    resolution: {integrity: sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg==}
 
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
@@ -28123,8 +28120,6 @@ snapshots:
   yoctocolors-cjs@2.1.2: {}
 
   zod@3.25.76: {}
-
-  zod@4.1.5: {}
 
   zod@4.3.6: {}
 
