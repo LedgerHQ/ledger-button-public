@@ -5,6 +5,7 @@ import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 
+import { mapConfigResponseToDAppConfig } from "../mapper/mapConfigResponseToDAppConfig";
 import { DAppConfig } from "../model/dAppConfigTypes";
 import { DAppConfigDataSource } from "./DAppConfigDataSource";
 
@@ -25,16 +26,17 @@ export class DefaultDAppConfigDataSource implements DAppConfigDataSource {
     }
 
     const dAppIdentifier = this.config.dAppIdentifier;
-    // Hits the /v2/config endpoint. For now this default is unused at runtime
-    // (DI wires StubDAppConfigDataSource).
     const config = await this.backendService.getConfigV2({ dAppIdentifier });
 
-    if (config.isLeft()) {
+    if (!config.isRight()) {
       throw new Error("Failed to get DApp config V2");
     }
 
-    // TODO: map the backend response to the DAppConfig shape once the
-    // /v2/config response contract is confirmed.
-    throw new Error("DefaultDAppConfigDataSource not yet implemented");
+    this.dAppConfig = mapConfigResponseToDAppConfig(
+      config.extract(),
+      dAppIdentifier,
+    );
+
+    return this.dAppConfig;
   }
 }

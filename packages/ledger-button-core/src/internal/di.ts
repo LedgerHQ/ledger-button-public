@@ -40,6 +40,7 @@ export function createContainer({
       web3Provider: false,
       balance: false,
       transactionHistory: false,
+      dAppConfig: false,
     },
   },
 }: ContainerOptions) {
@@ -55,7 +56,7 @@ export function createContainer({
     }),
     accountModuleFactory({ stub: devConfig.stub.account }),
     backendModuleFactory({ stub: devConfig.stub.base }),
-    dAppConfigModuleFactory(),
+    dAppConfigModuleFactory({ stub: devConfig.stub.dAppConfig }),
     deviceModuleFactory({
       stub: devConfig.stub.device,
       dmkConfig,
