@@ -114,11 +114,6 @@
     "rxjs": "catalog:",
     "tslib": "catalog:"
   },
-  "pnpm": {
-    "overrides": {
-      "zod@>=4.4.0": "4.3.6"
-    }
-  },
   "nx": {
     "includedScripts": [],
     "targets": {

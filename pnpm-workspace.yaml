@@ -127,7 +127,7 @@ catalog:
   vitest: ^3.2.6
   wait-on: ^8.0.3
   xstate: 5.19.2
-  zod: 4.3.6
+  zod: 4.5.4
   zx: ^8.1.7
 
 catalogMode: prefer
