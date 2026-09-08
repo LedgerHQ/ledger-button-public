@@ -8,23 +8,36 @@ import type { Config } from "@internal/config/model/config";
 import { DefaultDAppConfigDataSource } from "./DefaultDAppConfigDataSource";
 
 const mockConfigResponse: ConfigResponse = {
-  supportedBlockchains: [
-    {
-      id: "1",
-      currency_id: "ethereum",
-      currency_name: "Ethereum",
-      currency_ticker: "ETH",
-    },
-  ],
+  name: "1inch",
+  liveAppId: "1inch",
   referralUrl: "https://shop.ledger.com",
   domainUrl: "https://1inch.com",
-  appDependencies: [
+  blockchains: [
     {
       blockchain: "ethereum",
       appName: "1inch",
-      dependencies: ["1inch", "Ethereum"],
+      networks: [
+        {
+          id: "1",
+          currencyId: "ethereum",
+          currencyName: "Ethereum",
+          currencyTicker: "ETH",
+        },
+      ],
+      rpcMethods: {
+        local: ["eth_accounts"],
+        broadcasted: ["eth_call"],
+      },
+      appDependencies: {
+        appName: "1inch",
+        dependencies: [
+          { name: "1inch", minVersion: ">=1.0.0" },
+          { name: "Ethereum", minVersion: null },
+        ],
+      },
     },
   ],
+  featureFlags: {},
 };
 
 describe("DefaultDAppConfigDataSource", () => {
@@ -68,6 +81,13 @@ describe("DefaultDAppConfigDataSource", () => {
         {
           blockchain: "ethereum",
           appName: "1inch",
+          appDependencies: {
+            appName: "1inch",
+            dependencies: [
+              { name: "1inch", minVersion: ">=1.0.0" },
+              { name: "Ethereum" },
+            ],
+          },
         },
       ],
     });

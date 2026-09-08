@@ -1,12 +1,9 @@
 import { inject, injectable } from "inversify";
 
+import { BlockchainRpcMethods } from "@api/model/dappConfig/BlockchainConfig";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 
-import {
-  EVM_DEFAULT_RPC_METHODS,
-  SOLANA_DEFAULT_RPC_METHODS,
-} from "../defaults/defaultBlockchainRpcMethods";
 import { DAppConfig } from "../model/dAppConfigTypes";
 import { DAppConfigDataSource } from "./DAppConfigDataSource";
 
@@ -86,6 +83,33 @@ const SOLANA_MAINNET_NETWORK = {
   currencyTicker: "SOL",
 } as const;
 
+const EVM_DEFAULT_RPC_METHODS: BlockchainRpcMethods = {
+  local: [
+    // Account and chain queries
+    "eth_accounts",
+    "eth_requestAccounts",
+    "eth_chainId",
+    // Signing and transaction operations
+    "eth_sign",
+    "personal_sign",
+    "eth_signTypedData",
+    "eth_signTypedData_v4",
+    "eth_sendTransaction",
+    "eth_signTransaction",
+    "eth_signRawTransaction",
+    "eth_sendRawTransaction",
+    // EIP-specific methods
+    "wallet_switchEthereumChain",
+  ],
+  broadcasted: [
+    "eth_blockNumber",
+    "eth_getBalance",
+    "eth_getCode",
+    "eth_estimateGas",
+    "eth_call",
+  ],
+};
+
 const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
   ledger: {
     name: "Ledger",
@@ -111,7 +135,16 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
           appName: "Solana",
           dependencies: [{ name: "Solana" }],
         },
-        rpcMethods: SOLANA_DEFAULT_RPC_METHODS,
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
+        },
       },
     ],
     featureFlags: {},
@@ -147,7 +180,16 @@ const STUB_DAPP_CONFIGS: Record<string, DAppConfig> = {
             { name: "Solana" },
           ],
         },
-        rpcMethods: SOLANA_DEFAULT_RPC_METHODS,
+        rpcMethods: {
+          local: [
+            "eth_sendTransaction",
+            "eth_sign",
+            "eth_signTransaction",
+            "eth_signTypedData",
+            "eth_signTypedData_v4",
+          ],
+          broadcasted: ["eth_transactionCount", "eth_call"],
+        },
       },
     ],
     featureFlags: {},
