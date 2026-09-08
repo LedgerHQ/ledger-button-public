@@ -4,11 +4,10 @@
     "outDir": "./out-tsc/vitest",
     // vite.config.ts pulls in tools/vite, which lives outside the package.
     "rootDir": "../..",
-    "baseUrl": ".",
     "paths": {
-      "@api/*": ["src/api/*"],
-      "@internal/*": ["src/internal/*"],
-      "@schemas/*": ["src/schemas/*"]
+      "@api/*": ["./src/api/*"],
+      "@internal/*": ["./src/internal/*"],
+      "@schemas/*": ["./src/schemas/*"]
     },
     "types": [
       "vitest/globals",

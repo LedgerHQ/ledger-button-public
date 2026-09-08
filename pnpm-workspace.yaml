@@ -117,8 +117,8 @@ catalog:
   ts-node: 10.9.1
   tsc-alias: ^1.8.10
   tslib: ^2.3.0
-  typescript: 5.9.3
-  typescript-eslint: 8.46.2
+  typescript: 6.0.3
+  typescript-eslint: 8.69.0
   verdaccio: ^6.0.5
   vite: 7.3.6
   vite-plugin-dts: ~4.5.0
