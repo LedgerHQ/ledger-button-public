@@ -1,52 +1,72 @@
 import type { ConfigResponse } from "@internal/backend/types";
 
-import {
-  EVM_DEFAULT_RPC_METHODS,
-  SOLANA_DEFAULT_RPC_METHODS,
-} from "../defaults/defaultBlockchainRpcMethods";
 import { mapConfigResponseToDAppConfig } from "./mapConfigResponseToDAppConfig";
 
-const EVM_NETWORK: ConfigResponse["supportedBlockchains"][number] = {
-  id: "1",
-  currency_id: "ethereum",
-  currency_name: "Ethereum",
-  currency_ticker: "ETH",
+const EVM_BLOCKCHAIN: ConfigResponse["blockchains"][number] = {
+  blockchain: "ethereum",
+  appName: "Ethereum",
+  networks: [
+    {
+      id: "1",
+      currencyId: "ethereum",
+      currencyName: "Ethereum",
+      currencyTicker: "ETH",
+    },
+  ],
+  rpcMethods: {
+    local: ["eth_accounts"],
+    broadcasted: ["eth_call"],
+  },
+  appDependencies: {
+    appName: "Ethereum",
+    dependencies: [{ name: "Ethereum", minVersion: null }],
+  },
 };
 
-const SOLANA_NETWORK: ConfigResponse["supportedBlockchains"][number] = {
-  id: "mainnet-beta",
-  currency_id: "solana",
-  currency_name: "Solana",
-  currency_ticker: "SOL",
+const SOLANA_BLOCKCHAIN: ConfigResponse["blockchains"][number] = {
+  blockchain: "solana",
+  appName: "Solana",
+  networks: [
+    {
+      id: "mainnet-beta",
+      currencyId: "solana",
+      currencyName: "Solana",
+      currencyTicker: "SOL",
+    },
+  ],
+  rpcMethods: {
+    local: ["eth_sendTransaction"],
+    broadcasted: ["eth_call"],
+  },
+  appDependencies: {
+    appName: "Solana",
+    dependencies: [{ name: "Solana", minVersion: ">=1.0.0" }],
+  },
+};
+
+const RESPONSE: ConfigResponse = {
+  name: "Ledger",
+  liveAppId: "ledger",
+  domainUrl: "https://ledger.com",
+  referralUrl: "https://shop.ledger.com",
+  blockchains: [EVM_BLOCKCHAIN],
+  featureFlags: {},
 };
 
 describe("mapConfigResponseToDAppConfig", () => {
-  it("maps an EVM-only response into a single ethereum blockchain config", () => {
-    const response: ConfigResponse = {
-      supportedBlockchains: [EVM_NETWORK],
-      referralUrl: "https://shop.ledger.com",
-      domainUrl: "https://1inch.com",
-      appDependencies: [
-        {
-          blockchain: "ethereum",
-          appName: "1inch",
-          dependencies: ["1inch", "Ethereum"],
-        },
-      ],
-    };
-
-    const result = mapConfigResponseToDAppConfig(response, "1inch");
+  it("maps the API response to the internal dApp config", () => {
+    const result = mapConfigResponseToDAppConfig(RESPONSE);
 
     expect(result).toEqual({
-      name: "1inch",
-      liveAppId: "1inch",
-      domainUrl: "https://1inch.com",
+      name: "Ledger",
+      liveAppId: "ledger",
+      domainUrl: "https://ledger.com",
       referralUrl: "https://shop.ledger.com",
       featureFlags: {},
       blockchains: [
         {
           blockchain: "ethereum",
-          appName: "1inch",
+          appName: "Ethereum",
           networks: [
             {
               id: "1",
@@ -55,77 +75,51 @@ describe("mapConfigResponseToDAppConfig", () => {
               currencyTicker: "ETH",
             },
           ],
-          appDependencies: {
-            appName: "1inch",
-            dependencies: [{ name: "1inch" }, { name: "Ethereum" }],
+          rpcMethods: {
+            local: ["eth_accounts"],
+            broadcasted: ["eth_call"],
           },
-          rpcMethods: EVM_DEFAULT_RPC_METHODS,
+          appDependencies: {
+            appName: "Ethereum",
+            dependencies: [{ name: "Ethereum" }],
+          },
         },
       ],
     });
   });
 
-  it("groups EVM and Solana networks into separate blockchain configs", () => {
-    const response: ConfigResponse = {
-      supportedBlockchains: [EVM_NETWORK, SOLANA_NETWORK],
-      referralUrl: "https://shop.ledger.com",
-      domainUrl: "https://ledger.com",
-      appDependencies: [
-        {
-          blockchain: "ethereum",
-          appName: "Ethereum",
-          dependencies: ["Ethereum"],
-        },
-        {
-          blockchain: "solana",
-          appName: "Solana",
-          dependencies: ["Solana"],
-        },
-      ],
-    };
-
-    const result = mapConfigResponseToDAppConfig(response, "ledger");
-
-    expect(result.blockchains).toHaveLength(2);
-    expect(result.blockchains[0]).toMatchObject({
-      blockchain: "ethereum",
-      networks: [
-        {
-          id: "1",
-          currencyId: "ethereum",
-          currencyName: "Ethereum",
-          currencyTicker: "ETH",
-        },
-      ],
-      rpcMethods: EVM_DEFAULT_RPC_METHODS,
+  it("drops a null minVersion and keeps a real one", () => {
+    const result = mapConfigResponseToDAppConfig({
+      ...RESPONSE,
+      blockchains: [EVM_BLOCKCHAIN, SOLANA_BLOCKCHAIN],
     });
-    expect(result.blockchains[1]).toMatchObject({
-      blockchain: "solana",
-      networks: [
-        {
-          id: "mainnet-beta",
-          currencyId: "solana",
-          currencyName: "Solana",
-          currencyTicker: "SOL",
-        },
-      ],
-      rpcMethods: SOLANA_DEFAULT_RPC_METHODS,
-    });
+
+    expect(result.blockchains[0].appDependencies.dependencies).toEqual([
+      { name: "Ethereum" },
+    ]);
+    expect(result.blockchains[1].appDependencies.dependencies).toEqual([
+      { name: "Solana", minVersion: ">=1.0.0" },
+    ]);
   });
 
-  it("uses empty app dependencies when the API omits a blockchain entry", () => {
-    const response: ConfigResponse = {
-      supportedBlockchains: [EVM_NETWORK],
-      referralUrl: "https://shop.ledger.com",
-      domainUrl: "https://okx.com",
-      appDependencies: [],
-    };
-
-    const result = mapConfigResponseToDAppConfig(response, "okx");
-
-    expect(result.blockchains[0].appDependencies).toEqual({
-      appName: "ethereum",
-      dependencies: [],
+  it("preserves every blockchain family returned by the API", () => {
+    const result = mapConfigResponseToDAppConfig({
+      ...RESPONSE,
+      blockchains: [EVM_BLOCKCHAIN, SOLANA_BLOCKCHAIN],
     });
+
+    expect(result.blockchains.map(({ blockchain }) => blockchain)).toEqual([
+      "ethereum",
+      "solana",
+    ]);
+  });
+
+  it("forwards feature flags untouched", () => {
+    const result = mapConfigResponseToDAppConfig({
+      ...RESPONSE,
+      featureFlags: { newOnboarding: true },
+    });
+
+    expect(result.featureFlags).toEqual({ newOnboarding: true });
   });
 });

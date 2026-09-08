@@ -32,10 +32,7 @@ export class DefaultDAppConfigDataSource implements DAppConfigDataSource {
       throw new Error("Failed to get DApp config V2");
     }
 
-    this.dAppConfig = mapConfigResponseToDAppConfig(
-      config.extract(),
-      dAppIdentifier,
-    );
+    this.dAppConfig = mapConfigResponseToDAppConfig(config.extract());
 
     return this.dAppConfig;
   }
