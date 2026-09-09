@@ -13,9 +13,9 @@ const nextConfig = {
   optimization: {
     compress: false,
     minimize: false,
-    swcMinify: false,
   },
   // Ensure webpack doesn't minimize or compress
+  // Next 16 uses Turbopack by default; this webpack hook only applies with `--webpack`.
   webpack: (config, { dev, isServer }) => {
     // Disable minimization regardless of environment
     config.optimization.minimize = false;
