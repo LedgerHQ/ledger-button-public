@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
+    "jsdom": "catalog:",
     "vitest": "catalog:"
   }
 }

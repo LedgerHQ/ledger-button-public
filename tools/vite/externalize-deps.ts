@@ -66,6 +66,11 @@ export function externalizeDeps(
     }
 
     const packageName = packageNameOf(id);
+    // Vite 8's Oxc transform injects decorator helpers from this package.
+    // Inline them so published bundles stay self-contained.
+    if (packageName === "@oxc-project/runtime") {
+      return false;
+    }
     if (declared.has(packageName)) {
       return true;
     }

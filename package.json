@@ -79,6 +79,7 @@
     "fake-indexeddb": "catalog:",
     "gitmoji-cli": "catalog:",
     "happy-dom": "catalog:",
+    "jsdom": "catalog:",
     "http-server": "catalog:",
     "jiti": "catalog:",
     "jsonc-eslint-parser": "catalog:",
