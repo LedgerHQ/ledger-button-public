@@ -262,6 +262,34 @@ describe("DefaultBackendService", () => {
       expect(result.isRight()).toBe(true);
     });
 
+    it("should send the provided domain in the X-Ledger-Domain header", async () => {
+      const mockConfigResponse = {
+        name: "Test dApp",
+        liveAppId: "test-dapp",
+        referralUrl: "https://example.com",
+        domainUrl: "https://example.com",
+        blockchains: [],
+        featureFlags: {},
+      };
+
+      mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
+
+      await backendService.getConfigV2(
+        { dAppIdentifier: "test-dapp" },
+        "velora",
+      );
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        "https://test-backend-url.com/v2/config?dAppIdentifier=test-dapp",
+        {
+          headers: {
+            "X-Ledger-Domain": "velora",
+            "X-Ledger-client-origin": "test-origin-token",
+          },
+        },
+      );
+    });
+
     it("should reject a response that does not match the schema", async () => {
       mockNetworkService.get.mockResolvedValueOnce(
         Right({ referralUrl: "https://example.com" }),
