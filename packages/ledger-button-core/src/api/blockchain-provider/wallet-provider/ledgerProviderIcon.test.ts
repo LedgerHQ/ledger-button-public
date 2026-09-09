@@ -17,7 +17,7 @@ describe("getLedgerProviderIcon", () => {
   });
 
   test("returns the white icon when dark color scheme is preferred", () => {
-    vi.spyOn(window, "matchMedia").mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: true,
       media: "(prefers-color-scheme:dark)",
     } as MediaQueryList);
@@ -26,7 +26,7 @@ describe("getLedgerProviderIcon", () => {
   });
 
   test("returns the black icon when light color scheme is preferred", () => {
-    vi.spyOn(window, "matchMedia").mockReturnValue({
+    window.matchMedia = vi.fn().mockReturnValue({
       matches: false,
       media: "(prefers-color-scheme:dark)",
     } as MediaQueryList);

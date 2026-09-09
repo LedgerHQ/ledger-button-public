@@ -1,7 +1,7 @@
 import type { KeyPair } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 import type { Factory } from "inversify";
 import { Right } from "purify-ts";
-import { vi } from "vitest";
+import { type Mock, vi } from "vitest";
 
 import type { EncryptKeyPairUseCase } from "@internal/cryptographic/use-case/EncryptKeyPairUseCase";
 import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/GetEncryptionKey";
@@ -20,7 +20,10 @@ export const createMockKeyPair = (): KeyPair =>
     getPublicKeyToHex: vi.fn().mockReturnValue("mock-public-key-hex"),
   }) as unknown as KeyPair;
 
-export const createMockLogger = () => ({
+export const createMockLogger = (): {
+  info: Mock;
+  error: Mock;
+} => ({
   info: vi.fn(),
   error: vi.fn(),
 });
@@ -33,20 +36,23 @@ export const createMockLoggerFactory = (
     .mockReturnValue(mockLogger) as unknown as Factory<LoggerPublisher>;
 };
 
-export const createMockStorageService = () => ({
+export const createMockStorageService = (): {
+  removeKeyPair: Mock;
+  storeKeyPair: Mock;
+} => ({
   removeKeyPair: vi.fn().mockResolvedValue(Right(true)),
   storeKeyPair: vi.fn().mockResolvedValue(Right(true)),
 });
 
-export const createMockEncryptKeyPairUseCase = () => ({
+export const createMockEncryptKeyPairUseCase = (): { execute: Mock } => ({
   execute: vi.fn().mockResolvedValue(mockEncryptedKeyPair),
 });
 
-export const createMockGetEncryptionKeyUseCase = () => ({
+export const createMockGetEncryptionKeyUseCase = (): { execute: Mock } => ({
   execute: vi.fn().mockResolvedValue({} as CryptoKey),
 });
 
-export const createMockGetKeyPairUseCase = () => ({
+export const createMockGetKeyPairUseCase = (): { execute: Mock } => ({
   execute: vi.fn().mockResolvedValue(undefined),
 });
 

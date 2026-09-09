@@ -58,25 +58,28 @@ export const DEFAULT_INPUT: SignPersonalMessageFlowDAInput = {
 };
 
 export function setupOpenAppMock(error?: unknown): void {
-  (OpenAppWithDependenciesDeviceAction as Mock).mockImplementation(() => ({
-    makeStateMachine: vi.fn().mockImplementation(() =>
-      createMachine({
-        initial: "pending",
-        states: {
-          pending: {
-            entry: assign({
-              intermediateValue: {
-                requiredUserInteraction: UserInteractionRequired.ConfirmOpenApp,
-              },
-            }),
-            after: { 0: "done" },
+  (OpenAppWithDependenciesDeviceAction as Mock).mockImplementation(function () {
+    return {
+      makeStateMachine: vi.fn().mockImplementation(() =>
+        createMachine({
+          initial: "pending",
+          states: {
+            pending: {
+              entry: assign({
+                intermediateValue: {
+                  requiredUserInteraction:
+                    UserInteractionRequired.ConfirmOpenApp,
+                },
+              }),
+              after: { 0: "done" },
+            },
+            done: { type: "final" as const },
           },
-          done: { type: "final" as const },
-        },
-        output: () => (error ? Left(error) : Right(undefined)),
-      }),
-    ),
-  }));
+          output: () => (error ? Left(error) : Right(undefined)),
+        }),
+      ),
+    };
+  });
 }
 
 export function setupGetAddressMock(address?: string, error?: unknown): void {

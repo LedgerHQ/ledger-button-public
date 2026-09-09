@@ -9,6 +9,7 @@ import { Left, Right } from "purify-ts";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { StorageIDBGetError } from "@internal/storage/model/errors";
 import { StorageService } from "@internal/storage/StorageService";
+import { mockConstructable } from "@internal/test-support/mockConstructable";
 
 import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase";
 import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase";
@@ -74,7 +75,9 @@ describe("GetKeypairUseCase", () => {
       importKeyPair: vi.fn().mockReturnValue(mockKeyPair),
     } as unknown as NobleCryptoService;
 
-    vi.mocked(NobleCryptoService).mockImplementation(() => mockCryptoService);
+    vi.mocked(NobleCryptoService).mockImplementation(
+      mockConstructable(mockCryptoService),
+    );
     vi.mocked(bufferToHexaString).mockReturnValue("hex-string");
 
     useCase = new GetOrCreateKeyPairUseCase(

@@ -36,6 +36,8 @@
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
     "src/**/*.mock.ts",
-    "src/**/__mocks__/**/*.ts"
+    "src/**/__mocks__/**/*.ts",
+    "src/**/__tests__/**/*.ts",
+    "src/**/test-support/**/*.ts"
   ]
 }

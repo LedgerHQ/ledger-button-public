@@ -5,6 +5,7 @@ import {
 } from "@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol";
 
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { mockConstructable } from "@internal/test-support/mockConstructable";
 
 import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase";
 
@@ -33,7 +34,9 @@ describe("GenerateKeyPairUseCase", () => {
       createKeyPair: vi.fn().mockResolvedValue(mockKeyPair),
     } as unknown as NobleCryptoService;
 
-    vi.mocked(NobleCryptoService).mockImplementation(() => mockCryptoService);
+    vi.mocked(NobleCryptoService).mockImplementation(
+      mockConstructable(mockCryptoService),
+    );
 
     useCase = new GenerateKeyPairUseCase(() => mockLogger);
   });

@@ -75,27 +75,29 @@ export const DEFAULT_INPUT: SignSolanaMessageFlowDAInput = {
 
 export function setupOpenAppMock(error?: unknown): void {
   (OpenAppWithDependenciesDeviceAction as unknown as Mock).mockImplementation(
-    () => ({
-      makeStateMachine: vi.fn().mockImplementation(() =>
-        createMachine({
-          initial: "pending",
-          states: {
-            pending: {
-              entry: assign({
-                intermediateValue: {
-                  requiredUserInteraction:
-                    UserInteractionRequired.ConfirmOpenApp,
-                },
-              }),
-              after: { 0: "done" },
+    function () {
+      return {
+        makeStateMachine: vi.fn().mockImplementation(() =>
+          createMachine({
+            initial: "pending",
+            states: {
+              pending: {
+                entry: assign({
+                  intermediateValue: {
+                    requiredUserInteraction:
+                      UserInteractionRequired.ConfirmOpenApp,
+                  },
+                }),
+                after: { 0: "done" },
+              },
+              done: { type: "final" as const },
             },
-            done: { type: "final" as const },
-          },
-          output: () => (error ? Left(error) : Right(undefined)),
-        }),
-      ),
-      input: {},
-    }),
+            output: () => (error ? Left(error) : Right(undefined)),
+          }),
+        ),
+        input: {},
+      };
+    },
   );
 }
 

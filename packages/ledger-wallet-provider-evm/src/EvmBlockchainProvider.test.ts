@@ -8,18 +8,22 @@ import { EvmWalletProvider } from "./EvmWalletProvider";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
 
 vi.mock("./LedgerEIP1193Provider", () => ({
-  LedgerEIP1193Provider: vi.fn().mockImplementation(() => ({
-    setSelectedAccount: vi.fn(),
-    setNetwork: vi.fn(),
-    disconnect: vi.fn().mockResolvedValue(undefined),
-  })),
+  LedgerEIP1193Provider: vi.fn().mockImplementation(function () {
+    return {
+      setSelectedAccount: vi.fn(),
+      setNetwork: vi.fn(),
+      disconnect: vi.fn().mockResolvedValue(undefined),
+    };
+  }),
 }));
 
 vi.mock("./EvmWalletProvider", () => ({
-  EvmWalletProvider: vi.fn().mockImplementation(() => ({
-    family: "ethereum",
-    init: vi.fn(() => vi.fn()),
-  })),
+  EvmWalletProvider: vi.fn().mockImplementation(function () {
+    return {
+      family: "ethereum",
+      init: vi.fn(() => vi.fn()),
+    };
+  }),
 }));
 
 // Bind stub sign use-cases so the local container resolves without needing the
