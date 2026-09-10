@@ -59,13 +59,16 @@ export class DefaultBackendService implements BackendService {
     });
   }
 
-  async getConfigV2(request: ConfigRequest) {
+  async getConfigV2(
+    request: ConfigRequest,
+    domain = this.config.dAppIdentifier,
+  ) {
     const url = `${this.config.getBackendUrl()}/v2/config?dAppIdentifier=${encodeURIComponent(
       request.dAppIdentifier,
     )}`;
 
     const headers = {
-      "X-Ledger-Domain": this.config.dAppIdentifier, //TODO verify if this is correct
+      "X-Ledger-Domain": domain,
       "X-Ledger-client-origin": this.config.originToken,
     };
 
