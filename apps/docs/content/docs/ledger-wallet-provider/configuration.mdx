@@ -77,7 +77,7 @@ This page describes all available configuration options for `initializeLedgerPro
   apiKey: string;                                    // Your Ledger API key
   dAppIdentifier: string;                            // Your dApp identifier
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
-  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // Blockchain families to register
+  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
 
   // UI options
   target?: HTMLElement;                               // Where to mount the UI (default: document.body)
