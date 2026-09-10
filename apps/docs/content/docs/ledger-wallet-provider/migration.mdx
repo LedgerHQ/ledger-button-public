@@ -5,9 +5,9 @@ category: how-to
 
 import { Callout, Steps } from "nextra/components";
 
-# Migration guide — 1.x → 2.0.0
+# Migration guide — 1.x.x → 2.0.0
 
-This page covers the breaking changes introduced in **2.0.0** and explains how to update your integration from 1.x.
+This page covers the breaking changes introduced in **2.0.0** and explains how to update your integration from 1.x.x.
 
 <Callout type="warning">
   **2.0.0 is not yet released.** This guide documents the planned breaking
@@ -16,10 +16,12 @@ This page covers the breaking changes introduced in **2.0.0** and explains how t
 
 ## What changed
 
-### `blockchainProviderFactories` is now required for EVM
+### You must now declare which blockchains you support
 
-In 1.x, the EVM provider was registered automatically when `initializeLedgerProvider` was called, even without passing `blockchainProviderFactories`. Starting from **2.0.0**, you must pass the EVM factory explicitly. This makes the SDK chain-agnostic and lets you control exactly which families are loaded.
+In v1, the EVM provider was registered automatically when `initializeLedgerProvider` was called. Starting from **2.0.0**, the SDK ships no chain by default: you pass one factory per blockchain family you want to handle, and at least one is mandatory.
 
+In v2, the SDK ships no chain by default: you declare the blockchain families you want to handle by passing one factory per family to `initializeLedgerProvider`.
+The choice is yours. Initialize the LedgerProvider with one or several family packages, for each blockchain you support. The SDK registers only the families that are also enabled in your partner configuration (`dAppIdentifier`).
 **Before (1.x.x and earlier)**
 
 ```ts
@@ -51,7 +53,7 @@ initializeLedgerProvider({
 
 ### `LedgerEIP1193Provider` is no longer re-exported from the main package
 
-In earlier 1.x versions, `LedgerEIP1193Provider` was re-exported from `@ledgerhq/ledger-wallet-provider`. It is now only available from `@ledgerhq/ledger-wallet-provider-evm`.
+In earlier 1.x.x versions, `LedgerEIP1193Provider` was re-exported from `@ledgerhq/ledger-wallet-provider`. It is now only available from `@ledgerhq/ledger-wallet-provider-evm`.
 
 **Before**
 
@@ -104,9 +106,10 @@ import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider";
 import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
 ```
 
-### Add Solana
+### Register any other families you support
 
-The v2 includes multi-blockchain support so you can enable Solana using:
+Solana (available in upcoming v2.0.0) is passed the same way as EVM.
+If your dApp supports Solana:
 
 ```bash
 npm install @ledgerhq/ledger-wallet-provider-solana
@@ -124,14 +127,14 @@ initializeLedgerProvider({
 });
 ```
 
-See [Get started — Multi-blockchain](./get-started/v2) for the full guide.
+See the [v2 get started guide](./get-started/v2) for the full walkthrough.
 
 </Steps>
 
 ## See also
 
-- [Get started — EVM only](./get-started/v1) — EVM-only integration guide (v1 pattern)
-- [Get started — Multi-blockchain](./get-started/v2) — Multi-chain integration guide (v2 pattern)
+- [Get started — v1](./get-started/v1) — v1 integration guide, EVM built into the main package
+- [Get started — v2](./get-started/v2) — v2 integration guide, declare the families you support
 - [Configuration](./configuration) — full options reference with Required / Optional / Deprecated badges
 - [EVM](./blockchains/evm) — EIP-6963 discovery and EIP-1193 signing
 - [Solana](./blockchains/solana) — Wallet Standard connect and signing

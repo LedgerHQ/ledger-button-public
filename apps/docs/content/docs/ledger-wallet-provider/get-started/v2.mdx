@@ -13,7 +13,7 @@ import Link from "next/link";
   For the current stable release, see [v1](./v1).
 </Callout>
 
-This guide shows how to install and initialize Ledger Wallet Provider with support for **multiple blockchain families** (EVM and Solana). Install the UI package plus a family package for each chain you support, then pass those factories to `initializeLedgerProvider`. The SDK registers only the families that are enabled in your partner configuration (`dAppIdentifier`).
+This guide shows how to install and initialize Ledger Wallet Provider. In v2 the SDK ships no chain by default: you declare the blockchain families you want to handle by passing one factory per family to `initializeLedgerProvider`. Register EVM alone, Solana alone, or both. Install the UI package plus a family package for each chain you support. The SDK registers only the families that are also enabled in your partner configuration (`dAppIdentifier`).
 
 {/* prettier-ignore */}
 <Callout type="info">
