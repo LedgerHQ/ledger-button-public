@@ -21,7 +21,7 @@ This page covers the breaking changes introduced in **2.0.0** and explains how t
 In v1, the EVM provider was registered automatically when `initializeLedgerProvider` was called. Starting from **2.0.0**, the SDK ships no chain by default: you pass one factory per blockchain family you want to handle, and at least one is mandatory.
 
 In v2, the SDK ships no chain by default: you declare the blockchain families you want to handle by passing one factory per family to `initializeLedgerProvider`.
-The choice is yours. Initialize the LedgerProvider with one or several family packages, for each blockchain you support. The SDK registers only the families that are also enabled in your partner configuration (`dAppIdentifier`).
+The choice is yours: initialize the LedgerProvider with one or several family packages, for each blockchain you support. The SDK registers only the families that you opted for if they are enabled in your partner configuration.
 **Before (1.x.x and earlier)**
 
 ```ts
@@ -34,7 +34,7 @@ initializeLedgerProvider({
 });
 ```
 
-**After (2.x.x+)**
+**After (2.0.0)**
 
 ```ts
 import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
@@ -47,13 +47,13 @@ initializeLedgerProvider({
 });
 ```
 
-**Why:** The `blockchainProviderFactories` pattern enables multi-chain support (EVM + Solana) from the same call and lets bundlers tree-shake chain packages you do not use. Each family package exports its own registration, so the family identifier travels with the package instead of being retyped at every call site.
+**Why:** The `blockchainProviderFactories` pattern enables multi-chain support (EVM + Solana) from the same call and lets bundlers tree-shake blockchain packages you do not use. Each family package exports its own registration, so the family identifier travels with the package instead of being retyped at every call site.
 
 ---
 
-### `LedgerEIP1193Provider` is no longer re-exported from the main package
+### `LedgerEIP1193Provider`
 
-In earlier 1.x.x versions, `LedgerEIP1193Provider` was re-exported from `@ledgerhq/ledger-wallet-provider`. It is now only available from `@ledgerhq/ledger-wallet-provider-evm`.
+`LedgerEIP1193Provider` is the type you apply to the provider object received from the `eip6963:announceProvider` event. Only the import changes in v2:
 
 **Before**
 
@@ -109,7 +109,7 @@ import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
 ### Register any other families you support
 
 Solana (available in upcoming v2.0.0) is passed the same way as EVM.
-If your dApp supports Solana:
+Add it as well if your dApp supports Solana:
 
 ```bash
 npm install @ledgerhq/ledger-wallet-provider-solana
