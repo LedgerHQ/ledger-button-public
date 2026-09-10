@@ -26,15 +26,13 @@ Initialize once at application startup (see [Get started](../get-started/v2) and
 
 ```ts
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
-import { createSolanaBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-solana'
+import { solanaBlockchainProviderFactory } from '@ledgerhq/ledger-wallet-provider-solana'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
   dAppIdentifier: 'my-dapp',
   apiKey: 'your-api-key',
-  blockchainProviderFactories: [
-    { family: 'solana', create: createSolanaBlockchainProvider },
-  ],
+  blockchainProviderFactories: [solanaBlockchainProviderFactory],
 })
 
 // Call cleanup() when your app unmounts to unregister the Solana wallet too.
@@ -65,6 +63,15 @@ After connection, the Ledger Solana wallet exposes:
 Supported transaction versions: `legacy` and `0` (versioned).
 
 ## Discover and connect
+
+Unlike EVM, there is no discovery event to dispatch: the Ledger wallet announces itself through the Wallet Standard as soon as `initializeLedgerProvider` runs. You only need to list the registered wallets.
+
+<Callout type="warning">
+  Never dispatch `wallet-standard:app-ready` yourself. That event carries the
+  app's `register` callback in its `detail`, so emitting a bare event throws
+  inside every listening wallet. Let `getWallets()` or your wallet adapter emit
+  it for you.
+</Callout>
 
 List Wallet Standard wallets and connect to Ledger:
 
@@ -181,7 +188,7 @@ cleanup()
 ## Troubleshooting
 
 **Ledger does not appear in the wallet list.**
-Confirm `initializeLedgerProvider` ran in the browser before you query wallets, that you passed `createSolanaBlockchainProvider`, and that Solana is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no Solana wallet is registered — see [Requirements](../requirements).
+Confirm `initializeLedgerProvider` ran in the browser before you query wallets, that you passed `solanaBlockchainProviderFactory`, and that Solana is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no Solana wallet is registered — see [Requirements](../requirements).
 
 **Connect returns no accounts.**
 The user cancelled the flow, or no Solana account is available on the device for the requested cluster. Retry `standard:connect` after the user finishes onboarding in the Ledger UI.

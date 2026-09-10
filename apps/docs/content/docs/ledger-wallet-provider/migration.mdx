@@ -36,18 +36,16 @@ initializeLedgerProvider({
 
 ```ts
 import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
-import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
+import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
 
 initializeLedgerProvider({
   dAppIdentifier: "my-dapp",
   apiKey: "your-api-key",
-  blockchainProviderFactories: [
-    { family: "ethereum", create: createEvmBlockchainProvider },
-  ],
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
 });
 ```
 
-**Why:** The `blockchainProviderFactories` pattern enables multi-chain support (EVM + Solana) from the same call and lets bundlers tree-shake chain packages you do not use.
+**Why:** The `blockchainProviderFactories` pattern enables multi-chain support (EVM + Solana) from the same call and lets bundlers tree-shake chain packages you do not use. Each family package exports its own registration, so the family identifier travels with the package instead of being retyped at every call site.
 
 ---
 
@@ -81,18 +79,16 @@ If you do not already have it:
 npm install @ledgerhq/ledger-wallet-provider-evm
 ```
 
-### Pass `blockchainProviderFactories`
+### Initialize the LedgerProvider with `evmBlockchainProviderFactory`
 
-Update your `initializeLedgerProvider` call to include the EVM factory:
+Update your `initializeLedgerProvider` call to include the EVM registration:
 
 ```ts
-import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
+import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
 
 initializeLedgerProvider({
   // ...existing options...
-  blockchainProviderFactories: [
-    { family: "ethereum", create: createEvmBlockchainProvider },
-  ],
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
 });
 ```
 
@@ -108,22 +104,22 @@ import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider";
 import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
 ```
 
-### (Optional) Add Solana
+### Add Solana
 
-If you want to enable Solana in the same call:
+The v2 includes multi-blockchain support so you can enable Solana using:
 
 ```bash
 npm install @ledgerhq/ledger-wallet-provider-solana
 ```
 
 ```ts
-import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
+import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
 
 initializeLedgerProvider({
   // ...
   blockchainProviderFactories: [
-    { family: "ethereum", create: createEvmBlockchainProvider },
-    { family: "solana", create: createSolanaBlockchainProvider },
+    evmBlockchainProviderFactory,
+    solanaBlockchainProviderFactory,
   ],
 });
 ```
