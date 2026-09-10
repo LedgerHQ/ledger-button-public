@@ -1,9 +1,8 @@
----
-title: API reference
-category: reference
----
+## title: API reference
 
-import { Callout } from 'nextra/components'
+## category: reference
+
+import { Callout } from "nextra/components";
 
 # API reference
 
@@ -30,45 +29,29 @@ type BlockchainProviderFactoryRegistration = {
 }
 
 type InitializeLedgerProviderOptions = {
-  // Core
-  apiKey?: string;
-  dAppIdentifier?: string;
-  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';
-  environment?: 'staging' | 'production';
-  dmkConfig?: DeviceModuleOptions;
-  blockchainProviderFactories?: BlockchainProviderFactoryRegistration[];
+  // Core options
+  apiKey: string;                                    // Your Ledger API key
+  dAppIdentifier: string;                            // Your dApp identifier
+  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
+  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // Blockchain families to register
 
-  // UI
-  target?: HTMLElement;
-  hideButton?: boolean;
-  floatingButtonPosition?:
-    | 'bottom-right'
-    | 'bottom-left'
-    | 'bottom-center'
-    | 'top-right'
-    | 'top-left'
-    | 'top-center'
-    | 'middle-right';
-  floatingButtonTarget?: HTMLElement | string;
-  walletTransactionFeatures?: Array<
-    'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'
-  >;
-  transactionConfirmationNotification?: 'tooltip' | 'toast';
+  // UI options
+  target?: HTMLElement;                               // Where to mount the UI (default: document.body)
+  hideButton?: boolean;                               // Hide the floating button entirely (default: false)
+  floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
+  floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
+  walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
+  transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
 
-  // Development
-  devConfig?: {
-    stub?: {
-      base?: boolean;
-      account?: boolean;
-      balance?: boolean;
-      device?: boolean;
-      web3Provider?: boolean;
-      solanaProvider?: boolean;
-      transactionHistory?: boolean;
-    };
-  };
+  // Dev/debug - Intended for Ledger use only. Do not override, please keep the default values
+  environment?: 'staging' | 'production';             // Target Ledger backend environment
+  dmkConfig?: DeviceModuleOptions;                    // Override Device Management Kit endpoints
+  dmkLogLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'error'
+  devConfig?: {};                                     // Local stub modes
 };
 ```
+
+`apiKey`, `dAppIdentifier` and `blockchainProviderFactories` are optional in the TypeScript type for backward compatibility, but are required in practice — without them the provider cannot authenticate or register any chain.
 
 See [Configuration](./configuration) for the full `options` reference with defaults and examples.
 
@@ -82,7 +65,9 @@ cleanup()
 ```
 
 <Callout type="info">
-  If the browser does not support Web HID or Web Bluetooth, `initializeLedgerProvider` returns a no-op function without registering the provider or mounting any UI. See [Requirements](./requirements).
+  If the browser does not support Web HID or Web Bluetooth,
+  `initializeLedgerProvider` returns a no-op function without registering the
+  provider or mounting any UI. See [Requirements](./requirements).
 </Callout>
 
 ---
@@ -156,62 +141,62 @@ Disconnects the provider, clears the selected account and chain, and fires a `di
 
 **Handled locally by the provider**
 
-| Method | Description |
-|--------|-------------|
-| `eth_requestAccounts` | Opens the Ledger UI for signer and account selection; returns the selected address |
-| `eth_accounts` | Returns the currently selected account address |
-| `eth_chainId` | Returns the current chain ID as a hex string |
-| `eth_sendTransaction` | Signs and broadcasts a transaction |
-| `eth_signTransaction` | Signs a transaction without broadcasting |
-| `eth_signRawTransaction` | Signs a raw transaction |
-| `eth_sendRawTransaction` | Signs and broadcasts a raw transaction |
-| `eth_sign` | Signs a message |
-| `personal_sign` | Signs a personal message ([EIP-191](https://eips.ethereum.org/EIPS/eip-191)) |
-| `eth_signTypedData` | Signs typed structured data ([EIP-712](https://eips.ethereum.org/EIPS/eip-712)) |
-| `eth_signTypedData_v4` | Signs typed structured data v4 (EIP-712) |
-| `wallet_switchEthereumChain` | Switches to a supported chain ID |
+| Method                       | Description                                                                        |
+| ---------------------------- | ---------------------------------------------------------------------------------- |
+| `eth_requestAccounts`        | Opens the Ledger UI for signer and account selection; returns the selected address |
+| `eth_accounts`               | Returns the currently selected account address                                     |
+| `eth_chainId`                | Returns the current chain ID as a hex string                                       |
+| `eth_sendTransaction`        | Signs and broadcasts a transaction                                                 |
+| `eth_signTransaction`        | Signs a transaction without broadcasting                                           |
+| `eth_signRawTransaction`     | Signs a raw transaction                                                            |
+| `eth_sendRawTransaction`     | Signs and broadcasts a raw transaction                                             |
+| `eth_sign`                   | Signs a message                                                                    |
+| `personal_sign`              | Signs a personal message ([EIP-191](https://eips.ethereum.org/EIPS/eip-191))       |
+| `eth_signTypedData`          | Signs typed structured data ([EIP-712](https://eips.ethereum.org/EIPS/eip-712))    |
+| `eth_signTypedData_v4`       | Signs typed structured data v4 (EIP-712)                                           |
+| `wallet_switchEthereumChain` | Switches to a supported chain ID                                                   |
 
 **Forwarded to node RPC**
 
-| Method | Description |
-|--------|-------------|
-| `eth_blockNumber` | Returns the current block number |
-| `eth_getBalance` | Returns the balance of an address |
-| `eth_getCode` | Returns the code at a given address |
-| `eth_estimateGas` | Estimates gas for a transaction |
-| `eth_call` | Executes a read-only call |
+| Method            | Description                         |
+| ----------------- | ----------------------------------- |
+| `eth_blockNumber` | Returns the current block number    |
+| `eth_getBalance`  | Returns the balance of an address   |
+| `eth_getCode`     | Returns the code at a given address |
+| `eth_estimateGas` | Estimates gas for a transaction     |
+| `eth_call`        | Executes a read-only call           |
 
 ### Events
 
-| Event | Payload type | Fires when |
-|-------|-------------|------------|
-| `accountsChanged` | `string[]` | The selected account changes |
-| `chainChanged` | `string` (hex chain ID) | The active chain changes |
-| `connect` | `{ chainId: string }` | The provider connects with an account |
-| `disconnect` | `ProviderRpcError` | The provider disconnects |
-| `message` | `{ type: string; data: unknown }` | The provider emits a message |
+| Event             | Payload type                      | Fires when                            |
+| ----------------- | --------------------------------- | ------------------------------------- |
+| `accountsChanged` | `string[]`                        | The selected account changes          |
+| `chainChanged`    | `string` (hex chain ID)           | The active chain changes              |
+| `connect`         | `{ chainId: string }`             | The provider connects with an account |
+| `disconnect`      | `ProviderRpcError`                | The provider disconnects              |
+| `message`         | `{ type: string; data: unknown }` | The provider emits a message          |
 
 ### Error codes
 
 `request()` rejects with a `ProviderRpcError` whose `code` is one of the following:
 
-| Code | Name | When it occurs |
-|------|------|----------------|
-| `4001` | `UserRejectedRequest` | User rejected the request or closed the modal |
-| `4100` | `Unauthorized` | Provider not connected, no account selected, or address mismatch |
-| `4200` | `UnsupportedMethod` | Method is not in the supported list |
-| `4900` | `Disconnected` | Provider is disconnected when a method that requires a connection is called |
-| `4901` | `ChainDisconnected` | Requested chain is not in the supported chain list |
-| `-32602` | `InvalidParams` | Invalid parameters (e.g. malformed typed data) |
-| `-32603` | `InternalError` | Internal error (e.g. provider busy, broadcast failed, blind signing disabled) |
+| Code     | Name                  | When it occurs                                                                |
+| -------- | --------------------- | ----------------------------------------------------------------------------- |
+| `4001`   | `UserRejectedRequest` | User rejected the request or closed the modal                                 |
+| `4100`   | `Unauthorized`        | Provider not connected, no account selected, or address mismatch              |
+| `4200`   | `UnsupportedMethod`   | Method is not in the supported list                                           |
+| `4900`   | `Disconnected`        | Provider is disconnected when a method that requires a connection is called   |
+| `4901`   | `ChainDisconnected`   | Requested chain is not in the supported chain list                            |
+| `-32602` | `InvalidParams`       | Invalid parameters (e.g. malformed typed data)                                |
+| `-32603` | `InternalError`       | Internal error (e.g. provider busy, broadcast failed, blind signing disabled) |
 
 ---
 
 ## See also
 
 - [Get started](./get-started/v2) — install and initialize the provider
-- [EVM](./blockchains/evm) — EIP-6963 discovery and EIP-1193 signing how-to
-- [Solana](./blockchains/solana) — Wallet Standard connect and signing how-to
+- [EVM](./blockchains/evm) — EVM Blockchain Provider
+- [Solana](./blockchains/solana) — Solana Blockchain Provider
 - [Configuration](./configuration) — full `initializeLedgerProvider` options reference
 - [Requirements](./requirements) — browser and platform requirements
 - [EIP-1193 specification](https://eips.ethereum.org/EIPS/eip-1193)

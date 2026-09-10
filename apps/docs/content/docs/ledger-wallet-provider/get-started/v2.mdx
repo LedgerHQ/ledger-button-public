@@ -38,8 +38,8 @@ You can also install with `yarn` or `pnpm`. Skip a family package if you do not 
 
 ```ts
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
-import { createEvmBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-evm'
-import { createSolanaBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-solana'
+import { evmBlockchainProviderFactory } from '@ledgerhq/ledger-wallet-provider-evm'
+import { solanaBlockchainProviderFactory } from '@ledgerhq/ledger-wallet-provider-solana'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
@@ -47,15 +47,15 @@ const cleanup = initializeLedgerProvider({
   apiKey: 'your-api-key',
   loggerLevel: 'info',
   blockchainProviderFactories: [
-    { family: 'ethereum', create: createEvmBlockchainProvider },
-    { family: 'solana', create: createSolanaBlockchainProvider },
+    evmBlockchainProviderFactory,
+    solanaBlockchainProviderFactory,
   ],
 })
 
 // Call cleanup() when your application unmounts
 ```
 
-Pass a factory for each supported blockchain family. `initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for families that appear in **both** `blockchainProviderFactories` and your partner dApp configuration (tied to `dAppIdentifier`):
+Pass the registration exported by each family package you installed. `initializeLedgerProvider` mounts the Ledger UI and announces Ledger only for families that appear in **both** `blockchainProviderFactories` and your partner dApp configuration (tied to `dAppIdentifier`):
 
 - **EVM** via [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)
 - **Solana** via [Wallet Standard](https://github.com/wallet-standard/wallet-standard)
@@ -78,8 +78,8 @@ useEffect(() => {
     await import('@ledgerhq/ledger-wallet-provider/styles.css')
     const [
       { initializeLedgerProvider },
-      { createEvmBlockchainProvider },
-      { createSolanaBlockchainProvider },
+      { evmBlockchainProviderFactory },
+      { solanaBlockchainProviderFactory },
     ] = await Promise.all([
       import('@ledgerhq/ledger-wallet-provider'),
       import('@ledgerhq/ledger-wallet-provider-evm'),
@@ -89,8 +89,8 @@ useEffect(() => {
       dAppIdentifier: 'my-dapp',
       apiKey: 'your-api-key',
       blockchainProviderFactories: [
-        { family: 'ethereum', create: createEvmBlockchainProvider },
-        { family: 'solana', create: createSolanaBlockchainProvider },
+        evmBlockchainProviderFactory,
+        solanaBlockchainProviderFactory,
       ],
     })
   })()

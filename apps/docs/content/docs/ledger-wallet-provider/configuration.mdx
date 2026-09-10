@@ -87,12 +87,12 @@ This page describes all available configuration options for `initializeLedgerPro
   walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
   transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
 
-  // Dev/debug options — not for production use
+  // Dev/debug - Intended for Ledger use only. Do not override, please keep the default values
   environment?: 'staging' | 'production';             // Target Ledger backend environment
   dmkConfig?: DeviceModuleOptions;                    // Override Device Management Kit endpoints
-  devConfig?: {
-    stub?: // Your stub here
-  }
+  dmkLogLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'error'
+  devConfig?: {};                                     // Local stub modes
+}
 ```
 
 ## Parameter details
@@ -111,29 +111,31 @@ Your dApp identifier. This lets Ledger validate the integration and enable remot
 
 **Available from v2+ only.** Not present in the v1 API.
 
-The blockchain families your dApp wants to enable. Each entry pairs a family identifier with its provider factory, sourced from the corresponding family package. Families not listed here are never loaded, regardless of what your partner configuration allows.
+The blockchain families your dApp wants to enable. Each family package exports a ready-made registration that already carries its own family identifier, so you never write the family string yourself. Families not listed here are never loaded, regardless of what your partner configuration allows.
 
-Install the family package, import its factory, and pass it here:
+Install the family package, import its Factory, and pass it here:
 
 ```ts
 import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
-import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
-import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
+import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
+import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
 
 initializeLedgerProvider({
   dAppIdentifier: "my-dapp",
   apiKey: "your-api-key",
   blockchainProviderFactories: [
-    { family: "ethereum", create: createEvmBlockchainProvider },
-    { family: "solana", create: createSolanaBlockchainProvider },
+    evmBlockchainProviderFactory,
+    solanaBlockchainProviderFactory,
   ],
 });
 ```
 
-| Family     | Package                                   | Factory                          |
-| ---------- | ----------------------------------------- | -------------------------------- |
-| `ethereum` | `@ledgerhq/ledger-wallet-provider-evm`    | `createEvmBlockchainProvider`    |
-| `solana`   | `@ledgerhq/ledger-wallet-provider-solana` | `createSolanaBlockchainProvider` |
+| Family     | Package                                   | Registration                      |
+| ---------- | ----------------------------------------- | --------------------------------- |
+| `ethereum` | `@ledgerhq/ledger-wallet-provider-evm`    | `evmBlockchainProviderFactory`    |
+| `solana`   | `@ledgerhq/ledger-wallet-provider-solana` | `solanaBlockchainProviderFactory` |
+
+A registration whose family is not enabled for your `dAppIdentifier` is skipped at init rather than throwing, so listing an extra one is harmless — it only costs bundle size.
 
 ### `loggerLevel`
 
@@ -237,6 +239,10 @@ Target Ledger backend environment.
 ### `dmkConfig` <DevBadge />
 
 Advanced escape hatch for overriding the underlying [Device Management Kit](https://github.com/LedgerHQ/device-sdk-ts) configuration — API base URLs, WebSocket endpoint, provider, etc. Leave unset unless Ledger has explicitly instructed you to override a specific field.
+
+### `dmkLogLevel` <DevBadge />
+
+Log verbosity of the underlying Device Management Kit, independent of `loggerLevel`. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`. Default is `'error'`, so device-level logs stay quiet unless you opt in.
 
 ### `devConfig.stub` <DevBadge />
 
