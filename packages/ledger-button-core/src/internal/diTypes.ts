@@ -25,6 +25,7 @@ export type ContainerOptions = {
       device: boolean;
       web3Provider: boolean;
       transactionHistory: boolean;
+      dAppConfig: boolean;
     }>;
   };
 };
