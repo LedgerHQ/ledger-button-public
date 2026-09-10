@@ -1,18 +1,24 @@
-## title: API reference
-
-## category: reference
+---
+title: API reference
+category: reference
+---
 
 import { Callout } from "nextra/components";
 
 # API reference
 
-This page describes the public API of Ledger Wallet Provider: `initializeLedgerProvider` from `@ledgerhq/ledger-wallet-provider`, and `LedgerEIP1193Provider` from `@ledgerhq/ledger-wallet-provider-evm`.
+This page describes the public API of Ledger Wallet Provider: `initializeLedgerProvider` from `@ledgerhq/ledger-wallet-provider`, and `LedgerEIP1193Provider` (see [import path](#ledgereip1193provider) — it moved packages in v2).
 
 ---
 
 ## `initializeLedgerProvider(options)`
 
-Initializes the Ledger Wallet Provider and injects the UI components into the DOM. Registers blockchain providers for each factory you pass in `blockchainProviderFactories` that is also enabled in your partner dApp configuration (`dAppIdentifier`): EVM factory + Ethereum enabled → [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193); Solana factory + Solana enabled → [Wallet Standard](https://github.com/wallet-standard/wallet-standard). Without factories, no chain provider is registered. For chain-specific connect and signing examples, see [EVM](./blockchains/evm) and [Solana](./blockchains/solana).
+Initializes the Ledger Wallet Provider and injects the UI components into the DOM. From v2+, it registers blockchain providers for each factory you pass in `blockchainProviderFactories` that is also enabled in your partner dApp configuration (`dAppIdentifier`):
+
+- EVM factory + Ethereum enabled → [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) / [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)
+- Solana factory + Solana enabled → [Wallet Standard](https://github.com/wallet-standard/wallet-standard)
+
+Without factories, no chain provider is registered. In v1 there are no factories at all: the EVM provider is registered automatically and Solana is not supported — see the [migration guide](./migration). For chain-specific connect and signing examples, see [EVM](./blockchains/evm) and [Solana](./blockchains/solana).
 
 **Signature**
 
@@ -21,19 +27,13 @@ function initializeLedgerProvider(
   options: InitializeLedgerProviderOptions
 ): () => void
 
-type BlockchainFamily = 'ethereum' | 'solana'
-
-type BlockchainProviderFactoryRegistration = {
-  family: BlockchainFamily
-  create: (core: CoreFacade, config: BlockchainConfig) => BlockchainProvider
-}
 
 type InitializeLedgerProviderOptions = {
   // Core options
   apiKey: string;                                    // Your Ledger API key
   dAppIdentifier: string;                            // Your dApp identifier
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
-  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // Blockchain families to register
+  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
 
   // UI options
   target?: HTMLElement;                               // Where to mount the UI (default: document.body)
@@ -51,7 +51,7 @@ type InitializeLedgerProviderOptions = {
 };
 ```
 
-`apiKey`, `dAppIdentifier` and `blockchainProviderFactories` are optional in the TypeScript type for backward compatibility, but are required in practice — without them the provider cannot authenticate or register any chain.
+ℹ️ Note: `apiKey`, `dAppIdentifier`and`blockchainProviderFactories` are shown as required because the provider cannot authenticate or register a chain without them. Note that the TypeScript type still marks all three optional for backward compatibility, so the compiler will not catch a missing one.
 
 See [Configuration](./configuration) for the full `options` reference with defaults and examples.
 
@@ -74,9 +74,14 @@ cleanup()
 
 ## `LedgerEIP1193Provider`
 
-Implements the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider JavaScript API for Ledger hardware signers. Import it from `@ledgerhq/ledger-wallet-provider-evm` (it is no longer re-exported from `@ledgerhq/ledger-wallet-provider`).
+Implements the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider JavaScript API for Ledger hardware signers.
 
-You obtain an instance via the `eip6963:announceProvider` event (see [EVM](./blockchains/evm)):
+The class is exported so you can type the object you receive — it is not meant to be instantiated directly. Import it as a type from:
+
+- v1 -> `@ledgerhq/ledger-wallet-provider`
+- v2 -> `@ledgerhq/ledger-wallet-provider-evm`.
+
+`initializeLedgerProvider` builds the instance for you and announces it through the `eip6963:announceProvider` event (see [EVM](./blockchains/evm)):
 
 ```ts
 window.addEventListener('eip6963:announceProvider', (event: CustomEvent) => {
