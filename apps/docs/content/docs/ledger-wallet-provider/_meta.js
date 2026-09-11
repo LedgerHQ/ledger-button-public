@@ -10,4 +10,5 @@ export default {
   "package-attestation": "Package Attestation",
   requirements: "Requirements",
   "api-reference": "API Reference",
+  migration: "Migration guide",
 };
