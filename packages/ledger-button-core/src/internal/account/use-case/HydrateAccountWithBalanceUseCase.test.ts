@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { Account } from "@api/model/Account";
-import type { BackendService } from "@internal/backend/BackendService";
 import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
 import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes";
 import type { AccountBalance, TokenBalance } from "@internal/balance/model/types";
@@ -35,18 +34,6 @@ function createMockBalanceService(): {
 } {
   return {
     getBalanceForAccount: vi.fn(),
-  };
-}
-
-function createMockBackendService(): {
-  broadcast: ReturnType<typeof vi.fn>;
-  getConfig: ReturnType<typeof vi.fn>;
-  event: ReturnType<typeof vi.fn>;
-} {
-  return {
-    broadcast: vi.fn(),
-    getConfig: vi.fn(),
-    event: vi.fn(),
   };
 }
 
@@ -117,7 +104,6 @@ function createMockAccount(overrides: Partial<Account> = {}): Account {
 describe("HydrateAccountWithBalanceUseCase", () => {
   let useCase: HydrateAccountWithBalanceUseCase;
   let mockBalanceService: ReturnType<typeof createMockBalanceService>;
-  let mockBackendService: ReturnType<typeof createMockBackendService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
   let mockBlockchainProviderManager: BlockchainProviderManager;
 
@@ -125,7 +111,6 @@ describe("HydrateAccountWithBalanceUseCase", () => {
     vi.clearAllMocks();
 
     mockBalanceService = createMockBalanceService();
-    mockBackendService = createMockBackendService();
     mockCalDataSource = createMockCalDataSource();
     mockBlockchainProviderManager = createMockBlockchainProviderManager();
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
@@ -135,13 +120,11 @@ describe("HydrateAccountWithBalanceUseCase", () => {
     useCase = new HydrateAccountWithBalanceUseCase(
       createMockLoggerFactory(),
       mockBalanceService as unknown as BalanceService,
-      mockBackendService as unknown as BackendService,
       new ResolveCurrencyDecimalsUseCase(
         mockCalDataSource as unknown as CalDataSource,
         mockBlockchainProviderManager,
         createMockLoggerFactory(),
       ),
-      mockBlockchainProviderManager,
     );
   });
 
@@ -179,6 +162,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       const result = await useCase.execute(mockAccount);
 
       expect(result.balance).toBe("1.5");
+      expect(result.balanceError).toBe(false);
       expect(result.tokens).toHaveLength(2);
       expect(result.tokens[0]).toEqual({
         ledgerId: "ethereum/erc20/usdc",
@@ -259,63 +243,19 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       );
     });
 
-    it("should fall back to RPC when balance service fails", async () => {
+    it("should leave balance undefined when balance service fails", async () => {
       const mockAccount = createMockAccount();
       const mockError = new Error("Balance service unavailable");
 
       mockBalanceService.getBalanceForAccount.mockResolvedValue(
         Left(mockError),
       );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0xDE0B6B3A7640000" }), // 1 ETH in hex
-      );
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("1");
+      expect(result.balance).toBeUndefined();
+      expect(result.balanceError).toBe(true);
       expect(result.tokens).toHaveLength(0);
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "1" },
-        rpc: {
-          method: "eth_getBalance",
-          params: [mockAccount.freshAddress, "latest"],
-          id: 1,
-          jsonrpc: "2.0",
-        },
-      });
-    });
-
-    it("should return zero balance when both balance service and RPC fail", async () => {
-      const mockAccount = createMockAccount();
-
-      mockBalanceService.getBalanceForAccount.mockResolvedValue(
-        Left(new Error("Balance service unavailable")),
-      );
-      mockBackendService.broadcast.mockResolvedValue(
-        Left(new Error("RPC error")),
-      );
-
-      const result = await useCase.execute(mockAccount);
-
-      expect(result.balance).toBe("0");
-      expect(result.tokens).toHaveLength(0);
-    });
-
-    it("should use correct chain ID for different currencies", async () => {
-      const mockAccount = createMockAccount({ currencyId: "polygon" });
-
-      mockBalanceService.getBalanceForAccount.mockResolvedValue(
-        Left(new Error("Balance service unavailable")),
-      );
-      mockBackendService.broadcast.mockResolvedValue(Right({ result: "0x0" }));
-
-      await useCase.execute(mockAccount);
-
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          blockchain: { name: "ethereum", chainId: "137" },
-        }),
-      );
     });
 
     it("should preserve original account properties", async () => {
@@ -449,26 +389,6 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       const result = await useCase.execute(mockAccount);
 
       expect(result.balance).toBe("1,500,000,000");
-    });
-
-    it("should resolve decimals from CAL on the RPC fallback path", async () => {
-      const mockAccount = createMockAccount();
-      mockCalDataSource.getCurrencyInformation.mockResolvedValue(
-        Right(createCurrencyInformation({ decimals: 18 })),
-      );
-      mockBalanceService.getBalanceForAccount.mockResolvedValue(
-        Left(new Error("Balance service unavailable")),
-      );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0xDE0B6B3A7640000" }), // 1 ETH in hex
-      );
-
-      const result = await useCase.execute(mockAccount);
-
-      expect(result.balance).toBe("1");
-      expect(mockCalDataSource.getCurrencyInformation).toHaveBeenCalledWith(
-        "ethereum",
-      );
     });
   });
 });

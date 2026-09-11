@@ -13,6 +13,7 @@ export type Account = CloudSyncAccount & {
   name: string;
   ticker: string;
   balance: string | undefined;
+  balanceError?: boolean;
   tokens: Token[];
 };
 
