@@ -1,12 +1,3 @@
-import type {
-  BlockchainConfig,
-  BlockchainProvider,
-  BlockchainProviderFactory,
-  CoreFacade,
-} from "@ledgerhq/ledger-wallet-provider-core";
-
-import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
-
 export {
   isSignSolanaMessageParams,
   type SignSolanaMessageParams,
@@ -24,13 +15,4 @@ export {
   type SolanaJsonRpcResponseError,
   type SolanaJsonRpcResponseSuccess,
 } from "./model/SolanaTypes";
-export { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
-
-/**
- * Factory that creates a Solana {@link BlockchainProvider}. Register with
- * `blockchainProviderFactories` on {@link LedgerButtonCore} options.
- */
-export const createSolanaBlockchainProvider: BlockchainProviderFactory = (
-  core: CoreFacade,
-  config: BlockchainConfig,
-): BlockchainProvider => new SolanaBlockchainProvider(core, config);
+export { solanaBlockchainProviderFactory } from "./SolanaBlockchainProvider";

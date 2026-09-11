@@ -3,7 +3,7 @@ import "./context/core-context";
 import "./context/language-context";
 import "./ledger-button-app";
 
-import type { BlockchainProviderFactoryRegistration } from "@ledgerhq/ledger-wallet-provider-core";
+import type { BlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-core";
 import { html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
@@ -26,7 +26,7 @@ export class LedgerButtonPlayground extends LitElement {
   demoMode: "onboarding" | "signTransaction" = "onboarding";
 
   @property({ attribute: false })
-  blockchainProviderFactories: BlockchainProviderFactoryRegistration[] = [];
+  blockchainProviderFactories: BlockchainProviderFactory[] = [];
 
   @query("#app")
   private app!: HTMLDivElement;

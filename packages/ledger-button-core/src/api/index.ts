@@ -2,10 +2,7 @@ export type { WalletActionType } from "../internal/backend/model/trackEvent";
 export type { Device } from "../internal/device/model/Device";
 export type { ConnectionType } from "../internal/device/service/DeviceManagementKitService";
 export type { BlockchainProvider } from "./blockchain-provider/model/BlockchainProvider";
-export type {
-  BlockchainProviderFactory,
-  BlockchainProviderFactoryRegistration,
-} from "./blockchain-provider/model/BlockchainProviderFactory";
+export type { BlockchainProviderFactory } from "./blockchain-provider/model/BlockchainProviderFactory";
 export type { CoreFacade } from "./blockchain-provider/model/CoreFacade";
 export type { CurrencyDescriptor } from "./blockchain-provider/model/CurrencyDescriptor";
 export type {
