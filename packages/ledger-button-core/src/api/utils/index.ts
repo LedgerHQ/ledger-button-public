@@ -1,3 +1,4 @@
+export { findBlockchainConfig } from "../blockchain-provider/utils/findBlockchainConfig";
 export * from "./byteUtils";
 export { calculateTotalFiatValue } from "@internal/account/accountFiatUtils";
 export { formatBalance } from "@internal/currency/currencyUtils";

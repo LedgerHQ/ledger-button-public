@@ -1,6 +1,6 @@
 import type { Maybe } from "purify-ts";
 
-import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory";
+import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
@@ -11,7 +11,7 @@ export interface BlockchainProviderManager {
   init(
     coreFacade: CoreFacade,
     dappConfig: DAppConfig,
-    factories: BlockchainProviderFactoryRegistration[],
+    factories: BlockchainProviderFactory[],
   ): void;
   /**
    * Push the selected account of each blockchain family to its provider. A

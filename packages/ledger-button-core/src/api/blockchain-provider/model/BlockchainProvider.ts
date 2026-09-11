@@ -10,8 +10,10 @@ import type { BlockchainFamily } from "./types";
  * Wired once by {@link DefaultBlockchainProviderManager}; core then pushes
  * selected account / network through the context methods.
  */
-export interface BlockchainProvider {
-  readonly family: BlockchainFamily;
+export interface BlockchainProvider<
+  F extends BlockchainFamily = BlockchainFamily,
+> {
+  readonly family: F;
   readonly dappConfig: BlockchainConfig;
   /**
    * Wire the provider with the core host and dApp config and announce it to
