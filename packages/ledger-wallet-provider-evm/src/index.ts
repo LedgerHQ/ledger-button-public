@@ -1,7 +1,4 @@
-export {
-  EvmBlockchainProvider,
-  evmBlockchainProviderFactory,
-} from "./EvmBlockchainProvider";
+export { evmBlockchainProviderFactory } from "./EvmBlockchainProvider";
 export { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
 export * from "./model/EIPTypes";
 export type { EvmSignedResult } from "./model/EvmSignedResult";
