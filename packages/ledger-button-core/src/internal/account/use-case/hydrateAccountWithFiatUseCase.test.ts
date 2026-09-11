@@ -132,6 +132,28 @@ describe("HydrateAccountWithFiatUseCase", () => {
       });
     });
 
+    describe("when native balance hydration fails", () => {
+      it("should skip countervalues and leave fiat empty", async () => {
+        const accountWithBalanceError: Account = {
+          ...accountWithoutBalance,
+          balanceError: true,
+        };
+
+        const result = await useCase.execute(accountWithBalanceError);
+
+        expect(result).toEqual({
+          ...accountWithBalanceError,
+          fiatBalance: undefined,
+          fiatError: false,
+          balanceLoadingState: "error",
+          fiatLoadingState: "loaded",
+        });
+        expect(
+          mockCounterValueDataSource.getCounterValues,
+        ).not.toHaveBeenCalled();
+      });
+    });
+
     describe("when account has zero balance", () => {
       it("should return account with $0.00 fiatBalance and no error", async () => {
         const accountWithZeroBalance: Account = {

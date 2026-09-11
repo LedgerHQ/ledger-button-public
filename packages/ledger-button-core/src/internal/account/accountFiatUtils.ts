@@ -10,24 +10,53 @@ import type {
 
 const NATIVE_CURRENCY_FIAT_THRESHOLD = 0.01;
 
-export function enrichWithLoadingStates(
-  account: Account & { fiatBalance?: FiatBalance; fiatError?: boolean },
-): AccountWithFiat {
-  const balanceLoadingState: LoadingState =
-    account.balance !== undefined ? "loaded" : "loading";
-  const fiatLoadingState: LoadingState = account.fiatError
-    ? "error"
-    : account.fiatBalance !== undefined
-      ? "loaded"
-      : "loading";
+type AccountForLoadingStates = Account & {
+  fiatBalance?: FiatBalance;
+  fiatError?: boolean;
+};
 
+export function enrichWithLoadingStates(
+  account: AccountForLoadingStates,
+): AccountWithFiat {
   return {
     ...account,
     fiatBalance: account.fiatBalance,
     fiatError: account.fiatError ?? false,
-    balanceLoadingState,
-    fiatLoadingState,
+    balanceLoadingState: resolveBalanceLoadingState(account),
+    fiatLoadingState: resolveFiatLoadingState(account),
   };
+}
+
+function resolveBalanceLoadingState(
+  account: AccountForLoadingStates,
+): LoadingState {
+  if (account.balanceError) {
+    return "error";
+  }
+
+  if (account.balance !== undefined) {
+    return "loaded";
+  }
+
+  return "loading";
+}
+
+function resolveFiatLoadingState(
+  account: AccountForLoadingStates,
+): LoadingState {
+  if (account.balanceError) {
+    return "loaded";
+  }
+
+  if (account.fiatError) {
+    return "error";
+  }
+
+  if (account.fiatBalance !== undefined) {
+    return "loaded";
+  }
+
+  return "loading";
 }
 
 export function calculateTotalFiatValue(
