@@ -41,10 +41,10 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     dappConfig: DAppConfig,
     factories: BlockchainProviderFactory[],
   ): void {
-    const providerDAppConfig: BlockchainConfig[] = dappConfig.blockchains ?? [];
+    const blockchainsConfig: BlockchainConfig[] = dappConfig.blockchains ?? [];
 
     for (const factory of factories) {
-      const provider = factory(coreFacade, providerDAppConfig);
+      const provider = factory(coreFacade, blockchainsConfig);
       if (!provider) {
         this.logger.debug("Skipping provider: no dApp config for family");
         continue;
