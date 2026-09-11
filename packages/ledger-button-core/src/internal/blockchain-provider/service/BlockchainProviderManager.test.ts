@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Left, Right } from "purify-ts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
