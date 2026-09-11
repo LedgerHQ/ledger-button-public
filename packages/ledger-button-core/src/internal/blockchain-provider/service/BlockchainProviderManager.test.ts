@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { Left, Right } from "purify-ts";
 
 import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
@@ -112,8 +113,8 @@ describe("DefaultBlockchainProviderManager", () => {
     dappConfig = createMockDAppConfig();
     evmProvider = createMockProvider("ethereum");
     solanaProvider = createMockProvider("solana");
-    evmCreate = vi.fn().mockReturnValue(evmProvider);
-    solanaCreate = vi.fn().mockReturnValue(solanaProvider);
+    evmCreate = vi.fn().mockReturnValue(Right(evmProvider));
+    solanaCreate = vi.fn().mockReturnValue(Right(solanaProvider));
     factories = [evmCreate, solanaCreate];
   });
 
@@ -133,8 +134,8 @@ describe("DefaultBlockchainProviderManager", () => {
       expect(solanaProvider.injectWalletProviders).toHaveBeenCalledOnce();
     });
 
-    it("skips factories that return undefined", () => {
-      solanaCreate = vi.fn().mockReturnValue(undefined);
+    it("skips factories that return Left", () => {
+      solanaCreate = vi.fn().mockReturnValue(Left("solana"));
       factories = [evmCreate, solanaCreate];
 
       manager.init(core, dappConfig, factories);
