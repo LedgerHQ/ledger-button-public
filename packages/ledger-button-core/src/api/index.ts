@@ -18,7 +18,6 @@ export type {
   WalletNavigationIntent,
   WalletProvider,
 } from "./blockchain-provider/model/types";
-export { findBlockchainConfig } from "./blockchain-provider/utils/findBlockchainConfig";
 export {
   type ConnectedDeviceSession,
   waitForDeviceSession,

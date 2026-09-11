@@ -4,16 +4,11 @@ import type { CoreFacade } from "./CoreFacade";
 import type { BlockchainFamily } from "./types";
 
 /**
- * A callable that creates a {@link BlockchainProvider} for one blockchain
- * family from the core facade and the full list of blockchain configs.
- *
- * Owned by the family package (e.g. `@ledgerhq/ledger-wallet-provider-evm`);
- * core never imports family implementations.
- *
- * The factory receives all {@link BlockchainConfig} entries and is responsible
- * for finding the one that matches its own family (via {@link findBlockchainConfig}).
- * It returns `undefined` when its family has no config entry, signalling to
- * {@link BlockchainProviderManager} that it should be skipped.
+ * A function that creates a {@link BlockchainProvider} for one blockchain
+ * family. It receives the full list of dApp blockchain configs and is
+ * responsible for extracting its own slice (e.g. via {@link findBlockchainConfig}).
+ * Return `undefined` if the family has no matching config — the manager will
+ * skip it silently.
  *
  * @example
  * ```ts
