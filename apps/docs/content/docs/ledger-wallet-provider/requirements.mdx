@@ -3,7 +3,7 @@ title: Requirements
 category: reference
 ---
 
-import { Callout } from 'nextra/components'
+import { Callout } from "nextra/components";
 
 # Requirements
 
@@ -18,7 +18,8 @@ This page lists the environment requirements for `@ledgerhq/ledger-wallet-provid
 - Web Bluetooth API support (for Bluetooth connections)
 
 <Callout type="info">
-Mobile browsers are not supported because Web HID and Web Bluetooth APIs are not available on iOS or Android.
+  Mobile browsers are not supported because Web HID and Web Bluetooth APIs are
+  not available on iOS or Android.
 </Callout>
 
 ## Browser support
@@ -26,7 +27,14 @@ Mobile browsers are not supported because Web HID and Web Bluetooth APIs are not
 - **Desktop**: Chrome 89+, Firefox 89+, Safari 14.1+, Edge 89+
 - **Mobile**: Not supported (Web HID and Web Bluetooth APIs are not available)
 
+## Package manager
+
+On v2 (SDK 2.x.x+), the family packages (`@ledgerhq/ledger-wallet-provider-evm`, `@ledgerhq/ledger-wallet-provider-solana`) declare `rxjs`, `xstate`, `purify-ts`, `@ledgerhq/device-management-kit`, and `@ledgerhq/ledger-wallet-provider-core` as peer dependencies so they share a single instance with the main package.
+
+- **npm 7+, pnpm, Yarn Berry (v2+)** — peer dependencies are installed automatically.
+- **Yarn 1 (Classic)** — peer dependencies are not installed automatically; add them explicitly to your `package.json`.
+
 ## See also
 
-- [Get started](./get-started) — install the SDK and initialize the provider
+- [Get started](./get-started/v2) — install the SDK and initialize the provider
 - [Configuration](./configuration) — full list of initialization options

@@ -1,58 +1,80 @@
 ---
-title: EVM with EIP-6963 and EIP-1193
+title: EVM
 category: how-to
 ---
 
-import { Callout } from 'nextra/components'
+import { Callout } from "nextra/components";
+import { Tabs } from "nextra/components";
 
 # EVM with EIP-6963 and EIP-1193
 
 This guide shows how to connect to Ledger Wallet Provider from an EVM dApp and sign messages or transactions through [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) discovery and the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) provider API.
 
-Ledger Wallet Provider registers an EIP-1193 provider when you call `initializeLedgerProvider` with the EVM factory **and** Ethereum is enabled in your partner dApp configuration (`dAppIdentifier`).
-
-<Callout type="info">
-  Complete [Get started](../get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Install `@ledgerhq/ledger-wallet-provider-evm`, pass `createEvmBlockchainProvider`, and confirm with Ledger that Ethereum is enabled for your dApp. Then follow this page for EIP-6963 discovery and signing.
-</Callout>
-
 ## Prerequisites
 
-```bash
-npm install @ledgerhq/ledger-wallet-provider @ledgerhq/ledger-wallet-provider-evm
-```
+Ethereum must be enabled for your `dAppIdentifier`. Select your SDK version:
 
-Initialize once at application startup (see [Get started](../get-started) and [Configuration](../configuration)):
+<Tabs items={['v1', 'v2']}>
+  <Tabs.Tab>
+
+See [Get started - v1](../get-started/v1) for the full setup guide.
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider
+```
 
 ```ts
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
-import { createEvmBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-evm'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
   dAppIdentifier: 'my-dapp',
   apiKey: 'your-api-key',
-  blockchainProviderFactories: [
-    { family: 'ethereum', create: createEvmBlockchainProvider },
-  ],
 })
 
 // Call cleanup() when your app unmounts to unregister the EVM provider too.
 ```
 
+  </Tabs.Tab>
+  <Tabs.Tab>
+
+See [Get started - v2](../get-started/v2) for the full setup guide.
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider @ledgerhq/ledger-wallet-provider-evm
+```
+
+```ts
+import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
+import { evmBlockchainProviderFactory } from '@ledgerhq/ledger-wallet-provider-evm'
+import '@ledgerhq/ledger-wallet-provider/styles.css'
+
+const cleanup = initializeLedgerProvider({
+  dAppIdentifier: 'my-dapp',
+  apiKey: 'your-api-key',
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
+})
+
+// Call cleanup() when your app unmounts to unregister the EVM provider too.
+```
+
+  </Tabs.Tab>
+</Tabs>
+
 ## Supported methods
 
 After connection, use `provider.request({ method, params })`. Methods handled locally by Ledger include:
 
-| Method | Purpose |
-|--------|---------|
-| `eth_requestAccounts` | Open the Ledger UI and return the selected address |
-| `eth_accounts` | Return the currently selected account |
-| `eth_chainId` | Return the current chain ID (hex) |
-| `personal_sign` / `eth_sign` | Sign a message |
-| `eth_signTypedData` / `eth_signTypedData_v4` | Sign EIP-712 typed data |
-| `eth_signTransaction` | Sign a transaction without broadcasting |
-| `eth_sendTransaction` | Sign and broadcast a transaction |
-| `wallet_switchEthereumChain` | Switch to a supported chain ID |
+| Method                                       | Purpose                                            |
+| -------------------------------------------- | -------------------------------------------------- |
+| `eth_requestAccounts`                        | Open the Ledger UI and return the selected address |
+| `eth_accounts`                               | Return the currently selected account              |
+| `eth_chainId`                                | Return the current chain ID (hex)                  |
+| `personal_sign` / `eth_sign`                 | Sign a message                                     |
+| `eth_signTypedData` / `eth_signTypedData_v4` | Sign EIP-712 typed data                            |
+| `eth_signTransaction`                        | Sign a transaction without broadcasting            |
+| `eth_sendTransaction`                        | Sign and broadcast a transaction                   |
+| `wallet_switchEthereumChain`                 | Switch to a supported chain ID                     |
 
 Read methods such as `eth_call` and `eth_getBalance` are forwarded to the node RPC. See [API reference](../api-reference) for the full list, events, and error codes.
 
@@ -61,11 +83,9 @@ Read methods such as `eth_call` and `eth_getBalance` are forwarded to the node R
 Listen for EIP-6963 announcements, then request accounts:
 
 ```ts
-import type { EIP6963ProviderDetail } from '@ledgerhq/ledger-wallet-provider-evm'
+let provider: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> } | undefined
 
-let provider: EIP6963ProviderDetail['provider'] | undefined
-
-window.addEventListener('eip6963:announceProvider', ((event: CustomEvent<EIP6963ProviderDetail>) => {
+window.addEventListener('eip6963:announceProvider', ((event: CustomEvent) => {
   const { provider: announced, info } = event.detail
   if (info.name.toLowerCase().includes('ledger')) {
     provider = announced
@@ -85,10 +105,6 @@ const accounts = await provider.request({
 
 const account = accounts[0]
 ```
-
-<Callout type="info">
-  **Registration:** A family is registered only when you pass its factory **and** it is enabled in your dApp config. EVM factory + Ethereum enabled → EIP-6963 / EIP-1193. Solana factory + Solana enabled → Wallet Standard. Both → both surfaces from the same `initializeLedgerProvider` call. Account pickers are filtered by the requesting family (`eth_requestAccounts` only lists EVM-compatible accounts).
-</Callout>
 
 ## Sign a message
 
@@ -157,7 +173,7 @@ cleanup()
 ## Troubleshooting
 
 **The `eip6963:announceProvider` event never fires.**
-Confirm `initializeLedgerProvider` ran in the browser before dispatching `eip6963:requestProvider`, that you passed `createEvmBlockchainProvider`, and that Ethereum is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no provider is registered — see [Requirements](../requirements).
+Confirm `initializeLedgerProvider` ran in the browser before dispatching `eip6963:requestProvider`, that you passed `evmBlockchainProviderFactory`, and that Ethereum is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no provider is registered — see [Requirements](../requirements).
 
 **`request()` rejects with error code `4100` ("Unauthorized").**
 Call `eth_requestAccounts` first, or the user disconnected. Request accounts again to reopen the Ledger UI.
@@ -167,7 +183,7 @@ Blocking requests (connect / sign) are handled one at a time. Wait for the curre
 
 ## See also
 
-- [Get started](../get-started) — install family packages and pass `blockchainProviderFactories`
+- [Get started](../get-started/v1) — install the SDK and initialize Ledger Wallet Provider (v1, EVM built-in)
 - [Solana](./solana) — Wallet Standard connect and signing
 - [Configuration](../configuration) — init options
 - [API reference](../api-reference) — full EIP-1193 methods, events, and errors

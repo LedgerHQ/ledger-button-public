@@ -3,17 +3,18 @@ title: Solana with Wallet Standard
 category: how-to
 ---
 
-import { Callout, Steps } from 'nextra/components'
+import { Callout, Steps } from "nextra/components";
 
 # Solana with Wallet Standard
+
+<Callout type="warning">
+  **v2 is coming soon.** This page documents the upcoming multi-blockain support
+  API. For the current stable release, see [v1](../get-started/v1).
+</Callout>
 
 This guide shows how to connect to Ledger Wallet Provider from a Solana dApp and sign messages or transactions through the [Wallet Standard](https://github.com/wallet-standard/wallet-standard).
 
 Ledger Wallet Provider registers a Solana Wallet Standard wallet when you call `initializeLedgerProvider` with the Solana factory **and** Solana is enabled in your partner dApp configuration (`dAppIdentifier`).
-
-<Callout type="info">
-  Complete [Get started](../get-started) first so `initializeLedgerProvider` runs in the browser (use a dynamic import in SSR frameworks). Install `@ledgerhq/ledger-wallet-provider-solana`, pass `createSolanaBlockchainProvider`, and confirm with Ledger that Solana is enabled for your dApp. Then follow this page for Wallet Standard discovery and signing.
-</Callout>
 
 ## Prerequisites
 
@@ -21,19 +22,17 @@ Ledger Wallet Provider registers a Solana Wallet Standard wallet when you call `
 npm install @ledgerhq/ledger-wallet-provider @ledgerhq/ledger-wallet-provider-solana
 ```
 
-Initialize once at application startup (see [Get started](../get-started) and [Configuration](../configuration)):
+Initialize once at application startup (see [Get started](../get-started/v2) and [Configuration](../configuration)):
 
 ```ts
 import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
-import { createSolanaBlockchainProvider } from '@ledgerhq/ledger-wallet-provider-solana'
+import { solanaBlockchainProviderFactory } from '@ledgerhq/ledger-wallet-provider-solana'
 import '@ledgerhq/ledger-wallet-provider/styles.css'
 
 const cleanup = initializeLedgerProvider({
   dAppIdentifier: 'my-dapp',
   apiKey: 'your-api-key',
-  blockchainProviderFactories: [
-    { family: 'solana', create: createSolanaBlockchainProvider },
-  ],
+  blockchainProviderFactories: [solanaBlockchainProviderFactory],
 })
 
 // Call cleanup() when your app unmounts to unregister the Solana wallet too.
@@ -53,17 +52,26 @@ Libraries such as `@solana/wallet-adapter` also discover Wallet Standard wallets
 
 After connection, the Ledger Solana wallet exposes:
 
-| Feature | Purpose |
-|---------|---------|
-| `standard:connect` / `standard:disconnect` | Connect and disconnect accounts |
-| `standard:events` | Listen for account / feature changes |
-| `solana:signMessage` | Sign an off-chain message (ed25519) |
-| `solana:signTransaction` | Sign a serialized transaction without broadcasting |
-| `solana:signAndSendTransaction` | Sign and submit a transaction |
+| Feature                                    | Purpose                                            |
+| ------------------------------------------ | -------------------------------------------------- |
+| `standard:connect` / `standard:disconnect` | Connect and disconnect accounts                    |
+| `standard:events`                          | Listen for account / feature changes               |
+| `solana:signMessage`                       | Sign an off-chain message (ed25519)                |
+| `solana:signTransaction`                   | Sign a serialized transaction without broadcasting |
+| `solana:signAndSendTransaction`            | Sign and submit a transaction                      |
 
 Supported transaction versions: `legacy` and `0` (versioned).
 
 ## Discover and connect
+
+Unlike EVM, there is no discovery event to dispatch: the Ledger wallet announces itself through the Wallet Standard as soon as `initializeLedgerProvider` runs. You only need to list the registered wallets.
+
+<Callout type="warning">
+  Never dispatch `wallet-standard:app-ready` yourself. That event carries the
+  app's `register` callback in its `detail`, so emitting a bare event throws
+  inside every listening wallet. Let `getWallets()` or your wallet adapter emit
+  it for you.
+</Callout>
 
 List Wallet Standard wallets and connect to Ledger:
 
@@ -94,10 +102,6 @@ const account = accounts[0]
 ```
 
 With React, `@solana/react` / `@wallet-standard/react` helpers (`useConnect`, `useSelectedWalletAccount`, …) wrap the same Wallet Standard APIs.
-
-<Callout type="info">
-  **Registration:** A family is registered only when you pass its factory **and** it is enabled in your dApp config. Solana factory + Solana enabled → Wallet Standard. EVM factory + Ethereum enabled → EIP-6963 / EIP-1193. Both → both surfaces from the same `initializeLedgerProvider` call. Account pickers are filtered by the requesting family (Solana connect only lists Solana-compatible accounts).
-</Callout>
 
 ## Sign a message
 
@@ -184,7 +188,7 @@ cleanup()
 ## Troubleshooting
 
 **Ledger does not appear in the wallet list.**
-Confirm `initializeLedgerProvider` ran in the browser before you query wallets, that you passed `createSolanaBlockchainProvider`, and that Solana is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no Solana wallet is registered — see [Requirements](../requirements).
+Confirm `initializeLedgerProvider` ran in the browser before you query wallets, that you passed `solanaBlockchainProviderFactory`, and that Solana is enabled for your `dAppIdentifier`. On unsupported platforms (no Web HID / Web Bluetooth), initialization is a no-op and no Solana wallet is registered — see [Requirements](../requirements).
 
 **Connect returns no accounts.**
 The user cancelled the flow, or no Solana account is available on the device for the requested cluster. Retry `standard:connect` after the user finishes onboarding in the Ledger UI.
@@ -194,7 +198,7 @@ Blocking requests (connect / sign) are handled one at a time. Wait for the curre
 
 ## See also
 
-- [Get started](../get-started) — install family packages and pass `blockchainProviderFactories`
+- [Get started](../get-started/v2) — install family packages and pass `blockchainProviderFactories`
 - [EVM](./evm) — EIP-6963 discovery and EIP-1193 signing
 - [Configuration](../configuration) — init options, including `blockchainProviderFactories`
 - [API reference](../api-reference) — `initializeLedgerProvider` and EVM EIP-1193 surface
