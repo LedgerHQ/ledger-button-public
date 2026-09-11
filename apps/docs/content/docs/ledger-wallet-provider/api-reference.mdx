@@ -7,7 +7,7 @@ import { Callout } from "nextra/components";
 
 # API reference
 
-This page describes the public API of Ledger Wallet Provider: `initializeLedgerProvider` from `@ledgerhq/ledger-wallet-provider`, and `LedgerEIP1193Provider` (see [import path](#ledgereip1193provider)).
+This page describes the public API of Ledger Wallet Provider: `initializeLedgerProvider` from `@ledgerhq/ledger-wallet-provider`.
 
 ---
 
@@ -62,26 +62,6 @@ cleanup()
   `initializeLedgerProvider` returns a no-op function without registering the
   provider or mounting any UI. See [Requirements](./requirements).
 </Callout>
-
----
-
-## `LedgerEIP1193Provider`
-
-Implements the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) Ethereum Provider JavaScript API for Ledger hardware signers.
-
-The class is exported so you can type the object you receive — it is not meant to be instantiated directly. Import it as a type from:
-
-- v1 -> `@ledgerhq/ledger-wallet-provider`
-- v2 -> `@ledgerhq/ledger-wallet-provider-evm`.
-
-`initializeLedgerProvider` builds the instance for you and announces it through the `eip6963:announceProvider` event (see [EVM](./blockchains/evm)):
-
-```ts
-window.addEventListener('eip6963:announceProvider', (event: CustomEvent) => {
-  const { provider } = event.detail // LedgerEIP1193Provider
-})
-window.dispatchEvent(new Event('eip6963:requestProvider'))
-```
 
 ### Methods
 
