@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory";
+import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { Account } from "@api/model/Account";
 import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
@@ -97,7 +97,7 @@ describe("DefaultBlockchainProviderManager", () => {
   let dappConfig: DAppConfig;
   let evmCreate: ReturnType<typeof vi.fn>;
   let solanaCreate: ReturnType<typeof vi.fn>;
-  let factories: BlockchainProviderFactoryRegistration[];
+  let factories: BlockchainProviderFactory[];
   let evmProvider: ReturnType<typeof createMockProvider>;
   let solanaProvider: ReturnType<typeof createMockProvider>;
 
@@ -114,37 +114,33 @@ describe("DefaultBlockchainProviderManager", () => {
     solanaProvider = createMockProvider("solana");
     evmCreate = vi.fn().mockReturnValue(evmProvider);
     solanaCreate = vi.fn().mockReturnValue(solanaProvider);
-    factories = [
-      { family: "ethereum", create: evmCreate },
-      { family: "solana", create: solanaCreate },
-    ];
+    factories = [evmCreate, solanaCreate];
   });
 
   describe("init()", () => {
-    it("creates providers with core and the per-family config slice", () => {
+    it("calls each factory with core and the full blockchain configs array", () => {
       manager.init(core, dappConfig, factories);
 
-      expect(evmCreate).toHaveBeenCalledWith(core, evmConfig);
-      expect(solanaCreate).toHaveBeenCalledWith(core, solanaConfig);
+      const expectedBlockchains: BlockchainConfig[] = [evmConfig, solanaConfig];
+      expect(evmCreate).toHaveBeenCalledWith(core, expectedBlockchains);
+      expect(solanaCreate).toHaveBeenCalledWith(core, expectedBlockchains);
     });
 
-    it("calls injectWalletProviders on each provider", () => {
+    it("calls injectWalletProviders on each registered provider", () => {
       manager.init(core, dappConfig, factories);
 
       expect(evmProvider.injectWalletProviders).toHaveBeenCalledOnce();
       expect(solanaProvider.injectWalletProviders).toHaveBeenCalledOnce();
     });
 
-    it("skips factories whose family has no dApp config", () => {
-      dappConfig = {
-        ...createMockDAppConfig(),
-        blockchains: [evmConfig],
-      } as DAppConfig;
+    it("skips factories that return undefined", () => {
+      solanaCreate = vi.fn().mockReturnValue(undefined);
+      factories = [evmCreate, solanaCreate];
 
       manager.init(core, dappConfig, factories);
 
-      expect(evmCreate).toHaveBeenCalledOnce();
-      expect(solanaCreate).not.toHaveBeenCalled();
+      expect(evmProvider.injectWalletProviders).toHaveBeenCalledOnce();
+      expect(solanaProvider.injectWalletProviders).not.toHaveBeenCalled();
     });
 
     it("pushes initial context to providers after wiring", () => {

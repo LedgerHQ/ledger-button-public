@@ -1,9 +1,10 @@
 import type { BlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
-import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainProvider } from "@ledgerhq/ledger-wallet-provider-core";
+import type { BlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-core";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { CurrencyDescriptor } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
+import { findBlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import { Container } from "inversify";
 
 import { solanaProviderModule } from "./di/solanaProviderModule";
@@ -26,8 +27,8 @@ import { SolanaWalletProvider } from "./SolanaWalletProvider";
  * then wires the Solana sign-flow collaborators on top of them, mirroring
  * {@link EvmBlockchainProvider}.
  */
-export class SolanaBlockchainProvider implements BlockchainProvider {
-  public readonly family: BlockchainFamily = SOLANA_FAMILY;
+export class SolanaBlockchainProvider implements BlockchainProvider<typeof SOLANA_FAMILY> {
+  public readonly family = SOLANA_FAMILY;
 
   private readonly container: Container;
   private wallet?: LedgerSolanaWallet;
@@ -80,3 +81,21 @@ export class SolanaBlockchainProvider implements BlockchainProvider {
     return describeSolanaNetwork(networkId);
   }
 }
+
+/**
+ * Pre-built factory for Solana. Pass directly into
+ * `blockchainProviderFactories` on {@link LedgerButtonCore} options.
+ *
+ * @example
+ * ```ts
+ * initializeLedgerProvider({
+ *   blockchainProviderFactories: [solanaBlockchainProviderFactory],
+ * });
+ * ```
+ */
+export const solanaBlockchainProviderFactory: BlockchainProviderFactory<typeof SOLANA_FAMILY> =
+  (core: CoreFacade, blockchains: BlockchainConfig[]) => {
+    const config = findBlockchainConfig(blockchains, SOLANA_FAMILY);
+    if (!config) return undefined;
+    return new SolanaBlockchainProvider(core, config);
+  };

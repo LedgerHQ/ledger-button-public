@@ -5,7 +5,7 @@ import type {
 
 export const EVM_NATIVE_DECIMALS = 18;
 
-export const EVM_FAMILY: BlockchainFamily = "ethereum";
+export const EVM_FAMILY = "ethereum" satisfies BlockchainFamily;
 
 export function getChainIdFromCurrencyId(currencyId: string): number {
   return EVM_MAPPING_TABLE[currencyId] ?? 1;

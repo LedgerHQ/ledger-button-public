@@ -2,7 +2,7 @@ import { type Factory, inject, injectable } from "inversify";
 import { Maybe } from "purify-ts";
 
 import type { BlockchainProvider } from "@api/blockchain-provider/model/BlockchainProvider";
-import type { BlockchainProviderFactoryRegistration } from "@api/blockchain-provider/model/BlockchainProviderFactory";
+import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
@@ -23,9 +23,7 @@ import type { BlockchainProviderManager } from "./BlockchainProviderManager";
  * factories to instantiate providers, inject them, and subscribe to context.
  */
 @injectable()
-export class DefaultBlockchainProviderManager
-  implements BlockchainProviderManager
-{
+export class DefaultBlockchainProviderManager implements BlockchainProviderManager {
   private readonly logger: LoggerPublisher;
   private readonly providers = new Map<BlockchainFamily, BlockchainProvider>();
 
@@ -41,22 +39,16 @@ export class DefaultBlockchainProviderManager
   init(
     coreFacade: CoreFacade,
     dappConfig: DAppConfig,
-    factories: BlockchainProviderFactoryRegistration[],
+    factories: BlockchainProviderFactory[],
   ): void {
-    const providers: BlockchainProvider[] = [];
+    const providerDAppConfig: BlockchainConfig[] = dappConfig.blockchains ?? [];
 
-    for (const { family, create } of factories) {
-      const config = this.getBlockchainConfig(dappConfig, family);
-      if (!config) {
-        this.logger.debug("Skipping provider: no dApp config for family", {
-          family,
-        });
+    for (const factory of factories) {
+      const provider = factory(coreFacade, providerDAppConfig);
+      if (!provider) {
+        this.logger.debug("Skipping provider: no dApp config for family");
         continue;
       }
-      providers.push(create(coreFacade, config));
-    }
-
-    for (const provider of providers) {
       this.logger.debug("Registering provider", { family: provider.family });
       this.providers.set(provider.family, provider);
       provider.injectWalletProviders();
@@ -65,16 +57,6 @@ export class DefaultBlockchainProviderManager
       this.setSelectedAccounts(context.selectedAccounts);
       this.setNetwork(context.chainId);
     });
-  }
-
-  /** Per-family slice of the dApp config handed to a single provider module. */
-  private getBlockchainConfig(
-    dappConfig: DAppConfig,
-    family: BlockchainFamily,
-  ): BlockchainConfig | undefined {
-    return dappConfig.blockchains?.find(
-      (blockchain) => blockchain.blockchain === family,
-    );
   }
 
   setSelectedAccounts(accounts: Map<BlockchainFamily, Account>): void {

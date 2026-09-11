@@ -1,7 +1,7 @@
 import { type DmkConfig } from "@ledgerhq/device-management-kit";
 
 import { LogLevelKey } from "./logger/model/constant";
-import type { BlockchainProviderFactoryRegistration } from "../api/blockchain-provider/model/BlockchainProviderFactory";
+import type { BlockchainProviderFactory } from "../api/blockchain-provider/model/BlockchainProviderFactory";
 
 export type DeviceModuleOptions = Partial<DmkConfig>;
 
@@ -16,7 +16,7 @@ export type ContainerOptions = {
    * Host-supplied factories that create blockchain providers. Required for any
    * family to load; core never imports family packages.
    */
-  blockchainProviderFactories?: BlockchainProviderFactoryRegistration[];
+  blockchainProviderFactories?: BlockchainProviderFactory[];
   devConfig?: {
     stub: Partial<{
       balance: boolean;
