@@ -23,7 +23,7 @@ const SOLANA_BACKEND_CHAIN_IDS: Partial<Record<SolanaCluster, string>> = {
 
 export const SOLANA_NATIVE_DECIMALS = 9;
 
-export const SOLANA_FAMILY: BlockchainFamily = "solana";
+export const SOLANA_FAMILY = "solana" satisfies BlockchainFamily;
 
 export function getClusterFromCurrencyId(currencyId: string): SolanaCluster {
   return SOLANA_MAPPING_TABLE[currencyId] ?? DEFAULT_SOLANA_CLUSTER;

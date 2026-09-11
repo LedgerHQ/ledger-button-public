@@ -1,9 +1,10 @@
 import type { BlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
-import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainProvider } from "@ledgerhq/ledger-wallet-provider-core";
+import type { BlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-core";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { CurrencyDescriptor } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
+import { findBlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import { Container } from "inversify";
 
 import { evmProviderModule } from "./di/evmProviderModule";
@@ -28,8 +29,8 @@ import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
  * then wires every EVM sign-flow collaborator on top of them. Nothing outside
  * this package is required, which keeps the module a candidate for extraction.
  */
-export class EvmBlockchainProvider implements BlockchainProvider {
-  public readonly family: BlockchainFamily = EVM_FAMILY;
+export class EvmBlockchainProvider implements BlockchainProvider<typeof EVM_FAMILY> {
+  public readonly family = EVM_FAMILY;
 
   private readonly container: Container;
   private eip1193Provider?: LedgerEIP1193Provider;
@@ -92,3 +93,21 @@ export class EvmBlockchainProvider implements BlockchainProvider {
     return describeEvmNetwork(networkId);
   }
 }
+
+/**
+ * Pre-built factory for EVM. Pass directly into
+ * `blockchainProviderFactories` on {@link LedgerButtonCore} options.
+ *
+ * @example
+ * ```ts
+ * initializeLedgerProvider({
+ *   blockchainProviderFactories: [evmBlockchainProviderFactory],
+ * });
+ * ```
+ */
+export const evmBlockchainProviderFactory: BlockchainProviderFactory<typeof EVM_FAMILY> =
+  (core: CoreFacade, blockchains: BlockchainConfig[]) => {
+    const config = findBlockchainConfig(blockchains, EVM_FAMILY);
+    if (!config) return undefined;
+    return new EvmBlockchainProvider(core, config);
+  };

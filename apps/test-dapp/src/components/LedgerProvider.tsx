@@ -14,8 +14,8 @@ import {
   useState,
 } from "react";
 import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider-evm";
-import { createEvmBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-evm";
-import { createSolanaBlockchainProvider } from "@ledgerhq/ledger-wallet-provider-solana";
+import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
+import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
 
 let LedgerButtonModule:
   | typeof import("@ledgerhq/ledger-wallet-provider")
@@ -154,8 +154,8 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         transactionConfirmationNotification:
           configToUse.transactionConfirmationNotification,
         blockchainProviderFactories: [
-          { family: "ethereum", create: createEvmBlockchainProvider },
-          { family: "solana", create: createSolanaBlockchainProvider },
+          evmBlockchainProviderFactory,
+          solanaBlockchainProviderFactory,
         ],
         devConfig: disableEventTracking
           ? {
