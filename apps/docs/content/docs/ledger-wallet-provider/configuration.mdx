@@ -86,12 +86,6 @@ This page describes all available configuration options for `initializeLedgerPro
   floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
   walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
   transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
-
-  // Dev/debug - Intended for Ledger use only. Do not override, please keep the default values
-  environment?: 'staging' | 'production';             // Target Ledger backend environment
-  dmkConfig?: DeviceModuleOptions;                    // Override Device Management Kit endpoints
-  dmkLogLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'error'
-  devConfig?: {};                                     // Local stub modes
 }
 ```
 
@@ -231,22 +225,6 @@ initializeLedgerProvider({
   // ...
 });
 ```
-
-### `environment` <DevBadge />
-
-Target Ledger backend environment.
-
-### `dmkConfig` <DevBadge />
-
-Advanced escape hatch for overriding the underlying [Device Management Kit](https://github.com/LedgerHQ/device-sdk-ts) configuration — API base URLs, WebSocket endpoint, provider, etc. Leave unset unless Ledger has explicitly instructed you to override a specific field.
-
-### `dmkLogLevel` <DevBadge />
-
-Log verbosity of the underlying Device Management Kit, independent of `loggerLevel`. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`. Default is `'error'`, so device-level logs stay quiet unless you opt in.
-
-### `devConfig.stub` <DevBadge />
-
-Toggles local stub modes so you can simulate accounts, balances, devices, and Web3 flows during development without a physical signer.
 
 ## Return value
 

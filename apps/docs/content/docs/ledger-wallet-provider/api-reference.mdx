@@ -37,12 +37,6 @@ type InitializeLedgerProviderOptions = {
   floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
   walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
   transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
-
-  // Dev/debug - Intended for Ledger use only. Do not override, please keep the default values
-  environment?: 'staging' | 'production';             // Target Ledger backend environment
-  dmkConfig?: DeviceModuleOptions;                    // Override Device Management Kit endpoints
-  dmkLogLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'error'
-  devConfig?: {};                                     // Local stub modes
 };
 ```
 
