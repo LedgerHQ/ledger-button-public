@@ -162,7 +162,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       const result = await useCase.execute(mockAccount);
 
       expect(result.balance).toBe("1.5");
-      expect(result.balanceUnavailable).toBe(false);
+      expect(result.balanceError).toBe(false);
       expect(result.tokens).toHaveLength(2);
       expect(result.tokens[0]).toEqual({
         ledgerId: "ethereum/erc20/usdc",
@@ -254,7 +254,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       const result = await useCase.execute(mockAccount);
 
       expect(result.balance).toBeUndefined();
-      expect(result.balanceUnavailable).toBe(true);
+      expect(result.balanceError).toBe(true);
       expect(result.tokens).toHaveLength(0);
     });
 

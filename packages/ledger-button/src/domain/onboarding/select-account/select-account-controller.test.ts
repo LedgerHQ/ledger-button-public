@@ -209,14 +209,14 @@ describe("SelectAccountController loading state", () => {
     expect(controller.isBalanceLoading).toBe(false);
   });
 
-  it("does not report loading when balance is unavailable after hydration", () => {
+  it("does not report loading when balance hydration failed", () => {
     const { controller } = createController();
     controller.groups = [
       createGroup([
         createAccount({
           balance: undefined,
-          balanceUnavailable: true,
-          balanceLoadingState: "loaded",
+          balanceError: true,
+          balanceLoadingState: "error",
         }),
       ]),
     ];

@@ -132,20 +132,20 @@ describe("HydrateAccountWithFiatUseCase", () => {
       });
     });
 
-    describe("when native balance is unavailable", () => {
+    describe("when native balance hydration fails", () => {
       it("should skip countervalues and leave fiat empty", async () => {
-        const unavailableAccount: Account = {
+        const accountWithBalanceError: Account = {
           ...accountWithoutBalance,
-          balanceUnavailable: true,
+          balanceError: true,
         };
 
-        const result = await useCase.execute(unavailableAccount);
+        const result = await useCase.execute(accountWithBalanceError);
 
         expect(result).toEqual({
-          ...unavailableAccount,
+          ...accountWithBalanceError,
           fiatBalance: undefined,
           fiatError: false,
-          balanceLoadingState: "loaded",
+          balanceLoadingState: "error",
           fiatLoadingState: "loaded",
         });
         expect(

@@ -73,13 +73,10 @@ export class HydrateAccountWithBalanceUseCase {
       tokenCount: tokens.length,
     });
 
-    return { ...account, balance, tokens, balanceUnavailable: false };
+    return { ...account, balance, tokens, balanceError: false };
   }
 
-  private handleBalanceServiceFailure(
-    account: Account,
-    error: Error,
-  ): Account {
+  private handleBalanceServiceFailure(account: Account, error: Error): Account {
     this.logger.warn(
       "Failed to fetch balance from balance service (CoinService)",
       {
@@ -92,7 +89,7 @@ export class HydrateAccountWithBalanceUseCase {
       ...account,
       balance: undefined,
       tokens: [],
-      balanceUnavailable: true,
+      balanceError: true,
     };
   }
 

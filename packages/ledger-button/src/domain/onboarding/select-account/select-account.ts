@@ -86,7 +86,11 @@ export class SelectAccountScreen extends LitElement {
           <span class="body-2-semi-bold truncate text-base"
             >${account.name}</span
           >
-          ${this.renderAccountCardTokenInfo(account, isBalanceLoading)}
+          ${this.renderAccountCardTokenInfo(
+            account,
+            isBalanceLoading,
+            isBalanceError,
+          )}
         </div>
         <div class="flex shrink-0 flex-col items-end gap-4">
           ${this.renderAccountCardBalance({
@@ -104,11 +108,16 @@ export class SelectAccountScreen extends LitElement {
   private renderAccountCardTokenInfo(
     account: AccountListItem,
     isBalanceLoading: boolean,
+    isBalanceError: boolean,
   ) {
     if (isBalanceLoading) {
       return html`<ledger-skeleton
         class="h-12 w-80 rounded-full"
       ></ledger-skeleton>`;
+    }
+
+    if (isBalanceError) {
+      return html`<span class="text-muted body-3">--</span>`;
     }
 
     const displayTokens = account.displayTokens;

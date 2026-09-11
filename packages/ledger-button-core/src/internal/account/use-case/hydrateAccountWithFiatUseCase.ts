@@ -36,7 +36,7 @@ export class HydrateAccountWithFiatUseCase {
     const currency = this.contextService.getContext().preferredFiatCurrency;
     this.logHydrationStart(account);
 
-    if (account.balanceUnavailable) {
+    if (account.balanceError) {
       return enrichWithLoadingStates({
         ...account,
         fiatBalance: undefined,
