@@ -6,6 +6,7 @@ import type { CurrencyDescriptor } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import { findBlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import { Container } from "inversify";
+import { Left, Right } from "purify-ts";
 
 import { solanaProviderModule } from "./di/solanaProviderModule";
 import { solanaProviderModuleTypes } from "./di/solanaProviderModuleTypes";
@@ -27,7 +28,9 @@ import { SolanaWalletProvider } from "./SolanaWalletProvider";
  * then wires the Solana sign-flow collaborators on top of them, mirroring
  * {@link EvmBlockchainProvider}.
  */
-export class SolanaBlockchainProvider implements BlockchainProvider<typeof SOLANA_FAMILY> {
+export class SolanaBlockchainProvider implements BlockchainProvider<
+  typeof SOLANA_FAMILY
+> {
   public readonly family = SOLANA_FAMILY;
 
   private readonly container: Container;
@@ -93,9 +96,10 @@ export class SolanaBlockchainProvider implements BlockchainProvider<typeof SOLAN
  * });
  * ```
  */
-export const solanaBlockchainProviderFactory: BlockchainProviderFactory<typeof SOLANA_FAMILY> =
-  (core: CoreFacade, blockchains: BlockchainConfig[]) => {
-    const config = findBlockchainConfig(blockchains, SOLANA_FAMILY);
-    if (!config) return undefined;
-    return new SolanaBlockchainProvider(core, config);
-  };
+export const solanaBlockchainProviderFactory: BlockchainProviderFactory<
+  typeof SOLANA_FAMILY
+> = (core: CoreFacade, blockchains: BlockchainConfig[]) => {
+  const config = findBlockchainConfig(blockchains, SOLANA_FAMILY);
+  if (!config) return Left(SOLANA_FAMILY);
+  return Right(new SolanaBlockchainProvider(core, config));
+};

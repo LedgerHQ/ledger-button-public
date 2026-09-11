@@ -44,14 +44,17 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     const blockchainsConfig: BlockchainConfig[] = dappConfig.blockchains ?? [];
 
     for (const factory of factories) {
-      const provider = factory(coreFacade, blockchainsConfig);
-      if (!provider) {
-        this.logger.debug("Skipping provider: no dApp config for family");
-        continue;
-      }
-      this.logger.debug("Registering provider", { family: provider.family });
-      this.providers.set(provider.family, provider);
-      provider.injectWalletProviders();
+      factory(coreFacade, blockchainsConfig).caseOf({
+        Left: (family) =>
+          this.logger.debug("Skipping provider: no dApp config for family", {
+            family,
+          }),
+        Right: (provider) => {
+          this.logger.debug("Registering provider", { family: provider.family });
+          this.providers.set(provider.family, provider);
+          provider.injectWalletProviders();
+        },
+      });
     }
     this.contextService.observeContext().subscribe((context) => {
       this.setSelectedAccounts(context.selectedAccounts);
