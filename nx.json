@@ -175,6 +175,9 @@
           "@ledgerhq/ledger-wallet-provider-solana"
         ],
         "projectsRelationship": "independent",
+        "version": {
+          "adjustSemverBumpsForZeroMajorVersion": false
+        },
         "releaseTag": {
           "pattern": "{projectName}@{version}"
         }

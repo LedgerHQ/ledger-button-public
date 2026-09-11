@@ -1,3 +1,69 @@
+## 2.0.0-rc.0 (2026-09-11)
+
+### 🚀 Features
+
+- Fetch dApp config from the API. ([bd598731](https://github.com/LedgerHQ/ledger-button/commit/bd598731))
+- Update CAL call for SPL tokens ([6d419c6d](https://github.com/LedgerHQ/ledger-button/commit/6d419c6d))
+- Handle wallet multi-chain disconnect ([973f45d5](https://github.com/LedgerHQ/ledger-button/commit/973f45d5))
+- Route Solana broadcast through the button backend. ([aa17dfca](https://github.com/LedgerHQ/ledger-button/commit/aa17dfca))
+- Fix account selection not working after disconnection ([7dbfed71](https://github.com/LedgerHQ/ledger-button/commit/7dbfed71))
+- Add configurable DMK log level. ([0ec1bc05](https://github.com/LedgerHQ/ledger-button/commit/0ec1bc05))
+- Enhance Network selection screen ([f53a6e95](https://github.com/LedgerHQ/ledger-button/commit/f53a6e95))
+- Port currency capability onto blockchain providers. The public `formatBalance` helper now takes `(rawBalance, decimals, ticker, options?)` — `decimals` is required and the `currencyId` argument is gone, since callers resolve decimals through CAL and the provider that owns the currency. The public `BlockchainProvider` interface now exposes a single `describeCurrency(currencyId)` / `describeNetwork(networkId)` pair returning a `CurrencyDescriptor` (`currencyId`, `family`, `networkId`, `nativeDecimals`), replacing `isSupportedCurrency`, `getNativeDecimals`, `resolveNetwork` and `resolveCurrencyId`. ([629526c7](https://github.com/LedgerHQ/ledger-button/commit/629526c7))
+- Move sign-flow derivations from the UI into core. `WalletNavigationIntent` is now discriminated on `name` and its `signTransaction` variant carries an explicit `SignIntentParams` descriptor (`family`, `type`, `broadcast`) instead of an `unknown` payload. Core also exposes `observeBroadcastedTransaction(hash)`, which owns the `processing` -> `validated` lifecycle and resolves the explorer link, so the UI no longer re-derives either. ([1f10a55d](https://github.com/LedgerHQ/ledger-button/commit/1f10a55d))
+
+  BREAKING: `WalletNavigationIntent.params` is no longer `unknown`. Consumers narrowing it to the sign-params types must read the descriptor instead.
+
+- Implement the Wallet Standard `solana:signAndSendTransaction` feature: sign the transaction on the device, broadcast it inside the sign flow so failures surface in the modal and successes are tracked as pending transactions, and return the transaction signature. Solana broadcasts temporarily go through Ledger's public Solana node proxy while the button backend does not support them. Pending transactions, their confirmation polling, the account refresh and the explorer link are now scoped to the family the transaction was signed for instead of the active one. A pending transaction whose amount cannot be read from the signed payload no longer displays a misleading `0` amount. ([07338b4c](https://github.com/LedgerHQ/ledger-button/commit/07338b4c))
+- Propagate Solana account switch to the dApp via a Wallet Standard `change` event ([b8a4d4d2](https://github.com/LedgerHQ/ledger-button/commit/b8a4d4d2))
+- Add Solana transaction signing: a composite `SignSolanaTransactionFlowDeviceAction` (open app, get address, verify base58 address, sign) wired through a new `SignSolanaTransaction` use-case and a per-provider Inversify container, exposed via `LedgerSolanaWallet`'s `solana:signTransaction` Wallet Standard method. ([2b08735f](https://github.com/LedgerHQ/ledger-button/commit/2b08735f))
+
+### 🩹 Fixes
+
+- Bump Zod catalog to 4.5.4 and drop the 4.4+ override. ([f9337d7e](https://github.com/LedgerHQ/ledger-button/commit/f9337d7e))
+- Bump catalog patches: ethers 6.17, lit 3.3.3, @floating-ui/dom 1.8, and related lint/test tooling. Leave fake-indexeddb on 6.0.x (6.2 hangs IndexedDB tests). ([54c8599c](https://github.com/LedgerHQ/ledger-button/commit/54c8599c))
+- Bump `@ledgerhq/device-management-kit` to 1.9.0 and `@ledgerhq/device-signer-kit-ethereum` to 1.18.0. ([765a4bca](https://github.com/LedgerHQ/ledger-button/commit/765a4bca))
+- Upgrade TypeScript to 6.0.3 ([f0ad775a](https://github.com/LedgerHQ/ledger-button/commit/f0ad775a))
+- Bump Lumen design packages and Tailwind CSS to 4.3.3. ([2c21b785](https://github.com/LedgerHQ/ledger-button/commit/2c21b785))
+- Bump Device Management Kit stack to latest stable releases (DMK 1.8.0, context-module 2.5.0, ethereum signer 1.17.0). ([7de16c54](https://github.com/LedgerHQ/ledger-button/commit/7de16c54))
+- Remove the eth_getBalance RPC fallback when CoinService native-balance fetch fails. ([27746883](https://github.com/LedgerHQ/ledger-button/commit/27746883))
+- Keep runtime dependencies external instead of inlining them, so a dApp loads a single copy of the core, the Device Management Kit and RxJS. `rxjs`, `xstate`, `purify-ts` and `@ledgerhq/device-management-kit` are now peer dependencies of the provider packages; npm 7+, pnpm and Yarn Berry install them automatically. ([0e4e5580](https://github.com/LedgerHQ/ledger-button/commit/0e4e5580))
+- Move vitest to devDependencies and exclude mock files from the core library build. ([001e40a8](https://github.com/LedgerHQ/ledger-button/commit/001e40a8))
+- Pin Device Management Kit stack to develop snapshot 0.0.0-develop-20260819092631. ([02d56c9f](https://github.com/LedgerHQ/ledger-button/commit/02d56c9f))
+- Omit the `.js` extension on relative and aliased imports. The workspace uses `moduleResolution: bundler`. Real package subpaths such as `lit/decorators.js` are unchanged. ([dfdce6c1](https://github.com/LedgerHQ/ledger-button/commit/dfdce6c1))
+- Replace deep relative imports with the `@api/*`, `@internal/*` and `@schemas/*` path aliases. The public API is unchanged: the build rewrites the aliases back to relative paths, and only the ordering of statements inside the bundle and the declarations shifts, as it follows import order. ([b58050a8](https://github.com/LedgerHQ/ledger-button/commit/b58050a8))
+- Move Account and TransactionHistory types into api/model ([bd1bce50](https://github.com/LedgerHQ/ledger-button/commit/bd1bce50))
+- Align feature folders with Wallet Experience conventions: rename `usecase`/`usecases` to `use-case`, flatten nested `MigrateDbUseCase`, and move consent into `service/` + `di/`. ([a0b9fdcb](https://github.com/LedgerHQ/ledger-button/commit/a0b9fdcb))
+- Move remaining Inversify `*Module` / `*ModuleTypes` files into per-feature `di/` folders to align with Wallet Experience project structure conventions. ([0ebc1029](https://github.com/LedgerHQ/ledger-button/commit/0ebc1029))
+- Flatten `ledger-solana-wallet` into `solana-provider` and move Inversify wiring into `di/` to align with Wallet Experience project structure conventions. ([a778ebbd](https://github.com/LedgerHQ/ledger-button/commit/a778ebbd))
+- Flatten `ledger-eip1193` into `evm-provider` and move Inversify wiring into `di/` to align with Wallet Experience project structure conventions. ([b321306f](https://github.com/LedgerHQ/ledger-button/commit/b321306f))
+- Allow a per-dependency `minVersion` in `BlockchainConfig`: `BlockchainAppDependencies.dependencies` is now `BlockchainAppDependency[]` (`{ name, minVersion? }`) instead of `string[]` with a single top-level `minVersion` shared across all dependencies. ([b10cb20a](https://github.com/LedgerHQ/ledger-button/commit/b10cb20a))
+- Move account list derivation into the core: new `observeAccountGroups()` stream emits accounts already grouped by address, sorted and filtered by search, with their total fiat value and display tokens computed, and new `observeNetworksForSelectedAddress()` / `selectAccountForNetwork()` expose the network breakdown consumers used to rebuild themselves. ([109091c4](https://github.com/LedgerHQ/ledger-button/commit/109091c4))
+- Remove internal ticket references and obsolete scope comments from source files. ([4906cba0](https://github.com/LedgerHQ/ledger-button/commit/4906cba0))
+- Remove dApp config v1, migrate consumers to v2 ([b0eed397](https://github.com/LedgerHQ/ledger-button/commit/b0eed397))
+
+### ⚠️  Breaking Changes
+
+- Extract EVM and Solana into provider packages with host-wired factories. ([e5a43e11](https://github.com/LedgerHQ/ledger-button/commit/e5a43e11))
+- Move the EVM get-address model and the EIP-1193 / EIP-6963 contracts from core to the EVM provider package, and stop re-exporting the EIP contracts from `@ledgerhq/ledger-wallet-provider`. Import them from `@ledgerhq/ledger-wallet-provider-evm` instead. ([7bdfea4a](https://github.com/LedgerHQ/ledger-button/commit/7bdfea4a))
+
+  The `method` field of `SignTransactionParams` and `SignRawTransactionParams` is now typed as `string` in core, since the `RpcMethods` union it used to reference is owned by the EVM provider.
+
+- Move the Solana cluster and JSON-RPC contracts from core to `@ledgerhq/ledger-wallet-provider-solana`. Import `SolanaCluster`, `SolanaJSONRPCRequest`, and related contracts from the Solana provider package instead. ([392ea201](https://github.com/LedgerHQ/ledger-button/commit/392ea201))
+- Move chain-specific signing parameter contracts and guards out of core and into their owning EVM and Solana provider packages. Providers now send chain-neutral broadcast metadata to core for pending-transaction tracking, and core no longer depends on `@ledgerhq/device-signer-kit-ethereum`. ([603848dc](https://github.com/LedgerHQ/ledger-button/commit/603848dc))
+
+  `SignTransactionParams`, `SignRawTransactionParams`, `SignPersonalMessageParams`, `SignTypedMessageParams`, `Transaction` and their guards now come from `@ledgerhq/ledger-wallet-provider-evm`; `SignSolanaTransactionParams`, `SignSolanaMessageParams` and their guards from `@ledgerhq/ledger-wallet-provider-solana`.
+
+- Internalize DAppConfig check into BlockchainProviderFactory ([3e2b40e8](https://github.com/LedgerHQ/ledger-button/commit/3e2b40e8))
+
+### ❤️ Thank You
+
+- Claude Sonnet 5
+- Cursor @cursoragent
+- Mathieu Bertin
+- pdeville-ledger
+- Pierre Vautherin
+
 ## 1.4.2 (2026-08-18)
 
 ### 🩹 Fixes
