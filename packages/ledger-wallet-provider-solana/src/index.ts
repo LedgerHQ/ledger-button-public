@@ -15,7 +15,4 @@ export {
   type SolanaJsonRpcResponseError,
   type SolanaJsonRpcResponseSuccess,
 } from "./model/SolanaTypes";
-export {
-  SolanaBlockchainProvider,
-  solanaBlockchainProviderFactory,
-} from "./SolanaBlockchainProvider";
+export { solanaBlockchainProviderFactory } from "./SolanaBlockchainProvider";
