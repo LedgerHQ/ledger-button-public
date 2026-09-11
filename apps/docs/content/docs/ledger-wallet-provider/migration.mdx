@@ -51,24 +51,6 @@ initializeLedgerProvider({
 
 ---
 
-### `LedgerEIP1193Provider`
-
-`LedgerEIP1193Provider` is the type you apply to the provider object received from the `eip6963:announceProvider` event. Only the import changes in v2:
-
-**Before**
-
-```ts
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider";
-```
-
-**After**
-
-```ts
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
-```
-
----
-
 ## Step-by-step migration
 
 <Steps>
@@ -92,18 +74,6 @@ initializeLedgerProvider({
   // ...existing options...
   blockchainProviderFactories: [evmBlockchainProviderFactory],
 });
-```
-
-### Update `LedgerEIP1193Provider` imports
-
-Search your codebase for `import.*LedgerEIP1193Provider.*ledger-wallet-provider` and change the import source:
-
-```ts
-// Before
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider";
-
-// After
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
 ```
 
 ### Register any other families you support
