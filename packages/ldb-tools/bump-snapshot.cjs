@@ -7,7 +7,7 @@ const GLOB = [
   "!packages/ldb-tools/package.json",
 ];
 
-const SNAPSHOT_TAG_PATTERN = /^[a-zA-Z0-9-]+$/;
+const SNAPSHOT_TAG_PATTERN = /^[a-z]([a-z0-9]|-[a-z0-9])*$/;
 
 /**
  * Get all public packages in the workspace
@@ -46,7 +46,7 @@ async function bumpSnapshot(tag = "develop") {
   try {
     if (!SNAPSHOT_TAG_PATTERN.test(tag) || tag === "latest" || tag === "rc") {
       throw new Error(
-        `Invalid snapshot tag: ${tag}. Use a npm dist-tag such as develop or canary (not latest or rc).`,
+        `Invalid snapshot tag: ${tag}. Use an npm dist-tag such as develop or canary (not latest or rc).`,
       );
     }
 

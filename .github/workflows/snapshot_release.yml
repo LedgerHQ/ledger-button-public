@@ -30,18 +30,20 @@ jobs:
       attestations: write # Needed to attest artifacts
     steps:
       - name: Reject latest, rc, and RC release branches
-        run: |
-          if [ "$TAG" = "latest" ] || [ "$TAG" = "rc" ]; then
-            echo "Snapshot dist-tag cannot be '$TAG' (reserved for stable / RC publishes)."
-            exit 1
-          fi
-          if [[ "$REF" == release/v*-rc.* ]]; then
-            echo "Ref '$REF' looks like an RC release branch. Use the RC publish path, not snapshot."
-            exit 1
-          fi
         env:
           REF: ${{ env.REF }}
           TAG: ${{ env.TAG }}
+        run: |
+          if [[ ! "$TAG" =~ ^[a-z]([a-z0-9]|-[a-z0-9])*$ ]] || [[ "$TAG" == "latest" ]] || [[ "$TAG" == "rc" ]]; then
+            echo "Invalid snapshot dist-tag: '$TAG'. Use develop or canary (not latest or rc)."
+            exit 1
+          fi
+          REF_NAME="${REF#refs/heads/}"
+          REF_NAME="${REF_NAME#refs/tags/}"
+          if [[ "$REF_NAME" == release/v*-rc.* ]]; then
+            echo "Ref '$REF' looks like an RC release branch. Use the RC publish path, not snapshot."
+            exit 1
+          fi
 
       - uses: actions/checkout@v6
         with:
@@ -55,9 +57,10 @@ jobs:
         run: git ls-files | grep 'package\.json$' | xargs sed -i 's/workspace:\^/workspace:*/g'
 
       - name: Bump snapshot versions for all packages
-        run: pnpm nx run ldb-tools:run -- bump-snapshot --tag ${{ env.TAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPSHOT_TAG: ${{ env.TAG }}
+        run: pnpm nx run ldb-tools:run -- bump-snapshot --tag "$SNAPSHOT_TAG"
 
       - name: Canonicalize package.json
         run: pnpm nx run ldb-tools:canonicalize
