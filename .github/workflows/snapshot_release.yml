@@ -29,6 +29,20 @@ jobs:
       id-token: write # OIDC for npmjs attestation and keyless signing
       attestations: write # Needed to attest artifacts
     steps:
+      - name: Reject latest, rc, and RC release branches
+        run: |
+          if [ "$TAG" = "latest" ] || [ "$TAG" = "rc" ]; then
+            echo "Snapshot dist-tag cannot be '$TAG' (reserved for stable / RC publishes)."
+            exit 1
+          fi
+          if [[ "$REF" == release/v*-rc.* ]]; then
+            echo "Ref '$REF' looks like an RC release branch. Use the RC publish path, not snapshot."
+            exit 1
+          fi
+        env:
+          REF: ${{ env.REF }}
+          TAG: ${{ env.TAG }}
+
       - uses: actions/checkout@v6
         with:
           ref: ${{ env.REF }}
