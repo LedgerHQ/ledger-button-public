@@ -7,7 +7,10 @@ import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
-import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
+import type {
+  BlockchainConfig,
+  BlockchainNetwork,
+} from "@api/model/dappConfig/BlockchainConfig";
 import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
@@ -50,7 +53,9 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
             family,
           }),
         Right: (provider) => {
-          this.logger.debug("Registering provider", { family: provider.family });
+          this.logger.debug("Registering provider", {
+            family: provider.family,
+          });
           this.providers.set(provider.family, provider);
           provider.injectWalletProviders();
         },
@@ -74,6 +79,10 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     for (const provider of this.providers.values()) {
       provider.setNetwork(chainId);
     }
+  }
+
+  getNetworks(family: BlockchainFamily): BlockchainNetwork[] {
+    return this.providers.get(family)?.dappConfig.networks ?? [];
   }
 
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {

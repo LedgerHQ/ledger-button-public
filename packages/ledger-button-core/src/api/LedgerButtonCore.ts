@@ -629,6 +629,14 @@ export class LedgerButtonCore {
     });
   }
 
+  getBlockchainNetworks(blockchainFamily: string): BlockchainNetwork[] {
+    return this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .getNetworks(blockchainFamily as BlockchainFamily);
+  }
+
   getPreferredFiatCurrency(): string {
     return (
       this._contextService.getContext().preferredFiatCurrency ??

@@ -12,7 +12,6 @@ export type BlockchainItem = {
 
 const BUILT_IN_BLOCKCHAINS: BlockchainItem[] = [
   { id: "ethereum", displayName: "Ethereum" },
-  { id: "solana", displayName: "Solana" },
 ];
 
 export class DappConfigController {
