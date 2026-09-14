@@ -41,9 +41,10 @@ jobs:
         run: git ls-files | grep 'package\.json$' | xargs sed -i 's/workspace:\^/workspace:*/g'
 
       - name: Bump snapshot versions for all packages
-        run: pnpm nx run ldb-tools:run -- bump-snapshot --tag ${{ env.TAG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SNAPSHOT_TAG: ${{ env.TAG }}
+        run: pnpm nx run ldb-tools:run -- bump-snapshot --tag "$SNAPSHOT_TAG"
 
       - name: Canonicalize package.json
         run: pnpm nx run ldb-tools:canonicalize

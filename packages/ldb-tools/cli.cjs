@@ -52,16 +52,12 @@ const availableCommands = [
   {
     name: "bump-snapshot",
     description:
-      "create a changeset for all public packages and bump versions for snapshot release",
+      "set public package versions to 0.0.0-<tag>-<timestamp> for a snapshot release",
     flags: [
       {
         name: "tag",
         description:
-          "snapshot tag (e.g., develop, canary) - defaults to develop",
-      },
-      {
-        name: "type",
-        description: "bump type (patch, minor, major) - defaults to patch",
+          "snapshot dist-tag (e.g., develop, canary) - defaults to develop",
       },
     ],
   },
@@ -136,7 +132,6 @@ const {
   packagesDir,
   distDir,
   check,
-  type,
   tag,
 } = argv;
 
@@ -163,7 +158,7 @@ async function main() {
           `🔖 (packages): Creating snapshot versions for all public packages with tag: ${tag}`,
         ),
       );
-      await bumpSnapshot(tag, type || "patch");
+      await bumpSnapshot(tag);
       break;
     case "create-release-pr":
       console.log(chalk.green("🔖 (packages): Creating release pull request"));

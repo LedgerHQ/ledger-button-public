@@ -50,14 +50,12 @@ runs:
         shopt -s nullglob
         published=0
 
-        # Build publish command with optional tag
-        publish_cmd="pnpm publish \"\$tarball\" --registry https://\${NPM_REGISTRY}/ --no-git-checks"
-        if [ -n "$NPM_TAG" ]; then
-          publish_cmd="$publish_cmd --tag $NPM_TAG"
-        fi
-
         for tarball in *.tgz; do
-          if eval "$publish_cmd"; then
+          args=(publish "$tarball" --registry "https://${NPM_REGISTRY}/" --no-git-checks)
+          if [ -n "$NPM_TAG" ]; then
+            args+=(--tag "$NPM_TAG")
+          fi
+          if pnpm "${args[@]}"; then
             published=$((published + 1))
           else
             echo "⚠️ Failed to publish $tarball"
