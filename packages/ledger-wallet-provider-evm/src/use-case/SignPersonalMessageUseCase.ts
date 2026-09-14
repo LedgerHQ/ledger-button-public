@@ -15,7 +15,10 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { DeviceOutOfMemoryError } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
@@ -108,12 +111,7 @@ export class SignPersonalMessageUseCase {
   }
 
   createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false,
-    };
+    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private toSignFlowStatus(

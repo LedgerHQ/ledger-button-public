@@ -33,7 +33,10 @@ import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import {
   BehaviorSubject,
@@ -288,12 +291,7 @@ export class SignTypedData {
   }
 
   createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false,
-    };
+    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private getTransactionResultForEvent(

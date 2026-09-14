@@ -35,7 +35,10 @@ import {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { Signature } from "ethers";
 import { inject, injectable } from "inversify";
 import {
@@ -351,12 +354,7 @@ export class SignRawTransaction {
   }
 
   createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false, //TODO add this to the dApp config
-    };
+    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private getTransactionResultForEvent(
