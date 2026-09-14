@@ -6,12 +6,13 @@ import type { Account } from "@api/model/Account";
 
 import { storageModuleTypes } from "./di/storageModuleTypes";
 import { AccountDbModel, mapToAccountDbModel } from "./model/accountDbModel";
+import {
+  type ConfigOverrides,
+  DEFAULT_CONFIG_OVERRIDES,
+} from "./model/ConfigOverrides";
 import { STORAGE_KEYS } from "./model/constant";
 import { StorageIDBErrors } from "./model/errors";
-import {
-  DEFAULT_FEATURE_FLAGS,
-  type FeatureFlags,
-} from "./model/FeatureFlags";
+import { DEFAULT_FEATURE_FLAGS, type FeatureFlags } from "./model/FeatureFlags";
 import { type UserConsent } from "./model/UserConsent";
 import { type IndexedDbService } from "./service/IndexedDbService";
 import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
@@ -356,5 +357,20 @@ export class DefaultStorageService implements StorageService {
 
   saveFeatureFlags(flags: FeatureFlags): void {
     this.saveItem(STORAGE_KEYS.FEATURE_FLAGS, flags);
+  }
+
+  getConfigOverrides(): ConfigOverrides {
+    const stored = this.getItem<Partial<ConfigOverrides>>(
+      STORAGE_KEYS.CONFIG_OVERRIDES,
+    ).orDefault({});
+    return { ...DEFAULT_CONFIG_OVERRIDES, ...stored };
+  }
+
+  saveConfigOverrides(overrides: ConfigOverrides): void {
+    this.saveItem(STORAGE_KEYS.CONFIG_OVERRIDES, overrides);
+  }
+
+  resetConfigOverrides(): void {
+    this.removeItem(STORAGE_KEYS.CONFIG_OVERRIDES);
   }
 }

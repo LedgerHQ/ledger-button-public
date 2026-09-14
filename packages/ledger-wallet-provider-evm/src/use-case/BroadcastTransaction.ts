@@ -7,9 +7,9 @@ import { ethers, Signature } from "ethers";
 import { inject, injectable } from "inversify";
 
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
+import { EvmNetworkRegistry } from "../EvmNetworkRegistry";
 import type { EvmSignedResult } from "../model/EvmSignedResult";
 import { createSignedTransaction } from "../transaction/TransactionHelper";
-import { getCurrencyIdFromChainId } from "../utils/chainUtils";
 
 export type BroadcastTransactionParams = {
   signature: Signature;
@@ -21,6 +21,8 @@ export class BroadcastTransaction {
   constructor(
     @inject(evmProviderModuleTypes.CoreFacade)
     private readonly core: CoreFacade,
+    @inject(evmProviderModuleTypes.NetworkRegistry)
+    private readonly networkRegistry: EvmNetworkRegistry,
   ) {}
 
   async execute(params: BroadcastTransactionParams): Promise<EvmSignedResult> {
@@ -35,7 +37,7 @@ export class BroadcastTransaction {
     const txChainId = Number(
       ethers.Transaction.from(params.rawTransaction).chainId,
     );
-    const currencyId = getCurrencyIdFromChainId(txChainId);
+    const currencyId = this.networkRegistry.getCurrencyIdFromChainId(txChainId);
     if (!currencyId) {
       logger.error("Unsupported chain ID for tx, cannot broadcast", {
         txChainId,

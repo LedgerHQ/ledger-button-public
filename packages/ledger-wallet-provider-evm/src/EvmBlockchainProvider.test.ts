@@ -30,9 +30,8 @@ vi.mock("./EvmWalletProvider", () => ({
 // real injectable graph (and decorator metadata) at test time.
 vi.mock("./di/evmProviderModule", async () => {
   const { ContainerModule } = await import("inversify");
-  const { evmProviderModuleTypes } = await import(
-    "./di/evmProviderModuleTypes"
-  );
+  const { evmProviderModuleTypes } =
+    await import("./di/evmProviderModuleTypes");
   return {
     evmProviderModule: () =>
       new ContainerModule(({ bind }) => {
@@ -54,12 +53,28 @@ vi.mock("./di/evmProviderModule", async () => {
   };
 });
 
+const MOCK_NETWORKS: BlockchainConfig["networks"] = [
+  {
+    id: "1",
+    currencyId: "ethereum",
+    currencyName: "Ethereum",
+    currencyTicker: "ETH",
+  },
+  {
+    id: "137",
+    currencyId: "polygon",
+    currencyName: "Polygon",
+    currencyTicker: "POL",
+  },
+];
+
 const createMockBlockchainConfig = (
   rpcMethods: BlockchainConfig["rpcMethods"] = { local: [], broadcasted: [] },
+  networks: BlockchainConfig["networks"] = MOCK_NETWORKS,
 ): BlockchainConfig => ({
   blockchain: "ethereum",
   appName: "Ethereum",
-  networks: [],
+  networks,
   rpcMethods,
   appDependencies: { appName: "Ethereum", dependencies: [] },
 });
@@ -158,7 +173,7 @@ describe("EvmBlockchainProvider", () => {
   });
 
   describe("currency capability", () => {
-    test("describeCurrency describes an owned currency", () => {
+    test("describeCurrency describes a network present in the dApp config", () => {
       expect(provider.describeCurrency("ethereum")).toEqual({
         currencyId: "ethereum",
         family: "ethereum",
@@ -167,12 +182,41 @@ describe("EvmBlockchainProvider", () => {
       });
     });
 
-    test("describeCurrency returns undefined for another family", () => {
+    test("describeCurrency returns undefined for a currency not in the dApp config", () => {
       expect(provider.describeCurrency("solana")).toBeUndefined();
     });
 
-    test("describeNetwork maps 137 to polygon", () => {
+    test("describeCurrency returns undefined for an EVM currency not in the dApp config", () => {
+      expect(provider.describeCurrency("arbitrum")).toBeUndefined();
+    });
+
+    test("describeNetwork maps chain 137 to polygon when in the dApp config", () => {
       expect(provider.describeNetwork("137")?.currencyId).toBe("polygon");
+    });
+
+    test("describeNetwork returns undefined for a chain not in the dApp config", () => {
+      expect(provider.describeNetwork("42161")).toBeUndefined();
+    });
+
+    test("describeCurrency resolves a custom network added via dApp config override", () => {
+      const providerWithBlast = new EvmBlockchainProvider(core, {
+        ...dappConfig,
+        networks: [
+          ...MOCK_NETWORKS,
+          {
+            id: "81457",
+            currencyId: "blast",
+            currencyName: "Blast",
+            currencyTicker: "ETH",
+          },
+        ],
+      });
+      expect(providerWithBlast.describeCurrency("blast")).toEqual({
+        currencyId: "blast",
+        family: "ethereum",
+        networkId: "81457",
+        nativeDecimals: 18,
+      });
     });
   });
 

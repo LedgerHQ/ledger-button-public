@@ -23,6 +23,12 @@ function createMockDestinations() {
       canGoBack: true,
       toolbar: { title: "Feature flags", canClose: true },
     } as Destination,
+    dAppConfig: {
+      name: "dAppConfig",
+      component: "dapp-config-screen",
+      canGoBack: true,
+      toolbar: { title: "dApp Config", canClose: true },
+    } as Destination,
   };
 }
 
@@ -32,6 +38,9 @@ function createMockLanguages() {
       settings: {
         featureFlags: {
           title: "Feature flags",
+        },
+        dAppConfig: {
+          title: "dApp Config",
         },
       },
     },
@@ -67,6 +76,14 @@ describe("DeveloperScreen", () => {
 
       expect(renderedString).toContain("Feature flags");
     });
+
+    test("should render the dApp config entry", () => {
+      const el = createDeveloperScreen();
+      const rendered = el.render();
+      const renderedString = JSON.stringify(rendered);
+
+      expect(renderedString).toContain("dApp Config");
+    });
   });
 
   describe("navigation", () => {
@@ -81,6 +98,19 @@ describe("DeveloperScreen", () => {
       (el as any).handleFeatureFlagsClick();
 
       expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.featureFlags);
+    });
+
+    test("handleDAppConfigClick should navigate to dApp config destination", () => {
+      const mockNav = createMockNavigation();
+      const mockDest = createMockDestinations();
+      const el = createDeveloperScreen({
+        navigation: mockNav,
+        destinations: mockDest,
+      });
+
+      (el as any).handleDAppConfigClick();
+
+      expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.dAppConfig);
     });
   });
 });

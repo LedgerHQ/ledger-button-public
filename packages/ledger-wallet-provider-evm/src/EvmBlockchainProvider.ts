@@ -14,11 +14,7 @@ import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageU
 import type { SignRawTransaction } from "./use-case/SignRawTransaction";
 import type { SignTransaction } from "./use-case/SignTransaction";
 import type { SignTypedData } from "./use-case/SignTypedData";
-import {
-  describeEvmCurrency,
-  describeEvmNetwork,
-  EVM_FAMILY,
-} from "./utils/chainUtils";
+import { EVM_FAMILY, EvmNetworkRegistry } from "./EvmNetworkRegistry";
 import { EvmWalletProvider } from "./EvmWalletProvider";
 import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
 
@@ -36,6 +32,7 @@ export class EvmBlockchainProvider implements BlockchainProvider<
   public readonly family = EVM_FAMILY;
 
   private readonly container: Container;
+  private readonly networkRegistry: EvmNetworkRegistry;
   private eip1193Provider?: LedgerEIP1193Provider;
   private walletProvider?: EvmWalletProvider;
 
@@ -43,6 +40,7 @@ export class EvmBlockchainProvider implements BlockchainProvider<
     private readonly core: CoreFacade,
     public readonly dappConfig: BlockchainConfig,
   ) {
+    this.networkRegistry = new EvmNetworkRegistry(dappConfig.networks);
     this.container = new Container();
     this.container
       .bind<CoreFacade>(evmProviderModuleTypes.CoreFacade)
@@ -50,6 +48,9 @@ export class EvmBlockchainProvider implements BlockchainProvider<
     this.container
       .bind<BlockchainConfig>(evmProviderModuleTypes.BlockchainConfig)
       .toConstantValue(this.dappConfig);
+    this.container
+      .bind<EvmNetworkRegistry>(evmProviderModuleTypes.NetworkRegistry)
+      .toConstantValue(this.networkRegistry);
     this.container.loadSync(evmProviderModule());
   }
 
@@ -71,6 +72,7 @@ export class EvmBlockchainProvider implements BlockchainProvider<
         ),
       },
       () => Promise.resolve(this.dappConfig.rpcMethods),
+      this.networkRegistry,
     );
     this.walletProvider = new EvmWalletProvider(this.eip1193Provider);
     this.walletProvider.init();
@@ -89,11 +91,11 @@ export class EvmBlockchainProvider implements BlockchainProvider<
   }
 
   describeCurrency(currencyId: string): CurrencyDescriptor | undefined {
-    return describeEvmCurrency(currencyId);
+    return this.networkRegistry.describeCurrency(currencyId);
   }
 
   describeNetwork(networkId: string): CurrencyDescriptor | undefined {
-    return describeEvmNetwork(networkId);
+    return this.networkRegistry.describeNetwork(networkId);
   }
 }
 
