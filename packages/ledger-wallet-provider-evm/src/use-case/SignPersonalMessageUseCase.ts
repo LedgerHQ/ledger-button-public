@@ -2,7 +2,6 @@ import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   type DeviceActionState,
   DeviceActionStatus,
-  type OpenAppWithDependenciesDAInput,
   OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
@@ -70,7 +69,7 @@ export class SignPersonalMessageUseCase {
         const contextModule = this.buildContextModule.execute({
           chain: ContextModuleChainID.Ethereum,
         });
-        const openAppConfig = this.createOpenAppConfig();
+        const openAppConfig = createOpenAppConfig(this.blockchainConfig);
 
         const deviceAction = new SignPersonalMessageFlowDeviceAction({
           input: {
@@ -108,10 +107,6 @@ export class SignPersonalMessageUseCase {
         });
       }),
     );
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private toSignFlowStatus(

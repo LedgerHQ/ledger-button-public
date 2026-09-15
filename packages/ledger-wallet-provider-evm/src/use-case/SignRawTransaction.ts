@@ -3,7 +3,6 @@ import {
   DeviceActionStatus,
   GlobalCommandError,
   hexaStringToBuffer,
-  OpenAppWithDependenciesDAInput,
   OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
   OutOfMemoryDAError,
@@ -127,7 +126,7 @@ export class SignRawTransaction {
           const initObservable: Observable<{
             deviceAction: OpenAppWithDependenciesDeviceAction;
             appName: string;
-          }> = of(this.createOpenAppConfig()).pipe(
+          }> = of(createOpenAppConfig(this.blockchainConfig)).pipe(
             map((openAppConfig) => ({
               deviceAction: new OpenAppWithDependenciesDeviceAction({
                 input: openAppConfig,
@@ -351,10 +350,6 @@ export class SignRawTransaction {
       });
 
     return resultObservable.asObservable();
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private getTransactionResultForEvent(

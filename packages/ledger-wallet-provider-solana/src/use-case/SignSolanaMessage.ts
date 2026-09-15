@@ -1,7 +1,6 @@
 import {
   type DeviceActionState,
   DeviceActionStatus,
-  type OpenAppWithDependenciesDAInput,
 } from "@ledgerhq/device-management-kit";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
@@ -62,7 +61,7 @@ export class SignSolanaMessage {
         }
 
         const derivationPath = getSolanaDerivationPath(selectedAccount);
-        const openAppConfig = this.createOpenAppConfig();
+        const openAppConfig = createOpenAppConfig(this.blockchainConfig);
 
         this.logger.debug("Prepared Solana message signing", {
           address: params.address,
@@ -103,10 +102,6 @@ export class SignSolanaMessage {
         });
       }),
     );
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private toSignFlowStatus(

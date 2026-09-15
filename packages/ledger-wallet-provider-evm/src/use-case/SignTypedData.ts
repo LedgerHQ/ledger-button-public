@@ -2,7 +2,6 @@ import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   GlobalCommandError,
-  OpenAppWithDependenciesDAInput,
   type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
   OutOfMemoryDAError,
@@ -114,7 +113,7 @@ export class SignTypedData {
           const initObservable: Observable<{
             deviceAction: OpenAppWithDependenciesDeviceAction;
             appName: string;
-          }> = of(this.createOpenAppConfig()).pipe(
+          }> = of(createOpenAppConfig(this.blockchainConfig)).pipe(
             map((openAppConfig) => ({
               deviceAction: new OpenAppWithDependenciesDeviceAction({
                 input: openAppConfig,
@@ -288,10 +287,6 @@ export class SignTypedData {
       });
 
     return resultObservable.asObservable();
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    return createOpenAppConfig(this.blockchainConfig);
   }
 
   private getTransactionResultForEvent(

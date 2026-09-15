@@ -102,16 +102,6 @@ describe("SignSolanaMessage", () => {
     });
   });
 
-  it("builds the open-app config from the blockchain config", () => {
-    const openAppInput = createUseCase().createOpenAppConfig();
-
-    expect(openAppInput).toEqual({
-      application: { name: "Solana" },
-      dependencies: [{ name: "Solana" }],
-      requireLatestFirmware: false,
-    });
-  });
-
   it("maps a device-action error state to an error status", async () => {
     const deviceError = new Error("device error");
     executeDeviceAction.mockReturnValue({
