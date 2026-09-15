@@ -100,7 +100,7 @@ catalogs:
       specifier: 23.2.0
       version: 23.2.0
     '@playwright/test':
-      specifier: ^1.63.0
+      specifier: 1.63.0
       version: 1.63.0
     '@solana-program/system':
       specifier: ^0.12.2
@@ -393,6 +393,7 @@ catalogs:
       version: 19.2.8
 
 overrides:
+  parse-diff: 0.7.1
   purify-ts: 2.1.0
 
 importers:
