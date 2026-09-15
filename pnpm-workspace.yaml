@@ -34,7 +34,7 @@ catalog:
   "@nx/vite": 23.2.0
   "@nx/vitest": 23.2.0
   "@nx/web": 23.2.0
-  "@playwright/test": ^1.63.0
+  "@playwright/test": 1.63.0
   "@solana-program/system": ^0.12.2
   "@solana/kit": ^6.9.0
   "@solana/react": ^6.9.0
@@ -141,4 +141,5 @@ catalogs:
 cleanupUnusedCatalogs: true
 
 overrides:
+  parse-diff: 0.7.1
   purify-ts: 2.1.0
