@@ -22,6 +22,7 @@ import {
   getConnectedFamilies,
   getSelectedAccount,
 } from "./model/ButtonCoreContext";
+import type { BlockchainNetwork } from "./model/dappConfig/BlockchainConfig";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
@@ -461,7 +462,9 @@ export class LedgerButtonCore {
   }
 
   selectAccount(account: Account) {
-    const { family, chainId } = this.resolveFamilyAndChainId(account.currencyId);
+    const { family, chainId } = this.resolveFamilyAndChainId(
+      account.currencyId,
+    );
 
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -514,7 +517,9 @@ export class LedgerButtonCore {
       )
       .describeCurrency(currencyId);
     return {
-      family: descriptor.map((c) => c.family).orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
+      family: descriptor
+        .map((c) => c.family)
+        .orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
       chainId: descriptor
         .chain((c) => {
           const parsed = Number(c.networkId);
@@ -804,7 +809,11 @@ export class LedgerButtonCore {
       .describeNetwork(String(chainId))
       .map((c) => c.currencyId)
       .extract();
-    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
+    this._contextService.onEvent({
+      type: "chain_changed",
+      chainId,
+      currencyId,
+    });
   }
 
   getChainId(): number {
