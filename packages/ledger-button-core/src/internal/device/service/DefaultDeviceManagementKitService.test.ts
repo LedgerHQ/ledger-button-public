@@ -19,20 +19,22 @@ vi.mock("@ledgerhq/device-management-kit", async () => {
   const actual = await vi.importActual("@ledgerhq/device-management-kit");
   return {
     ...actual,
-    DeviceManagementKitBuilder: vi.fn().mockImplementation(() => ({
-      addConfig: vi.fn().mockReturnThis(),
-      addLogger: vi.fn().mockReturnThis(),
-      addTransport: vi.fn().mockReturnThis(),
-      build: vi.fn().mockReturnValue({
-        startDiscovering: vi.fn(),
-        stopDiscovering: vi.fn(),
-        connect: vi.fn(),
-        disconnect: vi.fn(),
-        getConnectedDevice: vi.fn(),
-        close: vi.fn(),
-        listenToAvailableDevices: vi.fn(),
-      }),
-    })),
+    DeviceManagementKitBuilder: vi.fn().mockImplementation(function () {
+      return {
+        addConfig: vi.fn().mockReturnThis(),
+        addLogger: vi.fn().mockReturnThis(),
+        addTransport: vi.fn().mockReturnThis(),
+        build: vi.fn().mockReturnValue({
+          startDiscovering: vi.fn(),
+          stopDiscovering: vi.fn(),
+          connect: vi.fn(),
+          disconnect: vi.fn(),
+          getConnectedDevice: vi.fn(),
+          close: vi.fn(),
+          listenToAvailableDevices: vi.fn(),
+        }),
+      };
+    }),
     ConsoleLogger: vi.fn(),
     LogLevel: {
       Fatal: "Fatal",

@@ -96,8 +96,8 @@ describe("DefaultBlockchainProviderManager", () => {
   let manager: DefaultBlockchainProviderManager;
   let core: CoreFacade;
   let dappConfig: DAppConfig;
-  let evmCreate: ReturnType<typeof vi.fn>;
-  let solanaCreate: ReturnType<typeof vi.fn>;
+  let evmCreate: BlockchainProviderFactory;
+  let solanaCreate: BlockchainProviderFactory;
   let factories: BlockchainProviderFactory[];
   let evmProvider: ReturnType<typeof createMockProvider>;
   let solanaProvider: ReturnType<typeof createMockProvider>;
@@ -113,8 +113,12 @@ describe("DefaultBlockchainProviderManager", () => {
     dappConfig = createMockDAppConfig();
     evmProvider = createMockProvider("ethereum");
     solanaProvider = createMockProvider("solana");
-    evmCreate = vi.fn().mockReturnValue(Right(evmProvider));
-    solanaCreate = vi.fn().mockReturnValue(Right(solanaProvider));
+    evmCreate = vi
+      .fn()
+      .mockReturnValue(Right(evmProvider)) as BlockchainProviderFactory;
+    solanaCreate = vi
+      .fn()
+      .mockReturnValue(Right(solanaProvider)) as BlockchainProviderFactory;
     factories = [evmCreate, solanaCreate];
   });
 

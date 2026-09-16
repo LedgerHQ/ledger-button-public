@@ -22,6 +22,7 @@ import type { Config } from "@internal/config/model/config";
 import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import type { StorageService } from "@internal/storage/StorageService";
+import { mockConstructable } from "@internal/test-support/mockConstructable";
 
 import { LedgerSyncAuthContextMissingError } from "../model/errors";
 import { DefaultLedgerSyncService } from "./DefaultLedgerSyncService";
@@ -107,10 +108,9 @@ describe("DefaultLedgerSyncService", () => {
     mockBuild = vi.fn().mockReturnValue(mockLkrpAppKit);
 
     vi.mocked(LedgerKeyringProtocolBuilder).mockImplementation(
-      () =>
-        ({
-          build: mockBuild,
-        }) as unknown as LedgerKeyringProtocolBuilder,
+      mockConstructable({
+        build: mockBuild,
+      } as unknown as LedgerKeyringProtocolBuilder),
     );
 
     service = new DefaultLedgerSyncService(

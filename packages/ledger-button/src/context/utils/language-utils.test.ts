@@ -75,12 +75,11 @@ describe("getLanguageDisplayName", () => {
     });
 
     test("when Intl.DisplayNames.of returns undefined, capitalizes the code", () => {
-      vi.spyOn(Intl, "DisplayNames").mockImplementation(
-        () =>
-          ({
-            of: () => undefined,
-          }) as unknown as Intl.DisplayNames,
-      );
+      vi.spyOn(Intl, "DisplayNames").mockImplementation(function () {
+        return {
+          of: () => undefined,
+        } as unknown as Intl.DisplayNames;
+      });
 
       expect(getLanguageDisplayName("fr")).toBe("Fr");
     });

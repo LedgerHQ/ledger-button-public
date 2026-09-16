@@ -5,6 +5,8 @@ import {
 import { Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { mockConstructable } from "@internal/test-support/mockConstructable";
+
 import {
   createKeyPairMigrationService,
   createMockEncryptKeyPairUseCase,
@@ -55,9 +57,9 @@ describe("KeyPairMigrationService", () => {
       importKeyPair: vi.fn().mockReturnValue(createMockKeyPair()),
     };
 
-    vi.mocked(NobleCryptoService).mockImplementation(() => {
-      return mockCryptoService as unknown as NobleCryptoService;
-    });
+    vi.mocked(NobleCryptoService).mockImplementation(
+      mockConstructable(mockCryptoService as unknown as NobleCryptoService),
+    );
 
     keyPairMigrationService = createKeyPairMigrationService(
       mockLoggerFactory,

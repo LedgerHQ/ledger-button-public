@@ -128,7 +128,7 @@ describe("FetchAccountsWithFiatUseCase", () => {
   };
   let mockContextService: {
     observeContext: ReturnType<typeof vi.fn>;
-    getContext: ReturnType<typeof vi.fn>;
+    getContext: ReturnType<typeof vi.fn<() => ButtonCoreContext>>;
     onEvent: ReturnType<typeof vi.fn>;
   };
 

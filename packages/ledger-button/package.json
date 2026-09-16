@@ -20,6 +20,7 @@
     "shadow-dom-testing-library": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
+    "jsdom": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {

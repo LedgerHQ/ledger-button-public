@@ -34,10 +34,12 @@ vi.mock("@ledgerhq/device-management-kit", async (importOriginal) => {
     await importOriginal<typeof import("@ledgerhq/device-management-kit")>();
   return {
     ...original,
-    OpenAppWithDependenciesDeviceAction: vi.fn(() => ({
-      makeStateMachine: vi.fn(),
-      input: {},
-    })),
+    OpenAppWithDependenciesDeviceAction: vi.fn(function () {
+      return {
+        makeStateMachine: vi.fn(),
+        input: {},
+      };
+    }),
   };
 });
 

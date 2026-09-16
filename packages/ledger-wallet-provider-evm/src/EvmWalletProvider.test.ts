@@ -91,7 +91,7 @@ describe("EvmWalletProvider", () => {
     });
 
     test("icon is a dark SVG data URI when prefers-color-scheme is dark", () => {
-      vi.spyOn(window, "matchMedia").mockReturnValue({
+      window.matchMedia = vi.fn().mockReturnValue({
         matches: true,
       } as MediaQueryList);
 
@@ -108,7 +108,7 @@ describe("EvmWalletProvider", () => {
     });
 
     test("icon is a light SVG data URI when prefers-color-scheme is not dark", () => {
-      vi.spyOn(window, "matchMedia").mockReturnValue({
+      window.matchMedia = vi.fn().mockReturnValue({
         matches: false,
       } as MediaQueryList);
 

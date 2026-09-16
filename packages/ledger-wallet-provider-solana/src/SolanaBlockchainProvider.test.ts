@@ -11,19 +11,23 @@ import { SolanaBlockchainProvider } from "./SolanaBlockchainProvider";
 import { SolanaWalletProvider } from "./SolanaWalletProvider";
 
 vi.mock("./LedgerSolanaWallet", () => ({
-  LedgerSolanaWallet: vi.fn().mockImplementation(() => ({
-    setSelectedAccount: vi.fn(),
-    setNetwork: vi.fn(),
-    disconnect: vi.fn().mockResolvedValue(undefined),
-  })),
+  LedgerSolanaWallet: vi.fn().mockImplementation(function () {
+    return {
+      setSelectedAccount: vi.fn(),
+      setNetwork: vi.fn(),
+      disconnect: vi.fn().mockResolvedValue(undefined),
+    };
+  }),
 }));
 
 vi.mock("./SolanaWalletProvider", () => ({
-  SolanaWalletProvider: vi.fn().mockImplementation(() => ({
-    family: "solana",
-    wallet: {},
-    init: vi.fn(),
-  })),
+  SolanaWalletProvider: vi.fn().mockImplementation(function () {
+    return {
+      family: "solana",
+      wallet: {},
+      init: vi.fn(),
+    };
+  }),
 }));
 
 const createMockBlockchainConfig = (): BlockchainConfig => ({
