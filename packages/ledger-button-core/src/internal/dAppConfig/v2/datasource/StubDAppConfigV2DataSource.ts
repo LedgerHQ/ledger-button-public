@@ -260,14 +260,10 @@ export class StubDAppConfigV2DataSource implements DAppConfigV2DataSource {
 
   async getDAppConfig(): Promise<DAppConfigV2> {
     const dAppIdentifier = this.config.dAppIdentifier;
-    const dAppConfigV2 = STUB_DAPP_CONFIGS_V2[dAppIdentifier];
-
-    if (!dAppConfigV2) {
-      throw new Error(
-        `No stub dApp config V2 found for dAppIdentifier: ${dAppIdentifier}`,
-      );
-    }
-
-    return dAppConfigV2;
+    // Fall back to the default Ledger config for dApps not yet onboarded onto
+    // the stub, instead of failing initialization entirely.
+    return (
+      STUB_DAPP_CONFIGS_V2[dAppIdentifier] ?? STUB_DAPP_CONFIGS_V2.ledger
+    );
   }
 }
