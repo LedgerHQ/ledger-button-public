@@ -1,3 +1,14 @@
+## 1.4.3 (2026-09-16)
+
+### 🩹 Fixes
+
+- Add support for the Arc network (chain ID 5042), including CoinService gas-fee estimation. ([fd3ae549](https://github.com/LedgerHQ/ledger-button/commit/fd3ae549))
+- Fall back to the default Ledger config in the dApp Config v2 stub when the current dApp isn't onboarded yet, instead of failing initialization entirely. ([fd3ae549](https://github.com/LedgerHQ/ledger-button/commit/fd3ae549))
+
+### ❤️ Thank You
+
+- Mathieu Bertin
+
 ## 1.4.2 (2026-08-18)
 
 This was a version bump only for @ledgerhq/ledger-wallet-provider to align it with other projects, there were no code changes.
