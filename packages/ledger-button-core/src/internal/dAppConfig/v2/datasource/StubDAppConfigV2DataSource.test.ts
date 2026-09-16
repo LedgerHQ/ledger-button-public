@@ -23,4 +23,19 @@ describe("StubDAppConfigV2DataSource", () => {
     const result = await dataSource.getDAppConfig();
     expect(result.liveAppId).toBe("ledger");
   });
+
+  it("should include Arc in the default EVM networks", async () => {
+    const dataSource = createDataSource("ledger");
+    const result = await dataSource.getDAppConfig();
+    const ethereumBlockchain = result.blockchains.find(
+      (b) => b.blockchain === "ethereum",
+    );
+    expect(ethereumBlockchain?.networks).toContainEqual(
+      expect.objectContaining({
+        id: "5042",
+        currencyId: "arc",
+        currencyTicker: "ARC",
+      }),
+    );
+  });
 });

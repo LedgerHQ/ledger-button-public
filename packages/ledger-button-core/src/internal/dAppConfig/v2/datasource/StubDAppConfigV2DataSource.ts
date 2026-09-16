@@ -73,6 +73,12 @@ const EVM_DEFAULT_NETWORKS = [
     currencyName: "Gnosis",
     currencyTicker: "GNO",
   },
+  {
+    id: "5042",
+    currencyId: "arc",
+    currencyName: "Arc",
+    currencyTicker: "ARC",
+  },
 ] as const;
 
 const SOLANA_MAINNET_NETWORK = {

@@ -70,6 +70,12 @@ export const stubDAppConfig: DAppConfig = {
       currency_ticker: "GNO",
     },
     {
+      id: "5042",
+      currency_id: "arc",
+      currency_name: "Arc",
+      currency_ticker: "ARC",
+    },
+    {
       id: "mainnet-beta",
       currency_id: "solana",
       currency_name: "Solana",
