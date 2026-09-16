@@ -2,7 +2,6 @@ import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   type DeviceActionState,
   DeviceActionStatus,
-  type OpenAppWithDependenciesDAInput,
   OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
@@ -15,7 +14,10 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { DeviceOutOfMemoryError } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
@@ -67,7 +69,7 @@ export class SignPersonalMessageUseCase {
         const contextModule = this.buildContextModule.execute({
           chain: ContextModuleChainID.Ethereum,
         });
-        const openAppConfig = this.createOpenAppConfig();
+        const openAppConfig = createOpenAppConfig(this.blockchainConfig);
 
         const deviceAction = new SignPersonalMessageFlowDeviceAction({
           input: {
@@ -105,15 +107,6 @@ export class SignPersonalMessageUseCase {
         });
       }),
     );
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false,
-    };
   }
 
   private toSignFlowStatus(

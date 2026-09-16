@@ -2,7 +2,6 @@ import { ContextModuleChainID } from "@ledgerhq/context-module";
 import {
   DeviceActionStatus,
   GlobalCommandError,
-  OpenAppWithDependenciesDAInput,
   type OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
   OutOfMemoryDAError,
@@ -33,7 +32,10 @@ import {
   isSignedMessageOrTypedDataResult,
   type SignedPersonalMessageOrTypedDataResult,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import {
   BehaviorSubject,
@@ -111,7 +113,7 @@ export class SignTypedData {
           const initObservable: Observable<{
             deviceAction: OpenAppWithDependenciesDeviceAction;
             appName: string;
-          }> = of(this.createOpenAppConfig()).pipe(
+          }> = of(createOpenAppConfig(this.blockchainConfig)).pipe(
             map((openAppConfig) => ({
               deviceAction: new OpenAppWithDependenciesDeviceAction({
                 input: openAppConfig,
@@ -285,15 +287,6 @@ export class SignTypedData {
       });
 
     return resultObservable.asObservable();
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false,
-    };
   }
 
   private getTransactionResultForEvent(

@@ -3,7 +3,6 @@ import {
   DeviceActionStatus,
   GlobalCommandError,
   hexaStringToBuffer,
-  OpenAppWithDependenciesDAInput,
   OpenAppWithDependenciesDAState,
   OpenAppWithDependenciesDeviceAction,
   OutOfMemoryDAError,
@@ -35,7 +34,10 @@ import {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { Signature } from "ethers";
 import { inject, injectable } from "inversify";
 import {
@@ -124,7 +126,7 @@ export class SignRawTransaction {
           const initObservable: Observable<{
             deviceAction: OpenAppWithDependenciesDeviceAction;
             appName: string;
-          }> = of(this.createOpenAppConfig()).pipe(
+          }> = of(createOpenAppConfig(this.blockchainConfig)).pipe(
             map((openAppConfig) => ({
               deviceAction: new OpenAppWithDependenciesDeviceAction({
                 input: openAppConfig,
@@ -348,15 +350,6 @@ export class SignRawTransaction {
       });
 
     return resultObservable.asObservable();
-  }
-
-  createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false, //TODO add this to the dApp config
-    };
   }
 
   private getTransactionResultForEvent(

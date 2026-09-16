@@ -1,7 +1,6 @@
 import {
   type DeviceActionState,
   DeviceActionStatus,
-  type OpenAppWithDependenciesDAInput,
   OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
@@ -14,7 +13,10 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { DeviceOutOfMemoryError } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
-import { waitForDeviceSession } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  createOpenAppConfig,
+  waitForDeviceSession,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
@@ -72,7 +74,7 @@ export class SignSolanaTransaction {
 
         const derivationPath = getSolanaDerivationPath(selectedAccount);
         const contextModule = this.buildContextModule.execute();
-        const openAppConfig = this.createOpenAppConfig();
+        const openAppConfig = createOpenAppConfig(this.blockchainConfig);
 
         // Wallet Standard delivers a full wire transaction, but the Ledger
         // Solana app signs the compiled message only. Strip the signature
@@ -128,15 +130,6 @@ export class SignSolanaTransaction {
   ): Observable<SignFlowStatus> {
     this.logger.error("Failed to sign Solana transaction", { error });
     return of({ signType, status: "error" as const, error });
-  }
-
-  private createOpenAppConfig(): OpenAppWithDependenciesDAInput {
-    const { appName, dependencies } = this.blockchainConfig.appDependencies;
-    return {
-      application: { name: appName },
-      dependencies: dependencies.map(({ name }) => ({ name })),
-      requireLatestFirmware: false,
-    };
   }
 
   private toSignFlowStatus(
