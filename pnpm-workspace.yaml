@@ -143,4 +143,9 @@ cleanupUnusedCatalogs: true
 
 overrides:
   parse-diff: 0.7.1
+  # @storybook/test-runner asks for `playwright: ^1.14.0`, so pnpm is free to keep
+  # an older resolution than the catalog `@playwright/test`. Two Playwright versions
+  # mean two browser revisions, and CI only installs the browsers of one of them.
+  playwright: 1.63.0
+  playwright-core: 1.63.0
   purify-ts: 2.1.0
