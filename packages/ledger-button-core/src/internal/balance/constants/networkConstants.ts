@@ -55,6 +55,7 @@ export const COIN_SERVICE_CHAIN_ID_TO_NETWORK: Record<string, string> = {
   "106": "velas_evm",
   "324": "zksync",
   "300": "zksync_sepolia",
+  "5042": "arc",
 };
 
 /**

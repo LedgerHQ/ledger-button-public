@@ -74,6 +74,12 @@ const EVM_DEFAULT_NETWORKS = [
     currencyName: "Gnosis",
     currencyTicker: "GNO",
   },
+  {
+    id: "5042",
+    currencyId: "arc",
+    currencyName: "Arc",
+    currencyTicker: "ARC",
+  },
 ] as const;
 
 const SOLANA_MAINNET_NETWORK = {
@@ -265,14 +271,8 @@ export class StubDAppConfigDataSource implements DAppConfigDataSource {
 
   async getDAppConfig(): Promise<DAppConfig> {
     const dAppIdentifier = this.config.dAppIdentifier;
-    const dAppConfig = STUB_DAPP_CONFIGS[dAppIdentifier];
-
-    if (!dAppConfig) {
-      throw new Error(
-        `No stub dApp config found for dAppIdentifier: ${dAppIdentifier}`,
-      );
-    }
-
-    return dAppConfig;
+    // Fall back to the default Ledger config for dApps not yet onboarded onto
+    // the stub, instead of failing initialization entirely.
+    return STUB_DAPP_CONFIGS[dAppIdentifier] ?? STUB_DAPP_CONFIGS.ledger;
   }
 }
