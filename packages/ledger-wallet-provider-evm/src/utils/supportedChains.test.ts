@@ -17,6 +17,7 @@ describe("supportedChains", () => {
         ["146", "Sonic"],
         ["324", "ZKSync"],
         ["4663", "Robinhood Chain"],
+        ["5042", "Arc"],
       ])("should return true for %s (%s)", (chainId) => {
         expect(isSupportedChainId(chainId)).toBe(true);
       });

@@ -58,4 +58,5 @@ export const EVM_MAPPING_TABLE: Record<string, number> = {
   sonic: 146,
   zksync: 324,
   robinhood: 4663,
+  arc: 5042,
 };
