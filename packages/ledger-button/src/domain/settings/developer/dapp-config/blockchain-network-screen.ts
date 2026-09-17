@@ -84,7 +84,7 @@ export class BlockchainNetworkScreen extends LitElement {
 
     return html`
       <div class="relative flex h-full flex-col">
-        <div class="flex flex-1 flex-col px-16 py-0">
+        <div class="flex flex-1 flex-col overflow-y-auto px-16 py-0">
           ${controller.networks.map((n) => this.renderNetworkItem(n))}
         </div>
 
