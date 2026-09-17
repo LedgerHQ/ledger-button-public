@@ -18,6 +18,7 @@ export class BlockchainNetworkController {
     private readonly destinations: Destinations,
     private readonly blockchainId: string,
     private readonly displayName: string,
+    private readonly invalidate: () => void,
   ) {
     host.addController(this as ReactiveController);
   }
@@ -32,7 +33,7 @@ export class BlockchainNetworkController {
 
   resetOverrides(): void {
     this.core.resetNetworkOverrides(this.blockchainId);
-    this.navigation.navigateBack();
+    this.invalidate();
   }
 
   navigateToAddNetwork(): void {

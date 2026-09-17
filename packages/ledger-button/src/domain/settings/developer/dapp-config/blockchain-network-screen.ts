@@ -3,7 +3,7 @@ import "../../../../components/index";
 import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, type PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
 import { CoreContext, coreContext } from "../../../../context/core-context";
 import { Navigation } from "../../../../shared/navigation";
@@ -30,6 +30,8 @@ export class BlockchainNetworkScreen extends LitElement {
   @property({ attribute: false })
   public coreContext!: CoreContext;
 
+  @state() private _overridesVersion = 0;
+
   private controller?: BlockchainNetworkController;
 
   override willUpdate(changedProps: PropertyValues) {
@@ -49,6 +51,7 @@ export class BlockchainNetworkScreen extends LitElement {
         this.destinations,
         this.screenData.blockchainId,
         this.screenData.displayName,
+        () => { this._overridesVersion++; },
       );
     }
   }

@@ -75,6 +75,7 @@ describe("BlockchainNetworkController", () => {
       destinations as never,
       blockchainId,
       displayName,
+      vi.fn(),
     );
 
   it("should register itself with the host", () => {
@@ -108,11 +109,20 @@ describe("BlockchainNetworkController", () => {
   });
 
   describe("resetOverrides", () => {
-    it("should clear the overrides on the core and navigate back", () => {
-      createController().resetOverrides();
+    it("should clear the overrides on the core and call invalidate", () => {
+      const invalidate = vi.fn();
+      new BlockchainNetworkController(
+        host,
+        core as never,
+        navigation as never,
+        destinations as never,
+        "ethereum",
+        "Ethereum",
+        invalidate,
+      ).resetOverrides();
 
       expect(core.resetNetworkOverrides).toHaveBeenCalledWith("ethereum");
-      expect(navigation.navigateBack).toHaveBeenCalled();
+      expect(invalidate).toHaveBeenCalled();
     });
   });
 
