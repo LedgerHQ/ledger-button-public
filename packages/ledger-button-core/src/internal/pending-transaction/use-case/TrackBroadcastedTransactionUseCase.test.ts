@@ -76,6 +76,7 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
     init: vi.fn(),
     setSelectedAccounts: vi.fn(),
     setNetwork: vi.fn(),
+    getNetworks: vi.fn().mockReturnValue([]),
     describeCurrency: vi.fn().mockImplementation((currencyId: string) => {
       if (currencyId === "solana") {
         return Maybe.of(

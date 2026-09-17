@@ -85,11 +85,7 @@ export class DeveloperScreen extends LitElement {
           settings.featureFlags?.title ?? "Feature flags",
           this.handleFeatureFlagsClick,
         )}
-        ${this.renderMenuItem(
-          "code",
-          settings.dAppConfig?.title ?? "dApp Config",
-          this.handleDAppConfigClick,
-        )}
+        ${this.renderMenuItem("code", "dApp Config", this.handleDAppConfigClick)}
       </div>
     `;
   }

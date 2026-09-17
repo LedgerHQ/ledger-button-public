@@ -380,9 +380,7 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       component: "dapp-config-screen",
       canGoBack: true,
       toolbar: {
-        get title() {
-          return t().settings?.dAppConfig?.title ?? "dApp Config";
-        },
+        title: "dApp Config",
         canClose: true,
       },
     },
@@ -400,9 +398,7 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       component: "add-network-screen",
       canGoBack: true,
       toolbar: {
-        get title() {
-          return t().settings?.dAppConfig?.addNetwork ?? "Add network";
-        },
+        title: "Add network",
         canClose: true,
       },
     },
