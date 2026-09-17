@@ -8,6 +8,7 @@ export type BlockchainItem = {
   displayName: string;
 };
 
+// For simplicity, dAppConfig overrides only supports EVM
 const BUILT_IN_BLOCKCHAINS: BlockchainItem[] = [
   { id: "ethereum", displayName: "Ethereum" },
 ];

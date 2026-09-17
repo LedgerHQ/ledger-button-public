@@ -84,26 +84,24 @@ export class AddNetworkScreen extends LitElement {
 
   private renderInput(
     id: string,
-    label: string,
+    placeholder: string,
     value: string,
     onInput: (v: string) => void,
     onEnter: () => void,
   ) {
     return html`
-      <div class="flex flex-col gap-4">
-        <label class="body-3 text-muted px-4">${label}</label>
-        <input
-          id=${id}
-          class=${INPUT_CLASS}
-          type="text"
-          .value=${value}
-          placeholder=${label}
-          @input=${(e: Event) => onInput((e.target as HTMLInputElement).value)}
-          @keydown=${(e: KeyboardEvent) => {
-            if (e.key === "Enter") onEnter();
-          }}
-        />
-      </div>
+      <input
+        id=${id}
+        class=${INPUT_CLASS}
+        type="text"
+        .value=${value}
+        placeholder=${placeholder}
+        aria-label=${placeholder}
+        @input=${(e: Event) => onInput((e.target as HTMLInputElement).value)}
+        @keydown=${(e: KeyboardEvent) => {
+          if (e.key === "Enter") onEnter();
+        }}
+      />
     `;
   }
 
@@ -118,10 +116,10 @@ export class AddNetworkScreen extends LitElement {
 
     return html`
       <div class="relative flex h-full flex-col">
-        <div class="flex flex-col gap-16 px-16 pt-8">
+        <div class="flex flex-col gap-16 px-16 py-0">
           ${this.renderInput(
             "network-id-input",
-            "Network ID",
+            "ID",
             this.networkId,
             (v) => (this.networkId = v),
             handleEnter,

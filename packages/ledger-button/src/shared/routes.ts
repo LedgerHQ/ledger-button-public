@@ -380,7 +380,7 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
       component: "dapp-config-screen",
       canGoBack: true,
       toolbar: {
-        title: "dApp Config",
+        title: "dApp config",
         canClose: true,
       },
     },
