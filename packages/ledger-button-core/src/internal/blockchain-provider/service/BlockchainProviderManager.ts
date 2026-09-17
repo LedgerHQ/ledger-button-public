@@ -15,9 +15,9 @@ export interface BlockchainProviderManager {
     factories: BlockchainProviderFactory[],
   ): void;
   /**
-   * Networks of the registered provider for `family`, as resolved from the
-   * dApp config (local overrides included). Empty when no provider is
-   * registered for that family.
+   * Networks of the registered provider for `family`, read from the dApp
+   * config and overlaid with the locally stored overrides so additions are
+   * visible without a reload. Empty when no provider is registered.
    */
   getNetworks(family: BlockchainFamily): BlockchainNetwork[];
   /**

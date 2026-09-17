@@ -1,7 +1,7 @@
+import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import type { Destination } from "../../../../shared/routes";
 import { BlockchainNetworkController } from "./blockchain-network-controller";
 
@@ -18,8 +18,6 @@ const ARBITRUM: BlockchainNetwork = {
   currencyName: "Arbitrum",
   currencyTicker: "ARB",
 };
-
-const STORAGE_KEY = "ledger-button-configOverrides";
 
 function createMockHost(): ReactiveControllerHost {
   return {
@@ -45,108 +43,82 @@ function createMockDestinations() {
   };
 }
 
-function createController(
-  blockchainId = "ethereum",
-  displayName = "Ethereum",
-  baseNetworks: BlockchainNetwork[] = [],
-  host?: ReactiveControllerHost,
-) {
-  return new BlockchainNetworkController(
-    host ?? createMockHost(),
-    createMockNavigation() as never,
-    createMockDestinations() as never,
-    blockchainId,
-    displayName,
-    baseNetworks,
-  );
+function createMockCore() {
+  return {
+    getBlockchainNetworks: vi.fn().mockReturnValue([]),
+    hasNetworkOverrides: vi.fn().mockReturnValue(false),
+    resetNetworkOverrides: vi.fn(),
+  };
 }
 
 describe("BlockchainNetworkController", () => {
   let host: ReactiveControllerHost;
+  let core: ReturnType<typeof createMockCore>;
+  let navigation: ReturnType<typeof createMockNavigation>;
+  let destinations: ReturnType<typeof createMockDestinations>;
 
   beforeEach(() => {
     host = createMockHost();
-    localStorage.clear();
+    core = createMockCore();
+    navigation = createMockNavigation();
+    destinations = createMockDestinations();
   });
 
+  const createController = (
+    blockchainId = "ethereum",
+    displayName = "Ethereum",
+  ) =>
+    new BlockchainNetworkController(
+      host,
+      core as never,
+      navigation as never,
+      destinations as never,
+      blockchainId,
+      displayName,
+    );
+
   it("should register itself with the host", () => {
-    const controller = createController("ethereum", "Ethereum", [], host);
+    const controller = createController();
     expect(host.addController).toHaveBeenCalledWith(controller);
   });
 
   describe("networks", () => {
-    it("should return an empty array when no base networks are provided", () => {
-      const controller = createController("ethereum");
-      expect(controller.networks).toEqual([]);
+    it("should read the networks from the core for its blockchain", () => {
+      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET, ARBITRUM]);
+
+      expect(createController().networks).toEqual([ETH_MAINNET, ARBITRUM]);
+      expect(core.getBlockchainNetworks).toHaveBeenCalledWith("ethereum");
     });
 
-    it("should return the base networks passed at construction time", () => {
-      const controller = createController("ethereum", "Ethereum", [
-        ETH_MAINNET,
-        ARBITRUM,
-      ]);
-      expect(controller.networks).toEqual([ETH_MAINNET, ARBITRUM]);
+    it("should reflect networks added since construction without a reload", () => {
+      const controller = createController();
+      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET]);
+
+      expect(controller.networks).toEqual([ETH_MAINNET]);
     });
   });
 
   describe("hasOverrides", () => {
-    it("should return false when localStorage has no overrides", () => {
-      const controller = createController("ethereum");
-      expect(controller.hasOverrides).toBe(false);
-    });
+    it("should delegate to the core", () => {
+      core.hasNetworkOverrides.mockReturnValue(true);
 
-    it("should return true when localStorage has overrides for the blockchain", () => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ networkOverrides: { ethereum: [ETH_MAINNET] } }),
-      );
-      const controller = createController("ethereum");
-      expect(controller.hasOverrides).toBe(true);
-    });
-
-    it("should return false when overrides exist only for a different blockchain", () => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ networkOverrides: { solana: [ETH_MAINNET] } }),
-      );
-      const controller = createController("ethereum");
-      expect(controller.hasOverrides).toBe(false);
+      expect(createController().hasOverrides).toBe(true);
+      expect(core.hasNetworkOverrides).toHaveBeenCalledWith("ethereum");
     });
   });
 
   describe("resetOverrides", () => {
-    it("should clear overrides for the blockchain in localStorage and reload the page", () => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ networkOverrides: { ethereum: [ETH_MAINNET] } }),
-      );
-      const reloadMock = vi.fn();
-      vi.stubGlobal("location", { reload: reloadMock });
+    it("should clear the overrides on the core and request a re-render", () => {
+      createController().resetOverrides();
 
-      const controller = createController("ethereum", "Ethereum", [], host);
-
-      controller.resetOverrides();
-
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-      expect(stored.networkOverrides.ethereum).toEqual([]);
-      expect(reloadMock).toHaveBeenCalled();
+      expect(core.resetNetworkOverrides).toHaveBeenCalledWith("ethereum");
+      expect(host.requestUpdate).toHaveBeenCalled();
     });
   });
 
   describe("navigateToAddNetwork", () => {
     it("should navigate to the addNetwork destination with blockchainId in screenData", () => {
-      const navigation = createMockNavigation();
-      const destinations = createMockDestinations();
-      const controller = new BlockchainNetworkController(
-        host,
-        navigation as never,
-        destinations as never,
-        "ethereum",
-        "Ethereum",
-        [],
-      );
-
-      controller.navigateToAddNetwork();
+      createController().navigateToAddNetwork();
 
       expect(navigation.navigateTo).toHaveBeenCalledWith(
         expect.objectContaining({

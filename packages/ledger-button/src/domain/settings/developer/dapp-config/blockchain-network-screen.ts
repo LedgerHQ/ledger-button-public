@@ -1,9 +1,11 @@
 import "../../../../components/index";
 
 import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
+import { consume } from "@lit/context";
 import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { CoreContext, coreContext } from "../../../../context/core-context";
 import { Navigation } from "../../../../shared/navigation";
 import { Destinations } from "../../../../shared/routes";
 import { tailwindElement } from "../../../../tailwind-element";
@@ -24,22 +26,29 @@ export class BlockchainNetworkScreen extends LitElement {
   @property({ type: Object })
   screenData?: BlockchainNetworkScreenData;
 
+  @consume({ context: coreContext, subscribe: true })
+  @property({ attribute: false })
+  public coreContext!: CoreContext;
+
   private controller?: BlockchainNetworkController;
 
   override willUpdate(changedProps: PropertyValues) {
     if (
-      (changedProps.has("navigation") || changedProps.has("screenData")) &&
+      (changedProps.has("navigation") ||
+        changedProps.has("screenData") ||
+        changedProps.has("coreContext")) &&
       this.navigation &&
+      this.coreContext &&
       !this.controller &&
       this.screenData
     ) {
       this.controller = new BlockchainNetworkController(
         this,
+        this.coreContext,
         this.navigation,
         this.destinations,
         this.screenData.blockchainId,
         this.screenData.displayName,
-        this.screenData.baseNetworks,
       );
     }
   }
@@ -80,14 +89,6 @@ export class BlockchainNetworkScreen extends LitElement {
         </div>
 
         <div class="flex flex-col gap-12 px-16 pb-24 pt-0">
-          ${controller.pendingReload
-            ? html`<ledger-button
-                size="full"
-                variant="secondary"
-                label="Reload to apply changes"
-                @click=${() => controller.reload()}
-              ></ledger-button>`
-            : ""}
           ${controller.hasOverrides
             ? html`<ledger-button
                 size="full"

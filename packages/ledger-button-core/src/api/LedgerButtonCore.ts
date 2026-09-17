@@ -638,6 +638,53 @@ export class LedgerButtonCore {
       .getNetworks(blockchainFamily as BlockchainFamily);
   }
 
+  addNetworkOverride(
+    blockchainFamily: string,
+    network: BlockchainNetwork,
+  ): void {
+    this._logger.debug("Adding network override", { blockchainFamily, network });
+    this.replaceNetworkOverrides(blockchainFamily, (networks) => [
+      ...networks,
+      network,
+    ]);
+  }
+
+  resetNetworkOverrides(blockchainFamily: string): void {
+    this._logger.debug("Resetting network overrides", { blockchainFamily });
+    this.replaceNetworkOverrides(blockchainFamily, () => []);
+  }
+
+  hasNetworkOverrides(blockchainFamily: string): boolean {
+    return this.networkOverrides(blockchainFamily).length > 0;
+  }
+
+  private networkOverrides(blockchainFamily: string): BlockchainNetwork[] {
+    return (
+      this.container
+        .get<StorageService>(storageModuleTypes.StorageService)
+        .getConfigOverrides().networkOverrides[blockchainFamily] ?? []
+    );
+  }
+
+  private replaceNetworkOverrides(
+    blockchainFamily: string,
+    replace: (networks: BlockchainNetwork[]) => BlockchainNetwork[],
+  ): void {
+    const storageService = this.container.get<StorageService>(
+      storageModuleTypes.StorageService,
+    );
+    const overrides = storageService.getConfigOverrides();
+    storageService.saveConfigOverrides({
+      ...overrides,
+      networkOverrides: {
+        ...overrides.networkOverrides,
+        [blockchainFamily]: replace(
+          overrides.networkOverrides[blockchainFamily] ?? [],
+        ),
+      },
+    });
+  }
+
   getPreferredFiatCurrency(): string {
     return (
       this._contextService.getContext().preferredFiatCurrency ??

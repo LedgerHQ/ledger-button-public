@@ -16,6 +16,8 @@ import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { StorageService } from "@internal/storage/StorageService";
 
 import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 
@@ -35,6 +37,8 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     private readonly contextService: ContextService,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
   ) {
     this.logger = loggerFactory("BlockchainProviderManager");
   }
@@ -80,7 +84,23 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
   }
 
   getNetworks(family: BlockchainFamily): BlockchainNetwork[] {
-    return this.providers.get(family)?.dappConfig.networks ?? [];
+    const provider = this.providers.get(family);
+    if (!provider) {
+      return [];
+    }
+
+    // The provider holds the config as it was at init time. Overlaying the
+    // stored overrides here keeps a freshly added network visible without
+    // rebuilding the provider or reloading the page. Re-applying an override
+    // already merged into that snapshot by GetDAppConfigUseCase is a no-op.
+    const networks = new Map(
+      provider.dappConfig.networks.map((network) => [network.currencyId, network]),
+    );
+    for (const network of this.storedOverrides(family)) {
+      networks.set(network.currencyId, network);
+    }
+
+    return [...networks.values()];
   }
 
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
@@ -93,6 +113,10 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     return this.firstProviderAnswer((provider) =>
       provider.describeNetwork(networkId),
     );
+  }
+
+  private storedOverrides(family: BlockchainFamily): BlockchainNetwork[] {
+    return this.storageService.getConfigOverrides().networkOverrides[family] ?? [];
   }
 
   private firstProviderAnswer<T>(

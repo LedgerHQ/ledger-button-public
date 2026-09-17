@@ -1,8 +1,10 @@
 import "../../../../components/index";
 
+import { consume } from "@lit/context";
 import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 
+import { CoreContext, coreContext } from "../../../../context/core-context";
 import { Navigation } from "../../../../shared/navigation";
 import { Destinations } from "../../../../shared/routes";
 import { tailwindElement } from "../../../../tailwind-element";
@@ -24,6 +26,10 @@ export class AddNetworkScreen extends LitElement {
   @property({ type: Object })
   screenData?: BlockchainNetworkScreenData;
 
+  @consume({ context: coreContext, subscribe: true })
+  @property({ attribute: false })
+  public coreContext!: CoreContext;
+
   @state() private networkId = "";
   @state() private currencyName = "";
   @state() private currencyId = "";
@@ -36,13 +42,17 @@ export class AddNetworkScreen extends LitElement {
 
   override willUpdate(changedProps: PropertyValues) {
     if (
-      (changedProps.has("navigation") || changedProps.has("screenData")) &&
+      (changedProps.has("navigation") ||
+        changedProps.has("screenData") ||
+        changedProps.has("coreContext")) &&
       this.navigation &&
+      this.coreContext &&
       !this.controller &&
       this.screenData
     ) {
       this.controller = new AddNetworkController(
         this,
+        this.coreContext,
         this.navigation,
         this.screenData.blockchainId,
       );

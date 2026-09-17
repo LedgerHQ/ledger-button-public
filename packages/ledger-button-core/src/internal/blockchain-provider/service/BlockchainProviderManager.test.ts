@@ -4,18 +4,36 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { Account } from "@api/model/Account";
-import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
+import type {
+  BlockchainConfig,
+  BlockchainNetwork,
+} from "@api/model/dappConfig/BlockchainConfig";
 import type { ContextService } from "@internal/context/ContextService";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
+import type { StorageService } from "@internal/storage/StorageService";
 
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
 import { aCurrencyDescriptor } from "../__mocks__/currencyDescriptorMock";
 import { DefaultBlockchainProviderManager } from "./DefaultBlockchainProviderManager";
 
+const ethMainnet: BlockchainNetwork = {
+  id: "1",
+  currencyId: "ethereum",
+  currencyName: "Ethereum",
+  currencyTicker: "ETH",
+};
+
+const customNetwork: BlockchainNetwork = {
+  id: "31337",
+  currencyId: "anvil",
+  currencyName: "Anvil",
+  currencyTicker: "ETH",
+};
+
 const evmConfig: BlockchainConfig = {
   blockchain: "ethereum",
   appName: "Ethereum",
-  networks: [],
+  networks: [ethMainnet],
   rpcMethods: { local: [], broadcasted: [] },
   appDependencies: { appName: "Ethereum", dependencies: [] },
 };
@@ -84,6 +102,7 @@ const createMockContextService = (
 
 const createMockProvider = (family: "ethereum" | "solana") => ({
   family,
+  dappConfig: family === "ethereum" ? evmConfig : solanaConfig,
   injectWalletProviders: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
   setSelectedAccount: vi.fn(),
@@ -91,6 +110,13 @@ const createMockProvider = (family: "ethereum" | "solana") => ({
   describeCurrency: vi.fn().mockReturnValue(undefined),
   describeNetwork: vi.fn().mockReturnValue(undefined),
 });
+
+const createMockStorageService = (
+  networkOverrides: Record<string, BlockchainNetwork[]> = {},
+) =>
+  ({
+    getConfigOverrides: vi.fn().mockReturnValue({ networkOverrides }),
+  }) as unknown as StorageService;
 
 describe("DefaultBlockchainProviderManager", () => {
   let manager: DefaultBlockchainProviderManager;
@@ -108,6 +134,7 @@ describe("DefaultBlockchainProviderManager", () => {
     manager = new DefaultBlockchainProviderManager(
       createMockContextService() as never,
       loggerFactory as never,
+      createMockStorageService(),
     );
     core = createMockCoreFacade();
     dappConfig = createMockDAppConfig();
@@ -153,6 +180,7 @@ describe("DefaultBlockchainProviderManager", () => {
       const managerWithContext = new DefaultBlockchainProviderManager(
         createMockContextService(account, 137) as never,
         loggerFactory as never,
+        createMockStorageService(),
       );
 
       managerWithContext.init(core, dappConfig, factories);
@@ -189,6 +217,53 @@ describe("DefaultBlockchainProviderManager", () => {
       manager.setNetwork(137);
 
       expect(evmProvider.setNetwork).toHaveBeenCalledWith(137);
+    });
+  });
+
+  describe("getNetworks()", () => {
+    const managerWithOverrides = (
+      networkOverrides: Record<string, BlockchainNetwork[]>,
+    ) => {
+      const scoped = new DefaultBlockchainProviderManager(
+        createMockContextService() as never,
+        loggerFactory as never,
+        createMockStorageService(networkOverrides),
+      );
+      scoped.init(core, dappConfig, factories);
+      return scoped;
+    };
+
+    it("returns the configured networks when no override is stored", () => {
+      manager.init(core, dappConfig, factories);
+
+      expect(manager.getNetworks("ethereum")).toEqual([ethMainnet]);
+    });
+
+    it("appends stored overrides to the configured networks", () => {
+      const scoped = managerWithOverrides({ ethereum: [customNetwork] });
+
+      expect(scoped.getNetworks("ethereum")).toEqual([
+        ethMainnet,
+        customNetwork,
+      ]);
+    });
+
+    it("does not duplicate an override already merged into the provider config", () => {
+      const scoped = managerWithOverrides({ ethereum: [ethMainnet] });
+
+      expect(scoped.getNetworks("ethereum")).toEqual([ethMainnet]);
+    });
+
+    it("ignores overrides stored for another blockchain", () => {
+      const scoped = managerWithOverrides({ solana: [customNetwork] });
+
+      expect(scoped.getNetworks("ethereum")).toEqual([ethMainnet]);
+    });
+
+    it("returns empty when no provider is registered for the family", () => {
+      manager.init(core, dappConfig, factories);
+
+      expect(manager.getNetworks("bitcoin" as never)).toEqual([]);
     });
   });
 

@@ -56,7 +56,7 @@ describe("DappConfigController", () => {
       );
 
       const ids = controller.blockchains.map((b) => b.id);
-      expect(ids).toEqual(["ethereum", "solana"]);
+      expect(ids).toEqual(["ethereum"]);
     });
   });
 });

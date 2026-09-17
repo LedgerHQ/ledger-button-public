@@ -1,7 +1,7 @@
+import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import { AddNetworkController } from "./add-network-controller";
 
 const ETH_MAINNET: BlockchainNetwork = {
@@ -10,15 +10,6 @@ const ETH_MAINNET: BlockchainNetwork = {
   currencyName: "Ethereum",
   currencyTicker: "ETH",
 };
-
-const ARBITRUM: BlockchainNetwork = {
-  id: "42161",
-  currencyId: "arbitrum",
-  currencyName: "Arbitrum",
-  currencyTicker: "ARB",
-};
-
-const STORAGE_KEY = "ledger-button-configOverrides";
 
 function createMockHost(): ReactiveControllerHost {
   return {
@@ -33,74 +24,62 @@ function createMockNavigation() {
   return { navigateTo: vi.fn(), navigateBack: vi.fn() };
 }
 
+function createMockCore() {
+  return {
+    addNetworkOverride: vi.fn(),
+    resetNetworkOverrides: vi.fn(),
+    hasNetworkOverrides: vi.fn().mockReturnValue(false),
+    getBlockchainNetworks: vi.fn().mockReturnValue([]),
+  };
+}
+
 describe("AddNetworkController", () => {
   let host: ReactiveControllerHost;
+  let core: ReturnType<typeof createMockCore>;
+  let navigation: ReturnType<typeof createMockNavigation>;
 
   beforeEach(() => {
     host = createMockHost();
-    localStorage.clear();
+    core = createMockCore();
+    navigation = createMockNavigation();
   });
 
-  it("should register itself with the host", () => {
-    const controller = new AddNetworkController(
+  const createController = (blockchainId = "ethereum") =>
+    new AddNetworkController(
       host,
-      createMockNavigation() as never,
-      "ethereum",
+      core as never,
+      navigation as never,
+      blockchainId,
     );
+
+  it("should register itself with the host", () => {
+    const controller = createController();
     expect(host.addController).toHaveBeenCalledWith(controller);
   });
 
   describe("addNetwork", () => {
-    it("should write the new network to localStorage", () => {
-      const controller = new AddNetworkController(
-        host,
-        createMockNavigation() as never,
+    it("should store the new network as an override on the core", () => {
+      createController().addNetwork(ETH_MAINNET);
+
+      expect(core.addNetworkOverride).toHaveBeenCalledWith(
         "ethereum",
+        ETH_MAINNET,
       );
-
-      controller.addNetwork(ETH_MAINNET);
-
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-      expect(stored.networkOverrides.ethereum).toEqual([ETH_MAINNET]);
-    });
-
-    it("should append to existing networks without overwriting other blockchains", () => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ networkOverrides: { ethereum: [ETH_MAINNET], solana: [] } }),
-      );
-      const controller = new AddNetworkController(
-        host,
-        createMockNavigation() as never,
-        "ethereum",
-      );
-
-      controller.addNetwork(ARBITRUM);
-
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-      expect(stored.networkOverrides.ethereum).toEqual([ETH_MAINNET, ARBITRUM]);
-      expect(stored.networkOverrides.solana).toEqual([]);
     });
 
     it("should navigate back after saving", () => {
-      const navigation = createMockNavigation();
-      const controller = new AddNetworkController(host, navigation as never, "ethereum");
-
-      controller.addNetwork(ETH_MAINNET);
+      createController().addNetwork(ETH_MAINNET);
 
       expect(navigation.navigateBack).toHaveBeenCalled();
     });
   });
 
   describe("cancel", () => {
-    it("should navigate back without writing to localStorage", () => {
-      const navigation = createMockNavigation();
-      const controller = new AddNetworkController(host, navigation as never, "ethereum");
-
-      controller.cancel();
+    it("should navigate back without storing anything", () => {
+      createController().cancel();
 
       expect(navigation.navigateBack).toHaveBeenCalled();
-      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+      expect(core.addNetworkOverride).not.toHaveBeenCalled();
     });
   });
 });

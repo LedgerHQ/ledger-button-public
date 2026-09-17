@@ -1,7 +1,5 @@
-import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 
-import type { CoreContext } from "../../../../context/core-context";
 import type { Navigation } from "../../../../shared/navigation";
 import type { Destinations } from "../../../../shared/routes";
 
@@ -17,7 +15,6 @@ const BUILT_IN_BLOCKCHAINS: BlockchainItem[] = [
 export class DappConfigController {
   constructor(
     host: ReactiveControllerHost,
-    private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
   ) {
@@ -29,12 +26,6 @@ export class DappConfigController {
   }
 
   navigateToBlockchainNetworks(item: BlockchainItem): void {
-    // Resolve networks eagerly here — _dappConfig is guaranteed to be set
-    // by the time the user reaches this screen.
-    const baseNetworks: BlockchainNetwork[] = this.core.getBlockchainNetworks(
-      item.id,
-    );
-
     this.navigation.navigateTo({
       ...this.destinations.blockchainNetworks,
       toolbar: {
@@ -44,7 +35,6 @@ export class DappConfigController {
       screenData: {
         blockchainId: item.id,
         displayName: item.displayName,
-        baseNetworks,
       },
     });
   }

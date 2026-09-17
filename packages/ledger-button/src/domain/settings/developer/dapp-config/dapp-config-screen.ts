@@ -1,10 +1,8 @@
 import "../../../../components/index";
 
-import { consume } from "@lit/context";
 import { html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../../../context/core-context";
 import { Navigation } from "../../../../shared/navigation";
 import { Destinations } from "../../../../shared/routes";
 import { tailwindElement } from "../../../../tailwind-element";
@@ -22,25 +20,17 @@ export class DappConfigScreen extends LitElement {
   @property({ type: Object })
   destinations!: Destinations;
 
-  @consume({ context: coreContext, subscribe: true })
-  @property({ attribute: false })
-  public coreContext!: CoreContext;
-
   private controller?: DappConfigController;
 
   override willUpdate(changedProps: PropertyValues) {
     if (
-      (changedProps.has("navigation") ||
-        changedProps.has("destinations") ||
-        changedProps.has("coreContext")) &&
+      (changedProps.has("navigation") || changedProps.has("destinations")) &&
       this.navigation &&
       this.destinations &&
-      this.coreContext &&
       !this.controller
     ) {
       this.controller = new DappConfigController(
         this,
-        this.coreContext,
         this.navigation,
         this.destinations,
       );
