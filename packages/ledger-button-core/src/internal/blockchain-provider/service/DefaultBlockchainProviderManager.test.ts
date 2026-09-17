@@ -220,19 +220,19 @@ describe("DefaultBlockchainProviderManager", () => {
     });
   });
 
-  describe("getNetworks()", () => {
-    const managerWithOverrides = (
-      networkOverrides: Record<string, BlockchainNetwork[]>,
-    ) => {
-      const scoped = new DefaultBlockchainProviderManager(
-        createMockContextService() as never,
-        loggerFactory as never,
-        createMockStorageService(networkOverrides),
-      );
-      scoped.init(core, dappConfig, factories);
-      return scoped;
-    };
+  const managerWithOverrides = (
+    networkOverrides: Record<string, BlockchainNetwork[]>,
+  ) => {
+    const scoped = new DefaultBlockchainProviderManager(
+      createMockContextService() as never,
+      loggerFactory as never,
+      createMockStorageService(networkOverrides),
+    );
+    scoped.init(core, dappConfig, factories);
+    return scoped;
+  };
 
+  describe("getNetworks()", () => {
     it("returns the configured networks when no override is stored", () => {
       manager.init(core, dappConfig, factories);
 
@@ -293,6 +293,34 @@ describe("DefaultBlockchainProviderManager", () => {
 
       expect(manager.describeCurrency("bitcoin").isNothing()).toBe(true);
     });
+
+    it("describes a currency only known through a stored override", () => {
+      const scoped = managerWithOverrides({ ethereum: [customNetwork] });
+
+      expect(scoped.describeCurrency("anvil").extract()).toEqual({
+        currencyId: "anvil",
+        family: "ethereum",
+        networkId: "31337",
+        nativeDecimals: 18,
+      });
+    });
+
+    it("attributes an override to the family it is stored for", () => {
+      const scoped = managerWithOverrides({ solana: [customNetwork] });
+
+      expect(scoped.describeCurrency("anvil").extract()).toEqual({
+        currencyId: "anvil",
+        family: "solana",
+        networkId: "31337",
+        nativeDecimals: 9,
+      });
+    });
+
+    it("ignores an override stored for an unregistered family", () => {
+      const scoped = managerWithOverrides({ bitcoin: [customNetwork] });
+
+      expect(scoped.describeCurrency("anvil").isNothing()).toBe(true);
+    });
   });
 
   describe("describeNetwork()", () => {
@@ -307,6 +335,44 @@ describe("DefaultBlockchainProviderManager", () => {
       manager.init(core, dappConfig, factories);
 
       expect(manager.describeNetwork("999").isNothing()).toBe(true);
+    });
+
+    it("describes a network only known through a stored override", () => {
+      const scoped = managerWithOverrides({ ethereum: [customNetwork] });
+
+      expect(scoped.describeNetwork("31337").extract()).toEqual({
+        currencyId: "anvil",
+        family: "ethereum",
+        networkId: "31337",
+        nativeDecimals: 18,
+      });
+    });
+
+    it("ignores an override stored for an unregistered family", () => {
+      const scoped = managerWithOverrides({ bitcoin: [customNetwork] });
+
+      expect(scoped.describeNetwork("31337").isNothing()).toBe(true);
+    });
+  });
+
+  describe("iterate (via describeCurrency / describeNetwork)", () => {
+    it("short-circuits: stops as soon as a provider answers", () => {
+      manager.init(core, dappConfig, factories);
+      evmProvider.describeCurrency.mockReturnValue(evmDescriptor);
+
+      manager.describeCurrency("ethereum");
+
+      // solana provider should never be queried once EVM answered
+      expect(solanaProvider.describeCurrency).not.toHaveBeenCalled();
+    });
+
+    it("exhausts all providers before returning Nothing", () => {
+      manager.init(core, dappConfig, factories);
+
+      manager.describeCurrency("bitcoin");
+
+      expect(evmProvider.describeCurrency).toHaveBeenCalledWith("bitcoin");
+      expect(solanaProvider.describeCurrency).toHaveBeenCalledWith("bitcoin");
     });
   });
 });

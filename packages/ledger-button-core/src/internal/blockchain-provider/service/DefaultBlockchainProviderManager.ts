@@ -21,6 +21,12 @@ import type { StorageService } from "@internal/storage/StorageService";
 
 import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 
+// Only for network overrides
+const OVERRIDES_DECIMALS: Record<BlockchainFamily, number> = {
+  ethereum: 18,
+  solana: 9,
+};
+
 /**
  * Central registry that creates, wires, and manages blockchain providers.
  *
@@ -57,7 +63,9 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
             family,
           }),
         Right: (provider) => {
-          this.logger.debug("Registering provider", { family: provider.family });
+          this.logger.debug("Registering provider", {
+            family: provider.family,
+          });
           this.providers.set(provider.family, provider);
           provider.injectWalletProviders();
         },
@@ -89,12 +97,11 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
       return [];
     }
 
-    // The provider holds the config as it was at init time. Overlaying the
-    // stored overrides here keeps a freshly added network visible without
-    // rebuilding the provider or reloading the page. Re-applying an override
-    // already merged into that snapshot by GetDAppConfigUseCase is a no-op.
     const networks = new Map(
-      provider.dappConfig.networks.map((network) => [network.currencyId, network]),
+      provider.dappConfig.networks.map((network) => [
+        network.currencyId,
+        network,
+      ]),
     );
     for (const network of this.storedOverrides(family)) {
       networks.set(network.currencyId, network);
@@ -104,26 +111,59 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
   }
 
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
-    return this.firstProviderAnswer((provider) =>
-      provider.describeCurrency(currencyId),
+    return this.providersFind((p) => p.describeCurrency(currencyId)).altLazy(
+      () => this.overridesFind((n) => n.currencyId === currencyId),
     );
   }
 
   describeNetwork(networkId: string): Maybe<CurrencyDescriptor> {
-    return this.firstProviderAnswer((provider) =>
-      provider.describeNetwork(networkId),
+    return this.providersFind((p) => p.describeNetwork(networkId)).altLazy(() =>
+      this.overridesFind((n) => n.id === networkId),
     );
   }
 
-  private storedOverrides(family: BlockchainFamily): BlockchainNetwork[] {
-    return this.storageService.getConfigOverrides().networkOverrides[family] ?? [];
+  // Check providers for a match
+  private providersFind<T>(
+    query: (provider: BlockchainProvider) => T | undefined,
+  ): Maybe<T> {
+    return this.iterate(this.providers.values(), query);
   }
 
-  private firstProviderAnswer<T>(
-    ask: (provider: BlockchainProvider) => T | undefined,
+  // Check overrides for a match
+  private overridesFind(
+    matches: (network: BlockchainNetwork) => boolean,
+  ): Maybe<CurrencyDescriptor> {
+    return this.iterate(this.providers.values(), (provider) => {
+      const network = this.storedOverrides(provider.family).find(matches);
+      if (!network) {
+        return undefined;
+      }
+
+      return {
+        currencyId: network.currencyId,
+        family: provider.family,
+        networkId: network.id,
+        nativeDecimals: OVERRIDES_DECIMALS[provider.family],
+      };
+    });
+  }
+
+  private storedOverrides(family: BlockchainFamily): BlockchainNetwork[] {
+    return (
+      this.storageService.getConfigOverrides().networkOverrides[family] ?? []
+    );
+  }
+
+  /**
+   * Shared primitive: walk `source` and return the first non-undefined result
+   * of `query`, or Nothing when every element returns undefined.
+   */
+  private iterate<S, T>(
+    source: Iterable<S>,
+    query: (item: S) => T | undefined,
   ): Maybe<T> {
-    for (const provider of this.providers.values()) {
-      const answer = ask(provider);
+    for (const item of source) {
+      const answer = query(item);
       if (answer !== undefined) {
         return Maybe.of(answer);
       }
