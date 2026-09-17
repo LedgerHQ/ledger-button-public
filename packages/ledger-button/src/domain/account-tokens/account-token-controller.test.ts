@@ -1,11 +1,13 @@
-import type { AccountWithFiat } from "@ledgerhq/ledger-wallet-provider-core";
+import type { AccountListItem } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 
-import type { Navigation } from "../../shared/navigation.js";
-import { RootNavigationComponent } from "../../shared/root-navigation.js";
-import { AccountTokenController } from "./account-token-controller.js";
+import type { Navigation } from "../../shared/navigation";
+import { RootNavigationComponent } from "../../shared/root-navigation";
+import { AccountTokenController } from "./account-token-controller";
 
-function createAccount(overrides: Partial<AccountWithFiat> = {}): AccountWithFiat {
+function createAccount(
+  overrides: Partial<AccountListItem> = {},
+): AccountListItem {
   return {
     id: "account-1",
     currencyId: "ethereum",
@@ -21,6 +23,8 @@ function createAccount(overrides: Partial<AccountWithFiat> = {}): AccountWithFia
     fiatError: false,
     balanceLoadingState: "loaded",
     fiatLoadingState: "loaded",
+    totalFiatValue: undefined,
+    displayTokens: [],
     ...overrides,
   };
 }

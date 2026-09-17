@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   type AccountIdentity,
   belongsToAccount,
-} from "./pending-transaction-account-filter.js";
+} from "./pending-transaction-account-filter";
 
 function createPendingTx(
   overrides: Partial<PendingTransaction> = {},

@@ -1,10 +1,11 @@
 import { DiscoveredDevice } from "@ledgerhq/device-management-kit";
 import { type Factory, inject, injectable } from "inversify";
 
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { type DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { deviceModuleTypes } from "../di/deviceModuleTypes";
+import { type DeviceManagementKitService } from "../service/DeviceManagementKitService";
 
 @injectable()
 export class ListAvailableDevices {

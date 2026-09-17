@@ -2,14 +2,13 @@
  * @vitest-environment jsdom
  */
 
-import type { WalletNavigationIntent } from "@ledgerhq/ledger-wallet-provider-core";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../../components/index.js", () => ({}));
+vi.mock("../../../components/index", () => ({}));
 
 const controllerConstructor = vi.fn();
 
-vi.mock("./select-account-controller.js", () => ({
+vi.mock("./select-account-controller", () => ({
   SelectAccountController: class {
     constructor(...args: unknown[]) {
       controllerConstructor(...args);
@@ -17,12 +16,15 @@ vi.mock("./select-account-controller.js", () => ({
   },
 }));
 
-import type { CoreContext } from "../../../context/core-context.js";
-import type { LanguageContext } from "../../../context/language-context.js";
-import type { Navigation } from "../../../shared/navigation.js";
-import { SelectAccountScreen } from "./select-account.js";
+import type { CoreContext } from "../../../context/core-context";
+import type { LanguageContext } from "../../../context/language-context";
+import type { Navigation } from "../../../shared/navigation";
+import type { SelectAccountNavigationParams } from "../../../shared/root-navigation-controller";
+import { SelectAccountScreen } from "./select-account";
 
-function createScreen(params?: WalletNavigationIntent): SelectAccountScreen {
+function createScreen(
+  params?: SelectAccountNavigationParams,
+): SelectAccountScreen {
   const screen = new SelectAccountScreen();
   screen.navigation = {} as Navigation;
   (screen as unknown as { coreContext: CoreContext }).coreContext =
@@ -42,10 +44,10 @@ describe("SelectAccountScreen family resolution", () => {
   });
 
   test("passes the requested family to the controller when the intent carries one", () => {
-    const intent: WalletNavigationIntent = {
+    const intent: SelectAccountNavigationParams = {
       name: "selectAccount",
       params: { family: "solana" },
-    } as unknown as WalletNavigationIntent;
+    };
 
     const screen = createScreen(intent);
     screen.connectedCallback();
@@ -73,7 +75,9 @@ describe("SelectAccountScreen family resolution", () => {
   });
 
   test("leaves the family undefined when the intent has no params", () => {
-    const intent = { name: "selectAccount" } as WalletNavigationIntent;
+    const intent = {
+      name: "selectAccount",
+    } as SelectAccountNavigationParams;
 
     const screen = createScreen(intent);
     screen.connectedCallback();

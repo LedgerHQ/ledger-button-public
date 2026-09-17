@@ -18,15 +18,25 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { firstValueFrom } from "rxjs";
 
-import { type DeviceModuleOptions } from "../../diTypes.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { Device } from "../model/Device.js";
-import { DeviceConnectionError } from "../model/errors.js";
-import { DeviceManagementKitService } from "./DeviceManagementKitService.js";
+import { type DeviceModuleOptions } from "@internal/diTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LogLevelKey } from "@internal/logger/model/constant";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { deviceModuleTypes } from "../di/deviceModuleTypes";
+import { Device } from "../model/Device";
+import { DeviceConnectionError } from "../model/errors";
+import { DeviceManagementKitService } from "./DeviceManagementKitService";
 
 export type ConnectionType = "bluetooth" | "usb" | "";
+
+const DMK_LOG_LEVELS: Record<LogLevelKey, LogLevel> = {
+  fatal: LogLevel.Fatal,
+  error: LogLevel.Error,
+  warn: LogLevel.Warning,
+  info: LogLevel.Info,
+  debug: LogLevel.Debug,
+};
 
 @injectable()
 export class DefaultDeviceManagementKitService
@@ -44,13 +54,15 @@ export class DefaultDeviceManagementKitService
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DmkConfig)
     args: DeviceModuleOptions,
+    @inject(deviceModuleTypes.DmkLogLevel)
+    dmkLogLevel: LogLevelKey,
   ) {
     this.logger = loggerFactory("DeviceManagementKit Service");
     const builder = new DeviceManagementKitBuilder();
 
     builder
       .addConfig(args)
-      .addLogger(new ConsoleLogger(LogLevel.Error))
+      .addLogger(new ConsoleLogger(DMK_LOG_LEVELS[dmkLogLevel]))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
 

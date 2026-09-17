@@ -1,12 +1,13 @@
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
-import type { CounterValueResult } from "../../balance/datasource/countervalue/counterValueTypes.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { Account } from "../service/AccountService.js";
-import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
+import type { Account } from "@api/model/Account";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
+import type { CounterValueResult } from "@internal/balance/datasource/countervalue/counterValueTypes";
+import type { ContextService } from "@internal/context/ContextService";
+
+import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 
 function createMockLogger() {
   return {
@@ -123,6 +124,28 @@ describe("HydrateAccountWithFiatUseCase", () => {
           fiatBalance: { value: "0.00", currency: "USD" },
           fiatError: false,
           balanceLoadingState: "loading",
+          fiatLoadingState: "loaded",
+        });
+        expect(
+          mockCounterValueDataSource.getCounterValues,
+        ).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when native balance hydration fails", () => {
+      it("should skip countervalues and leave fiat empty", async () => {
+        const accountWithBalanceError: Account = {
+          ...accountWithoutBalance,
+          balanceError: true,
+        };
+
+        const result = await useCase.execute(accountWithBalanceError);
+
+        expect(result).toEqual({
+          ...accountWithBalanceError,
+          fiatBalance: undefined,
+          fiatError: false,
+          balanceLoadingState: "error",
           fiatLoadingState: "loaded",
         });
         expect(

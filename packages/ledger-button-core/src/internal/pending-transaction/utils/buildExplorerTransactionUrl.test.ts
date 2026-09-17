@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildExplorerTransactionUrl } from "./buildExplorerTransactionUrl.js";
+import { buildExplorerTransactionUrl } from "./buildExplorerTransactionUrl";
 
 const HASH =
   "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";

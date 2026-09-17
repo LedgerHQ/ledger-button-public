@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { Observable, Subject } from "rxjs";
 
-import type { WalletNavigationIntent } from "../../../api/blockchain-provider/model/types.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
 
 /**
  * Core -> UI bridge for {@link WalletNavigationIntent}s.

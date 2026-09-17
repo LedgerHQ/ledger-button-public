@@ -1,32 +1,33 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Either, Left, type Maybe } from "purify-ts";
 
-import type { BlockchainFamily } from "../../../../api/blockchain-provider/model/types.js";
-import { blockchainProviderModuleTypes } from "../../../../internal/blockchain-provider/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "../../../../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import { loggerModuleTypes } from "../../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../logger/service/LoggerPublisher.js";
-import type { NetworkServiceOpts } from "../../../network/model/types.js";
-import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
-import { TransactionHistoryError } from "../../model/TransactionHistoryError.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { TransactionDirection } from "@api/model/TransactionHistory";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
+import { TransactionHistoryError } from "@internal/transaction-history/model/TransactionHistoryError";
 import {
-  TransactionDirection,
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,
   TransactionHistoryOptions,
   TransactionHistoryPage,
-} from "../../model/transactionHistoryTypes.js";
-import { normalizeAddressForCurrency } from "../../utils/normalizeAddressForCurrency.js";
-import { resolveNetworkSlug } from "../../utils/resolveNetworkSlug.js";
+} from "@internal/transaction-history/model/transactionHistoryTypes";
+import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
+import { resolveNetworkSlug } from "@internal/transaction-history/utils/resolveNetworkSlug";
+
 import {
   CoinServiceAccountOperationDto,
   CoinServiceAccountOperationsResponseDto,
-} from "./coinServiceDtos.js";
-import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource.js";
+} from "./coinServiceDtos";
+import type { TransactionHistoryDataSource } from "./TransactionHistoryDataSource";
 
 const EPOCH_ISO = new Date(0).toISOString();
 const FEES_OPERATION_SUFFIX = "-FEES";
@@ -56,8 +57,9 @@ export class DefaultTransactionHistoryDataSource
     currencyId: string,
     options?: TransactionHistoryOptions,
   ): Promise<Either<TransactionHistoryError, TransactionHistoryPage>> {
-    const family =
-      this.blockchainProviderManager.resolveBlockchainFamily(currencyId);
+    const family = this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.family);
     const networkSlug = resolveNetworkSlug(currencyId, family.extract());
     if (!networkSlug) {
       this.logger.warn("Unsupported currency for transaction history", {

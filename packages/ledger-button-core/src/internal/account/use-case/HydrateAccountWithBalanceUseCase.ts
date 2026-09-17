@@ -1,19 +1,20 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
-import type { BackendService } from "../../backend/BackendService.js";
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
+import type { Account, Token } from "@api/model/Account";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
 import {
   type AccountBalance,
   type TokenBalance,
-} from "../../balance/model/types.js";
-import type { BalanceService } from "../../balance/service/BalanceService.js";
-import { formatBalance } from "../../currency/currencyUtils.js";
-import { getChainIdFromCurrencyId } from "../../evm-provider/ledger-eip1193/utils/chainUtils.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, Token } from "../service/AccountService.js";
+} from "@internal/balance/model/types";
+import type { BalanceService } from "@internal/balance/service/BalanceService";
+import {
+  formatBalance,
+  UNRESOLVED_DECIMALS,
+} from "@internal/currency/currencyUtils";
+import { currencyModuleTypes } from "@internal/currency/di/currencyModuleTypes";
+import type { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 @injectable()
 export class HydrateAccountWithBalanceUseCase {
@@ -24,10 +25,8 @@ export class HydrateAccountWithBalanceUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(balanceModuleTypes.BalanceService)
     private readonly balanceService: BalanceService,
-    @inject(backendModuleTypes.BackendService)
-    private readonly backendService: BackendService,
-    @inject(balanceModuleTypes.CalDataSource)
-    private readonly calDataSource: CalDataSource,
+    @inject(currencyModuleTypes.ResolveCurrencyDecimalsUseCase)
+    private readonly resolveCurrencyDecimals: ResolveCurrencyDecimalsUseCase,
   ) {
     this.logger = loggerFactory("HydrateAccountWithBalanceUseCase");
   }
@@ -60,12 +59,11 @@ export class HydrateAccountWithBalanceUseCase {
     account: Account,
     balanceData: AccountBalance,
   ): Promise<Account> {
-    const decimals = await this.resolveNativeDecimals(account);
+    const decimals = await this.resolveDecimals(account.currencyId);
     const balance = formatBalance(
       balanceData.nativeBalance.balance,
       decimals,
       account.ticker,
-      account.currencyId,
     );
     const tokens = this.mapTokenBalances(balanceData.tokenBalances);
 
@@ -75,69 +73,35 @@ export class HydrateAccountWithBalanceUseCase {
       tokenCount: tokens.length,
     });
 
-    return { ...account, balance, tokens };
+    return { ...account, balance, tokens, balanceError: false };
   }
 
-  private async handleBalanceServiceFailure(
-    account: Account,
-    error: Error,
-  ): Promise<Account> {
+  private handleBalanceServiceFailure(account: Account, error: Error): Account {
     this.logger.warn(
-      "Failed to fetch balance from balance service (CoinService), falling back to RPC node",
+      "Failed to fetch balance from balance service (CoinService)",
       {
         error,
         address: account.freshAddress,
       },
     );
 
-    const balance = await this.fetchBalanceFromRpc(account);
-
-    return { ...account, balance, tokens: [] };
+    return {
+      ...account,
+      balance: undefined,
+      tokens: [],
+      balanceError: true,
+    };
   }
 
-  private async fetchBalanceFromRpc(account: Account): Promise<string> {
-    const decimals = await this.resolveNativeDecimals(account);
-    const chainId = getChainIdFromCurrencyId(account.currencyId);
-    const balanceRpcResult = await this.backendService.broadcast({
-      blockchain: { name: "ethereum", chainId: chainId.toString() },
-      rpc: {
-        method: "eth_getBalance",
-        params: [account.freshAddress, "latest"],
-        id: 1,
-        jsonrpc: "2.0",
-      },
+  private async resolveDecimals(currencyId: string): Promise<number> {
+    const decimals = await this.resolveCurrencyDecimals.execute(currencyId);
+
+    return decimals.orDefaultLazy(() => {
+      this.logger.warn("Unresolved decimals, formatting raw balance", {
+        currencyId,
+      });
+      return UNRESOLVED_DECIMALS;
     });
-
-    if (balanceRpcResult.isRight()) {
-      const extract = balanceRpcResult.extract();
-      if ("result" in extract) {
-        const balanceHex = extract.result as string;
-        return formatBalance(balanceHex, decimals, account.ticker, account.currencyId);
-      }
-    }
-
-    return formatBalance(BigInt(0), decimals, account.ticker, account.currencyId);
-  }
-
-  private async resolveNativeDecimals(
-    account: Account,
-  ): Promise<number | undefined> {
-    const currencyInformationResult =
-      await this.calDataSource.getCurrencyInformation(account.currencyId);
-
-    if (currencyInformationResult.isRight()) {
-      return currencyInformationResult.extract().decimals;
-    }
-
-    this.logger.warn(
-      "Failed to resolve native decimals from CAL, falling back per-chain",
-      {
-        currencyId: account.currencyId,
-        error: currencyInformationResult.extract(),
-      },
-    );
-
-    return undefined;
   }
 
   private mapTokenBalances(tokenBalances: TokenBalance[]): Token[] {

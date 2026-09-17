@@ -28,11 +28,10 @@ import dynamic from "next/dynamic";
 
 import { type ActivityEntry, ActivityLog } from "../../components";
 import {
-  DEFAULT_SOLANA_CLUSTER,
   SolanaActionsBlock,
   type SolanaCluster,
   SolanaConnectionStatus,
-  SolanaSettingsBlock,
+  useSolanaClusterConfig,
   WalletSelectionBlock,
 } from "../../components/solana";
 import {
@@ -61,28 +60,26 @@ function nextActivityId(): string {
 }
 
 export default function SolanaPage() {
-  const [cluster, setCluster] = useState<SolanaCluster>(DEFAULT_SOLANA_CLUSTER);
+  const { cluster } = useSolanaClusterConfig();
 
   // The Ledger provider is instantiated once at the app root (<LedgerProvider>
   // in the layout), so it is already registered as a Solana wallet (via Wallet
   // Standard `registerWallet`) and discoverable here without re-initializing.
+  // The selected cluster is managed globally by <SolanaClusterProvider> and
+  // edited from the navbar configuration dialog.
 
   return (
     <SolanaProviders cluster={cluster}>
-      <SolanaPageContent cluster={cluster} onClusterChange={setCluster} />
+      <SolanaPageContent cluster={cluster} />
     </SolanaProviders>
   );
 }
 
 interface SolanaPageContentProps {
   cluster: SolanaCluster;
-  onClusterChange: (cluster: SolanaCluster) => void;
 }
 
-function SolanaPageContent({
-  cluster,
-  onClusterChange,
-}: SolanaPageContentProps) {
+function SolanaPageContent({ cluster }: SolanaPageContentProps) {
   // Safe here because this subtree is rendered inside <SolanaProviders>.
   const [selectedAccount] = useSelectedWalletAccount();
 
@@ -164,11 +161,6 @@ function SolanaPageContent({
           </header>
 
           <div className="flex flex-col gap-20">
-            <SolanaSettingsBlock
-              cluster={cluster}
-              onClusterChange={onClusterChange}
-            />
-
             <WalletSelectionBlock onLog={addInfo} onError={setError} />
 
             {selectedAccount ? (
@@ -372,6 +364,7 @@ function ConnectedSolanaActionsWithSignTx({
       canSignTransaction={canSignTransaction}
       canSendTransaction={false}
       canJupiterSwap={canJupiterSwap}
+      ownAddress={account.address}
       onSignMessage={handleSignMessage}
       onSignTransaction={handleSignTransaction}
       onSendTransaction={async () => undefined}
@@ -456,6 +449,7 @@ function ConnectedSolanaActionsWithSend({
       canSignTransaction={canSignTransaction}
       canSendTransaction={canSendTransaction}
       canJupiterSwap={canJupiterSwap}
+      ownAddress={account.address}
       onSignMessage={handleSignMessage}
       onSignTransaction={handleSignTransaction}
       onSendTransaction={handleSendTransaction}

@@ -1,6 +1,8 @@
-import type { ProviderAccount } from "../../model/blockchain/ProviderAccount.js";
-import type { BlockchainConfig } from "../../model/dappConfig/BlockchainConfig.js";
-import type { BlockchainFamily } from "./types.js";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount";
+import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
+
+import type { CurrencyDescriptor } from "./CurrencyDescriptor";
+import type { BlockchainFamily } from "./types";
 
 /**
  * Entry point for a concrete blockchain family implementation (EVM, Solana, …).
@@ -8,8 +10,10 @@ import type { BlockchainFamily } from "./types.js";
  * Wired once by {@link DefaultBlockchainProviderManager}; core then pushes
  * selected account / network through the context methods.
  */
-export interface BlockchainProvider {
-  readonly family: BlockchainFamily;
+export interface BlockchainProvider<
+  F extends BlockchainFamily = BlockchainFamily,
+> {
+  readonly family: F;
   readonly dappConfig: BlockchainConfig;
   /**
    * Wire the provider with the core host and dApp config and announce it to
@@ -19,12 +23,22 @@ export interface BlockchainProvider {
    * config has been fetched.
    */
   injectWalletProviders(): void;
+  /**
+   * dApp-initiated disconnect for this family: clear local wallet state,
+   * notify the dApp, and ask core to drop the family's selected account.
+   */
+  disconnect(): Promise<void>;
   setSelectedAccount(account: ProviderAccount | undefined): void;
   setNetwork(chainId: number): void;
   /**
-   * Whether the given Ledger `currencyId` belongs to this provider's family.
-   * Owned by the provider so core never reaches into family-specific chain
-   * tables.
+   * Everything this family knows about a Ledger `currencyId` it owns, or
+   * `undefined` when the currency belongs to another family. Owned by the
+   * provider so core never reaches into family-specific chain tables.
    */
-  isSupportedCurrency(currencyId: string): boolean;
+  describeCurrency(currencyId: string): CurrencyDescriptor | undefined;
+  /**
+   * Reverse lookup of {@link describeCurrency}, keyed by network id (EVM
+   * chainId as a string, Solana cluster), for when core only has a network id.
+   */
+  describeNetwork(networkId: string): CurrencyDescriptor | undefined;
 }

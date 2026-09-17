@@ -1,14 +1,15 @@
 import { type Factory, inject, injectable } from "inversify";
 import { Observable, shareReplay, switchMap } from "rxjs";
 
-import { type BlockchainFamily } from "../../../api/blockchain-provider/model/types.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
-import type { AccountWithFiat } from "../service/AccountService.js";
-import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase.js";
-import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase.js";
-import { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase.js";
+import { type BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { AccountWithFiat } from "@api/model/Account";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import { FetchAccountsWithBalanceUseCase } from "./fetchAccountsWithBalanceUseCase";
+import { FetchAccountsWithFiatUseCase } from "./fetchAccountsWithFiatUseCase";
+import { SortAccountsByFiatUseCase } from "./sortAccountsByFiatUseCase";
 
 @injectable()
 export class ObserveAccountsWithFiatUseCase {

@@ -7,10 +7,38 @@ alwaysApply: true
 # Import Rules for Ledger Button Project
 
 ## Import Guidelines
-- Always use relative imports instead of absolute imports that start with `src/`
-- When auto-importing, prefer relative paths like `./Component` or `../utils/helper` over `src/components/Component`
 - Never use imports that start with `src/` - this is enforced by ESLint and should be avoided in auto-imports
+- Use relative imports for the current directory and its parent (`./Button`, `../utils/helper`)
 - Use the shortest relative path possible (e.g., `./Button` instead of `../components/Button` when in the same directory)
+
+## Path aliases in `ledger-button-core`
+
+`packages/ledger-button-core` declares `@api/*`, `@internal/*` and `@schemas/*` as `paths`
+in its `tsconfig.lib.json` and `tsconfig.spec.json`, mirrored as `resolve.alias` in its
+`vite.config.ts`. Use them instead of climbing two or more directories:
+
+```ts
+// Good
+import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
+
+// Bad - enforced by no-restricted-imports
+import type { CoreFacade } from "../../api/blockchain-provider/model/CoreFacade";
+```
+
+- Omit the `.js` extension on relative imports and on `@api/*` / `@internal/*` /
+  `@schemas/*` aliases. The workspace uses `moduleResolution: bundler`.
+- Keep real package subpaths that actually resolve to a `.js` file
+  (e.g. `lit/decorators.js`, `@ledgerhq/device-signer-kit-solana/.../SolanaApplicationErrors.js`).
+- Keep the `paths` and the `resolve.alias` in sync. `vite-plugin-dts` reads the Vite aliases
+  to rewrite them back to relative paths in the published declarations; an alias missing
+  there would ship an unresolvable specifier.
+- Consuming projects resolve `ledger-button-core` to its `src` through the
+  `@ledgerhq/ledger-button-workspace` export condition, and TypeScript resolves imports
+  inside those files with the referenced project's own options. This holds as long as the
+  consumer typechecks through project references (`tsc --build`).
+- Next.js apps are the exception: `next build` runs its own type check that ignores project
+  references, so it needs the three `paths` repeated in its own `tsconfig.json` (see
+  `apps/test-dapp/tsconfig.json`). Add them when a new Next app consumes the package.
 
 ## Code Style
 - Follow the existing ESLint configuration for import sorting

@@ -1,24 +1,18 @@
 import { type Factory, inject, injectable } from "inversify";
 import { BehaviorSubject, Observable } from "rxjs";
 
-import { type ContextEvent } from "./model/ContextEvent.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account, DetailedAccount } from "@api/model/Account";
 import {
   type ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
-} from "../../api/model/ButtonCoreContext.js";
-import {
-  type Account,
-  type DetailedAccount,
-} from "../account/service/AccountService.js";
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
-import {
-  getChainIdFromCurrencyId,
-  getCurrencyIdFromChainId,
-} from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
-import { loggerModuleTypes } from "../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { type ContextService } from "./ContextService.js";
+} from "@api/model/ButtonCoreContext";
+
+import { type ContextEvent } from "./model/ContextEvent";
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
+import { loggerModuleTypes } from "../logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { type ContextService } from "./ContextService";
 
 @injectable()
 export class DefaultContextService implements ContextService {
@@ -67,17 +61,19 @@ export class DefaultContextService implements ContextService {
         const evmAccount = this.context.selectedAccounts.get(
           DEFAULT_BLOCKCHAIN_FAMILY,
         );
-        if (evmAccount) {
+        if (evmAccount && event.currencyId) {
           this.context.selectedAccounts.set(DEFAULT_BLOCKCHAIN_FAMILY, {
             ...evmAccount,
-            currencyId:
-              getCurrencyIdFromChainId(event.chainId) ?? evmAccount.currencyId,
+            currencyId: event.currencyId,
           });
         }
         break;
       }
       case "account_changed":
-        this.applySelectedAccount(event.account, event.family);
+        this.context.selectedAccounts.set(event.family, event.account);
+        if (event.family === DEFAULT_BLOCKCHAIN_FAMILY) {
+          this.context.chainId = event.chainId;
+        }
         this.context.activeFamily = event.family;
         break;
       case "hydrated_account":
@@ -150,17 +146,6 @@ export class DefaultContextService implements ContextService {
     };
   }
 
-  private applySelectedAccount(
-    account: Account | DetailedAccount,
-    family: BlockchainFamily,
-  ): void {
-    this.context.selectedAccounts.set(family, account);
-    // chainId tracks the default (ethereum) selection only.
-    if (family === DEFAULT_BLOCKCHAIN_FAMILY) {
-      this.context.chainId = getChainIdFromCurrencyId(account.currencyId);
-    }
-  }
-
   /**
    * Re-apply a freshly hydrated account to the family that currently holds it
    * (matched by address), defaulting to {@link DEFAULT_BLOCKCHAIN_FAMILY}.
@@ -168,7 +153,7 @@ export class DefaultContextService implements ContextService {
   private applyHydratedAccount(account: Account | DetailedAccount): void {
     const family =
       this.findFamilyForAccount(account) ?? DEFAULT_BLOCKCHAIN_FAMILY;
-    this.applySelectedAccount(account, family);
+    this.context.selectedAccounts.set(family, account);
   }
 
   private findFamilyForAccount(
@@ -183,9 +168,7 @@ export class DefaultContextService implements ContextService {
   }
 
   private firstConnectedFamily(): BlockchainFamily | undefined {
-    for (const family of this.context.selectedAccounts.keys()) {
-      return family;
-    }
-    return undefined;
+    return this.context.selectedAccounts.keys().next().value;
   }
+
 }

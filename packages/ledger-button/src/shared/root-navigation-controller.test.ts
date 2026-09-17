@@ -6,12 +6,12 @@ import type { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CoreContext } from "../context/core-context.js";
-import type { LanguageContext } from "../context/language-context.js";
-import type { NavigationHost } from "./navigation.js";
-import { RootNavigationController } from "./root-navigation-controller.js";
+import type { CoreContext } from "../context/core-context";
+import type { LanguageContext } from "../context/language-context";
+import type { NavigationHost } from "./navigation";
+import { RootNavigationController } from "./root-navigation-controller";
 
-vi.mock("./navigation.js", () => ({
+vi.mock("./navigation", () => ({
   Navigation: class {
     navigateTo = vi.fn();
     navigateBack = vi.fn();
@@ -22,7 +22,7 @@ vi.mock("./navigation.js", () => ({
 
 // `routes.js` eagerly imports every screen web component; stub it so the
 // controller can be unit-tested without pulling the whole component tree.
-vi.mock("./routes.js", () => {
+vi.mock("./routes", () => {
   const make = (name: string) => ({
     name,
     component: name,
@@ -41,7 +41,7 @@ vi.mock("./routes.js", () => {
   };
 });
 
-vi.mock("../context/language-context.js", () => ({
+vi.mock("../context/language-context", () => ({
   LanguageContext: { LANGUAGE_CHANGE: "language-change" },
 }));
 

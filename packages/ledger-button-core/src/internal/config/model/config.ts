@@ -1,11 +1,12 @@
 import { injectable } from "inversify";
 
-import PACKAGE from "../../../../package.json" with { type: "json" };
 import {
   LOG_LEVELS,
   type LogLevel,
   LogLevelKey,
-} from "../../logger/model/constant.js";
+} from "@internal/logger/model/constant";
+
+import PACKAGE from "../../../../package.json" with { type: "json" };
 
 export type Environment = "staging" | "production";
 
@@ -70,7 +71,7 @@ export class Config {
   getBackendUrl(): string {
     return this.environment === "production"
       ? "https://ledgerb.api.ledger.com"
-      : "https://ledgerb.aws.stg.ldg-tech.com";
+      : "https://ledgerb.api.ledger-test.com";
   }
 
   getCounterValueUrl(): string {

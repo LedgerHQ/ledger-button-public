@@ -1,40 +1,25 @@
 import {
   BlindSigningDisabledError,
+  type BroadcastTracking,
   BroadcastTransactionError,
-  buildExplorerTransactionUrl,
   DeviceOutOfMemoryError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
-  isSignedMessageOrTypedDataResult,
-  isSignPersonalMessageParams,
-  isSignRawTransactionParams,
-  isSignSolanaMessageParams,
-  isSignTransactionParams,
   type SignedResults,
-  type SignPersonalMessageParams,
-  type SignRawTransactionParams,
-  type SignSolanaMessageParams,
-  type SignTransactionParams,
-  type SignTypedMessageParams,
+  type SignNavigationIntent,
   type UserInteractionNeeded,
   UserRejectedTransactionError,
-  type WalletNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { Subscription } from "rxjs";
 
-import { AnimationKey } from "../../components/index.js";
-import { type CoreContext } from "../../context/core-context.js";
-import { LanguageContext } from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { RootNavigationComponent } from "../../shared/root-navigation.js";
-
-export type BroadcastState = "processing" | "validated";
-
-export type BroadcastInfo = {
-  state: BroadcastState;
-  hash: string;
-};
+import { AnimationKey } from "../../components/index";
+import { type CoreContext } from "../../context/core-context";
+import { LanguageContext } from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { RootNavigationComponent } from "../../shared/root-navigation";
+import { formatAddress } from "../../utils/format-address";
+import { formatDeviceModelName } from "../../utils/format-device-name";
 
 export type ScreenState =
   | {
@@ -44,7 +29,7 @@ export type ScreenState =
         "pairing" | "pairingSuccess" | "frontView"
       >;
     }
-  | { screen: "success"; status: StatusState; broadcast?: BroadcastInfo }
+  | { screen: "success"; status: StatusState; broadcast?: BroadcastTracking }
   | { screen: "error"; status: StatusState };
 
 export type StatusState = {
@@ -57,10 +42,8 @@ export type StatusState = {
 export class SignTransactionController implements ReactiveController {
   host: ReactiveControllerHost;
   private transactionSubscription?: Subscription;
-  private pendingTxSubscription?: Subscription;
-  private currentIntent?: WalletNavigationIntent;
-  private explorerTemplatePrefetch?: Promise<string | undefined>;
-  result?: SignedResults;
+  private broadcastSubscription?: Subscription;
+  private currentIntent?: SignNavigationIntent;
 
   state: ScreenState = {
     screen: "signing",
@@ -83,12 +66,12 @@ export class SignTransactionController implements ReactiveController {
 
   hostDisconnected() {
     this.transactionSubscription?.unsubscribe();
-    this.clearPendingTxSubscription();
+    this.clearBroadcastSubscription();
   }
 
-  private clearPendingTxSubscription() {
-    this.pendingTxSubscription?.unsubscribe();
-    this.pendingTxSubscription = undefined;
+  private clearBroadcastSubscription() {
+    this.broadcastSubscription?.unsubscribe();
+    this.broadcastSubscription = undefined;
   }
 
   private mapUserInteractionToDeviceAnimation(
@@ -108,31 +91,20 @@ export class SignTransactionController implements ReactiveController {
     }
   }
 
-  startSigning(intent: WalletNavigationIntent) {
+  startSigning(intent: SignNavigationIntent) {
     this.currentIntent = intent;
-    const transactionParams = intent.params as
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams
-      | SignSolanaMessageParams;
-    this.explorerTemplatePrefetch = this.isTransactionParameter(
-      transactionParams,
-    )
-      ? this.prefetchTransactionExplorerUrlTemplate()
-      : undefined;
 
     if (this.transactionSubscription) {
       this.transactionSubscription.unsubscribe();
     }
-    this.clearPendingTxSubscription();
+    this.clearBroadcastSubscription();
 
     this.transactionSubscription = intent.status$.subscribe({
       next: (result) => {
         switch (result.status) {
           case "success":
             if (result.data) {
-              void this.handleSignSuccess(result.data);
+              this.handleSignSuccess(result.data);
               break;
             }
             break;
@@ -159,124 +131,73 @@ export class SignTransactionController implements ReactiveController {
   }
 
   private getDeviceName() {
-    const device = this.core.getConnectedDevice();
-    return device?.name || device?.modelId
-      ? this.lang.currentTranslation.common.device.model[device.modelId]
-      : this.lang.currentTranslation.common.device.model.fallback;
-  }
-
-  private isTransactionParameter(
-    transactionParams:
-      | SignTransactionParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignPersonalMessageParams
-      | SignSolanaMessageParams
-      | undefined,
-  ): boolean {
-    if (!transactionParams) {
-      return false;
-    }
-
-    if (
-      isSignPersonalMessageParams(transactionParams) ||
-      isSignSolanaMessageParams(transactionParams)
-    ) {
-      return false;
-    }
-
-    return (
-      isSignTransactionParams(transactionParams) ||
-      isSignRawTransactionParams(transactionParams)
+    return formatDeviceModelName(
+      this.lang.currentTranslation,
+      this.core.getConnectedDevice()?.modelId,
     );
   }
 
-  private mapSuccessToState(
-    data: SignedResults,
-    transactionExplorerUrlTemplate?: string,
-  ): ScreenState {
+  private mapSuccessToState(data: SignedResults): ScreenState {
     const lang = this.lang.currentTranslation;
+    const copy =
+      this.currentIntent?.params.type === "message"
+        ? lang.signMessage?.success
+        : lang.signTransaction?.success;
 
-    let cta2 = undefined;
-    let broadcast: BroadcastInfo | undefined = undefined;
-    if (isBroadcastedTransactionResult(data)) {
-      broadcast = { state: "processing", hash: data.hash };
-      const explorerUrl = buildExplorerTransactionUrl(
-        transactionExplorerUrlTemplate,
-        data.hash,
-      );
-      if (explorerUrl) {
-        cta2 = {
-          label: lang.signTransaction?.success?.viewTransaction,
-          action: () => this.viewTransactionDetails(explorerUrl, data.hash),
-        };
-      }
-    }
-
-    if (isSignedMessageOrTypedDataResult(data)) {
-      return {
-        screen: "success",
-        status: {
-          message: lang.signMessage?.success?.description,
-          title: lang.signMessage?.success?.title,
-          cta1: {
-            label: lang.common.button.close,
-            action: async () => {
-              this.close();
-            },
-          },
-          cta2,
-        },
-      };
-    }
     return {
       screen: "success",
       status: {
-        message: lang.signTransaction?.success?.description,
-        title: lang.signTransaction?.success?.title,
+        message: copy?.description,
+        title: copy?.title,
         cta1: {
           label: lang.common.button.close,
           action: async () => {
             this.close();
           },
         },
-        cta2,
       },
-      broadcast,
+      broadcast: isBroadcastedTransactionResult(data)
+        ? { hash: data.hash, state: "processing" }
+        : undefined,
     };
   }
 
+  /**
+   * Core owns the `processing` -> `validated` transition and resolves the
+   * explorer link while doing so, so the CTA is rebuilt on every emission
+   * rather than derived up front.
+   */
   private subscribeToBroadcastLifecycle(hash: string) {
-    this.clearPendingTxSubscription();
+    this.clearBroadcastSubscription();
 
-    // Wait until the hash has appeared in the pending pool at least once
-    // before allowing the `validated` flip. The pool is populated only after
-    // TrackBroadcastedTransactionUseCase has finished its CAL enrichment, so
-    // the BehaviorSubject's initial replay can legitimately not contain the
-    // hash for a few hundred ms after `processing` is set. The subscription
-    // is kept alive until hostDisconnected() or the next startSigning().
-    let hasBeenSeenInPool = false;
-
-    this.pendingTxSubscription = this.core
-      .observePendingTransactions()
-      .subscribe((txs) => {
-        if (this.state.screen !== "success" || !this.state.broadcast) {
+    this.broadcastSubscription = this.core
+      .observeBroadcastedTransaction(hash)
+      .subscribe((broadcast) => {
+        if (this.state.screen !== "success") {
           return;
         }
-        const stillPending = txs.some((tx) => tx.hash === hash);
-        if (stillPending) {
-          hasBeenSeenInPool = true;
-        }
-        const nextBroadcastState: BroadcastState =
-          !hasBeenSeenInPool || stillPending ? "processing" : "validated";
-        if (nextBroadcastState !== this.state.broadcast.state) {
-          this.state = {
-            ...this.state,
-            broadcast: { ...this.state.broadcast, state: nextBroadcastState },
-          };
-          this.host.requestUpdate();
-        }
+        this.state = {
+          ...this.state,
+          broadcast,
+          status: {
+            ...this.state.status,
+            cta2: this.buildViewTransactionCta(broadcast),
+          },
+        };
+        this.host.requestUpdate();
       });
+  }
+
+  private buildViewTransactionCta(broadcast: BroadcastTracking) {
+    const explorerUrl = broadcast.explorerUrl;
+    if (!explorerUrl) {
+      return undefined;
+    }
+    return {
+      label: this.lang.currentTranslation.signTransaction?.success
+        ?.viewTransaction,
+      action: () => this.viewTransactionDetails(explorerUrl, broadcast.hash),
+    };
   }
 
   private mapErrors(error: unknown) {
@@ -286,21 +207,13 @@ export class SignTransactionController implements ReactiveController {
         const selectedAccount = this.core.getActiveSelectedAccount();
         const deviceName = this.getDeviceName();
 
-        let accountName = "";
-        if (selectedAccount) {
-          if (selectedAccount.name) {
-            accountName = selectedAccount.name;
-          } else {
-            accountName =
-              selectedAccount.freshAddress.slice(0, 6) +
-              "..." +
-              selectedAccount.freshAddress.slice(-4);
-          }
-        }
+        const accountName = selectedAccount
+          ? (selectedAccount.name ?? formatAddress(selectedAccount.freshAddress))
+          : "";
 
         const message = lang.error.device.IncorrectSeed.description
           .replace("{device}", deviceName)
-          .replace("{account}", accountName || "");
+          .replace("{account}", accountName);
 
         this.state = {
           screen: "error",
@@ -451,34 +364,8 @@ export class SignTransactionController implements ReactiveController {
     }
   }
 
-  private async prefetchTransactionExplorerUrlTemplate(): Promise<
-    string | undefined
-  > {
-    const currencyId = this.core.getActiveSelectedAccount()?.currencyId;
-    if (!currencyId) {
-      return undefined;
-    }
-
-    try {
-      const { transactionExplorerUrlTemplate } =
-        await this.core.getCurrencyInfo(currencyId);
-      return transactionExplorerUrlTemplate;
-    } catch {
-      return undefined;
-    }
-  }
-
-  private async handleSignSuccess(data: SignedResults) {
-    const prefetch = this.explorerTemplatePrefetch;
-    const transactionExplorerUrlTemplate = isBroadcastedTransactionResult(data)
-      ? await prefetch
-      : undefined;
-
-    if (this.explorerTemplatePrefetch !== prefetch) {
-      return;
-    }
-
-    this.state = this.mapSuccessToState(data, transactionExplorerUrlTemplate);
+  private handleSignSuccess(data: SignedResults) {
+    this.state = this.mapSuccessToState(data);
     if (this.state.screen === "success" && this.state.broadcast) {
       this.subscribeToBroadcastLifecycle(this.state.broadcast.hash);
     }

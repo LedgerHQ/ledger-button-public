@@ -7,8 +7,8 @@ import {
   DeviceNotSupportedError,
   IncorrectSeedError,
   UserRejectedTransactionError,
-} from "./DeviceErrors.js";
-import { LedgerButtonError } from "./LedgerButtonError.js";
+} from "./DeviceErrors";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 describe("DeviceErrors", () => {
   beforeEach(() => {

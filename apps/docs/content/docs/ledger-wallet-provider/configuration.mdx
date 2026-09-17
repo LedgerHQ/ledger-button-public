@@ -1,0 +1,246 @@
+---
+title: Configuration
+category: reference
+---
+
+import { Callout } from "nextra/components";
+
+export const Required = () => (
+  <span
+    style={{
+      marginLeft: "0.4rem",
+      display: "inline-block",
+      verticalAlign: "middle",
+      backgroundColor: "#dc2626",
+      color: "#fff",
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      lineHeight: 1,
+      padding: "0.2em 0.45em",
+      borderRadius: "3px",
+      letterSpacing: "0.01em",
+    }}
+  >
+    required
+  </span>
+);
+
+export const DevBadge = () => (
+  <span
+    style={{
+      marginLeft: "0.4rem",
+      display: "inline-block",
+      verticalAlign: "middle",
+      backgroundColor: "#f59e0b",
+      color: "#fff",
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      lineHeight: 1,
+      padding: "0.2em 0.45em",
+      borderRadius: "3px",
+      letterSpacing: "0.01em",
+    }}
+  >
+    dev only
+  </span>
+);
+
+export const V2Badge = () => (
+  <span
+    style={{
+      marginLeft: "0.4rem",
+      display: "inline-block",
+      verticalAlign: "middle",
+      backgroundColor: "#0ea5e9",
+      color: "#fff",
+      fontSize: "0.65rem",
+      fontWeight: 500,
+      lineHeight: 1,
+      padding: "0.2em 0.45em",
+      borderRadius: "3px",
+      letterSpacing: "0.01em",
+    }}
+  >
+    v2
+  </span>
+);
+
+# Configuration
+
+This page describes all available configuration options for `initializeLedgerProvider`. See [Get started](./get-started/v2) for usage and [API reference](./api-reference) for the function signature.
+
+## Configuration options
+
+```typescript
+{
+  // Core options
+  apiKey: string;                                    // Your Ledger API key
+  dAppIdentifier: string;                            // Your dApp identifier
+  loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
+  blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
+
+  // UI options
+  target?: HTMLElement;                               // Where to mount the UI (default: document.body)
+  hideButton?: boolean;                               // Hide the floating button entirely (default: false)
+  floatingButtonPosition?: 'bottom-right' | 'bottom-left' | 'bottom-center' | 'top-right' | 'top-left' | 'top-center' | 'middle-right';  // Position of the floating button (default: 'bottom-right')
+  floatingButtonTarget?: HTMLElement | string;        // Element or CSS selector to anchor the floating button to
+  walletTransactionFeatures?: Array<'send' | 'receive' | 'swap' | 'buy' | 'earn' | 'sell'>;  // Wallet action CTAs to display
+  transactionConfirmationNotification?: 'tooltip' | 'toast';  // How TX confirmation is shown (default: 'tooltip')
+}
+```
+
+## Parameter details
+
+All parameters not noted as required are optional.
+
+### `apiKey` <Required />
+
+Your Ledger API key. Get it by enrolling in Ledger's partner program.
+
+### `dAppIdentifier` <Required />
+
+Your dApp identifier. This lets Ledger validate the integration and enable remote services. Your partner configuration determines which blockchain families are available to your dApp — you can then choose which ones to register via `blockchainProviderFactories`.
+
+### `blockchainProviderFactories` <Required /> <V2Badge />
+
+**Available from v2+ only.** Not present in the v1 API.
+
+The blockchain families your dApp wants to enable. Each family package exports a ready-made registration that already carries its own family identifier, so you never write the family string yourself. Families not listed here are never loaded, regardless of what your partner configuration allows.
+
+Install the family package, import its Factory, and pass it here:
+
+```ts
+import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
+import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
+import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
+
+initializeLedgerProvider({
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-api-key",
+  blockchainProviderFactories: [
+    evmBlockchainProviderFactory,
+    solanaBlockchainProviderFactory,
+  ],
+});
+```
+
+| Family     | Package                                   | Registration                      |
+| ---------- | ----------------------------------------- | --------------------------------- |
+| `ethereum` | `@ledgerhq/ledger-wallet-provider-evm`    | `evmBlockchainProviderFactory`    |
+| `solana`   | `@ledgerhq/ledger-wallet-provider-solana` | `solanaBlockchainProviderFactory` |
+
+A registration whose family is not enabled for your `dAppIdentifier` is skipped at init rather than throwing, so listing an extra one is harmless — it only costs bundle size.
+
+### `loggerLevel`
+
+Log verbosity. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`. Default is `'info'`.
+
+### `target`
+
+Target element to mount the Ledger Wallet Provider UI. Defaults to `document.body`.
+
+### `hideButton`
+
+Hides the floating Ledger button entirely. Defaults to `false`.
+
+When set to `true`, the floating button is not rendered on screen or inside a `floatingButtonTarget`. The Ledger UI (modal, side panel) is still mounted and any providers you registered via `blockchainProviderFactories` are still announced — this is useful when you want to drive the flow exclusively from your own UI (for example through the [EIP-6963](https://eips.ethereum.org/EIPS/eip-6963) provider).
+
+```javascript
+initializeLedgerProvider({
+  hideButton: true,
+  // ...
+});
+```
+
+<Callout type="info">
+  When `hideButton` is `true`, `floatingButtonPosition` and
+  `floatingButtonTarget` have no effect.
+</Callout>
+
+### `floatingButtonPosition`
+
+Controls where the floating Ledger button appears on screen. Default is `'bottom-right'`.
+
+Available positions: `'bottom-right'`, `'bottom-left'`, `'bottom-center'`, `'top-right'`, `'top-left'`, `'top-center'`, `'middle-right'`.
+
+```javascript
+initializeLedgerProvider({
+  floatingButtonPosition: "bottom-left",
+  // ...
+});
+```
+
+### `floatingButtonTarget`
+
+An `HTMLElement` or CSS selector string. When provided, the floating button renders as a compact button inside the target element instead of being positioned on screen.
+
+Use this to integrate the Ledger button into your own navigation bar, wallet panel, or sidebar.
+
+```javascript
+// CSS selector
+initializeLedgerProvider({
+  floatingButtonTarget: "#my-wallet-button-slot",
+  // ...
+});
+
+// HTMLElement reference
+initializeLedgerProvider({
+  floatingButtonTarget: document.querySelector("#my-wallet-button-slot"),
+  // ...
+});
+```
+
+<Callout type="info">
+  When `floatingButtonTarget` is set, `floatingButtonPosition` has no effect.
+  The button is placed inside your target element instead.
+</Callout>
+
+### `walletTransactionFeatures`
+
+An optional array of wallet transaction features to display as action buttons in the side panel.
+
+Available features:
+
+- `'send'` — Send crypto
+- `'receive'` — Receive crypto
+- `'swap'` — Swap tokens
+- `'buy'` — Buy crypto
+- `'earn'` — Earn rewards
+- `'sell'` — Sell crypto
+
+If not specified, the action buttons section is not displayed.
+
+### `transactionConfirmationNotification`
+
+Controls how transaction confirmation feedback is shown after a signing flow. Default is `'tooltip'`.
+
+Accepted values:
+
+- `'tooltip'` — show confirmation on the floating button (badge / tooltip)
+- `'toast'` — show confirmation as a toast notification
+
+```javascript
+initializeLedgerProvider({
+  transactionConfirmationNotification: "toast",
+  // ...
+});
+```
+
+## Return value
+
+`initializeLedgerProvider` returns a cleanup function. Call it to remove the provider and UI components from the DOM.
+
+```typescript
+const cleanup = initializeLedgerProvider({ /* options */ })
+
+// Later, when unmounting:
+cleanup()
+```
+
+The cleanup function removes the UI, deregisters any providers that were registered for your partner configuration (for example the EVM `eip6963:requestProvider` listener and/or the Solana Wallet Standard wallet), and resets internal provider state so a new configuration can be applied on the next call.
+
+## See also
+
+- [Get started](./get-started/v2) — install the SDK and run your first integration
+- [API reference →](../api-reference) — `initializeLedgerProvider` API reference
+- [Requirements](./requirements) — browser and platform requirements

@@ -1,59 +1,62 @@
-import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
 import { type Factory, inject, injectable } from "inversify";
 import { Subject } from "rxjs";
 
 import type {
   BlockchainFamily,
+  BroadcastedTransactionMetadata,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
-  ProviderSignParams,
   WalletNavigationIntent,
-} from "../../../api/blockchain-provider/model/types.js";
-import { ModalClosedError } from "../../../api/errors/ProviderErrors.js";
+} from "@api/blockchain-provider/model/types";
+import { ModalClosedError } from "@api/errors/ProviderErrors";
+import type { Account } from "@api/model/Account";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../../api/model/blockchain/GasFee.js";
-import type { ProviderLogger } from "../../../api/model/blockchain/ProviderLogger.js";
-import { getSelectedAccount } from "../../../api/model/ButtonCoreContext.js";
+} from "@api/model/blockchain/GasFee";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
+import { getSelectedAccount } from "@api/model/ButtonCoreContext";
 import {
   isBroadcastedTransactionResult,
   type SignedResults,
-} from "../../../api/model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../../api/model/signing/SignFlowStatus.js";
-import type { Account } from "../../../internal/account/service/AccountService.js";
-import { balanceModuleTypes } from "../../../internal/balance/balanceModuleTypes.js";
-import { getCoinServiceNetworkName } from "../../../internal/balance/constants/networkConstants.js";
-import type { CoinServiceDataSource } from "../../../internal/balance/datasource/coinService/CoinServiceDataSource.js";
-import { configModuleTypes } from "../../../internal/config/configModuleTypes.js";
-import type { Config } from "../../../internal/config/model/config.js";
-import { contextModuleTypes } from "../../../internal/context/contextModuleTypes.js";
-import type { ContextService } from "../../../internal/context/ContextService.js";
-import { deviceModuleTypes } from "../../../internal/device/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../../../internal/device/service/DeviceManagementKitService.js";
-import { eventTrackingModuleTypes } from "../../../internal/event-tracking/eventTrackingModuleTypes.js";
-import type { TrackTransactionCompleted } from "../../../internal/event-tracking/usecase/TrackTransactionCompleted.js";
-import type { TrackTransactionStarted } from "../../../internal/event-tracking/usecase/TrackTransactionStarted.js";
-import type { TrackTypedMessageCompleted } from "../../../internal/event-tracking/usecase/TrackTypedMessageCompleted.js";
-import type { TrackTypedMessageStarted } from "../../../internal/event-tracking/usecase/TrackTypedMessageStarted.js";
-import { loggerModuleTypes } from "../../../internal/logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../../internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../../../internal/modal/modalModuleTypes.js";
-import type { ModalService } from "../../../internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "../../../internal/navigation/navigationModuleTypes.js";
-import type { NavigationIntentService } from "../../../internal/navigation/service/NavigationIntentService.js";
-import { pendingTransactionModuleTypes } from "../../../internal/pending-transaction/pendingTransactionModuleTypes.js";
-import type { TrackBroadcastedTransactionUseCase } from "../../../internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase.js";
-import { backendModuleTypes } from "../../backend/backendModuleTypes.js";
-import type { BackendService } from "../../backend/BackendService.js";
+} from "@api/model/signing/SignedTransaction";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type { BackendService } from "@internal/backend/BackendService";
+import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
 import {
   type BroadcastResponse,
   isCoinServiceBroadcastResponse,
   isJsonRpcResponse,
   type JSONRPCRequest,
-} from "../../backend/types.js";
-import type { CoreFacadeService } from "./CoreFacadeService.js";
+} from "@internal/backend/types";
+import { getCoinServiceNetworkName } from "@internal/balance/constants/networkConstants";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { CoinServiceDataSource } from "@internal/balance/datasource/coinService/CoinServiceDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import type { Config } from "@internal/config/model/config";
+import type { ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
+import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
+import type { TrackTransactionCompleted } from "@internal/event-tracking/use-case/TrackTransactionCompleted";
+import type { TrackTransactionStarted } from "@internal/event-tracking/use-case/TrackTransactionStarted";
+import type { TrackTypedMessageCompleted } from "@internal/event-tracking/use-case/TrackTypedMessageCompleted";
+import type { TrackTypedMessageStarted } from "@internal/event-tracking/use-case/TrackTypedMessageStarted";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { modalModuleTypes } from "@internal/modal/di/modalModuleTypes";
+import type { ModalService } from "@internal/modal/service/ModalService";
+import { navigationModuleTypes } from "@internal/navigation/di/navigationModuleTypes";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
+import { pendingTransactionModuleTypes } from "@internal/pending-transaction/di/pendingTransactionModuleTypes";
+import type { TrackBroadcastedTransactionUseCase } from "@internal/pending-transaction/use-case/TrackBroadcastedTransactionUseCase";
+
+import { blockchainProviderModuleTypes } from "../di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "./BlockchainProviderManager";
+import type { CoreFacadeService } from "./CoreFacadeService";
 
 @injectable()
 export class DefaultCoreFacadeService implements CoreFacadeService {
@@ -64,6 +67,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _navigationIntentService: NavigationIntentService,
     @inject(contextModuleTypes.ContextService)
     private readonly _contextService: ContextService,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly _blockchainProviderManager: BlockchainProviderManager,
     @inject(backendModuleTypes.BackendService)
     private readonly _backendService: BackendService,
     @inject(deviceModuleTypes.DeviceManagementKitService)
@@ -74,6 +79,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _modalService: ModalService,
     @inject(balanceModuleTypes.CoinServiceDataSource)
     private readonly _coinServiceDataSource: CoinServiceDataSource,
+    @inject(balanceModuleTypes.CalDataSource)
+    private readonly _calDataSource: CalDataSource,
     @inject(eventTrackingModuleTypes.TrackTransactionStarted)
     private readonly _trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
@@ -95,6 +102,7 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     blockchain: ProviderBlockchain,
   ): Promise<BroadcastResponse> {
     this._logger.debug("Broadcasting JSON-RPC request", { args, blockchain });
+
     const response = await this._backendService.broadcast({
       blockchain,
       rpc: args,
@@ -173,7 +181,15 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   async requestSwitchChain(chainId: number): Promise<void> {
-    this._contextService.onEvent({ type: "chain_changed", chainId });
+    const currencyId = this._blockchainProviderManager
+      .describeNetwork(String(chainId))
+      .map((c) => c.currencyId)
+      .extract();
+    this._contextService.onEvent({
+      type: "chain_changed",
+      chainId,
+      currencyId,
+    });
   }
 
   private _disconnectHandler?: (family: BlockchainFamily) => Promise<void>;
@@ -231,23 +247,44 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     }
   }
 
-  trackTypedMessageStarted(typedData: TypedData): void {
+  trackTypedMessageStarted(typedData: unknown): void {
     void this._trackTypedMessageStarted.execute(typedData);
   }
 
-  trackTypedMessageCompleted(typedData: TypedData): void {
+  trackTypedMessageCompleted(typedData: unknown): void {
     void this._trackTypedMessageCompleted.execute(typedData);
   }
 
   emitNavigationIntent(intent: WalletNavigationIntent): void {
+    this._warmCurrencyMetadata(intent);
     this._navigationIntentService.emit(intent);
+  }
+
+  /**
+   * A broadcast ends with core resolving currency metadata to build the pending
+   * transaction (formatted value, explorer link). Kicking that lookup off when
+   * the sign phase starts means it runs while the user approves on device, so
+   * the explorer link is ready as soon as the hash is known.
+   */
+  private _warmCurrencyMetadata(intent: WalletNavigationIntent): void {
+    if (intent.name !== "signTransaction" || !intent.params.broadcast) {
+      return;
+    }
+    const account = getSelectedAccount(
+      this._contextService.getContext(),
+      intent.params.family,
+    );
+    if (!account) {
+      return;
+    }
+    void this._calDataSource.getCurrencyInformation(account.currencyId);
   }
 
   trackBroadcastedTransaction(
     status: SignFlowStatus,
-    params: ProviderSignParams,
+    metadata: BroadcastedTransactionMetadata,
   ): void {
-    void this._trackBroadcastedTransaction.execute(status, params);
+    void this._trackBroadcastedTransaction.execute(status, metadata);
   }
 
   async estimateGasFromCoinService(

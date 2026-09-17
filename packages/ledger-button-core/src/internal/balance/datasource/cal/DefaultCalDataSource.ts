@@ -1,23 +1,33 @@
 import { inject, injectable } from "inversify";
 import { type Either, Left, Right } from "purify-ts";
 
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import { getChainIdFromCurrencyId } from "../../../evm-provider/ledger-eip1193/utils/chainUtils.js";
-import { type NetworkServiceOpts } from "../../../network/model/types.js";
-import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
-import { type CalDataSource } from "./CalDataSource.js";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import { type NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
+
+import { type CalDataSource } from "./CalDataSource";
 import {
   type CalCoinResponse,
   type CalNetworkExternalLinks,
   type CalTokenResponse,
   type CurrencyInformation,
   type TokenInformation,
-} from "./calTypes.js";
+} from "./calTypes";
 
 @injectable()
 export class DefaultCalDataSource implements CalDataSource {
+  /**
+   * Currency metadata is immutable for the lifetime of a session and is read on
+   * several hot paths (account hydration, pending-tx tracking, explorer links),
+   * so in-flight requests are shared rather than duplicated.
+   */
+  private readonly currencyInformationCache = new Map<
+    string,
+    Promise<Either<Error, CurrencyInformation>>
+  >();
+
   constructor(
     @inject(networkModuleTypes.NetworkService)
     private readonly networkService: NetworkService<NetworkServiceOpts>,
@@ -29,9 +39,7 @@ export class DefaultCalDataSource implements CalDataSource {
     tokenAddress: string,
     currencyId: string,
   ): Promise<Either<Error, TokenInformation>> {
-    const chainId = getChainIdFromCurrencyId(currencyId);
-
-    const requestUrl = `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&chain_id=${chainId}&output=id,name,decimals,ticker,network_external_links`;
+    const requestUrl = this.buildTokenRequestUrl(tokenAddress, currencyId);
     const getTokenInformationResult: Either<Error, CalTokenResponse> =
       await this.networkService.get(requestUrl);
 
@@ -57,7 +65,32 @@ export class DefaultCalDataSource implements CalDataSource {
     });
   }
 
-  async getCurrencyInformation(
+  getCurrencyInformation(
+    currencyId: string,
+  ): Promise<Either<Error, CurrencyInformation>> {
+    const cached = this.currencyInformationCache.get(currencyId);
+    if (cached) {
+      return cached;
+    }
+
+    const request = this.fetchCurrencyInformation(currencyId);
+    this.currencyInformationCache.set(currencyId, request);
+    void request.then((result) => {
+      if (result.isLeft()) {
+        this.currencyInformationCache.delete(currencyId);
+      }
+    });
+    return request;
+  }
+
+  private buildTokenRequestUrl(
+    tokenAddress: string,
+    currencyId: string,
+  ): string {
+    return `${this.config.getCalUrl()}/v1/tokens?contract_address=${tokenAddress}&network=${currencyId}&output=id,name,decimals,ticker,network_external_links`;
+  }
+
+  private async fetchCurrencyInformation(
     currencyId: string,
   ): Promise<Either<Error, CurrencyInformation>> {
     const requestUrl = `${this.config.getCalUrl()}/v1/coins?id=${currencyId}&output=id,name,ticker,units,network_external_links`;

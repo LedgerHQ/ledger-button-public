@@ -5,17 +5,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   AccountNotFoundError,
   NoSelectedAccountError,
-} from "../../../api/errors/LedgerSyncErrors.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { LedgerSyncService } from "../../ledgersync/service/LedgerSyncService.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { Account, DetailedAccount } from "../service/AccountService.js";
-import type { FetchAccountsUseCase } from "./fetchAccountsUseCase.js";
-import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase.js";
-import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
-import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
-import type { HydrateAccountWithTxHistoryUseCase } from "./hydrateAccountWithTxHistoryUseCase.js";
+} from "@api/errors/LedgerSyncErrors";
+import type { Account, DetailedAccount } from "@api/model/Account";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { ContextService } from "@internal/context/ContextService";
+import type { LedgerSyncService } from "@internal/ledgersync/service/LedgerSyncService";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { BuildNetworksUseCase } from "./buildNetworksUseCase";
+import type { FetchAccountsUseCase } from "./fetchAccountsUseCase";
+import { FetchSelectedAccountUseCase } from "./fetchSelectedAccountUseCase";
+import type { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";
+import type { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
+import type { HydrateAccountWithTxHistoryUseCase } from "./hydrateAccountWithTxHistoryUseCase";
 
 function createMockLogger() {
   return {
@@ -90,7 +92,7 @@ describe("FetchSelectedAccountUseCase", () => {
         timestamp: "2024-01-15T10:00:00Z",
       },
     ],
-    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } }],
+    networks: [{ id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } }],
   };
 
   beforeEach(() => {
@@ -136,7 +138,7 @@ describe("FetchSelectedAccountUseCase", () => {
       mockHydrateWithBalanceUseCase as unknown as HydrateAccountWithBalanceUseCase,
       mockHydrateWithFiatUseCase as unknown as HydrateAccountWithFiatUseCase,
       mockHydrateWithTxHistoryUseCase as unknown as HydrateAccountWithTxHistoryUseCase,
-      mockCalDataSource as unknown as CalDataSource,
+      new BuildNetworksUseCase(mockCalDataSource as unknown as CalDataSource),
     );
 
     vi.clearAllMocks();
@@ -220,7 +222,7 @@ describe("FetchSelectedAccountUseCase", () => {
             hydratedAccount.transactionHistory,
           );
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } },
           ]);
         });
       });
@@ -368,8 +370,8 @@ describe("FetchSelectedAccountUseCase", () => {
         expect(result.isRight()).toBe(true);
         result.map((account) => {
           expect(account.networks).toEqual([
-            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" } },
-            { id: "polygon", name: "Polygon", ticker: "POLYGON", fiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "ethereum", name: "Ethereum", ticker: "ETHEREUM", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } },
+            { id: "polygon", name: "Polygon", ticker: "POLYGON", fiatBalance: { value: "5000.00", currency: "USD" }, totalFiatBalance: { value: "5000.00", currency: "USD" } },
           ]);
           expect(account.networks).not.toContainEqual(
             expect.objectContaining({ id: "bsc" }),

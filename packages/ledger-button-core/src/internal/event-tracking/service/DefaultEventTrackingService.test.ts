@@ -2,14 +2,15 @@ import { Left, Right } from "purify-ts";
 import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ButtonCoreContext } from "../../../api/model/ButtonCoreContext.js";
-import type { BackendService } from "../../backend/BackendService.js";
-import type { EventRequest } from "../../backend/model/trackEvent.js";
-import { EventType } from "../../backend/model/trackEvent.js";
-import type { Config } from "../../config/model/config.js";
-import type { ContextService } from "../../context/ContextService.js";
-import { DEFAULT_FIAT_CURRENCY } from "../../currency/constant.js";
-import { DefaultEventTrackingService } from "./DefaultEventTrackingService.js";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+import type { BackendService } from "@internal/backend/BackendService";
+import type { EventRequest } from "@internal/backend/model/trackEvent";
+import { EventType } from "@internal/backend/model/trackEvent";
+import type { Config } from "@internal/config/model/config";
+import type { ContextService } from "@internal/context/ContextService";
+import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/constant";
+
+import { DefaultEventTrackingService } from "./DefaultEventTrackingService";
 
 /**
  * Helper to wait for a condition to be met by polling the check function

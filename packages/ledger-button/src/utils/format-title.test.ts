@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatTitle } from "./format-title.js";
+import { formatTitle } from "./format-title";
 
 describe("formatTitle", () => {
   describe("no truncation needed", () => {

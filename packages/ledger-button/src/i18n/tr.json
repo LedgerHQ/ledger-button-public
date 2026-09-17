@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Şimdi bağlandınız",
+      "subtitle": "Artık Ledger'ın Transaction Check (İşlem Denetimi) ve Şeffaf İmzalama özelliklerinden yararlanarak ilk işleminizi gerçekleştirebilirsiniz.",
       "close": "Kapat"
     },
     "turnOnSync": {

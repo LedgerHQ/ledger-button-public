@@ -1,13 +1,13 @@
 import { ReactiveController, ReactiveControllerHost } from "lit";
 import { animate } from "motion";
 
-import { ANIMATION_DELAY } from "../../../shared/navigation.js";
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
-import { type AnimationInstance } from "./animation-types.js";
-import { BottomAnimation } from "./bottom-animation.js";
-import { CenterAnimation } from "./center-animation.js";
-import { MorphAnimation } from "./morph-animation.js";
-import { PanelAnimation } from "./panel-animation.js";
+import { ANIMATION_DELAY } from "../../../shared/navigation";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
+import { type AnimationInstance } from "./animation-types";
+import { BottomAnimation } from "./bottom-animation";
+import { CenterAnimation } from "./center-animation";
+import { MorphAnimation } from "./morph-animation";
+import { PanelAnimation } from "./panel-animation";
 
 export type ModalMode = "center" | "panel" | "bottom";
 

@@ -1,20 +1,21 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { configModuleTypes } from "../../../config/configModuleTypes.js";
-import { Config } from "../../../config/model/config.js";
-import type { NetworkServiceOpts } from "../../../network/model/types.js";
-import { networkModuleTypes } from "../../../network/networkModuleTypes.js";
-import type { NetworkService } from "../../../network/NetworkService.js";
-import { CoinServiceServiceErrors } from "../../model/error.js";
-import type { CoinServiceDataSource } from "./CoinServiceDataSource.js";
+import { CoinServiceServiceErrors } from "@internal/balance/model/error";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import type { NetworkServiceOpts } from "@internal/network/model/types";
+import type { NetworkService } from "@internal/network/NetworkService";
+
+import type { CoinServiceDataSource } from "./CoinServiceDataSource";
 import {
   CoinServiceBalance,
   CoinServiceBalanceDto,
   CoinServiceFeeEstimationRequest,
   CoinServiceFeeEstimationResponse,
   CoinServiceTransactionIntent,
-} from "./coinServiceTypes.js";
+} from "./coinServiceTypes";
 
 @injectable()
 export class DefaultCoinServiceDataSource implements CoinServiceDataSource {

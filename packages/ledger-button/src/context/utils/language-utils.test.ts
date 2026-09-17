@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { DEFAULT_LANGUAGE, languages } from "../constants/languages.js";
+import { DEFAULT_LANGUAGE, languages } from "../constants/languages";
 import {
   detectBrowserLanguage,
   getLanguageDisplayName,
-} from "./language-utils.js";
+} from "./language-utils";
 
 const expectedDisplayNamesInCatalogOrder: readonly string[] = [
   "English",
@@ -75,12 +75,11 @@ describe("getLanguageDisplayName", () => {
     });
 
     test("when Intl.DisplayNames.of returns undefined, capitalizes the code", () => {
-      vi.spyOn(Intl, "DisplayNames").mockImplementation(
-        () =>
-          ({
-            of: () => undefined,
-          }) as unknown as Intl.DisplayNames,
-      );
+      vi.spyOn(Intl, "DisplayNames").mockImplementation(function () {
+        return {
+          of: () => undefined,
+        } as unknown as Intl.DisplayNames;
+      });
 
       expect(getLanguageDisplayName("fr")).toBe("Fr");
     });

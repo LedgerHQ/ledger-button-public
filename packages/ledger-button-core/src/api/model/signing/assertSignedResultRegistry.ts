@@ -1,16 +1,9 @@
-import type { SignedResults } from "./SignedTransaction.js";
+import type { SignedResults } from "./SignedTransaction";
 
 /**
- * Compile-time guard against the registry footgun. `SignedResults` derives from
- * the (initially empty) `SignedResultRegistry`, so if NO family augments it,
- * `SignedResults` collapses to `never` — which is silently assignable to
- * everything and would mask real errors.
- *
- * This file is checked but never re-exported from the public barrel. If it fails
- * to compile, a family augmentation is missing from the compilation: ensure each
- * family's `*SignedResult.ts` (which runs `declare module ... SignedResultRegistry`)
- * is loaded, and re-exported from `api/index.ts` so cross-package consumers pick
- * up the declaration merging.
+ * Compile-time sanity check: {@link SignedResults} must never collapse to
+ * `never`. Core always contributes the shared transport result shapes; family
+ * packages may widen the union further via {@link SignedResultRegistry}.
  */
 type AssertTrue<T extends true> = T;
 

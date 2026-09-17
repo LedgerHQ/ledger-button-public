@@ -7,7 +7,9 @@
     "class-variance-authority": "catalog:",
     "lit": "catalog:",
     "lottie-web": "catalog:",
-    "motion": "catalog:",
+    "motion": "catalog:"
+  },
+  "peerDependencies": {
     "rxjs": "catalog:"
   },
   "devDependencies": {
@@ -18,6 +20,7 @@
     "shadow-dom-testing-library": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
+    "jsdom": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {

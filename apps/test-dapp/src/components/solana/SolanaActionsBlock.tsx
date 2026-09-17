@@ -39,6 +39,7 @@ interface SolanaActionsBlockProps {
   canSignTransaction: boolean;
   canSendTransaction: boolean;
   canJupiterSwap: boolean;
+  ownAddress?: string;
   onSignMessage: (message: string) => Promise<void>;
   onSignTransaction: (values: SolanaTransferValues) => Promise<void>;
   onSendTransaction: (values: SolanaTransferValues) => Promise<void>;
@@ -48,6 +49,11 @@ interface SolanaActionsBlockProps {
   error: string | null;
   onClearResult: () => void;
 }
+
+// The "Sign TX" flow signs without broadcasting, so it can safely default to a
+// real, valid base58 recipient (the connected account's own address) and a
+// tiny amount to remove manual entry.
+const DEFAULT_SIGN_TX_LAMPORTS = 1000;
 
 const MODAL_TITLES: Record<NonNullable<ModalType>, string> = {
   "sign-message": "Sign Message",
@@ -105,6 +111,7 @@ export function SolanaActionsBlock({
   canSignTransaction,
   canSendTransaction,
   canJupiterSwap,
+  ownAddress,
   onSignMessage,
   onSignTransaction,
   onSendTransaction,
@@ -140,6 +147,9 @@ export function SolanaActionsBlock({
           submitLabel="Sign Transaction"
           onSubmit={onSignTransaction}
           onClose={closeModal}
+          defaultRecipient={ownAddress}
+          defaultLamports={DEFAULT_SIGN_TX_LAMPORTS}
+          ownAddress={ownAddress}
         />
       ),
       "send-tx": (
@@ -147,6 +157,7 @@ export function SolanaActionsBlock({
           submitLabel="Send Transaction"
           onSubmit={onSendTransaction}
           onClose={closeModal}
+          ownAddress={ownAddress}
         />
       ),
       "jupiter-sign": (
@@ -174,6 +185,7 @@ export function SolanaActionsBlock({
     onSendTransaction,
     onJupiterSign,
     onJupiterSwap,
+    ownAddress,
   ]);
 
   const renderContent = () => {

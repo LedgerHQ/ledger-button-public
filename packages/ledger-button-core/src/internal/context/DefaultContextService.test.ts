@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, test, vi } from "vitest";
 
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import type { ButtonCoreContext } from "../../api/model/ButtonCoreContext.js";
-import type { Account } from "../account/service/AccountService.js";
-import { DEFAULT_FIAT_CURRENCY } from "../currency/constant.js";
-import type { Device } from "../device/model/Device.js";
-import * as chainUtils from "../evm-provider/ledger-eip1193/utils/chainUtils.js";
-import type { LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { DefaultContextService } from "./DefaultContextService.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+import type { ButtonCoreContext } from "@api/model/ButtonCoreContext";
+
+import { DEFAULT_FIAT_CURRENCY } from "../currency/constant";
+import type { Device } from "../device/model/Device";
+import type { LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { DefaultContextService } from "./DefaultContextService";
 
 describe("DefaultContextService", () => {
   let service: DefaultContextService;
@@ -60,10 +60,6 @@ describe("DefaultContextService", () => {
     };
 
     mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
-
-    vi.spyOn(chainUtils, "getChainIdFromCurrencyId").mockImplementation(
-      (currencyId: string) => chainIdMap[currencyId] || 1,
-    );
 
     service = new DefaultContextService(
       mockLoggerFactory as unknown as () => LoggerPublisher,
@@ -151,7 +147,11 @@ describe("DefaultContextService", () => {
       },
       {
         eventType: "account_changed",
-        eventArgs: { account: mockAccountPolygon, family: "ethereum" },
+        eventArgs: {
+          account: mockAccountPolygon,
+          family: "ethereum",
+          chainId: chainIdMap.polygon,
+        },
         expectedContext: {
           connectedDevice: undefined,
           selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
@@ -167,6 +167,7 @@ describe("DefaultContextService", () => {
         },
       },
       {
+        // hydrated_account updates the account data only — chainId is unchanged
         eventType: "hydrated_account",
         eventArgs: { account: mockAccountPolygon },
         expectedContext: {
@@ -174,7 +175,7 @@ describe("DefaultContextService", () => {
           selectedAccounts: new Map([["ethereum", mockAccountPolygon]]),
           trustChainId: undefined,
           applicationPath: undefined,
-          chainId: chainIdMap.polygon,
+          chainId: 1,
           welcomeScreenCompleted: false,
           hasTrackingConsent: undefined,
           hasDeveloperMode: false,
@@ -210,6 +211,7 @@ describe("DefaultContextService", () => {
             type: "account_changed",
             account: mockAccount,
             family: "ethereum",
+            chainId: chainIdMap.ethereum,
           });
         },
         expectedContext: {
@@ -306,6 +308,7 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         expect(service.getContext().activeFamily).toBe("solana");
@@ -316,11 +319,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         expect(service.getContext().activeFamily).toBe("solana");
@@ -331,11 +336,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         service.onEvent({ type: "active_family_changed", family: "ethereum" });
@@ -348,6 +355,7 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
 
         service.onEvent({ type: "active_family_changed", family: "solana" });
@@ -360,11 +368,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         service.onEvent({ type: "account_disconnected", family: "solana" });
@@ -377,6 +387,7 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         service.onEvent({ type: "account_disconnected", family: "solana" });
@@ -389,11 +400,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         const emissions: BlockchainFamily[] = [];
@@ -421,11 +434,13 @@ describe("DefaultContextService", () => {
           type: "account_changed",
           account: mockAccount,
           family: "ethereum",
+          chainId: chainIdMap.ethereum,
         });
         service.onEvent({
           type: "account_changed",
           account: mockSolanaAccount,
           family: "solana",
+          chainId: 1,
         });
 
         const snapshots: ButtonCoreContext[] = [];

@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Ya estás conectado",
+      "subtitle": "Ahora puedes realizar tu primera transacción con las ventajas de la Verificación de transacciones y la Firma Visible de Ledger.",
       "close": "Cerrar"
     },
     "turnOnSync": {

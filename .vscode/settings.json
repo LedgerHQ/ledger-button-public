@@ -32,6 +32,8 @@
     "**/.svn/**"
   ],
   "editor.formatOnSave": true,
+  "javascript.preferences.importModuleSpecifierEnding": "minimal",
+  "typescript.preferences.importModuleSpecifierEnding": "minimal",
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },

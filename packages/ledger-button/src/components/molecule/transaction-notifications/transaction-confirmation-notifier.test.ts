@@ -9,11 +9,11 @@ import type {
 import { BehaviorSubject, map } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications.js";
+import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications";
 import {
   TransactionConfirmationNotifier,
   WINDOW_DURATION_MS,
-} from "./transaction-confirmation-notifier.js";
+} from "./transaction-confirmation-notifier";
 
 function createPendingTx(
   overrides: Partial<PendingTransaction> = {},

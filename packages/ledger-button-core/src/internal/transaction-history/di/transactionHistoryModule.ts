@@ -1,10 +1,10 @@
 import { ContainerModule } from "inversify";
 
-import { DefaultTransactionHistoryDataSource } from "../datasource/coinService/DefaultTransactionHistoryDataSource.js";
-import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
-import { FetchTransactionHistoryUseCase } from "../use-case/FetchTransactionHistoryUseCase.js";
-import { HydrateTransactionsWithFiatUseCase } from "../use-case/HydrateTransactionsWithFiatUseCase.js";
-import { transactionHistoryModuleTypes } from "./transactionHistoryModuleTypes.js";
+import { DefaultTransactionHistoryDataSource } from "../datasource/coinService/DefaultTransactionHistoryDataSource";
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource";
+import { FetchTransactionHistoryUseCase } from "../use-case/FetchTransactionHistoryUseCase";
+import { HydrateTransactionsWithFiatUseCase } from "../use-case/HydrateTransactionsWithFiatUseCase";
+import { transactionHistoryModuleTypes } from "./transactionHistoryModuleTypes";
 
 type TransactionHistoryModuleOptions = {
   stub?: boolean;

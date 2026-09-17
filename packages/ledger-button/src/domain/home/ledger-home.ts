@@ -1,30 +1,30 @@
-import "../../components/index.js";
-import "../token-list/token-list.js";
-import "../transaction-list/transaction-list.js";
+import "../../components/index";
+import "../token-list/token-list";
+import "../transaction-list/transaction-list";
 
 import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
+import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
-} from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
-import { CoreContext, coreContext } from "../../context/core-context.js";
+} from "../../components/molecule/wallet-actions/ledger-wallet-actions";
+import { CoreContext, coreContext } from "../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
+} from "../../context/language-context";
 import {
   buildAccountDeepLink,
   buildWalletActionDeepLink,
-} from "../../shared/constants/deeplinks.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { tailwindElement } from "../../tailwind-element.js";
-import { LedgerHomeController } from "./ledger-home-controller.js";
+} from "../../shared/constants/deeplinks";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
+import { tailwindElement } from "../../tailwind-element";
+import { LedgerHomeController } from "./ledger-home-controller";
 
 type RedirectIntent =
   | { type: "action"; action: WalletTransactionFeature }

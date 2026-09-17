@@ -1,0 +1,82 @@
+---
+title: Get started — EVM only
+category: how-to
+---
+
+import { Callout } from "nextra/components";
+
+# Get started — v1 (EVM only)
+
+This guide covers the **v1 API** (SDK `1.0.x` – `1.4.x`), where EVM support is built into the main package. No separate family package or `blockchainProviderFactories` option is needed.
+
+From v2 onwards you choose the families yourself, including EVM. See the upcoming [v2 guide](./v2).
+
+{/* prettier-ignore */}
+<Callout type="info">
+  **Partner program**: Ledger Wallet Provider requires enrollment in Ledger's partner program to obtain API keys. <a href="https://tally.so/r/wzaAVa" target="_blank" className="text-orange-400 hover:text-orange-300">Contact our team</a> to discuss integration.
+</Callout>
+
+Before you start, check the [Requirements](../requirements) to confirm your target browsers support Web HID and Web Bluetooth.
+
+## Install the SDK
+
+Install the UI package:
+
+```bash
+npm install @ledgerhq/ledger-wallet-provider
+```
+
+You can also install with `yarn` or `pnpm`. The latest stable release is published on [npm](https://www.npmjs.com/package/@ledgerhq/ledger-wallet-provider).
+
+## Initialize the provider
+
+EVM support is bundled — just call `initializeLedgerProvider` directly:
+
+```ts
+import { initializeLedgerProvider } from '@ledgerhq/ledger-wallet-provider'
+import '@ledgerhq/ledger-wallet-provider/styles.css'
+
+const cleanup = initializeLedgerProvider({
+  dAppIdentifier: 'my-dapp',
+  apiKey: 'your-api-key',
+})
+
+// Call cleanup() when your application unmounts
+```
+
+`initializeLedgerProvider` mounts the Ledger UI and registers an EIP-6963 / EIP-1193 provider automatically. It returns a cleanup function — call it when your application unmounts to remove the UI and unregister the provider.
+
+See [Configuration](../configuration) for the full list of options.
+
+## SSR and dynamic imports
+
+The SDK uses browser APIs (`window`, `document`, `CustomEvent`). In SSR frameworks (Next.js, Nuxt, SvelteKit, …), load it only on the client:
+
+```tsx
+import { useEffect } from 'react'
+
+useEffect(() => {
+  let cleanup: (() => void) | undefined
+
+  ;(async () => {
+    await import('@ledgerhq/ledger-wallet-provider/styles.css')
+    const { initializeLedgerProvider } = await import('@ledgerhq/ledger-wallet-provider')
+    cleanup = initializeLedgerProvider({
+      dAppIdentifier: 'my-dapp',
+      apiKey: 'your-api-key',
+    })
+  })()
+
+  return () => cleanup?.()
+}, [])
+```
+
+## Next steps
+
+After initialization, integrate EIP-6963 discovery and EIP-1193 signing:
+
+- [EVM →](../blockchains/evm) — EIP-6963 discovery, `eth_requestAccounts`, message and transaction signing
+- [Configuration →](../configuration) — UI position, environment, and all other options
+- [API reference →](../api-reference) — `initializeLedgerProvider` API reference
+
+Upgrading to 1.4.x or adding Solana? See the [Migration guide](../migration) and the [v2 guide](./v2).

@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Du bist jetzt verbunden",
+      "subtitle": "Du kannst jetzt deine erste Transaktion durchführen und dabei von Ledgers Transaction Check und dem eindeutigen Signieren profitieren.",
       "close": "Schließen"
     },
     "turnOnSync": {

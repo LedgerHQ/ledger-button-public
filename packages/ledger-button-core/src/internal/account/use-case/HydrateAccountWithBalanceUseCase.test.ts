@@ -1,13 +1,17 @@
-import { Left, Right } from "purify-ts";
+import { Left, Maybe, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BackendService } from "../../backend/BackendService.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { CurrencyInformation } from "../../balance/datasource/cal/calTypes.js";
-import type { AccountBalance, TokenBalance } from "../../balance/model/types.js";
-import type { BalanceService } from "../../balance/service/BalanceService.js";
-import type { Account } from "../service/AccountService.js";
-import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase.js";
+import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
+import type { Account } from "@api/model/Account";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { CurrencyInformation } from "@internal/balance/datasource/cal/calTypes";
+import type { AccountBalance, TokenBalance } from "@internal/balance/model/types";
+import type { BalanceService } from "@internal/balance/service/BalanceService";
+import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { ResolveCurrencyDecimalsUseCase } from "@internal/currency/use-case/ResolveCurrencyDecimalsUseCase";
+
+import { HydrateAccountWithBalanceUseCase } from "./HydrateAccountWithBalanceUseCase";
 
 function createMockLogger() {
   return {
@@ -33,18 +37,6 @@ function createMockBalanceService(): {
   };
 }
 
-function createMockBackendService(): {
-  broadcast: ReturnType<typeof vi.fn>;
-  getConfig: ReturnType<typeof vi.fn>;
-  event: ReturnType<typeof vi.fn>;
-} {
-  return {
-    broadcast: vi.fn(),
-    getConfig: vi.fn(),
-    event: vi.fn(),
-  };
-}
-
 function createMockCalDataSource(): {
   getCurrencyInformation: ReturnType<typeof vi.fn>;
   getTokenInformation: ReturnType<typeof vi.fn>;
@@ -67,6 +59,32 @@ function createCurrencyInformation(
   };
 }
 
+const SUPPORTED_CURRENCIES: Record<string, CurrencyDescriptor> = {
+  ethereum: aCurrencyDescriptor(),
+  polygon: aCurrencyDescriptor({
+    currencyId: "polygon",
+    networkId: "137",
+  }),
+  solana: aCurrencyDescriptor({
+    currencyId: "solana",
+    family: "solana",
+    networkId: "mainnet",
+    nativeDecimals: 9,
+  }),
+};
+
+function createMockBlockchainProviderManager(): BlockchainProviderManager {
+  return {
+    init: vi.fn(),
+    setSelectedAccounts: vi.fn(),
+    setNetwork: vi.fn(),
+    describeCurrency: vi.fn((currencyId: string) =>
+      Maybe.fromNullable(SUPPORTED_CURRENCIES[currencyId]),
+    ),
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+  };
+}
+
 function createMockAccount(overrides: Partial<Account> = {}): Account {
   return {
     id: "account-1",
@@ -86,15 +104,15 @@ function createMockAccount(overrides: Partial<Account> = {}): Account {
 describe("HydrateAccountWithBalanceUseCase", () => {
   let useCase: HydrateAccountWithBalanceUseCase;
   let mockBalanceService: ReturnType<typeof createMockBalanceService>;
-  let mockBackendService: ReturnType<typeof createMockBackendService>;
   let mockCalDataSource: ReturnType<typeof createMockCalDataSource>;
+  let mockBlockchainProviderManager: BlockchainProviderManager;
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     mockBalanceService = createMockBalanceService();
-    mockBackendService = createMockBackendService();
     mockCalDataSource = createMockCalDataSource();
+    mockBlockchainProviderManager = createMockBlockchainProviderManager();
     mockCalDataSource.getCurrencyInformation.mockResolvedValue(
       Right(createCurrencyInformation()),
     );
@@ -102,8 +120,11 @@ describe("HydrateAccountWithBalanceUseCase", () => {
     useCase = new HydrateAccountWithBalanceUseCase(
       createMockLoggerFactory(),
       mockBalanceService as unknown as BalanceService,
-      mockBackendService as unknown as BackendService,
-      mockCalDataSource as unknown as CalDataSource,
+      new ResolveCurrencyDecimalsUseCase(
+        mockCalDataSource as unknown as CalDataSource,
+        mockBlockchainProviderManager,
+        createMockLoggerFactory(),
+      ),
     );
   });
 
@@ -141,6 +162,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       const result = await useCase.execute(mockAccount);
 
       expect(result.balance).toBe("1.5");
+      expect(result.balanceError).toBe(false);
       expect(result.tokens).toHaveLength(2);
       expect(result.tokens[0]).toEqual({
         ledgerId: "ethereum/erc20/usdc",
@@ -221,65 +243,19 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       );
     });
 
-    it("should fall back to RPC when balance service fails", async () => {
+    it("should leave balance undefined when balance service fails", async () => {
       const mockAccount = createMockAccount();
       const mockError = new Error("Balance service unavailable");
 
       mockBalanceService.getBalanceForAccount.mockResolvedValue(
         Left(mockError),
       );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0xDE0B6B3A7640000" }), // 1 ETH in hex
-      );
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("1");
+      expect(result.balance).toBeUndefined();
+      expect(result.balanceError).toBe(true);
       expect(result.tokens).toHaveLength(0);
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith({
-        blockchain: { name: "ethereum", chainId: "1" },
-        rpc: {
-          method: "eth_getBalance",
-          params: [mockAccount.freshAddress, "latest"],
-          id: 1,
-          jsonrpc: "2.0",
-        },
-      });
-    });
-
-    it("should return zero balance when both balance service and RPC fail", async () => {
-      const mockAccount = createMockAccount();
-
-      mockBalanceService.getBalanceForAccount.mockResolvedValue(
-        Left(new Error("Balance service unavailable")),
-      );
-      mockBackendService.broadcast.mockResolvedValue(
-        Left(new Error("RPC error")),
-      );
-
-      const result = await useCase.execute(mockAccount);
-
-      expect(result.balance).toBe("0");
-      expect(result.tokens).toHaveLength(0);
-    });
-
-    it("should use correct chain ID for different currencies", async () => {
-      const mockAccount = createMockAccount({ currencyId: "polygon" });
-
-      mockBalanceService.getBalanceForAccount.mockResolvedValue(
-        Left(new Error("Balance service unavailable")),
-      );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0x0" }),
-      );
-
-      await useCase.execute(mockAccount);
-
-      expect(mockBackendService.broadcast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          blockchain: { name: "ethereum", chainId: "137" },
-        }),
-      );
     });
 
     it("should preserve original account properties", async () => {
@@ -356,7 +332,7 @@ describe("HydrateAccountWithBalanceUseCase", () => {
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to Solana default decimals via formatBalance when CAL fails", async () => {
+    it("should fall back to Solana default decimals via manager when CAL fails", async () => {
       const mockAccount = createMockAccount({
         currencyId: "solana",
         ticker: "SOL",
@@ -373,12 +349,11 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals returns undefined; formatBalance falls back to
-      // SOLANA_NATIVE_DECIMALS (9) via getDefaultDecimals("solana")
+      // resolveNativeDecimals falls back to the descriptor's nativeDecimals (9)
       expect(result.balance).toBe("1.5");
     });
 
-    it("should fall back to EVM default decimals via formatBalance when CAL fails", async () => {
+    it("should fall back to EVM default decimals via manager when CAL fails", async () => {
       const mockAccount = createMockAccount();
       mockCalDataSource.getCurrencyInformation.mockResolvedValue(
         Left(new Error("CAL unavailable")),
@@ -392,29 +367,28 @@ describe("HydrateAccountWithBalanceUseCase", () => {
 
       const result = await useCase.execute(mockAccount);
 
-      // resolveNativeDecimals returns undefined; formatBalance falls back to
-      // EVM_NATIVE_DECIMALS (18) via getDefaultDecimals("ethereum")
+      // resolveNativeDecimals falls back to the descriptor's nativeDecimals (18)
       expect(result.balance).toBe("1.5");
     });
 
-    it("should resolve decimals from CAL on the RPC fallback path", async () => {
-      const mockAccount = createMockAccount();
+    it("should report the raw balance when neither CAL nor a provider resolves decimals", async () => {
+      const mockAccount = createMockAccount({
+        currencyId: "unsupported_chain",
+        ticker: "XYZ",
+      });
       mockCalDataSource.getCurrencyInformation.mockResolvedValue(
-        Right(createCurrencyInformation({ decimals: 18 })),
+        Left(new Error("CAL unavailable")),
       );
       mockBalanceService.getBalanceForAccount.mockResolvedValue(
-        Left(new Error("Balance service unavailable")),
-      );
-      mockBackendService.broadcast.mockResolvedValue(
-        Right({ result: "0xDE0B6B3A7640000" }), // 1 ETH in hex
+        Right({
+          nativeBalance: { balance: BigInt("1500000000") },
+          tokenBalances: [],
+        } as AccountBalance),
       );
 
       const result = await useCase.execute(mockAccount);
 
-      expect(result.balance).toBe("1");
-      expect(mockCalDataSource.getCurrencyInformation).toHaveBeenCalledWith(
-        "ethereum",
-      );
+      expect(result.balance).toBe("1,500,000,000");
     });
   });
 });

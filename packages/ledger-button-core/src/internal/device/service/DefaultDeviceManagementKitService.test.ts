@@ -1,4 +1,5 @@
 import {
+  ConsoleLogger,
   DeviceManagementKit,
   DiscoveredDevice,
   NoAccessibleDeviceError,
@@ -10,31 +11,37 @@ import {
   createMockLoggerFactory,
   mockConnectedDevice,
   mockDiscoveredDevice,
-} from "../__tests__/mocks.js";
-import { DeviceConnectionError } from "../model/errors.js";
-import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService.js";
+} from "../__tests__/mocks";
+import { DeviceConnectionError } from "../model/errors";
+import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService";
 
 vi.mock("@ledgerhq/device-management-kit", async () => {
   const actual = await vi.importActual("@ledgerhq/device-management-kit");
   return {
     ...actual,
-    DeviceManagementKitBuilder: vi.fn().mockImplementation(() => ({
-      addConfig: vi.fn().mockReturnThis(),
-      addLogger: vi.fn().mockReturnThis(),
-      addTransport: vi.fn().mockReturnThis(),
-      build: vi.fn().mockReturnValue({
-        startDiscovering: vi.fn(),
-        stopDiscovering: vi.fn(),
-        connect: vi.fn(),
-        disconnect: vi.fn(),
-        getConnectedDevice: vi.fn(),
-        close: vi.fn(),
-        listenToAvailableDevices: vi.fn(),
-      }),
-    })),
+    DeviceManagementKitBuilder: vi.fn().mockImplementation(function () {
+      return {
+        addConfig: vi.fn().mockReturnThis(),
+        addLogger: vi.fn().mockReturnThis(),
+        addTransport: vi.fn().mockReturnThis(),
+        build: vi.fn().mockReturnValue({
+          startDiscovering: vi.fn(),
+          stopDiscovering: vi.fn(),
+          connect: vi.fn(),
+          disconnect: vi.fn(),
+          getConnectedDevice: vi.fn(),
+          close: vi.fn(),
+          listenToAvailableDevices: vi.fn(),
+        }),
+      };
+    }),
     ConsoleLogger: vi.fn(),
     LogLevel: {
+      Fatal: "Fatal",
       Error: "Error",
+      Warning: "Warning",
+      Info: "Info",
+      Debug: "Debug",
     },
   };
 });
@@ -47,7 +54,11 @@ describe("DefaultDeviceManagementKitService", () => {
   beforeEach(() => {
     mockLoggerFactory = createMockLoggerFactory();
 
-    service = new DefaultDeviceManagementKitService(mockLoggerFactory, {});
+    service = new DefaultDeviceManagementKitService(
+      mockLoggerFactory,
+      {},
+      "error",
+    );
 
     mockDmk = service.dmk;
 
@@ -60,6 +71,25 @@ describe("DefaultDeviceManagementKitService", () => {
       expect(service.sessionId).toBeUndefined();
       expect(service.connectedDevice).toBeUndefined();
     });
+
+    it.each([
+      { dmkLogLevel: "fatal" as const, expected: "Fatal" },
+      { dmkLogLevel: "error" as const, expected: "Error" },
+      { dmkLogLevel: "warn" as const, expected: "Warning" },
+      { dmkLogLevel: "info" as const, expected: "Info" },
+      { dmkLogLevel: "debug" as const, expected: "Debug" },
+    ])(
+      "should construct ConsoleLogger with $expected when dmkLogLevel is $dmkLogLevel",
+      ({ dmkLogLevel, expected }) => {
+        new DefaultDeviceManagementKitService(
+          mockLoggerFactory,
+          {},
+          dmkLogLevel,
+        );
+
+        expect(ConsoleLogger).toHaveBeenCalledWith(expected);
+      },
+    );
   });
 
   describe("connectToDevice", () => {

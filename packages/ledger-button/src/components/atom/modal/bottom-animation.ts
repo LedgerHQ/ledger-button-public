@@ -1,5 +1,5 @@
-import { type ContainerAnimation } from "./animation-types.js";
-import { SlideUpAnimation } from "./slide-up-animation.js";
+import { type ContainerAnimation } from "./animation-types";
+import { SlideUpAnimation } from "./slide-up-animation";
 
 export class BottomAnimation implements ContainerAnimation {
   private readonly slideUp = new SlideUpAnimation();

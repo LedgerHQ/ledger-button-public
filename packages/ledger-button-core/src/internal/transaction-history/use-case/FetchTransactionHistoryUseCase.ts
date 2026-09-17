@@ -2,25 +2,28 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import type { CalDataSource } from "../../balance/datasource/cal/CalDataSource.js";
-import type { TokenInformation } from "../../balance/datasource/cal/calTypes.js";
-import { getDefaultDecimals } from "../../currency/currencyUtils.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource.js";
-import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes.js";
-import { TransactionHistoryError } from "../model/TransactionHistoryError.js";
+import type { CalDataSource } from "@internal/balance/datasource/cal/CalDataSource";
+import type { TokenInformation } from "@internal/balance/datasource/cal/calTypes";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import { UNRESOLVED_DECIMALS } from "@internal/currency/currencyUtils";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import type { TransactionHistoryDataSource } from "../datasource/coinService/TransactionHistoryDataSource";
+import { transactionHistoryModuleTypes } from "../di/transactionHistoryModuleTypes";
+import { TransactionHistoryError } from "../model/TransactionHistoryError";
 import {
   TransactionHistoryEntry,
   TransactionHistoryOptions,
   TransactionHistoryPage,
   TransactionHistoryResult,
-} from "../model/transactionHistoryTypes.js";
+} from "../model/transactionHistoryTypes";
 import {
   AssetInfo,
   buildTransactionHistoryItem,
-} from "./buildTransactionHistoryItem.js";
+} from "./buildTransactionHistoryItem";
 
 @injectable()
 export class FetchTransactionHistoryUseCase {
@@ -33,6 +36,8 @@ export class FetchTransactionHistoryUseCase {
     private readonly dataSource: TransactionHistoryDataSource,
     @inject(balanceModuleTypes.CalDataSource)
     private readonly calDataSource: CalDataSource,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
     this.logger = loggerFactory("FetchTransactionHistoryUseCase");
   }
@@ -64,7 +69,7 @@ export class FetchTransactionHistoryUseCase {
             ledgerId: currencyId,
             name: currencyId,
             ticker: currencyId.toUpperCase(),
-            decimals: getDefaultDecimals(currencyId),
+            decimals: this.resolveDecimals(currencyId),
           }),
           Right: (info) => ({
             ledgerId: info.id,
@@ -156,7 +161,7 @@ export class FetchTransactionHistoryUseCase {
           ledgerId: `${currencyId}/erc20/unknown`,
           name: undefined,
           ticker: "???",
-          decimals: getDefaultDecimals(currencyId),
+          decimals: this.resolveDecimals(currencyId),
         };
       },
       Right: (info: TokenInformation) => ({
@@ -166,5 +171,21 @@ export class FetchTransactionHistoryUseCase {
         decimals: info.decimals,
       }),
     });
+  }
+
+  /**
+   * CAL metadata has already been consulted by the callers of this helper, so
+   * the remaining fallback is the native decimals of the owning provider.
+   */
+  private resolveDecimals(currencyId: string): number {
+    return this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.nativeDecimals)
+      .orDefaultLazy(() => {
+        this.logger.warn("Unresolved decimals, reporting raw amounts", {
+          currencyId,
+        });
+        return UNRESOLVED_DECIMALS;
+      });
   }
 }
