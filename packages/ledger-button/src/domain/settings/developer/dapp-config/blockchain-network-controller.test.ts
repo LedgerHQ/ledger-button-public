@@ -108,11 +108,11 @@ describe("BlockchainNetworkController", () => {
   });
 
   describe("resetOverrides", () => {
-    it("should clear the overrides on the core and request a re-render", () => {
+    it("should clear the overrides on the core and navigate back", () => {
       createController().resetOverrides();
 
       expect(core.resetNetworkOverrides).toHaveBeenCalledWith("ethereum");
-      expect(host.requestUpdate).toHaveBeenCalled();
+      expect(navigation.navigateBack).toHaveBeenCalled();
     });
   });
 

@@ -56,7 +56,7 @@ export class BlockchainNetworkScreen extends LitElement {
   private renderNetworkItem(network: BlockchainNetwork) {
     return html`
       <div
-        class="flex h-64 w-full items-center gap-16 px-8 py-0"
+        class="flex h-64 w-full shrink-0 items-center gap-16 px-8 py-0"
       >
         <div class="flex min-w-0 flex-1 flex-col gap-2">
           <span class="body-2-semi-bold truncate text-base">

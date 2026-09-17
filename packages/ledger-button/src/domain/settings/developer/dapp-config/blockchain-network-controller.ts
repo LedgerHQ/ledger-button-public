@@ -12,7 +12,7 @@ export type BlockchainNetworkScreenData = {
 
 export class BlockchainNetworkController {
   constructor(
-    private readonly host: ReactiveControllerHost,
+    host: ReactiveControllerHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
@@ -32,7 +32,7 @@ export class BlockchainNetworkController {
 
   resetOverrides(): void {
     this.core.resetNetworkOverrides(this.blockchainId);
-    this.host.requestUpdate();
+    this.navigation.navigateBack();
   }
 
   navigateToAddNetwork(): void {
