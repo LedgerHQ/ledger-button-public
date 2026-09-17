@@ -54,9 +54,10 @@ import type { SignPersonalMessageUseCase } from "./use-case/SignPersonalMessageU
 import type { SignRawTransaction } from "./use-case/SignRawTransaction";
 import type { SignTransaction } from "./use-case/SignTransaction";
 import type { SignTypedData } from "./use-case/SignTypedData";
+import { getChainIdFromCurrencyId } from "./utils/chainUtils";
 import { isBlockingRequestMethod } from "./utils/isBlockingRequestMethod";
 import { resolveRpcRoute } from "./utils/resolveRpcRoute";
-import { EvmNetworkRegistry } from "./EvmNetworkRegistry";
+import { isSupportedChainId } from "./utils/supportedChains";
 
 /** Lazily resolves the per-dApp RPC routing config (may be undefined). */
 export type RpcMethodsLoader = () => Promise<BlockchainRpcMethods | undefined>;
@@ -112,7 +113,6 @@ export class LedgerEIP1193Provider
     private readonly host: CoreFacade,
     private readonly deps: LedgerEIP1193ProviderDeps,
     private readonly loadRpcMethods?: RpcMethodsLoader,
-    private readonly networkRegistry?: EvmNetworkRegistry,
   ) {
     super();
   }
@@ -262,9 +262,7 @@ export class LedgerEIP1193Provider
       }),
     );
 
-    const chainId =
-      this.networkRegistry?.getChainIdFromCurrencyId(account.currencyId) ?? 1;
-    this.setSelectedChainId(chainId);
+    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId));
   }
 
   /** Core pushes the active chain id. Emits EIP-1193 `chainChanged`. */
@@ -298,9 +296,7 @@ export class LedgerEIP1193Provider
 
     this._isConnected = true;
     this._selectedAccount = account;
-    const chainId =
-      this.networkRegistry?.getChainIdFromCurrencyId(account.currencyId) ?? 1;
-    this.setSelectedChainId(chainId, true);
+    this.setSelectedChainId(getChainIdFromCurrencyId(account.currencyId), true);
 
     this.dispatchEvent(
       new CustomEvent<string[]>("accountsChanged", {
@@ -558,10 +554,7 @@ export class LedgerEIP1193Provider
     const chainId = (params[0] as { chainId: string }).chainId;
     const chainIdNumber = parseInt(chainId, 16);
 
-    const isSupported = this.networkRegistry
-      ? this.networkRegistry.isSupportedChainId(chainIdNumber)
-      : false;
-    if (!isSupported) {
+    if (!isSupportedChainId(chainIdNumber.toString())) {
       throw this.createError(
         CommonEIP1193ErrorCode.ChainDisconnected,
         "Unsupported chain",

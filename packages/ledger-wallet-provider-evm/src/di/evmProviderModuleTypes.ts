@@ -3,8 +3,6 @@ export const evmProviderModuleTypes = {
   CoreFacade: Symbol.for("EvmCoreFacade"),
   /** The per-provider BlockchainConfig, bound per-instance in the container. */
   BlockchainConfig: Symbol.for("EvmBlockchainConfig"),
-  /** Network registry derived from BlockchainConfig.networks at startup. */
-  NetworkRegistry: Symbol.for("EvmNetworkRegistry"),
   SignTransactionUseCase: Symbol.for("SignTransactionUseCase"),
   SignRawTransactionUseCase: Symbol.for("SignRawTransactionUseCase"),
   SignTypedDataUseCase: Symbol.for("SignTypedDataUseCase"),

@@ -53,9 +53,7 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
             family,
           }),
         Right: (provider) => {
-          this.logger.debug("Registering provider", {
-            family: provider.family,
-          });
+          this.logger.debug("Registering provider", { family: provider.family });
           this.providers.set(provider.family, provider);
           provider.injectWalletProviders();
         },
