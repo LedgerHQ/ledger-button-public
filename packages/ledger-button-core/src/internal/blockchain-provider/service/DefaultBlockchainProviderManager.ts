@@ -21,12 +21,6 @@ import type { StorageService } from "@internal/storage/StorageService";
 
 import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 
-// Only for network overrides
-const OVERRIDES_DECIMALS: Record<BlockchainFamily, number> = {
-  ethereum: 18,
-  solana: 9,
-};
-
 /**
  * Central registry that creates, wires, and manages blockchain providers.
  *
@@ -122,17 +116,21 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     );
   }
 
-  // Check providers for a match
   private providersFind<T>(
     query: (provider: BlockchainProvider) => T | undefined,
   ): Maybe<T> {
     return this.iterate(this.providers.values(), query);
   }
 
-  // Check overrides for a match
   private overridesFind(
     matches: (network: BlockchainNetwork) => boolean,
   ): Maybe<CurrencyDescriptor> {
+    // Native decimals are hardcoded here because overrides are never looked up on a Provider
+    const nativeDecimals: Record<BlockchainFamily, number> = {
+      ethereum: 18,
+      solana: 9,
+    };
+
     return this.iterate(this.providers.values(), (provider) => {
       const network = this.storedOverrides(provider.family).find(matches);
       if (!network) {
@@ -143,7 +141,7 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
         currencyId: network.currencyId,
         family: provider.family,
         networkId: network.id,
-        nativeDecimals: OVERRIDES_DECIMALS[provider.family],
+        nativeDecimals: nativeDecimals[provider.family],
       };
     });
   }
@@ -154,10 +152,6 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     );
   }
 
-  /**
-   * Shared primitive: walk `source` and return the first non-undefined result
-   * of `query`, or Nothing when every element returns undefined.
-   */
   private iterate<S, T>(
     source: Iterable<S>,
     query: (item: S) => T | undefined,

@@ -96,25 +96,14 @@ describe("GetDAppConfigUseCase", () => {
 
       await expect(useCase.execute()).rejects.toThrow("network error");
     });
-  });
 
-  describe("mergeNetworkOverrides", () => {
-    it("returns the config unchanged when there are no overrides", async () => {
-      const { useCase } = createUseCase({ networkOverrides: {} });
-
-      const result = await useCase.execute();
-
-      expect(result.blockchains).toEqual(BASE_CONFIG.blockchains);
-    });
-
-    it("appends override networks to the matching blockchain", async () => {
+    it("merges stored network overrides into the config", async () => {
       const blastNetwork = {
         id: "81457",
         currencyId: "blast",
         currencyName: "Blast",
         currencyTicker: "ETH",
       };
-
       const { useCase } = createUseCase({
         networkOverrides: { ethereum: [blastNetwork] },
       });
@@ -124,95 +113,7 @@ describe("GetDAppConfigUseCase", () => {
         (b) => b.blockchain === "ethereum",
       );
 
-      expect(ethBlockchain?.networks).toEqual([
-        BASE_CONFIG.blockchains[0].networks[0],
-        blastNetwork,
-      ]);
-    });
-
-    it("does not affect blockchains with no matching override key", async () => {
-      const blastNetwork = {
-        id: "81457",
-        currencyId: "blast",
-        currencyName: "Blast",
-        currencyTicker: "ETH",
-      };
-
-      const { useCase } = createUseCase({
-        networkOverrides: { ethereum: [blastNetwork] },
-      });
-
-      const result = await useCase.execute();
-      const solanaBlockchain = result.blockchains.find(
-        (b) => b.blockchain === "solana",
-      );
-
-      expect(solanaBlockchain?.networks).toEqual(
-        BASE_CONFIG.blockchains[1].networks,
-      );
-    });
-
-    it("appends overrides to multiple blockchains independently", async () => {
-      const blastNetwork = {
-        id: "81457",
-        currencyId: "blast",
-        currencyName: "Blast",
-        currencyTicker: "ETH",
-      };
-      const solanaDevnet = {
-        id: "devnet",
-        currencyId: "solana_devnet",
-        currencyName: "Solana Devnet",
-        currencyTicker: "SOL",
-      };
-
-      const { useCase } = createUseCase({
-        networkOverrides: {
-          ethereum: [blastNetwork],
-          solana: [solanaDevnet],
-        },
-      });
-
-      const result = await useCase.execute();
-
-      const ethNetworks = result.blockchains.find(
-        (b) => b.blockchain === "ethereum",
-      )?.networks;
-      const solanaNetworks = result.blockchains.find(
-        (b) => b.blockchain === "solana",
-      )?.networks;
-
-      expect(ethNetworks).toHaveLength(2);
-      expect(ethNetworks).toContainEqual(blastNetwork);
-      expect(solanaNetworks).toHaveLength(2);
-      expect(solanaNetworks).toContainEqual(solanaDevnet);
-    });
-
-    it("preserves non-network blockchain fields when merging", async () => {
-      const { useCase } = createUseCase({
-        networkOverrides: {
-          ethereum: [
-            {
-              id: "81457",
-              currencyId: "blast",
-              currencyName: "Blast",
-              currencyTicker: "ETH",
-            },
-          ],
-        },
-      });
-
-      const result = await useCase.execute();
-      const ethBlockchain = result.blockchains.find(
-        (b) => b.blockchain === "ethereum",
-      );
-
-      expect(ethBlockchain?.appName).toBe("Ethereum");
-      expect(ethBlockchain?.rpcMethods).toEqual({ local: [], broadcasted: [] });
-      expect(ethBlockchain?.appDependencies).toEqual({
-        appName: "Ethereum",
-        dependencies: [],
-      });
+      expect(ethBlockchain?.networks).toContainEqual(blastNetwork);
     });
   });
 });

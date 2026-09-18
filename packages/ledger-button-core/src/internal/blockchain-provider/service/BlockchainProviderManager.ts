@@ -14,12 +14,7 @@ export interface BlockchainProviderManager {
     dappConfig: DAppConfig,
     factories: BlockchainProviderFactory[],
   ): void;
-  /**
-   * Networks of the registered provider for `family`, read from the dApp
-   * config and overlaid with the locally stored overrides so additions are
-   * visible without a reload. Empty when no provider is registered.
-   */
-  getNetworks(family: BlockchainFamily): BlockchainNetwork[];
+
   /**
    * Push the selected account of each blockchain family to its provider. A
    * provider whose family is absent from the map receives `undefined` (cleared).
@@ -37,4 +32,8 @@ export interface BlockchainProviderManager {
    * belongs to.
    */
   describeNetwork(networkId: string): Maybe<CurrencyDescriptor>;
+  /**
+   * Reads the networks from the dApp config and from config overrides for a family.
+   */
+  getNetworks(family: BlockchainFamily): BlockchainNetwork[];
 }

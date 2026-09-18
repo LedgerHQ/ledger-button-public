@@ -7,7 +7,8 @@ import type { StorageService } from "@internal/storage/StorageService";
 
 import type { DAppConfigDataSource } from "../datasource/DAppConfigDataSource";
 import { dAppConfigModuleTypes } from "../di/dAppConfigModuleTypes";
-import { DAppConfig } from "../model/dAppConfigTypes";
+import type { DAppConfig } from "../model/dAppConfigTypes";
+import { mergeNetworkOverrides } from "../utils/mergeNetworkOverrides";
 
 @injectable()
 export class GetDAppConfigUseCase {
@@ -29,29 +30,11 @@ export class GetDAppConfigUseCase {
 
     try {
       const config = await this.dataSource.getDAppConfig();
-      return this.mergeNetworkOverrides(config);
+      const { networkOverrides } = this.storageService.getConfigOverrides();
+      return mergeNetworkOverrides(config, networkOverrides);
     } catch (error) {
       this.logger.error("Failed to fetch dApp config", { error });
       throw error;
     }
-  }
-
-  private mergeNetworkOverrides(config: DAppConfig): DAppConfig {
-    const { networkOverrides } = this.storageService.getConfigOverrides();
-
-    if (Object.keys(networkOverrides).length === 0) {
-      return config;
-    }
-
-    return {
-      ...config,
-      blockchains: config.blockchains.map((blockchain) => ({
-        ...blockchain,
-        networks: [
-          ...blockchain.networks,
-          ...(networkOverrides[blockchain.blockchain] ?? []),
-        ],
-      })),
-    };
   }
 }
