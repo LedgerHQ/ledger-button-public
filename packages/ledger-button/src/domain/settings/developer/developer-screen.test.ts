@@ -23,11 +23,11 @@ function createMockDestinations() {
       canGoBack: true,
       toolbar: { title: "Feature flags", canClose: true },
     } as Destination,
-    dAppConfig: {
-      name: "dAppConfig",
-      component: "dapp-config-screen",
+    blockchainNetworks: {
+      name: "blockchainNetworks",
+      component: "blockchain-network-screen",
       canGoBack: true,
-      toolbar: { title: "dApp Config", canClose: true },
+      toolbar: { title: "dApp Config EVM", canClose: true },
     } as Destination,
   };
 }
@@ -38,9 +38,6 @@ function createMockLanguages() {
       settings: {
         featureFlags: {
           title: "Feature flags",
-        },
-        dAppConfig: {
-          title: "dApp Config",
         },
       },
     },
@@ -77,12 +74,12 @@ describe("DeveloperScreen", () => {
       expect(renderedString).toContain("Feature flags");
     });
 
-    test("should render the dApp config entry", () => {
+    test("should render the dApp Config EVM entry", () => {
       const el = createDeveloperScreen();
       const rendered = el.render();
       const renderedString = JSON.stringify(rendered);
 
-      expect(renderedString).toContain("dApp Config");
+      expect(renderedString).toContain("dApp Config EVM");
     });
   });
 
@@ -100,7 +97,7 @@ describe("DeveloperScreen", () => {
       expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.featureFlags);
     });
 
-    test("handleDAppConfigClick should navigate to dApp config destination", () => {
+    test("handleEvmNetworksClick should navigate to blockchainNetworks destination", () => {
       const mockNav = createMockNavigation();
       const mockDest = createMockDestinations();
       const el = createDeveloperScreen({
@@ -108,9 +105,11 @@ describe("DeveloperScreen", () => {
         destinations: mockDest,
       });
 
-      (el as any).handleDAppConfigClick();
+      (el as any).handleEvmNetworksClick();
 
-      expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.dAppConfig);
+      expect(mockNav.navigateTo).toHaveBeenCalledWith(
+        mockDest.blockchainNetworks,
+      );
     });
   });
 });

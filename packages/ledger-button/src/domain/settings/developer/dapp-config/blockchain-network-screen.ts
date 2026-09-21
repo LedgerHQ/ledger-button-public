@@ -9,10 +9,7 @@ import { CoreContext, coreContext } from "../../../../context/core-context";
 import { Navigation } from "../../../../shared/navigation";
 import { Destinations } from "../../../../shared/routes";
 import { tailwindElement } from "../../../../tailwind-element";
-import {
-  BlockchainNetworkController,
-  type BlockchainNetworkScreenData,
-} from "./blockchain-network-controller";
+import { BlockchainNetworkController } from "./blockchain-network-controller";
 
 @customElement("blockchain-network-screen")
 @tailwindElement()
@@ -22,9 +19,6 @@ export class BlockchainNetworkScreen extends LitElement {
 
   @property({ type: Object })
   destinations!: Destinations;
-
-  @property({ type: Object })
-  screenData?: BlockchainNetworkScreenData;
 
   @consume({ context: coreContext, subscribe: true })
   @property({ attribute: false })
@@ -36,22 +30,19 @@ export class BlockchainNetworkScreen extends LitElement {
 
   override willUpdate(changedProps: PropertyValues) {
     if (
-      (changedProps.has("navigation") ||
-        changedProps.has("screenData") ||
-        changedProps.has("coreContext")) &&
+      (changedProps.has("navigation") || changedProps.has("coreContext")) &&
       this.navigation &&
       this.coreContext &&
-      !this.controller &&
-      this.screenData
+      !this.controller
     ) {
       this.controller = new BlockchainNetworkController(
         this,
         this.coreContext,
         this.navigation,
         this.destinations,
-        this.screenData.blockchainId,
-        this.screenData.displayName,
-        () => { this._overridesVersion++; },
+        () => {
+          this._overridesVersion++;
+        },
       );
     }
   }

@@ -64,17 +64,12 @@ describe("BlockchainNetworkController", () => {
     destinations = createMockDestinations();
   });
 
-  const createController = (
-    blockchainId = "ethereum",
-    displayName = "Ethereum",
-  ) =>
+  const createController = () =>
     new BlockchainNetworkController(
       host,
       core as never,
       navigation as never,
       destinations as never,
-      blockchainId,
-      displayName,
       vi.fn(),
     );
 
@@ -119,8 +114,6 @@ describe("BlockchainNetworkController", () => {
         core as never,
         navigation as never,
         destinations as never,
-        "ethereum",
-        "Ethereum",
         invalidate,
       ).resetOverrides();
 
@@ -130,15 +123,10 @@ describe("BlockchainNetworkController", () => {
   });
 
   describe("navigateToAddNetwork", () => {
-    it("should navigate to the addNetwork destination with blockchainId in screenData", () => {
+    it("should navigate to the addNetwork destination", () => {
       createController().navigateToAddNetwork();
 
-      expect(navigation.navigateTo).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: "addNetwork",
-          screenData: { blockchainId: "ethereum", displayName: "Ethereum" },
-        }),
-      );
+      expect(navigation.navigateTo).toHaveBeenCalledWith(destinations.addNetwork);
     });
   });
 });

@@ -24,7 +24,6 @@ import "../domain/settings/security/security-screen";
 import "../domain/settings/support/support-screen";
 import "../domain/settings/developer/developer-screen";
 import "../domain/settings/developer/feature-flags/feature-flags-screen";
-import "../domain/settings/developer/dapp-config/dapp-config-screen";
 import "../domain/settings/developer/dapp-config/blockchain-network-screen";
 import "../domain/settings/developer/dapp-config/add-network-screen";
 import "../domain/home-flow/home-flow";
@@ -375,21 +374,12 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
         canClose: true,
       },
     },
-    dAppConfig: {
-      name: "dAppConfig",
-      component: "dapp-config-screen",
-      canGoBack: true,
-      toolbar: {
-        title: "dApp config",
-        canClose: true,
-      },
-    },
     blockchainNetworks: {
       name: "blockchainNetworks",
       component: "blockchain-network-screen",
       canGoBack: true,
       toolbar: {
-        title: "",
+        title: "dApp Config EVM",
         canClose: true,
       },
     },

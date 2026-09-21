@@ -35,8 +35,8 @@ export class DeveloperScreen extends LitElement {
     this.navigation.navigateTo(this.destinations.featureFlags);
   }
 
-  private handleDAppConfigClick() {
-    this.navigation.navigateTo(this.destinations.dAppConfig);
+  private handleEvmNetworksClick() {
+    this.navigation.navigateTo(this.destinations.blockchainNetworks);
   }
 
   private renderMenuItem(
@@ -85,7 +85,7 @@ export class DeveloperScreen extends LitElement {
           settings.featureFlags?.title ?? "Feature flags",
           this.handleFeatureFlagsClick,
         )}
-        ${this.renderMenuItem("code", "dApp Config", this.handleDAppConfigClick)}
+        ${this.renderMenuItem("code", "dApp Config EVM", this.handleEvmNetworksClick)}
       </div>
     `;
   }

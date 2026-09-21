@@ -5,10 +5,7 @@ import type { CoreContext } from "../../../../context/core-context";
 import type { Navigation } from "../../../../shared/navigation";
 import type { Destinations } from "../../../../shared/routes";
 
-export type BlockchainNetworkScreenData = {
-  blockchainId: string;
-  displayName: string;
-};
+const EVM_FAMILY = "ethereum";
 
 export class BlockchainNetworkController {
   constructor(
@@ -16,15 +13,13 @@ export class BlockchainNetworkController {
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
     private readonly destinations: Destinations,
-    private readonly blockchainId: string,
-    private readonly displayName: string,
     private readonly invalidate: () => void,
   ) {
     host.addController(this as ReactiveController);
   }
 
   get networks(): BlockchainNetwork[] {
-    return this.core.getBlockchainNetworks(this.blockchainId);
+    return this.core.getBlockchainNetworks(EVM_FAMILY);
   }
 
   get hasOverrides(): boolean {
@@ -37,12 +32,6 @@ export class BlockchainNetworkController {
   }
 
   navigateToAddNetwork(): void {
-    this.navigation.navigateTo({
-      ...this.destinations.addNetwork,
-      screenData: {
-        blockchainId: this.blockchainId,
-        displayName: this.displayName,
-      },
-    });
+    this.navigation.navigateTo(this.destinations.addNetwork);
   }
 }

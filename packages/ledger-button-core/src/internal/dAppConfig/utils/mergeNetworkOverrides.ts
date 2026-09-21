@@ -2,6 +2,7 @@ import type { BlockchainNetwork } from "@api/model/dappConfig/BlockchainConfig";
 
 import type { DAppConfig } from "../model/dAppConfigTypes";
 
+// Developer-mode, EVM-only
 export function mergeNetworkOverrides(
   config: DAppConfig,
   overrides: BlockchainNetwork[],

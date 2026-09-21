@@ -9,7 +9,6 @@ import { Navigation } from "../../../../shared/navigation";
 import { Destinations } from "../../../../shared/routes";
 import { tailwindElement } from "../../../../tailwind-element";
 import { AddNetworkController } from "./add-network-controller";
-import type { BlockchainNetworkScreenData } from "./blockchain-network-controller";
 
 const INPUT_CLASS =
   "body-2-medium h-48 w-full rounded-sm bg-muted px-16 text-base outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-base";
@@ -22,9 +21,6 @@ export class AddNetworkScreen extends LitElement {
 
   @property({ type: Object })
   destinations!: Destinations;
-
-  @property({ type: Object })
-  screenData?: BlockchainNetworkScreenData;
 
   @consume({ context: coreContext, subscribe: true })
   @property({ attribute: false })
@@ -42,13 +38,10 @@ export class AddNetworkScreen extends LitElement {
 
   override willUpdate(changedProps: PropertyValues) {
     if (
-      (changedProps.has("navigation") ||
-        changedProps.has("screenData") ||
-        changedProps.has("coreContext")) &&
+      (changedProps.has("navigation") || changedProps.has("coreContext")) &&
       this.navigation &&
       this.coreContext &&
-      !this.controller &&
-      this.screenData
+      !this.controller
     ) {
       this.controller = new AddNetworkController(
         this,
