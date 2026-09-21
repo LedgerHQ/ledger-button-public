@@ -1,5 +1,5 @@
 import type { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
-import { ethers, Signature } from "ethers";
+import { ethers } from "ethers";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Transaction } from "../model/SignTransactionParams";
@@ -23,13 +23,11 @@ describe("TransactionHelper", () => {
 
   describe("createSignedTransaction", () => {
     const mockRawTransaction = validTx.unsignedSerialized;
-    const mockSignature: Signature = {
+    const mockSignature: DeviceSignature = {
       r: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       s: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       v: 27,
-      yParity: 0,
-      networkV: null,
-    } as Signature;
+    };
 
     it("should create a signed transaction with rawTransaction and signedRawTransaction", () => {
       const result = createSignedTransaction(mockRawTransaction, mockSignature);

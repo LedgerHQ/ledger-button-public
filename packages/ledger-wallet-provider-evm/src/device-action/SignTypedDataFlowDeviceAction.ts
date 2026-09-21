@@ -10,7 +10,7 @@ import {
 import {
   GetAddressDeviceActionFactory,
   type Signature,
-  SignTransactionDAStep,
+  SignTypedDataDAStateStep,
   SignTypedDataDeviceActionFactory,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { EthAppCommandError } from "@ledgerhq/device-signer-kit-ethereum/internal/app-binder/command/utils/ethAppErrors.js";
@@ -441,7 +441,7 @@ export class SignTypedDataFlowDeviceAction extends XStateDeviceAction<
     if (error instanceof EthAppCommandError) {
       if (
         error.errorCode === "6a80" &&
-        lastSignStep === SignTransactionDAStep.BLIND_SIGN_TRANSACTION_FALLBACK
+        lastSignStep === SignTypedDataDAStateStep.SIGN_TYPED_DATA_LEGACY
       ) {
         return {
           ...internalState,
