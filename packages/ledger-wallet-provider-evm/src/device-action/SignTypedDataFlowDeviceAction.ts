@@ -41,22 +41,6 @@ type ChildDASnapshotContext = {
   };
 };
 
-/**
- * `makeStateMachine` is `protected` on `XStateDeviceAction`, so it cannot be called
- * on a sibling instance from within another subclass. SignTypedDataDeviceActionFactory
- * returns `XStateDeviceAction<...>` directly (not a concrete subclass like
- * CallTaskInAppDeviceAction), which triggers TS2446. This helper bypasses the access
- * check while preserving the output type O for downstream type inference.
- */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function callMakeStateMachine<O, I>(
-  da: XStateDeviceAction<O, I, any, any, any>,
-  api: InternalApi,
-): DeviceActionStateMachine<O, I, any, any, any> {
-  return (da as any).makeStateMachine(api);
-}
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
 export class SignTypedDataFlowDeviceAction extends XStateDeviceAction<
   SignTypedDataFlowDAOutput,
   SignTypedDataFlowDAInput,
@@ -112,7 +96,7 @@ export class SignTypedDataFlowDeviceAction extends XStateDeviceAction<
       actors: {
         openApp: openAppDA.makeStateMachine(internalApi),
         getAddress: getAddressDA.makeStateMachine(internalApi),
-        signTypedData: callMakeStateMachine(signTypedDataDA, internalApi),
+        signTypedData: signTypedDataDA.makeStateMachine(internalApi),
       },
       guards: {
         hasNoError: ({ context }) => context._internalState.error === null,
