@@ -1,0 +1,139 @@
+name: "[Release] Release Candidate"
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The release branch to publish a release candidate from
+        required: true
+
+concurrency:
+  group: rc-release-${{ github.event.inputs.ref }}
+  cancel-in-progress: false
+
+env:
+  FORCE_COLOR: "1"
+  REF: ${{ inputs.ref }}
+  NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
+
+jobs:
+  public-runner:
+    name: Build and Attest Release Candidate Packages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # OIDC for npmjs attestation and keyless signing
+      attestations: write # Needed to attest artifacts
+    steps:
+      - name: Require a release branch
+        run: |
+          if [[ ! "$REF" =~ ^release/ ]]; then
+            echo "::error::A release candidate must be published from a release/* branch (got: $REF)"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.REF }}
+
+      - uses: ./.github/actions/setup-action-composite
+        with:
+          playwright: false
+
+      - name: Update workspace syntax to use fixed version
+        run: git ls-files | grep 'package\.json$' | xargs sed -i 's/workspace:\^/workspace:*/g'
+
+      # Does not commit. A classic release/* branch with stable X.Y.Z becomes
+      # X.Y.Z-rc.0. Manifests already at X.Y.Z-rc.N are left unchanged.
+      - name: Set public package versions to X.Y.Z-rc.N
+        run: |
+          node -e '
+            const fs = require("fs");
+            const stable = /^(\d+\.\d+\.\d+)$/;
+            const rc = /^\d+\.\d+\.\d+-rc\.\d+$/;
+            let failed = false;
+            for (const dir of fs.readdirSync("packages")) {
+              const path = `packages/${dir}/package.json`;
+              if (!fs.existsSync(path)) continue;
+              const pkg = JSON.parse(fs.readFileSync(path, "utf8"));
+              if (pkg.private || !pkg.name) continue;
+              const from = pkg.version;
+              if (rc.test(from)) {
+                console.log(`KEEP ${pkg.name}@${from}`);
+                continue;
+              }
+              const match = stable.exec(from);
+              if (!match) {
+                failed = true;
+                console.log(`FAIL ${pkg.name}@${from}`);
+                continue;
+              }
+              pkg.version = `${match[1]}-rc.0`;
+              fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + "\n");
+              console.log(`${pkg.name} ${from} -> ${pkg.version}`);
+            }
+            if (failed) {
+              console.error("Every public package must be X.Y.Z or X.Y.Z-rc.N");
+              process.exit(1);
+            }
+          '
+
+      - name: Canonicalize package.json
+        run: pnpm nx run ldb-tools:canonicalize
+
+      - name: Build libraries
+        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana
+
+      - name: Check bundle externals
+        run: pnpm check:bundles
+
+      - name: Prepare dist directory
+        run: pnpm nx run ldb-tools:pack
+
+      - name: Attest for npmjs.com
+        uses: LedgerHQ/actions-security/actions/attest-for-npmsjs-com@attest-npm-dir-support
+        with:
+          subject-path: ./dist
+
+      # The action currently doesn't support pushing the blob to the registry
+      - name: Sign tarball
+        uses: LedgerHQ/actions-security/actions/sign-blob@actions/sign-blob-1
+        with:
+          path: ./dist
+
+      - name: Upload packages to GitHub Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: npm-rc-packages
+          path: dist/*.tgz
+          retention-days: 1
+          if-no-files-found: error
+
+  ledger-runner:
+    name: Publish Release Candidate to JFrog
+    needs: public-runner
+    runs-on: public-ledgerhq-shared-medium
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ env.REF }}
+
+      - uses: ./.github/actions/setup-action-composite
+        with:
+          playwright: false
+
+      - name: Download packages from GitHub Artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: npm-rc-packages
+          path: dist
+
+      # Always the rc dist-tag: this workflow never moves latest.
+      - name: Publish release candidate packages to JFrog
+        uses: ./.github/actions/publish-to-jfrog-composite
+        with:
+          npm-registry: ${{ env.NPM_REGISTRY }}
+          dist-path: dist
+          npm-tag: rc
