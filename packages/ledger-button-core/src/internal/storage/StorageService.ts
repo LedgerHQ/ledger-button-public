@@ -59,5 +59,4 @@ export interface StorageService {
 
   getConfigOverrides(): ConfigOverrides;
   saveConfigOverrides(overrides: ConfigOverrides): void;
-  resetConfigOverrides(): void;
 }

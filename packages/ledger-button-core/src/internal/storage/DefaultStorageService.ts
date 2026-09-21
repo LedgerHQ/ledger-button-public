@@ -368,8 +368,4 @@ export class DefaultStorageService implements StorageService {
   saveConfigOverrides(overrides: ConfigOverrides): void {
     this.saveItem(STORAGE_KEYS.CONFIG_OVERRIDES, overrides);
   }
-
-  resetConfigOverrides(): void {
-    this.removeItem(STORAGE_KEYS.CONFIG_OVERRIDES);
-  }
 }

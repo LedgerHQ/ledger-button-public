@@ -661,20 +661,5 @@ describe("DefaultStorageService", () => {
       });
     });
 
-    describe("resetConfigOverrides", () => {
-      it("should restore default overrides after reset", () => {
-        storageService.saveConfigOverrides([BLAST_NETWORK]);
-
-        storageService.resetConfigOverrides();
-
-        expect(storageService.getConfigOverrides()).toEqual([]);
-      });
-
-      it("should be idempotent when called with no overrides stored", () => {
-        storageService.resetConfigOverrides();
-
-        expect(storageService.getConfigOverrides()).toEqual([]);
-      });
-    });
   });
 });
