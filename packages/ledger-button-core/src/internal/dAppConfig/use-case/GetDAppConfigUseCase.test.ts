@@ -68,7 +68,7 @@ function createUseCase({
 
 describe("GetDAppConfigUseCase", () => {
   describe("execute", () => {
-    it("returns the config from the data source", async () => {
+    it("returns the raw config from the data source", async () => {
       const { useCase } = createUseCase();
 
       const result = await useCase.execute();
@@ -85,12 +85,28 @@ describe("GetDAppConfigUseCase", () => {
       await expect(useCase.execute()).rejects.toThrow("network error");
     });
 
-    it("merges stored network overrides into the config", async () => {
+    it("does not merge stored overrides", async () => {
       const { useCase } = createUseCase({
         networkOverrides: [BLAST_NETWORK],
       });
 
       const result = await useCase.execute();
+      const ethBlockchain = result.blockchains.find(
+        (b) => b.blockchain === "ethereum",
+      );
+
+      expect(ethBlockchain?.networks).toHaveLength(1);
+      expect(ethBlockchain?.networks[0]?.currencyId).toBe("ethereum");
+    });
+  });
+
+  describe("executeWithOverrides", () => {
+    it("merges stored network overrides into the config", async () => {
+      const { useCase } = createUseCase({
+        networkOverrides: [BLAST_NETWORK],
+      });
+
+      const result = await useCase.executeWithOverrides();
       const ethBlockchain = result.blockchains.find(
         (b) => b.blockchain === "ethereum",
       );
@@ -101,7 +117,7 @@ describe("GetDAppConfigUseCase", () => {
     it("returns unmodified config when no overrides are stored", async () => {
       const { useCase } = createUseCase();
 
-      const result = await useCase.execute();
+      const result = await useCase.executeWithOverrides();
       const ethBlockchain = result.blockchains.find(
         (b) => b.blockchain === "ethereum",
       );

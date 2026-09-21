@@ -65,7 +65,7 @@ export class DefaultAccountService implements AccountService {
     cloudSyncData: CloudSyncData,
   ): Promise<Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    const dAppConfig = await this.getDAppConfigUseCase.execute();
+    const dAppConfig = await this.getDAppConfigUseCase.executeWithOverrides();
     const supportedNetworks = dAppConfig.blockchains.flatMap(
       (blockchain) => blockchain.networks,
     );

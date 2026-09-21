@@ -29,14 +29,18 @@ export class GetDAppConfigUseCase {
     this.logger.debug("Fetching dApp config");
 
     try {
-      const config = await this.dataSource.getDAppConfig();
-      return mergeNetworkOverrides(
-        config,
-        this.storageService.getConfigOverrides(),
-      );
+      return await this.dataSource.getDAppConfig();
     } catch (error) {
       this.logger.error("Failed to fetch dApp config", { error });
       throw error;
     }
+  }
+
+  async executeWithOverrides(): Promise<DAppConfig> {
+    const config = await this.execute();
+    return mergeNetworkOverrides(
+      config,
+      this.storageService.getConfigOverrides(),
+    );
   }
 }
