@@ -16,6 +16,10 @@ import {
 } from "@solana/kit";
 import type { Wallet, WalletAccount, WalletIcon } from "@wallet-standard/base";
 import {
+  WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
+  WalletStandardError,
+} from "@wallet-standard/errors";
+import {
   StandardConnect,
   type StandardConnectFeature,
   type StandardConnectMethod,
@@ -547,7 +551,11 @@ export class LedgerSolanaWallet implements Wallet {
           signType,
         });
         cleanup();
-        reject(new Error("User closed the modal"));
+        reject(
+          new WalletStandardError(
+            WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
+          ),
+        );
       };
 
       const cleanup = () => {

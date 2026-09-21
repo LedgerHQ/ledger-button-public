@@ -3,7 +3,11 @@ import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
 import { getBase58Decoder, getBase64Decoder } from "@solana/kit";
 import type { WalletAccount } from "@wallet-standard/base";
-import { of } from "rxjs";
+import {
+  isWalletStandardError,
+  WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
+} from "@wallet-standard/errors";
+import { of, Subject } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
@@ -93,6 +97,9 @@ describe("LedgerSolanaWallet (connection)", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    // Settle any in-flight sign flow left pending by error-status tests so
+    // their `ledger-provider-close` listener does not leak into later tests.
+    globalThis.dispatchEvent(new Event("ledger-provider-close"));
   });
 
   describe("metadata", () => {
@@ -413,16 +420,72 @@ describe("LedgerSolanaWallet (connection)", () => {
       // The sign promise only settles on success or a modal close; an error
       // status just surfaces in the modal, so start the flow without awaiting
       // its (never-settling) resolution and let the sync emission be tracked.
-      void wallet.features["solana:signTransaction"].signTransaction({
-        account: {} as never,
-        transaction,
-      });
+      void wallet.features["solana:signTransaction"]
+        .signTransaction({
+          account: {} as never,
+          transaction,
+        })
+        .catch(() => undefined);
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(host.trackBroadcastedTransaction).toHaveBeenCalledWith(
         errorStatus,
         { family: "solana" },
       );
+    });
+
+    it("rejects with a Wallet Standard user-rejection error when the modal is closed", async () => {
+      const status$ = new Subject<SignFlowStatus>();
+      signUseCase.execute.mockReturnValue(status$.asObservable());
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const pending = wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+      // `signTransaction` awaits account resolution before `runSignFlow` binds
+      // the close listener; flush that microtask so the dispatch is observed.
+      await Promise.resolve();
+
+      globalThis.dispatchEvent(new Event("ledger-provider-close"));
+
+      await expect(pending).rejects.toSatisfy(
+        (error: unknown) =>
+          isWalletStandardError(
+            error,
+            WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
+          ) &&
+          error.context.__code === WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
+      );
+    });
+
+    it("does not settle the promise on a non-user-rejection error status", async () => {
+      const errorStatus: SignFlowStatus = {
+        signType: "transaction",
+        status: "error",
+        error: new Error("sign failed"),
+      };
+      signUseCase.execute.mockReturnValue(of(errorStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      let settled = false;
+      const pending = wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+      void pending.then(
+        () => {
+          settled = true;
+        },
+        () => {
+          settled = true;
+        },
+      );
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(settled).toBe(false);
     });
 
     it("emits a signTransaction navigation intent", async () => {
@@ -575,15 +638,19 @@ describe("LedgerSolanaWallet (connection)", () => {
       // broadcast failure just surfaces in the modal, so start the flow without
       // awaiting its (never-settling) resolution and let the error be tracked.
       let settled = false;
-      void wallet.features["solana:signAndSendTransaction"]
+      const pending = wallet.features["solana:signAndSendTransaction"]
         .signAndSendTransaction({
           account: {} as never,
           transaction,
-        })
-        .then(
-          () => (settled = true),
-          () => (settled = true),
-        );
+        });
+      void pending.then(
+        () => {
+          settled = true;
+        },
+        () => {
+          settled = true;
+        },
+      );
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(settled).toBe(false);

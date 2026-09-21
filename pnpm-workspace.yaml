@@ -61,6 +61,7 @@ catalog:
   "@vitest/coverage-v8": ^5.0.0
   "@vitest/ui": ^5.0.0
   "@wallet-standard/base": ^1.1.0
+  "@wallet-standard/errors": ^0.1.2
   "@wallet-standard/features": ^1.1.0
   "@wallet-standard/react": ^1.0.1
   "@wallet-standard/wallet": ^1.1.0
