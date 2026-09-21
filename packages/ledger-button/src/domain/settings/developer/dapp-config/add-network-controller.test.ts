@@ -26,9 +26,8 @@ function createMockNavigation() {
 
 function createMockCore() {
   return {
-    addNetworkOverride: vi.fn(),
-    resetNetworkOverrides: vi.fn(),
-    hasNetworkOverrides: vi.fn().mockReturnValue(false),
+    getConfigOverrides: vi.fn().mockReturnValue({ networkOverrides: [] }),
+    setConfigOverrides: vi.fn(),
     getBlockchainNetworks: vi.fn().mockReturnValue([]),
   };
 }
@@ -44,13 +43,8 @@ describe("AddNetworkController", () => {
     navigation = createMockNavigation();
   });
 
-  const createController = (blockchainId = "ethereum") =>
-    new AddNetworkController(
-      host,
-      core as never,
-      navigation as never,
-      blockchainId,
-    );
+  const createController = () =>
+    new AddNetworkController(host, core as never, navigation as never);
 
   it("should register itself with the host", () => {
     const controller = createController();
@@ -58,13 +52,20 @@ describe("AddNetworkController", () => {
   });
 
   describe("addNetwork", () => {
-    it("should store the new network as an override on the core", () => {
+    it("should append the new network to the stored overrides", () => {
+      const existing = {
+        id: "11155111",
+        currencyId: "ethereum_sepolia",
+        currencyName: "Sepolia",
+        currencyTicker: "ETH",
+      };
+      core.getConfigOverrides.mockReturnValue({ networkOverrides: [existing] });
+
       createController().addNetwork(ETH_MAINNET);
 
-      expect(core.addNetworkOverride).toHaveBeenCalledWith(
-        "ethereum",
-        ETH_MAINNET,
-      );
+      expect(core.setConfigOverrides).toHaveBeenCalledWith({
+        networkOverrides: [existing, ETH_MAINNET],
+      });
     });
 
     it("should navigate back after saving", () => {
@@ -79,7 +80,7 @@ describe("AddNetworkController", () => {
       createController().cancel();
 
       expect(navigation.navigateBack).toHaveBeenCalled();
-      expect(core.addNetworkOverride).not.toHaveBeenCalled();
+      expect(core.setConfigOverrides).not.toHaveBeenCalled();
     });
   });
 });

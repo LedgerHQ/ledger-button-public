@@ -54,7 +54,6 @@ export class AddNetworkScreen extends LitElement {
         this,
         this.coreContext,
         this.navigation,
-        this.screenData.blockchainId,
       );
     }
   }

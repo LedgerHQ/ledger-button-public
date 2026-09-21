@@ -46,8 +46,8 @@ function createMockDestinations() {
 function createMockCore() {
   return {
     getBlockchainNetworks: vi.fn().mockReturnValue([]),
-    hasNetworkOverrides: vi.fn().mockReturnValue(false),
-    resetNetworkOverrides: vi.fn(),
+    getConfigOverrides: vi.fn().mockReturnValue({ networkOverrides: [] }),
+    setConfigOverrides: vi.fn(),
   };
 }
 
@@ -100,11 +100,16 @@ describe("BlockchainNetworkController", () => {
   });
 
   describe("hasOverrides", () => {
-    it("should delegate to the core", () => {
-      core.hasNetworkOverrides.mockReturnValue(true);
+    it("should be true when stored overrides exist", () => {
+      core.getConfigOverrides.mockReturnValue({
+        networkOverrides: [ETH_MAINNET],
+      });
 
       expect(createController().hasOverrides).toBe(true);
-      expect(core.hasNetworkOverrides).toHaveBeenCalledWith("ethereum");
+    });
+
+    it("should be false when no overrides are stored", () => {
+      expect(createController().hasOverrides).toBe(false);
     });
   });
 
@@ -121,7 +126,9 @@ describe("BlockchainNetworkController", () => {
         invalidate,
       ).resetOverrides();
 
-      expect(core.resetNetworkOverrides).toHaveBeenCalledWith("ethereum");
+      expect(core.setConfigOverrides).toHaveBeenCalledWith({
+        networkOverrides: [],
+      });
       expect(invalidate).toHaveBeenCalled();
     });
   });

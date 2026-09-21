@@ -637,78 +637,56 @@ describe("DefaultStorageService", () => {
     describe("getConfigOverrides", () => {
       it("should return default overrides when none are stored", () => {
         expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: {},
+          networkOverrides: [],
         });
       });
 
       it("should return stored overrides", () => {
         storageService.saveConfigOverrides({
-          networkOverrides: { ethereum: [BLAST_NETWORK] },
+          networkOverrides: [BLAST_NETWORK],
         });
 
         expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: { ethereum: [BLAST_NETWORK] },
+          networkOverrides: [BLAST_NETWORK],
         });
-      });
-
-      it("should merge stored overrides with defaults", () => {
-        storageService.saveConfigOverrides({
-          networkOverrides: { ethereum: [BLAST_NETWORK] },
-        });
-
-        const result = storageService.getConfigOverrides();
-        expect(result.networkOverrides).toBeDefined();
       });
     });
 
     describe("saveConfigOverrides", () => {
-      it("should persist overrides for a single family", () => {
+      it("should persist the override list", () => {
         storageService.saveConfigOverrides({
-          networkOverrides: { ethereum: [BLAST_NETWORK] },
+          networkOverrides: [BLAST_NETWORK],
         });
 
-        expect(
-          storageService.getConfigOverrides().networkOverrides.ethereum,
-        ).toEqual([BLAST_NETWORK]);
-      });
-
-      it("should persist overrides for multiple families", () => {
-        storageService.saveConfigOverrides({
-          networkOverrides: {
-            ethereum: [BLAST_NETWORK],
-            solana: [HYPEREVM_NETWORK],
-          },
-        });
-
-        const overrides = storageService.getConfigOverrides().networkOverrides;
-        expect(overrides.ethereum).toEqual([BLAST_NETWORK]);
-        expect(overrides.solana).toEqual([HYPEREVM_NETWORK]);
+        expect(storageService.getConfigOverrides().networkOverrides).toEqual([
+          BLAST_NETWORK,
+        ]);
       });
 
       it("should overwrite previously saved overrides", () => {
         storageService.saveConfigOverrides({
-          networkOverrides: { ethereum: [BLAST_NETWORK] },
+          networkOverrides: [BLAST_NETWORK],
         });
         storageService.saveConfigOverrides({
-          networkOverrides: { ethereum: [HYPEREVM_NETWORK] },
+          networkOverrides: [HYPEREVM_NETWORK],
         });
 
-        expect(
-          storageService.getConfigOverrides().networkOverrides.ethereum,
-        ).toEqual([HYPEREVM_NETWORK]);
+        expect(storageService.getConfigOverrides().networkOverrides).toEqual([
+          HYPEREVM_NETWORK,
+        ]);
       });
     });
 
     describe("resetConfigOverrides", () => {
       it("should restore default overrides after reset", () => {
         storageService.saveConfigOverrides({
-          networkOverrides: { ethereum: [BLAST_NETWORK] },
+          networkOverrides: [BLAST_NETWORK],
         });
 
         storageService.resetConfigOverrides();
 
         expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: {},
+          networkOverrides: [],
         });
       });
 
@@ -716,7 +694,7 @@ describe("DefaultStorageService", () => {
         storageService.resetConfigOverrides();
 
         expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: {},
+          networkOverrides: [],
         });
       });
     });

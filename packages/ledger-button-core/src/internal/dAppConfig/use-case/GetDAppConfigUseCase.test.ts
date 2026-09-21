@@ -46,10 +46,15 @@ const BASE_CONFIG: DAppConfig = {
 
 function createUseCase({
   config = BASE_CONFIG,
-  networkOverrides = {},
+  networkOverrides = [],
 }: {
   config?: DAppConfig;
-  networkOverrides?: Record<string, { id: string; currencyId: string; currencyName: string; currencyTicker: string }[]>;
+  networkOverrides?: {
+    id: string;
+    currencyId: string;
+    currencyName: string;
+    currencyTicker: string;
+  }[];
 } = {}) {
   const dataSource: DAppConfigDataSource = {
     getDAppConfig: vi.fn().mockResolvedValue(config),
@@ -105,7 +110,7 @@ describe("GetDAppConfigUseCase", () => {
         currencyTicker: "ETH",
       };
       const { useCase } = createUseCase({
-        networkOverrides: { ethereum: [blastNetwork] },
+        networkOverrides: [blastNetwork],
       });
 
       const result = await useCase.execute();

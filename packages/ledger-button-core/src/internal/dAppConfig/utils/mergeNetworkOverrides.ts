@@ -6,22 +6,23 @@ export function mergeNetworkOverrides(
   config: DAppConfig,
   overrides: ConfigOverrides["networkOverrides"],
 ): DAppConfig {
-  if (Object.keys(overrides).length === 0) {
+  if (overrides.length === 0) {
     return config;
   }
 
-  return {
-    ...config,
-    blockchains: config.blockchains.map((blockchain) => {
-      const networksOverrides = overrides[blockchain.blockchain];
-      if (!networksOverrides?.length) {
-        return blockchain;
-      }
+  const index = config.blockchains.findIndex(
+    (blockchain) => blockchain.blockchain === "ethereum",
+  );
+  const ethereum = config.blockchains[index];
+  if (!ethereum) {
+    return config;
+  }
 
-      return {
-        ...blockchain,
-        networks: [...blockchain.networks, ...networksOverrides],
-      };
-    }),
+  const blockchains = [...config.blockchains];
+  blockchains[index] = {
+    ...ethereum,
+    networks: [...ethereum.networks, ...overrides],
   };
+
+  return { ...config, blockchains };
 }

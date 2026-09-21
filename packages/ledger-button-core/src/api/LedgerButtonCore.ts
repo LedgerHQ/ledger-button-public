@@ -99,6 +99,7 @@ import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase";
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
+import type { ConfigOverrides } from "../internal/storage/model/ConfigOverrides";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
 import { type StorageService } from "../internal/storage/StorageService";
 import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
@@ -638,51 +639,17 @@ export class LedgerButtonCore {
       .getNetworks(blockchainFamily as BlockchainFamily);
   }
 
-  addNetworkOverride(
-    blockchainFamily: string,
-    network: BlockchainNetwork,
-  ): void {
-    this._logger.debug("Adding network override", { blockchainFamily, network });
-    this.replaceNetworkOverrides(blockchainFamily, (networks) => [
-      ...networks,
-      network,
-    ]);
+  getConfigOverrides(): ConfigOverrides {
+    return this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getConfigOverrides();
   }
 
-  resetNetworkOverrides(blockchainFamily: string): void {
-    this._logger.debug("Resetting network overrides", { blockchainFamily });
-    this.replaceNetworkOverrides(blockchainFamily, () => []);
-  }
-
-  hasNetworkOverrides(blockchainFamily: string): boolean {
-    return this.networkOverrides(blockchainFamily).length > 0;
-  }
-
-  private networkOverrides(blockchainFamily: string): BlockchainNetwork[] {
-    return (
-      this.container
-        .get<StorageService>(storageModuleTypes.StorageService)
-        .getConfigOverrides().networkOverrides[blockchainFamily] ?? []
-    );
-  }
-
-  private replaceNetworkOverrides(
-    blockchainFamily: string,
-    replace: (networks: BlockchainNetwork[]) => BlockchainNetwork[],
-  ): void {
-    const storageService = this.container.get<StorageService>(
-      storageModuleTypes.StorageService,
-    );
-    const overrides = storageService.getConfigOverrides();
-    storageService.saveConfigOverrides({
-      ...overrides,
-      networkOverrides: {
-        ...overrides.networkOverrides,
-        [blockchainFamily]: replace(
-          overrides.networkOverrides[blockchainFamily] ?? [],
-        ),
-      },
-    });
+  setConfigOverrides(overrides: ConfigOverrides): void {
+    this._logger.debug("Updating config overrides", { overrides });
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveConfigOverrides(overrides);
   }
 
   getPreferredFiatCurrency(): string {

@@ -50,13 +50,11 @@ const BLAST_NETWORK = {
 
 describe("mergeNetworkOverrides", () => {
   it("returns the config unchanged when there are no overrides", () => {
-    expect(mergeNetworkOverrides(BASE_CONFIG, {})).toBe(BASE_CONFIG);
+    expect(mergeNetworkOverrides(BASE_CONFIG, [])).toBe(BASE_CONFIG);
   });
 
-  it("appends override networks to the matching blockchain", () => {
-    const result = mergeNetworkOverrides(BASE_CONFIG, {
-      ethereum: [BLAST_NETWORK],
-    });
+  it("appends override networks to the ethereum blockchain", () => {
+    const result = mergeNetworkOverrides(BASE_CONFIG, [BLAST_NETWORK]);
     const ethBlockchain = result.blockchains.find(
       (b) => b.blockchain === "ethereum",
     );
@@ -67,10 +65,8 @@ describe("mergeNetworkOverrides", () => {
     ]);
   });
 
-  it("does not affect blockchains with no matching override key", () => {
-    const result = mergeNetworkOverrides(BASE_CONFIG, {
-      ethereum: [BLAST_NETWORK],
-    });
+  it("does not affect non-EVM blockchains", () => {
+    const result = mergeNetworkOverrides(BASE_CONFIG, [BLAST_NETWORK]);
     const solanaBlockchain = result.blockchains.find(
       (b) => b.blockchain === "solana",
     );
@@ -80,36 +76,8 @@ describe("mergeNetworkOverrides", () => {
     );
   });
 
-  it("appends overrides to multiple blockchains independently", () => {
-    const solanaDevnet = {
-      id: "devnet",
-      currencyId: "solana_devnet",
-      currencyName: "Solana Devnet",
-      currencyTicker: "SOL",
-    };
-
-    const result = mergeNetworkOverrides(BASE_CONFIG, {
-      ethereum: [BLAST_NETWORK],
-      solana: [solanaDevnet],
-    });
-
-    const ethNetworks = result.blockchains.find(
-      (b) => b.blockchain === "ethereum",
-    )?.networks;
-    const solanaNetworks = result.blockchains.find(
-      (b) => b.blockchain === "solana",
-    )?.networks;
-
-    expect(ethNetworks).toHaveLength(2);
-    expect(ethNetworks).toContainEqual(BLAST_NETWORK);
-    expect(solanaNetworks).toHaveLength(2);
-    expect(solanaNetworks).toContainEqual(solanaDevnet);
-  });
-
   it("preserves non-network blockchain fields when merging", () => {
-    const result = mergeNetworkOverrides(BASE_CONFIG, {
-      ethereum: [BLAST_NETWORK],
-    });
+    const result = mergeNetworkOverrides(BASE_CONFIG, [BLAST_NETWORK]);
     const ethBlockchain = result.blockchains.find(
       (b) => b.blockchain === "ethereum",
     );
@@ -120,5 +88,14 @@ describe("mergeNetworkOverrides", () => {
       appName: "Ethereum",
       dependencies: [],
     });
+  });
+
+  it("returns the config unchanged when there is no ethereum blockchain", () => {
+    const solanaOnly: DAppConfig = {
+      ...BASE_CONFIG,
+      blockchains: [BASE_CONFIG.blockchains[1]],
+    };
+
+    expect(mergeNetworkOverrides(solanaOnly, [BLAST_NETWORK])).toBe(solanaOnly);
   });
 });

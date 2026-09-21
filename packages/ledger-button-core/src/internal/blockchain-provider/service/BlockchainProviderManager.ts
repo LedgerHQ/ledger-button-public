@@ -33,7 +33,8 @@ export interface BlockchainProviderManager {
    */
   describeNetwork(networkId: string): Maybe<CurrencyDescriptor>;
   /**
-   * Reads the networks from the dApp config and from config overrides for a family.
+   * Reads the networks from the dApp config for a family, plus EVM-only
+   * developer-mode overrides when {@link family} is `"ethereum"`.
    */
   getNetworks(family: BlockchainFamily): BlockchainNetwork[];
 }

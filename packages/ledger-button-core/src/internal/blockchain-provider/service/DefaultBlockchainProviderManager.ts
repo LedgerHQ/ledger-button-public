@@ -21,6 +21,9 @@ import type { StorageService } from "@internal/storage/StorageService";
 
 import type { BlockchainProviderManager } from "./BlockchainProviderManager";
 
+const EVM_FAMILY: BlockchainFamily = "ethereum";
+const EVM_NATIVE_DECIMALS = 18;
+
 /**
  * Central registry that creates, wires, and manages blockchain providers.
  *
@@ -97,8 +100,10 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
         network,
       ]),
     );
-    for (const network of this.storedOverrides(family)) {
-      networks.set(network.currencyId, network);
+    if (family === EVM_FAMILY) {
+      for (const network of this.storedOverrides()) {
+        networks.set(network.currencyId, network);
+      }
     }
 
     return [...networks.values()];
@@ -125,31 +130,21 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
   private overridesFind(
     matches: (network: BlockchainNetwork) => boolean,
   ): Maybe<CurrencyDescriptor> {
-    // Native decimals are hardcoded here because overrides are never looked up on a Provider
-    const nativeDecimals: Record<BlockchainFamily, number> = {
-      ethereum: 18,
-      solana: 9,
-    };
+    const network = this.storedOverrides().find(matches);
+    if (!network) {
+      return Maybe.empty();
+    }
 
-    return this.iterate(this.providers.values(), (provider) => {
-      const network = this.storedOverrides(provider.family).find(matches);
-      if (!network) {
-        return undefined;
-      }
-
-      return {
-        currencyId: network.currencyId,
-        family: provider.family,
-        networkId: network.id,
-        nativeDecimals: nativeDecimals[provider.family],
-      };
+    return Maybe.of({
+      currencyId: network.currencyId,
+      family: EVM_FAMILY,
+      networkId: network.id,
+      nativeDecimals: EVM_NATIVE_DECIMALS,
     });
   }
 
-  private storedOverrides(family: BlockchainFamily): BlockchainNetwork[] {
-    return (
-      this.storageService.getConfigOverrides().networkOverrides[family] ?? []
-    );
+  private storedOverrides(): BlockchainNetwork[] {
+    return this.storageService.getConfigOverrides().networkOverrides;
   }
 
   private iterate<S, T>(

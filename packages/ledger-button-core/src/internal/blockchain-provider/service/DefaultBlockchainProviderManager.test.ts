@@ -112,7 +112,7 @@ const createMockProvider = (family: "ethereum" | "solana") => ({
 });
 
 const createMockStorageService = (
-  networkOverrides: Record<string, BlockchainNetwork[]> = {},
+  networkOverrides: BlockchainNetwork[] = [],
 ) =>
   ({
     getConfigOverrides: vi.fn().mockReturnValue({ networkOverrides }),
@@ -220,9 +220,7 @@ describe("DefaultBlockchainProviderManager", () => {
     });
   });
 
-  const managerWithOverrides = (
-    networkOverrides: Record<string, BlockchainNetwork[]>,
-  ) => {
+  const managerWithOverrides = (networkOverrides: BlockchainNetwork[]) => {
     const scoped = new DefaultBlockchainProviderManager(
       createMockContextService() as never,
       loggerFactory as never,
@@ -240,7 +238,7 @@ describe("DefaultBlockchainProviderManager", () => {
     });
 
     it("appends stored overrides to the configured networks", () => {
-      const scoped = managerWithOverrides({ ethereum: [customNetwork] });
+      const scoped = managerWithOverrides([customNetwork]);
 
       expect(scoped.getNetworks("ethereum")).toEqual([
         ethMainnet,
@@ -249,15 +247,15 @@ describe("DefaultBlockchainProviderManager", () => {
     });
 
     it("does not duplicate an override already merged into the provider config", () => {
-      const scoped = managerWithOverrides({ ethereum: [ethMainnet] });
+      const scoped = managerWithOverrides([ethMainnet]);
 
       expect(scoped.getNetworks("ethereum")).toEqual([ethMainnet]);
     });
 
-    it("ignores overrides stored for another blockchain", () => {
-      const scoped = managerWithOverrides({ solana: [customNetwork] });
+    it("does not apply EVM overrides to another family", () => {
+      const scoped = managerWithOverrides([customNetwork]);
 
-      expect(scoped.getNetworks("ethereum")).toEqual([ethMainnet]);
+      expect(scoped.getNetworks("solana")).toEqual([]);
     });
 
     it("returns empty when no provider is registered for the family", () => {
@@ -295,7 +293,7 @@ describe("DefaultBlockchainProviderManager", () => {
     });
 
     it("describes a currency only known through a stored override", () => {
-      const scoped = managerWithOverrides({ ethereum: [customNetwork] });
+      const scoped = managerWithOverrides([customNetwork]);
 
       expect(scoped.describeCurrency("anvil").extract()).toEqual({
         currencyId: "anvil",
@@ -303,23 +301,6 @@ describe("DefaultBlockchainProviderManager", () => {
         networkId: "31337",
         nativeDecimals: 18,
       });
-    });
-
-    it("attributes an override to the family it is stored for", () => {
-      const scoped = managerWithOverrides({ solana: [customNetwork] });
-
-      expect(scoped.describeCurrency("anvil").extract()).toEqual({
-        currencyId: "anvil",
-        family: "solana",
-        networkId: "31337",
-        nativeDecimals: 9,
-      });
-    });
-
-    it("ignores an override stored for an unregistered family", () => {
-      const scoped = managerWithOverrides({ bitcoin: [customNetwork] });
-
-      expect(scoped.describeCurrency("anvil").isNothing()).toBe(true);
     });
   });
 
@@ -338,7 +319,7 @@ describe("DefaultBlockchainProviderManager", () => {
     });
 
     it("describes a network only known through a stored override", () => {
-      const scoped = managerWithOverrides({ ethereum: [customNetwork] });
+      const scoped = managerWithOverrides([customNetwork]);
 
       expect(scoped.describeNetwork("31337").extract()).toEqual({
         currencyId: "anvil",
@@ -346,12 +327,6 @@ describe("DefaultBlockchainProviderManager", () => {
         networkId: "31337",
         nativeDecimals: 18,
       });
-    });
-
-    it("ignores an override stored for an unregistered family", () => {
-      const scoped = managerWithOverrides({ bitcoin: [customNetwork] });
-
-      expect(scoped.describeNetwork("31337").isNothing()).toBe(true);
     });
   });
 

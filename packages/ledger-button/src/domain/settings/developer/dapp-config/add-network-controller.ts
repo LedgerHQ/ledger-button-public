@@ -9,13 +9,17 @@ export class AddNetworkController {
     host: ReactiveControllerHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
-    private readonly blockchainId: string,
   ) {
     host.addController(this as ReactiveController);
   }
 
   addNetwork(network: BlockchainNetwork): void {
-    this.core.addNetworkOverride(this.blockchainId, network);
+    this.core.setConfigOverrides({
+      networkOverrides: [
+        ...this.core.getConfigOverrides().networkOverrides,
+        network,
+      ],
+    });
     this.navigation.navigateBack();
   }
 
