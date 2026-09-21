@@ -14,12 +14,10 @@ export class AddNetworkController {
   }
 
   addNetwork(network: BlockchainNetwork): void {
-    this.core.setConfigOverrides({
-      networkOverrides: [
-        ...this.core.getConfigOverrides().networkOverrides,
-        network,
-      ],
-    });
+    this.core.setConfigOverrides([
+      ...this.core.getConfigOverrides(),
+      network,
+    ]);
     this.navigation.navigateBack();
   }
 

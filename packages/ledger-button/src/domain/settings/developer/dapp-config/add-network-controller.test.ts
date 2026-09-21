@@ -26,7 +26,7 @@ function createMockNavigation() {
 
 function createMockCore() {
   return {
-    getConfigOverrides: vi.fn().mockReturnValue({ networkOverrides: [] }),
+    getConfigOverrides: vi.fn().mockReturnValue([]),
     setConfigOverrides: vi.fn(),
     getBlockchainNetworks: vi.fn().mockReturnValue([]),
   };
@@ -59,13 +59,14 @@ describe("AddNetworkController", () => {
         currencyName: "Sepolia",
         currencyTicker: "ETH",
       };
-      core.getConfigOverrides.mockReturnValue({ networkOverrides: [existing] });
+      core.getConfigOverrides.mockReturnValue([existing]);
 
       createController().addNetwork(ETH_MAINNET);
 
-      expect(core.setConfigOverrides).toHaveBeenCalledWith({
-        networkOverrides: [existing, ETH_MAINNET],
-      });
+      expect(core.setConfigOverrides).toHaveBeenCalledWith([
+        existing,
+        ETH_MAINNET,
+      ]);
     });
 
     it("should navigate back after saving", () => {

@@ -1,10 +1,10 @@
-import type { ConfigOverrides } from "@internal/storage/model/ConfigOverrides";
+import type { BlockchainNetwork } from "@api/model/dappConfig/BlockchainConfig";
 
 import type { DAppConfig } from "../model/dAppConfigTypes";
 
 export function mergeNetworkOverrides(
   config: DAppConfig,
-  overrides: ConfigOverrides["networkOverrides"],
+  overrides: BlockchainNetwork[],
 ): DAppConfig {
   if (overrides.length === 0) {
     return config;

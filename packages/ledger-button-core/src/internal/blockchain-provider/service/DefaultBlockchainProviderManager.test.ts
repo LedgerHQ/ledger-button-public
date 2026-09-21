@@ -115,7 +115,7 @@ const createMockStorageService = (
   networkOverrides: BlockchainNetwork[] = [],
 ) =>
   ({
-    getConfigOverrides: vi.fn().mockReturnValue({ networkOverrides }),
+    getConfigOverrides: vi.fn().mockReturnValue(networkOverrides),
   }) as unknown as StorageService;
 
 describe("DefaultBlockchainProviderManager", () => {
@@ -330,7 +330,7 @@ describe("DefaultBlockchainProviderManager", () => {
     });
   });
 
-  describe("iterate (via describeCurrency / describeNetwork)", () => {
+  describe("firstProviderAnswer (via describeCurrency / describeNetwork)", () => {
     it("short-circuits: stops as soon as a provider answers", () => {
       manager.init(core, dappConfig, factories);
       evmProvider.describeCurrency.mockReturnValue(evmDescriptor);

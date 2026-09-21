@@ -28,11 +28,11 @@ export class BlockchainNetworkController {
   }
 
   get hasOverrides(): boolean {
-    return this.core.getConfigOverrides().networkOverrides.length > 0;
+    return this.core.getConfigOverrides().length > 0;
   }
 
   resetOverrides(): void {
-    this.core.setConfigOverrides({ networkOverrides: [] });
+    this.core.setConfigOverrides([]);
     this.invalidate();
   }
 

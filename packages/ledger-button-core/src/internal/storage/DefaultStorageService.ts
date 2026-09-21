@@ -360,10 +360,9 @@ export class DefaultStorageService implements StorageService {
   }
 
   getConfigOverrides(): ConfigOverrides {
-    const stored = this.getItem<Partial<ConfigOverrides>>(
-      STORAGE_KEYS.CONFIG_OVERRIDES,
-    ).orDefault({});
-    return { ...DEFAULT_CONFIG_OVERRIDES, ...stored };
+    return this.getItem<ConfigOverrides>(STORAGE_KEYS.CONFIG_OVERRIDES).orDefault(
+      DEFAULT_CONFIG_OVERRIDES,
+    );
   }
 
   saveConfigOverrides(overrides: ConfigOverrides): void {

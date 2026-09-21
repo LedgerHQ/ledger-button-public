@@ -101,7 +101,7 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
       ]),
     );
     if (family === EVM_FAMILY) {
-      for (const network of this.storedOverrides()) {
+      for (const network of this.storageService.getConfigOverrides()) {
         networks.set(network.currencyId, network);
       }
     }
@@ -110,27 +110,36 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
   }
 
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
-    return this.providersFind((p) => p.describeCurrency(currencyId)).altLazy(
-      () => this.overridesFind((n) => n.currencyId === currencyId),
-    );
+    return this.firstProviderAnswer((provider) =>
+      provider.describeCurrency(currencyId),
+    ).altLazy(() => this.overridesFind((n) => n.currencyId === currencyId));
   }
 
   describeNetwork(networkId: string): Maybe<CurrencyDescriptor> {
-    return this.providersFind((p) => p.describeNetwork(networkId)).altLazy(() =>
-      this.overridesFind((n) => n.id === networkId),
-    );
+    return this.firstProviderAnswer((provider) =>
+      provider.describeNetwork(networkId),
+    ).altLazy(() => this.overridesFind((n) => n.id === networkId));
   }
 
-  private providersFind<T>(
-    query: (provider: BlockchainProvider) => T | undefined,
+  private firstProviderAnswer<T>(
+    ask: (provider: BlockchainProvider) => T | undefined,
   ): Maybe<T> {
-    return this.iterate(this.providers.values(), query);
+    for (const provider of this.providers.values()) {
+      const answer = ask(provider);
+      if (answer !== undefined) {
+        return Maybe.of(answer);
+      }
+    }
+    return Maybe.empty();
   }
 
+  // Developer-mode, EVM-only
   private overridesFind(
     matches: (network: BlockchainNetwork) => boolean,
   ): Maybe<CurrencyDescriptor> {
-    const network = this.storedOverrides().find(matches);
+    const network = this.storageService
+      .getConfigOverrides()
+      .find(matches);
     if (!network) {
       return Maybe.empty();
     }
@@ -141,22 +150,5 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
       networkId: network.id,
       nativeDecimals: EVM_NATIVE_DECIMALS,
     });
-  }
-
-  private storedOverrides(): BlockchainNetwork[] {
-    return this.storageService.getConfigOverrides().networkOverrides;
-  }
-
-  private iterate<S, T>(
-    source: Iterable<S>,
-    query: (item: S) => T | undefined,
-  ): Maybe<T> {
-    for (const item of source) {
-      const answer = query(item);
-      if (answer !== undefined) {
-        return Maybe.of(answer);
-      }
-    }
-    return Maybe.empty();
   }
 }

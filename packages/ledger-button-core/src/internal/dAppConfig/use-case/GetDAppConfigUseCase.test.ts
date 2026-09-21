@@ -1,7 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { DEFAULT_CONFIG_OVERRIDES } from "@internal/storage/model/ConfigOverrides";
-
 import type { DAppConfigDataSource } from "../datasource/DAppConfigDataSource";
 import type { DAppConfig } from "../model/dAppConfigTypes";
 import { GetDAppConfigUseCase } from "./GetDAppConfigUseCase";
@@ -61,10 +59,7 @@ function createUseCase({
   };
 
   const storageService = {
-    getConfigOverrides: vi.fn().mockReturnValue({
-      ...DEFAULT_CONFIG_OVERRIDES,
-      networkOverrides,
-    }),
+    getConfigOverrides: vi.fn().mockReturnValue(networkOverrides),
   };
 
   const loggerFactory = vi.fn().mockReturnValue({

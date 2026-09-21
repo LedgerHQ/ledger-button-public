@@ -6,10 +6,6 @@ import type { BlockchainNetwork } from "@api/model/dappConfig/BlockchainConfig";
  * Network overrides are EVM-only: Solana testnet/devnet accounts are not supported
  * by the Ledger stack, so there is no per-family map.
  */
-export type ConfigOverrides = {
-  networkOverrides: BlockchainNetwork[];
-};
+export type ConfigOverrides = BlockchainNetwork[];
 
-export const DEFAULT_CONFIG_OVERRIDES: ConfigOverrides = {
-  networkOverrides: [],
-};
+export const DEFAULT_CONFIG_OVERRIDES: ConfigOverrides = [];

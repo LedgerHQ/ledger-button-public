@@ -636,66 +636,44 @@ describe("DefaultStorageService", () => {
 
     describe("getConfigOverrides", () => {
       it("should return default overrides when none are stored", () => {
-        expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: [],
-        });
+        expect(storageService.getConfigOverrides()).toEqual([]);
       });
 
       it("should return stored overrides", () => {
-        storageService.saveConfigOverrides({
-          networkOverrides: [BLAST_NETWORK],
-        });
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
 
-        expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: [BLAST_NETWORK],
-        });
+        expect(storageService.getConfigOverrides()).toEqual([BLAST_NETWORK]);
       });
     });
 
     describe("saveConfigOverrides", () => {
       it("should persist the override list", () => {
-        storageService.saveConfigOverrides({
-          networkOverrides: [BLAST_NETWORK],
-        });
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
 
-        expect(storageService.getConfigOverrides().networkOverrides).toEqual([
-          BLAST_NETWORK,
-        ]);
+        expect(storageService.getConfigOverrides()).toEqual([BLAST_NETWORK]);
       });
 
       it("should overwrite previously saved overrides", () => {
-        storageService.saveConfigOverrides({
-          networkOverrides: [BLAST_NETWORK],
-        });
-        storageService.saveConfigOverrides({
-          networkOverrides: [HYPEREVM_NETWORK],
-        });
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+        storageService.saveConfigOverrides([HYPEREVM_NETWORK]);
 
-        expect(storageService.getConfigOverrides().networkOverrides).toEqual([
-          HYPEREVM_NETWORK,
-        ]);
+        expect(storageService.getConfigOverrides()).toEqual([HYPEREVM_NETWORK]);
       });
     });
 
     describe("resetConfigOverrides", () => {
       it("should restore default overrides after reset", () => {
-        storageService.saveConfigOverrides({
-          networkOverrides: [BLAST_NETWORK],
-        });
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
 
         storageService.resetConfigOverrides();
 
-        expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: [],
-        });
+        expect(storageService.getConfigOverrides()).toEqual([]);
       });
 
       it("should be idempotent when called with no overrides stored", () => {
         storageService.resetConfigOverrides();
 
-        expect(storageService.getConfigOverrides()).toEqual({
-          networkOverrides: [],
-        });
+        expect(storageService.getConfigOverrides()).toEqual([]);
       });
     });
   });

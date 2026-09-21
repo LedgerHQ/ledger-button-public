@@ -30,7 +30,7 @@ export class GetDAppConfigUseCase {
 
     try {
       const config = await this.dataSource.getDAppConfig();
-      const { networkOverrides } = this.storageService.getConfigOverrides();
+      const networkOverrides = this.storageService.getConfigOverrides();
       return mergeNetworkOverrides(config, networkOverrides);
     } catch (error) {
       this.logger.error("Failed to fetch dApp config", { error });
