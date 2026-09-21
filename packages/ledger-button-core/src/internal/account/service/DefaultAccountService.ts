@@ -5,7 +5,6 @@ import { NoCompatibleAccountsError } from "@api/errors/LedgerSyncErrors";
 import type { Account } from "@api/model/Account";
 import { dAppConfigModuleTypes } from "@internal/dAppConfig/di/dAppConfigModuleTypes";
 import { type GetDAppConfigUseCase } from "@internal/dAppConfig/use-case/GetDAppConfigUseCase";
-import { mergeNetworkOverrides } from "@internal/dAppConfig/utils/mergeNetworkOverrides";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
@@ -66,10 +65,7 @@ export class DefaultAccountService implements AccountService {
     cloudSyncData: CloudSyncData,
   ): Promise<Account[]> {
     const { accounts, accountNames } = cloudSyncData;
-    const dAppConfig = mergeNetworkOverrides(
-      await this.getDAppConfigUseCase.execute(),
-      this.storageService.getConfigOverrides(),
-    );
+    const dAppConfig = await this.getDAppConfigUseCase.execute();
     const supportedNetworks = dAppConfig.blockchains.flatMap(
       (blockchain) => blockchain.networks,
     );

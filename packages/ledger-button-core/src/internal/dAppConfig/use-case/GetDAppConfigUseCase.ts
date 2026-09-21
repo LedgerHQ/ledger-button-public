@@ -2,10 +2,13 @@ import { type Factory, inject, injectable } from "inversify";
 
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { StorageService } from "@internal/storage/StorageService";
 
 import type { DAppConfigDataSource } from "../datasource/DAppConfigDataSource";
 import { dAppConfigModuleTypes } from "../di/dAppConfigModuleTypes";
 import type { DAppConfig } from "../model/dAppConfigTypes";
+import { mergeNetworkOverrides } from "../utils/mergeNetworkOverrides";
 
 @injectable()
 export class GetDAppConfigUseCase {
@@ -16,6 +19,8 @@ export class GetDAppConfigUseCase {
     loggerFactory: Factory<LoggerPublisher>,
     @inject(dAppConfigModuleTypes.DAppConfigDataSource)
     private readonly dataSource: DAppConfigDataSource,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
   ) {
     this.logger = loggerFactory("GetDAppConfigUseCase");
   }
@@ -24,7 +29,11 @@ export class GetDAppConfigUseCase {
     this.logger.debug("Fetching dApp config");
 
     try {
-      return await this.dataSource.getDAppConfig();
+      const config = await this.dataSource.getDAppConfig();
+      return mergeNetworkOverrides(
+        config,
+        this.storageService.getConfigOverrides(),
+      );
     } catch (error) {
       this.logger.error("Failed to fetch dApp config", { error });
       throw error;

@@ -28,9 +28,26 @@ const BASE_CONFIG: DAppConfig = {
   ],
 };
 
-function createUseCase({ config = BASE_CONFIG }: { config?: DAppConfig } = {}) {
+const BLAST_NETWORK = {
+  id: "81457",
+  currencyId: "blast",
+  currencyName: "Blast",
+  currencyTicker: "ETH",
+};
+
+function createUseCase({
+  config = BASE_CONFIG,
+  networkOverrides = [],
+}: {
+  config?: DAppConfig;
+  networkOverrides?: typeof BLAST_NETWORK[];
+} = {}) {
   const dataSource: DAppConfigDataSource = {
     getDAppConfig: vi.fn().mockResolvedValue(config),
+  };
+
+  const storageService = {
+    getConfigOverrides: vi.fn().mockReturnValue(networkOverrides),
   };
 
   const loggerFactory = vi.fn().mockReturnValue({
@@ -40,9 +57,13 @@ function createUseCase({ config = BASE_CONFIG }: { config?: DAppConfig } = {}) {
     error: vi.fn(),
   });
 
-  const useCase = new GetDAppConfigUseCase(loggerFactory, dataSource);
+  const useCase = new GetDAppConfigUseCase(
+    loggerFactory,
+    dataSource,
+    storageService as never,
+  );
 
-  return { useCase, dataSource };
+  return { useCase, dataSource, storageService };
 }
 
 describe("GetDAppConfigUseCase", () => {
@@ -62,6 +83,31 @@ describe("GetDAppConfigUseCase", () => {
       );
 
       await expect(useCase.execute()).rejects.toThrow("network error");
+    });
+
+    it("merges stored network overrides into the config", async () => {
+      const { useCase } = createUseCase({
+        networkOverrides: [BLAST_NETWORK],
+      });
+
+      const result = await useCase.execute();
+      const ethBlockchain = result.blockchains.find(
+        (b) => b.blockchain === "ethereum",
+      );
+
+      expect(ethBlockchain?.networks).toContainEqual(BLAST_NETWORK);
+    });
+
+    it("returns unmodified config when no overrides are stored", async () => {
+      const { useCase } = createUseCase();
+
+      const result = await useCase.execute();
+      const ethBlockchain = result.blockchains.find(
+        (b) => b.blockchain === "ethereum",
+      );
+
+      expect(ethBlockchain?.networks).toHaveLength(1);
+      expect(ethBlockchain?.networks[0]?.currencyId).toBe("ethereum");
     });
   });
 });
