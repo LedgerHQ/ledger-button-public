@@ -388,8 +388,34 @@ describe("LedgerSolanaWallet (connection)", () => {
         transaction,
         SOLANA_ADDRESS,
         solanaSignature,
+        undefined,
       );
       expect(result.signedTransaction).toEqual(new Uint8Array([9, 9, 9]));
+    });
+
+    it("forwards a refreshed blockhash when reassembling the signed transaction", async () => {
+      const refreshedBlockhash = new Uint8Array(32).fill(8);
+      signUseCase.execute.mockReturnValue(
+        of({
+          signType: "transaction",
+          status: "success",
+          data: { solanaSignature, refreshedBlockhash },
+        }),
+      );
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features["solana:signTransaction"].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(attachSolanaSignature).toHaveBeenCalledWith(
+        transaction,
+        SOLANA_ADDRESS,
+        solanaSignature,
+        refreshedBlockhash,
+      );
     });
 
     it("tracks each sign-flow status with neutral Solana metadata", async () => {
@@ -556,6 +582,42 @@ describe("LedgerSolanaWallet (connection)", () => {
         chainId: "900",
       });
       expect(result.signature).toEqual(broadcastSignature);
+    });
+
+    it("broadcasts the transaction reassembled with the refreshed blockhash", async () => {
+      const refreshedBlockhash = new Uint8Array(32).fill(8);
+      signUseCase.execute.mockReturnValue(
+        of({
+          signType: "transaction",
+          status: "success",
+          data: { solanaSignature, refreshedBlockhash },
+        }),
+      );
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(attachSolanaSignature).toHaveBeenCalledWith(
+        transaction,
+        SOLANA_ADDRESS,
+        solanaSignature,
+        refreshedBlockhash,
+      );
+      expect(host.broadcastRPC).toHaveBeenCalledWith(broadcastRequest(), {
+        name: "solana",
+        chainId: "900",
+      });
     });
 
     it("forwards the send options to the sendTransaction envelope", async () => {

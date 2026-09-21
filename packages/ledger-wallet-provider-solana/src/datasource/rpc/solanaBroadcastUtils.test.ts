@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildGetLatestBlockhashRequest,
   buildSendTransactionRequest,
   decodeSolanaSignature,
   extractBroadcastedSignature,
+  extractLatestBlockhash,
 } from "./solanaBroadcastUtils";
 
 describe("buildSendTransactionRequest", () => {
@@ -61,5 +63,44 @@ describe("extractBroadcastedSignature", () => {
 describe("decodeSolanaSignature", () => {
   it("decodes a base58 signature into its raw bytes", () => {
     expect(Array.from(decodeSolanaSignature("2g"))).toEqual([97]);
+  });
+});
+
+describe("buildGetLatestBlockhashRequest", () => {
+  it("requests a finalized latest blockhash", () => {
+    expect(buildGetLatestBlockhashRequest(4)).toEqual({
+      jsonrpc: "2.0",
+      id: 4,
+      method: "getLatestBlockhash",
+      params: [{ commitment: "finalized" }],
+    });
+  });
+});
+
+describe("extractLatestBlockhash", () => {
+  it("decodes the 32-byte blockhash from a JSON-RPC success payload", () => {
+    expect(
+      extractLatestBlockhash({
+        id: 0,
+        jsonrpc: "2.0",
+        result: {
+          context: { slot: 1 },
+          value: {
+            blockhash: "11111111111111111111111111111111",
+            lastValidBlockHeight: 2,
+          },
+        },
+      }),
+    ).toEqual(new Uint8Array(32));
+  });
+
+  it("returns undefined for a JSON-RPC error", () => {
+    expect(
+      extractLatestBlockhash({
+        id: 0,
+        jsonrpc: "2.0",
+        error: { code: -32000, message: "boom" },
+      }),
+    ).toBeUndefined();
   });
 });

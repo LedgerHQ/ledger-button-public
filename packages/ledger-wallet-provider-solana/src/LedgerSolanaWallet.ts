@@ -339,6 +339,7 @@ export class LedgerSolanaWallet implements Wallet {
                 transaction,
                 account.freshAddress,
                 data.solanaSignature,
+                data.refreshedBlockhash,
               ),
             }
           : undefined,
@@ -397,6 +398,7 @@ export class LedgerSolanaWallet implements Wallet {
               transaction,
               account.freshAddress,
               status.data.solanaSignature,
+              status.data.refreshedBlockhash,
             );
 
             return from(

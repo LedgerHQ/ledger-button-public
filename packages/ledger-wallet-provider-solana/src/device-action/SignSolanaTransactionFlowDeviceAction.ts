@@ -79,7 +79,15 @@ export class SignSolanaTransactionFlowDeviceAction extends XStateDeviceAction<
         derivationPath: this.input.derivationPath,
         transaction: this.input.transaction,
         contextModule: this.input.contextModule,
-        transactionOptions: { skipOpenApp: true },
+        transactionOptions: {
+          skipOpenApp: true,
+          ...(this.input.delayed
+            ? {
+                delayed: true,
+                fetchBlockhash: this.input.fetchBlockhash,
+              }
+            : {}),
+        },
       },
       inspect: false,
       loggerFactory: this.getLoggerFactory(internalApi),

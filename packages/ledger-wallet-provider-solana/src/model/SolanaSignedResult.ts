@@ -7,6 +7,11 @@ import type { SignedPersonalMessageOrTypedDataResult } from "@ledgerhq/ledger-wa
  */
 export interface SignedSolanaTransactionResult {
   solanaSignature: Uint8Array;
+  /**
+   * 32-byte `recentBlockhash` the device signed after delayed signing.
+   * Absent when delayed signing did not run (co-signed tx, firmware fallback).
+   */
+  refreshedBlockhash?: Uint8Array;
 }
 
 /**

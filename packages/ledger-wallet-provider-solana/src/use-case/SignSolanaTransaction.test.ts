@@ -3,7 +3,7 @@ import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
-import { lastValueFrom, of } from "rxjs";
+import { defer, from, lastValueFrom, of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createMockCoreFacade } from "../__mocks__/coreFacadeMock";
@@ -115,6 +115,125 @@ describe("SignSolanaTransaction", () => {
 
     const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
     expect(deviceAction.input.transaction).toEqual(messageBytes);
+  });
+
+  it("forwards delayed-signing options when the transaction has only placeholders", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: { signature },
+      }),
+    });
+
+    await lastValueFrom(createUseCase().execute(params, createAccount()));
+
+    const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
+    expect(deviceAction.input.delayed).toBe(true);
+    expect(deviceAction.input.fetchBlockhash).toBeTypeOf("function");
+  });
+
+  it("does not enable delayed signing when the transaction already has signatures", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: { signature },
+      }),
+    });
+    const coSigned = new Uint8Array([
+      1,
+      ...new Uint8Array(64).fill(1),
+      ...messageBytes,
+    ]);
+
+    await lastValueFrom(
+      createUseCase().execute({ ...params, transaction: coSigned }, createAccount()),
+    );
+
+    const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
+    expect(deviceAction.input.delayed).toBeUndefined();
+    expect(deviceAction.input.fetchBlockhash).toBeUndefined();
+  });
+
+  it("fetchBlockhash loads a 32-byte hash through broadcastRPC", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: { signature },
+      }),
+    });
+    vi.mocked(core.broadcastRPC).mockResolvedValue({
+      jsonrpc: "2.0",
+      id: 0,
+      result: {
+        context: { slot: 1 },
+        value: {
+          blockhash: "11111111111111111111111111111111",
+          lastValidBlockHeight: 2,
+        },
+      },
+    });
+
+    await lastValueFrom(createUseCase().execute(params, createAccount()));
+
+    const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
+    await expect(deviceAction.input.fetchBlockhash()).resolves.toEqual(
+      new Uint8Array(32),
+    );
+    expect(core.broadcastRPC).toHaveBeenCalledWith(
+      {
+        jsonrpc: "2.0",
+        id: 0,
+        method: "getLatestBlockhash",
+        params: [{ commitment: "finalized" }],
+      },
+      { name: "solana", chainId: "900" },
+    );
+  });
+
+  it("includes the captured blockhash on success after fetchBlockhash runs", async () => {
+    vi.mocked(core.broadcastRPC).mockResolvedValue({
+      jsonrpc: "2.0",
+      id: 0,
+      result: {
+        context: { slot: 1 },
+        value: {
+          blockhash: "11111111111111111111111111111111",
+          lastValidBlockHeight: 2,
+        },
+      },
+    });
+    executeDeviceAction.mockImplementation(
+      ({
+        deviceAction,
+      }: {
+        deviceAction: { input: { fetchBlockhash?: () => Promise<Uint8Array> } };
+      }) => ({
+        observable: defer(() =>
+          from(
+            (async () => {
+              await deviceAction.input.fetchBlockhash?.();
+              return {
+                status: DeviceActionStatus.Completed,
+                output: { signature },
+              };
+            })(),
+          ),
+        ),
+      }),
+    );
+
+    const result = await lastValueFrom(
+      createUseCase().execute(params, createAccount()),
+    );
+
+    expect(result).toEqual({
+      signType: "transaction",
+      status: "success",
+      data: {
+        solanaSignature: signature,
+        refreshedBlockhash: new Uint8Array(32),
+      },
+    });
   });
 
   it("forwards the intermediate signFlowStatus while pending", async () => {

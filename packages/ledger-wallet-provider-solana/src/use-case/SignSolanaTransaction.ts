@@ -20,6 +20,10 @@ import {
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
+import {
+  buildGetLatestBlockhashRequest,
+  extractLatestBlockhash,
+} from "../datasource/rpc/solanaBroadcastUtils";
 import { SignSolanaTransactionFlowDeviceAction } from "../device-action/SignSolanaTransactionFlowDeviceAction";
 import type {
   SignSolanaTransactionFlowDAError,
@@ -28,8 +32,12 @@ import type {
 } from "../device-action/SignSolanaTransactionFlowDeviceActionTypes";
 import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
 import type { SignSolanaTransactionParams } from "../model/SignSolanaTransactionParams";
+import { getBackendChainIdFromCurrencyId } from "../utils/clusterUtils";
 import { getSolanaDerivationPath } from "../utils/derivationUtils";
-import { getSolanaMessageBytes } from "../utils/transactionUtils";
+import {
+  getSolanaMessageBytes,
+  hasOnlyPlaceholderSignatures,
+} from "../utils/transactionUtils";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule";
 
 @injectable()
@@ -80,11 +88,21 @@ export class SignSolanaTransaction {
         // Solana app signs the compiled message only. Strip the signature
         // envelope so the device does not reject the request with `6a80`.
         const messageBytes = getSolanaMessageBytes(transaction);
+        const delayed = hasOnlyPlaceholderSignatures(transaction);
+        let refreshedBlockhash: Uint8Array | undefined;
+        const fetchBlockhash = delayed
+          ? async (): Promise<Uint8Array> => {
+              const hash = await this.fetchLatestBlockhash(selectedAccount);
+              refreshedBlockhash = hash;
+              return hash;
+            }
+          : undefined;
 
         this.logger.debug("Prepared Solana message bytes", {
           address: params.address,
           messageByteLength: messageBytes.byteLength,
           derivationPath,
+          delayed,
         });
         this.logger.debug("Starting Solana transaction device action", {
           appName: openAppConfig.application.name,
@@ -101,6 +119,9 @@ export class SignSolanaTransaction {
             expectedAddress: selectedAccount.freshAddress,
             openAppInput: openAppConfig,
             contextModule,
+            ...(delayed
+              ? { delayed: true, fetchBlockhash }
+              : {}),
           },
           inspect: false,
         });
@@ -116,12 +137,34 @@ export class SignSolanaTransaction {
               state,
               signType,
               openAppConfig.application.name,
+              () => refreshedBlockhash,
             ),
           ),
         ) as Observable<SignFlowStatus>;
       }),
       catchError((error) => this.toErrorStatus(error, signType)),
     );
+  }
+
+  private async fetchLatestBlockhash(
+    selectedAccount: ProviderAccount,
+  ): Promise<Uint8Array> {
+    const chainId = getBackendChainIdFromCurrencyId(selectedAccount.currencyId);
+    if (!chainId) {
+      throw new Error(
+        `Solana getLatestBlockhash failed: no chain id for ${selectedAccount.currencyId}`,
+      );
+    }
+
+    const response = await this.core.broadcastRPC(
+      buildGetLatestBlockhashRequest(0),
+      { name: "solana", chainId },
+    );
+    const hash = extractLatestBlockhash(response);
+    if (!hash) {
+      throw new Error("Solana getLatestBlockhash failed: unexpected response");
+    }
+    return hash;
   }
 
   private toErrorStatus(
@@ -140,19 +183,25 @@ export class SignSolanaTransaction {
     >,
     signType: SignType,
     appName: string,
+    getRefreshedBlockhash: () => Uint8Array | undefined,
   ): SignFlowStatus {
     switch (state.status) {
       case DeviceActionStatus.Pending:
         return state.intermediateValue.signFlowStatus;
 
       case DeviceActionStatus.Completed: {
+        const refreshedBlockhash = getRefreshedBlockhash();
         this.logger.debug("Solana transaction signing completed", {
           signatureByteLength: state.output.signature.byteLength,
+          refreshedBlockhash: refreshedBlockhash !== undefined,
         });
         return {
           signType,
           status: "success",
-          data: { solanaSignature: state.output.signature },
+          data: {
+            solanaSignature: state.output.signature,
+            ...(refreshedBlockhash ? { refreshedBlockhash } : {}),
+          },
         };
       }
 
