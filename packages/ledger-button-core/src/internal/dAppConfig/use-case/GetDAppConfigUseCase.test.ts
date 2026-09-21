@@ -25,41 +25,12 @@ const BASE_CONFIG: DAppConfig = {
       rpcMethods: { local: [], broadcasted: [] },
       appDependencies: { appName: "Ethereum", dependencies: [] },
     },
-    {
-      blockchain: "solana",
-      appName: "Solana",
-      networks: [
-        {
-          id: "mainnet-beta",
-          currencyId: "solana",
-          currencyName: "Solana",
-          currencyTicker: "SOL",
-        },
-      ],
-      rpcMethods: { local: [], broadcasted: [] },
-      appDependencies: { appName: "Solana", dependencies: [] },
-    },
   ],
 };
 
-function createUseCase({
-  config = BASE_CONFIG,
-  networkOverrides = [],
-}: {
-  config?: DAppConfig;
-  networkOverrides?: {
-    id: string;
-    currencyId: string;
-    currencyName: string;
-    currencyTicker: string;
-  }[];
-} = {}) {
+function createUseCase({ config = BASE_CONFIG }: { config?: DAppConfig } = {}) {
   const dataSource: DAppConfigDataSource = {
     getDAppConfig: vi.fn().mockResolvedValue(config),
-  };
-
-  const storageService = {
-    getConfigOverrides: vi.fn().mockReturnValue(networkOverrides),
   };
 
   const loggerFactory = vi.fn().mockReturnValue({
@@ -69,13 +40,9 @@ function createUseCase({
     error: vi.fn(),
   });
 
-  const useCase = new GetDAppConfigUseCase(
-    loggerFactory,
-    dataSource,
-    storageService as never,
-  );
+  const useCase = new GetDAppConfigUseCase(loggerFactory, dataSource);
 
-  return { useCase, dataSource, storageService };
+  return { useCase, dataSource };
 }
 
 describe("GetDAppConfigUseCase", () => {
@@ -95,25 +62,6 @@ describe("GetDAppConfigUseCase", () => {
       );
 
       await expect(useCase.execute()).rejects.toThrow("network error");
-    });
-
-    it("merges stored network overrides into the config", async () => {
-      const blastNetwork = {
-        id: "81457",
-        currencyId: "blast",
-        currencyName: "Blast",
-        currencyTicker: "ETH",
-      };
-      const { useCase } = createUseCase({
-        networkOverrides: [blastNetwork],
-      });
-
-      const result = await useCase.execute();
-      const ethBlockchain = result.blockchains.find(
-        (b) => b.blockchain === "ethereum",
-      );
-
-      expect(ethBlockchain?.networks).toContainEqual(blastNetwork);
     });
   });
 });
