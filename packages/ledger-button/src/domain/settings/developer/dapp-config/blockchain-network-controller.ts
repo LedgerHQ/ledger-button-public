@@ -29,6 +29,11 @@ export class BlockchainNetworkController {
   resetOverrides(): void {
     this.core.setConfigOverrides([]);
     this.invalidate();
+    this.core.observeAccountGroups({ forceRefresh: true }).subscribe({
+      error: (error: unknown) => {
+        console.error("Failed to refresh accounts", error);
+      },
+    });
   }
 
   navigateToAddNetwork(): void {

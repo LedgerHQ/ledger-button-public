@@ -18,6 +18,11 @@ export class AddNetworkController {
       ...this.core.getConfigOverrides(),
       network,
     ]);
+    this.core.observeAccountGroups({ forceRefresh: true }).subscribe({
+      error: (error: unknown) => {
+        console.error("Failed to refresh accounts", error);
+      },
+    });
     this.navigation.navigateBack();
   }
 

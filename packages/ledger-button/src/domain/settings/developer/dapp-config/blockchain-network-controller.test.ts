@@ -1,5 +1,6 @@
 import type { BlockchainNetwork } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
+import { of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Destination } from "../../../../shared/routes";
@@ -48,6 +49,7 @@ function createMockCore() {
     getBlockchainNetworks: vi.fn().mockReturnValue([]),
     getConfigOverrides: vi.fn().mockReturnValue([]),
     setConfigOverrides: vi.fn(),
+    observeAccountGroups: vi.fn().mockReturnValue(of([])),
   };
 }
 
@@ -119,6 +121,14 @@ describe("BlockchainNetworkController", () => {
 
       expect(core.setConfigOverrides).toHaveBeenCalledWith([]);
       expect(invalidate).toHaveBeenCalled();
+    });
+
+    it("should refresh the account list against the reset config", () => {
+      createController().resetOverrides();
+
+      expect(core.observeAccountGroups).toHaveBeenCalledWith({
+        forceRefresh: true,
+      });
     });
   });
 
