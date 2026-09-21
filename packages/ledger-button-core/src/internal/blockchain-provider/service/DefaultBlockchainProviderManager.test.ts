@@ -231,16 +231,45 @@ describe("DefaultBlockchainProviderManager", () => {
   };
 
   describe("getNetworks()", () => {
-    it("returns the configured networks from the provider snapshot", () => {
+    it("returns the configured networks when no override is stored", () => {
       manager.init(core, dappConfig, factories);
 
       expect(manager.getNetworks("ethereum")).toEqual([ethMainnet]);
     });
 
-    it("returns empty for a family with no configured networks", () => {
-      manager.init(core, dappConfig, factories);
+    it("appends stored overrides to the configured networks", () => {
+      const scoped = managerWithOverrides([customNetwork]);
 
-      expect(manager.getNetworks("solana")).toEqual([]);
+      expect(scoped.getNetworks("ethereum")).toEqual([
+        ethMainnet,
+        customNetwork,
+      ]);
+    });
+
+    it("does not duplicate an override that matches a configured network", () => {
+      const scoped = managerWithOverrides([ethMainnet]);
+
+      expect(scoped.getNetworks("ethereum")).toEqual([ethMainnet]);
+    });
+
+    it("drops overrides from the list once storage is cleared", () => {
+      const storage = createMockStorageService([customNetwork]);
+      const scoped = new DefaultBlockchainProviderManager(
+        createMockContextService() as never,
+        loggerFactory as never,
+        storage,
+      );
+      scoped.init(core, dappConfig, factories);
+
+      vi.mocked(storage.getConfigOverrides).mockReturnValue([]);
+
+      expect(scoped.getNetworks("ethereum")).toEqual([ethMainnet]);
+    });
+
+    it("does not apply EVM overrides to another family", () => {
+      const scoped = managerWithOverrides([customNetwork]);
+
+      expect(scoped.getNetworks("solana")).toEqual([]);
     });
 
     it("returns empty when no provider is registered for the family", () => {

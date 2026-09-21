@@ -81,35 +81,17 @@ describe("NetworkController", () => {
   });
 
   describe("networks", () => {
-    it("should merge base networks with stored overrides", () => {
-      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET]);
-      core.getConfigOverrides.mockReturnValue([ARBITRUM]);
+    it("should read the networks from the core for its blockchain", () => {
+      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET, ARBITRUM]);
 
       expect(createController().networks).toEqual([ETH_MAINNET, ARBITRUM]);
       expect(core.getBlockchainNetworks).toHaveBeenCalledWith("ethereum");
     });
 
-    it("should return only base networks when no overrides exist", () => {
-      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET, ARBITRUM]);
-
-      expect(createController().networks).toEqual([ETH_MAINNET, ARBITRUM]);
-    });
-
-    it("should deduplicate when an override matches a base network", () => {
-      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET]);
-      core.getConfigOverrides.mockReturnValue([ETH_MAINNET]);
-
-      expect(createController().networks).toEqual([ETH_MAINNET]);
-    });
-
-    it("should reflect cleared overrides without a reload", () => {
-      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET]);
-      core.getConfigOverrides.mockReturnValue([ARBITRUM]);
+    it("should reflect networks added since construction without a reload", () => {
       const controller = createController();
+      core.getBlockchainNetworks.mockReturnValue([ETH_MAINNET]);
 
-      expect(controller.networks).toEqual([ETH_MAINNET, ARBITRUM]);
-
-      core.getConfigOverrides.mockReturnValue([]);
       expect(controller.networks).toEqual([ETH_MAINNET]);
     });
   });

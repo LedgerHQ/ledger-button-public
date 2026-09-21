@@ -19,13 +19,7 @@ export class NetworkController {
   }
 
   get networks(): BlockchainNetwork[] {
-    const base = this.core.getBlockchainNetworks(EVM_FAMILY);
-    const overrides = this.core.getConfigOverrides();
-    const merged = new Map(base.map((n) => [n.currencyId, n]));
-    for (const n of overrides) {
-      merged.set(n.currencyId, n);
-    }
-    return [...merged.values()];
+    return this.core.getBlockchainNetworks(EVM_FAMILY);
   }
 
   get hasOverrides(): boolean {

@@ -94,7 +94,19 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
       return [];
     }
 
-    return provider.dappConfig.networks;
+    const networks = new Map(
+      provider.dappConfig.networks.map((network) => [
+        network.currencyId,
+        network,
+      ]),
+    );
+    if (family === EVM_FAMILY) {
+      for (const network of this.storageService.getConfigOverrides()) {
+        networks.set(network.currencyId, network);
+      }
+    }
+
+    return [...networks.values()];
   }
 
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
