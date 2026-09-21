@@ -4,7 +4,7 @@ import { of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Destination } from "../../../../shared/routes";
-import { BlockchainNetworkController } from "./blockchain-network-controller";
+import { NetworkController } from "./network-controller";
 
 const ETH_MAINNET: BlockchainNetwork = {
   id: "1",
@@ -53,7 +53,7 @@ function createMockCore() {
   };
 }
 
-describe("BlockchainNetworkController", () => {
+describe("NetworkController", () => {
   let host: ReactiveControllerHost;
   let core: ReturnType<typeof createMockCore>;
   let navigation: ReturnType<typeof createMockNavigation>;
@@ -67,7 +67,7 @@ describe("BlockchainNetworkController", () => {
   });
 
   const createController = () =>
-    new BlockchainNetworkController(
+    new NetworkController(
       host,
       core as never,
       navigation as never,
@@ -111,7 +111,7 @@ describe("BlockchainNetworkController", () => {
   describe("resetOverrides", () => {
     it("should clear the overrides on the core and call invalidate", () => {
       const invalidate = vi.fn();
-      new BlockchainNetworkController(
+      new NetworkController(
         host,
         core as never,
         navigation as never,

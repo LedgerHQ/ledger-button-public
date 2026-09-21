@@ -7,7 +7,7 @@ import type { Destinations } from "../../../../shared/routes";
 
 const EVM_FAMILY = "ethereum";
 
-export class BlockchainNetworkController {
+export class NetworkController {
   constructor(
     host: ReactiveControllerHost,
     private readonly core: CoreContext,

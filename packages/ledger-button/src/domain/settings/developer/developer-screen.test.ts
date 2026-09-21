@@ -23,9 +23,9 @@ function createMockDestinations() {
       canGoBack: true,
       toolbar: { title: "Feature flags", canClose: true },
     } as Destination,
-    blockchainNetworks: {
-      name: "blockchainNetworks",
-      component: "blockchain-network-screen",
+    network: {
+      name: "network",
+      component: "network-screen",
       canGoBack: true,
       toolbar: { title: "dApp Config EVM", canClose: true },
     } as Destination,
@@ -97,7 +97,7 @@ describe("DeveloperScreen", () => {
       expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.featureFlags);
     });
 
-    test("handleEvmNetworksClick should navigate to blockchainNetworks destination", () => {
+    test("handleEvmNetworksClick should navigate to network destination", () => {
       const mockNav = createMockNavigation();
       const mockDest = createMockDestinations();
       const el = createDeveloperScreen({
@@ -107,9 +107,7 @@ describe("DeveloperScreen", () => {
 
       (el as any).handleEvmNetworksClick();
 
-      expect(mockNav.navigateTo).toHaveBeenCalledWith(
-        mockDest.blockchainNetworks,
-      );
+      expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.network);
     });
   });
 });

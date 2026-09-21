@@ -9,11 +9,11 @@ import { CoreContext, coreContext } from "../../../../context/core-context";
 import { Navigation } from "../../../../shared/navigation";
 import { Destinations } from "../../../../shared/routes";
 import { tailwindElement } from "../../../../tailwind-element";
-import { BlockchainNetworkController } from "./blockchain-network-controller";
+import { NetworkController } from "./network-controller";
 
-@customElement("blockchain-network-screen")
+@customElement("network-screen")
 @tailwindElement()
-export class BlockchainNetworkScreen extends LitElement {
+export class NetworkScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
 
@@ -26,7 +26,7 @@ export class BlockchainNetworkScreen extends LitElement {
 
   @state() private _overridesVersion = 0;
 
-  private controller?: BlockchainNetworkController;
+  private controller?: NetworkController;
 
   override willUpdate(changedProps: PropertyValues) {
     if (
@@ -35,7 +35,7 @@ export class BlockchainNetworkScreen extends LitElement {
       this.coreContext &&
       !this.controller
     ) {
-      this.controller = new BlockchainNetworkController(
+      this.controller = new NetworkController(
         this,
         this.coreContext,
         this.navigation,
@@ -107,6 +107,6 @@ export class BlockchainNetworkScreen extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "blockchain-network-screen": BlockchainNetworkScreen;
+    "network-screen": NetworkScreen;
   }
 }

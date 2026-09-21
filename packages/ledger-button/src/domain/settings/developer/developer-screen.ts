@@ -36,7 +36,7 @@ export class DeveloperScreen extends LitElement {
   }
 
   private handleEvmNetworksClick() {
-    this.navigation.navigateTo(this.destinations.blockchainNetworks);
+    this.navigation.navigateTo(this.destinations.network);
   }
 
   private renderMenuItem(
