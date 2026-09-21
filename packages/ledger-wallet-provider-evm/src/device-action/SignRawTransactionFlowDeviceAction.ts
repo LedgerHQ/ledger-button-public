@@ -1,8 +1,10 @@
 import {
   type DeviceActionStateMachine,
+  GlobalCommandError,
   hexaStringToBuffer,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -160,15 +162,27 @@ export class SignRawTransactionFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addOpenAppResultToInternalState(
-                    event.output,
-                    context._internalState,
+                  this.normalizeOpenAppError(
+                    this.addOpenAppResultToInternalState(
+                      event.output,
+                      context._internalState,
+                    ),
                   ),
               }),
               target: "CheckOpenAppResult",
             },
             onError: {
-              actions: "assignErrorFromEvent",
+              actions: assign({
+                _internalState: ({ context, event }) =>
+                  this.normalizeOpenAppError({
+                    ...context._internalState,
+                    error: (
+                      event as unknown as {
+                        error: SignRawTransactionFlowDAInternalState["error"];
+                      }
+                    ).error,
+                  }),
+              }),
               target: "CheckOpenAppResult",
             },
           },
@@ -376,6 +390,22 @@ export class SignRawTransactionFlowDeviceAction extends XStateDeviceAction<
       Right: () => internalState,
       Left: (e) => ({ ...internalState, error: e }),
     });
+  }
+
+  private normalizeOpenAppError(
+    internalState: SignRawTransactionFlowDAInternalState,
+  ): SignRawTransactionFlowDAInternalState {
+    const { error } = internalState;
+    if (
+      error instanceof RefusedByUserDAError ||
+      (error instanceof GlobalCommandError && error.errorCode === "5501")
+    ) {
+      return {
+        ...internalState,
+        error: new UserRejectedTransactionError("User rejected open app"),
+      } as SignRawTransactionFlowDAInternalState;
+    }
+    return internalState;
   }
 
   private addGetAddressResultToInternalState(

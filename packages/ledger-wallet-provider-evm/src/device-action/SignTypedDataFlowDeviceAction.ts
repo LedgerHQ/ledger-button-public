@@ -1,7 +1,9 @@
 import {
   type DeviceActionStateMachine,
+  GlobalCommandError,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -154,15 +156,27 @@ export class SignTypedDataFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addOpenAppResultToInternalState(
-                    event.output,
-                    context._internalState,
+                  this.normalizeOpenAppError(
+                    this.addOpenAppResultToInternalState(
+                      event.output,
+                      context._internalState,
+                    ),
                   ),
               }),
               target: "CheckOpenAppResult",
             },
             onError: {
-              actions: "assignErrorFromEvent",
+              actions: assign({
+                _internalState: ({ context, event }) =>
+                  this.normalizeOpenAppError({
+                    ...context._internalState,
+                    error: (
+                      event as unknown as {
+                        error: SignTypedDataFlowDAInternalState["error"];
+                      }
+                    ).error,
+                  }),
+              }),
               target: "CheckOpenAppResult",
             },
           },
@@ -370,6 +384,22 @@ export class SignTypedDataFlowDeviceAction extends XStateDeviceAction<
       Right: () => internalState,
       Left: (e) => ({ ...internalState, error: e }),
     });
+  }
+
+  private normalizeOpenAppError(
+    internalState: SignTypedDataFlowDAInternalState,
+  ): SignTypedDataFlowDAInternalState {
+    const { error } = internalState;
+    if (
+      error instanceof RefusedByUserDAError ||
+      (error instanceof GlobalCommandError && error.errorCode === "5501")
+    ) {
+      return {
+        ...internalState,
+        error: new UserRejectedTransactionError("User rejected open app"),
+      } as SignTypedDataFlowDAInternalState;
+    }
+    return internalState;
   }
 
   private addGetAddressResultToInternalState(

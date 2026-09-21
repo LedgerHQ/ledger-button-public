@@ -1,6 +1,8 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
 import {
   DeviceActionStatus,
+  GlobalCommandError,
+  RefusedByUserDAError,
   UnknownDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
@@ -188,6 +190,37 @@ describe("SignRawTransactionFlowDeviceAction", () => {
       expect(result.status).toBe(DeviceActionStatus.Error);
       if (result.status === DeviceActionStatus.Error) {
         expect(result.error).toBe(openAppError);
+      }
+    });
+
+    it("should wrap RefusedByUserDAError from OpenApp as UserRejectedTransactionError", async () => {
+      setupOpenAppMock(new RefusedByUserDAError("User refused"));
+      setupGetAddressMock();
+      setupSignTransactionMock();
+
+      const result = await executeAction();
+
+      expect(result.status).toBe(DeviceActionStatus.Error);
+      if (result.status === DeviceActionStatus.Error) {
+        expect(result.error).toBeInstanceOf(UserRejectedTransactionError);
+      }
+    });
+
+    it("should wrap GlobalCommandError 5501 from OpenApp as UserRejectedTransactionError", async () => {
+      setupOpenAppMock(
+        new GlobalCommandError({
+          errorCode: "5501",
+          message: "Refused by user",
+        }),
+      );
+      setupGetAddressMock();
+      setupSignTransactionMock();
+
+      const result = await executeAction();
+
+      expect(result.status).toBe(DeviceActionStatus.Error);
+      if (result.status === DeviceActionStatus.Error) {
+        expect(result.error).toBeInstanceOf(UserRejectedTransactionError);
       }
     });
 
