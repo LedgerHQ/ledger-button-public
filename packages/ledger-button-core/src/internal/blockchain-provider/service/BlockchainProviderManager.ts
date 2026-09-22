@@ -37,4 +37,9 @@ export interface BlockchainProviderManager {
    * developer-mode overrides when {@link family} is `"ethereum"`.
    */
   getNetworks(family: BlockchainFamily): BlockchainNetwork[];
+  /**
+   * Returns every network across all registered providers, including
+   * developer-mode overrides for EVM.
+   */
+  getAllNetworks(): BlockchainNetwork[];
 }

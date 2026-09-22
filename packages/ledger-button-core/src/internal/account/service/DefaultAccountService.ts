@@ -3,8 +3,8 @@ import { type Factory, inject, injectable } from "inversify";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import { NoCompatibleAccountsError } from "@api/errors/LedgerSyncErrors";
 import type { Account } from "@api/model/Account";
-import { dAppConfigModuleTypes } from "@internal/dAppConfig/di/dAppConfigModuleTypes";
-import { type GetDAppConfigUseCase } from "@internal/dAppConfig/use-case/GetDAppConfigUseCase";
+import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
@@ -24,8 +24,8 @@ export class DefaultAccountService implements AccountService {
     private readonly loggerFactory: Factory<LoggerPublisher>,
     @inject(storageModuleTypes.StorageService)
     private readonly storageService: StorageService,
-    @inject(dAppConfigModuleTypes.GetDAppConfigUseCase)
-    private readonly getDAppConfigUseCase: GetDAppConfigUseCase,
+    @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
+    private readonly blockchainProviderManager: BlockchainProviderManager,
     @inject(accountModuleTypes.HydrateAccountWithBalanceUseCase)
     private readonly hydrateAccountWithBalanceUseCase: HydrateAccountWithBalanceUseCase,
   ) {
@@ -35,7 +35,7 @@ export class DefaultAccountService implements AccountService {
   async setAccountsFromCloudSyncData(
     cloudsyncData: CloudSyncData,
   ): Promise<void> {
-    const mappedAccounts = await this.mapCloudSyncDataToAccounts(cloudsyncData);
+    const mappedAccounts = this.mapCloudSyncDataToAccounts(cloudsyncData);
 
     this.setAccounts(mappedAccounts);
   }
@@ -61,14 +61,11 @@ export class DefaultAccountService implements AccountService {
     this.logger.debug("saving accounts", { accounts: this.accounts });
   }
 
-  private async mapCloudSyncDataToAccounts(
+  private mapCloudSyncDataToAccounts(
     cloudSyncData: CloudSyncData,
-  ): Promise<Account[]> {
+  ): Account[] {
     const { accounts, accountNames } = cloudSyncData;
-    const dAppConfig = await this.getDAppConfigUseCase.executeWithOverrides();
-    const supportedNetworks = dAppConfig.blockchains.flatMap(
-      (blockchain) => blockchain.networks,
-    );
+    const supportedNetworks = this.blockchainProviderManager.getAllNetworks();
 
     const accs = accounts
       .map((account) => {

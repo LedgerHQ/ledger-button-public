@@ -109,6 +109,12 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     return [...networks.values()];
   }
 
+  getAllNetworks(): BlockchainNetwork[] {
+    return [...this.providers.keys()].flatMap((family) =>
+      this.getNetworks(family),
+    );
+  }
+
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
     return this.firstProviderAnswer((provider) =>
       provider.describeCurrency(currencyId),

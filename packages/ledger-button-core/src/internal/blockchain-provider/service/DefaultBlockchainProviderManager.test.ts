@@ -279,6 +279,20 @@ describe("DefaultBlockchainProviderManager", () => {
     });
   });
 
+  describe("getAllNetworks()", () => {
+    it("returns networks from all registered providers", () => {
+      manager.init(core, dappConfig, factories);
+
+      expect(manager.getAllNetworks()).toEqual([ethMainnet]);
+    });
+
+    it("includes EVM overrides in the result", () => {
+      const scoped = managerWithOverrides([customNetwork]);
+
+      expect(scoped.getAllNetworks()).toEqual([ethMainnet, customNetwork]);
+    });
+  });
+
   describe("describeCurrency()", () => {
     it("returns the descriptor of the provider that claims the currency", () => {
       manager.init(core, dappConfig, factories);

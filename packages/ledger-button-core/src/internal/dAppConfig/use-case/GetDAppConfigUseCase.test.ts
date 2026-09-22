@@ -28,26 +28,9 @@ const BASE_CONFIG: DAppConfig = {
   ],
 };
 
-const BLAST_NETWORK = {
-  id: "81457",
-  currencyId: "blast",
-  currencyName: "Blast",
-  currencyTicker: "ETH",
-};
-
-function createUseCase({
-  config = BASE_CONFIG,
-  networkOverrides = [],
-}: {
-  config?: DAppConfig;
-  networkOverrides?: typeof BLAST_NETWORK[];
-} = {}) {
+function createUseCase(config: DAppConfig = BASE_CONFIG) {
   const dataSource: DAppConfigDataSource = {
     getDAppConfig: vi.fn().mockResolvedValue(config),
-  };
-
-  const storageService = {
-    getConfigOverrides: vi.fn().mockReturnValue(networkOverrides),
   };
 
   const loggerFactory = vi.fn().mockReturnValue({
@@ -57,18 +40,14 @@ function createUseCase({
     error: vi.fn(),
   });
 
-  const useCase = new GetDAppConfigUseCase(
-    loggerFactory,
-    dataSource,
-    storageService as never,
-  );
+  const useCase = new GetDAppConfigUseCase(loggerFactory, dataSource);
 
-  return { useCase, dataSource, storageService };
+  return { useCase, dataSource };
 }
 
 describe("GetDAppConfigUseCase", () => {
   describe("execute", () => {
-    it("returns the raw config from the data source", async () => {
+    it("returns the config from the data source", async () => {
       const { useCase } = createUseCase();
 
       const result = await useCase.execute();
@@ -83,47 +62,6 @@ describe("GetDAppConfigUseCase", () => {
       );
 
       await expect(useCase.execute()).rejects.toThrow("network error");
-    });
-
-    it("does not merge stored overrides", async () => {
-      const { useCase } = createUseCase({
-        networkOverrides: [BLAST_NETWORK],
-      });
-
-      const result = await useCase.execute();
-      const ethBlockchain = result.blockchains.find(
-        (b) => b.blockchain === "ethereum",
-      );
-
-      expect(ethBlockchain?.networks).toHaveLength(1);
-      expect(ethBlockchain?.networks[0]?.currencyId).toBe("ethereum");
-    });
-  });
-
-  describe("executeWithOverrides", () => {
-    it("merges stored network overrides into the config", async () => {
-      const { useCase } = createUseCase({
-        networkOverrides: [BLAST_NETWORK],
-      });
-
-      const result = await useCase.executeWithOverrides();
-      const ethBlockchain = result.blockchains.find(
-        (b) => b.blockchain === "ethereum",
-      );
-
-      expect(ethBlockchain?.networks).toContainEqual(BLAST_NETWORK);
-    });
-
-    it("returns unmodified config when no overrides are stored", async () => {
-      const { useCase } = createUseCase();
-
-      const result = await useCase.executeWithOverrides();
-      const ethBlockchain = result.blockchains.find(
-        (b) => b.blockchain === "ethereum",
-      );
-
-      expect(ethBlockchain?.networks).toHaveLength(1);
-      expect(ethBlockchain?.networks[0]?.currencyId).toBe("ethereum");
     });
   });
 });
