@@ -1,16 +1,15 @@
 import { Signature as DeviceSignature } from "@ledgerhq/device-signer-kit-ethereum";
 import type { SignedTransactionResult } from "@ledgerhq/ledger-wallet-provider-core";
-import { ethers, Signature, TransactionLike } from "ethers";
+import { ethers, TransactionLike } from "ethers";
 
 import type { Transaction } from "../model/SignTransactionParams";
 
 export function createSignedTransaction(
   rawTransaction: string,
-  signature: Signature,
+  signature: DeviceSignature,
 ): SignedTransactionResult {
-  //Generate Signed transaction
   const signedTx = ethers.Transaction.from(rawTransaction);
-  signedTx.signature = signature;
+  signedTx.signature = ethers.Signature.from(signature);
   const signedRawTransaction = signedTx.serialized;
 
   return {
