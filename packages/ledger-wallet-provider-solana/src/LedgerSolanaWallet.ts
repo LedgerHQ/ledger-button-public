@@ -69,6 +69,7 @@ import { getLedgerProviderIcon } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignSolanaMessageParams } from "./model/SignSolanaMessageParams";
 import type { SignSolanaTransactionParams } from "./model/SignSolanaTransactionParams";
 import type { SolanaCluster } from "./model/SolanaTypes";
+import { UserRejectedRequestError } from "./model/UserRejectedRequestError";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import {
@@ -547,7 +548,7 @@ export class LedgerSolanaWallet implements Wallet {
           signType,
         });
         cleanup();
-        reject(new Error("User closed the modal"));
+        reject(new UserRejectedRequestError());
       };
 
       const cleanup = () => {

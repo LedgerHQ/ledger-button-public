@@ -4,6 +4,7 @@
     "@ledgerhq/device-signer-kit-solana": "catalog:",
     "@solana/kit": "catalog:",
     "@wallet-standard/base": "catalog:",
+    "@wallet-standard/errors": "catalog:",
     "@wallet-standard/features": "catalog:",
     "@wallet-standard/wallet": "catalog:",
     "inversify": "catalog:"

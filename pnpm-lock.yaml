@@ -180,6 +180,9 @@ catalogs:
     '@wallet-standard/base':
       specifier: ^1.1.0
       version: 1.1.1
+    '@wallet-standard/errors':
+      specifier: ^0.1.2
+      version: 0.1.2
     '@wallet-standard/features':
       specifier: ^1.1.0
       version: 1.1.1
@@ -1019,6 +1022,9 @@ importers:
       '@wallet-standard/base':
         specifier: 'catalog:'
         version: 1.1.1
+      '@wallet-standard/errors':
+        specifier: 'catalog:'
+        version: 0.1.2
       '@wallet-standard/features':
         specifier: 'catalog:'
         version: 1.1.1
