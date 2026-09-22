@@ -10,6 +10,7 @@ import {
 import { of, Subject } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { UserRejectedRequestError } from "./model/UserRejectedRequestError";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import { attachSolanaSignature } from "./utils/signatureUtils";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet";
@@ -458,6 +459,12 @@ describe("LedgerSolanaWallet (connection)", () => {
           ) &&
           error.context.__code === WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
       );
+
+      // dApps that match on the message text must also be able to tell this
+      // apart from a wallet failure and stop retrying.
+      const rejection = await pending.catch((error: unknown) => error);
+      expect(rejection).toBeInstanceOf(UserRejectedRequestError);
+      expect((rejection as Error).message).toContain("User rejected");
     });
 
     it("does not settle the promise on a non-user-rejection error status", async () => {

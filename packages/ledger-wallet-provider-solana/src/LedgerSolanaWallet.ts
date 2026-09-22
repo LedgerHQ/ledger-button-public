@@ -16,10 +16,6 @@ import {
 } from "@solana/kit";
 import type { Wallet, WalletAccount, WalletIcon } from "@wallet-standard/base";
 import {
-  WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
-  WalletStandardError,
-} from "@wallet-standard/errors";
-import {
   StandardConnect,
   type StandardConnectFeature,
   type StandardConnectMethod,
@@ -73,6 +69,7 @@ import { getLedgerProviderIcon } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignSolanaMessageParams } from "./model/SignSolanaMessageParams";
 import type { SignSolanaTransactionParams } from "./model/SignSolanaTransactionParams";
 import type { SolanaCluster } from "./model/SolanaTypes";
+import { UserRejectedRequestError } from "./model/UserRejectedRequestError";
 import type { SignSolanaMessage } from "./use-case/SignSolanaMessage";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import {
@@ -551,11 +548,7 @@ export class LedgerSolanaWallet implements Wallet {
           signType,
         });
         cleanup();
-        reject(
-          new WalletStandardError(
-            WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
-          ),
-        );
+        reject(new UserRejectedRequestError());
       };
 
       const cleanup = () => {
