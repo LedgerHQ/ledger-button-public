@@ -52,6 +52,7 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
           : Maybe.empty(),
       ),
     describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+    getAllNetworks: vi.fn().mockReturnValue([]),
   };
 }
 

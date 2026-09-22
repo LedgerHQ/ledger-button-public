@@ -83,6 +83,7 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
       Maybe.fromNullable(SUPPORTED_CURRENCIES[currencyId]),
     ),
     describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+    getAllNetworks: vi.fn().mockReturnValue([]),
   };
 }
 
