@@ -5,6 +5,10 @@ on:
       ref:
         description: The release branch to publish a release candidate from
         required: true
+      rc_number:
+        description: The release candidate number (0 for the first candidate, then 1, 2, …)
+        required: true
+        default: "0"
 
 concurrency:
   group: rc-release-${{ github.event.inputs.ref }}
@@ -13,6 +17,7 @@ concurrency:
 env:
   FORCE_COLOR: "1"
   REF: ${{ inputs.ref }}
+  RC_NUMBER: ${{ inputs.rc_number }}
   NPM_REGISTRY: ${{ vars.NPM_REGISTRY }}
 
 jobs:
@@ -42,40 +47,10 @@ jobs:
       - name: Update workspace syntax to use fixed version
         run: git ls-files | grep 'package\.json$' | xargs sed -i 's/workspace:\^/workspace:*/g'
 
-      # Does not commit. A classic release/* branch with stable X.Y.Z becomes
-      # X.Y.Z-rc.0. Manifests already at X.Y.Z-rc.N are left unchanged.
+      # Does not commit: each package keeps its own X.Y.Z and only gets the
+      # -rc.<number> suffix in the runner, so latest is never at risk.
       - name: Set public package versions to X.Y.Z-rc.N
-        run: |
-          node -e '
-            const fs = require("fs");
-            const stable = /^(\d+\.\d+\.\d+)$/;
-            const rc = /^\d+\.\d+\.\d+-rc\.\d+$/;
-            let failed = false;
-            for (const dir of fs.readdirSync("packages")) {
-              const path = `packages/${dir}/package.json`;
-              if (!fs.existsSync(path)) continue;
-              const pkg = JSON.parse(fs.readFileSync(path, "utf8"));
-              if (pkg.private || !pkg.name) continue;
-              const from = pkg.version;
-              if (rc.test(from)) {
-                console.log(`KEEP ${pkg.name}@${from}`);
-                continue;
-              }
-              const match = stable.exec(from);
-              if (!match) {
-                failed = true;
-                console.log(`FAIL ${pkg.name}@${from}`);
-                continue;
-              }
-              pkg.version = `${match[1]}-rc.0`;
-              fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + "\n");
-              console.log(`${pkg.name} ${from} -> ${pkg.version}`);
-            }
-            if (failed) {
-              console.error("Every public package must be X.Y.Z or X.Y.Z-rc.N");
-              process.exit(1);
-            }
-          '
+        run: pnpm nx run ldb-tools:run -- bump-rc --number "$RC_NUMBER"
 
       - name: Canonicalize package.json
         run: pnpm nx run ldb-tools:canonicalize
