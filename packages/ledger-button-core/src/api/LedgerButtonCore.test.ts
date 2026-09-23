@@ -19,9 +19,10 @@ import { LedgerButtonCore } from "./LedgerButtonCore";
 const hoisted = vi.hoisted(() => ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   container: undefined as any,
+  createContainer: vi.fn(),
 }));
 vi.mock("../internal/di", () => ({
-  createContainer: () => hoisted.container,
+  createContainer: hoisted.createContainer,
 }));
 
 describe("LedgerButtonCore", () => {
@@ -37,6 +38,7 @@ describe("LedgerButtonCore", () => {
     removeSelectedAccount: ReturnType<typeof vi.fn>;
     resetStorage: ReturnType<typeof vi.fn>;
   };
+  let restoreContext: ReturnType<typeof vi.spyOn>;
   let connectDevice: { execute: ReturnType<typeof vi.fn> };
   let disconnectDevice: { execute: ReturnType<typeof vi.fn> };
   let deviceSessionState$: Subject<{ deviceStatus: DeviceStatus }>;
@@ -106,17 +108,25 @@ describe("LedgerButtonCore", () => {
 
     hoisted.container = {
       get: vi.fn((token: symbol) => registry.get(token)),
-      unbindAll: vi.fn().mockResolvedValue(undefined),
-      rebindSync: vi.fn(() => ({ toConstantValue: vi.fn() })),
     };
+    hoisted.createContainer.mockReturnValue(hoisted.container);
 
-    // Skip the heavy async context bootstrap the real constructor kicks off.
+    // Skip the heavy async context bootstrap the real constructor kicks off,
+    // and the storage-backed rebuild that a reset triggers.
     vi.spyOn(
       LedgerButtonCore.prototype as unknown as {
         initializeContext: () => void;
       },
       "initializeContext",
     ).mockResolvedValue(undefined as never);
+    restoreContext = vi
+      .spyOn(
+        LedgerButtonCore.prototype as unknown as {
+          restoreContext: () => void;
+        },
+        "restoreContext",
+      )
+      .mockResolvedValue(undefined as never);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new LedgerButtonCore({} as any);
@@ -208,6 +218,46 @@ describe("LedgerButtonCore", () => {
 
       expect(storage.resetStorage).toHaveBeenCalledTimes(1);
       expect(storage.removeSelectedAccount).not.toHaveBeenCalled();
+    });
+
+    it("keeps the same container so the provider held by the dApp stays live", async () => {
+      const core = createCore();
+
+      await core.disconnect();
+
+      expect(hoisted.createContainer).toHaveBeenCalledTimes(1);
+    });
+
+    it("releases the device through disconnect rather than closing DMK", async () => {
+      const core = createCore();
+
+      await core.disconnect();
+
+      expect(disconnectDevice.execute).toHaveBeenCalledTimes(1);
+      // dmk.close() drops the session without emitting NOT_CONNECTED, leaving
+      // our listeners convinced the device is still there.
+      expect(deviceService.dmk.close).not.toHaveBeenCalled();
+    });
+
+    it("rebuilds the context once the session state is cleared", async () => {
+      const core = createCore();
+
+      await core.disconnect();
+
+      expect(restoreContext).toHaveBeenCalledTimes(1);
+      const [resetOrder] = storage.resetStorage.mock.invocationCallOrder;
+      const [restoreOrder] = restoreContext.mock.invocationCallOrder;
+      expect(resetOrder).toBeLessThan(restoreOrder as number);
+    });
+
+    it("still resets when the device cannot be released", async () => {
+      const core = createCore();
+      disconnectDevice.execute.mockRejectedValue(new Error("device is gone"));
+
+      await core.disconnect();
+
+      expect(storage.resetStorage).toHaveBeenCalledTimes(1);
+      expect(restoreContext).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -109,7 +109,9 @@ import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase"
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
-  private container!: Container;
+  // Built once and never replaced: dApps hold on to the provider objects this
+  // container produced, so swapping it would strand them on dead services.
+  private readonly container: Container;
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
@@ -167,39 +169,48 @@ export class LedgerButtonCore {
     // (e.g. EIP-1193 `disconnect`) can drop its family through the port.
     coreFacade.setDisconnectHandler((family) => this.disconnect(family));
 
+    // Providers are built once and handed to dApps, which keep the object they
+    // were given (EIP-6963 de-duplicates on `rdns`). Re-running this would
+    // orphan their reference, so it must stay out of `restoreContext`.
+    this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .init(coreFacade, dappConfig, this.opts.blockchainProviderFactories ?? []);
+
+    await this.restoreContext();
+
+    this.container.get<PendingTransactionController>(
+      pendingTransactionModuleTypes.PendingTransactionController,
+    );
+  }
+
+  /**
+   * Rebuilds the public context from persisted state. Runs at bootstrap and
+   * again after every session reset, so it must hold no one-time wiring.
+   */
+  private async restoreContext() {
+    const storageService = this.container.get<StorageService>(
+      storageModuleTypes.StorageService,
+    );
+
+    const trustChainId = storageService.getTrustChainId().extract();
+
+    if (trustChainId && !storageService.isTrustChainValid()) {
+      this._logger.debug("Logging out, trust chain is expired");
+      storageService.resetStorage();
+    }
+
+    const isTrustChainValid = storageService.isTrustChainValid();
+
+    const restoredAccounts = isTrustChainValid
+      ? storageService.getSelectedAccounts()
+      : new Map<BlockchainFamily, Account>();
+
     const blockchainProviderManager =
       this.container.get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       );
-    blockchainProviderManager.init(
-      coreFacade,
-      dappConfig,
-      this.opts.blockchainProviderFactories ?? [],
-    );
-
-    // Restore selected accounts (one per blockchain family) from storage
-    const selectedAccounts = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getSelectedAccounts();
-
-    // Restore trust chain id from storage
-    const trustChainId = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getTrustChainId()
-      .extract();
-
-    const isTrustChainValid = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .isTrustChainValid();
-
-    if (trustChainId && !isTrustChainValid) {
-      this._logger.debug("Logging out, trust chain is expired");
-      await this.disconnect();
-    }
-
-    const restoredAccounts = isTrustChainValid
-      ? selectedAccounts
-      : new Map<BlockchainFamily, Account>();
 
     // chainId tracks the default (ethereum) selection.
     const defaultAccount = restoredAccounts.get(DEFAULT_BLOCKCHAIN_FAMILY);
@@ -213,21 +224,15 @@ export class LedgerButtonCore {
           .orDefault(1)
       : 1;
 
-    const welcomeScreenCompleted = await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .isWelcomeScreenCompleted();
+    const welcomeScreenCompleted = await storageService.isWelcomeScreenCompleted();
 
-    const userConsent = await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getUserConsent();
+    const userConsent = await storageService.getUserConsent();
 
     const hasTrackingConsent = userConsent.isJust()
       ? userConsent.extract().consentGiven
       : undefined;
 
-    const hasDeveloperMode = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .hasDeveloperMode();
+    const hasDeveloperMode = storageService.hasDeveloperMode();
 
     const isMobilePlatform = this.container
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
@@ -258,10 +263,6 @@ export class LedgerButtonCore {
     // Attach the restored selection to the blockchain providers so a returning
     // session is wired up without waiting for a fresh account selection.
     blockchainProviderManager.setSelectedAccounts(restoredAccounts);
-
-    this.container.get<PendingTransactionController>(
-      pendingTransactionModuleTypes.PendingTransactionController,
-    );
   }
 
   private listenDevice() {
@@ -372,36 +373,16 @@ export class LedgerButtonCore {
   }
 
   private async resetSession() {
-    this._logger.debug("Disconnecting from device");
+    this._logger.debug("Resetting session");
 
-    const currentContextService = this._contextService;
-    const currentNavigationIntentService = this._navigationIntentService;
+    this.stopListeningToDevice();
+    await this.releaseDeviceSafely();
 
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
 
-    this.stopListeningToDevice();
-    const deviceService = this.getDeviceService();
-    deviceService.dmk.close();
-
-    try {
-      await this.container.unbindAll();
-    } catch (error) {
-      this._logger.error("Error unbinding container", { error });
-    }
-
-    this.container = createContainer(this.opts);
-    this.container
-      .rebindSync(contextModuleTypes.ContextService)
-      .toConstantValue(currentContextService);
-    // Keep the same navigation-intent stream so the UI bridge subscription
-    // (set up once at bootstrap) survives the container recreation.
-    this.container
-      .rebindSync(navigationModuleTypes.NavigationIntentService)
-      .toConstantValue(currentNavigationIntentService);
-
-    void this.initializeContext();
+    await this.restoreContext();
   }
 
   // Device methods
