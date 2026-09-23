@@ -304,6 +304,23 @@ describe("DefaultDeviceManagementKitService", () => {
         expect(service.isSessionAlive()).toBe(false);
       });
 
+      it("should stop querying DMK once it has disowned the session", async () => {
+        vi.mocked(mockDmk.getConnectedDevice).mockImplementation(() => {
+          throw new Error("Device session not found");
+        });
+
+        service.isSessionAlive();
+        const callsAfterFirstCheck = vi.mocked(mockDmk.getConnectedDevice).mock
+          .calls.length;
+        service.isSessionAlive();
+        service.isSessionAlive();
+
+        expect(vi.mocked(mockDmk.getConnectedDevice).mock.calls.length).toBe(
+          callsAfterFirstCheck,
+        );
+        expect(service.sessionId).toBeUndefined();
+      });
+
       it("should report no session as dead", async () => {
         await service.disconnectFromDevice();
 

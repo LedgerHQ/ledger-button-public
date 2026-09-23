@@ -191,15 +191,20 @@ export class DefaultDeviceManagementKitService
    * and every device action fails with "Error getting session".
    */
   isSessionAlive(): boolean {
-    if (!this._currentSessionId) {
+    const sessionId = this._currentSessionId;
+
+    if (!sessionId) {
       return false;
     }
 
     try {
-      return Boolean(
-        this.dmk.getConnectedDevice({ sessionId: this._currentSessionId }),
-      );
+      this.dmk.getConnectedDevice({ sessionId });
+      return true;
     } catch {
+      // Drop the id as soon as DMK disowns it: callers poll this, and a
+      // retained id would both keep failing and make DMK log on every tick.
+      this.logger.warn("Device session was dropped by DMK", { sessionId });
+      this.clearSession(sessionId);
       return false;
     }
   }
