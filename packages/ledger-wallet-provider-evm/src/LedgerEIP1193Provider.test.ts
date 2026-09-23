@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
-import { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  Account,
+  type CoreFacade,
+  type SignFlowStatus,
+} from "@ledgerhq/ledger-wallet-provider-core";
+import { firstValueFrom, type Observable, of } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CommonEIP1193ErrorCode } from "./model/EIPTypes";
@@ -212,6 +216,35 @@ describe("LedgerEIP1193Provider", () => {
 
       expect(host.requestAccount).toHaveBeenCalledWith("ethereum");
       expect(result).toEqual([EVM_ADDRESS]);
+    });
+
+    it("replays an error status when the signing UI subscribes after a remount", async () => {
+      const errorStatus: SignFlowStatus = {
+        signType: "personal-sign",
+        status: "error",
+        error: new Error("device disconnected"),
+      };
+      provider.setSelectedAccount(createAccount());
+      vi.mocked(deps.signPersonalMessage.execute).mockReturnValue(
+        of(errorStatus),
+      );
+
+      const pending = provider.request({
+        method: "personal_sign",
+        params: ["0x6869", EVM_ADDRESS],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        status$: Observable<SignFlowStatus>;
+      };
+      await expect(firstValueFrom(intent.status$)).resolves.toBe(errorStatus);
+
+      globalThis.dispatchEvent(new Event("ledger-provider-close"));
+      await expect(pending).rejects.toHaveProperty(
+        "code",
+        CommonEIP1193ErrorCode.UserRejectedRequest,
+      );
     });
   });
 

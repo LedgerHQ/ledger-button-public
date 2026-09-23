@@ -1,13 +1,14 @@
 import type { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
+import { DeviceDisconnectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import { getBase58Decoder, getBase64Decoder } from "@solana/kit";
 import type { WalletAccount } from "@wallet-standard/base";
 import {
   isWalletStandardError,
   WALLET_STANDARD_ERROR__USER__REQUEST_REJECTED,
 } from "@wallet-standard/errors";
-import { of, Subject } from "rxjs";
+import { firstValueFrom, type Observable, of, Subject } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { UserRejectedRequestError } from "./model/UserRejectedRequestError";
@@ -459,6 +460,66 @@ describe("LedgerSolanaWallet (connection)", () => {
         errorStatus,
         { family: "solana" },
       );
+    });
+
+    it("surfaces a DMK mid-flow unplug as a DeviceDisconnectedError", async () => {
+      signUseCase.execute.mockReturnValue(
+        of({
+          signType: "transaction",
+          status: "error",
+          error: { _tag: "DeviceDisconnectedWhileSendingError" },
+        } as SignFlowStatus),
+      );
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const pending = wallet.features[
+        "solana:signTransaction"
+      ].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        status$: Observable<SignFlowStatus>;
+      };
+      const status = await firstValueFrom(intent.status$);
+
+      expect(status.status).toBe("error");
+      expect((status as { error: unknown }).error).toBeInstanceOf(
+        DeviceDisconnectedError,
+      );
+
+      globalThis.dispatchEvent(new Event("ledger-provider-close"));
+      await expect(pending).rejects.toBeInstanceOf(UserRejectedRequestError);
+    });
+
+    it("replays an error status when the signing UI subscribes after a remount", async () => {
+      const errorStatus: SignFlowStatus = {
+        signType: "transaction",
+        status: "error",
+        error: new Error("device disconnected"),
+      };
+      signUseCase.execute.mockReturnValue(of(errorStatus));
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const pending = wallet.features[
+        "solana:signTransaction"
+      ].signTransaction({
+        account: {} as never,
+        transaction,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        status$: Observable<SignFlowStatus>;
+      };
+      await expect(firstValueFrom(intent.status$)).resolves.toBe(errorStatus);
+
+      globalThis.dispatchEvent(new Event("ledger-provider-close"));
+      await expect(pending).rejects.toBeInstanceOf(UserRejectedRequestError);
     });
 
     it("rejects with a Wallet Standard user-rejection error when the modal is closed", async () => {

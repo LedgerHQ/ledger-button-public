@@ -2,6 +2,7 @@ import {
   BlindSigningDisabledError,
   type BroadcastTracking,
   BroadcastTransactionError,
+  DeviceDisconnectedError,
   DeviceOutOfMemoryError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
@@ -326,6 +327,34 @@ export class SignTransactionController implements ReactiveController {
               label: lang.error.device.DeviceOutOfStorage.cta1,
               action: () => {
                 window.open("ledgerlive://myledger");
+                this.close();
+              },
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceDisconnectedError: {
+        this.state = {
+          screen: "error",
+          status: {
+            title: lang.error.connection.DeviceDisconnected.title,
+            message: lang.error.connection.DeviceDisconnected.description,
+            cta1: {
+              label: lang.error.connection.DeviceDisconnected.cta1,
+              action: () => {
+                this.state = {
+                  screen: "signing",
+                  deviceAnimation: "signTransaction",
+                };
+                this.currentIntent?.retry();
+                this.host.requestUpdate();
+              },
+            },
+            cta2: {
+              label: lang.error.generic.sign.cta2,
+              action: () => {
+                this.currentIntent?.finish();
                 this.close();
               },
             },

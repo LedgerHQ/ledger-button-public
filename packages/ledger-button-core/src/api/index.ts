@@ -20,6 +20,10 @@ export type {
 } from "./blockchain-provider/model/types";
 export { createOpenAppConfig } from "./blockchain-provider/utils/createOpenAppConfig";
 export {
+  normalizeDeviceError,
+  normalizeSignFlowStatusError,
+} from "./blockchain-provider/utils/normalizeDeviceError";
+export {
   type ConnectedDeviceSession,
   waitForDeviceSession,
 } from "./blockchain-provider/utils/waitForDeviceSession";

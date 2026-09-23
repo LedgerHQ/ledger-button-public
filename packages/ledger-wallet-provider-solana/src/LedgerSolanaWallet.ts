@@ -35,7 +35,7 @@ import {
   map,
   type Observable,
   of,
-  Subject,
+  ReplaySubject,
   type Subscription,
   switchMap,
 } from "rxjs";
@@ -62,6 +62,10 @@ import type {
 import {
   isSignedMessageOrTypedDataResult,
   type SignedResults,
+} from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  normalizeDeviceError,
+  normalizeSignFlowStatusError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { getLedgerProviderIcon } from "@ledgerhq/ledger-wallet-provider-core";
@@ -530,7 +534,7 @@ export class LedgerSolanaWallet implements Wallet {
     mapResult: (data: SignedResults) => T | undefined,
   ): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-      const status$ = new Subject<SignFlowStatus>();
+      const status$ = new ReplaySubject<SignFlowStatus>(1);
       let subscription: Subscription | undefined;
       let settled = false;
 
@@ -559,11 +563,23 @@ export class LedgerSolanaWallet implements Wallet {
       };
 
       const emitError = (error: unknown) => {
-        const status: SignFlowStatus = { signType, status: "error", error };
+        const status: SignFlowStatus = {
+          signType,
+          status: "error",
+          error: normalizeDeviceError(error),
+        };
         this.host.trackBroadcastedTransaction(status, {
           family: this.family,
         });
         status$.next(status);
+      };
+
+      const emitStatus = (status: SignFlowStatus) => {
+        const normalized = normalizeSignFlowStatusError(status);
+        this.host.trackBroadcastedTransaction(normalized, {
+          family: this.family,
+        });
+        status$.next(normalized);
       };
 
       const start = () => {
@@ -577,10 +593,7 @@ export class LedgerSolanaWallet implements Wallet {
         }
         subscription = observable.subscribe({
           next: (status) => {
-            this.host.trackBroadcastedTransaction(status, {
-              family: this.family,
-            });
-            status$.next(status);
+            emitStatus(status);
             if (status.status !== "success") {
               return;
             }
