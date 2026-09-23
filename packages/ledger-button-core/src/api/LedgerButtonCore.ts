@@ -125,6 +125,9 @@ export class LedgerButtonCore {
 
   // Subscription to device connection state in order to handle device disconnection
   private deviceConnectionSubscription?: Subscription;
+  // Cleanup triggered by a physical disconnect, awaited before reconnecting so
+  // it cannot tear down the session of the connection that follows it.
+  private pendingDeviceCleanup?: Promise<void>;
 
   constructor(private readonly opts: LedgerButtonCoreOptions) {
     this.container = createContainer(this.opts);
@@ -279,13 +282,29 @@ export class LedgerButtonCore {
       })
       .subscribe((state) => {
         if (state.deviceStatus === DeviceStatus.NOT_CONNECTED) {
-          this._logger.info("Device disconnected");
-
-          this._contextService.onEvent({
-            type: "device_disconnected",
-          });
+          this.deviceConnectionSubscription?.unsubscribe();
+          this.deviceConnectionSubscription = undefined;
+          this.pendingDeviceCleanup = this.handlePhysicalDeviceDisconnection();
         }
       });
+  }
+
+  private async handlePhysicalDeviceDisconnection(): Promise<void> {
+    this._logger.info("Device disconnected");
+
+    try {
+      await this.container
+        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+        .execute();
+    } catch (error) {
+      this._logger.warn("Failed to clean up disconnected device session", {
+        error,
+      });
+    } finally {
+      this._contextService.onEvent({
+        type: "device_disconnected",
+      });
+    }
   }
 
   /**
@@ -356,9 +375,23 @@ export class LedgerButtonCore {
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
 
-    //Implicitly disconnect from device if already connected to one
-    if (this._contextService.getContext().connectedDevice !== undefined) {
+    await this.pendingDeviceCleanup;
+    this.pendingDeviceCleanup = undefined;
+
+    const deviceService = this.container.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    );
+    const hasDeviceSession =
+      deviceService.sessionId !== undefined ||
+      deviceService.connectedDevice !== undefined;
+
+    // Implicitly disconnect from a context or DMK session before reconnecting.
+    if (
+      this._contextService.getContext().connectedDevice !== undefined ||
+      hasDeviceSession
+    ) {
       this.deviceConnectionSubscription?.unsubscribe();
+      this.deviceConnectionSubscription = undefined;
       await this.container
         .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
         .execute();
@@ -379,6 +412,9 @@ export class LedgerButtonCore {
 
   async disconnectFromDevice() {
     this._logger.debug("Disconnecting from device");
+    this.deviceConnectionSubscription?.unsubscribe();
+    this.deviceConnectionSubscription = undefined;
+
     const result = await this.container
       .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();

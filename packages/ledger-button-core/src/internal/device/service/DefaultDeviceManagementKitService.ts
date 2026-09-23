@@ -164,19 +164,37 @@ export class DefaultDeviceManagementKitService
   }
 
   async disconnectFromDevice() {
-    if (!this._currentSessionId) {
+    const sessionId = this._currentSessionId;
+
+    if (!sessionId) {
+      this.clearSession();
       return;
     }
 
     try {
-      await this.dmk.disconnect({ sessionId: this._currentSessionId });
-      this._currentSessionId = undefined;
+      await this.dmk.disconnect({ sessionId });
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });
       throw new DeviceConnectionError(`Failed to disconnect from device`, {
         type: "failed-to-disconnect",
         error,
       });
+    } finally {
+      this.clearSession(sessionId);
     }
+  }
+
+  /**
+   * Clearing is scoped to `expectedSessionId` so a disconnect that resolves
+   * late (a device unplugged mid-flow) cannot wipe a session established by a
+   * reconnection that already happened in the meantime.
+   */
+  private clearSession(expectedSessionId?: string): void {
+    if (expectedSessionId && this._currentSessionId !== expectedSessionId) {
+      return;
+    }
+
+    this._currentSessionId = undefined;
+    this._connectedDevice = undefined;
   }
 }
