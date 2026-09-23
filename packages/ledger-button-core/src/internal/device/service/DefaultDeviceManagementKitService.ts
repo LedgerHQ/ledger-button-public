@@ -185,6 +185,26 @@ export class DefaultDeviceManagementKitService
   }
 
   /**
+   * DMK is the source of truth: it drops a session when the link is lost, and
+   * because sessions are opened with the refresher disabled nothing pushes that
+   * back to us. Without this check the cached session id outlives the session
+   * and every device action fails with "Error getting session".
+   */
+  isSessionAlive(): boolean {
+    if (!this._currentSessionId) {
+      return false;
+    }
+
+    try {
+      return Boolean(
+        this.dmk.getConnectedDevice({ sessionId: this._currentSessionId }),
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  /**
    * Clearing is scoped to `expectedSessionId` so a disconnect that resolves
    * late (a device unplugged mid-flow) cannot wipe a session established by a
    * reconnection that already happened in the meantime.

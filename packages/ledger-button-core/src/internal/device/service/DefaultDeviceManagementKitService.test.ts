@@ -294,6 +294,22 @@ describe("DefaultDeviceManagementKitService", () => {
         expect(service.connectedDevice).toBeUndefined();
       });
 
+      it("should report a session DMK no longer knows as dead", async () => {
+        expect(service.isSessionAlive()).toBe(true);
+
+        vi.mocked(mockDmk.getConnectedDevice).mockImplementation(() => {
+          throw new Error("Device session not found");
+        });
+
+        expect(service.isSessionAlive()).toBe(false);
+      });
+
+      it("should report no session as dead", async () => {
+        await service.disconnectFromDevice();
+
+        expect(service.isSessionAlive()).toBe(false);
+      });
+
       it("should keep a session established while an earlier disconnect was still pending", async () => {
         let resolveDisconnect: () => void = () => undefined;
         vi.mocked(mockDmk.disconnect).mockReturnValue(
