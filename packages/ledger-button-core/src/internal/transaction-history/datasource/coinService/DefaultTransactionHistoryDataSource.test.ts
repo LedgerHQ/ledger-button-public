@@ -110,8 +110,10 @@ describe("DefaultTransactionHistoryDataSource", () => {
       init: vi.fn(),
       setSelectedAccounts: vi.fn(),
       setNetwork: vi.fn(),
+      getNetworks: vi.fn().mockReturnValue([]),
       describeCurrency: vi.fn(describeCurrencyForTest),
       describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+      getAllNetworks: vi.fn().mockReturnValue([]),
     };
 
     mockLoggerFactory = createMockLoggerFactory();

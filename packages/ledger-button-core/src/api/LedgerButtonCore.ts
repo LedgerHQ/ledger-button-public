@@ -22,6 +22,7 @@ import {
   getConnectedFamilies,
   getSelectedAccount,
 } from "./model/ButtonCoreContext";
+import type { BlockchainNetwork } from "./model/dappConfig/BlockchainConfig";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
@@ -98,6 +99,7 @@ import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes
 import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase";
 import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase";
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
+import type { ConfigOverrides } from "../internal/storage/model/ConfigOverrides";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
 import { type StorageService } from "../internal/storage/StorageService";
 import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
@@ -627,6 +629,27 @@ export class LedgerButtonCore {
       ...storageService.getFeatureFlags(),
       [flag]: enabled,
     });
+  }
+
+  getBlockchainNetworks(blockchainFamily: string): BlockchainNetwork[] {
+    return this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .getNetworks(blockchainFamily as BlockchainFamily);
+  }
+
+  getConfigOverrides(): ConfigOverrides {
+    return this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getConfigOverrides();
+  }
+
+  setConfigOverrides(overrides: ConfigOverrides): void {
+    this._logger.debug("Updating config overrides", { overrides });
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveConfigOverrides(overrides);
   }
 
   getPreferredFiatCurrency(): string {

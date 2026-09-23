@@ -24,6 +24,8 @@ import "../domain/settings/security/security-screen";
 import "../domain/settings/support/support-screen";
 import "../domain/settings/developer/developer-screen";
 import "../domain/settings/developer/feature-flags/feature-flags-screen";
+import "../domain/settings/developer/dapp-config/network-screen";
+import "../domain/settings/developer/dapp-config/add-network-screen";
 import "../domain/home-flow/home-flow";
 import "../domain/available-networks/available-networks";
 
@@ -369,6 +371,24 @@ export const makeDestinations = (languages: LanguageContext): Destinations => {
         get title() {
           return t().settings?.featureFlags?.title ?? "Feature flags";
         },
+        canClose: true,
+      },
+    },
+    network: {
+      name: "network",
+      component: "network-screen",
+      canGoBack: true,
+      toolbar: {
+        title: "dApp Config EVM",
+        canClose: true,
+      },
+    },
+    addNetwork: {
+      name: "addNetwork",
+      component: "add-network-screen",
+      canGoBack: true,
+      toolbar: {
+        title: "Add network",
         canClose: true,
       },
     },

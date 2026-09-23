@@ -31,8 +31,10 @@ function createMockBlockchainProviderManager(): BlockchainProviderManager {
     init: vi.fn(),
     setSelectedAccounts: vi.fn(),
     setNetwork: vi.fn(),
+    getNetworks: vi.fn().mockReturnValue([]),
     describeCurrency: vi.fn().mockReturnValue(Maybe.empty()),
     describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+    getAllNetworks: vi.fn().mockReturnValue([]),
   };
 }
 

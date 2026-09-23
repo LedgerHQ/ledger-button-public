@@ -4,6 +4,7 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import type { LedgerIconAttributes } from "../../../components/atom/icon/ledger-icon";
 import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
@@ -34,8 +35,12 @@ export class DeveloperScreen extends LitElement {
     this.navigation.navigateTo(this.destinations.featureFlags);
   }
 
+  private handleEvmNetworksClick() {
+    this.navigation.navigateTo(this.destinations.network);
+  }
+
   private renderMenuItem(
-    icon: "featureFlags",
+    icon: LedgerIconAttributes["type"],
     label: string,
     onClick: () => void,
   ) {
@@ -74,12 +79,13 @@ export class DeveloperScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col px-16 py-0">
+      <div class="flex flex-1 flex-col items-start px-16 py-0">
         ${this.renderMenuItem(
           "featureFlags",
           settings.featureFlags?.title ?? "Feature flags",
           this.handleFeatureFlagsClick,
         )}
+        ${this.renderMenuItem("code", "dApp Config EVM", this.handleEvmNetworksClick)}
       </div>
     `;
   }

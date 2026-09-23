@@ -618,4 +618,48 @@ describe("DefaultStorageService", () => {
       });
     });
   });
+
+  describe("Config overrides methods", () => {
+    const BLAST_NETWORK = {
+      id: "81457",
+      currencyId: "blast",
+      currencyName: "Blast",
+      currencyTicker: "ETH",
+    };
+
+    const HYPEREVM_NETWORK = {
+      id: "999",
+      currencyId: "hyperevm",
+      currencyName: "HyperEVM",
+      currencyTicker: "HYPE",
+    };
+
+    describe("getConfigOverrides", () => {
+      it("should return default overrides when none are stored", () => {
+        expect(storageService.getConfigOverrides()).toEqual([]);
+      });
+
+      it("should return stored overrides", () => {
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+
+        expect(storageService.getConfigOverrides()).toEqual([BLAST_NETWORK]);
+      });
+    });
+
+    describe("saveConfigOverrides", () => {
+      it("should persist the override list", () => {
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+
+        expect(storageService.getConfigOverrides()).toEqual([BLAST_NETWORK]);
+      });
+
+      it("should overwrite previously saved overrides", () => {
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+        storageService.saveConfigOverrides([HYPEREVM_NETWORK]);
+
+        expect(storageService.getConfigOverrides()).toEqual([HYPEREVM_NETWORK]);
+      });
+    });
+
+  });
 });

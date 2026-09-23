@@ -5,6 +5,7 @@ import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
+import type { BlockchainNetwork } from "@api/model/dappConfig/BlockchainConfig";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
 
 export interface BlockchainProviderManager {
@@ -13,6 +14,7 @@ export interface BlockchainProviderManager {
     dappConfig: DAppConfig,
     factories: BlockchainProviderFactory[],
   ): void;
+
   /**
    * Push the selected account of each blockchain family to its provider. A
    * provider whose family is absent from the map receives `undefined` (cleared).
@@ -30,4 +32,14 @@ export interface BlockchainProviderManager {
    * belongs to.
    */
   describeNetwork(networkId: string): Maybe<CurrencyDescriptor>;
+  /**
+   * Reads the networks from the dApp config for a family, plus EVM-only
+   * developer-mode overrides when {@link family} is `"ethereum"`.
+   */
+  getNetworks(family: BlockchainFamily): BlockchainNetwork[];
+  /**
+   * Returns every network across all registered providers, including
+   * developer-mode overrides for EVM.
+   */
+  getAllNetworks(): BlockchainNetwork[];
 }

@@ -7,14 +7,22 @@ import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
-import type { BlockchainConfig } from "@api/model/dappConfig/BlockchainConfig";
+import type {
+  BlockchainConfig,
+  BlockchainNetwork,
+} from "@api/model/dappConfig/BlockchainConfig";
 import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import type { DAppConfig } from "@internal/dAppConfig/model/dAppConfigTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { StorageService } from "@internal/storage/StorageService";
 
 import type { BlockchainProviderManager } from "./BlockchainProviderManager";
+
+const EVM_FAMILY: BlockchainFamily = "ethereum";
+const EVM_NATIVE_DECIMALS = 18;
 
 /**
  * Central registry that creates, wires, and manages blockchain providers.
@@ -32,6 +40,8 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     private readonly contextService: ContextService,
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
+    @inject(storageModuleTypes.StorageService)
+    private readonly storageService: StorageService,
   ) {
     this.logger = loggerFactory("BlockchainProviderManager");
   }
@@ -50,7 +60,9 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
             family,
           }),
         Right: (provider) => {
-          this.logger.debug("Registering provider", { family: provider.family });
+          this.logger.debug("Registering provider", {
+            family: provider.family,
+          });
           this.providers.set(provider.family, provider);
           provider.injectWalletProviders();
         },
@@ -76,16 +88,43 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     }
   }
 
+  getNetworks(family: BlockchainFamily): BlockchainNetwork[] {
+    const provider = this.providers.get(family);
+    if (!provider) {
+      return [];
+    }
+
+    const networks = new Map(
+      provider.dappConfig.networks.map((network) => [
+        network.currencyId,
+        network,
+      ]),
+    );
+    if (family === EVM_FAMILY) {
+      for (const network of this.storageService.getConfigOverrides()) {
+        networks.set(network.currencyId, network);
+      }
+    }
+
+    return [...networks.values()];
+  }
+
+  getAllNetworks(): BlockchainNetwork[] {
+    return [...this.providers.keys()].flatMap((family) =>
+      this.getNetworks(family),
+    );
+  }
+
   describeCurrency(currencyId: string): Maybe<CurrencyDescriptor> {
     return this.firstProviderAnswer((provider) =>
       provider.describeCurrency(currencyId),
-    );
+    ).altLazy(() => this.overridesFind((n) => n.currencyId === currencyId));
   }
 
   describeNetwork(networkId: string): Maybe<CurrencyDescriptor> {
     return this.firstProviderAnswer((provider) =>
       provider.describeNetwork(networkId),
-    );
+    ).altLazy(() => this.overridesFind((n) => n.id === networkId));
   }
 
   private firstProviderAnswer<T>(
@@ -98,5 +137,24 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
       }
     }
     return Maybe.empty();
+  }
+
+  // Developer-mode, EVM-only
+  private overridesFind(
+    matches: (network: BlockchainNetwork) => boolean,
+  ): Maybe<CurrencyDescriptor> {
+    const network = this.storageService
+      .getConfigOverrides()
+      .find(matches);
+    if (!network) {
+      return Maybe.empty();
+    }
+
+    return Maybe.of({
+      currencyId: network.currencyId,
+      family: EVM_FAMILY,
+      networkId: network.id,
+      nativeDecimals: EVM_NATIVE_DECIMALS,
+    });
   }
 }

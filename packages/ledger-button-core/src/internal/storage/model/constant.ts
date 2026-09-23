@@ -22,6 +22,7 @@ const LOCAL_STORAGE_KEYS = {
   DB_VERSION: "dbVersion",
   HAS_DEVELOPER_MODE: "hasDeveloperMode",
   FEATURE_FLAGS: "featureFlags",
+  CONFIG_OVERRIDES: "configOverrides",
 } as const;
 
 export const STORAGE_KEYS = {

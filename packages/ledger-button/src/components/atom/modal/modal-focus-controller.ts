@@ -88,7 +88,7 @@ export class ModalFocusController implements ReactiveController {
 
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    const activeElement = document.activeElement;
+    const activeElement = this.deepActiveElement();
 
     if (event.shiftKey && activeElement === firstElement) {
       event.preventDefault();
@@ -99,18 +99,47 @@ export class ModalFocusController implements ReactiveController {
     }
   }
 
+  private deepActiveElement(): Element | null {
+    let el: Element | null = document.activeElement;
+    while (el?.shadowRoot?.activeElement) {
+      el = el.shadowRoot.activeElement;
+    }
+    return el;
+  }
+
   private getFocusableElements(): HTMLElement[] {
     if (!this.containerElement) {
       return [];
     }
 
-    const elements = this.containerElement.querySelectorAll<HTMLElement>(
-      FOCUSABLE_SELECTORS,
-    );
+    return this.collectFocusableElements(this.containerElement);
+  }
 
-    return Array.from(elements).filter(
-      (el) => el.offsetParent !== null && !el.hasAttribute("inert"),
-    );
+  private collectFocusableElements(root: Element | ShadowRoot): HTMLElement[] {
+    const results: HTMLElement[] = [];
+
+    for (const el of Array.from(root.querySelectorAll<HTMLElement>("*"))) {
+      if (el instanceof HTMLSlotElement) {
+        for (const assigned of el.assignedElements({ flatten: true })) {
+          results.push(...this.collectFocusableElements(assigned));
+        }
+        continue;
+      }
+
+      if (
+        el.matches(FOCUSABLE_SELECTORS) &&
+        el.offsetParent !== null &&
+        !el.hasAttribute("inert")
+      ) {
+        results.push(el);
+      }
+
+      if (el.shadowRoot) {
+        results.push(...this.collectFocusableElements(el.shadowRoot));
+      }
+    }
+
+    return results;
   }
 
   private focusFirstElement(): void {

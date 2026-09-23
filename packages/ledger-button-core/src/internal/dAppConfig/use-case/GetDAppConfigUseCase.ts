@@ -5,7 +5,7 @@ import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { DAppConfigDataSource } from "../datasource/DAppConfigDataSource";
 import { dAppConfigModuleTypes } from "../di/dAppConfigModuleTypes";
-import { DAppConfig } from "../model/dAppConfigTypes";
+import type { DAppConfig } from "../model/dAppConfigTypes";
 
 @injectable()
 export class GetDAppConfigUseCase {
