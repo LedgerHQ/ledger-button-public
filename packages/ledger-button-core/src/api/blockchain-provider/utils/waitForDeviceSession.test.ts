@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { DeviceDisconnectedError } from "@api/errors/DeviceErrors";
 import { createMockCoreFacade } from "@internal/blockchain-provider/__mocks__/coreFacadeMock";
 
 import type { ProviderDeviceSession } from "../model/types";
@@ -57,5 +58,38 @@ describe("waitForDeviceSession", () => {
     // No further reads after completion, even as time advances.
     await vi.advanceTimersByTimeAsync(1000);
     expect(getDeviceSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("fails with a DeviceDisconnectedError when no session shows up in time", async () => {
+    vi.useFakeTimers();
+    const getDeviceSession = vi.fn().mockReturnValue(notConnected);
+    const core = createMockCoreFacade({ getDeviceSession });
+
+    const promise = firstValueFrom(waitForDeviceSession(core, 200, 1000));
+    const assertion = expect(promise).rejects.toBeInstanceOf(
+      DeviceDisconnectedError,
+    );
+    await vi.advanceTimersByTimeAsync(1000);
+
+    await assertion;
+  });
+
+  it("keeps waiting when a stale session reports connected without a session id", async () => {
+    vi.useFakeTimers();
+    const staleSession: ProviderDeviceSession = {
+      dmk: {} as never,
+      sessionId: undefined,
+      isConnected: true,
+    };
+    const getDeviceSession = vi
+      .fn()
+      .mockReturnValueOnce(staleSession)
+      .mockReturnValue(connected);
+    const core = createMockCoreFacade({ getDeviceSession });
+
+    const promise = firstValueFrom(waitForDeviceSession(core, 200, 1000));
+    await vi.advanceTimersByTimeAsync(200);
+
+    await expect(promise).resolves.toMatchObject({ sessionId: "session-1" });
   });
 });
