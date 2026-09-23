@@ -392,9 +392,18 @@ export class LedgerButtonCore {
     ) {
       this.deviceConnectionSubscription?.unsubscribe();
       this.deviceConnectionSubscription = undefined;
-      await this.container
-        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
-        .execute();
+      // Best effort: the previous device is often already gone, so DMK cannot
+      // close its session. Letting that abort the call would make the device
+      // unreachable until a page reload.
+      try {
+        await this.container
+          .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+          .execute();
+      } catch (error) {
+        this._logger.warn("Failed to release the previous device session", {
+          error,
+        });
+      }
     }
 
     const device = await this.container

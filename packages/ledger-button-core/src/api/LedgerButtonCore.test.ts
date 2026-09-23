@@ -268,6 +268,18 @@ describe("LedgerButtonCore", () => {
 
       expect(connectDevice.execute).toHaveBeenCalledWith({ type: "usb" });
     });
+
+    it("still connects when releasing the previous session fails", async () => {
+      const core = createCore();
+      deviceService.sessionId = "session-1";
+      disconnectDevice.execute.mockRejectedValue(
+        new Error("no matching device connection found"),
+      );
+
+      await core.connectToDevice("usb");
+
+      expect(connectDevice.execute).toHaveBeenCalledWith({ type: "usb" });
+    });
   });
 
   describe("active family accessors", () => {
