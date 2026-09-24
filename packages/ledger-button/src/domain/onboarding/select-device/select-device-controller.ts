@@ -142,14 +142,23 @@ export class SelectDeviceController implements ReactiveController {
         break;
       }
       case error instanceof DeviceConnectionError:
-        if (
-          error.context?.type === "no-accessible-device" ||
-          error.context?.type === "failed-to-start-discovery"
-        ) {
+        // The user dismissed the browser device picker: nothing went wrong.
+        if (error.context?.type === "no-accessible-device") {
           this.errorData = undefined;
           break;
         }
 
+        this.errorData = {
+          title: lang.error.connection.DeviceDisconnected.title,
+          message: lang.error.connection.DeviceDisconnected.description,
+          cta1: {
+            label: lang.error.connection.DeviceDisconnected.cta1,
+            action: () => {
+              this.errorData = undefined;
+              this.host.requestUpdate();
+            },
+          },
+        };
         break;
       default:
         // TODO: handle other errors
