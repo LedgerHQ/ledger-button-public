@@ -1,6 +1,6 @@
 import { consume } from "@lit/context";
 import { cva } from "class-variance-authority";
-import { css, html, LitElement, nothing } from "lit";
+import { css, html, LitElement, nothing, unsafeCSS } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
@@ -10,6 +10,10 @@ import {
 } from "../../../context/language-context";
 import { tailwindElement } from "../../../tailwind-element";
 import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
+import {
+  BOTTOM_CLOSED_TRANSFORM,
+  PANEL_CLOSED_TRANSFORM,
+} from "./animation-types";
 import {
   ModalAnimationController,
   type ModalMode,
@@ -72,11 +76,33 @@ const styles = css`
     width: 400px;
     height: calc(100vh - 32px);
     max-height: 100vh;
-    transform: translateX(100%);
+    transform: ${unsafeCSS(PANEL_CLOSED_TRANSFORM)};
   }
 
   .modal-container--bottom {
-    transform: translateY(100%);
+    transform: ${unsafeCSS(BOTTOM_CLOSED_TRANSFORM)};
+  }
+
+  /*
+   * Open resting state, applied by the animation controller the moment an
+   * element's open animation finishes. Motion cancels the WAAPI animation as
+   * soon as it completes and only writes the final value on the next frame, so
+   * without these rules that one frame paints the element back in its closed
+   * state - the flicker at the end of the opening animation. They must not
+   * apply any earlier: the element would then paint fully open on the frame
+   * before the animation delivers its first keyframe.
+   */
+  .modal-backdrop.modal-backdrop--settled {
+    opacity: 1;
+  }
+
+  .modal-container--settled.modal-container--center {
+    opacity: 1;
+  }
+
+  .modal-container--settled.modal-container--panel,
+  .modal-container--settled.modal-container--bottom {
+    transform: none;
   }
 `;
 

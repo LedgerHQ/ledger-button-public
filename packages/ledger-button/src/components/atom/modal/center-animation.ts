@@ -9,14 +9,20 @@ import {
 export class CenterAnimation implements ContainerAnimation {
   private animation: AnimationInstance | null = null;
 
-  open(container: HTMLElement): void {
+  async open(container: HTMLElement): Promise<void> {
     this.cancel();
 
-    this.animation = animate(
-      container,
-      { opacity: 1 },
-      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
-    );
+    await new Promise<void>((resolve) => {
+      this.animation = animate(
+        container,
+        { opacity: [0, 1] },
+        {
+          duration: ANIMATION_DELAY / 1000,
+          ease: "easeOut",
+          onComplete: () => resolve(),
+        },
+      );
+    });
   }
 
   async close(container: HTMLElement): Promise<void> {

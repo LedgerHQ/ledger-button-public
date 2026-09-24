@@ -102,13 +102,11 @@ export class RootNavigationComponent
     if (this.successOverlayState) {
       this.dismissSuccessOverlay();
       void this.updateComplete.then(() => {
-        this.handleModalOpen();
         this.ledgerModal.openModal(mode);
       });
       return;
     }
 
-    this.handleModalOpen();
     this.ledgerModal.openModal(mode);
   }
 
@@ -119,7 +117,6 @@ export class RootNavigationComponent
       return;
     }
 
-    this.handleModalClose();
     if (options?.morph && !this.isFloatingButtonHidden()) {
       this.ledgerModal.closeModal({
         morph: {
@@ -154,6 +151,12 @@ export class RootNavigationComponent
   }
 
   // PRIVATE METHODS
+  /**
+   * Driven by the modal's `modal-opened` / `modal-closed` events rather than
+   * from `openModal` / `closeModal`: the modal also closes itself (backdrop,
+   * escape, toolbar), so the events are the single source of truth and pairing
+   * them with a direct call would run the handler twice per transition.
+   */
   private handleModalOpen() {
     this.requestUpdate();
     this.rootNavigationController.handleModalOpen();

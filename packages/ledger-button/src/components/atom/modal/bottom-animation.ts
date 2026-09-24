@@ -4,8 +4,8 @@ import { SlideUpAnimation } from "./slide-up-animation";
 export class BottomAnimation implements ContainerAnimation {
   private readonly slideUp = new SlideUpAnimation();
 
-  open(container: HTMLElement): void {
-    this.slideUp.open(container);
+  open(container: HTMLElement): Promise<void> {
+    return this.slideUp.open(container);
   }
 
   close(container: HTMLElement): Promise<void> {

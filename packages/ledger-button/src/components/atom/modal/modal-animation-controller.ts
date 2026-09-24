@@ -11,6 +11,10 @@ import { PanelAnimation } from "./panel-animation";
 
 export type ModalMode = "center" | "panel" | "bottom";
 
+const WRAPPER_OPEN_CLASS = "modal-wrapper--open";
+const BACKDROP_SETTLED_CLASS = "modal-backdrop--settled";
+const CONTAINER_SETTLED_CLASS = "modal-container--settled";
+
 type AnimationElements = {
   backdrop: HTMLElement;
   container: HTMLElement;
@@ -19,6 +23,8 @@ type AnimationElements = {
 
 export class ModalAnimationController implements ReactiveController {
   private backdropAnimation: AnimationInstance | null = null;
+  private isOpen = false;
+  private openGeneration = 0;
   private readonly centerAnimation = new CenterAnimation();
   private readonly panelAnimation = new PanelAnimation();
   private readonly morphAnimation = new MorphAnimation();
@@ -29,35 +35,60 @@ export class ModalAnimationController implements ReactiveController {
   }
 
   hostDisconnected(): void {
+    this.endOpenSession();
     this.cancelAnimations();
   }
 
   animateOpen(elements: AnimationElements, mode: ModalMode): void {
+    // Opening an already open modal (mode switch, repeated navigation intent)
+    // must not replay the animation: cancelling the live one blanks the modal
+    // for a frame. A mode switch renders a brand new container, so it only
+    // needs to be put in the state the finished animation would have left it.
+    if (this.isOpen) {
+      elements.wrapper.classList.add(WRAPPER_OPEN_CLASS);
+      elements.backdrop.classList.add(BACKDROP_SETTLED_CLASS);
+      elements.container.classList.add(CONTAINER_SETTLED_CLASS);
+      return;
+    }
+
+    this.isOpen = true;
+    const generation = ++this.openGeneration;
     this.cancelAnimations();
     this.resetVisualState(elements);
-    this.prepareContainerForOpen(elements.container, mode);
 
-    elements.wrapper.classList.add("modal-wrapper--open");
+    elements.wrapper.classList.add(WRAPPER_OPEN_CLASS);
 
-    this.backdropAnimation = animate(
+    const backdropFade = new Promise<void>((resolve) => {
+      this.backdropAnimation = animate(
+        elements.backdrop,
+        { opacity: [0, 1] },
+        {
+          duration: ANIMATION_DELAY / 1000,
+          ease: "easeOut",
+          onComplete: () => resolve(),
+        },
+      );
+    });
+
+    this.settleOnComplete(
+      backdropFade,
+      generation,
       elements.backdrop,
-      { opacity: [0, 1] },
-      { duration: ANIMATION_DELAY / 1000, ease: "easeOut" },
+      BACKDROP_SETTLED_CLASS,
     );
-
-    if (mode === "panel") {
-      this.panelAnimation.open(elements.container);
-    } else if (mode === "bottom") {
-      this.bottomAnimation.open(elements.container);
-    } else {
-      this.centerAnimation.open(elements.container);
-    }
+    this.settleOnComplete(
+      this.openContainer(elements.container, mode),
+      generation,
+      elements.container,
+      CONTAINER_SETTLED_CLASS,
+    );
   }
 
   async animateClose(
     elements: AnimationElements,
     mode: ModalMode,
   ): Promise<void> {
+    this.endOpenSession();
     const animations: Promise<void>[] = [];
 
     if (mode === "panel") {
@@ -83,7 +114,6 @@ export class ModalAnimationController implements ReactiveController {
 
     await Promise.all(animations);
 
-    elements.wrapper.classList.remove("modal-wrapper--open");
     this.resetVisualState(elements);
     this.backdropAnimation = null;
   }
@@ -94,6 +124,7 @@ export class ModalAnimationController implements ReactiveController {
     position?: FloatingButtonPosition,
     onLanded?: () => void,
   ): Promise<void> {
+    this.endOpenSession();
     const backdropFade = new Promise<void>((resolve) => {
       this.backdropAnimation = animate(
         elements.backdrop,
@@ -116,7 +147,6 @@ export class ModalAnimationController implements ReactiveController {
       backdropFade,
     ]);
 
-    elements.wrapper.classList.remove("modal-wrapper--open");
     this.resetVisualState(elements);
     this.backdropAnimation = null;
   }
@@ -133,19 +163,55 @@ export class ModalAnimationController implements ReactiveController {
     this.morphAnimation.cancel();
   }
 
-  private prepareContainerForOpen(
+  /**
+   * Bumping the generation invalidates the pending settle callbacks, so an
+   * open animation completing late can never pin the open state back onto a
+   * modal that has since been closed.
+   */
+  private endOpenSession(): void {
+    this.isOpen = false;
+    this.openGeneration++;
+  }
+
+  private openContainer(
     container: HTMLElement,
     mode: ModalMode,
-  ): void {
-    if (mode === "center") {
-      container.style.opacity = "0";
-      return;
+  ): Promise<void> {
+    if (mode === "panel") {
+      return this.panelAnimation.open(container);
     }
 
-    container.style.opacity = "";
+    if (mode === "bottom") {
+      return this.bottomAnimation.open(container);
+    }
+
+    return this.centerAnimation.open(container);
+  }
+
+  /**
+   * Hands the element over to its open resting state in the microtask that
+   * follows the animation completing, which still runs before that frame is
+   * painted - the frame where Motion has already cancelled the WAAPI animation
+   * but has not written the final value back yet.
+   */
+  private settleOnComplete(
+    animation: Promise<void>,
+    generation: number,
+    element: HTMLElement,
+    className: string,
+  ): void {
+    void animation.then(() => {
+      if (generation !== this.openGeneration) {
+        return;
+      }
+      element.classList.add(className);
+    });
   }
 
   private resetVisualState(elements: AnimationElements): void {
+    elements.wrapper.classList.remove(WRAPPER_OPEN_CLASS);
+    elements.backdrop.classList.remove(BACKDROP_SETTLED_CLASS);
+    elements.container.classList.remove(CONTAINER_SETTLED_CLASS);
     this.resetContainerVisualState(elements.container);
     this.resetBackdropVisualState(elements.backdrop);
   }

@@ -10,17 +10,20 @@ import {
 export class PanelAnimation implements ContainerAnimation {
   private animation: AnimationInstance | null = null;
 
-  open(container: HTMLElement): void {
+  async open(container: HTMLElement): Promise<void> {
     this.cancel();
 
-    this.animation = animate(
-      container,
-      { x: 0 },
-      {
-        ...SPRING_CONFIG,
-        duration: ANIMATION_DELAY / 1000,
-      },
-    );
+    await new Promise<void>((resolve) => {
+      this.animation = animate(
+        container,
+        { x: ["100%", 0] },
+        {
+          ...SPRING_CONFIG,
+          duration: ANIMATION_DELAY / 1000,
+          onComplete: () => resolve(),
+        },
+      );
+    });
   }
 
   async close(container: HTMLElement): Promise<void> {

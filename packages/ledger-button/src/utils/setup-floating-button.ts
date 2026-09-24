@@ -74,7 +74,10 @@ function attachFloatingButtonClickHandler(
   button: Element,
   app: LedgerButtonApp,
 ): void {
-  button.addEventListener("ledger-internal-floating-button-click", () => {
+  button.addEventListener("ledger-internal-floating-button-click", (event) => {
+    // The click event is composed and would otherwise also reach the app's own
+    // window listener, opening the modal a second time in panel mode.
+    event.stopPropagation();
     app.navigationIntent("selectAccount");
   });
 }
