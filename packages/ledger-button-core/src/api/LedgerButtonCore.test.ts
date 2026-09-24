@@ -1,16 +1,20 @@
 import { DeviceStatus } from "@ledgerhq/device-management-kit";
+import { Maybe, Nothing } from "purify-ts";
 import { of, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "./blockchain-provider/model/types";
 import type { Account } from "./model/Account";
+import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
+import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes";
 import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
 import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
 import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes";
 import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes";
 import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes";
+import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes";
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
 import { LedgerButtonCore } from "./LedgerButtonCore";
 
@@ -37,8 +41,17 @@ describe("LedgerButtonCore", () => {
   let storage: {
     removeSelectedAccount: ReturnType<typeof vi.fn>;
     resetStorage: ReturnType<typeof vi.fn>;
+    getTrustChainId: ReturnType<typeof vi.fn>;
+    isTrustChainValid: ReturnType<typeof vi.fn>;
+    getSelectedAccounts: ReturnType<typeof vi.fn>;
+    isWelcomeScreenCompleted: ReturnType<typeof vi.fn>;
+    getUserConsent: ReturnType<typeof vi.fn>;
+    hasDeveloperMode: ReturnType<typeof vi.fn>;
   };
-  let restoreContext: ReturnType<typeof vi.spyOn>;
+  let blockchainProviderManager: {
+    describeCurrency: ReturnType<typeof vi.fn>;
+    setSelectedAccounts: ReturnType<typeof vi.fn>;
+  };
   let connectDevice: { execute: ReturnType<typeof vi.fn> };
   let disconnectDevice: { execute: ReturnType<typeof vi.fn> };
   let deviceSessionState$: Subject<{ deviceStatus: DeviceStatus }>;
@@ -85,6 +98,17 @@ describe("LedgerButtonCore", () => {
     storage = {
       removeSelectedAccount: vi.fn(),
       resetStorage: vi.fn(),
+      getTrustChainId: vi.fn(() => Nothing),
+      isTrustChainValid: vi.fn(() => false),
+      getSelectedAccounts: vi.fn(() => new Map()),
+      isWelcomeScreenCompleted: vi.fn().mockResolvedValue(false),
+      getUserConsent: vi.fn().mockResolvedValue(Nothing),
+      hasDeveloperMode: vi.fn(() => false),
+    };
+
+    blockchainProviderManager = {
+      describeCurrency: vi.fn(() => Maybe.empty()),
+      setSelectedAccounts: vi.fn(),
     };
 
     const ledgerSyncService = {
@@ -104,6 +128,15 @@ describe("LedgerButtonCore", () => {
       [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
       [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
       [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
+      [
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+        blockchainProviderManager,
+      ],
+      [platformModuleTypes.IsMobileUseCase, { execute: vi.fn(() => false) }],
+      [
+        currencyModuleTypes.CurrencyService,
+        { initialize: vi.fn().mockResolvedValue("USD") },
+      ],
     ]);
 
     hoisted.container = {
@@ -111,22 +144,14 @@ describe("LedgerButtonCore", () => {
     };
     hoisted.createContainer.mockReturnValue(hoisted.container);
 
-    // Skip the heavy async context bootstrap the real constructor kicks off,
-    // and the storage-backed rebuild that a reset triggers.
+    // Skip the one-time wiring (providers, pending-tx controller). Session
+    // reset still runs restoreContext against the stubs above.
     vi.spyOn(
       LedgerButtonCore.prototype as unknown as {
         initializeContext: () => void;
       },
       "initializeContext",
     ).mockResolvedValue(undefined as never);
-    restoreContext = vi
-      .spyOn(
-        LedgerButtonCore.prototype as unknown as {
-          restoreContext: () => void;
-        },
-        "restoreContext",
-      )
-      .mockResolvedValue(undefined as never);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new LedgerButtonCore({} as any);
@@ -244,10 +269,18 @@ describe("LedgerButtonCore", () => {
 
       await core.disconnect();
 
-      expect(restoreContext).toHaveBeenCalledTimes(1);
+      expect(contextService.onEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "initialize_context" }),
+      );
       const [resetOrder] = storage.resetStorage.mock.invocationCallOrder;
-      const [restoreOrder] = restoreContext.mock.invocationCallOrder;
-      expect(resetOrder).toBeLessThan(restoreOrder as number);
+      const initializeIndex = contextService.onEvent.mock.calls.findIndex(
+        (call) =>
+          (call[0] as { type: string } | undefined)?.type ===
+          "initialize_context",
+      );
+      expect(resetOrder).toBeLessThan(
+        contextService.onEvent.mock.invocationCallOrder[initializeIndex] as number,
+      );
     });
 
     it("still resets when the device cannot be released", async () => {
@@ -257,7 +290,56 @@ describe("LedgerButtonCore", () => {
       await core.disconnect();
 
       expect(storage.resetStorage).toHaveBeenCalledTimes(1);
-      expect(restoreContext).toHaveBeenCalledTimes(1);
+      expect(contextService.onEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "initialize_context" }),
+      );
+    });
+
+    it("restores a valid session's accounts onto the live providers", async () => {
+      const ethereumAccount = { currencyId: "ethereum" } as Account;
+      const restored = new Map<BlockchainFamily, Account>([
+        ["ethereum", ethereumAccount],
+      ]);
+      const core = createCore();
+      storage.getTrustChainId.mockReturnValue(Maybe.of("tc-1"));
+      storage.isTrustChainValid.mockReturnValue(true);
+      storage.getSelectedAccounts.mockReturnValue(restored);
+      storage.getUserConsent.mockResolvedValue(
+        Maybe.of({ consentGiven: true }),
+      );
+      blockchainProviderManager.describeCurrency.mockReturnValue(
+        Maybe.of({ networkId: "137" }),
+      );
+
+      await core.disconnect();
+
+      expect(
+        blockchainProviderManager.setSelectedAccounts,
+      ).toHaveBeenCalledWith(restored);
+      expect(contextService.onEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "initialize_context",
+          context: expect.objectContaining({
+            selectedAccounts: restored,
+            trustChainId: "tc-1",
+            chainId: 137,
+            hasTrackingConsent: true,
+          }),
+        }),
+      );
+    });
+
+    it("drops an expired trust chain before restoring context", async () => {
+      const core = createCore();
+      storage.getTrustChainId.mockReturnValue(Maybe.of("tc-expired"));
+      storage.isTrustChainValid.mockReturnValue(false);
+
+      await core.disconnect();
+
+      expect(storage.resetStorage).toHaveBeenCalledTimes(2);
+      expect(
+        blockchainProviderManager.setSelectedAccounts,
+      ).toHaveBeenCalledWith(new Map());
     });
   });
 

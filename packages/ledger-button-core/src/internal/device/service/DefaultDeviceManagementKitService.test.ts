@@ -315,7 +315,7 @@ describe("DefaultDeviceManagementKitService", () => {
         service.isSessionAlive();
         service.isSessionAlive();
 
-        expect(vi.mocked(mockDmk.getConnectedDevice).mock.calls.length).toBe(
+        expect(vi.mocked(mockDmk.getConnectedDevice).mock.calls).toHaveLength(
           callsAfterFirstCheck,
         );
         expect(service.sessionId).toBeUndefined();

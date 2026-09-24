@@ -189,7 +189,7 @@ export class LedgerButtonCore {
    * Rebuilds the public context from persisted state. Runs at bootstrap and
    * again after every session reset, so it must hold no one-time wiring.
    */
-  private async restoreContext() {
+  private async restoreContext(): Promise<void> {
     const storageService = this.container.get<StorageService>(
       storageModuleTypes.StorageService,
     );
