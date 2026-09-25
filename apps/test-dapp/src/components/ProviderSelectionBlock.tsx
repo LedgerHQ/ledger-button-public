@@ -13,6 +13,8 @@ interface ProviderSelectionBlockProps {
   onSelectProvider: (provider: EIP6963ProviderDetail) => void;
   onRequestProviders: () => void;
   onDisconnect: () => void;
+  onReset?: () => void;
+  hasKeypair?: boolean;
   account: string | null;
 }
 
@@ -22,6 +24,8 @@ export function ProviderSelectionBlock({
   onSelectProvider,
   onRequestProviders,
   onDisconnect,
+  onReset,
+  hasKeypair,
   account,
 }: ProviderSelectionBlockProps) {
   const handleProviderClick = useCallback(
@@ -49,13 +53,22 @@ export function ProviderSelectionBlock({
           >
             <Search size={16} /> Discover Providers
           </Button>
-          {selectedProvider && (
+          <Button
+            appearance="red"
+            size="sm"
+            onClick={onDisconnect}
+            disabled={!selectedProvider}
+          >
+            Disconnect
+          </Button>
+          {onReset && (
             <Button
               appearance="red"
               size="sm"
-              onClick={onDisconnect}
+              onClick={onReset}
+              disabled={!hasKeypair}
             >
-              Disconnect
+              Re-onboard
             </Button>
           )}
         </div>
