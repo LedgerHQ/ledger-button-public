@@ -170,7 +170,7 @@ export class SelectDeviceController implements ReactiveController {
 
   async connectToDevice(detail: {
     title: string;
-    connectionType: "bluetooth" | "usb" | "";
+    connectionType: "bluetooth" | "usb" | "mock" | "";
     timestamp: number;
   }) {
     if (detail.connectionType === "") {
