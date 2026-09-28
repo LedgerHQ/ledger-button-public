@@ -1,4 +1,7 @@
-import { DeviceStatus } from "@ledgerhq/device-management-kit";
+import {
+  type DeviceSessionState,
+  DeviceStatus,
+} from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
 import { Maybe } from "purify-ts";
 import { Observable, Subscription, tap } from "rxjs";
@@ -262,28 +265,22 @@ export class LedgerButtonCore {
   }
 
   private listenDevice() {
-    const deviceService = this.container.get<DeviceManagementKitService>(
-      deviceModuleTypes.DeviceManagementKitService,
-    );
-    const dmk = deviceService.dmk;
+    const deviceService = this.getDeviceService();
     const sessionId = deviceService.connectedDevice?.sessionId;
 
     if (!sessionId) {
       return;
     }
 
-    if (this.deviceConnectionSubscription) {
-      this.deviceConnectionSubscription.unsubscribe();
-    }
+    this.stopListeningToDevice();
 
-    this.deviceConnectionSubscription = dmk
+    this.deviceConnectionSubscription = deviceService.dmk
       .getDeviceSessionState({
-        sessionId: sessionId as string,
+        sessionId,
       })
-      .subscribe((state) => {
+      .subscribe((state: DeviceSessionState) => {
         if (state.deviceStatus === DeviceStatus.NOT_CONNECTED) {
-          this.deviceConnectionSubscription?.unsubscribe();
-          this.deviceConnectionSubscription = undefined;
+          this.stopListeningToDevice();
           this.pendingDeviceCleanup = this.handlePhysicalDeviceDisconnection();
         }
       });
@@ -292,19 +289,59 @@ export class LedgerButtonCore {
   private async handlePhysicalDeviceDisconnection(): Promise<void> {
     this._logger.info("Device disconnected");
 
+    await this.releaseDeviceSafely();
+    this._contextService.onEvent({
+      type: "device_disconnected",
+    });
+  }
+
+  private stopListeningToDevice(): void {
+    this.deviceConnectionSubscription?.unsubscribe();
+    this.deviceConnectionSubscription = undefined;
+  }
+
+  private getDeviceService(): DeviceManagementKitService {
+    return this.container.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    );
+  }
+
+  private hasKnownDeviceSession(): boolean {
+    const deviceService = this.getDeviceService();
+
+    return (
+      this._contextService.getContext().connectedDevice !== undefined ||
+      deviceService.sessionId !== undefined ||
+      deviceService.connectedDevice !== undefined
+    );
+  }
+
+  private async waitForPendingDeviceCleanup(): Promise<void> {
+    await this.pendingDeviceCleanup;
+    this.pendingDeviceCleanup = undefined;
+  }
+
+  /**
+   * A device is often already gone when its session is released. Failure is not
+   * fatal: aborting here would leave the device unreachable until a page reload.
+   */
+  private async releaseDeviceSafely(): Promise<void> {
     try {
       await this.container
         .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
         .execute();
     } catch (error) {
-      this._logger.warn("Failed to clean up disconnected device session", {
-        error,
-      });
-    } finally {
-      this._contextService.onEvent({
-        type: "device_disconnected",
-      });
+      this._logger.warn("Failed to release the device session", { error });
     }
+  }
+
+  private async releaseCurrentDeviceIfNeeded(): Promise<void> {
+    if (!this.hasKnownDeviceSession()) {
+      return;
+    }
+
+    this.stopListeningToDevice();
+    await this.releaseDeviceSafely();
   }
 
   /**
@@ -344,12 +381,8 @@ export class LedgerButtonCore {
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
 
-    // Clean up device connection subscription
-    this.deviceConnectionSubscription?.unsubscribe();
-    this.deviceConnectionSubscription = undefined;
-    const deviceService = this.container.get<DeviceManagementKitService>(
-      deviceModuleTypes.DeviceManagementKitService,
-    );
+    this.stopListeningToDevice();
+    const deviceService = this.getDeviceService();
     deviceService.dmk.close();
 
     try {
@@ -375,36 +408,8 @@ export class LedgerButtonCore {
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
 
-    await this.pendingDeviceCleanup;
-    this.pendingDeviceCleanup = undefined;
-
-    const deviceService = this.container.get<DeviceManagementKitService>(
-      deviceModuleTypes.DeviceManagementKitService,
-    );
-    const hasDeviceSession =
-      deviceService.sessionId !== undefined ||
-      deviceService.connectedDevice !== undefined;
-
-    // Implicitly disconnect from a context or DMK session before reconnecting.
-    if (
-      this._contextService.getContext().connectedDevice !== undefined ||
-      hasDeviceSession
-    ) {
-      this.deviceConnectionSubscription?.unsubscribe();
-      this.deviceConnectionSubscription = undefined;
-      // Best effort: the previous device is often already gone, so DMK cannot
-      // close its session. Letting that abort the call would make the device
-      // unreachable until a page reload.
-      try {
-        await this.container
-          .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
-          .execute();
-      } catch (error) {
-        this._logger.warn("Failed to release the previous device session", {
-          error,
-        });
-      }
-    }
+    await this.waitForPendingDeviceCleanup();
+    await this.releaseCurrentDeviceIfNeeded();
 
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
@@ -421,8 +426,7 @@ export class LedgerButtonCore {
 
   async disconnectFromDevice() {
     this._logger.debug("Disconnecting from device");
-    this.deviceConnectionSubscription?.unsubscribe();
-    this.deviceConnectionSubscription = undefined;
+    this.stopListeningToDevice();
 
     const result = await this.container
       .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)

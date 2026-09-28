@@ -228,36 +228,43 @@ describe("LedgerButtonCore", () => {
     it("cleans the DMK session when the device disconnects physically", async () => {
       const core = createCore();
       deviceService.connectedDevice = { sessionId: "session-1" };
+      connectDevice.execute.mockImplementation(async () => {
+        deviceService.connectedDevice = { sessionId: "session-1" };
+        return { sessionId: "session-1" };
+      });
 
-      (
-        core as unknown as {
-          listenDevice: () => void;
-        }
-      ).listenDevice();
+      await core.connectToDevice("usb");
+      disconnectDevice.execute.mockClear();
       deviceSessionState$.next({
         deviceStatus: DeviceStatus.NOT_CONNECTED,
       });
 
       await vi.waitFor(() => {
         expect(disconnectDevice.execute).toHaveBeenCalledOnce();
-      });
-      expect(contextService.onEvent).toHaveBeenCalledWith({
-        type: "device_disconnected",
+        expect(contextService.onEvent).toHaveBeenCalledWith({
+          type: "device_disconnected",
+        });
       });
     });
 
     it("waits for the disconnect cleanup before reconnecting", async () => {
       const core = createCore();
       deviceService.connectedDevice = { sessionId: "session-1" };
+      connectDevice.execute.mockImplementation(async () => {
+        deviceService.connectedDevice = { sessionId: "session-1" };
+        return { sessionId: "session-1" };
+      });
+      await core.connectToDevice("usb");
+
       let resolveCleanup: () => void = () => undefined;
       disconnectDevice.execute.mockReturnValue(
         new Promise<void>((resolve) => {
           resolveCleanup = resolve;
         }),
       );
-
-      (core as unknown as { listenDevice: () => void }).listenDevice();
+      deviceService.connectedDevice = undefined;
       deviceSessionState$.next({ deviceStatus: DeviceStatus.NOT_CONNECTED });
+      connectDevice.execute.mockClear();
 
       const pendingConnect = core.connectToDevice("usb");
       await Promise.resolve();
