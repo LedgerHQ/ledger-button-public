@@ -14,6 +14,10 @@ import {
   LanguageContext,
 } from "../../context/language-context";
 import { tailwindElement } from "../../tailwind-element";
+import {
+  groupTransactionsByDate,
+  type TransactionDateGroup,
+} from "./group-transactions-by-date";
 
 const TRANSACTION_HISTORY_MAX_ITEMS = 20;
 
@@ -22,6 +26,9 @@ export type TransactionListItem = {
   type: TransactionType;
   status: TransactionStatus;
   kind: TransactionKind;
+  /** ISO 8601 instant; the source of truth for ordering. */
+  timestamp: string;
+  /** Local calendar day (`YYYY-MM-DD`) used to group items. */
   date: string;
   time: string;
   amount: string;
@@ -34,11 +41,7 @@ export type TransactionListItem = {
   feeTicker?: string;
 };
 
-type GroupedTransactions = {
-  date: string;
-  displayDate: string;
-  transactions: TransactionListItem[];
-};
+type GroupedTransactions = TransactionDateGroup<TransactionListItem>;
 
 @customElement("transaction-list-screen")
 @tailwindElement()
@@ -52,40 +55,6 @@ export class TransactionListScreen extends LitElement {
 
   @property({ type: Array })
   pendingTransactions: TransactionListItem[] = [];
-
-  private formatDisplayDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  }
-
-  private groupTransactionsByDate(): GroupedTransactions[] {
-    const sortedTransactions = [...this.transactions].sort((a, b) => {
-      const dateA = new Date(`${a.date}T${a.time}`);
-      const dateB = new Date(`${b.date}T${b.time}`);
-      return dateB.getTime() - dateA.getTime();
-    });
-
-    const groups: Map<string, TransactionListItem[]> = new Map();
-
-    for (const transaction of sortedTransactions) {
-      const dateKey = transaction.date;
-      const existingGroup = groups.get(dateKey);
-      if (existingGroup) {
-        existingGroup.push(transaction);
-      } else {
-        groups.set(dateKey, [transaction]);
-      }
-    }
-
-    return Array.from(groups.entries()).map(([date, transactions]) => ({
-      date,
-      displayDate: this.formatDisplayDate(date),
-      transactions,
-    }));
-  }
 
   private renderTransactionItem = (transaction: TransactionListItem) => {
     const viewOnExplorerLabel =
@@ -201,7 +170,7 @@ export class TransactionListScreen extends LitElement {
       return this.renderEmptyState();
     }
 
-    const groupedTransactions = this.groupTransactionsByDate();
+    const groupedTransactions = groupTransactionsByDate(this.transactions);
 
     return html`
       <div class="flex flex-col gap-32">
