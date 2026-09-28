@@ -12,7 +12,7 @@ catalog:
   "@inquirer/prompts": ^5.0.0
   "@ledgerhq/coin-framework": ^5.0.0
   "@ledgerhq/context-module": 2.6.0
-  "@ledgerhq/device-management-kit": 1.9.1
+  "@ledgerhq/device-management-kit": 1.10.0
   "@ledgerhq/device-signer-kit-ethereum": 1.18.1
   "@ledgerhq/device-signer-kit-solana": 1.13.3
   "@ledgerhq/device-transport-kit-web-ble": 1.3.2
@@ -150,3 +150,9 @@ overrides:
   playwright: 1.63.0
   playwright-core: 1.63.0
   purify-ts: 2.1.0
+  # nextra-theme-docs@4.6.1 strips `children` before LayoutPropsSchema.safeParse.
+  # Zod 4.4+ treats a missing required key as "expected nonoptional" and the
+  # docs static export dies on /_not-found. Keep the workspace catalog on 4.5.4.
+  # Remove once nextra-theme-docs publishes the #4990 fix.
+  nextra>zod: 4.3.6
+  nextra-theme-docs>zod: 4.3.6
