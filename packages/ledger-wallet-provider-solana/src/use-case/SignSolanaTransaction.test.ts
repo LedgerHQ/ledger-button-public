@@ -117,22 +117,7 @@ describe("SignSolanaTransaction", () => {
     expect(deviceAction.input.transaction).toEqual(messageBytes);
   });
 
-  it("forwards delayed-signing options when the transaction has only placeholders", async () => {
-    executeDeviceAction.mockReturnValue({
-      observable: of({
-        status: DeviceActionStatus.Completed,
-        output: { signature },
-      }),
-    });
-
-    await lastValueFrom(createUseCase().execute(params, createAccount()));
-
-    const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
-    expect(deviceAction.input.delayed).toBe(true);
-    expect(deviceAction.input.fetchBlockhash).toBeTypeOf("function");
-  });
-
-  it("does not enable delayed signing when the transaction already has signatures", async () => {
+  it("always forwards delayed-signing options and lets the signer-kit decide", async () => {
     executeDeviceAction.mockReturnValue({
       observable: of({
         status: DeviceActionStatus.Completed,
@@ -146,12 +131,15 @@ describe("SignSolanaTransaction", () => {
     ]);
 
     await lastValueFrom(
-      createUseCase().execute({ ...params, transaction: coSigned }, createAccount()),
+      createUseCase().execute(
+        { ...params, transaction: coSigned },
+        createAccount(),
+      ),
     );
 
     const { deviceAction } = executeDeviceAction.mock.calls[0]![0];
-    expect(deviceAction.input.delayed).toBeUndefined();
-    expect(deviceAction.input.fetchBlockhash).toBeUndefined();
+    expect(deviceAction.input.delayed).toBe(true);
+    expect(deviceAction.input.fetchBlockhash).toBeTypeOf("function");
   });
 
   it("fetchBlockhash loads a 32-byte hash through broadcastRPC", async () => {

@@ -9,7 +9,8 @@ export interface SignedSolanaTransactionResult {
   solanaSignature: Uint8Array;
   /**
    * 32-byte `recentBlockhash` the device signed after delayed signing.
-   * Absent when delayed signing did not run (co-signed tx, firmware fallback).
+   * Absent when the signer-kit skipped the refresh (co-signers, durable
+   * nonce) or the firmware fell back to legacy signing.
    */
   refreshedBlockhash?: Uint8Array;
 }

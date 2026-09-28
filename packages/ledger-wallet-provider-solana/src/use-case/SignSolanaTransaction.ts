@@ -34,10 +34,7 @@ import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
 import type { SignSolanaTransactionParams } from "../model/SignSolanaTransactionParams";
 import { getBackendChainIdFromCurrencyId } from "../utils/clusterUtils";
 import { getSolanaDerivationPath } from "../utils/derivationUtils";
-import {
-  getSolanaMessageBytes,
-  hasOnlyPlaceholderSignatures,
-} from "../utils/transactionUtils";
+import { getSolanaMessageBytes } from "../utils/transactionUtils";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule";
 
 @injectable()
@@ -88,21 +85,19 @@ export class SignSolanaTransaction {
         // Solana app signs the compiled message only. Strip the signature
         // envelope so the device does not reject the request with `6a80`.
         const messageBytes = getSolanaMessageBytes(transaction);
-        const delayed = hasOnlyPlaceholderSignatures(transaction);
+        // The signer-kit decides whether a refresh is safe. It skips
+        // co-signed transactions and durable-nonce lifetimes itself.
         let refreshedBlockhash: Uint8Array | undefined;
-        const fetchBlockhash = delayed
-          ? async (): Promise<Uint8Array> => {
-              const hash = await this.fetchLatestBlockhash(selectedAccount);
-              refreshedBlockhash = hash;
-              return hash;
-            }
-          : undefined;
+        const fetchBlockhash = async (): Promise<Uint8Array> => {
+          const hash = await this.fetchLatestBlockhash(selectedAccount);
+          refreshedBlockhash = hash;
+          return hash;
+        };
 
         this.logger.debug("Prepared Solana message bytes", {
           address: params.address,
           messageByteLength: messageBytes.byteLength,
           derivationPath,
-          delayed,
         });
         this.logger.debug("Starting Solana transaction device action", {
           appName: openAppConfig.application.name,
@@ -119,9 +114,8 @@ export class SignSolanaTransaction {
             expectedAddress: selectedAccount.freshAddress,
             openAppInput: openAppConfig,
             contextModule,
-            ...(delayed
-              ? { delayed: true, fetchBlockhash }
-              : {}),
+            delayed: true,
+            fetchBlockhash,
           },
           inspect: false,
         });
