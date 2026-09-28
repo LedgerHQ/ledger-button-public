@@ -177,7 +177,7 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
           mock: mockServerToken
             ? {
                 serverToken: mockServerToken,
-                serverUrl: `${window.location.origin}/api/mock-server`,
+                serverUrl: MOCK_SERVER_URL,
               }
             : undefined,
         },

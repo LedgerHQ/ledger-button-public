@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { MOCK_SERVER_PROXY_PATH } from "../hooks/useMockServer";
+import { MOCK_SERVER_URL } from "../hooks/useMockServer";
 
 const POLL_FAST_MS = 500;
 const POLL_READY_MS = 2_000;
@@ -26,8 +26,8 @@ function readMockSession(): { token: string; deviceId: string } | null {
   return { token, deviceId };
 }
 
-function getProxyUrl(): string {
-  return `${window.location.origin}${MOCK_SERVER_PROXY_PATH}`;
+function getMockServerApiUrl(): string {
+  return MOCK_SERVER_URL;
 }
 
 function authHeaders(token: string): Record<string, string> {
@@ -49,7 +49,7 @@ async function checkDeviceHealth(
   deviceId: string,
 ): Promise<DeviceHealth> {
   try {
-    const res = await fetch(`${getProxyUrl()}/devices/${deviceId}`, {
+    const res = await fetch(`${getMockServerApiUrl()}/devices/${deviceId}`, {
       headers: authHeaders(token),
     });
     if (!res.ok) return { alive: false, connected: false };
@@ -66,7 +66,7 @@ async function fetchScreenshot(
 ): Promise<string | null> {
   try {
     const res = await fetch(
-      `${getProxyUrl()}/devices/${deviceId}/speculos/screenshot`,
+      `${getMockServerApiUrl()}/devices/${deviceId}/speculos/screenshot`,
       { headers: authHeaders(token) },
     );
     if (!res.ok) return null;
@@ -87,7 +87,7 @@ async function fetchScreenEvents(
 ): Promise<SpeculosEvent[]> {
   try {
     const res = await fetch(
-      `${getProxyUrl()}/devices/${deviceId}/speculos/events?currentscreenonly=true`,
+      `${getMockServerApiUrl()}/devices/${deviceId}/speculos/events?currentscreenonly=true`,
       { headers: authHeaders(token) },
     );
     if (!res.ok) return [];
@@ -143,7 +143,7 @@ async function sendTouch(
   action: SpeculosAction = "press-and-release",
 ): Promise<void> {
   await fetch(
-    `${getProxyUrl()}/devices/${deviceId}/speculos/finger`,
+    `${getMockServerApiUrl()}/devices/${deviceId}/speculos/finger`,
     {
       method: "POST",
       headers: {

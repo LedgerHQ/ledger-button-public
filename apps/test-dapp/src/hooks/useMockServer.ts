@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MockClient } from "@ledgerhq/device-mockserver-client";
 
-/** Canonical mock server URL (used as the rewrite destination in next.config.js). */
 export const MOCK_SERVER_URL =
   "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
 
@@ -42,9 +41,8 @@ export interface UseMockServerReturn {
   disconnect: () => void;
 }
 
-function getProxyUrl(): string {
-  if (typeof window === "undefined") return MOCK_SERVER_URL;
-  return `${window.location.origin}${MOCK_SERVER_PROXY_PATH}`;
+function getMockServerApiUrl(): string {
+  return MOCK_SERVER_URL;
 }
 
 /**
@@ -57,7 +55,7 @@ async function isSessionAlive(
   deviceId: string,
 ): Promise<boolean> {
   try {
-    const res = await fetch(`${getProxyUrl()}/devices/${deviceId}`, {
+    const res = await fetch(`${getMockServerApiUrl()}/devices/${deviceId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.ok;
@@ -98,11 +96,11 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
     setError(null);
 
     try {
-      const proxyUrl = getProxyUrl();
-      const client = new MockClient(proxyUrl);
+      const apiUrl = getMockServerApiUrl();
+      const client = new MockClient(apiUrl);
       const token = await client.authenticate();
 
-      const seedResponse = await fetch(`${proxyUrl}/sessions/current/seed`, {
+      const seedResponse = await fetch(`${apiUrl}/sessions/current/seed`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
