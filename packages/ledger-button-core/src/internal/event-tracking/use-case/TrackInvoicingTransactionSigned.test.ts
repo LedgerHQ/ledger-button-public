@@ -15,6 +15,19 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 import { TrackInvoicingTransactionSigned } from "./TrackInvoicingTransactionSigned";
 
+const polygonAccount: Account = {
+  id: "acc-pol",
+  currencyId: "polygon",
+  freshAddress: "0xPolygonAddress",
+  seedIdentifier: "seed",
+  derivationMode: "default",
+  index: 0,
+  name: "Polygon Account",
+  ticker: "POL",
+  balance: "1.0",
+  tokens: [],
+};
+
 const solanaAccount: Account = {
   id: "acc-sol",
   currencyId: "solana",
@@ -57,8 +70,8 @@ describe("TrackInvoicingTransactionSigned", () => {
       { dAppIdentifier: "test-dapp" } as Config,
       {
         getContext: vi.fn().mockReturnValue({
-          chainId: 137,
           selectedAccounts: new Map<BlockchainFamily, Account>([
+            ["ethereum", polygonAccount],
             ["solana", solanaAccount],
           ]),
         }),
@@ -68,6 +81,9 @@ describe("TrackInvoicingTransactionSigned", () => {
   });
 
   it("sends a valid invoicing event for an EVM transaction", async () => {
+    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
+      Just(aCurrencyDescriptor({ currencyId: "polygon", networkId: "137" })),
+    );
     const unsignedTransaction = "0x02f90552017a8427e021408427e021408304c04c";
 
     await useCase.execute({

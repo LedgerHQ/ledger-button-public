@@ -12,6 +12,19 @@ import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import type { EventTrackingService } from "../service/EventTrackingService";
 import { TrackTransactionStarted } from "./TrackTransactionStarted";
 
+const polygonAccount: Account = {
+  id: "acc-pol",
+  currencyId: "polygon",
+  freshAddress: "0xPolygonAddress",
+  seedIdentifier: "seed",
+  derivationMode: "default",
+  index: 0,
+  name: "Polygon Account",
+  ticker: "POL",
+  balance: "1.0",
+  tokens: [],
+};
+
 const solanaAccount: Account = {
   id: "acc-sol",
   currencyId: "solana",
@@ -40,8 +53,8 @@ describe("TrackTransactionStarted", () => {
     mockContextService = {
       getContext: vi.fn().mockReturnValue({
         trustChainId: "trust-chain",
-        chainId: 137,
         selectedAccounts: new Map<BlockchainFamily, Account>([
+          ["ethereum", polygonAccount],
           ["solana", solanaAccount],
         ]),
       }),
@@ -63,9 +76,16 @@ describe("TrackTransactionStarted", () => {
     );
   });
 
-  it("sends the ethereum family with the EVM context chain id", async () => {
+  it("sends the ethereum family with the network of the selected EVM account", async () => {
+    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
+      Just(aCurrencyDescriptor({ currencyId: "polygon", networkId: "137" })),
+    );
+
     await useCase.execute("ethereum");
 
+    expect(mockBlockchainProviderManager.describeCurrency).toHaveBeenCalledWith(
+      "polygon",
+    );
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -74,7 +94,6 @@ describe("TrackTransactionStarted", () => {
         }),
       }),
     );
-    expect(mockBlockchainProviderManager.describeCurrency).not.toHaveBeenCalled();
   });
 
   it("sends the solana family with the network of the selected solana account", async () => {

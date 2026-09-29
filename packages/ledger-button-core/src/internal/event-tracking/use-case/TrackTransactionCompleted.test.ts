@@ -12,6 +12,19 @@ import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import type { EventTrackingService } from "../service/EventTrackingService";
 import { TrackTransactionCompleted } from "./TrackTransactionCompleted";
 
+const ethereumAccount: Account = {
+  id: "acc-eth",
+  currencyId: "ethereum",
+  freshAddress: "0xEthereumAddress",
+  seedIdentifier: "seed",
+  derivationMode: "default",
+  index: 0,
+  name: "Ethereum Account",
+  ticker: "ETH",
+  balance: "1.0",
+  tokens: [],
+};
+
 const solanaAccount: Account = {
   id: "acc-sol",
   currencyId: "solana",
@@ -50,8 +63,8 @@ describe("TrackTransactionCompleted", () => {
       {
         getContext: vi.fn().mockReturnValue({
           trustChainId: "trust-chain",
-          chainId: 1,
           selectedAccounts: new Map<BlockchainFamily, Account>([
+            ["ethereum", ethereumAccount],
             ["solana", solanaAccount],
           ]),
         }),
@@ -61,6 +74,10 @@ describe("TrackTransactionCompleted", () => {
   });
 
   it("sends a transaction flow completion event for the ethereum family", async () => {
+    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
+      Just(aCurrencyDescriptor()),
+    );
+
     await useCase.execute("ethereum");
 
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledExactlyOnceWith(
