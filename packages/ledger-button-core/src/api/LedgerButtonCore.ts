@@ -195,13 +195,12 @@ export class LedgerButtonCore {
     );
 
     const trustChainId = storageService.getTrustChainId().extract();
+    const isTrustChainValid = storageService.isTrustChainValid();
 
-    if (trustChainId && !storageService.isTrustChainValid()) {
+    if (trustChainId && !isTrustChainValid) {
       this._logger.debug("Logging out, trust chain is expired");
       storageService.resetStorage();
     }
-
-    const isTrustChainValid = storageService.isTrustChainValid();
 
     const restoredAccounts = isTrustChainValid
       ? storageService.getSelectedAccounts()
