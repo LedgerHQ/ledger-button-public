@@ -6,12 +6,6 @@ import { MockClient } from "@ledgerhq/device-mockserver-client";
 export const MOCK_SERVER_URL =
   "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
 
-/**
- * Browser-side proxy path served by the Next.js API route.
- * All browser fetches go here so we never hit CORS.
- */
-export const MOCK_SERVER_PROXY_PATH = "/api/mock-server";
-
 const TEST_SEED =
   "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
 
@@ -41,10 +35,6 @@ export interface UseMockServerReturn {
   disconnect: () => void;
 }
 
-function getMockServerApiUrl(): string {
-  return MOCK_SERVER_URL;
-}
-
 /**
  * Check whether the stored session and device still exist.
  * Uses the device info endpoint — NOT Speculos (which returns 409 until
@@ -55,7 +45,7 @@ async function isSessionAlive(
   deviceId: string,
 ): Promise<boolean> {
   try {
-    const res = await fetch(`${getMockServerApiUrl()}/devices/${deviceId}`, {
+    const res = await fetch(`${MOCK_SERVER_URL}/devices/${deviceId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.ok;
@@ -96,7 +86,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
     setError(null);
 
     try {
-      const apiUrl = getMockServerApiUrl();
+      const apiUrl = MOCK_SERVER_URL;
       const client = new MockClient(apiUrl);
       const token = await client.authenticate();
 

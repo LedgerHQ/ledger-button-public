@@ -26,10 +26,6 @@ function readMockSession(): { token: string; deviceId: string } | null {
   return { token, deviceId };
 }
 
-function getMockServerApiUrl(): string {
-  return MOCK_SERVER_URL;
-}
-
 function authHeaders(token: string): Record<string, string> {
   return { Authorization: `Bearer ${token}` };
 }
@@ -49,7 +45,7 @@ async function checkDeviceHealth(
   deviceId: string,
 ): Promise<DeviceHealth> {
   try {
-    const res = await fetch(`${getMockServerApiUrl()}/devices/${deviceId}`, {
+    const res = await fetch(`${MOCK_SERVER_URL}/devices/${deviceId}`, {
       headers: authHeaders(token),
     });
     if (!res.ok) return { alive: false, connected: false };
@@ -66,7 +62,7 @@ async function fetchScreenshot(
 ): Promise<string | null> {
   try {
     const res = await fetch(
-      `${getMockServerApiUrl()}/devices/${deviceId}/speculos/screenshot`,
+      `${MOCK_SERVER_URL}/devices/${deviceId}/speculos/screenshot`,
       { headers: authHeaders(token) },
     );
     if (!res.ok) return null;
@@ -87,7 +83,7 @@ async function fetchScreenEvents(
 ): Promise<SpeculosEvent[]> {
   try {
     const res = await fetch(
-      `${getMockServerApiUrl()}/devices/${deviceId}/speculos/events?currentscreenonly=true`,
+      `${MOCK_SERVER_URL}/devices/${deviceId}/speculos/events?currentscreenonly=true`,
       { headers: authHeaders(token) },
     );
     if (!res.ok) return [];
@@ -143,7 +139,7 @@ async function sendTouch(
   action: SpeculosAction = "press-and-release",
 ): Promise<void> {
   await fetch(
-    `${getMockServerApiUrl()}/devices/${deviceId}/speculos/finger`,
+    `${MOCK_SERVER_URL}/devices/${deviceId}/speculos/finger`,
     {
       method: "POST",
       headers: {
