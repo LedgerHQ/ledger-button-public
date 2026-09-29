@@ -56,7 +56,6 @@ const createMockHost = (): {
   isModalOpen: vi.fn(() => false),
   trackTransactionStarted: vi.fn(),
   trackTransactionCompleted: vi.fn(),
-  trackInvoicingTransactionSigned: vi.fn(),
   trackTypedMessageStarted: vi.fn(),
   trackTypedMessageCompleted: vi.fn(),
   estimateGasFromCoinService: vi.fn().mockResolvedValue(undefined),

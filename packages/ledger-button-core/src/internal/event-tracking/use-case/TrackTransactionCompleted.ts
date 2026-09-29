@@ -1,6 +1,7 @@
+import { sha256 } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { InvoicedTransaction } from "@api/blockchain-provider/model/types";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
@@ -33,26 +34,41 @@ export class TrackTransactionCompleted {
     this.logger = loggerFactory("TrackTransactionCompleted UseCase");
   }
 
-  async execute(family: BlockchainFamily): Promise<void> {
+  async execute(transaction: InvoicedTransaction): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
     const context = this.contextService.getContext();
+    const chainId = resolveTrackedChainId(
+      context,
+      transaction.family,
+      this.blockchainProviderManager,
+    );
 
-    const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
-      dAppId: this.config.dAppIdentifier,
-      sessionId: sessionId,
-      trustChainId: context.trustChainId,
-      family: family,
-      chainId: resolveTrackedChainId(
-        context,
-        family,
-        this.blockchainProviderManager,
-      ),
-    });
+    const completionEvent =
+      EventTrackingUtils.createTransactionFlowCompletionEvent({
+        dAppId: this.config.dAppIdentifier,
+        sessionId: sessionId,
+        trustChainId: context.trustChainId,
+        family: transaction.family,
+        chainId: chainId,
+      });
+
+    const invoicingEvent =
+      EventTrackingUtils.createInvoicingTransactionSignedEvent({
+        dAppId: this.config.dAppIdentifier,
+        sessionId: sessionId,
+        transactionHash: transaction.transactionHash,
+        unsignedTransactionHash: sha256(transaction.unsignedTransaction),
+        family: transaction.family,
+        chainId: chainId,
+        recipientAddress: transaction.recipientAddress,
+      });
 
     this.logger.debug("Tracking transaction flow completion event", {
-      event,
+      completionEvent,
+      invoicingEvent,
     });
 
-    await this.eventTrackingService.trackEvent(event);
+    await this.eventTrackingService.trackEvent(completionEvent);
+    await this.eventTrackingService.trackEvent(invoicingEvent);
   }
 }

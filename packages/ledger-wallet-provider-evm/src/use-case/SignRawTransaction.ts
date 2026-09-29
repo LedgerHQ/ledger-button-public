@@ -154,8 +154,7 @@ export class SignRawTransaction {
             });
 
           if (isBroadcastedTransactionResult(broadcastResult)) {
-            this.core.trackTransactionCompleted(EVM_FAMILY);
-            this.core.trackInvoicingTransactionSigned({
+            this.core.trackTransactionCompleted({
               family: EVM_FAMILY,
               transactionHash: broadcastResult.hash,
               unsignedTransaction: rawTransaction,

@@ -510,16 +510,15 @@ export class LedgerSolanaWallet implements Wallet {
     hash: string,
     signedTransaction: Uint8Array,
   ): void {
-    this.host.trackTransactionCompleted(this.family);
     try {
-      this.host.trackInvoicingTransactionSigned({
+      this.host.trackTransactionCompleted({
         family: this.family,
         transactionHash: hash,
         unsignedTransaction: getSolanaMessageBytes(signedTransaction),
         recipientAddress: "",
       });
     } catch (error) {
-      this.logger.warn("Could not track the Solana invoicing event", {
+      this.logger.warn("Could not track the Solana transaction completion", {
         error,
       });
     }

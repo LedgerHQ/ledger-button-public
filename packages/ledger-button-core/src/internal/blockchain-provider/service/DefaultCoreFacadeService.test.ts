@@ -57,7 +57,6 @@ const makeService = (opts: MakeServiceOpts = {}) => {
     stub, // CalDataSource
     stub, // TrackTransactionStarted
     stub, // TrackTransactionCompleted
-    stub, // TrackInvoicingTransactionSigned
     stub, // TrackTypedMessageStarted
     stub, // TrackTypedMessageCompleted
     stub, // TrackBroadcastedTransactionUseCase

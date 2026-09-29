@@ -196,10 +196,9 @@ describe("SignRawTransaction tracking", () => {
       "ethereum",
     );
     expect(core.trackTransactionCompleted).not.toHaveBeenCalled();
-    expect(core.trackInvoicingTransactionSigned).not.toHaveBeenCalled();
   });
 
-  it("tracks completion and invoicing once the broadcast succeeds", async () => {
+  it("tracks completion once the broadcast succeeds", async () => {
     completeDeviceAction();
     const rawTransaction = aTransferTransaction();
 
@@ -214,12 +213,7 @@ describe("SignRawTransaction tracking", () => {
       ),
     );
 
-    expect(core.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith(
-      "ethereum",
-    );
-    expect(
-      core.trackInvoicingTransactionSigned,
-    ).toHaveBeenCalledExactlyOnceWith({
+    expect(core.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith({
       family: "ethereum",
       transactionHash: BROADCAST_HASH,
       unsignedTransaction: rawTransaction,
@@ -227,7 +221,7 @@ describe("SignRawTransaction tracking", () => {
     });
   });
 
-  it("invoices a contract deployment with an empty recipient", async () => {
+  it("tracks a contract deployment with an empty recipient", async () => {
     completeDeviceAction();
     const rawTransaction = aContractDeployment();
 
@@ -242,9 +236,7 @@ describe("SignRawTransaction tracking", () => {
       ),
     );
 
-    expect(
-      core.trackInvoicingTransactionSigned,
-    ).toHaveBeenCalledExactlyOnceWith(
+    expect(core.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         family: "ethereum",
         recipientAddress: "",
@@ -253,7 +245,7 @@ describe("SignRawTransaction tracking", () => {
     );
   });
 
-  it("still tracks invoicing with an empty recipient when the raw transaction cannot be parsed", async () => {
+  it("still tracks completion with an empty recipient when the raw transaction cannot be parsed", async () => {
     completeDeviceAction();
 
     await lastValueFrom(
@@ -267,10 +259,7 @@ describe("SignRawTransaction tracking", () => {
       ),
     );
 
-    expect(core.trackTransactionCompleted).toHaveBeenCalledOnce();
-    expect(
-      core.trackInvoicingTransactionSigned,
-    ).toHaveBeenCalledExactlyOnceWith(
+    expect(core.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         family: "ethereum",
         recipientAddress: "",
@@ -298,6 +287,5 @@ describe("SignRawTransaction tracking", () => {
     );
 
     expect(core.trackTransactionCompleted).not.toHaveBeenCalled();
-    expect(core.trackInvoicingTransactionSigned).not.toHaveBeenCalled();
   });
 });

@@ -55,10 +55,11 @@ export interface CoreFacade {
   isModalOpen(): boolean;
 
   trackTransactionStarted(family: BlockchainFamily): void;
-  /** Call once the transaction has been broadcast. */
-  trackTransactionCompleted(family: BlockchainFamily): void;
-  /** Billing event: call once the transaction has been broadcast. */
-  trackInvoicingTransactionSigned(invoice: InvoicedTransaction): void;
+  /**
+   * Call once the transaction has been broadcast. Also sends the billing
+   * event for it.
+   */
+  trackTransactionCompleted(transaction: InvoicedTransaction): void;
   /** Track an opaque provider-owned message payload without interpreting it. */
   trackTypedMessageStarted(typedData: unknown): void;
   /** Track an opaque provider-owned message payload without interpreting it. */
