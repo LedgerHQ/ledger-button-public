@@ -71,7 +71,7 @@ describe("DefaultCoreFacadeService.getDeviceSession", () => {
     ({
       dmk: {},
       sessionId: "session-1",
-      connectedDevice: { sessionId: "session-1" },
+      connectedDevice: undefined,
       isSessionAlive: vi.fn().mockReturnValue(isSessionAlive),
     }) as unknown as DeviceManagementKitService;
 
