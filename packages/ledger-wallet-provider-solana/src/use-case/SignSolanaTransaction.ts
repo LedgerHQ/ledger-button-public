@@ -10,7 +10,10 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  AccountNotSelectedError,
+  SignTransactionError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import {
   createOpenAppConfig,
   mapOpenAppDeviceActionError,
@@ -36,7 +39,10 @@ import {
   SOLANA_FAMILY,
 } from "../utils/clusterUtils";
 import { getSolanaDerivationPath } from "../utils/derivationUtils";
-import { getSolanaMessageBytes } from "../utils/transactionUtils";
+import {
+  getSolanaMessageBytes,
+  getSolanaTransactionRecipient,
+} from "../utils/transactionUtils";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule";
 
 @injectable()
@@ -70,6 +76,13 @@ export class SignSolanaTransaction {
     if (!selectedAccount) {
       return this.toErrorStatus(
         new AccountNotSelectedError("No account selected"),
+        signType,
+      );
+    }
+
+    if (getSolanaTransactionRecipient(transaction).isNothing()) {
+      return this.toErrorStatus(
+        new SignTransactionError("Transaction has no recipient"),
         signType,
       );
     }

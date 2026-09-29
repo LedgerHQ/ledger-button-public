@@ -221,14 +221,13 @@ describe("SignRawTransaction tracking", () => {
     });
   });
 
-  it("tracks a contract deployment with an empty recipient", async () => {
+  it("rejects a transaction without a recipient before signing", async () => {
     completeDeviceAction();
-    const rawTransaction = aContractDeployment();
 
-    await lastValueFrom(
+    const status = await lastValueFrom(
       createUseCase().execute(
         {
-          transaction: rawTransaction,
+          transaction: aContractDeployment(),
           broadcast: true,
           method: "eth_sendTransaction",
         },
@@ -236,36 +235,14 @@ describe("SignRawTransaction tracking", () => {
       ),
     );
 
-    expect(core.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({
-        family: "ethereum",
-        recipientAddress: "",
-        unsignedTransaction: rawTransaction,
+    expect(status).toMatchObject({
+      status: "error",
+      error: expect.objectContaining({
+        message: "Transaction has no recipient",
       }),
-    );
-  });
-
-  it("still tracks completion with an empty recipient when the raw transaction cannot be parsed", async () => {
-    completeDeviceAction();
-
-    await lastValueFrom(
-      createUseCase().execute(
-        {
-          transaction: "0xdeadbeef",
-          broadcast: true,
-          method: "eth_sendTransaction",
-        },
-        createAccount(),
-      ),
-    );
-
-    expect(core.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({
-        family: "ethereum",
-        recipientAddress: "",
-        unsignedTransaction: "0xdeadbeef",
-      }),
-    );
+    });
+    expect(executeDeviceAction).not.toHaveBeenCalled();
+    expect(core.trackTransactionCompleted).not.toHaveBeenCalled();
   });
 
   it("does not track completion when the broadcast result has no hash", async () => {

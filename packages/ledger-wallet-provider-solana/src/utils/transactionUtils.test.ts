@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   getSolanaMessageBytes,
+  getSolanaTransactionRecipient,
   patchRecentBlockhash,
 } from "./transactionUtils";
 
@@ -38,6 +39,67 @@ describe("getSolanaMessageBytes", () => {
     expect(getSolanaMessageBytes(placeholderWireTransaction)).toEqual(
       messageBytes,
     );
+  });
+});
+
+describe("getSolanaTransactionRecipient", () => {
+  const COMPUTE_BUDGET = "ComputeBudget111111111111111111111111111111";
+  const SENDER = "So11111111111111111111111111111111111111112";
+  const JUPITER = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
+
+  const aWireTransaction = (
+    staticAccounts: string[],
+    instructions: {
+      programAddressIndex: number;
+      accountIndices?: number[];
+      data?: Uint8Array;
+    }[],
+  ): Uint8Array =>
+    new Uint8Array([
+      1,
+      ...new Uint8Array(64),
+      ...getCompiledTransactionMessageEncoder().encode({
+        version: "legacy",
+        header: {
+          numSignerAccounts: 1,
+          numReadonlySignerAccounts: 0,
+          numReadonlyNonSignerAccounts: 1,
+        },
+        staticAccounts: staticAccounts.map((account) => address(account)),
+        lifetimeToken: getBase58Decoder().decode(ORIGINAL_BLOCKHASH),
+        instructions,
+      }),
+    ]);
+
+  it("returns the program of the first non Compute Budget instruction", () => {
+    const wireTransaction = aWireTransaction(
+      [SENDER, COMPUTE_BUDGET, JUPITER],
+      [
+        { programAddressIndex: 1, data: new Uint8Array([2]) },
+        { programAddressIndex: 2, accountIndices: [0] },
+      ],
+    );
+
+    expect(getSolanaTransactionRecipient(wireTransaction).extract()).toBe(
+      JUPITER,
+    );
+  });
+
+  it("is empty when only Compute Budget instructions are present", () => {
+    const wireTransaction = aWireTransaction(
+      [SENDER, COMPUTE_BUDGET],
+      [{ programAddressIndex: 1, data: new Uint8Array([2]) }],
+    );
+
+    expect(getSolanaTransactionRecipient(wireTransaction).isNothing()).toBe(
+      true,
+    );
+  });
+
+  it("is empty when the transaction cannot be decoded", () => {
+    expect(
+      getSolanaTransactionRecipient(new Uint8Array([1, 2, 3])).isNothing(),
+    ).toBe(true);
   });
 });
 

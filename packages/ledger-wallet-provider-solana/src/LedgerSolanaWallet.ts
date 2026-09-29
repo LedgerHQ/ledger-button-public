@@ -83,7 +83,10 @@ import {
   SOLANA_FAMILY,
 } from "./utils/clusterUtils";
 import { attachSolanaSignature } from "./utils/signatureUtils";
-import { getSolanaMessageBytes } from "./utils/transactionUtils";
+import {
+  getSolanaMessageBytes,
+  getSolanaTransactionRecipient,
+} from "./utils/transactionUtils";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",
@@ -515,7 +518,8 @@ export class LedgerSolanaWallet implements Wallet {
         family: this.family,
         transactionHash: hash,
         unsignedTransaction: getSolanaMessageBytes(signedTransaction),
-        recipientAddress: "",
+        recipientAddress:
+          getSolanaTransactionRecipient(signedTransaction).orDefault(""),
       });
     } catch (error) {
       this.logger.warn("Could not track the Solana transaction completion", {

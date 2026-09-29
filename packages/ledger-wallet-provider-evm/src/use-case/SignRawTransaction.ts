@@ -12,7 +12,10 @@ import type {
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { isBroadcastedTransactionResult } from "@ledgerhq/ledger-wallet-provider-core";
-import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  AccountNotSelectedError,
+  SignTransactionError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import {
   createOpenAppConfig,
   mapOpenAppDeviceActionError,
@@ -71,6 +74,10 @@ export class SignRawTransaction {
           throw new AccountNotSelectedError("No account selected");
         }
 
+        if (!Transaction.from(transaction).to) {
+          throw new SignTransactionError("Transaction has no recipient");
+        }
+
         const derivationPath = getEvmDerivationPath(selectedAccount);
         const contextModule = this.buildContextModule.execute({
           chain: ContextModuleChainID.Ethereum,
@@ -115,19 +122,6 @@ export class SignRawTransaction {
     );
   }
 
-  /**
-   * Contract deployments have no `to`: they are invoiced with an empty
-   * recipient. Never throws, as the transaction is already broadcast.
-   */
-  private getRecipientAddress(rawTransaction: string): string {
-    try {
-      return Transaction.from(rawTransaction).to ?? "";
-    } catch (error) {
-      this.logger.warn("Could not read the transaction recipient", { error });
-      return "";
-    }
-  }
-
   private async toSignFlowStatus(
     state: DeviceActionState<
       SignRawTransactionFlowDAOutput,
@@ -158,7 +152,7 @@ export class SignRawTransaction {
               family: EVM_FAMILY,
               transactionHash: broadcastResult.hash,
               unsignedTransaction: rawTransaction,
-              recipientAddress: this.getRecipientAddress(rawTransaction),
+              recipientAddress: Transaction.from(rawTransaction).to ?? "",
             });
           }
 

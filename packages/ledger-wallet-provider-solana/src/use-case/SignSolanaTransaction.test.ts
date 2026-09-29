@@ -37,7 +37,8 @@ const createBlockchainConfig = (): BlockchainConfig => ({
 
 describe("SignSolanaTransaction", () => {
   // Minimal but structurally valid legacy compiled message: 3 header bytes, one
-  // account key, a recent blockhash, and zero instructions.
+  // account key, a recent blockhash, and one instruction calling that account
+  // with no accounts and no data.
   const messageBytes = new Uint8Array([
     1,
     0,
@@ -45,6 +46,9 @@ describe("SignSolanaTransaction", () => {
     1,
     ...new Uint8Array(32).fill(9),
     ...new Uint8Array(32).fill(3),
+    1,
+    0,
+    0,
     0,
   ]);
   // Wallet Standard delivers the full wire transaction: a compact-u16 signature
@@ -278,5 +282,27 @@ describe("SignSolanaTransaction", () => {
     );
 
     expect(result.status).toBe("error");
+  });
+
+  it("emits an error status without signing when the transaction has no recipient", async () => {
+    const noInstructionTransaction = new Uint8Array([
+      ...transaction.slice(0, -4),
+      0,
+    ]);
+
+    const result = await lastValueFrom(
+      createUseCase().execute(
+        { ...params, transaction: noInstructionTransaction },
+        createAccount(),
+      ),
+    );
+
+    expect(result).toMatchObject({
+      status: "error",
+      error: expect.objectContaining({
+        message: "Transaction has no recipient",
+      }),
+    });
+    expect(executeDeviceAction).not.toHaveBeenCalled();
   });
 });

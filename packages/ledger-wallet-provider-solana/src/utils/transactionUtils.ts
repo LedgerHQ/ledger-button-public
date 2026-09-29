@@ -1,11 +1,15 @@
 import {
+  type CompiledTransactionMessage,
   getBase58Decoder,
   getCompiledTransactionMessageDecoder,
   getCompiledTransactionMessageEncoder,
   getTransactionDecoder,
 } from "@solana/kit";
+import { Maybe } from "purify-ts";
 
 const BLOCKHASH_LENGTH = 32;
+const COMPUTE_BUDGET_PROGRAM_ADDRESS =
+  "ComputeBudget111111111111111111111111111111";
 
 /**
  * Wallet Standard `solana:signTransaction` hands the wallet a fully serialized
@@ -19,6 +23,39 @@ export function getSolanaMessageBytes(wireTransaction: Uint8Array): Uint8Array {
   return new Uint8Array(
     getTransactionDecoder().decode(wireTransaction).messageBytes,
   );
+}
+
+/**
+ * Resolve the recipient of a serialized transaction: decode its compiled message,
+ * read the program each instruction calls, skip the Compute Budget program
+ * (fee and compute-limit settings), and return the first remaining one.
+ * Program addresses are always static accounts, so no address lookup table
+ * needs to be fetched. Empty when the transaction cannot be decoded or only
+ * calls the Compute Budget program.
+ */
+export function getSolanaTransactionRecipient(
+  wireTransaction: Uint8Array,
+): Maybe<string> {
+  return Maybe.encase(() =>
+    getCompiledTransactionMessageDecoder().decode(
+      getSolanaMessageBytes(wireTransaction),
+    ),
+  ).chainNullable((compiled) =>
+    getProgramIndices(compiled)
+      .map((index) => compiled.staticAccounts[index])
+      .find((program) => program !== COMPUTE_BUDGET_PROGRAM_ADDRESS),
+  );
+}
+
+/**
+ * Index, in the static accounts, of the program each instruction calls, in
+ * instruction order. v1 messages keep it in the instruction headers, legacy
+ * and v0 messages on the instructions themselves.
+ */
+function getProgramIndices(compiled: CompiledTransactionMessage): number[] {
+  return compiled.version === 1
+    ? compiled.instructionHeaders.map((header) => header.programAccountIndex)
+    : compiled.instructions.map((instruction) => instruction.programAddressIndex);
 }
 
 /**
