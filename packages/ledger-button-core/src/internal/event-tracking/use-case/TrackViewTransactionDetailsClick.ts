@@ -1,9 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
-import {
-  DEFAULT_BLOCKCHAIN_FAMILY,
-  getActiveFamily,
-} from "@api/model/ButtonCoreContext";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
@@ -37,10 +34,12 @@ export class TrackViewTransactionDetailsClick {
     this.logger = loggerFactory("TrackViewTransactionDetailsClick UseCase");
   }
 
-  async execute(transactionHash: string): Promise<void> {
+  async execute(
+    transactionHash: string,
+    family: BlockchainFamily,
+  ): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
     const context = this.contextService.getContext();
-    const family = getActiveFamily(context) ?? DEFAULT_BLOCKCHAIN_FAMILY;
 
     const event = EventTrackingUtils.createViewTransactionDetailsClickedEvent({
       dAppId: this.config.dAppIdentifier,

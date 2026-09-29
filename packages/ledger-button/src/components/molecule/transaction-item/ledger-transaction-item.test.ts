@@ -101,7 +101,7 @@ describe("ledger-transaction-item", () => {
     expect(container.querySelector("a")).toBeNull();
   });
 
-  it("calls trackViewTransactionDetailsClicked with the hash when the anchor is clicked", () => {
+  it("calls trackViewTransactionDetailsClicked with the hash and active family", () => {
     const trackViewTransactionDetailsClicked = vi.fn();
     const hash =
       "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";
@@ -109,7 +109,10 @@ describe("ledger-transaction-item", () => {
     const container = renderItem({
       explorerUrl: EXPLORER_URL,
       hash,
-      coreContext: { trackViewTransactionDetailsClicked },
+      coreContext: {
+        trackViewTransactionDetailsClicked,
+        getActiveFamily: () => "solana",
+      },
     } as Partial<LedgerTransactionItem>);
 
     const anchor = container.querySelector("a");
@@ -117,8 +120,28 @@ describe("ledger-transaction-item", () => {
     anchor?.dispatchEvent(clickEvent);
 
     expect(trackViewTransactionDetailsClicked).toHaveBeenCalledTimes(1);
-    expect(trackViewTransactionDetailsClicked).toHaveBeenCalledWith(hash);
+    expect(trackViewTransactionDetailsClicked).toHaveBeenCalledWith(
+      hash,
+      "solana",
+    );
     expect(clickEvent.defaultPrevented).toBe(false);
+  });
+
+  it("does not track when the active family is unknown", () => {
+    const trackViewTransactionDetailsClicked = vi.fn();
+
+    const container = renderItem({
+      explorerUrl: EXPLORER_URL,
+      hash: "0xabc",
+      coreContext: {
+        trackViewTransactionDetailsClicked,
+        getActiveFamily: () => undefined,
+      },
+    } as Partial<LedgerTransactionItem>);
+
+    container.querySelector("a")?.click();
+
+    expect(trackViewTransactionDetailsClicked).not.toHaveBeenCalled();
   });
 
   it("does not call tracking and does not throw when coreContext is missing", () => {

@@ -73,7 +73,7 @@ describe("TrackOnboarding", () => {
       Just(aCurrencyDescriptor({ networkId: "137" })),
     );
 
-    await useCase.execute(selectedAccount);
+    await useCase.execute(selectedAccount, "ethereum");
 
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -83,7 +83,7 @@ describe("TrackOnboarding", () => {
     expect(mockLogger.warn).not.toHaveBeenCalled();
   });
 
-  it("sends the family of the selected currency as blockchain_network_selected", async () => {
+  it("sends the family passed by the caller as blockchain_network_selected", async () => {
     vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
       Just(
         aCurrencyDescriptor({
@@ -94,7 +94,10 @@ describe("TrackOnboarding", () => {
       ),
     );
 
-    await useCase.execute({ ...selectedAccount, currencyId: "solana" });
+    await useCase.execute(
+      { ...selectedAccount, currencyId: "solana" },
+      "solana",
+    );
 
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -106,16 +109,22 @@ describe("TrackOnboarding", () => {
     );
   });
 
-  it("sends null chain_id and warns when the currency is unmapped", async () => {
+  it("keeps the caller family and sends null chain_id when the currency is unmapped", async () => {
     vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
       Nothing,
     );
 
-    await useCase.execute({ ...selectedAccount, currencyId: "bitcoin" });
+    await useCase.execute(
+      { ...selectedAccount, currencyId: "bitcoin" },
+      "solana",
+    );
 
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ chain_id: null }),
+        data: expect.objectContaining({
+          blockchain_network_selected: "solana",
+          chain_id: null,
+        }),
       }),
     );
     expect(mockLogger.warn).toHaveBeenCalledWith(

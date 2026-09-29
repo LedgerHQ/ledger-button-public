@@ -1,7 +1,7 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
-import { DEFAULT_BLOCKCHAIN_FAMILY } from "@api/model/ButtonCoreContext";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
@@ -33,16 +33,20 @@ export class TrackOnboarding {
     this.logger = loggerFactory("TrackOnboarding UseCase");
   }
 
-  async execute(selectedAccount: Account): Promise<void> {
+  async execute(
+    selectedAccount: Account,
+    family: BlockchainFamily,
+  ): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
     const trustChainId = this.contextService.getContext().trustChainId;
 
     const { currencyId } = selectedAccount;
-    const currency = this.blockchainProviderManager
+    const chainId = this.blockchainProviderManager
       .describeCurrency(currencyId)
+      .map((currency) => currency.networkId)
       .extractNullable();
 
-    if (currency === null) {
+    if (chainId === null) {
       this.logger.warn("No currency descriptor for onboarding chain_id", {
         currencyId,
       });
@@ -52,8 +56,8 @@ export class TrackOnboarding {
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
       trustChainId: trustChainId,
-      family: currency?.family ?? DEFAULT_BLOCKCHAIN_FAMILY,
-      chainId: currency?.networkId ?? null,
+      family,
+      chainId,
     });
 
     this.logger.debug("Tracking ledger sync activated event", { event });

@@ -337,6 +337,43 @@ describe("Event Schema Validation", () => {
       expect(result.success).toBe(false);
     });
 
+    describe("solana", () => {
+      const aSolanaViewDetailsEvent = (transactionHash: string) => ({
+        event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",
+        transaction_dapp_id: "jupiter",
+        timestamp_ms: 1770980790515,
+        event_type: "view_transaction_details_clicked",
+        session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        blockchain_network_selected: "solana",
+        chain_id: "mainnet",
+        transaction_hash: transactionHash,
+      });
+
+      it("should accept a base58 transaction_hash", () => {
+        const result = ViewTransactionDetailsClickedEventSchema.safeParse(
+          aSolanaViewDetailsEvent(
+            "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW",
+          ),
+        );
+        expect(result.success).toBe(true);
+      });
+
+      it("should reject a transaction_hash that is not base58", () => {
+        const result = ViewTransactionDetailsClickedEventSchema.safeParse(
+          aSolanaViewDetailsEvent(
+            "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
+          ),
+        );
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0]).toMatchObject({
+            path: ["transaction_hash"],
+            message: "Transaction hash must be a base58 signature",
+          });
+        }
+      });
+    });
+
     it("accepts a null chain_id", () => {
       const validEvent = {
         event_id: "bf75cd86-c565-49e1-97ec-e16b6071be11",

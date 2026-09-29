@@ -102,8 +102,12 @@ export class LedgerTransactionItem extends LitElement {
   private readonly coreContext?: CoreContext;
 
   private readonly handleExplorerClick = () => {
-    if (this.hash) {
-      void this.coreContext?.trackViewTransactionDetailsClicked(this.hash);
+    const family = this.coreContext?.getActiveFamily();
+    if (this.hash && family) {
+      void this.coreContext?.trackViewTransactionDetailsClicked(
+        this.hash,
+        family,
+      );
     }
   };
   @property({ type: String, attribute: "formatted-fee" })

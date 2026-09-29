@@ -56,6 +56,44 @@ describe("EventTrackingUtils", () => {
       expect(result.errors).toBeUndefined();
     });
 
+    it("should keep a Solana base58 hash and empty recipient on the invoicing event", () => {
+      const base58Signature =
+        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW";
+      const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
+        dAppId: "test-dapp",
+        sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        transactionHash: base58Signature,
+        recipientAddress: "",
+        family: "solana",
+        chainId: "mainnet",
+        unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
+      });
+
+      const data = event.data as InvoicingTransactionSignedEventData;
+      expect(data.blockchain_network_selected).toBe("solana");
+      expect(data.transaction_hash).toBe(base58Signature);
+      expect(data.recipient_address).toBe("");
+      expect(EventTrackingUtils.validateEvent(event).success).toBe(true);
+    });
+
+    it("should keep a Solana base58 hash on the view-details click event", () => {
+      const base58Signature =
+        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW";
+      const event =
+        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          family: "solana",
+          chainId: "mainnet",
+          transactionHash: base58Signature,
+        });
+
+      expect(
+        (event.data as { transaction_hash: string }).transaction_hash,
+      ).toBe(base58Signature);
+      expect(EventTrackingUtils.validateEvent(event).success).toBe(true);
+    });
+
     it("should validate and report the solana family on a transaction flow event", () => {
       const event =
         EventTrackingUtils.createTransactionFlowInitializationEvent({

@@ -421,7 +421,13 @@ export class SignTransactionController implements ReactiveController {
   }
 
   viewTransactionDetails(url: string, transactionHash: string) {
-    void this.core.trackViewTransactionDetailsClicked(transactionHash);
+    const family = this.currentIntent?.params.family;
+    if (family) {
+      void this.core.trackViewTransactionDetailsClicked(
+        transactionHash,
+        family,
+      );
+    }
     window.open(url, "_blank", "noopener,noreferrer");
     this.close();
   }
