@@ -271,6 +271,7 @@ describe("DefaultDeviceManagementKitService", () => {
 
         expect(mockDmk.disconnect).toHaveBeenCalled();
         expect(service.sessionId).toBeUndefined();
+        expect(service.connectedDevice).toBeUndefined();
       });
 
       it("should include error type in DeviceConnectionError when disconnect fails", async () => {
@@ -288,6 +289,68 @@ describe("DefaultDeviceManagementKitService", () => {
             sessionId: "213",
           });
         }
+
+        expect(service.sessionId).toBeUndefined();
+        expect(service.connectedDevice).toBeUndefined();
+      });
+
+      it("should report a session DMK no longer knows as dead", async () => {
+        expect(service.isSessionAlive()).toBe(true);
+
+        vi.mocked(mockDmk.getConnectedDevice).mockImplementation(() => {
+          throw new Error("Device session not found");
+        });
+
+        expect(service.isSessionAlive()).toBe(false);
+      });
+
+      it("should stop querying DMK once it has disowned the session", async () => {
+        vi.mocked(mockDmk.getConnectedDevice).mockImplementation(() => {
+          throw new Error("Device session not found");
+        });
+
+        service.isSessionAlive();
+        const callsAfterFirstCheck = vi.mocked(mockDmk.getConnectedDevice).mock
+          .calls.length;
+        service.isSessionAlive();
+        service.isSessionAlive();
+
+        expect(vi.mocked(mockDmk.getConnectedDevice).mock.calls.length).toBe(
+          callsAfterFirstCheck,
+        );
+        expect(service.sessionId).toBeUndefined();
+      });
+
+      it("should report no session as dead", async () => {
+        await service.disconnectFromDevice();
+
+        expect(service.isSessionAlive()).toBe(false);
+      });
+
+      it("should keep a session established while an earlier disconnect was still pending", async () => {
+        let resolveDisconnect: () => void = () => undefined;
+        vi.mocked(mockDmk.disconnect).mockReturnValue(
+          new Promise<void>((resolve) => {
+            resolveDisconnect = resolve;
+          }),
+        );
+
+        const pendingDisconnect = service.disconnectFromDevice();
+
+        // The user plugs the device back in and reconnects before the
+        // disconnect of the previous session has settled.
+        vi.mocked(mockDmk.connect).mockResolvedValue("session-456");
+        vi.mocked(mockDmk.getConnectedDevice).mockResolvedValue({
+          ...mockConnectedDevice,
+          sessionId: "session-456",
+        });
+        await service.connectToDevice({ type: "usb" });
+
+        resolveDisconnect();
+        await pendingDisconnect;
+
+        expect(service.sessionId).toBe("session-456");
+        expect(service.connectedDevice).toBeDefined();
       });
     });
   });

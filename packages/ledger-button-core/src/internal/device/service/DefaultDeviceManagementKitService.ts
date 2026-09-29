@@ -164,19 +164,62 @@ export class DefaultDeviceManagementKitService
   }
 
   async disconnectFromDevice() {
-    if (!this._currentSessionId) {
+    const sessionId = this._currentSessionId;
+
+    if (!sessionId) {
+      this.clearSession();
       return;
     }
 
     try {
-      await this.dmk.disconnect({ sessionId: this._currentSessionId });
-      this._currentSessionId = undefined;
+      await this.dmk.disconnect({ sessionId });
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });
       throw new DeviceConnectionError(`Failed to disconnect from device`, {
         type: "failed-to-disconnect",
         error,
       });
+    } finally {
+      this.clearSession(sessionId);
     }
+  }
+
+  /**
+   * DMK is the source of truth: it drops a session when the link is lost, and
+   * because sessions are opened with the refresher disabled nothing pushes that
+   * back to us. Without this check the cached session id outlives the session
+   * and every device action fails with "Error getting session".
+   */
+  isSessionAlive(): boolean {
+    const sessionId = this._currentSessionId;
+
+    if (!sessionId) {
+      return false;
+    }
+
+    try {
+      this.dmk.getConnectedDevice({ sessionId });
+      return true;
+    } catch {
+      // Drop the id as soon as DMK disowns it: callers poll this, and a
+      // retained id would both keep failing and make DMK log on every tick.
+      this.logger.warn("Device session was dropped by DMK", { sessionId });
+      this.clearSession(sessionId);
+      return false;
+    }
+  }
+
+  /**
+   * Clearing is scoped to `expectedSessionId` so a disconnect that resolves
+   * late (a device unplugged mid-flow) cannot wipe a session established by a
+   * reconnection that already happened in the meantime.
+   */
+  private clearSession(expectedSessionId?: string): void {
+    if (expectedSessionId && this._currentSessionId !== expectedSessionId) {
+      return;
+    }
+
+    this._currentSessionId = undefined;
+    this._connectedDevice = undefined;
   }
 }

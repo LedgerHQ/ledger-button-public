@@ -219,7 +219,7 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     return {
       dmk: this._deviceManagementKitService.dmk,
       sessionId: this._deviceManagementKitService.sessionId,
-      isConnected: Boolean(this._deviceManagementKitService.connectedDevice),
+      isConnected: this._deviceManagementKitService.isSessionAlive(),
     };
   }
 

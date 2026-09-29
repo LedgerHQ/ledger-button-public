@@ -1,4 +1,5 @@
-import { of } from "rxjs";
+import { DeviceStatus } from "@ledgerhq/device-management-kit";
+import { of, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainFamily } from "./blockchain-provider/model/types";
@@ -36,10 +37,32 @@ describe("LedgerButtonCore", () => {
     removeSelectedAccount: ReturnType<typeof vi.fn>;
     resetStorage: ReturnType<typeof vi.fn>;
   };
+  let connectDevice: { execute: ReturnType<typeof vi.fn> };
+  let disconnectDevice: { execute: ReturnType<typeof vi.fn> };
+  let deviceSessionState$: Subject<{ deviceStatus: DeviceStatus }>;
+  let deviceService: {
+    connectedDevice?: { sessionId: string };
+    sessionId?: string;
+    dmk: {
+      close: ReturnType<typeof vi.fn>;
+      getDeviceSessionState: ReturnType<typeof vi.fn>;
+    };
+  };
 
   const createCore = () => {
     trackOpened = { execute: vi.fn() };
     trackActivated = { execute: vi.fn().mockResolvedValue(undefined) };
+    connectDevice = {
+      execute: vi.fn().mockResolvedValue({ sessionId: "new-session" }),
+    };
+    disconnectDevice = { execute: vi.fn().mockResolvedValue(undefined) };
+    deviceSessionState$ = new Subject();
+    deviceService = {
+      dmk: {
+        close: vi.fn(),
+        getDeviceSessionState: vi.fn(() => deviceSessionState$),
+      },
+    };
 
     const logger = {
       debug: vi.fn(),
@@ -50,7 +73,10 @@ describe("LedgerButtonCore", () => {
     };
 
     contextService = {
-      getContext: vi.fn(() => ({ selectedAccounts })),
+      getContext: vi.fn(() => ({
+        selectedAccounts,
+        connectedDevice: undefined,
+      })),
       onEvent: vi.fn(),
     };
 
@@ -71,10 +97,9 @@ describe("LedgerButtonCore", () => {
       [navigationModuleTypes.NavigationIntentService, { observe: vi.fn() }],
       [ledgerSyncModuleTypes.LedgerSyncService, ledgerSyncService],
       [storageModuleTypes.StorageService, storage],
-      [
-        deviceModuleTypes.DeviceManagementKitService,
-        { dmk: { close: vi.fn() } },
-      ],
+      [deviceModuleTypes.DeviceManagementKitService, deviceService],
+      [deviceModuleTypes.ConnectDeviceUseCase, connectDevice],
+      [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
       [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
       [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
     ]);
@@ -183,6 +208,84 @@ describe("LedgerButtonCore", () => {
 
       expect(storage.resetStorage).toHaveBeenCalledTimes(1);
       expect(storage.removeSelectedAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("device session lifecycle", () => {
+    it("disconnects a stale DMK session before reconnecting", async () => {
+      const core = createCore();
+      deviceService.sessionId = "stale-session";
+
+      await core.connectToDevice("usb");
+
+      expect(disconnectDevice.execute).toHaveBeenCalledOnce();
+      expect(connectDevice.execute).toHaveBeenCalledWith({ type: "usb" });
+      expect(disconnectDevice.execute.mock.invocationCallOrder[0]).toBeLessThan(
+        connectDevice.execute.mock.invocationCallOrder[0],
+      );
+    });
+
+    it("cleans the DMK session when the device disconnects physically", async () => {
+      const core = createCore();
+      deviceService.connectedDevice = { sessionId: "session-1" };
+      connectDevice.execute.mockImplementation(async () => {
+        deviceService.connectedDevice = { sessionId: "session-1" };
+        return { sessionId: "session-1" };
+      });
+
+      await core.connectToDevice("usb");
+      disconnectDevice.execute.mockClear();
+      deviceSessionState$.next({
+        deviceStatus: DeviceStatus.NOT_CONNECTED,
+      });
+
+      await vi.waitFor(() => {
+        expect(disconnectDevice.execute).toHaveBeenCalledOnce();
+        expect(contextService.onEvent).toHaveBeenCalledWith({
+          type: "device_disconnected",
+        });
+      });
+    });
+
+    it("waits for the disconnect cleanup before reconnecting", async () => {
+      const core = createCore();
+      deviceService.connectedDevice = { sessionId: "session-1" };
+      connectDevice.execute.mockImplementation(async () => {
+        deviceService.connectedDevice = { sessionId: "session-1" };
+        return { sessionId: "session-1" };
+      });
+      await core.connectToDevice("usb");
+
+      let resolveCleanup: () => void = () => undefined;
+      disconnectDevice.execute.mockReturnValue(
+        new Promise<void>((resolve) => {
+          resolveCleanup = resolve;
+        }),
+      );
+      deviceService.connectedDevice = undefined;
+      deviceSessionState$.next({ deviceStatus: DeviceStatus.NOT_CONNECTED });
+      connectDevice.execute.mockClear();
+
+      const pendingConnect = core.connectToDevice("usb");
+      await Promise.resolve();
+      expect(connectDevice.execute).not.toHaveBeenCalled();
+
+      resolveCleanup();
+      await pendingConnect;
+
+      expect(connectDevice.execute).toHaveBeenCalledWith({ type: "usb" });
+    });
+
+    it("still connects when releasing the previous session fails", async () => {
+      const core = createCore();
+      deviceService.sessionId = "session-1";
+      disconnectDevice.execute.mockRejectedValue(
+        new Error("no matching device connection found"),
+      );
+
+      await core.connectToDevice("usb");
+
+      expect(connectDevice.execute).toHaveBeenCalledWith({ type: "usb" });
     });
   });
 

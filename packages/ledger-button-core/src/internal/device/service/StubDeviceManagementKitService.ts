@@ -24,6 +24,7 @@ export class StubDeviceManagementKitService
 
   connectToDevice = () => Promise.resolve(this.connectedDevice as Device);
   disconnectFromDevice = () => Promise.resolve();
+  isSessionAlive = () => this.sessionId !== undefined;
 
   listAvailableDevices = () =>
     Promise.resolve([

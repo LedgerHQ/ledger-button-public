@@ -11,6 +11,7 @@ import type { BlockchainProviderManager } from "@internal/blockchain-provider/se
 import type { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/ContextService";
 import { createMockLoggerFactory } from "@internal/device/__tests__/mocks";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
 
 import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
@@ -18,6 +19,7 @@ import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
 type MakeServiceOpts = {
   environment?: Config["environment"];
   backendService?: BackendService;
+  deviceManagementKitService?: DeviceManagementKitService;
 };
 
 /**
@@ -48,7 +50,7 @@ const makeService = (opts: MakeServiceOpts = {}) => {
     contextService,
     blockchainProviderManager,
     backendService,
-    stub, // DeviceManagementKitService
+    (opts.deviceManagementKitService ?? stub) as DeviceManagementKitService,
     config,
     stub, // ModalService
     stub, // CoinServiceDataSource
@@ -63,6 +65,32 @@ const makeService = (opts: MakeServiceOpts = {}) => {
 
   return { service, emit, contextService, blockchainProviderManager };
 };
+
+describe("DefaultCoreFacadeService.getDeviceSession", () => {
+  const makeDeviceService = (isSessionAlive: boolean) =>
+    ({
+      dmk: {},
+      sessionId: "session-1",
+      connectedDevice: undefined,
+      isSessionAlive: vi.fn().mockReturnValue(isSessionAlive),
+    }) as unknown as DeviceManagementKitService;
+
+  it("reports a session DMK still knows as connected", () => {
+    const { service } = makeService({
+      deviceManagementKitService: makeDeviceService(true),
+    });
+
+    expect(service.getDeviceSession().isConnected).toBe(true);
+  });
+
+  it("reports a cached session DMK has dropped as disconnected", () => {
+    const { service } = makeService({
+      deviceManagementKitService: makeDeviceService(false),
+    });
+
+    expect(service.getDeviceSession().isConnected).toBe(false);
+  });
+});
 
 describe("DefaultCoreFacadeService.requestAccount", () => {
   it("emits a selectAccount intent carrying the requested family", () => {
