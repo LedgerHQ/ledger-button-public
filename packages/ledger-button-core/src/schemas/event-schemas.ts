@@ -122,7 +122,7 @@ export const TypedMessageFlowInitializationEventSchema =
     event_type: z.literal("typed_message_flow_initialization"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: blockchainFamilySchema,
+    blockchain_network_selected: z.literal("ethereum"),
     chain_id: z.string().nullable(),
     typed_message_hash: z
       .string()
@@ -134,7 +134,7 @@ export const TypedMessageFlowCompletionEventSchema = BaseEventDataSchema.extend(
     event_type: z.literal("typed_message_flow_completion"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: blockchainFamilySchema,
+    blockchain_network_selected: z.literal("ethereum"),
     chain_id: z.string().nullable(),
     typed_message_hash: z
       .string()
