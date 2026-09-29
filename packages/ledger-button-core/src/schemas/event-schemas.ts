@@ -3,6 +3,36 @@ import { z } from "zod";
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const hexPattern = /^[0-9a-f]+$/;
+const base58Pattern = /^[1-9A-HJ-NP-Za-km-z]+$/;
+const blockchainFamilySchema = z.enum(["ethereum", "solana"]);
+
+const transactionHashFormats: Record<
+  z.infer<typeof blockchainFamilySchema>,
+  { pattern: RegExp; message: string }
+> = {
+  ethereum: {
+    pattern: hexPattern,
+    message: "Transaction hash must be lowercase hex without 0x prefix",
+  },
+  solana: {
+    pattern: base58Pattern,
+    message: "Transaction hash must be a base58 signature",
+  },
+};
+
+function checkTransactionHashFormat(
+  event: {
+    blockchain_network_selected: z.infer<typeof blockchainFamilySchema>;
+    transaction_hash: string;
+  },
+  ctx: z.RefinementCtx,
+): void {
+  const { pattern, message } =
+    transactionHashFormats[event.blockchain_network_selected];
+  if (!pattern.test(event.transaction_hash)) {
+    ctx.addIssue({ code: "custom", path: ["transaction_hash"], message });
+  }
+}
 
 const BaseEventDataSchema = z.object({
   event_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -17,20 +47,17 @@ export const InvoicingTransactionSignedEventSchema = BaseEventDataSchema.extend(
   {
     event_type: z.literal("invoicing_transaction_signed"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: z.enum(["ethereum"]),
+    blockchain_network_selected: blockchainFamilySchema,
     chain_id: z.string().nullable(),
-    transaction_hash: z
-      .string()
-      .regex(
-        hexPattern,
-        "Transaction hash must be lowercase hex without 0x prefix",
-      ),
+    transaction_hash: z.string(),
     recipient_address: z.string(),
     unsigned_transaction_hash: z
       .string()
       .regex(hexPattern, "Sha256 hash without 0x prefix"),
   },
-).strict();
+)
+  .strict()
+  .superRefine(checkTransactionHashFormat);
 
 /**
  * Matches: ./sre-bento/containers/ledger-button-product-analytics-events/config/schema.json
@@ -69,7 +96,7 @@ export const OnboardingEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("onboarding"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
-  blockchain_network_selected: z.enum(["ethereum"]),
+  blockchain_network_selected: blockchainFamilySchema,
   chain_id: z.string().nullable(),
 }).strict();
 
@@ -78,7 +105,7 @@ export const TransactionFlowInitializationEventSchema =
     event_type: z.literal("transaction_flow_initialization"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: z.enum(["ethereum"]),
+    blockchain_network_selected: blockchainFamilySchema,
     chain_id: z.string().nullable(),
   }).strict();
 
@@ -86,7 +113,7 @@ export const TransactionFlowCompletionEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("transaction_flow_completion"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
   ledger_sync_user_id: z.string().optional(),
-  blockchain_network_selected: z.enum(["ethereum"]),
+  blockchain_network_selected: blockchainFamilySchema,
   chain_id: z.string().nullable(),
 }).strict();
 
@@ -95,7 +122,7 @@ export const TypedMessageFlowInitializationEventSchema =
     event_type: z.literal("typed_message_flow_initialization"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: z.enum(["ethereum"]),
+    blockchain_network_selected: blockchainFamilySchema,
     chain_id: z.string().nullable(),
     typed_message_hash: z
       .string()
@@ -107,7 +134,7 @@ export const TypedMessageFlowCompletionEventSchema = BaseEventDataSchema.extend(
     event_type: z.literal("typed_message_flow_completion"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: z.enum(["ethereum"]),
+    blockchain_network_selected: blockchainFamilySchema,
     chain_id: z.string().nullable(),
     typed_message_hash: z
       .string()
@@ -153,15 +180,12 @@ export const ViewTransactionDetailsClickedEventSchema =
     event_type: z.literal("view_transaction_details_clicked"),
     session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
     ledger_sync_user_id: z.string().optional(),
-    blockchain_network_selected: z.enum(["ethereum"]),
+    blockchain_network_selected: blockchainFamilySchema,
     chain_id: z.string().nullable(),
-    transaction_hash: z
-      .string()
-      .regex(
-        hexPattern,
-        "Transaction hash must be lowercase hex without 0x prefix",
-      ),
-  }).strict();
+    transaction_hash: z.string(),
+  })
+    .strict()
+    .superRefine(checkTransactionHashFormat);
 
 export const ViewAllTransactionsClickedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("view_all_transactions_clicked"),

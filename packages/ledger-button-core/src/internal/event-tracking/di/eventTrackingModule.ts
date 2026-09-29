@@ -7,6 +7,7 @@ import { TrackConsentGiven } from "../use-case/TrackConsentGiven";
 import { TrackConsentRemoved } from "../use-case/TrackConsentRemoved";
 import { TrackCurrencyChanged } from "../use-case/TrackCurrencyChanged";
 import { TrackFloatingButtonClick } from "../use-case/TrackFloatingButtonClick";
+import { TrackInvoicingTransactionSigned } from "../use-case/TrackInvoicingTransactionSigned";
 import { TrackLanguageChanged } from "../use-case/TrackLanguageChanged";
 import { TrackLedgerSyncActivated } from "../use-case/TrackLedgerSyncActivated";
 import { TrackLedgerSyncOpened } from "../use-case/TrackLedgerSyncOpened";
@@ -75,6 +76,10 @@ export const eventTrackingModuleFactory = ({
     bind<TrackTransactionCompleted>(
       eventTrackingModuleTypes.TrackTransactionCompleted,
     ).to(TrackTransactionCompleted);
+
+    bind<TrackInvoicingTransactionSigned>(
+      eventTrackingModuleTypes.TrackInvoicingTransactionSigned,
+    ).to(TrackInvoicingTransactionSigned);
 
     bind<TrackLedgerSyncOpened>(
       eventTrackingModuleTypes.TrackLedgerSyncOpened,

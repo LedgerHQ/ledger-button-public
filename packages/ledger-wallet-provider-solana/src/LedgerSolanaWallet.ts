@@ -83,6 +83,7 @@ import {
   SOLANA_FAMILY,
 } from "./utils/clusterUtils";
 import { attachSolanaSignature } from "./utils/signatureUtils";
+import { getSolanaMessageBytes } from "./utils/transactionUtils";
 
 const SOLANA_CHAINS = [
   "solana:mainnet",
@@ -408,7 +409,7 @@ export class LedgerSolanaWallet implements Wallet {
             return from(
               this.broadcastSolanaTransaction(
                 account,
-                base64Decoder.decode(signedTransaction),
+                signedTransaction,
                 options,
               ),
             ).pipe(
@@ -436,16 +437,17 @@ export class LedgerSolanaWallet implements Wallet {
   }
 
   /**
-   * Broadcasts a base64-encoded signed wire transaction through
+   * Broadcasts a signed wire transaction through
    * {@link CoreFacade.broadcastRPC} (`/broadcast`). Resolves with the base58
    * transaction signature, used as the explorer `hash`, and the raw 64-byte
    * signature.
    */
   private async broadcastSolanaTransaction(
     account: ProviderAccount,
-    base64WireTx: string,
+    signedTransaction: Uint8Array,
     options?: SolanaSendOptions,
   ): Promise<Either<Error, { hash: string; signature: Uint8Array }>> {
+    const base64WireTx = base64Decoder.decode(signedTransaction);
     const chainId = getBackendChainIdFromCurrencyId(account.currencyId);
     if (!chainId) {
       this.logger.error("No Solana chain id for currency", {
@@ -486,6 +488,7 @@ export class LedgerSolanaWallet implements Wallet {
       }
 
       this.logger.info("Solana broadcast succeeded", { hash });
+      this.trackBroadcastSuccess(hash, signedTransaction);
       return Right({ hash, signature: decodeSolanaSignature(hash) });
     } catch (error) {
       this.logger.error("Solana broadcast failed", { error });
@@ -494,6 +497,30 @@ export class LedgerSolanaWallet implements Wallet {
           ? error
           : new Error("Solana broadcast failed", { cause: error }),
       );
+    }
+  }
+
+  /**
+   * Never throws: the transaction is already broadcast. Invoices the message
+   * the device signed, which differs from the dApp's input when the blockhash
+   * was refreshed.
+   */
+  private trackBroadcastSuccess(
+    hash: string,
+    signedTransaction: Uint8Array,
+  ): void {
+    this.host.trackTransactionCompleted(this.family);
+    try {
+      this.host.trackInvoicingTransactionSigned({
+        family: this.family,
+        transactionHash: hash,
+        unsignedTransaction: getSolanaMessageBytes(signedTransaction),
+        recipientAddress: "",
+      });
+    } catch (error) {
+      this.logger.warn("Could not track the Solana invoicing event", {
+        error,
+      });
     }
   }
 

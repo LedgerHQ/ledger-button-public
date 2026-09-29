@@ -1,3 +1,5 @@
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+
 export enum EventType {
   ConsentGiven = "consent_given",
   ConsentRemoved = "consent_removed",
@@ -32,7 +34,7 @@ type BaseEventData = {
 
 export type InvoicingTransactionSignedEventData = BaseEventData & {
   event_type: "invoicing_transaction_signed";
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
   transaction_hash: string;
   recipient_address: string;
@@ -68,7 +70,7 @@ export type OnboardingEventData = BaseEventData & {
   event_type: "onboarding";
   session_id: string;
   ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
 };
 
@@ -76,7 +78,7 @@ export type TransactionFlowInitializationEventData = BaseEventData & {
   event_type: "transaction_flow_initialization";
   session_id: string;
   ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
 };
 
@@ -84,7 +86,7 @@ export type TransactionFlowCompletionEventData = BaseEventData & {
   event_type: "transaction_flow_completion";
   session_id: string;
   ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
 };
 
@@ -92,7 +94,7 @@ export type TypedMessageFlowInitializationEventData = BaseEventData & {
   event_type: "typed_message_flow_initialization";
   session_id: string;
   ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
   typed_message_hash: string;
 };
@@ -101,7 +103,7 @@ export type TypedMessageFlowCompletionEventData = BaseEventData & {
   event_type: "typed_message_flow_completion";
   session_id: string;
   ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
   typed_message_hash: string;
 };
@@ -155,7 +157,7 @@ export type ViewTransactionDetailsClickedEventData = BaseEventData & {
   event_type: "view_transaction_details_clicked";
   session_id: string;
   ledger_sync_user_id?: string;
-  blockchain_network_selected: "ethereum";
+  blockchain_network_selected: BlockchainFamily;
   chain_id: string | null;
   transaction_hash: string;
 };

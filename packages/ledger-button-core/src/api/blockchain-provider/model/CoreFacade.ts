@@ -4,7 +4,6 @@ import type {
 } from "@api/model/blockchain/GasFee";
 import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount";
 import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
-import type { SignedResults } from "@api/model/signing/SignedTransaction";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type {
   BroadcastResponse,
@@ -14,6 +13,7 @@ import type {
 import type {
   BlockchainFamily,
   BroadcastedTransactionMetadata,
+  InvoicedTransaction,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
@@ -54,11 +54,11 @@ export interface CoreFacade {
   /** Whether the in-flow modal is currently open (broadcast gate). */
   isModalOpen(): boolean;
 
-  trackTransactionStarted(): void;
-  trackTransactionCompleted(
-    rawTransaction: string,
-    result: SignedResults,
-  ): void;
+  trackTransactionStarted(family: BlockchainFamily): void;
+  /** Call once the transaction has been broadcast. */
+  trackTransactionCompleted(family: BlockchainFamily): void;
+  /** Billing event: call once the transaction has been broadcast. */
+  trackInvoicingTransactionSigned(invoice: InvoicedTransaction): void;
   /** Track an opaque provider-owned message payload without interpreting it. */
   trackTypedMessageStarted(typedData: unknown): void;
   /** Track an opaque provider-owned message payload without interpreting it. */

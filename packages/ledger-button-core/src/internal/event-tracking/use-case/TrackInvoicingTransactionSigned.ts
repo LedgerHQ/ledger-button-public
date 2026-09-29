@@ -1,6 +1,7 @@
+import { sha256 } from "ethers";
 import { type Factory, inject, injectable } from "inversify";
 
-import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { InvoicedTransaction } from "@api/blockchain-provider/model/types";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
@@ -16,7 +17,7 @@ import { resolveTrackedChainId } from "../resolveTrackedChainId";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackTransactionCompleted {
+export class TrackInvoicingTransactionSigned {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -30,26 +31,27 @@ export class TrackTransactionCompleted {
     @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
     private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
-    this.logger = loggerFactory("TrackTransactionCompleted UseCase");
+    this.logger = loggerFactory("TrackInvoicingTransactionSigned UseCase");
   }
 
-  async execute(family: BlockchainFamily): Promise<void> {
-    const sessionId = this.eventTrackingService.getSessionId();
+  async execute(invoice: InvoicedTransaction): Promise<void> {
     const context = this.contextService.getContext();
 
-    const event = EventTrackingUtils.createTransactionFlowCompletionEvent({
+    const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
       dAppId: this.config.dAppIdentifier,
-      sessionId: sessionId,
-      trustChainId: context.trustChainId,
-      family: family,
+      sessionId: this.eventTrackingService.getSessionId(),
+      transactionHash: invoice.transactionHash,
+      unsignedTransactionHash: sha256(invoice.unsignedTransaction),
+      family: invoice.family,
       chainId: resolveTrackedChainId(
         context,
-        family,
+        invoice.family,
         this.blockchainProviderManager,
       ),
+      recipientAddress: invoice.recipientAddress,
     });
 
-    this.logger.debug("Tracking transaction flow completion event", {
+    this.logger.debug("Tracking invoicing transaction signed event", {
       event,
     });
 

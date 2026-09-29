@@ -104,7 +104,9 @@ describe("SignSolanaTransaction", () => {
       status: "success",
       data: { solanaSignature: signature },
     });
-    expect(core.trackTransactionStarted).toHaveBeenCalledOnce();
+    expect(core.trackTransactionStarted).toHaveBeenCalledExactlyOnceWith(
+      "solana",
+    );
   });
 
   it("forwards the compiled message bytes (not the wire transaction) to the device", async () => {

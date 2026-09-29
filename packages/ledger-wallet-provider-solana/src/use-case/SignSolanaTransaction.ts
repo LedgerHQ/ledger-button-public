@@ -31,7 +31,10 @@ import type {
 } from "../device-action/SignSolanaTransactionFlowDeviceActionTypes";
 import { solanaProviderModuleTypes } from "../di/solanaProviderModuleTypes";
 import type { SignSolanaTransactionParams } from "../model/SignSolanaTransactionParams";
-import { getBackendChainIdFromCurrencyId } from "../utils/clusterUtils";
+import {
+  getBackendChainIdFromCurrencyId,
+  SOLANA_FAMILY,
+} from "../utils/clusterUtils";
 import { getSolanaDerivationPath } from "../utils/derivationUtils";
 import { getSolanaMessageBytes } from "../utils/transactionUtils";
 import { BuildSolanaContextModule } from "./BuildSolanaContextModule";
@@ -103,7 +106,7 @@ export class SignSolanaTransaction {
           dependencyCount: openAppConfig.dependencies.length,
         });
 
-        this.core.trackTransactionStarted();
+        this.core.trackTransactionStarted(SOLANA_FAMILY);
 
         const deviceAction = new SignSolanaTransactionFlowDeviceAction({
           input: {

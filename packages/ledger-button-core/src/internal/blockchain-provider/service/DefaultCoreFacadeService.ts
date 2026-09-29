@@ -4,6 +4,7 @@ import { Subject } from "rxjs";
 import type {
   BlockchainFamily,
   BroadcastedTransactionMetadata,
+  InvoicedTransaction,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
@@ -17,10 +18,6 @@ import type {
 } from "@api/model/blockchain/GasFee";
 import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
 import { getSelectedAccount } from "@api/model/ButtonCoreContext";
-import {
-  isBroadcastedTransactionResult,
-  type SignedResults,
-} from "@api/model/signing/SignedTransaction";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type { BackendService } from "@internal/backend/BackendService";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
@@ -41,6 +38,7 @@ import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import { eventTrackingModuleTypes } from "@internal/event-tracking/di/eventTrackingModuleTypes";
+import type { TrackInvoicingTransactionSigned } from "@internal/event-tracking/use-case/TrackInvoicingTransactionSigned";
 import type { TrackTransactionCompleted } from "@internal/event-tracking/use-case/TrackTransactionCompleted";
 import type { TrackTransactionStarted } from "@internal/event-tracking/use-case/TrackTransactionStarted";
 import type { TrackTypedMessageCompleted } from "@internal/event-tracking/use-case/TrackTypedMessageCompleted";
@@ -85,6 +83,8 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     private readonly _trackTransactionStarted: TrackTransactionStarted,
     @inject(eventTrackingModuleTypes.TrackTransactionCompleted)
     private readonly _trackTransactionCompleted: TrackTransactionCompleted,
+    @inject(eventTrackingModuleTypes.TrackInvoicingTransactionSigned)
+    private readonly _trackInvoicingTransactionSigned: TrackInvoicingTransactionSigned,
     @inject(eventTrackingModuleTypes.TrackTypedMessageStarted)
     private readonly _trackTypedMessageStarted: TrackTypedMessageStarted,
     @inject(eventTrackingModuleTypes.TrackTypedMessageCompleted)
@@ -234,17 +234,16 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     return this._modalService.open;
   }
 
-  trackTransactionStarted(): void {
-    void this._trackTransactionStarted.execute();
+  trackTransactionStarted(family: BlockchainFamily): void {
+    void this._trackTransactionStarted.execute(family);
   }
 
-  trackTransactionCompleted(
-    rawTransaction: string,
-    result: SignedResults,
-  ): void {
-    if (isBroadcastedTransactionResult(result)) {
-      void this._trackTransactionCompleted.execute(rawTransaction, result);
-    }
+  trackTransactionCompleted(family: BlockchainFamily): void {
+    void this._trackTransactionCompleted.execute(family);
+  }
+
+  trackInvoicingTransactionSigned(invoice: InvoicedTransaction): void {
+    void this._trackInvoicingTransactionSigned.execute(invoice);
   }
 
   trackTypedMessageStarted(typedData: unknown): void {

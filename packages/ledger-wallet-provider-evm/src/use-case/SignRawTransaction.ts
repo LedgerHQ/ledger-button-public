@@ -18,6 +18,7 @@ import {
   mapOpenAppDeviceActionError,
   waitForDeviceSession,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { Transaction } from "ethers";
 import { inject, injectable } from "inversify";
 import { catchError, from, type Observable, of, switchMap } from "rxjs";
 
@@ -29,6 +30,7 @@ import type {
 } from "../device-action/SignRawTransactionFlowDeviceActionTypes";
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
 import type { SignRawTransactionParams } from "../model/SignRawTransactionParams";
+import { EVM_FAMILY } from "../utils/chainUtils";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import { BroadcastTransaction } from "./BroadcastTransaction";
 import { BuildContextModule } from "./BuildContextModule";
@@ -59,7 +61,7 @@ export class SignRawTransaction {
     const { transaction, broadcast } = params;
     const signType: SignType = "transaction";
 
-    this.core.trackTransactionStarted();
+    this.core.trackTransactionStarted(EVM_FAMILY);
 
     return waitForDeviceSession(this.core).pipe(
       switchMap((session) => {
@@ -113,6 +115,19 @@ export class SignRawTransaction {
     );
   }
 
+  /**
+   * Contract deployments have no `to`: they are invoiced with an empty
+   * recipient. Never throws, as the transaction is already broadcast.
+   */
+  private getRecipientAddress(rawTransaction: string): string {
+    try {
+      return Transaction.from(rawTransaction).to ?? "";
+    } catch (error) {
+      this.logger.warn("Could not read the transaction recipient", { error });
+      return "";
+    }
+  }
+
   private async toSignFlowStatus(
     state: DeviceActionState<
       SignRawTransactionFlowDAOutput,
@@ -139,7 +154,13 @@ export class SignRawTransaction {
             });
 
           if (isBroadcastedTransactionResult(broadcastResult)) {
-            this.core.trackTransactionCompleted(rawTransaction, broadcastResult);
+            this.core.trackTransactionCompleted(EVM_FAMILY);
+            this.core.trackInvoicingTransactionSigned({
+              family: EVM_FAMILY,
+              transactionHash: broadcastResult.hash,
+              unsignedTransaction: rawTransaction,
+              recipientAddress: this.getRecipientAddress(rawTransaction),
+            });
           }
 
           return { signType, status: "success", data: broadcastResult };

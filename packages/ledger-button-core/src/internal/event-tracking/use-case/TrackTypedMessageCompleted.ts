@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/ContextService";
@@ -10,6 +11,9 @@ import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
 import { EventTrackingUtils, stringToSha256 } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
+
+// Typed messages are EIP-712, only signed through the EVM provider.
+const EVM_FAMILY: BlockchainFamily = "ethereum";
 
 @injectable()
 export class TrackTypedMessageCompleted {
@@ -40,6 +44,7 @@ export class TrackTypedMessageCompleted {
       sessionId: sessionId,
       trustChainId: trustChainId,
       typedMessageHash: typedMessageHash,
+      family: EVM_FAMILY,
       chainId: chainId,
     });
 
