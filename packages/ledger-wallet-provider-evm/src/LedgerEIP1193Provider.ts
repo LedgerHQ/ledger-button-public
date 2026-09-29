@@ -29,9 +29,13 @@ import {
   type SignFlowStatus,
   type SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  normalizeDeviceError,
+  normalizeSignFlowStatusError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { toSignIntentType } from "@ledgerhq/ledger-wallet-provider-core";
 import { hexToUtf8 } from "@ledgerhq/ledger-wallet-provider-core";
-import { type Observable, Subject, type Subscription } from "rxjs";
+import { type Observable, ReplaySubject, type Subscription } from "rxjs";
 
 import {
   CommonEIP1193ErrorCode,
@@ -466,7 +470,7 @@ export class LedgerEIP1193Provider
     broadcast = false,
   ): Promise<SignedResults> {
     return new Promise<SignedResults>((resolve, reject) => {
-      const status$ = new Subject<SignFlowStatus>();
+      const status$ = new ReplaySubject<SignFlowStatus>(1);
       let subscription: Subscription | undefined;
       let settled = false;
 
@@ -489,24 +493,33 @@ export class LedgerEIP1193Provider
         globalThis.removeEventListener?.("ledger-provider-close", onClose);
       };
 
+      const emitError = (error: unknown) => {
+        status$.next({
+          signType,
+          status: "error",
+          error: normalizeDeviceError(error),
+        });
+      };
+
       const start = () => {
         subscription?.unsubscribe();
         let observable: Observable<SignFlowStatus>;
         try {
           observable = runUseCase();
         } catch (error) {
-          status$.next({ signType, status: "error", error });
+          emitError(error);
           return;
         }
         subscription = observable.subscribe({
           next: (status) => {
-            this.host.trackBroadcastedTransaction(status, {
+            const normalized = normalizeSignFlowStatusError(status);
+            this.host.trackBroadcastedTransaction(normalized, {
               family: this.family,
               value: isSignTransactionParams(params)
                 ? params.transaction.value
                 : undefined,
             });
-            status$.next(status);
+            status$.next(normalized);
             if (status.status === "success") {
               settled = true;
               globalThis.removeEventListener?.(
@@ -516,9 +529,7 @@ export class LedgerEIP1193Provider
               resolve(status.data);
             }
           },
-          error: (error) => {
-            status$.next({ signType, status: "error", error });
-          },
+          error: emitError,
         });
       };
 

@@ -7,6 +7,7 @@ import type {
   SignFlowStatus,
   SignNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { DeviceDisconnectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -91,6 +92,23 @@ describe("SignTransactionController broadcast lifecycle", () => {
             viewTransaction: "View transaction",
           },
         },
+        error: {
+          connection: {
+            DeviceDisconnected: {
+              title: "Your Ledger device is disconnected",
+              description: "Plug in and unlock your Ledger device",
+              cta1: "Reconnect Ledger device",
+            },
+          },
+          generic: {
+            sign: {
+              title: "An error occurred",
+              description: "An unexpected error occurred",
+              cta1: "Try again",
+              cta2: "Close",
+            },
+          },
+        },
       },
     } as unknown as LanguageContext;
 
@@ -161,5 +179,39 @@ describe("SignTransactionController broadcast lifecycle", () => {
     expect(controller.state.status.title).toBe("Message signed");
     expect(controller.state.broadcast).toBeUndefined();
     expect(core.observeBroadcastedTransaction).not.toHaveBeenCalled();
+  });
+
+  it("shows reconnection guidance when the device is unplugged mid-signing", () => {
+    controller.startSigning(mockIntent);
+    signFlowSubject.next({
+      signType: "transaction",
+      status: "error",
+      error: new DeviceDisconnectedError("Device disconnected during signing"),
+    });
+
+    if (controller.state.screen !== "error") {
+      throw new Error("Expected error state");
+    }
+    expect(controller.state.status.title).toBe(
+      "Your Ledger device is disconnected",
+    );
+
+    controller.state.status.cta1.action();
+
+    expect(mockIntent.retry).toHaveBeenCalledOnce();
+  });
+
+  it("falls back to the generic copy for an unrelated signing failure", () => {
+    controller.startSigning(mockIntent);
+    signFlowSubject.next({
+      signType: "transaction",
+      status: "error",
+      error: new Error("boom"),
+    });
+
+    if (controller.state.screen !== "error") {
+      throw new Error("Expected error state");
+    }
+    expect(controller.state.status.title).toBe("An error occurred");
   });
 });
