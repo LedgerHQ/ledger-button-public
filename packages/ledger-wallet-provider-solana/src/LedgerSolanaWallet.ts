@@ -487,9 +487,10 @@ export class LedgerSolanaWallet implements Wallet {
         return Left(new Error(`Solana broadcast failed: ${error.message}`));
       }
 
+      const signature = decodeSolanaSignature(hash);
       this.logger.info("Solana broadcast succeeded", { hash });
       this.trackBroadcastSuccess(hash, signedTransaction);
-      return Right({ hash, signature: decodeSolanaSignature(hash) });
+      return Right({ hash, signature });
     } catch (error) {
       this.logger.error("Solana broadcast failed", { error });
       return Left(
