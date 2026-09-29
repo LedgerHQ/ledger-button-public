@@ -26,7 +26,11 @@ import { getTransferSolInstruction } from "@solana-program/system";
 import { type UiWalletAccount } from "@wallet-standard/react";
 import dynamic from "next/dynamic";
 
-import { type ActivityEntry, ActivityLog } from "../../components";
+import {
+  type ActivityEntry,
+  ActivityLog,
+  EventSimulatorBlock,
+} from "../../components";
 import {
   SolanaActionsBlock,
   type SolanaCluster,
@@ -47,6 +51,7 @@ import {
   useSolanaChain,
 } from "../../components/solana/solanaChainContext";
 import { type SolanaChain } from "../../components/solana/solanaCluster";
+import { useProviders } from "../../hooks/useProviders";
 
 const SolanaProviders = dynamic(
   () => import("../../components/solana/SolanaProviders"),
@@ -82,6 +87,7 @@ interface SolanaPageContentProps {
 function SolanaPageContent({ cluster }: SolanaPageContentProps) {
   // Safe here because this subtree is rendered inside <SolanaProviders>.
   const [selectedAccount] = useSelectedWalletAccount();
+  const { config } = useProviders();
 
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [result, setResult] = useState<string | null>(null);
@@ -190,6 +196,13 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
                 onClearResult={clearResult}
               />
             )}
+
+            <EventSimulatorBlock
+              environment={config.environment}
+              dAppIdentifier={config.dAppIdentifier}
+              apiKey={config.apiKey}
+              family="solana"
+            />
           </div>
         </div>
 
