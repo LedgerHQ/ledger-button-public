@@ -335,6 +335,11 @@
         "title": "Espaço insuficiente para o aplicativo {AppName}",
         "description": "Seu {deviceName} está sem espaço de armazenamento, por isso não foi possível instalar automaticamente. Libere espaço na Ledger Wallet, depois instale o aplicativo.",
         "cta1": "Liberar espaço"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

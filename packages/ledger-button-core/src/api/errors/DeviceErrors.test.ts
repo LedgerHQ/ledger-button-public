@@ -3,6 +3,7 @@ import { DeviceModelId } from "@ledgerhq/device-management-kit";
 import {
   BlindSigningDisabledError,
   DeviceDisconnectedError,
+  DeviceFirmwareOutdatedError,
   DeviceNotOnboardedError,
   DeviceNotSupportedError,
   IncorrectSeedError,
@@ -235,6 +236,38 @@ describe("DeviceErrors", () => {
         name: "BlindSigningDisabledError",
         message: "test",
         context: { action: "sign" },
+        timestamp: expect.any(Date),
+        stack: expect.any(String),
+      });
+    });
+  });
+
+  describe("DeviceFirmwareOutdatedError", () => {
+    it("should be able to create a new error with appName context", () => {
+      const error = new DeviceFirmwareOutdatedError(
+        "Device firmware is too old",
+        { appName: "Solana" },
+      );
+
+      expect(error).toBeDefined();
+      expect(error.name).toBe("DeviceFirmwareOutdatedError");
+      expect(error.message).toBe("Device firmware is too old");
+      expect(error.context).toMatchObject({ appName: "Solana" });
+      expect(error.timestamp).toBeInstanceOf(Date);
+      expect(error.stack).toBeDefined();
+      expect(error).toBeInstanceOf(LedgerButtonError);
+    });
+
+    it("should be able to serialize the error", () => {
+      const error = new DeviceFirmwareOutdatedError("test", {
+        appName: "Ethereum",
+      });
+      const serialized = error.toJSON();
+
+      expect(serialized).toMatchObject({
+        name: "DeviceFirmwareOutdatedError",
+        message: "test",
+        context: { appName: "Ethereum" },
         timestamp: expect.any(Date),
         stack: expect.any(String),
       });

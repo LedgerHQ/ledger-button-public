@@ -1,7 +1,6 @@
 import {
   type DeviceActionState,
   DeviceActionStatus,
-  OutOfMemoryDAError,
 } from "@ledgerhq/device-management-kit";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
@@ -11,10 +10,10 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { DeviceOutOfMemoryError } from "@ledgerhq/ledger-wallet-provider-core";
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   createOpenAppConfig,
+  mapOpenAppDeviceActionError,
   waitForDeviceSession,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
@@ -206,13 +205,7 @@ export class SignSolanaTransaction {
         this.logger.error("Solana transaction signing device action failed", {
           error: state.error,
         });
-        const error =
-          state.error instanceof OutOfMemoryDAError
-            ? new DeviceOutOfMemoryError(
-                "Not enough memory on device to process the request",
-                { appName },
-              )
-            : state.error;
+        const error = mapOpenAppDeviceActionError(state.error, appName);
         return { signType, status: "error", error };
       }
 

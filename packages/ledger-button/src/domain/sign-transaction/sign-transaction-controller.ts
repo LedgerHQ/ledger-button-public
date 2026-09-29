@@ -3,6 +3,7 @@ import {
   type BroadcastTracking,
   BroadcastTransactionError,
   DeviceDisconnectedError,
+  DeviceFirmwareOutdatedError,
   DeviceOutOfMemoryError,
   IncorrectSeedError,
   isBroadcastedTransactionResult,
@@ -17,6 +18,7 @@ import { Subscription } from "rxjs";
 import { AnimationKey } from "../../components/index";
 import { type CoreContext } from "../../context/core-context";
 import { LanguageContext } from "../../context/language-context";
+import { LEDGER_WALLET_DEVICE_SETUP_DEEPLINK } from "../../shared/constants/deeplinks";
 import { Navigation } from "../../shared/navigation";
 import { RootNavigationComponent } from "../../shared/root-navigation";
 import { formatAddress } from "../../utils/format-address";
@@ -355,6 +357,23 @@ export class SignTransactionController implements ReactiveController {
               label: lang.error.generic.sign.cta2,
               action: () => {
                 this.currentIntent?.finish();
+                this.close();
+              },
+            },
+          },
+        };
+        break;
+      }
+      case error instanceof DeviceFirmwareOutdatedError: {
+        this.state = {
+          screen: "error",
+          status: {
+            title: lang.error.device.DeviceFirmwareOutdated.title,
+            message: lang.error.device.DeviceFirmwareOutdated.description,
+            cta1: {
+              label: lang.error.device.DeviceFirmwareOutdated.cta1,
+              action: () => {
+                window.open(LEDGER_WALLET_DEVICE_SETUP_DEEPLINK);
                 this.close();
               },
             },

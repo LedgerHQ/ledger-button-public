@@ -1,8 +1,12 @@
-import { DeviceActionStatus } from "@ledgerhq/device-management-kit";
+import {
+  DeviceActionStatus,
+  UnsupportedFirmwareDAError,
+} from "@ledgerhq/device-management-kit";
 import type { CoreFacade } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
 import type { BlockchainConfig } from "@ledgerhq/ledger-wallet-provider-core";
 import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
+import { DeviceFirmwareOutdatedError } from "@ledgerhq/ledger-wallet-provider-core";
 import { defer, from, lastValueFrom, of } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -242,6 +246,28 @@ describe("SignSolanaTransaction", () => {
     );
 
     expect(result).toEqual(pendingStatus);
+  });
+
+  it("maps UnsupportedFirmwareDAError to DeviceFirmwareOutdatedError", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Error,
+        error: new UnsupportedFirmwareDAError(
+          "Application Solana needs latest firmware",
+        ),
+      }),
+    });
+
+    const result = await lastValueFrom(
+      createUseCase().execute(params, createAccount()),
+    );
+
+    expect(result.status).toBe("error");
+    if (result.status !== "error") {
+      throw new Error("Expected error status");
+    }
+    expect(result.error).toBeInstanceOf(DeviceFirmwareOutdatedError);
+    expect(result.error).toMatchObject({ context: { appName: "Solana" } });
   });
 
   it("emits an error status when no account is selected", async () => {

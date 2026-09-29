@@ -335,6 +335,11 @@
         "title": "没有足够的空间安装 {AppName} 应用程序",
         "description": "您的 {deviceName} 存储空间不足，因此无法自动安装。在 Ledger Wallet 中释放空间，然后安装应用程序。",
         "cta1": "释放空间"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

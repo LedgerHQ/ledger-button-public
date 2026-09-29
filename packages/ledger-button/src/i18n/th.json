@@ -335,6 +335,11 @@
         "title": "มีพื้นที่ไม่เพียงพอสำหรับแอป {AppName}",
         "description": "พื้นที่จัดเก็บใน {deviceName} ของคุณเต็มแล้ว จึงไม่สามารถติดตั้งได้เอง กรุณาเพิ่มพื้นที่ว่างในแอป Ledger Wallet ก่อนแล้วค่อยติดตั้งแอป",
         "cta1": "เพิ่มพื้นที่ว่าง"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

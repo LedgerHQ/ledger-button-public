@@ -55,3 +55,11 @@ export class DeviceOutOfMemoryError extends LedgerButtonError<{
     super(message, "DeviceOutOfMemoryError", context);
   }
 }
+
+export class DeviceFirmwareOutdatedError extends LedgerButtonError<{
+  appName?: string;
+}> {
+  constructor(message: string, context?: { appName?: string }) {
+    super(message, "DeviceFirmwareOutdatedError", context);
+  }
+}
