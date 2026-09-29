@@ -4,7 +4,10 @@ import {
   UnknownDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
-import { SolanaAppCommandError } from "@ledgerhq/device-signer-kit-solana";
+import {
+  SignTransactionDeviceActionFactory,
+  SolanaAppCommandError,
+} from "@ledgerhq/device-signer-kit-solana";
 import {
   IncorrectSeedError,
   UserRejectedTransactionError,
@@ -144,6 +147,45 @@ describe("SignSolanaTransactionFlowDeviceAction", () => {
           expect(result.output.signature).toBe(VALID_SIGNATURE);
         }
       });
+    });
+  });
+
+  describe("Delayed signing options", () => {
+    it("forwards delayed and fetchBlockhash to the DMK signer factory", async () => {
+      setupOpenAppMock();
+      setupGetAddressMock(DEFAULT_ADDRESS);
+      setupSignTransactionMock();
+      const fetchBlockhash = vi.fn();
+
+      await executeAction({ delayed: true, fetchBlockhash });
+
+      expect(SignTransactionDeviceActionFactory).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            transactionOptions: {
+              skipOpenApp: true,
+              delayed: true,
+              fetchBlockhash,
+            },
+          }),
+        }),
+      );
+    });
+
+    it("keeps single-step options when delayed signing is not requested", async () => {
+      setupOpenAppMock();
+      setupGetAddressMock(DEFAULT_ADDRESS);
+      setupSignTransactionMock();
+
+      await executeAction();
+
+      expect(SignTransactionDeviceActionFactory).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: expect.objectContaining({
+            transactionOptions: { skipOpenApp: true },
+          }),
+        }),
+      );
     });
   });
 

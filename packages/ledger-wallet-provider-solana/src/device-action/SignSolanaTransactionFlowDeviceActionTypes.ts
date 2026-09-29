@@ -38,6 +38,10 @@ export type SignSolanaTransactionFlowDAInput = {
   readonly expectedAddress: string;
   readonly openAppInput: OpenAppWithDependenciesDAInput;
   readonly contextModule: ContextModule;
+  /** Enable DMK 2-step signing that refreshes `recentBlockhash` at confirm time. */
+  readonly delayed?: boolean;
+  /** Fetches a 32-byte blockhash; required for delayed signing without a public RPC URL. */
+  readonly fetchBlockhash?: () => Promise<Uint8Array>;
 };
 
 export type SignSolanaTransactionFlowDAError =
