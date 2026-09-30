@@ -284,25 +284,32 @@ describe("SignSolanaTransaction", () => {
     expect(result.status).toBe("error");
   });
 
-  it("emits an error status without signing when the transaction has no recipient", async () => {
+  it("logs a missing recipient and still signs", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: { signature },
+      }),
+    });
     const noInstructionTransaction = new Uint8Array([
       ...transaction.slice(0, -4),
       0,
     ]);
 
+    const useCase = createUseCase();
+    const logger = vi.mocked(core.getLogger).mock.results.at(-1)?.value;
     const result = await lastValueFrom(
-      createUseCase().execute(
+      useCase.execute(
         { ...params, transaction: noInstructionTransaction },
         createAccount(),
       ),
     );
 
-    expect(result).toMatchObject({
-      status: "error",
-      error: expect.objectContaining({
-        message: "Transaction has no recipient",
-      }),
-    });
-    expect(executeDeviceAction).not.toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith(
+      "Transaction has no recipient; continuing the sign flow",
+      { transactionByteLength: noInstructionTransaction.byteLength },
+    );
+    expect(result).toMatchObject({ status: "success" });
+    expect(executeDeviceAction).toHaveBeenCalled();
   });
 });

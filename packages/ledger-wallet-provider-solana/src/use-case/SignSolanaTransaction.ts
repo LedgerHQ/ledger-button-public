@@ -10,10 +10,7 @@ import type {
   SignFlowStatus,
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import {
-  AccountNotSelectedError,
-  SignTransactionError,
-} from "@ledgerhq/ledger-wallet-provider-core";
+import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   createOpenAppConfig,
   mapOpenAppDeviceActionError,
@@ -81,9 +78,9 @@ export class SignSolanaTransaction {
     }
 
     if (getSolanaTransactionRecipient(transaction).isNothing()) {
-      return this.toErrorStatus(
-        new SignTransactionError("Transaction has no recipient"),
-        signType,
+      this.logger.error(
+        "Transaction has no recipient; continuing the sign flow",
+        { transactionByteLength: transaction.byteLength },
       );
     }
 

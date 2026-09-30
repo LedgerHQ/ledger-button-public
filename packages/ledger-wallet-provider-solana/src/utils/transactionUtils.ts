@@ -10,6 +10,7 @@ import { Maybe } from "purify-ts";
 const BLOCKHASH_LENGTH = 32;
 const COMPUTE_BUDGET_PROGRAM_ADDRESS =
   "ComputeBudget111111111111111111111111111111";
+const SYSTEM_PROGRAM_ADDRESS = "11111111111111111111111111111111";
 
 /**
  * Wallet Standard `solana:signTransaction` hands the wallet a fully serialized
@@ -28,10 +29,11 @@ export function getSolanaMessageBytes(wireTransaction: Uint8Array): Uint8Array {
 /**
  * Resolve the recipient of a serialized transaction: decode its compiled message,
  * read the program each instruction calls, skip the Compute Budget program
- * (fee and compute-limit settings), and return the first remaining one.
+ * (fee and compute-limit settings) and the System program, then join the
+ * remaining program addresses with `|`.
  * Program addresses are always static accounts, so no address lookup table
- * needs to be fetched. Empty when the transaction cannot be decoded or only
- * calls the Compute Budget program.
+ * needs to be fetched. Empty when the transaction cannot be decoded or every
+ * instruction calls an ignored program.
  */
 export function getSolanaTransactionRecipient(
   wireTransaction: Uint8Array,
@@ -40,22 +42,30 @@ export function getSolanaTransactionRecipient(
     getCompiledTransactionMessageDecoder().decode(
       getSolanaMessageBytes(wireTransaction),
     ),
-  ).chainNullable((compiled) =>
-    getProgramIndices(compiled)
+  ).chainNullable((compiled) => {
+    const programs = getProgramIndices(compiled)
       .map((index) => compiled.staticAccounts[index])
-      .find((program) => program !== COMPUTE_BUDGET_PROGRAM_ADDRESS),
-  );
+      .filter(
+        (program): program is NonNullable<typeof program> =>
+          program != null &&
+          program !== COMPUTE_BUDGET_PROGRAM_ADDRESS &&
+          program !== SYSTEM_PROGRAM_ADDRESS,
+      );
+
+    return programs.length > 0 ? programs.join("|") : null;
+  });
 }
 
 /**
- * Index, in the static accounts, of the program each instruction calls, in
- * instruction order. v1 messages keep it in the instruction headers, legacy
- * and v0 messages on the instructions themselves.
+ * - Legacy and v0: `instructions[i].programAddressIndex`, on the instruction itself.
+ * - v1: `instructionHeaders[i].programAccountIndex`; payloads do not repeat the program.
  */
 function getProgramIndices(compiled: CompiledTransactionMessage): number[] {
   return compiled.version === 1
     ? compiled.instructionHeaders.map((header) => header.programAccountIndex)
-    : compiled.instructions.map((instruction) => instruction.programAddressIndex);
+    : compiled.instructions.map(
+        (instruction) => instruction.programAddressIndex,
+      );
 }
 
 /**

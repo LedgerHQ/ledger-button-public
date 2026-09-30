@@ -44,7 +44,9 @@ describe("getSolanaMessageBytes", () => {
 
 describe("getSolanaTransactionRecipient", () => {
   const COMPUTE_BUDGET = "ComputeBudget111111111111111111111111111111";
+  const SYSTEM_PROGRAM = "11111111111111111111111111111111";
   const SENDER = "So11111111111111111111111111111111111111112";
+  const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
   const JUPITER = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
 
   const aWireTransaction = (
@@ -71,24 +73,29 @@ describe("getSolanaTransactionRecipient", () => {
       }),
     ]);
 
-  it("returns the program of the first non Compute Budget instruction", () => {
+  it("joins every program except Compute Budget and the System program", () => {
     const wireTransaction = aWireTransaction(
-      [SENDER, COMPUTE_BUDGET, JUPITER],
+      [SENDER, COMPUTE_BUDGET, SYSTEM_PROGRAM, TOKEN_PROGRAM, JUPITER],
       [
         { programAddressIndex: 1, data: new Uint8Array([2]) },
         { programAddressIndex: 2, accountIndices: [0] },
+        { programAddressIndex: 3, accountIndices: [0] },
+        { programAddressIndex: 4, accountIndices: [0] },
       ],
     );
 
     expect(getSolanaTransactionRecipient(wireTransaction).extract()).toBe(
-      JUPITER,
+      `${TOKEN_PROGRAM}|${JUPITER}`,
     );
   });
 
-  it("is empty when only Compute Budget instructions are present", () => {
+  it("is empty when only Compute Budget and System program instructions are present", () => {
     const wireTransaction = aWireTransaction(
-      [SENDER, COMPUTE_BUDGET],
-      [{ programAddressIndex: 1, data: new Uint8Array([2]) }],
+      [SENDER, COMPUTE_BUDGET, SYSTEM_PROGRAM],
+      [
+        { programAddressIndex: 1, data: new Uint8Array([2]) },
+        { programAddressIndex: 2, accountIndices: [0] },
+      ],
     );
 
     expect(getSolanaTransactionRecipient(wireTransaction).isNothing()).toBe(
