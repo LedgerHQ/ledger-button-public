@@ -112,7 +112,7 @@ describe("SignRawTransaction", () => {
     const status = await lastValueFrom(
       useCase.execute(
         {
-          transaction: "0x",
+          transaction: aTransferTransaction(),
           method: "eth_signRawTransaction",
           broadcast: false,
         },
