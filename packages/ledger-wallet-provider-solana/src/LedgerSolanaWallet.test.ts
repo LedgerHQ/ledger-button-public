@@ -14,10 +14,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { UserRejectedRequestError } from "./model/UserRejectedRequestError";
 import type { SignSolanaTransaction } from "./use-case/SignSolanaTransaction";
 import { attachSolanaSignature } from "./utils/signatureUtils";
+import { getSolanaMessageBytes } from "./utils/transactionUtils";
 import { LedgerSolanaWallet } from "./LedgerSolanaWallet";
 
 vi.mock("./utils/signatureUtils", () => ({
   attachSolanaSignature: vi.fn(() => new Uint8Array([9, 9, 9])),
+}));
+
+vi.mock("./utils/transactionUtils", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./utils/transactionUtils")>()),
+  getSolanaMessageBytes: vi.fn(() => new Uint8Array([5, 5])),
 }));
 
 // System program id: a valid 32-byte base58 address.
@@ -754,6 +760,56 @@ describe("LedgerSolanaWallet (connection)", () => {
       );
     });
 
+    it("tracks the completion with the base58 hash and the signed message once the broadcast succeeds", async () => {
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(getSolanaMessageBytes).toHaveBeenCalledWith(signedWireTx);
+      expect(host.trackTransactionCompleted).toHaveBeenCalledExactlyOnceWith({
+        family: "solana",
+        transactionHash: broadcastSignatureBase58,
+        unsignedTransaction: new Uint8Array([5, 5]),
+        recipientAddress: "",
+      });
+    });
+
+    it("still resolves the broadcast signature when the signed message cannot be read", async () => {
+      vi.mocked(getSolanaMessageBytes).mockImplementationOnce(() => {
+        throw new Error("Invalid wire transaction");
+      });
+      signUseCase.execute.mockReturnValue(of(successStatus));
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: broadcastSignatureBase58,
+      });
+      const wallet = createWallet();
+      wallet.setSelectedAccount(createAccount());
+
+      const [result] = await wallet.features[
+        "solana:signAndSendTransaction"
+      ].signAndSendTransaction({
+        account: {} as never,
+        transaction,
+      });
+
+      expect(result.signature).toEqual(broadcastSignature);
+      expect(host.trackTransactionCompleted).not.toHaveBeenCalled();
+    });
+
     it("surfaces a broadcast failure as an error status without settling the promise", async () => {
       signUseCase.execute.mockReturnValue(of(successStatus));
       host.broadcastRPC.mockResolvedValue({
@@ -794,6 +850,7 @@ describe("LedgerSolanaWallet (connection)", () => {
         "Solana broadcast failed: Transaction simulation failed",
       );
       expect(trackedParams).toEqual({ family: "solana" });
+      expect(host.trackTransactionCompleted).not.toHaveBeenCalled();
     });
   });
 });

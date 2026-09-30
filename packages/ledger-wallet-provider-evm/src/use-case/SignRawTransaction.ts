@@ -12,12 +12,16 @@ import type {
   SignType,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { isBroadcastedTransactionResult } from "@ledgerhq/ledger-wallet-provider-core";
-import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  AccountNotSelectedError,
+  SignTransactionError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import {
   createOpenAppConfig,
   mapOpenAppDeviceActionError,
   waitForDeviceSession,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import { Transaction } from "ethers";
 import { inject, injectable } from "inversify";
 import { catchError, from, type Observable, of, switchMap } from "rxjs";
 
@@ -29,6 +33,7 @@ import type {
 } from "../device-action/SignRawTransactionFlowDeviceActionTypes";
 import { evmProviderModuleTypes } from "../di/evmProviderModuleTypes";
 import type { SignRawTransactionParams } from "../model/SignRawTransactionParams";
+import { EVM_FAMILY } from "../utils/chainUtils";
 import { getEvmDerivationPath } from "../utils/derivationUtils";
 import { BroadcastTransaction } from "./BroadcastTransaction";
 import { BuildContextModule } from "./BuildContextModule";
@@ -59,7 +64,7 @@ export class SignRawTransaction {
     const { transaction, broadcast } = params;
     const signType: SignType = "transaction";
 
-    this.core.trackTransactionStarted();
+    this.core.trackTransactionStarted(EVM_FAMILY);
 
     return waitForDeviceSession(this.core).pipe(
       switchMap((session) => {
@@ -67,6 +72,10 @@ export class SignRawTransaction {
 
         if (!selectedAccount) {
           throw new AccountNotSelectedError("No account selected");
+        }
+
+        if (!Transaction.from(transaction).to) {
+          throw new SignTransactionError("Transaction has no recipient");
         }
 
         const derivationPath = getEvmDerivationPath(selectedAccount);
@@ -139,7 +148,12 @@ export class SignRawTransaction {
             });
 
           if (isBroadcastedTransactionResult(broadcastResult)) {
-            this.core.trackTransactionCompleted(rawTransaction, broadcastResult);
+            this.core.trackTransactionCompleted({
+              family: EVM_FAMILY,
+              transactionHash: broadcastResult.hash,
+              unsignedTransaction: rawTransaction,
+              recipientAddress: Transaction.from(rawTransaction).to ?? "",
+            });
           }
 
           return { signType, status: "success", data: broadcastResult };

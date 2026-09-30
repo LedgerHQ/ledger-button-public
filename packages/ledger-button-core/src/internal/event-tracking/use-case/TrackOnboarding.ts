@@ -1,5 +1,6 @@
 import { type Factory, inject, injectable } from "inversify";
 
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
@@ -32,7 +33,10 @@ export class TrackOnboarding {
     this.logger = loggerFactory("TrackOnboarding UseCase");
   }
 
-  async execute(selectedAccount: Account): Promise<void> {
+  async execute(
+    selectedAccount: Account,
+    family: BlockchainFamily,
+  ): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
     const trustChainId = this.contextService.getContext().trustChainId;
 
@@ -52,7 +56,8 @@ export class TrackOnboarding {
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
       trustChainId: trustChainId,
-      chainId: chainId,
+      family,
+      chainId,
     });
 
     this.logger.debug("Tracking ledger sync activated event", { event });

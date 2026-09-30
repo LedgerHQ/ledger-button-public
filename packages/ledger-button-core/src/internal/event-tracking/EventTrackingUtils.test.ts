@@ -16,6 +16,7 @@ describe("EventTrackingUtils", () => {
         transactionHash:
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0x111111125421cA6dc452d289314280a0f8842A65",
+        family: "ethereum",
         chainId: "1",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
       });
@@ -43,6 +44,7 @@ describe("EventTrackingUtils", () => {
         EventTrackingUtils.createViewTransactionDetailsClickedEvent({
           dAppId: "test-dapp",
           sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          family: "ethereum",
           chainId: "1",
           transactionHash:
             "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
@@ -52,6 +54,62 @@ describe("EventTrackingUtils", () => {
 
       expect(result.success).toBe(true);
       expect(result.errors).toBeUndefined();
+    });
+
+    it("should keep a Solana base58 hash and empty recipient on the invoicing event", () => {
+      const base58Signature =
+        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW";
+      const event = EventTrackingUtils.createInvoicingTransactionSignedEvent({
+        dAppId: "test-dapp",
+        sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+        transactionHash: base58Signature,
+        recipientAddress: "",
+        family: "solana",
+        chainId: "mainnet",
+        unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
+      });
+
+      const data = event.data as InvoicingTransactionSignedEventData;
+      expect(data.blockchain_network_selected).toBe("solana");
+      expect(data.transaction_hash).toBe(base58Signature);
+      expect(data.recipient_address).toBe("");
+      expect(EventTrackingUtils.validateEvent(event).success).toBe(true);
+    });
+
+    it("should keep a Solana base58 hash on the view-details click event", () => {
+      const base58Signature =
+        "5VERv8NMvzbJMEkV8xnrLkEaWRtSz9CosKDYjCJjBRnbJLgp8uirBgmQpjKhoR4tjF3ZpRzrFmBV6UjKdiSZkQUW";
+      const event =
+        EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          family: "solana",
+          chainId: "mainnet",
+          transactionHash: base58Signature,
+        });
+
+      expect(
+        (event.data as { transaction_hash: string }).transaction_hash,
+      ).toBe(base58Signature);
+      expect(EventTrackingUtils.validateEvent(event).success).toBe(true);
+    });
+
+    it("should validate and report the solana family on a transaction flow event", () => {
+      const event =
+        EventTrackingUtils.createTransactionFlowInitializationEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          family: "solana",
+          chainId: "mainnet",
+        });
+
+      const result = EventTrackingUtils.validateEvent(event);
+
+      expect(result.success).toBe(true);
+      expect(
+        (event.data as { blockchain_network_selected: string })
+          .blockchain_network_selected,
+      ).toBe("solana");
     });
 
     it("should validate a correctly formatted view all transactions clicked event", () => {
@@ -125,6 +183,7 @@ describe("EventTrackingUtils", () => {
         EventTrackingUtils.createViewTransactionDetailsClickedEvent({
           dAppId: "test-dapp",
           sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          family: "ethereum",
           chainId: "1",
           transactionHash:
             "0xCAF172BF3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
@@ -157,6 +216,7 @@ describe("EventTrackingUtils", () => {
         transactionHash:
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0x111111125421cA6dc452d289314280a0f8842A65",
+        family: "ethereum",
         chainId: "1",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
       });
@@ -180,6 +240,7 @@ describe("EventTrackingUtils", () => {
         transactionHash:
           "0xCAF172BF3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0x111111125421cA6dc452d289314280a0f8842A65",
+        family: "ethereum",
         chainId: "1",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
       });
@@ -201,6 +262,7 @@ describe("EventTrackingUtils", () => {
           "0xcaf172bf3784a1ea3dbb2c551de9e2b263c9c4f762589363776cda325b6de11c",
         recipientAddress: "0X111111125421CA6DC452D289314280A0F8842A65",
         unsignedTransactionHash: "0x02f90552017a8427e021408427e021408304c04c",
+        family: "ethereum",
         chainId: "1",
       });
 

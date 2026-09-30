@@ -382,6 +382,7 @@ export default function Index() {
               environment={config.environment}
               dAppIdentifier={config.dAppIdentifier}
               apiKey={config.apiKey}
+              family="ethereum"
             />
           </div>
         </div>

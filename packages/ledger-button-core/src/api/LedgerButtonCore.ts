@@ -507,7 +507,7 @@ export class LedgerButtonCore {
 
     this.container
       .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
-      .execute(account);
+      .execute(account, family);
   }
 
   /** Default (ethereum) selected account, or for a specific `family`. */
@@ -889,12 +889,13 @@ export class LedgerButtonCore {
 
   async trackViewTransactionDetailsClicked(
     transactionHash: string,
+    family: BlockchainFamily,
   ): Promise<void> {
     await this.container
       .get<TrackViewTransactionDetailsClick>(
         eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
       )
-      .execute(transactionHash);
+      .execute(transactionHash, family);
   }
 
   async trackViewAllTransactionsClicked(

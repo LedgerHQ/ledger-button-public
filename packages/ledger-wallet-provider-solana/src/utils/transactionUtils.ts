@@ -1,11 +1,29 @@
 import {
+  type CompiledTransactionMessage,
   getBase58Decoder,
   getCompiledTransactionMessageDecoder,
   getCompiledTransactionMessageEncoder,
   getTransactionDecoder,
 } from "@solana/kit";
+import { Maybe } from "purify-ts";
 
 const BLOCKHASH_LENGTH = 32;
+export const COMPUTE_BUDGET_PROGRAM_ADDRESS =
+  "ComputeBudget111111111111111111111111111111";
+export const SYSTEM_PROGRAM_ADDRESS = "11111111111111111111111111111111";
+export const TOKEN_PROGRAM_ADDRESS = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+export const TOKEN_2022_PROGRAM_ADDRESS =
+  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+export const ASSOCIATED_TOKEN_PROGRAM_ADDRESS =
+  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
+/** Programs left out of the invoicing recipient. */
+const IGNORED_PROGRAM_ADDRESSES: ReadonlySet<string> = new Set([
+  COMPUTE_BUDGET_PROGRAM_ADDRESS,
+  SYSTEM_PROGRAM_ADDRESS,
+  TOKEN_PROGRAM_ADDRESS,
+  TOKEN_2022_PROGRAM_ADDRESS,
+  ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
+]);
 
 /**
  * Wallet Standard `solana:signTransaction` hands the wallet a fully serialized
@@ -19,6 +37,46 @@ export function getSolanaMessageBytes(wireTransaction: Uint8Array): Uint8Array {
   return new Uint8Array(
     getTransactionDecoder().decode(wireTransaction).messageBytes,
   );
+}
+
+/**
+ * Resolve the recipient of a serialized transaction: decode its compiled message,
+ * read the program each instruction calls, skip Compute Budget, the System
+ * program, SPL Token, Token-2022, and the Associated Token program, then join
+ * the remaining program addresses with `|`.
+ * Program addresses are always static accounts, so no address lookup table
+ * needs to be fetched. Empty when the transaction cannot be decoded or every
+ * instruction calls an ignored program.
+ */
+export function getSolanaTransactionRecipient(
+  wireTransaction: Uint8Array,
+): Maybe<string> {
+  return Maybe.encase(() =>
+    getCompiledTransactionMessageDecoder().decode(
+      getSolanaMessageBytes(wireTransaction),
+    ),
+  ).chainNullable((compiled) => {
+    const programs = getProgramIndices(compiled)
+      .map((index) => compiled.staticAccounts[index])
+      .filter(
+        (program): program is NonNullable<typeof program> =>
+          program != null && !IGNORED_PROGRAM_ADDRESSES.has(program),
+      );
+
+    return programs.length > 0 ? programs.join("|") : null;
+  });
+}
+
+/**
+ * - Legacy and v0: `instructions[i].programAddressIndex`, on the instruction itself.
+ * - v1: `instructionHeaders[i].programAccountIndex`; payloads do not repeat the program.
+ */
+function getProgramIndices(compiled: CompiledTransactionMessage): number[] {
+  return compiled.version === 1
+    ? compiled.instructionHeaders.map((header) => header.programAccountIndex)
+    : compiled.instructions.map(
+        (instruction) => instruction.programAddressIndex,
+      );
 }
 
 /**

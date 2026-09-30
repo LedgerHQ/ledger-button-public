@@ -37,7 +37,8 @@ const createBlockchainConfig = (): BlockchainConfig => ({
 
 describe("SignSolanaTransaction", () => {
   // Minimal but structurally valid legacy compiled message: 3 header bytes, one
-  // account key, a recent blockhash, and zero instructions.
+  // account key, a recent blockhash, and one instruction calling that account
+  // with no accounts and no data.
   const messageBytes = new Uint8Array([
     1,
     0,
@@ -45,6 +46,9 @@ describe("SignSolanaTransaction", () => {
     1,
     ...new Uint8Array(32).fill(9),
     ...new Uint8Array(32).fill(3),
+    1,
+    0,
+    0,
     0,
   ]);
   // Wallet Standard delivers the full wire transaction: a compact-u16 signature
@@ -104,7 +108,9 @@ describe("SignSolanaTransaction", () => {
       status: "success",
       data: { solanaSignature: signature },
     });
-    expect(core.trackTransactionStarted).toHaveBeenCalledOnce();
+    expect(core.trackTransactionStarted).toHaveBeenCalledExactlyOnceWith(
+      "solana",
+    );
   });
 
   it("forwards the compiled message bytes (not the wire transaction) to the device", async () => {
@@ -276,5 +282,34 @@ describe("SignSolanaTransaction", () => {
     );
 
     expect(result.status).toBe("error");
+  });
+
+  it("logs a missing recipient and still signs", async () => {
+    executeDeviceAction.mockReturnValue({
+      observable: of({
+        status: DeviceActionStatus.Completed,
+        output: { signature },
+      }),
+    });
+    const noInstructionTransaction = new Uint8Array([
+      ...transaction.slice(0, -4),
+      0,
+    ]);
+
+    const useCase = createUseCase();
+    const logger = vi.mocked(core.getLogger).mock.results.at(-1)?.value;
+    const result = await lastValueFrom(
+      useCase.execute(
+        { ...params, transaction: noInstructionTransaction },
+        createAccount(),
+      ),
+    );
+
+    expect(logger.error).toHaveBeenCalledWith(
+      "Transaction has no recipient; continuing the sign flow",
+      { transactionByteLength: noInstructionTransaction.byteLength },
+    );
+    expect(result).toMatchObject({ status: "success" });
+    expect(executeDeviceAction).toHaveBeenCalled();
   });
 });

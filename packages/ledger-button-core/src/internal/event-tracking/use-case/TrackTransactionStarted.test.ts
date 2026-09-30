@@ -1,6 +1,7 @@
-import { Just, Nothing } from "purify-ts";
+import { Just } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 import type { Account } from "@api/model/Account";
 import { aCurrencyDescriptor } from "@internal/blockchain-provider/__mocks__/currencyDescriptorMock";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
@@ -9,81 +10,93 @@ import type { ContextService } from "@internal/context/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackOnboarding } from "./TrackOnboarding";
+import { TrackTransactionStarted } from "./TrackTransactionStarted";
 
-const selectedAccount: Account = {
-  id: "acc-1",
-  currencyId: "ethereum",
-  freshAddress: "0x00",
+const polygonAccount: Account = {
+  id: "acc-pol",
+  currencyId: "polygon",
+  freshAddress: "0xPolygonAddress",
   seedIdentifier: "seed",
   derivationMode: "default",
   index: 0,
-  name: "Account",
-  ticker: "ETH",
+  name: "Polygon Account",
+  ticker: "POL",
   balance: "1.0",
   tokens: [],
 };
 
-describe("TrackOnboarding", () => {
-  let mockLogger: LoggerPublisher;
+const solanaAccount: Account = {
+  id: "acc-sol",
+  currencyId: "solana",
+  freshAddress: "SoLAddress",
+  seedIdentifier: "seed",
+  derivationMode: "default",
+  index: 0,
+  name: "Solana Account",
+  ticker: "SOL",
+  balance: "1.0",
+  tokens: [],
+};
+
+describe("TrackTransactionStarted", () => {
   let mockEventTrackingService: EventTrackingService;
-  let mockConfig: Config;
   let mockContextService: ContextService;
   let mockBlockchainProviderManager: BlockchainProviderManager;
-  let useCase: TrackOnboarding;
+  let useCase: TrackTransactionStarted;
 
   beforeEach(() => {
-    mockLogger = {
-      info: vi.fn(),
-      error: vi.fn(),
-      debug: vi.fn(),
-      warn: vi.fn(),
-      fatal: vi.fn(),
-      subscribers: [],
-    } as unknown as LoggerPublisher;
-
     mockEventTrackingService = {
       getSessionId: vi.fn().mockReturnValue("session-id"),
       trackEvent: vi.fn().mockResolvedValue(undefined),
     };
 
-    mockConfig = {
-      dAppIdentifier: "test-dapp",
-    } as Config;
-
     mockContextService = {
-      getContext: vi.fn().mockReturnValue({ trustChainId: "trust-chain" }),
+      getContext: vi.fn().mockReturnValue({
+        trustChainId: "trust-chain",
+        selectedAccounts: new Map<BlockchainFamily, Account>([
+          ["ethereum", polygonAccount],
+          ["solana", solanaAccount],
+        ]),
+      }),
     } as unknown as ContextService;
 
     mockBlockchainProviderManager = {
       describeCurrency: vi.fn(),
     } as unknown as BlockchainProviderManager;
 
-    useCase = new TrackOnboarding(
-      () => mockLogger,
+    useCase = new TrackTransactionStarted(
+      () =>
+        ({
+          debug: vi.fn(),
+        }) as unknown as LoggerPublisher,
       mockEventTrackingService,
-      mockConfig,
+      { dAppIdentifier: "test-dapp" } as Config,
       mockContextService,
       mockBlockchainProviderManager,
     );
   });
 
-  it("sends the resolved network id as chain_id", async () => {
+  it("sends the ethereum family with the network of the selected EVM account", async () => {
     vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
-      Just(aCurrencyDescriptor({ networkId: "137" })),
+      Just(aCurrencyDescriptor({ currencyId: "polygon", networkId: "137" })),
     );
 
-    await useCase.execute(selectedAccount, "ethereum");
+    await useCase.execute("ethereum");
 
+    expect(mockBlockchainProviderManager.describeCurrency).toHaveBeenCalledWith(
+      "polygon",
+    );
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ chain_id: "137" }),
+        data: expect.objectContaining({
+          blockchain_network_selected: "ethereum",
+          chain_id: "137",
+        }),
       }),
     );
-    expect(mockLogger.warn).not.toHaveBeenCalled();
   });
 
-  it("sends the family passed by the caller as blockchain_network_selected", async () => {
+  it("sends the solana family with the network of the selected solana account", async () => {
     vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
       Just(
         aCurrencyDescriptor({
@@ -94,11 +107,11 @@ describe("TrackOnboarding", () => {
       ),
     );
 
-    await useCase.execute(
-      { ...selectedAccount, currencyId: "solana" },
+    await useCase.execute("solana");
+
+    expect(mockBlockchainProviderManager.describeCurrency).toHaveBeenCalledWith(
       "solana",
     );
-
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -106,30 +119,6 @@ describe("TrackOnboarding", () => {
           chain_id: "mainnet",
         }),
       }),
-    );
-  });
-
-  it("keeps the caller family and sends null chain_id when the currency is unmapped", async () => {
-    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
-      Nothing,
-    );
-
-    await useCase.execute(
-      { ...selectedAccount, currencyId: "bitcoin" },
-      "solana",
-    );
-
-    expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          blockchain_network_selected: "solana",
-          chain_id: null,
-        }),
-      }),
-    );
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      "No currency descriptor for onboarding chain_id",
-      { currencyId: "bitcoin" },
     );
   });
 });

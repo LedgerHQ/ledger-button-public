@@ -74,6 +74,21 @@ export type BroadcastedTransactionMetadata = {
 };
 
 /**
+ * Billing data a provider reports once one of its transactions is broadcast.
+ * The provider extracts the family-specific fields; core only hashes and
+ * formats them.
+ */
+export type InvoicedTransaction = {
+  family: BlockchainFamily;
+  /** Explorer id of the broadcast transaction (EVM hash, Solana base58 signature). */
+  transactionHash: string;
+  /** Unsigned payload that was signed: serialized EVM transaction (hex) or Solana message bytes. */
+  unsignedTransaction: string | Uint8Array;
+  /** Empty when the family has no single recipient (Solana). */
+  recipientAddress: string;
+};
+
+/**
  * Payload carried by the `selectAccount` {@link WalletNavigationIntent} when the
  * selection is triggered by a dApp request. The UI uses `family` to only list
  * accounts compatible with the requesting blockchain (EVM vs Solana). Absent

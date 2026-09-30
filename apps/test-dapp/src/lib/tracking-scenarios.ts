@@ -4,23 +4,47 @@ export interface EventRequest {
   data: Record<string, unknown>;
 }
 
+export type SimulatedFamily = "ethereum" | "solana";
+
+/** `chain_id` the core sends for each family (EVM chain id, Solana cluster). */
+export const SIMULATED_CHAIN_IDS: Record<SimulatedFamily, string> = {
+  ethereum: "1",
+  solana: "mainnet",
+};
+
 export interface ScenarioContext {
   dAppId: string;
   sessionId: string;
+  family: SimulatedFamily;
   chainId: string;
 }
 
 export interface Scenario {
   name: string;
   description: string;
+  /** Families the scenario applies to; all when omitted. */
+  families?: SimulatedFamily[];
   buildEvents: (ctx: ScenarioContext) => EventRequest[];
 }
 
-function hexHash(length = 64): string {
-  const chars = "0123456789abcdef";
+function randomString(alphabet: string, length: number): string {
   return Array.from({ length }, () =>
-    chars.charAt(Math.floor(Math.random() * chars.length)),
+    alphabet.charAt(Math.floor(Math.random() * alphabet.length)),
   ).join("");
+}
+
+function hexHash(length = 64): string {
+  return randomString("0123456789abcdef", length);
+}
+
+/** EVM hashes are lowercase hex; Solana ids are base58 64-byte signatures. */
+function transactionHash(ctx: ScenarioContext): string {
+  return ctx.family === "solana"
+    ? randomString(
+        "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz",
+        88,
+      )
+    : hexHash();
 }
 
 function baseData(ctx: ScenarioContext) {
@@ -55,7 +79,7 @@ function chainEvent(
       ...baseData(ctx),
       event_type: eventType,
       session_id: ctx.sessionId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: ctx.family,
       chain_id: ctx.chainId,
       ...extra,
     },
@@ -91,7 +115,7 @@ const transactionFlowCompletion = (ctx: ScenarioContext) =>
 
 const viewTransactionDetailsClicked = (ctx: ScenarioContext) =>
   chainEvent(ctx, "view_transaction_details_clicked", {
-    transaction_hash: hexHash(),
+    transaction_hash: transactionHash(ctx),
   });
 
 const invoicingTransactionSigned = (ctx: ScenarioContext): EventRequest => ({
@@ -100,10 +124,11 @@ const invoicingTransactionSigned = (ctx: ScenarioContext): EventRequest => ({
   data: {
     ...baseData(ctx),
     event_type: "invoicing_transaction_signed",
-    blockchain_network_selected: "ethereum",
+    blockchain_network_selected: ctx.family,
     chain_id: ctx.chainId,
-    transaction_hash: hexHash(),
-    recipient_address: hexHash(40),
+    transaction_hash: transactionHash(ctx),
+    // Solana transactions have no single recipient yet.
+    recipient_address: ctx.family === "solana" ? "" : hexHash(40),
     unsigned_transaction_hash: hexHash(),
   },
 });
@@ -218,6 +243,7 @@ export const SCENARIOS: Scenario[] = [
   {
     name: "message-signing",
     description: "Typed message init > completion",
+    families: ["ethereum"],
     buildEvents: (ctx) => [
       typedMessageFlowInitialization(ctx),
       typedMessageFlowCompletion(ctx),
@@ -273,11 +299,18 @@ export const SCENARIOS: Scenario[] = [
       transactionFlowCompletion(ctx),
       viewTransactionDetailsClicked(ctx),
       invoicingTransactionSigned(ctx),
-      typedMessageFlowInitialization(ctx),
-      typedMessageFlowCompletion(ctx),
+      ...(ctx.family === "ethereum"
+        ? [typedMessageFlowInitialization(ctx), typedMessageFlowCompletion(ctx)]
+        : []),
       walletActionClicked(ctx),
       walletRedirectConfirmed(ctx),
       mobileRedirectLedgerWallet(ctx),
     ],
   },
 ];
+
+export function getScenariosForFamily(family: SimulatedFamily): Scenario[] {
+  return SCENARIOS.filter(
+    (scenario) => !scenario.families || scenario.families.includes(family),
+  );
+}

@@ -4,6 +4,7 @@ import { Subject } from "rxjs";
 import type {
   BlockchainFamily,
   BroadcastedTransactionMetadata,
+  InvoicedTransaction,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
@@ -17,10 +18,6 @@ import type {
 } from "@api/model/blockchain/GasFee";
 import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
 import { getSelectedAccount } from "@api/model/ButtonCoreContext";
-import {
-  isBroadcastedTransactionResult,
-  type SignedResults,
-} from "@api/model/signing/SignedTransaction";
 import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
 import type { BackendService } from "@internal/backend/BackendService";
 import { backendModuleTypes } from "@internal/backend/di/backendModuleTypes";
@@ -234,17 +231,12 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
     return this._modalService.open;
   }
 
-  trackTransactionStarted(): void {
-    void this._trackTransactionStarted.execute();
+  trackTransactionStarted(family: BlockchainFamily): void {
+    void this._trackTransactionStarted.execute(family);
   }
 
-  trackTransactionCompleted(
-    rawTransaction: string,
-    result: SignedResults,
-  ): void {
-    if (isBroadcastedTransactionResult(result)) {
-      void this._trackTransactionCompleted.execute(rawTransaction, result);
-    }
+  trackTransactionCompleted(transaction: InvoicedTransaction): void {
+    void this._trackTransactionCompleted.execute(transaction);
   }
 
   trackTypedMessageStarted(typedData: unknown): void {
