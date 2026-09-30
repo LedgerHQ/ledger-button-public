@@ -58,6 +58,11 @@ export interface JupiterSwapValues {
   outputMint: string;
   /** Amount in the base units of the input mint (e.g. lamports for SOL). */
   amount: number;
+  /**
+   * When set, the wallet signs and broadcasts the Jupiter transaction.
+   * Otherwise Jupiter Ultra broadcasts it.
+   */
+  broadcastWithLedger?: boolean;
 }
 
 export interface JupiterUltraOrder {

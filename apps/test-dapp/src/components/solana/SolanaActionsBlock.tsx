@@ -170,6 +170,7 @@ export function SolanaActionsBlock({
       "jupiter-swap": (
         <JupiterSwapModal
           submitLabel="Sign & Execute Swap"
+          allowLedgerBroadcast={canSendTransaction}
           onSubmit={onJupiterSwap}
           onClose={closeModal}
         />
@@ -186,6 +187,7 @@ export function SolanaActionsBlock({
     onJupiterSign,
     onJupiterSwap,
     ownAddress,
+    canSendTransaction,
   ]);
 
   const renderContent = () => {
