@@ -17,7 +17,8 @@ export type TrackedErrorType =
   | "LedgerSyncError"
   | "LedgerSyncAuthContextMissingError"
   | "LedgerSyncNoSessionIdError"
-  | "DeviceOutOfMemoryError";
+  | "DeviceOutOfMemoryError"
+  | "DeviceFirmwareOutdatedError";
 
 export const ERROR_TRACKING_WHITELIST: Set<TrackedErrorType> = new Set([
   "BlindSigningDisabledError",
@@ -39,6 +40,7 @@ export const ERROR_TRACKING_WHITELIST: Set<TrackedErrorType> = new Set([
   "TransactionValidationError",
   "LedgerSyncConnectionError",
   "DeviceOutOfMemoryError",
+  "DeviceFirmwareOutdatedError",
 ]);
 
 export function shouldTrackError(errorType: string): boolean {

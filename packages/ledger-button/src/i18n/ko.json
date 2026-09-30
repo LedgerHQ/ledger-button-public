@@ -335,6 +335,11 @@
         "title": "{AppName} 앱에 필요한 공간이 부족합니다",
         "description": "{deviceName} 저장 공간 부족으로 자동 설치가 진행되지 않았습니다. Ledger Wallet에서 공간을 확보한 다음 앱을 설치하세요.",
         "cta1": "공간 확보하기"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

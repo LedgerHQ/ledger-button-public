@@ -7,7 +7,10 @@ import type {
   SignFlowStatus,
   SignNavigationIntent,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { DeviceDisconnectedError } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  DeviceDisconnectedError,
+  DeviceFirmwareOutdatedError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -64,6 +67,7 @@ describe("SignTransactionController broadcast lifecycle", () => {
         .fn()
         .mockReturnValue(broadcastSubject.asObservable()),
       getActiveSelectedAccount: vi.fn().mockReturnValue(undefined),
+      getConnectedDevice: vi.fn().mockReturnValue(undefined),
       trackViewTransactionDetailsClicked: vi.fn(),
     } as unknown as CoreContext;
 
@@ -98,6 +102,14 @@ describe("SignTransactionController broadcast lifecycle", () => {
               title: "Your Ledger device is disconnected",
               description: "Plug in and unlock your Ledger device",
               cta1: "Reconnect Ledger device",
+            },
+          },
+          device: {
+            DeviceFirmwareOutdated: {
+              title: "Ledger OS update required",
+              description:
+                "You need the latest Ledger OS to sign this transaction.",
+              cta1: "Update Ledger OS",
             },
           },
           generic: {
@@ -213,5 +225,33 @@ describe("SignTransactionController broadcast lifecycle", () => {
       throw new Error("Expected error state");
     }
     expect(controller.state.status.title).toBe("An error occurred");
+  });
+
+  it("maps DeviceFirmwareOutdatedError to a My Ledger update screen", () => {
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+
+    controller.startSigning(mockIntent);
+    signFlowSubject.next({
+      signType: "solana-message",
+      status: "error",
+      error: new DeviceFirmwareOutdatedError(
+        "Device firmware is too old to install or update the required application",
+      ),
+    });
+
+    expect(controller.state.screen).toBe("error");
+    if (controller.state.screen !== "error") {
+      throw new Error("Expected error state");
+    }
+    expect(controller.state.status.title).toBe("Ledger OS update required");
+    expect(controller.state.status.message).toBe(
+      "You need the latest Ledger OS to sign this transaction.",
+    );
+    expect(controller.state.status.cta1.label).toBe("Update Ledger OS");
+
+    controller.state.status.cta1.action();
+    expect(openSpy).toHaveBeenCalledWith("ledgerwallet://myledger");
+
+    openSpy.mockRestore();
   });
 });

@@ -72,6 +72,7 @@ describe("ErrorTrackingUtils", () => {
       ["LedgerSyncAuthContextMissingError", "ledgersync"],
       ["LedgerSyncNoSessionIdError", "ledgersync"],
       ["DeviceOutOfMemoryError", "device"],
+      ["DeviceFirmwareOutdatedError", "device"],
       ["SomeRandomError", "unknown"],
       ["Error", "unknown"],
     ])("should categorize %s as %s", (errorName, expectedCategory) => {

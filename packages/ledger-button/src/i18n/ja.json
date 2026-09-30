@@ -335,6 +335,11 @@
         "title": "{AppName}アプリ用の空き容量が不足しています",
         "description": "{deviceName}のストレージ容量が不足しているため、自動的にインストールできませんでした。Ledger Walletの空き容量を増やしてから、アプリをインストールしてください。",
         "cta1": "空き容量を増やす"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

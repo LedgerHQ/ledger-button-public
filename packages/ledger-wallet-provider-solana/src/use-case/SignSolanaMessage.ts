@@ -13,6 +13,7 @@ import type {
 import { AccountNotSelectedError } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   createOpenAppConfig,
+  mapOpenAppDeviceActionError,
   waitForDeviceSession,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
@@ -90,7 +91,9 @@ export class SignSolanaMessage {
         });
 
         return observable.pipe(
-          map((state) => this.toSignFlowStatus(state)),
+          map((state) =>
+            this.toSignFlowStatus(state, openAppConfig.application.name),
+          ),
         ) as Observable<SignFlowStatus>;
       }),
       catchError((error) => {
@@ -110,6 +113,7 @@ export class SignSolanaMessage {
       SignSolanaMessageFlowDAError,
       SignSolanaMessageFlowDAIntermediateValue
     >,
+    appName: string,
   ): SignFlowStatus {
     switch (state.status) {
       case DeviceActionStatus.Pending:
@@ -136,7 +140,11 @@ export class SignSolanaMessage {
         this.logger.error("Solana message signing device action failed", {
           error: state.error,
         });
-        return { signType: SIGN_TYPE, status: "error", error: state.error };
+        return {
+          signType: SIGN_TYPE,
+          status: "error",
+          error: mapOpenAppDeviceActionError(state.error, appName),
+        };
       }
 
       default:
