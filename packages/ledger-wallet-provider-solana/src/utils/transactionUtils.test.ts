@@ -8,9 +8,14 @@ import {
 import { describe, expect, it } from "vitest";
 
 import {
+  ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
+  COMPUTE_BUDGET_PROGRAM_ADDRESS,
   getSolanaMessageBytes,
   getSolanaTransactionRecipient,
   patchRecentBlockhash,
+  SYSTEM_PROGRAM_ADDRESS,
+  TOKEN_2022_PROGRAM_ADDRESS,
+  TOKEN_PROGRAM_ADDRESS,
 } from "./transactionUtils";
 
 const ACCOUNT_KEY = new Uint8Array(32).fill(9);
@@ -43,12 +48,6 @@ describe("getSolanaMessageBytes", () => {
 });
 
 describe("getSolanaTransactionRecipient", () => {
-  const COMPUTE_BUDGET = "ComputeBudget111111111111111111111111111111";
-  const SYSTEM_PROGRAM = "11111111111111111111111111111111";
-  const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
-  const TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
-  const ASSOCIATED_TOKEN_PROGRAM =
-    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
   const SENDER = "So11111111111111111111111111111111111111112";
   const JUPITER = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
 
@@ -80,11 +79,11 @@ describe("getSolanaTransactionRecipient", () => {
     const wireTransaction = aWireTransaction(
       [
         SENDER,
-        COMPUTE_BUDGET,
-        SYSTEM_PROGRAM,
-        TOKEN_PROGRAM,
-        TOKEN_2022_PROGRAM,
-        ASSOCIATED_TOKEN_PROGRAM,
+        COMPUTE_BUDGET_PROGRAM_ADDRESS,
+        SYSTEM_PROGRAM_ADDRESS,
+        TOKEN_PROGRAM_ADDRESS,
+        TOKEN_2022_PROGRAM_ADDRESS,
+        ASSOCIATED_TOKEN_PROGRAM_ADDRESS,
         JUPITER,
       ],
       [
@@ -104,7 +103,12 @@ describe("getSolanaTransactionRecipient", () => {
 
   it("is empty when every instruction calls an ignored program", () => {
     const wireTransaction = aWireTransaction(
-      [SENDER, COMPUTE_BUDGET, SYSTEM_PROGRAM, TOKEN_PROGRAM],
+      [
+        SENDER,
+        COMPUTE_BUDGET_PROGRAM_ADDRESS,
+        SYSTEM_PROGRAM_ADDRESS,
+        TOKEN_PROGRAM_ADDRESS,
+      ],
       [
         { programAddressIndex: 1, data: new Uint8Array([2]) },
         { programAddressIndex: 2, accountIndices: [0] },
