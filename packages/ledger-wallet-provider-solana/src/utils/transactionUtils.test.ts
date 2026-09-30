@@ -45,8 +45,11 @@ describe("getSolanaMessageBytes", () => {
 describe("getSolanaTransactionRecipient", () => {
   const COMPUTE_BUDGET = "ComputeBudget111111111111111111111111111111";
   const SYSTEM_PROGRAM = "11111111111111111111111111111111";
-  const SENDER = "So11111111111111111111111111111111111111112";
   const TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+  const TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+  const ASSOCIATED_TOKEN_PROGRAM =
+    "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
+  const SENDER = "So11111111111111111111111111111111111111112";
   const JUPITER = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
 
   const aWireTransaction = (
@@ -73,28 +76,39 @@ describe("getSolanaTransactionRecipient", () => {
       }),
     ]);
 
-  it("joins every program except Compute Budget and the System program", () => {
+  it("joins every program except Compute Budget, System, Token, Token-2022, and Associated Token", () => {
     const wireTransaction = aWireTransaction(
-      [SENDER, COMPUTE_BUDGET, SYSTEM_PROGRAM, TOKEN_PROGRAM, JUPITER],
+      [
+        SENDER,
+        COMPUTE_BUDGET,
+        SYSTEM_PROGRAM,
+        TOKEN_PROGRAM,
+        TOKEN_2022_PROGRAM,
+        ASSOCIATED_TOKEN_PROGRAM,
+        JUPITER,
+      ],
       [
         { programAddressIndex: 1, data: new Uint8Array([2]) },
         { programAddressIndex: 2, accountIndices: [0] },
         { programAddressIndex: 3, accountIndices: [0] },
         { programAddressIndex: 4, accountIndices: [0] },
+        { programAddressIndex: 5, accountIndices: [0] },
+        { programAddressIndex: 6, accountIndices: [0] },
       ],
     );
 
     expect(getSolanaTransactionRecipient(wireTransaction).extract()).toBe(
-      `${TOKEN_PROGRAM}|${JUPITER}`,
+      JUPITER,
     );
   });
 
-  it("is empty when only Compute Budget and System program instructions are present", () => {
+  it("is empty when every instruction calls an ignored program", () => {
     const wireTransaction = aWireTransaction(
-      [SENDER, COMPUTE_BUDGET, SYSTEM_PROGRAM],
+      [SENDER, COMPUTE_BUDGET, SYSTEM_PROGRAM, TOKEN_PROGRAM],
       [
         { programAddressIndex: 1, data: new Uint8Array([2]) },
         { programAddressIndex: 2, accountIndices: [0] },
+        { programAddressIndex: 3, accountIndices: [0] },
       ],
     );
 

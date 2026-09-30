@@ -8,9 +8,14 @@ import {
 import { Maybe } from "purify-ts";
 
 const BLOCKHASH_LENGTH = 32;
-const COMPUTE_BUDGET_PROGRAM_ADDRESS =
-  "ComputeBudget111111111111111111111111111111";
-const SYSTEM_PROGRAM_ADDRESS = "11111111111111111111111111111111";
+/** Programs left out of the invoicing recipient. */
+const IGNORED_PROGRAM_ADDRESSES: ReadonlySet<string> = new Set([
+  "ComputeBudget111111111111111111111111111111",
+  "11111111111111111111111111111111",
+  "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+]);
 
 /**
  * Wallet Standard `solana:signTransaction` hands the wallet a fully serialized
@@ -28,9 +33,9 @@ export function getSolanaMessageBytes(wireTransaction: Uint8Array): Uint8Array {
 
 /**
  * Resolve the recipient of a serialized transaction: decode its compiled message,
- * read the program each instruction calls, skip the Compute Budget program
- * (fee and compute-limit settings) and the System program, then join the
- * remaining program addresses with `|`.
+ * read the program each instruction calls, skip Compute Budget, the System
+ * program, SPL Token, Token-2022, and the Associated Token program, then join
+ * the remaining program addresses with `|`.
  * Program addresses are always static accounts, so no address lookup table
  * needs to be fetched. Empty when the transaction cannot be decoded or every
  * instruction calls an ignored program.
@@ -47,9 +52,7 @@ export function getSolanaTransactionRecipient(
       .map((index) => compiled.staticAccounts[index])
       .filter(
         (program): program is NonNullable<typeof program> =>
-          program != null &&
-          program !== COMPUTE_BUDGET_PROGRAM_ADDRESS &&
-          program !== SYSTEM_PROGRAM_ADDRESS,
+          program != null && !IGNORED_PROGRAM_ADDRESSES.has(program),
       );
 
     return programs.length > 0 ? programs.join("|") : null;
