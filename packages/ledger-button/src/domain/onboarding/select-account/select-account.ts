@@ -233,7 +233,7 @@ export class SelectAccountScreen extends LitElement {
     `;
   }
 
-  private async handleStatusActionError(
+  private handleStatusActionError(
     e: CustomEvent<{
       timestamp: number;
       action: "primary" | "secondary";
@@ -241,9 +241,9 @@ export class SelectAccountScreen extends LitElement {
     }>,
   ) {
     if (e.detail.action === "primary") {
-      await this.controller.errorData?.cta1?.action();
+      this.controller.errorData?.cta1?.action();
     } else if (e.detail.action === "secondary") {
-      await this.controller.errorData?.cta2?.action();
+      this.controller.errorData?.cta2?.action();
     }
   }
 
