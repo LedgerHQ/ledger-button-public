@@ -8,6 +8,7 @@ import { of, Subject } from "rxjs";
 import type { CoreContext } from "../../../context/core-context";
 import type { LanguageContext } from "../../../context/language-context";
 import type { Navigation } from "../../../shared/navigation";
+import type { Destinations } from "../../../shared/routes";
 import { SelectAccountController } from "./select-account-controller";
 
 const mockLang = {
@@ -20,8 +21,21 @@ const mockLang = {
         tokenCountOther: "{count} tokens",
       },
     },
+    error: {
+      ledgerSync: {
+        NoCompatibleAccounts: {
+          title: "No compatible account found",
+          cta1: "Create a new account on Ledger Live",
+          cta2: "Use another Ledger device",
+        },
+      },
+    },
   },
 } as unknown as LanguageContext;
+
+const mockDestinations = {
+  onboarding: { name: "onboarding" },
+} as unknown as Destinations;
 
 const createHost = (): ReactiveControllerHost => ({
   addController: vi.fn(),
@@ -65,6 +79,7 @@ function createGroup(accounts: AccountListItem[]): AccountGroup {
 function createController(options?: {
   core?: Partial<CoreContext>;
   navigation?: Navigation;
+  destinations?: Destinations;
   family?: "ethereum" | "solana";
 }) {
   const observeAccountGroups = vi.fn().mockReturnValue(of([]));
@@ -77,6 +92,7 @@ function createController(options?: {
     createHost(),
     core,
     options?.navigation ?? ({} as Navigation),
+    options?.destinations ?? mockDestinations,
     mockLang,
     options?.family,
   );
@@ -312,5 +328,92 @@ describe("SelectAccountController navigation", () => {
         }),
       }),
     );
+  });
+});
+
+describe("SelectAccountController compatible accounts empty state", () => {
+  it("does not surface the error before the first groups emission", () => {
+    const { controller } = createController({
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(new Subject()),
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+
+    expect(controller.hasLoadedGroups).toBe(false);
+    expect(controller.showCompatibleAccountsError).toBe(false);
+    expect(controller.errorData).toBeUndefined();
+  });
+
+  it("builds the NoCompatibleAccounts error when the loaded picker is empty", () => {
+    const { controller } = createController({
+      family: "solana",
+    });
+
+    controller.getAccounts();
+
+    expect(controller.hasLoadedGroups).toBe(true);
+    expect(controller.showCompatibleAccountsError).toBe(true);
+    expect(controller.errorData).toEqual(
+      expect.objectContaining({
+        title: "No compatible account found",
+        cta1: expect.objectContaining({
+          label: "Create a new account on Ledger Live",
+        }),
+        cta2: expect.objectContaining({
+          label: "Use another Ledger device",
+        }),
+      }),
+    );
+  });
+
+  it("clears the error when accounts are present", () => {
+    const group = createGroup([createAccount()]);
+    const { controller } = createController({
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(of([group])),
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+
+    expect(controller.showCompatibleAccountsError).toBe(false);
+    expect(controller.errorData).toBeUndefined();
+  });
+
+  it("hides the compatible-accounts error while a search query is active", () => {
+    const groups$ = new Subject<AccountGroup[]>();
+    const { controller } = createController({
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(groups$),
+      } as unknown as Partial<CoreContext>,
+      family: "solana",
+    });
+
+    controller.getAccounts();
+    groups$.next([]);
+
+    expect(controller.showCompatibleAccountsError).toBe(true);
+
+    controller.handleSearchInput(
+      new CustomEvent("search-input-change", { detail: { value: "usdt" } }),
+    );
+    groups$.next([]);
+
+    expect(controller.showCompatibleAccountsError).toBe(false);
+    expect(controller.errorData).toBeUndefined();
+  });
+
+  it("navigates to onboarding when the secondary CTA is used", () => {
+    const navigateTo = vi.fn();
+    const { controller } = createController({
+      navigation: { navigateTo, host: {} } as unknown as Navigation,
+    });
+
+    controller.getAccounts();
+    controller.errorData?.cta2?.action();
+
+    expect(navigateTo).toHaveBeenCalledWith(mockDestinations.onboarding);
   });
 });

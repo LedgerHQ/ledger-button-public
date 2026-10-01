@@ -20,6 +20,7 @@ import type { CoreContext } from "../../../context/core-context";
 import type { LanguageContext } from "../../../context/language-context";
 import type { Navigation } from "../../../shared/navigation";
 import type { SelectAccountNavigationParams } from "../../../shared/root-navigation-controller";
+import type { Destinations } from "../../../shared/routes";
 import { SelectAccountScreen } from "./select-account";
 
 function createScreen(
@@ -27,6 +28,7 @@ function createScreen(
 ): SelectAccountScreen {
   const screen = new SelectAccountScreen();
   screen.navigation = {} as Navigation;
+  screen.destinations = {} as Destinations;
   (screen as unknown as { coreContext: CoreContext }).coreContext =
     {} as CoreContext;
   (screen as unknown as { languages: LanguageContext }).languages =
@@ -57,6 +59,7 @@ describe("SelectAccountScreen family resolution", () => {
       expect.anything(),
       expect.anything(),
       expect.anything(),
+      expect.anything(),
       "solana",
     );
   });
@@ -67,6 +70,7 @@ describe("SelectAccountScreen family resolution", () => {
 
     expect(controllerConstructor).toHaveBeenCalledWith(
       screen,
+      expect.anything(),
       expect.anything(),
       expect.anything(),
       expect.anything(),
@@ -84,6 +88,7 @@ describe("SelectAccountScreen family resolution", () => {
 
     expect(controllerConstructor).toHaveBeenCalledWith(
       screen,
+      expect.anything(),
       expect.anything(),
       expect.anything(),
       expect.anything(),

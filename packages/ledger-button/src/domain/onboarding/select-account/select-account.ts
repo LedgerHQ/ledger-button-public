@@ -11,6 +11,7 @@ import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
+import { StatusType } from "../../../components/organism/status/ledger-status";
 import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
@@ -18,6 +19,7 @@ import {
 } from "../../../context/language-context";
 import { Navigation } from "../../../shared/navigation";
 import { type SelectAccountNavigationParams } from "../../../shared/root-navigation-controller";
+import { type Destinations } from "../../../shared/routes";
 import { tailwindElement } from "../../../tailwind-element";
 import { formatFiatBalance } from "../../../utils/format-fiat";
 import { SelectAccountController } from "./select-account-controller";
@@ -27,6 +29,9 @@ import { SelectAccountController } from "./select-account-controller";
 export class SelectAccountScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
+
+  @property({ type: Object })
+  destinations!: Destinations;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -47,6 +52,7 @@ export class SelectAccountScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
       this.languages,
       this.resolveRequestedFamily(),
     );
@@ -210,7 +216,11 @@ export class SelectAccountScreen extends LitElement {
   private renderNoResults() {
     const translations = this.languages.currentTranslation;
 
-    if (this.controller.groups.length > 0 || !this.controller.searchQuery) {
+    if (
+      this.controller.showCompatibleAccountsError ||
+      this.controller.groups.length > 0 ||
+      !this.controller.searchQuery
+    ) {
       return nothing;
     }
 
@@ -219,6 +229,41 @@ export class SelectAccountScreen extends LitElement {
         <p class="body-1-semi-bold text-center text-base">
           ${translations.onboarding.selectAccount.noResults}
         </p>
+      </div>
+    `;
+  }
+
+  private async handleStatusActionError(
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
+    if (e.detail.action === "primary") {
+      await this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      await this.controller.errorData?.cta2?.action();
+    }
+  }
+
+  private renderCompatibleAccountsError() {
+    if (
+      !this.controller.showCompatibleAccountsError ||
+      !this.controller.errorData
+    ) {
+      return nothing;
+    }
+
+    return html`
+      <div class="flex flex-col gap-12">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData.title}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusActionError}
+        ></ledger-status>
       </div>
     `;
   }
@@ -279,6 +324,14 @@ export class SelectAccountScreen extends LitElement {
   }
 
   override render() {
+    if (this.controller.showCompatibleAccountsError) {
+      return html`
+        <div class="flex h-full flex-col gap-12 p-24 pt-0">
+          ${this.renderCompatibleAccountsError()}
+        </div>
+      `;
+    }
+
     return html`
       <div class="flex h-full flex-col gap-12 p-24 pt-0">
         ${this.renderSearchHeader()}
