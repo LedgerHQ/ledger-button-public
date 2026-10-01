@@ -201,6 +201,7 @@ export class SelectAccountController implements ReactiveController {
   private syncCompatibleAccountsError(): void {
     if (!this.hasLoadedGroups || this.groups.length > 0) {
       this.errorData = undefined;
+      this.syncToolbarCanGoBack();
       return;
     }
 
@@ -208,10 +209,32 @@ export class SelectAccountController implements ReactiveController {
     // picker (no accounts for the current family/scope) uses this status UI.
     if (this.searchQuery) {
       this.errorData = undefined;
+      this.syncToolbarCanGoBack();
       return;
     }
 
     this.errorData = this.buildCompatibleAccountsError();
+    this.syncToolbarCanGoBack();
+  }
+
+  private syncToolbarCanGoBack(): void {
+    const screen = this.navigation.currentScreen;
+    if (!screen || screen.name !== "selectAccount") {
+      return;
+    }
+
+    // Replace the screen object so we never mutate the shared destination
+    // definition from `makeDestinations`.
+    this.navigation.currentScreen = {
+      ...screen,
+      canGoBack: this.showCompatibleAccountsError
+        ? false
+        : this.destinations.selectAccount.canGoBack,
+    };
+
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.requestUpdate();
+    }
   }
 
   private buildCompatibleAccountsError(): SelectAccountErrorData {
@@ -233,10 +256,23 @@ export class SelectAccountController implements ReactiveController {
       cta2: {
         label: copy.cta2,
         action: () => {
-          this.errorData = undefined;
-          this.navigation.navigateTo(this.destinations.onboarding);
+          void this.useAnotherDevice();
         },
       },
     };
+  }
+
+  private async useAnotherDevice(): Promise<void> {
+    this.errorData = undefined;
+
+    try {
+      // Full session reset (device + trust chain), then restart the onboarding
+      // flow so reconnect advances through ledger-sync again.
+      await this.core.disconnect();
+    } catch (error) {
+      console.error("Failed to reset session before re-onboarding", error);
+    }
+
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 }

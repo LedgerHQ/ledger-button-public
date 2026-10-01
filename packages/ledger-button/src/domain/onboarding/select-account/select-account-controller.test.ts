@@ -8,6 +8,7 @@ import { of, Subject } from "rxjs";
 import type { CoreContext } from "../../../context/core-context";
 import type { LanguageContext } from "../../../context/language-context";
 import type { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
 import type { Destinations } from "../../../shared/routes";
 import { SelectAccountController } from "./select-account-controller";
 
@@ -35,6 +36,7 @@ const mockLang = {
 
 const mockDestinations = {
   onboarding: { name: "onboarding" },
+  onboardingFlow: { name: "onboarding-flow" },
 } as unknown as Destinations;
 
 const createHost = (): ReactiveControllerHost => ({
@@ -405,15 +407,81 @@ describe("SelectAccountController compatible accounts empty state", () => {
     expect(controller.errorData).toBeUndefined();
   });
 
-  it("navigates to onboarding when the secondary CTA is used", () => {
+  it("resets the session then restarts onboarding when the secondary CTA is used", async () => {
     const navigateTo = vi.fn();
+    const disconnect = vi.fn().mockResolvedValue(undefined);
     const { controller } = createController({
       navigation: { navigateTo, host: {} } as unknown as Navigation,
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(of([])),
+        disconnect,
+      } as unknown as Partial<CoreContext>,
     });
 
     controller.getAccounts();
     controller.errorData?.cta2?.action();
+    await vi.waitFor(() => {
+      expect(disconnect).toHaveBeenCalledWith();
+      expect(navigateTo).toHaveBeenCalledWith(mockDestinations.onboardingFlow);
+    });
+  });
 
-    expect(navigateTo).toHaveBeenCalledWith(mockDestinations.onboarding);
+  it("hides the toolbar back arrow while the compatible-accounts error is shown", () => {
+    const requestUpdate = vi.fn();
+    const selectAccountCanGoBack = vi.fn().mockReturnValue(true);
+    const navigation = {
+      currentScreen: {
+        name: "selectAccount",
+        canGoBack: selectAccountCanGoBack,
+      },
+      host: Object.create(RootNavigationComponent.prototype, {
+        requestUpdate: { value: requestUpdate },
+      }),
+    } as unknown as Navigation;
+
+    const { controller } = createController({
+      navigation,
+      destinations: {
+        onboarding: { name: "onboarding" },
+        selectAccount: { canGoBack: selectAccountCanGoBack },
+      } as unknown as Destinations,
+    });
+
+    controller.getAccounts();
+
+    expect(navigation.currentScreen?.canGoBack).toBe(false);
+    expect(requestUpdate).toHaveBeenCalled();
+  });
+
+  it("restores the toolbar back arrow when accounts become available", () => {
+    const groups$ = new Subject<AccountGroup[]>();
+    const selectAccountCanGoBack = vi.fn().mockReturnValue(true);
+    const navigation = {
+      currentScreen: {
+        name: "selectAccount",
+        canGoBack: false as boolean | ((core: unknown) => boolean),
+      },
+      host: Object.create(RootNavigationComponent.prototype, {
+        requestUpdate: { value: vi.fn() },
+      }),
+    } as unknown as Navigation;
+
+    const { controller } = createController({
+      navigation,
+      destinations: {
+        onboarding: { name: "onboarding" },
+        selectAccount: { canGoBack: selectAccountCanGoBack },
+      } as unknown as Destinations,
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(groups$),
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+    groups$.next([]);
+    expect(navigation.currentScreen?.canGoBack).toBe(false);
+
+    groups$.next([createGroup([createAccount()])]);
+    expect(navigation.currentScreen?.canGoBack).toBe(selectAccountCanGoBack);
   });
 });
