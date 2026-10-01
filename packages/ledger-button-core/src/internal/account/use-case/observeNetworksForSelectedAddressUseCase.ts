@@ -1,10 +1,12 @@
 import { inject, injectable } from "inversify";
 import {
+  debounce,
   distinctUntilChanged,
   map,
   Observable,
   of,
   switchMap,
+  timer,
 } from "rxjs";
 
 import type { Network } from "@api/model/Account";
@@ -15,6 +17,8 @@ import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { accountModuleTypes } from "../di/accountModuleTypes";
 import { BuildNetworksUseCase } from "./buildNetworksUseCase";
 import { ObserveAccountsWithFiatUseCase } from "./observeAccountsWithFiatUseCase";
+
+const EMISSION_DEBOUNCE_MS = 200;
 
 /**
  * Networks available for the address of the currently selected account: every
@@ -39,6 +43,7 @@ export class ObserveNetworksForSelectedAddressUseCase {
         }
 
         return this.observeAccountsWithFiatUseCase.execute().pipe(
+          debounce(this.debounceAfterFirstEmission()),
           map((accounts) =>
             accounts.filter((account) => account.freshAddress === address),
           ),
@@ -50,6 +55,18 @@ export class ObserveNetworksForSelectedAddressUseCase {
         );
       }),
     );
+  }
+
+  private debounceAfterFirstEmission(): () => Observable<number> {
+    let isFirstEmission = true;
+
+    return () => {
+      if (isFirstEmission) {
+        isFirstEmission = false;
+        return of(0);
+      }
+      return timer(EMISSION_DEBOUNCE_MS);
+    };
   }
 
   private observeSelectedAddress(): Observable<string | undefined> {
