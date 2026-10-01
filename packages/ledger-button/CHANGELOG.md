@@ -36,8 +36,9 @@
 - Omit the `.js` extension on relative and aliased imports. The workspace uses `moduleResolution: bundler`. Real package subpaths such as `lit/decorators.js` are unchanged. ([dfdce6c1](https://github.com/LedgerHQ/ledger-button/commit/dfdce6c1))
 - Consume the core account derivation APIs from the UI instead of rebuilding them: the account list, token list and network list controllers no longer duplicate fiat aggregation, grouping, search filtering or network computation. ([6f9a60b8](https://github.com/LedgerHQ/ledger-button/commit/6f9a60b8))
 - Remove internal ticket references and obsolete scope comments from source files. ([4906cba0](https://github.com/LedgerHQ/ledger-button/commit/4906cba0))
+- Fix empty select account screen ([c915f80c](https://github.com/LedgerHQ/ledger-button/commit/c915f80c))
 
-### ⚠️  Breaking Changes
+### ⚠️ Breaking Changes
 
 - Extract EVM and Solana into provider packages with host-wired factories. ([e5a43e11](https://github.com/LedgerHQ/ledger-button/commit/e5a43e11))
 - Move the EVM get-address model and the EIP-1193 / EIP-6963 contracts from core to the EVM provider package, and stop re-exporting the EIP contracts from `@ledgerhq/ledger-wallet-provider`. Import them from `@ledgerhq/ledger-wallet-provider-evm` instead. ([7bdfea4a](https://github.com/LedgerHQ/ledger-button/commit/7bdfea4a))
@@ -72,6 +73,7 @@ This was a version bump only for @ledgerhq/ledger-wallet-provider to align it wi
 ### 🧹 Chores
 
 - Version bump only for @ledgerhq/ledger-wallet-provider to align with @ledgerhq/ledger-wallet-provider-core 1.4.1; no functional changes in this package.
+
 ## 1.4.0 (2026-07-28)
 
 ### 🚀 Features
