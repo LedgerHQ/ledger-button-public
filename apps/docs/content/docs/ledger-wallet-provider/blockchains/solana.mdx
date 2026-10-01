@@ -156,16 +156,16 @@ const [signed] = await signTransactionFeature.signTransaction({
 // signed.signedTransaction — signed wire bytes (you broadcast yourself)
 ```
 
-## Delayed signing
+## Two-step signing
 
-Reviewing a transaction on a hardware device can take longer than a Solana blockhash stays valid. Ledger Wallet Provider uses delayed signing so that wait does not expire the transaction.
+Reviewing a transaction on a hardware device can take longer than a Solana blockhash stays valid. Ledger Wallet Provider uses two-step signing (also called delayed signing) so that wait does not expire the transaction.
 
 The device shows the transaction first. When the user approves, the provider fetches a fresh `recentBlockhash` (`getLatestBlockhash`, commitment `finalized`) and the device signs that updated message. The returned `signedTransaction` already contains that blockhash, and the signature matches those bytes.
 
 <Callout type="warning">
-  Do not check that the returned blockhash equals the one you set when you
-  built the transaction. The comparison fails whenever the hash was refreshed,
-  even though the signature is valid.
+  Do not check that the returned blockhash equals the one you set when you built
+  the transaction. The comparison fails whenever the hash was refreshed, even
+  though the signature is valid.
 </Callout>
 
 What to do with the result:
@@ -174,11 +174,10 @@ What to do with the result:
 - For `solana:signAndSendTransaction`, Ledger already broadcasts the refreshed transaction. Track the returned signature.
 - If you confirm with `{ blockhash, lastValidBlockHeight }`, read `recentBlockhash` from the returned signed transaction. The height you captured at build time belongs to the old hash. Confirming by signature status does not need that pair.
 
-The blockhash is left unchanged in three cases. A missing change is expected, not an error:
+The blockhash is left unchanged in two cases. A missing change is expected, not an error:
 
 - Another signature is already present (co-sign).
 - The transaction uses a durable nonce.
-- The Solana app on the device is older than 1.14.0 and falls back to one-step signing.
 
 ## Sign and send a transaction
 
