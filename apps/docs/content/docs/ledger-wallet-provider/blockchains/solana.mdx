@@ -172,7 +172,7 @@ What to do with the result:
 
 - Broadcast or submit the returned `signedTransaction` as-is. Do not rebuild the message or put the original blockhash back.
 - For `solana:signAndSendTransaction`, Ledger already broadcasts the refreshed transaction. Track the returned signature.
-- If you confirm with `{ blockhash, lastValidBlockHeight }`, read `recentBlockhash` from the returned signed transaction. The height you captured at build time belongs to the old hash. Confirming by signature status does not need that pair.
+- Confirm the transaction by signature status. Do not confirm with `{ blockhash, lastValidBlockHeight }`: the returned transaction contains the refreshed blockhash, and Ledger does not return the `lastValidBlockHeight` that belongs to it. The height captured when you built the transaction can make confirmation report expiry too early.
 
 The blockhash is left unchanged in two cases. A missing change is expected, not an error:
 
