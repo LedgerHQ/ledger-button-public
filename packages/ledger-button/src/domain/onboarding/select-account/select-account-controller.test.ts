@@ -8,6 +8,7 @@ import type {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { of, Subject } from "rxjs";
+import { vi } from "vitest";
 
 import type { CoreContext } from "../../../context/core-context";
 import type { LanguageContext } from "../../../context/language-context";
@@ -15,6 +16,35 @@ import type { Navigation } from "../../../shared/navigation";
 import { RootNavigationComponent } from "../../../shared/root-navigation";
 import type { Destinations } from "../../../shared/routes";
 import { SelectAccountController } from "./select-account-controller";
+
+vi.mock("../../../shared/root-navigation", () => {
+  class MockRootNavigationComponent {
+    closeModal = vi.fn();
+    requestUpdate = vi.fn();
+    navigateToHome = vi.fn();
+    getModalMode = vi.fn().mockReturnValue("modal");
+    presentConnectionSuccessOverlay = vi.fn();
+  }
+
+  return { RootNavigationComponent: MockRootNavigationComponent };
+});
+
+type MockRootNavigationHost = {
+  closeModal: ReturnType<typeof vi.fn>;
+  requestUpdate: ReturnType<typeof vi.fn>;
+  navigateToHome: ReturnType<typeof vi.fn>;
+  getModalMode: ReturnType<typeof vi.fn>;
+  presentConnectionSuccessOverlay: ReturnType<typeof vi.fn>;
+};
+
+function createRootNavigationHost(
+  overrides: Partial<
+    Pick<MockRootNavigationHost, "closeModal" | "requestUpdate">
+  > = {},
+): RootNavigationComponent {
+  const MockHost = RootNavigationComponent as unknown as new () => MockRootNavigationHost;
+  return Object.assign(new MockHost(), overrides) as unknown as RootNavigationComponent;
+}
 
 const mockLang = {
   currentTranslation: {
@@ -415,9 +445,7 @@ describe("SelectAccountController compatible accounts empty state", () => {
     const open = vi.spyOn(window, "open").mockImplementation(() => null);
     const closeModal = vi.fn();
     const navigation = {
-      host: Object.create(RootNavigationComponent.prototype, {
-        closeModal: { value: closeModal },
-      }),
+      host: createRootNavigationHost({ closeModal }),
     } as unknown as Navigation;
 
     const { controller } = createController({ navigation });
@@ -463,15 +491,14 @@ describe("SelectAccountController compatible accounts empty state", () => {
         name: "selectAccount",
         canGoBack: selectAccountCanGoBack,
       },
-      host: Object.create(RootNavigationComponent.prototype, {
-        requestUpdate: { value: requestUpdate },
-      }),
+      host: createRootNavigationHost({ requestUpdate }),
     } as unknown as Navigation;
 
     const { controller } = createController({
       navigation,
       destinations: {
         onboarding: { name: "onboarding" },
+        onboardingFlow: { name: "onboarding-flow" },
         selectAccount: { canGoBack: selectAccountCanGoBack },
       } as unknown as Destinations,
     });
@@ -490,15 +517,14 @@ describe("SelectAccountController compatible accounts empty state", () => {
         name: "selectAccount",
         canGoBack: false as boolean | ((core: unknown) => boolean),
       },
-      host: Object.create(RootNavigationComponent.prototype, {
-        requestUpdate: { value: vi.fn() },
-      }),
+      host: createRootNavigationHost(),
     } as unknown as Navigation;
 
     const { controller } = createController({
       navigation,
       destinations: {
         onboarding: { name: "onboarding" },
+        onboardingFlow: { name: "onboarding-flow" },
         selectAccount: { canGoBack: selectAccountCanGoBack },
       } as unknown as Destinations,
       core: {
