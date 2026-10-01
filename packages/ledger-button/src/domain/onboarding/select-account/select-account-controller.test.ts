@@ -1,3 +1,7 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 import type {
   AccountGroup,
   AccountListItem,
@@ -405,6 +409,31 @@ describe("SelectAccountController compatible accounts empty state", () => {
 
     expect(controller.showCompatibleAccountsError).toBe(false);
     expect(controller.errorData).toBeUndefined();
+  });
+
+  it("opens Ledger Live accounts and closes the modal when the primary CTA is used", () => {
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    const closeModal = vi.fn();
+    const navigation = {
+      host: Object.create(RootNavigationComponent.prototype, {
+        closeModal: { value: closeModal },
+      }),
+    } as unknown as Navigation;
+
+    const { controller } = createController({ navigation });
+
+    controller.getAccounts();
+    controller.errorData?.cta1?.action();
+
+    expect(open).toHaveBeenCalledWith(
+      "ledgerlive://accounts",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(closeModal).toHaveBeenCalled();
+    expect(controller.errorData).toBeUndefined();
+
+    open.mockRestore();
   });
 
   it("resets the session then restarts onboarding when the secondary CTA is used", async () => {

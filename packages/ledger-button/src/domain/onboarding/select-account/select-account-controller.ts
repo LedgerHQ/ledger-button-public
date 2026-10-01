@@ -247,7 +247,7 @@ export class SelectAccountController implements ReactiveController {
         label: copy.cta1,
         action: () => {
           this.errorData = undefined;
-          window.open("ledgerlive://accounts");
+          window.open("ledgerlive://accounts", "_blank", "noopener,noreferrer");
           if (this.navigation.host instanceof RootNavigationComponent) {
             this.navigation.host.closeModal();
           }
