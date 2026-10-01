@@ -1,7 +1,9 @@
 import {
   type DeviceActionStateMachine,
+  GlobalCommandError,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -149,15 +151,27 @@ export class SignPersonalMessageFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addOpenAppResultToInternalState(
-                    event.output,
-                    context._internalState,
+                  this.normalizeOpenAppError(
+                    this.addOpenAppResultToInternalState(
+                      event.output,
+                      context._internalState,
+                    ),
                   ),
               }),
               target: "CheckOpenAppResult",
             },
             onError: {
-              actions: "assignErrorFromEvent",
+              actions: assign({
+                _internalState: ({ context, event }) =>
+                  this.normalizeOpenAppError({
+                    ...context._internalState,
+                    error: (
+                      event as unknown as {
+                        error: SignPersonalMessageFlowDAInternalState["error"];
+                      }
+                    ).error,
+                  }),
+              }),
               target: "CheckOpenAppResult",
             },
           },
@@ -360,6 +374,22 @@ export class SignPersonalMessageFlowDeviceAction extends XStateDeviceAction<
       Right: () => internalState,
       Left: (e) => ({ ...internalState, error: e }),
     });
+  }
+
+  private normalizeOpenAppError(
+    internalState: SignPersonalMessageFlowDAInternalState,
+  ): SignPersonalMessageFlowDAInternalState {
+    const { error } = internalState;
+    if (
+      error instanceof RefusedByUserDAError ||
+      (error instanceof GlobalCommandError && error.errorCode === "5501")
+    ) {
+      return {
+        ...internalState,
+        error: new UserRejectedTransactionError("User rejected open app"),
+      } as SignPersonalMessageFlowDAInternalState;
+    }
+    return internalState;
   }
 
   private addGetAddressResultToInternalState(
