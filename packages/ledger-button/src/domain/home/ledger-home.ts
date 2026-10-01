@@ -13,10 +13,7 @@ import type {
   WalletTransactionFeature,
 } from "../../components/molecule/wallet-actions/ledger-wallet-actions";
 import { CoreContext, coreContext } from "../../context/core-context";
-import {
-  langContext,
-  LanguageContext,
-} from "../../context/language-context";
+import { langContext, LanguageContext } from "../../context/language-context";
 import {
   buildAccountDeepLink,
   buildWalletActionDeepLink,
@@ -258,17 +255,21 @@ export class LedgerHomeScreen extends LitElement {
           ></ledger-button>
         </div>
 
-        ${this.showRedirectDrawer && this.redirectIntent
-          ? html`
-              <ledger-wallet-redirect-drawer
-                .action=${this.redirectIntent.type === "action"
-                  ? this.redirectIntent.action
-                  : "send"}
-                @wallet-redirect-confirm=${this.handleRedirectConfirm}
-                @wallet-redirect-cancel=${this.handleRedirectCancel}
-              ></ledger-wallet-redirect-drawer>
-            `
-          : ""}
+        ${
+          this.showRedirectDrawer && this.redirectIntent
+            ? html`
+                <ledger-wallet-redirect-drawer
+                  .action=${
+                  this.redirectIntent.type === "action"
+                    ? this.redirectIntent.action
+                    : "send"
+                }
+                  @wallet-redirect-confirm=${this.handleRedirectConfirm}
+                  @wallet-redirect-cancel=${this.handleRedirectCancel}
+                ></ledger-wallet-redirect-drawer>
+              `
+            : ""
+        }
       </div>
     `;
   }
@@ -295,7 +296,7 @@ export class LedgerHomeScreen extends LitElement {
       <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
         <div class="flex flex-row items-center justify-between">
           <ledger-account-switch
-            class="max-w-256"
+            class="max-w-224"
             .account=${account}
             @account-switch=${this.handleAccountItemClick}
           ></ledger-account-switch>
@@ -334,16 +335,18 @@ export class LedgerHomeScreen extends LitElement {
         ></ledger-tabs>
       </div>
 
-      ${this.activeTab === "tokens"
-        ? html`<token-list-screen
-            .account=${account}
-            .locale=${this.languages.locale}
-          ></token-list-screen>`
-        : html`<transaction-list-screen
-            .transactions=${this.controller.transactionListItems}
-            .pendingTransactions=${this.controller.pendingTransactionListItems}
-            @view-all-transactions-click=${this.handleViewAllTransactionsClick}
-          ></transaction-list-screen>`}
+      ${
+        this.activeTab === "tokens"
+          ? html`<token-list-screen
+              .account=${account}
+              .locale=${this.languages.locale}
+            ></token-list-screen>`
+          : html`<transaction-list-screen
+              .transactions=${this.controller.transactionListItems}
+              .pendingTransactions=${this.controller.pendingTransactionListItems}
+              @view-all-transactions-click=${this.handleViewAllTransactionsClick}
+            ></transaction-list-screen>`
+      }
     `;
   }
 }
