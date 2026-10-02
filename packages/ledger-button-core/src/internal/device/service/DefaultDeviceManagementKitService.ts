@@ -30,9 +30,10 @@ import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { deviceModuleTypes } from "../di/deviceModuleTypes";
 import { Device } from "../model/Device";
 import { DeviceConnectionError } from "../model/errors";
-import { DeviceManagementKitService } from "./DeviceManagementKitService";
-
-export type ConnectionType = "bluetooth" | "usb" | "mock" | "";
+import {
+  type ConnectionType,
+  DeviceManagementKitService,
+} from "./DeviceManagementKitService";
 
 const DEFAULT_MOCK_SERVER_URL =
   "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
