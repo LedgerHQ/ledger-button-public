@@ -301,6 +301,8 @@ export function DeviceScreen() {
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const holdActiveRef = useRef(false);
   const holdCoordsRef = useRef<{ x: number; y: number } | null>(null);
+  const pointerDownRef = useRef(false);
+  const pressIdRef = useRef(0);
   const [holding, setHolding] = useState(false);
 
   /**
@@ -336,14 +338,28 @@ export function DeviceScreen() {
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLImageElement>) => {
       e.preventDefault();
+      // resolveTouch waits on the network. Record the press now so a mouseup
+      // that lands during that wait can cancel the hold before it is armed.
+      pointerDownRef.current = true;
+      const pressId = ++pressIdRef.current;
+
       void resolveTouch(e).then((resolved) => {
-        if (!resolved) return;
+        if (
+          !resolved ||
+          !pointerDownRef.current ||
+          pressIdRef.current !== pressId
+        ) {
+          return;
+        }
         const { session, coords } = resolved;
 
         holdCoordsRef.current = { x: coords.x, y: coords.y };
         holdActiveRef.current = false;
 
         holdTimerRef.current = setTimeout(() => {
+          if (!pointerDownRef.current || pressIdRef.current !== pressId) {
+            return;
+          }
           holdActiveRef.current = true;
           setHolding(true);
           void sendTouch(
@@ -360,6 +376,10 @@ export function DeviceScreen() {
   );
 
   const handleMouseUp = useCallback(() => {
+    pointerDownRef.current = false;
+    // Invalidate an in-flight mousedown so its later resolution cannot arm a hold.
+    pressIdRef.current += 1;
+
     if (holdTimerRef.current) {
       clearTimeout(holdTimerRef.current);
       holdTimerRef.current = null;
