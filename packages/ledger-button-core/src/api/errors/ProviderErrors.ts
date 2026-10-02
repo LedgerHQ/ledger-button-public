@@ -10,3 +10,13 @@ export class ModalClosedError extends LedgerButtonError {
     super(message, "ModalClosedError", context);
   }
 }
+
+/**
+ * Raised from provider init when no blockchain factory was passed.
+ * Init does not register anything without one.
+ */
+export class NoBlockchainProviderError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "NoBlockchainProviderError", context);
+  }
+}

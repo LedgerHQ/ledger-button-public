@@ -6,6 +6,7 @@ import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/B
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
 import type { CurrencyDescriptor } from "@api/blockchain-provider/model/CurrencyDescriptor";
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import { NoBlockchainProviderError } from "@api/errors/ProviderErrors";
 import type { Account } from "@api/model/Account";
 import type {
   BlockchainConfig,
@@ -51,6 +52,13 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
     dappConfig: DAppConfig,
     factories: BlockchainProviderFactory[],
   ): void {
+    if (factories.length === 0) {
+      const message =
+        "No blockchain provider provided: blockchainProviderFactories must not be empty";
+      this.logger.error(message);
+      throw new NoBlockchainProviderError(message);
+    }
+
     const blockchainsConfig: BlockchainConfig[] = dappConfig.blockchains ?? [];
 
     for (const factory of factories) {
