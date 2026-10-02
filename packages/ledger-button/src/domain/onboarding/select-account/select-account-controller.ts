@@ -14,15 +14,28 @@ import { CoreContext } from "../../../context/core-context";
 import { LanguageContext } from "../../../context/language-context";
 import { Navigation } from "../../../shared/navigation";
 import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { type Destinations } from "../../../shared/routes";
 import { formatAddress } from "../../../utils/format-address";
+
+export type SelectAccountErrorData = {
+  title: string;
+  cta1?: { label: string; action: () => void };
+  cta2?: { label: string; action: () => void };
+};
 
 export class SelectAccountController implements ReactiveController {
   groups: AccountGroup[] = [];
+  hasLoadedGroups = false;
+  errorData?: SelectAccountErrorData;
   private readonly searchQuery$ = new BehaviorSubject("");
   private groupsSubscription?: Subscription;
 
   get searchQuery(): string {
     return this.searchQuery$.value;
+  }
+
+  get showCompatibleAccountsError(): boolean {
+    return this.errorData !== undefined && !this.searchQuery;
   }
 
   truncateAddress(address: string): string {
@@ -55,6 +68,7 @@ export class SelectAccountController implements ReactiveController {
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
+    private readonly destinations: Destinations,
     private readonly lang: LanguageContext,
     private readonly family?: BlockchainFamily,
   ) {
@@ -88,6 +102,8 @@ export class SelectAccountController implements ReactiveController {
       .subscribe({
         next: (groups) => {
           this.groups = groups;
+          this.hasLoadedGroups = true;
+          this.syncCompatibleAccountsError();
           this.host.requestUpdate();
         },
         error: (error) => {
@@ -180,5 +196,83 @@ export class SelectAccountController implements ReactiveController {
       }
       this.host.requestUpdate();
     }
+  }
+
+  private syncCompatibleAccountsError(): void {
+    if (!this.hasLoadedGroups || this.groups.length > 0) {
+      this.errorData = undefined;
+      this.syncToolbarCanGoBack();
+      return;
+    }
+
+    // Search empties keep the inline "no results" copy; only a true empty
+    // picker (no accounts for the current family/scope) uses this status UI.
+    if (this.searchQuery) {
+      this.errorData = undefined;
+      this.syncToolbarCanGoBack();
+      return;
+    }
+
+    this.errorData = this.buildCompatibleAccountsError();
+    this.syncToolbarCanGoBack();
+  }
+
+  private syncToolbarCanGoBack(): void {
+    const screen = this.navigation.currentScreen;
+    if (!screen || screen.name !== "selectAccount") {
+      return;
+    }
+
+    // Replace the screen object so we never mutate the shared destination
+    // definition from `makeDestinations`.
+    this.navigation.currentScreen = {
+      ...screen,
+      canGoBack: this.showCompatibleAccountsError
+        ? false
+        : this.destinations.selectAccount.canGoBack,
+    };
+
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.requestUpdate();
+    }
+  }
+
+  private buildCompatibleAccountsError(): SelectAccountErrorData {
+    const copy =
+      this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts;
+
+    return {
+      title: copy.title,
+      cta1: {
+        label: copy.cta1,
+        action: () => {
+          this.errorData = undefined;
+          window.open("ledgerlive://accounts", "_blank", "noopener,noreferrer");
+          if (this.navigation.host instanceof RootNavigationComponent) {
+            this.navigation.host.closeModal();
+          }
+        },
+      },
+      cta2: {
+        label: copy.cta2,
+        action: () => {
+          void this.useAnotherDevice();
+        },
+      },
+    };
+  }
+
+  private async useAnotherDevice(): Promise<void> {
+    this.errorData = undefined;
+
+    try {
+      // Full session reset (device + trust chain), then restart the onboarding
+      // flow so reconnect advances through ledger-sync again.
+      await this.core.disconnect();
+    } catch (error) {
+      console.error("Failed to reset session before re-onboarding", error);
+    }
+
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 }

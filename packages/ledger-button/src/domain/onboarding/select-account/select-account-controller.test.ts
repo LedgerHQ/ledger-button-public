@@ -1,14 +1,50 @@
+/**
+ * @vitest-environment jsdom
+ */
+
 import type {
   AccountGroup,
   AccountListItem,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
 import { of, Subject } from "rxjs";
+import { vi } from "vitest";
 
 import type { CoreContext } from "../../../context/core-context";
 import type { LanguageContext } from "../../../context/language-context";
 import type { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import type { Destinations } from "../../../shared/routes";
 import { SelectAccountController } from "./select-account-controller";
+
+vi.mock("../../../shared/root-navigation", () => {
+  class MockRootNavigationComponent {
+    closeModal = vi.fn();
+    requestUpdate = vi.fn();
+    navigateToHome = vi.fn();
+    getModalMode = vi.fn().mockReturnValue("modal");
+    presentConnectionSuccessOverlay = vi.fn();
+  }
+
+  return { RootNavigationComponent: MockRootNavigationComponent };
+});
+
+type MockRootNavigationHost = {
+  closeModal: ReturnType<typeof vi.fn>;
+  requestUpdate: ReturnType<typeof vi.fn>;
+  navigateToHome: ReturnType<typeof vi.fn>;
+  getModalMode: ReturnType<typeof vi.fn>;
+  presentConnectionSuccessOverlay: ReturnType<typeof vi.fn>;
+};
+
+function createRootNavigationHost(
+  overrides: Partial<
+    Pick<MockRootNavigationHost, "closeModal" | "requestUpdate">
+  > = {},
+): RootNavigationComponent {
+  const MockHost = RootNavigationComponent as unknown as new () => MockRootNavigationHost;
+  return Object.assign(new MockHost(), overrides) as unknown as RootNavigationComponent;
+}
 
 const mockLang = {
   currentTranslation: {
@@ -20,8 +56,22 @@ const mockLang = {
         tokenCountOther: "{count} tokens",
       },
     },
+    error: {
+      ledgerSync: {
+        NoCompatibleAccounts: {
+          title: "No compatible account found",
+          cta1: "Create a new account on Ledger Live",
+          cta2: "Use another Ledger device",
+        },
+      },
+    },
   },
 } as unknown as LanguageContext;
+
+const mockDestinations = {
+  onboarding: { name: "onboarding" },
+  onboardingFlow: { name: "onboarding-flow" },
+} as unknown as Destinations;
 
 const createHost = (): ReactiveControllerHost => ({
   addController: vi.fn(),
@@ -65,6 +115,7 @@ function createGroup(accounts: AccountListItem[]): AccountGroup {
 function createController(options?: {
   core?: Partial<CoreContext>;
   navigation?: Navigation;
+  destinations?: Destinations;
   family?: "ethereum" | "solana";
 }) {
   const observeAccountGroups = vi.fn().mockReturnValue(of([]));
@@ -77,6 +128,7 @@ function createController(options?: {
     createHost(),
     core,
     options?.navigation ?? ({} as Navigation),
+    options?.destinations ?? mockDestinations,
     mockLang,
     options?.family,
   );
@@ -312,5 +364,179 @@ describe("SelectAccountController navigation", () => {
         }),
       }),
     );
+  });
+});
+
+describe("SelectAccountController compatible accounts empty state", () => {
+  it("does not surface the error before the first groups emission", () => {
+    const { controller } = createController({
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(new Subject()),
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+
+    expect(controller.hasLoadedGroups).toBe(false);
+    expect(controller.showCompatibleAccountsError).toBe(false);
+    expect(controller.errorData).toBeUndefined();
+  });
+
+  it("builds the NoCompatibleAccounts error when the loaded picker is empty", () => {
+    const { controller } = createController({
+      family: "solana",
+    });
+
+    controller.getAccounts();
+
+    expect(controller.hasLoadedGroups).toBe(true);
+    expect(controller.showCompatibleAccountsError).toBe(true);
+    expect(controller.errorData).toEqual(
+      expect.objectContaining({
+        title: "No compatible account found",
+        cta1: expect.objectContaining({
+          label: "Create a new account on Ledger Live",
+        }),
+        cta2: expect.objectContaining({
+          label: "Use another Ledger device",
+        }),
+      }),
+    );
+  });
+
+  it("clears the error when accounts are present", () => {
+    const group = createGroup([createAccount()]);
+    const { controller } = createController({
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(of([group])),
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+
+    expect(controller.showCompatibleAccountsError).toBe(false);
+    expect(controller.errorData).toBeUndefined();
+  });
+
+  it("hides the compatible-accounts error while a search query is active", () => {
+    const groups$ = new Subject<AccountGroup[]>();
+    const { controller } = createController({
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(groups$),
+      } as unknown as Partial<CoreContext>,
+      family: "solana",
+    });
+
+    controller.getAccounts();
+    groups$.next([]);
+
+    expect(controller.showCompatibleAccountsError).toBe(true);
+
+    controller.handleSearchInput(
+      new CustomEvent("search-input-change", { detail: { value: "usdt" } }),
+    );
+    groups$.next([]);
+
+    expect(controller.showCompatibleAccountsError).toBe(false);
+    expect(controller.errorData).toBeUndefined();
+  });
+
+  it("opens Ledger Live accounts and closes the modal when the primary CTA is used", () => {
+    const open = vi.spyOn(window, "open").mockImplementation(() => null);
+    const closeModal = vi.fn();
+    const navigation = {
+      host: createRootNavigationHost({ closeModal }),
+    } as unknown as Navigation;
+
+    const { controller } = createController({ navigation });
+
+    controller.getAccounts();
+    controller.errorData?.cta1?.action();
+
+    expect(open).toHaveBeenCalledWith(
+      "ledgerlive://accounts",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    expect(closeModal).toHaveBeenCalled();
+    expect(controller.errorData).toBeUndefined();
+
+    open.mockRestore();
+  });
+
+  it("resets the session then restarts onboarding when the secondary CTA is used", async () => {
+    const navigateTo = vi.fn();
+    const disconnect = vi.fn().mockResolvedValue(undefined);
+    const { controller } = createController({
+      navigation: { navigateTo, host: {} } as unknown as Navigation,
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(of([])),
+        disconnect,
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+    controller.errorData?.cta2?.action();
+    await vi.waitFor(() => {
+      expect(disconnect).toHaveBeenCalledWith();
+      expect(navigateTo).toHaveBeenCalledWith(mockDestinations.onboardingFlow);
+    });
+  });
+
+  it("hides the toolbar back arrow while the compatible-accounts error is shown", () => {
+    const requestUpdate = vi.fn();
+    const selectAccountCanGoBack = vi.fn().mockReturnValue(true);
+    const navigation = {
+      currentScreen: {
+        name: "selectAccount",
+        canGoBack: selectAccountCanGoBack,
+      },
+      host: createRootNavigationHost({ requestUpdate }),
+    } as unknown as Navigation;
+
+    const { controller } = createController({
+      navigation,
+      destinations: {
+        onboarding: { name: "onboarding" },
+        onboardingFlow: { name: "onboarding-flow" },
+        selectAccount: { canGoBack: selectAccountCanGoBack },
+      } as unknown as Destinations,
+    });
+
+    controller.getAccounts();
+
+    expect(navigation.currentScreen?.canGoBack).toBe(false);
+    expect(requestUpdate).toHaveBeenCalled();
+  });
+
+  it("restores the toolbar back arrow when accounts become available", () => {
+    const groups$ = new Subject<AccountGroup[]>();
+    const selectAccountCanGoBack = vi.fn().mockReturnValue(true);
+    const navigation = {
+      currentScreen: {
+        name: "selectAccount",
+        canGoBack: false as boolean | ((core: unknown) => boolean),
+      },
+      host: createRootNavigationHost(),
+    } as unknown as Navigation;
+
+    const { controller } = createController({
+      navigation,
+      destinations: {
+        onboarding: { name: "onboarding" },
+        onboardingFlow: { name: "onboarding-flow" },
+        selectAccount: { canGoBack: selectAccountCanGoBack },
+      } as unknown as Destinations,
+      core: {
+        observeAccountGroups: vi.fn().mockReturnValue(groups$),
+      } as unknown as Partial<CoreContext>,
+    });
+
+    controller.getAccounts();
+    groups$.next([]);
+    expect(navigation.currentScreen?.canGoBack).toBe(false);
+
+    groups$.next([createGroup([createAccount()])]);
+    expect(navigation.currentScreen?.canGoBack).toBe(selectAccountCanGoBack);
   });
 });

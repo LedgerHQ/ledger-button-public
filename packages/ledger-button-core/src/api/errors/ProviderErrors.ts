@@ -10,3 +10,13 @@ export class ModalClosedError extends LedgerButtonError {
     super(message, "ModalClosedError", context);
   }
 }
+
+/**
+ * Raised at the start of `initializeLedgerProvider` when no blockchain
+ * factory was passed. The dApp call does not continue.
+ */
+export class NoBlockchainProviderError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "NoBlockchainProviderError", context);
+  }
+}

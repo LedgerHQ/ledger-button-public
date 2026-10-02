@@ -86,8 +86,7 @@ export class RetrievingAccountsController implements ReactiveController {
               this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts
                 .cta2,
             action: () => {
-              this.errorData = undefined;
-              this.navigation.navigateTo(this.destinations.onboarding);
+              void this.useAnotherDevice();
             },
           },
         };
@@ -129,5 +128,19 @@ export class RetrievingAccountsController implements ReactiveController {
         };
         break;
     }
+  }
+
+  private async useAnotherDevice(): Promise<void> {
+    this.errorData = undefined;
+
+    try {
+      // Full session reset (device + trust chain), then restart the onboarding
+      // flow so reconnect advances through ledger-sync again.
+      await this.core.disconnect();
+    } catch (error) {
+      console.error("Failed to reset session before re-onboarding", error);
+    }
+
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 }

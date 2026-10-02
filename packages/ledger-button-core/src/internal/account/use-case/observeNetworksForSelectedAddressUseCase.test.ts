@@ -146,4 +146,43 @@ describe("ObserveNetworksForSelectedAddressUseCase", () => {
     expect(emissions).toHaveLength(1);
     subscription.unsubscribe();
   });
+
+  it("should debounce account hydration updates after the first emission", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const initialAccount = createAccount({ currencyId: "ethereum" });
+      makeUseCase([initialAccount]);
+      const accounts$ = new BehaviorSubject<AccountWithFiat[]>([
+        initialAccount,
+      ]);
+      observeAccountsWithFiatUseCase.execute.mockReturnValue(accounts$);
+
+      const emissions: Network[][] = [];
+      const subscription = useCase
+        .execute()
+        .subscribe((networks) => emissions.push(networks));
+
+      await vi.advanceTimersByTimeAsync(0);
+      expect(emissions).toHaveLength(1);
+
+      accounts$.next([
+        createAccount({ currencyId: "ethereum", balance: "2" }),
+      ]);
+      accounts$.next([
+        createAccount({ currencyId: "ethereum", balance: "3" }),
+      ]);
+
+      await vi.advanceTimersByTimeAsync(199);
+      expect(emissions).toHaveLength(1);
+
+      await vi.advanceTimersByTimeAsync(1);
+      expect(emissions).toHaveLength(2);
+      expect(emissions[1]?.[0]?.balance).toBe("3");
+
+      subscription.unsubscribe();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

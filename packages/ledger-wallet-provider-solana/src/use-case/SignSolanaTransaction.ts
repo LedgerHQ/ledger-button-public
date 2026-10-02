@@ -16,6 +16,10 @@ import {
   mapOpenAppDeviceActionError,
   waitForDeviceSession,
 } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  getBase64Decoder,
+  getCompiledTransactionMessageDecoder,
+} from "@solana/kit";
 import { inject, injectable } from "inversify";
 import { catchError, map, type Observable, of, switchMap } from "rxjs";
 
@@ -106,11 +110,14 @@ export class SignSolanaTransaction {
           return hash;
         };
 
-        this.logger.debug("Prepared Solana message bytes", {
+        this.logger.info("Prepared Solana message bytes", {
           address: params.address,
-          messageByteLength: messageBytes.byteLength,
+          message: getCompiledTransactionMessageDecoder().decode(messageBytes),
+          messageBase64: getBase64Decoder().decode(messageBytes),
+          transactionBase64: getBase64Decoder().decode(transaction),
           derivationPath,
         });
+
         this.logger.debug("Starting Solana transaction device action", {
           appName: openAppConfig.application.name,
           dependencyCount: openAppConfig.dependencies.length,

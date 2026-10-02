@@ -1,7 +1,9 @@
 import {
   type DeviceActionStateMachine,
+  GlobalCommandError,
   type InternalApi,
   OpenAppWithDependenciesDeviceAction,
+  RefusedByUserDAError,
   type StateMachineTypes,
   UnknownDAError,
   UserInteractionRequired,
@@ -14,7 +16,10 @@ import {
 } from "@ledgerhq/device-signer-kit-solana";
 import type { SignFlowStatus } from "@ledgerhq/ledger-wallet-provider-core";
 import type { UserInteractionNeeded } from "@ledgerhq/ledger-wallet-provider-core";
-import { IncorrectSeedError } from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  IncorrectSeedError,
+  UserRejectedTransactionError,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
 import { assign, setup } from "xstate";
 
@@ -147,15 +152,27 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
             onDone: {
               actions: assign({
                 _internalState: ({ event, context }) =>
-                  this.addOpenAppResultToInternalState(
-                    event.output,
-                    context._internalState,
+                  this.normalizeOpenAppError(
+                    this.addOpenAppResultToInternalState(
+                      event.output,
+                      context._internalState,
+                    ),
                   ),
               }),
               target: "CheckOpenAppResult",
             },
             onError: {
-              actions: "assignErrorFromEvent",
+              actions: assign({
+                _internalState: ({ context, event }) =>
+                  this.normalizeOpenAppError({
+                    ...context._internalState,
+                    error: (
+                      event as unknown as {
+                        error: SignSolanaMessageFlowDAInternalState["error"];
+                      }
+                    ).error,
+                  }),
+              }),
               target: "CheckOpenAppResult",
             },
           },
@@ -358,6 +375,22 @@ export class SignSolanaMessageFlowDeviceAction extends XStateDeviceAction<
       Right: () => internalState,
       Left: (e) => ({ ...internalState, error: e }),
     });
+  }
+
+  private normalizeOpenAppError(
+    internalState: SignSolanaMessageFlowDAInternalState,
+  ): SignSolanaMessageFlowDAInternalState {
+    const { error } = internalState;
+    if (
+      error instanceof RefusedByUserDAError ||
+      (error instanceof GlobalCommandError && error.errorCode === "5501")
+    ) {
+      return {
+        ...internalState,
+        error: new UserRejectedTransactionError("User rejected open app"),
+      } as SignSolanaMessageFlowDAInternalState;
+    }
+    return internalState;
   }
 
   private addGetAddressResultToInternalState(
