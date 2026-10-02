@@ -37,6 +37,8 @@
 - Consume the core account derivation APIs from the UI instead of rebuilding them: the account list, token list and network list controllers no longer duplicate fiat aggregation, grouping, search filtering or network computation. ([6f9a60b8](https://github.com/LedgerHQ/ledger-button/commit/6f9a60b8))
 - Remove internal ticket references and obsolete scope comments from source files. ([4906cba0](https://github.com/LedgerHQ/ledger-button/commit/4906cba0))
 - Fix empty select account screen ([c915f80c](https://github.com/LedgerHQ/ledger-button/commit/c915f80c))
+- Throw a `NoBlockchainProviderError` at the start of `initializeLedgerProvider` when no blockchain factory is passed. ([044f636f](https://github.com/LedgerHQ/ledger-button/commit/044f636f))
+- Update max width on ledger-account-switch ([857dd446](https://github.com/LedgerHQ/ledger-button/commit/857dd446))
 
 ### ⚠️ Breaking Changes
 

@@ -22,10 +22,6 @@
 
 ### 🩹 Fixes
 
-- Bump signer-kit Solana to 1.13.3 & DMK to 1.10.0 ([6ee926de](https://github.com/LedgerHQ/ledger-button/commit/6ee926de))
-
-
-- Bump DMK 1.9.1 + SOL signer kit 1.13.1 ([fb7fd0cb](https://github.com/LedgerHQ/ledger-button/commit/fb7fd0cb))
 - Surface a device disconnection during discovery or signing with reconnection guidance. A dismissed browser device picker stays silent, and an error emitted while the signing screen is unmounted remains visible when it mounts again. ([3c3a601b](https://github.com/LedgerHQ/ledger-button/commit/3c3a601b))
 - Keep one DI container for the lifetime of the SDK so a reconnect still reaches the live device session. ([0ab05988](https://github.com/LedgerHQ/ledger-button/commit/0ab05988))
 - Clear the cached DMK session whenever a device disconnects and before reconnecting. A failed release no longer blocks the next connection, a dead cached session is dropped as soon as DMK disowns it, and waiting for a device session times out instead of polling forever. ([4ba99218](https://github.com/LedgerHQ/ledger-button/commit/4ba99218))
@@ -53,8 +49,11 @@
 - Move account list derivation into the core: new `observeAccountGroups()` stream emits accounts already grouped by address, sorted and filtered by search, with their total fiat value and display tokens computed, and new `observeNetworksForSelectedAddress()` / `selectAccountForNetwork()` expose the network breakdown consumers used to rebuild themselves. ([109091c4](https://github.com/LedgerHQ/ledger-button/commit/109091c4))
 - Remove internal ticket references and obsolete scope comments from source files. ([4906cba0](https://github.com/LedgerHQ/ledger-button/commit/4906cba0))
 - Remove dApp config v1, migrate consumers to v2 ([b0eed397](https://github.com/LedgerHQ/ledger-button/commit/b0eed397))
+- Bump DMK 1.9.1 + SOL signer kit 1.13.1 ([fb7fd0cb](https://github.com/LedgerHQ/ledger-button/commit/fb7fd0cb))
+- Bump signer-kit Solana to 1.13.3 & DMK to 1.10.0 ([6ee926de](https://github.com/LedgerHQ/ledger-button/commit/6ee926de))
+- Throw a `NoBlockchainProviderError` at the start of `initializeLedgerProvider` when no blockchain factory is passed. ([044f636f](https://github.com/LedgerHQ/ledger-button/commit/044f636f))
 
-### ⚠️  Breaking Changes
+### ⚠️ Breaking Changes
 
 - Extract EVM and Solana into provider packages with host-wired factories. ([e5a43e11](https://github.com/LedgerHQ/ledger-button/commit/e5a43e11))
 - Move the EVM get-address model and the EIP-1193 / EIP-6963 contracts from core to the EVM provider package, and stop re-exporting the EIP contracts from `@ledgerhq/ledger-wallet-provider`. Import them from `@ledgerhq/ledger-wallet-provider-evm` instead. ([7bdfea4a](https://github.com/LedgerHQ/ledger-button/commit/7bdfea4a))

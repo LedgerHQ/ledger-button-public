@@ -32,6 +32,8 @@
 - Pin Device Management Kit stack to develop snapshot 0.0.0-develop-20260819092631. ([02d56c9f](https://github.com/LedgerHQ/ledger-button/commit/02d56c9f))
 - Add structured debug/info logging along the Solana sign and broadcast pipeline. `info` marks flow milestones (sign start, broadcast start/success), `debug` traces intermediate steps (message bytes, derivation path, device action, sign flow start/cancel) and `error` covers device-action failures. Sensitive context stays out of default `info` logs: the address is logged at `debug` only, byte lengths replace raw payloads, and broadcast options are logged as a fixed scalar subset. ([a92a9e1d](https://github.com/LedgerHQ/ledger-button/commit/a92a9e1d))
 - Omit the `.js` extension on relative and aliased imports. The workspace uses `moduleResolution: bundler`. Real package subpaths such as `lit/decorators.js` are unchanged. ([dfdce6c1](https://github.com/LedgerHQ/ledger-button/commit/dfdce6c1))
+- Handle UserRejectedTransactionError for SignSolanaTransactionFlowDeviceAction and sign messages ([b9a61fd0](https://github.com/LedgerHQ/ledger-button/commit/b9a61fd0))
+- Log the decoded Solana message, the compiled message, and the full wire transaction as Base64 so a failed signature can be replayed in the Device SDK. ([64e8263c](https://github.com/LedgerHQ/ledger-button/commit/64e8263c))
 
 ### ⚠️ Breaking Changes
 
