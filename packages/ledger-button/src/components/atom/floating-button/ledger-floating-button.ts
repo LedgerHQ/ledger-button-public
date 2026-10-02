@@ -8,16 +8,16 @@ import { css, html, LitElement, nothing, type PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
-import { BadgeAnimationController } from "./floating-button-badge-animation-controller.js";
-import { resolveTooltipContent } from "./floating-button-tooltip-utils.js";
-import { FloatingButtonController } from "./ledger-floating-button-controller.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
+import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification";
+import { BadgeAnimationController } from "./floating-button-badge-animation-controller";
+import { resolveTooltipContent } from "./floating-button-tooltip-utils";
+import { FloatingButtonController } from "./ledger-floating-button-controller";
 
 export type FloatingButtonPosition =
   | "bottom-right"

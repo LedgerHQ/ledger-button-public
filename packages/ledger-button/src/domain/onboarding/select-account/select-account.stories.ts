@@ -1,7 +1,7 @@
 import "./select-account";
-import "../../../context/core-context.js";
-import "../../../context/language-context.js";
-import "../../../components/index.js";
+import "../../../context/core-context";
+import "../../../context/language-context";
+import "../../../components/index";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";

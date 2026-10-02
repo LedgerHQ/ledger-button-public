@@ -19,10 +19,11 @@ import {
   tap,
 } from "rxjs";
 
-import { CoreContext } from "../../context/core-context.js";
-import { LanguageContext } from "../../context/language-context.js";
-import { belongsToAccount } from "../../shared/pending-transaction-account-filter.js";
-import type { TransactionListItem } from "../transaction-list/transaction-list.js";
+import { CoreContext } from "../../context/core-context";
+import { LanguageContext } from "../../context/language-context";
+import { belongsToAccount } from "../../shared/pending-transaction-account-filter";
+import { toLocalDateKey } from "../transaction-list/group-transactions-by-date";
+import type { TransactionListItem } from "../transaction-list/transaction-list";
 
 export class LedgerHomeController implements ReactiveController {
   selectedAccount: DetailedAccount | undefined = undefined;
@@ -101,15 +102,9 @@ export class LedgerHomeController implements ReactiveController {
       tx.value,
       tx.asset.decimals,
       tx.asset.ticker,
-      tx.asset.ledgerId,
     );
     const formattedFee = tx.fee
-      ? formatBalance(
-          tx.fee.amount,
-          tx.fee.asset.decimals,
-          tx.fee.asset.ticker,
-          tx.fee.asset.ledgerId,
-        )
+      ? formatBalance(tx.fee.amount, tx.fee.asset.decimals, tx.fee.asset.ticker)
       : undefined;
     const isFeesRow = tx.kind === "fees" && !!formattedFee;
     const fiatAmount = (isFeesRow ? tx.fee?.fiatAmount : tx.fiatValue) ?? "";
@@ -121,7 +116,8 @@ export class LedgerHomeController implements ReactiveController {
       type: tx.type,
       status: tx.status,
       kind: tx.kind,
-      date: date.toISOString().split("T")[0],
+      timestamp: tx.timestamp,
+      date: toLocalDateKey(date),
       time: date.toLocaleTimeString(this.languages.locale, {
         hour: "2-digit",
         minute: "2-digit",
@@ -145,12 +141,13 @@ export class LedgerHomeController implements ReactiveController {
       type: tx.type,
       status: "pending",
       kind: "transfer",
-      date: date.toISOString().split("T")[0],
+      timestamp: tx.timestamp,
+      date: toLocalDateKey(date),
       time: date.toLocaleTimeString(this.languages.locale, {
         hour: "2-digit",
         minute: "2-digit",
       }),
-      amount: tx.formattedValue,
+      amount: tx.formattedValue ?? "",
       ticker: tx.ticker,
       title: tx.currencyName,
       fiatAmount: tx.fiatValue ?? "",

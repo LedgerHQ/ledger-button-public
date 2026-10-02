@@ -1,4 +1,4 @@
-import { type PendingTransaction } from "../model/PendingTransaction.js";
+import { type PendingTransaction } from "../model/PendingTransaction";
 
 export interface PendingTransactionStorageService {
   add(tx: PendingTransaction): void;

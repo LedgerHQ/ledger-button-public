@@ -4,7 +4,7 @@ import type {
   TransactionHistoryEntry,
   TransactionHistoryEntryAsset,
   TransactionHistoryEntryFee,
-} from "../model/transactionHistoryTypes.js";
+} from "../model/transactionHistoryTypes";
 import {
   AssetInfo,
   buildTransactionHistoryItem,
@@ -13,7 +13,7 @@ import {
   determineStatus,
   extractFee,
   toLegacyType,
-} from "./buildTransactionHistoryItem.js";
+} from "./buildTransactionHistoryItem";
 
 const TEST_ADDRESS = "0x1234567890abcdef1234567890abcdef12345678";
 

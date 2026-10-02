@@ -4,7 +4,10 @@ export {
   SOLANA_CLUSTERS,
   type SolanaCluster,
 } from "./solanaCluster";
+export {
+  SolanaClusterProvider,
+  useSolanaClusterConfig,
+} from "./SolanaClusterProvider";
 export { SolanaConnectionStatus } from "./SolanaConnectionStatus";
 export { default as SolanaProviders } from "./SolanaProviders";
-export { SolanaSettingsBlock } from "./SolanaSettingsBlock";
 export { WalletSelectionBlock } from "./WalletSelectionBlock";

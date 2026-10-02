@@ -1,4 +1,4 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import { consume } from "@lit/context";
 import { html, LitElement, type PropertyValues } from "lit";
@@ -7,14 +7,14 @@ import { customElement, property } from "lit/decorators.js";
 import {
   type CoreContext,
   coreContext,
-} from "../../../context/core-context.js";
+} from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import { PreferenceCurrencyController } from "./preference-currency-controller.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { tailwindElement } from "../../../tailwind-element";
+import { PreferenceCurrencyController } from "./preference-currency-controller";
 
 @customElement("preference-currency-screen")
 @tailwindElement()

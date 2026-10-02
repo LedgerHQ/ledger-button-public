@@ -6,9 +6,9 @@ import "../icon/ledger-icon";
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
-import { computeFloatingButtonRect } from "../floating-button/floating-button-rect.js";
-import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button.js";
-import type { LedgerModal } from "./ledger-modal.js";
+import { computeFloatingButtonRect } from "../floating-button/floating-button-rect";
+import type { FloatingButtonPosition } from "../floating-button/ledger-floating-button";
+import type { LedgerModal } from "./ledger-modal";
 
 const ALL_POSITIONS: FloatingButtonPosition[] = [
   "bottom-right",

@@ -5,10 +5,10 @@ import { classMap } from "lit/directives/class-map.js";
 import type { AnimationItem } from "lottie-web";
 import lottie from "lottie-web";
 
-import backgroundFlare from "./animations/background-flare.js";
-import checkmark from "./animations/checkmark.js";
-import loadingSpinner from "./animations/loading-spinner.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+import backgroundFlare from "./animations/background-flare";
+import checkmark from "./animations/checkmark";
+import loadingSpinner from "./animations/loading-spinner";
+import { tailwindElement } from "../../../tailwind-element";
 
 export type LottieSize = "small" | "medium" | "large" | "full";
 

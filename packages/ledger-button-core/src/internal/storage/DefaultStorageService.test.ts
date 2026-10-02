@@ -2,13 +2,14 @@ import "fake-indexeddb/auto";
 
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
-import { STORAGE_KEYS } from "./model/constant.js";
-import { StorageIDBGetError } from "./model/errors.js";
-import { type UserConsent } from "./model/UserConsent.js";
-import { type IndexedDbService } from "./service/IndexedDbService.js";
-import { type Account } from "../account/service/AccountService.js";
-import { type LoggerPublisher } from "../logger/service/LoggerPublisher.js";
-import { DefaultStorageService } from "./DefaultStorageService.js";
+import type { Account } from "@api/model/Account";
+
+import { STORAGE_KEYS } from "./model/constant";
+import { StorageIDBGetError } from "./model/errors";
+import { type UserConsent } from "./model/UserConsent";
+import { type IndexedDbService } from "./service/IndexedDbService";
+import { type LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { DefaultStorageService } from "./DefaultStorageService";
 
 let mockLogger: LoggerPublisher;
 let storageService: DefaultStorageService;
@@ -616,5 +617,49 @@ describe("DefaultStorageService", () => {
         expect(storageService.getFeatureFlags().solana).toBe(true);
       });
     });
+  });
+
+  describe("Config overrides methods", () => {
+    const BLAST_NETWORK = {
+      id: "81457",
+      currencyId: "blast",
+      currencyName: "Blast",
+      currencyTicker: "ETH",
+    };
+
+    const HYPEREVM_NETWORK = {
+      id: "999",
+      currencyId: "hyperevm",
+      currencyName: "HyperEVM",
+      currencyTicker: "HYPE",
+    };
+
+    describe("getConfigOverrides", () => {
+      it("should return default overrides when none are stored", () => {
+        expect(storageService.getConfigOverrides()).toEqual([]);
+      });
+
+      it("should return stored overrides", () => {
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+
+        expect(storageService.getConfigOverrides()).toEqual([BLAST_NETWORK]);
+      });
+    });
+
+    describe("saveConfigOverrides", () => {
+      it("should persist the override list", () => {
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+
+        expect(storageService.getConfigOverrides()).toEqual([BLAST_NETWORK]);
+      });
+
+      it("should overwrite previously saved overrides", () => {
+        storageService.saveConfigOverrides([BLAST_NETWORK]);
+        storageService.saveConfigOverrides([HYPEREVM_NETWORK]);
+
+        expect(storageService.getConfigOverrides()).toEqual([HYPEREVM_NETWORK]);
+      });
+    });
+
   });
 });

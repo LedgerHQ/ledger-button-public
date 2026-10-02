@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import type { Account } from "../../internal/account/service/AccountService.js";
-import type { BlockchainFamily } from "../blockchain-provider/model/types.js";
+import type { BlockchainFamily } from "../blockchain-provider/model/types";
+import type { Account } from "./Account";
 import {
   type ButtonCoreContext,
   getActiveFamily,
   getActiveSelectedAccount,
   getConnectedFamilies,
   getSelectedAccount,
-} from "./ButtonCoreContext.js";
+} from "./ButtonCoreContext";
 
 const ethereumAccount = {
   freshAddress: "0xabc",

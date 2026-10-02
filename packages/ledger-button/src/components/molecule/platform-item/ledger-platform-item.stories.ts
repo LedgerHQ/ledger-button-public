@@ -1,4 +1,4 @@
-import "./ledger-platform-item.js";
+import "./ledger-platform-item";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";

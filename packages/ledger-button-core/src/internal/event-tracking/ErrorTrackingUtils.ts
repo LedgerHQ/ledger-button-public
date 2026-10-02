@@ -1,11 +1,12 @@
-import { TrackedErrorType } from "./config/ErrorTrackingConfig.js";
-import { LedgerButtonError } from "../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError";
+
+import { TrackedErrorType } from "./config/ErrorTrackingConfig";
 import {
   ErrorOccurredEventData,
   EventRequest,
   EventType,
-} from "../backend/model/trackEvent.js";
-import { generateUUID } from "./utils.js";
+} from "../backend/model/trackEvent";
+import { generateUUID } from "./utils";
 
 interface ErrorTrackingParams {
   error: Error;
@@ -58,6 +59,7 @@ const ERROR_CATEGORY_MAP: Record<TrackedErrorType, string> = {
   LedgerSyncAuthContextMissingError: "ledgersync",
   LedgerSyncNoSessionIdError: "ledgersync",
   DeviceOutOfMemoryError: "device",
+  DeviceFirmwareOutdatedError: "device",
 };
 
 export const categorizeError = (error: Error): string => {

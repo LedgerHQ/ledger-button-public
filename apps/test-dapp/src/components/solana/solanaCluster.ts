@@ -13,9 +13,10 @@ export const DEFAULT_SOLANA_CLUSTER: SolanaCluster = "mainnet";
 const RPC_URLS: Record<SolanaCluster, string> = {
   devnet: "https://api.devnet.solana.com",
   testnet: "https://api.testnet.solana.com",
-  // The mainnet cluster moniker is "mainnet" (per @solana/kit) but the public
-  // RPC host is still served under the historical "mainnet-beta" domain.
-  mainnet: "https://api.mainnet-beta.solana.com",
+  // The public `api.mainnet-beta.solana.com` host rejects browser requests with
+  // HTTP 403, so we use Ledger's CORS-enabled Solana RPC (the same endpoint the
+  // Device Management Kit sample app uses) for mainnet.
+  mainnet: "https://solana.coin.ledger.com",
 };
 
 export function getSolanaChain(cluster: SolanaCluster): SolanaChain {

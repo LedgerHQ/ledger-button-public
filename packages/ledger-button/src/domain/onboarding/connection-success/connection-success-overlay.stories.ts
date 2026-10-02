@@ -1,10 +1,10 @@
-import "./connection-success-overlay.js";
-import "../../../context/language-context.js";
+import "./connection-success-overlay";
+import "../../../context/language-context";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 
-import { computeFloatingButtonRect } from "../../../components/atom/floating-button/floating-button-rect.js";
+import { computeFloatingButtonRect } from "../../../components/atom/floating-button/floating-button-rect";
 
 const meta: Meta = {
   title: "Screens/Onboarding/ConnectionSuccessOverlay",

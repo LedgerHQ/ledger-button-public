@@ -1,16 +1,16 @@
-import "../../../components/index.js";
-import "../../../components/atom/toggle/ledger-toggle.js";
+import "../../../components/index";
+import "../../../components/atom/toggle/ledger-toggle";
 
 import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
 
 @customElement("security-screen")
 @tailwindElement()

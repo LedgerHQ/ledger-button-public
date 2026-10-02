@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Ya estás conectado",
+      "subtitle": "Ahora puedes realizar tu primera transacción con las ventajas de la Verificación de transacciones y la Firma Visible de Ledger.",
       "close": "Cerrar"
     },
     "turnOnSync": {
@@ -334,6 +335,11 @@
         "title": "No hay suficiente espacio para la app {AppName}",
         "description": "Tu {deviceName} se ha quedado sin almacenamiento, por lo que no se ha podido instalar por sí sola. Libera espacio en Ledger Wallet y luego instala la app.",
         "cta1": "Liberar espacio"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

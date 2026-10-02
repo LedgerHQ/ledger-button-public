@@ -1,34 +1,37 @@
-import "../../../components/index.js";
+import "../../../components/index";
 
 import {
   Account,
-  AccountWithFiat,
+  type AccountGroup,
+  type AccountListItem,
   type BlockchainFamily,
-  type SelectAccountIntentParams,
-  type WalletNavigationIntent,
+  type FiatBalance,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { StatusType } from "../../../components/organism/status/ledger-status";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import { formatFiatBalance } from "../../../utils/format-fiat.js";
-import {
-  type AccountGroup,
-  SelectAccountController,
-} from "./select-account-controller.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { type SelectAccountNavigationParams } from "../../../shared/root-navigation-controller";
+import { type Destinations } from "../../../shared/routes";
+import { tailwindElement } from "../../../tailwind-element";
+import { formatFiatBalance } from "../../../utils/format-fiat";
+import { SelectAccountController } from "./select-account-controller";
 
 @customElement("select-account-screen")
 @tailwindElement()
 export class SelectAccountScreen extends LitElement {
   @property({ type: Object })
   navigation!: Navigation;
+
+  @property({ type: Object })
+  destinations!: Destinations;
 
   @consume({ context: coreContext })
   @property({ attribute: false })
@@ -39,7 +42,7 @@ export class SelectAccountScreen extends LitElement {
   public languages!: LanguageContext;
 
   @property({ attribute: false })
-  params?: WalletNavigationIntent;
+  params?: SelectAccountNavigationParams;
 
   controller!: SelectAccountController;
 
@@ -49,24 +52,22 @@ export class SelectAccountScreen extends LitElement {
       this,
       this.coreContext,
       this.navigation,
+      this.destinations,
       this.languages,
       this.resolveRequestedFamily(),
     );
   }
 
+  // Nested access stays optional: params may be absent on generic entry points.
   private resolveRequestedFamily(): BlockchainFamily | undefined {
-    const intentParams = this.params?.params as
-      | SelectAccountIntentParams
-      | undefined;
-    return intentParams?.family;
+    return this.params?.params?.family;
   }
 
-  private renderAccountCard(account: AccountWithFiat) {
+  private renderAccountCard(account: AccountListItem) {
     const isBalanceLoading = this.controller.isAccountBalanceLoading(account);
     const isBalanceError = this.controller.hasAccountBalanceError(account);
     const isFiatLoading = this.controller.isAccountFiatLoading(account);
     const isFiatError = this.controller.hasAccountFiatError(account);
-    const fiatBalance = this.controller.getAccountFiatValue(account);
 
     return html`
       <div
@@ -91,7 +92,11 @@ export class SelectAccountScreen extends LitElement {
           <span class="body-2-semi-bold truncate text-base"
             >${account.name}</span
           >
-          ${this.renderAccountCardTokenInfo(account, isBalanceLoading)}
+          ${this.renderAccountCardTokenInfo(
+            account,
+            isBalanceLoading,
+            isBalanceError,
+          )}
         </div>
         <div class="flex shrink-0 flex-col items-end gap-4">
           ${this.renderAccountCardBalance({
@@ -99,7 +104,7 @@ export class SelectAccountScreen extends LitElement {
             isBalanceError,
             isFiatLoading,
             isFiatError,
-            fiatBalance,
+            fiatBalance: account.totalFiatValue,
           })}
         </div>
       </div>
@@ -107,8 +112,9 @@ export class SelectAccountScreen extends LitElement {
   }
 
   private renderAccountCardTokenInfo(
-    account: AccountWithFiat,
+    account: AccountListItem,
     isBalanceLoading: boolean,
+    isBalanceError: boolean,
   ) {
     if (isBalanceLoading) {
       return html`<ledger-skeleton
@@ -116,7 +122,11 @@ export class SelectAccountScreen extends LitElement {
       ></ledger-skeleton>`;
     }
 
-    const displayTokens = this.controller.getDisplayTokens(account);
+    if (isBalanceError) {
+      return html`<span class="text-muted body-3">--</span>`;
+    }
+
+    const displayTokens = account.displayTokens;
 
     if (displayTokens.length > 0) {
       return html`<button
@@ -143,7 +153,7 @@ export class SelectAccountScreen extends LitElement {
     isBalanceError: boolean;
     isFiatLoading: boolean;
     isFiatError: boolean;
-    fiatBalance: ReturnType<SelectAccountController["getAccountFiatValue"]>;
+    fiatBalance: FiatBalance | undefined;
   }) {
     if (params.isBalanceLoading || params.isFiatLoading) {
       return html`<ledger-skeleton
@@ -207,7 +217,8 @@ export class SelectAccountScreen extends LitElement {
     const translations = this.languages.currentTranslation;
 
     if (
-      this.controller.groupedAccounts.length > 0 ||
+      this.controller.showCompatibleAccountsError ||
+      this.controller.groups.length > 0 ||
       !this.controller.searchQuery
     ) {
       return nothing;
@@ -218,6 +229,41 @@ export class SelectAccountScreen extends LitElement {
         <p class="body-1-semi-bold text-center text-base">
           ${translations.onboarding.selectAccount.noResults}
         </p>
+      </div>
+    `;
+  }
+
+  private handleStatusActionError(
+    e: CustomEvent<{
+      timestamp: number;
+      action: "primary" | "secondary";
+      type: StatusType;
+    }>,
+  ) {
+    if (e.detail.action === "primary") {
+      this.controller.errorData?.cta1?.action();
+    } else if (e.detail.action === "secondary") {
+      this.controller.errorData?.cta2?.action();
+    }
+  }
+
+  private renderCompatibleAccountsError() {
+    if (
+      !this.controller.showCompatibleAccountsError ||
+      !this.controller.errorData
+    ) {
+      return nothing;
+    }
+
+    return html`
+      <div class="flex flex-col gap-12">
+        <ledger-status
+          type="error"
+          title=${this.controller.errorData.title}
+          primary-button-label=${this.controller.errorData.cta1?.label ?? ""}
+          secondary-button-label=${this.controller.errorData.cta2?.label ?? ""}
+          @status-action=${this.handleStatusActionError}
+        ></ledger-status>
       </div>
     `;
   }
@@ -278,12 +324,18 @@ export class SelectAccountScreen extends LitElement {
   }
 
   override render() {
+    if (this.controller.showCompatibleAccountsError) {
+      return html`
+        <div class="flex h-full flex-col gap-12 p-24 pt-0">
+          ${this.renderCompatibleAccountsError()}
+        </div>
+      `;
+    }
+
     return html`
       <div class="flex h-full flex-col gap-12 p-24 pt-0">
         ${this.renderSearchHeader()}
-        ${this.controller.groupedAccounts.map((group) =>
-          this.renderGroup(group),
-        )}
+        ${this.controller.groups.map((group) => this.renderGroup(group))}
         ${this.renderNoResults()}
       </div>
       ${this.renderBalanceLoadingFooter()}

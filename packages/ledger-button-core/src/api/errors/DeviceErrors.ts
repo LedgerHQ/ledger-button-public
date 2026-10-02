@@ -1,6 +1,6 @@
 import { DeviceModelId } from "@ledgerhq/device-management-kit";
 
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 export class DeviceNotSupportedError extends LedgerButtonError<{
   modelId: DeviceModelId;
@@ -53,5 +53,13 @@ export class DeviceOutOfMemoryError extends LedgerButtonError<{
 }> {
   constructor(message: string, context?: { appName?: string }) {
     super(message, "DeviceOutOfMemoryError", context);
+  }
+}
+
+export class DeviceFirmwareOutdatedError extends LedgerButtonError<{
+  appName?: string;
+}> {
+  constructor(message: string, context?: { appName?: string }) {
+    super(message, "DeviceFirmwareOutdatedError", context);
   }
 }

@@ -5,11 +5,11 @@
 import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../components/index.js", () => ({}));
+vi.mock("../../components/index", () => ({}));
 
 import PACKAGE from "../../../package.json" with { type: "json" };
-import type { Destination } from "../../shared/routes.js";
-import { SettingsScreen } from "./settings-screen.js";
+import type { Destination } from "../../shared/routes";
+import { SettingsScreen } from "./settings-screen";
 
 function createMockNavigation() {
   return {

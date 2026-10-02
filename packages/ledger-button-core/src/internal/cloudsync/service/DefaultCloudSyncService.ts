@@ -4,16 +4,17 @@ import { Either } from "purify-ts";
 import {
   FailedToFetchEncryptedAccountsError,
   NoAccountInSyncError,
-} from "../../../api/errors/LedgerSyncErrors.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
-import { InternalAuthContext } from "../../ledgersync/model/InternalAuthContext.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { networkModuleTypes } from "../../network/networkModuleTypes.js";
-import { type NetworkService } from "../../network/NetworkService.js";
-import { CloudSyncData } from "../model/cloudSyncTypes.js";
-import { CloudSyncService } from "./CloudSyncService.js";
+} from "@api/errors/LedgerSyncErrors";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
+import { type NetworkService } from "@internal/network/NetworkService";
+
+import { CloudSyncData } from "../model/cloudSyncTypes";
+import { CloudSyncService } from "./CloudSyncService";
 
 @injectable()
 export class DefaultCloudSyncService implements CloudSyncService {

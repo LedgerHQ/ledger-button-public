@@ -5,8 +5,8 @@ import {
 } from "@ledgerhq/device-management-kit";
 import { injectable } from "inversify";
 
-import { Device } from "../model/Device.js";
-import { DeviceManagementKitService } from "./DeviceManagementKitService.js";
+import { Device } from "../model/Device";
+import { DeviceManagementKitService } from "./DeviceManagementKitService";
 
 @injectable()
 export class StubDeviceManagementKitService
@@ -24,6 +24,7 @@ export class StubDeviceManagementKitService
 
   connectToDevice = () => Promise.resolve(this.connectedDevice as Device);
   disconnectFromDevice = () => Promise.resolve();
+  isSessionAlive = () => this.sessionId !== undefined;
 
   listAvailableDevices = () =>
     Promise.resolve([

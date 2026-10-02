@@ -2,7 +2,7 @@ import {
   DEFAULT_LANGUAGE,
   isLangKey,
   type LangKey,
-} from "./../constants/languages.js";
+} from "./../constants/languages";
 
 export function capitalizeFirstLetterWhenCased(
   text: string,

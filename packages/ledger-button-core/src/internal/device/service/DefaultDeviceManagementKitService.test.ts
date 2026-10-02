@@ -1,4 +1,5 @@
 import {
+  ConsoleLogger,
   DeviceManagementKit,
   DiscoveredDevice,
   NoAccessibleDeviceError,
@@ -10,31 +11,37 @@ import {
   createMockLoggerFactory,
   mockConnectedDevice,
   mockDiscoveredDevice,
-} from "../__tests__/mocks.js";
-import { DeviceConnectionError } from "../model/errors.js";
-import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService.js";
+} from "../__tests__/mocks";
+import { DeviceConnectionError } from "../model/errors";
+import { DefaultDeviceManagementKitService } from "./DefaultDeviceManagementKitService";
 
 vi.mock("@ledgerhq/device-management-kit", async () => {
   const actual = await vi.importActual("@ledgerhq/device-management-kit");
   return {
     ...actual,
-    DeviceManagementKitBuilder: vi.fn().mockImplementation(() => ({
-      addConfig: vi.fn().mockReturnThis(),
-      addLogger: vi.fn().mockReturnThis(),
-      addTransport: vi.fn().mockReturnThis(),
-      build: vi.fn().mockReturnValue({
-        startDiscovering: vi.fn(),
-        stopDiscovering: vi.fn(),
-        connect: vi.fn(),
-        disconnect: vi.fn(),
-        getConnectedDevice: vi.fn(),
-        close: vi.fn(),
-        listenToAvailableDevices: vi.fn(),
-      }),
-    })),
+    DeviceManagementKitBuilder: vi.fn().mockImplementation(function () {
+      return {
+        addConfig: vi.fn().mockReturnThis(),
+        addLogger: vi.fn().mockReturnThis(),
+        addTransport: vi.fn().mockReturnThis(),
+        build: vi.fn().mockReturnValue({
+          startDiscovering: vi.fn(),
+          stopDiscovering: vi.fn(),
+          connect: vi.fn(),
+          disconnect: vi.fn(),
+          getConnectedDevice: vi.fn(),
+          close: vi.fn(),
+          listenToAvailableDevices: vi.fn(),
+        }),
+      };
+    }),
     ConsoleLogger: vi.fn(),
     LogLevel: {
+      Fatal: "Fatal",
       Error: "Error",
+      Warning: "Warning",
+      Info: "Info",
+      Debug: "Debug",
     },
   };
 });
@@ -47,7 +54,11 @@ describe("DefaultDeviceManagementKitService", () => {
   beforeEach(() => {
     mockLoggerFactory = createMockLoggerFactory();
 
-    service = new DefaultDeviceManagementKitService(mockLoggerFactory, {});
+    service = new DefaultDeviceManagementKitService(
+      mockLoggerFactory,
+      {},
+      "error",
+    );
 
     mockDmk = service.dmk;
 
@@ -60,6 +71,25 @@ describe("DefaultDeviceManagementKitService", () => {
       expect(service.sessionId).toBeUndefined();
       expect(service.connectedDevice).toBeUndefined();
     });
+
+    it.each([
+      { dmkLogLevel: "fatal" as const, expected: "Fatal" },
+      { dmkLogLevel: "error" as const, expected: "Error" },
+      { dmkLogLevel: "warn" as const, expected: "Warning" },
+      { dmkLogLevel: "info" as const, expected: "Info" },
+      { dmkLogLevel: "debug" as const, expected: "Debug" },
+    ])(
+      "should construct ConsoleLogger with $expected when dmkLogLevel is $dmkLogLevel",
+      ({ dmkLogLevel, expected }) => {
+        new DefaultDeviceManagementKitService(
+          mockLoggerFactory,
+          {},
+          dmkLogLevel,
+        );
+
+        expect(ConsoleLogger).toHaveBeenCalledWith(expected);
+      },
+    );
   });
 
   describe("connectToDevice", () => {
@@ -241,6 +271,7 @@ describe("DefaultDeviceManagementKitService", () => {
 
         expect(mockDmk.disconnect).toHaveBeenCalled();
         expect(service.sessionId).toBeUndefined();
+        expect(service.connectedDevice).toBeUndefined();
       });
 
       it("should include error type in DeviceConnectionError when disconnect fails", async () => {
@@ -258,6 +289,68 @@ describe("DefaultDeviceManagementKitService", () => {
             sessionId: "213",
           });
         }
+
+        expect(service.sessionId).toBeUndefined();
+        expect(service.connectedDevice).toBeUndefined();
+      });
+
+      it("should report a session DMK no longer knows as dead", async () => {
+        expect(service.isSessionAlive()).toBe(true);
+
+        vi.mocked(mockDmk.getConnectedDevice).mockImplementation(() => {
+          throw new Error("Device session not found");
+        });
+
+        expect(service.isSessionAlive()).toBe(false);
+      });
+
+      it("should stop querying DMK once it has disowned the session", async () => {
+        vi.mocked(mockDmk.getConnectedDevice).mockImplementation(() => {
+          throw new Error("Device session not found");
+        });
+
+        service.isSessionAlive();
+        const callsAfterFirstCheck = vi.mocked(mockDmk.getConnectedDevice).mock
+          .calls.length;
+        service.isSessionAlive();
+        service.isSessionAlive();
+
+        expect(vi.mocked(mockDmk.getConnectedDevice).mock.calls).toHaveLength(
+          callsAfterFirstCheck,
+        );
+        expect(service.sessionId).toBeUndefined();
+      });
+
+      it("should report no session as dead", async () => {
+        await service.disconnectFromDevice();
+
+        expect(service.isSessionAlive()).toBe(false);
+      });
+
+      it("should keep a session established while an earlier disconnect was still pending", async () => {
+        let resolveDisconnect: () => void = () => undefined;
+        vi.mocked(mockDmk.disconnect).mockReturnValue(
+          new Promise<void>((resolve) => {
+            resolveDisconnect = resolve;
+          }),
+        );
+
+        const pendingDisconnect = service.disconnectFromDevice();
+
+        // The user plugs the device back in and reconnects before the
+        // disconnect of the previous session has settled.
+        vi.mocked(mockDmk.connect).mockResolvedValue("session-456");
+        vi.mocked(mockDmk.getConnectedDevice).mockResolvedValue({
+          ...mockConnectedDevice,
+          sessionId: "session-456",
+        });
+        await service.connectToDevice({ type: "usb" });
+
+        resolveDisconnect();
+        await pendingDisconnect;
+
+        expect(service.sessionId).toBe("session-456");
+        expect(service.connectedDevice).toBeDefined();
       });
     });
   });

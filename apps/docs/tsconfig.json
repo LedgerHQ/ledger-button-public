@@ -18,10 +18,12 @@
   },
   "include": [
     "next-env.d.ts",
+    ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.d.ts",
     "**/*.js",
-    "pages/_app.js",
+    "**/*.jsx",
     "tailwind.config.js"
   ],
   "exclude": [

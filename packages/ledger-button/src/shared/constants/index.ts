@@ -1,2 +1,2 @@
-export * from "./deeplinks.js";
-export * from "./support-urls.js";
+export * from "./deeplinks";
+export * from "./support-urls";

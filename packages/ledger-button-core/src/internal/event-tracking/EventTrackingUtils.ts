@@ -1,7 +1,10 @@
 import { bufferToHexaString } from "@ledgerhq/device-management-kit";
+import { EventDataSchema } from "@schemas/event-schemas";
 import { sha256 } from "ethers";
 
-import { EventDataSchema } from "../../schemas/event-schemas.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import { normalizeAddressForCurrency } from "@internal/transaction-history/utils/normalizeAddressForCurrency";
+
 import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
@@ -28,11 +31,19 @@ import {
   type WalletActionType,
   type WalletRedirectCancelledEventData,
   type WalletRedirectConfirmedEventData,
-} from "../backend/model/trackEvent.js";
-import { generateUUID } from "./utils.js";
+} from "../backend/model/trackEvent";
+import { generateUUID } from "./utils";
 
 export function normalizeTransactionHash(hash: string): string {
   return hash.toLowerCase().replace(/^0x/, "");
+}
+
+/** Solana ids are case-sensitive base58, so only EVM hashes are normalized. */
+export function normalizeTransactionHashForFamily(
+  hash: string,
+  family: BlockchainFamily,
+): string {
+  return family === "ethereum" ? normalizeTransactionHash(hash) : hash;
 }
 
 interface BaseEventParams {
@@ -45,6 +56,7 @@ interface SessionEventParams extends BaseEventParams {
 }
 
 interface TransactionEventParams extends SessionEventParams {
+  family: BlockchainFamily;
   chainId: string | null;
 }
 
@@ -174,11 +186,7 @@ export class EventTrackingUtils {
     };
   }
 
-  static createOnboardingEvent(
-    params: SessionEventParams & {
-      chainId: string | null;
-    },
-  ): EventRequest {
+  static createOnboardingEvent(params: TransactionEventParams): EventRequest {
     const data: OnboardingEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
@@ -186,7 +194,7 @@ export class EventTrackingUtils {
       event_type: EventType.Onboarding,
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
     };
 
@@ -207,7 +215,7 @@ export class EventTrackingUtils {
       event_type: EventType.TransactionFlowInitialization,
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
     };
 
@@ -228,7 +236,7 @@ export class EventTrackingUtils {
       event_type: EventType.TransactionFlowCompletion,
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
     };
 
@@ -240,10 +248,9 @@ export class EventTrackingUtils {
   }
 
   static createInvoicingTransactionSignedEvent(
-    params: SessionEventParams & {
+    params: TransactionEventParams & {
       transactionHash: string;
       unsignedTransactionHash: string;
-      chainId: string | null;
       recipientAddress: string;
     },
   ): EventRequest {
@@ -252,10 +259,16 @@ export class EventTrackingUtils {
       transaction_dapp_id: params.dAppId,
       timestamp_ms: Date.now(),
       event_type: EventType.InvoicingTransactionSigned,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
-      recipient_address: params.recipientAddress.toLowerCase(),
+      transaction_hash: normalizeTransactionHashForFamily(
+        params.transactionHash,
+        params.family,
+      ),
+      recipient_address: normalizeAddressForCurrency(
+        params.recipientAddress,
+        params.family,
+      ),
       unsigned_transaction_hash: normalizeTransactionHash(
         params.unsignedTransactionHash,
       ),
@@ -278,9 +291,12 @@ export class EventTrackingUtils {
       event_type: EventType.ViewTransactionDetailsClicked,
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
-      transaction_hash: normalizeTransactionHash(params.transactionHash),
+      transaction_hash: normalizeTransactionHashForFamily(
+        params.transactionHash,
+        params.family,
+      ),
     };
 
     return {
@@ -362,13 +378,9 @@ export class EventTrackingUtils {
     };
   }
 
-  static createTypedMessageFlowInitializationEvent(params: {
-    dAppId: string;
-    sessionId: string;
-    trustChainId?: string;
-    typedMessageHash: string;
-    chainId: string;
-  }): EventRequest {
+  static createTypedMessageFlowInitializationEvent(
+    params: TransactionEventParams & { typedMessageHash: string },
+  ): EventRequest {
     const data: TypedMessageFlowInitializationEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
@@ -376,7 +388,7 @@ export class EventTrackingUtils {
       event_type: EventType.TypedMessageFlowInitialization,
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
       typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
     };
@@ -388,13 +400,9 @@ export class EventTrackingUtils {
     };
   }
 
-  static createTypedMessageFlowCompletionEvent(params: {
-    dAppId: string;
-    sessionId: string;
-    trustChainId?: string;
-    typedMessageHash: string;
-    chainId: string;
-  }): EventRequest {
+  static createTypedMessageFlowCompletionEvent(
+    params: TransactionEventParams & { typedMessageHash: string },
+  ): EventRequest {
     const data: TypedMessageFlowCompletionEventData = {
       event_id: generateUUID(),
       transaction_dapp_id: params.dAppId,
@@ -402,7 +410,7 @@ export class EventTrackingUtils {
       event_type: EventType.TypedMessageFlowCompletion,
       session_id: params.sessionId,
       ledger_sync_user_id: params.trustChainId,
-      blockchain_network_selected: "ethereum",
+      blockchain_network_selected: params.family,
       chain_id: params.chainId,
       typed_message_hash: normalizeTransactionHash(params.typedMessageHash),
     };

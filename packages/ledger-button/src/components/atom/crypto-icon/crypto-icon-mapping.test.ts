@@ -4,7 +4,7 @@ import {
   CRYPTO_ICONS_BASE_URL,
   resetCryptoIconCachesForTesting,
   resolveIconUrl,
-} from "./crypto-icon-mapping.js";
+} from "./crypto-icon-mapping";
 
 const INDEX_URL = `${CRYPTO_ICONS_BASE_URL}index.json`;
 const COINGECKO_URL =

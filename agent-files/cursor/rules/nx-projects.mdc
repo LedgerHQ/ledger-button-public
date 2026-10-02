@@ -7,12 +7,14 @@ alwaysApply: true
 
 Use this table for routine `build` / `lint` / `test` / `typecheck` / `dev` work. Do **not** call `nx_project_details`, `nx_workspace`, or `nx show project` first — just run the target.
 
-Workspace: pnpm + Nx 22.0.1. Globs from `pnpm-workspace.yaml`: `packages/*`, `apps/*`. Targets are inferred by the `@nx/vite`, `@nx/js/typescript`, `@nx/next`, `@nx/jest`, `@nx/eslint` plugins in `nx.json`, plus per-project `project.json` overrides.
+Workspace: pnpm + Nx 23.2.0. Globs from `pnpm-workspace.yaml`: `packages/*`, `apps/*`. Targets are inferred by the `@nx/vite`, `@nx/vitest`, `@nx/js/typescript`, `@nx/next`, `@nx/jest`, `@nx/eslint` plugins in `nx.json`, plus per-project `project.json` overrides.
 
 | Package name | Path | Type | Available routine targets |
 | --- | --- | --- | --- |
 | `@ledgerhq/ledger-wallet-provider` | `packages/ledger-button` | library | `build` (custom: vite + tailwind + scope-css), `test`, `typecheck`, `lint`, `dev` |
 | `@ledgerhq/ledger-wallet-provider-core` | `packages/ledger-button-core` | library | `build`, `test`, `typecheck`, `lint` |
+| `@ledgerhq/ledger-wallet-provider-evm` | `packages/ledger-wallet-provider-evm` | library | `build`, `test`, `typecheck`, `lint` |
+| `@ledgerhq/ledger-wallet-provider-solana` | `packages/ledger-wallet-provider-solana` | library | `build`, `test`, `typecheck`, `lint` |
 | `@ledgerhq/ledger-wallet-provider-docs` | `apps/docs` | Next.js app | `build`, `dev`, `start`, `typecheck`, `lint` |
 | `@ledgerhq/test-dapp` | `apps/test-dapp` | Next.js app | `build`, `dev`, `start`, `typecheck`, `lint` |
 | `@ledgerhq/test-extension` | `apps/test-extension` | Vite app | `build`, `lint` (no `test` target) |

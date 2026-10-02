@@ -1,30 +1,27 @@
-import "../../components/index.js";
-import "../token-list/token-list.js";
-import "../transaction-list/transaction-list.js";
+import "../../components/index";
+import "../token-list/token-list";
+import "../transaction-list/transaction-list";
 
 import type { BlockchainFamily } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs.js";
+import type { TabChangeEventDetail } from "../../components/atom/tabs/ledger-tabs";
 import type {
   WalletActionClickEventDetail,
   WalletTransactionFeature,
-} from "../../components/molecule/wallet-actions/ledger-wallet-actions.js";
-import { CoreContext, coreContext } from "../../context/core-context.js";
-import {
-  langContext,
-  LanguageContext,
-} from "../../context/language-context.js";
+} from "../../components/molecule/wallet-actions/ledger-wallet-actions";
+import { CoreContext, coreContext } from "../../context/core-context";
+import { langContext, LanguageContext } from "../../context/language-context";
 import {
   buildAccountDeepLink,
   buildWalletActionDeepLink,
-} from "../../shared/constants/deeplinks.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { tailwindElement } from "../../tailwind-element.js";
-import { LedgerHomeController } from "./ledger-home-controller.js";
+} from "../../shared/constants/deeplinks";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
+import { tailwindElement } from "../../tailwind-element";
+import { LedgerHomeController } from "./ledger-home-controller";
 
 type RedirectIntent =
   | { type: "action"; action: WalletTransactionFeature }
@@ -258,17 +255,21 @@ export class LedgerHomeScreen extends LitElement {
           ></ledger-button>
         </div>
 
-        ${this.showRedirectDrawer && this.redirectIntent
-          ? html`
-              <ledger-wallet-redirect-drawer
-                .action=${this.redirectIntent.type === "action"
-                  ? this.redirectIntent.action
-                  : "send"}
-                @wallet-redirect-confirm=${this.handleRedirectConfirm}
-                @wallet-redirect-cancel=${this.handleRedirectCancel}
-              ></ledger-wallet-redirect-drawer>
-            `
-          : ""}
+        ${
+          this.showRedirectDrawer && this.redirectIntent
+            ? html`
+                <ledger-wallet-redirect-drawer
+                  .action=${
+                  this.redirectIntent.type === "action"
+                    ? this.redirectIntent.action
+                    : "send"
+                }
+                  @wallet-redirect-confirm=${this.handleRedirectConfirm}
+                  @wallet-redirect-cancel=${this.handleRedirectCancel}
+                ></ledger-wallet-redirect-drawer>
+              `
+            : ""
+        }
       </div>
     `;
   }
@@ -295,7 +296,7 @@ export class LedgerHomeScreen extends LitElement {
       <div class="bg-muted flex flex-col gap-24 rounded-md p-16">
         <div class="flex flex-row items-center justify-between">
           <ledger-account-switch
-            class="max-w-256"
+            class="max-w-224"
             .account=${account}
             @account-switch=${this.handleAccountItemClick}
           ></ledger-account-switch>
@@ -334,16 +335,18 @@ export class LedgerHomeScreen extends LitElement {
         ></ledger-tabs>
       </div>
 
-      ${this.activeTab === "tokens"
-        ? html`<token-list-screen
-            .account=${account}
-            .locale=${this.languages.locale}
-          ></token-list-screen>`
-        : html`<transaction-list-screen
-            .transactions=${this.controller.transactionListItems}
-            .pendingTransactions=${this.controller.pendingTransactionListItems}
-            @view-all-transactions-click=${this.handleViewAllTransactionsClick}
-          ></transaction-list-screen>`}
+      ${
+        this.activeTab === "tokens"
+          ? html`<token-list-screen
+              .account=${account}
+              .locale=${this.languages.locale}
+            ></token-list-screen>`
+          : html`<transaction-list-screen
+              .transactions=${this.controller.transactionListItems}
+              .pendingTransactions=${this.controller.pendingTransactionListItems}
+              @view-all-transactions-click=${this.handleViewAllTransactionsClick}
+            ></transaction-list-screen>`
+      }
     `;
   }
 }

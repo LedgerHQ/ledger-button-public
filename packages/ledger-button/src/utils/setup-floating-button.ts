@@ -1,8 +1,8 @@
 import type { LedgerButtonCore } from "@ledgerhq/ledger-wallet-provider-core";
 
-import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
-import type { LedgerButtonApp } from "../ledger-button-app.js";
-import type { TransactionConfirmationNotification } from "../types/transaction-confirmation-notification.js";
+import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button";
+import type { LedgerButtonApp } from "../ledger-button-app";
+import type { TransactionConfirmationNotification } from "../types/transaction-confirmation-notification";
 
 export type FloatingButtonConfig = {
   floatingButtonContainer: HTMLElement | null;
@@ -74,7 +74,10 @@ function attachFloatingButtonClickHandler(
   button: Element,
   app: LedgerButtonApp,
 ): void {
-  button.addEventListener("ledger-internal-floating-button-click", () => {
+  button.addEventListener("ledger-internal-floating-button-click", (event) => {
+    // The click event is composed and would otherwise also reach the app's own
+    // window listener, opening the modal a second time in panel mode.
+    event.stopPropagation();
     app.navigationIntent("selectAccount");
   });
 }

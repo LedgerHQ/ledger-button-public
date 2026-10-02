@@ -18,15 +18,25 @@ import {
 import { type Factory, inject, injectable } from "inversify";
 import { firstValueFrom } from "rxjs";
 
-import { type DeviceModuleOptions } from "../../diTypes.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { type LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { Device } from "../model/Device.js";
-import { DeviceConnectionError } from "../model/errors.js";
-import { DeviceManagementKitService } from "./DeviceManagementKitService.js";
+import { type DeviceModuleOptions } from "@internal/diTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { type LogLevelKey } from "@internal/logger/model/constant";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { deviceModuleTypes } from "../di/deviceModuleTypes";
+import { Device } from "../model/Device";
+import { DeviceConnectionError } from "../model/errors";
+import { DeviceManagementKitService } from "./DeviceManagementKitService";
 
 export type ConnectionType = "bluetooth" | "usb" | "";
+
+const DMK_LOG_LEVELS: Record<LogLevelKey, LogLevel> = {
+  fatal: LogLevel.Fatal,
+  error: LogLevel.Error,
+  warn: LogLevel.Warning,
+  info: LogLevel.Info,
+  debug: LogLevel.Debug,
+};
 
 @injectable()
 export class DefaultDeviceManagementKitService
@@ -44,13 +54,15 @@ export class DefaultDeviceManagementKitService
     loggerFactory: Factory<LoggerPublisher>,
     @inject(deviceModuleTypes.DmkConfig)
     args: DeviceModuleOptions,
+    @inject(deviceModuleTypes.DmkLogLevel)
+    dmkLogLevel: LogLevelKey,
   ) {
     this.logger = loggerFactory("DeviceManagementKit Service");
     const builder = new DeviceManagementKitBuilder();
 
     builder
       .addConfig(args)
-      .addLogger(new ConsoleLogger(LogLevel.Error))
+      .addLogger(new ConsoleLogger(DMK_LOG_LEVELS[dmkLogLevel]))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
 
@@ -152,19 +164,62 @@ export class DefaultDeviceManagementKitService
   }
 
   async disconnectFromDevice() {
-    if (!this._currentSessionId) {
+    const sessionId = this._currentSessionId;
+
+    if (!sessionId) {
+      this.clearSession();
       return;
     }
 
     try {
-      await this.dmk.disconnect({ sessionId: this._currentSessionId });
-      this._currentSessionId = undefined;
+      await this.dmk.disconnect({ sessionId });
     } catch (error) {
       this.logger.error(`Failed to disconnect from device`, { error });
       throw new DeviceConnectionError(`Failed to disconnect from device`, {
         type: "failed-to-disconnect",
         error,
       });
+    } finally {
+      this.clearSession(sessionId);
     }
+  }
+
+  /**
+   * DMK is the source of truth: it drops a session when the link is lost, and
+   * because sessions are opened with the refresher disabled nothing pushes that
+   * back to us. Without this check the cached session id outlives the session
+   * and every device action fails with "Error getting session".
+   */
+  isSessionAlive(): boolean {
+    const sessionId = this._currentSessionId;
+
+    if (!sessionId) {
+      return false;
+    }
+
+    try {
+      this.dmk.getConnectedDevice({ sessionId });
+      return true;
+    } catch {
+      // Drop the id as soon as DMK disowns it: callers poll this, and a
+      // retained id would both keep failing and make DMK log on every tick.
+      this.logger.warn("Device session was dropped by DMK", { sessionId });
+      this.clearSession(sessionId);
+      return false;
+    }
+  }
+
+  /**
+   * Clearing is scoped to `expectedSessionId` so a disconnect that resolves
+   * late (a device unplugged mid-flow) cannot wipe a session established by a
+   * reconnection that already happened in the meantime.
+   */
+  private clearSession(expectedSessionId?: string): void {
+    if (expectedSessionId && this._currentSessionId !== expectedSessionId) {
+      return;
+    }
+
+    this._currentSessionId = undefined;
+    this._connectedDevice = undefined;
   }
 }

@@ -3,40 +3,25 @@
  */
 
 import type {
-  PendingTransaction,
+  BroadcastTracking,
   SignFlowStatus,
-  SignTransactionParams,
-  WalletNavigationIntent,
+  SignNavigationIntent,
+} from "@ledgerhq/ledger-wallet-provider-core";
+import {
+  DeviceDisconnectedError,
+  DeviceFirmwareOutdatedError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveControllerHost } from "lit";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../components/index.js", () => ({}));
+vi.mock("../../components/index", () => ({}));
 vi.mock("../onboarding/ledger-sync/ledger-sync", () => ({}));
 
-import type { CoreContext } from "../../context/core-context.js";
-import type { LanguageContext } from "../../context/language-context.js";
-import type { Navigation } from "../../shared/navigation.js";
-import { SignTransactionController } from "./sign-transaction-controller.js";
-
-function createPendingTx(
-  overrides: Partial<PendingTransaction> = {},
-): PendingTransaction {
-  return {
-    hash: "0xabc",
-    chainId: 1,
-    address: "0x0000000000000000000000000000000000000001",
-    timestamp: "2026-04-29T10:00:00.000Z",
-    type: "sent",
-    value: "0",
-    formattedValue: "0 ETH",
-    ticker: "ETH",
-    currencyName: "Ethereum",
-    ledgerId: "ethereum",
-    ...overrides,
-  };
-}
+import type { CoreContext } from "../../context/core-context";
+import type { LanguageContext } from "../../context/language-context";
+import type { Navigation } from "../../shared/navigation";
+import { SignTransactionController } from "./sign-transaction-controller";
 
 describe("SignTransactionController broadcast lifecycle", () => {
   let controller: SignTransactionController;
@@ -45,19 +30,8 @@ describe("SignTransactionController broadcast lifecycle", () => {
   let navigation: Navigation;
   let lang: LanguageContext;
   let signFlowSubject: Subject<SignFlowStatus>;
-  let pendingTransactionsSubject: BehaviorSubject<PendingTransaction[]>;
-  let mockIntent: WalletNavigationIntent;
-
-  const signParams: SignTransactionParams = {
-    method: "eth_sendTransaction",
-    broadcast: true,
-    transaction: {
-      chainId: 1,
-      to: "0x0000000000000000000000000000000000000001",
-      data: "0x",
-      value: "0x0",
-    },
-  };
+  let broadcastSubject: Subject<BroadcastTracking>;
+  let mockIntent: SignNavigationIntent;
 
   const broadcastSuccessResult: SignFlowStatus = {
     signType: "transaction",
@@ -78,21 +52,23 @@ describe("SignTransactionController broadcast lifecycle", () => {
     };
 
     signFlowSubject = new Subject<SignFlowStatus>();
-    pendingTransactionsSubject = new BehaviorSubject<PendingTransaction[]>([]);
+    broadcastSubject = new Subject<BroadcastTracking>();
 
     mockIntent = {
       name: "signTransaction",
-      params: signParams,
+      params: { family: "ethereum", type: "transaction", broadcast: true },
       status$: signFlowSubject.asObservable(),
       finish: vi.fn(),
       retry: vi.fn(),
     };
 
     core = {
-      observePendingTransactions: vi
+      observeBroadcastedTransaction: vi
         .fn()
-        .mockReturnValue(pendingTransactionsSubject.asObservable()),
+        .mockReturnValue(broadcastSubject.asObservable()),
       getActiveSelectedAccount: vi.fn().mockReturnValue(undefined),
+      getConnectedDevice: vi.fn().mockReturnValue(undefined),
+      trackViewTransactionDetailsClicked: vi.fn(),
     } as unknown as CoreContext;
 
     navigation = {
@@ -120,65 +96,162 @@ describe("SignTransactionController broadcast lifecycle", () => {
             viewTransaction: "View transaction",
           },
         },
+        error: {
+          connection: {
+            DeviceDisconnected: {
+              title: "Your Ledger device is disconnected",
+              description: "Plug in and unlock your Ledger device",
+              cta1: "Reconnect Ledger device",
+            },
+          },
+          device: {
+            DeviceFirmwareOutdated: {
+              title: "Ledger OS update required",
+              description:
+                "You need the latest Ledger OS to sign this transaction.",
+              cta1: "Update Ledger OS",
+            },
+          },
+          generic: {
+            sign: {
+              title: "An error occurred",
+              description: "An unexpected error occurred",
+              cta1: "Try again",
+              cta2: "Close",
+            },
+          },
+        },
       },
     } as unknown as LanguageContext;
 
     controller = new SignTransactionController(host, core, navigation, lang);
   });
 
-  it("stays processing while hash has not yet entered the pool, then validates after enter+exit", async () => {
+  it("shows processing until core reports the transaction as validated", () => {
     controller.startSigning(mockIntent);
     signFlowSubject.next(broadcastSuccessResult);
 
-    await vi.waitFor(() => {
-      expect(controller.state.screen).toBe("success");
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("processing");
-    });
+    expect(controller.state.screen).toBe("success");
+    if (controller.state.screen !== "success") {
+      throw new Error("Expected success state");
+    }
+    expect(controller.state.broadcast?.state).toBe("processing");
+    expect(core.observeBroadcastedTransaction).toHaveBeenCalledWith("0xabc");
 
-    pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
+    broadcastSubject.next({ hash: "0xabc", state: "processing" });
 
-    await vi.waitFor(() => {
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("processing");
-    });
+    if (controller.state.screen !== "success") {
+      throw new Error("Expected success state");
+    }
+    expect(controller.state.broadcast?.state).toBe("processing");
 
-    pendingTransactionsSubject.next([]);
+    broadcastSubject.next({ hash: "0xabc", state: "validated" });
 
-    await vi.waitFor(() => {
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("validated");
-    });
+    if (controller.state.screen !== "success") {
+      throw new Error("Expected success state");
+    }
+    expect(controller.state.broadcast?.state).toBe("validated");
   });
 
-  it("stays processing while hash is pending then switches to validated", async () => {
-    pendingTransactionsSubject.next([createPendingTx({ hash: "0xabc" })]);
-
+  it("exposes the explorer CTA only once core has resolved the link", () => {
     controller.startSigning(mockIntent);
     signFlowSubject.next(broadcastSuccessResult);
 
-    await vi.waitFor(() => {
-      expect(controller.state.screen).toBe("success");
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("processing");
+    if (controller.state.screen !== "success") {
+      throw new Error("Expected success state");
+    }
+    expect(controller.state.status.cta2).toBeUndefined();
+
+    broadcastSubject.next({
+      hash: "0xabc",
+      state: "processing",
+      explorerUrl: "https://etherscan.io/tx/0xabc",
     });
 
-    pendingTransactionsSubject.next([]);
+    if (controller.state.screen !== "success") {
+      throw new Error("Expected success state");
+    }
+    expect(controller.state.status.cta2?.label).toBe("View transaction");
+  });
 
-    await vi.waitFor(() => {
-      expect(controller.state.screen).toBe("success");
-      if (controller.state.screen !== "success") {
-        throw new Error("Expected success state");
-      }
-      expect(controller.state.broadcast?.state).toBe("validated");
+  it("uses the message copy when the intent describes a message", () => {
+    controller.startSigning({
+      ...mockIntent,
+      params: { family: "ethereum", type: "message", broadcast: false },
     });
+    signFlowSubject.next({
+      signType: "personal-sign",
+      status: "success",
+      data: { signature: "0xsig" },
+    });
+
+    if (controller.state.screen !== "success") {
+      throw new Error("Expected success state");
+    }
+    expect(controller.state.status.title).toBe("Message signed");
+    expect(controller.state.broadcast).toBeUndefined();
+    expect(core.observeBroadcastedTransaction).not.toHaveBeenCalled();
+  });
+
+  it("shows reconnection guidance when the device is unplugged mid-signing", () => {
+    controller.startSigning(mockIntent);
+    signFlowSubject.next({
+      signType: "transaction",
+      status: "error",
+      error: new DeviceDisconnectedError("Device disconnected during signing"),
+    });
+
+    if (controller.state.screen !== "error") {
+      throw new Error("Expected error state");
+    }
+    expect(controller.state.status.title).toBe(
+      "Your Ledger device is disconnected",
+    );
+
+    controller.state.status.cta1.action();
+
+    expect(mockIntent.retry).toHaveBeenCalledOnce();
+  });
+
+  it("falls back to the generic copy for an unrelated signing failure", () => {
+    controller.startSigning(mockIntent);
+    signFlowSubject.next({
+      signType: "transaction",
+      status: "error",
+      error: new Error("boom"),
+    });
+
+    if (controller.state.screen !== "error") {
+      throw new Error("Expected error state");
+    }
+    expect(controller.state.status.title).toBe("An error occurred");
+  });
+
+  it("maps DeviceFirmwareOutdatedError to a My Ledger update screen", () => {
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+
+    controller.startSigning(mockIntent);
+    signFlowSubject.next({
+      signType: "solana-message",
+      status: "error",
+      error: new DeviceFirmwareOutdatedError(
+        "Device firmware is too old to install or update the required application",
+      ),
+    });
+
+    expect(controller.state.screen).toBe("error");
+    if (controller.state.screen !== "error") {
+      throw new Error("Expected error state");
+    }
+    expect(controller.state.status.title).toBe("Ledger OS update required");
+    expect(controller.state.status.message).toBe(
+      "You need the latest Ledger OS to sign this transaction.",
+    );
+    expect(controller.state.status.cta1.label).toBe("Update Ledger OS");
+
+    controller.state.status.cta1.action();
+    expect(openSpy).toHaveBeenCalledWith("ledgerwallet://myledger");
+
+    openSpy.mockRestore();
   });
 });

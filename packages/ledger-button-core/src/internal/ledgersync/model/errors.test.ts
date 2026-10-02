@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError";
+
 import {
   LedgerKeyringProtocolError,
   LedgerSyncAuthContextMissingError,
   LedgerSyncConnectionFailedError,
   LedgerSyncError,
   LedgerSyncNoSessionIdError,
-} from "./errors.js";
+} from "./errors";
 
 describe.each([
   [

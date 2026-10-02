@@ -1,4 +1,4 @@
-import { merge } from "./merge.js";
+import { merge } from "./merge";
 
 describe("merge", () => {
   it("should merge two objects", () => {

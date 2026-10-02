@@ -1,12 +1,12 @@
-import "../../atom/crypto-icon/ledger-crypto-icon.js";
-import "../../atom/icon/ledger-icon.js";
+import "../../atom/crypto-icon/ledger-crypto-icon";
+import "../../atom/icon/ledger-icon";
 
 import { cva } from "class-variance-authority";
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import { formatAddress } from "../../../utils/format-address.js";
+import { tailwindElement } from "../../../tailwind-element";
+import { formatAddress } from "../../../utils/format-address";
 
 const styles = css`
   :host {

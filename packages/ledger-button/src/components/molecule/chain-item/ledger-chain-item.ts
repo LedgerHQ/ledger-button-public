@@ -5,7 +5,7 @@ import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
+import { tailwindElement } from "../../../tailwind-element";
 
 const chainItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",

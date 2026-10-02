@@ -27,6 +27,8 @@ interface JupiterSwapModalProps {
   onSubmit: (values: JupiterSwapValues) => Promise<void>;
   onClose: () => void;
   submitLabel: string;
+  /** Offers Ledger `signAndSendTransaction` instead of Jupiter Ultra `/execute`. */
+  allowLedgerBroadcast?: boolean;
 }
 
 interface SwapPreset {
@@ -64,10 +66,12 @@ export function JupiterSwapModal({
   onSubmit,
   onClose,
   submitLabel,
+  allowLedgerBroadcast = false,
 }: JupiterSwapModalProps) {
   const [inputMint, setInputMint] = useState(SOL_MINT);
   const [outputMint, setOutputMint] = useState(USDC_MINT);
   const [amount, setAmount] = useState("1000000");
+  const [broadcastWithLedger, setBroadcastWithLedger] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const inputToken = useMemo(
@@ -94,8 +98,21 @@ export function JupiterSwapModal({
     }
     setError(null);
     onClose();
-    await onSubmit({ inputMint, outputMint, amount: parsed });
-  }, [onSubmit, onClose, inputMint, outputMint, amount]);
+    await onSubmit({
+      inputMint,
+      outputMint,
+      amount: parsed,
+      broadcastWithLedger: allowLedgerBroadcast && broadcastWithLedger,
+    });
+  }, [
+    onSubmit,
+    onClose,
+    inputMint,
+    outputMint,
+    amount,
+    allowLedgerBroadcast,
+    broadcastWithLedger,
+  ]);
 
   return (
     <div className="space-y-16">
@@ -167,6 +184,23 @@ export function JupiterSwapModal({
         </p>
       )}
 
+      {allowLedgerBroadcast && (
+        <label className="flex cursor-pointer items-start gap-8">
+          <input
+            type="checkbox"
+            className="mt-2"
+            checked={broadcastWithLedger}
+            onChange={(event) => setBroadcastWithLedger(event.target.checked)}
+          />
+          <span className="body-4 text-base">
+            Broadcast with Ledger
+            <span className="text-muted block">
+              Ledger sends the signed swap. Jupiter does not broadcast it.
+            </span>
+          </span>
+        </label>
+      )}
+
       {error && (
         <div className="border-error bg-error-transparent rounded-lg border p-12">
           <code className="body-4 text-error font-mono">{error}</code>
@@ -174,7 +208,7 @@ export function JupiterSwapModal({
       )}
 
       <Button appearance="accent" size="md" isFull onClick={handleSubmit}>
-        {submitLabel}
+        {broadcastWithLedger ? "Sign & Broadcast with Ledger" : submitLabel}
       </Button>
     </div>
   );

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { LedgerButtonError } from "../../../api/errors/LedgerButtonError.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError";
+
 import {
   CoinServiceApiError,
   CoinServiceBalanceFetchError,
@@ -10,7 +11,7 @@ import {
   CoinServiceTokenFetchError,
   CoinServiceUnknownError,
   CoinServiceUnsupportedChainError,
-} from "./error.js";
+} from "./error";
 
 describe("CoinService Service Errors", () => {
   const testAddress = "0x1234567890abcdef1234567890abcdef12345678";

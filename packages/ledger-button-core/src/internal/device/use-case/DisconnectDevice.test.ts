@@ -4,8 +4,8 @@ import {
   asMockService,
   createMockDeviceManagementKitService,
   createMockLoggerFactory,
-} from "../__tests__/mocks.js";
-import { DisconnectDevice } from "./DisconnectDevice.js";
+} from "../__tests__/mocks";
+import { DisconnectDevice } from "./DisconnectDevice";
 
 describe("DisconnectDevice", () => {
   let disconnectDevice: DisconnectDevice;

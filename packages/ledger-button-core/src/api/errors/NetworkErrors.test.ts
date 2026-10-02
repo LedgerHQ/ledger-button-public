@@ -1,5 +1,5 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
-import { BroadcastTransactionError, NetworkError } from "./NetworkErrors.js";
+import { LedgerButtonError } from "./LedgerButtonError";
+import { BroadcastTransactionError, NetworkError } from "./NetworkErrors";
 
 describe("NetworkErrors", () => {
   beforeEach(() => {

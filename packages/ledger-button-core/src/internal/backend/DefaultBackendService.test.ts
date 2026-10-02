@@ -4,10 +4,10 @@ import {
   type EventRequest,
   type EventResponse,
   EventType,
-} from "./model/trackEvent.js";
-import type { NetworkService } from "../network/NetworkService.js";
-import { DefaultBackendService } from "./DefaultBackendService.js";
-import type { BroadcastRequest } from "./types.js";
+} from "./model/trackEvent";
+import type { NetworkService } from "../network/NetworkService";
+import { DefaultBackendService } from "./DefaultBackendService";
+import type { BroadcastRequest } from "./types";
 
 describe("DefaultBackendService", () => {
   let backendService: DefaultBackendService;
@@ -233,43 +233,22 @@ describe("DefaultBackendService", () => {
     });
   });
 
-  describe("getConfig", () => {
-    it("should send config request with correct parameters", async () => {
-      const mockConfigResponse = {
-        supportedBlockchains: [],
-        referralUrl: "https://example.com",
-        domainUrl: "https://example.com",
-        appDependencies: [],
-      };
-
-      mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
-
-      await backendService.getConfig({ dAppIdentifier: "test-dapp" });
-
-      expect(mockNetworkService.get).toHaveBeenCalledWith(
-        "https://test-backend-url.com/config?dAppIdentifier=test-dapp",
-        {
-          headers: {
-            "X-Ledger-Domain": "test-dapp-identifier",
-            "X-Ledger-client-origin": "test-origin-token",
-          },
-        },
-      );
-    });
-  });
-
   describe("getConfigV2", () => {
     it("should send config request to the /v2/config endpoint", async () => {
       const mockConfigResponse = {
-        supportedBlockchains: [],
+        name: "Test dApp",
+        liveAppId: "test-dapp",
         referralUrl: "https://example.com",
         domainUrl: "https://example.com",
-        appDependencies: [],
+        blockchains: [],
+        featureFlags: {},
       };
 
       mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
 
-      await backendService.getConfigV2({ dAppIdentifier: "test-dapp" });
+      const result = await backendService.getConfigV2({
+        dAppIdentifier: "test-dapp",
+      });
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
         "https://test-backend-url.com/v2/config?dAppIdentifier=test-dapp",
@@ -280,6 +259,47 @@ describe("DefaultBackendService", () => {
           },
         },
       );
+      expect(result.isRight()).toBe(true);
+    });
+
+    it("should send the provided domain in the X-Ledger-Domain header", async () => {
+      const mockConfigResponse = {
+        name: "Test dApp",
+        liveAppId: "test-dapp",
+        referralUrl: "https://example.com",
+        domainUrl: "https://example.com",
+        blockchains: [],
+        featureFlags: {},
+      };
+
+      mockNetworkService.get.mockResolvedValueOnce(Right(mockConfigResponse));
+
+      await backendService.getConfigV2(
+        { dAppIdentifier: "test-dapp" },
+        "velora",
+      );
+
+      expect(mockNetworkService.get).toHaveBeenCalledWith(
+        "https://test-backend-url.com/v2/config?dAppIdentifier=test-dapp",
+        {
+          headers: {
+            "X-Ledger-Domain": "velora",
+            "X-Ledger-client-origin": "test-origin-token",
+          },
+        },
+      );
+    });
+
+    it("should reject a response that does not match the schema", async () => {
+      mockNetworkService.get.mockResolvedValueOnce(
+        Right({ referralUrl: "https://example.com" }),
+      );
+
+      const result = await backendService.getConfigV2({
+        dAppIdentifier: "test-dapp",
+      });
+
+      expect(result.isLeft()).toBe(true);
     });
   });
 });

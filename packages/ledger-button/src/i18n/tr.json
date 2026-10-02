@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Şimdi bağlandınız",
+      "subtitle": "Artık Ledger'ın Transaction Check (İşlem Denetimi) ve Şeffaf İmzalama özelliklerinden yararlanarak ilk işleminizi gerçekleştirebilirsiniz.",
       "close": "Kapat"
     },
     "turnOnSync": {
@@ -334,6 +335,11 @@
         "title": "{AppName} uygulaması için yeterli alan yok",
         "description": "{deviceName} cihazınızın depolama alanı doldu, bu yüzden kendi kendine yüklenemedi. Ledger Wallet'ta yer açın, ardından uygulamayı yükleyin.",
         "cta1": "Yer açın"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

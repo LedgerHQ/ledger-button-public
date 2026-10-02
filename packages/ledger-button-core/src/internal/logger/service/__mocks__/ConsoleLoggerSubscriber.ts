@@ -1,3 +1,5 @@
+import { type Mock, vi } from "vitest";
+
 export class ConsoleLoggerSubscriber {
-  log = vi.fn();
+  log: Mock = vi.fn();
 }

@@ -27,28 +27,29 @@ import {
   tap,
 } from "rxjs";
 
-import { LedgerSyncAuthenticationError } from "../../../api/model/errors.js";
+import { LedgerSyncAuthenticationError } from "@api/model/errors";
 import {
   type AuthContext,
   type LedgerSyncAuthenticateResponse,
-} from "../../../api/model/LedgerSyncAuthenticateResponse.js";
+} from "@api/model/LedgerSyncAuthenticateResponse";
 import type {
   UserInteractionNeeded,
   UserInteractionNeededResponse,
-} from "../../../api/model/UserInteractionNeeded.js";
-import { configModuleTypes } from "../../config/configModuleTypes.js";
-import { Config } from "../../config/model/config.js";
-import { cryptographicModuleTypes } from "../../cryptographic/cryptographicModuleTypes.js";
-import { GetOrCreateKeyPairUseCase } from "../../cryptographic/usecases/GetOrCreateKeyPairUseCase.js";
-import { deviceModuleTypes } from "../../device/deviceModuleTypes.js";
-import type { DeviceManagementKitService } from "../../device/service/DeviceManagementKitService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { storageModuleTypes } from "../../storage/storageModuleTypes.js";
-import type { StorageService } from "../../storage/StorageService.js";
-import { LedgerSyncAuthContextMissingError } from "../model/errors.js";
-import { InternalAuthContext } from "../model/InternalAuthContext.js";
-import { LedgerSyncService } from "./LedgerSyncService.js";
+} from "@api/model/UserInteractionNeeded";
+import { configModuleTypes } from "@internal/config/di/configModuleTypes";
+import { Config } from "@internal/config/model/config";
+import { cryptographicModuleTypes } from "@internal/cryptographic/di/cryptographicModuleTypes";
+import { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
+import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
+import type { StorageService } from "@internal/storage/StorageService";
+
+import { LedgerSyncAuthContextMissingError } from "../model/errors";
+import { InternalAuthContext } from "../model/InternalAuthContext";
+import { LedgerSyncService } from "./LedgerSyncService";
 
 const LEDGER_SYNC_APPLICATION_ID = 16;
 

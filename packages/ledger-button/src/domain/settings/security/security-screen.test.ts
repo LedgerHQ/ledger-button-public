@@ -4,10 +4,10 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../../components/index.js", () => ({}));
-vi.mock("../../../components/atom/toggle/ledger-toggle.js", () => ({}));
+vi.mock("../../../components/index", () => ({}));
+vi.mock("../../../components/atom/toggle/ledger-toggle", () => ({}));
 
-import { SecurityScreen } from "./security-screen.js";
+import { SecurityScreen } from "./security-screen";
 
 function createMockCoreContext(overrides: { hasConsent?: boolean } = {}) {
   return {

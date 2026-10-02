@@ -1,25 +1,24 @@
-import type { TypedData } from "@ledgerhq/device-signer-kit-ethereum";
-
-import type {
-  BroadcastResponse,
-  JSONRPCRequest,
-} from "../../../internal/backend/types.js";
 import type {
   ProviderGasFeeEstimation,
   ProviderTransactionInfo,
-} from "../../model/blockchain/GasFee.js";
-import type { ProviderAccount } from "../../model/blockchain/ProviderAccount.js";
-import type { ProviderLogger } from "../../model/blockchain/ProviderLogger.js";
-import type { SignedResults } from "../../model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
+} from "@api/model/blockchain/GasFee";
+import type { ProviderAccount } from "@api/model/blockchain/ProviderAccount";
+import type { ProviderLogger } from "@api/model/blockchain/ProviderLogger";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type {
+  BroadcastResponse,
+  JSONRPCRequest,
+} from "@internal/backend/types";
+
 import type {
   BlockchainFamily,
+  BroadcastedTransactionMetadata,
+  InvoicedTransaction,
   ProviderBlockchain,
   ProviderDeviceSession,
   ProviderSdkConfig,
-  ProviderSignParams,
   WalletNavigationIntent,
-} from "./types.js";
+} from "./types";
 
 /**
  * Outbound port the provider CALLS (provider -> core). It is the single set of
@@ -55,13 +54,16 @@ export interface CoreFacade {
   /** Whether the in-flow modal is currently open (broadcast gate). */
   isModalOpen(): boolean;
 
-  trackTransactionStarted(): void;
-  trackTransactionCompleted(
-    rawTransaction: string,
-    result: SignedResults,
-  ): void;
-  trackTypedMessageStarted(typedData: TypedData): void;
-  trackTypedMessageCompleted(typedData: TypedData): void;
+  trackTransactionStarted(family: BlockchainFamily): void;
+  /**
+   * Call once the transaction has been broadcast. Also sends the billing
+   * event for it.
+   */
+  trackTransactionCompleted(transaction: InvoicedTransaction): void;
+  /** Track an opaque provider-owned message payload without interpreting it. */
+  trackTypedMessageStarted(typedData: unknown): void;
+  /** Track an opaque provider-owned message payload without interpreting it. */
+  trackTypedMessageCompleted(typedData: unknown): void;
 
   /**
    * Gas-fee estimation via the coin-service, when the chain is supported.
@@ -76,6 +78,6 @@ export interface CoreFacade {
   /** Forward a sign-flow status so core can track a broadcasted transaction. */
   trackBroadcastedTransaction(
     status: SignFlowStatus,
-    params: ProviderSignParams,
+    metadata: BroadcastedTransactionMetadata,
   ): void;
 }

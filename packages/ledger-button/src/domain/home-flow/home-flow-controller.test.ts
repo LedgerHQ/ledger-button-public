@@ -3,9 +3,9 @@ import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Navigation } from "../../shared/navigation.js";
-import type { Destinations } from "../../shared/routes.js";
-import { HomeFlowController } from "./home-flow-controller.js";
+import type { Navigation } from "../../shared/navigation";
+import type { Destinations } from "../../shared/routes";
+import { HomeFlowController } from "./home-flow-controller";
 
 type TestContext = {
   hasTrackingConsent: boolean | undefined;

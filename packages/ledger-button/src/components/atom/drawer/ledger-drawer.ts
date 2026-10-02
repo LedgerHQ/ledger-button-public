@@ -1,13 +1,13 @@
-import "../icon/ledger-icon.js";
+import "../icon/ledger-icon";
 
 import { css, html, LitElement } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import { animate } from "motion";
 
-import { ANIMATION_DELAY } from "../../../shared/navigation.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import { type AnimationInstance } from "../modal/animation-types.js";
-import { SlideUpAnimation } from "../modal/slide-up-animation.js";
+import { ANIMATION_DELAY } from "../../../shared/navigation";
+import { tailwindElement } from "../../../tailwind-element";
+import { type AnimationInstance } from "../modal/animation-types";
+import { SlideUpAnimation } from "../modal/slide-up-animation";
 
 const styles = css`
   .drawer-halo {

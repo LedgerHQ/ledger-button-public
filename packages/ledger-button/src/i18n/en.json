@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "You are now connected",
+      "subtitle": "You can now make your first transaction with the benefit of Ledger's Transaction Check and Clear Signing.",
       "close": "Close"
     },
     "turnOnSync": {
@@ -334,6 +335,11 @@
         "title": "Not enough space for the {AppName} app",
         "description": "Your {deviceName} is out of storage, so it couldn't install on its own. Free up space in Ledger Wallet, then install the app.",
         "cta1": "Free up space"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

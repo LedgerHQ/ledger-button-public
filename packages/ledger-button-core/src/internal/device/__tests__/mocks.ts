@@ -4,10 +4,12 @@ import {
   DeviceModelId,
   DiscoveredDevice,
 } from "@ledgerhq/device-management-kit";
+import { type Factory } from "inversify";
 import { vi } from "vitest";
 
-import { Device } from "../model/Device.js";
-import type { DeviceManagementKitService } from "../service/DeviceManagementKitService.js";
+import type { LoggerPublisher } from "../../logger/service/LoggerPublisher";
+import { Device } from "../model/Device";
+import type { DeviceManagementKitService } from "../service/DeviceManagementKitService";
 
 export function createMockDeviceManagementKit(): DeviceManagementKit {
   return {
@@ -24,6 +26,7 @@ export function createMockDeviceManagementKitService(): {
   connectToDevice: ReturnType<typeof vi.fn>;
   disconnectFromDevice: ReturnType<typeof vi.fn>;
   listAvailableDevices: ReturnType<typeof vi.fn>;
+  isSessionAlive: ReturnType<typeof vi.fn>;
   dmk: {
     sendCommand: ReturnType<typeof vi.fn>;
   };
@@ -34,15 +37,15 @@ export function createMockDeviceManagementKitService(): {
     connectToDevice: vi.fn(),
     disconnectFromDevice: vi.fn(),
     listAvailableDevices: vi.fn(),
+    isSessionAlive: vi.fn().mockReturnValue(true),
     dmk: {
       sendCommand: vi.fn(),
     },
   };
 }
 
-export function createMockLogger() {
+export function createMockLogger(): LoggerPublisher {
   return {
-    log: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
     debug: vi.fn(),
@@ -52,8 +55,10 @@ export function createMockLogger() {
   };
 }
 
-export function createMockLoggerFactory() {
-  return vi.fn().mockReturnValue(createMockLogger());
+export function createMockLoggerFactory(
+  logger: LoggerPublisher = createMockLogger(),
+): Factory<LoggerPublisher> {
+  return vi.fn(() => logger) as unknown as Factory<LoggerPublisher>;
 }
 
 export const mockUsbDevice = new Device({

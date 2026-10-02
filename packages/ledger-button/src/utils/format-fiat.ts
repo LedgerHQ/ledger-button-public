@@ -1,6 +1,6 @@
 import type { FiatBalance } from "@ledgerhq/ledger-wallet-provider-core";
 
-import { DEFAULT_LOCALE } from "../context/constants/languages.js";
+import { DEFAULT_LOCALE } from "../context/constants/languages";
 
 /**
  * Formats a numeric value as a fiat currency string using the user's browser locale.

@@ -1,10 +1,10 @@
-import "../crypto-icon/ledger-crypto-icon.js";
+import "../crypto-icon/ledger-crypto-icon";
 
 import { cva } from "class-variance-authority";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
+import { tailwindElement } from "../../../tailwind-element";
 
 export type CryptoIconGroupItem = {
   id: string;

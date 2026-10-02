@@ -12,18 +12,16 @@ import {
   switchMap,
 } from "rxjs";
 
-import { contextModuleTypes } from "../../context/contextModuleTypes.js";
-import { type ContextService } from "../../context/ContextService.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { enrichWithLoadingStates } from "../accountFiatUtils.js";
-import { accountModuleTypes } from "../accountModuleTypes.js";
-import type {
-  Account,
-  AccountUpdate,
-  AccountWithFiat,
-} from "../service/AccountService.js";
-import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase.js";
+import type { Account, AccountWithFiat } from "@api/model/Account";
+import { type ContextService } from "@internal/context/ContextService";
+import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { enrichWithLoadingStates } from "../accountFiatUtils";
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import type { AccountUpdate } from "../service/AccountService";
+import { HydrateAccountWithFiatUseCase } from "./hydrateAccountWithFiatUseCase";
 
 @injectable()
 export class FetchAccountsWithFiatUseCase {

@@ -18,10 +18,14 @@ export type BlockchainRpcMethods = {
   broadcasted: string[];
 };
 
+export type BlockchainAppDependency = {
+  name: string;
+  minVersion?: string;
+};
+
 export type BlockchainAppDependencies = {
   appName: string;
-  dependencies: string[];
-  minVersion?: string;
+  dependencies: BlockchainAppDependency[];
 };
 
 export type BlockchainConfig = {

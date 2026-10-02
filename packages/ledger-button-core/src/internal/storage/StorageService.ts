@@ -1,10 +1,12 @@
 import { Either, Maybe } from "purify-ts";
 
-import { StorageIDBErrors } from "./model/errors.js";
-import type { FeatureFlags } from "./model/FeatureFlags.js";
-import { UserConsent } from "./model/UserConsent.js";
-import type { BlockchainFamily } from "../../api/blockchain-provider/model/types.js";
-import { Account } from "../account/service/AccountService.js";
+import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
+
+import type { ConfigOverrides } from "./model/ConfigOverrides";
+import { StorageIDBErrors } from "./model/errors";
+import type { FeatureFlags } from "./model/FeatureFlags";
+import { UserConsent } from "./model/UserConsent";
 
 export interface StorageService {
   setDbVersion(version: number): Promise<Either<StorageIDBErrors, void>>;
@@ -54,4 +56,7 @@ export interface StorageService {
 
   getFeatureFlags(): FeatureFlags;
   saveFeatureFlags(flags: FeatureFlags): void;
+
+  getConfigOverrides(): ConfigOverrides;
+  saveConfigOverrides(overrides: ConfigOverrides): void;
 }

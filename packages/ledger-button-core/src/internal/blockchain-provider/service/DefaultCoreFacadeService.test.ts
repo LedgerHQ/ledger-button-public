@@ -2,46 +2,95 @@
  * @vitest-environment jsdom
  */
 
+import { Maybe, Right } from "purify-ts";
 import { describe, expect, it, vi } from "vitest";
 
-import type { WalletNavigationIntent } from "../../../api/blockchain-provider/model/types.js";
-import type { ContextService } from "../../context/ContextService.js";
-import type { NavigationIntentService } from "../../navigation/service/NavigationIntentService.js";
-import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService.js";
+import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
+import type { BackendService } from "@internal/backend/BackendService";
+import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
+import type { Config } from "@internal/config/model/config";
+import type { ContextService } from "@internal/context/ContextService";
+import { createMockLoggerFactory } from "@internal/device/__tests__/mocks";
+import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
+import type { NavigationIntentService } from "@internal/navigation/service/NavigationIntentService";
 
-const makeService = () => {
+import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
+
+type MakeServiceOpts = {
+  environment?: Config["environment"];
+  backendService?: BackendService;
+  deviceManagementKitService?: DeviceManagementKitService;
+};
+
+/**
+ * Build a DefaultCoreFacadeService with the minimum viable mocks. Only the
+ * dependencies exercised by these tests need real values; the rest are left as
+ * empty stubs so that adding or reordering constructor params doesn't break
+ * every unrelated slot.
+ */
+const makeService = (opts: MakeServiceOpts = {}) => {
   const emit = vi.fn();
   const navigationIntentService = {
     emit,
   } as unknown as NavigationIntentService;
   const contextService = {
     getContext: vi.fn().mockReturnValue({ selectedAccounts: new Map() }),
+    onEvent: vi.fn(),
   } as unknown as ContextService;
-  const loggerFactory = () => ({
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  });
-
+  const blockchainProviderManager = {
+    describeNetwork: vi.fn().mockReturnValue(Maybe.empty()),
+  } as unknown as BlockchainProviderManager;
+  const stub = {} as never;
+  const backendService = (opts.backendService ?? stub) as BackendService;
+  const config = {
+    environment: opts.environment ?? "production",
+  } as Config;
   const service = new DefaultCoreFacadeService(
     navigationIntentService,
     contextService,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    {} as never,
-    loggerFactory as never,
+    blockchainProviderManager,
+    backendService,
+    (opts.deviceManagementKitService ?? stub) as DeviceManagementKitService,
+    config,
+    stub, // ModalService
+    stub, // CoinServiceDataSource
+    stub, // CalDataSource
+    stub, // TrackTransactionStarted
+    stub, // TrackTransactionCompleted
+    stub, // TrackTypedMessageStarted
+    stub, // TrackTypedMessageCompleted
+    stub, // TrackBroadcastedTransactionUseCase
+    createMockLoggerFactory() as never,
   );
 
-  return { service, emit };
+  return { service, emit, contextService, blockchainProviderManager };
 };
+
+describe("DefaultCoreFacadeService.getDeviceSession", () => {
+  const makeDeviceService = (isSessionAlive: boolean) =>
+    ({
+      dmk: {},
+      sessionId: "session-1",
+      connectedDevice: undefined,
+      isSessionAlive: vi.fn().mockReturnValue(isSessionAlive),
+    }) as unknown as DeviceManagementKitService;
+
+  it("reports a session DMK still knows as connected", () => {
+    const { service } = makeService({
+      deviceManagementKitService: makeDeviceService(true),
+    });
+
+    expect(service.getDeviceSession().isConnected).toBe(true);
+  });
+
+  it("reports a cached session DMK has dropped as disconnected", () => {
+    const { service } = makeService({
+      deviceManagementKitService: makeDeviceService(false),
+    });
+
+    expect(service.getDeviceSession().isConnected).toBe(false);
+  });
+});
 
 describe("DefaultCoreFacadeService.requestAccount", () => {
   it("emits a selectAccount intent carrying the requested family", () => {
@@ -71,4 +120,31 @@ describe("DefaultCoreFacadeService.requestAccount", () => {
       }),
     );
   });
+});
+
+describe("DefaultCoreFacadeService.broadcastRPC (Solana)", () => {
+  it.each(["staging", "production"] as const)(
+    "broadcasts Solana requests through the button backend on %s",
+    async (environment) => {
+      const jsonRpcResponse = { jsonrpc: "2.0", id: 0, result: "signature" };
+      const broadcast = vi.fn().mockResolvedValue(Right(jsonRpcResponse));
+      const { service } = makeService({
+        environment,
+        backendService: { broadcast } as unknown as BackendService,
+      });
+
+      const args = {
+        jsonrpc: "2.0",
+        id: 0,
+        method: "sendTransaction",
+        params: ["base64Tx", { encoding: "base64" }],
+      };
+      const blockchain = { name: "solana", chainId: "900" };
+
+      const response = await service.broadcastRPC(args, blockchain);
+
+      expect(broadcast).toHaveBeenCalledWith({ blockchain, rpc: args });
+      expect(response).toEqual(jsonRpcResponse);
+    },
+  );
 });

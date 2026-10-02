@@ -1,4 +1,4 @@
-import "../domain/onboarding/connection-success/connection-success-overlay.js";
+import "../domain/onboarding/connection-success/connection-success-overlay";
 
 import { Account } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
@@ -7,18 +7,21 @@ import { customElement, property, query, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import { computeFloatingButtonRect } from "../components/atom/floating-button/floating-button-rect.js";
-import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button.js";
+import { computeFloatingButtonRect } from "../components/atom/floating-button/floating-button-rect";
+import type { FloatingButtonPosition } from "../components/atom/floating-button/ledger-floating-button";
 import {
   LedgerModal,
   ModalMode,
-} from "../components/atom/modal/ledger-modal.js";
-import type { WalletTransactionFeature } from "../components/molecule/wallet-actions/ledger-wallet-actions.js";
-import { CoreContext, coreContext } from "../context/core-context.js";
-import { langContext, LanguageContext } from "../context/language-context.js";
-import type { CloseModalOptions, NavigationHost } from "./navigation.js";
-import { RootNavigationController } from "./root-navigation-controller.js";
-import { Destination } from "./routes.js";
+} from "../components/atom/modal/ledger-modal";
+import type { WalletTransactionFeature } from "../components/molecule/wallet-actions/ledger-wallet-actions";
+import { CoreContext, coreContext } from "../context/core-context";
+import { langContext, LanguageContext } from "../context/language-context";
+import type { CloseModalOptions, NavigationHost } from "./navigation";
+import {
+  type NavigationIntentParams,
+  RootNavigationController,
+} from "./root-navigation-controller";
+import { Destination } from "./routes";
 
 type SuccessOverlayState = {
   targetRect: DOMRect;
@@ -86,7 +89,7 @@ export class RootNavigationComponent
 
   public navigationIntent(
     intent: Destination["name"],
-    params?: unknown,
+    params?: NavigationIntentParams,
     mode?: ModalMode,
   ) {
     this.rootNavigationController.navigationIntent(intent, params);
@@ -99,13 +102,11 @@ export class RootNavigationComponent
     if (this.successOverlayState) {
       this.dismissSuccessOverlay();
       void this.updateComplete.then(() => {
-        this.handleModalOpen();
         this.ledgerModal.openModal(mode);
       });
       return;
     }
 
-    this.handleModalOpen();
     this.ledgerModal.openModal(mode);
   }
 
@@ -116,7 +117,6 @@ export class RootNavigationComponent
       return;
     }
 
-    this.handleModalClose();
     if (options?.morph && !this.isFloatingButtonHidden()) {
       this.ledgerModal.closeModal({
         morph: {
@@ -127,6 +127,12 @@ export class RootNavigationComponent
       return;
     }
     this.ledgerModal.closeModal();
+  }
+
+  private handleToolbarClose(): void {
+    const isConnectionSuccess =
+      this.rootNavigationController.currentScreen?.name === "connectionSuccess";
+    this.closeModal(isConnectionSuccess ? { morph: true } : undefined);
   }
 
   public presentConnectionSuccessOverlay(): void {
@@ -145,6 +151,12 @@ export class RootNavigationComponent
   }
 
   // PRIVATE METHODS
+  /**
+   * Driven by the modal's `modal-opened` / `modal-closed` events rather than
+   * from `openModal` / `closeModal`: the modal also closes itself (backdrop,
+   * escape, toolbar), so the events are the single source of truth and pairing
+   * them with a direct call would run the handler twice per transition.
+   */
   private handleModalOpen() {
     this.requestUpdate();
     this.rootNavigationController.handleModalOpen();
@@ -295,7 +307,7 @@ export class RootNavigationComponent
             .showSettings=${uiModel.showSettings}
             .showLogo=${uiModel.showLogo}
             deviceModelId=${ifDefined(uiModel.deviceModelId)}
-            @ledger-toolbar-close=${this.closeModal}
+            @ledger-toolbar-close=${this.handleToolbarClose}
             @ledger-toolbar-go-back-click=${this.goBack}
             @ledger-toolbar-chip-click=${this.handleChipClick}
             @ledger-toolbar-settings-click=${this.handleSettingsClick}

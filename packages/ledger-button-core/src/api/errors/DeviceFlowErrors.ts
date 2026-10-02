@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 /**
  * Device-flow errors shared between core and the blockchain provider modules.

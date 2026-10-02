@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { buildAccountDeepLink, buildWalletActionDeepLink } from "./deeplinks.js";
+import { buildAccountDeepLink, buildWalletActionDeepLink } from "./deeplinks";
 
 describe("buildWalletActionDeepLink", () => {
   describe("without partner", () => {

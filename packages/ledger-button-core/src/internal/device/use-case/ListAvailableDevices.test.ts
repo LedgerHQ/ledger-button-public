@@ -5,8 +5,8 @@ import {
   createMockDeviceManagementKitService,
   createMockLoggerFactory,
   mockDiscoveredDevices,
-} from "../__tests__/mocks.js";
-import { ListAvailableDevices } from "./ListAvailableDevices.js";
+} from "../__tests__/mocks";
+import { ListAvailableDevices } from "./ListAvailableDevices";
 
 describe("ListAvailableDevices", () => {
   let listAvailableDevices: ListAvailableDevices;

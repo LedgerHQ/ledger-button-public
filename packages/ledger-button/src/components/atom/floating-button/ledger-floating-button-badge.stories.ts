@@ -1,12 +1,12 @@
-import "../icon/ledger-icon.js";
+import "../icon/ledger-icon";
 import "./ledger-floating-button-badge";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { css, html, LitElement } from "lit";
 import { query, state } from "lit/decorators.js";
 
-import { tailwindElement } from "../../../tailwind-element.js";
-import { FloatingButtonBadgeAnimation } from "./floating-button-badge-animation.js";
+import { tailwindElement } from "../../../tailwind-element";
+import { FloatingButtonBadgeAnimation } from "./floating-button-badge-animation";
 import type { LedgerFloatingButtonBadge } from "./ledger-floating-button-badge";
 import type { FloatingButtonBadgeVariant } from "./ledger-floating-button-badge";
 

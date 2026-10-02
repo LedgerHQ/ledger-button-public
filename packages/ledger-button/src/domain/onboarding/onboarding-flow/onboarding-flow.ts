@@ -1,24 +1,24 @@
-import "../welcome/welcome-screen.js";
-import "../consent-prompt/consent-analytics-screen.js";
-import "../select-device/select-device.js";
-import "../ledger-sync/ledger-sync.js";
-import "../retrieving-accounts/retrieving-accounts.js";
-import "../select-account/select-account.js";
-import "../mobile-onboarding/mobile-onboarding-screen.js";
+import "../welcome/welcome-screen";
+import "../consent-prompt/consent-analytics-screen";
+import "../select-device/select-device";
+import "../ledger-sync/ledger-sync";
+import "../retrieving-accounts/retrieving-accounts";
+import "../select-account/select-account";
+import "../mobile-onboarding/mobile-onboarding-screen";
 
 import { consume } from "@lit/context";
 import { LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { Destinations } from "../../../shared/routes.js";
-import { OnboardingFlowController } from "./onboarding-flow-controller.js";
+} from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { Destinations } from "../../../shared/routes";
+import { OnboardingFlowController } from "./onboarding-flow-controller";
 
 @customElement("onboarding-flow")
 export class OnboardingFlow extends LitElement {

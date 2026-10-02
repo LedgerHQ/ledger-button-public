@@ -1,6 +1,6 @@
 import type { Either } from "purify-ts";
 
-import type { CounterValueResult } from "./counterValueTypes.js";
+import type { CounterValueResult } from "./counterValueTypes";
 
 export interface CounterValueDataSource {
   getCounterValues(

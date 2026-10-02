@@ -1,30 +1,23 @@
-import "../../components/index.js";
+import "../../components/index";
 import "../onboarding/ledger-sync/ledger-sync";
 
-import {
-  type SignPersonalMessageParams,
-  type SignRawTransactionParams,
-  type SignSolanaMessageParams,
-  type SignTransactionParams,
-  type SignTypedMessageParams,
-  type WalletNavigationIntent,
-} from "@ledgerhq/ledger-wallet-provider-core";
+import { type SignNavigationIntent } from "@ledgerhq/ledger-wallet-provider-core";
 import { consume } from "@lit/context";
 import { css, html, LitElement, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import { type ModalGradient } from "../../components/atom/modal/ledger-modal.js";
-import { AnimationKey } from "../../components/index.js";
-import { type StatusType } from "../../components/organism/status/ledger-status.js";
-import { CoreContext, coreContext } from "../../context/core-context.js";
+import { type ModalGradient } from "../../components/atom/modal/ledger-modal";
+import { AnimationKey } from "../../components/index";
+import { type StatusType } from "../../components/organism/status/ledger-status";
+import { CoreContext, coreContext } from "../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../context/language-context.js";
-import { Navigation } from "../../shared/navigation.js";
-import { Destinations } from "../../shared/routes.js";
-import { tailwindElement } from "../../tailwind-element.js";
-import { SignTransactionController } from "./sign-transaction-controller.js";
+} from "../../context/language-context";
+import { Navigation } from "../../shared/navigation";
+import { Destinations } from "../../shared/routes";
+import { tailwindElement } from "../../tailwind-element";
+import { SignTransactionController } from "./sign-transaction-controller";
 
 const styles = css`
   :host {
@@ -49,10 +42,6 @@ const styles = css`
   }
 `;
 
-type Params = {
-  broadcast: boolean;
-};
-
 @customElement("sign-transaction-screen")
 @tailwindElement(styles)
 export class SignTransactionScreen extends LitElement {
@@ -71,18 +60,7 @@ export class SignTransactionScreen extends LitElement {
   public languageContext!: LanguageContext;
 
   @property({ type: Object })
-  transactionParams?:
-    | SignTransactionParams
-    | SignPersonalMessageParams
-    | SignRawTransactionParams
-    | SignTypedMessageParams
-    | SignSolanaMessageParams;
-
-  @property({ type: Object })
   params?: unknown;
-
-  @property({ type: Boolean, attribute: false })
-  broadcast = false;
 
   controller!: SignTransactionController;
 
@@ -97,25 +75,13 @@ export class SignTransactionScreen extends LitElement {
       this.languageContext,
     );
 
-    const intent = this.params as WalletNavigationIntent | undefined;
+    const intent = this.params as SignNavigationIntent | undefined;
 
     if (!intent) {
       this.controller.state.screen = "error";
       this.requestUpdate();
       return;
     }
-
-    const intentParams = intent.params as Params | undefined;
-    if (intentParams && "broadcast" in intentParams) {
-      this.broadcast = intentParams.broadcast;
-    }
-
-    this.transactionParams = intent.params as
-      | SignTransactionParams
-      | SignPersonalMessageParams
-      | SignRawTransactionParams
-      | SignTypedMessageParams
-      | SignSolanaMessageParams;
 
     this.controller.startSigning(intent);
   }

@@ -3,7 +3,7 @@ import {
   type DiscoveredDevice,
 } from "@ledgerhq/device-management-kit";
 
-import { Device } from "../model/Device.js";
+import { Device } from "../model/Device";
 
 export type ConnectionType = "bluetooth" | "usb" | "";
 
@@ -15,4 +15,6 @@ export interface DeviceManagementKitService {
   connectToDevice: ({ type }: { type: ConnectionType }) => Promise<Device>;
   disconnectFromDevice: () => Promise<void>;
   listAvailableDevices: () => Promise<DiscoveredDevice[]>;
+  /** Whether DMK still knows the session this service has cached. */
+  isSessionAlive: () => boolean;
 }

@@ -1,15 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerButtonError } from "../../api/errors/LedgerButtonError.js";
-import type { ErrorOccurredEventData } from "../backend/model/trackEvent.js";
-import { EventType } from "../backend/model/trackEvent.js";
+import { LedgerButtonError } from "@api/errors/LedgerButtonError";
+
+import type { ErrorOccurredEventData } from "../backend/model/trackEvent";
+import { EventType } from "../backend/model/trackEvent";
 import {
   categorizeError,
   createErrorEvent,
   sanitizeContext,
-} from "./ErrorTrackingUtils.js";
+} from "./ErrorTrackingUtils";
 
-vi.mock("./utils.js", () => ({
+vi.mock("./utils", () => ({
   generateUUID: vi.fn().mockReturnValue("mock-uuid-1234"),
 }));
 
@@ -71,6 +72,7 @@ describe("ErrorTrackingUtils", () => {
       ["LedgerSyncAuthContextMissingError", "ledgersync"],
       ["LedgerSyncNoSessionIdError", "ledgersync"],
       ["DeviceOutOfMemoryError", "device"],
+      ["DeviceFirmwareOutdatedError", "device"],
       ["SomeRandomError", "unknown"],
       ["Error", "unknown"],
     ])("should categorize %s as %s", (errorName, expectedCategory) => {

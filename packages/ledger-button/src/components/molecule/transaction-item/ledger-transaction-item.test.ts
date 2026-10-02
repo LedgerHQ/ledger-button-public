@@ -5,7 +5,7 @@
 import { render } from "lit";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { LedgerTransactionItem } from "./ledger-transaction-item.js";
+import { LedgerTransactionItem } from "./ledger-transaction-item";
 
 const EXPLORER_URL =
   "https://etherscan.io/tx/0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";
@@ -72,6 +72,17 @@ describe("ledger-transaction-item", () => {
     expect(label).toBeUndefined();
   });
 
+  it("renders no crypto amount when the amount is unknown", () => {
+    const container = renderItem({
+      amount: "",
+      ticker: "SOL",
+      fiatAmount: "",
+    });
+
+    expect(container.textContent).not.toContain("SOL");
+    expect(container.textContent).not.toContain("0");
+  });
+
   it("renders a static container with no anchor when explorerUrl is missing", () => {
     const container = renderItem();
 
@@ -90,7 +101,7 @@ describe("ledger-transaction-item", () => {
     expect(container.querySelector("a")).toBeNull();
   });
 
-  it("calls trackViewTransactionDetailsClicked with the hash when the anchor is clicked", () => {
+  it("calls trackViewTransactionDetailsClicked with the hash and active family", () => {
     const trackViewTransactionDetailsClicked = vi.fn();
     const hash =
       "0xabc1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcd";
@@ -98,7 +109,10 @@ describe("ledger-transaction-item", () => {
     const container = renderItem({
       explorerUrl: EXPLORER_URL,
       hash,
-      coreContext: { trackViewTransactionDetailsClicked },
+      coreContext: {
+        trackViewTransactionDetailsClicked,
+        getActiveFamily: () => "solana",
+      },
     } as Partial<LedgerTransactionItem>);
 
     const anchor = container.querySelector("a");
@@ -106,8 +120,28 @@ describe("ledger-transaction-item", () => {
     anchor?.dispatchEvent(clickEvent);
 
     expect(trackViewTransactionDetailsClicked).toHaveBeenCalledTimes(1);
-    expect(trackViewTransactionDetailsClicked).toHaveBeenCalledWith(hash);
+    expect(trackViewTransactionDetailsClicked).toHaveBeenCalledWith(
+      hash,
+      "solana",
+    );
     expect(clickEvent.defaultPrevented).toBe(false);
+  });
+
+  it("does not track when the active family is unknown", () => {
+    const trackViewTransactionDetailsClicked = vi.fn();
+
+    const container = renderItem({
+      explorerUrl: EXPLORER_URL,
+      hash: "0xabc",
+      coreContext: {
+        trackViewTransactionDetailsClicked,
+        getActiveFamily: () => undefined,
+      },
+    } as Partial<LedgerTransactionItem>);
+
+    container.querySelector("a")?.click();
+
+    expect(trackViewTransactionDetailsClicked).not.toHaveBeenCalled();
   });
 
   it("does not call tracking and does not throw when coreContext is missing", () => {

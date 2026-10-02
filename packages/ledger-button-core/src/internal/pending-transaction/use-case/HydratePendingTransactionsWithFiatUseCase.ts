@@ -2,11 +2,12 @@ import type { Factory } from "inversify";
 import { inject, injectable } from "inversify";
 import type { Either } from "purify-ts";
 
-import { balanceModuleTypes } from "../../balance/balanceModuleTypes.js";
-import type { CounterValueDataSource } from "../../balance/datasource/countervalue/CounterValueDataSource.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import type { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import type { PendingTransaction } from "../model/PendingTransaction.js";
+import type { CounterValueDataSource } from "@internal/balance/datasource/countervalue/CounterValueDataSource";
+import { balanceModuleTypes } from "@internal/balance/di/balanceModuleTypes";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import type { PendingTransaction } from "../model/PendingTransaction";
 
 type DateRange = {
   minDate: string;
@@ -131,7 +132,7 @@ export class HydratePendingTransactionsWithFiatUseCase {
         return tx;
       }
 
-      const valueNum = parseFloat(tx.formattedValue);
+      const valueNum = parseFloat(tx.formattedValue ?? "");
       if (Number.isNaN(valueNum)) {
         return tx;
       }

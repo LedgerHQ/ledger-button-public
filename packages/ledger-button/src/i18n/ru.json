@@ -141,6 +141,7 @@
     },
     "connectionSuccess": {
       "title": "Вы подключены",
+      "subtitle": "Теперь вы можете совершить свою первую транзакцию с преимуществами «Проверки транзакций» и «Прозрачной подписи» от Ledger.",
       "close": "Закрыть"
     },
     "turnOnSync": {
@@ -334,6 +335,11 @@
         "title": "Недостаточно места для приложения {AppName}",
         "description": "Память вашего {deviceName} заполнена, поэтому приложение не установилось автоматически. Освободите место через Ledger Wallet, затем установите приложение.",
         "cta1": "Освободить место"
+      },
+      "DeviceFirmwareOutdated": {
+        "title": "Ledger OS update required",
+        "description": "You need the latest Ledger OS to sign this transaction.",
+        "cta1": "Update Ledger OS"
       }
     },
     "ledgerSync": {

@@ -1,15 +1,18 @@
+import type { Factory } from "inversify";
 import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   FailedToFetchEncryptedAccountsError,
   NoAccountInSyncError,
-} from "../../../api/errors/LedgerSyncErrors.js";
-import type { Config } from "../../config/model/config.js";
-import type { InternalAuthContext } from "../../ledgersync/model/InternalAuthContext.js";
-import type { NetworkService } from "../../network/NetworkService.js";
-import type { CloudSyncData } from "../model/cloudSyncTypes.js";
-import { DefaultCloudSyncService } from "./DefaultCloudSyncService.js";
+} from "@api/errors/LedgerSyncErrors";
+import type { Config } from "@internal/config/model/config";
+import type { InternalAuthContext } from "@internal/ledgersync/model/InternalAuthContext";
+import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+import type { NetworkService } from "@internal/network/NetworkService";
+
+import type { CloudSyncData } from "../model/cloudSyncTypes";
+import { DefaultCloudSyncService } from "./DefaultCloudSyncService";
 
 describe("DefaultCloudSyncService", () => {
   let cloudSyncService: DefaultCloudSyncService;
@@ -26,7 +29,7 @@ describe("DefaultCloudSyncService", () => {
     warn: ReturnType<typeof vi.fn>;
     debug: ReturnType<typeof vi.fn>;
   };
-  let mockLoggerFactory: ReturnType<typeof vi.fn>;
+  let mockLoggerFactory: Factory<LoggerPublisher>;
   let mockConfig: {
     lkrp: {
       cloudSyncUrl: string;
@@ -60,7 +63,7 @@ describe("DefaultCloudSyncService", () => {
       debug: vi.fn(),
     };
 
-    mockLoggerFactory = vi.fn().mockReturnValue(mockLogger);
+    mockLoggerFactory = vi.fn(() => mockLogger) as unknown as Factory<LoggerPublisher>;
 
     mockConfig = {
       lkrp: {

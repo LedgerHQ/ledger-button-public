@@ -1,6 +1,6 @@
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 
-import { FloatingButtonBadgeAnimation } from "./floating-button-badge-animation.js";
+import { FloatingButtonBadgeAnimation } from "./floating-button-badge-animation";
 
 type BadgeVariant = "pending" | "validated";
 

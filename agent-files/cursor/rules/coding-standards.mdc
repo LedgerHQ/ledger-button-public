@@ -61,7 +61,8 @@ Classes must follow this order:
 
 ### Imports
 
-- Always use relative imports (never `src/` paths)
+- Never use `src/` paths; use relative imports, or the `@api/*`, `@internal/*` and
+  `@schemas/*` aliases inside `ledger-button-core`
 - Group: external packages → internal modules → relative imports
 - See [import-rules.mdc](./import-rules.mdc) for details
 

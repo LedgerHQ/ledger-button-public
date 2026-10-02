@@ -4,8 +4,9 @@ export type PendingTransaction = {
   address: string;
   timestamp: string;
   type: "sent";
-  value: string;
-  formattedValue: string;
+  /** Unset when the amount cannot be read from the signed payload. */
+  value?: string;
+  formattedValue?: string;
   ticker: string;
   currencyName: string;
   ledgerId: string;

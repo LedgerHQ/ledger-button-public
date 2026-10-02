@@ -1,4 +1,5 @@
 import nx from "@nx/eslint-plugin";
+import importPlugin from "eslint-plugin-import";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default [
@@ -25,7 +26,16 @@ export default [
         "error",
         {
           enforceBuildableLibDependency: true,
-          allow: ["^.*/eslint(\\.base)?\\.config\\.[cm]?js$"],
+          // These aliases map to files inside ledger-button-core itself, so they
+          // are internal to that project rather than cross-project dependencies.
+          allow: [
+            "^.*/eslint(\\.base)?\\.config\\.[cm]?js$",
+            // Build-time helpers shared by the packages' vite configs.
+            "^(\\.\\./)+tools/.*$",
+            "@api/**",
+            "@internal/**",
+            "@schemas/**",
+          ],
           depConstraints: [
             {
               sourceTag: "*",
@@ -93,6 +103,89 @@ export default [
               group: ["src/**"],
               message:
                 "Import paths should not start with 'src/'. Use relative imports instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "packages/ledger-button/src/**/*.{ts,tsx}",
+      "packages/ledger-wallet-provider-evm/src/**/*.{ts,tsx}",
+      "packages/ledger-wallet-provider-solana/src/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["src/**"],
+              message:
+                "Import paths should not start with 'src/'. Use relative imports instead.",
+            },
+            {
+              regex: "^\\..*\\.js$",
+              message:
+                "Omit the .js extension on relative imports; this package uses moduleResolution: bundler.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // Library builds keep every runtime dependency external, so an import that
+    // is not declared in the package's own manifest resolves to nothing on the
+    // consumer side.
+    files: ["packages/*/src/**/*.{ts,tsx}"],
+    ignores: [
+      "**/*.test.{ts,tsx}",
+      "**/*.spec.{ts,tsx}",
+      "**/*.stories.{ts,tsx}",
+      "**/__mocks__/**",
+      "**/__tests__/**",
+    ],
+    plugins: {
+      import: importPlugin,
+    },
+    rules: {
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: false,
+          optionalDependencies: false,
+          peerDependencies: true,
+        },
+      ],
+    },
+  },
+  {
+    files: ["packages/ledger-button-core/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["src/**"],
+              message:
+                "Import paths should not start with 'src/'. Use relative imports instead.",
+            },
+            {
+              group: [
+                "../../**/api/**",
+                "../../**/internal/**",
+                "../../**/schemas/**",
+              ],
+              message:
+                "Use the '@api/*', '@internal/*' or '@schemas/*' aliases instead of climbing out of the current directory.",
+            },
+            {
+              regex: "^(\\.{1,2}/|@api/|@internal/|@schemas/).+\\.js$",
+              message:
+                "Omit the .js extension on relative and aliased imports; this package uses moduleResolution: bundler.",
             },
           ],
         },

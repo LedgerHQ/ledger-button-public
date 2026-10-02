@@ -27,7 +27,7 @@ A Cursor rule can be a symlink to a skill's `SKILL.md` (shared frontmatter `name
 ## Tools
 
 - **pnpm** is the package manager.
-- **Nx 22.0.1** orchestrates tasks — always run `build` / `lint` / `test` / `typecheck` / `dev` through `pnpm nx`.
+- **Nx 23.2.0** orchestrates tasks — always run `build` / `lint` / `test` / `typecheck` / `dev` through `pnpm nx`.
 - Use the **`gh`** CLI for GitHub operations (PRs, workflows, comments).
 
 ## Skills

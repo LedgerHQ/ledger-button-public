@@ -63,7 +63,6 @@
       "plugin": "@nx/vite/plugin",
       "options": {
         "buildTargetName": "build",
-        "testTargetName": "test",
         "serveTargetName": "serve",
         "devTargetName": "dev",
         "previewTargetName": "preview",
@@ -71,6 +70,12 @@
         "typecheckTargetName": "typecheck",
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "test"
       }
     },
     {
@@ -142,6 +147,16 @@
           "@ledgerhq/ledger-wallet-provider-core"
         ],
         "projectsRelationship": "fixed"
+      },
+      "providers": {
+        "projects": [
+          "@ledgerhq/ledger-wallet-provider-evm",
+          "@ledgerhq/ledger-wallet-provider-solana"
+        ],
+        "projectsRelationship": "independent",
+        "releaseTag": {
+          "pattern": "{projectName}@{version}"
+        }
       }
     },
     "git": {
@@ -201,5 +216,6 @@
         "linter": "eslint"
       }
     }
-  }
+  },
+  "analytics": false
 }

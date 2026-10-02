@@ -1,13 +1,9 @@
 import type { DeviceManagementKit } from "@ledgerhq/device-management-kit";
 import type { Observable } from "rxjs";
 
-import type { SignedResults } from "../../model/signing/SignedTransaction.js";
-import type { SignFlowStatus } from "../../model/signing/SignFlowStatus.js";
-import type { SignPersonalMessageParams } from "../../model/signing/SignPersonalMessageParams.js";
-import type { SignRawTransactionParams } from "../../model/signing/SignRawTransactionParams.js";
-import type { SignTransactionParams } from "../../model/signing/SignTransactionParams.js";
-import type { SignTypedMessageParams } from "../../model/signing/SignTypedMessageParams.js";
-import type { SignSolanaMessageParams } from "../../model/signing/solana/SignSolanaMessageParams.js";
+import type { SignedResults } from "@api/model/signing/SignedTransaction";
+import type { SignFlowStatus } from "@api/model/signing/SignFlowStatus";
+import type { SignIntentType } from "@api/model/signing/SignIntentType";
 
 /**
  * Blockchain family supported by the wallet provider layer.
@@ -65,13 +61,32 @@ export type ProviderSdkConfig = {
   dAppIdentifier: string;
 };
 
-/** Sign-flow params a provider forwards to core for pending-tx tracking. */
-export type ProviderSignParams =
-  | SignTransactionParams
-  | SignRawTransactionParams
-  | SignTypedMessageParams
-  | SignPersonalMessageParams
-  | SignSolanaMessageParams;
+/**
+ * Chain-neutral metadata a provider supplies when core tracks a broadcast.
+ *
+ * Providers own and interpret their signing payloads. Core only needs the
+ * family that selected the account and, when readily available, the native
+ * amount used to render the pending transaction.
+ */
+export type BroadcastedTransactionMetadata = {
+  family: BlockchainFamily;
+  value?: string;
+};
+
+/**
+ * Billing data a provider reports once one of its transactions is broadcast.
+ * The provider extracts the family-specific fields; core only hashes and
+ * formats them.
+ */
+export type InvoicedTransaction = {
+  family: BlockchainFamily;
+  /** Explorer id of the broadcast transaction (EVM hash, Solana base58 signature). */
+  transactionHash: string;
+  /** Unsigned payload that was signed: serialized EVM transaction (hex) or Solana message bytes. */
+  unsignedTransaction: string | Uint8Array;
+  /** Empty when the family has no single recipient (Solana). */
+  recipientAddress: string;
+};
 
 /**
  * Payload carried by the `selectAccount` {@link WalletNavigationIntent} when the
@@ -85,24 +100,52 @@ export type SelectAccountIntentParams = {
 };
 
 /**
- * Core -> UI navigation intent emitted while core runs an account-selection or
- * sign phase. The button package maps `name` to its own navigation; the
- * `status$` / `finish` / `retry` machinery lives here, not on the provider
- * boundary.
+ * Payload carried by the `signTransaction` {@link WalletNavigationIntent}.
+ *
+ * Deliberately a small set of decisions rather than the provider's raw
+ * signing payload: everything here is something the provider already knows
+ * when it emits the intent.
+ *
+ * The raw payload is not carried. Pending-transaction tracking receives
+ * chain-neutral {@link BroadcastedTransactionMetadata} through
+ * {@link CoreFacade.trackBroadcastedTransaction}, on a path that does not
+ * go through the UI.
  */
-export interface WalletNavigationIntent {
-  /** e.g. "selectAccount" | "signTransaction" - mapped to nav by the button. */
-  name: string;
-  /**
-   * Intent-specific payload. For a `selectAccount` request it holds a
-   * {@link SelectAccountIntentParams} (the requested blockchain family); for a
-   * sign phase it holds the transaction/message parameters.
-   */
-  params?: unknown;
+export type SignIntentParams = {
+  family: BlockchainFamily;
+  /** What the user is approving - drives the success copy. */
+  type: SignIntentType;
+  /** Whether core broadcasts the transaction once signed. */
+  broadcast: boolean;
+};
+
+type WalletNavigationIntentBase = {
   /** UI subscribes for live progress (like today's SignFlowStatus). */
   status$: Observable<SignFlowStatus>;
   /** UI acknowledges success -> core resolves the host promise. */
   finish: () => void;
   /** UI asks core to re-run the phase after an error. */
   retry: () => void;
-}
+};
+
+export type SelectAccountNavigationIntent = WalletNavigationIntentBase & {
+  name: "selectAccount";
+  params: SelectAccountIntentParams;
+};
+
+export type SignNavigationIntent = WalletNavigationIntentBase & {
+  name: "signTransaction";
+  params: SignIntentParams;
+};
+
+/**
+ * Core -> UI navigation intent emitted while core runs an account-selection or
+ * sign phase. The button package maps `name` to its own navigation; the
+ * `status$` / `finish` / `retry` machinery lives here, not on the provider
+ * boundary.
+ *
+ * Discriminated on `name` so the UI reads `params` without casting.
+ */
+export type WalletNavigationIntent =
+  | SelectAccountNavigationIntent
+  | SignNavigationIntent;

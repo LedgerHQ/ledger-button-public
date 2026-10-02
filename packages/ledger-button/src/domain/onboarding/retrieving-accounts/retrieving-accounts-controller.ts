@@ -4,11 +4,11 @@ import {
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { type ReactiveController, type ReactiveControllerHost } from "lit";
 
-import { type CoreContext } from "../../../context/core-context.js";
-import { LanguageContext } from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-import { type Destinations } from "../../../shared/routes.js";
+import { type CoreContext } from "../../../context/core-context";
+import { LanguageContext } from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { type Destinations } from "../../../shared/routes";
 
 export class RetrievingAccountsController implements ReactiveController {
   errorData?: {
@@ -86,8 +86,7 @@ export class RetrievingAccountsController implements ReactiveController {
               this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts
                 .cta2,
             action: () => {
-              this.errorData = undefined;
-              this.navigation.navigateTo(this.destinations.onboarding);
+              void this.useAnotherDevice();
             },
           },
         };
@@ -129,5 +128,19 @@ export class RetrievingAccountsController implements ReactiveController {
         };
         break;
     }
+  }
+
+  private async useAnotherDevice(): Promise<void> {
+    this.errorData = undefined;
+
+    try {
+      // Full session reset (device + trust chain), then restart the onboarding
+      // flow so reconnect advances through ledger-sync again.
+      await this.core.disconnect();
+    } catch (error) {
+      console.error("Failed to reset session before re-onboarding", error);
+    }
+
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 }

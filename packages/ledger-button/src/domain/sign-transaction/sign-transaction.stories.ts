@@ -1,15 +1,15 @@
 import "./sign-transaction";
-import "../../context/core-context.js";
-import "../../context/language-context.js";
-import "../../components/index.js";
+import "../../context/core-context";
+import "../../context/language-context";
+import "../../components/index";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 
-import type { ModalGradient } from "../../components/atom/modal/ledger-modal.js";
-import type { AnimationKey } from "../../components/index.js";
-import type { StatusType } from "../../components/organism/status/ledger-status.js";
+import type { ModalGradient } from "../../components/atom/modal/ledger-modal";
+import type { AnimationKey } from "../../components/index";
+import type { StatusType } from "../../components/organism/status/ledger-status";
 import en from "../../i18n/en.json" with { type: "json" };
 
 // These stories render the visual layout the SignTransactionScreen produces

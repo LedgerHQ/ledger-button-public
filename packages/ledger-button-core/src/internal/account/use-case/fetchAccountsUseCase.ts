@@ -1,9 +1,10 @@
 import { inject, injectable } from "inversify";
 
-import { accountModuleTypes } from "../accountModuleTypes.js";
-import type { AccountService } from "../service/AccountService.js";
-import { Account } from "../service/AccountService.js";
-import { FetchCloudSyncAccountsUseCase } from "./fetchCloudSyncAccountsUseCase.js";
+import type { Account } from "@api/model/Account";
+
+import { accountModuleTypes } from "../di/accountModuleTypes";
+import type { AccountService } from "../service/AccountService";
+import { FetchCloudSyncAccountsUseCase } from "./fetchCloudSyncAccountsUseCase";
 
 @injectable()
 export class FetchAccountsUseCase {

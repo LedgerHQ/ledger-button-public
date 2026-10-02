@@ -1,4 +1,4 @@
-import { LedgerButtonError } from "./LedgerButtonError.js";
+import { LedgerButtonError } from "./LedgerButtonError";
 
 /**
  * Raised when the user closes the in-flow modal before a provider phase
@@ -8,5 +8,15 @@ import { LedgerButtonError } from "./LedgerButtonError.js";
 export class ModalClosedError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
     super(message, "ModalClosedError", context);
+  }
+}
+
+/**
+ * Raised at the start of `initializeLedgerProvider` when no blockchain
+ * factory was passed. The dApp call does not continue.
+ */
+export class NoBlockchainProviderError extends LedgerButtonError {
+  constructor(message: string, context?: Record<string, unknown>) {
+    super(message, "NoBlockchainProviderError", context);
   }
 }

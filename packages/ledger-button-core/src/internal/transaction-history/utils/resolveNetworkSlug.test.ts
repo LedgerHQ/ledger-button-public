@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveNetworkSlug } from "./resolveNetworkSlug.js";
+import { resolveNetworkSlug } from "./resolveNetworkSlug";
 
 describe("resolveNetworkSlug", () => {
   it("resolves a currency handled by an EVM provider to its slug", () => {

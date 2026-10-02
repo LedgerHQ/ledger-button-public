@@ -1,37 +1,45 @@
-import "../../../shared/root-navigation.js";
+import "../../../shared/root-navigation";
 
 import type {
   Account,
-  AccountWithFiat,
+  AccountGroup,
+  AccountListItem,
   BlockchainFamily,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import type { ReactiveController, ReactiveControllerHost } from "lit";
 import type { Subscription } from "rxjs";
-import { of, timer } from "rxjs";
-import { debounce } from "rxjs/operators";
+import { BehaviorSubject } from "rxjs";
 
-import { CoreContext } from "../../../context/core-context.js";
-import { LanguageContext } from "../../../context/language-context.js";
-import { Navigation } from "../../../shared/navigation.js";
-import { RootNavigationComponent } from "../../../shared/root-navigation.js";
-import { getDisplayTokens } from "../../../utils/account-display-tokens.js";
+import { CoreContext } from "../../../context/core-context";
+import { LanguageContext } from "../../../context/language-context";
+import { Navigation } from "../../../shared/navigation";
+import { RootNavigationComponent } from "../../../shared/root-navigation";
+import { type Destinations } from "../../../shared/routes";
+import { formatAddress } from "../../../utils/format-address";
 
-export type AccountGroup = {
-  freshAddress: string;
-  accounts: AccountWithFiat[];
+export type SelectAccountErrorData = {
+  title: string;
+  cta1?: { label: string; action: () => void };
+  cta2?: { label: string; action: () => void };
 };
 
 export class SelectAccountController implements ReactiveController {
-  accounts: AccountWithFiat[] = [];
-  searchQuery = "";
-  private accountsSubscription?: Subscription;
+  groups: AccountGroup[] = [];
+  hasLoadedGroups = false;
+  errorData?: SelectAccountErrorData;
+  private readonly searchQuery$ = new BehaviorSubject("");
+  private groupsSubscription?: Subscription;
 
-  getDisplayTokens(account: AccountWithFiat) {
-    return getDisplayTokens(account);
+  get searchQuery(): string {
+    return this.searchQuery$.value;
+  }
+
+  get showCompatibleAccountsError(): boolean {
+    return this.errorData !== undefined && !this.searchQuery;
   }
 
   truncateAddress(address: string): string {
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
+    return formatAddress(address);
   }
 
   formatGroupCount(count: number): string {
@@ -48,60 +56,19 @@ export class SelectAccountController implements ReactiveController {
       : t.tokenCountOther.replace("{count}", String(count));
   }
 
-  get groupedAccounts(): AccountGroup[] {
-    const map = new Map<string, AccountWithFiat[]>();
-    const totalBalances = new Map<string, number>();
-
-    for (const account of this.filteredAccounts) {
-      const group = map.get(account.freshAddress) ?? [];
-      group.push(account);
-      map.set(account.freshAddress, group);
-
-      const totalBalance = totalBalances.get(account.freshAddress) ?? 0;
-      const accountFiat = this.getAccountFiatValue(account);
-      totalBalances.set(
-        account.freshAddress,
-        totalBalance + parseFloat(accountFiat?.value ?? "0"),
-      );
-    }
-
-    return Array.from(map.entries())
-      .sort(
-        ([a], [b]) => (totalBalances.get(b) ?? 0) - (totalBalances.get(a) ?? 0),
-      )
-      .map(([freshAddress, accounts]) => ({
-        freshAddress,
-        accounts,
-      }));
-  }
-
-  get filteredAccounts(): AccountWithFiat[] {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (!query) {
-      return [...this.accounts];
-    }
-
-    return this.accounts.filter(
-      (account) =>
-        account.name.toLowerCase().includes(query) ||
-        account.freshAddress.toLowerCase().includes(query) ||
-        account.ticker.toLowerCase().includes(query) ||
-        account.tokens.some(
-          (token) =>
-            token.ticker.toLowerCase().includes(query) ||
-            token.name.toLowerCase().includes(query),
-        ),
-    );
-  }
-
   get isBalanceLoading(): boolean {
-    return this.accounts.some((account) => account.balance === undefined);
+    return this.groups.some((group) =>
+      group.accounts.some(
+        (account) => account.balanceLoadingState === "loading",
+      ),
+    );
   }
 
   constructor(
     private readonly host: ReactiveControllerHost,
     private readonly core: CoreContext,
     private readonly navigation: Navigation,
+    private readonly destinations: Destinations,
     private readonly lang: LanguageContext,
     private readonly family?: BlockchainFamily,
   ) {
@@ -113,36 +80,30 @@ export class SelectAccountController implements ReactiveController {
   }
 
   hostDisconnected() {
-    if (this.accountsSubscription) {
-      this.accountsSubscription.unsubscribe();
-      this.accountsSubscription = undefined;
+    if (this.groupsSubscription) {
+      this.groupsSubscription.unsubscribe();
+      this.groupsSubscription = undefined;
     }
   }
 
   getAccounts(options?: { forceRefresh?: boolean }) {
-    if (this.accountsSubscription) {
-      this.accountsSubscription.unsubscribe();
+    if (this.groupsSubscription) {
+      this.groupsSubscription.unsubscribe();
     }
 
     this.host.requestUpdate();
 
-    // Emit the first batch immediately so accounts appear before balances load
-    let isFirstEmission = true;
-
-    this.accountsSubscription = this.core
-      .observeAccounts({ ...options, family: this.family })
-      .pipe(
-        debounce(() => {
-          if (isFirstEmission) {
-            isFirstEmission = false;
-            return of(0);
-          }
-          return timer(200);
-        }),
-      )
+    this.groupsSubscription = this.core
+      .observeAccountGroups({
+        ...options,
+        family: this.family,
+        searchQuery$: this.searchQuery$,
+      })
       .subscribe({
-        next: (accounts) => {
-          this.accounts = accounts;
+        next: (groups) => {
+          this.groups = groups;
+          this.hasLoadedGroups = true;
+          this.syncCompatibleAccountsError();
           this.host.requestUpdate();
         },
         error: (error) => {
@@ -155,35 +116,20 @@ export class SelectAccountController implements ReactiveController {
       });
   }
 
-  isAccountBalanceLoading(account: AccountWithFiat): boolean {
+  isAccountBalanceLoading(account: AccountListItem): boolean {
     return account.balanceLoadingState === "loading";
   }
 
-  hasAccountBalanceError(account: AccountWithFiat): boolean {
+  hasAccountBalanceError(account: AccountListItem): boolean {
     return account.balanceLoadingState === "error";
   }
 
-  isAccountFiatLoading(account: AccountWithFiat): boolean {
+  isAccountFiatLoading(account: AccountListItem): boolean {
     return account.fiatLoadingState === "loading";
   }
 
-  hasAccountFiatError(account: AccountWithFiat): boolean {
+  hasAccountFiatError(account: AccountListItem): boolean {
     return account.fiatLoadingState === "error";
-  }
-
-  getAccountFiatValue(account: AccountWithFiat) {
-    if (!account.fiatBalance) return undefined;
-
-    const nativeFiat = parseFloat(account.fiatBalance.value);
-    const tokensFiat = account.tokens.reduce((sum, token) => {
-      if (!token.fiatBalance?.value) return sum;
-      return sum + parseFloat(token.fiatBalance.value);
-    }, 0);
-
-    return {
-      value: (nativeFiat + tokensFiat).toFixed(2),
-      currency: account.fiatBalance.currency,
-    };
   }
 
   selectAccount(account: Account) {
@@ -193,7 +139,7 @@ export class SelectAccountController implements ReactiveController {
     }
   }
 
-  handleAccountCardClick(account: AccountWithFiat) {
+  handleAccountCardClick(account: AccountListItem) {
     this.selectAccount(account);
 
     window.dispatchEvent(
@@ -209,7 +155,7 @@ export class SelectAccountController implements ReactiveController {
     this.close();
   }
 
-  handleShowTokensClick(account: AccountWithFiat) {
+  handleShowTokensClick(account: AccountListItem) {
     this.navigation.navigateTo({
       name: "accountTokens",
       component: "account-tokens-screen",
@@ -224,12 +170,12 @@ export class SelectAccountController implements ReactiveController {
   }
 
   handleSearchInput(event: CustomEvent<{ value: string }>) {
-    this.searchQuery = event.detail.value;
+    this.searchQuery$.next(event.detail.value);
     this.host.requestUpdate();
   }
 
   handleSearchClear() {
-    this.searchQuery = "";
+    this.searchQuery$.next("");
     this.host.requestUpdate();
   }
 
@@ -250,5 +196,83 @@ export class SelectAccountController implements ReactiveController {
       }
       this.host.requestUpdate();
     }
+  }
+
+  private syncCompatibleAccountsError(): void {
+    if (!this.hasLoadedGroups || this.groups.length > 0) {
+      this.errorData = undefined;
+      this.syncToolbarCanGoBack();
+      return;
+    }
+
+    // Search empties keep the inline "no results" copy; only a true empty
+    // picker (no accounts for the current family/scope) uses this status UI.
+    if (this.searchQuery) {
+      this.errorData = undefined;
+      this.syncToolbarCanGoBack();
+      return;
+    }
+
+    this.errorData = this.buildCompatibleAccountsError();
+    this.syncToolbarCanGoBack();
+  }
+
+  private syncToolbarCanGoBack(): void {
+    const screen = this.navigation.currentScreen;
+    if (!screen || screen.name !== "selectAccount") {
+      return;
+    }
+
+    // Replace the screen object so we never mutate the shared destination
+    // definition from `makeDestinations`.
+    this.navigation.currentScreen = {
+      ...screen,
+      canGoBack: this.showCompatibleAccountsError
+        ? false
+        : this.destinations.selectAccount.canGoBack,
+    };
+
+    if (this.navigation.host instanceof RootNavigationComponent) {
+      this.navigation.host.requestUpdate();
+    }
+  }
+
+  private buildCompatibleAccountsError(): SelectAccountErrorData {
+    const copy =
+      this.lang.currentTranslation.error.ledgerSync.NoCompatibleAccounts;
+
+    return {
+      title: copy.title,
+      cta1: {
+        label: copy.cta1,
+        action: () => {
+          this.errorData = undefined;
+          window.open("ledgerlive://accounts", "_blank", "noopener,noreferrer");
+          if (this.navigation.host instanceof RootNavigationComponent) {
+            this.navigation.host.closeModal();
+          }
+        },
+      },
+      cta2: {
+        label: copy.cta2,
+        action: () => {
+          void this.useAnotherDevice();
+        },
+      },
+    };
+  }
+
+  private async useAnotherDevice(): Promise<void> {
+    this.errorData = undefined;
+
+    try {
+      // Full session reset (device + trust chain), then restart the onboarding
+      // flow so reconnect advances through ledger-sync again.
+      await this.core.disconnect();
+    } catch (error) {
+      console.error("Failed to reset session before re-onboarding", error);
+    }
+
+    this.navigation.navigateTo(this.destinations.onboardingFlow);
   }
 }

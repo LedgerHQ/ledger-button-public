@@ -8,15 +8,16 @@ import { type Factory, inject, injectable } from "inversify";
 import {
   DeviceNotOnboardedError,
   DeviceNotSupportedError,
-} from "../../../api/errors/DeviceErrors.js";
-import { loggerModuleTypes } from "../../logger/loggerModuleTypes.js";
-import { LoggerPublisher } from "../../logger/service/LoggerPublisher.js";
-import { deviceModuleTypes } from "../deviceModuleTypes.js";
-import { Device } from "../model/Device.js";
+} from "@api/errors/DeviceErrors";
+import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
+import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
+
+import { deviceModuleTypes } from "../di/deviceModuleTypes";
+import { Device } from "../model/Device";
 import {
   ConnectionType,
   type DeviceManagementKitService,
-} from "../service/DeviceManagementKitService.js";
+} from "../service/DeviceManagementKitService";
 
 @injectable()
 export class ConnectDevice {

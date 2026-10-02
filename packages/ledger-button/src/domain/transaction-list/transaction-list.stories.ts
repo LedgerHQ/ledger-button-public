@@ -1,5 +1,5 @@
 import "./transaction-list";
-import "../../components/index.js";
+import "../../components/index";
 
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import { html } from "lit";
@@ -15,7 +15,10 @@ const lastWeek = new Date(Date.now() - 86400000 * 7)
 function makeTx(
   overrides: Partial<TransactionListItem> & Pick<TransactionListItem, "hash">,
 ): TransactionListItem {
+  const date = overrides.date ?? today;
+  const time = overrides.time ?? "22:34";
   return {
+    timestamp: new Date(`${date}T${time}`).toISOString(),
     type: "received",
     status: "confirmed",
     kind: "transfer",

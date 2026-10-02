@@ -489,9 +489,11 @@ private async getFeesFromCoinService(
 
 See [Import Rules](.cursor/rules/import-rules.mdc) for detailed import guidelines.
 
-- Always use relative imports instead of absolute imports that start with `src/`
+- Never use absolute imports that start with `src/`
 - Group imports: external packages, then internal modules, then relative imports
 - Use absolute imports only for workspace packages (e.g., `@ledgerhq/...`)
+- In `ledger-button-core`, use the `@api/*`, `@internal/*` and `@schemas/*` aliases instead
+  of climbing two or more directories; elsewhere use relative imports
 
 ## Logging
 

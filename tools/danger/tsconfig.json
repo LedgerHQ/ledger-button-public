@@ -1,0 +1,11 @@
+// Danger transpiles the dangerfiles with `ts.transpileModule`, reading the nearest
+// tsconfig.json without resolving `extends`, and only downgrades `module` to CommonJS
+// when the config declares one. Since TypeScript 6 defaults to an ESM emit, the
+// dangerfiles need this file: without it their extensionless `./helpers` import is
+// emitted as ESM and Node's loader cannot resolve it.
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2022"
+  }
+}

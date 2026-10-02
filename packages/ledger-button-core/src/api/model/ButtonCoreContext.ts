@@ -1,6 +1,7 @@
-import { Account } from "../../internal/account/service/AccountService.js";
-import { Device } from "../../internal/device/model/Device.js";
-import type { BlockchainFamily } from "../blockchain-provider/model/types.js";
+import { Device } from "@internal/device/model/Device";
+
+import type { BlockchainFamily } from "../blockchain-provider/model/types";
+import type { Account } from "./Account";
 
 /** The blockchain family used as the default when none is specified. */
 export const DEFAULT_BLOCKCHAIN_FAMILY: BlockchainFamily = "ethereum";

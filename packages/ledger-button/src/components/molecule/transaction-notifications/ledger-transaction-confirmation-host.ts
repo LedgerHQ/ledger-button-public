@@ -1,18 +1,18 @@
-import "./ledger-transaction-notifications.js";
+import "./ledger-transaction-notifications";
 
 import { consume } from "@lit/context";
 import { html, LitElement, nothing } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 
-import { CoreContext, coreContext } from "../../../context/core-context.js";
+import { CoreContext, coreContext } from "../../../context/core-context";
 import {
   langContext,
   LanguageContext,
-} from "../../../context/language-context.js";
-import { tailwindElement } from "../../../tailwind-element.js";
-import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification.js";
-import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications.js";
-import { TransactionConfirmationNotifier } from "./transaction-confirmation-notifier.js";
+} from "../../../context/language-context";
+import { tailwindElement } from "../../../tailwind-element";
+import type { TransactionConfirmationNotification } from "../../../types/transaction-confirmation-notification";
+import type { LedgerTransactionNotifications } from "./ledger-transaction-notifications";
+import { TransactionConfirmationNotifier } from "./transaction-confirmation-notifier";
 
 @customElement("ledger-transaction-confirmation-host")
 @tailwindElement()

@@ -1,5 +1,5 @@
-import type { UserInteractionNeeded } from "../UserInteractionNeeded.js";
-import type { SignedResults } from "./SignedTransaction.js";
+import type { UserInteractionNeeded } from "../UserInteractionNeeded";
+import type { SignedResults } from "./SignedTransaction";
 
 export type SignType =
   | "transaction"

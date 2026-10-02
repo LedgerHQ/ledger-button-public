@@ -4,10 +4,10 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../../components/index.js", () => ({}));
+vi.mock("../../../components/index", () => ({}));
 
-import type { Destination } from "../../../shared/routes.js";
-import { PreferencesScreen } from "./preferences-screen.js";
+import type { Destination } from "../../../shared/routes";
+import { PreferencesScreen } from "./preferences-screen";
 
 function createMockNavigation() {
   return {

@@ -11,9 +11,11 @@ import {
 import { BACKEND_URLS } from "../lib/constants";
 import {
   type EventRequest,
+  getScenariosForFamily,
   type Scenario,
   type ScenarioContext,
-  SCENARIOS,
+  SIMULATED_CHAIN_IDS,
+  type SimulatedFamily,
 } from "../lib/tracking-scenarios";
 
 const EVENT_DELAY_MS = 300;
@@ -29,6 +31,7 @@ interface EventSimulatorBlockProps {
   environment: string;
   dAppIdentifier: string;
   apiKey: string;
+  family: SimulatedFamily;
 }
 
 async function sendEvent(
@@ -54,6 +57,7 @@ export function EventSimulatorBlock({
   environment,
   dAppIdentifier,
   apiKey,
+  family,
 }: EventSimulatorBlockProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
@@ -77,7 +81,8 @@ export function EventSimulatorBlock({
       const ctx: ScenarioContext = {
         dAppId: dAppIdentifier,
         sessionId: crypto.randomUUID(),
-        chainId: "1",
+        family,
+        chainId: SIMULATED_CHAIN_IDS[family],
       };
 
       const events = scenario.buildEvents(ctx);
@@ -112,7 +117,7 @@ export function EventSimulatorBlock({
 
       setIsRunning(false);
     },
-    [backendUrl, dAppIdentifier, apiKey],
+    [backendUrl, dAppIdentifier, apiKey, family],
   );
 
   const handleStop = useCallback(() => {
@@ -137,6 +142,7 @@ export function EventSimulatorBlock({
           {isRunning ? <Spinner size={16} /> : <Chart1 size={20} />}
           Event Simulator
           <Tag appearance="accent" size="sm" label={environment} />
+          <Tag appearance="gray" size="sm" label={family} />
         </h3>
         <span className="body-4 text-muted">{isExpanded ? "▼" : "▶"}</span>
       </div>
@@ -144,7 +150,7 @@ export function EventSimulatorBlock({
       {isExpanded && (
         <div className="p-20 border-t border-muted bg-canvas space-y-16">
           <div className="grid grid-cols-2 gap-8">
-            {SCENARIOS.map((scenario) => (
+            {getScenariosForFamily(family).map((scenario) => (
               <button
                 key={scenario.name}
                 disabled={isRunning}

@@ -4,10 +4,10 @@
 
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-vi.mock("../../../components/index.js", () => ({}));
+vi.mock("../../../components/index", () => ({}));
 
-import type { Destination } from "../../../shared/routes.js";
-import { DeveloperScreen } from "./developer-screen.js";
+import type { Destination } from "../../../shared/routes";
+import { DeveloperScreen } from "./developer-screen";
 
 function createMockNavigation() {
   return {
@@ -22,6 +22,12 @@ function createMockDestinations() {
       component: "feature-flags-screen",
       canGoBack: true,
       toolbar: { title: "Feature flags", canClose: true },
+    } as Destination,
+    network: {
+      name: "network",
+      component: "network-screen",
+      canGoBack: true,
+      toolbar: { title: "dApp Config EVM", canClose: true },
     } as Destination,
   };
 }
@@ -67,6 +73,14 @@ describe("DeveloperScreen", () => {
 
       expect(renderedString).toContain("Feature flags");
     });
+
+    test("should render the dApp Config EVM entry", () => {
+      const el = createDeveloperScreen();
+      const rendered = el.render();
+      const renderedString = JSON.stringify(rendered);
+
+      expect(renderedString).toContain("dApp Config EVM");
+    });
   });
 
   describe("navigation", () => {
@@ -81,6 +95,19 @@ describe("DeveloperScreen", () => {
       (el as any).handleFeatureFlagsClick();
 
       expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.featureFlags);
+    });
+
+    test("handleEvmNetworksClick should navigate to network destination", () => {
+      const mockNav = createMockNavigation();
+      const mockDest = createMockDestinations();
+      const el = createDeveloperScreen({
+        navigation: mockNav,
+        destinations: mockDest,
+      });
+
+      (el as any).handleEvmNetworksClick();
+
+      expect(mockNav.navigateTo).toHaveBeenCalledWith(mockDest.network);
     });
   });
 });

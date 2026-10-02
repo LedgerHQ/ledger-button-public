@@ -1,11 +1,22 @@
-import { DeviceStatus } from "@ledgerhq/device-management-kit";
+import {
+  type DeviceSessionState,
+  DeviceStatus,
+} from "@ledgerhq/device-management-kit";
 import { Container, Factory } from "inversify";
+import { Maybe } from "purify-ts";
 import { Observable, Subscription, tap } from "rxjs";
 
 import type {
   BlockchainFamily,
   WalletNavigationIntent,
-} from "./blockchain-provider/model/types.js";
+} from "./blockchain-provider/model/types";
+import type {
+  Account,
+  AccountGroup,
+  AccountWithFiat,
+  DetailedAccount,
+  Network,
+} from "./model/Account";
 import {
   ButtonCoreContext,
   DEFAULT_BLOCKCHAIN_FAMILY,
@@ -13,91 +24,94 @@ import {
   getActiveSelectedAccount,
   getConnectedFamilies,
   getSelectedAccount,
-} from "./model/ButtonCoreContext.js";
+} from "./model/ButtonCoreContext";
+import type { BlockchainNetwork } from "./model/dappConfig/BlockchainConfig";
 import {
   AuthContext,
   LedgerSyncAuthenticateResponse,
-} from "./model/LedgerSyncAuthenticateResponse.js";
-import { getChainIdFromCurrencyId } from "./utils/index.js";
-import { accountModuleTypes } from "../internal/account/accountModuleTypes.js";
-import {
-  Account,
-  type AccountService,
-  type AccountWithFiat,
-  type DetailedAccount,
-} from "../internal/account/service/AccountService.js";
-import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase.js";
-import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase.js";
-import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase.js";
-import { type WalletActionType } from "../internal/backend/model/trackEvent.js";
-import type { JSONRPCRequest } from "../internal/backend/types.js";
-import { balanceModuleTypes } from "../internal/balance/balanceModuleTypes.js";
-import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource.js";
-import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/blockchainProviderModuleTypes.js";
-import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager.js";
-import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService.js";
-import { configModuleTypes } from "../internal/config/configModuleTypes.js";
-import { Config } from "../internal/config/model/config.js";
-import { consentModuleTypes } from "../internal/consent/consentModuleTypes.js";
-import { type ConsentService } from "../internal/consent/ConsentService.js";
-import { contextModuleTypes } from "../internal/context/contextModuleTypes.js";
-import { ContextService } from "../internal/context/ContextService.js";
-import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant.js";
-import { currencyModuleTypes } from "../internal/currency/currencyModuleTypes.js";
-import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes.js";
-import type { CurrencyService } from "../internal/currency/service/CurrencyService.js";
-import { dAppConfigV1ModuleTypes } from "../internal/dAppConfig/v1/di/dAppConfigV1ModuleTypes.js";
-import { type DAppConfigService } from "../internal/dAppConfig/v1/service/DAppConfigService.js";
-import { dAppConfigV2ModuleTypes } from "../internal/dAppConfig/v2/di/dAppConfigV2ModuleTypes.js";
-import { type GetDAppConfigV2UseCase } from "../internal/dAppConfig/v2/use-case/GetDAppConfigV2UseCase.js";
-import { deviceModuleTypes } from "../internal/device/deviceModuleTypes.js";
+} from "./model/LedgerSyncAuthenticateResponse";
+import { accountModuleTypes } from "../internal/account/di/accountModuleTypes";
+import type { AccountService } from "../internal/account/service/AccountService";
+import { FetchAccountsUseCase } from "../internal/account/use-case/fetchAccountsUseCase";
+import type { FetchSelectedAccountUseCase } from "../internal/account/use-case/fetchSelectedAccountUseCase";
+import type { FindAccountForNetworkUseCase } from "../internal/account/use-case/findAccountForNetworkUseCase";
+import type {
+  ObserveAccountGroupsOptions,
+  ObserveAccountGroupsUseCase,
+} from "../internal/account/use-case/observeAccountGroupsUseCase";
+import { ObserveAccountsWithFiatUseCase } from "../internal/account/use-case/observeAccountsWithFiatUseCase";
+import type { ObserveNetworksForSelectedAddressUseCase } from "../internal/account/use-case/observeNetworksForSelectedAddressUseCase";
+import { type WalletActionType } from "../internal/backend/model/trackEvent";
+import type { JSONRPCRequest } from "../internal/backend/types";
+import type { CalDataSource } from "../internal/balance/datasource/cal/CalDataSource";
+import { balanceModuleTypes } from "../internal/balance/di/balanceModuleTypes";
+import { blockchainProviderModuleTypes } from "../internal/blockchain-provider/di/blockchainProviderModuleTypes";
+import type { BlockchainProviderManager } from "../internal/blockchain-provider/service/BlockchainProviderManager";
+import { CoreFacadeService } from "../internal/blockchain-provider/service/CoreFacadeService";
+import { configModuleTypes } from "../internal/config/di/configModuleTypes";
+import { Config } from "../internal/config/model/config";
+import { consentModuleTypes } from "../internal/consent/di/consentModuleTypes";
+import { type ConsentService } from "../internal/consent/service/ConsentService";
+import { ContextService } from "../internal/context/ContextService";
+import { contextModuleTypes } from "../internal/context/di/contextModuleTypes";
+import { DEFAULT_FIAT_CURRENCY } from "../internal/currency/constant";
+import type { FiatCurrency } from "../internal/currency/datasource/fiatCurrencyTypes";
+import { currencyModuleTypes } from "../internal/currency/di/currencyModuleTypes";
+import type { CurrencyService } from "../internal/currency/service/CurrencyService";
+import { dAppConfigModuleTypes } from "../internal/dAppConfig/di/dAppConfigModuleTypes";
+import { type GetDAppConfigUseCase } from "../internal/dAppConfig/use-case/GetDAppConfigUseCase";
+import { deviceModuleTypes } from "../internal/device/di/deviceModuleTypes";
 import {
   type ConnectionType,
   type DeviceManagementKitService,
-} from "../internal/device/service/DeviceManagementKitService.js";
-import { ConnectDevice } from "../internal/device/use-case/ConnectDevice.js";
-import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice.js";
-import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices.js";
-import { SwitchDevice } from "../internal/device/use-case/SwitchDevice.js";
-import { createContainer } from "../internal/di.js";
-import { type ContainerOptions } from "../internal/diTypes.js";
-import { eventTrackingModuleTypes } from "../internal/event-tracking/eventTrackingModuleTypes.js";
-import { TrackCurrencyChanged } from "../internal/event-tracking/usecase/TrackCurrencyChanged.js";
-import { TrackFloatingButtonClick } from "../internal/event-tracking/usecase/TrackFloatingButtonClick.js";
-import { TrackLanguageChanged } from "../internal/event-tracking/usecase/TrackLanguageChanged.js";
-import { TrackLedgerSyncActivated } from "../internal/event-tracking/usecase/TrackLedgerSyncActivated.js";
-import { TrackLedgerSyncOpened } from "../internal/event-tracking/usecase/TrackLedgerSyncOpened.js";
-import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/usecase/TrackMobileRedirectLedgerWallet.js";
-import { TrackOnboarding } from "../internal/event-tracking/usecase/TrackOnboarding.js";
+} from "../internal/device/service/DeviceManagementKitService";
+import { ConnectDevice } from "../internal/device/use-case/ConnectDevice";
+import { DisconnectDevice } from "../internal/device/use-case/DisconnectDevice";
+import { ListAvailableDevices } from "../internal/device/use-case/ListAvailableDevices";
+import { SwitchDevice } from "../internal/device/use-case/SwitchDevice";
+import { createContainer } from "../internal/di";
+import { type ContainerOptions } from "../internal/diTypes";
+import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
+import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged";
+import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick";
+import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged";
+import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated";
+import { TrackLedgerSyncOpened } from "../internal/event-tracking/use-case/TrackLedgerSyncOpened";
+import { TrackMobileRedirectLedgerWallet } from "../internal/event-tracking/use-case/TrackMobileRedirectLedgerWallet";
+import { TrackOnboarding } from "../internal/event-tracking/use-case/TrackOnboarding";
 import {
   TrackViewAllTransactions,
   type TrackViewAllTransactionsParams,
-} from "../internal/event-tracking/usecase/TrackViewAllTransactions.js";
-import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/usecase/TrackViewTransactionDetailsClick.js";
-import { TrackWalletAction } from "../internal/event-tracking/usecase/TrackWalletAction.js";
-import { ledgerSyncModuleTypes } from "../internal/ledgersync/ledgerSyncModuleTypes.js";
-import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService.js";
-import { loggerModuleTypes } from "../internal/logger/loggerModuleTypes.js";
-import { LOG_LEVELS } from "../internal/logger/model/constant.js";
-import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher.js";
-import { modalModuleTypes } from "../internal/modal/modalModuleTypes.js";
-import { ModalService } from "../internal/modal/service/ModalService.js";
-import { navigationModuleTypes } from "../internal/navigation/navigationModuleTypes.js";
-import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService.js";
-import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController.js";
-import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction.js";
-import { pendingTransactionModuleTypes } from "../internal/pending-transaction/pendingTransactionModuleTypes.js";
-import { platformModuleTypes } from "../internal/platform/platformModuleTypes.js";
-import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase.js";
-import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase.js";
-import type { FeatureFlags } from "../internal/storage/model/FeatureFlags.js";
-import { storageModuleTypes } from "../internal/storage/storageModuleTypes.js";
-import { type StorageService } from "../internal/storage/StorageService.js";
-import { MigrateDbUseCase } from "../internal/storage/usecases/MigrateDbUseCase/MigrateDbUseCase.js";
+} from "../internal/event-tracking/use-case/TrackViewAllTransactions";
+import { TrackViewTransactionDetailsClick } from "../internal/event-tracking/use-case/TrackViewTransactionDetailsClick";
+import { TrackWalletAction } from "../internal/event-tracking/use-case/TrackWalletAction";
+import { ledgerSyncModuleTypes } from "../internal/ledgersync/di/ledgerSyncModuleTypes";
+import { LedgerSyncService } from "../internal/ledgersync/service/LedgerSyncService";
+import { loggerModuleTypes } from "../internal/logger/di/loggerModuleTypes";
+import { LOG_LEVELS } from "../internal/logger/model/constant";
+import { LoggerPublisher } from "../internal/logger/service/LoggerPublisher";
+import { modalModuleTypes } from "../internal/modal/di/modalModuleTypes";
+import { ModalService } from "../internal/modal/service/ModalService";
+import { navigationModuleTypes } from "../internal/navigation/di/navigationModuleTypes";
+import { NavigationIntentService } from "../internal/navigation/service/NavigationIntentService";
+import { type PendingTransactionController } from "../internal/pending-transaction/controller/PendingTransactionController";
+import { pendingTransactionModuleTypes } from "../internal/pending-transaction/di/pendingTransactionModuleTypes";
+import { type BroadcastTracking } from "../internal/pending-transaction/model/BroadcastTracking";
+import { type PendingTransaction } from "../internal/pending-transaction/model/PendingTransaction";
+import { platformModuleTypes } from "../internal/platform/di/platformModuleTypes";
+import { IsMobileUseCase } from "../internal/platform/use-case/IsMobileUseCase";
+import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupportedPlatformUseCase";
+import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
+import type { ConfigOverrides } from "../internal/storage/model/ConfigOverrides";
+import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
+import { type StorageService } from "../internal/storage/StorageService";
+import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
 
 export type LedgerButtonCoreOptions = ContainerOptions;
 export class LedgerButtonCore {
-  private container!: Container;
+  // Built once and never replaced: dApps hold on to the provider objects this
+  // container produced, so swapping it would strand them on dead services.
+  private readonly container: Container;
   private readonly _logger: LoggerPublisher;
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
@@ -116,6 +130,9 @@ export class LedgerButtonCore {
 
   // Subscription to device connection state in order to handle device disconnection
   private deviceConnectionSubscription?: Subscription;
+  // Cleanup triggered by a physical disconnect, awaited before reconnecting so
+  // it cannot tear down the session of the connection that follows it.
+  private pendingDeviceCleanup?: Promise<void>;
 
   constructor(private readonly opts: LedgerButtonCoreOptions) {
     this.container = createContainer(this.opts);
@@ -133,19 +150,10 @@ export class LedgerButtonCore {
 
   private async initializeContext() {
     this._logger.debug("Initializing context");
-    console.log("Initializing context");
-    //Fetch dApp config that will be used later for fetching supported blockchains/referral url/etc.
-    await this.container
-      .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
-      .getDAppConfig();
 
     const dappConfig = await this.container
-      .get<GetDAppConfigV2UseCase>(
-        dAppConfigV2ModuleTypes.GetDAppConfigV2UseCase,
-      )
+      .get<GetDAppConfigUseCase>(dAppConfigModuleTypes.GetDAppConfigUseCase)
       .execute();
-
-    console.log("dappConfigv2", dappConfig);
 
     //TODO throw error if dApp config is not found ?
     // Migrate database to latest version
@@ -161,57 +169,69 @@ export class LedgerButtonCore {
     // (e.g. EIP-1193 `disconnect`) can drop its family through the port.
     coreFacade.setDisconnectHandler((family) => this.disconnect(family));
 
+    // Providers are built once and handed to dApps, which keep the object they
+    // were given (EIP-6963 de-duplicates on `rdns`). Re-running this would
+    // orphan their reference, so it must stay out of `restoreContext`.
+    this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .init(coreFacade, dappConfig, this.opts.blockchainProviderFactories ?? []);
+
+    await this.restoreContext();
+
+    this.container.get<PendingTransactionController>(
+      pendingTransactionModuleTypes.PendingTransactionController,
+    );
+  }
+
+  /**
+   * Rebuilds the public context from persisted state. Runs at bootstrap and
+   * again after every session reset, so it must hold no one-time wiring.
+   */
+  private async restoreContext(): Promise<void> {
+    const storageService = this.container.get<StorageService>(
+      storageModuleTypes.StorageService,
+    );
+
+    const trustChainId = storageService.getTrustChainId().extract();
+    const isTrustChainValid = storageService.isTrustChainValid();
+
+    if (trustChainId && !isTrustChainValid) {
+      this._logger.debug("Logging out, trust chain is expired");
+      storageService.resetStorage();
+    }
+
+    const restoredAccounts = isTrustChainValid
+      ? storageService.getSelectedAccounts()
+      : new Map<BlockchainFamily, Account>();
+
     const blockchainProviderManager =
       this.container.get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       );
-    blockchainProviderManager.init(coreFacade, dappConfig);
-
-    // Restore selected accounts (one per blockchain family) from storage
-    const selectedAccounts = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getSelectedAccounts();
-
-    // Restore trust chain id from storage
-    const trustChainId = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getTrustChainId()
-      .extract();
-
-    const isTrustChainValid = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .isTrustChainValid();
-
-    if (trustChainId && !isTrustChainValid) {
-      this._logger.debug("Logging out, trust chain is expired");
-      await this.disconnect();
-    }
-
-    const restoredAccounts = isTrustChainValid
-      ? selectedAccounts
-      : new Map<BlockchainFamily, Account>();
 
     // chainId tracks the default (ethereum) selection.
     const defaultAccount = restoredAccounts.get(DEFAULT_BLOCKCHAIN_FAMILY);
     const chainId = defaultAccount
-      ? getChainIdFromCurrencyId(defaultAccount.currencyId)
+      ? blockchainProviderManager
+          .describeCurrency(defaultAccount.currencyId)
+          .chain((currency) => {
+            const parsed = Number(currency.networkId);
+            return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
+          })
+          .orDefault(1)
       : 1;
 
-    const welcomeScreenCompleted = await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .isWelcomeScreenCompleted();
+    const welcomeScreenCompleted = await storageService.isWelcomeScreenCompleted();
 
-    const userConsent = await this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .getUserConsent();
+    const userConsent = await storageService.getUserConsent();
 
     const hasTrackingConsent = userConsent.isJust()
       ? userConsent.extract().consentGiven
       : undefined;
 
-    const hasDeveloperMode = this.container
-      .get<StorageService>(storageModuleTypes.StorageService)
-      .hasDeveloperMode();
+    const hasDeveloperMode = storageService.hasDeveloperMode();
 
     const isMobilePlatform = this.container
       .get<IsMobileUseCase>(platformModuleTypes.IsMobileUseCase)
@@ -242,40 +262,86 @@ export class LedgerButtonCore {
     // Attach the restored selection to the blockchain providers so a returning
     // session is wired up without waiting for a fresh account selection.
     blockchainProviderManager.setSelectedAccounts(restoredAccounts);
-
-    this.container.get<PendingTransactionController>(
-      pendingTransactionModuleTypes.PendingTransactionController,
-    );
   }
 
   private listenDevice() {
-    const deviceService = this.container.get<DeviceManagementKitService>(
-      deviceModuleTypes.DeviceManagementKitService,
-    );
-    const dmk = deviceService.dmk;
+    const deviceService = this.getDeviceService();
     const sessionId = deviceService.connectedDevice?.sessionId;
 
     if (!sessionId) {
       return;
     }
 
-    if (this.deviceConnectionSubscription) {
-      this.deviceConnectionSubscription.unsubscribe();
-    }
+    this.stopListeningToDevice();
 
-    this.deviceConnectionSubscription = dmk
+    this.deviceConnectionSubscription = deviceService.dmk
       .getDeviceSessionState({
-        sessionId: sessionId as string,
+        sessionId,
       })
-      .subscribe((state) => {
+      .subscribe((state: DeviceSessionState) => {
         if (state.deviceStatus === DeviceStatus.NOT_CONNECTED) {
-          this._logger.info("Device disconnected");
-
-          this._contextService.onEvent({
-            type: "device_disconnected",
-          });
+          this.stopListeningToDevice();
+          this.pendingDeviceCleanup = this.handlePhysicalDeviceDisconnection();
         }
       });
+  }
+
+  private async handlePhysicalDeviceDisconnection(): Promise<void> {
+    this._logger.info("Device disconnected");
+
+    await this.releaseDeviceSafely();
+    this._contextService.onEvent({
+      type: "device_disconnected",
+    });
+  }
+
+  private stopListeningToDevice(): void {
+    this.deviceConnectionSubscription?.unsubscribe();
+    this.deviceConnectionSubscription = undefined;
+  }
+
+  private getDeviceService(): DeviceManagementKitService {
+    return this.container.get<DeviceManagementKitService>(
+      deviceModuleTypes.DeviceManagementKitService,
+    );
+  }
+
+  private hasKnownDeviceSession(): boolean {
+    const deviceService = this.getDeviceService();
+
+    return (
+      this._contextService.getContext().connectedDevice !== undefined ||
+      deviceService.sessionId !== undefined ||
+      deviceService.connectedDevice !== undefined
+    );
+  }
+
+  private async waitForPendingDeviceCleanup(): Promise<void> {
+    await this.pendingDeviceCleanup;
+    this.pendingDeviceCleanup = undefined;
+  }
+
+  /**
+   * A device is often already gone when its session is released. Failure is not
+   * fatal: aborting here would leave the device unreachable until a page reload.
+   */
+  private async releaseDeviceSafely(): Promise<void> {
+    try {
+      await this.container
+        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
+        .execute();
+    } catch (error) {
+      this._logger.warn("Failed to release the device session", { error });
+    }
+  }
+
+  private async releaseCurrentDeviceIfNeeded(): Promise<void> {
+    if (!this.hasKnownDeviceSession()) {
+      return;
+    }
+
+    this.stopListeningToDevice();
+    await this.releaseDeviceSafely();
   }
 
   /**
@@ -306,53 +372,24 @@ export class LedgerButtonCore {
   }
 
   private async resetSession() {
-    this._logger.debug("Disconnecting from device");
+    this._logger.debug("Resetting session");
 
-    const currentContextService = this._contextService;
-    const currentNavigationIntentService = this._navigationIntentService;
+    this.stopListeningToDevice();
+    await this.releaseDeviceSafely();
 
     this.container
       .get<StorageService>(storageModuleTypes.StorageService)
       .resetStorage();
 
-    // Clean up device connection subscription
-    this.deviceConnectionSubscription?.unsubscribe();
-    this.deviceConnectionSubscription = undefined;
-    const deviceService = this.container.get<DeviceManagementKitService>(
-      deviceModuleTypes.DeviceManagementKitService,
-    );
-    deviceService.dmk.close();
-
-    try {
-      await this.container.unbindAll();
-    } catch (error) {
-      this._logger.error("Error unbinding container", { error });
-    }
-
-    this.container = createContainer(this.opts);
-    this.container
-      .rebindSync(contextModuleTypes.ContextService)
-      .toConstantValue(currentContextService);
-    // Keep the same navigation-intent stream so the UI bridge subscription
-    // (set up once at bootstrap) survives the container recreation.
-    this.container
-      .rebindSync(navigationModuleTypes.NavigationIntentService)
-      .toConstantValue(currentNavigationIntentService);
-
-    void this.initializeContext();
+    await this.restoreContext();
   }
 
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
 
-    //Implicitly disconnect from device if already connected to one
-    if (this._contextService.getContext().connectedDevice !== undefined) {
-      this.deviceConnectionSubscription?.unsubscribe();
-      await this.container
-        .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
-        .execute();
-    }
+    await this.waitForPendingDeviceCleanup();
+    await this.releaseCurrentDeviceIfNeeded();
 
     const device = await this.container
       .get<ConnectDevice>(deviceModuleTypes.ConnectDeviceUseCase)
@@ -369,6 +406,8 @@ export class LedgerButtonCore {
 
   async disconnectFromDevice() {
     this._logger.debug("Disconnecting from device");
+    this.stopListeningToDevice();
+
     const result = await this.container
       .get<DisconnectDevice>(deviceModuleTypes.DisconnectDeviceUseCase)
       .execute();
@@ -382,8 +421,8 @@ export class LedgerButtonCore {
 
   async getReferralUrl() {
     return this.container
-      .get<DAppConfigService>(dAppConfigV1ModuleTypes.DAppConfigService)
-      .getDAppConfig()
+      .get<GetDAppConfigUseCase>(dAppConfigModuleTypes.GetDAppConfigUseCase)
+      .execute()
       .then((res) => res.referralUrl);
   }
 
@@ -411,8 +450,49 @@ export class LedgerButtonCore {
       .execute(options);
   }
 
+  /**
+   * Accounts ready to be listed: grouped by address, sorted by fiat value and
+   * filtered by `searchQuery$`, with the per-account total and display tokens
+   * already computed.
+   */
+  observeAccountGroups(
+    options?: ObserveAccountGroupsOptions,
+  ): Observable<AccountGroup[]> {
+    return this.container
+      .get<ObserveAccountGroupsUseCase>(
+        accountModuleTypes.ObserveAccountGroupsUseCase,
+      )
+      .execute(options);
+  }
+
+  /** Networks available for the address of the currently selected account. */
+  observeNetworksForSelectedAddress(): Observable<Network[]> {
+    return this.container
+      .get<ObserveNetworksForSelectedAddressUseCase>(
+        accountModuleTypes.ObserveNetworksForSelectedAddressUseCase,
+      )
+      .execute();
+  }
+
+  /**
+   * Switch to the account of the currently selected address on another network.
+   * Returns `false` when no such account exists.
+   */
+  selectAccountForNetwork(currencyId: string): boolean {
+    return this.container
+      .get<FindAccountForNetworkUseCase>(
+        accountModuleTypes.FindAccountForNetworkUseCase,
+      )
+      .execute(currencyId)
+      .map((account) => {
+        this.selectAccount(account);
+        return true;
+      })
+      .orDefault(false);
+  }
+
   selectAccount(account: Account) {
-    const family = this.resolveBlockchainFamily(account.currencyId);
+    const { family, chainId } = this.resolveFamilyAndChainId(account.currencyId);
 
     this.container
       .get<AccountService>(accountModuleTypes.AccountService)
@@ -422,11 +502,12 @@ export class LedgerButtonCore {
       type: "account_changed",
       account,
       family,
+      chainId,
     });
 
     this.container
       .get<TrackOnboarding>(eventTrackingModuleTypes.TrackOnboarding)
-      .execute(account);
+      .execute(account, family);
   }
 
   /** Default (ethereum) selected account, or for a specific `family`. */
@@ -454,13 +535,24 @@ export class LedgerButtonCore {
     this._contextService.onEvent({ type: "active_family_changed", family });
   }
 
-  private resolveBlockchainFamily(currencyId: string): BlockchainFamily {
-    return this.container
+  private resolveFamilyAndChainId(currencyId: string): {
+    family: BlockchainFamily;
+    chainId: number;
+  } {
+    const descriptor = this.container
       .get<BlockchainProviderManager>(
         blockchainProviderModuleTypes.BlockchainProviderManager,
       )
-      .resolveBlockchainFamily(currencyId)
-      .orDefault(DEFAULT_BLOCKCHAIN_FAMILY);
+      .describeCurrency(currencyId);
+    return {
+      family: descriptor.map((c) => c.family).orDefault(DEFAULT_BLOCKCHAIN_FAMILY),
+      chainId: descriptor
+        .chain((c) => {
+          const parsed = Number(c.networkId);
+          return Number.isFinite(parsed) ? Maybe.of(parsed) : Maybe.empty();
+        })
+        .orDefault(1),
+    };
   }
 
   // Device methods
@@ -566,6 +658,27 @@ export class LedgerButtonCore {
       ...storageService.getFeatureFlags(),
       [flag]: enabled,
     });
+  }
+
+  getBlockchainNetworks(blockchainFamily: string): BlockchainNetwork[] {
+    return this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .getNetworks(blockchainFamily as BlockchainFamily);
+  }
+
+  getConfigOverrides(): ConfigOverrides {
+    return this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .getConfigOverrides();
+  }
+
+  setConfigOverrides(overrides: ConfigOverrides): void {
+    this._logger.debug("Updating config overrides", { overrides });
+    this.container
+      .get<StorageService>(storageModuleTypes.StorageService)
+      .saveConfigOverrides(overrides);
   }
 
   getPreferredFiatCurrency(): string {
@@ -692,6 +805,18 @@ export class LedgerButtonCore {
       .observePendingTransactions();
   }
 
+  /**
+   * Lifecycle of a single broadcasted transaction, from `processing` (once core
+   * has registered it and resolved its explorer link) to `validated`.
+   */
+  observeBroadcastedTransaction(hash: string): Observable<BroadcastTracking> {
+    return this.container
+      .get<PendingTransactionController>(
+        pendingTransactionModuleTypes.PendingTransactionController,
+      )
+      .observeBroadcastedTransaction(hash);
+  }
+
   // Config methods
   getConfig(): Config {
     return this.container.get<Config>(configModuleTypes.Config);
@@ -716,10 +841,14 @@ export class LedgerButtonCore {
   }
 
   setChainId(chainId: number) {
-    this._contextService.onEvent({
-      type: "chain_changed",
-      chainId,
-    });
+    const currencyId = this.container
+      .get<BlockchainProviderManager>(
+        blockchainProviderModuleTypes.BlockchainProviderManager,
+      )
+      .describeNetwork(String(chainId))
+      .map((c) => c.currencyId)
+      .extract();
+    this._contextService.onEvent({ type: "chain_changed", chainId, currencyId });
   }
 
   getChainId(): number {
@@ -760,12 +889,13 @@ export class LedgerButtonCore {
 
   async trackViewTransactionDetailsClicked(
     transactionHash: string,
+    family: BlockchainFamily,
   ): Promise<void> {
     await this.container
       .get<TrackViewTransactionDetailsClick>(
         eventTrackingModuleTypes.TrackViewTransactionDetailsClick,
       )
-      .execute(transactionHash);
+      .execute(transactionHash, family);
   }
 
   async trackViewAllTransactionsClicked(

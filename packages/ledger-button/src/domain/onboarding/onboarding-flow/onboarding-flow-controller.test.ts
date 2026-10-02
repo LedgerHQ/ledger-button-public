@@ -7,7 +7,7 @@ import type { ReactiveControllerHost } from "lit";
 import { BehaviorSubject } from "rxjs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { OnboardingFlowController } from "./onboarding-flow-controller.js";
+import { OnboardingFlowController } from "./onboarding-flow-controller";
 
 function createMockContext(
   overrides: Partial<ButtonCoreContext> = {},
