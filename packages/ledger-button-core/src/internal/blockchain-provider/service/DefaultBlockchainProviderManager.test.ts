@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { BlockchainProviderFactory } from "@api/blockchain-provider/model/BlockchainProviderFactory";
 import type { CoreFacade } from "@api/blockchain-provider/model/CoreFacade";
-import { NoBlockchainProviderError } from "@api/errors/ProviderErrors";
 import type { Account } from "@api/model/Account";
 import type {
   BlockchainConfig,
@@ -164,20 +163,6 @@ describe("DefaultBlockchainProviderManager", () => {
 
       expect(evmProvider.injectWalletProviders).toHaveBeenCalledOnce();
       expect(solanaProvider.injectWalletProviders).toHaveBeenCalledOnce();
-    });
-
-    it("throws when no blockchain factory is passed", () => {
-      const contextService = createMockContextService();
-      const managerWithoutFactories = new DefaultBlockchainProviderManager(
-        contextService as never,
-        loggerFactory as never,
-        createMockStorageService(),
-      );
-
-      expect(() => managerWithoutFactories.init(core, dappConfig, [])).toThrow(
-        NoBlockchainProviderError,
-      );
-      expect(contextService.observeContext).not.toHaveBeenCalled();
     });
 
     it("skips factories that return Left", () => {

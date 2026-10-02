@@ -12,8 +12,8 @@ export class ModalClosedError extends LedgerButtonError {
 }
 
 /**
- * Raised from provider init when no blockchain factory was passed.
- * Init does not register anything without one.
+ * Raised at the start of `initializeLedgerProvider` when no blockchain
+ * factory was passed. The dApp call does not continue.
  */
 export class NoBlockchainProviderError extends LedgerButtonError {
   constructor(message: string, context?: Record<string, unknown>) {
