@@ -1,9 +1,11 @@
 export { type ActivityEntry, ActivityLog } from "./ActivityLog";
 export { ConnectionStatus } from "./ConnectionStatus";
+export { DeviceScreen } from "./DeviceScreen";
 export { type EIPEvent } from "./EventLogBlock";
 export { EventSimulatorBlock } from "./EventSimulatorBlock";
 export { HeaderNav } from "./HeaderNav";
 export { LedgerProvider } from "./LedgerProvider";
+export { MockServerStatusBox } from "./MockServerStatusBox";
 export { Providers } from "./Providers";
 export { ProviderSelectionBlock } from "./ProviderSelectionBlock";
 export { SettingsDialog } from "./SettingsDialog";

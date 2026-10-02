@@ -1,4 +1,5 @@
 import {
+  type ConnectionType,
   DeviceConnectionError,
   DeviceDisconnectedError,
   DeviceNotOnboardedError,
@@ -170,7 +171,7 @@ export class SelectDeviceController implements ReactiveController {
 
   async connectToDevice(detail: {
     title: string;
-    connectionType: "bluetooth" | "usb" | "";
+    connectionType: ConnectionType;
     timestamp: number;
   }) {
     if (detail.connectionType === "") {

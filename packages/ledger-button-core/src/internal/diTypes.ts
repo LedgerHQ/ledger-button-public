@@ -5,6 +5,11 @@ import type { BlockchainProviderFactory } from "../api/blockchain-provider/model
 
 export type DeviceModuleOptions = Partial<DmkConfig>;
 
+export type MockServerConfig = {
+  serverToken?: string;
+  serverUrl?: string;
+};
+
 export type ContainerOptions = {
   apiKey?: string;
   dAppIdentifier?: string;
@@ -27,5 +32,6 @@ export type ContainerOptions = {
       transactionHistory: boolean;
       dAppConfig: boolean;
     }>;
+    mock?: MockServerConfig;
   };
 };

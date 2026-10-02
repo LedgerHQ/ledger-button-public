@@ -95,6 +95,7 @@ export class SelectDeviceScreen extends LitElement {
 
   renderScreen() {
     const lang = this.languageContext.currentTranslation;
+    const hasMock = this.coreContext?.hasMockTransport ?? false;
     return html`
       <div class="flex flex-col gap-12 p-24 pt-0">
         ${(["bluetooth", "usb"] as const).map((el) => {
@@ -107,6 +108,16 @@ export class SelectDeviceScreen extends LitElement {
             ></ledger-connection-item>
           `;
         })}
+        ${hasMock
+          ? html`
+              <ledger-connection-item
+                title="Mock Server"
+                hint="Device Mock Server (test)"
+                connection-type="mock"
+                @connection-item-click=${this.handleConnectionItemClick}
+              ></ledger-connection-item>
+            `
+          : ""}
       </div>
       <div
         class="flex flex-col gap-12 border border-b-0 border-l-0 border-r-0 border-muted-subtle p-24"

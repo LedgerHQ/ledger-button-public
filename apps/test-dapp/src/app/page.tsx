@@ -9,12 +9,15 @@ import {
   type ActivityEntry,
   ActivityLog,
   ConnectionStatus,
+  DeviceScreen,
   type EIPEvent,
   EventSimulatorBlock,
+  MockServerStatusBox,
   ProviderSelectionBlock,
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
+import { useMockServer } from "../hooks/useMockServer";
 import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
@@ -32,8 +35,11 @@ export default function Index() {
     selectedProvider,
     setSelectedProvider,
     isInitialized,
+    reinitialize,
     config,
   } = useProviders();
+
+  const mockServer = useMockServer(reinitialize);
 
   const { entries: trackingEntries, clearEntries: clearTracking } =
     useTrackingInterceptor();
@@ -195,6 +201,63 @@ export default function Index() {
     setResult(null);
     setError(null);
   }, [selectedProvider, setSelectedProvider, addInfoEntry]);
+
+  const [hasKeypair, setHasKeypair] = useState(false);
+
+  const checkKeypairExists = useCallback(async () => {
+    try {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const req = indexedDB.open("ledger-button-db");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      if (!db.objectStoreNames.contains("ledger-button-store")) {
+        db.close();
+        setHasKeypair(false);
+        return;
+      }
+      const tx = db.transaction("ledger-button-store", "readonly");
+      const getReq = tx.objectStore("ledger-button-store").get("keyPair");
+      const exists = await new Promise<boolean>((resolve) => {
+        getReq.onsuccess = () => resolve(getReq.result != null);
+        getReq.onerror = () => resolve(false);
+      });
+      db.close();
+      setHasKeypair(exists);
+    } catch {
+      setHasKeypair(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void checkKeypairExists();
+  }, [checkKeypairExists]);
+
+  const handleReset = useCallback(async () => {
+    try {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const req = indexedDB.open("ledger-button-db");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+      const tx = db.transaction("ledger-button-store", "readwrite");
+      tx.objectStore("ledger-button-store").clear();
+      await new Promise<void>((resolve, reject) => {
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith("ledger-button"))
+        .forEach((key) => localStorage.removeItem(key));
+
+      setHasKeypair(false);
+      window.location.reload();
+    } catch (err) {
+      addInfoEntry(`Reset failed: ${(err as Error)?.message ?? String(err)}`);
+    }
+  }, [addInfoEntry]);
 
   const clearResult = useCallback(() => {
     setResult(null);
@@ -359,6 +422,8 @@ export default function Index() {
               onSelectProvider={setSelectedProvider}
               onRequestProviders={dispatchRequestProvider}
               onDisconnect={handleDisconnect}
+              onReset={handleReset}
+              hasKeypair={hasKeypair}
               account={account}
             />
 
@@ -387,8 +452,14 @@ export default function Index() {
           </div>
         </div>
 
+        {/* Floating Speculos device screen (fixed position, above modals) */}
+        <DeviceScreen />
+
         <aside className="hidden w-[400px] shrink-0 lg:block">
           <div className="sticky top-24 flex max-h-[calc(100vh-48px)] flex-col gap-20">
+            <div className="shrink-0">
+              <MockServerStatusBox mockServer={mockServer} />
+            </div>
             <div className="shrink-0">
               <ConnectionStatus
                 selectedProvider={selectedProvider}
