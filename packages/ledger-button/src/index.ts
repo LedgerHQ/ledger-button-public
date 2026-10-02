@@ -4,6 +4,7 @@ import "./ledger-button-app";
 import {
   LedgerButtonCore,
   type LedgerButtonCoreOptions,
+  NoBlockchainProviderError,
 } from "@ledgerhq/ledger-wallet-provider-core";
 
 import { FloatingButtonPosition } from "./components/index";
@@ -17,6 +18,7 @@ import type { WalletTransactionFeature } from "./components/molecule/wallet-acti
 
 let core: LedgerButtonCore | null = null;
 
+export { NoBlockchainProviderError };
 export type { TransactionConfirmationNotification } from "./types/transaction-confirmation-notification";
 
 export type InitializeLedgerProviderOptions = LedgerButtonCoreOptions & {
@@ -51,6 +53,12 @@ export function initializeLedgerProvider({
     },
   },
 }: InitializeLedgerProviderOptions): () => void {
+  if ((blockchainProviderFactories?.length ?? 0) === 0) {
+    throw new NoBlockchainProviderError(
+      "No blockchain provider: blockchainProviderFactories must not be empty",
+    );
+  }
+
   const existingApp = target.querySelector("ledger-button-app");
   if (existingApp) {
     console.log("Ledger button app already exists");
