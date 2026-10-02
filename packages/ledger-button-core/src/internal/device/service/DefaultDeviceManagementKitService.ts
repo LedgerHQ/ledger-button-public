@@ -102,12 +102,7 @@ export class DefaultDeviceManagementKitService
   }
 
   async connectToDevice({ type }: { type: ConnectionType }) {
-    const identifier =
-      type === "usb"
-        ? this.hidIdentifier
-        : type === "mock" && this.mockIdentifier
-          ? this.mockIdentifier
-          : this.bleIdentifier;
+    const identifier = this.resolveTransportIdentifier(type);
     this.logger.debug(`Connecting to device`, { identifier });
 
     const dmk = this.dmk;
@@ -232,6 +227,26 @@ export class DefaultDeviceManagementKitService
       this.clearSession(sessionId);
       return false;
     }
+  }
+
+  private resolveTransportIdentifier(
+    type: ConnectionType,
+  ): TransportIdentifier {
+    if (type === "usb") {
+      return this.hidIdentifier;
+    }
+
+    if (type === "bluetooth" || type === "") {
+      return this.bleIdentifier;
+    }
+
+    if (!this.mockIdentifier) {
+      throw new DeviceConnectionError("Mock transport is not configured", {
+        type: "failed-to-connect",
+      });
+    }
+
+    return this.mockIdentifier;
   }
 
   /**
