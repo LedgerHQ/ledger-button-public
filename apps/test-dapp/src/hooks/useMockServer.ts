@@ -61,6 +61,8 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
   const [deviceId, setDeviceId] = useState<string | null>(null);
   const clientRef = useRef<MockClient | null>(null);
   const initDoneRef = useRef(false);
+  const reinitializeRef = useRef(reinitialize);
+  reinitializeRef.current = reinitialize;
 
   const teardown = useCallback(async () => {
     try {
@@ -113,6 +115,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
       setSessionToken(token);
       setDeviceId(device.id);
       setStatus("connected");
+      reinitializeRef.current();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
       setError(message);
@@ -122,6 +125,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
       localStorage.removeItem(STORAGE_KEY_DEVICE_ID);
       setSessionToken(null);
       setDeviceId(null);
+      reinitializeRef.current();
     }
   }, []);
 
@@ -141,11 +145,13 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
           setSessionToken(storedToken);
           setDeviceId(storedDeviceId);
           setStatus("connected");
+          reinitializeRef.current();
         } else {
           localStorage.removeItem(STORAGE_KEY_TOKEN);
           localStorage.removeItem(STORAGE_KEY_ENV);
           localStorage.removeItem(STORAGE_KEY_DEVICE_ID);
           setStatus("idle");
+          reinitializeRef.current();
         }
       });
     }
