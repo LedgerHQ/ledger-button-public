@@ -56,7 +56,7 @@ function getCoinGeckoMapping(): Promise<CoinGeckoMapping> {
 }
 
 /**
- * Resolves the icon URL for a `ledgerId`, mirroring Ledger Live's resolution
+ * Resolves the icon URL for a `ledgerId`, mirroring Ledger Wallet's resolution
  * chain: the Ledger CDN index first, then the CoinGecko mapping as a fallback.
  * Returns `null` when neither source has a match, letting the component render
  * the letter placeholder. The CoinGecko mapping is only fetched lazily, when a
