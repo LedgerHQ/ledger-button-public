@@ -1,5 +1,6 @@
 import { type DmkConfig } from "@ledgerhq/device-management-kit";
 
+import type { Environment } from "./config/model/config";
 import { LogLevelKey } from "./logger/model/constant";
 import type { BlockchainProviderFactory } from "../api/blockchain-provider/model/BlockchainProviderFactory";
 
@@ -11,7 +12,7 @@ export type ContainerOptions = {
   dmkConfig?: DeviceModuleOptions;
   loggerLevel?: LogLevelKey;
   dmkLogLevel?: LogLevelKey;
-  environment?: "staging" | "production";
+  environment?: Environment;
   /**
    * Host-supplied factories that create blockchain providers. Required for any
    * family to load; core never imports family packages.

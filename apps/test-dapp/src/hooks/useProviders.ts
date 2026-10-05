@@ -1,8 +1,10 @@
 import {
   ALL_WALLET_FEATURES,
   DEFAULT_CONFIG,
+  DEFAULT_TRIAL_API_KEY,
   type LedgerContextValue,
   type LedgerProviderConfig,
+  setTrialModeAndReload,
   type TransactionConfirmationNotification,
   useLedgerContext,
   type WalletTransactionFeature,
@@ -11,8 +13,10 @@ import {
 export {
   ALL_WALLET_FEATURES,
   DEFAULT_CONFIG,
+  DEFAULT_TRIAL_API_KEY,
   type LedgerContextValue,
   type LedgerProviderConfig,
+  setTrialModeAndReload,
   type TransactionConfirmationNotification,
   type WalletTransactionFeature,
 };

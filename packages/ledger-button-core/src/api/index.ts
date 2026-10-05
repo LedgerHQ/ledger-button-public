@@ -8,6 +8,7 @@ export type { CurrencyDescriptor } from "./blockchain-provider/model/CurrencyDes
 export type {
   BlockchainFamily,
   BroadcastedTransactionMetadata,
+  ClearSigningEndpoints,
   InvoicedTransaction,
   ProviderBlockchain,
   ProviderDeviceSession,

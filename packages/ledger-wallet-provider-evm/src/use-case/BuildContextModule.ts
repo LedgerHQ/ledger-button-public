@@ -20,12 +20,24 @@ export class BuildContextModule {
   ) {}
 
   execute({ chain }: BuildContextModuleParams): ContextModule {
-    const { originToken, dAppIdentifier } = this.core.getSdkConfig();
-    return new ContextModuleBuilder({
+    const { originToken, dAppIdentifier, clearSigningEndpoints } =
+      this.core.getSdkConfig();
+    const builder = new ContextModuleBuilder({
       originToken,
-    })
-      .setAppSource(dAppIdentifier)
-      .setChain(chain)
-      .build();
+    }).setAppSource(dAppIdentifier);
+
+    if (clearSigningEndpoints) {
+      builder
+        .setCalConfig({
+          url: clearSigningEndpoints.calUrl,
+          mode: "prod",
+          branch: "main",
+        })
+        .setWeb3ChecksConfig({
+          url: clearSigningEndpoints.transactionCheckUrl,
+        });
+    }
+
+    return builder.setChain(chain).build();
   }
 }

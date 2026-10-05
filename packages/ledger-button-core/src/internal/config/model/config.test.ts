@@ -78,6 +78,10 @@ describe("Config", () => {
         environment: "production",
       });
       expect(production.getBackendUrl()).toBe("https://ledgerb.api.ledger.com");
+      expect(production.getCalUrl()).toBe(
+        "https://crypto-assets-service.api.ledger.com",
+      );
+      expect(production.getClearSigningEndpoints()).toBeUndefined();
 
       const staging = new Config({
         originToken: "test-token",
@@ -87,6 +91,32 @@ describe("Config", () => {
       expect(staging.getBackendUrl()).toBe(
         "https://ledgerb.api.ledger-test.com",
       );
+      expect(staging.getCalUrl()).toBe(
+        "https://crypto-assets-service.api.ledger-test.com",
+      );
+      expect(staging.getClearSigningEndpoints()).toBeUndefined();
+    });
+
+    it("should keep production hosts and point clear signing at the connect gateway for trial", () => {
+      const trial = new Config({
+        originToken: "test-token",
+        dAppIdentifier: "test-app",
+        environment: "trial",
+      });
+
+      expect(trial.environment).toBe("trial");
+      expect(trial.lkrp.cloudSyncUrl).toBe(
+        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
+      );
+      expect(trial.getBackendUrl()).toBe("https://ledgerb.api.ledger.com");
+      expect(trial.getCalUrl()).toBe(
+        "https://crypto-assets-service.api.ledger.com",
+      );
+      expect(trial.getClearSigningEndpoints()).toEqual({
+        calUrl: "https://connect.api.prd.ledger.com/cal/v1",
+        transactionCheckUrl:
+          "https://connect.api.prd.ledger.com/transaction-checks/v3",
+      });
     });
 
     it("should maintain existing configuration options", () => {

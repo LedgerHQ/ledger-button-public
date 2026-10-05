@@ -62,6 +62,32 @@ export const DEFAULT_CONFIG: LedgerProviderConfig = {
   transactionConfirmationNotification: "tooltip",
 };
 
+export const DEFAULT_TRIAL_API_KEY = "b2bfcc56-3232-4494-8c50-84517428c14d";
+
+const TRIAL_API_KEY_STORAGE_KEY = "test-dapp:trial-api-key";
+
+/**
+ * The core reads `environment` and `apiKey` only once, when it is built, and
+ * a hot re-initialization leaves wallets bound to the previous core. Trial is
+ * therefore stored and applied through a full page reload.
+ */
+export function setTrialModeAndReload(trialApiKey: string | null): void {
+  if (trialApiKey) {
+    localStorage.setItem(TRIAL_API_KEY_STORAGE_KEY, trialApiKey);
+  } else {
+    localStorage.removeItem(TRIAL_API_KEY_STORAGE_KEY);
+  }
+  window.location.reload();
+}
+
+function readInitialConfig(): LedgerProviderConfig {
+  const trialApiKey = localStorage.getItem(TRIAL_API_KEY_STORAGE_KEY);
+  if (!trialApiKey) {
+    return DEFAULT_CONFIG;
+  }
+  return { ...DEFAULT_CONFIG, environment: "trial", apiKey: trialApiKey };
+}
+
 export interface LedgerContextValue {
   providers: EIP6963ProviderDetail[];
   selectedProvider: EIP6963ProviderDetail | null;
@@ -148,7 +174,10 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
           | "info"
           | "warn"
           | "error",
-        environment: configToUse.environment as "production" | "staging",
+        environment: configToUse.environment as
+          | "production"
+          | "staging"
+          | "trial",
         dmkConfig: undefined,
         walletTransactionFeatures: configToUse.walletTransactionFeatures,
         transactionConfirmationNotification:
@@ -188,7 +217,11 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
   useEffect(() => {
     if (!isLoaded) return;
 
-    const cleanup = initializeProviderWithConfig(configRef.current);
+    const initialConfig = readInitialConfig();
+    configRef.current = initialConfig;
+    setConfig(initialConfig);
+
+    const cleanup = initializeProviderWithConfig(initialConfig);
     return cleanup;
   }, [isLoaded, initializeProviderWithConfig]);
 

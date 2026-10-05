@@ -1,3 +1,14 @@
+## 2.0.1 (2026-10-05)
+
+### 🩹 Fixes
+
+- Add a trial environment that routes Clear Signing and Transaction Check to the connect gateway. ([74ad9f55](https://github.com/LedgerHQ/ledger-button/commit/74ad9f55))
+
+### ❤️ Thank You
+
+- Cursor @cursoragent
+- pdeville-ledger
+
 # 2.0.0 (2026-09-30)
 
 ### 🚀 Features
