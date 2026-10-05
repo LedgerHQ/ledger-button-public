@@ -15,11 +15,15 @@ import { cn } from "../../lib/utils";
 interface WalletSelectionBlockProps {
   onLog: (label: string, data?: unknown) => void;
   onError: (message: string) => void;
+  onReset?: () => void;
+  hasKeypair?: boolean;
 }
 
 export function WalletSelectionBlock({
   onLog,
   onError,
+  onReset,
+  hasKeypair,
 }: WalletSelectionBlockProps) {
   const [, , wallets] = useSelectedWalletAccount();
 
@@ -45,6 +49,19 @@ export function WalletSelectionBlock({
       </div>
 
       <div className="p-24 bg-canvas space-y-20">
+        {onReset && (
+          <div className="flex items-center gap-12">
+            <Button
+              appearance="red"
+              size="sm"
+              onClick={onReset}
+              disabled={!hasKeypair}
+            >
+              Re-onboard
+            </Button>
+          </div>
+        )}
+
         {uniqueWallets.length > 0 ? (
           <div className="space-y-12">
             <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">

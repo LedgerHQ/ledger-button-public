@@ -54,6 +54,7 @@ import {
   useSolanaChain,
 } from "../../components/solana/solanaChainContext";
 import { type SolanaChain } from "../../components/solana/solanaCluster";
+import { useKeypairReset } from "../../hooks/useKeypairReset";
 import { useMockServer } from "../../hooks/useMockServer";
 import { useProviders } from "../../hooks/useProviders";
 
@@ -150,6 +151,8 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
     setActivity([]);
   }, []);
 
+  const { hasKeypair, reset: handleReset } = useKeypairReset(addInfo);
+
   const clearResult = useCallback(() => {
     setResult(null);
     setError(null);
@@ -172,7 +175,12 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
           </header>
 
           <div className="flex flex-col gap-20">
-            <WalletSelectionBlock onLog={addInfo} onError={setError} />
+            <WalletSelectionBlock
+              onLog={addInfo}
+              onError={setError}
+              onReset={handleReset}
+              hasKeypair={hasKeypair}
+            />
 
             {selectedAccount ? (
               <ConnectedSolanaActions
