@@ -8,7 +8,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { WalletNavigationIntent } from "@api/blockchain-provider/model/types";
 import type { BackendService } from "@internal/backend/BackendService";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
-import type { Config } from "@internal/config/model/config";
+import { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/ContextService";
 import { createMockLoggerFactory } from "@internal/device/__tests__/mocks";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
@@ -18,6 +18,7 @@ import { DefaultCoreFacadeService } from "./DefaultCoreFacadeService";
 
 type MakeServiceOpts = {
   environment?: Config["environment"];
+  config?: Config;
   backendService?: BackendService;
   deviceManagementKitService?: DeviceManagementKitService;
 };
@@ -42,9 +43,11 @@ const makeService = (opts: MakeServiceOpts = {}) => {
   } as unknown as BlockchainProviderManager;
   const stub = {} as never;
   const backendService = (opts.backendService ?? stub) as BackendService;
-  const config = {
-    environment: opts.environment ?? "production",
-  } as Config;
+  const config =
+    opts.config ??
+    ({
+      environment: opts.environment ?? "production",
+    } as Config);
   const service = new DefaultCoreFacadeService(
     navigationIntentService,
     contextService,
@@ -65,6 +68,41 @@ const makeService = (opts: MakeServiceOpts = {}) => {
 
   return { service, emit, contextService, blockchainProviderManager };
 };
+
+describe("DefaultCoreFacadeService.getSdkConfig", () => {
+  const makeConfig = (environment: Config["environment"]): Config =>
+    new Config({
+      originToken: "origin-token",
+      dAppIdentifier: "test-app",
+      environment,
+    });
+
+  it.each(["production", "staging"] as const)(
+    "omits clear signing endpoints on %s",
+    (environment) => {
+      const { service } = makeService({ config: makeConfig(environment) });
+
+      expect(service.getSdkConfig()).toEqual({
+        originToken: "origin-token",
+        dAppIdentifier: "test-app",
+      });
+    },
+  );
+
+  it("forwards the trial clear signing endpoints", () => {
+    const { service } = makeService({ config: makeConfig("trial") });
+
+    expect(service.getSdkConfig()).toEqual({
+      originToken: "origin-token",
+      dAppIdentifier: "test-app",
+      clearSigningEndpoints: {
+        calUrl: "https://connect.api.prd.ledger.com/cal/v1",
+        transactionCheckUrl:
+          "https://connect.api.prd.ledger.com/transaction-checks/v3",
+      },
+    });
+  });
+});
 
 describe("DefaultCoreFacadeService.getDeviceSession", () => {
   const makeDeviceService = (isSessionAlive: boolean) =>
