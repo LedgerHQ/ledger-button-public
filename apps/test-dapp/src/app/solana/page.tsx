@@ -30,7 +30,9 @@ import dynamic from "next/dynamic";
 import {
   type ActivityEntry,
   ActivityLog,
+  DeviceScreen,
   EventSimulatorBlock,
+  MockServerStatusBox,
 } from "../../components";
 import {
   SolanaActionsBlock,
@@ -52,6 +54,7 @@ import {
   useSolanaChain,
 } from "../../components/solana/solanaChainContext";
 import { type SolanaChain } from "../../components/solana/solanaCluster";
+import { useMockServer } from "../../hooks/useMockServer";
 import { useProviders } from "../../hooks/useProviders";
 
 const SolanaProviders = dynamic(
@@ -88,7 +91,8 @@ interface SolanaPageContentProps {
 function SolanaPageContent({ cluster }: SolanaPageContentProps) {
   // Safe here because this subtree is rendered inside <SolanaProviders>.
   const [selectedAccount] = useSelectedWalletAccount();
-  const { config } = useProviders();
+  const { config, reinitialize } = useProviders();
+  const mockServer = useMockServer(reinitialize);
 
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [result, setResult] = useState<string | null>(null);
@@ -207,8 +211,14 @@ function SolanaPageContent({ cluster }: SolanaPageContentProps) {
           </div>
         </div>
 
+        {/* Floating Speculos device screen (fixed position, above modals) */}
+        <DeviceScreen />
+
         <aside className="hidden w-[400px] shrink-0 lg:block">
           <div className="sticky top-24 flex max-h-[calc(100vh-48px)] flex-col gap-20">
+            <div className="shrink-0">
+              <MockServerStatusBox mockServer={mockServer} />
+            </div>
             <div className="shrink-0">
               <SolanaConnectionStatus cluster={cluster} />
             </div>
