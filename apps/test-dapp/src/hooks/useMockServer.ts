@@ -17,7 +17,7 @@ export const MOCK_DEVICE_CONFIG = {
   apps: [
     { name: "Ledger Sync", version: "1.3.0" },
     { name: "Ethereum", version: "1.22.5" },
-    { name: "Solana", version: "1.10.1" },
+    { name: "Solana", version: "1.17.1" },
   ],
 };
 
