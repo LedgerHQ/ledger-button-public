@@ -143,6 +143,9 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
       setStatus("connecting");
       void isSessionAlive(storedToken, storedDeviceId).then((alive) => {
         if (alive) {
+          clientRef.current = new MockClient(MOCK_SERVER_URL, {
+            token: storedToken,
+          });
           setSessionToken(storedToken);
           setDeviceId(storedDeviceId);
           setStatus("connected");
