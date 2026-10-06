@@ -15,13 +15,17 @@ import { cn } from "../../lib/utils";
 interface WalletSelectionBlockProps {
   onLog: (label: string, data?: unknown) => void;
   onError: (message: string) => void;
+  onReset?: () => void;
+  hasKeypair?: boolean;
 }
 
 export function WalletSelectionBlock({
   onLog,
   onError,
+  onReset,
+  hasKeypair,
 }: WalletSelectionBlockProps) {
-  const [, , wallets] = useSelectedWalletAccount();
+  const [selectedAccount, , wallets] = useSelectedWalletAccount();
 
   // De-duplicate on name: the same wallet can be registered more than once
   // (e.g. re-announced), which would otherwise list it multiple times.
@@ -35,6 +39,14 @@ export function WalletSelectionBlock({
     return [...byName.values()];
   }, [wallets]);
 
+  const connectedWallet = selectedAccount
+    ? uniqueWallets.find((wallet) =>
+        wallet.accounts.some(
+          (account) => account.address === selectedAccount.address,
+        ),
+      )
+    : undefined;
+
   return (
     <div className="border border-muted rounded-lg overflow-hidden">
       <div className="px-24 py-16 bg-muted">
@@ -45,6 +57,30 @@ export function WalletSelectionBlock({
       </div>
 
       <div className="p-24 bg-canvas space-y-20">
+        <div className="flex items-center gap-12">
+          {connectedWallet ? (
+            <DisconnectButton
+              wallet={connectedWallet}
+              onLog={onLog}
+              onError={onError}
+            />
+          ) : (
+            <Button appearance="red" size="sm" disabled>
+              Disconnect
+            </Button>
+          )}
+          {onReset && (
+            <Button
+              appearance="red"
+              size="sm"
+              onClick={onReset}
+              disabled={!hasKeypair}
+            >
+              Re-onboard
+            </Button>
+          )}
+        </div>
+
         {uniqueWallets.length > 0 ? (
           <div className="space-y-12">
             <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
@@ -72,6 +108,38 @@ export function WalletSelectionBlock({
         )}
       </div>
     </div>
+  );
+}
+
+interface DisconnectButtonProps {
+  wallet: UiWallet;
+  onLog: (label: string, data?: unknown) => void;
+  onError: (message: string) => void;
+}
+
+function DisconnectButton({ wallet, onLog, onError }: DisconnectButtonProps) {
+  const [, setSelectedAccount] = useSelectedWalletAccount();
+  const [isDisconnecting, disconnect] = useDisconnect(wallet);
+
+  const handleDisconnect = useCallback(async () => {
+    try {
+      await disconnect();
+      setSelectedAccount(undefined);
+      onLog(`Disconnected ${wallet.name}`);
+    } catch (err) {
+      onError((err as Error)?.message ?? String(err));
+    }
+  }, [wallet, disconnect, setSelectedAccount, onLog, onError]);
+
+  return (
+    <Button
+      appearance="red"
+      size="sm"
+      onClick={handleDisconnect}
+      disabled={isDisconnecting}
+    >
+      {isDisconnecting ? "Disconnecting…" : "Disconnect"}
+    </Button>
   );
 }
 

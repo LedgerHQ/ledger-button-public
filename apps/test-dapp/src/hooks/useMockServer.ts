@@ -17,6 +17,7 @@ export const MOCK_DEVICE_CONFIG = {
   apps: [
     { name: "Ledger Sync", version: "1.3.0" },
     { name: "Ethereum", version: "1.22.5" },
+    { name: "Solana", version: "1.17.1" },
   ],
 };
 
@@ -142,6 +143,9 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
       setStatus("connecting");
       void isSessionAlive(storedToken, storedDeviceId).then((alive) => {
         if (alive) {
+          clientRef.current = new MockClient(MOCK_SERVER_URL, {
+            token: storedToken,
+          });
           setSessionToken(storedToken);
           setDeviceId(storedDeviceId);
           setStatus("connected");
