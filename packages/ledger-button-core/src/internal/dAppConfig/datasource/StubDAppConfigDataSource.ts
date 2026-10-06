@@ -113,6 +113,7 @@ const EVM_DEFAULT_RPC_METHODS: BlockchainRpcMethods = {
     "eth_getCode",
     "eth_estimateGas",
     "eth_call",
+    "eth_getTransactionReceipt",
   ],
 };
 

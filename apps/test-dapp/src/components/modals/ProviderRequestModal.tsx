@@ -32,6 +32,7 @@ const PROVIDER_METHODS = [
   "eth_getCode",
   "eth_estimateGas",
   "eth_call",
+  "eth_getTransactionReceipt",
   // Not supported by Ledger Button, triggers EIP error result
   "wallet_getCapabilities",
 ] as const;

@@ -13,6 +13,7 @@ describe("resolveRpcRoute", () => {
     it("routes statically-broadcasted methods to broadcasted", () => {
       expect(resolveRpcRoute("eth_call")).toBe("broadcasted");
       expect(resolveRpcRoute("eth_getBalance")).toBe("broadcasted");
+      expect(resolveRpcRoute("eth_getTransactionReceipt")).toBe("broadcasted");
     });
 
     it("routes unknown methods to unsupported", () => {
