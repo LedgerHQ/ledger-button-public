@@ -81,7 +81,7 @@ export function ProviderRequestModal({
           }}
         >
           <SelectTrigger label="Method" />
-          <SelectContent>
+          <SelectContent className="max-h-[min(20rem,var(--available-height,20rem))]">
             <SelectList
               renderItem={(item) => (
                 <SelectItem key={item.value} value={item.value}>
