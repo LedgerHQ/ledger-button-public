@@ -69,3 +69,8 @@ elm-stuff
 
 # Agent tooling worktrees
 agent-files/claude/worktrees/
+
+# Playwright
+.playwright
+test-results/
+playwright-report/

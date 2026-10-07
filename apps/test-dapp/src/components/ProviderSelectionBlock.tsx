@@ -87,6 +87,7 @@ export function ProviderSelectionBlock({
                 return (
                   <div
                     key={provider.info.uuid}
+                    data-testid={`provider-card-${provider.info.rdns || provider.info.uuid}`}
                     className={cn(
                       "flex justify-between items-center px-16 py-14 border rounded-lg cursor-pointer transition-colors",
                       isSelected

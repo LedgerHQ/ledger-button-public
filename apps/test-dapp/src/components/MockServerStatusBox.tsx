@@ -102,7 +102,10 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
   }
 
   return (
-    <div className="border border-active rounded-lg p-20 bg-canvas">
+    <div
+      data-testid="mock-server-connected"
+      className="border border-active rounded-lg p-20 bg-canvas"
+    >
       <div className="flex items-center justify-between mb-14">
         <div className="flex items-center gap-10">
           <div className="size-10 rounded-full bg-success" />

@@ -24,7 +24,10 @@ function CopyableValue({ label, value }: { label: string; value: string }) {
     <div className="pt-14 border-t border-muted">
       <span className="body-2 text-muted block mb-4">{label}</span>
       <div className="flex items-start justify-between gap-8">
-        <span className="body-2-semi-bold text-base font-mono break-all">
+        <span
+          data-testid={`connected-${label.toLowerCase().replace(/\s+/g, "-")}`}
+          className="body-2-semi-bold text-base font-mono break-all"
+        >
           {value}
         </span>
         <button
