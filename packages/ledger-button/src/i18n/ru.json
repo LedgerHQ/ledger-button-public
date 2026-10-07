@@ -201,6 +201,12 @@
     "noTokens": "Не нашли токенов для этого счёта",
     "unknownToken": "Неизвестный токен"
   },
+  "tokenList": {
+    "categories": {
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "Доступные сети"
   },

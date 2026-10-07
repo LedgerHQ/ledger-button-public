@@ -201,6 +201,12 @@
     "noTokens": "لم يتم العثور على رموز توكن لهذا الحساب",
     "unknownToken": "Unknown Token"
   },
+  "tokenList": {
+    "categories": {
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "الشبكات المتاحة"
   },
