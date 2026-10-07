@@ -83,6 +83,7 @@ describe("HydrateAccountWithFiatUseCase", () => {
         name: "USD Coin",
         balance: "43,000.0",
         fiatBalance: undefined,
+        categories: [],
       },
     ],
   };

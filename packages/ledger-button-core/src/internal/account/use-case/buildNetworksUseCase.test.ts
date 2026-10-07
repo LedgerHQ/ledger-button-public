@@ -85,6 +85,7 @@ describe("BuildNetworksUseCase", () => {
             name: "USD Coin",
             balance: "2000",
             fiatBalance: { value: "2000.00", currency: "USD" },
+            categories: [],
           },
           {
             ledgerId: "dai",
@@ -92,6 +93,7 @@ describe("BuildNetworksUseCase", () => {
             name: "Dai",
             balance: "500",
             fiatBalance: { value: "500.00", currency: "USD" },
+            categories: [],
           },
         ],
       }),
@@ -142,6 +144,7 @@ describe("BuildNetworksUseCase", () => {
             name: "USD Coin",
             balance: "2000",
             fiatBalance: { value: "2000.00", currency: "USD" },
+            categories: [],
           },
         ],
       }),
