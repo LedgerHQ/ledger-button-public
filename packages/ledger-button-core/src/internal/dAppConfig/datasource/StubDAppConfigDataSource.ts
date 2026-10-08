@@ -18,7 +18,7 @@ const EVM_DEFAULT_NETWORKS = [
     id: "42161",
     currencyId: "arbitrum",
     currencyName: "Arbitrum",
-    currencyTicker: "ARB",
+    currencyTicker: "ETH",
   },
   {
     id: "43114",
@@ -30,7 +30,7 @@ const EVM_DEFAULT_NETWORKS = [
     id: "8453",
     currencyId: "base",
     currencyName: "Base",
-    currencyTicker: "BASE",
+    currencyTicker: "ETH",
   },
   {
     id: "56",
@@ -42,13 +42,13 @@ const EVM_DEFAULT_NETWORKS = [
     id: "59144",
     currencyId: "linea",
     currencyName: "Linea",
-    currencyTicker: "LINEA",
+    currencyTicker: "ETH",
   },
   {
     id: "10",
     currencyId: "optimism",
     currencyName: "Optimism",
-    currencyTicker: "OP",
+    currencyTicker: "ETH",
   },
   {
     id: "137",
@@ -66,13 +66,7 @@ const EVM_DEFAULT_NETWORKS = [
     id: "324",
     currencyId: "zksync",
     currencyName: "ZKsync",
-    currencyTicker: "ZK",
-  },
-  {
-    id: "100",
-    currencyId: "ethereum/erc20/gnosis",
-    currencyName: "Gnosis",
-    currencyTicker: "GNO",
+    currencyTicker: "ETH",
   },
   {
     id: "5042",
