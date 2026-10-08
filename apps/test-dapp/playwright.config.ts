@@ -10,7 +10,7 @@ import { defineConfig, devices } from "@playwright/test";
  *   pnpm --filter @ledgerhq/test-dapp exec playwright test
  */
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: "./e2e/specs",
   timeout: 180_000,
   retries: 0,
   // Headed runs against a shared Device Mock Server: one browser at a time.

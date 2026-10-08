@@ -4,7 +4,8 @@ import { useCallback, useState } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 import { Copy } from "@ledgerhq/lumen-ui-react/symbols";
 
-import { MOCK_DEVICE_CONFIG, type UseMockServerReturn } from "../hooks/useMockServer";
+import type { UseMockServerReturn } from "../hooks/useMockServer";
+import { flex } from "../mock-server";
 
 function CopyableField({ label, value }: { label: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -130,24 +131,24 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
         <div className="mt-10 space-y-6 body-4 font-mono text-base">
           <p>
             <span className="text-muted">Name:</span>{" "}
-            {MOCK_DEVICE_CONFIG.name}
+            {flex.name}
           </p>
           <p>
             <span className="text-muted">Type:</span>{" "}
-            {MOCK_DEVICE_CONFIG.device_type}
+            {flex.device_type}
           </p>
           <p>
             <span className="text-muted">Connectivity:</span>{" "}
-            {MOCK_DEVICE_CONFIG.connectivity_type}
+            {flex.connectivity_type}
           </p>
           <p>
             <span className="text-muted">Firmware:</span>{" "}
-            {MOCK_DEVICE_CONFIG.firmware_version}
+            {flex.firmware_version}
           </p>
           <div>
             <span className="text-muted">Apps:</span>
             <ul className="mt-4 ml-16 list-disc">
-              {MOCK_DEVICE_CONFIG.apps.map((app) => (
+              {flex.apps.map((app) => (
                 <li key={app.name}>
                   {app.name} <span className="text-muted">v{app.version}</span>
                 </li>

@@ -17,7 +17,7 @@ import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider-evm
 import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
 import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
 
-import { MOCK_SERVER_URL } from "../hooks/useMockServer";
+import { MOCK_SERVER_URL } from "../mock-server";
 
 let LedgerButtonModule:
   | typeof import("@ledgerhq/ledger-wallet-provider")

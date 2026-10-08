@@ -13,9 +13,9 @@
  *   - Each test gets its own DMS session and a wiped browser profile.
  */
 
-import { expect, test } from "./helpers/fixtures";
-import { FIRST_ONBOARDING_SCREENS } from "./helpers/OnboardingFlow";
-import { LEDGER_BUTTON_TEST_IDS } from "./helpers/test-ids";
+import { expect, test } from "../helpers/fixtures";
+import { FIRST_ONBOARDING_SCREENS } from "../helpers/OnboardingFlow";
+import { LEDGER_BUTTON_TEST_IDS } from "../helpers/test-ids";
 
 const EVM_ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 const SOLANA_ADDRESS = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;

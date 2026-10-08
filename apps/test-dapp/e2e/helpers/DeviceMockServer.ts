@@ -1,24 +1,6 @@
-import {
-  type DeviceConfig,
-  MockClient,
-} from "@ledgerhq/device-mockserver-client";
+import { MockClient } from "@ledgerhq/device-mockserver-client";
 
-export const MOCK_SERVER_URL =
-  "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
-
-const TEST_SEED =
-  "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-
-const DEVICE_CONFIG: DeviceConfig = {
-  device_type: "flex",
-  connectivity_type: "BLE",
-  firmware_version: "1.6.1",
-  apps: [
-    { name: "Ledger Sync", version: "1.3.0" },
-    { name: "Ethereum", version: "1.22.5" },
-    { name: "Solana", version: "1.17.1" },
-  ],
-};
+import { flex, MOCK_SERVER_URL, TEST_SEED } from "../../src/mock-server";
 
 const AUTO_APPROVE_POLL_INTERVAL_MS = 500;
 
@@ -64,7 +46,7 @@ export class DeviceMockServer {
   async setUp(): Promise<MockServerSession> {
     const token = await this.client.authenticate();
     await this.overrideSeed(token);
-    const device = await this.client.addDevice(DEVICE_CONFIG);
+    const device = await this.client.addDevice(flex);
 
     this.session = { token, deviceId: device.id };
     console.log(`── DMS: session=${token.slice(0, 8)}… device=${device.id} ──`);

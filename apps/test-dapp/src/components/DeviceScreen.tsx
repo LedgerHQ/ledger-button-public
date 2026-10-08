@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { MOCK_SERVER_URL } from "../hooks/useMockServer";
+import { MOCK_SERVER_URL } from "../mock-server";
 
 const POLL_FAST_MS = 500;
 const POLL_READY_MS = 2_000;
