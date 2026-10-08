@@ -25,6 +25,18 @@ describe("StubDAppConfigDataSource", () => {
     expect(result.liveAppId).toBe("ledger");
   });
 
+  it("should broadcast eth_getTransactionReceipt on the default EVM config", async () => {
+    const dataSource = createDataSource("rango-exchange");
+    const result = await dataSource.getDAppConfig();
+    const ethereumBlockchain = result.blockchains.find(
+      (b) => b.blockchain === "ethereum",
+    );
+
+    expect(ethereumBlockchain?.rpcMethods.broadcasted).toContain(
+      "eth_getTransactionReceipt",
+    );
+  });
+
   it("should include Arc in the default EVM networks", async () => {
     const dataSource = createDataSource("ledger");
     const result = await dataSource.getDAppConfig();
