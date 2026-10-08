@@ -58,9 +58,12 @@ export const test = base.extend<E2EFixtures>({
   // eslint-disable-next-line no-empty-pattern
   deviceMockServer: async ({}, use) => {
     const deviceMockServer = new DeviceMockServer();
-    await deviceMockServer.setUp();
-    await use(deviceMockServer);
-    await deviceMockServer.tearDown();
+    try {
+      await deviceMockServer.setUp();
+      await use(deviceMockServer);
+    } finally {
+      await deviceMockServer.tearDown();
+    }
   },
 
   testDapp: async ({ page, deviceMockServer }, use) => {
