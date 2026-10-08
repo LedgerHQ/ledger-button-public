@@ -223,6 +223,7 @@ export function TransactionsBlock({
             {txActions.map((action) => (
               <button
                 key={action.type}
+                data-testid={`action-${action.type}`}
                 className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px"
                 onClick={() => openModal(action.type)}
               >
@@ -243,6 +244,7 @@ export function TransactionsBlock({
             {msgActions.map((action) => (
               <button
                 key={action.type}
+                data-testid={`action-${action.type}`}
                 className="bg-muted border-muted hover:border-base hover:bg-muted-transparent flex cursor-pointer flex-col items-center rounded-lg border p-16 transition-all hover:-translate-y-px"
                 onClick={() => openModal(action.type)}
               >

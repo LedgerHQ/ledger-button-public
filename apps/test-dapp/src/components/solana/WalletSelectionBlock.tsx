@@ -189,6 +189,7 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
 
   return (
     <div
+      data-testid={`wallet-row-${wallet.name.toLowerCase().replace(/\s+/g, "-")}`}
       className={cn(
         "flex justify-between items-center px-16 py-14 border rounded-lg transition-colors",
         isSelected

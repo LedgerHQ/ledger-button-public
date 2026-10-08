@@ -3,23 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MockClient } from "@ledgerhq/device-mockserver-client";
 
-export const MOCK_SERVER_URL =
-  "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
-
-const TEST_SEED =
-  "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-
-export const MOCK_DEVICE_CONFIG = {
-  name: "Flex PierreV Test",
-  device_type: "flex" as const,
-  connectivity_type: "BLE" as const,
-  firmware_version: "1.6.1",
-  apps: [
-    { name: "Ledger Sync", version: "1.3.0" },
-    { name: "Ethereum", version: "1.22.5" },
-    { name: "Solana", version: "1.17.1" },
-  ],
-};
+import { flex, MOCK_SERVER_URL, TEST_SEED } from "../mock-server";
 
 const STORAGE_KEY_TOKEN = "MOCK_SERVER_TOKEN";
 const STORAGE_KEY_ENV = "LEDGER_ENVIRONMENT";
@@ -107,7 +91,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
         );
       }
 
-      const device = await client.addDevice({ ...MOCK_DEVICE_CONFIG });
+      const device = await client.addDevice({ ...flex });
 
       clientRef.current = client;
       localStorage.setItem(STORAGE_KEY_TOKEN, token);

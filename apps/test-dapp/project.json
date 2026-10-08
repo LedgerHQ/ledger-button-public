@@ -11,6 +11,9 @@
       "options": {
         "command": "next dev --webpack"
       }
+    },
+    "e2e": {
+      "cache": false
     }
   }
 }

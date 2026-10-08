@@ -75,6 +75,7 @@ export function SignPersonalMessageModal({
           {PRESET_MESSAGES.map((preset) => (
             <Button
               key={preset.label}
+              data-testid={`preset-${preset.label.toLowerCase()}`}
               appearance="gray"
               size="sm"
               onClick={() => handlePresetSubmit(preset.message)}

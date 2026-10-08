@@ -69,6 +69,7 @@ export class ConsentAnalyticsScreen extends LitElement {
           <ledger-button
             variant="secondary"
             size="full"
+            data-testid="consent-refuse"
             .label=${consent.rejectButton}
             @click=${this.handleRefuse}
           ></ledger-button>
@@ -76,6 +77,7 @@ export class ConsentAnalyticsScreen extends LitElement {
           <ledger-button
             variant="primary"
             size="full"
+            data-testid="consent-accept"
             .label=${consent.acceptButton}
             @click=${this.handleAccept}
           ></ledger-button>

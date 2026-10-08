@@ -114,6 +114,7 @@ export class SelectDeviceScreen extends LitElement {
                 title="Mock Server"
                 hint="Device Mock Server (test)"
                 connection-type="mock"
+                data-testid="mock-connection-item"
                 @connection-item-click=${this.handleConnectionItemClick}
               ></ledger-connection-item>
             `
