@@ -88,25 +88,13 @@ export class TokenListScreen extends LitElement {
     `;
   };
 
-  private renderTokenList() {
-    if (!this.account || this.account.tokens.length === 0) {
-      return "";
-    }
-
-    const { uncategorized, categories } = groupTokensByCategory(
-      this.account.tokens,
-    );
-
+  private renderCryptoGroup(uncategorized: Token[]) {
     return html`
-      <div class="flex flex-col">
-        ${
-          uncategorized.length > 0
-            ? html`<div class="mt-12 flex flex-col">
-                ${uncategorized.map(this.renderTokenItem)}
-              </div>`
-            : ""
-        }
-        ${categories.map(this.renderCategoryGroup)}
+      <div class="flex flex-col gap-4">
+        ${this.renderCategoryHeader("crypto")}
+        <div class="flex flex-col">
+          ${this.renderNativeCoin()} ${uncategorized.map(this.renderTokenItem)}
+        </div>
       </div>
     `;
   }
@@ -120,12 +108,14 @@ export class TokenListScreen extends LitElement {
       `;
     }
 
+    const { uncategorized, categories } = groupTokensByCategory(
+      this.account.tokens,
+    );
+
     return html`
       <div class="flex flex-col">
-        <div class="mt-16 flex flex-col gap-4">
-          ${this.renderCategoryHeader("crypto")} ${this.renderNativeCoin()}
-        </div>
-        ${this.renderTokenList()}
+        ${this.renderCryptoGroup(uncategorized)}
+        ${categories.map(this.renderCategoryGroup)}
       </div>
     `;
   }
