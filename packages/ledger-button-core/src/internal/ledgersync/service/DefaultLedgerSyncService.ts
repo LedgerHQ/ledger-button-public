@@ -18,6 +18,7 @@ import { type Factory, inject, injectable } from "inversify";
 import pako from "pako";
 import {
   catchError,
+  forkJoin,
   from,
   map,
   Observable,
@@ -40,6 +41,8 @@ import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 import { cryptographicModuleTypes } from "@internal/cryptographic/di/cryptographicModuleTypes";
 import { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
+import { dAppConfigModuleTypes } from "@internal/dAppConfig/di/dAppConfigModuleTypes";
+import { GetDAppConfigUseCase } from "@internal/dAppConfig/use-case/GetDAppConfigUseCase";
 import { deviceModuleTypes } from "@internal/device/di/deviceModuleTypes";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
@@ -70,6 +73,8 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     private readonly storageService: StorageService,
     @inject(cryptographicModuleTypes.GetOrCreateKeyPairUseCase)
     private readonly getOrCreateKeyPairUseCase: GetOrCreateKeyPairUseCase,
+    @inject(dAppConfigModuleTypes.GetDAppConfigUseCase)
+    private readonly getDAppConfigUseCase: GetDAppConfigUseCase,
     @inject(configModuleTypes.Config)
     private readonly config: Config,
   ) {
@@ -89,11 +94,16 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   authenticate(): Observable<LedgerSyncAuthenticateResponse> {
     this.logger.info("Authenticating with ledger sync");
 
-    return from(this.getOrCreateKeyPairUseCase.execute()).pipe(
-      switchMap((keypair: KeyPair) => {
+    return forkJoin({
+      keypair: from(this.getOrCreateKeyPairUseCase.execute()),
+      clientName: from(this.resolveClientName()),
+    }).pipe(
+      switchMap(({ keypair, clientName }) => {
         const authenticationData = this.prepareAuthenticationData(keypair);
-        const authenticateInput =
-          this.createAuthenticateInput(authenticationData);
+        const authenticateInput = this.createAuthenticateInput(
+          authenticationData,
+          clientName,
+        );
         return this.executeAuthentication(authenticateInput);
       }),
       map(
@@ -143,8 +153,26 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   get authContext() {
     return this._authContext;
   }
-  private getClientName(): string {
-    return `LedgerWalletProvider::${this.config.dAppIdentifier}`;
+
+  private async resolveClientName(): Promise<string> {
+    try {
+      const dAppConfig = await this.getDAppConfigUseCase.execute();
+      const name = dAppConfig.name?.trim() ?? "";
+      if (name.length > 0) {
+        return name;
+      }
+
+      this.logger.warn(
+        "dApp config name is missing, falling back to dApp identifier",
+      );
+    } catch (error) {
+      this.logger.warn(
+        "Failed to load dApp config, falling back to dApp identifier",
+        { error },
+      );
+    }
+
+    return this.config.dAppIdentifier;
   }
 
   private prepareAuthenticationData(keypair: KeyPair): {
@@ -164,26 +192,35 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     return { keypair, trustChainId };
   }
 
-  private createAuthenticateInput(authenticationData: {
-    keypair: KeyPair;
-    trustChainId: string | undefined;
-  }): AuthenticateUsecaseInput {
+  private createAuthenticateInput(
+    authenticationData: {
+      keypair: KeyPair;
+      trustChainId: string | undefined;
+    },
+    clientName: string,
+  ): AuthenticateUsecaseInput {
     const { keypair, trustChainId } = authenticationData;
 
     this.logger.info("Create authenticate input", {
       trustChainId,
       keypair: keypair.getPublicKeyToHex(),
+      clientName,
     });
 
     if (!trustChainId) {
-      return this.createDeviceAuthenticateInput(keypair);
+      return this.createDeviceAuthenticateInput(keypair, clientName);
     } else {
-      return this.createKeypairAuthenticateInput(keypair, trustChainId);
+      return this.createKeypairAuthenticateInput(
+        keypair,
+        trustChainId,
+        clientName,
+      );
     }
   }
 
   private createDeviceAuthenticateInput(
     keyPair: KeyPair,
+    clientName: string,
   ): AuthenticateUsecaseInput {
     this.logger.info("Try to authenticate with a Ledger Device");
 
@@ -193,7 +230,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
 
     return {
       keyPair,
-      clientName: this.getClientName(),
+      clientName,
       permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
       sessionId: this.deviceManagementKitService.sessionId,
       trustchainId: undefined,
@@ -203,12 +240,13 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
   private createKeypairAuthenticateInput(
     keyPair: KeyPair,
     trustChainId: string,
+    clientName: string,
   ): AuthenticateUsecaseInput {
     this.logger.info("Try to authenticate with keypair");
 
     return {
       keyPair,
-      clientName: this.getClientName(),
+      clientName,
       permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
       trustchainId: trustChainId,
       sessionId: undefined,

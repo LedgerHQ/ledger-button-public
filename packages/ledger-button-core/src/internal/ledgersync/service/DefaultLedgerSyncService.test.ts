@@ -20,6 +20,7 @@ import type { AuthContext } from "@api/model/LedgerSyncAuthenticateResponse";
 import type { UserInteractionNeededResponse } from "@api/model/UserInteractionNeeded";
 import type { Config } from "@internal/config/model/config";
 import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
+import type { GetDAppConfigUseCase } from "@internal/dAppConfig/use-case/GetDAppConfigUseCase";
 import type { DeviceManagementKitService } from "@internal/device/service/DeviceManagementKitService";
 import type { StorageService } from "@internal/storage/StorageService";
 import { mockConstructable } from "@internal/test-support/mockConstructable";
@@ -53,6 +54,9 @@ describe("DefaultLedgerSyncService", () => {
   let mockGetOrCreateKeyPairUseCase: {
     execute: ReturnType<typeof vi.fn>;
   };
+  let mockGetDAppConfigUseCase: {
+    execute: ReturnType<typeof vi.fn>;
+  };
   let mockConfig: Config;
   let mockLkrpAppKit: {
     authenticate: ReturnType<typeof vi.fn>;
@@ -60,6 +64,22 @@ describe("DefaultLedgerSyncService", () => {
   };
   let mockKeyPair: KeyPair;
   let mockBuild: ReturnType<typeof vi.fn>;
+
+  function createService(): DefaultLedgerSyncService {
+    return new DefaultLedgerSyncService(
+      vi.fn().mockReturnValue({
+        info: vi.fn(),
+        debug: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }),
+      mockDeviceManagementKitService as unknown as DeviceManagementKitService,
+      mockStorageService as unknown as StorageService,
+      mockGetOrCreateKeyPairUseCase as unknown as GetOrCreateKeyPairUseCase,
+      mockGetDAppConfigUseCase as unknown as GetDAppConfigUseCase,
+      mockConfig,
+    );
+  }
 
   const mockJWT = {
     access_token: "test-access-token",
@@ -94,6 +114,10 @@ describe("DefaultLedgerSyncService", () => {
       execute: vi.fn().mockResolvedValue(mockKeyPair),
     };
 
+    mockGetDAppConfigUseCase = {
+      execute: vi.fn().mockResolvedValue({ name: "Test dApp" }),
+    };
+
     mockConfig = {
       environment: "staging",
       dAppIdentifier: "test-dapp",
@@ -113,36 +137,14 @@ describe("DefaultLedgerSyncService", () => {
       } as unknown as LedgerKeyringProtocolBuilder),
     );
 
-    service = new DefaultLedgerSyncService(
-      vi.fn().mockReturnValue({
-        info: vi.fn(),
-        debug: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-      }),
-      mockDeviceManagementKitService as unknown as DeviceManagementKitService,
-      mockStorageService as unknown as StorageService,
-      mockGetOrCreateKeyPairUseCase as unknown as GetOrCreateKeyPairUseCase,
-      mockConfig,
-    );
+    service = createService();
 
     vi.clearAllMocks();
   });
 
   describe("when building the class", () => {
     it("should build a LedgerKeyringProtocolBuilder with correct configuration", () => {
-      new DefaultLedgerSyncService(
-        vi.fn().mockReturnValue({
-          info: vi.fn(),
-          debug: vi.fn(),
-          warn: vi.fn(),
-          error: vi.fn(),
-        }),
-        mockDeviceManagementKitService as unknown as DeviceManagementKitService,
-        mockStorageService as unknown as StorageService,
-        mockGetOrCreateKeyPairUseCase as unknown as GetOrCreateKeyPairUseCase,
-        mockConfig,
-      );
+      createService();
 
       expect(LedgerKeyringProtocolBuilder).toHaveBeenCalledWith({
         dmk: mockDeviceManagementKitService.dmk,
@@ -166,18 +168,7 @@ describe("DefaultLedgerSyncService", () => {
       ({ environment, expectedEnv }) => {
         mockConfig.environment = environment;
 
-        new DefaultLedgerSyncService(
-          vi.fn().mockReturnValue({
-            info: vi.fn(),
-            debug: vi.fn(),
-            warn: vi.fn(),
-            error: vi.fn(),
-          }),
-          mockDeviceManagementKitService as unknown as DeviceManagementKitService,
-          mockStorageService as unknown as StorageService,
-          mockGetOrCreateKeyPairUseCase as unknown as GetOrCreateKeyPairUseCase,
-          mockConfig,
-        );
+        createService();
 
         expect(LedgerKeyringProtocolBuilder).toHaveBeenCalledWith({
           dmk: mockDeviceManagementKitService.dmk,
@@ -221,7 +212,7 @@ describe("DefaultLedgerSyncService", () => {
         expect(mockGetOrCreateKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
           keyPair: mockKeyPair,
-          clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
+          clientName: "Test dApp",
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: existingTrustchainId,
           sessionId: undefined,
@@ -252,10 +243,118 @@ describe("DefaultLedgerSyncService", () => {
         expect(mockGetOrCreateKeyPairUseCase.execute).toHaveBeenCalled();
         expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
           keyPair: mockKeyPair,
-          clientName: `LedgerWalletProvider::${mockConfig.dAppIdentifier}`,
+          clientName: "Test dApp",
           permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
           trustchainId: undefined,
           sessionId: mockDeviceManagementKitService.sessionId,
+        });
+      });
+
+      test.each([
+        { dAppIdentifier: "1inch", displayName: "1inch" },
+        { dAppIdentifier: "okx", displayName: "OKX" },
+        { dAppIdentifier: "velora", displayName: "Velora" },
+        { dAppIdentifier: "rango-exchange", displayName: "Rango Exchange" },
+      ])(
+        "sends $displayName as clientName for a new enrollment of $dAppIdentifier",
+        async ({ dAppIdentifier, displayName }) => {
+          mockConfig.dAppIdentifier = dAppIdentifier;
+          mockGetDAppConfigUseCase.execute.mockResolvedValue({
+            name: displayName,
+          });
+          mockStorageService.getTrustChainId.mockReturnValue({
+            extract: vi.fn().mockReturnValue(undefined),
+          });
+
+          const state: DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          > = {
+            status: DeviceActionStatus.Completed,
+            output: mockAuthOutput,
+          };
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          await lastValueFrom(service.authenticate());
+
+          expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
+            keyPair: mockKeyPair,
+            clientName: displayName,
+            permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+            trustchainId: undefined,
+            sessionId: mockDeviceManagementKitService.sessionId,
+          });
+        },
+      );
+
+      test.each(["", "   "])(
+        "falls back to the dApp identifier when the config name is %j",
+        async (name) => {
+          mockConfig.dAppIdentifier = "okx";
+          mockGetDAppConfigUseCase.execute.mockResolvedValue({ name });
+          mockStorageService.getTrustChainId.mockReturnValue({
+            extract: vi.fn().mockReturnValue(undefined),
+          });
+
+          const state: DeviceActionState<
+            AuthenticateDAOutput,
+            AuthenticateDAError,
+            AuthenticateDAIntermediateValue
+          > = {
+            status: DeviceActionStatus.Completed,
+            output: mockAuthOutput,
+          };
+
+          mockLkrpAppKit.authenticate.mockReturnValue({
+            observable: of(state),
+          });
+
+          await lastValueFrom(service.authenticate());
+
+          expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
+            keyPair: mockKeyPair,
+            clientName: "okx",
+            permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+            trustchainId: undefined,
+            sessionId: mockDeviceManagementKitService.sessionId,
+          });
+        },
+      );
+
+      test("falls back to the dApp identifier when the dApp config cannot be loaded", async () => {
+        mockConfig.dAppIdentifier = "rango-exchange";
+        mockGetDAppConfigUseCase.execute.mockRejectedValue(
+          new Error("network error"),
+        );
+        mockStorageService.getTrustChainId.mockReturnValue({
+          extract: vi.fn().mockReturnValue("existing-trustchain-id"),
+        });
+
+        const state: DeviceActionState<
+          AuthenticateDAOutput,
+          AuthenticateDAError,
+          AuthenticateDAIntermediateValue
+        > = {
+          status: DeviceActionStatus.Completed,
+          output: mockAuthOutput,
+        };
+
+        mockLkrpAppKit.authenticate.mockReturnValue({
+          observable: of(state),
+        });
+
+        await lastValueFrom(service.authenticate());
+
+        expect(mockLkrpAppKit.authenticate).toHaveBeenCalledWith({
+          keyPair: mockKeyPair,
+          clientName: "rango-exchange",
+          permissions: Permissions.OWNER & ~Permissions.CAN_ADD_BLOCK,
+          trustchainId: "existing-trustchain-id",
+          sessionId: undefined,
         });
       });
 
