@@ -203,6 +203,7 @@
   },
   "tokenList": {
     "categories": {
+      "crypto": "Crypto",
       "stablecoins": "Stablecoins",
       "stocks": "Stocks"
     }

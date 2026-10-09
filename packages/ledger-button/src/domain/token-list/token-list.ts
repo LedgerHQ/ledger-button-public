@@ -8,15 +8,9 @@ import { consume } from "@lit/context";
 import { html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-import {
-  langContext,
-  LanguageContext,
-} from "../../context/language-context";
+import { langContext, LanguageContext } from "../../context/language-context";
 import { tailwindElement } from "../../tailwind-element";
-import {
-  formatFiatBalance,
-  formatTokenBalance,
-} from "../../utils/format-fiat";
+import { formatFiatBalance, formatTokenBalance } from "../../utils/format-fiat";
 import {
   formatCategoryLabel,
   groupTokensByCategory,
@@ -53,10 +47,6 @@ export class TokenListScreen extends LitElement {
     `;
   }
 
-  private renderDivider() {
-    return html`<div class="border-muted-subtle h-1 w-full border-t"></div>`;
-  }
-
   private renderTokenItem = (token: Token) => {
     return html`
       <ledger-chain-item
@@ -74,8 +64,7 @@ export class TokenListScreen extends LitElement {
   };
 
   private renderCategoryHeader(category: string) {
-    const labels =
-      this.languages?.currentTranslation?.tokenList?.categories;
+    const labels = this.languages?.currentTranslation?.tokenList?.categories;
 
     return html`
       <div
@@ -90,9 +79,11 @@ export class TokenListScreen extends LitElement {
 
   private renderCategoryGroup = (group: TokenCategoryGroup) => {
     return html`
-      <div class="flex flex-col gap-4">
+      <div class="mt-16 flex flex-col gap-4">
         ${this.renderCategoryHeader(group.category)}
-        <div class="flex flex-col">${group.tokens.map(this.renderTokenItem)}</div>
+        <div class="flex flex-col">
+          ${group.tokens.map(this.renderTokenItem)}
+        </div>
       </div>
     `;
   };
@@ -107,12 +98,14 @@ export class TokenListScreen extends LitElement {
     );
 
     return html`
-      <div class="flex flex-col gap-12">
-        ${uncategorized.length > 0
-          ? html`<div class="flex flex-col">
-              ${uncategorized.map(this.renderTokenItem)}
-            </div>`
-          : ""}
+      <div class="flex flex-col">
+        ${
+          uncategorized.length > 0
+            ? html`<div class="mt-12 flex flex-col">
+                ${uncategorized.map(this.renderTokenItem)}
+              </div>`
+            : ""
+        }
         ${categories.map(this.renderCategoryGroup)}
       </div>
     `;
@@ -128,8 +121,10 @@ export class TokenListScreen extends LitElement {
     }
 
     return html`
-      <div class="flex flex-col gap-12">
-        ${this.renderNativeCoin()} ${this.renderDivider()}
+      <div class="flex flex-col">
+        <div class="mt-16 flex flex-col gap-4">
+          ${this.renderCategoryHeader("crypto")} ${this.renderNativeCoin()}
+        </div>
         ${this.renderTokenList()}
       </div>
     `;
