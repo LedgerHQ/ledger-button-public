@@ -132,8 +132,9 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
           });
           setSessionToken(storedToken);
           setDeviceId(storedDeviceId);
+          // No reinitialize: the provider already read MOCK_SERVER_TOKEN at
+          // startup, and rebuilding it would drop the open device session.
           setStatus("connected");
-          reinitializeRef.current();
         } else {
           localStorage.removeItem(STORAGE_KEY_TOKEN);
           localStorage.removeItem(STORAGE_KEY_ENV);
