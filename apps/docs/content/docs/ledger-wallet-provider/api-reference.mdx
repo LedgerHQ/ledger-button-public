@@ -28,6 +28,7 @@ type InitializeLedgerProviderOptions = {
   apiKey: string;                                    // Your Ledger API key
   dAppIdentifier: string;                            // Your dApp identifier
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
+  environment?: 'production' | 'trial';              // default: 'production'
   blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
 
   // UI options

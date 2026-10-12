@@ -185,6 +185,7 @@ Initializes the Ledger Wallet Provider and injects the UI components into the DO
   apiKey?: string;             // Your Ledger API key
   dAppIdentifier?: string;     // Your dApp identifier
   loggerLevel?: string;        // default: 'info'
+  environment?: 'production' | 'trial'; // default: 'production'
   blockchainProviderFactories?: BlockchainProviderFactory[]; // Blockchain families to register
 
   // Ui options
@@ -200,10 +201,24 @@ Initializes the Ledger Wallet Provider and injects the UI components into the DO
 
   // Dev/debug - Only for Ledger use
   devConfig?: { stub: Partial<Record<'balance' | 'base' | 'account' | 'device' | 'web3Provider' | 'transactionHistory', boolean>> };
-  environment?: 'staging' | 'production';
   dmkConfig?: DeviceModuleOptions;
   dmkLogLevel?: string;        // default: 'error'
 }
+```
+
+#### Trial environment
+
+`'trial'` keeps wallet services and Ledger Sync on production, and authenticates Clear Signing and Transaction Check with a trial API key.
+
+Create that key at [https://dashboard.ledger.com/](https://dashboard.ledger.com/). Pass it as `apiKey` with `environment: "trial"`. Pair a partner API key with `"production"`, and a trial API key with `"trial"`.
+
+```javascript
+initializeLedgerProvider({
+  dAppIdentifier: "ledger-sandbox",
+  apiKey: "your-trial-api-key",
+  environment: "trial",
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
+});
 ```
 
 #### Returns
