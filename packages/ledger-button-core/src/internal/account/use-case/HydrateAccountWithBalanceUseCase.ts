@@ -111,6 +111,7 @@ export class HydrateAccountWithBalanceUseCase {
       name: tokenBalance.name,
       balance: tokenBalance.balanceFormatted,
       fiatBalance: undefined,
+      categories: tokenBalance.categories,
     }));
   }
 }

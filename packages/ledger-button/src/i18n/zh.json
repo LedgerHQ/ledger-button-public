@@ -201,6 +201,13 @@
     "noTokens": "未找到此账户的代币",
     "unknownToken": "未知代币"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Crypto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "可用网络"
   },

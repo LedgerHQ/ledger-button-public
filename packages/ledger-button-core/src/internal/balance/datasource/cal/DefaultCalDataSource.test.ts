@@ -37,6 +37,7 @@ describe("DefaultCalDataSource", () => {
         decimals: 6,
         ticker: "USDT",
         name: "Tether USD",
+        categories: ["stablecoins"],
         network_external_links: {
           explorers: [{ transaction: explorerTemplate }],
         },
@@ -53,7 +54,7 @@ describe("DefaultCalDataSource", () => {
       );
 
       expect(mockNetworkService.get).toHaveBeenCalledWith(
-        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&network=${testCurrencyId}&output=id,name,decimals,ticker,network_external_links`,
+        `${mockCalUrl}/v1/tokens?contract_address=${testTokenAddress}&network=${testCurrencyId}&output=id,name,decimals,ticker,categories,network_external_links`,
       );
 
       expect(result.isRight()).toBe(true);
@@ -65,31 +66,52 @@ describe("DefaultCalDataSource", () => {
           decimals: 6,
           ticker: "USDT",
           name: "Tether USD",
+          categories: ["stablecoins"],
           transactionExplorerUrlTemplate: explorerTemplate,
         });
       }
+    });
+
+    it("maps categories to an empty array when CAL returns none", async () => {
+      vi.mocked(mockNetworkService.get).mockResolvedValue(
+        Right([
+          {
+            id: "ethereum/erc20/chainlink",
+            decimals: 18,
+            ticker: "LINK",
+            name: "ChainLink Token",
+          },
+        ] satisfies CalTokenResponse),
+      );
+
+      const result = await dataSource.getTokenInformation(
+        testTokenAddress,
+        testCurrencyId,
+      );
+
+      expect(result.extract()).toMatchObject({ categories: [] });
     });
 
     it.each([
       {
         currencyId: "ethereum",
         address: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0xdAC17F958D2ee523a2206206994597C13D831ec7&network=ethereum&output=id,name,decimals,ticker,network_external_links`,
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0xdAC17F958D2ee523a2206206994597C13D831ec7&network=ethereum&output=id,name,decimals,ticker,categories,network_external_links`,
       },
       {
         currencyId: "base",
         address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&network=base&output=id,name,decimals,ticker,network_external_links`,
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913&network=base&output=id,name,decimals,ticker,categories,network_external_links`,
       },
       {
         currencyId: "polygon",
         address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&network=polygon&output=id,name,decimals,ticker,network_external_links`,
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&network=polygon&output=id,name,decimals,ticker,categories,network_external_links`,
       },
       {
         currencyId: "solana",
         address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&network=solana&output=id,name,decimals,ticker,network_external_links`,
+        expectedUrl: `${mockCalUrl}/v1/tokens?contract_address=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&network=solana&output=id,name,decimals,ticker,categories,network_external_links`,
       },
     ])(
       "builds CAL URL with network=$currencyId",

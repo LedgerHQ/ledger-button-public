@@ -201,6 +201,13 @@
     "noTokens": "ไม่พบโทเคนสำหรับบัญชีนี้",
     "unknownToken": "โทเคนที่ไม่รู้จัก"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Crypto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "เครือข่ายที่มีอยู่"
   },

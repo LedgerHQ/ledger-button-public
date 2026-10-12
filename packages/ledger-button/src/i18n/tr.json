@@ -201,6 +201,13 @@
     "noTokens": "Bu hesap için hiçbir token bulunamadı.",
     "unknownToken": "Bilinmeyen Token"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Crypto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "Kullanılabilir ağlar"
   },

@@ -201,6 +201,13 @@
     "noTokens": "このアカウントのトークンが見つかりませんでした",
     "unknownToken": "不明なトークン"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Crypto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "利用可能なネットワーク"
   },

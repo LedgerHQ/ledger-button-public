@@ -201,6 +201,13 @@
     "noTokens": "Nenhum token encontrado para esta conta",
     "unknownToken": "Token Desconhecido"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Crypto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Stocks"
+    }
+  },
   "availableNetworks": {
     "title": "Redes disponíveis"
   },
