@@ -13,29 +13,35 @@ describe("Config", () => {
       );
     });
 
-    it("should set staging environment correctly", () => {
-      const config = new Config({
-        originToken: "test-token",
-        dAppIdentifier: "test-app",
-        environment: "staging",
-      });
-      expect(config.environment).toBe("staging");
-      expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.stg.ldg-tech.com",
-      );
-    });
-
-    it("should set production environment correctly", () => {
-      const config = new Config({
-        originToken: "test-token",
-        dAppIdentifier: "test-app",
+    it.each([
+      {
         environment: "production",
-      });
-      expect(config.environment).toBe("production");
-      expect(config.lkrp.cloudSyncUrl).toBe(
-        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
-      );
-    });
+        cloudSyncUrl: "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
+        backendUrl: "https://ledgerb.api.ledger.com",
+        calUrl: "https://crypto-assets-service.api.ledger.com",
+      },
+      {
+        environment: "staging",
+        cloudSyncUrl: "https://cloud-sync-backend.api.aws.stg.ldg-tech.com",
+        backendUrl: "https://ledgerb.api.ledger-test.com",
+        calUrl: "https://crypto-assets-service.api.ledger-test.com",
+      },
+    ] as const)(
+      "should use the expected configuration for $environment",
+      ({ environment, cloudSyncUrl, backendUrl, calUrl }) => {
+        const config = new Config({
+          originToken: "test-token",
+          dAppIdentifier: "test-app",
+          environment,
+        });
+
+        expect(config.environment).toBe(environment);
+        expect(config.lkrp.cloudSyncUrl).toBe(cloudSyncUrl);
+        expect(config.getBackendUrl()).toBe(backendUrl);
+        expect(config.getCalUrl()).toBe(calUrl);
+        expect(config.getClearSigningEndpoints()).toBeUndefined();
+      },
+    );
 
     it("should allow changing environment after construction", () => {
       const config = new Config({
@@ -71,22 +77,26 @@ describe("Config", () => {
   });
 
   describe("existing functionality", () => {
-    it("should point backend URLs at the matching environment host", () => {
-      const production = new Config({
+    it("should keep production hosts and point clear signing at the connect gateway for trial", () => {
+      const trial = new Config({
         originToken: "test-token",
         dAppIdentifier: "test-app",
-        environment: "production",
+        environment: "trial",
       });
-      expect(production.getBackendUrl()).toBe("https://ledgerb.api.ledger.com");
 
-      const staging = new Config({
-        originToken: "test-token",
-        dAppIdentifier: "test-app",
-        environment: "staging",
-      });
-      expect(staging.getBackendUrl()).toBe(
-        "https://ledgerb.api.ledger-test.com",
+      expect(trial.environment).toBe("trial");
+      expect(trial.lkrp.cloudSyncUrl).toBe(
+        "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
       );
+      expect(trial.getBackendUrl()).toBe("https://ledgerb.api.ledger.com");
+      expect(trial.getCalUrl()).toBe(
+        "https://connect.api.prd.ledger.com/cal",
+      );
+      expect(trial.getClearSigningEndpoints()).toEqual({
+        calUrl: "https://connect.api.prd.ledger.com/cal/v1",
+        transactionCheckUrl:
+          "https://connect.api.prd.ledger.com/transaction-checks/v3",
+      });
     });
 
     it("should maintain existing configuration options", () => {

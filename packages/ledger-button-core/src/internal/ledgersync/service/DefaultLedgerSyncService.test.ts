@@ -160,6 +160,10 @@ describe("DefaultLedgerSyncService", () => {
         expectedEnv: LKRPEnv.PROD,
       },
       {
+        environment: "trial" as const,
+        expectedEnv: LKRPEnv.PROD,
+      },
+      {
         environment: "staging" as const,
         expectedEnv: LKRPEnv.STAGING,
       },

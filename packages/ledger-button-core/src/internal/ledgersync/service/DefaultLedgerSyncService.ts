@@ -84,10 +84,7 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
     this.lkrpAppKit = new LedgerKeyringProtocolBuilder({
       dmk: dmk,
       applicationId: LEDGER_SYNC_APPLICATION_ID,
-      env:
-        this.config.environment === "production"
-          ? LKRPEnv.PROD
-          : LKRPEnv.STAGING,
+      env: this.getKeyringEnvironment(),
     }).build();
   }
 
@@ -152,6 +149,18 @@ export class DefaultLedgerSyncService implements LedgerSyncService {
 
   get authContext() {
     return this._authContext;
+  }
+
+  private getKeyringEnvironment(): LKRPEnv {
+    switch (this.config.environment) {
+      case "staging":
+        return LKRPEnv.STAGING;
+      case "trial":
+        return LKRPEnv.PROD;
+      case "production":
+      default:
+        return LKRPEnv.PROD;
+    }
   }
 
   private async resolveClientName(): Promise<string> {

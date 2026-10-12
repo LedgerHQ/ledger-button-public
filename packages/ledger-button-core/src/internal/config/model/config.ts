@@ -1,5 +1,6 @@
 import { injectable } from "inversify";
 
+import type { ClearSigningEndpoints } from "@api/blockchain-provider/model/types";
 import {
   LOG_LEVELS,
   type LogLevel,
@@ -8,7 +9,9 @@ import {
 
 import PACKAGE from "../../../../package.json" with { type: "json" };
 
-export type Environment = "staging" | "production";
+export type Environment = "staging" | "production" | "trial";
+
+const CONNECT_GATEWAY_ORIGIN = "https://connect.api.prd.ledger.com";
 
 export type LKRPConfig = {
   cloudSyncUrl: string;
@@ -49,9 +52,14 @@ export class Config {
   }
 
   private getCloudSyncUrl(): string {
-    return this.environment === "production"
-      ? "https://cloud-sync-backend.api.aws.prd.ldg-tech.com"
-      : "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
+    switch (this.environment) {
+      case "staging":
+        return "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
+      case "trial":
+      case "production":
+      default:
+        return "https://cloud-sync-backend.api.aws.prd.ldg-tech.com";
+    }
   }
 
   setLogLevel(logLevel: LogLevelKey) {
@@ -63,15 +71,44 @@ export class Config {
   }
 
   getCalUrl(): string {
-    return this.environment === "production"
-      ? "https://crypto-assets-service.api.ledger.com"
-      : "https://crypto-assets-service.api.ledger-test.com";
+    switch (this.environment) {
+      case "staging":
+        return "https://crypto-assets-service.api.ledger-test.com";
+      case "trial":
+        return `${CONNECT_GATEWAY_ORIGIN}/cal`;
+      case "production":
+      default:
+        return "https://crypto-assets-service.api.ledger.com";
+    }
   }
 
   getBackendUrl(): string {
-    return this.environment === "production"
-      ? "https://ledgerb.api.ledger.com"
-      : "https://ledgerb.api.ledger-test.com";
+    switch (this.environment) {
+      case "staging":
+        return "https://ledgerb.api.ledger-test.com";
+      case "trial":
+      case "production":
+      default:
+        return "https://ledgerb.api.ledger.com";
+    }
+  }
+
+  /**
+   * Clear Signing and Transaction Check gateway for the trial environment.
+   * Staging and production keep the context-module defaults.
+   */
+  getClearSigningEndpoints(): ClearSigningEndpoints | undefined {
+    switch (this.environment) {
+      case "trial":
+        return {
+          calUrl: `${CONNECT_GATEWAY_ORIGIN}/cal/v1`,
+          transactionCheckUrl: `${CONNECT_GATEWAY_ORIGIN}/transaction-checks/v3`,
+        };
+      case "staging":
+      case "production":
+      default:
+        return undefined;
+    }
   }
 
   getCounterValueUrl(): string {
