@@ -5,8 +5,9 @@
  *   1. A fresh profile goes through welcome → analytics consent → device selection.
  *   2. Welcome and consent are not shown again once completed.
  *   3. The full onboarding (mock device → Ledger Sync → account selection)
- *      exposes the selected EVM account to the dApp, then connecting the
- *      Solana wallet reuses that onboarding and exposes a Solana account.
+ *      exposes the selected EVM account to the dApp, then navigating to the
+ *      Solana page in-app and connecting the Solana wallet reuses that
+ *      onboarding and exposes a Solana account.
  *
  * Prerequisites:
  *   - VPN / office network access to the Device Mock Server.
@@ -108,7 +109,7 @@ test.describe("Onboarding via Device Mock Server", () => {
     });
 
     await test.step("Solana: Ledger Sync is reused, straight to account selection", async () => {
-      await testDapp.open("/solana");
+      await testDapp.navigateTo("/solana");
       await testDapp.connectLedgerSolanaWallet();
 
       expect(await onboardingFlow.completeWithMockDevice()).toBe(
