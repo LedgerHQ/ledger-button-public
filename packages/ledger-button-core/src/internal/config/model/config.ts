@@ -52,24 +52,13 @@ export class Config {
   }
 
   private getCloudSyncUrl(): string {
-    return this.hostForEnvironment(
-      "https://cloud-sync-backend.api.aws.prd.ldg-tech.com",
-      "https://cloud-sync-backend.api.aws.stg.ldg-tech.com",
-    );
-  }
-
-  private hostForEnvironment(
-    productionHost: string,
-    stagingHost: string,
-  ): string {
     switch (this.environment) {
       case "staging":
-        return stagingHost;
+        return "https://cloud-sync-backend.api.aws.stg.ldg-tech.com";
       case "trial":
-        return productionHost;
       case "production":
       default:
-        return productionHost;
+        return "https://cloud-sync-backend.api.aws.prd.ldg-tech.com";
     }
   }
 
@@ -82,17 +71,26 @@ export class Config {
   }
 
   getCalUrl(): string {
-    return this.hostForEnvironment(
-      "https://crypto-assets-service.api.ledger.com",
-      "https://crypto-assets-service.api.ledger-test.com",
-    );
+    switch (this.environment) {
+      case "staging":
+        return "https://crypto-assets-service.api.ledger-test.com";
+      case "trial":
+        return `${CONNECT_GATEWAY_ORIGIN}/cal`;
+      case "production":
+      default:
+        return "https://crypto-assets-service.api.ledger.com";
+    }
   }
 
   getBackendUrl(): string {
-    return this.hostForEnvironment(
-      "https://ledgerb.api.ledger.com",
-      "https://ledgerb.api.ledger-test.com",
-    );
+    switch (this.environment) {
+      case "staging":
+        return "https://ledgerb.api.ledger-test.com";
+      case "trial":
+      case "production":
+      default:
+        return "https://ledgerb.api.ledger.com";
+    }
   }
 
   /**
