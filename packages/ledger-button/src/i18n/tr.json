@@ -337,9 +337,9 @@
         "cta1": "Yer açın"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Ledger OS güncellemesi gerekli",
+        "description": "Bu işlemi imzalamak için en güncel Ledger OS sürümü gereklidir.",
+        "cta1": "Ledger OS'i güncelleyin"
       }
     },
     "ledgerSync": {
@@ -351,7 +351,7 @@
       },
       "NoCompatibleAccounts": {
         "title": "Uyumlu hesap bulunamadı",
-        "description": "Bu dApp, {networks} ağlarını destekliyor ve sizin bu ağlar için herhangi bir hesabınız bulunmuyor. Lütfen Ledger Wallet'ta yeni bir hesap oluşturun.",
+        "description": "Bu dApp, {networks} ağlarını destekliyor ve sizin bu ağlar için herhangi bir hesabınız bulunmuyor. Lütfen Ledger Wallet'ta yeni bir hesap oluşturun",
         "cta1": "Ledger Wallet'ta yeni bir hesap oluşturun",
         "cta2": "Başka bir Ledger cihazı kullanın"
       },

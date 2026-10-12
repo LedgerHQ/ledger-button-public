@@ -6,6 +6,7 @@ export type RpcMethods =
   | "eth_chainId"
   | "eth_estimateGas"
   | "eth_call"
+  | "eth_getTransactionReceipt"
   | "eth_getBalance"
   | "eth_getBlockByNumber"
   | "eth_getTransactionCount"

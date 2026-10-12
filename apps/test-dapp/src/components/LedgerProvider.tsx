@@ -17,6 +17,8 @@ import type { EIP6963ProviderDetail } from "@ledgerhq/ledger-wallet-provider-evm
 import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
 import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
 
+import { MOCK_SERVER_URL } from "../mock-server";
+
 let LedgerButtonModule:
   typeof import("@ledgerhq/ledger-wallet-provider") | null = null;
 
@@ -152,6 +154,13 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
       const disableEventTracking =
         process.env.NEXT_PUBLIC_DISABLE_EVENT_TRACKING === "true";
 
+      // When mock server is active, redirect the secure-channel WebSocket to the
+      // DMS's built-in mock ScriptRunner instead of the production HSM endpoint.
+      const mockServerToken =
+        typeof window !== "undefined"
+          ? localStorage.getItem("MOCK_SERVER_TOKEN")
+          : null;
+
       const cleanup = initializeLedgerProvider({
         target: document.body,
         hideButton: configToUse.hideButton,
@@ -164,10 +173,19 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         dAppIdentifier: configToUse.dAppIdentifier,
         apiKey: configToUse.apiKey,
         loggerLevel: configToUse.logLevel as
-          "debug" | "info" | "warn" | "error",
+          | "debug"
+          | "info"
+          | "warn"
+          | "error",
         environment: configToUse.environment as
-          "production" | "staging" | "trial",
-        dmkConfig: undefined,
+          | "production"
+          | "staging"
+          | "trial",
+        dmkConfig: mockServerToken
+          ? {
+              webSocketUrl: `${MOCK_SERVER_URL.replace(/^https:/, "wss:").replace(/^http:/, "ws:")}/secure-channel/${mockServerToken}`,
+            }
+          : undefined,
         walletTransactionFeatures: configToUse.walletTransactionFeatures,
         transactionConfirmationNotification:
           configToUse.transactionConfirmationNotification,
@@ -175,13 +193,17 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
           evmBlockchainProviderFactory,
           solanaBlockchainProviderFactory,
         ],
-        devConfig: disableEventTracking
-          ? {
-              stub: {
-                base: disableEventTracking,
-              },
-            }
-          : undefined,
+        devConfig: {
+          stub: {
+            base: disableEventTracking || false,
+          },
+          mock: mockServerToken
+            ? {
+                serverToken: mockServerToken,
+                serverUrl: MOCK_SERVER_URL,
+              }
+            : undefined,
+        },
       });
 
       cleanupRef.current = cleanup;

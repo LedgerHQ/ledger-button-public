@@ -116,6 +116,11 @@ export class LedgerButtonCore {
   // @ts-expect-error making sure ModalService is created, not used
   private readonly _modalService: ModalService;
 
+  /** True when a mock-server transport was registered at construction time. */
+  get hasMockTransport(): boolean {
+    return this.opts.devConfig?.mock !== undefined;
+  }
+
   private get _contextService(): ContextService {
     return this.container.get<ContextService>(
       contextModuleTypes.ContextService,

@@ -76,6 +76,7 @@ export class ConnectionSuccessScreen extends LitElement {
         <ledger-button
           variant="primary"
           size="full"
+          data-testid="connection-success-close"
           .label=${translations.onboarding.connectionSuccess.close}
           @click=${this.handleClose}
         ></ledger-button>

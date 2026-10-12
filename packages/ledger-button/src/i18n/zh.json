@@ -337,9 +337,9 @@
         "cta1": "释放空间"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Ledger OS 需要更新",
+        "description": "您需要最新版 Ledger OS 操作系统来签署此交易。",
+        "cta1": "更新 Ledger OS"
       }
     },
     "ledgerSync": {
@@ -352,7 +352,7 @@
       "NoCompatibleAccounts": {
         "title": "未找到兼容的账户",
         "description": "此去中心化应用程序支持以下网络 {networks}，但您没有该网络的任何账户。请在 Ledger Wallet 上创建一个新账户",
-        "cta1": "在 Ledger Wallet 上创建新账户",
+        "cta1": "在 Ledger Wallet 中创建新账户",
         "cta2": "使用其他 Ledger 设备"
       },
       "NoAccountInSync": {

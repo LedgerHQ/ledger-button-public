@@ -337,21 +337,21 @@
         "cta1": "공간 확보하기"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Ledger OS 업데이트 필요",
+        "description": "이 트랜잭션에 서명하려면 최신 Ledger OS가 필요합니다.",
+        "cta1": "Ledger OS 업데이트"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
         "title": "Ledger Sync 활성화 실패",
-        "description": "Ledger Wallet과의 연결 문제로 Ledger Sync를 활성화에 실패했습니다. 이 탭을 닫고 Ledger Wallet 앱(데스크탑 또는 모바일)을 실행한 다음, Ledger Sync를 활성화하고 탭을 다시 열어주세요.",
+        "description": "Ledger Wallet과의 연결 문제로 Ledger Sync 활성화에 실패했습니다. 이 탭을 닫고 Ledger Wallet 앱(데스크탑 또는 모바일)을 실행한 다음, Ledger Sync를 활성화하고 탭을 다시 열어주세요.",
         "cta1": "이 탭 닫기",
         "cta2": "Ledger Sync가 무엇인가요?"
       },
       "NoCompatibleAccounts": {
         "title": "호환되는 계정을 찾을 수 없습니다",
-        "description": "이 디앱(DApp)은 다음 {networks} 네트워크를 지원하지만, 현재 해당 네트워크 계정이 없습니다. Ledger Wallet에서 새 계정을 생성하세요.",
+        "description": "이 디앱(DApp)은 {networks} 네트워크를 지원하지만, 현재 해당 네트워크 계정이 존재하지 않습니다. Ledger Wallet에서 새 계정을 생성하세요.",
         "cta1": "Ledger Wallet에서 새 계정 생성하기",
         "cta2": "다른 Ledger 장치 사용"
       },

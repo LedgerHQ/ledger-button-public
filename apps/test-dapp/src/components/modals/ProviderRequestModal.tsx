@@ -32,6 +32,7 @@ const PROVIDER_METHODS = [
   "eth_getCode",
   "eth_estimateGas",
   "eth_call",
+  "eth_getTransactionReceipt",
   // Not supported by Ledger Button, triggers EIP error result
   "wallet_getCapabilities",
 ] as const;
@@ -80,7 +81,7 @@ export function ProviderRequestModal({
           }}
         >
           <SelectTrigger label="Method" />
-          <SelectContent>
+          <SelectContent className="max-h-[min(20rem,var(--available-height,20rem))]">
             <SelectList
               renderItem={(item) => (
                 <SelectItem key={item.value} value={item.value}>

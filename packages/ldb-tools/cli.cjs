@@ -8,6 +8,7 @@ const { build } = require("./build.cjs");
 const { watch } = require("./watch.cjs");
 const { bump } = require("./bump.cjs");
 const { bumpSnapshot } = require("./bump-snapshot.cjs");
+const { bumpRc } = require("./bump-rc.cjs");
 const { createReleasePullRequest } = require("./create-release-pr.cjs");
 const { pack } = require("./pack.cjs");
 const { canonicalize } = require("./canonicalize.cjs");
@@ -58,6 +59,17 @@ const availableCommands = [
         name: "tag",
         description:
           "snapshot dist-tag (e.g., develop, canary) - defaults to develop",
+      },
+    ],
+  },
+  {
+    name: "bump-rc",
+    description:
+      "set public package versions to X.Y.Z-rc.<number> for a release candidate",
+    flags: [
+      {
+        name: "number",
+        description: "release candidate number (e.g., 0, 1, 2)",
       },
     ],
   },
@@ -133,6 +145,7 @@ const {
   distDir,
   check,
   tag,
+  number,
 } = argv;
 
 async function main() {
@@ -159,6 +172,14 @@ async function main() {
         ),
       );
       await bumpSnapshot(tag);
+      break;
+    case "bump-rc":
+      console.log(
+        chalk.green(
+          `🔖 (packages): Setting release candidate rc.${number} for all public packages`,
+        ),
+      );
+      await bumpRc(number);
       break;
     case "create-release-pr":
       console.log(chalk.green("🔖 (packages): Creating release pull request"));

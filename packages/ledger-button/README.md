@@ -246,6 +246,7 @@ Forwarded to the node RPC:
 - `eth_getCode` - Get contract bytecode
 - `eth_estimateGas` - Estimate gas for a call
 - `eth_call` - Execute a read-only call
+- `eth_getTransactionReceipt` - Get the receipt for a transaction hash, or `null` while pending
 
 Your partner dApp configuration can add methods to either group, and can force a
 normally-local method to be forwarded instead.

@@ -135,6 +135,7 @@ export class LedgerStatus extends LitElement {
         label=${this.primaryButtonLabel}
         variant="primary"
         size="full"
+        data-testid="status-primary-button"
         @ledger-button-click=${this.handlePrimaryAction}
       ></ledger-button>
     `;

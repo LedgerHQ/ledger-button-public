@@ -147,7 +147,7 @@
     "turnOnSync": {
       "title": "",
       "subtitle": "Turn on Ledger Sync to continue",
-      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Live to activate the feature."
+      "text": "This is required to be able to fetch you accounts securely. By clicking Turn on Ledger Sync you’ll be redirected to Ledger Wallet to activate the feature."
     },
     "consentPrompt": {
       "intro": {
@@ -345,19 +345,19 @@
     "ledgerSync": {
       "ConnectionFailed": {
         "title": "Unable to activate Ledger Sync",
-        "description": "The connection to Ledger Live to activate Ledger Sync is failing. Please close this tab, open the Ledger Live app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
+        "description": "The connection to Ledger Wallet to activate Ledger Sync is failing. Please close this tab, open the Ledger Wallet app (Desktop or Mobile), activate Ledger Sync and reopen the tab",
         "cta1": "Close this tab",
         "cta2": "What is Ledger Sync?"
       },
       "NoCompatibleAccounts": {
         "title": "No compatible account found",
-        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Live",
-        "cta1": "Create a new account on Ledger Live",
+        "description": "This Dapp is supporting the following networks {networks}, for which you don't have any accounts. Please create a new account on Ledger Wallet",
+        "cta1": "Create a new account on Ledger Wallet",
         "cta2": "Use another Ledger device"
       },
       "NoAccountInSync": {
         "title": "No accounts in sync",
-        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Live and add one or more accounts.",
+        "description": "Ledger Sync is activated but no accounts are in sync. Please activate Ledger Sync on Ledger Wallet and add one or more accounts.",
         "cta1": "Close"
       }
     },

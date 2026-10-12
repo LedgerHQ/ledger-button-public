@@ -9,12 +9,16 @@ import {
   type ActivityEntry,
   ActivityLog,
   ConnectionStatus,
+  DeviceScreen,
   type EIPEvent,
   EventSimulatorBlock,
+  MockServerStatusBox,
   ProviderSelectionBlock,
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
+import { useKeypairReset } from "../hooks/useKeypairReset";
+import { useMockServer } from "../hooks/useMockServer";
 import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
@@ -32,8 +36,11 @@ export default function Index() {
     selectedProvider,
     setSelectedProvider,
     isInitialized,
+    reinitialize,
     config,
   } = useProviders();
+
+  const mockServer = useMockServer(reinitialize);
 
   const { entries: trackingEntries, clearEntries: clearTracking } =
     useTrackingInterceptor();
@@ -195,6 +202,8 @@ export default function Index() {
     setResult(null);
     setError(null);
   }, [selectedProvider, setSelectedProvider, addInfoEntry]);
+
+  const { hasKeypair, reset: handleReset } = useKeypairReset(addInfoEntry);
 
   const clearResult = useCallback(() => {
     setResult(null);
@@ -359,6 +368,8 @@ export default function Index() {
               onSelectProvider={setSelectedProvider}
               onRequestProviders={dispatchRequestProvider}
               onDisconnect={handleDisconnect}
+              onReset={handleReset}
+              hasKeypair={hasKeypair}
               account={account}
             />
 
@@ -387,8 +398,14 @@ export default function Index() {
           </div>
         </div>
 
+        {/* Floating Speculos device screen (fixed position, above modals) */}
+        <DeviceScreen />
+
         <aside className="hidden w-[400px] shrink-0 lg:block">
           <div className="sticky top-24 flex max-h-[calc(100vh-48px)] flex-col gap-20">
+            <div className="shrink-0">
+              <MockServerStatusBox mockServer={mockServer} />
+            </div>
             <div className="shrink-0">
               <ConnectionStatus
                 selectedProvider={selectedProvider}
