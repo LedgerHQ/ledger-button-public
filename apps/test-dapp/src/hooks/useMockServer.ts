@@ -39,6 +39,10 @@ async function isSessionAlive(
   }
 }
 
+function logReinitialize(reason: string): void {
+  console.info("[test-dapp] Reinitializing Ledger provider", { reason });
+}
+
 export function useMockServer(reinitialize: () => void): UseMockServerReturn {
   const [status, setStatus] = useState<MockServerStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +104,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
       setSessionToken(token);
       setDeviceId(device.id);
       setStatus("connected");
+      logReinitialize("mock server connected");
       reinitializeRef.current();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
@@ -110,6 +115,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
       localStorage.removeItem(STORAGE_KEY_DEVICE_ID);
       setSessionToken(null);
       setDeviceId(null);
+      logReinitialize("mock server setup failed");
       reinitializeRef.current();
     }
   }, []);
@@ -140,6 +146,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
           localStorage.removeItem(STORAGE_KEY_ENV);
           localStorage.removeItem(STORAGE_KEY_DEVICE_ID);
           setStatus("idle");
+          logReinitialize("stored mock server session expired");
           reinitializeRef.current();
         }
       });
@@ -152,6 +159,7 @@ export function useMockServer(reinitialize: () => void): UseMockServerReturn {
 
   const disconnect = useCallback(() => {
     void teardown().then(() => {
+      logReinitialize("mock server disconnected");
       reinitialize();
     });
   }, [teardown, reinitialize]);

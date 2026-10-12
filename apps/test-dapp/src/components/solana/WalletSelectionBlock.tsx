@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 import { Link, Search } from "@ledgerhq/lumen-ui-react/symbols";
 import { useSelectedWalletAccount } from "@solana/react";
@@ -27,16 +27,23 @@ export function WalletSelectionBlock({
 }: WalletSelectionBlockProps) {
   const [selectedAccount, , wallets] = useSelectedWalletAccount();
 
-  // De-duplicate on name: the same wallet can be registered more than once
-  // (e.g. re-announced), which would otherwise list it multiple times.
+  // De-duplicate on name, keeping the latest registration: rebuilding the
+  // Ledger provider registers a new wallet but never unregisters the old one,
+  // which points at a disposed core and never opens the modal.
   const uniqueWallets = useMemo(() => {
     const byName = new Map<string, UiWallet>();
     for (const wallet of wallets) {
-      if (!byName.has(wallet.name)) {
-        byName.set(wallet.name, wallet);
-      }
+      byName.set(wallet.name, wallet);
     }
     return [...byName.values()];
+  }, [wallets]);
+
+  useEffect(() => {
+    console.info("[test-dapp] Wallet Standard wallets", {
+      total: wallets.length,
+      ledger: wallets.filter((wallet) => wallet.name === "Ledger").length,
+      names: wallets.map((wallet) => wallet.name),
+    });
   }, [wallets]);
 
   const connectedWallet = selectedAccount
@@ -150,7 +157,8 @@ interface WalletRowProps {
 }
 
 function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
-  const [selectedAccount, setSelectedAccount] = useSelectedWalletAccount();
+  const [selectedAccount, setSelectedAccount, wallets] =
+    useSelectedWalletAccount();
   const [isConnecting, connect] = useConnect(wallet);
   const [isDisconnecting, disconnect] = useDisconnect(wallet);
 
@@ -163,6 +171,12 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
 
   const handleConnect = useCallback(async () => {
     try {
+      const sameName = wallets.filter(({ name }) => name === wallet.name);
+      console.info("[test-dapp] Connecting Wallet Standard wallet", {
+        name: wallet.name,
+        registrationIndex: sameName.indexOf(wallet),
+        registrationsWithSameName: sameName.length,
+      });
       onLog(`Connecting to ${wallet.name}…`);
       const accounts = await connect();
       const account = accounts[0];
@@ -175,7 +189,7 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
     } catch (err) {
       onError((err as Error)?.message ?? String(err));
     }
-  }, [wallet, connect, setSelectedAccount, onLog, onError]);
+  }, [wallet, wallets, connect, setSelectedAccount, onLog, onError]);
 
   const handleDisconnect = useCallback(async () => {
     try {
