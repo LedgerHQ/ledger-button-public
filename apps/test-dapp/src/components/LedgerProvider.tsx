@@ -23,6 +23,8 @@ let LedgerButtonModule:
   | typeof import("@ledgerhq/ledger-wallet-provider")
   | null = null;
 
+let providerInstanceCounter = 0;
+
 export type WalletTransactionFeature =
   | "send"
   | "receive"
@@ -183,7 +185,18 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         },
       });
 
-      cleanupRef.current = cleanup;
+      providerInstanceCounter += 1;
+      const instance = providerInstanceCounter;
+      console.info("[test-dapp] Ledger provider initialized", {
+        instance,
+        mockServer: Boolean(mockServerToken),
+      });
+      const loggedCleanup = () => {
+        console.info("[test-dapp] Ledger provider cleanup", { instance });
+        cleanup();
+      };
+
+      cleanupRef.current = loggedCleanup;
       setIsInitialized(true);
 
       window.addEventListener(
@@ -192,7 +205,7 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
       );
 
       return () => {
-        cleanup();
+        loggedCleanup();
         window.removeEventListener(
           "eip6963:announceProvider",
           handleAnnounceProvider as EventListener,

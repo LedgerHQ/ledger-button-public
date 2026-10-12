@@ -17,8 +17,8 @@ import {
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
+import { useMockServerContext } from "../components/MockServerProvider";
 import { useKeypairReset } from "../hooks/useKeypairReset";
-import { useMockServer } from "../hooks/useMockServer";
 import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
@@ -36,11 +36,10 @@ export default function Index() {
     selectedProvider,
     setSelectedProvider,
     isInitialized,
-    reinitialize,
     config,
   } = useProviders();
 
-  const mockServer = useMockServer(reinitialize);
+  const mockServer = useMockServerContext();
 
   const { entries: trackingEntries, clearEntries: clearTracking } =
     useTrackingInterceptor();

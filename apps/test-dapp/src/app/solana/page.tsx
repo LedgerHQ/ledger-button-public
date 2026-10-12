@@ -34,6 +34,7 @@ import {
   EventSimulatorBlock,
   MockServerStatusBox,
 } from "../../components";
+import { useMockServerContext } from "../../components/MockServerProvider";
 import {
   SolanaActionsBlock,
   type SolanaCluster,
@@ -55,7 +56,6 @@ import {
 } from "../../components/solana/solanaChainContext";
 import { type SolanaChain } from "../../components/solana/solanaCluster";
 import { useKeypairReset } from "../../hooks/useKeypairReset";
-import { useMockServer } from "../../hooks/useMockServer";
 import { useProviders } from "../../hooks/useProviders";
 
 const SolanaProviders = dynamic(
@@ -92,8 +92,8 @@ interface SolanaPageContentProps {
 function SolanaPageContent({ cluster }: SolanaPageContentProps) {
   // Safe here because this subtree is rendered inside <SolanaProviders>.
   const [selectedAccount] = useSelectedWalletAccount();
-  const { config, reinitialize } = useProviders();
-  const mockServer = useMockServer(reinitialize);
+  const { config } = useProviders();
+  const mockServer = useMockServerContext();
 
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [result, setResult] = useState<string | null>(null);

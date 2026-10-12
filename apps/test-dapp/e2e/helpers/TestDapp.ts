@@ -11,6 +11,11 @@ const IGNORED_BROWSER_LOGS = ["React DevTools", "Lit is in dev mode"];
 
 export type DappRoute = "/" | "/solana";
 
+const DAPP_ROUTE_LABELS: Record<DappRoute, string> = {
+  "/": "EVM",
+  "/solana": "Solana",
+};
+
 /**
  * Page object for the test dApp: the EVM home page and the Solana page.
  */
@@ -51,6 +56,20 @@ export class TestDapp {
 
   async open(route: DappRoute = "/"): Promise<void> {
     await this.page.goto(route);
+    await this.waitForProviderReady();
+  }
+
+  /**
+   * Navigates client-side through the header links, keeping the Ledger
+   * provider and its device session alive, unlike `open()` which reloads the
+   * page.
+   */
+  async navigateTo(route: DappRoute): Promise<void> {
+    await this.page
+      .getByRole("navigation")
+      .getByRole("link", { name: DAPP_ROUTE_LABELS[route], exact: true })
+      .click();
+    await this.page.waitForURL(route);
     await this.waitForProviderReady();
   }
 
