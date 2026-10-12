@@ -18,16 +18,10 @@ import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-e
 import { solanaBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-solana";
 
 let LedgerButtonModule:
-  | typeof import("@ledgerhq/ledger-wallet-provider")
-  | null = null;
+  typeof import("@ledgerhq/ledger-wallet-provider") | null = null;
 
 export type WalletTransactionFeature =
-  | "send"
-  | "receive"
-  | "swap"
-  | "buy"
-  | "earn"
-  | "sell";
+  "send" | "receive" | "swap" | "buy" | "earn" | "sell";
 
 export const ALL_WALLET_FEATURES: WalletTransactionFeature[] = [
   "send",
@@ -62,7 +56,7 @@ export const DEFAULT_CONFIG: LedgerProviderConfig = {
   transactionConfirmationNotification: "tooltip",
 };
 
-export const DEFAULT_TRIAL_API_KEY = "b2bfcc56-3232-4494-8c50-84517428c14d";
+export const DEFAULT_TRIAL_API_KEY = "62caaf73-2089-4046-8aaf-732089004617";
 
 const TRIAL_API_KEY_STORAGE_KEY = "test-dapp:trial-api-key";
 
@@ -170,14 +164,9 @@ export function LedgerProvider({ children }: LedgerProviderProps) {
         dAppIdentifier: configToUse.dAppIdentifier,
         apiKey: configToUse.apiKey,
         loggerLevel: configToUse.logLevel as
-          | "debug"
-          | "info"
-          | "warn"
-          | "error",
+          "debug" | "info" | "warn" | "error",
         environment: configToUse.environment as
-          | "production"
-          | "staging"
-          | "trial",
+          "production" | "staging" | "trial",
         dmkConfig: undefined,
         walletTransactionFeatures: configToUse.walletTransactionFeatures,
         transactionConfirmationNotification:
