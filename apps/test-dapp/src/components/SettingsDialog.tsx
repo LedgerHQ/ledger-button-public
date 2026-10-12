@@ -23,7 +23,9 @@ import { usePathname } from "next/navigation";
 
 import {
   ALL_WALLET_FEATURES,
+  DEFAULT_TRIAL_API_KEY,
   type LedgerProviderConfig,
+  setTrialModeAndReload,
   type TransactionConfirmationNotification,
   useProviders,
   type WalletTransactionFeature,
@@ -86,10 +88,19 @@ export function SettingsDialog() {
   );
 
   const dappSelectValue = isCustomDapp ? "custom" : localConfig.dAppIdentifier;
+  const isTrialApplied = config.environment === "trial";
+  const [isTrialEnabled, setIsTrialEnabled] = useState(isTrialApplied);
+  const [trialApiKey, setTrialApiKey] = useState(
+    isTrialApplied ? config.apiKey : DEFAULT_TRIAL_API_KEY,
+  );
 
   useEffect(() => {
     setLocalConfig(config);
     setLastAppliedConfig(config);
+    setIsTrialEnabled(config.environment === "trial");
+    setTrialApiKey(
+      config.environment === "trial" ? config.apiKey : DEFAULT_TRIAL_API_KEY,
+    );
   }, [config]);
 
   const handleInputChange = useCallback(
@@ -146,16 +157,34 @@ export function SettingsDialog() {
     [],
   );
 
+  const trialChanged =
+    isTrialEnabled !== isTrialApplied ||
+    (isTrialEnabled && trialApiKey.trim() !== config.apiKey);
+
   const handleApply = useCallback(() => {
+    if (trialChanged) {
+      setTrialModeAndReload(isTrialEnabled ? trialApiKey.trim() : null);
+      return;
+    }
     setConfig(localConfig);
     setLastAppliedConfig(localConfig);
     if (isInitialized) {
       reinitialize(localConfig);
     }
-  }, [localConfig, setConfig, isInitialized, reinitialize]);
+  }, [
+    trialChanged,
+    isTrialEnabled,
+    trialApiKey,
+    localConfig,
+    setConfig,
+    isInitialized,
+    reinitialize,
+  ]);
 
   const hasChanges =
+    trialChanged ||
     JSON.stringify(localConfig) !== JSON.stringify(lastAppliedConfig);
+  const trialKeyMissing = isTrialEnabled && trialApiKey.trim() === "";
 
   return (
     <Dialog>
@@ -206,13 +235,15 @@ export function SettingsDialog() {
               )}
             </div>
 
-            <TextInput
-              label="API Key"
-              type="text"
-              value={localConfig.apiKey}
-              onChange={(e) => handleInputChange("apiKey", e.target.value)}
-              placeholder="Enter your API key"
-            />
+            {!isTrialEnabled && (
+              <TextInput
+                label="API Key"
+                type="text"
+                value={localConfig.apiKey}
+                onChange={(e) => handleInputChange("apiKey", e.target.value)}
+                placeholder="Enter your API key"
+              />
+            )}
           </div>
 
           <div className="flex flex-col gap-16">
@@ -279,26 +310,62 @@ export function SettingsDialog() {
               </SelectContent>
             </Select>
 
-            <Select
-              items={ENVIRONMENTS}
-              value={localConfig.environment}
-              onValueChange={(value) => {
-                if (value) {
-                  handleInputChange("environment", value);
-                }
-              }}
+            <button
+              type="button"
+              onClick={() => setIsTrialEnabled((prev) => !prev)}
+              className={`body-2-semi-bold cursor-pointer rounded-lg border px-14 py-8 transition-colors ${
+                isTrialEnabled
+                  ? "border-active bg-muted-transparent text-base"
+                  : "border-muted bg-canvas text-muted"
+              }`}
             >
-              <SelectTrigger label="Environment" />
-              <SelectContent>
-                <SelectList
-                  renderItem={(item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      <SelectItemText>{item.label}</SelectItemText>
-                    </SelectItem>
-                  )}
+              {isTrialEnabled ? "Trial mode: On" : "Trial mode: Off"}
+            </button>
+            {!isTrialEnabled && (
+              <Select
+                items={ENVIRONMENTS}
+                value={localConfig.environment}
+                onValueChange={(value) => {
+                  if (value) {
+                    handleInputChange("environment", value);
+                  }
+                }}
+              >
+                <SelectTrigger label="Environment" />
+                <SelectContent>
+                  <SelectList
+                    renderItem={(item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        <SelectItemText>{item.label}</SelectItemText>
+                      </SelectItem>
+                    )}
+                  />
+                </SelectContent>
+              </Select>
+            )}
+            {isTrialEnabled && (
+              <div className="flex flex-col gap-8">
+                <TextInput
+                  label="Trial API key"
+                  type="text"
+                  value={trialApiKey}
+                  onChange={(e) => setTrialApiKey(e.target.value)}
+                  placeholder="Paste the trial key"
                 />
-              </SelectContent>
-            </Select>
+                <p className="body-4 text-muted">
+                  Generate one{" "}
+                  <a
+                    href="https://connect-dashboard.aws.stg.ldg-tech.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-base underline"
+                  >
+                    here
+                  </a>
+                  .
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="space-y-10">
@@ -392,12 +459,18 @@ export function SettingsDialog() {
         <DialogFooter>
           {hasChanges && <Tag appearance="warning" size="sm" label="Unsaved" />}
           <Button
-            appearance={hasChanges ? "accent" : "gray"}
+            appearance={hasChanges && !trialKeyMissing ? "accent" : "gray"}
             size="md"
             onClick={handleApply}
-            disabled={!hasChanges}
+            disabled={!hasChanges || trialKeyMissing}
           >
-            {hasChanges ? "Apply & Reinitialize" : "No Changes"}
+            {trialKeyMissing
+              ? "Enter a trial API key"
+              : trialChanged
+                ? "Apply & Reload"
+                : hasChanges
+                  ? "Apply & Reinitialize"
+                : "No Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

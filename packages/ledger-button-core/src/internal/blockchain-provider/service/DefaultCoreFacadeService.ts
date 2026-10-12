@@ -221,9 +221,12 @@ export class DefaultCoreFacadeService implements CoreFacadeService {
   }
 
   getSdkConfig(): ProviderSdkConfig {
+    const clearSigningEndpoints = this._config.getClearSigningEndpoints();
+
     return {
       originToken: this._config.originToken,
       dAppIdentifier: this._config.dAppIdentifier,
+      ...(clearSigningEndpoints ? { clearSigningEndpoints } : {}),
     };
   }
 

@@ -54,11 +54,21 @@ export type ProviderDeviceSession = {
 };
 
 /**
+ * Clear Signing and Transaction Check gateway. Set only for the trial
+ * environment; staging and production keep the context-module defaults.
+ */
+export type ClearSigningEndpoints = {
+  calUrl: string;
+  transactionCheckUrl: string;
+};
+
+/**
  * Minimal SDK config a provider needs to build its signer / context module.
  */
 export type ProviderSdkConfig = {
   originToken: string;
   dAppIdentifier: string;
+  clearSigningEndpoints?: ClearSigningEndpoints;
 };
 
 /**

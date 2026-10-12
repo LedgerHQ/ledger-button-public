@@ -7,6 +7,8 @@ import { BuildSolanaContextModule } from "./BuildSolanaContextModule";
 const mocks = vi.hoisted(() => ({
   builderConstructor: vi.fn(),
   setAppSource: vi.fn(),
+  setCalConfig: vi.fn(),
+  setWeb3ChecksConfig: vi.fn(),
   setChain: vi.fn(),
   build: vi.fn(),
 }));
@@ -21,6 +23,14 @@ vi.mock("@ledgerhq/context-module", async (importActual) => {
     }
     setAppSource(appSource: unknown) {
       mocks.setAppSource(appSource);
+      return this;
+    }
+    setCalConfig(calConfig: unknown) {
+      mocks.setCalConfig(calConfig);
+      return this;
+    }
+    setWeb3ChecksConfig(web3ChecksConfig: unknown) {
+      mocks.setWeb3ChecksConfig(web3ChecksConfig);
       return this;
     }
     setChain(chain: unknown) {
@@ -60,7 +70,35 @@ describe("BuildSolanaContextModule", () => {
     });
     expect(mocks.setAppSource).toHaveBeenCalledWith("dapp-identifier");
     expect(mocks.setChain).toHaveBeenCalledWith(ContextModuleChainID.Solana);
+    expect(mocks.setCalConfig).not.toHaveBeenCalled();
+    expect(mocks.setWeb3ChecksConfig).not.toHaveBeenCalled();
     expect(mocks.build).toHaveBeenCalledTimes(1);
     expect(result).toBe(fakeContextModule);
+  });
+
+  it("should point clear signing at the connect gateway when trial endpoints are set", () => {
+    const trialCore = createMockCoreFacade({
+      getSdkConfig: () => ({
+        originToken: "origin-token",
+        dAppIdentifier: "dapp-identifier",
+        clearSigningEndpoints: {
+          calUrl: "https://connect.api.prd.ledger.com/cal/v1",
+          transactionCheckUrl:
+            "https://connect.api.prd.ledger.com/transaction-checks/v3",
+        },
+      }),
+    });
+    const trialUseCase = new BuildSolanaContextModule(trialCore);
+
+    trialUseCase.execute();
+
+    expect(mocks.setCalConfig).toHaveBeenCalledWith({
+      url: "https://connect.api.prd.ledger.com/cal/v1",
+      mode: "prod",
+      branch: "main",
+    });
+    expect(mocks.setWeb3ChecksConfig).toHaveBeenCalledWith({
+      url: "https://connect.api.prd.ledger.com/transaction-checks/v3",
+    });
   });
 });
