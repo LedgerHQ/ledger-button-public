@@ -147,7 +147,7 @@
     "turnOnSync": {
       "title": "",
       "subtitle": "เปิดฟีเจอร์ Ledger Sync เพื่อดำเนินการต่อ",
-      "text": "ฟีเจอร์นี้จำเป็นเพื่อให้สามารถดึงบัญชีของคุณได้อย่างปลอดภัย เมื่อคุณคลิกเพื่อเปิดฟีเจอร์ Ledger Sync ระบบจะนำคุณไปยังแอป Ledger Wallet เพื่อเปิดใช้งานฟีเจอร์ Ledger Sync"
+      "text": "จำเป็นต้องดำเนินการนี้เพื่อดึงข้อมูลบัญชีของคุณอย่างปลอดภัย เมื่อกดเปิดใช้งานฟีเจอร์ Ledger Sync ระบบจะนำคุณไปยังแอป Ledger Wallet เพื่อเริ่มใช้งานฟีเจอร์ดังกล่าว"
     },
     "consentPrompt": {
       "intro": {
@@ -337,27 +337,27 @@
         "cta1": "เพิ่มพื้นที่ว่าง"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "จำเป็นต้องมีการอัปเดต Ledger OS ก่อน",
+        "description": "คุณต้องใช้ Ledger OS เวอร์ชันล่าสุดเพื่อลงนามธุรกรรมนี้",
+        "cta1": "อัปเดต Ledger OS"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
         "title": "ไม่สามารถเปิดฟีเจอร์ Ledger Sync ได้",
-        "description": "การเชื่อมต่อกับแอป Ledger Wallet เพื่อเปิดใช้งานฟีเจอร์ Ledger Sync ล้มเหลว โปรดปิดแท็บนี้, ทำการเปิดแอป Ledger Wallet (เดสก์ท็อปหรือมือถือ) , เปิดใช้งานฟีเจอร์ Ledger Sync และเปิดแท็บอีกครั้ง",
+        "description": "การเชื่อมต่อกับแอป Ledger Wallet เพื่อเปิดใช้งานฟีเจอร์ Ledger Sync ล้มเหลว โปรดปิดแท็บนี้ เปิดแอป Ledger Wallet (เดสก์ท็อปหรือมือถือ) เปิดใช้งานฟีเจอร์ Ledger Sync แล้วเปิดแท็บนี้อีกครั้ง",
         "cta1": "ปิดแท็บนี้",
         "cta2": "ฟีเจอร์ Ledger Sync คืออะไร?"
       },
       "NoCompatibleAccounts": {
         "title": "ไม่พบบัญชีที่รองรับ",
-        "description": "แอป Dapp นี้รองรับเครือข่าย {networks} เหล่านี้ที่คุณยังไม่มีบัญชี โปรดสร้างบัญชีใหม่ในแอป Ledger Wallet",
-        "cta1": "สร้างบัญชีใหม่ในแอป Ledger Wallet",
+        "description": "แอป Dapp นี้รองรับเครือข่ายต่อไปนี้ {networks} ซึ่งคุณไม่มีบัญชีอยู่เลย โปรดสร้างบัญชีใหม่ในแอป Ledger Wallet",
+        "cta1": "สร้างบัญชีใหม่บนแอป Ledger Wallet",
         "cta2": "ใช้อุปกรณ์ Ledger เครื่องอื่น"
       },
       "NoAccountInSync": {
         "title": "ไม่มีบัญชีที่ซิงค์",
-        "description": "ฟีเจอร์ Ledger Sync เปิดใช้งานแล้ว แต่ยังไม่มีบัญชีที่ทำการซิงค์อยู่ โปรดเปิดใช้งานฟีเจอร์ Ledger Sync บนแอป Ledger Wallet และเพิ่มบัญชีอย่างน้อยหนึ่งบัญชี",
+        "description": "เปิดใช้งานฟีเจอร์ Ledger Sync แล้วแต่ไม่มีบัญชีใดได้รับการซิงค์ โปรดเปิดใช้งานฟีเจอร์ Ledger Sync บนแอป Ledger Wallet และเพิ่มบัญชีอย่างน้อยหนึ่งบัญชี",
         "cta1": "ปิด"
       }
     },
