@@ -147,7 +147,7 @@
     "turnOnSync": {
       "title": "",
       "subtitle": "Ledger Syncをオンにして続行する",
-      "text": "これは、アカウントを安全にフェッチするために必要です。「Ledger Syncをオンにする」をクリックすると、Ledger Liveにリダイレクトされ、この機能を有効化できます。"
+      "text": "これは、アカウントを安全にフェッチするために必要です。「Ledger Syncをオンにする」をクリックすると、Ledger Walletにリダイレクトされ、この機能を有効化できます。"
     },
     "consentPrompt": {
       "intro": {
@@ -337,9 +337,9 @@
         "cta1": "空き容量を増やす"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Ledger OSアップデートが必要です",
+        "description": "このトランザクションに署名するには、最新のLedger OSが必要です。",
+        "cta1": "Ledger OSをアップデートする"
       }
     },
     "ledgerSync": {
@@ -352,7 +352,7 @@
       "NoCompatibleAccounts": {
         "title": "互換性のあるアカウントが見つかりません",
         "description": "このDappは次のネットワーク{networks}をサポートしていますが、アカウントを持っていません。Ledger Walletで新しいアカウントを作成してください。",
-        "cta1": "Ledger Walletで新しいアカウントを作成する。",
+        "cta1": "Ledger Walletで新しいアカウントを作成する",
         "cta2": "別のLedgerデバイスを使用"
       },
       "NoAccountInSync": {
