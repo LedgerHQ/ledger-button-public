@@ -337,9 +337,9 @@
         "cta1": "Liberar espacio"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Actualización del Ledger OS requerida",
+        "description": "Necesitas el SO de Ledger más reciente para firmar esta transacción.",
+        "cta1": "Actualizar el Ledger OS"
       }
     },
     "ledgerSync": {
