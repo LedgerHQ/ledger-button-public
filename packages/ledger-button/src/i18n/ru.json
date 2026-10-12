@@ -147,7 +147,7 @@
     "turnOnSync": {
       "title": "",
       "subtitle": "Включите Ledger Sync, чтобы продолжить",
-      "text": "Это нужно, чтобы безопасно получить ваши счета. После нажатия на «Включить Ledger Sync», вы будете перенаправлены в приложение Ledger Wallet для активации функции."
+      "text": "Это нужно, чтобы безопасно отобразить ваши счета. После нажатия на «Turn on Ledger Sync» (Включить Ledger Sync), вы будете перенаправлены в приложение Ledger Wallet для активации функции."
     },
     "consentPrompt": {
       "intro": {
@@ -337,9 +337,9 @@
         "cta1": "Освободить место"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Необходимо обновить Ledger OS",
+        "description": "Чтобы подписать эту транзакцию, вам нужна последняя версия Ledger OS.",
+        "cta1": "Обновить Ledger OS"
       }
     },
     "ledgerSync": {
@@ -351,7 +351,7 @@
       },
       "NoCompatibleAccounts": {
         "title": "Не нашли совместимый счёт",
-        "description": "Это dApp-приложение поддерживает сети {networks}, для которых у вас ещё нет счетов. Пожалуйста, создайте новый счёт в Ledger Wallet",
+        "description": "Это dApp-приложение поддерживает сети {networks}, в которых у вас ещё нет счетов. Пожалуйста, создайте новый счёт в Ledger Wallet",
         "cta1": "Создать счёт в Ledger Wallet",
         "cta2": "Использовать другое устройство Ledger"
       },
