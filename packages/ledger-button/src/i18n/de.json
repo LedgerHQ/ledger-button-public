@@ -337,9 +337,9 @@
         "cta1": "Speicherplatz freigeben"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Ledger OS-Update erforderlich",
+        "description": "Du benötigst das neueste Ledger-Betriebssystem, um diese Transaktion zu signieren.",
+        "cta1": "Ledger OS aktualisieren"
       }
     },
     "ledgerSync": {
@@ -352,7 +352,7 @@
       "NoCompatibleAccounts": {
         "title": "Kein kompatibles Konto gefunden",
         "description": "Diese DApp unterstützt die folgenden Netzwerke {networks}, für die du keine Konten hast. Bitte erstelle ein neues Konto in Ledger Wallet",
-        "cta1": "Erstelle ein neues Konto in Ledger Wallet",
+        "cta1": "Ein neues Konto in Ledger Wallet erstellen",
         "cta2": "Anderes Ledger-Gerät verwenden"
       },
       "NoAccountInSync": {
