@@ -203,9 +203,9 @@
   },
   "tokenList": {
     "categories": {
-      "crypto": "Crypto",
-      "stablecoins": "Stablecoins",
-      "stocks": "Stocks"
+      "crypto": "암호화폐",
+      "stablecoins": "스테이블코인",
+      "stocks": "주식"
     }
   },
   "availableNetworks": {
