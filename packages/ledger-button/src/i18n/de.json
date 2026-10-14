@@ -203,9 +203,9 @@
   },
   "tokenList": {
     "categories": {
-      "crypto": "Crypto",
+      "crypto": "Krypto",
       "stablecoins": "Stablecoins",
-      "stocks": "Stocks"
+      "stocks": "Aktien"
     }
   },
   "availableNetworks": {
