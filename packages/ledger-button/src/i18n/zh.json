@@ -203,9 +203,9 @@
   },
   "tokenList": {
     "categories": {
-      "crypto": "Crypto",
-      "stablecoins": "Stablecoins",
-      "stocks": "Stocks"
+      "crypto": "加密货币",
+      "stablecoins": "稳定币",
+      "stocks": "股票"
     }
   },
   "availableNetworks": {
