@@ -203,9 +203,9 @@
   },
   "tokenList": {
     "categories": {
-      "crypto": "Crypto",
-      "stablecoins": "Stablecoins",
-      "stocks": "Stocks"
+      "crypto": "Kripto",
+      "stablecoins": "Stabil coin'ler",
+      "stocks": "Hisseler"
     }
   },
   "availableNetworks": {
