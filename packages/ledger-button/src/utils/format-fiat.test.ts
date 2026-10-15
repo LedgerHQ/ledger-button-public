@@ -85,6 +85,24 @@ describe("formatTokenBalance", () => {
     });
   });
 
+  describe("grouped input from core", () => {
+    it("keeps balances of 1,000 or more", () => {
+      expect(formatTokenBalance("2,269", "en-US")).toBe("2,269");
+    });
+
+    it("keeps the decimals of a grouped balance", () => {
+      expect(formatTokenBalance("12,345.678", "en-US")).toBe("12,345.678");
+    });
+
+    it("keeps multiple grouping separators", () => {
+      expect(formatTokenBalance("1,234,567.89", "en-US")).toBe("1,234,567.89");
+    });
+
+    it("re-localizes a grouped balance", () => {
+      expect(formatTokenBalance("2,269.5", "fr-FR")).toBe("2\u202f269,5");
+    });
+  });
+
   describe("precision display", () => {
     it("preserves up to 8 decimal places", () => {
       expect(formatTokenBalance("0.12345678", "en-US")).toBe("0.12345678");
