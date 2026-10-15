@@ -29,6 +29,7 @@ export class TokenBalance {
   readonly balance: bigint;
   readonly name: string;
   readonly ticker: string;
+  readonly categories: string[];
 
   constructor(
     ledgerId: string,
@@ -36,12 +37,14 @@ export class TokenBalance {
     balance: bigint,
     name: string,
     ticker: string,
+    categories: string[],
   ) {
     this.ledgerId = ledgerId;
     this.decimals = decimals;
     this.balance = balance;
     this.name = name;
     this.ticker = ticker;
+    this.categories = categories;
   }
 
   get balanceFormatted(): string {

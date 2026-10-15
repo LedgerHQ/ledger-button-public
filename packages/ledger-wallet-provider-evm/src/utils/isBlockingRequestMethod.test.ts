@@ -23,6 +23,7 @@ describe("isBlockingRequestMethod", () => {
     "eth_getBalance",
     "eth_blockNumber",
     "eth_estimateGas",
+    "eth_getTransactionReceipt",
     "wallet_switchEthereumChain",
     "eth_signTypedData",
     "unknown_method",

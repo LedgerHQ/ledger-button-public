@@ -64,6 +64,16 @@
         "description": "Set public package versions to 0.0.0-<tag>-<timestamp> for a snapshot release"
       }
     },
+    "bump-rc": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "{projectRoot}/node_modules/.bin/zx {projectRoot}/cli.cjs bump-rc",
+        "cwd": "{workspaceRoot}"
+      },
+      "metadata": {
+        "description": "Set public package versions to X.Y.Z-rc.<number> for a release candidate"
+      }
+    },
     "pack": {
       "executor": "nx:run-commands",
       "options": {

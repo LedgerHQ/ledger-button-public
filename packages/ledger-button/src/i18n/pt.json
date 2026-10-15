@@ -201,6 +201,13 @@
     "noTokens": "Nenhum token encontrado para esta conta",
     "unknownToken": "Token Desconhecido"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Cripto",
+      "stablecoins": "Stablecoins",
+      "stocks": "Ações"
+    }
+  },
   "availableNetworks": {
     "title": "Redes disponíveis"
   },
@@ -337,9 +344,9 @@
         "cta1": "Liberar espaço"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "É preciso atualizar o Ledger OS",
+        "description": "Você precisa do Ledger OS mais recente para assinar esta transação.",
+        "cta1": "Atualizar Ledger OS"
       }
     },
     "ledgerSync": {
@@ -351,8 +358,8 @@
       },
       "NoCompatibleAccounts": {
         "title": "Nenhuma conta compatível encontrada",
-        "description": "Este DApp é compatível com as seguintes redes: {networks}, para as quais você não tem nenhuma conta. Por favor, crie uma nova conta na Ledger Wallet.",
-        "cta1": "Crie uma nova conta na Ledger Wallet",
+        "description": "Este DApp é compatível com as seguintes redes: {networks}, para as quais você não tem nenhuma conta. Por favor, crie uma nova conta na Ledger Wallet",
+        "cta1": "Criar uma nova conta na Ledger Wallet",
         "cta2": "Use outro dispositivo Ledger"
       },
       "NoAccountInSync": {

@@ -119,6 +119,7 @@ describe("DefaultBalanceService", () => {
         decimals: 18,
         name: "Test Token 1",
         ticker: "TT1",
+        categories: ["stablecoins"],
       };
 
       const mockTokenInfo2 = {
@@ -126,6 +127,7 @@ describe("DefaultBalanceService", () => {
         decimals: 6,
         name: "Test Token 2",
         ticker: "TT2",
+        categories: [],
       };
 
       vi.spyOn(
@@ -165,6 +167,9 @@ describe("DefaultBalanceService", () => {
           BigInt("1000000000000000000000"),
         );
         expect(accountBalance.tokenBalances[0].decimals).toBe(18);
+        expect(accountBalance.tokenBalances[0].categories).toEqual([
+          "stablecoins",
+        ]);
         expect(accountBalance.tokenBalances[1]).toBeInstanceOf(TokenBalance);
         expect(accountBalance.tokenBalances[1].name).toBe("Test Token 2");
         expect(accountBalance.tokenBalances[1].ticker).toBe("TT2");
@@ -172,6 +177,7 @@ describe("DefaultBalanceService", () => {
           BigInt("500000000"),
         );
         expect(accountBalance.tokenBalances[1].decimals).toBe(6);
+        expect(accountBalance.tokenBalances[1].categories).toEqual([]);
       });
     });
 
@@ -198,6 +204,7 @@ describe("DefaultBalanceService", () => {
         decimals: 18,
         name: "Test Token 1",
         ticker: "TT1",
+        categories: [],
       };
 
       vi.spyOn(
@@ -398,6 +405,7 @@ describe("DefaultBalanceService", () => {
         decimals: 6,
         name: "Token 1",
         ticker: "TK1",
+        categories: [],
       };
 
       const mockTokenInfo3 = {
@@ -405,6 +413,7 @@ describe("DefaultBalanceService", () => {
         decimals: 6,
         name: "Token 3",
         ticker: "TK3",
+        categories: [],
       };
 
       vi.spyOn(

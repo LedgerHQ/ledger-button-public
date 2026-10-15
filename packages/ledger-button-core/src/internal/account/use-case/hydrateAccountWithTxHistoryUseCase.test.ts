@@ -222,6 +222,7 @@ describe("HydrateAccountWithTxHistoryUseCase", () => {
             name: "Tether",
             balance: "100000000",
             fiatBalance: undefined,
+            categories: [],
           },
         ],
       });

@@ -60,6 +60,7 @@ describe("calculateTotalFiatValue", () => {
           name: "Tether",
           balance: "500",
           fiatBalance: { value: "500.25", currency: "USD" },
+          categories: [],
         },
         {
           ledgerId: "token-2",
@@ -67,6 +68,7 @@ describe("calculateTotalFiatValue", () => {
           name: "USD Coin",
           balance: "200",
           fiatBalance: { value: "200.50", currency: "USD" },
+          categories: [],
         },
       ],
     });
@@ -86,6 +88,7 @@ describe("calculateTotalFiatValue", () => {
           name: "Tether",
           balance: "100",
           fiatBalance: { value: "100.00", currency: "EUR" },
+          categories: [],
         },
       ],
     });
@@ -116,6 +119,7 @@ describe("calculateTotalFiatValue", () => {
           name: "Tether",
           balance: "0",
           fiatBalance: undefined,
+          categories: [],
         },
       ],
     });
@@ -186,6 +190,7 @@ describe("buildDisplayTokens", () => {
     name: "Tether",
     balance: "50000000",
     fiatBalance: { value: "50.00", currency: "USD" },
+    categories: [],
   };
 
   it("should prepend the native currency when its fiat value is above the threshold", () => {
@@ -201,6 +206,7 @@ describe("buildDisplayTokens", () => {
         name: "ETH",
         balance: "1000000000000000000",
         fiatBalance: { value: "1200.00", currency: "USD" },
+        categories: [],
       },
       usdt,
     ]);
@@ -247,6 +253,7 @@ describe("accountMatchesQuery", () => {
         name: "Tether",
         balance: "1",
         fiatBalance: undefined,
+        categories: [],
       },
     ],
   });

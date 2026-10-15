@@ -30,6 +30,7 @@ export const BROADCASTED_TO_NODE_RPC_METHODS = [
   "eth_getCode",
   "eth_estimateGas",
   "eth_call",
+  "eth_getTransactionReceipt",
 ] as const;
 
 /**
