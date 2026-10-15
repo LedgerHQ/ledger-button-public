@@ -1,3 +1,14 @@
+## 2.0.2 (2026-10-14)
+
+### 🩹 Fixes
+
+- Fix token and native balances of 1,000 or more being truncated at the first grouping separator ([fc8e8204](https://github.com/LedgerHQ/ledger-button/commit/fc8e8204))
+
+### ❤️ Thank You
+
+- Cursor @cursoragent
+- Pierre Vautherin
+
 ## 2.0.1 (2026-10-05)
 
 ### 🩹 Fixes
