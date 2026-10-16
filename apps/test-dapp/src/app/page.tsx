@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
+import { EvmWalletProvider } from "@ledgerhq/ledger-wallet-provider-evm";
 import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
 import { ethers } from "ethers";
 
@@ -22,7 +22,7 @@ import { useKeypairReset } from "../hooks/useKeypairReset";
 import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
-const Provider = LedgerEIP1193Provider;
+const Provider = EvmWalletProvider;
 
 let activityCounter = 0;
 function nextActivityId(): string {
@@ -52,7 +52,6 @@ export default function Index() {
 
   const prevResultRef = useRef<string | null>(null);
   const prevErrorRef = useRef<string | null>(null);
-
 
   useEffect(() => {
     if (result && result !== prevResultRef.current) {

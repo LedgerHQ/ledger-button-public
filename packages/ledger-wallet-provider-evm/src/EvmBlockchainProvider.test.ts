@@ -5,10 +5,10 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { createMockCoreFacade } from "./__mocks__/coreFacadeMock";
 import { EvmBlockchainProvider } from "./EvmBlockchainProvider";
 import { EvmWalletProvider } from "./EvmWalletProvider";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
+import { EvmWalletProviderInjector } from "./EvmWalletProviderInjector";
 
-vi.mock("./LedgerEIP1193Provider", () => ({
-  LedgerEIP1193Provider: vi.fn().mockImplementation(function () {
+vi.mock("./EvmWalletProvider", () => ({
+  EvmWalletProvider: vi.fn().mockImplementation(function () {
     return {
       setSelectedAccount: vi.fn(),
       setNetwork: vi.fn(),
@@ -17,11 +17,11 @@ vi.mock("./LedgerEIP1193Provider", () => ({
   }),
 }));
 
-vi.mock("./EvmWalletProvider", () => ({
-  EvmWalletProvider: vi.fn().mockImplementation(function () {
+vi.mock("./EvmWalletProviderInjector", () => ({
+  EvmWalletProviderInjector: vi.fn().mockImplementation(function () {
     return {
       family: "ethereum",
-      init: vi.fn(() => vi.fn()),
+      inject: vi.fn(() => vi.fn()),
     };
   }),
 }));
@@ -30,9 +30,8 @@ vi.mock("./EvmWalletProvider", () => ({
 // real injectable graph (and decorator metadata) at test time.
 vi.mock("./di/evmProviderModule", async () => {
   const { ContainerModule } = await import("inversify");
-  const { evmProviderModuleTypes } = await import(
-    "./di/evmProviderModuleTypes"
-  );
+  const { evmProviderModuleTypes } =
+    await import("./di/evmProviderModuleTypes");
   return {
     evmProviderModule: () =>
       new ContainerModule(({ bind }) => {
@@ -80,11 +79,11 @@ describe("EvmBlockchainProvider", () => {
     expect(provider.family).toBe("ethereum");
   });
 
-  describe("injectWalletProviders()", () => {
-    test("creates LedgerEIP1193Provider with core, sign deps and a rpcMethods loader", () => {
-      provider.injectWalletProviders();
+  describe("injectWalletProvider()", () => {
+    test("creates EvmWalletProvider with core, sign deps and a rpcMethods loader", () => {
+      provider.injectWalletProvider();
 
-      expect(LedgerEIP1193Provider).toHaveBeenCalledWith(
+      expect(EvmWalletProvider).toHaveBeenCalledWith(
         core,
         expect.objectContaining({
           signTransaction: expect.anything(),
@@ -105,36 +104,36 @@ describe("EvmBlockchainProvider", () => {
         core,
         createMockBlockchainConfig(rpcMethods),
       );
-      provider.injectWalletProviders();
+      provider.injectWalletProvider();
 
-      const loader = vi.mocked(LedgerEIP1193Provider).mock.calls[0]?.[2];
+      const loader = vi.mocked(EvmWalletProvider).mock.calls[0]?.[2];
       await expect(loader?.()).resolves.toEqual(rpcMethods);
     });
 
-    test("constructs EvmWalletProvider with the LedgerEIP1193Provider instance", () => {
-      provider.injectWalletProviders();
+    test("constructs EvmWalletProviderInjector with the EvmWalletProvider instance", () => {
+      provider.injectWalletProvider();
 
-      const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
-      expect(EvmWalletProvider).toHaveBeenCalledWith(inner);
+      const inner = vi.mocked(EvmWalletProvider).mock.results[0]?.value;
+      expect(EvmWalletProviderInjector).toHaveBeenCalledWith(inner);
     });
 
-    test("calls init() on EvmWalletProvider", () => {
-      provider.injectWalletProviders();
+    test("calls inject() on EvmWalletProviderInjector", () => {
+      provider.injectWalletProvider();
 
-      const walletProvider =
-        vi.mocked(EvmWalletProvider).mock.results[0]?.value;
-      expect(walletProvider.init).toHaveBeenCalledOnce();
+      const walletProvider = vi.mocked(EvmWalletProviderInjector).mock
+        .results[0]?.value;
+      expect(walletProvider.inject).toHaveBeenCalledOnce();
     });
   });
 
   describe("setSelectedAccount()", () => {
-    test("is a no-op before injectWalletProviders", () => {
+    test("is a no-op before injectWalletProvider", () => {
       expect(() => provider.setSelectedAccount(undefined)).not.toThrow();
     });
 
-    test("delegates to LedgerEIP1193Provider after injection", () => {
-      provider.injectWalletProviders();
-      const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
+    test("delegates to EvmWalletProvider after injection", () => {
+      provider.injectWalletProvider();
+      const inner = vi.mocked(EvmWalletProvider).mock.results[0]?.value;
 
       provider.setSelectedAccount(undefined);
 
@@ -143,13 +142,13 @@ describe("EvmBlockchainProvider", () => {
   });
 
   describe("setNetwork()", () => {
-    test("is a no-op before injectWalletProviders", () => {
+    test("is a no-op before injectWalletProvider", () => {
       expect(() => provider.setNetwork(137)).not.toThrow();
     });
 
-    test("delegates to LedgerEIP1193Provider after injection", () => {
-      provider.injectWalletProviders();
-      const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
+    test("delegates to EvmWalletProvider after injection", () => {
+      provider.injectWalletProvider();
+      const inner = vi.mocked(EvmWalletProvider).mock.results[0]?.value;
 
       provider.setNetwork(137);
 
@@ -177,13 +176,13 @@ describe("EvmBlockchainProvider", () => {
   });
 
   describe("disconnect()", () => {
-    test("is a no-op before injectWalletProviders", async () => {
+    test("is a no-op before injectWalletProvider", async () => {
       await expect(provider.disconnect()).resolves.toBeUndefined();
     });
 
-    test("delegates to LedgerEIP1193Provider after injection", async () => {
-      provider.injectWalletProviders();
-      const inner = vi.mocked(LedgerEIP1193Provider).mock.results[0]?.value;
+    test("delegates to EvmWalletProvider after injection", async () => {
+      provider.injectWalletProvider();
+      const inner = vi.mocked(EvmWalletProvider).mock.results[0]?.value;
 
       await provider.disconnect();
 

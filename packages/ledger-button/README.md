@@ -225,7 +225,7 @@ initializeLedgerProvider({
 
 A cleanup function to remove the provider and UI components.
 
-### `LedgerEIP1193Provider`
+### `EvmWalletProvider`
 
 The main provider class that implements the EIP-1193 standard.
 
