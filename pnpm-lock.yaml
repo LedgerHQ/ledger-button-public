@@ -782,6 +782,9 @@ importers:
       '@ledgerhq/ledger-wallet-provider-solana':
         specifier: workspace:*
         version: link:../../packages/ledger-wallet-provider-solana
+      '@ledgerhq/ledger-wallet-provider-xrp':
+        specifier: workspace:*
+        version: link:../../packages/ledger-wallet-provider-xrp
       '@next/eslint-plugin-next':
         specifier: 'catalog:'
         version: 16.3.4(eslint@9.32.0(jiti@2.7.0))
