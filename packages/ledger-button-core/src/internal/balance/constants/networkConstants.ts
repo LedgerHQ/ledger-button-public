@@ -66,3 +66,20 @@ export const COIN_SERVICE_CHAIN_ID_TO_NETWORK: Record<string, string> = {
 export function getCoinServiceNetworkName(chainId: string): string | undefined {
   return COIN_SERVICE_CHAIN_ID_TO_NETWORK[chainId];
 }
+
+/**
+ * Ledger currency ids that differ from their CoinService URL slug. Every other
+ * currency id (e.g. `solana`) is used as the slug as-is.
+ */
+const CURRENCY_ID_TO_COIN_SERVICE_SLUG: Record<string, string> = {
+  ripple: "xrp",
+};
+
+/**
+ * Gets the CoinService URL slug for a Ledger currency id
+ * @param currencyId - The Ledger currency id (e.g. `ripple`)
+ * @returns The slug to use in `/v1/{slug}/...` CoinService endpoints
+ */
+export function getCoinServiceCurrencySlug(currencyId: string): string {
+  return CURRENCY_ID_TO_COIN_SERVICE_SLUG[currencyId] ?? currencyId;
+}

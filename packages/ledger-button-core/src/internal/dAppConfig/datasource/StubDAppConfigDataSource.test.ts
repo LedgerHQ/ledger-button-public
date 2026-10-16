@@ -51,4 +51,10 @@ describe("StubDAppConfigDataSource", () => {
       }),
     );
   });
+
+  it("should not include XRP, which is gated by a feature flag", async () => {
+    const dataSource = createDataSource("ledger");
+    const result = await dataSource.getDAppConfig();
+    expect(result.blockchains.map((b) => b.blockchain)).not.toContain("xrp");
+  });
 });

@@ -30,6 +30,7 @@ type RedirectIntent =
 const FAMILY_LABELS: Record<BlockchainFamily, string> = {
   ethereum: "Ethereum",
   solana: "Solana",
+  xrp: "XRP",
 };
 
 const styles = css`
