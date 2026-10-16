@@ -27,14 +27,18 @@ jobs:
       - name: Canonicalize package.json
         run: pnpm nx run ldb-tools:canonicalize
 
-      - name: Build libraries
-        run: pnpm nx run-many -t build --projects=ledger-wallet-provider,ledger-wallet-provider-core,ledger-wallet-provider-evm,ledger-wallet-provider-solana
+      - name: Resolve release projects
+        id: release-projects
+        run: echo "names=$(node packages/ldb-tools/print-release-projects.cjs)" >> "$GITHUB_OUTPUT"
+
+      - name: Build release packages
+        run: pnpm nx run-many -t build --projects=${{ steps.release-projects.outputs.names }}
 
       - name: Check bundle externals
         run: pnpm check:bundles
 
       - name: Prepare dist directory
-        run: pnpm nx run ldb-tools:pack
+        run: pnpm nx run ldb-tools:run -- pack --projects "${{ steps.release-projects.outputs.names }}"
 
       - name: Attest for npmjs.com
         uses: LedgerHQ/actions-security/actions/attest-for-npmsjs-com@attest-npm-dir-support
