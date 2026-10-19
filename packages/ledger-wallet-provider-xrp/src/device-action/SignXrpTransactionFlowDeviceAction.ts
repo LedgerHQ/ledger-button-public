@@ -79,6 +79,14 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       skipOpenApp: true,
     });
 
+    // `buildSignTransactionDA` is called twice, because the bytes to sign
+    // contain `SigningPubKey`, which only GetAddress returns:
+    // 1. Here, to register the sign child machine as an actor. The transaction is not known
+    //    at this point and bytes are empty.
+    // 2. In the Sign state's `input`, once the transaction is serialized, to
+    //    get the sign task bound to the real bytes.
+    // TODO(LBD-895): remove the double call once the signer kit accepts a lazy
+    // `transaction`.
     const signTransactionDA = this.buildSignTransactionDA(
       new Uint8Array(),
       internalApi,
@@ -251,6 +259,11 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
           invoke: {
             id: "signTransaction",
             src: "signTransaction",
+            // Second call of `buildSignTransactionDA`, evaluated when this
+            // state is entered, once PrepareTransaction has serialized the
+            // transaction. Only its `input` is used: `CallTaskInAppDeviceAction`
+            // runs the `task` of the input it is started with, so the actor
+            // registered with empty bytes ends up signing the real ones.
             input: ({ context }) =>
               this.buildSignTransactionDA(
                 context._internalState.serializedTransaction ??
@@ -365,7 +378,10 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
   }): SignXrpTransactionFlowDAInternalState {
     const { address, publicKey } = _internalState;
     if (address === null || publicKey === null) {
-      return { ..._internalState, error: new UnknownDAError("Device address not verified") };
+      return {
+        ..._internalState,
+        error: new UnknownDAError("Device address not verified"),
+      };
     }
     try {
       const unsigned = withSigningFields(input.transaction, address, publicKey);
