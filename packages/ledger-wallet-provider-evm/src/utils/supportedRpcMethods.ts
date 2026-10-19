@@ -1,6 +1,6 @@
 /**
  * RPC methods handled locally by the provider (not broadcasted to Node RPC)
- * These methods have local handlers in LedgerEIP1193Provider
+ * These methods have local handlers in EvmWalletProvider
  */
 export const LOCALLY_HANDLED_RPC_METHODS = [
   // Account and chain queries

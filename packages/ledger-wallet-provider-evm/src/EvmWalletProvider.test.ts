@@ -1,126 +1,406 @@
-/**
- * @vitest-environment jsdom
- */
-import { beforeEach, describe, expect, test, vi } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  Account,
+  type CoreFacade,
+  type SignFlowStatus,
+} from "@ledgerhq/ledger-wallet-provider-core";
+import { firstValueFrom, type Observable, of } from "rxjs";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { EIP1193Provider } from "./model/EIPTypes";
-import { EvmWalletProvider } from "./EvmWalletProvider";
+import { CommonEIP1193ErrorCode } from "./model/EIPTypes";
+import {
+  EvmWalletProvider,
+  type EvmWalletProviderDeps,
+} from "./EvmWalletProvider";
 
-const createMockEip1193Provider = (): EIP1193Provider =>
-  ({}) as EIP1193Provider;
+const EVM_ADDRESS = "0x1234567890123456789012345678901234567890";
+
+const createAccount = (overrides: Partial<Account> = {}): Account =>
+  ({
+    id: "evm:1",
+    currencyId: "ethereum",
+    freshAddress: EVM_ADDRESS,
+    seedIdentifier: "seed",
+    derivationMode: "",
+    index: 0,
+    name: "Ethereum 1",
+    ticker: "ETH",
+    balance: undefined,
+    tokens: [],
+    ...overrides,
+  }) as Account;
+
+const createMockHost = (): {
+  [K in keyof CoreFacade]: ReturnType<typeof vi.fn>;
+} => ({
+  broadcastRPC: vi.fn(),
+  requestAccount: vi.fn(),
+  requestSwitchChain: vi.fn(),
+  disconnect: vi.fn().mockResolvedValue(undefined),
+  getLogger: vi.fn(() => ({
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+  })),
+  getDeviceSession: vi.fn(() => ({
+    dmk: {},
+    sessionId: undefined,
+    isConnected: false,
+  })),
+  getSdkConfig: vi.fn(() => ({
+    originToken: "test-origin-token",
+    dAppIdentifier: "test-dapp",
+  })),
+  isModalOpen: vi.fn(() => false),
+  trackTransactionStarted: vi.fn(),
+  trackTransactionCompleted: vi.fn(),
+  trackTypedMessageStarted: vi.fn(),
+  trackTypedMessageCompleted: vi.fn(),
+  estimateGasFromCoinService: vi.fn().mockResolvedValue(undefined),
+  emitNavigationIntent: vi.fn(),
+  trackBroadcastedTransaction: vi.fn(),
+});
+
+const createMockDeps = (): EvmWalletProviderDeps =>
+  ({
+    signTransaction: { execute: vi.fn() },
+    signRawTransaction: { execute: vi.fn() },
+    signTypedData: { execute: vi.fn() },
+    signPersonalMessage: { execute: vi.fn() },
+  }) as unknown as EvmWalletProviderDeps;
 
 describe("EvmWalletProvider", () => {
-  let provider: EIP1193Provider;
+  let provider: EvmWalletProvider;
+  let host: ReturnType<typeof createMockHost>;
+  let deps: EvmWalletProviderDeps;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    provider = createMockEip1193Provider();
+    host = createMockHost();
+    deps = createMockDeps();
+    provider = new EvmWalletProvider(host as unknown as CoreFacade, deps);
   });
 
-  test('family is "ethereum"', () => {
-    expect(new EvmWalletProvider(provider).family).toBe("ethereum");
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
-  describe("init()", () => {
-    let announced: CustomEvent[];
+  describe("constructor", () => {
+    it("should initialize with correct properties", () => {
+      expect(provider.isLedgerButton).toBe(true);
+      expect(provider.isConnected()).toBe(false);
+    });
+  });
 
-    beforeEach(() => {
-      announced = [];
-      const onAnnounce = (event: Event) => announced.push(event as CustomEvent);
-      window.addEventListener("eip6963:announceProvider", onAnnounce);
-      return () =>
-        window.removeEventListener("eip6963:announceProvider", onAnnounce);
+  describe("on / removeListener", () => {
+    it("should add and invoke a listener for custom events", () => {
+      const listener = vi.fn();
+      provider.on("connect", listener);
+      provider.dispatchEvent(
+        new CustomEvent("connect", { detail: { chainId: "0x1" } }),
+      );
+      expect(listener).toHaveBeenCalledWith({ chainId: "0x1" });
     });
 
-    test("announces an EIP-6963 provider immediately", () => {
-      const teardown = new EvmWalletProvider(provider).init();
+    it("should remove a listener", () => {
+      const listener = vi.fn();
+      provider.on("connect", listener);
+      expect(provider["_listeners"].has(listener as any)).toBe(true);
+      provider.removeListener("connect", listener);
+      expect(provider["_listeners"].has(listener as any)).toBe(false);
+    });
 
-      expect(announced).toHaveLength(1);
-      expect(announced[0]?.detail.info).toMatchObject({
-        name: "Ledger Wallet",
-        rdns: "com.ledger.wallet.provider",
+    it("should return the provider instance for chaining", () => {
+      const listener = vi.fn();
+      expect(provider.on("connect", listener)).toBe(provider);
+      expect(provider.removeListener("connect", listener)).toBe(provider);
+    });
+  });
+
+  describe("connect", () => {
+    it("should set connected status and dispatch a connect event", async () => {
+      const listener = vi.fn();
+      provider.on("connect", listener);
+
+      await provider.connect();
+
+      expect(provider.isConnected()).toBe(true);
+      expect(listener).toHaveBeenCalledWith({ chainId: "0x1" });
+    });
+
+    it("should not connect multiple times", async () => {
+      const listener = vi.fn();
+      provider.on("connect", listener);
+
+      await provider.connect();
+      await provider.connect();
+
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("request", () => {
+    it("should reject a blocking request while another is in flight", async () => {
+      // Hold the first blocking request open via a never-resolving host call.
+      host.requestAccount.mockReturnValue(new Promise(() => undefined));
+      void provider.request({ method: "eth_requestAccounts", params: [] });
+
+      await expect(
+        provider.request({ method: "eth_requestAccounts", params: [] }),
+      ).rejects.toHaveProperty("code", CommonEIP1193ErrorCode.InternalError);
+    });
+
+    it("should reject an unsupported method", async () => {
+      await expect(
+        provider.request({ method: "unsupported_method" as any, params: [] }),
+      ).rejects.toHaveProperty(
+        "code",
+        CommonEIP1193ErrorCode.UnsupportedMethod,
+      );
+    });
+
+    it("should route non-blocking methods to host.broadcastRPC", async () => {
+      const response = { jsonrpc: "2.0", id: 0, result: "0x123" };
+      host.broadcastRPC.mockResolvedValue(response);
+
+      const result = await provider.request({
+        method: "eth_call",
+        params: [],
       });
 
-      teardown();
+      expect(result).toBe(response);
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_call" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
+      );
     });
 
-    test("provider info includes a non-empty UUID string", () => {
-      const teardown = new EvmWalletProvider(provider).init();
+    it("should allow non-blocking methods even when disconnected", async () => {
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: "0x0",
+      });
 
-      expect(announced[0]?.detail.info.uuid).toBeTypeOf("string");
-      expect(announced[0]?.detail.info.uuid).not.toBe("");
+      await provider.request({ method: "eth_getBalance", params: [] });
 
-      teardown();
+      expect(host.broadcastRPC).toHaveBeenCalled();
     });
 
-    test("provider detail is frozen", () => {
-      const teardown = new EvmWalletProvider(provider).init();
-
-      expect(Object.isFrozen(announced[0]?.detail)).toBe(true);
-
-      teardown();
+    it("should reject handler methods when disconnected", async () => {
+      await expect(
+        provider.request({ method: "eth_accounts", params: [] }),
+      ).rejects.toHaveProperty("code", CommonEIP1193ErrorCode.Unauthorized);
     });
 
-    test("announced provider is the EIP-1193 provider passed to the constructor", () => {
-      const teardown = new EvmWalletProvider(provider).init();
+    it("should return the selected account for eth_accounts", async () => {
+      provider.setSelectedAccount(createAccount());
 
-      expect(announced[0]?.detail.provider).toBe(provider);
+      const result = await provider.request({
+        method: "eth_accounts",
+        params: [],
+      });
 
-      teardown();
+      expect(result).toEqual([EVM_ADDRESS]);
     });
 
-    test("re-announces when a dApp requests providers", () => {
-      const teardown = new EvmWalletProvider(provider).init();
-      announced.length = 0;
+    it("should request an account via the host for eth_requestAccounts", async () => {
+      host.requestAccount.mockResolvedValue(createAccount());
 
-      window.dispatchEvent(new Event("eip6963:requestProvider"));
+      const result = await provider.request({
+        method: "eth_requestAccounts",
+        params: [],
+      });
 
-      expect(announced).toHaveLength(1);
-
-      teardown();
+      expect(host.requestAccount).toHaveBeenCalledWith("ethereum");
+      expect(result).toEqual([EVM_ADDRESS]);
     });
 
-    test("stops re-announcing after teardown", () => {
-      const teardown = new EvmWalletProvider(provider).init();
-      teardown();
-      announced.length = 0;
-
-      window.dispatchEvent(new Event("eip6963:requestProvider"));
-
-      expect(announced).toHaveLength(0);
-    });
-
-    test("icon is a dark SVG data URI when prefers-color-scheme is dark", () => {
-      window.matchMedia = vi.fn().mockReturnValue({
-        matches: true,
-      } as MediaQueryList);
-
-      const teardown = new EvmWalletProvider(provider).init();
-      const icon = announced[0]?.detail.info.icon as string;
-
-      expect(icon).toMatch(/^data:image\/svg\+xml;base64,/);
-      // White glyph SVG contains fill:#FFFFFF; black glyph contains fill:#000000
-      expect(atob(icon.replace("data:image/svg+xml;base64,", ""))).toContain(
-        "fill:#FFFFFF",
+    it("replays an error status when the signing UI subscribes after a remount", async () => {
+      const errorStatus: SignFlowStatus = {
+        signType: "personal-sign",
+        status: "error",
+        error: new Error("device disconnected"),
+      };
+      provider.setSelectedAccount(createAccount());
+      vi.mocked(deps.signPersonalMessage.execute).mockReturnValue(
+        of(errorStatus),
       );
 
-      teardown();
+      const pending = provider.request({
+        method: "personal_sign",
+        params: ["0x6869", EVM_ADDRESS],
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const intent = host.emitNavigationIntent.mock.calls[0][0] as {
+        status$: Observable<SignFlowStatus>;
+      };
+      await expect(firstValueFrom(intent.status$)).resolves.toBe(errorStatus);
+
+      globalThis.dispatchEvent(new Event("ledger-provider-close"));
+      await expect(pending).rejects.toHaveProperty(
+        "code",
+        CommonEIP1193ErrorCode.UserRejectedRequest,
+      );
+    });
+  });
+
+  describe("config-driven routing", () => {
+    it("broadcasts a method the dApp config marks as broadcasted (not a static node method)", async () => {
+      const loadRpcMethods = vi.fn().mockResolvedValue({
+        local: [],
+        broadcasted: ["eth_transactionCount"],
+      });
+      const configuredProvider = new EvmWalletProvider(
+        host as unknown as CoreFacade,
+        deps,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 5 });
+
+      await configuredProvider.request({
+        method: "eth_transactionCount" as any,
+        params: [],
+      });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_transactionCount" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
+      );
     });
 
-    test("icon is a light SVG data URI when prefers-color-scheme is not dark", () => {
-      window.matchMedia = vi.fn().mockReturnValue({
-        matches: false,
-      } as MediaQueryList);
-
-      const teardown = new EvmWalletProvider(provider).init();
-      const icon = announced[0]?.detail.info.icon as string;
-
-      expect(icon).toMatch(/^data:image\/svg\+xml;base64,/);
-      expect(atob(icon.replace("data:image/svg+xml;base64,", ""))).toContain(
-        "fill:#000000",
+    it("forces a default-local method to broadcast when config says so", async () => {
+      const loadRpcMethods = vi.fn().mockResolvedValue({
+        local: [],
+        broadcasted: ["eth_chainId"],
+      });
+      const configuredProvider = new EvmWalletProvider(
+        host as unknown as CoreFacade,
+        deps,
+        loadRpcMethods,
       );
+      host.broadcastRPC.mockResolvedValue({
+        jsonrpc: "2.0",
+        id: 0,
+        result: "0x1",
+      });
 
-      teardown();
+      await configuredProvider.request({ method: "eth_chainId", params: [] });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_chainId" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
+      );
+    });
+
+    it("loads the dApp config only once across requests", async () => {
+      const loadRpcMethods = vi
+        .fn()
+        .mockResolvedValue({ local: [], broadcasted: [] });
+      const configuredProvider = new EvmWalletProvider(
+        host as unknown as CoreFacade,
+        deps,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
+
+      await configuredProvider.request({ method: "eth_call", params: [] });
+      await configuredProvider.request({
+        method: "eth_getBalance",
+        params: [],
+      });
+
+      expect(loadRpcMethods).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to static routing when the config loader rejects", async () => {
+      const loadRpcMethods = vi.fn().mockRejectedValue(new Error("boom"));
+      const configuredProvider = new EvmWalletProvider(
+        host as unknown as CoreFacade,
+        deps,
+        loadRpcMethods,
+      );
+      host.broadcastRPC.mockResolvedValue({ jsonrpc: "2.0", id: 0, result: 0 });
+
+      await configuredProvider.request({ method: "eth_call", params: [] });
+
+      expect(host.broadcastRPC).toHaveBeenCalledWith(
+        expect.objectContaining({ method: "eth_call" }),
+        expect.objectContaining({ chainId: expect.any(String) }),
+      );
+    });
+  });
+
+  describe("setSelectedAccount / setNetwork", () => {
+    it("should connect and emit accountsChanged when an account is pushed", () => {
+      const listener = vi.fn();
+      provider.on("accountsChanged", listener);
+
+      provider.setSelectedAccount(createAccount());
+
+      expect(provider.isConnected()).toBe(true);
+      expect(listener).toHaveBeenCalledWith([EVM_ADDRESS]);
+    });
+
+    it("should notify the dApp without calling host.disconnect when undefined is pushed", () => {
+      const listener = vi.fn();
+      provider.on("disconnect", listener);
+      provider.setSelectedAccount(createAccount());
+
+      provider.setSelectedAccount(undefined);
+
+      expect(provider.isConnected()).toBe(false);
+      expect(listener).toHaveBeenCalledOnce();
+      expect(host.disconnect).not.toHaveBeenCalled();
+    });
+
+    it("should emit chainChanged when the network changes", () => {
+      const listener = vi.fn();
+      provider.on("chainChanged", listener);
+
+      provider.setNetwork(137);
+
+      expect(listener).toHaveBeenCalledWith("0x89");
+    });
+  });
+
+  describe("disconnect", () => {
+    it("should not call host.disconnect when already disconnected", async () => {
+      await provider.disconnect();
+      expect(host.disconnect).not.toHaveBeenCalled();
+    });
+
+    it("should call host.disconnect and dispatch a disconnect event when connected", async () => {
+      await provider.connect();
+      const listener = vi.fn();
+      provider.on("disconnect", listener);
+
+      await provider.disconnect();
+
+      expect(host.disconnect).toHaveBeenCalledWith("ethereum");
+      expect(provider.isConnected()).toBe(false);
+      expect(listener.mock.calls[0][0]).toHaveProperty("code", 1000);
+      expect(listener.mock.calls[0][0]).toHaveProperty(
+        "message",
+        "Provider disconnected",
+      );
+    });
+
+    it("should use a custom disconnect code and message", async () => {
+      await provider.connect();
+      const listener = vi.fn();
+      provider.on("disconnect", listener);
+
+      await provider.disconnect(4001, "Custom disconnect message");
+
+      expect(listener.mock.calls[0][0]).toHaveProperty("code", 4001);
+      expect(listener.mock.calls[0][0]).toHaveProperty(
+        "message",
+        "Custom disconnect message",
+      );
     });
   });
 });

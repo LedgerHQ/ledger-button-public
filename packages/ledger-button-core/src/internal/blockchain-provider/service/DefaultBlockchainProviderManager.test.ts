@@ -103,7 +103,7 @@ const createMockContextService = (
 const createMockProvider = (family: "ethereum" | "solana") => ({
   family,
   dappConfig: family === "ethereum" ? evmConfig : solanaConfig,
-  injectWalletProviders: vi.fn(),
+  injectWalletProvider: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
   setSelectedAccount: vi.fn(),
   setNetwork: vi.fn(),
@@ -111,9 +111,7 @@ const createMockProvider = (family: "ethereum" | "solana") => ({
   describeNetwork: vi.fn().mockReturnValue(undefined),
 });
 
-const createMockStorageService = (
-  networkOverrides: BlockchainNetwork[] = [],
-) =>
+const createMockStorageService = (networkOverrides: BlockchainNetwork[] = []) =>
   ({
     getConfigOverrides: vi.fn().mockReturnValue(networkOverrides),
   }) as unknown as StorageService;
@@ -158,11 +156,11 @@ describe("DefaultBlockchainProviderManager", () => {
       expect(solanaCreate).toHaveBeenCalledWith(core, expectedBlockchains);
     });
 
-    it("calls injectWalletProviders on each registered provider", () => {
+    it("calls injectWalletProvider on each registered provider", () => {
       manager.init(core, dappConfig, factories);
 
-      expect(evmProvider.injectWalletProviders).toHaveBeenCalledOnce();
-      expect(solanaProvider.injectWalletProviders).toHaveBeenCalledOnce();
+      expect(evmProvider.injectWalletProvider).toHaveBeenCalledOnce();
+      expect(solanaProvider.injectWalletProvider).toHaveBeenCalledOnce();
     });
 
     it("skips factories that return Left", () => {
@@ -171,8 +169,8 @@ describe("DefaultBlockchainProviderManager", () => {
 
       manager.init(core, dappConfig, factories);
 
-      expect(evmProvider.injectWalletProviders).toHaveBeenCalledOnce();
-      expect(solanaProvider.injectWalletProviders).not.toHaveBeenCalled();
+      expect(evmProvider.injectWalletProvider).toHaveBeenCalledOnce();
+      expect(solanaProvider.injectWalletProvider).not.toHaveBeenCalled();
     });
 
     it("pushes initial context to providers after wiring", () => {
