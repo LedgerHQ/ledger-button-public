@@ -12,12 +12,10 @@
     "@solana/react": "catalog:",
     "@wallet-standard/react": "catalog:",
     "class-variance-authority": "catalog:",
-    "clsx": "^2.1.0",
     "ethers": "catalog:",
     "next": "catalog:",
     "react": "catalog:react19",
-    "react-dom": "catalog:react19",
-    "tailwind-merge": "^2.6.0"
+    "react-dom": "catalog:react19"
   },
   "devDependencies": {
     "@ledgerhq/ledger-wallet-provider": "workspace:*",

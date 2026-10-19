@@ -70,7 +70,7 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
     return (
       <div className="border border-muted rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
-          <div className="size-10 rounded-full bg-warning animate-pulse" />
+          <div className="size-10 rounded-full bg-warning-transparent animate-pulse" />
           <span className="body-2-semi-bold text-muted uppercase tracking-wider">
             Device Mock Server
           </span>
@@ -84,7 +84,7 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
     return (
       <div className="border border-error rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
-          <div className="size-10 rounded-full bg-error" />
+          <div className="size-10 rounded-full bg-error-transparent" />
           <span className="body-2-semi-bold text-muted uppercase tracking-wider">
             Device Mock Server
           </span>
@@ -109,7 +109,7 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
     >
       <div className="flex items-center justify-between mb-14">
         <div className="flex items-center gap-10">
-          <div className="size-10 rounded-full bg-success" />
+          <div className="size-10 rounded-full bg-success-transparent" />
           <span className="body-2-semi-bold text-muted uppercase tracking-wider">
             Device Mock Server
           </span>
