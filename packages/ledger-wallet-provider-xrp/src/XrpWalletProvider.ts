@@ -8,6 +8,7 @@ import { XrpApiError } from "./model/XrpApiError";
 import { isSignedXrpTransactionResult } from "./model/XrpSignedResult";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import { runSignFlow } from "./utils/runSignFlow";
+import { assertSubmitAccepted } from "./utils/xrpSubmitResult";
 import {
   assembleSignedTransaction,
   type SignedXrpTransaction,
@@ -78,15 +79,14 @@ export class XrpWalletProvider implements LedgerXrpApi {
   }
 
   async sign(tx: XrpTransaction): Promise<SignedXrpTransaction> {
-    return this.reportErrors(() => this.signWithDevice(tx));
+    return this.reportErrors(() => this.signWithDevice(structuredClone(tx)));
   }
 
   async signAndSubmit(tx: XrpTransaction): Promise<{ hash: string }> {
     const { tx_blob, hash } = await this.sign(tx);
     return this.reportErrors(async () => {
       // XRPL JSON-RPC `submit` fits CoreFacade.broadcastRPC directly.
-      // TODO: check `engine_result` on the response and map failures to typed errors.
-      await this.core.broadcastRPC(
+      const response = await this.core.broadcastRPC(
         {
           jsonrpc: "2.0",
           id: 1,
@@ -95,6 +95,7 @@ export class XrpWalletProvider implements LedgerXrpApi {
         },
         { name: XRP_FAMILY, chainId: XRP_BACKEND_CHAIN_ID },
       );
+      assertSubmitAccepted(response);
       return { hash };
     });
   }

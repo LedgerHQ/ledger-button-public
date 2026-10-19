@@ -1,4 +1,5 @@
 import type { ProviderAccount } from "@ledgerhq/ledger-wallet-provider-core";
+import { decode } from "ripple-binary-codec";
 import { describe, expect, it, vi } from "vitest";
 
 import {
@@ -7,7 +8,14 @@ import {
 } from "./__mocks__/coreFacadeMock";
 import { XrpApiError } from "./model/XrpApiError";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
+import { runSignFlow } from "./utils/runSignFlow";
+import type { XrpTransaction } from "./utils/xrpTransaction";
 import { XrpWalletProvider } from "./XrpWalletProvider";
+
+vi.mock("./utils/runSignFlow", () => ({ runSignFlow: vi.fn() }));
+
+const PUBLIC_KEY =
+  "03430ce12840c76b40f778c7900dc706cedaf6073947a1437179ef8bd402f871af";
 
 const OTHER_ACCOUNT: ProviderAccount = {
   ...XRP_TEST_ACCOUNT,
@@ -194,6 +202,106 @@ describe("XrpWalletProvider", () => {
       api.setSelectedAccount(XRP_TEST_ACCOUNT);
 
       expect(second).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("sign", () => {
+    it("assembles the blob from the transaction as it was when sign() was called", async () => {
+      const { api } = createApi();
+      api.setSelectedAccount(XRP_TEST_ACCOUNT);
+      const callerTx: XrpTransaction = {
+        TransactionType: "Payment",
+        Destination: OTHER_ACCOUNT.freshAddress,
+        Amount: "1000000",
+        Fee: "10",
+        Sequence: 1,
+      };
+      vi.mocked(runSignFlow).mockImplementation(async () => {
+        callerTx.Amount = "999999999";
+        return {
+          xrpSignature: new Uint8Array([0x30, 0x45, 0x02, 0x21]),
+          signingPubKey: PUBLIC_KEY,
+        };
+      });
+
+      const { tx_blob } = await api.sign(callerTx);
+
+      expect(decode(tx_blob)).toMatchObject({ Amount: "1000000" });
+    });
+  });
+
+  describe("signAndSubmit", () => {
+    const TX: XrpTransaction = {
+      TransactionType: "Payment",
+      Destination: OTHER_ACCOUNT.freshAddress,
+      Amount: "1000000",
+      Fee: "10",
+      Sequence: 1,
+    };
+
+    function createSignedApi(submitResponse: unknown) {
+      const { api, core } = createApi();
+      api.setSelectedAccount(XRP_TEST_ACCOUNT);
+      vi.mocked(runSignFlow).mockResolvedValue({
+        xrpSignature: new Uint8Array([0x30, 0x45, 0x02, 0x21]),
+        signingPubKey: PUBLIC_KEY,
+      });
+      vi.mocked(core.broadcastRPC).mockResolvedValue(submitResponse as never);
+      return { api, core };
+    }
+
+    it("returns the hash when the node accepts the transaction", async () => {
+      const { api } = createSignedApi({
+        jsonrpc: "2.0",
+        id: 1,
+        result: { status: "success", engine_result: "tesSUCCESS" },
+      });
+
+      const { hash } = await api.signAndSubmit(TX);
+
+      expect(hash).toMatch(/^[0-9A-F]{64}$/);
+    });
+
+    it("returns the hash when the node queues the transaction", async () => {
+      const { api } = createSignedApi({
+        jsonrpc: "2.0",
+        id: 1,
+        result: { status: "success", engine_result: "terQUEUED" },
+      });
+
+      await expect(api.signAndSubmit(TX)).resolves.toHaveProperty("hash");
+    });
+
+    it("rejects with SUBMIT_FAILED when the node rejects the transaction", async () => {
+      const { api } = createSignedApi({
+        jsonrpc: "2.0",
+        id: 1,
+        result: {
+          status: "success",
+          engine_result: "tefPAST_SEQ",
+          engine_result_message: "This sequence number has already passed.",
+        },
+      });
+      const onError = vi.fn();
+      api.on("error", onError);
+
+      await expect(api.signAndSubmit(TX)).rejects.toMatchObject({
+        code: "SUBMIT_FAILED",
+        engineResult: "tefPAST_SEQ",
+      });
+      expect(onError).toHaveBeenCalledWith(expect.any(XrpApiError));
+    });
+
+    it("rejects with SUBMIT_FAILED on a JSON-RPC error response", async () => {
+      const { api } = createSignedApi({
+        jsonrpc: "2.0",
+        id: 1,
+        error: { code: -32600, message: "Invalid Request" },
+      });
+
+      await expect(api.signAndSubmit(TX)).rejects.toMatchObject({
+        code: "SUBMIT_FAILED",
+      });
     });
   });
 });
