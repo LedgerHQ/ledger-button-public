@@ -43,16 +43,6 @@ type DAResult<T> = {
   }) => R;
 };
 
-/**
- * Opens the XRP app, reads the address and public key, checks the address
- * against the selected account, then signs.
- *
- * The bytes sent to the device contain `SigningPubKey`, which is only known
- * after GetAddress. The sign child machine is registered once with empty bytes,
- * and the Sign state passes it the input of a factory built from the real
- * bytes: DMK's `CallTaskInAppDeviceAction` runs the task found in its invoke
- * input, not the one it was constructed with.
- */
 export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
   SignXrpTransactionFlowDAOutput,
   SignXrpTransactionFlowDAInput,
@@ -228,9 +218,8 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
               UserInteractionRequired.None,
               SignXrpTransactionFlowDAStep.VERIFY_ADDRESS,
             ),
-            _internalState: ({ context }) => this.verifyAddressMatch(context),
+            _internalState: ({ context }) => this.verifyDeviceAddress(context),
           }),
-          // `after: { 0 }` instead of `always` so entry actions execute before the guard
           after: {
             0: [
               { target: "PrepareTransaction", guard: "hasNoError" },
@@ -245,14 +234,10 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
               UserInteractionRequired.None,
               SignXrpTransactionFlowDAStep.PREPARE_TRANSACTION,
             ),
-            _internalState: ({ context }) =>
-              this.prepareTransaction(context),
+            _internalState: ({ context }) => this.prepareTransaction(context),
           }),
           after: {
-            0: [
-              { target: "Sign", guard: "hasNoError" },
-              { target: "Error" },
-            ],
+            0: [{ target: "Sign", guard: "hasNoError" }, { target: "Error" }],
           },
         },
 
@@ -347,7 +332,7 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
     });
   }
 
-  private verifyAddressMatch({
+  private verifyDeviceAddress({
     _internalState,
     input,
   }: {
@@ -359,6 +344,13 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       return {
         ..._internalState,
         error: new IncorrectSeedError("Address mismatch"),
+      };
+    }
+    // An empty `SigningPubKey` makes the XRP app switch to multi-signing.
+    if (!_internalState.publicKey) {
+      return {
+        ..._internalState,
+        error: new UnknownDAError("The device returned no public key"),
       };
     }
     return _internalState;
@@ -373,10 +365,7 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
   }): SignXrpTransactionFlowDAInternalState {
     const { address, publicKey } = _internalState;
     if (address === null || publicKey === null) {
-      return {
-        ..._internalState,
-        error: new UnknownDAError("No address read from the device"),
-      };
+      return { ..._internalState, error: new UnknownDAError("Device address not verified") };
     }
     try {
       const unsigned = withSigningFields(input.transaction, address, publicKey);

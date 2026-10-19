@@ -220,6 +220,20 @@ describe("SignXrpTransactionFlowDeviceAction", () => {
       }
     });
 
+    it("refuses to sign when the device returns no public key", async () => {
+      setupOpenAppMock();
+      setupGetAddressMock({ address: DEFAULT_ADDRESS, publicKey: "" });
+      setupSignTransactionMock();
+
+      const result = await lastValueFrom(execute());
+
+      expect(result.status).toBe(DeviceActionStatus.Error);
+      if (result.status === DeviceActionStatus.Error) {
+        expect(result.error).toBeInstanceOf(UnknownDAError);
+      }
+      expect(signedTransactionBytes()).toBeUndefined();
+    });
+
     it("names the invalid field when the transaction cannot be serialized", async () => {
       setupHappyPath();
 

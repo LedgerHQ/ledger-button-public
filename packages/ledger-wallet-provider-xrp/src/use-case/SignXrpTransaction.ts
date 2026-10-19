@@ -1,7 +1,6 @@
 import {
   type DeviceActionState,
   DeviceActionStatus,
-  type DeviceManagementKit,
 } from "@ledgerhq/device-management-kit";
 import type {
   BlockchainConfig,
@@ -29,18 +28,12 @@ import { normalizeXrpDeviceError } from "../utils/normalizeXrpDeviceError";
 import type { XrpTransaction } from "../utils/xrpTransaction";
 import { getXrpDerivationPath, XRP_FAMILY } from "../utils/xrpUtils";
 
-type DeviceSession = {
-  readonly dmk: DeviceManagementKit;
-  readonly sessionId: string;
-};
-
 type SignXrpTransactionFlowDAState = DeviceActionState<
   SignXrpTransactionFlowDAOutput,
   SignXrpTransactionFlowDAError,
   SignXrpTransactionFlowDAIntermediateValue
 >;
 
-/** Signs an XRPL transaction with the Ledger XRP app. */
 @injectable()
 export class SignXrpTransaction {
   private readonly logger: ProviderLogger;
@@ -65,31 +58,25 @@ export class SignXrpTransaction {
     }
 
     return waitForDeviceSession(this.core).pipe(
-      switchMap((session) => this.signOnDevice(session, tx, account)),
+      switchMap(({ dmk, sessionId }) => {
+        this.core.trackTransactionStarted(XRP_FAMILY);
+
+        const deviceAction = new SignXrpTransactionFlowDeviceAction({
+          input: {
+            derivationPath: getXrpDerivationPath(account),
+            transaction: tx,
+            expectedAddress: account.freshAddress,
+            openAppInput: createOpenAppConfig(this.blockchainConfig),
+          },
+          inspect: false,
+        });
+
+        return dmk
+          .executeDeviceAction({ sessionId, deviceAction })
+          .observable.pipe(map((state) => this.toSignFlowStatus(state)));
+      }),
       catchError((error) => of(this.toErrorStatus(error))),
     );
-  }
-
-  private signOnDevice(
-    { dmk, sessionId }: DeviceSession,
-    tx: XrpTransaction,
-    account: ProviderAccount,
-  ): Observable<SignFlowStatus> {
-    this.core.trackTransactionStarted(XRP_FAMILY);
-
-    const deviceAction = new SignXrpTransactionFlowDeviceAction({
-      input: {
-        derivationPath: getXrpDerivationPath(account),
-        transaction: tx,
-        expectedAddress: account.freshAddress,
-        openAppInput: createOpenAppConfig(this.blockchainConfig),
-      },
-      inspect: false,
-    });
-
-    return dmk
-      .executeDeviceAction({ sessionId, deviceAction })
-      .observable.pipe(map((state) => this.toSignFlowStatus(state)));
   }
 
   private toSignFlowStatus(
