@@ -105,7 +105,7 @@ export function SolanaConnectionStatus({
     <div className="border border-active rounded-lg p-20 bg-canvas">
       <div className="flex items-center justify-between mb-14">
         <div className="flex items-center gap-10">
-          <div className="size-10 rounded-full bg-success" />
+          <div className="size-10 rounded-full bg-success-transparent" />
           <span className="body-2-semi-bold text-muted uppercase tracking-wider">
             Connected
           </span>
