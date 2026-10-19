@@ -1,29 +1,27 @@
-import { DeviceActionStatus } from "@ledgerhq/device-management-kit";
+import {
+  DeviceActionStatus,
+  UserInteractionRequired,
+} from "@ledgerhq/device-management-kit";
 import {
   AccountNotSelectedError,
-  IncorrectSeedError,
   type SignFlowStatus,
   UserRejectedTransactionError,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { decode } from "ripple-binary-codec";
 import { firstValueFrom, of, toArray } from "rxjs";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import {
   createMockCoreFacade,
   XRP_TEST_ACCOUNT,
   XRP_TEST_BLOCKCHAIN_CONFIG,
 } from "../__mocks__/coreFacadeMock";
+import { SignXrpTransactionFlowDeviceAction } from "../device-action/SignXrpTransactionFlowDeviceAction";
+import { SignXrpTransactionFlowDAStep } from "../device-action/SignXrpTransactionFlowDeviceActionTypes";
 import { SignXrpTransaction } from "./SignXrpTransaction";
 
-const signerMock = vi.hoisted(() => ({
-  getAddress: vi.fn(),
-  signTransaction: vi.fn(),
-}));
-
-vi.mock("@ledgerhq/device-signer-kit-xrp", () => ({
-  SignerXrpBuilder: vi.fn(function () {
-    return { build: () => signerMock };
+vi.mock("../device-action/SignXrpTransactionFlowDeviceAction", () => ({
+  SignXrpTransactionFlowDeviceAction: vi.fn(function (args: unknown) {
+    return { args };
   }),
 }));
 
@@ -38,22 +36,31 @@ const TX = {
   Sequence: 1,
 };
 
-function completed<Output>(output: Output) {
-  return {
-    observable: of({ status: DeviceActionStatus.Completed, output }),
-    cancel: vi.fn(),
-  };
-}
+const SIGN_PENDING_STATE = {
+  status: DeviceActionStatus.Pending,
+  intermediateValue: {
+    requiredUserInteraction: UserInteractionRequired.SignTransaction,
+    step: SignXrpTransactionFlowDAStep.SIGN,
+    signFlowStatus: {
+      signType: "transaction",
+      status: "user-interaction-needed",
+      interaction: UserInteractionRequired.SignTransaction,
+    },
+  },
+};
 
-function failed(error: unknown) {
-  return {
-    observable: of({ status: DeviceActionStatus.Error, error }),
-    cancel: vi.fn(),
-  };
-}
+const COMPLETED_STATE = {
+  status: DeviceActionStatus.Completed,
+  output: { signature: DER_SIGNATURE, signingPubKey: PUBLIC_KEY },
+};
 
-function createUseCase() {
-  const dmk = { executeDeviceAction: vi.fn(() => completed(undefined)) };
+function createUseCase(states: unknown[] = [COMPLETED_STATE]) {
+  const dmk = {
+    executeDeviceAction: vi.fn(() => ({
+      observable: of(...states),
+      cancel: vi.fn(),
+    })),
+  };
   const core = createMockCoreFacade({
     getDeviceSession: vi.fn(() => ({
       dmk: dmk as never,
@@ -68,7 +75,9 @@ function createUseCase() {
   };
 }
 
-function collect(statuses$: ReturnType<SignXrpTransaction["execute"]>) {
+function collect(
+  statuses$: ReturnType<SignXrpTransaction["execute"]>,
+): Promise<SignFlowStatus[]> {
   return firstValueFrom(statuses$.pipe(toArray()));
 }
 
@@ -78,73 +87,58 @@ function lastOf(statuses: SignFlowStatus[]): SignFlowStatus {
 
 describe("SignXrpTransaction", () => {
   beforeEach(() => {
-    signerMock.getAddress.mockReset();
-    signerMock.signTransaction.mockReset();
-    signerMock.getAddress.mockReturnValue(
-      completed({
-        address: XRP_TEST_ACCOUNT.freshAddress,
-        publicKey: PUBLIC_KEY,
-      }),
-    );
-    signerMock.signTransaction.mockReturnValue(completed(DER_SIGNATURE));
+    vi.clearAllMocks();
   });
 
   it("fails without a selected account", async () => {
-    const { useCase } = createUseCase();
+    const { useCase, dmk } = createUseCase();
 
     const statuses = await collect(useCase.execute(TX, undefined));
 
-    expect(lastOf(statuses)).toMatchObject({ status: "error" });
     expect((lastOf(statuses) as { error: unknown }).error).toBeInstanceOf(
       AccountNotSelectedError,
     );
+    expect(dmk.executeDeviceAction).not.toHaveBeenCalled();
   });
 
-  it("signs with the device public key and returns the DER signature", async () => {
-    const { useCase, core } = createUseCase();
-
-    const statuses = await collect(useCase.execute(TX, XRP_TEST_ACCOUNT));
-
-    expect(lastOf(statuses)).toEqual({
-      signType: "transaction",
-      status: "success",
-      data: { xrpSignature: DER_SIGNATURE, signingPubKey: PUBLIC_KEY },
-    });
-    expect(core.trackTransactionStarted).toHaveBeenCalledWith("xrp");
-  });
-
-  it("sends the encoded transaction, with SigningPubKey, to the device", async () => {
-    const { useCase } = createUseCase();
+  it("runs the flow device action for the selected account", async () => {
+    const { useCase, dmk, core } = createUseCase();
 
     await collect(useCase.execute(TX, XRP_TEST_ACCOUNT));
 
-    const [path, bytes, options] = signerMock.signTransaction.mock.calls[0];
-    expect(path).toBe("44'/144'/0'/0/0");
-    expect(options).toEqual({ skipOpenApp: true });
-    expect(decode(Buffer.from(bytes).toString("hex"))).toMatchObject({
-      Account: XRP_TEST_ACCOUNT.freshAddress,
-      SigningPubKey: PUBLIC_KEY.toUpperCase(),
-      Amount: "1000000",
+    expect(SignXrpTransactionFlowDeviceAction as Mock).toHaveBeenCalledWith({
+      input: expect.objectContaining({
+        derivationPath: "44'/144'/0'/0/0",
+        transaction: TX,
+        expectedAddress: XRP_TEST_ACCOUNT.freshAddress,
+      }),
+      inspect: false,
     });
+    expect(dmk.executeDeviceAction).toHaveBeenCalledWith(
+      expect.objectContaining({ sessionId: "session-id" }),
+    );
+    expect(core.trackTransactionStarted).toHaveBeenCalledWith("xrp");
   });
 
-  it("refuses to sign when the device address is not the selected account", async () => {
-    signerMock.getAddress.mockReturnValue(
-      completed({ address: "rSomeoneElse", publicKey: PUBLIC_KEY }),
-    );
-    const { useCase } = createUseCase();
+  it("forwards pending statuses and returns the signature on completion", async () => {
+    const { useCase } = createUseCase([SIGN_PENDING_STATE, COMPLETED_STATE]);
 
     const statuses = await collect(useCase.execute(TX, XRP_TEST_ACCOUNT));
 
-    expect((lastOf(statuses) as { error: unknown }).error).toBeInstanceOf(
-      IncorrectSeedError,
-    );
-    expect(signerMock.signTransaction).not.toHaveBeenCalled();
+    expect(statuses).toEqual([
+      SIGN_PENDING_STATE.intermediateValue.signFlowStatus,
+      {
+        signType: "transaction",
+        status: "success",
+        data: { xrpSignature: DER_SIGNATURE, signingPubKey: PUBLIC_KEY },
+      },
+    ]);
   });
 
   it("maps a rejection on the device to UserRejectedTransactionError", async () => {
-    signerMock.signTransaction.mockReturnValue(failed({ errorCode: "6985" }));
-    const { useCase } = createUseCase();
+    const { useCase } = createUseCase([
+      { status: DeviceActionStatus.Error, error: { errorCode: "6985" } },
+    ]);
 
     const statuses = await collect(useCase.execute(TX, XRP_TEST_ACCOUNT));
 

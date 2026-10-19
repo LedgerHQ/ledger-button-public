@@ -1085,6 +1085,9 @@ importers:
       rxjs:
         specifier: 'catalog:'
         version: 7.8.2
+      xstate:
+        specifier: 'catalog:'
+        version: 5.19.2
     devDependencies:
       '@ledgerhq/ledger-wallet-provider-core':
         specifier: workspace:*

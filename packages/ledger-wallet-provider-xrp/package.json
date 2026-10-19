@@ -23,7 +23,8 @@
     "@ledgerhq/device-management-kit": "catalog:",
     "@ledgerhq/ledger-wallet-provider-core": "workspace:*",
     "purify-ts": "catalog:",
-    "rxjs": "catalog:"
+    "rxjs": "catalog:",
+    "xstate": "catalog:"
   },
   "publishConfig": { "access": "public" },
   "type": "module",

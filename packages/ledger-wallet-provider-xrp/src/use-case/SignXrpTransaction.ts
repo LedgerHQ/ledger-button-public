@@ -1,38 +1,32 @@
 import {
+  type DeviceActionState,
+  DeviceActionStatus,
   type DeviceManagementKit,
-  OpenAppWithDependenciesDeviceAction,
-  UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
-import { SignerXrpBuilder } from "@ledgerhq/device-signer-kit-xrp";
 import type {
   BlockchainConfig,
   CoreFacade,
   ProviderAccount,
   ProviderLogger,
   SignFlowStatus,
-  UserInteractionNeeded,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import {
   AccountNotSelectedError,
   createOpenAppConfig,
-  IncorrectSeedError,
   waitForDeviceSession,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { inject, injectable } from "inversify";
-import { catchError, Observable, of, switchMap } from "rxjs";
+import { catchError, map, Observable, of, switchMap } from "rxjs";
 
+import { SignXrpTransactionFlowDeviceAction } from "../device-action/SignXrpTransactionFlowDeviceAction";
+import type {
+  SignXrpTransactionFlowDAError,
+  SignXrpTransactionFlowDAIntermediateValue,
+  SignXrpTransactionFlowDAOutput,
+} from "../device-action/SignXrpTransactionFlowDeviceActionTypes";
 import { xrpProviderModuleTypes } from "../di/xrpProviderModuleTypes";
-import type { SignedXrpTransactionResult } from "../model/XrpSignedResult";
 import { normalizeXrpDeviceError } from "../utils/normalizeXrpDeviceError";
-import {
-  type DeviceActionExecution,
-  waitForDeviceActionOutput,
-} from "../utils/waitForDeviceActionOutput";
-import {
-  serializeForDevice,
-  withSigningFields,
-  type XrpTransaction,
-} from "../utils/xrpTransaction";
+import type { XrpTransaction } from "../utils/xrpTransaction";
 import { getXrpDerivationPath, XRP_FAMILY } from "../utils/xrpUtils";
 
 type DeviceSession = {
@@ -40,15 +34,13 @@ type DeviceSession = {
   readonly sessionId: string;
 };
 
-/**
- * Signs an XRPL transaction with the Ledger XRP app: opens the app, reads the
- * address and public key, checks the address against the selected account,
- * then signs.
- *
- * It is not a single device action like the Solana one, because the bytes sent
- * to the device contain `SigningPubKey`, which is only known once the address
- * has been read.
- */
+type SignXrpTransactionFlowDAState = DeviceActionState<
+  SignXrpTransactionFlowDAOutput,
+  SignXrpTransactionFlowDAError,
+  SignXrpTransactionFlowDAIntermediateValue
+>;
+
+/** Signs an XRPL transaction with the Ledger XRP app. */
 @injectable()
 export class SignXrpTransaction {
   private readonly logger: ProviderLogger;
@@ -83,90 +75,50 @@ export class SignXrpTransaction {
     tx: XrpTransaction,
     account: ProviderAccount,
   ): Observable<SignFlowStatus> {
-    return new Observable<SignFlowStatus>((subscriber) => {
-      const derivationPath = getXrpDerivationPath(account);
-      const openAppConfig = createOpenAppConfig(this.blockchainConfig);
-      const signer = new SignerXrpBuilder({ dmk, sessionId }).build();
-      let cancelCurrent: () => void = () => undefined;
+    this.core.trackTransactionStarted(XRP_FAMILY);
 
-      const run = <Output>(
-        step: string,
-        execution: DeviceActionExecution<Output>,
-      ): Promise<Output> => {
-        cancelCurrent = execution.cancel;
-        return waitForDeviceActionOutput(execution, (interaction) =>
-          subscriber.next(this.toPendingStatus(step, interaction)),
-        );
-      };
-
-      const signFlow = async (): Promise<SignedXrpTransactionResult> => {
-        this.core.trackTransactionStarted(XRP_FAMILY);
-
-        await run(
-          "open-app",
-          dmk.executeDeviceAction({
-            sessionId,
-            deviceAction: new OpenAppWithDependenciesDeviceAction({
-              input: openAppConfig,
-              inspect: false,
-            }),
-          }),
-        );
-
-        const { address, publicKey } = await run(
-          "get-address",
-          signer.getAddress(derivationPath, { skipOpenApp: true }),
-        );
-        this.assertSameAddress(address, account);
-
-        const unsigned = withSigningFields(tx, address, publicKey);
-        const xrpSignature = await run(
-          "sign",
-          signer.signTransaction(derivationPath, serializeForDevice(unsigned), {
-            skipOpenApp: true,
-          }),
-        );
-
-        return { xrpSignature, signingPubKey: publicKey };
-      };
-
-      signFlow()
-        .then((data) => {
-          subscriber.next({ signType: "transaction", status: "success", data });
-          subscriber.complete();
-        })
-        .catch((error: unknown) => {
-          subscriber.next(this.toErrorStatus(error));
-          subscriber.complete();
-        });
-
-      return () => cancelCurrent();
+    const deviceAction = new SignXrpTransactionFlowDeviceAction({
+      input: {
+        derivationPath: getXrpDerivationPath(account),
+        transaction: tx,
+        expectedAddress: account.freshAddress,
+        openAppInput: createOpenAppConfig(this.blockchainConfig),
+      },
+      inspect: false,
     });
+
+    return dmk
+      .executeDeviceAction({ sessionId, deviceAction })
+      .observable.pipe(map((state) => this.toSignFlowStatus(state)));
   }
 
-  private assertSameAddress(address: string, account: ProviderAccount): void {
-    // XRP addresses are base58 and case-sensitive: compare exactly.
-    if (address !== account.freshAddress) {
-      throw new IncorrectSeedError("Address mismatch");
-    }
-  }
-
-  private toPendingStatus(
-    step: string,
-    interaction: UserInteractionRequired,
+  private toSignFlowStatus(
+    state: SignXrpTransactionFlowDAState,
   ): SignFlowStatus {
-    if (interaction !== UserInteractionRequired.None) {
-      return {
-        signType: "transaction",
-        status: "user-interaction-needed",
-        interaction: interaction as UserInteractionNeeded,
-      };
+    switch (state.status) {
+      case DeviceActionStatus.Pending:
+        return state.intermediateValue.signFlowStatus;
+
+      case DeviceActionStatus.Completed:
+        return {
+          signType: "transaction",
+          status: "success",
+          data: {
+            xrpSignature: state.output.signature,
+            signingPubKey: state.output.signingPubKey,
+          },
+        };
+
+      case DeviceActionStatus.Error:
+        return this.toErrorStatus(state.error);
+
+      default:
+        return {
+          signType: "transaction",
+          status: "debugging",
+          message: `Status: ${state.status}`,
+        };
     }
-    return {
-      signType: "transaction",
-      status: "debugging",
-      message: `Step: ${step}`,
-    };
   }
 
   private toErrorStatus(error: unknown): SignFlowStatus {
