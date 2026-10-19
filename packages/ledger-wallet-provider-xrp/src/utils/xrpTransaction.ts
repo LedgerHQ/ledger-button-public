@@ -32,6 +32,16 @@ export function withSigningFields(
   };
 }
 
+/** Native XRP amount in drops; `undefined` for issued-currency amounts (objects). */
+export function getXrpDropsAmount(tx: XrpTransaction): string | undefined {
+  return typeof tx.Amount === "string" ? tx.Amount : undefined;
+}
+
+/** Empty when the transaction type has no `Destination` (e.g. `AccountSet`). */
+export function getXrpDestination(tx: XrpTransaction): string {
+  return typeof tx.Destination === "string" ? tx.Destination : "";
+}
+
 /**
  * Bytes sent to the signer kit. The XRP app prepends the `STX\0` signing prefix
  * itself, so this is `encode()` and not `encodeForSigning()`.

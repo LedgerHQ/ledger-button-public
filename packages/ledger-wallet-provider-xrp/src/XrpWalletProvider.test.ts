@@ -9,7 +9,10 @@ import {
 import { XrpApiError } from "./model/XrpApiError";
 import type { SignXrpTransaction } from "./use-case/SignXrpTransaction";
 import { runSignFlow } from "./utils/runSignFlow";
-import type { XrpTransaction } from "./utils/xrpTransaction";
+import {
+  serializeForDevice,
+  type XrpTransaction,
+} from "./utils/xrpTransaction";
 import { XrpWalletProvider } from "./XrpWalletProvider";
 
 vi.mock("./utils/runSignFlow", () => ({ runSignFlow: vi.fn() }));
@@ -262,6 +265,52 @@ describe("XrpWalletProvider", () => {
       expect(hash).toMatch(/^[0-9A-F]{64}$/);
     });
 
+    it("registers the pending transaction and reports completion with the signed payload", async () => {
+      const { api, core } = createSignedApi({
+        jsonrpc: "2.0",
+        id: 1,
+        result: { status: "success", engine_result: "tesSUCCESS" },
+      });
+      const signedPayload = serializeForDevice({
+        ...TX,
+        Account: XRP_TEST_ACCOUNT.freshAddress,
+        SigningPubKey: PUBLIC_KEY,
+      });
+
+      const { hash } = await api.signAndSubmit(TX);
+
+      expect(core.trackBroadcastedTransaction).toHaveBeenCalledWith(
+        {
+          signType: "transaction",
+          status: "success",
+          data: expect.objectContaining({
+            hash,
+            rawTransaction: signedPayload,
+          }),
+        },
+        { family: "xrp", value: "1000000" },
+      );
+      expect(core.trackTransactionCompleted).toHaveBeenCalledWith({
+        family: "xrp",
+        transactionHash: hash,
+        unsignedTransaction: signedPayload,
+        recipientAddress: OTHER_ACCOUNT.freshAddress,
+      });
+    });
+
+    it("still returns the hash when tracking throws", async () => {
+      const { api, core } = createSignedApi({
+        jsonrpc: "2.0",
+        id: 1,
+        result: { status: "success", engine_result: "tesSUCCESS" },
+      });
+      vi.mocked(core.trackTransactionCompleted).mockImplementation(() => {
+        throw new Error("tracking down");
+      });
+
+      await expect(api.signAndSubmit(TX)).resolves.toHaveProperty("hash");
+    });
+
     it("returns the hash when the node queues the transaction", async () => {
       const { api } = createSignedApi({
         jsonrpc: "2.0",
@@ -273,7 +322,7 @@ describe("XrpWalletProvider", () => {
     });
 
     it("rejects with SUBMIT_FAILED when the node rejects the transaction", async () => {
-      const { api } = createSignedApi({
+      const { api, core } = createSignedApi({
         jsonrpc: "2.0",
         id: 1,
         result: {
@@ -289,7 +338,10 @@ describe("XrpWalletProvider", () => {
         code: "SUBMIT_FAILED",
         engineResult: "tefPAST_SEQ",
       });
+      expect(onError).toHaveBeenCalledOnce();
       expect(onError).toHaveBeenCalledWith(expect.any(XrpApiError));
+      expect(core.trackTransactionCompleted).not.toHaveBeenCalled();
+      expect(core.trackBroadcastedTransaction).not.toHaveBeenCalled();
     });
 
     it("rejects with SUBMIT_FAILED on a JSON-RPC error response", async () => {

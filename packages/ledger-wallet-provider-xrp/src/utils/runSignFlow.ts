@@ -103,6 +103,9 @@ export function runSignFlow<T>({
       status$: status$.asObservable(),
       retry: () => start(),
       finish: () => {
+        // The modal can call finish() before closing (error-screen cancel), so
+        // an unfinished flow must be rejected here: the close listener is gone.
+        onClose();
         cleanup();
         status$.complete();
       },
