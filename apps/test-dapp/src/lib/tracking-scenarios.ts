@@ -95,6 +95,17 @@ const consentGiven = (ctx: ScenarioContext): EventRequest => ({
 const openSession = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "open_session");
 
+const deviceConnectionSelected = (ctx: ScenarioContext): EventRequest => ({
+  name: "device_connection_selected",
+  type: "device_connection_selected",
+  data: {
+    ...baseData(ctx),
+    event_type: "device_connection_selected",
+    session_id: ctx.sessionId,
+    connection_type: "usb",
+  },
+});
+
 const openLedgerSync = (ctx: ScenarioContext) =>
   sessionEvent(ctx, "open_ledger_sync");
 
@@ -221,10 +232,11 @@ const currencyChanged = (ctx: ScenarioContext): EventRequest => ({
 export const SCENARIOS: Scenario[] = [
   {
     name: "onboarding",
-    description: "Consent > session > ledger sync > onboarding",
+    description: "Consent > session > device > ledger sync > onboarding",
     buildEvents: (ctx) => [
       consentGiven(ctx),
       openSession(ctx),
+      deviceConnectionSelected(ctx),
       openLedgerSync(ctx),
       ledgerSyncActivated(ctx),
       onboarding(ctx),
@@ -291,6 +303,7 @@ export const SCENARIOS: Scenario[] = [
     buildEvents: (ctx) => [
       consentGiven(ctx),
       openSession(ctx),
+      deviceConnectionSelected(ctx),
       openLedgerSync(ctx),
       ledgerSyncActivated(ctx),
       onboarding(ctx),

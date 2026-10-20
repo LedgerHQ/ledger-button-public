@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DeviceConnectionSelectedEventSchema,
   InvoicingTransactionSignedEventSchema,
   MobileRedirectLedgerWalletEventSchema,
   TransactionFlowCompletionEventSchema,
@@ -253,6 +254,44 @@ describe("Event Schema Validation", () => {
 
       const result =
         TransactionFlowCompletionEventSchema.safeParse(invalidEvent);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("DeviceConnectionSelectedEventSchema", () => {
+    const validEvent = {
+      event_id: "e7a32965-2f76-4167-bdf2-302fdbc5eb68",
+      transaction_dapp_id: "1Inch",
+      timestamp_ms: 1770980790515,
+      event_type: "device_connection_selected",
+      session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+      connection_type: "bluetooth",
+    };
+
+    it.each(["bluetooth", "usb"])(
+      "should validate a %s connection event",
+      (connectionType) => {
+        const result = DeviceConnectionSelectedEventSchema.safeParse({
+          ...validEvent,
+          connection_type: connectionType,
+        });
+        expect(result.success).toBe(true);
+      },
+    );
+
+    it("should reject an unknown connection_type", () => {
+      const result = DeviceConnectionSelectedEventSchema.safeParse({
+        ...validEvent,
+        connection_type: "mock",
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("should reject a missing session_id", () => {
+      const { session_id: _sessionId, ...invalidEvent } = validEvent;
+
+      const result =
+        DeviceConnectionSelectedEventSchema.safeParse(invalidEvent);
       expect(result.success).toBe(false);
     });
   });

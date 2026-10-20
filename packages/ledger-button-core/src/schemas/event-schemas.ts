@@ -86,6 +86,12 @@ export const OpenLedgerSyncEventSchema = BaseEventDataSchema.extend({
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
 }).strict();
 
+export const DeviceConnectionSelectedEventSchema = BaseEventDataSchema.extend({
+  event_type: z.literal("device_connection_selected"),
+  session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
+  connection_type: z.enum(["bluetooth", "usb"]),
+}).strict();
+
 export const LedgerSyncActivatedEventSchema = BaseEventDataSchema.extend({
   event_type: z.literal("ledger_sync_activated"),
   session_id: z.string().regex(uuidPattern, "Invalid UUID format"),
@@ -232,6 +238,7 @@ export const EventDataSchema = z.discriminatedUnion("event_type", [
   FloatingButtonClickEventSchema,
   OpenSessionEventSchema,
   OpenLedgerSyncEventSchema,
+  DeviceConnectionSelectedEventSchema,
   LedgerSyncActivatedEventSchema,
   OnboardingEventSchema,
   TransactionFlowInitializationEventSchema,
@@ -257,6 +264,9 @@ export type ConsentGivenEvent = z.infer<typeof ConsentGivenEventSchema>;
 export type ConsentRemovedEvent = z.infer<typeof ConsentRemovedEventSchema>;
 export type OpenSessionEvent = z.infer<typeof OpenSessionEventSchema>;
 export type OpenLedgerSyncEvent = z.infer<typeof OpenLedgerSyncEventSchema>;
+export type DeviceConnectionSelectedEvent = z.infer<
+  typeof DeviceConnectionSelectedEventSchema
+>;
 export type LedgerSyncActivatedEvent = z.infer<
   typeof LedgerSyncActivatedEventSchema
 >;

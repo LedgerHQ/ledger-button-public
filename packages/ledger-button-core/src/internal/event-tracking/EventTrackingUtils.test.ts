@@ -165,6 +165,28 @@ describe("EventTrackingUtils", () => {
       ).toBe("0xc5c0d8123456789012345678901234567890c0d8");
     });
 
+    it.each(["bluetooth", "usb"] as const)(
+      "should validate a correctly formatted device_connection_selected event (%s)",
+      (connectionType) => {
+        const event = EventTrackingUtils.createDeviceConnectionSelectedEvent({
+          dAppId: "test-dapp",
+          sessionId: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          connectionType,
+        });
+
+        const result = EventTrackingUtils.validateEvent(event);
+
+        expect(result.success).toBe(true);
+        expect(result.errors).toBeUndefined();
+        expect(event.type).toBe("device_connection_selected");
+        expect(event.data).toMatchObject({
+          event_type: "device_connection_selected",
+          session_id: "a93f987c-11df-40d7-abe7-cfd2c7be92a2",
+          connection_type: connectionType,
+        });
+      },
+    );
+
     it("should validate a correctly formatted language_changed event", () => {
       const event = EventTrackingUtils.createLanguageChangedEvent({
         dAppId: "test-dapp",

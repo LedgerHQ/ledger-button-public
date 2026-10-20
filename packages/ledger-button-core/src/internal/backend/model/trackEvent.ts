@@ -3,6 +3,7 @@ import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
 export enum EventType {
   ConsentGiven = "consent_given",
   ConsentRemoved = "consent_removed",
+  DeviceConnectionSelected = "device_connection_selected",
   ErrorOccurred = "error_occurred",
   FloatingButtonClick = "floating_button_clicked",
   InvoicingTransactionSigned = "invoicing_transaction_signed",
@@ -58,6 +59,14 @@ export type OpenSessionEventData = BaseEventData & {
 export type OpenLedgerSyncEventData = BaseEventData & {
   event_type: "open_ledger_sync";
   session_id: string;
+};
+
+export type DeviceConnectionType = "bluetooth" | "usb";
+
+export type DeviceConnectionSelectedEventData = BaseEventData & {
+  event_type: "device_connection_selected";
+  session_id: string;
+  connection_type: DeviceConnectionType;
 };
 
 export type LedgerSyncActivatedEventData = BaseEventData & {
@@ -201,6 +210,7 @@ export type CurrencyChangedEventData = BaseEventData & {
 export type EventData =
   | ConsentGivenEventData
   | ConsentRemovedEventData
+  | DeviceConnectionSelectedEventData
   | ErrorOccurredEventData
   | InvoicingTransactionSignedEventData
   | FloatingButtonClickEventData

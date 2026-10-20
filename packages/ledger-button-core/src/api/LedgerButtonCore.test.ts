@@ -31,6 +31,7 @@ vi.mock("../internal/di", () => ({
 
 describe("LedgerButtonCore", () => {
   let trackOpened: { execute: ReturnType<typeof vi.fn> };
+  let trackConnectionSelected: { execute: ReturnType<typeof vi.fn> };
   let trackActivated: { execute: ReturnType<typeof vi.fn> };
   let selectedAccounts: Map<BlockchainFamily, Account>;
   let authResponse: unknown;
@@ -66,6 +67,9 @@ describe("LedgerButtonCore", () => {
 
   const createCore = () => {
     trackOpened = { execute: vi.fn() };
+    trackConnectionSelected = {
+      execute: vi.fn().mockResolvedValue(undefined),
+    };
     trackActivated = { execute: vi.fn().mockResolvedValue(undefined) };
     connectDevice = {
       execute: vi.fn().mockResolvedValue({ sessionId: "new-session" }),
@@ -127,6 +131,10 @@ describe("LedgerButtonCore", () => {
       [deviceModuleTypes.ConnectDeviceUseCase, connectDevice],
       [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
       [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
+      [
+        eventTrackingModuleTypes.TrackDeviceConnectionSelected,
+        trackConnectionSelected,
+      ],
       [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
       [
         blockchainProviderModuleTypes.BlockchainProviderManager,
@@ -340,6 +348,50 @@ describe("LedgerButtonCore", () => {
       expect(
         blockchainProviderManager.setSelectedAccounts,
       ).toHaveBeenCalledWith(new Map());
+    });
+  });
+
+  describe("device connection tracking", () => {
+    it.each(["bluetooth", "usb"] as const)(
+      "tracks the %s connection selection",
+      async (type) => {
+        const core = createCore();
+
+        await core.connectToDevice(type);
+
+        expect(trackConnectionSelected.execute).toHaveBeenCalledWith(type);
+      },
+    );
+
+    it("tracks the selection before the connection attempt", async () => {
+      const core = createCore();
+
+      await core.connectToDevice("usb");
+
+      expect(
+        trackConnectionSelected.execute.mock.invocationCallOrder[0],
+      ).toBeLessThan(connectDevice.execute.mock.invocationCallOrder[0]);
+    });
+
+    it("tracks the selection even when the connection fails", async () => {
+      const core = createCore();
+      connectDevice.execute.mockRejectedValue(new Error("connection failed"));
+
+      await expect(core.connectToDevice("bluetooth")).rejects.toThrow(
+        "connection failed",
+      );
+
+      expect(trackConnectionSelected.execute).toHaveBeenCalledWith(
+        "bluetooth",
+      );
+    });
+
+    it("does not track the mock transport", async () => {
+      const core = createCore();
+
+      await core.connectToDevice("mock");
+
+      expect(trackConnectionSelected.execute).not.toHaveBeenCalled();
     });
   });
 

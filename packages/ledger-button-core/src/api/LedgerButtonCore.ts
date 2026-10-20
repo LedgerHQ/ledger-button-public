@@ -73,6 +73,7 @@ import { createContainer } from "../internal/di";
 import { type ContainerOptions } from "../internal/diTypes";
 import { eventTrackingModuleTypes } from "../internal/event-tracking/di/eventTrackingModuleTypes";
 import { TrackCurrencyChanged } from "../internal/event-tracking/use-case/TrackCurrencyChanged";
+import { TrackDeviceConnectionSelected } from "../internal/event-tracking/use-case/TrackDeviceConnectionSelected";
 import { TrackFloatingButtonClick } from "../internal/event-tracking/use-case/TrackFloatingButtonClick";
 import { TrackLanguageChanged } from "../internal/event-tracking/use-case/TrackLanguageChanged";
 import { TrackLedgerSyncActivated } from "../internal/event-tracking/use-case/TrackLedgerSyncActivated";
@@ -392,6 +393,15 @@ export class LedgerButtonCore {
   // Device methods
   async connectToDevice(type: ConnectionType) {
     this._logger.debug("Connecting to device", { type });
+
+    // Tracked before connecting so failed / abandoned connections still count.
+    if (type === "bluetooth" || type === "usb") {
+      this.container
+        .get<TrackDeviceConnectionSelected>(
+          eventTrackingModuleTypes.TrackDeviceConnectionSelected,
+        )
+        .execute(type);
+    }
 
     await this.waitForPendingDeviceCleanup();
     await this.releaseCurrentDeviceIfNeeded();

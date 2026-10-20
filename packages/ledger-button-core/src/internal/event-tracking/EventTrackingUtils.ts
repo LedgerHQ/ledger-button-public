@@ -9,6 +9,8 @@ import {
   type ConsentGivenEventData,
   type ConsentRemovedEventData,
   type CurrencyChangedEventData,
+  type DeviceConnectionSelectedEventData,
+  type DeviceConnectionType,
   type EventRequest,
   EventType,
   type FloatingButtonClickEventData,
@@ -114,6 +116,25 @@ export class EventTrackingUtils {
     return {
       name: EventType.OpenLedgerSync,
       type: EventType.OpenLedgerSync,
+      data,
+    };
+  }
+
+  static createDeviceConnectionSelectedEvent(
+    params: SessionEventParams & { connectionType: DeviceConnectionType },
+  ): EventRequest {
+    const data: DeviceConnectionSelectedEventData = {
+      event_id: generateUUID(),
+      transaction_dapp_id: params.dAppId,
+      timestamp_ms: Date.now(),
+      event_type: EventType.DeviceConnectionSelected,
+      session_id: params.sessionId,
+      connection_type: params.connectionType,
+    };
+
+    return {
+      name: EventType.DeviceConnectionSelected,
+      type: EventType.DeviceConnectionSelected,
       data,
     };
   }
