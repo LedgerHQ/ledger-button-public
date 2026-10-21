@@ -51,8 +51,6 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    env:
-      LIBRARIES: "@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core,@ledgerhq/ledger-wallet-provider-evm,@ledgerhq/ledger-wallet-provider-solana"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +60,8 @@ jobs:
           playwright: "false"
       - name: Build and measure this branch
         run: |
-          pnpm nx run-many -t build --projects=$LIBRARIES
+          projects=$(node packages/ldb-tools/print-release-projects.cjs)
+          pnpm nx run-many -t build --projects="$projects"
           node tools/scripts/report-bundle-sizes.mjs measure > "$RUNNER_TEMP/head-sizes.json"
       - name: Check bundles keep their dependencies external
         run: |
@@ -74,7 +73,14 @@ jobs:
           git worktree add "$RUNNER_TEMP/base" "origin/$GITHUB_BASE_REF"
           cd "$RUNNER_TEMP/base"
           pnpm install --frozen-lockfile
-          pnpm nx run-many -t build --projects=$LIBRARIES
+          # The base branch may predate the resolver. Fall back to the packages
+          # this workflow used to list by hand.
+          if [ -f packages/ldb-tools/print-release-projects.cjs ]; then
+            projects=$(node packages/ldb-tools/print-release-projects.cjs)
+          else
+            projects="@ledgerhq/ledger-wallet-provider,@ledgerhq/ledger-wallet-provider-core,@ledgerhq/ledger-wallet-provider-evm,@ledgerhq/ledger-wallet-provider-solana"
+          fi
+          pnpm nx run-many -t build --projects="$projects"
           cd "$GITHUB_WORKSPACE"
           node tools/scripts/report-bundle-sizes.mjs measure "$RUNNER_TEMP/base" > "$RUNNER_TEMP/base-sizes.json"
       - name: Post the report
