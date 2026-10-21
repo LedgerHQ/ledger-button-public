@@ -1,6 +1,7 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
 import {
   DeviceActionStatus,
+  DmkResultStatus,
   UnknownDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
@@ -60,12 +61,14 @@ function setupGetAddressMock(
 function setupSignTransactionMock(error?: unknown): void {
   (SignTransactionDeviceActionFactory as Mock).mockImplementation(
     ({ transaction }: { transaction: Uint8Array }) => ({
-      makeStateMachine: vi.fn(() =>
-        makeChildMachine(UserInteractionRequired.SignTransaction, () =>
-          error ? Left(error) : Right(DER_SIGNATURE),
-        ),
-      ),
-      input: { transaction },
+      input: {
+        task: async () =>
+          error
+            ? { status: DmkResultStatus.Error, error }
+            : { status: DmkResultStatus.Success, data: DER_SIGNATURE },
+        // Kept for call-site assertions; the flow only uses `.input.task`.
+        transaction,
+      },
     }),
   );
 }

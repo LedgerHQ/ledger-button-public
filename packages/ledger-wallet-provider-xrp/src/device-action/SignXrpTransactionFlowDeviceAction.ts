@@ -1,6 +1,7 @@
 import {
   type DeviceActionStateMachine,
   type InternalApi,
+  isSuccessDmkResult,
   OpenAppWithDependenciesDeviceAction,
   type StateMachineTypes,
   UnknownDAError,
@@ -18,7 +19,7 @@ import {
   type UserInteractionNeeded,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
-import { assign, setup } from "xstate";
+import { assign, fromPromise, setup } from "xstate";
 
 import { serializeForDevice, withSigningFields } from "../utils/xrpTransaction";
 import {
@@ -79,17 +80,17 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       skipOpenApp: true,
     });
 
-    // `buildSignTransactionDA` is called twice, because the bytes to sign
-    // contain `SigningPubKey`, which only GetAddress returns:
-    // 1. Here, to register the sign child machine as an actor. The transaction is not known
-    //    at this point and bytes are empty.
-    // 2. In the Sign state's `input`, once the transaction is serialized, to
-    //    get the sign task bound to the real bytes.
-    // TODO(LBD-895): remove the double call once the signer kit accepts a lazy
-    // `transaction`.
-    const signTransactionDA = this.buildSignTransactionDA(
-      new Uint8Array(),
-      internalApi,
+    // Built at Sign time (after PrepareTransaction), once SigningPubKey is known.
+    // Runs the factory task directly — app is already open, so we skip nesting
+    // CallTaskInAppDeviceAction (and avoid _execute, which is session-internal).
+    const signTransaction = fromPromise(
+      async ({ input }: { input: { transaction: Uint8Array } }) =>
+        SignTransactionDeviceActionFactory({
+          derivationPath: this.input.derivationPath,
+          transaction: input.transaction,
+          skipOpenApp: true,
+          loggerFactory: this.getLoggerFactory(internalApi),
+        }).input.task(internalApi),
     );
 
     return setup({
@@ -101,7 +102,7 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       actors: {
         openApp: openAppDA.makeStateMachine(internalApi),
         getAddress: getAddressDA.makeStateMachine(internalApi),
-        signTransaction: signTransactionDA.makeStateMachine(internalApi),
+        signTransaction,
       },
       guards: {
         hasNoError: ({ context }) => context._internalState.error === null,
@@ -259,35 +260,26 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
           invoke: {
             id: "signTransaction",
             src: "signTransaction",
-            // Second call of `buildSignTransactionDA`, evaluated when this
-            // state is entered, once PrepareTransaction has serialized the
-            // transaction. Only its `input` is used: `CallTaskInAppDeviceAction`
-            // runs the `task` of the input it is started with, so the actor
-            // registered with empty bytes ends up signing the real ones.
-            input: ({ context }) =>
-              this.buildSignTransactionDA(
+            input: ({ context }) => ({
+              transaction:
                 context._internalState.serializedTransaction ??
-                  new Uint8Array(),
-                internalApi,
-              ).input,
-            onSnapshot: {
-              actions: assign({
-                intermediateValue: ({ event, context }) =>
-                  this.updateIntermediateValue(
-                    event.snapshot.context,
-                    context.intermediateValue,
-                    SignXrpTransactionFlowDAStep.SIGN,
-                  ),
-              }),
-            },
+                new Uint8Array(),
+            }),
             onDone: {
               actions: assign({
-                _internalState: ({ event, context }) =>
-                  this.addResultToInternalState<Uint8Array>(
-                    event.output,
-                    context._internalState,
-                    (state, signature) => ({ ...state, signature }),
-                  ),
+                _internalState: ({ event, context }) => {
+                  const result = event.output;
+                  if (isSuccessDmkResult(result)) {
+                    return {
+                      ...context._internalState,
+                      signature: result.data,
+                    };
+                  }
+                  return {
+                    ...context._internalState,
+                    error: result.error,
+                  };
+                },
               }),
               target: "CheckSignResult",
             },
@@ -313,18 +305,6 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore purify-ts dual-package (ESM/CJS) causes Either to resolve to two incompatible module paths in the IDE TS server; tsc compiles cleanly
       output: ({ context }) => this.buildOutput(context._internalState),
-    });
-  }
-
-  private buildSignTransactionDA(
-    transaction: Uint8Array,
-    internalApi: InternalApi,
-  ) {
-    return SignTransactionDeviceActionFactory({
-      derivationPath: this.input.derivationPath,
-      transaction,
-      skipOpenApp: true,
-      loggerFactory: this.getLoggerFactory(internalApi),
     });
   }
 

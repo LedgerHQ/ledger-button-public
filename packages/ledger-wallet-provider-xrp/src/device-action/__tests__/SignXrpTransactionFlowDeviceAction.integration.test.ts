@@ -38,9 +38,9 @@ type SentCommand = {
 };
 
 /**
- * Runs the real XRP signer kit device actions against a fake transport, to
- * check that the Sign step sends the bytes built after GetAddress rather than
- * the empty placeholder the child machine was registered with.
+ * Runs the real XRP signer kit against a fake transport, to check that the
+ * Sign step (fromPromise → makeStateMachine) sends the bytes built after
+ * GetAddress.
  */
 describe("SignXrpTransactionFlowDeviceAction with the XRP signer kit", () => {
   it("sends the transaction with the device public key to the XRP app", async () => {
