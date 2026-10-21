@@ -45,7 +45,9 @@ jobs:
 
       - name: Resolve release projects
         id: release-projects
-        run: echo "names=$(node packages/ldb-tools/print-release-projects.cjs --projects "$RELEASE_PROJECTS")" >> "$GITHUB_OUTPUT"
+        run: |
+          names=$(node packages/ldb-tools/print-release-projects.cjs --projects "$RELEASE_PROJECTS")
+          echo "names=$names" >> "$GITHUB_OUTPUT"
 
       - name: Bump snapshot versions
         env:

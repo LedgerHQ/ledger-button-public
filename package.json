@@ -19,7 +19,7 @@
     "check:bundles": "node tools/scripts/check-bundle-externals.mjs",
     "analyze": "ANALYZE=1 pnpm nx run-many -t build --projects=$(node packages/ldb-tools/print-release-projects.cjs) --skip-nx-cache",
     "prerelease": "pnpm nx run-many -t build --projects=$(node packages/ldb-tools/print-release-projects.cjs) && pnpm check:bundles",
-    "release": "pnpm nx release version && pnpm nx release changelog"
+    "release": "node packages/ldb-tools/run-release.cjs"
   },
   "private": true,
   "devDependencies": {

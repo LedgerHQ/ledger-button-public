@@ -56,7 +56,9 @@ jobs:
       # -rc.<number> suffix in the runner, so latest is never at risk.
       - name: Resolve release projects
         id: release-projects
-        run: echo "names=$(node packages/ldb-tools/print-release-projects.cjs --projects "$RELEASE_PROJECTS")" >> "$GITHUB_OUTPUT"
+        run: |
+          names=$(node packages/ldb-tools/print-release-projects.cjs --projects "$RELEASE_PROJECTS")
+          echo "names=$names" >> "$GITHUB_OUTPUT"
 
       - name: Set package versions to X.Y.Z-rc.N
         run: pnpm nx run ldb-tools:run -- bump-rc --number "$RC_NUMBER" --projects "${{ steps.release-projects.outputs.names }}"

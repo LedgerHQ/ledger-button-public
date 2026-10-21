@@ -29,7 +29,9 @@ jobs:
 
       - name: Resolve release projects
         id: release-projects
-        run: echo "names=$(node packages/ldb-tools/print-release-projects.cjs)" >> "$GITHUB_OUTPUT"
+        run: |
+          names=$(node packages/ldb-tools/print-release-projects.cjs)
+          echo "names=$names" >> "$GITHUB_OUTPUT"
 
       - name: Build release packages
         run: pnpm nx run-many -t build --projects=${{ steps.release-projects.outputs.names }}
