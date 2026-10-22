@@ -100,10 +100,10 @@ catalog:
   lit: 3.3.3
   lottie-web: ^5.12.2
   motion: ^12.23.6
-  next: 16.3.6
+  next: 16.3.8
   nextra: ^4.6.1
   nextra-theme-docs: ^4.6.1
-  nx: 23.2.0
+  nx: 23.2.1
   pagefind: ^1.5.2
   pako: ^2.0.4
   postcss: 8.5.22
@@ -128,7 +128,7 @@ catalog:
   typescript: 6.0.3
   typescript-eslint: 8.70.0
   verdaccio: ^6.0.5
-  vite: 8.2.2
+  vite: 8.2.4
   vite-plugin-dts: ~5.1.0
   vite-plugin-elm: ^3.0.1
   vitest: ^5.0.0
