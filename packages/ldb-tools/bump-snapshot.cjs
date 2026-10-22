@@ -1,7 +1,11 @@
 #!/usr/bin/env zx
 
 require("zx/globals");
-const { getPublicPackages } = require("./public-packages.cjs");
+const {
+  filterReleaseProjects,
+  loadReleaseProjects,
+  parseProjectSelector,
+} = require("./release-projects.cjs");
 
 const utcTimestamp = () => {
   const iso = new Date().toISOString();
@@ -12,15 +16,19 @@ const utcTimestamp = () => {
  * Set public package versions to 0.0.0-${tag}-${timestamp} (DMK snapshot scheme).
  * Does not commit, tag, or write version plans.
  * @param {string} tag - The snapshot tag (e.g., "develop", "canary")
+ * @param {string | string[] | undefined} projects - Release projects to suffix. Empty means every release group.
  */
-async function bumpSnapshot(tag = "develop") {
+async function bumpSnapshot(tag = "develop", projects) {
   try {
     const snapshotVersion = `0.0.0-${tag}-${utcTimestamp()}`;
 
-    console.log(chalk.blue("📦 Finding all public packages..."));
+    console.log(chalk.blue("📦 Finding release packages..."));
     console.log("");
 
-    const publicPackages = await getPublicPackages();
+    const publicPackages = filterReleaseProjects(
+      loadReleaseProjects(),
+      parseProjectSelector(projects),
+    );
 
     if (publicPackages.length === 0) {
       console.log(chalk.yellow("No public packages found"));
