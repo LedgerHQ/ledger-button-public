@@ -1,7 +1,6 @@
 /* eslint @typescript-eslint/consistent-type-imports: 0 */
 import {
   DeviceActionStatus,
-  DmkResultStatus,
   UnknownDAError,
   UserInteractionRequired,
 } from "@ledgerhq/device-management-kit";
@@ -14,6 +13,7 @@ import { Left, Right } from "purify-ts";
 import { decode } from "ripple-binary-codec";
 import { lastValueFrom, type Observable } from "rxjs";
 import { type Mock } from "vitest";
+import { assign, createMachine } from "xstate";
 
 import { SignXrpTransactionFlowDeviceAction } from "../SignXrpTransactionFlowDeviceAction";
 import { SignXrpTransactionFlowDAStep } from "../SignXrpTransactionFlowDeviceActionTypes";
@@ -58,17 +58,45 @@ function setupGetAddressMock(
   });
 }
 
+let invokedTransaction: Uint8Array | undefined;
+
 function setupSignTransactionMock(error?: unknown): void {
+  invokedTransaction = undefined;
   (SignTransactionDeviceActionFactory as Mock).mockImplementation(
-    ({ transaction }: { transaction: Uint8Array }) => ({
+    (args: {
+      derivationPath: string;
+      transaction?: Uint8Array;
+      skipOpenApp: boolean;
+    }) => ({
       input: {
-        task: async () =>
-          error
-            ? { status: DmkResultStatus.Error, error }
-            : { status: DmkResultStatus.Success, data: DER_SIGNATURE },
-        // Kept for call-site assertions; the flow only uses `.input.task`.
-        transaction,
+        derivationPath: args.derivationPath,
+        transaction: args.transaction ?? new Uint8Array(),
+        skipOpenApp: args.skipOpenApp,
       },
+      makeStateMachine: vi.fn(() =>
+        createMachine({
+          context: ({ input }: { input?: { transaction?: Uint8Array } }) => {
+            if (input?.transaction?.length) {
+              invokedTransaction = input.transaction;
+            }
+            return {};
+          },
+          initial: "pending",
+          states: {
+            pending: {
+              entry: assign({
+                intermediateValue: {
+                  requiredUserInteraction:
+                    UserInteractionRequired.SignTransaction,
+                },
+              }),
+              after: { 0: "done" },
+            },
+            done: { type: "final" as const },
+          },
+          output: () => (error ? Left(error) : Right(DER_SIGNATURE)),
+        }),
+      ),
     }),
   );
 }
@@ -90,8 +118,7 @@ function execute(
 }
 
 function signedTransactionBytes(): Uint8Array | undefined {
-  const calls = (SignTransactionDeviceActionFactory as Mock).mock.calls;
-  return calls.map(([args]) => args.transaction).find((tx) => tx.length > 0);
+  return invokedTransaction;
 }
 
 describe("SignXrpTransactionFlowDeviceAction", () => {

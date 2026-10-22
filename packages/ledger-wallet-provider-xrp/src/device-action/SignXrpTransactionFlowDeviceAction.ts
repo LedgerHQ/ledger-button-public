@@ -1,7 +1,6 @@
 import {
   type DeviceActionStateMachine,
   type InternalApi,
-  isSuccessDmkResult,
   OpenAppWithDependenciesDeviceAction,
   type StateMachineTypes,
   UnknownDAError,
@@ -19,7 +18,7 @@ import {
   type UserInteractionNeeded,
 } from "@ledgerhq/ledger-wallet-provider-core";
 import { Left, Right } from "purify-ts";
-import { assign, fromPromise, setup } from "xstate";
+import { assign, setup } from "xstate";
 
 import { serializeForDevice, withSigningFields } from "../utils/xrpTransaction";
 import {
@@ -80,18 +79,12 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       skipOpenApp: true,
     });
 
-    // Built at Sign time (after PrepareTransaction), once SigningPubKey is known.
-    // Runs the factory task directly — app is already open, so we skip nesting
-    // CallTaskInAppDeviceAction (and avoid _execute, which is session-internal).
-    const signTransaction = fromPromise(
-      async ({ input }: { input: { transaction: Uint8Array } }) =>
-        SignTransactionDeviceActionFactory({
-          derivationPath: this.input.derivationPath,
-          transaction: input.transaction,
-          skipOpenApp: true,
-          loggerFactory: this.getLoggerFactory(internalApi),
-        }).input.task(internalApi),
-    );
+    // Transaction bytes are passed later, on the Sign invoke input.
+    const signTransactionDA = SignTransactionDeviceActionFactory({
+      derivationPath: this.input.derivationPath,
+      skipOpenApp: true,
+      loggerFactory: this.getLoggerFactory(internalApi),
+    });
 
     return setup({
       types: {
@@ -101,8 +94,12 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
       },
       actors: {
         openApp: openAppDA.makeStateMachine(internalApi),
-        getAddress: getAddressDA.makeStateMachine(internalApi),
-        signTransaction,
+        getAddress: getAddressDA.makeStateMachine(
+          this.signerInternalApi(internalApi),
+        ),
+        signTransaction: signTransactionDA.makeStateMachine(
+          this.signerInternalApi(internalApi),
+        ),
       },
       guards: {
         hasNoError: ({ context }) => context._internalState.error === null,
@@ -261,25 +258,32 @@ export class SignXrpTransactionFlowDeviceAction extends XStateDeviceAction<
             id: "signTransaction",
             src: "signTransaction",
             input: ({ context }) => ({
+              ...signTransactionDA.input,
               transaction:
                 context._internalState.serializedTransaction ??
                 new Uint8Array(),
             }),
+            onSnapshot: {
+              actions: assign({
+                intermediateValue: ({ event, context }) =>
+                  this.updateIntermediateValue(
+                    event.snapshot.context,
+                    context.intermediateValue,
+                    SignXrpTransactionFlowDAStep.SIGN,
+                  ),
+              }),
+            },
             onDone: {
               actions: assign({
-                _internalState: ({ event, context }) => {
-                  const result = event.output;
-                  if (isSuccessDmkResult(result)) {
-                    return {
-                      ...context._internalState,
-                      signature: result.data,
-                    };
-                  }
-                  return {
-                    ...context._internalState,
-                    error: result.error,
-                  };
-                },
+                _internalState: ({ event, context }) =>
+                  this.addResultToInternalState(
+                    event.output,
+                    context._internalState,
+                    (state, signature) => ({
+                      ...state,
+                      signature,
+                    }),
+                  ),
               }),
               target: "CheckSignResult",
             },
