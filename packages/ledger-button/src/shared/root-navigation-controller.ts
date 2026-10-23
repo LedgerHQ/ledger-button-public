@@ -53,6 +53,7 @@ export class RootNavigationController implements ReactiveController {
 
   private hasTrackingConsent?: boolean;
   private welcomeScreenCompleted = false;
+  private isGeoBlocked = false;
   private contextSubscription?: Subscription;
   private readonly onLanguageChange = () => {
     this.host.requestUpdate();
@@ -79,9 +80,14 @@ export class RootNavigationController implements ReactiveController {
     this.contextSubscription = this.core
       .observeContext()
       .subscribe((context) => {
+        const becameGeoBlocked = context.isGeoBlocked && !this.isGeoBlocked;
+        this.isGeoBlocked = context.isGeoBlocked;
         this.hasTrackingConsent = context.hasTrackingConsent;
         this.welcomeScreenCompleted = context.welcomeScreenCompleted;
         this.connectedDevice = context.connectedDevice;
+        if (becameGeoBlocked) {
+          this.navigation.navigateTo(this.destinations.geoBlock);
+        }
         this.host.requestUpdate();
       });
   }
@@ -146,6 +152,11 @@ export class RootNavigationController implements ReactiveController {
   }
 
   async computeInitialState(family?: BlockchainFamily) {
+    if (this.isGeoBlocked) {
+      this.navigation.navigateTo(this.destinations.geoBlock);
+      return;
+    }
+
     // For a family-specific request, only that family's account counts as
     // "already connected"; otherwise fall back to the active selection.
     const selectedAccount = family
@@ -211,6 +222,11 @@ export class RootNavigationController implements ReactiveController {
     params?: NavigationIntentParams,
   ) {
     this.params = params ?? undefined;
+
+    if (this.isGeoBlocked) {
+      this.navigation.navigateTo(this.destinations.geoBlock);
+      return;
+    }
 
     switch (route) {
       case "selectAccount": {

@@ -51,6 +51,7 @@ function createContext(selected?: Account): ButtonCoreContext {
     hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: "USD",
+    isGeoBlocked: false,
   };
 }
 

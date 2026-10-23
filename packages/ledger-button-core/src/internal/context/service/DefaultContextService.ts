@@ -28,6 +28,7 @@ export class DefaultContextService implements ContextService {
     hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+    isGeoBlocked: false,
   };
 
   private readonly logger: LoggerPublisher;
@@ -121,6 +122,9 @@ export class DefaultContextService implements ContextService {
         break;
       case "developer_mode_enabled":
         this.context.hasDeveloperMode = true;
+        break;
+      case "geo_blocked":
+        this.context.isGeoBlocked = true;
         break;
     }
 

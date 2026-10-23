@@ -2,7 +2,10 @@
  * @vitest-environment jsdom
  */
 
-import type { Account } from "@ledgerhq/ledger-wallet-provider-core";
+import type {
+  Account,
+  ButtonCoreContext,
+} from "@ledgerhq/ledger-wallet-provider-core";
 import { Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -36,6 +39,7 @@ vi.mock("./routes", () => {
       mobileOnboarding: make("mobile-onboarding"),
       signingFlow: make("signing-flow"),
       fetchAccounts: make("fetch-accounts"),
+      geoBlock: make("geoBlock"),
     }),
     resolveCanGoBack: () => false,
   };
@@ -50,6 +54,9 @@ const ethAccount = {
   currencyId: "ethereum",
 } as unknown as Account;
 const solAccount = { currencyId: "solana" } as Account;
+
+const createContext = (isGeoBlocked: boolean) =>
+  ({ isGeoBlocked }) as ButtonCoreContext;
 
 describe("RootNavigationController active-account accessors", () => {
   let host: NavigationHost;
@@ -289,6 +296,85 @@ describe("RootNavigationController selectAccount navigation", () => {
       expect(navigateToSpy).toHaveBeenCalledWith(
         expect.objectContaining({ name: "onboarding-flow" }),
       ),
+    );
+  });
+});
+
+describe("RootNavigationController geo-block", () => {
+  let contextSubject: Subject<ButtonCoreContext>;
+  let controller: RootNavigationController;
+
+  const navigateTo = () =>
+    controller.navigation.navigateTo as ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
+    contextSubject = new Subject<ButtonCoreContext>();
+
+    const host = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+      closeModal: vi.fn(),
+    } as unknown as NavigationHost;
+
+    const core = {
+      getActiveSelectedAccount: vi.fn().mockReturnValue(ethAccount),
+      getSelectedAccount: vi.fn().mockReturnValue(ethAccount),
+      isMobile: vi.fn().mockReturnValue(false),
+      getConnectedDevice: vi.fn(),
+      observeContext: vi.fn(() => contextSubject),
+    } as unknown as CoreContext;
+
+    controller = new RootNavigationController(
+      host,
+      core,
+      {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      } as unknown as LanguageContext,
+      document.createElement("div"),
+    );
+    controller.hostConnected();
+    await vi.waitFor(() => expect(navigateTo()).toHaveBeenCalled());
+    navigateTo().mockClear();
+  });
+
+  it("opens the geo-block screen as soon as the user becomes geo-blocked", () => {
+    contextSubject.next(createContext(true));
+
+    expect(navigateTo()).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "geoBlock" }),
+    );
+  });
+
+  it("does not navigate when the user is not geo-blocked", () => {
+    contextSubject.next(createContext(false));
+
+    expect(navigateTo()).not.toHaveBeenCalled();
+  });
+
+  it("opens the geo-block screen instead of the initial state", async () => {
+    contextSubject.next(createContext(true));
+    navigateTo().mockClear();
+
+    await controller.computeInitialState();
+
+    expect(navigateTo()).toHaveBeenCalledTimes(1);
+    expect(navigateTo()).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "geoBlock" }),
+    );
+  });
+
+  it("opens the geo-block screen for any navigation intent", () => {
+    contextSubject.next(createContext(true));
+    navigateTo().mockClear();
+
+    controller.navigationIntent("signTransaction", undefined);
+
+    expect(navigateTo()).toHaveBeenCalledTimes(1);
+    expect(navigateTo()).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "geoBlock" }),
     );
   });
 });

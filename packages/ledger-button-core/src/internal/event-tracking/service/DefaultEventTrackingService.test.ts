@@ -64,6 +64,7 @@ describe("DefaultEventTrackingService", () => {
     hasDeveloperMode: false,
     isMobilePlatform: false,
     preferredFiatCurrency: DEFAULT_FIAT_CURRENCY,
+    isGeoBlocked: false,
     ...overrides,
   });
 

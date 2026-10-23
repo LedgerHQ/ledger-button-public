@@ -1,4 +1,9 @@
 {
+  "geoBlock": {
+    "title": "Location unavailable",
+    "description": "Ledger Wallet is not available in this location.",
+    "learnMore": "Learn more"
+  },
   "common": {
     "connect": "Connect",
     "loading": "Loading...",
