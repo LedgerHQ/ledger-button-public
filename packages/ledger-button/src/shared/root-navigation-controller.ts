@@ -152,8 +152,7 @@ export class RootNavigationController implements ReactiveController {
   }
 
   async computeInitialState(family?: BlockchainFamily) {
-    if (this.isGeoBlocked) {
-      this.navigation.navigateTo(this.destinations.geoBlock);
+    if (this.navigateToGeoBlockWhenBlocked()) {
       return;
     }
 
@@ -163,6 +162,12 @@ export class RootNavigationController implements ReactiveController {
       ? this.core.getSelectedAccount(family)
       : await this.core.getActiveSelectedAccount();
 
+    // The context may have flagged the user as geo-blocked while the account
+    // lookup was pending: the block screen must not be overwritten.
+    if (this.navigateToGeoBlockWhenBlocked()) {
+      return;
+    }
+
     if (!selectedAccount) {
       this.navigation.navigateTo(this.onboardingDestination);
       return;
@@ -170,6 +175,15 @@ export class RootNavigationController implements ReactiveController {
       this.navigation.navigateTo(this.destinations.home);
       return;
     }
+  }
+
+  private navigateToGeoBlockWhenBlocked(): boolean {
+    if (!this.isGeoBlocked) {
+      return false;
+    }
+
+    this.navigation.navigateTo(this.destinations.geoBlock);
+    return true;
   }
 
   private get onboardingDestination(): Destination {
@@ -223,8 +237,7 @@ export class RootNavigationController implements ReactiveController {
   ) {
     this.params = params ?? undefined;
 
-    if (this.isGeoBlocked) {
-      this.navigation.navigateTo(this.destinations.geoBlock);
+    if (this.navigateToGeoBlockWhenBlocked()) {
       return;
     }
 

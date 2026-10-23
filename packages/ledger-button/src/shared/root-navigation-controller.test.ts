@@ -6,7 +6,7 @@ import type {
   Account,
   ButtonCoreContext,
 } from "@ledgerhq/ledger-wallet-provider-core";
-import { Subject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { CoreContext } from "../context/core-context";
@@ -374,6 +374,50 @@ describe("RootNavigationController geo-block", () => {
 
     expect(navigateTo()).toHaveBeenCalledTimes(1);
     expect(navigateTo()).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "geoBlock" }),
+    );
+  });
+});
+
+describe("RootNavigationController geo-block at mount", () => {
+  it("keeps the geo-block screen when the context is already blocked and the account lookup resolves afterwards", async () => {
+    const contextSubject = new BehaviorSubject<ButtonCoreContext>(
+      createContext(true),
+    );
+    const host = {
+      addController: vi.fn(),
+      removeController: vi.fn(),
+      requestUpdate: vi.fn(),
+      updateComplete: Promise.resolve(true),
+      closeModal: vi.fn(),
+    } as unknown as NavigationHost;
+    const core = {
+      getActiveSelectedAccount: vi.fn().mockResolvedValue(undefined),
+      getSelectedAccount: vi.fn(),
+      isMobile: vi.fn().mockReturnValue(false),
+      getConnectedDevice: vi.fn(),
+      observeContext: vi.fn(() => contextSubject),
+    } as unknown as CoreContext;
+    const controller = new RootNavigationController(
+      host,
+      core,
+      {
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      } as unknown as LanguageContext,
+      document.createElement("div"),
+    );
+
+    controller.hostConnected();
+    await vi.waitFor(() =>
+      expect(core.getActiveSelectedAccount).toHaveBeenCalled(),
+    );
+    await new Promise((resolve) => setTimeout(resolve));
+
+    const navigateTo = controller.navigation.navigateTo as ReturnType<
+      typeof vi.fn
+    >;
+    expect(navigateTo.mock.calls.at(-1)?.[0]).toEqual(
       expect.objectContaining({ name: "geoBlock" }),
     );
   });
