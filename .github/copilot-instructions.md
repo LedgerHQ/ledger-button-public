@@ -14,14 +14,14 @@ Ledger Button is a TypeScript SDK (Nx + pnpm monorepo: `packages/*`, `apps/*`) t
 
 - Explicit types on function parameters and return types. No `any`: use `unknown` and narrow, prefer type guards over assertions.
 - Prefer `type` over `interface` unless extending or implementing. Use `readonly` for immutable properties.
-- Errors and optional values use purify-ts: `Either<Error, T>` for operations that can fail instead of throwing, `Maybe<T>` instead of `T | null | undefined`, `EitherAsync` to compose async work. Call `.extract()` only after `.isRight()` / `.isJust()`, or use `.caseOf()`.
+- Errors and optional values use purify-ts: `Either<Error, T>` for operations that can fail instead of throwing, `Maybe<T>` instead of `T | null | undefined`, `EitherAsync` to compose async work. Call `.extract()` only after a guard (`.isRight()`, `.isLeft()` or `.isJust()`), or use `.caseOf()`.
 - Prefer `async/await` over raw Promises. Never swallow errors silently.
 
 ## Architecture
 
 - Dependency injection uses Inversify: `@injectable()` on classes, `@inject()` in constructors, module types in dedicated `*ModuleTypes.ts` files, `Factory<T>` for dynamic instances.
 - Class order: constructor, public methods, getters/setters, private methods. Public methods stay short and read as a sequence of well-named private methods.
-- Use cases live in `usecases/` with a single `execute()` method. Services live in `service/`, are injectable and testable.
+- Use cases have a single `execute()` method (directory: `use-case/`, see below). Services live in `service/`, are injectable and testable.
 - One class per file, index files for exports.
 - Clean Architecture (ADR 036 and the "Wallet Experience project structure" page): dependencies point inward.
 - Each package splits a public `api/` from a private `internal/`, organized by feature. `src/index.ts` only re-exports from `api/`. `internal/` may import `api/`; `api/` must not import `internal/` except explicit type re-exports.
