@@ -12,8 +12,8 @@ Ledger Button is a TypeScript SDK (Nx + pnpm monorepo: `packages/*`, `apps/*`) t
 
 ## TypeScript
 
-- Explicit types on function parameters and return types. No `any`: use `unknown` and narrow, prefer type guards over assertions.
-- Prefer `type` over `interface` unless extending or implementing. Use `readonly` for immutable properties.
+- Explicit return types on public methods and exported functions. No `any`: use `unknown` and narrow, prefer type guards over assertions.
+- Use `type` for data shapes and aliases. `interface` is fine for service and provider contracts. Use `readonly` for immutable properties.
 - Errors and optional values use purify-ts: `Either<Error, T>` for operations that can fail instead of throwing, `Maybe<T>` instead of `T | null | undefined`, `EitherAsync` to compose async work. Call `.extract()` only after a guard (`.isRight()`, `.isLeft()` or `.isJust()`), or use `.caseOf()`.
 - Prefer `async/await` over raw Promises. Never swallow errors silently.
 
@@ -23,9 +23,11 @@ Ledger Button is a TypeScript SDK (Nx + pnpm monorepo: `packages/*`, `apps/*`) t
 - Class order: constructor, public methods, getters/setters, private methods. Public methods stay short and read as a sequence of well-named private methods.
 - Use cases have a single `execute()` method (directory: `use-case/`, see below). Services live in `service/`, are injectable and testable.
 - One class per file, index files for exports.
-- Clean Architecture (ADR 036 and the "Wallet Experience project structure" page): dependencies point inward.
+- Clean Architecture: dependencies point inward, from I/O and frameworks toward the domain.
 - Each package splits a public `api/` from a private `internal/`, organized by feature. `src/index.ts` only re-exports from `api/`. `internal/` may import `api/`; `api/` must not import `internal/` except explicit type re-exports.
-- A feature is one folder under `internal/`, with subfolders only when they have content: `di/` (module and `*ModuleTypes.ts`), `model/`, `use-case/` (required for new features), then `service/` (interface plus `Default…` and optional `Stub…` implementation), `datasource/<externalSystem>/` (interface, `Default…`, DTOs in `<externalSystem>Dtos.ts`), `utils/`. Tests sit next to the file (`Xxx.test.ts`), never in `__tests__/`.
+- A feature is one folder under `internal/`. Create a subfolder only when it has content: `di/`, `model/`, `use-case/`, `service/`, `datasource/<externalSystem>/`, `utils/`.
+- Services are an interface plus a `Default` implementation (and an optional `Stub`). Datasources keep their DTOs in `<externalSystem>Dtos.ts`. DI wiring stays in `di/`, not in the domain.
+- Tests sit next to the file (`Xxx.test.ts`), never in `__tests__/`.
 - Folders are kebab-case. Files exporting a class or type are PascalCase, files exporting only functions are camelCase. Use-case classes end with `UseCase`. Interfaces are unprefixed.
 - `ledger-button-core` must not import `ledger-wallet-provider-evm` or `-solana`. The UI package (`ledger-button`) is the composition root that passes provider factories to core.
 - Provider packages may only use the public types of `ledger-wallet-provider-core`, never its `internal/` paths, and must not import each other.
