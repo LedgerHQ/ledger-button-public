@@ -37,6 +37,11 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "name": "@ledgerhq/ledger-wallet-provider-core",
+  "nx": {
+    "tags": [
+      "scope:core"
+    ]
+  },
   "publishConfig": {
     "access": "public"
   },

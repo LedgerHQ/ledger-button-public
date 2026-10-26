@@ -1,6 +1,7 @@
 {
   "name": "@ledgerhq/test-dapp",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "tags": ["scope:app"],
   "targets": {
     "build": {
       "options": {
