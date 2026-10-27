@@ -36,9 +36,32 @@ export default [
             "@internal/**",
             "@schemas/**",
           ],
+          // Tags live in each package's `nx.tags` (package.json) or project.json.
+          // Core stays blockchain-agnostic; providers only know core and never
+          // each other; the UI package wires everything together (ADR 036).
           depConstraints: [
             {
-              sourceTag: "*",
+              sourceTag: "scope:core",
+              onlyDependOnLibsWithTags: ["scope:core"],
+            },
+            {
+              sourceTag: "scope:provider",
+              onlyDependOnLibsWithTags: ["scope:core"],
+            },
+            {
+              sourceTag: "scope:ui",
+              onlyDependOnLibsWithTags: [
+                "scope:core",
+                "scope:provider",
+                "scope:ui",
+              ],
+            },
+            {
+              sourceTag: "scope:app",
+              onlyDependOnLibsWithTags: ["*"],
+            },
+            {
+              sourceTag: "scope:tooling",
               onlyDependOnLibsWithTags: ["*"],
             },
           ],
