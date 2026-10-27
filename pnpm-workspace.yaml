@@ -12,10 +12,10 @@ catalog:
   "@inquirer/prompts": ^5.0.0
   "@ledgerhq/coin-framework": ^5.0.0
   "@ledgerhq/context-module": 2.6.0
-  "@ledgerhq/device-management-kit": 1.10.0
+  "@ledgerhq/device-management-kit": 1.11.0
   "@ledgerhq/device-signer-kit-ethereum": 1.18.1
   "@ledgerhq/device-signer-kit-solana": 1.13.3
-  "@ledgerhq/device-signer-kit-xrp": 0.0.0-develop-20261022153024
+  "@ledgerhq/device-signer-kit-xrp": 0.3.0
   "@ledgerhq/device-mockserver-client": 1.3.0
   "@ledgerhq/device-transport-kit-mockserver": 1.1.1
   "@ledgerhq/device-transport-kit-web-ble": 1.3.2
