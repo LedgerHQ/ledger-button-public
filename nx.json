@@ -154,7 +154,8 @@
       "providers": {
         "projects": [
           "@ledgerhq/ledger-wallet-provider-evm",
-          "@ledgerhq/ledger-wallet-provider-solana"
+          "@ledgerhq/ledger-wallet-provider-solana",
+          "@ledgerhq/ledger-wallet-provider-xrp"
         ],
         "projectsRelationship": "independent",
         "version": {
