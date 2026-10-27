@@ -84,6 +84,10 @@ describe("assertSubmitAccepted", () => {
   it.each([
     ["a result without engine_result", submitResponse({ status: "success" })],
     ["a string result", submitResponse("ok")],
+    [
+      "a null result",
+      { jsonrpc: "2.0", id: 1, result: null } as unknown as BroadcastResponse,
+    ],
   ])("rejects %s instead of reporting success", (_name, response) => {
     expect(rejection(response).code).toBe("SUBMIT_FAILED");
   });

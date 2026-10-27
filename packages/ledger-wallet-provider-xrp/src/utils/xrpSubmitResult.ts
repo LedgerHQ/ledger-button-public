@@ -42,7 +42,7 @@ export function assertSubmitAccepted(response: BroadcastResponse): void {
   }
 
   const result = response.result;
-  if (typeof result !== "object") {
+  if (typeof result !== "object" || result === null) {
     throw submitFailed("unexpected response");
   }
 
