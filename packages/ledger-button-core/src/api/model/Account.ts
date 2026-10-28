@@ -23,6 +23,11 @@ export type Token = {
   name: string;
   balance: string;
   fiatBalance: FiatBalance | undefined;
+  /**
+   * CAL category ids (e.g. `stablecoins`, `stocks`). Empty when the CAL does
+   * not categorise the asset. Not a closed set: new ids can appear at any time.
+   */
+  categories: string[];
 };
 
 export type FiatBalance = {

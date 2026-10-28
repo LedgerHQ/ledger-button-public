@@ -74,6 +74,7 @@ export class SelectAccountScreen extends LitElement {
         class="flex w-full cursor-pointer items-center gap-12 overflow-hidden rounded-md [background-color:var(--color-background-surface-transparent)] p-12 text-left transition duration-150 ease-in-out hover:[background-color:var(--color-background-surface-transparent-hover)] active:[background-color:var(--color-background-surface-transparent-pressed)]"
         role="button"
         tabindex="0"
+        data-testid="account-card"
         aria-label=${account.name}
         @click=${() => this.controller.handleAccountCardClick(account)}
         @keydown=${(e: KeyboardEvent) => {

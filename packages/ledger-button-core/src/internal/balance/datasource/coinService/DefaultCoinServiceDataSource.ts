@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { Either, Left, Right } from "purify-ts";
 
+import { getCoinServiceCurrencySlug } from "@internal/balance/constants/networkConstants";
 import { CoinServiceServiceErrors } from "@internal/balance/model/error";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
@@ -31,7 +32,7 @@ export class DefaultCoinServiceDataSource implements CoinServiceDataSource {
     currencyId: string,
   ): Promise<Either<Error, CoinServiceBalance[]>> {
     // Add check if blockchain is supported by CoinService
-    const requestUrl = `${this.config.getCoinServiceUrl()}/v1/${currencyId}/account/${address}/balance`;
+    const requestUrl = `${this.config.getCoinServiceUrl()}/v1/${getCoinServiceCurrencySlug(currencyId)}/account/${address}/balance`;
     const balanceResult: Either<Error, CoinServiceBalanceDto[]> =
       await this.networkService.get(requestUrl);
 

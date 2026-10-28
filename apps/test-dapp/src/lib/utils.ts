@@ -1,9 +1,4 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
+export { cn } from "@ledgerhq/lumen-design-core/cn";
 export { cva, type VariantProps };

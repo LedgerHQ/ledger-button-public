@@ -105,6 +105,7 @@ export function buildDisplayTokens(account: AccountWithFiat): Token[] {
     name: account.ticker,
     balance: account.balance ?? "0",
     fiatBalance: account.fiatBalance,
+    categories: [],
   };
 
   return [nativeToken, ...account.tokens];

@@ -61,6 +61,7 @@ export function createContainer({
       stub: devConfig.stub.device,
       dmkConfig,
       dmkLogLevel,
+      mockServerConfig: devConfig.mock,
     }),
     eventTrackingModuleFactory({ stub: devConfig.stub.base }),
     storageModuleFactory({ stub: devConfig.stub.base }),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Button, Tag } from "@ledgerhq/lumen-ui-react";
 import { Link, Search } from "@ledgerhq/lumen-ui-react/symbols";
 import { useSelectedWalletAccount } from "@solana/react";
@@ -15,25 +15,44 @@ import { cn } from "../../lib/utils";
 interface WalletSelectionBlockProps {
   onLog: (label: string, data?: unknown) => void;
   onError: (message: string) => void;
+  onReset?: () => void;
+  hasKeypair?: boolean;
 }
 
 export function WalletSelectionBlock({
   onLog,
   onError,
+  onReset,
+  hasKeypair,
 }: WalletSelectionBlockProps) {
-  const [, , wallets] = useSelectedWalletAccount();
+  const [selectedAccount, , wallets] = useSelectedWalletAccount();
 
-  // De-duplicate on name: the same wallet can be registered more than once
-  // (e.g. re-announced), which would otherwise list it multiple times.
+  // De-duplicate on name, keeping the latest registration: rebuilding the
+  // Ledger provider registers a new wallet but never unregisters the old one,
+  // which points at a disposed core and never opens the modal.
   const uniqueWallets = useMemo(() => {
     const byName = new Map<string, UiWallet>();
     for (const wallet of wallets) {
-      if (!byName.has(wallet.name)) {
-        byName.set(wallet.name, wallet);
-      }
+      byName.set(wallet.name, wallet);
     }
     return [...byName.values()];
   }, [wallets]);
+
+  useEffect(() => {
+    console.info("[test-dapp] Wallet Standard wallets", {
+      total: wallets.length,
+      ledger: wallets.filter((wallet) => wallet.name === "Ledger").length,
+      names: wallets.map((wallet) => wallet.name),
+    });
+  }, [wallets]);
+
+  const connectedWallet = selectedAccount
+    ? uniqueWallets.find((wallet) =>
+        wallet.accounts.some(
+          (account) => account.address === selectedAccount.address,
+        ),
+      )
+    : undefined;
 
   return (
     <div className="border border-muted rounded-lg overflow-hidden">
@@ -45,6 +64,30 @@ export function WalletSelectionBlock({
       </div>
 
       <div className="p-24 bg-canvas space-y-20">
+        <div className="flex items-center gap-12">
+          {connectedWallet ? (
+            <DisconnectButton
+              wallet={connectedWallet}
+              onLog={onLog}
+              onError={onError}
+            />
+          ) : (
+            <Button appearance="red" size="sm" disabled>
+              Disconnect
+            </Button>
+          )}
+          {onReset && (
+            <Button
+              appearance="red"
+              size="sm"
+              onClick={onReset}
+              disabled={!hasKeypair}
+            >
+              Re-onboard
+            </Button>
+          )}
+        </div>
+
         {uniqueWallets.length > 0 ? (
           <div className="space-y-12">
             <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
@@ -75,6 +118,38 @@ export function WalletSelectionBlock({
   );
 }
 
+interface DisconnectButtonProps {
+  wallet: UiWallet;
+  onLog: (label: string, data?: unknown) => void;
+  onError: (message: string) => void;
+}
+
+function DisconnectButton({ wallet, onLog, onError }: DisconnectButtonProps) {
+  const [, setSelectedAccount] = useSelectedWalletAccount();
+  const [isDisconnecting, disconnect] = useDisconnect(wallet);
+
+  const handleDisconnect = useCallback(async () => {
+    try {
+      await disconnect();
+      setSelectedAccount(undefined);
+      onLog(`Disconnected ${wallet.name}`);
+    } catch (err) {
+      onError((err as Error)?.message ?? String(err));
+    }
+  }, [wallet, disconnect, setSelectedAccount, onLog, onError]);
+
+  return (
+    <Button
+      appearance="red"
+      size="sm"
+      onClick={handleDisconnect}
+      disabled={isDisconnecting}
+    >
+      {isDisconnecting ? "Disconnecting…" : "Disconnect"}
+    </Button>
+  );
+}
+
 interface WalletRowProps {
   wallet: UiWallet;
   onLog: (label: string, data?: unknown) => void;
@@ -82,7 +157,8 @@ interface WalletRowProps {
 }
 
 function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
-  const [selectedAccount, setSelectedAccount] = useSelectedWalletAccount();
+  const [selectedAccount, setSelectedAccount, wallets] =
+    useSelectedWalletAccount();
   const [isConnecting, connect] = useConnect(wallet);
   const [isDisconnecting, disconnect] = useDisconnect(wallet);
 
@@ -95,6 +171,12 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
 
   const handleConnect = useCallback(async () => {
     try {
+      const sameName = wallets.filter(({ name }) => name === wallet.name);
+      console.info("[test-dapp] Connecting Wallet Standard wallet", {
+        name: wallet.name,
+        registrationIndex: sameName.indexOf(wallet),
+        registrationsWithSameName: sameName.length,
+      });
       onLog(`Connecting to ${wallet.name}…`);
       const accounts = await connect();
       const account = accounts[0];
@@ -107,7 +189,7 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
     } catch (err) {
       onError((err as Error)?.message ?? String(err));
     }
-  }, [wallet, connect, setSelectedAccount, onLog, onError]);
+  }, [wallet, wallets, connect, setSelectedAccount, onLog, onError]);
 
   const handleDisconnect = useCallback(async () => {
     try {
@@ -121,6 +203,7 @@ function WalletRow({ wallet, onLog, onError }: WalletRowProps) {
 
   return (
     <div
+      data-testid={`wallet-row-${wallet.name.toLowerCase().replace(/\s+/g, "-")}`}
       className={cn(
         "flex justify-between items-center px-16 py-14 border rounded-lg transition-colors",
         isSelected

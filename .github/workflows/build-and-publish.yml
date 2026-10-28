@@ -17,24 +17,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup-action-composite
         with:
-          node-version: "20"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          playwright: "false"
 
       - name: Build
         run: pnpm nx run-many --target=build --all
 
       - name: Configure JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v4
+        uses: jfrog/setup-jfrog-cli@ad1052fd1b866ba57235228e8cc8997cf968fc4b # v4.12.0
         env:
           JF_URL: ${{ secrets.JFROG_URL }}
           JF_ACCESS_TOKEN: ${{ secrets.JFROG_ACCESS_TOKEN }}

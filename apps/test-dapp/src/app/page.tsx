@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LedgerEIP1193Provider } from "@ledgerhq/ledger-wallet-provider-evm";
+import { EvmWalletProvider } from "@ledgerhq/ledger-wallet-provider-evm";
 import { ChevronDown as ChevronDownIcon } from "@ledgerhq/lumen-ui-react/symbols";
 import { ethers } from "ethers";
 
@@ -9,16 +9,20 @@ import {
   type ActivityEntry,
   ActivityLog,
   ConnectionStatus,
+  DeviceScreen,
   type EIPEvent,
   EventSimulatorBlock,
+  MockServerStatusBox,
   ProviderSelectionBlock,
   TrackingPanel,
   TransactionsBlock,
 } from "../components";
+import { useMockServerContext } from "../components/MockServerProvider";
+import { useKeypairReset } from "../hooks/useKeypairReset";
 import { useProviders } from "../hooks/useProviders";
 import { useTrackingInterceptor } from "../hooks/useTrackingInterceptor";
 
-const Provider = LedgerEIP1193Provider;
+const Provider = EvmWalletProvider;
 
 let activityCounter = 0;
 function nextActivityId(): string {
@@ -35,6 +39,8 @@ export default function Index() {
     config,
   } = useProviders();
 
+  const mockServer = useMockServerContext();
+
   const { entries: trackingEntries, clearEntries: clearTracking } =
     useTrackingInterceptor();
 
@@ -46,7 +52,6 @@ export default function Index() {
 
   const prevResultRef = useRef<string | null>(null);
   const prevErrorRef = useRef<string | null>(null);
-
 
   useEffect(() => {
     if (result && result !== prevResultRef.current) {
@@ -195,6 +200,8 @@ export default function Index() {
     setResult(null);
     setError(null);
   }, [selectedProvider, setSelectedProvider, addInfoEntry]);
+
+  const { hasKeypair, reset: handleReset } = useKeypairReset(addInfoEntry);
 
   const clearResult = useCallback(() => {
     setResult(null);
@@ -359,6 +366,8 @@ export default function Index() {
               onSelectProvider={setSelectedProvider}
               onRequestProviders={dispatchRequestProvider}
               onDisconnect={handleDisconnect}
+              onReset={handleReset}
+              hasKeypair={hasKeypair}
               account={account}
             />
 
@@ -387,8 +396,14 @@ export default function Index() {
           </div>
         </div>
 
+        {/* Floating Speculos device screen (fixed position, above modals) */}
+        <DeviceScreen />
+
         <aside className="hidden w-[400px] shrink-0 lg:block">
           <div className="sticky top-24 flex max-h-[calc(100vh-48px)] flex-col gap-20">
+            <div className="shrink-0">
+              <MockServerStatusBox mockServer={mockServer} />
+            </div>
             <div className="shrink-0">
               <ConnectionStatus
                 selectedProvider={selectedProvider}

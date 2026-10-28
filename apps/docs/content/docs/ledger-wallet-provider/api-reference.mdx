@@ -28,6 +28,7 @@ type InitializeLedgerProviderOptions = {
   apiKey: string;                                    // Your Ledger API key
   dAppIdentifier: string;                            // Your dApp identifier
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
+  environment?: 'production' | 'trial';              // default: 'production'
   blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
 
   // UI options
@@ -130,13 +131,14 @@ Disconnects the provider, clears the selected account and chain, and fires a `di
 
 **Forwarded to node RPC**
 
-| Method            | Description                         |
-| ----------------- | ----------------------------------- |
-| `eth_blockNumber` | Returns the current block number    |
-| `eth_getBalance`  | Returns the balance of an address   |
-| `eth_getCode`     | Returns the code at a given address |
-| `eth_estimateGas` | Estimates gas for a transaction     |
-| `eth_call`        | Executes a read-only call           |
+| Method                      | Description                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| `eth_blockNumber`           | Returns the current block number                             |
+| `eth_getBalance`            | Returns the balance of an address                            |
+| `eth_getCode`               | Returns the code at a given address                          |
+| `eth_estimateGas`           | Estimates gas for a transaction                              |
+| `eth_call`                  | Executes a read-only call                                    |
+| `eth_getTransactionReceipt` | Returns the receipt for a transaction hash, or `null` while pending |
 
 ### Events
 

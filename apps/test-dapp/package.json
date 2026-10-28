@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
+    "@ledgerhq/device-mockserver-client": "catalog:",
     "@ledgerhq/lumen-design-core": "catalog:",
     "@ledgerhq/lumen-ui-react": "catalog:",
     "@radix-ui/react-slot": "^1.0.2",
@@ -11,12 +12,10 @@
     "@solana/react": "catalog:",
     "@wallet-standard/react": "catalog:",
     "class-variance-authority": "catalog:",
-    "clsx": "^2.1.0",
     "ethers": "catalog:",
     "next": "catalog:",
     "react": "catalog:react19",
-    "react-dom": "catalog:react19",
-    "tailwind-merge": "^2.6.0"
+    "react-dom": "catalog:react19"
   },
   "devDependencies": {
     "@ledgerhq/ledger-wallet-provider": "workspace:*",

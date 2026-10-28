@@ -64,7 +64,7 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
             family: provider.family,
           });
           this.providers.set(provider.family, provider);
-          provider.injectWalletProviders();
+          provider.injectWalletProvider();
         },
       });
     }
@@ -143,9 +143,7 @@ export class DefaultBlockchainProviderManager implements BlockchainProviderManag
   private overridesFind(
     matches: (network: BlockchainNetwork) => boolean,
   ): Maybe<CurrencyDescriptor> {
-    const network = this.storageService
-      .getConfigOverrides()
-      .find(matches);
+    const network = this.storageService.getConfigOverrides().find(matches);
     if (!network) {
       return Maybe.empty();
     }

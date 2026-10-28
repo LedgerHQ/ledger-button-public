@@ -20,7 +20,7 @@ import {
   EVM_FAMILY,
 } from "./utils/chainUtils";
 import { EvmWalletProvider } from "./EvmWalletProvider";
-import { LedgerEIP1193Provider } from "./LedgerEIP1193Provider";
+import { EvmWalletProviderInjector } from "./EvmWalletProviderInjector";
 
 /**
  * EVM {@link BlockchainProvider}: entry point for the EVM family.
@@ -36,8 +36,8 @@ export class EvmBlockchainProvider implements BlockchainProvider<
   public readonly family = EVM_FAMILY;
 
   private readonly container: Container;
-  private eip1193Provider?: LedgerEIP1193Provider;
   private walletProvider?: EvmWalletProvider;
+  private injector?: EvmWalletProviderInjector;
 
   constructor(
     private readonly core: CoreFacade,
@@ -53,8 +53,8 @@ export class EvmBlockchainProvider implements BlockchainProvider<
     this.container.loadSync(evmProviderModule());
   }
 
-  injectWalletProviders(): void {
-    this.eip1193Provider = new LedgerEIP1193Provider(
+  injectWalletProvider(): void {
+    this.walletProvider = new EvmWalletProvider(
       this.core,
       {
         signTransaction: this.container.get<SignTransaction>(
@@ -72,20 +72,20 @@ export class EvmBlockchainProvider implements BlockchainProvider<
       },
       () => Promise.resolve(this.dappConfig.rpcMethods),
     );
-    this.walletProvider = new EvmWalletProvider(this.eip1193Provider);
-    this.walletProvider.init();
+    this.injector = new EvmWalletProviderInjector(this.walletProvider);
+    this.injector.inject();
   }
 
   async disconnect(): Promise<void> {
-    await this.eip1193Provider?.disconnect();
+    await this.walletProvider?.disconnect();
   }
 
   setSelectedAccount(account: ProviderAccount | undefined): void {
-    this.eip1193Provider?.setSelectedAccount(account);
+    this.walletProvider?.setSelectedAccount(account);
   }
 
   setNetwork(chainId: number): void {
-    this.eip1193Provider?.setNetwork(chainId);
+    this.walletProvider?.setNetwork(chainId);
   }
 
   describeCurrency(currencyId: string): CurrencyDescriptor | undefined {
@@ -111,7 +111,7 @@ export class EvmBlockchainProvider implements BlockchainProvider<
 export const evmBlockchainProviderFactory: BlockchainProviderFactory<
   typeof EVM_FAMILY
 > = (core: CoreFacade, blockchains: BlockchainConfig[]) => {
-    const config = findBlockchainConfig(blockchains, EVM_FAMILY);
+  const config = findBlockchainConfig(blockchains, EVM_FAMILY);
   if (!config) return Left(EVM_FAMILY);
   return Right(new EvmBlockchainProvider(core, config));
 };

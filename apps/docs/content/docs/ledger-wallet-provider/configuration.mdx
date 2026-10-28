@@ -77,6 +77,7 @@ This page describes all available configuration options for `initializeLedgerPro
   apiKey: string;                                    // Your Ledger API key
   dAppIdentifier: string;                            // Your dApp identifier
   loggerLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug';  // default: 'info'
+  environment?: 'production' | 'trial';              // default: 'production'
   blockchainProviderFactories: BlockchainProviderFactoryRegistration[]; // v2+ only: blockchain families to register
 
   // UI options
@@ -134,6 +135,29 @@ A registration whose family is not enabled for your `dAppIdentifier` is skipped 
 ### `loggerLevel`
 
 Log verbosity. Accepted values: `'fatal'`, `'error'`, `'warn'`, `'info'`, `'debug'`. Default is `'info'`.
+
+### `environment`
+
+Which Ledger services the SDK calls. Accepted values: `'production'`, `'trial'`. Default is `'production'`.
+
+- `'production'` — wallet services, Clear Signing, and Transaction Check use your partner configuration. Pass the API key from Ledger's partner program.
+- `'trial'` — wallet services and Ledger Sync stay on production. Clear Signing and Transaction Check are authenticated with a trial API key.
+
+#### Trial
+
+Create a trial API key at [https://dashboard.ledger.com/](https://dashboard.ledger.com/). Pass that key as `apiKey` and set `environment` to `'trial'`. Pair a partner API key with `'production'`, and a trial API key with `'trial'`.
+
+```ts
+import { initializeLedgerProvider } from "@ledgerhq/ledger-wallet-provider";
+import { evmBlockchainProviderFactory } from "@ledgerhq/ledger-wallet-provider-evm";
+
+initializeLedgerProvider({
+  dAppIdentifier: "my-dapp",
+  apiKey: "your-trial-api-key",
+  environment: "trial",
+  blockchainProviderFactories: [evmBlockchainProviderFactory],
+});
+```
 
 ### `target`
 

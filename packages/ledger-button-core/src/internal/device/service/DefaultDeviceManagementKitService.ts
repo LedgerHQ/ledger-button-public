@@ -8,6 +8,10 @@ import {
   TransportIdentifier,
 } from "@ledgerhq/device-management-kit";
 import {
+  mockserverIdentifier,
+  mockserverTransportFactory,
+} from "@ledgerhq/device-transport-kit-mockserver";
+import {
   webBleIdentifier,
   webBleTransportFactory,
 } from "@ledgerhq/device-transport-kit-web-ble";
@@ -15,10 +19,10 @@ import {
   webHidIdentifier,
   webHidTransportFactory,
 } from "@ledgerhq/device-transport-kit-web-hid";
-import { type Factory, inject, injectable } from "inversify";
+import { type Factory, inject, injectable, optional } from "inversify";
 import { firstValueFrom } from "rxjs";
 
-import { type DeviceModuleOptions } from "@internal/diTypes";
+import { type DeviceModuleOptions, type MockServerConfig } from "@internal/diTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { type LogLevelKey } from "@internal/logger/model/constant";
 import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
@@ -26,9 +30,13 @@ import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { deviceModuleTypes } from "../di/deviceModuleTypes";
 import { Device } from "../model/Device";
 import { DeviceConnectionError } from "../model/errors";
-import { DeviceManagementKitService } from "./DeviceManagementKitService";
+import {
+  type ConnectionType,
+  DeviceManagementKitService,
+} from "./DeviceManagementKitService";
 
-export type ConnectionType = "bluetooth" | "usb" | "";
+const DEFAULT_MOCK_SERVER_URL =
+  "https://device-mock-server.aws.ldg-ps-default.ldg-tech.com";
 
 const DMK_LOG_LEVELS: Record<LogLevelKey, LogLevel> = {
   fatal: LogLevel.Fatal,
@@ -46,6 +54,7 @@ export class DefaultDeviceManagementKitService
   private readonly _dmk: DeviceManagementKit;
   public hidIdentifier: TransportIdentifier = webHidIdentifier;
   public bleIdentifier: TransportIdentifier = webBleIdentifier;
+  private readonly mockIdentifier?: TransportIdentifier;
   private _currentSessionId?: string;
   private _connectedDevice?: Device;
 
@@ -56,6 +65,9 @@ export class DefaultDeviceManagementKitService
     args: DeviceModuleOptions,
     @inject(deviceModuleTypes.DmkLogLevel)
     dmkLogLevel: LogLevelKey,
+    @optional()
+    @inject(deviceModuleTypes.DmkMockServerConfig)
+    mockServerConfig: MockServerConfig | undefined = undefined,
   ) {
     this.logger = loggerFactory("DeviceManagementKit Service");
     const builder = new DeviceManagementKitBuilder();
@@ -65,6 +77,14 @@ export class DefaultDeviceManagementKitService
       .addLogger(new ConsoleLogger(DMK_LOG_LEVELS[dmkLogLevel]))
       .addTransport(webHidTransportFactory)
       .addTransport(webBleTransportFactory);
+
+    if (mockServerConfig) {
+      const mockUrl = mockServerConfig.serverUrl ?? DEFAULT_MOCK_SERVER_URL;
+      builder.addTransport(
+        mockserverTransportFactory(mockUrl, mockServerConfig.serverToken),
+      );
+      this.mockIdentifier = mockserverIdentifier;
+    }
 
     this._dmk = builder.build();
   }
@@ -82,7 +102,7 @@ export class DefaultDeviceManagementKitService
   }
 
   async connectToDevice({ type }: { type: ConnectionType }) {
-    const identifier = type === "usb" ? this.hidIdentifier : this.bleIdentifier;
+    const identifier = this.resolveTransportIdentifier(type);
     this.logger.debug(`Connecting to device`, { identifier });
 
     const dmk = this.dmk;
@@ -207,6 +227,26 @@ export class DefaultDeviceManagementKitService
       this.clearSession(sessionId);
       return false;
     }
+  }
+
+  private resolveTransportIdentifier(
+    type: ConnectionType,
+  ): TransportIdentifier {
+    if (type === "usb") {
+      return this.hidIdentifier;
+    }
+
+    if (type === "bluetooth" || type === "") {
+      return this.bleIdentifier;
+    }
+
+    if (!this.mockIdentifier) {
+      throw new DeviceConnectionError("Mock transport is not configured", {
+        type: "failed-to-connect",
+      });
+    }
+
+    return this.mockIdentifier;
   }
 
   /**

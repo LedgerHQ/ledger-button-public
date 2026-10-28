@@ -34,14 +34,23 @@ catalogs:
       specifier: 2.6.0
       version: 2.6.0
     '@ledgerhq/device-management-kit':
-      specifier: 1.10.0
-      version: 1.10.0
+      specifier: 1.11.0
+      version: 1.11.0
+    '@ledgerhq/device-mockserver-client':
+      specifier: 1.3.0
+      version: 1.3.0
     '@ledgerhq/device-signer-kit-ethereum':
       specifier: 1.18.1
       version: 1.18.1
     '@ledgerhq/device-signer-kit-solana':
       specifier: 1.13.3
       version: 1.13.3
+    '@ledgerhq/device-signer-kit-xrp':
+      specifier: 0.3.0
+      version: 0.3.0
+    '@ledgerhq/device-transport-kit-mockserver':
+      specifier: 1.1.1
+      version: 1.1.1
     '@ledgerhq/device-transport-kit-web-ble':
       specifier: 1.3.2
       version: 1.3.2
@@ -52,11 +61,11 @@ catalogs:
       specifier: 0.5.0
       version: 0.5.0
     '@ledgerhq/lumen-design-core':
-      specifier: ^0.1.28
-      version: 0.1.28
+      specifier: ^0.1.34
+      version: 0.1.34
     '@ledgerhq/lumen-ui-react':
-      specifier: ^0.1.57
-      version: 0.1.57
+      specifier: ^0.1.66
+      version: 0.1.66
     '@lit/context':
       specifier: 1.1.6
       version: 1.1.6
@@ -318,6 +327,9 @@ catalogs:
     reflect-metadata:
       specifier: ^0.2.2
       version: 0.2.2
+    ripple-binary-codec:
+      specifier: 2.11.0
+      version: 2.11.0
     rollup-plugin-visualizer:
       specifier: ^7.1.1
       version: 7.1.1
@@ -611,7 +623,7 @@ importers:
         version: 2.4.2
       jsdom:
         specifier: 'catalog:'
-        version: 30.0.1(@noble/hashes@1.8.0)
+        version: 30.0.1(@noble/hashes@2.4.0)
       jsonc-eslint-parser:
         specifier: 'catalog:'
         version: 2.4.0
@@ -671,7 +683,7 @@ importers:
         version: 3.0.1(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
       wait-on:
         specifier: 'catalog:'
         version: 8.0.4
@@ -721,12 +733,15 @@ importers:
 
   apps/test-dapp:
     dependencies:
+      '@ledgerhq/device-mockserver-client':
+        specifier: 'catalog:'
+        version: 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       '@ledgerhq/lumen-design-core':
         specifier: 'catalog:'
-        version: 0.1.28
+        version: 0.1.34
       '@ledgerhq/lumen-ui-react':
         specifier: 'catalog:'
-        version: 0.1.57(@base-ui/react@1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@ledgerhq/lumen-design-core@0.1.28)(@radix-ui/react-checkbox@1.3.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-slot@1.2.4(@types/react@19.2.18)(react@19.2.8))(@radix-ui/react-switch@1.2.6(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(class-variance-authority@0.7.1)(clsx@2.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwind-merge@2.6.0)
+        version: 0.1.66(@base-ui/react@1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@ledgerhq/lumen-design-core@0.1.34)(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-slot@1.2.4(@types/react@19.2.18)(react@19.2.8))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(class-variance-authority@0.7.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.2.4(@types/react@19.2.18)(react@19.2.8)
@@ -745,9 +760,6 @@ importers:
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
       ethers:
         specifier: 'catalog:'
         version: 6.17.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
@@ -760,9 +772,6 @@ importers:
       react-dom:
         specifier: catalog:react19
         version: 19.2.8(react@19.2.8)
-      tailwind-merge:
-        specifier: ^2.6.0
-        version: 2.6.0
     devDependencies:
       '@ledgerhq/ledger-wallet-provider':
         specifier: workspace:*
@@ -788,12 +797,15 @@ importers:
 
   apps/test-extension:
     dependencies:
+      '@ledgerhq/device-mockserver-client':
+        specifier: 'catalog:'
+        version: 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       '@ledgerhq/lumen-design-core':
         specifier: 'catalog:'
-        version: 0.1.28
+        version: 0.1.34
       '@ledgerhq/lumen-ui-react':
         specifier: 'catalog:'
-        version: 0.1.57(@base-ui/react@1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@ledgerhq/lumen-design-core@0.1.28)(@radix-ui/react-checkbox@1.3.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-slot@1.2.4(@types/react@19.2.18)(react@19.2.8))(@radix-ui/react-switch@1.2.6(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(class-variance-authority@0.7.1)(clsx@2.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwind-merge@2.6.0)
+        version: 0.1.66(@base-ui/react@1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@ledgerhq/lumen-design-core@0.1.34)(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-slot@1.2.4(@types/react@19.2.18)(react@19.2.8))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(class-variance-authority@0.7.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.2.4(@types/react@19.2.18)(react@19.2.8)
@@ -806,12 +818,6 @@ importers:
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
-      clsx:
-        specifier: ^2.1.0
-        version: 2.1.1
-      tailwind-merge:
-        specifier: ^2.6.0
-        version: 2.6.0
     devDependencies:
       '@ledgerhq/ledger-wallet-provider':
         specifier: workspace:*
@@ -864,7 +870,7 @@ importers:
         version: link:../ledger-button-core
       '@ledgerhq/lumen-design-core':
         specifier: 'catalog:'
-        version: 0.1.28
+        version: 0.1.34
       '@lit/context':
         specifier: 'catalog:'
         version: 1.1.6
@@ -898,10 +904,10 @@ importers:
         version: 4.3.3(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
       jsdom:
         specifier: 'catalog:'
-        version: 30.0.1(@noble/hashes@1.8.0)
+        version: 30.0.1(@noble/hashes@2.4.0)
       shadow-dom-testing-library:
         specifier: 'catalog:'
-        version: 1.12.0(@testing-library/dom@10.4.2)
+        version: 1.12.0(@testing-library/dom@10.4.0)
       storybook:
         specifier: 'catalog:'
         version: 10.6.0(@types/react@19.2.18)(bufferutil@4.1.0)(prettier@3.9.6)(react@19.2.8)(utf-8-validate@6.0.6)
@@ -910,7 +916,7 @@ importers:
         version: 4.3.3
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
 
   packages/ledger-button-core:
     dependencies:
@@ -919,16 +925,19 @@ importers:
         version: 5.8.0(react@19.2.8)
       '@ledgerhq/device-management-kit':
         specifier: 'catalog:'
-        version: 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+        version: 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-transport-kit-mockserver':
+        specifier: 'catalog:'
+        version: 1.1.1(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)
       '@ledgerhq/device-transport-kit-web-ble':
         specifier: 'catalog:'
-        version: 1.3.2(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)
+        version: 1.3.2(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)
       '@ledgerhq/device-transport-kit-web-hid':
         specifier: 'catalog:'
-        version: 1.2.4(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)
+        version: 1.2.4(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)
       '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol':
         specifier: 'catalog:'
-        version: 0.5.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+        version: 0.5.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       bignumber.js:
         specifier: 'catalog:'
         version: 9.3.1
@@ -965,22 +974,22 @@ importers:
         version: 2.0.4
       jsdom:
         specifier: 'catalog:'
-        version: 30.0.1(@noble/hashes@1.8.0)
+        version: 30.0.1(@noble/hashes@2.4.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
 
   packages/ledger-wallet-provider-evm:
     dependencies:
       '@ledgerhq/context-module':
         specifier: 'catalog:'
-        version: 2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        version: 2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@ledgerhq/device-management-kit':
         specifier: 'catalog:'
-        version: 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+        version: 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       '@ledgerhq/device-signer-kit-ethereum':
         specifier: 'catalog:'
-        version: 1.18.1(@ledgerhq/context-module@2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6))(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        version: 1.18.1(@ledgerhq/context-module@2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6))(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       ethers:
         specifier: 'catalog:'
         version: 6.17.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
@@ -1002,22 +1011,22 @@ importers:
         version: link:../ledger-button-core
       jsdom:
         specifier: 'catalog:'
-        version: 30.0.1(@noble/hashes@1.8.0)
+        version: 30.0.1(@noble/hashes@2.4.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
 
   packages/ledger-wallet-provider-solana:
     dependencies:
       '@ledgerhq/context-module':
         specifier: 'catalog:'
-        version: 2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+        version: 2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@ledgerhq/device-management-kit':
         specifier: 'catalog:'
-        version: 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+        version: 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       '@ledgerhq/device-signer-kit-solana':
         specifier: 'catalog:'
-        version: 1.13.3(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
+        version: 1.13.3(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
       '@solana/kit':
         specifier: 'catalog:'
         version: 6.9.0(bufferutil@4.1.0)(typescript@6.0.3)(utf-8-validate@6.0.6)
@@ -1051,10 +1060,41 @@ importers:
         version: link:../ledger-button-core
       jsdom:
         specifier: 'catalog:'
-        version: 30.0.1(@noble/hashes@1.8.0)
+        version: 30.0.1(@noble/hashes@2.4.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+
+  packages/ledger-wallet-provider-xrp:
+    dependencies:
+      '@ledgerhq/device-management-kit':
+        specifier: 'catalog:'
+        version: 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-signer-kit-xrp':
+        specifier: 'catalog:'
+        version: 0.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      inversify:
+        specifier: 'catalog:'
+        version: 7.7.0(reflect-metadata@0.2.2)
+      purify-ts:
+        specifier: 2.1.0
+        version: 2.1.0
+      ripple-binary-codec:
+        specifier: 'catalog:'
+        version: 2.11.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      rxjs:
+        specifier: 'catalog:'
+        version: 7.8.2
+      xstate:
+        specifier: 'catalog:'
+        version: 5.19.2
+    devDependencies:
+      '@ledgerhq/ledger-wallet-provider-core':
+        specifier: workspace:*
+        version: link:../ledger-button-core
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
 
 packages:
 
@@ -2601,10 +2641,15 @@ packages:
     peerDependencies:
       '@ledgerhq/device-management-kit': ^1.9.1
 
-  '@ledgerhq/device-management-kit@1.10.0':
-    resolution: {integrity: sha512-WOJbAXI54a4wgegb10RzQD4eJVwWcVkvnVsAh3KH45EkI1/N4Z7pjbab75OOF7AhtwjDwN5JGdOCqjxPXptY4g==}
+  '@ledgerhq/device-management-kit@1.11.0':
+    resolution: {integrity: sha512-1KAC6tmtLZz+9X0KQY0lukzEAXgIDoMM3LP0pTRh9/Rab/NmZv5+74R9coL2mYTnDQTp8EfR41uJLJ5FylRCug==}
     peerDependencies:
       rxjs: 7.8.2
+
+  '@ledgerhq/device-mockserver-client@1.3.0':
+    resolution: {integrity: sha512-XZN954bxa7Q3vl9lNqgoxeCs2zyC3UU1AI4/ByT2nQz1v78elU5Mqt4/nuny32HGezzXndH413kld91nIMJYTA==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': ^1.9.0
 
   '@ledgerhq/device-signer-kit-ethereum@1.18.1':
     resolution: {integrity: sha512-L/7ACvdQ37W5BgbfPgK0D+VTTnTIDMHNecBDdGJxzKJXli6mnsGZFTMPQuHkR/43qtxboNxSXkgqezUUMBy3nw==}
@@ -2616,6 +2661,17 @@ packages:
     resolution: {integrity: sha512-3njwO5/n2Pgtc/RCPpLFMraQDJUDlZqSuNfYLwwy9mQejOCx8AUlN/rVq6Z01dryRrQXXoyt/j5ec7KEHzeAWg==}
     peerDependencies:
       '@ledgerhq/device-management-kit': ^1.10.0
+
+  '@ledgerhq/device-signer-kit-xrp@0.3.0':
+    resolution: {integrity: sha512-JI5x9Eq7lr5vWxq/G8spqwfJLxZsQNdP4xEYgeVBKrLKloooLQDrQrTY+KJ7nFkvm1TFUpPFpewNYtHWQWewkA==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': ^1.11.0
+
+  '@ledgerhq/device-transport-kit-mockserver@1.1.1':
+    resolution: {integrity: sha512-lAi0nlz9mIIxf+c+F6ZrCLWdPeYZzpIKm2qWCrsF4vVjt0bp7Ikn+I4D8xUCvB/lCZMWXSyz9wL556Q+BlLOKw==}
+    peerDependencies:
+      '@ledgerhq/device-management-kit': ^1.9.0
+      rxjs: 7.8.2
 
   '@ledgerhq/device-transport-kit-web-ble@1.3.2':
     resolution: {integrity: sha512-qzp0Dxszd0gzV7mV0qHpUVWdg+a0RZEKEzQGfNFezAGQn653S31IgTiWj13wZrlX1ocWCZT3VBUGrVkKfZ5wAA==}
@@ -2655,28 +2711,24 @@ packages:
   '@ledgerhq/logs@6.14.0':
     resolution: {integrity: sha512-kJFu1+asWQmU9XlfR1RM3lYR76wuEoPyZvkI/CNjpft78BQr3+MMf3Nu77ABzcKFnhIcmAkOLlDQ6B8L6hDXHA==}
 
-  '@ledgerhq/lumen-design-core@0.1.28':
-    resolution: {integrity: sha512-N+Llwr1/3irD1RPIIJWG1T1/qHzgcJeghxpJqsmG2buiCRbBpGqEoTSVzQ5etsP3JVU23aTArtN0D2A/olK6IQ==}
+  '@ledgerhq/lumen-design-core@0.1.34':
+    resolution: {integrity: sha512-9a5/0u9YMX/X62yxrgTthoPDdd5eKrF5QKYaDyLrn4LTJF/8kdU7hXB7W9F+aW+d0rDJyrSpWIa+JcKfrrvLbw==}
 
-  '@ledgerhq/lumen-ui-react@0.1.57':
-    resolution: {integrity: sha512-5z11CS5ySTUIM3QN+uB6psEna8p99+xu9g0spkrSeUQ1xxeOMbsmNJJwvDwkFwzBGTCM+pOTw1m3vKjnBulMvA==}
+  '@ledgerhq/lumen-ui-react@0.1.66':
+    resolution: {integrity: sha512-ZpFCj92QCsX+HoiuGpHvYg5PokRs5jEFGMv+djresUps0ABkJQqs7Z/tuQN7PRa/Glr+WE1BPzteGP1lG6NOMw==}
     peerDependencies:
       '@base-ui/react': ^1.3.0
-      '@ledgerhq/lumen-design-core': 0.1.28
-      '@radix-ui/react-checkbox': ^1.3.2
+      '@ledgerhq/lumen-design-core': 0.1.34
       '@radix-ui/react-dialog': ^1.1.15
       '@radix-ui/react-slot': ^1.2.3
-      '@radix-ui/react-switch': ^1.2.6
       '@radix-ui/react-tooltip': ^1.2.8
       '@tanstack/react-table': ^8.21.3
       class-variance-authority: ^0.7.1
-      clsx: ^2.1.1
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
-      tailwind-merge: ^2.6.0
 
-  '@ledgerhq/lumen-utils-shared@0.1.12':
-    resolution: {integrity: sha512-4MQEp7DH5lqrwyRRQO8Bg3VDuq1u7C0NRdtDn+ThHchF2jNyCIJazKp1CMxmHeHMDq72eYiHdmY3AlcfYygnKA==}
+  '@ledgerhq/lumen-utils-shared@0.1.17':
+    resolution: {integrity: sha512-xnCRl24ifpfgxjHHLSXLVTbiKS2nXe18WjD87YdZc1uealyVAcoOYNSkgtAlnLzkF2DTPiuZc2oPawcDDcVq9A==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
 
@@ -3001,6 +3053,10 @@ packages:
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
+    engines: {node: '>= 20.19.0'}
 
   '@node-rs/xxhash-android-arm-eabi@1.7.7':
     resolution: {integrity: sha512-9uOAXzMmayilkSmoSgrtZDKG2a4E8I0f58Ydm0/us2ubfUGqBr6AjaxzRjipuDBGeNZYYQP1wmoUzLAmuUajIQ==}
@@ -3907,19 +3963,6 @@ packages:
       '@types/react-dom':
         optional: true
 
-  '@radix-ui/react-checkbox@1.3.3':
-    resolution: {integrity: sha512-wBbpv+NQftHDdG86Qc0pIyXk5IR3tM8Vd0nWLKDcX8nNn4nXFOFwsKuqw2okA/1D/mpaAkmuyndrPJTYDNZtFw==}
-    peerDependencies:
-      '@types/react': '*'
-      '@types/react-dom': '*'
-      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      '@types/react-dom':
-        optional: true
-
   '@radix-ui/react-collection@1.1.7':
     resolution: {integrity: sha512-Fh9rGN0MoI4ZFUNyfFVNU4y9LUz93u9/0K+yLgA2bwRojxM8JU1DyvvMBabnZPBgMWREAJvU2jjVzq+LrFUglw==}
     peerDependencies:
@@ -4501,6 +4544,9 @@ packages:
 
   '@rushstack/ts-command-line@5.0.2':
     resolution: {integrity: sha512-+AkJDbu1GFMPIU8Sb7TLVXDv/Q7Mkvx+wAjEl8XiXVVq+p1FmWW6M3LYpJMmoHNckSofeMecgWg5lfMwNAAsEQ==}
+
+  '@scure/base@2.4.0':
+    resolution: {integrity: sha512-thZ1TuJwFwBblOhgsjDKvvGirBxNp+wSvY/DR6tJBJOTDhdAAcHJ8Vbr2eFnqaxeca4+t0i9KBf+uHYGWwZORg==}
 
   '@sentry/hub@6.19.7':
     resolution: {integrity: sha512-y3OtbYFAqKHCWezF0EGGr5lcyI2KbaXW2Ik7Xp8Mu9TxbSTuwTe4rTntwg8ngPjUQU3SUHzgjqVB8qjiGqFXCA==}
@@ -6272,6 +6318,10 @@ packages:
     engines: {node: '>=14.6'}
     deprecated: this version has critical issues, please update to the latest version
 
+  '@xrplf/isomorphic@1.0.2':
+    resolution: {integrity: sha512-ncZUdMXr6VlSXtdoiDi0jTH+gBrgGxwVeEidhoegII3PmyErbQsyj6e+j7acmR4LW/lvBkPkzb9QzRfJH0n3rA==}
+    engines: {node: '>=18.0.0'}
+
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
 
@@ -6714,6 +6764,9 @@ packages:
 
   big.js@5.2.2:
     resolution: {integrity: sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==}
+
+  bignumber.js@10.0.2:
+    resolution: {integrity: sha512-E8Wp9O06QA6lneJ4aRUXKYf/1GIomqUEmUMwtIOMtDxf1U52ffJY+y7JBk/8wRafA8qOIqLnXQGqonYXZdBnFQ==}
 
   bignumber.js@9.3.1:
     resolution: {integrity: sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==}
@@ -8092,6 +8145,9 @@ packages:
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+
   eventemitter3@5.0.4:
     resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
 
@@ -8696,9 +8752,6 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
-  html-parse-stringify@3.0.1:
-    resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
-
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
 
@@ -8765,9 +8818,6 @@ packages:
   hyperlinker@1.0.0:
     resolution: {integrity: sha512-Ty8UblRWFEcfSuIaajM34LdPXIhbs1ajEX/BBPv24J+enSVaEVY63xQ6lTO9VRYS5LAoghIG0IDJ+p+IPzKUQQ==}
     engines: {node: '>=4'}
-
-  i18next@23.16.8:
-    resolution: {integrity: sha512-06r/TitrM88Mg5FdUXAKL96dJMzgqLE5dv3ryBAra4KCwD9mJ4ndOTS95ZuymIGoE+2hzfdaMak2X11/es7ZWg==}
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -11036,19 +11086,6 @@ packages:
     peerDependencies:
       react: ^19.2.8
 
-  react-i18next@14.1.3:
-    resolution: {integrity: sha512-wZnpfunU6UIAiJ+bxwOiTmBOAaB14ha97MjOEnLGac2RJ+h/maIYXZuTHlmyqQVX1UVHmU1YDTQ5vxLmwfXTjw==}
-    peerDependencies:
-      i18next: '>= 23.2.3'
-      react: '>= 16.8.0'
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
@@ -11353,6 +11390,14 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
+
+  ripple-address-codec@5.0.1:
+    resolution: {integrity: sha512-JQHLKuVJV8lv9Qobmn4aUM2Dpv9WRRLKnNWfM8tN02fAbUtG8mUPsu9q9UYX8P76G4qzytEc5ZKMp/3JggNYmw==}
+    engines: {node: '>= 18'}
+
+  ripple-binary-codec@2.11.0:
+    resolution: {integrity: sha512-qad61CYAqIi8H7DuPnuDpj40wrXY8wYrc1YbuDcA9G/NZG0Uu8unHNbTC6Itz8SlOSL0P/nF/8HTFW/1caVlTg==}
+    engines: {node: '>= 18'}
 
   robust-predicates@3.0.2:
     resolution: {integrity: sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==}
@@ -12052,8 +12097,8 @@ packages:
   tailwind-merge@1.14.0:
     resolution: {integrity: sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ==}
 
-  tailwind-merge@2.6.0:
-    resolution: {integrity: sha512-P+Vu1qXfzediirmHOC3xKGAYeZtPcV9g76X+xg2FD4tYgR71ewMA35Y3sCz3zhiN/dwefRpJX0yBcgwi1fXNQA==}
+  tailwind-merge@3.7.0:
+    resolution: {integrity: sha512-XPPUyAc+cvspz3lHTcR/QgPfW2A0lv/xQNIjX3HGhLR+Nq2lHaLq5MtTesHn8GUr3W3DguT2KT5x3NVgRtYwmA==}
 
   tailwindcss@4.3.3:
     resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
@@ -12752,10 +12797,6 @@ packages:
         optional: true
       jsdom:
         optional: true
-
-  void-elements@3.1.0:
-    resolution: {integrity: sha512-Dhxzh5HZuiHQhbvTW9AMetFfBHDMYpo23Uo9btPXgdYP+3T5S+p+jgNy7spra+veYhBP2dCSgxR/i2Y02h5/6w==}
-    engines: {node: '>=0.10.0'}
 
   vscode-jsonrpc@8.2.0:
     resolution: {integrity: sha512-C+r0eKJUIfiDIfwJhria30+TYWPtuHJXHtI7J0YlOmKAo7ogxP20T0zxB7HZQIFhIyvoBPwWskjxrvAtfjyZfA==}
@@ -14329,9 +14370,9 @@ snapshots:
       '@eslint/core': 0.15.1
       levn: 0.4.1
 
-  '@exodus/bytes@1.15.1(@noble/hashes@1.8.0)':
+  '@exodus/bytes@1.15.1(@noble/hashes@2.4.0)':
     optionalDependencies:
-      '@noble/hashes': 1.8.0
+      '@noble/hashes': 2.4.0
 
   '@floating-ui/core@1.8.0':
     dependencies:
@@ -15003,9 +15044,9 @@ snapshots:
       - react
       - react-redux
 
-  '@ledgerhq/context-module@2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+  '@ledgerhq/context-module@2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
     dependencies:
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       bs58: 6.0.0
       crypto-js: 4.2.0
       ethers: 6.14.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
@@ -15029,17 +15070,17 @@ snapshots:
       - react
       - react-redux
 
-  '@ledgerhq/device-contacts-kit@0.5.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
+  '@ledgerhq/device-contacts-kit@0.5.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
     dependencies:
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
-      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       inversify: 7.5.1(reflect-metadata@0.2.2)
       purify-ts: 2.1.0
       reflect-metadata: 0.2.2
       semver: 7.7.2
       xstate: 5.19.2
 
-  '@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)':
+  '@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)':
     dependencies:
       '@noble/hashes': 1.8.0
       '@sentry/minimal': 6.19.7
@@ -15056,12 +15097,17 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-signer-kit-ethereum@1.18.1(@ledgerhq/context-module@2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6))(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+  '@ledgerhq/device-mockserver-client@1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
     dependencies:
-      '@ledgerhq/context-module': 2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      '@ledgerhq/device-contacts-kit': 0.5.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
-      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      purify-ts: 2.1.0
+
+  '@ledgerhq/device-signer-kit-ethereum@1.18.1(@ledgerhq/context-module@2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6))(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+    dependencies:
+      '@ledgerhq/context-module': 2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-contacts-kit': 0.5.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       ethers: 6.14.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       inversify: 7.5.1(reflect-metadata@0.2.2)
       purify-ts: 2.1.0
@@ -15072,11 +15118,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@ledgerhq/device-signer-kit-solana@1.13.3(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
+  '@ledgerhq/device-signer-kit-solana@1.13.3(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)':
     dependencies:
-      '@ledgerhq/context-module': 2.6.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
-      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      '@ledgerhq/context-module': 2.6.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       '@solana/transaction-messages': 8.3.0(typescript@6.0.3)
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(encoding@0.1.13)(typescript@6.0.3)(utf-8-validate@6.0.6)
       bs58: 6.0.0
@@ -15093,26 +15139,42 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@ledgerhq/device-transport-kit-web-ble@1.3.2(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)':
+  '@ledgerhq/device-signer-kit-xrp@0.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
     dependencies:
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      inversify: 7.5.1(reflect-metadata@0.2.2)
+      purify-ts: 2.1.0
+      reflect-metadata: 0.2.2
+      xstate: 5.19.2
+
+  '@ledgerhq/device-transport-kit-mockserver@1.1.1(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)':
+    dependencies:
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@sentry/minimal': 6.19.7
+      purify-ts: 2.1.0
+      rxjs: 7.8.2
+
+  '@ledgerhq/device-transport-kit-web-ble@1.3.2(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)':
+    dependencies:
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.2
       uuid: 11.0.3
 
-  '@ledgerhq/device-transport-kit-web-hid@1.2.4(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)':
+  '@ledgerhq/device-transport-kit-web-hid@1.2.4(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))(rxjs@7.8.2)':
     dependencies:
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       '@sentry/minimal': 6.19.7
       purify-ts: 2.1.0
       rxjs: 7.8.2
       uuid: 11.0.3
 
-  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.5.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
+  '@ledgerhq/device-trusted-app-kit-ledger-keyring-protocol@0.5.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
     dependencies:
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
-      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/signer-utils': 1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
@@ -15157,45 +15219,37 @@ snapshots:
 
   '@ledgerhq/logs@6.14.0': {}
 
-  '@ledgerhq/lumen-design-core@0.1.28':
+  '@ledgerhq/lumen-design-core@0.1.34':
     dependencies:
+      clsx: 2.1.1
+      tailwind-merge: 3.7.0
       tailwindcss: 4.3.3
       tslib: 2.8.1
 
-  '@ledgerhq/lumen-ui-react@0.1.57(@base-ui/react@1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@ledgerhq/lumen-design-core@0.1.28)(@radix-ui/react-checkbox@1.3.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-slot@1.2.4(@types/react@19.2.18)(react@19.2.8))(@radix-ui/react-switch@1.2.6(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(class-variance-authority@0.7.1)(clsx@2.1.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwind-merge@2.6.0)':
+  '@ledgerhq/lumen-ui-react@0.1.66(@base-ui/react@1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@ledgerhq/lumen-design-core@0.1.34)(@radix-ui/react-dialog@1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@radix-ui/react-slot@1.2.4(@types/react@19.2.18)(react@19.2.8))(@radix-ui/react-tooltip@1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(class-variance-authority@0.7.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@base-ui/react': 1.6.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@ledgerhq/lumen-design-core': 0.1.28
-      '@ledgerhq/lumen-utils-shared': 0.1.12(react@19.2.8)
-      '@radix-ui/react-checkbox': 1.3.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@ledgerhq/lumen-design-core': 0.1.34
+      '@ledgerhq/lumen-utils-shared': 0.1.17(react@19.2.8)
       '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.18)(react@19.2.8)
-      '@radix-ui/react-switch': 1.2.6(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@radix-ui/react-tooltip': 1.2.8(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@tanstack/react-table': 8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@types/d3-scale': 4.0.9
       '@types/d3-shape': 3.2.0
       class-variance-authority: 0.7.1
-      clsx: 2.1.1
       d3-scale: 4.0.2
       d3-shape: 3.2.0
-      i18next: 23.16.8
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
-      react-i18next: 14.1.3(i18next@23.16.8)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      tailwind-merge: 2.6.0
-    transitivePeerDependencies:
-      - react-native
 
-  '@ledgerhq/lumen-utils-shared@0.1.12(react@19.2.8)':
+  '@ledgerhq/lumen-utils-shared@0.1.17(react@19.2.8)':
     dependencies:
-      clsx: 2.1.1
       react: 19.2.8
-      tailwind-merge: 2.6.0
 
-  '@ledgerhq/signer-utils@1.3.0(@ledgerhq/device-management-kit@1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
+  '@ledgerhq/signer-utils@1.3.0(@ledgerhq/device-management-kit@1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6))':
     dependencies:
-      '@ledgerhq/device-management-kit': 1.10.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
+      '@ledgerhq/device-management-kit': 1.11.0(bufferutil@4.1.0)(rxjs@7.8.2)(utf-8-validate@6.0.6)
       semver: 7.7.2
 
   '@ledgerhq/types-cryptoassets@7.32.0': {}
@@ -15516,6 +15570,8 @@ snapshots:
   '@noble/hashes@1.3.2': {}
 
   '@noble/hashes@1.8.0': {}
+
+  '@noble/hashes@2.4.0': {}
 
   '@node-rs/xxhash-android-arm-eabi@1.7.7':
     optional: true
@@ -15933,7 +15989,7 @@ snapshots:
     optionalDependencies:
       '@nx/eslint': 23.2.0(@babel/traverse@7.29.7)(@nx/jest@23.2.0(f562789e77ac7121b0315bdd63fe18be))(@swc-node/register@1.12.1(@swc/core@1.16.2(@swc/helpers@0.5.23))(@swc/types@0.1.28)(typescript@6.0.3))(@swc/cli@0.6.0(@swc/core@1.16.2(@swc/helpers@0.5.23))(chokidar@4.0.3))(@swc/core@1.16.2(@swc/helpers@0.5.23))(@zkochan/js-yaml@0.0.7)(eslint@9.32.0(jiti@2.4.2))(nx@23.2.0(@swc-node/register@1.12.1(@swc/core@1.16.2(@swc/helpers@0.5.23))(@swc/types@0.1.28)(typescript@6.0.3))(@swc/core@1.16.2(@swc/helpers@0.5.23)))(verdaccio@6.1.6(encoding@0.1.13)(typanion@3.14.0))
       vite: 8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0)
-      vitest: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+      vitest: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
     transitivePeerDependencies:
       - '@babel/traverse'
       - '@swc-node/register'
@@ -16406,22 +16462,6 @@ snapshots:
   '@radix-ui/react-arrow@1.1.7(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      react: 19.2.8
-      react-dom: 19.2.8(react@19.2.8)
-    optionalDependencies:
-      '@types/react': 19.2.18
-      '@types/react-dom': 19.2.7(@types/react@19.2.18)
-
-  '@radix-ui/react-checkbox@1.3.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      '@radix-ui/primitive': 1.1.3
-      '@radix-ui/react-compose-refs': 1.1.2(@types/react@19.2.18)(react@19.2.8)
-      '@radix-ui/react-context': 1.1.2(@types/react@19.2.18)(react@19.2.8)
-      '@radix-ui/react-presence': 1.1.5(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@radix-ui/react-primitive': 2.1.3(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@radix-ui/react-use-controllable-state': 1.2.2(@types/react@19.2.18)(react@19.2.8)
-      '@radix-ui/react-use-previous': 1.1.1(@types/react@19.2.18)(react@19.2.8)
-      '@radix-ui/react-use-size': 1.1.1(@types/react@19.2.18)(react@19.2.8)
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
     optionalDependencies:
@@ -16925,6 +16965,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
     optional: true
+
+  '@scure/base@2.4.0': {}
 
   '@sentry/hub@6.19.7':
     dependencies:
@@ -18759,7 +18801,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+      vitest: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -18815,7 +18857,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.1.1
-      vitest: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
+      vitest: 5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -19074,6 +19116,15 @@ snapshots:
       arch: 3.0.0
 
   '@xmldom/xmldom@0.9.8': {}
+
+  '@xrplf/isomorphic@1.0.2(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+    dependencies:
+      '@noble/hashes': 2.4.0
+      eventemitter3: 5.0.1
+      ws: 8.21.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
 
   '@xtuc/ieee754@1.2.0': {}
 
@@ -19567,6 +19618,8 @@ snapshots:
       require-from-string: 2.0.2
 
   big.js@5.2.2: {}
+
+  bignumber.js@10.0.2: {}
 
   bignumber.js@9.3.1: {}
 
@@ -20344,10 +20397,10 @@ snapshots:
 
   data-uri-to-buffer@6.0.2: {}
 
-  data-urls@7.0.0(@noble/hashes@1.8.0):
+  data-urls@7.0.0(@noble/hashes@2.4.0):
     dependencies:
       whatwg-mimetype: 5.0.0
-      whatwg-url: 16.0.1(@noble/hashes@1.8.0)
+      whatwg-url: 16.0.1(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - '@noble/hashes'
 
@@ -21204,6 +21257,8 @@ snapshots:
 
   eventemitter3@4.0.7: {}
 
+  eventemitter3@5.0.1: {}
+
   eventemitter3@5.0.4: {}
 
   events@3.3.0: {}
@@ -21974,17 +22029,13 @@ snapshots:
     dependencies:
       whatwg-encoding: 2.0.0
 
-  html-encoding-sniffer@6.0.0(@noble/hashes@1.8.0):
+  html-encoding-sniffer@6.0.0(@noble/hashes@2.4.0):
     dependencies:
-      '@exodus/bytes': 1.15.1(@noble/hashes@1.8.0)
+      '@exodus/bytes': 1.15.1(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - '@noble/hashes'
 
   html-escaper@2.0.2: {}
-
-  html-parse-stringify@3.0.1:
-    dependencies:
-      void-elements: 3.1.0
 
   html-void-elements@3.0.0: {}
 
@@ -22087,10 +22138,6 @@ snapshots:
       ms: 2.1.3
 
   hyperlinker@1.0.0: {}
-
-  i18next@23.16.8:
-    dependencies:
-      '@babel/runtime': 7.29.7
 
   iconv-lite@0.4.24:
     dependencies:
@@ -22938,17 +22985,17 @@ snapshots:
 
   jsbn@1.1.0: {}
 
-  jsdom@30.0.1(@noble/hashes@1.8.0):
+  jsdom@30.0.1(@noble/hashes@2.4.0):
     dependencies:
       '@asamuzakjp/css-color': 6.0.7
       '@asamuzakjp/dom-selector': 8.3.2
       '@bramus/specificity': 2.4.2
       '@csstools/css-syntax-patches-for-csstree': 1.1.12(css-tree@3.2.1)
-      '@exodus/bytes': 1.15.1(@noble/hashes@1.8.0)
+      '@exodus/bytes': 1.15.1(@noble/hashes@2.4.0)
       css-tree: 3.2.1
-      data-urls: 7.0.0(@noble/hashes@1.8.0)
+      data-urls: 7.0.0(@noble/hashes@2.4.0)
       decimal.js: 10.6.0
-      html-encoding-sniffer: 6.0.0(@noble/hashes@1.8.0)
+      html-encoding-sniffer: 6.0.0(@noble/hashes@2.4.0)
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.2
       parse5: 8.0.1
@@ -22959,7 +23006,7 @@ snapshots:
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
-      whatwg-url: 17.1.0(@noble/hashes@1.8.0)
+      whatwg-url: 17.1.0(@noble/hashes@2.4.0)
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - '@noble/hashes'
@@ -25055,15 +25102,6 @@ snapshots:
       react: 19.2.8
       scheduler: 0.27.0
 
-  react-i18next@14.1.3(i18next@23.16.8)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      html-parse-stringify: 3.0.1
-      i18next: 23.16.8
-      react: 19.2.8
-    optionalDependencies:
-      react-dom: 19.2.8(react@19.2.8)
-
   react-is@16.13.1: {}
 
   react-is@17.0.2: {}
@@ -25463,6 +25501,23 @@ snapshots:
     dependencies:
       glob: 7.2.3
 
+  ripple-address-codec@5.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+    dependencies:
+      '@scure/base': 2.4.0
+      '@xrplf/isomorphic': 1.0.2(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  ripple-binary-codec@2.11.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
+    dependencies:
+      '@xrplf/isomorphic': 1.0.2(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      bignumber.js: 10.0.2
+      ripple-address-codec: 5.0.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   robust-predicates@3.0.2: {}
 
   rolldown@1.2.7:
@@ -25801,10 +25856,6 @@ snapshots:
   shadow-dom-testing-library@1.12.0(@testing-library/dom@10.4.0):
     dependencies:
       '@testing-library/dom': 10.4.0
-
-  shadow-dom-testing-library@1.12.0(@testing-library/dom@10.4.2):
-    dependencies:
-      '@testing-library/dom': 10.4.2
 
   shallow-clone@3.0.1:
     dependencies:
@@ -26277,7 +26328,7 @@ snapshots:
 
   tailwind-merge@1.14.0: {}
 
-  tailwind-merge@2.6.0: {}
+  tailwind-merge@3.7.0: {}
 
   tailwindcss@4.3.3: {}
 
@@ -27019,7 +27070,7 @@ snapshots:
       terser: 5.43.1
       yaml: 2.9.0
 
-  vitest@5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0)):
+  vitest@5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0)):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/mocker': 5.0.0(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.4.2)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
@@ -27040,11 +27091,11 @@ snapshots:
       '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
       '@vitest/ui': 5.0.0(vitest@5.0.0)
       happy-dom: 20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      jsdom: 30.0.1(@noble/hashes@1.8.0)
+      jsdom: 30.0.1(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - msw
 
-  vitest@5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@1.8.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0)):
+  vitest@5.0.0(@types/node@22.20.1)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))(jsdom@30.0.1(@noble/hashes@2.4.0))(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0)):
     dependencies:
       '@types/chai': 5.2.2
       '@vitest/mocker': 5.0.0(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(less@4.4.0)(sass-embedded@1.90.0)(sass@1.90.0)(terser@5.43.1)(yaml@2.9.0))
@@ -27065,11 +27116,9 @@ snapshots:
       '@vitest/coverage-v8': 5.0.0(vitest@5.0.0)
       '@vitest/ui': 5.0.0(vitest@5.0.0)
       happy-dom: 20.14.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
-      jsdom: 30.0.1(@noble/hashes@1.8.0)
+      jsdom: 30.0.1(@noble/hashes@2.4.0)
     transitivePeerDependencies:
       - msw
-
-  void-elements@3.1.0: {}
 
   vscode-jsonrpc@8.2.0: {}
 
@@ -27191,17 +27240,17 @@ snapshots:
 
   whatwg-mimetype@5.0.0: {}
 
-  whatwg-url@16.0.1(@noble/hashes@1.8.0):
+  whatwg-url@16.0.1(@noble/hashes@2.4.0):
     dependencies:
-      '@exodus/bytes': 1.15.1(@noble/hashes@1.8.0)
+      '@exodus/bytes': 1.15.1(@noble/hashes@2.4.0)
       tr46: 6.0.0
       webidl-conversions: 8.0.1
     transitivePeerDependencies:
       - '@noble/hashes'
 
-  whatwg-url@17.1.0(@noble/hashes@1.8.0):
+  whatwg-url@17.1.0(@noble/hashes@2.4.0):
     dependencies:
-      '@exodus/bytes': 1.15.1(@noble/hashes@1.8.0)
+      '@exodus/bytes': 1.15.1(@noble/hashes@2.4.0)
       tr46: 6.0.0
       webidl-conversions: 8.0.1
     transitivePeerDependencies:

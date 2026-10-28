@@ -38,7 +38,7 @@ const statusIndicatorVariants = cva(
   {
     variants: {
       status: {
-        connected: ["text-success-foreground bg-success"],
+        connected: ["text-success-foreground bg-success-transparent"],
         available: ["bg-muted text-muted"],
       },
     },

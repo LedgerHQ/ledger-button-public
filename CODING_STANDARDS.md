@@ -448,7 +448,7 @@ private async getFeesFromCoinService(
 
 ### Use Cases Pattern
 
-- Use cases should be in `usecases/` directories
+- Use cases should be in `use-case/` directories
 - Use cases should have a single `execute()` method
 - Keep use cases focused on a single responsibility
 - Use services for shared business logic

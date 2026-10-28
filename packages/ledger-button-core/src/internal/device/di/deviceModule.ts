@@ -1,6 +1,6 @@
 import { ContainerModule } from "inversify";
 
-import { ContainerOptions } from "@internal/diTypes";
+import { ContainerOptions, MockServerConfig } from "@internal/diTypes";
 
 import { DefaultDeviceManagementKitService } from "../service/DefaultDeviceManagementKitService";
 import { StubDeviceManagementKitService } from "../service/StubDeviceManagementKitService";
@@ -15,16 +15,21 @@ type DeviceModuleOptions = Pick<
   "dmkConfig" | "dmkLogLevel"
 > & {
   stub?: boolean;
+  mockServerConfig?: MockServerConfig;
 };
 
 export function deviceModuleFactory({
   stub,
   dmkConfig,
   dmkLogLevel = "error",
+  mockServerConfig,
 }: DeviceModuleOptions) {
   return new ContainerModule(({ bind, rebindSync }) => {
     bind(deviceModuleTypes.DmkConfig).toConstantValue(dmkConfig);
     bind(deviceModuleTypes.DmkLogLevel).toConstantValue(dmkLogLevel);
+    bind(deviceModuleTypes.DmkMockServerConfig).toConstantValue(
+      mockServerConfig,
+    );
 
     bind(deviceModuleTypes.DeviceManagementKitService)
       .to(DefaultDeviceManagementKitService)

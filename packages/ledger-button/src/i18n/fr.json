@@ -201,6 +201,13 @@
     "noTokens": "Aucun token trouvé pour ce compte",
     "unknownToken": "Token inconnu"
   },
+  "tokenList": {
+    "categories": {
+      "crypto": "Cryptos",
+      "stablecoins": "Stablecoins",
+      "stocks": "Actions"
+    }
+  },
   "availableNetworks": {
     "title": "Réseaux disponibles"
   },
@@ -337,22 +344,22 @@
         "cta1": "Libérer de l’espace"
       },
       "DeviceFirmwareOutdated": {
-        "title": "Ledger OS update required",
-        "description": "You need the latest Ledger OS to sign this transaction.",
-        "cta1": "Update Ledger OS"
+        "title": "Mise à jour de Ledger OS requise",
+        "description": "Vous avez besoin de la dernière version de Ledger OS pour signer cette transaction.",
+        "cta1": "Mettre à jour Ledger OS"
       }
     },
     "ledgerSync": {
       "ConnectionFailed": {
         "title": "Échec de l’activation de Ledger Sync",
-        "description": "La connexion à Ledger Wallet, requise pour activer Ledger Sync, a échoué. Veuillez fermer cet onglet, ouvrir l’application Ledger Wallet (sur ordinateur ou mobile), activer Ledger Sync , puis rouvrir l’onglet.",
+        "description": "La connexion à Ledger Wallet, requise pour activer Ledger Sync, a échoué. Veuillez fermer cet onglet, ouvrir l’application Ledger Wallet (sur ordinateur ou mobile), activer Ledger Sync, puis rouvrir l’onglet.",
         "cta1": "Fermer cet onglet",
         "cta2": "Qu’est-ce que Ledger Sync ?"
       },
       "NoCompatibleAccounts": {
         "title": "Aucun compte compatible trouvé",
         "description": "Cette dApp prend en charge les réseaux suivants {networks}, sur lesquels vous n’avez aucun compte. Veuillez créer un nouveau compte via Ledger Wallet.",
-        "cta1": "Créer un compte via Ledger Wallet",
+        "cta1": "Créer un nouveau compte via Ledger Wallet",
         "cta2": "Utiliser un autre appareil Ledger"
       },
       "NoAccountInSync": {
