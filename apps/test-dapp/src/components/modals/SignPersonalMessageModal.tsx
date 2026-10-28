@@ -98,7 +98,7 @@ export function SignPersonalMessageModal({
         </label>
         <textarea
           ref={textareaRef}
-          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base font-mono placeholder:text-muted-subtle focus:outline-none focus:border-active resize-y"
+          className="w-full px-12 py-8 border border-muted rounded-lg body-2 bg-muted text-base placeholder:text-muted-subtle focus:outline-none focus:border-active resize-y"
           rows={3}
           placeholder="Enter your message..."
         />

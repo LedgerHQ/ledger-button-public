@@ -19,7 +19,7 @@ import {
 
 const transactionItemVariants = cva([
   "flex min-w-full items-center justify-between p-8",
-  "bg-base-transparent transition duration-150 ease-in-out",
+  "bg-base-transparent transition duration-150",
 ]);
 
 const ALLOWED_EXPLORER_PROTOCOLS = new Set(["http:", "https:"]);

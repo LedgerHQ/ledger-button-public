@@ -2,6 +2,7 @@
 import storybook from "eslint-plugin-storybook";
 
 import baseConfig from "../../eslint.config.mjs";
+import { lumenTailwind } from "../../tools/eslint/lumen.mjs";
 
 export default [
   ...baseConfig,
@@ -30,4 +31,9 @@ export default [
     },
   },
   ...storybook.configs["flat/recommended"],
+  ...lumenTailwind({
+    entryPoint: "src/styles.css",
+    files: ["src/**/*.ts"],
+    ignoredClasses: ["lottie-container"],
+  }),
 ];

@@ -28,6 +28,7 @@
     "@eslint/compat": "catalog:",
     "@eslint/eslintrc": "catalog:",
     "@eslint/js": "catalog:",
+    "@ledgerhq/lumen-lint-plugin": "catalog:",
     "@lit/context": "catalog:",
     "@next/eslint-plugin-next": "catalog:",
     "@nx/devkit": "catalog:",

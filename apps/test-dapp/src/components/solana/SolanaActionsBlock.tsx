@@ -238,7 +238,7 @@ export function SolanaActionsBlock({
           title={actionTooltip(action.type)}
         >
           <span className="text-muted mb-6">{action.icon}</span>
-          <span className="body-2-semi-bold text-center text-base leading-tight">
+          <span className="body-2-semi-bold text-center text-base">
             {action.label}
           </span>
         </button>
@@ -253,7 +253,7 @@ export function SolanaActionsBlock({
     return (
       <div className="space-y-20">
         <div className="space-y-10">
-          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+          <h4 className="body-2-semi-bold text-muted uppercase">
             Solana Actions
           </h4>
           <div className="grid grid-cols-3 gap-10">
@@ -262,7 +262,7 @@ export function SolanaActionsBlock({
         </div>
 
         <div className="space-y-10">
-          <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+          <h4 className="body-2-semi-bold text-muted uppercase">
             Jupiter API (Swap)
           </h4>
           <p className="body-4 text-muted">
@@ -277,7 +277,7 @@ export function SolanaActionsBlock({
         {(result || error) && (
           <div className="border-muted space-y-10 border-t pt-16">
             <div className="flex items-center justify-between">
-              <h4 className="body-2-semi-bold text-muted tracking-wider uppercase">
+              <h4 className="body-2-semi-bold text-muted uppercase">
                 Last Result
               </h4>
               <Button appearance="gray" size="sm" onClick={onClearResult}>
@@ -286,12 +286,12 @@ export function SolanaActionsBlock({
             </div>
             {result && (
               <div className="bg-success-transparent border-success rounded-lg border p-12 break-all">
-                <code className="body-4 font-mono text-base">{result}</code>
+                <code className="body-4 text-base">{result}</code>
               </div>
             )}
             {error && (
               <div className="bg-error-transparent border-error rounded-lg border p-12 break-all">
-                <code className="body-4 text-error font-mono">{error}</code>
+                <code className="body-4 text-error">{error}</code>
               </div>
             )}
           </div>

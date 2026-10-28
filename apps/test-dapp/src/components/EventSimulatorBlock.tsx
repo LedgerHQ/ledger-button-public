@@ -171,7 +171,7 @@ export function EventSimulatorBlock({
             <div className="space-y-10">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-8">
-                  <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+                  <h4 className="body-2-semi-bold text-muted uppercase">
                     {activeScenario}
                   </h4>
                   <span className="body-4 text-muted">
@@ -229,7 +229,7 @@ export function EventSimulatorBlock({
                         <DeleteCircle size={16} />
                       )}
                     </span>
-                    <span className="body-4 font-mono text-base flex-1">
+                    <span className="body-4 text-base flex-1">
                       {r.type}
                     </span>
                     {r.message && (

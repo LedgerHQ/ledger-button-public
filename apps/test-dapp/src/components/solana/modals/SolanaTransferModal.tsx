@@ -92,14 +92,12 @@ export function SolanaTransferModal({
       <p className="body-4 text-muted">
         1 SOL = 1,000,000,000 lamports. On devnet you can request an airdrop
         with{" "}
-        <span className="font-mono">
-          solana airdrop 1 &lt;pubkey&gt; --url devnet
-        </span>
+        <span>solana airdrop 1 &lt;pubkey&gt; --url devnet</span>
         .
       </p>
       {error && (
         <div className="bg-error-transparent border-error rounded-lg border p-12">
-          <code className="body-4 text-error font-mono">{error}</code>
+          <code className="body-4 text-error">{error}</code>
         </div>
       )}
       <Button appearance="accent" size="md" isFull onClick={handleSubmit}>

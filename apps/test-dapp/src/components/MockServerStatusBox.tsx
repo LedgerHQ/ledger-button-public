@@ -20,7 +20,7 @@ function CopyableField({ label, value }: { label: string; value: string }) {
     <div className="pt-14 border-t border-muted">
       <span className="body-2 text-muted block mb-4">{label}</span>
       <div className="flex items-start justify-between gap-8">
-        <span className="body-2-semi-bold text-base font-mono break-all">
+        <span className="body-2-semi-bold text-base break-all">
           {value}
         </span>
         <button
@@ -52,7 +52,7 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
       <div className="border border-dashed border-muted rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
           <div className="size-10 rounded-full bg-muted" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <span className="body-2-semi-bold text-muted uppercase">
             Device Mock Server
           </span>
         </div>
@@ -70,8 +70,8 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
     return (
       <div className="border border-muted rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
-          <div className="size-10 rounded-full bg-warning-transparent animate-pulse" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <div className="size-10 rounded-full bg-warning-transparent" />
+          <span className="body-2-semi-bold text-muted uppercase">
             Device Mock Server
           </span>
         </div>
@@ -85,13 +85,13 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
       <div className="border border-error rounded-lg p-20 bg-canvas">
         <div className="flex items-center gap-10 mb-12">
           <div className="size-10 rounded-full bg-error-transparent" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <span className="body-2-semi-bold text-muted uppercase">
             Device Mock Server
           </span>
         </div>
         <p className="body-2 text-error mb-4">Connection failed</p>
         {error && (
-          <p className="body-4 text-muted font-mono mb-14 break-all">
+          <p className="body-4 text-muted mb-14 break-all">
             {error}
           </p>
         )}
@@ -110,7 +110,7 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
       <div className="flex items-center justify-between mb-14">
         <div className="flex items-center gap-10">
           <div className="size-10 rounded-full bg-success-transparent" />
-          <span className="body-2-semi-bold text-muted uppercase tracking-wider">
+          <span className="body-2-semi-bold text-muted uppercase">
             Device Mock Server
           </span>
         </div>
@@ -128,7 +128,7 @@ export function MockServerStatusBox({ mockServer }: MockServerStatusBoxProps) {
           <span className="transition-transform group-open:rotate-90">▶</span>
           Device Config
         </summary>
-        <div className="mt-10 space-y-6 body-4 font-mono text-base">
+        <div className="mt-10 space-y-6 body-4 text-base">
           <p>
             <span className="text-muted">Name:</span>{" "}
             {flex.name}

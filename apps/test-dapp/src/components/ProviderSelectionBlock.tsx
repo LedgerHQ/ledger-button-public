@@ -75,7 +75,7 @@ export function ProviderSelectionBlock({
 
         {providers.length > 0 ? (
           <div className="space-y-12">
-            <h4 className="body-2-semi-bold text-muted uppercase tracking-wider">
+            <h4 className="body-2-semi-bold text-muted uppercase">
               Available Providers ({providers.length})
             </h4>
             <div className="space-y-10">
@@ -107,7 +107,7 @@ export function ProviderSelectionBlock({
                         <span className="body-2-semi-bold text-base">
                           {provider.info.name}
                         </span>
-                        <span className="body-4 text-muted font-mono">
+                        <span className="body-4 text-muted">
                           {provider.info.rdns ||
                             provider.info.uuid.slice(0, 8)}
                         </span>

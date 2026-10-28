@@ -196,7 +196,7 @@ export default function XrpPage() {
           <div className="flex flex-col gap-20">
             <div className="border-muted bg-canvas rounded-lg border p-20">
               <div className="mb-14 flex items-center justify-between">
-                <span className="body-2-semi-bold text-muted tracking-wider uppercase">
+                <span className="body-2-semi-bold text-muted uppercase">
                   Wallet
                 </span>
                 <Tag
@@ -208,7 +208,7 @@ export default function XrpPage() {
               {address ? (
                 <>
                   <span className="body-2 text-muted mb-4 block">Address</span>
-                  <span className="body-2-semi-bold mb-14 block font-mono text-base break-all">
+                  <span className="body-2-semi-bold mb-14 block text-base break-all">
                     {address}
                   </span>
                   <Button
