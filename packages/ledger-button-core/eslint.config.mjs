@@ -25,7 +25,7 @@ export default [
                 "Import paths should not start with 'src/'. Use relative imports instead.",
             },
             {
-              group: ["@internal/**", "../internal/**", "../../internal/**"],
+              regex: "^(@internal/|(\\.\\./)+internal/)",
               allowTypeImports: true,
               message:
                 "`api/` must not import runtime code from `internal/`. Use `import type`, or move the shared type into `api/`.",
