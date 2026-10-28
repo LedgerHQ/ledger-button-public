@@ -1,3 +1,7 @@
+## 2.0.3 (2026-10-28)
+
+This was a version bump only for @ledgerhq/ledger-wallet-provider-core to align it with other projects, there were no code changes.
+
 ## 2.0.2 (2026-10-14)
 
 This was a version bump only for @ledgerhq/ledger-wallet-provider-core to align it with other projects, there were no code changes.

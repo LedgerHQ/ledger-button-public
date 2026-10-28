@@ -1,3 +1,14 @@
+## 2.0.3 (2026-10-28)
+
+### 🩹 Fixes
+
+- Fix the EVM and Solana providers staying "busy" forever after a failed sign request is dismissed: closing the error screen now rejects the pending request with a user rejection instead of leaving it unsettled ([234f9fdb](https://github.com/LedgerHQ/ledger-button/commit/234f9fdb))
+
+### ❤️ Thank You
+
+- Claude Sonnet 5.5
+- pdeville-ledger
+
 ## 2.0.2 (2026-10-14)
 
 ### 🩹 Fixes
