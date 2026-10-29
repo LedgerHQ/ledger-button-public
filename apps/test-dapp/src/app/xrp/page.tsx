@@ -13,6 +13,7 @@ import {
   DeviceScreen,
   MockServerStatusBox,
 } from "../../components";
+import { useMockServerContext } from "../../components/MockServerProvider";
 import {
   buildMessageProofTransaction,
   buildPayment,
@@ -20,7 +21,6 @@ import {
   submitTransaction,
   XrpActionsBlock,
 } from "../../components/xrp";
-import { useMockServer } from "../../hooks/useMockServer";
 import { useProviders } from "../../hooks/useProviders";
 
 const REQUEST_PROVIDER_EVENT = "ledger-xrpl:requestProvider";
@@ -42,8 +42,8 @@ function errorMessage(error: unknown): string {
 }
 
 export default function XrpPage() {
-  const { reinitialize, isInitialized } = useProviders();
-  const mockServer = useMockServer(reinitialize);
+  const { isInitialized } = useProviders();
+  const mockServer = useMockServerContext();
 
   const [provider, setProvider] = useState<XrpProviderDetail | null>(null);
   const [address, setAddress] = useState<string | null>(null);
