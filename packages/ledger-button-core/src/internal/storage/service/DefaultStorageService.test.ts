@@ -3,13 +3,13 @@ import "fake-indexeddb/auto";
 import { Either, Just, Left, Maybe, Nothing, Right } from "purify-ts";
 
 import type { Account } from "@api/model/Account";
+import { type LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
-import { STORAGE_KEYS } from "./model/constant";
-import { StorageIDBGetError } from "./model/errors";
-import { type UserConsent } from "./model/UserConsent";
-import { type IndexedDbService } from "./service/IndexedDbService";
-import { type LoggerPublisher } from "../logger/service/LoggerPublisher";
+import { STORAGE_KEYS } from "../model/constant";
+import { StorageIDBGetError } from "../model/errors";
+import { type UserConsent } from "../model/UserConsent";
 import { DefaultStorageService } from "./DefaultStorageService";
+import { type IndexedDbService } from "./IndexedDbService";
 
 let mockLogger: LoggerPublisher;
 let storageService: DefaultStorageService;

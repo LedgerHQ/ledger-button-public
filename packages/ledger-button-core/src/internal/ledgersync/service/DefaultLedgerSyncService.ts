@@ -48,7 +48,7 @@ import type { DeviceManagementKitService } from "@internal/device/service/Device
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "@internal/storage/di/storageModuleTypes";
-import type { StorageService } from "@internal/storage/StorageService";
+import type { StorageService } from "@internal/storage/service/StorageService";
 
 import { LedgerSyncAuthContextMissingError } from "../model/errors";
 import { InternalAuthContext } from "../model/InternalAuthContext";

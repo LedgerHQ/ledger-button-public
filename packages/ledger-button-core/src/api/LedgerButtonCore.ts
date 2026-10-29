@@ -104,7 +104,7 @@ import { IsSupportedPlatformUseCase } from "../internal/platform/use-case/IsSupp
 import { storageModuleTypes } from "../internal/storage/di/storageModuleTypes";
 import type { ConfigOverrides } from "../internal/storage/model/ConfigOverrides";
 import type { FeatureFlags } from "../internal/storage/model/FeatureFlags";
-import { type StorageService } from "../internal/storage/StorageService";
+import { type StorageService } from "../internal/storage/service/StorageService";
 import { MigrateDbUseCase } from "../internal/storage/use-case/MigrateDbUseCase";
 
 export type LedgerButtonCoreOptions = ContainerOptions;

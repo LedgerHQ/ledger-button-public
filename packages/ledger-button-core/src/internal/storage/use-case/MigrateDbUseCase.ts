@@ -7,7 +7,7 @@ import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { storageModuleTypes } from "../di/storageModuleTypes";
 import type { AccountDbModel } from "../model/accountDbModel";
 import { STORAGE_KEYS } from "../model/constant";
-import type { StorageService } from "../StorageService";
+import type { StorageService } from "../service/StorageService";
 import type { KeyPairMigrationService } from "./KeypairMigrationService";
 
 @injectable()
