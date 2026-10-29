@@ -28,10 +28,13 @@ export function XrpActionsBlock({
   const [message, setMessage] = useState("Hello from Ledger Button");
 
   const values: PaymentValues = {
-    destination: destination || (address ?? ""),
+    destination: destination.trim(),
     amountDrops,
   };
   const disabled = !address || isBusy;
+  // XRPL rejects a Payment to its own sender with temREDUNDANT.
+  const isOwnAddress = values.destination === address;
+  const paymentDisabled = disabled || values.destination === "" || isOwnAddress;
 
   return (
     <>
@@ -44,15 +47,19 @@ export function XrpActionsBlock({
           broadcasts a real transaction.
         </p>
 
-        <label className="body-2 text-muted mb-4 block">
-          Destination (defaults to your own address)
-        </label>
+        <label className="body-2 text-muted mb-4 block">Destination</label>
         <input
           className={INPUT_CLASS}
           value={destination}
-          placeholder={address ?? "Connect first"}
+          placeholder="r..."
           onChange={(event) => setDestination(event.target.value)}
         />
+        {isOwnAddress && (
+          <p className="body-2 text-error mt-4">
+            The destination must differ from your own address: XRPL rejects a
+            payment to yourself (temREDUNDANT).
+          </p>
+        )}
 
         <label className="body-2 text-muted mt-12 mb-4 block">
           Amount (drops, 1 XRP = 1,000,000)
@@ -68,7 +75,7 @@ export function XrpActionsBlock({
           <Button
             appearance="accent"
             size="md"
-            disabled={disabled}
+            disabled={paymentDisabled}
             onClick={() => onSign(values)}
           >
             Sign
@@ -76,7 +83,7 @@ export function XrpActionsBlock({
           <Button
             appearance="red"
             size="md"
-            disabled={disabled}
+            disabled={paymentDisabled}
             onClick={() => onSignAndSubmit(values)}
           >
             Sign &amp; submit
