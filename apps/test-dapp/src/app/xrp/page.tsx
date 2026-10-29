@@ -79,14 +79,30 @@ export default function XrpPage() {
   useEffect(() => {
     if (!provider) return;
 
+    // Events only report later changes: read the current account too, unless
+    // an event or the cleanup got there first.
+    let isStale = false;
+    setAddress(null);
+
     const onAccountChanged = (data: unknown) => {
+      isStale = true;
       const account = data as XrpAccountInfo | null;
       setAddress(account?.address ?? null);
       log("info", "accountChanged", account);
     };
     provider.provider.on("accountChanged", onAccountChanged);
 
+    void provider.provider
+      .getAccount()
+      .then((account) => {
+        if (!isStale) setAddress(account?.address ?? null);
+      })
+      .catch((error: unknown) => {
+        log("error", "getAccount", errorMessage(error));
+      });
+
     return () => {
+      isStale = true;
       provider.provider.off("accountChanged", onAccountChanged);
     };
   }, [provider, log]);
