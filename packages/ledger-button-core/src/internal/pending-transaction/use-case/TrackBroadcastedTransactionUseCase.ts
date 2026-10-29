@@ -14,7 +14,7 @@ import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { type ContextService } from "@internal/context/service/ContextService";
-import { formatBalance } from "@internal/currency/currencyUtils";
+import { formatBalance } from "@internal/currency/utils/currencyUtils";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 

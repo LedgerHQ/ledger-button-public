@@ -8,7 +8,7 @@ import type { EventRequest } from "@internal/backend/model/trackEvent";
 import { EventType } from "@internal/backend/model/trackEvent";
 import type { Config } from "@internal/config/model/config";
 import type { ContextService } from "@internal/context/service/ContextService";
-import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/constant";
+import { DEFAULT_FIAT_CURRENCY } from "@internal/currency/model/constant";
 
 import { DefaultEventTrackingService } from "./DefaultEventTrackingService";
 
