@@ -7,7 +7,7 @@ import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { Config } from "@internal/config/model/config";
 import { networkModuleTypes } from "@internal/network/di/networkModuleTypes";
 import type { NetworkServiceOpts } from "@internal/network/model/types";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 
 import type { CoinServiceDataSource } from "./CoinServiceDataSource";
 import {

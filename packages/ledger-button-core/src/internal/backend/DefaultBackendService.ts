@@ -8,7 +8,7 @@ import { configModuleTypes } from "../config/di/configModuleTypes";
 import { Config } from "../config/model/config";
 import { networkModuleTypes } from "../network/di/networkModuleTypes";
 import type { NetworkServiceOpts } from "../network/model/types";
-import type { NetworkService } from "../network/NetworkService";
+import type { NetworkService } from "../network/service/NetworkService";
 import type { BackendService } from "./BackendService";
 import { ConfigResponseSchema } from "./schemas";
 import type {

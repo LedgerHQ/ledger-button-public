@@ -2,7 +2,7 @@ import { Left, Right } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Config } from "@internal/config/model/config";
-import type { NetworkService } from "@internal/network/NetworkService";
+import type { NetworkService } from "@internal/network/service/NetworkService";
 
 import { DefaultFiatCurrencyDataSource } from "./DefaultFiatCurrencyDataSource";
 import type { FiatCurrency } from "./fiatCurrencyTypes";

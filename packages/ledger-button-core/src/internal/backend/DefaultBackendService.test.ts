@@ -5,7 +5,7 @@ import {
   type EventResponse,
   EventType,
 } from "./model/trackEvent";
-import type { NetworkService } from "../network/NetworkService";
+import type { NetworkService } from "../network/service/NetworkService";
 import { DefaultBackendService } from "./DefaultBackendService";
 import type { BroadcastRequest } from "./types";
 
