@@ -6,7 +6,7 @@ import { type Factory, inject, injectable } from "inversify";
 
 import { cryptographicModuleTypes } from "@internal/cryptographic/di/cryptographicModuleTypes";
 import type { EncryptKeyPairUseCase } from "@internal/cryptographic/use-case/EncryptKeyPairUseCase";
-import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/GetEncryptionKey";
+import type { GetEncryptionKeyUseCase } from "@internal/cryptographic/use-case/GetEncryptionKeyUseCase";
 import type { GetOrCreateKeyPairUseCase } from "@internal/cryptographic/use-case/GetOrCreateKeyPairUseCase";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";

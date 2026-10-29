@@ -15,7 +15,7 @@ import {
   mockNanoSDevice,
   mockUsbDevice,
 } from "../__tests__/mocks";
-import { ConnectDevice } from "./ConnectDevice";
+import { ConnectDeviceUseCase } from "./ConnectDeviceUseCase";
 
 function mockOnboardedOsVersionResult(isOnboarded: boolean) {
   return {
@@ -27,7 +27,7 @@ function mockOnboardedOsVersionResult(isOnboarded: boolean) {
 }
 
 describe("ConnectDevice", () => {
-  let connectDevice: ConnectDevice;
+  let connectDevice: ConnectDeviceUseCase;
   let mockDeviceManagementKitService: ReturnType<
     typeof createMockDeviceManagementKitService
   >;
@@ -35,7 +35,7 @@ describe("ConnectDevice", () => {
   beforeEach(() => {
     mockDeviceManagementKitService = createMockDeviceManagementKitService();
 
-    connectDevice = new ConnectDevice(
+    connectDevice = new ConnectDeviceUseCase(
       createMockLoggerFactory(),
       asMockService(mockDeviceManagementKitService),
     );

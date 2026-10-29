@@ -15,7 +15,7 @@ import { cryptographicModuleTypes } from "../di/cryptographicModuleTypes";
 import { DecryptKeyPairUseCase } from "./DecryptKeyPairUseCase";
 import { EncryptKeyPairUseCase } from "./EncryptKeyPairUseCase";
 import { GenerateKeyPairUseCase } from "./GenerateKeyPairUseCase";
-import { GetEncryptionKeyUseCase } from "./GetEncryptionKey";
+import { GetEncryptionKeyUseCase } from "./GetEncryptionKeyUseCase";
 
 @injectable()
 export class GetOrCreateKeyPairUseCase {

@@ -5,20 +5,22 @@ import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
-import { type ContextService } from "@internal/context/ContextService";
+import type { ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils } from "../EventTrackingUtils";
+import { EventTrackingUtils, stringToSha256 } from "../EventTrackingUtils";
 import { resolveTrackedChainId } from "../resolveTrackedChainId";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
-@injectable()
-export class TrackViewTransactionDetailsClick {
-  private readonly logger: LoggerPublisher;
+// Typed messages are EIP-712, only signed through the EVM provider.
+const EVM_FAMILY: BlockchainFamily = "ethereum";
 
+@injectable()
+export class TrackTypedMessageCompletedUseCase {
+  private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
     loggerFactory: Factory<LoggerPublisher>,
@@ -31,30 +33,29 @@ export class TrackViewTransactionDetailsClick {
     @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
     private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
-    this.logger = loggerFactory("TrackViewTransactionDetailsClick UseCase");
+    this.logger = loggerFactory("TrackTypedMessageCompleted UseCase");
   }
 
-  async execute(
-    transactionHash: string,
-    family: BlockchainFamily,
-  ): Promise<void> {
+  async execute(typedData: unknown): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
+
+    const typedMessageHash = stringToSha256(JSON.stringify(typedData));
     const context = this.contextService.getContext();
 
-    const event = EventTrackingUtils.createViewTransactionDetailsClickedEvent({
+    const event = EventTrackingUtils.createTypedMessageFlowCompletionEvent({
       dAppId: this.config.dAppIdentifier,
-      sessionId,
+      sessionId: sessionId,
       trustChainId: context.trustChainId,
-      family,
+      typedMessageHash: typedMessageHash,
+      family: EVM_FAMILY,
       chainId: resolveTrackedChainId(
         context,
-        family,
+        EVM_FAMILY,
         this.blockchainProviderManager,
       ),
-      transactionHash,
     });
 
-    this.logger.debug("Tracking view transaction details click event", {
+    this.logger.debug("Tracking typed message flow completion event", {
       event,
     });
 

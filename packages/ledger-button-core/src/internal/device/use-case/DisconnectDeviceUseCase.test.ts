@@ -5,10 +5,10 @@ import {
   createMockDeviceManagementKitService,
   createMockLoggerFactory,
 } from "../__tests__/mocks";
-import { DisconnectDevice } from "./DisconnectDevice";
+import { DisconnectDeviceUseCase } from "./DisconnectDeviceUseCase";
 
 describe("DisconnectDevice", () => {
-  let disconnectDevice: DisconnectDevice;
+  let disconnectDevice: DisconnectDeviceUseCase;
   let mockDeviceManagementKitService: ReturnType<
     typeof createMockDeviceManagementKitService
   >;
@@ -16,7 +16,7 @@ describe("DisconnectDevice", () => {
   beforeEach(() => {
     mockDeviceManagementKitService = createMockDeviceManagementKitService();
 
-    disconnectDevice = new DisconnectDevice(
+    disconnectDevice = new DisconnectDeviceUseCase(
       createMockLoggerFactory(),
       asMockService(mockDeviceManagementKitService),
     );

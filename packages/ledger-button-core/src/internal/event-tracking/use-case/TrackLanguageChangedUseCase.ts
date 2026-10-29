@@ -10,7 +10,7 @@ import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
 @injectable()
-export class TrackLanguageChanged {
+export class TrackLanguageChangedUseCase {
   private readonly logger: LoggerPublisher;
 
   constructor(

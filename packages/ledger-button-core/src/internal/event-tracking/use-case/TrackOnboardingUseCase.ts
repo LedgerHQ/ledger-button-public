@@ -1,25 +1,22 @@
 import { type Factory, inject, injectable } from "inversify";
 
 import type { BlockchainFamily } from "@api/blockchain-provider/model/types";
+import type { Account } from "@api/model/Account";
 import { blockchainProviderModuleTypes } from "@internal/blockchain-provider/di/blockchainProviderModuleTypes";
 import type { BlockchainProviderManager } from "@internal/blockchain-provider/service/BlockchainProviderManager";
 import { configModuleTypes } from "@internal/config/di/configModuleTypes";
 import { type Config } from "@internal/config/model/config";
-import type { ContextService } from "@internal/context/ContextService";
+import { type ContextService } from "@internal/context/ContextService";
 import { contextModuleTypes } from "@internal/context/di/contextModuleTypes";
 import { loggerModuleTypes } from "@internal/logger/di/loggerModuleTypes";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { eventTrackingModuleTypes } from "../di/eventTrackingModuleTypes";
-import { EventTrackingUtils, stringToSha256 } from "../EventTrackingUtils";
-import { resolveTrackedChainId } from "../resolveTrackedChainId";
+import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
 
-// Typed messages are EIP-712, only signed through the EVM provider.
-const EVM_FAMILY: BlockchainFamily = "ethereum";
-
 @injectable()
-export class TrackTypedMessageStarted {
+export class TrackOnboardingUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)
@@ -33,31 +30,37 @@ export class TrackTypedMessageStarted {
     @inject(blockchainProviderModuleTypes.BlockchainProviderManager)
     private readonly blockchainProviderManager: BlockchainProviderManager,
   ) {
-    this.logger = loggerFactory("TrackTypedMessageStarted UseCase");
+    this.logger = loggerFactory("TrackOnboarding UseCase");
   }
 
-  async execute(typedData: unknown): Promise<void> {
+  async execute(
+    selectedAccount: Account,
+    family: BlockchainFamily,
+  ): Promise<void> {
     const sessionId = this.eventTrackingService.getSessionId();
+    const trustChainId = this.contextService.getContext().trustChainId;
 
-    const typedMessageHash = stringToSha256(JSON.stringify(typedData));
-    const context = this.contextService.getContext();
+    const { currencyId } = selectedAccount;
+    const chainId = this.blockchainProviderManager
+      .describeCurrency(currencyId)
+      .map((currency) => currency.networkId)
+      .extractNullable();
 
-    const event = EventTrackingUtils.createTypedMessageFlowInitializationEvent({
+    if (chainId === null) {
+      this.logger.warn("No currency descriptor for onboarding chain_id", {
+        currencyId,
+      });
+    }
+
+    const event = EventTrackingUtils.createOnboardingEvent({
       dAppId: this.config.dAppIdentifier,
       sessionId: sessionId,
-      trustChainId: context.trustChainId,
-      typedMessageHash: typedMessageHash,
-      family: EVM_FAMILY,
-      chainId: resolveTrackedChainId(
-        context,
-        EVM_FAMILY,
-        this.blockchainProviderManager,
-      ),
+      trustChainId: trustChainId,
+      family,
+      chainId,
     });
 
-    this.logger.debug("Tracking typed message flow initialization event", {
-      event,
-    });
+    this.logger.debug("Tracking ledger sync activated event", { event });
 
     await this.eventTrackingService.trackEvent(event);
   }

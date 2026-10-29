@@ -126,8 +126,8 @@ describe("LedgerButtonCore", () => {
       [deviceModuleTypes.DeviceManagementKitService, deviceService],
       [deviceModuleTypes.ConnectDeviceUseCase, connectDevice],
       [deviceModuleTypes.DisconnectDeviceUseCase, disconnectDevice],
-      [eventTrackingModuleTypes.TrackLedgerSyncOpened, trackOpened],
-      [eventTrackingModuleTypes.TrackLedgerSyncActivated, trackActivated],
+      [eventTrackingModuleTypes.TrackLedgerSyncOpenedUseCase, trackOpened],
+      [eventTrackingModuleTypes.TrackLedgerSyncActivatedUseCase, trackActivated],
       [
         blockchainProviderModuleTypes.BlockchainProviderManager,
         blockchainProviderManager,

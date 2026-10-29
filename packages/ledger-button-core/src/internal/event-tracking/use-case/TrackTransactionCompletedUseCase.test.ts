@@ -13,7 +13,7 @@ import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import { EventTrackingUtils } from "../EventTrackingUtils";
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackTransactionCompleted } from "./TrackTransactionCompleted";
+import { TrackTransactionCompletedUseCase } from "./TrackTransactionCompletedUseCase";
 
 const polygonAccount: Account = {
   id: "acc-pol",
@@ -44,7 +44,7 @@ const solanaAccount: Account = {
 describe("TrackTransactionCompleted", () => {
   let mockEventTrackingService: EventTrackingService;
   let mockBlockchainProviderManager: BlockchainProviderManager;
-  let useCase: TrackTransactionCompleted;
+  let useCase: TrackTransactionCompletedUseCase;
 
   const trackedEvents = (): EventRequest[] =>
     vi.mocked(mockEventTrackingService.trackEvent).mock.calls.map(
@@ -63,7 +63,7 @@ describe("TrackTransactionCompleted", () => {
       describeCurrency: vi.fn(),
     } as unknown as BlockchainProviderManager;
 
-    useCase = new TrackTransactionCompleted(
+    useCase = new TrackTransactionCompletedUseCase(
       () =>
         ({
           debug: vi.fn(),

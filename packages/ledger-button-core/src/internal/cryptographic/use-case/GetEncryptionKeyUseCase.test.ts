@@ -3,7 +3,7 @@ import { Just, Nothing } from "purify-ts";
 import { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 import { StorageService } from "@internal/storage/StorageService";
 
-import { GetEncryptionKeyUseCase } from "./GetEncryptionKey";
+import { GetEncryptionKeyUseCase } from "./GetEncryptionKeyUseCase";
 
 const GENERATE_KEY_PARAMS = {
   algorithm: {

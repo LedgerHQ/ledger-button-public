@@ -9,7 +9,7 @@ import type { ContextService } from "@internal/context/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackOnboarding } from "./TrackOnboarding";
+import { TrackOnboardingUseCase } from "./TrackOnboardingUseCase";
 
 const selectedAccount: Account = {
   id: "acc-1",
@@ -30,7 +30,7 @@ describe("TrackOnboarding", () => {
   let mockConfig: Config;
   let mockContextService: ContextService;
   let mockBlockchainProviderManager: BlockchainProviderManager;
-  let useCase: TrackOnboarding;
+  let useCase: TrackOnboardingUseCase;
 
   beforeEach(() => {
     mockLogger = {
@@ -59,7 +59,7 @@ describe("TrackOnboarding", () => {
       describeCurrency: vi.fn(),
     } as unknown as BlockchainProviderManager;
 
-    useCase = new TrackOnboarding(
+    useCase = new TrackOnboardingUseCase(
       () => mockLogger,
       mockEventTrackingService,
       mockConfig,

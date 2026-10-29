@@ -10,7 +10,7 @@ import type { ContextService } from "@internal/context/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackTransactionStarted } from "./TrackTransactionStarted";
+import { TrackTypedMessageStartedUseCase } from "./TrackTypedMessageStartedUseCase";
 
 const polygonAccount: Account = {
   id: "acc-pol",
@@ -25,24 +25,10 @@ const polygonAccount: Account = {
   tokens: [],
 };
 
-const solanaAccount: Account = {
-  id: "acc-sol",
-  currencyId: "solana",
-  freshAddress: "SoLAddress",
-  seedIdentifier: "seed",
-  derivationMode: "default",
-  index: 0,
-  name: "Solana Account",
-  ticker: "SOL",
-  balance: "1.0",
-  tokens: [],
-};
-
-describe("TrackTransactionStarted", () => {
+describe("TrackTypedMessageStarted", () => {
   let mockEventTrackingService: EventTrackingService;
-  let mockContextService: ContextService;
   let mockBlockchainProviderManager: BlockchainProviderManager;
-  let useCase: TrackTransactionStarted;
+  let useCase: TrackTypedMessageStartedUseCase;
 
   beforeEach(() => {
     mockEventTrackingService = {
@@ -50,38 +36,36 @@ describe("TrackTransactionStarted", () => {
       trackEvent: vi.fn().mockResolvedValue(undefined),
     };
 
-    mockContextService = {
-      getContext: vi.fn().mockReturnValue({
-        trustChainId: "trust-chain",
-        selectedAccounts: new Map<BlockchainFamily, Account>([
-          ["ethereum", polygonAccount],
-          ["solana", solanaAccount],
-        ]),
-      }),
-    } as unknown as ContextService;
-
     mockBlockchainProviderManager = {
       describeCurrency: vi.fn(),
     } as unknown as BlockchainProviderManager;
 
-    useCase = new TrackTransactionStarted(
+    useCase = new TrackTypedMessageStartedUseCase(
       () =>
         ({
           debug: vi.fn(),
         }) as unknown as LoggerPublisher,
       mockEventTrackingService,
       { dAppIdentifier: "test-dapp" } as Config,
-      mockContextService,
+      {
+        getContext: vi.fn().mockReturnValue({
+          trustChainId: "trust-chain",
+          chainId: 1,
+          selectedAccounts: new Map<BlockchainFamily, Account>([
+            ["ethereum", polygonAccount],
+          ]),
+        }),
+      } as unknown as ContextService,
       mockBlockchainProviderManager,
     );
   });
 
-  it("sends the ethereum family with the network of the selected EVM account", async () => {
+  it("sends the network of the selected EVM account, not context.chainId", async () => {
     vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
       Just(aCurrencyDescriptor({ currencyId: "polygon", networkId: "137" })),
     );
 
-    await useCase.execute("ethereum");
+    await useCase.execute({ types: {}, domain: {}, message: {} });
 
     expect(mockBlockchainProviderManager.describeCurrency).toHaveBeenCalledWith(
       "polygon",
@@ -89,34 +73,9 @@ describe("TrackTransactionStarted", () => {
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
+          event_type: "typed_message_flow_initialization",
           blockchain_network_selected: "ethereum",
           chain_id: "137",
-        }),
-      }),
-    );
-  });
-
-  it("sends the solana family with the network of the selected solana account", async () => {
-    vi.mocked(mockBlockchainProviderManager.describeCurrency).mockReturnValue(
-      Just(
-        aCurrencyDescriptor({
-          currencyId: "solana",
-          family: "solana",
-          networkId: "mainnet",
-        }),
-      ),
-    );
-
-    await useCase.execute("solana");
-
-    expect(mockBlockchainProviderManager.describeCurrency).toHaveBeenCalledWith(
-      "solana",
-    );
-    expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          blockchain_network_selected: "solana",
-          chain_id: "mainnet",
         }),
       }),
     );

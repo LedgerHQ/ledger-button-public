@@ -10,7 +10,7 @@ import type { ContextService } from "@internal/context/ContextService";
 import type { LoggerPublisher } from "@internal/logger/service/LoggerPublisher";
 
 import type { EventTrackingService } from "../service/EventTrackingService";
-import { TrackTypedMessageStarted } from "./TrackTypedMessageStarted";
+import { TrackTypedMessageCompletedUseCase } from "./TrackTypedMessageCompletedUseCase";
 
 const polygonAccount: Account = {
   id: "acc-pol",
@@ -25,10 +25,10 @@ const polygonAccount: Account = {
   tokens: [],
 };
 
-describe("TrackTypedMessageStarted", () => {
+describe("TrackTypedMessageCompleted", () => {
   let mockEventTrackingService: EventTrackingService;
   let mockBlockchainProviderManager: BlockchainProviderManager;
-  let useCase: TrackTypedMessageStarted;
+  let useCase: TrackTypedMessageCompletedUseCase;
 
   beforeEach(() => {
     mockEventTrackingService = {
@@ -40,7 +40,7 @@ describe("TrackTypedMessageStarted", () => {
       describeCurrency: vi.fn(),
     } as unknown as BlockchainProviderManager;
 
-    useCase = new TrackTypedMessageStarted(
+    useCase = new TrackTypedMessageCompletedUseCase(
       () =>
         ({
           debug: vi.fn(),
@@ -73,7 +73,7 @@ describe("TrackTypedMessageStarted", () => {
     expect(mockEventTrackingService.trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          event_type: "typed_message_flow_initialization",
+          event_type: "typed_message_flow_completion",
           blockchain_network_selected: "ethereum",
           chain_id: "137",
         }),

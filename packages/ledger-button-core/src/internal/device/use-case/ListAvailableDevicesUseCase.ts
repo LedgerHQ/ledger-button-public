@@ -8,7 +8,7 @@ import { deviceModuleTypes } from "../di/deviceModuleTypes";
 import { type DeviceManagementKitService } from "../service/DeviceManagementKitService";
 
 @injectable()
-export class ListAvailableDevices {
+export class ListAvailableDevicesUseCase {
   private readonly logger: LoggerPublisher;
   constructor(
     @inject(loggerModuleTypes.LoggerPublisher)

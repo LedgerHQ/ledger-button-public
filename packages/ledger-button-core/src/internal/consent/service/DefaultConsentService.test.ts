@@ -1,8 +1,8 @@
 import { Maybe, Nothing } from "purify-ts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { TrackConsentGiven } from "@internal/event-tracking/use-case/TrackConsentGiven";
-import type { TrackConsentRemoved } from "@internal/event-tracking/use-case/TrackConsentRemoved";
+import type { TrackConsentGivenUseCase } from "@internal/event-tracking/use-case/TrackConsentGivenUseCase";
+import type { TrackConsentRemovedUseCase } from "@internal/event-tracking/use-case/TrackConsentRemovedUseCase";
 import type { UserConsent } from "@internal/storage/model/UserConsent";
 import type { StorageService } from "@internal/storage/StorageService";
 
@@ -41,8 +41,8 @@ describe("DefaultConsentService", () => {
 
     consentService = new DefaultConsentService(
       mockStorageService as unknown as StorageService,
-      mockTrackConsentGiven as unknown as TrackConsentGiven,
-      mockTrackConsentRemoved as unknown as TrackConsentRemoved,
+      mockTrackConsentGiven as unknown as TrackConsentGivenUseCase,
+      mockTrackConsentRemoved as unknown as TrackConsentRemovedUseCase,
     );
   });
 
